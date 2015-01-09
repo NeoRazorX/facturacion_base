@@ -1,0 +1,115 @@
+{include="header"}
+
+<script type="text/javascript">
+   function eliminar_fp(cod)
+   {
+      if( confirm("¿Realmente desea eliminar la forma de pago "+cod+"?") )
+         window.location.href = '{$fsc->url()}&delete='+cod;
+   }
+</script>
+
+<div class="container-fluid" style="margin-top: 10px;">
+   <div class="row">
+      <div class="col-md-6">
+         <div class="btn-group hidden-xs">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+            {if condition="$fsc->page->is_default()"}
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+               <span class="glyphicon glyphicon-home"></span>
+            </a>
+            {else}
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+               <span class="glyphicon glyphicon-home"></span>
+            </a>
+            {/if}
+         </div>
+         
+         <div class="btn-group">
+            {loop="$fsc->extensions"}
+               {if condition="$value->type=='button'"}
+               <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+               {/if}
+            {/loop}
+         </div>
+      </div>
+      <div class="col-md-6 text-right">
+         <h2 style="margin-top: 0px;">Formas de pago</h2>
+      </div>
+   </div>
+</div>
+
+<div class="table-responsive">
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th class="text-left">Código</th>
+            <th class="text-left">Descripción</th>
+            <th class="text-left">Generar recibos</th>
+            <th class="text-center">Domiciliado</th>
+            <th class="text-right" width="120">Acciones</th>
+         </tr>
+      </thead>
+      {loop="$fsc->forma_pago->all()"}
+      <form action="{$fsc->url()}" method="post" class="form" role="form">
+         <tr>
+            <td>
+               <input type="hidden" name="codpago" value="{$value->codpago}"/>
+               <div class="form-control">{$value->codpago}</div>
+            </td>
+            <td>
+               <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/>
+            </td>
+            <td>
+               <select name="genrecibos" class="form-control">
+                  <option value="Emitidos"{if condition="$value->genrecibos=='Emitidos'"} selected="selected"{/if}>Emitidos</option>
+                  <option value="Pagados"{if condition="$value->genrecibos=='Pagados'"} selected="selected"{/if}>Pagados</option>
+               </select>
+            </td>
+            <td class="text-center">
+               <input type="checkbox" name="domiciliado" value="TRUE"{if condition="$value->domiciliado"} checked="TRUE"{/if}/>
+            </td>
+            <td class="text-right">
+               <div class="btn-group">
+                  <a href="#" class="btn btn-sm btn-danger" onclick="eliminar_fp('{$value->codpago}')" title="Eliminar">
+                     <span class="glyphicon glyphicon-trash"></span>
+                  </a>
+                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                     <span class="glyphicon glyphicon-floppy-disk"></span>
+                  </button>
+               </div>
+            </td>
+         </tr>
+      </form>
+      {/loop}
+      <form action="{$fsc->url()}" method="post" class="form" role="form">
+         <tr class="bg-info">
+            <td>
+               <input class="form-control" type="text" name="codpago" autocomplete="off" placeholder="Nuevo código"/>
+            </td>
+            <td>
+               <input class="form-control" type="text" name="descripcion" autocomplete="off" placeholder="Nueva descripción"/>
+            </td>
+            <td>
+               <select name="genrecibos" class="form-control">
+                  <option value="Emitidos">Emitidos</option>
+                  <option value="Pagados">Pagados</option>
+               </select>
+            </td>
+            <td class="text-center">
+               <input type="checkbox" name="domiciliado" value="TRUE"/>
+            </td>
+            <td class="text-right">
+               <div class="btn-group">
+                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                     <span class="glyphicon glyphicon-floppy-disk"></span>
+                  </button>
+               </div>
+            </td>
+         </tr>
+      </form>
+   </table>
+</div>
+
+{include="footer"}
