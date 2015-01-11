@@ -64,9 +64,6 @@
             <a class="btn btn-sm btn-success" href="index.php?page=nueva_venta&tipo=albaran">
                <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
             </a>
-            <a class="btn btn-sm btn-default" href="index.php?page=ventas_agrupar_albaranes">
-               <span class="glyphicon glyphicon-tasks"></span> &nbsp; Agrupar
-            </a>
             {loop="$fsc->extensions"}
                {if condition="$value->type=='button'"}
                <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>

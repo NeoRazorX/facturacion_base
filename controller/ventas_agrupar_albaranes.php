@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -89,6 +89,8 @@ class ventas_agrupar_albaranes extends fs_controller
          else
             $this->new_message("Sin resultados.");
       }
+      else
+         $this->share_extensions();
    }
    
    private function agrupar()
@@ -338,5 +340,19 @@ class ventas_agrupar_albaranes extends fs_controller
       }
       
       $this->new_change('Factura Cliente '.$factura->codigo, $factura->url(), TRUE);
+   }
+   
+   private function share_extensions()
+   {
+      $extension = array(
+          'name' => 'agrupar_albaranes',
+          'page_from' => __CLASS__,
+          'page_to' => 'ventas_albaranes',
+          'type' => 'button',
+          'text' => '<span class="glyphicon glyphicon-tasks"></span> &nbsp; Agrupar',
+          'params' => ''
+      );
+      $fsext = new fs_extension($extension);
+      $fsext->save();
    }
 }

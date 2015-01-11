@@ -27,23 +27,49 @@
    });
 </script>
 
-<div class="modal fade" id="modal_nueva_cuenta">
-   <div class="modal-dialog">
-      <div class="modal-content">
-         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Nueva Cuenta</h4>
+<div class="container-fluid" style="margin-top: 10px;">
+   <div class="row">
+      <div class="col-md-5">
+         <div class="btn-group hidden-xs">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+            {if condition="$fsc->page->is_default()"}
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+               <span class="glyphicon glyphicon-home"></span>
+            </a>
+            {else}
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+               <span class="glyphicon glyphicon-home"></span>
+            </a>
+            {/if}
          </div>
-         <div class="media-body">
-            <p style="padding: 10px;">
-               Las cuentas contables pertenecen a un epígrafe, que pertenece a su vez a un grupo.
-               Para crear una nueva cuenta tienes que ir a grupos y navegar hasta el epígrafe
-               donde quieras crearla.
-            </p>
+         
+         <div class="btn-group">
+            <a id="b_nueva_cuenta" class="btn btn-sm btn-success" href="#">
+               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nueva...
+            </a>
+            {loop="$fsc->extensions"}
+               {if condition="$value->type=='button'"}
+               <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+               {/if}
+            {/loop}
          </div>
-         <div class="modal-footer">
-            <a class="btn btn-sm btn-primary" href="index.php?page=contabilidad_epigrafes">Grupos y epigrafe</a>
-         </div>
+      </div>
+      <div class="col-md-5">
+         <h2 style="margin-top: 0px;">Cuentas</h2>
+      </div>
+      <div class="col-md-2 col-sm-3 col-xs-12">
+         <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
+            <div class="input-group">
+               <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
+               <span class="input-group-btn">
+                  <button class="btn btn-primary" type="submit">
+                     <span class="glyphicon glyphicon-search"></span>
+                  </button>
+               </span>
+            </div>
+         </form>
       </div>
    </div>
 </div>
@@ -194,5 +220,26 @@
    </table>
 </div>
 {/if}
+
+<div class="modal fade" id="modal_nueva_cuenta">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Nueva Cuenta</h4>
+         </div>
+         <div class="media-body">
+            <p style="padding: 10px;">
+               Las cuentas contables pertenecen a un epígrafe, que pertenece a su vez a un grupo.
+               Para crear una nueva cuenta tienes que ir a grupos y navegar hasta el epígrafe
+               donde quieras crearla.
+            </p>
+         </div>
+         <div class="modal-footer">
+            <a class="btn btn-sm btn-primary" href="index.php?page=contabilidad_epigrafes">Grupos y epigrafe</a>
+         </div>
+      </div>
+   </div>
+</div>
 
 {include="footer"}
