@@ -161,7 +161,13 @@ class ventas_articulos extends fs_controller
       $extra = '';
       
       if( isset($_GET['publico']) )
+      {
          $extra = '&public=TRUE';
+      }
+      else if( isset($_GET['solo_stock']) )
+      {
+         $extra = '&solo_stock=TRUE';
+      }
       
       if($this->query!='' AND $this->offset>'0')
       {
@@ -182,7 +188,13 @@ class ventas_articulos extends fs_controller
       $extra = '';
       
       if( isset($_GET['publico']) )
+      {
          $extra = '&public=TRUE';
+      }
+      else if( isset($_GET['solo_stock']) )
+      {
+         $extra = '&solo_stock=TRUE';
+      }
       
       if($this->query!='' AND count($this->resultados)==FS_ITEM_LIMIT)
       {

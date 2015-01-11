@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'base/fs_pdf.php';
+require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_model('balance.php');
 require_model('cuenta.php');
 require_model('ejercicio.php');
