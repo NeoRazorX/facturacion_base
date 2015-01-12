@@ -41,6 +41,70 @@
    });
 </script>
 
+<div class="container-fluid" style="margin-top: 10px;">
+   <div class="row">
+      <div class="col-md-6">
+         <div class="btn-group hidden-xs">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+            {if condition="$fsc->page->is_default()"}
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+               <span class="glyphicon glyphicon-home"></span>
+            </a>
+            {else}
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+               <span class="glyphicon glyphicon-home"></span>
+            </a>
+            {/if}
+         </div>
+         
+         <div class="btn-group">
+            <a id="b_nueva_regiva" class="btn btn-sm btn-success" href="#">
+               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nueva
+            </a>
+            {loop="$fsc->extensions"}
+               {if condition="$value->type=='button'"}
+               <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+               {/if}
+            {/loop}
+         </div>
+      </div>
+      <div class="col-md-6 text-right">
+         <h2 style="margin-top: 0px;">Regularización de IVA</h2>
+      </div>
+   </div>
+</div>
+
+<div class="table-responsive">
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th class="text-left">Periodo@Ejercicio</th>
+            <th class="text-left">Fecha del asiento</th>
+            <th class="text-left">Fecha de inicio</th>
+            <th class="text-right">Fecha de fin</th>
+         </tr>
+      </thead>
+      {loop="$fsc->regiva->all()"}
+      <tr>
+         <td>
+            <a href="#" onclick="full_regiva('{$value->idregiva}')">
+               {$value->periodo}@{$value->codejercicio}
+            </a>
+         </td>
+         <td>{$value->fechaasiento}</td>
+         <td>{$value->fechainicio}</td>
+         <td class="text-right">{$value->fechafin}</td>
+      </tr>
+      {else}
+      <tr class="bg-warning">
+         <td colspan="4">Sin resultados. Pulsa el botón <b>Nueva</b> para hacer una regularización de IVA.</td>
+      </tr>
+      {/loop}
+   </table>
+</div>
+
 <form class="form-horizontal" role="form" name="f_nueva_regiva" action="{$fsc->url()}" method="post">
    <input type="hidden" name="proceso" value=""/>
    <div class="modal fade" id="modal_nueva_regiva">
@@ -90,35 +154,6 @@
    <div class="modal-dialog">
       <div class="modal-content" id="modal_full_regiva2"></div>
    </div>
-</div>
-
-<div class="table-responsive">
-   <table class="table table-hover">
-      <thead>
-         <tr>
-            <th class="text-left">Periodo@Ejercicio</th>
-            <th class="text-left">Fecha del asiento</th>
-            <th class="text-left">Fecha de inicio</th>
-            <th class="text-right">Fecha de fin</th>
-         </tr>
-      </thead>
-      {loop="$fsc->regiva->all()"}
-      <tr>
-         <td>
-            <a href="#" onclick="full_regiva('{$value->idregiva}')">
-               {$value->periodo}@{$value->codejercicio}
-            </a>
-         </td>
-         <td>{$value->fechaasiento}</td>
-         <td>{$value->fechainicio}</td>
-         <td class="text-right">{$value->fechafin}</td>
-      </tr>
-      {else}
-      <tr class="bg-warning">
-         <td colspan="4">Sin resultados. Pulsa el botón <b>Nueva</b> para hacer una regularización de IVA.</td>
-      </tr>
-      {/loop}
-   </table>
 </div>
 
 {include="footer"}
