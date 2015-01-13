@@ -27,6 +27,7 @@ class contabilidad_subcuenta extends fs_controller
    public $cuenta;
    public $divisa;
    public $ejercicio;
+   public $pdf_libromayor;
    public $resultados;
    public $subcuenta;
    public $offset;
@@ -42,7 +43,6 @@ class contabilidad_subcuenta extends fs_controller
       
       $subcuenta = new subcuenta();
       $this->subcuenta = FALSE;
-      
       if( isset($_GET['id']) )
       {
          $this->subcuenta = $subcuenta->get($_GET['id']);
@@ -73,18 +73,14 @@ class contabilidad_subcuenta extends fs_controller
             /// generamos el PDF del libro mayor si no existe
             $libro_mayor = new libro_mayor();
             $libro_mayor->libro_mayor($this->subcuenta);
+            header('Location: tmp/'.FS_TMP_NAME.'libro_mayor/'.$this->subcuenta->idsubcuenta.'.pdf');
          }
          
+         $this->pdf_libromayor = FALSE;
          if( file_exists('tmp/'.FS_TMP_NAME.'libro_mayor/'.$this->subcuenta->idsubcuenta.'.pdf') )
          {
-            
+            $this->pdf_libromayor = 'tmp/'.FS_TMP_NAME.'libro_mayor/'.$this->subcuenta->idsubcuenta.'.pdf';
          }
-         else
-         {
-            
-         }
-         
-         
          
          /// comprobamos la subcuenta
          $this->subcuenta->test();

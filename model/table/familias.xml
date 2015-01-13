@@ -15,6 +15,10 @@
       <tipo>character varying(4)</tipo>
       <nulo>NO</nulo>
    </columna>
+   <columna>
+      <nombre>madre</nombre>
+      <tipo>character varying(4)</tipo>
+   </columna>
    <restriccion>
       <nombre>familias_pkey</nombre>
       <consulta>PRIMARY KEY (codfamilia)</consulta>

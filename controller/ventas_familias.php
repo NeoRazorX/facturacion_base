@@ -62,6 +62,6 @@ class ventas_familias extends fs_controller
          $this->resultados = $this->familia->search($this->query);
       }
       else
-         $this->resultados = $this->familia->all();
+         $this->resultados = $this->familia->madres();
    }
 }

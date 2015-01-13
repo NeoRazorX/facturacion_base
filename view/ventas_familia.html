@@ -25,6 +25,19 @@
             </a>
             
             <div class="btn-group">
+               <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                  Subfamilias <span class="caret"></span>
+               </button>
+               <ul class="dropdown-menu" role="menu">
+                  {loop="$fsc->familia->hijas()"}
+                  <li><a href="{$value->url()}">{$value->descripcion}</a></li>
+                  {else}
+                  <li><a href="#">Ninguna</a></li>
+                  {/loop}
+               </ul>
+            </div>
+            
+            <div class="btn-group">
             {loop="$fsc->extensions"}
                {if condition="$value->type=='button'"}
                <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
@@ -44,10 +57,24 @@
          </div>
       </div>
       <div class="row">
-         <div class="col-lg-12">
+         <div class="col-md-8">
             <div class="form-group">
                Descripción:
                <input class="form-control" type="text" name="descripcion" value="{$fsc->familia->descripcion}" autocomplete="off"/>
+            </div>
+         </div>
+         <div class="col-md-4">
+            <div class="form-group">
+               Familia madre:
+               <select name="madre" class="form-control">
+                  <option value="---">Ninguna</option>
+                  <option value="---">-----</option>
+                  {loop="$fsc->familia->all()"}
+                     {if="$value->codfamilia!=$fsc->familia->codfamilia"}
+                     <option value="{$value->codfamilia}"{if="$fsc->familia->madre==$value->codfamilia"} selected="selected"{/if}>{$value->descripcion}</option>
+                     {/if}
+                  {/loop}
+               </select>
             </div>
          </div>
       </div>

@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -19,7 +19,6 @@
 
 require_once 'base/fs_model.php';
 require_model('articulo.php');
-require_model('proveedor.php');
 
 /**
  * Una familia de artículos (el equivalente a la marca del artículo).
@@ -28,8 +27,7 @@ class familia extends fs_model
 {
    public $codfamilia;
    public $descripcion;
-   
-   public $stats;
+   public $madre;
    
    public function __construct($f=FALSE)
    {
@@ -38,20 +36,19 @@ class familia extends fs_model
       {
          $this->codfamilia = $f['codfamilia'];
          $this->descripcion = $f['descripcion'];
+         
+         $this->madre = NULL;
+         if( isset($f['madre']) )
+         {
+            $this->madre = $f['madre'];
+         }
       }
       else
       {
          $this->codfamilia = NULL;
          $this->descripcion = '';
+         $this->madre = NULL;
       }
-      
-      $this->stats = array(
-          'articulos' => 0,
-          'con_stock' => 0,
-          'bloqueados' => 0,
-          'publicos' => 0,
-          'factualizado' => Date('d-m-Y', strtotime(0) )
-      );
    }
    
    protected function install()
@@ -63,7 +60,9 @@ class familia extends fs_model
    public function url()
    {
       if( is_null($this->codfamilia) )
+      {
          return "index.php?page=ventas_familias";
+      }
       else
          return "index.php?page=ventas_familia&cod=".$this->codfamilia;
    }
@@ -77,7 +76,9 @@ class familia extends fs_model
    {
       $f = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codfamilia = ".$this->var2str($cod).";");
       if($f)
+      {
          return new familia($f[0]);
+      }
       else
          return FALSE;
    }
@@ -91,10 +92,11 @@ class familia extends fs_model
    public function exists()
    {
       if( is_null($this->codfamilia) )
+      {
          return FALSE;
+      }
       else
-         return $this->db->select("SELECT * FROM ".$this->table_name."
-            WHERE codfamilia = ".$this->var2str($this->codfamilia).";");
+         return $this->db->select("SELECT * FROM ".$this->table_name." WHERE codfamilia = ".$this->var2str($this->codfamilia).";");
    }
    
    public function test()
@@ -105,9 +107,13 @@ class familia extends fs_model
       $this->descripcion = $this->no_html($this->descripcion);
       
       if( !preg_match("/^[A-Z0-9_]{1,4}$/i", $this->codfamilia) )
+      {
          $this->new_error_msg("Código de familia no válido. Deben ser entre 1 y 4 caracteres alfanuméricos.");
+      }
       else if( strlen($this->descripcion) < 1 OR strlen($this->descripcion) > 100 )
+      {
          $this->new_error_msg("Descripción de familia no válida.");
+      }
       else
          $status = TRUE;
       
@@ -120,11 +126,15 @@ class familia extends fs_model
       {
          $this->clean_cache();
          if( $this->exists() )
-            $sql = "UPDATE ".$this->table_name." SET descripcion = ".$this->var2str($this->descripcion)."
-               WHERE codfamilia = ".$this->var2str($this->codfamilia).";";
+         {
+            $sql = "UPDATE ".$this->table_name." SET descripcion = ".$this->var2str($this->descripcion).",
+               madre = ".$this->var2str($this->madre)." WHERE codfamilia = ".$this->var2str($this->codfamilia).";";
+         }
          else
+         {
             $sql = "INSERT INTO ".$this->table_name." (codfamilia,descripcion) VALUES
                (".$this->var2str($this->codfamilia).",".$this->var2str($this->descripcion).");";
+         }
          return $this->db->exec($sql);
       }
       else
@@ -158,13 +168,45 @@ class familia extends fs_model
       return $famlist;
    }
    
+   public function madres()
+   {
+      $famlist = array();
+      
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE madre IS NULL ORDER BY descripcion ASC;");
+      if($data)
+      {
+         foreach($data as $d)
+            $famlist[] = new familia($d);
+      }
+      
+      return $famlist;
+   }
+   
+   public function hijas($codmadre = FALSE)
+   {
+      $famlist = array();
+      
+      if(!$codmadre)
+      {
+         $codmadre = $this->codfamilia;
+      }
+      
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE madre = ".$this->var2str($codmadre)." ORDER BY descripcion ASC;");
+      if($data)
+      {
+         foreach($data as $d)
+            $famlist[] = new familia($d);
+      }
+      
+      return $famlist;
+   }
+   
    public function search($query)
    {
       $famlist = array();
       $query = $this->no_html( strtolower($query) );
       
-      $familias = $this->db->select("SELECT * FROM ".$this->table_name.
-              " WHERE lower(descripcion) LIKE '%".$query."%' ORDER BY descripcion ASC;");
+      $familias = $this->db->select("SELECT * FROM ".$this->table_name." WHERE lower(descripcion) LIKE '%".$query."%' ORDER BY descripcion ASC;");
       if($familias)
       {
          foreach($familias as $f)
@@ -172,40 +214,5 @@ class familia extends fs_model
       }
       
       return $famlist;
-   }
-   
-   public function stats()
-   {
-      $aux = $this->db->select("SELECT GREATEST( COUNT(referencia), 0) as art,
-         GREATEST( SUM(case when stockfis > 0 then 1 else 0 end), 0) as stock,
-         GREATEST( SUM(".$this->db->sql_to_int('bloqueado')."), 0) as bloq,
-         GREATEST( SUM(".$this->db->sql_to_int('publico')."), 0) as publi,
-         MAX(factualizado) as factualizado
-         FROM articulos WHERE codfamilia = ".$this->var2str($this->codfamilia).";");
-      if($aux)
-      {
-         $this->stats['articulos'] = intval($aux[0]['art']);
-         $this->stats['con_stock'] = intval($aux[0]['stock']);
-         $this->stats['bloqueados'] = intval($aux[0]['bloq']);
-         $this->stats['publicos'] = intval($aux[0]['publi']);
-         $this->stats['factualizado'] = Date('d-m-Y', strtotime($aux[0]['factualizado']) );
-      }
-   }
-   
-   public function proveedores()
-   {
-      $provelist = array();
-      
-      $data = $this->db->select("SELECT DISTINCT codproveedor FROM albaranesprov
-         WHERE idalbaran IN (SELECT DISTINCT idalbaran FROM lineasalbaranesprov WHERE referencia IN
-         (SELECT referencia FROM articulos WHERE codfamilia = ".$this->var2str($this->codfamilia)."));");
-      if($data)
-      {
-         $pro0 = new proveedor();
-         foreach($data as $d)
-            $provelist[] = $pro0->get($d['codproveedor']);
-      }
-      
-      return $provelist;
    }
 }

@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -33,32 +33,35 @@ class ventas_familia extends fs_controller
    
    protected function process()
    {
-      if( isset($_POST['cod']) )
+      $this->familia = FALSE;
+      if( isset($_REQUEST['cod']) )
       {
-         $this->familia = new familia();
-         $this->familia = $this->familia->get($_POST['cod']);
-         $this->familia->descripcion = $_POST['descripcion'];
-         if( $this->familia->save() )
-            $this->new_message("Datos modificados correctamente");
-         else
-            $this->new_error_msg("Imposible modificar los datos.");
-      }
-      else if( isset($_GET['cod']) )
-      {
-         $this->familia = new familia();
-         $this->familia = $this->familia->get($_GET['cod']);
+         $fam = new familia();
+         $this->familia = $fam->get($_REQUEST['cod']);
       }
       
-      if( $this->familia AND isset($_POST['stats']) )
-      {
-         $this->template = 'ajax/ventas_familia_stats';
-         $this->familia->stats();
-      }
-      else if($this->familia)
+      if($this->familia)
       {
          $this->page->title = $this->familia->codfamilia;
          
-         if( isset($_GET['download']) )
+         if( isset($_POST['cod']) )
+         {
+            $this->familia->descripcion = $_POST['descripcion'];
+            
+            $this->familia->madre = NULL;
+            if( isset($_POST['madre']) )
+            {
+               $this->familia->madre = $_POST['madre'];
+            }
+            
+            if( $this->familia->save() )
+            {
+               $this->new_message("Datos modificados correctamente");
+            }
+            else
+               $this->new_error_msg("Imposible modificar los datos.");
+         }
+         else if( isset($_GET['download']) )
          {
             $this->download();
          }
