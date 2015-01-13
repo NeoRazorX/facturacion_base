@@ -47,9 +47,6 @@ class ventas_factura extends fs_controller
       $factura = new factura_cliente();
       $this->factura = FALSE;
       
-      /// desactivamos la barra de botones
-      $this->show_fs_toolbar = FALSE;
-      
       if( isset($_POST['idfactura']) )
       {
          $this->factura = $factura->get($_POST['idfactura']);

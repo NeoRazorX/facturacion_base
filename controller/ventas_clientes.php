@@ -42,7 +42,6 @@ class ventas_clientes extends fs_controller
    
    protected function process()
    {
-      $this->show_fs_toolbar = FALSE;
       $this->cliente = new cliente();
       $this->clientes_grupo = FALSE;
       $this->grupo = new grupo_clientes();

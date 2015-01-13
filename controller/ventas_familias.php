@@ -31,7 +31,6 @@ class ventas_familias extends fs_controller
    
    protected function process()
    {
-      $this->show_fs_toolbar = FALSE;
       $this->familia = new familia();
       
       if( isset($_POST['ncodfamilia']) )

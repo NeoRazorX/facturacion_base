@@ -45,7 +45,6 @@ class ventas_cliente extends fs_controller
    
    protected function process()
    {
-      $this->show_fs_toolbar = FALSE;
       $this->ppage = $this->page->get('ventas_clientes');
       $this->agente = new agente();
       $this->cuenta_banco = new cuenta_banco_cliente();

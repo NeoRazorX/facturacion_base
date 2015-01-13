@@ -41,9 +41,6 @@ class compras_albaranes extends fs_controller
    {
       $albaran = new albaran_proveedor();
       
-      /// desactivamos la barra de botones
-      $this->show_fs_toolbar = FALSE;
-      
       $this->offset = 0;
       if( isset($_GET['offset']) )
          $this->offset = intval($_GET['offset']);

@@ -54,9 +54,6 @@ class compras_albaran extends fs_controller
       $this->ppage = $this->page->get('compras_albaranes');
       $this->agente = FALSE;
       
-      /// desactivamos la barra de botones
-      $this->show_fs_toolbar = FALSE;
-      
       $albaran = new albaran_proveedor();
       $this->albaran = FALSE;
       $this->ejercicio = new ejercicio();

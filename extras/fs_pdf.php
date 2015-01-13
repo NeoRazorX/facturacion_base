@@ -34,7 +34,7 @@ class fs_pdf
          mkdir('tmp/'.FS_TMP_NAME.'pdf');
       
       $this->pdf = new Cezpdf($paper, $orientation);
-      $this->pdf->selectFont("extras/ezpdf/fonts/".$font.".afm");
+      $this->pdf->selectFont("plugins/facturacion_base/extras/ezpdf/fonts/".$font.".afm");
    }
    
    public function show()

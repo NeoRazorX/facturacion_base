@@ -33,8 +33,6 @@ class tpv_caja extends fs_controller
    
    protected function process()
    {
-      $this->show_fs_toolbar = FALSE;
-      
       $this->caja = new caja();
       $this->show_cerrar = FALSE;
       

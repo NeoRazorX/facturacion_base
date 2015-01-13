@@ -40,7 +40,6 @@ class ventas_articulo extends fs_controller
    
    protected function process()
    {
-      $this->show_fs_toolbar = FALSE;
       $articulo = new articulo();
       
       if( isset($_POST['pvpiva']) )

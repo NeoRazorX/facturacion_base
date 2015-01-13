@@ -42,7 +42,6 @@ class subcuenta_asociada extends fs_controller
    
    protected function process()
    {
-      $this->show_fs_toolbar = FALSE;
       $this->tipo = FALSE;
       $this->subcuenta = FALSE;
       $this->cuenta = new cuenta();

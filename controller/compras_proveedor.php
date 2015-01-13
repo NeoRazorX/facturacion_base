@@ -40,7 +40,6 @@ class compras_proveedor extends fs_controller
    
    protected function process()
    {
-      $this->show_fs_toolbar = FALSE;
       $this->ppage = $this->page->get('compras_proveedores');
       $this->cuenta_banco = new cuenta_banco_proveedor();
       $this->divisa = new divisa();

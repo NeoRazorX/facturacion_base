@@ -59,8 +59,6 @@ class tpv_recambios extends fs_controller
    {
       header('Access-Control-Allow-Origin: *');
       
-      $this->show_fs_toolbar = FALSE;
-      
       $this->articulo = new articulo();
       $this->cliente = new cliente();
       $this->familia = new familia();

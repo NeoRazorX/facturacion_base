@@ -41,7 +41,6 @@ class ventas_imprimir extends fs_controller
    
    protected function process()
    {
-      $this->show_fs_toolbar = FALSE;
       $this->albaran = FALSE;
       $this->cliente = FALSE;
       $this->factura = FALSE;

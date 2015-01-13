@@ -26,15 +26,13 @@
             
             {if condition="$fsc->show_cerrar"}
             <a class="btn btn-sm btn-danger" href="{$fsc->url()}&cerrar=TRUE">
-               <span class="glyphicon glyphicon-lock"></span>
-               &nbsp; Cerrar caja
+               <span class="glyphicon glyphicon-lock"></span> &nbsp; Cerrar caja
             </a>
             {/if}
          </div>
          <div class="col-lg-6 col-md-6 col-sm-6 text-right">
             <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-               <span class="glyphicon glyphicon-floppy-disk"></span>
-               &nbsp; Guardar
+               <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
             </button>
          </div>
       </div>
@@ -75,7 +73,7 @@
          </tr>
          {else}
          <tr class="bg-warning">
-            <td colspan="8" class="text-center">Sin resultados.</td>
+            <td colspan="8">Sin resultados.</td>
          </tr>
          {/loop}
       </table>
@@ -85,8 +83,7 @@
       {if condition="$fsc->anterior_url()!=''"}
       <li class="previous">
          <a href="{$fsc->anterior_url()}">
-            <span class="glyphicon glyphicon-chevron-left"></span>
-            &nbsp; Anteriores
+            <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
          </a>
       </li>
       {/if}
@@ -94,8 +91,7 @@
       {if condition="$fsc->siguiente_url()!=''"}
       <li class="next">
          <a href="{$fsc->siguiente_url()}">
-            Siguientes &nbsp;
-            <span class="glyphicon glyphicon-chevron-right"></span>
+            Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
          </a>
       </li>
       {/if}
