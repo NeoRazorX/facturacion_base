@@ -10,7 +10,7 @@
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-md-6">
+      <div class="col-sm-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -34,7 +34,7 @@
             {/loop}
          </div>
       </div>
-      <div class="col-md-6 text-right">
+      <div class="col-sm-6 text-right">
          <h2 style="margin-top: 0px;">Series</h2>
       </div>
    </div>
@@ -48,7 +48,7 @@
             <th class="text-left">Descripción</th>
             <th class="text-center">Sin IVA</th>
             <th class="text-right">IRPF</th>
-            <th class="text-right">Acciones</th>
+            <th class="text-right" width="120">Acciones</th>
          </tr>
       </thead>
       {loop="$fsc->serie->all()"}

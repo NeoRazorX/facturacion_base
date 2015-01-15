@@ -13,7 +13,7 @@
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-md-5">
+      <div class="col-sm-5">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -40,15 +40,15 @@
             {/loop}
          </div>
       </div>
-      <div class="col-md-5">
+      <div class="col-sm-5">
          <h2 style="margin-top: 0px;">Familias de artículos</h2>
       </div>
-      <div class="col-md-2 col-sm-3 col-xs-12">
+      <div class="col-sm-2">
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
                <span class="input-group-btn">
-                  <button class="btn btn-primary" type="submit">
+                  <button class="btn btn-primary hidden-sm" type="submit">
                      <span class="glyphicon glyphicon-search"></span>
                   </button>
                </span>

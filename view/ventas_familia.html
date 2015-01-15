@@ -15,7 +15,7 @@
    <input type="hidden" name="cod" value="{$fsc->familia->codfamilia}"/>
    <div class="container-fluid">
       <div class="row" style="margin-top: 10px; margin-bottom: 10px;">
-         <div class="col-md-10">
+         <div class="col-sm-8">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
@@ -45,7 +45,7 @@
             {/loop}
             </div>
          </div>
-         <div class="col-md-2 text-right">
+         <div class="col-sm-4 text-right">
             <div class="btn-group">
                <a href="#" id="b_eliminar_familia" class="btn btn-sm btn-danger">
                   <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
@@ -57,13 +57,13 @@
          </div>
       </div>
       <div class="row">
-         <div class="col-md-8">
+         <div class="col-sm-8">
             <div class="form-group">
                Descripción:
                <input class="form-control" type="text" name="descripcion" value="{$fsc->familia->descripcion}" autocomplete="off"/>
             </div>
          </div>
-         <div class="col-md-4">
+         <div class="col-sm-4">
             <div class="form-group">
                Familia madre:
                <select name="madre" class="form-control">
