@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -24,6 +24,9 @@ require_model('linea_albaran_proveedor.php');
 class informe_articulos extends fs_controller
 {
    public $articulo;
+   private $offset;
+   public $pestanya;
+   public $resultados;
    public $stats;
    public $top_ventas;
    public $top_compras;
@@ -35,15 +38,34 @@ class informe_articulos extends fs_controller
    
    protected function process()
    {
-      $this->articulo = new articulo();
-      $this->stats = $this->stats();
-      $linea_alb_cli = new linea_albaran_cliente();
-      $linea_alb_pro = new linea_albaran_proveedor();
-      $this->top_ventas = $this->top_articulo_albcli();
-      $this->top_compras = $this->top_articulo_albpro();
+      $this->pestanya = 'stats';
+      if( isset($_GET['tab']) )
+      {
+         $this->pestanya = $_GET['tab'];
+      }
+      
+      $this->offset = 0;
+      if( isset($_GET['offset']) )
+      {
+         $this->offset = intval($_GET['offset']);
+      }
+      
+      if($this->pestanya == 'stats')
+      {
+         $this->articulo = new articulo();
+         $this->stats = $this->stats();
+         $linea_alb_cli = new linea_albaran_cliente();
+         $linea_alb_pro = new linea_albaran_proveedor();
+         $this->top_ventas = $this->top_articulo_albcli();
+         $this->top_compras = $this->top_articulo_albpro();
+      }
+      else if($this->pestanya == 'stock')
+      {
+         $this->resultados = $this->stock($this->offset);
+      }
    }
    
-   public function stats()
+   private function stats()
    {
       $stats = array(
           'total' => 0,
@@ -70,7 +92,7 @@ class informe_articulos extends fs_controller
       return $stats;
    }
    
-   public function top_articulo_albcli()
+   private function top_articulo_albcli()
    {
       $toplist = $this->cache->get_array('albcli_top_articulos');
       if( !$toplist )
@@ -92,7 +114,7 @@ class informe_articulos extends fs_controller
       return $toplist;
    }
    
-   public function top_articulo_albpro()
+   private function top_articulo_albpro()
    {
       $toplist = $this->cache->get('albpro_top_articulos');
       if( !$toplist )
@@ -112,5 +134,48 @@ class informe_articulos extends fs_controller
          $this->cache->set('albpro_top_articulos', $toplist);
       }
       return $toplist;
+   }
+   
+   private function stock($offset = 0)
+   {
+      $slist = array();
+      
+      $sql = "SELECT codalmacen,s.referencia,a.descripcion,s.cantidad,a.stockmin,a.stockmax "
+              . "FROM stocks s, articulos a WHERE s.referencia = a.referencia ORDER BY referencia ASC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      if($data)
+      {
+         foreach($data as $d)
+            $slist[] = $d;
+      }
+      
+      return $slist;
+   }
+   
+   public function anterior_url()
+   {
+      $url = '';
+      $extra = '&tab=stock';
+      
+      if($this->offset>'0')
+      {
+         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
+      }
+      
+      return $url;
+   }
+   
+   public function siguiente_url()
+   {
+      $url = '';
+      $extra = '&tab=stock';
+      
+      if(count($this->resultados) == FS_ITEM_LIMIT)
+      {
+         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+      }
+      
+      return $url;
    }
 }
