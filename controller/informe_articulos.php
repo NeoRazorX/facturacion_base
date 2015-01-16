@@ -18,8 +18,8 @@
  */
 
 require_model('articulo.php');
-require_model('linea_albaran_cliente.php');
-require_model('linea_albaran_proveedor.php');
+require_model('linea_factura_cliente.php');
+require_model('linea_factura_proveedor.php');
 
 class informe_articulos extends fs_controller
 {
@@ -27,7 +27,9 @@ class informe_articulos extends fs_controller
    private $offset;
    public $pestanya;
    public $resultados;
+   public $sin_vender;
    public $stats;
+   public $tipo_stock;
    public $top_ventas;
    public $top_compras;
 
@@ -54,14 +56,46 @@ class informe_articulos extends fs_controller
       {
          $this->articulo = new articulo();
          $this->stats = $this->stats();
-         $linea_alb_cli = new linea_albaran_cliente();
-         $linea_alb_pro = new linea_albaran_proveedor();
-         $this->top_ventas = $this->top_articulo_albcli();
-         $this->top_compras = $this->top_articulo_albpro();
+         
+         $linea_fac_cli = new linea_factura_cliente();
+         $linea_fac_pro = new linea_factura_proveedor();
+         
+         $this->top_ventas = $this->top_articulo_faccli();
+         $this->sin_vender = $this->sin_vender();
+         $this->top_compras = $this->top_articulo_facpro();
       }
       else if($this->pestanya == 'stock')
       {
-         $this->resultados = $this->stock($this->offset);
+         $this->tipo_stock = 'todo';
+         if( isset($_GET['tipo']) )
+         {
+            $this->tipo_stock = $_GET['tipo'];
+         }
+         
+         if( isset($_GET['download']) )
+         {
+            $this->template = FALSE;
+            
+            header("content-type:application/csv;charset=UTF-8");
+            header("Content-Disposition: attachment; filename=\"stock.csv\"");
+            echo "almacen,referencia,descripcion,stock,stockmin,stockmax\n";
+            
+            $offset = 0;
+            $resultados = $this->stock($offset, $this->tipo_stock);
+            while( count($resultados) > 0 )
+            {
+               foreach($resultados as $res)
+               {
+                  echo '"'.$res['codalmacen'].'","'.$res['referencia'].'","'.$res['descripcion'].'","'.
+                          $res['cantidad'].'","'.$res['stockmin'].'","'.$res['stockmax']."\"\n";
+                  $offset++;
+               }
+               
+               $resultados = $this->stock($offset, $this->tipo_stock);
+            }
+         }
+         else
+            $this->resultados = $this->stock($this->offset, $this->tipo_stock);
       }
    }
    
@@ -92,14 +126,14 @@ class informe_articulos extends fs_controller
       return $stats;
    }
    
-   private function top_articulo_albcli()
+   private function top_articulo_faccli()
    {
-      $toplist = $this->cache->get_array('albcli_top_articulos');
+      $toplist = $this->cache->get_array('faccli_top_articulos');
       if( !$toplist )
       {
          $articulo = new articulo();
          $lineas = $this->db->select_limit("SELECT referencia, SUM(cantidad) as ventas
-            FROM lineasalbaranescli GROUP BY referencia ORDER BY ventas DESC", FS_ITEM_LIMIT, 0);
+            FROM lineasfacturascli GROUP BY referencia ORDER BY ventas DESC", FS_ITEM_LIMIT, 0);
          if($lineas)
          {
             foreach($lineas as $l)
@@ -109,19 +143,39 @@ class informe_articulos extends fs_controller
                   $toplist[] = array($art0, intval($l['ventas']));
             }
          }
-         $this->cache->set('albcli_top_articulos', $toplist);
+         $this->cache->set('faccli_top_articulos', $toplist);
       }
       return $toplist;
    }
    
-   private function top_articulo_albpro()
+   private function sin_vender()
    {
-      $toplist = $this->cache->get('albpro_top_articulos');
+      $toplist = $this->cache->get_array('top_articulos_sin_vender');
+      if( !$toplist )
+      {
+         $articulo = new articulo();
+         $lineas = $this->db->select_limit("SELECT * FROM articulos WHERE stockfis > 0 AND sevende AND
+            referencia NOT IN (SELECT referencia FROM lineasfacturascli
+            WHERE idfactura IN (SELECT idfactura FROM facturascli
+            WHERE fecha >= ".$articulo->var2str(Date('1-m-Y')).")) ORDER BY stockfis DESC", FS_ITEM_LIMIT, 0);
+         if($lineas)
+         {
+            foreach($lineas as $l)
+               $toplist[] = new articulo($l);
+         }
+         $this->cache->set('top_articulos_sin_vender', $toplist);
+      }
+      return $toplist;
+   }
+   
+   private function top_articulo_facpro()
+   {
+      $toplist = $this->cache->get('facpro_top_articulos');
       if( !$toplist )
       {
          $articulo = new articulo();
          $lineas = $this->db->select_limit("SELECT referencia, SUM(cantidad) as compras
-            FROM lineasalbaranesprov GROUP BY referencia ORDER BY compras DESC", FS_ITEM_LIMIT, 0);
+            FROM lineasfacturasprov GROUP BY referencia ORDER BY compras DESC", FS_ITEM_LIMIT, 0);
          if($lineas)
          {
             foreach($lineas as $l)
@@ -131,17 +185,28 @@ class informe_articulos extends fs_controller
                   $toplist[] = array($art0, intval($l['compras']));
             }
          }
-         $this->cache->set('albpro_top_articulos', $toplist);
+         $this->cache->set('facpro_top_articulos', $toplist);
       }
       return $toplist;
    }
    
-   private function stock($offset = 0)
+   private function stock($offset = 0, $tipo = 'todo')
    {
       $slist = array();
       
       $sql = "SELECT codalmacen,s.referencia,a.descripcion,s.cantidad,a.stockmin,a.stockmax "
-              . "FROM stocks s, articulos a WHERE s.referencia = a.referencia ORDER BY referencia ASC";
+              . "FROM stocks s, articulos a WHERE s.referencia = a.referencia";
+      
+      if($tipo == 'min')
+      {
+         $sql .= " AND s.cantidad < a.stockmin";
+      }
+      else if($tipo == 'max')
+      {
+         $sql .= " AND s.cantidad > a.stockmax";
+      }
+      
+      $sql .= " ORDER BY referencia ASC";
       
       $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
@@ -156,7 +221,7 @@ class informe_articulos extends fs_controller
    public function anterior_url()
    {
       $url = '';
-      $extra = '&tab=stock';
+      $extra = '&tab=stock&tipo='.$this->tipo_stock;
       
       if($this->offset>'0')
       {
@@ -169,7 +234,7 @@ class informe_articulos extends fs_controller
    public function siguiente_url()
    {
       $url = '';
-      $extra = '&tab=stock';
+      $extra = '&tab=stock&tipo='.$this->tipo_stock;
       
       if(count($this->resultados) == FS_ITEM_LIMIT)
       {

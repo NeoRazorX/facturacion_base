@@ -46,7 +46,7 @@
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            {if condition="$fsc->page->is_default()"}
+            {if="$fsc->page->is_default()"}
             <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
@@ -62,7 +62,7 @@
                <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo...
             </a>
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='button'"}
+               {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
@@ -84,7 +84,7 @@
    </div>
 </div>
 
-{if condition="$fsc->query!=''"}
+{if="$fsc->query!=''"}
 <form name="custom_search2" action="{$fsc->url()}" method="post" class="form">
    <input type="hidden" name="query" value="{$fsc->query}"/>
    <div class="container-fluid">
@@ -95,7 +95,7 @@
          <div class="col-lg-2 col-md-2 col-sm-2">
             <div class="checkbox">
                <label>
-                  <input type="checkbox" name="con_stock"{if condition="$fsc->con_stock"} checked="checked"{/if} value="TRUE" onchange="document.custom_search2.submit()"/>
+                  <input type="checkbox" name="con_stock"{if="$fsc->con_stock"} checked="checked"{/if} value="TRUE" onchange="document.custom_search2.submit()"/>
                   Sólo con stock
                </label>
             </div>
@@ -105,7 +105,7 @@
                <option value="">Todas las familias</option>
                <option value="">-----</option>
                {loop="$fsc->familia->all()"}
-                  {if condition="$value->codfamilia==$fsc->codfamilia"}
+                  {if="$value->codfamilia==$fsc->codfamilia"}
                   <option value="{$value->codfamilia}" selected="selected">{$value->descripcion}</option>
                   {else}
                   <option value="{$value->codfamilia}">{$value->descripcion}</option>
@@ -119,13 +119,13 @@
 {/if}
 
 <ul class="nav nav-tabs" id="ul_tabs">
-   <li{if condition="!isset($_GET['public']) AND !isset($_GET['solo_stock'])"} class="active"{/if}>
+   <li{if="!isset($_GET['public']) AND !isset($_GET['solo_stock'])"} class="active"{/if}>
       <a href="{$fsc->url()}">Todos</a>
    </li>
-   <li{if condition="isset($_GET['solo_stock'])"} class="active"{/if}>
+   <li{if="isset($_GET['solo_stock'])"} class="active"{/if}>
       <a href="{$fsc->url()}&solo_stock=TRUE">Stock</a>
    </li>
-   <li{if condition="isset($_GET['public'])"} class="active"{/if}>
+   <li{if="isset($_GET['public'])"} class="active"{/if}>
       <a href="{$fsc->url()}&public=TRUE">Públicos</a>
    </li>
    <li id="b_tarifas"><a href="#tarifas">Tarifas</a></li>
@@ -143,6 +143,16 @@
                <th class="text-right">Stock</th>
             </tr>
          </thead>
+         {if="isset($_GET['solo_stock'])"}
+         <tr class="bg-info">
+            <td colspan="5">
+               <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> &nbsp;
+               <a href="index.php?page=informe_articulos&tab=stock">
+                  Tienes un informe detallado del stock en Informes > Artículos.
+               </a>
+            </td>
+         </tr>
+         {/if}
          {loop="$fsc->resultados"}
          <tr class="clickableRow{if="$value->bloqueado"} bg-danger{elseif="$value->stockfis<$value->stockmin"} bg-warning{/if}" href="{$value->url()}">
             <td>{$value->codfamilia}</td>
@@ -160,7 +170,7 @@
    </div>
    
    <ul class="pager" id="ul_paginador">
-      {if condition="$fsc->anterior_url()!=''"}
+      {if="$fsc->anterior_url()!=''"}
       <li class="previous">
          <a href="{$fsc->anterior_url()}">
             <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
@@ -168,7 +178,7 @@
       </li>
       {/if}
       
-      {if condition="$fsc->siguiente_url()!=''"}
+      {if="$fsc->siguiente_url()!=''"}
       <li class="next">
          <a href="{$fsc->siguiente_url()}">
             Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
@@ -243,7 +253,7 @@
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">Nuevo artículo</h4>
             </div>
-            {if condition="$fsc->familia->all()"}
+            {if="$fsc->familia->all()"}
             <div class="modal-body">
                <div class="form-group">
                   <label for="referencia" class="col-lg-2 col-md-2 col-sm-2 control-label">Referencia</label>
@@ -256,7 +266,7 @@
                   <div class="col-lg-10 col-md-10 col-sm-10">
                      <select class="form-control" name="codfamilia">
                         {loop="$fsc->familia->all()"}
-                        <option value="{$value->codfamilia}"{if condition="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
+                        <option value="{$value->codfamilia}"{if="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
                         {/loop}
                      </select>
                   </div>
@@ -266,7 +276,7 @@
                   <div class="col-lg-10 col-md-10 col-sm-10">
                      <select class="form-control" name="codimpuesto">
                         {loop="$fsc->impuesto->all()"}
-                        <option value="{$value->codimpuesto}"{if condition="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
+                        <option value="{$value->codimpuesto}"{if="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
                         {/loop}
                      </select>
                   </div>

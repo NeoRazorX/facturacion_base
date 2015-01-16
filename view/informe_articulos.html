@@ -18,7 +18,7 @@
    </div>
 </div>
 
-<div class="panel panel-default" style="margin: 5px;">
+<div class="panel panel-info" style="margin: 5px 5px 15px 5px;">
    <div class="panel-heading">
       <h3 class="panel-title">Top ventas (unidades)</h3>
    </div>
@@ -26,16 +26,41 @@
       <div class="container-fluid">
          <div class="row">
             {loop="$fsc->top_ventas"}
-            <div class="col-lg-3 col-md-3 col-sm-3"><a href="{$value.0->url()}">{$value.0->referencia}</a> ({$value.1})</div>
+            <div class="col-sm-4">
+               <a href="{$value.0->url()}">{$value.0->referencia}</a>
+               {$value.0->descripcion}
+               <span class="badge">{$value.1}</span>
+            </div>
             {else}
-            <div class="col-lg-12 col-md-12 col-sm-12">Sin resultados.</div>
+            <div class="col-sm-12">Sin resultados.</div>
             {/loop}
          </div>
       </div>
    </div>
 </div>
 
-<div class="panel panel-default" style="margin: 5px;">
+<div class="panel panel-warning" style="margin: 5px 5px 15px 5px;">
+   <div class="panel-heading">
+      <h3 class="panel-title">Top artículos con stock aun no vendidos este año</h3>
+   </div>
+   <div class="panel-body">
+      <div class="container-fluid">
+         <div class="row">
+            {loop="$fsc->sin_vender"}
+            <div class="col-sm-4">
+               <a href="{$value->url()}">{$value->referencia}</a>
+               {$value->descripcion}
+               <span class="badge">{$value->stockfis}</span>
+            </div>
+            {else}
+            <div class="col-sm-12">Sin resultados.</div>
+            {/loop}
+         </div>
+      </div>
+   </div>
+</div>
+
+<div class="panel panel-default" style="margin: 5px 5px 15px 5px;">
    <div class="panel-heading">
       <h3 class="panel-title">Top compras (Unidades)</h3>
    </div>
@@ -43,16 +68,20 @@
       <div class="container-fluid">
          <div class="row">
             {loop="$fsc->top_compras"}
-            <div class="col-lg-3 col-md-3 col-sm-3"><a href="{$value.0->url()}">{$value.0->referencia}</a> ({$value.1})</div>
+            <div class="col-sm-4">
+               <a href="{$value.0->url()}">{$value.0->referencia}</a>
+               {$value.0->descripcion}
+               <span class="badge">{$value.1}</span>
+            </div>
             {else}
-            <div class="col-lg-12 col-md-12 col-sm-12">Sin resultados.</div>
+            <div class="col-sm-12">Sin resultados.</div>
             {/loop}
          </div>
       </div>
    </div>
 </div>
 
-<div class="panel panel-default" style="margin: 5px;">
+<div class="panel panel-default" style="margin: 5px 5px 15px 5px;">
    <div class="panel-heading">
       <h3 class="panel-title">Búsquedas de artículos</h3>
    </div>
@@ -69,6 +98,22 @@
    </div>
 </div>
 {elseif="$fsc->pestanya=='stock'"}
+<div class="container-fluid" style="margin-top: 15px; margin-bottom: 10px;">
+   <div class="row">
+      <div class="col-sm-9">
+         <div class="btn-group" role="group" aria-label="...">
+            <a href="{$fsc->url()}&tab=stock" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='todo'"} active{/if}">Todo</a>
+            <a href="{$fsc->url()}&tab=stock&tipo=min" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='min'"} active{/if}">Bajo mínimos</a>
+            <a href="{$fsc->url()}&tab=stock&tipo=max" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='max'"} active{/if}">Excesos</a>
+         </div>
+      </div>
+      <div class="col-sm-3 text-right">
+         <a href="{$fsc->url()}&tab=stock&tipo={$fsc->tipo_stock}&download=TRUE" class="btn btn-sm btn-default">
+            <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> &nbsp; Descargar
+         </a>
+      </div>
+   </div>
+</div>
 <div class="table-responsive">
    <table class="table table-hover">
       <thead>
