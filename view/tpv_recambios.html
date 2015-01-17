@@ -1,8 +1,8 @@
 {include="header"}
 
-{if condition="$fsc->agente"}
-   {if condition="$fsc->caja"}
-      {if condition="$fsc->caja->codagente==$fsc->user->codagente"}
+{if="$fsc->agente"}
+   {if="$fsc->caja"}
+      {if="$fsc->caja->codagente==$fsc->user->codagente"}
          {include="tpv_recambios2"}
       {else}
       <div class="text-center">

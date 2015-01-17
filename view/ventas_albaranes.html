@@ -49,7 +49,7 @@
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            {if condition="$fsc->page->is_default()"}
+            {if="$fsc->page->is_default()"}
             <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
@@ -65,7 +65,7 @@
                <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
             </a>
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='button'"}
+               {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
@@ -92,15 +92,15 @@
    </div>
 </div>
 
-{if condition="$fsc->query!=''"}
+{if="$fsc->query!=''"}
 <h3 class="text-center">Resultados de "{$fsc->query}":</h3>
 {/if}
 
 <ul class="nav nav-tabs" role="tablist">
-   <li{if condition="!$fsc->pendientes"} class="active"{/if}>
+   <li{if="!$fsc->pendientes"} class="active"{/if}>
       <a href="{$fsc->url()}&ptefactura=FALSE">Todos los {#FS_ALBARANES#}</a>
    </li>
-   <li{if condition="$fsc->pendientes"} class="active"{/if}>
+   <li{if="$fsc->pendientes"} class="active"{/if}>
       <a href="{$fsc->url()}&ptefactura=TRUE">
          <span class="glyphicon glyphicon-time"></span> &nbsp; Pendientes
       </a>
@@ -123,7 +123,7 @@
       {loop="$fsc->resultados"}
       <tr class='clickableRow{if="$value->total<=0"} bg-warning{/if}' href="{$value->url()}">
          <td class="text-center">
-            {if condition="!$value->ptefactura"}
+            {if="!$value->ptefactura"}
             <span class="glyphicon glyphicon-paperclip" title="El {#FS_ALBARAN#} tiene vinculado una factura"></span>
             {/if}
          </td>
@@ -144,7 +144,7 @@
 </div>
 
 <ul class="pager">
-   {if condition="$fsc->anterior_url()!=''"}
+   {if="$fsc->anterior_url()!=''"}
    <li class="previous">
       <a href="{$fsc->anterior_url()}">
          <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
@@ -152,7 +152,7 @@
    </li>
    {/if}
    
-   {if condition="$fsc->siguiente_url()!=''"}
+   {if="$fsc->siguiente_url()!=''"}
    <li class="next">
       <a href="{$fsc->siguiente_url()}">
          Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>

@@ -1,15 +1,15 @@
 {include="header"}
 
-{if condition="$fsc->ejercicio"}
+{if="$fsc->ejercicio"}
 <script type="text/javascript">
    function cerrar_ejercicio()
    {
       location.href = '{$fsc->url()}&cerrar=TRUE&petid={$fsc->random_string()}';
    }
    $(document).ready(function() {
-      {if condition="$fsc->importar_url"}
+      {if="$fsc->importar_url"}
          setTimeout("location.href = '{$fsc->importar_url}';", 2000);
-      {elseif condition="!$fsc->listado"}
+      {elseif="!$fsc->listado"}
          $("#modal_importar").modal('show');
       {/if}
       
@@ -67,7 +67,7 @@
                   <span class="glyphicon glyphicon-export"></span> &nbsp; Exportar
                </a>
                {loop="$fsc->extensions"}
-                  {if condition="$value->type=='button'"}
+                  {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
@@ -78,7 +78,7 @@
                <a href="#" id="b_eliminar" class="btn btn-sm btn-danger" title="Eliminar ejercicio">
                   <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
                </a>
-               {if condition="$fsc->ejercicio->abierto()"}
+               {if="$fsc->ejercicio->abierto()"}
                <button class="btn btn-sm btn-default" type="button" onclick="cerrar_ejercicio()" title="Cerrar ejercicio">
                   <span class="glyphicon glyphicon-lock"></span> &nbsp; Cerrar
                </button>
@@ -109,8 +109,8 @@
             <td><input class="form-control" type="number" name="longsubcuenta" value="{$fsc->ejercicio->longsubcuenta}"/></td>
             <td>
                <select name="estado" class="form-control">
-                  <option value="ABIERTO"{if condition="$fsc->ejercicio->abierto()"} selected="selected"{/if}>ABIERTO</option>
-                  <option value="CERRADO"{if condition="!$fsc->ejercicio->abierto()"} selected="selected"{/if}>CERRADO</option>
+                  <option value="ABIERTO"{if="$fsc->ejercicio->abierto()"} selected="selected"{/if}>ABIERTO</option>
+                  <option value="CERRADO"{if="!$fsc->ejercicio->abierto()"} selected="selected"{/if}>CERRADO</option>
                </select>
             </td>
          </tr>
@@ -119,21 +119,21 @@
 </form>
 
 <ul class="nav nav-tabs">
-   <li{if condition="$fsc->listar=='grupos'"} class="active"{/if}>
+   <li{if="$fsc->listar=='grupos'"} class="active"{/if}>
       <a href="{$fsc->url()}&listar=grupos">Grupos</a>
    </li>
-   <li{if condition="$fsc->listar=='epigrafes'"} class="active"{/if}>
+   <li{if="$fsc->listar=='epigrafes'"} class="active"{/if}>
       <a href="{$fsc->url()}&listar=epigrafes">Epígrafes</a>
    </li>
-   <li{if condition="$fsc->listar=='cuentas'"} class="active"{/if}>
+   <li{if="$fsc->listar=='cuentas'"} class="active"{/if}>
       <a href="{$fsc->url()}&listar=cuentas">Cuentas</a>
    </li>
-   <li{if condition="$fsc->listar=='subcuentas'"} class="active"{/if}>
+   <li{if="$fsc->listar=='subcuentas'"} class="active"{/if}>
       <a href="{$fsc->url()}&listar=subcuentas">Subcuentas</a>
    </li>
 </ul>
 
-{if condition="$fsc->listar=='grupos'"}
+{if="$fsc->listar=='grupos'"}
 <div class="table-responsive">
    <table class="table table-hover">
       <thead>
@@ -152,7 +152,7 @@
       {/loop}
    </table>
 </div>
-{elseif condition="$fsc->listar=='epigrafes'"}
+{elseif="$fsc->listar=='epigrafes'"}
 <div class="table-responsive">
    <table class="table table-hover">
       <thead>
@@ -175,7 +175,7 @@
       {/loop}
    </table>
 </div>
-{elseif condition="$fsc->listar=='cuentas'"}
+{elseif="$fsc->listar=='cuentas'"}
 <div class="table-responsive">
    <table class="table table-hover">
       <thead>
@@ -200,7 +200,7 @@
       {/loop}
    </table>
 </div>
-{elseif condition="$fsc->listar=='subcuentas'"}
+{elseif="$fsc->listar=='subcuentas'"}
 <div class="table-responsive">
    <table class="table table-hover">
       <thead>

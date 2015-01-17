@@ -56,9 +56,9 @@ class admin_divisas extends fs_controller
          $div0 = $this->divisa->get($_GET['delete']);
          if($div0)
          {
-            if(FS_DEMO)
+            if( !$this->user->admin )
             {
-               $this->new_error_msg('En el modo demo no puedes eliminar divisas. Otro usuario podría necesitarlas.');
+               $this->new_error_msg('Sólo un administrador puede eliminar divisas.');
             }
             else if( $div0->delete() )
             {

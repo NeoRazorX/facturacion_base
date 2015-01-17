@@ -1,6 +1,6 @@
 {include="header"}
 
-{if condition="$fsc->asiento"}
+{if="$fsc->asiento"}
 <script type="text/javascript">
    var numlineas = 0;
    function add_partida()
@@ -154,7 +154,7 @@
       document.f_asiento.concepto.value = $("#s_idconceptopar option:selected").text();
    }
    $(document).ready(function() {
-      {if condition="$fsc->asiento->editable"}recalcular();{/if}
+      {if="$fsc->asiento->editable"}recalcular();{/if}
       $("#b_eliminar_asiento").click(function(event) {
          event.preventDefault();
          if( confirm("¿Estas seguro de que deseas eliminar este asiento?") )
@@ -179,7 +179,7 @@
    });
 </script>
 
-{if condition="$fsc->asiento->editable"}
+{if="$fsc->asiento->editable"}
 <form id="f_asiento" name="f_asiento" action="{$fsc->url()}" method="post">
    <input type="hidden" name="numlineas" value="0"/>
    <div class="container-fluid">
@@ -196,7 +196,7 @@
                   <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Asientos
                </a>
                {loop="$fsc->extensions"}
-                  {if condition="$value->type=='button'"}
+                  {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
@@ -234,7 +234,7 @@
                Divisa:
                <select class="form-control" name="divisa">
                {loop="$fsc->divisa->all()"}
-                  {if condition="$value->coddivisa==$fsc->asiento->coddivisa()"}
+                  {if="$value->coddivisa==$fsc->asiento->coddivisa()"}
                   <option value="{$value->coddivisa}" selected="selected">{$value->descripcion}</option>
                   {else}
                   <option value="{$value->coddivisa}">{$value->descripcion}</option>
@@ -304,7 +304,7 @@
                   <select class='form-control' id='iva_{$counter+1}' name='iva_{$counter+1}' onchange='recalcular()'>
                      <option value='0'>---</option>
                      {loop="$fsc->impuesto->all()"}
-                        {if condition="$value1->iva==$value2->iva"}
+                        {if="$value1->iva==$value2->iva"}
                         <option value='{$value->iva}' selected="selected">{$value->descripcion}</option>
                         {else}
                         <option value='{$value->iva}'>{$value->descripcion}</option>
@@ -358,7 +358,7 @@
                <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Asientos
             </a>
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='button'"}
+               {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
@@ -395,8 +395,8 @@
          <td class="text-center">{$fsc->asiento->fecha}</td>
          <td class="text-center">{$fsc->asiento->concepto}</td>
          <td class="text-center">
-            {if condition="$fsc->asiento->tipodocumento"}{$fsc->asiento->tipodocumento}:{/if}
-            {if condition="$fsc->asiento->documento"}
+            {if="$fsc->asiento->tipodocumento"}{$fsc->asiento->tipodocumento}:{/if}
+            {if="$fsc->asiento->documento"}
             <a href='{$fsc->asiento->factura_url()}'>{$fsc->asiento->documento}</a>
             {else}
             -
@@ -428,18 +428,18 @@
             <td class="text-center"><a href="{$value->subcuenta_url()}">{$value->codsubcuenta}</a></td>
             <td class="text-right"><span title="{$value->debe}">{$fsc->show_precio($value->debe, $value->coddivisa)}</span></td>
             <td class="text-right"><span title="{$value->haber}">{$fsc->show_precio($value->haber, $value->coddivisa)}</span></td>
-            <td class="text-right">{if condition="$value->iva!=0"}{$value->iva} %{else}-{/if}</td>
+            <td class="text-right">{if="$value->iva!=0"}{$value->iva} %{else}-{/if}</td>
             <td class="text-right">
-               {if condition="$value->baseimponible!=0"}{$fsc->show_precio($value->baseimponible, $value->coddivisa)}{else}-{/if}
+               {if="$value->baseimponible!=0"}{$fsc->show_precio($value->baseimponible, $value->coddivisa)}{else}-{/if}
             </td>
             <td class="text-center">
-               {if condition="$value->codcontrapartida"}
+               {if="$value->codcontrapartida"}
                <a href="{$value->contrapartida_url()}">{$value->codcontrapartida}</a>
                {else}
                -
                {/if}
             </td>
-            <td class="text-center">{if condition="$value->cifnif"}{$value->cifnif}{else}-{/if}</td>
+            <td class="text-center">{if="$value->cifnif"}{$value->cifnif}{else}-{/if}</td>
          </tr>
          {/loop}
       </tbody>

@@ -203,7 +203,7 @@ class informe_articulos extends fs_controller
       }
       else if($tipo == 'max')
       {
-         $sql .= " AND s.cantidad > a.stockmax";
+         $sql .= " AND a.stockmax > 0 AND s.cantidad > a.stockmax";
       }
       
       $sql .= " ORDER BY referencia ASC";

@@ -14,7 +14,7 @@
    });
 </script>
 
-{if condition="$fsc->cuenta"}
+{if="$fsc->cuenta"}
 <form action="{$fsc->url()}" method="post" class="form">
    <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
       <div class="row">
@@ -28,7 +28,7 @@
             
             <div class="btn-group">
                {loop="$fsc->extensions"}
-                  {if condition="$value->type=='button'"}
+                  {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
@@ -68,7 +68,7 @@
                   <option value="---">Ninguna</option>
                   <option value="---">-------</option>
                   {loop="$fsc->cuentas_especiales()"}
-                  <option value="{$value->idcuentaesp}"{if condition="$value->idcuentaesp==$fsc->cuenta->idcuentaesp"} selected="selected"{/if}>
+                  <option value="{$value->idcuentaesp}"{if="$value->idcuentaesp==$fsc->cuenta->idcuentaesp"} selected="selected"{/if}>
                      {$value->descripcion}
                   </option>
                   {/loop}

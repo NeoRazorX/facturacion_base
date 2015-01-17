@@ -40,7 +40,7 @@
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            {if condition="$fsc->page->is_default()"}
+            {if="$fsc->page->is_default()"}
             <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
@@ -57,7 +57,7 @@
       </div>
       <div class="col-md-8 text-center">
          <h2 style="margin-top: 0px;">
-            {if condition="$fsc->query==''"}Clientes{else}Resultados de la búsqueda "{$fsc->query}":{/if}
+            {if="$fsc->query==''"}Clientes{else}Resultados de la búsqueda "{$fsc->query}":{/if}
          </h2>
       </div>
       <div class="col-md-2">
@@ -119,7 +119,7 @@
          </div>
          
          <ul class="pager" id="ul_paginador">
-            {if condition="$fsc->anterior_url()!=''"}
+            {if="$fsc->anterior_url()!=''"}
             <li class="previous">
                <a href="{$fsc->anterior_url()}">
                   <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
@@ -127,7 +127,7 @@
             </li>
             {/if}
             
-            {if condition="$fsc->siguiente_url()!=''"}
+            {if="$fsc->siguiente_url()!=''"}
             <li class="next">
                <a href="{$fsc->siguiente_url()}">
                   Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
@@ -166,7 +166,7 @@
                         <option value="---">Ninguna</option>
                         <option value="---">---</option>
                         {loop="$fsc->tarifa->all()"}
-                           {if condition="$value1->codtarifa==$value2->codtarifa"}
+                           {if="$value1->codtarifa==$value2->codtarifa"}
                            <option value="{$value2->codtarifa}" selected="selected">{$value2->nombre}</option>
                            {else}
                            <option value="{$value2->codtarifa}">{$value2->nombre}</option>
@@ -257,7 +257,7 @@
                   <div class="col-lg-10 col-md-10 col-sm-10">
                      <select class="form-control" name="codserie">
                      {loop="$fsc->serie->all()"}
-                        <option value="{$value->codserie}"{if condition="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
+                        <option value="{$value->codserie}"{if="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
                      {/loop}
                      </select>
                   </div>
@@ -279,7 +279,7 @@
                   <div class="col-lg-10 col-md-10 col-sm-10">
                      <select class="form-control" name="pais">
                      {loop="$fsc->pais->all()"}
-                        <option value="{$value->codpais}"{if condition="$value->is_default()"} selected="selected"{/if}>{$value->nombre}</option>
+                        <option value="{$value->codpais}"{if="$value->is_default()"} selected="selected"{/if}>{$value->nombre}</option>
                      {/loop}
                      </select>
                   </div>

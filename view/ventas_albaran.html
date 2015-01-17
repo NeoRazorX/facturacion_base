@@ -1,7 +1,7 @@
 {include="header"}
 
-{if condition="$fsc->albaran"}
-{if condition="$fsc->albaran->ptefactura"}
+{if="$fsc->albaran"}
+{if="$fsc->albaran->ptefactura"}
 <script type="text/javascript" src="plugins/facturacion_base/view/js/nueva_venta.js"></script>
 <script type="text/javascript">
    numlineas = {function="count($fsc->albaran->get_lineas())"};
@@ -35,10 +35,10 @@
 {else}
 <script type="text/javascript">
    $(document).ready(function() {
-      {if condition="$fsc->albaran->totalrecargo==0"}
+      {if="$fsc->albaran->totalrecargo==0"}
       $(".recargo").hide();
       {/if}
-      {if condition="$fsc->albaran->totalirpf==0"}
+      {if="$fsc->albaran->totalirpf==0"}
       $(".irpf").hide();
       {/if}
    });
@@ -77,12 +77,12 @@
                <a id="b_imprimir" class="btn btn-sm btn-default">
                   <span class="glyphicon glyphicon-print"></span> &nbsp; Imprimir
                </a>
-               {if condition="$fsc->empresa->can_send_mail()"}
+               {if="$fsc->empresa->can_send_mail()"}
                <a id="b_enviar" class="btn btn-sm btn-default" href="#">
                   <span class="glyphicon glyphicon-envelope"></span> &nbsp; Enviar
                </a>
                {/if}
-               {if condition="$fsc->albaran->ptefactura"}
+               {if="$fsc->albaran->ptefactura"}
                <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
                   <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
                </a>
@@ -93,7 +93,7 @@
                {/if}
                
                {loop="$fsc->extensions"}
-                  {if condition="$value->type=='button'"}
+                  {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}&id={$fsc->albaran->idalbaran}" class="btn btn-sm btn-default">
                      {$value->text}
                   </a>
@@ -119,7 +119,7 @@
                <a href="{$fsc->albaran->cliente_url()}">{$fsc->albaran->nombrecliente}</a> /
                {$fsc->albaran->codigo}
             </h3>
-            {if condition="$fsc->agente"}
+            {if="$fsc->agente"}
             <p>
                <span class="text-capitalize">{#FS_ALBARAN#}</span> creado por
                <a href="{$fsc->agente->url()}">{$fsc->agente->get_fullname()}</a>.
@@ -128,7 +128,7 @@
          </div>
       </div>
       <div class="row">
-         {if condition="$fsc->albaran->ptefactura"}
+         {if="$fsc->albaran->ptefactura"}
          <div class="col-md-5 col-sm-12">
             <div class="form-group">
                Cliente actual:
@@ -152,10 +152,10 @@
          <div class="col-md-2 col-sm-2">
             <div class="form-group">
                <a href="{$fsc->serie->url()}">Serie</a>:
-               {if condition="$fsc->albaran->ptefactura"}
+               {if="$fsc->albaran->ptefactura"}
                <select class="form-control" name="serie" id="codserie" onchange="usar_serie();recalcular();">
                {loop="$fsc->serie->all()"}
-                  {if condition="$value->codserie==$fsc->albaran->codserie"}
+                  {if="$value->codserie==$fsc->albaran->codserie"}
                   <option value="{$value->codserie}" selected="selected">{$value->descripcion}</option>
                   {else}
                   <option value="{$value->codserie}">{$value->descripcion}</option>
@@ -188,7 +188,7 @@
             <a href="#lineas_a" aria-controls="lineas_a" role="tab" data-toggle="tab">Líneas</a>
          </li>
          {loop="$fsc->extensions"}
-            {if condition="$value->type=='tab'"}
+            {if="$value->type=='tab'"}
             <li role="presentation">
                <a href="#ext_{$value->name}" aria-controls="ext_{$value->name}" role="tab" data-toggle="tab">{$value->text}</a>
             </li>
@@ -198,7 +198,7 @@
       <div class="tab-content">
          <div role="tabpanel" class="tab-pane active" id="lineas_a">
             <div class="table-responsive">
-               {if condition="$fsc->albaran->ptefactura"}
+               {if="$fsc->albaran->ptefactura"}
                <table class="table table-condensed">
                   <thead>
                      <tr>
@@ -250,7 +250,7 @@
                         <td>
                            <select class="form-control" id="iva_{$counter}" name="iva_{$counter}" onchange="ajustar_iva('{$counter}')">
                            {loop="$fsc->impuesto->all()"}
-                              {if condition="$value1->codimpuesto==$value2->codimpuesto"}
+                              {if="$value1->codimpuesto==$value2->codimpuesto"}
                               <option value="{$value2->iva}" selected="selected">{$value2->descripcion}</option>
                               {else}
                               <option value="{$value2->iva}">{$value2->descripcion}</option>
@@ -315,7 +315,7 @@
                      </tr>
                   </thead>
                   {loop="$fsc->albaran->get_lineas()"}
-                  <tr{if condition="$value->cantidad<1"} class="bg-warning"{/if}>
+                  <tr{if="$value->cantidad<1"} class="bg-warning"{/if}>
                      <td><a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion}</td>
                      <td class="text-right">{$value->cantidad}</td>
                      <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->albaran->coddivisa)}</td>
@@ -340,7 +340,7 @@
             </div>
          </div>
          {loop="$fsc->extensions"}
-            {if condition="$value->type=='tab'"}
+            {if="$value->type=='tab'"}
             <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
                <iframe src="index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}" width="100%" height="600" frameborder="0"></iframe>
             </div>
@@ -429,7 +429,7 @@
                   <a href="{$fsc->impuesto->url()}">IVA</a>:
                   <select name="codimpuesto" class="form-control">
                      {loop="$fsc->impuesto->all()"}
-                     <option value="{$value->codimpuesto}"{if condition="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
+                     <option value="{$value->codimpuesto}"{if="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
                      {/loop}
                   </select>
                </div>
@@ -453,7 +453,7 @@
          </div>
          <div class="modal-body">
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='pdf'"}
+               {if="$value->type=='pdf'"}
                <a href="index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}" target="_blank" class="btn btn-block btn-default">
                   <span class="glyphicon glyphicon-print"></span> &nbsp; {$value->text}
                </a>
@@ -485,7 +485,7 @@
             </div>
             <div class="modal-footer">
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='email'"}
+               {if="$value->type=='email'"}
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}';this.form.submit();">
                   <span class="glyphicon glyphicon-send"></span> &nbsp; Enviar {$value->text}
                </button>
@@ -517,7 +517,7 @@
                   <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
                </button>
             </div>
-            {if condition="$fsc->albaran->idfactura"}
+            {if="$fsc->albaran->idfactura"}
             <div class="alert alert-info">
                Hay una factura asociada que será eliminada junto con este {#FS_ALBARAN#}.
             </div>

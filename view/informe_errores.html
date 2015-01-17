@@ -1,4 +1,4 @@
-{if condition="!$fsc->informe['started']"}
+{if="!$fsc->informe['started']"}
    {include="header"}
    
    <form action="{$fsc->url()}" method="post" class="form-inline">
@@ -46,7 +46,7 @@
    </form>
    
    {include="footer"}
-{elseif condition="!$fsc->ajax"}
+{elseif="!$fsc->ajax"}
    {include="header"}
    
    <script type="text/javascript">
@@ -87,7 +87,7 @@
    
    {include="footer"}
 {else}
-   {if condition="$fsc->informe['model']=='fin'"}
+   {if="$fsc->informe['model']=='fin'"}
       <!--FIN_PROCESO-->
       <div class="alert alert-info" role="alert">Comprobación finalizada.</div>
    {else}
@@ -111,7 +111,7 @@
          </thead>
          {loop="$fsc->errores"}
          <tr>
-            <td>{if condition="$value.fix"}Corregido{else}-{/if}</td>
+            <td>{if="$value.fix"}Corregido{else}-{/if}</td>
             <td>{$value.model}</td>
             <td>{$value.ejercicio}</td>
             <td><a href="{$value.url}">{$value.id}</a></td>
@@ -129,7 +129,7 @@
    <div style="text-align: center;">
       <ul class="pagination">
       {loop="$fsc->all_pages()"}
-         <li{if condition="$value.selected"} class="active"{/if}>
+         <li{if="$value.selected"} class="active"{/if}>
             <a href="{$fsc->url()}&show_page={$value.page}">{$value.num}</a>
          </li>
       {/loop}

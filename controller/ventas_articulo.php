@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -59,40 +59,50 @@ class ventas_articulo extends fs_controller
                $this->new_error_msg("¡Imposible modificar el artículo!");
                $continuar = FALSE;
             }
-            if ($_POST['pvpiva']>0)  // No se guardan los precios si PVP es cero, porque se guarda 0% de descuento, independientemente de la tarifa
+            
+            /// No se guardan los precios si PVP es cero, porque se guarda 0% de descuento, independientemente de la tarifa
+            if($_POST['pvpiva'] > 0)
             {
-                  $tarifa_articulo = new tarifa_articulo();
-                  for($i = 0; $i < 100; $i++)
+               $tarifa_articulo = new tarifa_articulo();
+               for($i = 0; $i < 100; $i++)
+               {
+                  if( isset($_POST['codtarifa_'.$i]) )
                   {
-                     if( isset($_POST['codtarifa_'.$i]) )
+                     $ta = FALSE;
+                     if($_POST['id_'.$i] != '')
                      {
-                        if($_POST['id_'.$i] != '')
-                           $ta = $tarifa_articulo->get($_POST['id_'.$i]);
-                        else
-                           $ta = FALSE;
-                        if( !$ta )
-                        {
-                           $ta = new tarifa_articulo();
-                           $ta->codtarifa = $_POST['codtarifa_'.$i];
-                           $ta->referencia = $this->articulo->referencia;
-                        }
-                        $ta->pvp = $this->articulo->pvp;
-                        $ta->iva = $this->articulo->get_iva();
-                        $ta->set_pvp_iva($_POST['pvpiva_'.$i]);
-                        if( !$ta->save() )
-                        {
-                           $this->new_error_msg("¡Imposible modificar la tarifa!");
-                           $continuar = FALSE;
-                        }
+                        $ta = $tarifa_articulo->get($_POST['id_'.$i]);
                      }
-                     else
-                        break;
+                     
+                     if(!$ta)
+                     {
+                        $ta = new tarifa_articulo();
+                        $ta->codtarifa = $_POST['codtarifa_'.$i];
+                        $ta->referencia = $this->articulo->referencia;
+                     }
+                     
+                     $ta->pvp = $this->articulo->pvp;
+                     $ta->iva = $this->articulo->get_iva();
+                     $ta->set_pvp_iva($_POST['pvpiva_'.$i]);
+                     if( !$ta->save() )
+                     {
+                        $this->new_error_msg("¡Imposible modificar la tarifa!");
+                        $continuar = FALSE;
+                     }
                   }
-            } else {
-               $this->new_advice("Debe establecer el Precio de Venta");
+                  else
+                     break;
+               }
             }
-            if( $continuar )
+            else
+            {
+               $this->new_advice("Debe establecer el Precio de Venta.");
+            }
+            
+            if($continuar)
+            {
                $this->new_message("Precios modificadas correctamente.");
+            }
          }
       }
       else if( isset($_POST['almacen']) )
@@ -101,7 +111,9 @@ class ventas_articulo extends fs_controller
          if($this->articulo)
          {
             if( $this->articulo->set_stock($_POST['almacen'], $_POST['cantidad']) )
+            {
                $this->new_message("Stock guardado correctamente.");
+            }
             else
                $this->new_error_msg("Error al guardar el stock.");
          }
@@ -113,7 +125,9 @@ class ventas_articulo extends fs_controller
          {
             $this->articulo->set_imagen( file_get_contents($_FILES['fimagen']['tmp_name']) );
             if( $this->articulo->save() )
+            {
                $this->new_message("Imagen del articulo modificada correctamente");
+            }
             else
                $this->new_error_msg("¡Error al guardar la imagen del articulo!");
          }
@@ -123,7 +137,9 @@ class ventas_articulo extends fs_controller
          $this->articulo = $articulo->get($_GET['ref']);
          $this->articulo->set_imagen(NULL);
          if( $this->articulo->save() )
+         {
             $this->new_message("Imagen del articulo eliminada correctamente");
+         }
          else
             $this->new_error_msg("¡Error al eliminar la imagen del articulo!");
       }

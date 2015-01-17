@@ -1,6 +1,6 @@
 {include="header"}
 
-{if condition="$fsc->proveedor"}
+{if="$fsc->proveedor"}
 <script type="text/javascript">
    function comprobar_url()
    {
@@ -89,7 +89,7 @@
    </div>
 </div>
 
-{if condition="isset($_GET['stats'])"}
+{if="isset($_GET['stats'])"}
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
    // Load the Visualization API and the piechart package.
@@ -137,7 +137,7 @@
                <span class="glyphicon glyphicon-credit-card"></span> &nbsp; Subcuentas
             </a>
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='button'"}
+               {if="$value->type=='button'"}
                <a id="b_{$value->from}" href="index.php?page={$value->from}&codproveedor={$fsc->proveedor->codproveedor}" class="list-group-item">
                   <span class="glyphicon glyphicon-list"></span> &nbsp; {$value->text}
                </a>
@@ -211,7 +211,7 @@
                      <a href="{$fsc->serie->url()}">Serie</a>:
                      <select class="form-control" name="codserie">
                      {loop="$fsc->serie->all()"}
-                        {if condition="$value->codserie==$fsc->proveedor->codserie"}
+                        {if="$value->codserie==$fsc->proveedor->codserie"}
                         <option value="{$value->codserie}" selected="selected">{$value->descripcion}</option>
                         {else}
                         <option value="{$value->codserie}">{$value->descripcion}</option>
@@ -223,7 +223,7 @@
                      <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
                      <select class="form-control" name="codpago">
                      {loop="$fsc->forma_pago->all()"}
-                        {if condition="$value->codpago==$fsc->proveedor->codpago"}
+                        {if="$value->codpago==$fsc->proveedor->codpago"}
                         <option value="{$value->codpago}" selected="selected">{$value->descripcion}</option>
                         {else}
                         <option value="{$value->codpago}">{$value->descripcion}</option>
@@ -235,7 +235,7 @@
                      <a href="{$fsc->divisa->url()}">Divisa</a>:
                      <select class="form-control" name="coddivisa">
                      {loop="$fsc->divisa->all()"}
-                        {if condition="$value->coddivisa==$fsc->proveedor->coddivisa"}
+                        {if="$value->coddivisa==$fsc->proveedor->coddivisa"}
                         <option value="{$value->coddivisa}" selected="selected">{$value->descripcion}</option>
                         {else}
                         <option value="{$value->coddivisa}">{$value->descripcion}</option>
@@ -247,7 +247,7 @@
                      <a href="http://www.facturascripts.com/community/item/regimen-de-iva-desde-la-version-2014-4b-se-puede-seleccionar-el-regimen-de-784.html" target="_blank">Régimen IVA</a>:
                      <select class="form-control" name="regimeniva">
                      {loop="$fsc->proveedor->regimenes_iva()"}
-                        {if condition="$value==$fsc->proveedor->regimeniva"}
+                        {if="$value==$fsc->proveedor->regimeniva"}
                         <option value="{$value}" selected="selected">{$value}</option>
                         {else}
                         <option value="{$value}">{$value}</option>
@@ -324,7 +324,7 @@
                         <a href="{$fsc->pais->url()}">País</a>
                         <select class="form-control" name="pais">
                         {loop="$fsc->pais->all()"}
-                        <option value="{$value2->codpais}"{if condition="$value1->codpais==$value2->codpais"} selected="selected"{/if}>{$value2->nombre}</option>
+                        <option value="{$value2->codpais}"{if="$value1->codpais==$value2->codpais"} selected="selected"{/if}>{$value2->nombre}</option>
                         {/loop}
                         </select>
                      </div>
@@ -350,7 +350,7 @@
                      </div>
                      <div class="radio col-lg-3 col-md-3 col-sm-3">
                         <label>
-                           {if condition="$value->direccionppal"}
+                           {if="$value->direccionppal"}
                            <input type="checkbox" name="direccionppal" id="direccionppal_{$value->id}" value="TRUE" checked="checked"/>
                            {else}
                            <input type="checkbox" name="direccionppal" id="direccionppal_{$value->id}" value="TRUE"/>
@@ -485,7 +485,7 @@
                   <a href="{$fsc->pais->url()}">País</a>:
                   <select class="form-control" name="pais">
                      {loop="$fsc->pais->all()"}
-                     <option value="{$value->codpais}"{if condition="$value->is_default()"} selected="selected"{/if}>{$value->nombre}</option>
+                     <option value="{$value->codpais}"{if="$value->is_default()"} selected="selected"{/if}>{$value->nombre}</option>
                      {/loop}
                   </select>
                </div>

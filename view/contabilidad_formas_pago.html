@@ -15,7 +15,7 @@
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            {if condition="$fsc->page->is_default()"}
+            {if="$fsc->page->is_default()"}
             <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
@@ -28,7 +28,7 @@
          
          <div class="btn-group">
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='button'"}
+               {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
@@ -63,12 +63,12 @@
             </td>
             <td>
                <select name="genrecibos" class="form-control">
-                  <option value="Emitidos"{if condition="$value->genrecibos=='Emitidos'"} selected="selected"{/if}>Emitidos</option>
-                  <option value="Pagados"{if condition="$value->genrecibos=='Pagados'"} selected="selected"{/if}>Pagados</option>
+                  <option value="Emitidos"{if="$value->genrecibos=='Emitidos'"} selected="selected"{/if}>Emitidos</option>
+                  <option value="Pagados"{if="$value->genrecibos=='Pagados'"} selected="selected"{/if}>Pagados</option>
                </select>
             </td>
             <td class="text-center">
-               <input type="checkbox" name="domiciliado" value="TRUE"{if condition="$value->domiciliado"} checked="TRUE"{/if}/>
+               <input type="checkbox" name="domiciliado" value="TRUE"{if="$value->domiciliado"} checked="TRUE"{/if}/>
             </td>
             <td class="text-right">
                <div class="btn-group">

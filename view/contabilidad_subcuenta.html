@@ -1,6 +1,6 @@
 {include="header"}
 
-{if condition="$fsc->subcuenta"}
+{if="$fsc->subcuenta"}
 <script type="text/javascript">
    function fs_marcar_todo()
    {
@@ -42,7 +42,7 @@
                </a>
                {/if}
                {loop="$fsc->extensions"}
-                  {if condition="$value->type=='button'"}
+                  {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
@@ -89,7 +89,7 @@
             <td>
                <select name="coddivisa" class="form-control">
                {loop="$fsc->divisa->all()"}
-               <option value="{$value->coddivisa}"{if condition="$fsc->subcuenta->coddivisa==$value->coddivisa"} selected="selected"{/if}>{$value->descripcion}</option>
+               <option value="{$value->coddivisa}"{if="$fsc->subcuenta->coddivisa==$value->coddivisa"} selected="selected"{/if}>{$value->descripcion}</option>
                {/loop}
                </select>
             </td>
@@ -115,7 +115,7 @@
          <div class="col-md-10 col-sm-10 text-right">
             <div class="btn-group">
             {loop="$fsc->paginas()"}
-               <a class="btn btn-sm btn-default{if condition="$value.actual"} active{/if}" href="{$value.url}">{$value.num}</a>
+               <a class="btn btn-sm btn-default{if="$value.actual"} active{/if}" href="{$value.url}">{$value.num}</a>
             {/loop}
             </div>
          </div>
@@ -143,7 +143,7 @@
          {loop="$fsc->resultados"}
          <tr>
             <td class="text-center">
-               <input type="checkbox" name="punteada[]" value="{$value->idpartida}"{if condition="$value->punteada"} checked="checked"{/if}/>
+               <input type="checkbox" name="punteada[]" value="{$value->idpartida}"{if="$value->punteada"} checked="checked"{/if}/>
             </td>
             <td><a href="{$value->url()}">{$value->numero}</a></td>
             <td class="text-center">{$value->fecha}</td>
@@ -152,23 +152,23 @@
             <td class="text-right">{$fsc->show_precio($value->haber, $fsc->subcuenta->coddivisa)}</td>
             <td class="text-right">{$fsc->show_precio($value->saldo, $fsc->subcuenta->coddivisa)}</td>
             <td class="text-right">
-               {if condition="$value->iva!=0"}{$value->iva} %{else}-{/if}
+               {if="$value->iva!=0"}{$value->iva} %{else}-{/if}
             </td>
             <td class="text-right">
-               {if condition="$value->baseimponible!=0"}{$fsc->show_precio($value->baseimponible, $fsc->subcuenta->coddivisa)}{else}-{/if}
+               {if="$value->baseimponible!=0"}{$fsc->show_precio($value->baseimponible, $fsc->subcuenta->coddivisa)}{else}-{/if}
             </td>
             <td class="text-center">
-               {if condition="$value->codcontrapartida"}
+               {if="$value->codcontrapartida"}
                <a href="{$value->contrapartida_url()}">{$value->codcontrapartida}</a>
                {else}
                -
                {/if}
             </td>
             <td class="text-center">
-               {if condition="$value->cifnif"}{$value->cifnif}{else}-{/if}
+               {if="$value->cifnif"}{$value->cifnif}{else}-{/if}
             </td>
          </tr>
-         {if condition="$counter==$total"}
+         {if="$counter==$total"}
          <tr>
             <td colspan="4" class="text-right"><b>Sumas</b>:</td>
             <td class="text-right"><b>{$fsc->show_precio($value->sum_debe, $fsc->subcuenta->coddivisa)}</b></td>
@@ -185,7 +185,7 @@
       </table>
    </div>
    
-   {if condition="$total>10"}
+   {if="$total>10"}
    <div class="container-fluid">
       <div class="row">
          <div class="col-lg-2 col-md-2 col-sm-2">
@@ -201,7 +201,7 @@
          <div class="col-lg-8 col-md-8 col-sm-8 text-center">
             <div class="btn-group">
             {loop="$fsc->paginas()"}
-               <a class="btn btn-sm btn-default{if condition="$value.actual"} active{/if}" href="{$value.url}">{$value.num}</a>
+               <a class="btn btn-sm btn-default{if="$value.actual"} active{/if}" href="{$value.url}">{$value.num}</a>
             {/loop}
             </div>
          </div>

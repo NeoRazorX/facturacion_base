@@ -48,7 +48,7 @@
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            {if condition="$fsc->page->is_default()"}
+            {if="$fsc->page->is_default()"}
             <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
@@ -64,7 +64,7 @@
                <span class="glyphicon glyphicon-plus"></span> &nbsp; Nueva
             </a>
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='button'"}
+               {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
@@ -119,10 +119,10 @@
                   <label for="periodo" class="col-lg-2 col-md-2 col-sm-2 control-label">Período</label>
                   <div class="col-lg-10 col-md-10 col-sm-10">
                       <select name="periodo" class="form-control">
-                         {if condition="$fsc->periodo=='T1'"}<option selected="selected">T1</option>{else}<option>T1</option>{/if}
-                         {if condition="$fsc->periodo=='T2'"}<option selected="selected">T2</option>{else}<option>T2</option>{/if}
-                         {if condition="$fsc->periodo=='T3'"}<option selected="selected">T3</option>{else}<option>T3</option>{/if}
-                         {if condition="$fsc->periodo=='T4'"}<option selected="selected">T4</option>{else}<option>T4</option>{/if}
+                         {if="$fsc->periodo=='T1'"}<option selected="selected">T1</option>{else}<option>T1</option>{/if}
+                         {if="$fsc->periodo=='T2'"}<option selected="selected">T2</option>{else}<option>T2</option>{/if}
+                         {if="$fsc->periodo=='T3'"}<option selected="selected">T3</option>{else}<option>T3</option>{/if}
+                         {if="$fsc->periodo=='T4'"}<option selected="selected">T4</option>{else}<option>T4</option>{/if}
                       </select>
                    </div>
                </div>

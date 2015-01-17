@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -52,11 +52,7 @@ class contabilidad_series extends fs_controller
       }
       else if( isset($_GET['delete']) )
       {
-         if(FS_DEMO)
-         {
-            $this->new_error_msg('En el modo demo no puedes eliminar series. Otro usuario podría necesitarlas.');
-         }
-         else if(!$this->user->admin)
+         if(!$this->user->admin)
          {
             $this->new_error_msg('Sólo un administrador puede eliminar series.');
          }

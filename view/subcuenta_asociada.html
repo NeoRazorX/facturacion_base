@@ -83,9 +83,9 @@
 
 <form id="f_nueva_subcuenta" name="f_nueva_subcuenta" class="form" action="{$fsc->url()}" method="post">
    <input type="hidden" name="codejercicio" value="{$fsc->codejercicio}"/>
-   {if condition="$fsc->tipo == 'cli'"}
+   {if="$fsc->tipo == 'cli'"}
    <input type="hidden" name="cli" value="{$fsc->cliente->codcliente}"/>
-   {elseif condition="$fsc->tipo == 'pro'"}
+   {elseif="$fsc->tipo == 'pro'"}
    <input type="hidden" name="pro" value="{$fsc->proveedor->codproveedor}"/>
    {/if}
    <div class="modal" id="modal_nueva_subcuenta">
@@ -120,7 +120,7 @@
    </div>
 </form>
 
-{if condition="$fsc->tipo == 'cli'"}
+{if="$fsc->tipo == 'cli'"}
 <div class="container-fluid">
    <div class="row">
       <div class="col-lg-12 col-md-12 col-sm-12">
@@ -148,7 +148,7 @@
                <th></th>
             </tr>
          </thead>
-         {if condition="$fsc->subcuenta"}
+         {if="$fsc->subcuenta"}
          <tr>
             <td>
                <input class="form-control" type="text" name="codejercicio" value="{$fsc->subcuenta->codejercicio}" disabled="disabled"/>
@@ -222,7 +222,7 @@
       </table>
    </div>
 </form>
-{elseif condition="$fsc->tipo == 'pro'"}
+{elseif="$fsc->tipo == 'pro'"}
 <div class="container-fluid">
    <div class="row">
       <div class="col-lg-12 col-md-12 col-sm-12">
@@ -250,7 +250,7 @@
                <th></th>
             </tr>
          </thead>
-         {if condition="$fsc->subcuenta"}
+         {if="$fsc->subcuenta"}
          <tr>
             <td>
                <input class="form-control" type="text" name="codejercicio" value="{$fsc->subcuenta->codejercicio}" disabled="disabled"/>

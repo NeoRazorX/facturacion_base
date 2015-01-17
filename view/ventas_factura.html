@@ -1,6 +1,6 @@
 {include="header"}
 
-{if condition="$fsc->factura"}
+{if="$fsc->factura"}
 <script type="text/javascript">
    $(document).ready(function() {
       $("#b_imprimir").click(function(event) {
@@ -16,10 +16,10 @@
          event.preventDefault();
          $("#modal_eliminar").modal('show');
       });
-      {if condition="$fsc->factura->totalrecargo==0"}
+      {if="$fsc->factura->totalrecargo==0"}
       $(".recargo").hide();
       {/if}
-      {if condition="$fsc->factura->totalirpf==0"}
+      {if="$fsc->factura->totalirpf==0"}
       $(".irpf").hide();
       {/if}
    });
@@ -38,12 +38,12 @@
                <a id="b_imprimir" class="btn btn-sm btn-default" href="#">
                   <span class="glyphicon glyphicon-print"></span> &nbsp; Imprimir
                </a>
-               {if condition="$fsc->empresa->can_send_mail()"}
+               {if="$fsc->empresa->can_send_mail()"}
                <a id="b_enviar" class="btn btn-sm btn-default" href="#">
                   <span class="glyphicon glyphicon-envelope"></span> &nbsp; Enviar
                </a>
                {/if}
-               {if condition="$fsc->factura->idasiento"}
+               {if="$fsc->factura->idasiento"}
                <a class="btn btn-sm btn-default" href="{$fsc->factura->asiento_url()}">
                   <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Asiento contable
                </a>
@@ -55,7 +55,7 @@
             </div>
             
             <div class="btn-group">
-               {if condition="$fsc->factura->pagada"}
+               {if="$fsc->factura->pagada"}
                <button type="button" class="btn btn-sm btn-info dropdown-toggle" data-toggle="dropdown">
                   <span class="glyphicon glyphicon-ok"></span>
                   &nbsp; Pagada <span class="caret"></span>
@@ -67,7 +67,7 @@
                </button>
                {/if}
                <ul class="dropdown-menu" role="menu">
-                  {if condition="!$fsc->factura->pagada"}
+                  {if="!$fsc->factura->pagada"}
                   <li><a href="{$fsc->url()}&pagada=TRUE"><span class="glyphicon glyphicon-ok"></span> &nbsp; Pagada</a></li>
                   {else}
                   <li><a href="{$fsc->url()}&pagada=FALSE"><span class="glyphicon glyphicon-remove"></span> &nbsp; Sin pagar</a></li>
@@ -77,7 +77,7 @@
             
             <div class="btn-group">
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='button'"}
+               {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}&id={$fsc->factura->idfactura}" class="btn btn-sm btn-default">
                   {$value->text}
                </a>
@@ -103,7 +103,7 @@
                <a href="{$fsc->factura->cliente_url()}">{$fsc->factura->nombrecliente}</a> /
                {$fsc->factura->codigo}
             </h3>
-            {if condition="$fsc->agente"}
+            {if="$fsc->agente"}
             <p>Factura creada por <a href="{$fsc->agente->url()}">{$fsc->agente->get_fullname()}</a>.</p>
             {/if}
          </div>
@@ -152,7 +152,7 @@
             <a href="#lineas_iva" aria-controls="lineas_iva" role="tab" data-toggle="tab">Impuestos</a>
          </li>
          {loop="$fsc->extensions"}
-            {if condition="$value->type=='tab'"}
+            {if="$value->type=='tab'"}
             <li role="presentation">
                <a href="#ext_{$value->name}" aria-controls="ext_{$value->name}" role="tab" data-toggle="tab">{$value->text}</a>
             </li>
@@ -178,9 +178,9 @@
                      </tr>
                   </thead>
                   {loop="$fsc->factura->get_lineas()"}
-                  <tr{if condition="$value->cantidad<1"} class="bg-warning"{/if}>
+                  <tr{if="$value->cantidad<1"} class="bg-warning"{/if}>
                      <td>
-                        {if condition="$value->idalbaran"}
+                        {if="$value->idalbaran"}
                         <a href="{$value->albaran_url()}">{$value->albaran_codigo()}</a>
                         {$value->albaran_numero()}
                         {else}
@@ -238,7 +238,7 @@
             </div>
          </div>
          {loop="$fsc->extensions"}
-            {if condition="$value->type=='tab'"}
+            {if="$value->type=='tab'"}
             <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
                <iframe src="index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}" width="100%" height="600" frameborder="0"></iframe>
             </div>
@@ -268,7 +268,7 @@
          </div>
          <div class="modal-body">
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='pdf'"}
+               {if="$value->type=='pdf'"}
                <a href="index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}" target="_blank" class="btn btn-block btn-default">
                   <span class="glyphicon glyphicon-print"></span> &nbsp; {$value->text}
                </a>
@@ -303,7 +303,7 @@
             </div>
             <div class="modal-footer">
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='email'"}
+               {if="$value->type=='email'"}
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}';this.form.submit();">
                   <span class="glyphicon glyphicon-send"></span> &nbsp; Enviar {$value->text}
                </button>
@@ -322,7 +322,7 @@
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title">¿Realmente desea eliminar esta factura?</h4>
          </div>
-         {if condition="$fsc->factura->idasiento"}
+         {if="$fsc->factura->idasiento"}
          <div class="modal-body">
             Hay asociado un asiento contable que será eliminado junto con la factura.
          </div>

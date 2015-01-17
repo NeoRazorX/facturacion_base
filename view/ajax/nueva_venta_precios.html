@@ -1,15 +1,15 @@
-{if condition="$fsc->get_errors()"}
+{if="$fsc->get_errors()"}
 <div class="alert alert-danger">
    <ul>{loop="$fsc->get_errors()"}<li>{$value}</li>{/loop}</ul>
 </div>
 {/if}
-{if condition="$fsc->get_messages()"}
+{if="$fsc->get_messages()"}
 <div class="alert alert-success">
    <ul>{loop="$fsc->get_messages()"}<li>{$value}</li>{/loop}</ul>
 </div>
 {/if}
 
-{if condition="$fsc->articulo"}
+{if="$fsc->articulo"}
 <div class="table-responsive">
    <table class="table table-hover">
       <thead>
@@ -41,7 +41,7 @@
             <th></th>
          </tr>
       </thead>
-      {if condition="$fsc->articulo->costemedio!=0"}
+      {if="$fsc->articulo->costemedio!=0"}
       <tr>
          <td>Coste</td>
          <td class="text-right">0 %</td>
@@ -93,7 +93,7 @@
    </table>
 </div>
 
-{if condition="$fsc->articulo->get_equivalentes()"}
+{if="$fsc->articulo->get_equivalentes()"}
 <div class="table-responsive">
    <table class="table table-hover">
       <caption>Artículos equivalentes</caption>
@@ -129,7 +129,7 @@
 </div>
 {/if}
 
-{if condition="$fsc->articulo->get_lineas_albaran_prov(0, 10)"}
+{if="$fsc->articulo->get_lineas_albaran_prov(0, 10)"}
 <div class="table-responsive">
    <table class="table table-hover">
       <caption>Últimas compras</caption>
@@ -171,7 +171,7 @@
 </div>
 {/if}
 
-{if condition="$fsc->articulo->get_lineas_albaran_cli(0, 10)"}
+{if="$fsc->articulo->get_lineas_albaran_cli(0, 10)"}
 <div class="table-responsive">
    <table class="table table-hover">
       <caption>Últimas ventas</caption>

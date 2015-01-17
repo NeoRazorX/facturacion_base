@@ -18,12 +18,12 @@
       {loop="$fsc->resultados"}
       <tr class="clickableRow{if="$value->total<=0"} bg-warning{/if}" href="{$value->url()}">
          <td class="text-center">
-            {if condition="$value->pagada"}
+            {if="$value->pagada"}
             <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
             {/if}
          </td>
          <td class="text-center">
-            {if condition="$value->idasiento"}
+            {if="$value->idasiento"}
             <span class="glyphicon glyphicon-paperclip" title="La factura tiene vinculado un asiento contable"></span>
             {/if}
          </td>
@@ -44,7 +44,7 @@
 </div>
 
 <ul class="pager">
-   {if condition="$fsc->anterior_url()!=''"}
+   {if="$fsc->anterior_url()!=''"}
    <li class="previous">
       <a href="{$fsc->anterior_url()}">
          <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
@@ -52,7 +52,7 @@
    </li>
    {/if}
    
-   {if condition="$fsc->siguiente_url()!=''"}
+   {if="$fsc->siguiente_url()!=''"}
    <li class="next">
       <a href="{$fsc->siguiente_url()}">
          Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>

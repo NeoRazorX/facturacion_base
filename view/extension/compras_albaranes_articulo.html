@@ -16,7 +16,7 @@
       </tr>
    </thead>
    {loop="$fsc->resultados"}
-   <tr{if condition="$value->cantidad<1"} class="bg-warning"{/if}>
+   <tr{if="$value->cantidad<1"} class="bg-warning"{/if}>
       <td>
          <a href="{$value->url()}">{$value->show_codigo()}</a>
          {$value->show_nombre()}
@@ -34,7 +34,7 @@
 </table>
 
 <ul class="pager">
-   {if condition="$fsc->anterior_url()!=''"}
+   {if="$fsc->anterior_url()!=''"}
    <li class="previous">
       <a href="{$fsc->anterior_url()}">
          <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
@@ -42,7 +42,7 @@
    </li>
    {/if}
    
-   {if condition="$fsc->siguiente_url()!=''"}
+   {if="$fsc->siguiente_url()!=''"}
    <li class="next">
       <a href="{$fsc->siguiente_url()}">
          Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>

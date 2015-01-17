@@ -1,6 +1,6 @@
 {include="header"}
 
-{if condition="$fsc->cliente_s"}
+{if="$fsc->cliente_s"}
 <script type="text/javascript" src="plugins/facturacion_base/view/js/nueva_venta.js"></script>
 <script type="text/javascript">
    fs_nf0 = {#FS_NF0#};
@@ -99,7 +99,7 @@
                   <a href="{$fsc->impuesto->url()}">IVA</a>:
                   <select name="codimpuesto" class="form-control">
                      {loop="$fsc->impuesto->all()"}
-                     <option value="{$value->codimpuesto}"{if condition="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
+                     <option value="{$value->codimpuesto}"{if="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
                      {/loop}
                   </select>
                </div>
@@ -195,7 +195,7 @@
                <a href="{$fsc->agente->url()}">Empleado</a>:
                <select name="codagente" class="form-control">
                   <option value="{$fsc->agente->codagente}">{$fsc->agente->get_fullname()}</option>
-                  {if condition="$fsc->user->admin"}
+                  {if="$fsc->user->admin"}
                      <option value="{$fsc->agente->codagente}">-----</option>
                      {loop="$fsc->agente->all()"}
                      <option value="{$value->codagente}">{$value->get_fullname()}</option>
@@ -209,7 +209,7 @@
                <a href="{$fsc->almacen->url()}">Almacén</a>:
                <select name="almacen" class="form-control">
                   {loop="$fsc->almacen->all()"}
-                     {if condition="$value->is_default()"}
+                     {if="$value->is_default()"}
                      <option value="{$value->codalmacen}" selected='selected'>{$value->nombre}</option>
                      {else}
                      <option value="{$value->codalmacen}">{$value->nombre}</option>
@@ -223,7 +223,7 @@
                <a href="{$fsc->serie->url()}">Serie</a>:
                <select name="serie" class="form-control" id="codserie" onchange="usar_serie();recalcular();">
                   {loop="$fsc->serie->all()"}
-                     {if condition="$value->is_default()"}
+                     {if="$value->is_default()"}
                      <option value="{$value->codserie}" selected='selected'>{$value->descripcion}</option>
                      {else}
                      <option value="{$value->codserie}">{$value->descripcion}</option>
@@ -237,7 +237,7 @@
                <a href="{$fsc->divisa->url()}">Divisa</a>:
                <select name="divisa" class="form-control">
                   {loop="$fsc->divisa->all()"}
-                     {if condition="$value->is_default()"}
+                     {if="$value->is_default()"}
                      <option value="{$value->coddivisa}" selected="selected">{$value->descripcion}</option>
                      {else}
                      <option value="{$value->coddivisa}">{$value->descripcion}</option>
@@ -286,7 +286,7 @@
                {loop="$fsc->tipos_a_guardar()"}
                <div class="radio">
                   <label>
-                     <input type="radio" name="tipo" value="{$value['tipo']}"{if condition="$value['tipo']==$fsc->tipo"} checked="checked"{/if}/>
+                     <input type="radio" name="tipo" value="{$value['tipo']}"{if="$value['tipo']==$fsc->tipo"} checked="checked"{/if}/>
                      {$value['nombre']}
                   </label>
                </div>
@@ -295,7 +295,7 @@
                   <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
                   <select name="forma_pago" class="form-control">
                   {loop="$fsc->forma_pago->all()"}
-                     {if condition="$value->is_default()"}
+                     {if="$value->is_default()"}
                      <option value="{$value->codpago}" selected="selected">{$value->descripcion}</option>
                      {else}
                      <option value="{$value->codpago}">{$value->descripcion}</option>
@@ -313,7 +313,7 @@
       </div>
    </div>
 </form>
-{elseif condition="!$fsc->user->get_agente()"}
+{elseif="!$fsc->user->get_agente()"}
 <div class="well well-lg">
    <h1>No puedes entrar aquí</h1>
    <p>

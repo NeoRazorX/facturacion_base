@@ -1,48 +1,66 @@
 {include="header"}
 
-{if condition="$fsc->articulo"}
+{if="$fsc->articulo"}
 <script type="text/javascript">
-{if condition="$GLOBALS['config2']['margin_method'] == 'CST'"} {* Margen sobre el precio de coste *}
-   function margencalc(icst, ipvp)
+   function cambiar_pvp()
    {
-      if(icst == 0)
+      var coste = parseFloat( $("#coste").val() );
+      var iva = parseFloat( $("#iva").val() );
+      var pvp = parseFloat( $("#pvp").val() );
+      $("#pvpi").val( pvp * (100 + iva)/100 );
+      
+      var margen = 0;
+      if(coste > 0)
       {
-         return '-';
+         margen = (pvp*100)/coste - 100;
       }
-      else
+      
+      {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+      $("#margen").val(margen);
+      {else}
+      $("#margen").html(margen);
+      {/if}
+      
+      recalcular_tarifas();
+   }
+   function cambiar_pvpi()
+   {
+      var coste = parseFloat( $("#coste").val() );
+      var iva = parseFloat( $("#iva").val() );
+      var pvpi = parseFloat( $("#pvpi").val() );
+      
+      var pvp = (100 * pvpi) / (100 + iva);
+      $("#pvp").val(pvp);
+      
+      var margen = 0;
+      if(coste > 0)
       {
-         return (ipvp-icst)/icst;
+         margen = (pvp*100)/coste - 100;
+      }
+      
+      {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+      $("#margen").val(margen);
+      {else}
+      $("#margen").html(margen);
+      {/if}
+      
+      recalcular_tarifas();
+   }
+   function cambiar_margen()
+   {
+      var iva = parseFloat( $("#iva").val() );
+      var coste = parseFloat( $("#coste").val() );
+      var margen = parseFloat( $("#margen").val() );
+      
+      if( !isNaN(margen) && isFinite(margen) )
+      {
+         var pvp = coste*(100 + margen)/100;
+         $("#pvp").val(pvp);
+         $("#pvpi").val( pvp * (100 + iva)/100 );
+         recalcular_tarifas();
       }
    }
-   function pvpcalc(icst, imc)
-   {
-      return icst*(1+imc);
-   }
-{else} {* Default: sobre el precio de venta *}
-   function margencalc(icst, ipvp)
-   {
-      if(ipvp == 0)
-      {
-         return '-';
-      }
-      else
-      {
-         return (ipvp-icst)/ipvp;
-      }
-   }
-   function pvpcalc(icst, imv)
-   {
-      if( (1-imv) == 0)
-      {
-         return '-';
-      }
-      else
-      {
-         return icst/(1-imv);
-      }
-   }
-{/if}
-   function recalcular()
+   function recalcular_tarifas()
    {
       var coste = parseFloat( $("#coste").val() );
       var iva = parseFloat( $("#iva").val() );
@@ -60,52 +78,17 @@
             npvp = pvp * (100 - dto)/100;
             $("#pvp_"+i).val( npvp );
             $("#pvpi_"+i).val( pvp * (100 - dto)/100 * (100 + iva)/100 );
-            $("#margen_"+i).val( margencalc( coste, npvp ) * 100  );
+            
+            {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+            if(coste > 0)
+            {
+               $("#margen_"+i).val( (npvp*100)/coste - 100 );
+            }
+            {/if}
          }
       }
    }
-   function cambiar_pvp()
-   {
-      var coste = parseFloat( $("#coste").val() );
-      var iva = parseFloat( $("#iva").val() );
-      var pvp = parseFloat( $("#pvp").val() );
-      $("#pvpi").val( pvp * (100 + iva)/100 );
-      
-      var margen = 0;
-      if(pvp != 0)
-      {
-         margen = margencalc(coste, pvp) * 100;
-      }
-      
-      if( isNaN(margen) )
-         margen = 0;
-      
-      $("#margen").val(margen);
-      
-      recalcular();
-   }
-   function cambiar_margen()
-   {
-      var margen = parseFloat( $("#margen").val() );
-      var coste = parseFloat( $("#coste").val() );
-      var iva = parseFloat( $("#iva").val() );
-      var pvp = pvpcalc(coste, margen/100.0);
-      $("#pvp").val( pvp );
-      $("#pvpi").val( pvp * (100 + iva)/100 );
-      
-      recalcular();
-   }
-   function cambiar_pvpi()
-   {
-      var coste = parseFloat( $("#coste").val() );
-      var iva = parseFloat( $("#iva").val() );
-      var pvpi = parseFloat( $("#pvpi").val() );
-      $("#pvp").val( (100 * pvpi) / (100 + iva) );
-      var pvp = parseFloat( $("#pvp").val() );
-      $("#margen").val( margencalc( coste, pvp ) * 100 );
-      recalcular();
-   }
-   function ajustar_dto()
+   function tarifas_dto()
    {
       var coste = parseFloat( $("#coste").val() );
       var pvp = parseFloat( $("#pvp").val() );
@@ -117,44 +100,34 @@
          if( $("#dto_"+i) )
          {
             dto = parseFloat( $("#dto_"+i).val() );
+            if( isNaN(dto) )
+               dto = 0;
+            
             npvp = pvp * (100 - dto)/100;
             $("#pvp_"+i).val( npvp );
             $("#pvpi_"+i).val( npvp * (100 + iva)/100 );
-            $("#margen_"+i).val( ( margencalc(coste, npvp) ) * 100  );
+            
+            {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+            if(coste > 0)
+            {
+               $("#margen_"+i).val( (npvp*100)/coste - 100 );
+            }
+            {/if}
          }
       }
    }
-   function ajustar_margen()
-   {
-      var coste = parseFloat( $("#coste").val() );
-      var pvp = parseFloat( $("#pvp").val() );
-      var iva = parseFloat( $("#iva").val() );
-      var margen = 0;
-      var npvp = 0;
-      for(var i=0; i<3; i++)
-      {
-         if( $("#margen_"+i) )
-         {
-            margen = parseFloat( $("#margen_"+i).val() );
-            npvp = parseFloat( pvpcalc(coste, margen/100.0) );
-            $("#pvp_"+i).val( npvp );
-            $("#pvpi_"+i).val( npvp * (100 + iva)/100 );
-            $("#dto_"+i).val( 100 * ( pvp - npvp ) / pvp );
-         }
-      }
-   }
-   function ajustar_pvp()
+   function tarifas_pvp()
    {
       var coste = parseFloat( $("#coste").val() );
       var pvp = parseFloat( $("#pvp").val() );
       var iva = parseFloat( $("#iva").val() );
       var npvp = 0;
+      var dto = 0;
       for(var i=0; i<100; i++)
       {
          if( $("#pvp_"+i) )
          {
             npvp = parseFloat( $("#pvp_"+i).val() );
-            
             if(pvp == 0)
             {
                $("#pvp").val(npvp);
@@ -165,11 +138,17 @@
             
             $("#dto_"+i).val( 100 - (100*npvp)/pvp );
             $("#pvpi_"+i).val( npvp * (100 + iva)/100 );
-            $("#margen_"+i).val( margencalc(coste, npvp) * 100  );
+            
+            {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+            if(coste > 0)
+            {
+               $("#margen_"+i).val( (npvp*100)/coste - 100 );
+            }
+            {/if}
          }
       }
    }
-   function ajustar_pvpi()
+   function tarifas_pvpi()
    {
       var coste = parseFloat( $("#coste").val() );
       var pvp = parseFloat( $("#pvp").val() );
@@ -181,7 +160,6 @@
          if( $("#pvp_"+i) )
          {
             npvpi = parseFloat( $("#pvpi_"+i).val() );
-            
             if(parseFloat($("#pvpi").val()) == 0)
             {
                $("#pvpi").val(npvpi);
@@ -193,7 +171,13 @@
             npvp = (100*npvpi)/(100+iva);
             $("#pvp_"+i).val( npvp );
             $("#dto_"+i).val( 100 - (100*npvp)/pvp );
-            $("#margen_"+i).val( margencalc(coste, npvp) * 100  );
+            
+            {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+            if(coste > 0)
+            {
+               $("#margen_"+i).val( (npvp*100)/coste - 100 );
+            }
+            {/if}
          }
       }
    }
@@ -285,7 +269,7 @@
    <li id="b_generales"><a href="#">Datos generales</a></li>
    <li id="b_precios"><a href="#precios">Precios</a></li>
    <li id="b_stock"><a href="#stocks">Stock</a></li>
-   {if condition="$fsc->equivalentes"}
+   {if="$fsc->equivalentes"}
    <li id="b_equivalentes"><a href="#equivalentes">Equivalentes</a></li>
    {/if}
    <li class="dropdown">
@@ -294,7 +278,7 @@
       </a>
       <ul class="dropdown-menu" role="menu">
       {loop="$fsc->extensions"}
-         {if condition="$value->type=='button'"}
+         {if="$value->type=='button'"}
          <li>
             <a href="index.php?page={$value->from}&ref={function="urlencode($fsc->articulo->referencia)"}">
                <span class="glyphicon glyphicon-list"></span> &nbsp; {$value->text}
@@ -322,7 +306,7 @@
             <a href="{$fsc->familia->url()}">Familia</a>:
             <select class="form-control" name="codfamilia">
             {loop="$fsc->familia->all()"}
-               {if condition="$value->codfamilia===$fsc->articulo->codfamilia"}
+               {if="$value->codfamilia===$fsc->articulo->codfamilia"}
                <option value="{$value->codfamilia}" selected="selected">{$value->descripcion}</option>
                {else}
                <option value="{$value->codfamilia}">{$value->descripcion}</option>
@@ -337,25 +321,25 @@
          <div class="col-lg-8 col-md-8 col-sm-8">
             <div class="checkbox-inline">
                <label>
-                  <input type="checkbox" name="bloqueado" value="TRUE"{if condition="$fsc->articulo->bloqueado"} checked="checked"{/if}/>
+                  <input type="checkbox" name="bloqueado" value="TRUE"{if="$fsc->articulo->bloqueado"} checked="checked"{/if}/>
                   Bloqueado
                </label>
             </div>
             <div class="checkbox-inline">
                <label>
-                  <input type="checkbox" name="secompra" value="TRUE"{if condition="$fsc->articulo->secompra"} checked="checked"{/if}/>
+                  <input type="checkbox" name="secompra" value="TRUE"{if="$fsc->articulo->secompra"} checked="checked"{/if}/>
                   Se compra
                </label>
             </div>
             <div class="checkbox-inline">
                <label>
-                  <input type="checkbox" name="sevende" value="TRUE"{if condition="$fsc->articulo->sevende"} checked="checked"{/if}/>
+                  <input type="checkbox" name="sevende" value="TRUE"{if="$fsc->articulo->sevende"} checked="checked"{/if}/>
                   Se vende
                </label>
             </div>
             <div class="checkbox-inline">
                <label>
-                  <input type="checkbox" name="publico" value="TRUE"{if condition="$fsc->articulo->publico"} checked="checked"{/if}/>
+                  <input type="checkbox" name="publico" value="TRUE"{if="$fsc->articulo->publico"} checked="checked"{/if}/>
                   Público
                </label>
             </div>
@@ -369,7 +353,7 @@
          </div>
          <div class="form-group col-lg-6 col-md-6 col-sm-6">
             <label>
-               <input type="checkbox" name="destacado" value="TRUE"{if condition="$fsc->articulo->destacado"} checked="checked"{/if}/>
+               <input type="checkbox" name="destacado" value="TRUE"{if="$fsc->articulo->destacado"} checked="checked"{/if}/>
                Destacar frente a productos equivalentes
             </label>
          </div>
@@ -389,7 +373,7 @@
          </div>
          <div class="form-group col-lg-3 col-md-3 col-sm-3">
             <label>
-               <input type="checkbox" name="controlstock" value="TRUE"{if condition="$fsc->articulo->controlstock"} checked="checked"{/if}/>
+               <input type="checkbox" name="controlstock" value="TRUE"{if="$fsc->articulo->controlstock"} checked="checked"{/if}/>
                Permitir ventas sin stock
             </label>
          </div>
@@ -424,7 +408,7 @@
                   <a href="{$fsc->impuesto->url()}">IVA</a>:
                   <select class="form-control" name="codimpuesto">
                   {loop="$fsc->impuesto->all()"}
-                     {if condition="$value->codimpuesto==$fsc->articulo->codimpuesto"}
+                     {if="$value->codimpuesto==$fsc->articulo->codimpuesto"}
                      <option value="{$value->codimpuesto}" selected="selected">{$value->descripcion}</option>
                      {else}
                      <option value="{$value->codimpuesto}">{$value->descripcion}</option>
@@ -444,20 +428,24 @@
             <div class="col-md-4">
                <div class="form-group">
                   Precio de Coste:
-                  {if condition="$fsc->articulo->secompra AND $GLOBALS['config2']['cost_is_average']"}
+                  {if="$fsc->articulo->secompra AND $GLOBALS['config2']['cost_is_average']"}
                   <input type="text" name="coste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" disabled="disabled">
                   {else}
-                  <input type="text" name="preciocoste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}">
+                  <input type="text" name="preciocoste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" onkeyup="cambiar_margen()" onclick="this.select()" autocomplete="off">
                   {/if}
                   <p class="help-block">
-                     Puede cambiar la configuración de precio de coste desde la <a href="index.php?page=admin_config2">configuración avanzada</a>.
+                     Puede cambiar la configuración de precio de coste desde el <a href="index.php?page=admin_home#avanzado">panel de control</a>.
                   </p>
                </div>
             </div>
             <div class="col-md-4">
                <div class="form-group">
-                  Margen de ganancia:
+                  Margen (% sobre Coste)
+                  {if="$GLOBALS['config2']['margin_method']=='CST'"}
                   <input type="text" class="form-control" id="margen" name="margen" value="0" autocomplete="off" onkeyup="cambiar_margen()" onclick="this.select()"/>
+                  {else}
+                  <div id="margen" class="form-control"></div>
+                  {/if}
                </div>
             </div>
          </div>
@@ -469,15 +457,11 @@
                <tr>
                   <th class="text-left">Tarifa</th>
                   <th class="text-right">Dto (%)</th>
-                  <th class="text-right">
-                     {if condition="$GLOBALS['config2']['margin_method'] == 'CST'"}
-                     Margen (% sobre Coste)
-                     {else}
-                     Margen (% de Ventas)
-                     {/if}
-                  </th>
                   <th class="text-right">PVP</th>
                   <th class="text-right">PVP+IVA</th>
+                  {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+                  <th class="text-right">Margen (% sobre Coste)</th>
+                  {/if}
                </tr>
             </thead>
             {loop="$fsc->articulo->get_tarifas(TRUE)"}
@@ -488,21 +472,21 @@
                <td>
                   <input type="hidden" name="id_{$counter}" value="{$value->id}"/>
                   <input type="hidden" name="codtarifa_{$counter}" value="{$value->codtarifa}"/>
-                  <input type="number" step="any" class="form-control text-right" id="dto_{$counter}" name="dto_{$counter}" value="{$value->descuento}" autocomplete="off" onchange="ajustar_dto()" onkeyup="ajustar_dto()" onclick="this.select()"/>
+                  <input type="text" class="form-control text-right" id="dto_{$counter}" name="dto_{$counter}" value="{$value->descuento}" autocomplete="off" onkeyup="tarifas_dto()" onclick="this.select()"/>
                </td>
                <td>
-                  <input type="number" step="any" class="form-control text-right" id="margen_{$counter}" name="margen_{$counter}" value="" autocomplete="off" onchange="ajustar_margen()" onkeyup="ajustar_margen()" onclick="this.select()"/>
+                  <input type="text" class="form-control text-right" id="pvp_{$counter}" name="pvp_{$counter}" value="{$value->pvp()}" autocomplete="off" onkeyup="tarifas_pvp()" onclick="this.select()"/>
                </td>
                <td>
-                  <input type="number" step="any" class="form-control text-right" id="pvp_{$counter}" name="pvp_{$counter}" value="{$value->pvp()}" autocomplete="off" onchange="ajustar_pvp()" onkeyup="ajustar_pvp()" onclick="this.select()"/>
+                  <input type="text" class="form-control text-right" id="pvpi_{$counter}" name="pvpiva_{$counter}" value="{$value->pvp_iva()}" autocomplete="off" onkeyup="tarifas_pvpi()" onclick="this.select()"/>
                </td>
-               <td>
-                  <input type="number" step="any" class="form-control text-right" id="pvpi_{$counter}" name="pvpiva_{$counter}" value="{$value->pvp_iva()}" autocomplete="off" onchange="ajustar_pvpi()" onkeyup="ajustar_pvpi()" onclick="this.select()"/>
-               </td>
+               {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+               <td><input type="text" class="form-control text-right" id="margen_{$counter}" name="margen_{$counter}" disabled="disabled"/></td>
+               {/if}
             </tr>
             {/loop}
             <tr>
-               <td colspan="6" class="text-center">
+               <td colspan="5" class="text-center">
                   <a class="btn btn-sm btn-block btn-success" href="index.php?page=ventas_articulos#tarifas">Nueva tarifa</a>
                </td>          
             </tr>
@@ -555,7 +539,7 @@
             </form>
          </tr>
          {/loop}
-         {if condition="$fsc->nuevos_almacenes"}
+         {if="$fsc->nuevos_almacenes"}
          <tr class="bg-info">
             <form action="{$fsc->url()}#stock" method="post" class="form">
                <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
@@ -583,7 +567,7 @@
 </div>
 
 <div id="div_equivalentes">
-   {if condition="$fsc->equivalentes"}
+   {if="$fsc->equivalentes"}
    <div class="table-responsive">
       <table class="table table-hover">
          <thead>
@@ -618,7 +602,7 @@
                <h4 class="modal-title">Imagen</h4>
             </div>
             <div class="modal-body">
-               {if condition="$fsc->articulo->imagen_url()"}
+               {if="$fsc->articulo->imagen_url()"}
                <div class="thumbnail">
                   <img src="{$fsc->articulo->imagen_url()}" alt="{$fsc->articulo->referencia}"/>
                </div>
@@ -630,7 +614,7 @@
                {/if}
             </div>
             <div class="modal-footer">
-               {if condition="$fsc->articulo->imagen_url()"}
+               {if="$fsc->articulo->imagen_url()"}
                <a class="btn btn-sm btn-danger" href="{$fsc->url()}&delete_img=TRUE">
                   <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
                </a>

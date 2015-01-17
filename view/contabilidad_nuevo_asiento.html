@@ -184,7 +184,7 @@
                   <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Asientos
                </a>
                {loop="$fsc->extensions"}
-                  {if condition="$value->type=='button'"}
+                  {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
@@ -221,7 +221,7 @@
                Divisa:
                <select name='divisa' class='form-control'>
                {loop="$fsc->divisa->all()"}
-                  <option value='{$value->coddivisa}'{if condition="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
+                  <option value='{$value->coddivisa}'{if="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
                {/loop}
                </select>
             </div>

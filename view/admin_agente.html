@@ -1,6 +1,6 @@
 {include="header"}
 
-{if condition="$fsc->agente"}
+{if="$fsc->agente"}
 <script type="text/javascript">
    $(document).ready(function() {
       $("#b_delete_agente").click(function(event) {
@@ -38,7 +38,7 @@
                <span class="glyphicon glyphicon-dashboard"></span> &nbsp; Datos generales
             </a>
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='button'"}
+               {if="$value->type=='button'"}
                <a id="b_{$value->from}" href="index.php?page={$value->from}&codagente={$fsc->agente->codagente}" class="list-group-item">
                   <span class="glyphicon glyphicon-list"></span> &nbsp; {$value->text}
                </a>

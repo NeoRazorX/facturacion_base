@@ -52,7 +52,7 @@
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            {if condition="$fsc->page->is_default()"}
+            {if="$fsc->page->is_default()"}
             <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
@@ -71,7 +71,7 @@
                <span class="glyphicon glyphicon-tasks"></span> &nbsp; Huecos
             </button>
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='button'"}
+               {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
@@ -98,15 +98,15 @@
     </div>
 </div>
 
-{if condition="$fsc->query!=''"}
+{if="$fsc->query!=''"}
 <h3 class="text-center">Resultados de "{$fsc->query}":</h3>
 {/if}
 
 <ul class="nav nav-tabs" role="tablist">
-   <li{if condition="!isset($_GET['sinpagar'])"} class="active"{/if}>
+   <li{if="!isset($_GET['sinpagar'])"} class="active"{/if}>
       <a href="{$fsc->url()}">Todas las facturas</a>
    </li>
-   <li{if condition="isset($_GET['sinpagar'])"} class="active"{/if}>
+   <li{if="isset($_GET['sinpagar'])"} class="active"{/if}>
       <a href="{$fsc->url()}&sinpagar=TRUE">Sin pagar</a>
    </li>
 </ul>
@@ -129,14 +129,14 @@
       {loop="$fsc->resultados"}
       <tr class="clickableRow{if="$value->total<=0"} bg-warning{/if}" href="{$value->url()}">
          <td class="text-center">
-            {if condition="$value->pagada"}
+            {if="$value->pagada"}
             <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
             {else}
             <!--{$total+=$value->total}-->
             {/if}
          </td>
          <td class="text-center">
-            {if condition="$value->idasiento"}
+            {if="$value->idasiento"}
             <span class="glyphicon glyphicon-paperclip" title="La factura tiene vinculado un asiento contable"></span>
             {/if}
          </td>
@@ -154,7 +154,7 @@
          <td colspan="6">Ninguna factura encontrada. Pulsa <b>Nueva</b> para crear una.</td>
       </tr>
       {/loop}
-      {if condition="isset($_GET['sinpagar']) AND $fsc->offset==0"}
+      {if="isset($_GET['sinpagar']) AND $fsc->offset==0"}
       <tr>
          <td colspan="5"></td>
          <td class="text-right"><b>{$fsc->show_precio($total)}</b></td>
@@ -165,7 +165,7 @@
 </div>
 
 <ul class="pager">
-   {if condition="$fsc->anterior_url()!=''"}
+   {if="$fsc->anterior_url()!=''"}
    <li class="previous">
       <a href="{$fsc->anterior_url()}">
          <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
@@ -173,7 +173,7 @@
    </li>
    {/if}
    
-   {if condition="$fsc->siguiente_url()!=''"}
+   {if="$fsc->siguiente_url()!=''"}
    <li class="next">
       <a href="{$fsc->siguiente_url()}">
          Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>

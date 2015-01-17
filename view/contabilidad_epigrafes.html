@@ -17,14 +17,14 @@
          $("#modal_nueva_cuenta").modal('show');
          document.f_nueva_cuenta.ncuenta.focus();
       });
-      {if condition="$fsc->grupo"}
+      {if="$fsc->grupo"}
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
          if( confirm("¿Realmente desea eliminar este grupo?") )
             window.location.href = '{$fsc->page->url()}&deleteg={$fsc->grupo->idgrupo}';
       });
       {/if}
-      {if condition="$fsc->epigrafe"}
+      {if="$fsc->epigrafe"}
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
          if( confirm("¿Realmente desea eliminar este epígrafe?") )
@@ -34,7 +34,7 @@
    });
 </script>
 
-{if condition="$fsc->grupo"}
+{if="$fsc->grupo"}
 <form action="{$fsc->grupo->url()}" method="post" class="form" role="form">
    <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
       <div class="row">
@@ -48,7 +48,7 @@
             
             <div class="btn-group">
                {loop="$fsc->extensions"}
-                  {if condition="$value->type=='button'"}
+                  {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
@@ -109,7 +109,7 @@
       </tr>
    </table>
 </div>
-{elseif condition="$fsc->epigrafe"}
+{elseif="$fsc->epigrafe"}
 <form action="{$fsc->epigrafe->url()}" method="post" class="form">
    <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
       <div class="row">
@@ -123,7 +123,7 @@
             
             <div class="btn-group">
                {loop="$fsc->extensions"}
-                  {if condition="$value->type=='button'"}
+                  {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
@@ -207,7 +207,7 @@
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            {if condition="$fsc->page->is_default()"}
+            {if="$fsc->page->is_default()"}
             <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
@@ -222,7 +222,7 @@
          <form name="f_filtro_cuentas" action="{$fsc->url()}" method="post" class="post">
             <select name="ejercicio" class="form-control" onchange="document.f_filtro_cuentas.submit()">
             {loop="$fsc->ejercicio->all()"}
-               {if condition="$value->codejercicio==$fsc->codejercicio"}
+               {if="$value->codejercicio==$fsc->codejercicio"}
                <option value="{$value->codejercicio}" selected="selected">{$value->nombre} ({$value->codejercicio})</option>
                {else}
                <option value="{$value->codejercicio}">{$value->nombre} ({$value->codejercicio})</option>
@@ -281,7 +281,7 @@
                   Ejercicio:
                   <select name="ejercicio" class="form-control">
                      {loop="$fsc->ejercicio->all()"}
-                        {if condition="$value->codejercicio==$fsc->codejercicio"}
+                        {if="$value->codejercicio==$fsc->codejercicio"}
                         <option value="{$value->codejercicio}" selected="selected">{$value->nombre} ({$value->codejercicio})</option>
                         {else}
                         <option value="{$value->codejercicio}">{$value->nombre} ({$value->codejercicio})</option>
@@ -314,7 +314,7 @@
       <div class="modal-content">
          <form class="form" role="form" name="f_nuevo_epigrafe" action="{$fsc->url()}" method="post">
             <input type="hidden" name="ejercicio" value="{$fsc->grupo->codejercicio}"/>
-            {if condition="$fsc->epigrafe"}
+            {if="$fsc->epigrafe"}
             <input type="hidden" name="ejercicio" value="{$fsc->epigrafe->codejercicio}"/>
             <input type="hidden" name="idpadre" value="{$fsc->epigrafe->idepigrafe}"/>
             {else}
@@ -329,7 +329,7 @@
             <div class="modal-body">
                <div class="form-group">
                   Código:
-                  {if condition="$fsc->epigrafe"}
+                  {if="$fsc->epigrafe"}
                   <input class="form-control" type="text" name="nepigrafe" autocomplete="off" maxlength="6"/>
                   {else}
                   <input class="form-control" type="text" name="nepigrafe" value="{$fsc->grupo->codgrupo}0" autocomplete="off" maxlength="6"/>

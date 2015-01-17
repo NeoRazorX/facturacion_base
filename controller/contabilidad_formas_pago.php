@@ -57,9 +57,9 @@ class contabilidad_formas_pago extends fs_controller
          $fp0 = $this->forma_pago->get($_GET['delete']);
          if($fp0)
          {
-            if(FS_DEMO)
+            if( !$this->user->admin )
             {
-               $this->new_error_msg('En el modo demo no puedes eliminar forma de pago. Otro usuario podría necesitarlas.');
+               $this->new_error_msg('Sólo un administrador puede eliminar formas de pago.');
             }
             else if( $fp0->delete() )
             {

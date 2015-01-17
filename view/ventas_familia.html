@@ -1,6 +1,6 @@
 {include="header"}
 
-{if condition="$fsc->familia"}
+{if="$fsc->familia"}
 <script type="text/javascript">
    $(document).ready(function() {
       $("#b_eliminar_familia").click(function(event) {
@@ -39,7 +39,7 @@
             
             <div class="btn-group">
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='button'"}
+               {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
@@ -107,7 +107,7 @@
 </div>
 
 <ul class="pager">
-   {if condition="$fsc->anterior_url()!=''"}
+   {if="$fsc->anterior_url()!=''"}
    <li class="previous">
       <a href="{$fsc->anterior_url()}">
          <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriors
@@ -115,7 +115,7 @@
    </li>
    {/if}
    
-   {if condition="$fsc->siguiente_url()!=''"}
+   {if="$fsc->siguiente_url()!=''"}
    <li class="next">
       <a href="{$fsc->siguiente_url()}">
          Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>

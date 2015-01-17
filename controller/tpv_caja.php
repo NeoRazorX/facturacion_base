@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -36,23 +36,22 @@ class tpv_caja extends fs_controller
       $this->caja = new caja();
       $this->show_cerrar = FALSE;
       
-      if( isset($_POST['delete']) )
+      if( isset($_GET['delete']) )
       {
-         if( $this->user->admin )
+         if($this->user->admin)
          {
-            $correcto = TRUE;
-            
-            foreach($_POST['delete'] as $cid)
+            $caja2 = $this->caja->get($_GET['delete']);
+            if($caja2)
             {
-               $caja2 = $this->caja->get($cid);
-               if( !$caja2->delete() )
-                  $correcto = FALSE;
+               if( $caja2->delete() )
+               {
+                  $this->new_message("Caja eliminadas correctamente.");
+               }
+               else
+                  $this->new_error_msg("¡Imposible eliminar la caja!");
             }
-            
-            if($correcto)
-               $this->new_message("Caja(s) eliminadas correctamente.");
             else
-               $this->new_error_msg("¡Imposible eliminar la(s) caja(s)!");
+               $this->new_error_msg("Caja no encontrada.");
          }
          else
             $this->new_error_msg("Tienes que ser administrador para poder eliminar cajas.");
@@ -67,7 +66,9 @@ class tpv_caja extends fs_controller
             {
                $caja0->fecha_fin = Date('d-m-Y H:i:s');
                if( $caja0->save() )
+               {
                   $this->new_message("Caja cerrada correctamente.");
+               }
                else
                   $this->new_error_msg("¡Imposible cerrar la caja!");
             }
@@ -88,16 +89,24 @@ class tpv_caja extends fs_controller
    public function anterior_url()
    {
       $url = '';
-      if($this->offset > '0')
+      
+      if($this->offset > 0)
+      {
          $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT);
+      }
+      
       return $url;
    }
    
    public function siguiente_url()
    {
       $url = '';
-      if(count($this->resultados)==FS_ITEM_LIMIT)
+      
+      if( count($this->resultados) == FS_ITEM_LIMIT )
+      {
          $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT);
+      }
+      
       return $url;
    }
 }

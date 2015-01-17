@@ -1,11 +1,11 @@
 <!--{$fsc->buscar_lineas}-->
 
-{if condition="$fsc->get_errors()"}
+{if="$fsc->get_errors()"}
    <div class="alert alert-danger">
       <ul>{loop="$fsc->get_errors()"}<li>{$value}</li>{/loop}</ul>
    </div>
 {/if}
-{if condition="$fsc->get_messages()"}
+{if="$fsc->get_messages()"}
    <div class="alert alert-success">
       <ul>{loop="$fsc->get_messages()"}<li>{$value}</li>{/loop}</ul>
    </div>
@@ -22,7 +22,7 @@
       </tr>
    </thead>
    {loop="$fsc->lineas"}
-   <tr{if condition="$value->cantidad<1"} class="bg-warning"{/if}>
+   <tr{if="$value->cantidad<1"} class="bg-warning"{/if}>
       <td><a target="_blank" href="{$value->url()}">{$value->show_codigo()}</a></td>
       <td class="text-right">{$value->cantidad}</td>
       <td><a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion}</td>

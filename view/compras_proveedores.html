@@ -23,7 +23,7 @@
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            {if condition="$fsc->page->is_default()"}
+            {if="$fsc->page->is_default()"}
             <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
@@ -35,12 +35,12 @@
          </div>
          
          <a href="#" id="b_nuevo_proveedor" class="btn btn-sm btn-success">
-            <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo...
+            <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
          </a>
       </div>
       <div class="col-md-8 text-center">
          <h2 style="margin-top: 0px;">
-            {if condition="$fsc->query==''"}Proveedores{else}Resultados de la búsqueda "{$fsc->query}":{/if}
+            {if="$fsc->query==''"}Proveedores{else}Resultados de la búsqueda "{$fsc->query}":{/if}
          </h2>
       </div>
       <div class="col-md-2">
@@ -82,7 +82,7 @@
 </div>
 
 <ul class="pager">
-   {if condition="$fsc->anterior_url()!=''"}
+   {if="$fsc->anterior_url()!=''"}
    <li class="previous">
       <a href="{$fsc->anterior_url()}">
          <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
@@ -90,7 +90,7 @@
    </li>
    {/if}
    
-   {if condition="$fsc->siguiente_url()!=''"}
+   {if="$fsc->siguiente_url()!=''"}
    <li class="next">
       <a href="{$fsc->siguiente_url()}">
          Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
@@ -120,7 +120,7 @@
                   <a href="{$fsc->pais->url()}">País</a>:
                   <select class="form-control" name="pais" class="form-control">
                      {loop="$fsc->pais->all()"}
-                     <option value="{$value->codpais}"{if condition="$value->is_default()"} selected="selected"{/if}>{$value->nombre}</option>
+                     <option value="{$value->codpais}"{if="$value->is_default()"} selected="selected"{/if}>{$value->nombre}</option>
                      {/loop}
                   </select>
                </div>

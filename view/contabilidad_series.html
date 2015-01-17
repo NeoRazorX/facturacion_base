@@ -15,7 +15,7 @@
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            {if condition="$fsc->page->is_default()"}
+            {if="$fsc->page->is_default()"}
             <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
@@ -28,7 +28,7 @@
          
          <div class="btn-group">
             {loop="$fsc->extensions"}
-               {if condition="$value->type=='button'"}
+               {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
@@ -57,9 +57,7 @@
          <tr>
             <td><div class="form-control">{$value->codserie}</div></td>
             <td><input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/></td>
-            <td class="text-center">
-               <input type="checkbox" name="siniva" value="TRUE"{if condition="$value->siniva"} checked="checked"{/if}/>
-            </td>
+            <td class="text-center"><input type="checkbox" name="siniva" value="TRUE"{if="$value->siniva"} checked="checked"{/if}/></td>
             <td><input class="form-control text-right" type="text" name="irpf" value="{$value->irpf}" autocomplete="off"/></td>
             <td class="text-right">
                <div class="btn-group">
@@ -78,9 +76,7 @@
          <tr class="bg-info">
             <td><input class="form-control" type="text" name="codserie" placeholder="Nuevo código..." autocomplete="off"/></td>
             <td><input class="form-control" type="text" name="descripcion" autocomplete="off"/></td>
-            <td class="text-center">
-               <input type="checkbox" name="siniva" value="TRUE"/>
-            </td>
+            <td class="text-center"><input type="checkbox" name="siniva" value="TRUE"/></td>
             <td><input class="form-control text-right" type="text" name="irpf" value="0" autocomplete="off"/></td>
             <td class="text-right">
                <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">

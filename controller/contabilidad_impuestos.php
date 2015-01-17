@@ -34,11 +34,7 @@ class contabilidad_impuestos extends fs_controller
       
       if( isset($_GET['delete']) )
       {
-         if(FS_DEMO)
-         {
-            $this->new_error_msg('En el modo demo no puedes eliminar impuestos. Otro usuario podría necesitarlo.');
-         }
-         else if(!$this->user->admin)
+         if(!$this->user->admin)
          {
             $this->new_error_msg('Sólo un administrador puede eliminar impuestos.');
          }

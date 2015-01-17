@@ -1,11 +1,11 @@
 <!--{$fsc->query}-->
 
-{if condition="$fsc->get_errors()"}
+{if="$fsc->get_errors()"}
 <div class="alert alert-danger">
    <ul>{loop="$fsc->get_errors()"}<li>{$value}</li>{/loop}</ul>
 </div>
 {/if}
-{if condition="$fsc->get_messages()"}
+{if="$fsc->get_messages()"}
 <div class="alert alert-info">
    <ul>{loop="$fsc->get_messages()"}<li>{$value}</li>{/loop}</ul>
 </div>

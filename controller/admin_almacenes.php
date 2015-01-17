@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -62,9 +62,13 @@ class admin_almacenes extends fs_controller
       else if( isset($_GET['delete']) )
       {
          $al0 = $this->almacen->get($_GET['delete']);
-         if( $al0 )
+         if($al0)
          {
-            if( $al0->delete() )
+            if( !$this->user->admin )
+            {
+               $this->new_error_msg("Solo un administrador puede eliminar un almacén.");
+            }
+            else if( $al0->delete() )
             {
                $this->new_message("Almacén ".$al0->codalmacen." eliminado correctamente");
             }

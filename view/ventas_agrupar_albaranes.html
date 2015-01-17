@@ -26,7 +26,7 @@
                   <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Albaranes
                </a>
                {loop="$fsc->extensions"}
-                  {if condition="$value->type=='button'"}
+                  {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
@@ -41,7 +41,7 @@
             Cliente:
             <select name="cliente" class="form-control">
             {loop="$fsc->cliente->all_full()"}
-               {if condition="$value->is_default()"}
+               {if="$value->is_default()"}
 				   <option value="{$value->codcliente}" selected="selected">{$value->nombre}</option>
                {else}
 				   <option value="{$value->codcliente}">{$value->nombre}</option>
@@ -55,7 +55,7 @@
             Serie:
             <select name="serie" class="form-control">
             {loop="$fsc->serie->all()"}
-				   {if condition="$value->codserie==$_POST.serie"}
+				   {if="$value->codserie==$_POST.serie"}
 				   <option value="{$value->codserie}" selected='selected'>{$value->descripcion}</option>
 				   {else}
 				   <option value="{$value->codserie}">{$value->descripcion}</option>
@@ -92,7 +92,7 @@
    </div>
 </form>
 
-{if condition="$fsc->resultados"}
+{if="$fsc->resultados"}
 <form id="f_agrupar_cli" action="{$fsc->url()}" method="post" class="form">
    <input type="hidden" name="petition_id" value="{$fsc->random_string()}"/>
    <div class="table-responsive">
@@ -107,7 +107,7 @@
             </tr>
          </thead>
          {loop="$fsc->resultados"}
-         <tr{if condition="$value->total<0"} class="bg-warning"{/if}>
+         <tr{if="$value->total<0"} class="bg-warning"{/if}>
             <td>
                <div>
                   <input type="checkbox" name="idalbaran[]" value="{$value->idalbaran}" checked="checked"/>
