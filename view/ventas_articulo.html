@@ -15,7 +15,7 @@
          margen = (pvp*100)/coste - 100;
       }
       
-      {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+      {if="FS_MARGIN_METHOD == 'CST'"}
       $("#margen").val(margen);
       {else}
       $("#margen").html(margen);
@@ -38,7 +38,7 @@
          margen = (pvp*100)/coste - 100;
       }
       
-      {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+      {if="FS_MARGIN_METHOD == 'CST'"}
       $("#margen").val(margen);
       {else}
       $("#margen").html(margen);
@@ -79,7 +79,7 @@
             $("#pvp_"+i).val( npvp );
             $("#pvpi_"+i).val( pvp * (100 - dto)/100 * (100 + iva)/100 );
             
-            {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+            {if="FS_MARGIN_METHOD == 'CST'"}
             if(coste > 0)
             {
                $("#margen_"+i).val( (npvp*100)/coste - 100 );
@@ -107,7 +107,7 @@
             $("#pvp_"+i).val( npvp );
             $("#pvpi_"+i).val( npvp * (100 + iva)/100 );
             
-            {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+            {if="FS_MARGIN_METHOD == 'CST'"}
             if(coste > 0)
             {
                $("#margen_"+i).val( (npvp*100)/coste - 100 );
@@ -139,7 +139,7 @@
             $("#dto_"+i).val( 100 - (100*npvp)/pvp );
             $("#pvpi_"+i).val( npvp * (100 + iva)/100 );
             
-            {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+            {if="FS_MARGIN_METHOD == 'CST'"}
             if(coste > 0)
             {
                $("#margen_"+i).val( (npvp*100)/coste - 100 );
@@ -172,7 +172,7 @@
             $("#pvp_"+i).val( npvp );
             $("#dto_"+i).val( 100 - (100*npvp)/pvp );
             
-            {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+            {if="FS_MARGIN_METHOD == 'CST'"}
             if(coste > 0)
             {
                $("#margen_"+i).val( (npvp*100)/coste - 100 );
@@ -428,7 +428,7 @@
             <div class="col-md-4">
                <div class="form-group">
                   Precio de Coste:
-                  {if="$fsc->articulo->secompra AND $GLOBALS['config2']['cost_is_average']"}
+                  {if="$fsc->articulo->secompra AND FS_COST_IS_AVERAGE"}
                   <input type="text" name="coste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" disabled="disabled">
                   {else}
                   <input type="text" name="preciocoste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" onkeyup="cambiar_margen()" onclick="this.select()" autocomplete="off">
@@ -441,7 +441,7 @@
             <div class="col-md-4">
                <div class="form-group">
                   Margen (% sobre Coste)
-                  {if="$GLOBALS['config2']['margin_method']=='CST'"}
+                  {if="FS_MARGIN_METHOD=='CST'"}
                   <input type="text" class="form-control" id="margen" name="margen" value="0" autocomplete="off" onkeyup="cambiar_margen()" onclick="this.select()"/>
                   {else}
                   <div id="margen" class="form-control"></div>
@@ -459,7 +459,7 @@
                   <th class="text-right">Dto (%)</th>
                   <th class="text-right">PVP</th>
                   <th class="text-right">PVP+IVA</th>
-                  {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+                  {if="FS_MARGIN_METHOD == 'CST'"}
                   <th class="text-right">Margen (% sobre Coste)</th>
                   {/if}
                </tr>
@@ -480,7 +480,7 @@
                <td>
                   <input type="text" class="form-control text-right" id="pvpi_{$counter}" name="pvpiva_{$counter}" value="{$value->pvp_iva()}" autocomplete="off" onkeyup="tarifas_pvpi()" onclick="this.select()"/>
                </td>
-               {if="$GLOBALS['config2']['margin_method'] == 'CST'"}
+               {if="FS_MARGIN_METHOD == 'CST'"}
                <td><input type="text" class="form-control text-right" id="margen_{$counter}" name="margen_{$counter}" disabled="disabled"/></td>
                {/if}
             </tr>

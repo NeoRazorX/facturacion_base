@@ -52,7 +52,9 @@ class ventas_articulo extends fs_controller
             $this->articulo->set_pvp_iva( $_POST['pvpiva'] );
             
             if( isset($_POST['preciocoste']) )
+            {
                $this->articulo->preciocoste = floatval($_POST['preciocoste']);
+            }
             
             if( !$this->articulo->save() )
             {

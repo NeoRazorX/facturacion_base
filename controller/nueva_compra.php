@@ -196,14 +196,19 @@ class nueva_compra extends fs_controller
       $articulo = new articulo();
       $codfamilia = '';
       if( isset($_REQUEST['codfamilia']) )
+      {
          $codfamilia = $_REQUEST['codfamilia'];
+      }
       
       $con_stock = isset($_REQUEST['con_stock']);
       $this->results = $articulo->search($this->query, 0, $codfamilia, $con_stock);
       
-      /// añadimos la busqueda
+      /// completamos los datos
       foreach($this->results as $i => $value)
+      {
          $this->results[$i]->query = $this->query;
+         $this->results[$i]->coste = $value->preciocoste();
+      }
       
       header('Content-Type: application/json');
       echo json_encode($this->results);

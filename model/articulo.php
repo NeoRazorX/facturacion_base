@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -165,12 +165,12 @@ class articulo extends fs_model
    
    public function preciocoste()
    {
-      return ( $this->secompra AND $GLOBALS['config2']['cost_is_average'] ) ? $this->costemedio : $this->preciocoste ;
+      return ($this->secompra AND FS_COST_IS_AVERAGE) ? $this->costemedio : $this->preciocoste;
    }
    
    public function preciocoste_iva()
    {
-      return $this-> preciocoste() * (100+$this->get_iva()) / 100;
+      return $this->preciocoste() * (100+$this->get_iva()) / 100;
    }
    
    public function factualizado()
@@ -181,7 +181,9 @@ class articulo extends fs_model
    public function url()
    {
       if( is_null($this->referencia) )
+      {
          return "index.php?page=ventas_articulos";
+      }
       else
          return "index.php?page=ventas_articulo&ref=".urlencode($this->referencia);
    }
@@ -190,7 +192,9 @@ class articulo extends fs_model
    {
       $art = $this->db->select("SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref).";");
       if($art)
+      {
          return new articulo($art[0]);
+      }
       else
          return FALSE;
    }
