@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -76,25 +76,23 @@ class stock extends fs_model
       return '';
    }
    
-   public function set_cantidad($c=0)
+   public function set_cantidad($c = 0)
    {
-      $c = floatval($c);
+      $this->cantidad = floatval($c);
       
-      $this->cantidad = 0;
-      if($c > 0)
+      if($this->cantidad < 0 AND !FS_STOCK_NEGATIVO)
       {
-         $this->cantidad = $c;
+         $this->cantidad = 0;
       }
       
       $this->disponible = $this->cantidad - $this->reservada;
    }
    
-   public function sum_cantidad($c=0)
+   public function sum_cantidad($c = 0)
    {
-      $c = floatval($c);
+      $this->cantidad += floatval($c);
       
-      $this->cantidad += $c;
-      if($this->cantidad < 0)
+      if($this->cantidad < 0 AND !FS_STOCK_NEGATIVO)
       {
          $this->cantidad = 0;
       }
