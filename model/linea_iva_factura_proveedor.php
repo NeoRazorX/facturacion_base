@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -169,8 +169,7 @@ class linea_iva_factura_proveedor extends fs_model
    public function all_from_factura($id)
    {
       $linealist = array();
-      $lineas = $this->db->select("SELECT * FROM ".$this->table_name.
-              " WHERE idfactura = ".$this->var2str($id).";");
+      $lineas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id)." ORDER BY iva ASC;");
       if($lineas)
       {
          foreach($lineas as $l)

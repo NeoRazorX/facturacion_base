@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -48,7 +48,9 @@ class compras_proveedores extends fs_controller
                   Otros usuarios podrían necesitarlos.');
             }
             else if( $proveedor->delete() )
+            {
                $this->new_message('Proveedor eliminado correctamente.');
+            }
             else
                $this->new_error_msg('Ha sido imposible borrar el proveedor.');
          }
@@ -64,6 +66,7 @@ class compras_proveedores extends fs_controller
          $proveedor->nombre = $_POST['nombre'];
          $proveedor->nombrecomercial = $_POST['nombre'];
          $proveedor->cifnif = $_POST['cifnif'];
+         $proveedor->codserie = $this->empresa->codserie;
          if( $proveedor->save() )
          {
             $dirproveedor = new direccion_proveedor();
@@ -75,7 +78,9 @@ class compras_proveedores extends fs_controller
             $dirproveedor->codpostal = $_POST['codpostal'];
             $dirproveedor->direccion = $_POST['direccion'];
             if( $dirproveedor->save() )
+            {
                header('location: '.$proveedor->url());
+            }
             else
                $this->new_error_msg("¡Imposible guardar la dirección el proveedor!");
          }
@@ -83,13 +88,16 @@ class compras_proveedores extends fs_controller
             $this->new_error_msg("¡Imposible guardar el proveedor!");
       }
       
+      $this->offset = 0;
       if( isset($_GET['offset']) )
+      {
          $this->offset = intval($_GET['offset']);
-      else
-         $this->offset = 0;
+      }
       
       if($this->query != '')
+      {
          $this->resultados = $this->proveedor->search($this->query, $this->offset);
+      }
       else
          $this->resultados = $this->proveedor->all($this->offset);
    }
@@ -97,22 +105,32 @@ class compras_proveedores extends fs_controller
    public function anterior_url()
    {
       $url = '';
+      
       if($this->query!='' AND $this->offset>'0')
+      {
          $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT);
+      }
       else if($this->query=='' AND $this->offset>'0')
+      {
          $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT);
+      }
+      
       return $url;
    }
    
    public function siguiente_url()
    {
       $url = '';
+      
       if($this->query!='' AND count($this->resultados)==FS_ITEM_LIMIT)
+      {
          $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT);
+      }
       else if($this->query=='' AND count($this->resultados)==FS_ITEM_LIMIT)
+      {
          $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT);
+      }
+      
       return $url;
    }
 }
-
-?>

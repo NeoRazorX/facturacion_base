@@ -57,9 +57,7 @@
       </thead>
       {loop="$fsc->agente->all()"}
       <tr class="clickableRow" href="{$value->url()}">
-         <td>
-            <a href="{$value->url()}">{$value->codagente}</a> {$value->get_fullname()}
-         </td>
+         <td><a href="{$value->url()}">{$value->codagente}</a> {$value->get_fullname()}</td>
          <td>{$value->dnicif}</td>
          <td>{if="$value->telefono==''"}-{else}{$value->telefono}{/if}</td>
          <td class="text-right">{if="$value->email==''"}-{else}{$value->email}{/if}</td>

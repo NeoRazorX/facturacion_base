@@ -223,7 +223,7 @@
                <a href="{$fsc->serie->url()}">Serie</a>:
                <select name="serie" class="form-control" id="codserie" onchange="usar_serie();recalcular();">
                   {loop="$fsc->serie->all()"}
-                     {if="$value->is_default()"}
+                     {if="$value->codserie==$fsc->cliente_s->codserie"}
                      <option value="{$value->codserie}" selected='selected'>{$value->descripcion}</option>
                      {else}
                      <option value="{$value->codserie}">{$value->descripcion}</option>

@@ -253,16 +253,6 @@
             </div>
             <div class="modal-body">
                <div class="form-group">
-                  <label for="codserie" class="col-lg-2 col-md-2 col-sm-2 control-label"><a href="{$fsc->serie->url()}">Serie</a></label>
-                  <div class="col-lg-10 col-md-10 col-sm-10">
-                     <select class="form-control" name="codserie">
-                     {loop="$fsc->serie->all()"}
-                        <option value="{$value->codserie}"{if="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
-                     {/loop}
-                     </select>
-                  </div>
-               </div>
-               <div class="form-group">
                   <label for="nombre" class="col-lg-2 col-md-2 col-sm-2 control-label">Nombre</label>
                   <div class="col-lg-10 col-md-10 col-sm-10">
                      <input class="form-control" type="text" name="nombre" autocomplete="off"/>

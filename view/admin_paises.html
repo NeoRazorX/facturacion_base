@@ -6,9 +6,6 @@
       if( confirm("¿Realmente desea eliminar este país?") )
          window.location.href = url;
    }
-   $(document).ready(function() {
-      
-   });
 </script>
 
 <div class="container-fluid" style="margin-top: 10px;">
@@ -64,18 +61,13 @@
                <input type="hidden" name="scodpais" value="{$value->codpais}"/>
                <div class="form-control">{$value->codpais}</div>
             </td>
-            <td>
-               <input class="form-control" type="text" name="scodiso" value="{$value->codiso}" autocomplete="off"/>
-            </td>
-            <td>
-               <input class="form-control" type="text" name="snombre" value="{$value->nombre}" autocomplete="off"/>
-            </td>
+            <td><input class="form-control" type="text" name="scodiso" value="{$value->codiso}" autocomplete="off"/></td>
+            <td><input class="form-control" type="text" name="snombre" value="{$value->nombre}" autocomplete="off"/></td>
             <td class="text-right">
                <div class="btn-group">
                   <a class="btn btn-sm btn-danger" onclick="delete_pais('{$fsc->url()}&delete={$value->codpais}')" title="Eliminar">
                      <span class="glyphicon glyphicon-trash"></span>
                   </a>
-                     
                   <button class="btn btn-sm btn-primary" type="submit" title="Guardar">
                      <span class="glyphicon glyphicon-floppy-disk"></span>
                   </button>
@@ -86,15 +78,9 @@
       {/loop}
       <form class="form" role="form" name="f_nuevo_pais" action ="{$fsc->url()}" method="post">
          <tr class="bg-info">
-            <td>
-               <input class="form-control" type="text" name="scodpais" placeholder="Nuevo código Alfa-3" autocomplete="off"/>
-            </td>
-            <td>
-               <input class="form-control" type="text" name="scodiso" placeholder="Código Alfa-2" autocomplete="off"/>
-            </td>
-            <td>
-               <input class="form-control" type="text" name="snombre" placeholder="Nuevo nombre" autocomplete="off"/>
-            </td>
+            <td><input class="form-control" type="text" name="scodpais" placeholder="Nuevo código Alfa-3" autocomplete="off"/></td>
+            <td><input class="form-control" type="text" name="scodiso" placeholder="Código Alfa-2" autocomplete="off"/></td>
+            <td><input class="form-control" type="text" name="snombre" placeholder="Nuevo nombre" autocomplete="off"/></td>
             <td class="text-right">
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                   <span class="glyphicon glyphicon-floppy-disk"></span>
