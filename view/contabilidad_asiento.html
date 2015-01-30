@@ -415,7 +415,7 @@
             <th>Subcuenta</th>
             <th class="text-right">Debe</th>
             <th class="text-right">Haber</th>
-            <th class="text-right">IVA</th>
+            <th></th>
             <th class="text-right">Base imponible</th>
             <th>Contrapartida</th>
             <th>{#FS_CIFNIF#}</th>
@@ -428,7 +428,15 @@
             <td class="text-center"><a href="{$value->subcuenta_url()}">{$value->codsubcuenta}</a></td>
             <td class="text-right"><span title="{$value->debe}">{$fsc->show_precio($value->debe, $value->coddivisa)}</span></td>
             <td class="text-right"><span title="{$value->haber}">{$fsc->show_precio($value->haber, $value->coddivisa)}</span></td>
-            <td class="text-right">{if="$value->iva!=0"}{$value->iva} %{else}-{/if}</td>
+            <td class="text-right">
+               {if="$value->iva!=0"}
+               IVA: {$value->iva}%
+               {elseif="$value->recargo!=0"}
+               RE: {$value->recargo}%
+               {else}
+               -
+               {/if}
+            </td>
             <td class="text-right">
                {if="$value->baseimponible!=0"}{$fsc->show_precio($value->baseimponible, $value->coddivisa)}{else}-{/if}
             </td>

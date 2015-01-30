@@ -108,6 +108,7 @@
 </ul>
 
 <div class="table-responsive">
+   <!--{$total=0}-->
    <table class="table table-hover">
       <thead>
          <tr>
@@ -123,7 +124,9 @@
       {loop="$fsc->resultados"}
       <tr class='clickableRow{if="$value->total<=0"} bg-warning{/if}' href="{$value->url()}">
          <td class="text-center">
-            {if="!$value->ptefactura"}
+            {if="$value->ptefactura"}
+            <!--{$total+=$value->total}-->
+            {else}
             <span class="glyphicon glyphicon-paperclip" title="El {#FS_ALBARAN#} tiene vinculado una factura"></span>
             {/if}
          </td>
@@ -140,6 +143,13 @@
          <td colspan="6">Ningún {#FS_ALBARAN#} encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</td>
       </tr>
       {/loop}
+      {if="$fsc->pendientes AND $fsc->offset==0"}
+      <tr>
+         <td colspan="4"></td>
+         <td class="text-right"><b>{$fsc->show_precio($total)}</b></td>
+         <td colspan="2"></td>
+      </tr>
+      {/if}
    </table>
 </div>
 

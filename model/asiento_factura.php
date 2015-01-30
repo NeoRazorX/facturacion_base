@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -68,11 +68,7 @@ class asiento_factura
          $subcuenta_prov = $proveedor->get_subcuenta($factura->codejercicio);
       }
       
-      if($factura->totalirpf != 0 OR $factura->totalrecargo != 0)
-      {
-         $this->new_error_msg('Todavía no se pueden generar asientos de facturas con IRPF o recargo.');
-      }
-      else if( !$subcuenta_prov )
+      if( !$subcuenta_prov )
       {
          $eje0 = $this->ejercicio->get( $factura->codejercicio );
          $this->new_message("No se ha podido generar una subcuenta para el proveedor
@@ -136,6 +132,32 @@ class asiento_factura
                      $asiento_correcto = FALSE;
                      $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida1->codsubcuenta."!");
                   }
+                  
+                  if($li->recargo != 0)
+                  {
+                     $partida11 = new partida();
+                     $partida11->idasiento = $asiento->idasiento;
+                     $partida11->concepto = $asiento->concepto;
+                     $partida11->idsubcuenta = $subcuenta_iva->idsubcuenta;
+                     $partida11->codsubcuenta = $subcuenta_iva->codsubcuenta;
+                     $partida11->debe = $li->totalrecargo;
+                     $partida11->idcontrapartida = $subcuenta_prov->idsubcuenta;
+                     $partida11->codcontrapartida = $subcuenta_prov->codsubcuenta;
+                     $partida11->cifnif = $proveedor->cifnif;
+                     $partida11->documento = $asiento->documento;
+                     $partida11->tipodocumento = $asiento->tipodocumento;
+                     $partida11->codserie = $factura->codserie;
+                     $partida11->factura = $factura->numero;
+                     $partida11->baseimponible = $li->neto;
+                     $partida11->recargo = $li->recargo;
+                     $partida11->coddivisa = $factura->coddivisa;
+                     $partida11->tasaconv = $factura->tasaconv;
+                     if( !$partida11->save() )
+                     {
+                        $asiento_correcto = FALSE;
+                        $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida11->codsubcuenta."!");
+                     }
+                  }
                }
             }
             
@@ -154,6 +176,28 @@ class asiento_factura
                {
                   $asiento_correcto = FALSE;
                   $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida2->codsubcuenta."!");
+               }
+            }
+            
+            /// ¿IRPF?
+            if($factura->totalirpf != 0 AND $asiento_correcto)
+            {
+               $subcuenta_irpf = $subcuenta->get_cuentaesp('IRPFPR', $asiento->codejercicio);
+               if($subcuenta_irpf)
+               {
+                  $partida3 = new partida();
+                  $partida3->idasiento = $asiento->idasiento;
+                  $partida3->concepto = $asiento->concepto;
+                  $partida3->idsubcuenta = $subcuenta_irpf->idsubcuenta;
+                  $partida3->codsubcuenta = $subcuenta_irpf->codsubcuenta;
+                  $partida3->haber = $factura->totalirpf;
+                  $partida3->coddivisa = $factura->coddivisa;
+                  $partida3->tasaconv = $factura->tasaconv;
+                  if( !$partida3->save() )
+                  {
+                     $asiento_correcto = FALSE;
+                     $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida3->codsubcuenta."!");
+                  }
                }
             }
             
@@ -202,11 +246,7 @@ class asiento_factura
          $subcuenta_cli = $cliente->get_subcuenta($factura->codejercicio);
       }
       
-      if($factura->totalirpf != 0 OR $factura->totalrecargo != 0)
-      {
-         $this->new_error_msg('Todavía no se pueden generar asientos de facturas con IRPF o recargo.');
-      }
-      else if( !$subcuenta_cli )
+      if( !$subcuenta_cli )
       {
          $eje0 = $this->ejercicio->get( $factura->codejercicio );
          $this->new_message("No se ha podido generar una subcuenta para el cliente
@@ -270,6 +310,32 @@ class asiento_factura
                      $asiento_correcto = FALSE;
                      $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida1->codsubcuenta."!");
                   }
+                  
+                  if($li->recargo != 0)
+                  {
+                     $partida11 = new partida();
+                     $partida11->idasiento = $asiento->idasiento;
+                     $partida11->concepto = $asiento->concepto;
+                     $partida11->idsubcuenta = $subcuenta_iva->idsubcuenta;
+                     $partida11->codsubcuenta = $subcuenta_iva->codsubcuenta;
+                     $partida11->haber = $li->totalrecargo;
+                     $partida11->idcontrapartida = $subcuenta_cli->idsubcuenta;
+                     $partida11->codcontrapartida = $subcuenta_cli->codsubcuenta;
+                     $partida11->cifnif = $cliente->cifnif;
+                     $partida11->documento = $asiento->documento;
+                     $partida11->tipodocumento = $asiento->tipodocumento;
+                     $partida11->codserie = $factura->codserie;
+                     $partida11->factura = $factura->numero;
+                     $partida11->baseimponible = $li->neto;
+                     $partida11->recargo = $li->recargo;
+                     $partida11->coddivisa = $factura->coddivisa;
+                     $partida11->tasaconv = $factura->tasaconv;
+                     if( !$partida11->save() )
+                     {
+                        $asiento_correcto = FALSE;
+                        $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida11->codsubcuenta."!");
+                     }
+                  }
                }
             }
             
@@ -288,6 +354,34 @@ class asiento_factura
                {
                   $asiento_correcto = FALSE;
                   $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida2->codsubcuenta."!");
+               }
+            }
+            
+            /// ¿IRPF?
+            if($factura->totalirpf != 0 AND $asiento_correcto)
+            {
+               $subcuenta_irpf = $subcuenta->get_cuentaesp('IRPF', $asiento->codejercicio);
+               
+               if(!$subcuenta_irpf)
+               {
+                  $subcuenta_irpf = $subcuenta->get_by_codigo('4730000000', $asiento->codejercicio);
+               }
+               
+               if($subcuenta_irpf)
+               {
+                  $partida3 = new partida();
+                  $partida3->idasiento = $asiento->idasiento;
+                  $partida3->concepto = $asiento->concepto;
+                  $partida3->idsubcuenta = $subcuenta_irpf->idsubcuenta;
+                  $partida3->codsubcuenta = $subcuenta_irpf->codsubcuenta;
+                  $partida3->debe = $factura->totalirpf;
+                  $partida3->coddivisa = $factura->coddivisa;
+                  $partida3->tasaconv = $factura->tasaconv;
+                  if( !$partida3->save() )
+                  {
+                     $asiento_correcto = FALSE;
+                     $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida3->codsubcuenta."!");
+                  }
                }
             }
             

@@ -109,7 +109,7 @@ class articulo extends fs_model
          $this->stockfis = 0;
          $this->stockmin = 0;
          $this->stockmax = 0;
-         $this->controlstock = boolval(FS_VENTAS_SIN_STOCK);
+         $this->controlstock = (bool)FS_VENTAS_SIN_STOCK;
          $this->destacado = FALSE;
          $this->bloqueado = FALSE;
          $this->secompra = TRUE;

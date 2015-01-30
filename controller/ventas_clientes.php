@@ -110,7 +110,6 @@ class ventas_clientes extends fs_controller
       else if( isset($_POST['cifnif']) ) /// añadir un nuevo cliente
       {
          $this->save_codpais( $_POST['pais'] );
-         $this->save_codserie( $_POST['codserie'] );
          
          $cliente = new cliente();
          $cliente->codcliente = $cliente->get_new_codigo();

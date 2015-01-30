@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -119,11 +119,7 @@ class ventas_albaranes extends fs_controller
       $url = '';
       $extra = '';
       
-      if( isset($this->pendientes) )
-      {
-         $extra = '&ptefactura=TRUE';
-      }
-      else if( isset($_GET['codagente']) )
+      if( isset($_GET['codagente']) )
       {
          $extra = '&codagente='.$_GET['codagente'];
       }
@@ -134,6 +130,10 @@ class ventas_albaranes extends fs_controller
       else if( isset($_GET['ref']) )
       {
          $extra = '&ref='.$_GET['ref'];
+      }
+      else if($this->pendientes)
+      {
+         $extra = '&ptefactura=TRUE';
       }
       
       if($this->query!='' AND $this->offset>'0')
@@ -153,11 +153,7 @@ class ventas_albaranes extends fs_controller
       $url = '';
       $extra = '';
       
-      if( isset($this->pendientes) )
-      {
-         $extra = '&ptefactura=TRUE';
-      }
-      else if( isset($_GET['codagente']) )
+      if( isset($_GET['codagente']) )
       {
          $extra = '&codagente='.$_GET['codagente'];
       }
@@ -168,6 +164,10 @@ class ventas_albaranes extends fs_controller
       else if( isset($_GET['ref']) )
       {
          $extra = '&ref='.$_GET['ref'];
+      }
+      else if($this->pendientes)
+      {
+         $extra = '&ptefactura=TRUE';
       }
       
       if($this->query!='' AND count($this->resultados)==FS_ITEM_LIMIT)
