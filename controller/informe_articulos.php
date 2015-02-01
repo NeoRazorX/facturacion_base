@@ -66,6 +66,9 @@ class informe_articulos extends fs_controller
       }
       else if($this->pestanya == 'stock')
       {
+         /// forzamos la comprobación de la tabla stock
+         $stock = new stock();
+         
          $this->tipo_stock = 'todo';
          if( isset($_GET['tipo']) )
          {
