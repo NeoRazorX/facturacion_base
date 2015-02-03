@@ -51,7 +51,10 @@ class ventas_familia extends fs_controller
             $this->familia->madre = NULL;
             if( isset($_POST['madre']) )
             {
-               $this->familia->madre = $_POST['madre'];
+               if($_POST['madre'] != '---')
+               {
+                  $this->familia->madre = $_POST['madre'];
+               }
             }
             
             if( $this->familia->save() )

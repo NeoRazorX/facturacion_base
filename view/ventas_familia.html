@@ -6,7 +6,7 @@
       $("#b_eliminar_familia").click(function(event) {
          event.preventDefault();
          if( confirm("¿Estas seguro de que deseas eliminar esta familia?") )
-            window.location.href = "index.php?page=ventas_familia&delete={$fsc->familia->codfamilia}";
+            window.location.href = "index.php?page=ventas_familias&delete={$fsc->familia->codfamilia}";
       });
    });
 </script>

@@ -149,7 +149,13 @@ class ventas_articulo extends fs_controller
       {
          $this->articulo = $articulo->get($_POST['referencia']);
          $this->articulo->descripcion = $_POST['descripcion'];
-         $this->articulo->codfamilia = $_POST['codfamilia'];
+         
+         $this->articulo->codfamilia = NULL;
+         if( isset($_POST['codfamilia']) )
+         {
+            $this->articulo->codfamilia = $_POST['codfamilia'];
+         }
+         
          $this->articulo->codbarras = $_POST['codbarras'];
          $this->articulo->equivalencia = $_POST['equivalencia'];
          $this->articulo->destacado = isset($_POST['destacado']);
@@ -179,13 +185,17 @@ class ventas_articulo extends fs_controller
          $this->page->title = $this->articulo->referencia;
          
          if($this->articulo->bloqueado)
-            $this->new_error_msg("Este artículo está bloqueado.");
+         {
+            $this->new_advice("Este artículo está bloqueado.");
+         }
          
          $this->almacen = new almacen();
          
          $this->familia = $this->articulo->get_familia();
          if(!$this->familia)
+         {
             $this->familia = new familia();
+         }
          
          $this->impuesto = new impuesto();
          $this->stocks = $this->articulo->get_stock();

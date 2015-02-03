@@ -132,8 +132,8 @@ class familia extends fs_model
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (codfamilia,descripcion) VALUES
-               (".$this->var2str($this->codfamilia).",".$this->var2str($this->descripcion).");";
+            $sql = "INSERT INTO ".$this->table_name." (codfamilia,descripcion,madre) VALUES
+               (".$this->var2str($this->codfamilia).",".$this->var2str($this->descripcion).",".$this->var2str($this->madre).");";
          }
          return $this->db->exec($sql);
       }
