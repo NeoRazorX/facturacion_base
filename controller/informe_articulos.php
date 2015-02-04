@@ -20,6 +20,7 @@
 require_model('articulo.php');
 require_model('linea_factura_cliente.php');
 require_model('linea_factura_proveedor.php');
+require_model('regularizacion_stock.php');
 
 class informe_articulos extends fs_controller
 {
@@ -75,7 +76,14 @@ class informe_articulos extends fs_controller
             $this->tipo_stock = $_GET['tipo'];
          }
          
-         if( isset($_GET['download']) )
+         if($this->tipo_stock == 'reg')
+         {
+            /// forzamos la comprobación de la tabla stocks
+            $reg = new regularizacion_stock();
+            
+            $this->resultados = $this->regularizaciones_stock($this->offset);
+         }
+         else if( isset($_GET['download']) )
          {
             $this->template = FALSE;
             
@@ -210,6 +218,24 @@ class informe_articulos extends fs_controller
       }
       
       $sql .= " ORDER BY referencia ASC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      if($data)
+      {
+         foreach($data as $d)
+            $slist[] = $d;
+      }
+      
+      return $slist;
+   }
+   
+   private function regularizaciones_stock($offset = 0)
+   {
+      $slist = array();
+      
+      $sql = "SELECT s.codalmacen,s.referencia,a.descripcion,r.cantidadini,r.cantidadfin,r.nick,r.motivo,r.fecha,r.hora "
+              . "FROM stocks s, articulos a, lineasregstocks r WHERE r.idstock = s.idstock AND s.referencia = a.referencia";
+      $sql .= " ORDER BY fecha DESC, hora DESC";
       
       $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
