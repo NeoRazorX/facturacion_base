@@ -28,6 +28,7 @@ require_model('subcuenta.php');
 class compras_factura extends fs_controller
 {
    public $agente;
+   public $allow_delete;
    public $ejercicio;
    public $factura;
    
@@ -43,6 +44,9 @@ class compras_factura extends fs_controller
       $this->ejercicio = new ejercicio();
       $factura = new factura_proveedor();
       $this->factura = FALSE;
+      
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       if( isset($_POST['idfactura']) )
       {

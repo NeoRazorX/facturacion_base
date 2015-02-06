@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -22,6 +22,7 @@ require_model('familia.php');
 class ventas_familias extends fs_controller
 {
    public $familia;
+   public $madre;
    public $resultados;
    
    public function __construct()
@@ -33,17 +34,32 @@ class ventas_familias extends fs_controller
    {
       $this->familia = new familia();
       
+      $this->madre = NULL;
+      if( isset($_REQUEST['madre']) )
+      {
+         $this->madre = $_REQUEST['madre'];
+      }
+      
       if( isset($_POST['ncodfamilia']) )
       {
-         $fam = new familia();
-         $fam->codfamilia = $_POST['ncodfamilia'];
-         $fam->descripcion = $_POST['ndescripcion'];
-         if( $fam->save() )
+         $fam = $this->familia->get($_POST['ncodfamilia']);
+         if($fam)
          {
-            Header('location: ' . $fam->url());
+            $this->new_error_msg('La familia <a href="'.$fam->url().'">'.$_POST['ncodfamilia'].'</a> ya existe.');
          }
          else
-            $this->new_error_msg("¡Imposible guardar la familia!");
+         {
+            $fam = new familia();
+            $fam->codfamilia = $_POST['ncodfamilia'];
+            $fam->descripcion = $_POST['ndescripcion'];
+            $fam->madre = $this->madre;
+            if( $fam->save() )
+            {
+               Header('location: ' . $fam->url());
+            }
+            else
+               $this->new_error_msg("¡Imposible guardar la familia!");
+         }
       }
       else if( isset($_GET['delete']) )
       {

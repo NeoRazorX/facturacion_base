@@ -21,6 +21,7 @@ require_model('pais.php');
 
 class admin_paises extends fs_controller
 {
+   public $allow_delete;
    public $pais;
 
    public function __construct()
@@ -31,6 +32,9 @@ class admin_paises extends fs_controller
    protected function process()
    {
       $this->pais = new pais();
+      
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       if( isset($_POST['scodpais']) )
       {

@@ -69,9 +69,11 @@
             </td>
             <td class="text-right">
                <div class="btn-group">
+                  {if="$fsc->allow_delete"}
                   <button class="btn btn-sm btn-danger" type="button" title="Eliminar" onclick="delete_impuesto('{$value->codimpuesto}')">
                      <span class="glyphicon glyphicon-trash"></span>
                   </button>
+                  {/if}
                   <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                      <span class="glyphicon glyphicon-floppy-disk"></span>
                   </button>

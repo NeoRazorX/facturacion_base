@@ -204,9 +204,11 @@
          </div>
          <div class="col-lg-6 col-md-6 text-right">
             <div class="btn-group">
+               {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar_asiento" class="btn btn-sm btn-danger">
                   <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
                </a>
+               {/if}
                <a href="{$fsc->url()}&bloquear=TRUE" class="btn btn-sm btn-default">
                   <span class="glyphicon glyphicon-lock"></span> &nbsp; Bloquear
                </a>
@@ -369,9 +371,11 @@
             <a href="{$fsc->url()}&desbloquear=TRUE" class="btn btn-sm btn-default">
                <span class="glyphicon glyphicon-lock"></span> &nbsp; Desbloquear
             </a>
+            {if="$fsc->allow_delete"}
             <a href="#" id="b_eliminar_asiento" class="btn btn-sm btn-danger">
                <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
             </a>
+            {/if}
          </div>
       </div>
    </div>

@@ -26,6 +26,7 @@ require_model('stock.php');
 
 class ventas_articulo extends fs_controller
 {
+   public $allow_delete;
    public $almacen;
    public $articulo;
    public $familia;
@@ -43,6 +44,9 @@ class ventas_articulo extends fs_controller
    protected function process()
    {
       $articulo = new articulo();
+      
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       if( isset($_POST['pvpiva']) )
       {

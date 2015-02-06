@@ -36,6 +36,7 @@ class ventas_albaran extends fs_controller
 {
    public $agente;
    public $albaran;
+   public $allow_delete;
    public $cliente;
    public $cliente_s;
    public $ejercicio;
@@ -63,6 +64,9 @@ class ventas_albaran extends fs_controller
       $this->impuesto = new impuesto();
       $this->nuevo_albaran_url = FALSE;
       $this->serie = new serie();
+      
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       /**
        * Comprobamos si el usuario tiene acceso a nueva_venta,

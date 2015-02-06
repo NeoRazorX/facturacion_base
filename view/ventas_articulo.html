@@ -242,9 +242,11 @@
          </a>
       </div>
       <div class="col-sm-2 text-right">
+         {if="$fsc->allow_delete"}
          <a href="#" id="b_eliminar_articulo" class="btn btn-sm btn-danger">
             <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
          </a>
+         {/if}
       </div>
    </div>
 </div>
@@ -499,7 +501,7 @@
                <input type="hidden" name="almacen" value="{$value->codalmacen}"/>
                <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
                <input type="hidden" name="cantidadini" value="{$value->cantidad}"/>
-               <td><div class="form-control">{$value->nombre}</div></td>
+               <td><div class="form-control">{$value->codalmacen}</div></td>
                <td><input type="number" step="any" class="form-control text-right" name="cantidad" value="{$value->cantidad}" autocomplete="off"/></td>
                <td><input type="text" class="form-control" name="motivo" placeholder="Escribe el motivo del cambio"/></td>
                <td class="text-right">

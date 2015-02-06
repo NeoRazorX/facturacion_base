@@ -34,6 +34,8 @@
                   {else}
                   <li><a href="#">Ninguna</a></li>
                   {/loop}
+                  <li role="presentation" class="divider"></li>
+                  <li><a href="index.php?page=ventas_familias&madre={$fsc->familia->codfamilia}">Nueva subfamilia</a></li>
                </ul>
             </div>
             
@@ -47,9 +49,11 @@
          </div>
          <div class="col-sm-4 text-right">
             <div class="btn-group">
+               {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar_familia" class="btn btn-sm btn-danger">
                   <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
                </a>
+               {/if}
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
                   <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                </button>
