@@ -26,9 +26,11 @@
          <h2 style="margin-top: 0px;">Editar empleado</h2>
       </div>
       <div class="col-lg-2 col-md-2 text-right">
+         {if="$fsc->allow_delete"}
          <a href="#" id="b_delete_agente" class="btn btn-sm btn-danger">
             <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
          </a>
+         {/if}
       </div>
    </div>
    <div class="row">

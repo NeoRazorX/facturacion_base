@@ -22,6 +22,7 @@ require_model('familia.php');
 
 class ventas_familia extends fs_controller
 {
+   public $allow_delete;
    public $articulos;
    public $familia;
    public $offset;
@@ -40,6 +41,9 @@ class ventas_familia extends fs_controller
          $this->familia = $fam->get($_REQUEST['cod']);
       }
       
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
       if($this->familia)
       {
          $this->page->title = $this->familia->codfamilia;
@@ -51,7 +55,10 @@ class ventas_familia extends fs_controller
             $this->familia->madre = NULL;
             if( isset($_POST['madre']) )
             {
-               $this->familia->madre = $_POST['madre'];
+               if($_POST['madre'] != '---')
+               {
+                  $this->familia->madre = $_POST['madre'];
+               }
             }
             
             if( $this->familia->save() )

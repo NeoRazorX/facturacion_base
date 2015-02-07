@@ -47,7 +47,7 @@
             <th class="text-left">Código</th>
             <th class="text-left">Descripción</th>
             <th class="text-center">Sin IVA</th>
-            <th class="text-right">IRPF</th>
+            <th class="text-right">% IRPF</th>
             <th class="text-right" width="120">Acciones</th>
          </tr>
       </thead>
@@ -61,9 +61,11 @@
             <td><input class="form-control text-right" type="text" name="irpf" value="{$value->irpf}" autocomplete="off"/></td>
             <td class="text-right">
                <div class="btn-group">
+                  {if="$fsc->allow_delete"}
                   <a class="btn btn-sm btn-danger" title="Eliminar" onclick="delete_serie('{$value->codserie}')">
                      <span class="glyphicon glyphicon-trash"></span>
                   </a>
+                  {/if}
                   <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">
                      <span class="glyphicon glyphicon-floppy-disk"></span>
                   </button>

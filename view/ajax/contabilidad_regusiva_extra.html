@@ -52,10 +52,12 @@
    </table>
 </div>
 <div class="modal-footer">
+   {if="$fsc->allow_delete"}
    <a class="btn btn-sm btn-danger" href="{$fsc->url()}&delete={$fsc->regiva->idregiva}">
       <span class="glyphicon glyphicon-trash"></span>
       &nbsp; Eliminar
    </a>
+   {/if}
 </div>
 {else}
    <h1>Regularización no encontrada</h1>

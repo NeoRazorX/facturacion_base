@@ -105,16 +105,53 @@
             <a href="{$fsc->url()}&tab=stock" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='todo'"} active{/if}">Todo</a>
             <a href="{$fsc->url()}&tab=stock&tipo=min" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='min'"} active{/if}">Bajo mínimos</a>
             <a href="{$fsc->url()}&tab=stock&tipo=max" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='max'"} active{/if}">Excesos</a>
+            <a href="{$fsc->url()}&tab=stock&tipo=reg" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='reg'"} active{/if}" title="Regularizaciones de stock">
+               <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
+            </a>
          </div>
       </div>
       <div class="col-sm-3 text-right">
+         {if="$fsc->tipo_stock!='reg'"}
          <a href="{$fsc->url()}&tab=stock&tipo={$fsc->tipo_stock}&download=TRUE" class="btn btn-sm btn-default">
             <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> &nbsp; Descargar
          </a>
+         {/if}
       </div>
    </div>
 </div>
 <div class="table-responsive">
+   {if="$fsc->tipo_stock=='reg'"}
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th class="text-left">Almacén</th>
+            <th class="text-left">Artículo</th>
+            <th class="text-right">Cant. inicial</th>
+            <th class="text-right">Cant. final</th>
+            <th class="text-left">Usuario</th>
+            <th class="text-left">Motivo</th>
+            <th class="text-right">Fecha</th>
+            <th class="text-right">Hora</th>
+         </tr>
+      </thead>
+      {loop="$fsc->resultados"}
+      <tr class="clickableRow{if="intval($value['cantidadfin'])<intval($value['cantidadini'])"} bg-danger{/if}" href="index.php?page=ventas_articulo&ref={$value['referencia']}">
+         <td>{$value['codalmacen']}</td>
+         <td><a href="index.php?page=ventas_articulo&ref={$value['referencia']}">{$value['referencia']}</a> {$value['descripcion']}</td>
+         <td class="text-right">{$value['cantidadini']}</td>
+         <td class="text-right">{$value['cantidadfin']}</td>
+         <td>{$value['nick']}</td>
+         <td>{$value['motivo']}</td>
+         <td class="text-right">{$value['fecha']}</td>
+         <td class="text-right">{$value['hora']}</td>
+      </tr>
+      {else}
+      <tr class="bg-warning">
+         <td colspan="8">Sin resultados.</td>
+      </tr>
+      {/loop}
+   </table>
+   {else}
    <table class="table table-hover">
       <thead>
          <tr>
@@ -139,6 +176,7 @@
       </tr>
       {/loop}
    </table>
+   {/if}
 </div>
 
 <ul class="pager" id="ul_paginador">

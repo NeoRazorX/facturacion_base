@@ -242,9 +242,11 @@
          </a>
       </div>
       <div class="col-sm-2 text-right">
+         {if="$fsc->allow_delete"}
          <a href="#" id="b_eliminar_articulo" class="btn btn-sm btn-danger">
             <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
          </a>
+         {/if}
       </div>
    </div>
 </div>
@@ -488,9 +490,7 @@
             <tr>
                <th class="text-left">Almacén</th>
                <th class="text-right">Cantidad</th>
-               <th class="text-right">Reservada</th>
-               <th class="text-right">Disponible</th>
-               <th class="text-right">Pendiente de recibir</th>
+               <th>Motivo</th>
                <th class="text-right">Acción</th>
             </tr>
          </thead>
@@ -500,13 +500,10 @@
                <input type="hidden" name="idstock" value="{$value->idstock}"/>
                <input type="hidden" name="almacen" value="{$value->codalmacen}"/>
                <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
-               <td><div class="form-control">{$value->codalmacen} {$value->nombre}</div></td>
-               <td>
-                  <input type="number" step="any" class="form-control text-right" name="cantidad" value="{$value->cantidad}" autocomplete="off"/>
-               </td>
-               <td><div class="form-control text-right">{$value->reservada}</div></td>
-               <td><div class="form-control text-right">{$value->disponible}</div></td>
-               <td><div class="form-control text-right">{$value->pterecibir}</div></td>
+               <input type="hidden" name="cantidadini" value="{$value->cantidad}"/>
+               <td><div class="form-control">{$value->codalmacen}</div></td>
+               <td><input type="number" step="any" class="form-control text-right" name="cantidad" value="{$value->cantidad}" autocomplete="off"/></td>
+               <td><input type="text" class="form-control" name="motivo" placeholder="Escribe el motivo del cambio"/></td>
                <td class="text-right">
                   <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">
                      <span class="glyphicon glyphicon-floppy-disk"></span>
@@ -526,10 +523,8 @@
                      {/loop}
                   </select>
                </td>
-               <td><input class="form-control text-right" type="number" step="any" name="cantidad" value="1" autocomplete="off"/></td>
-               <td><div class="form-control text-right">0</div></td>
-               <td><div class="form-control text-right">0</div></td>
-               <td><div class="form-control text-right">0</div></td>
+               <td><input class="form-control text-right" type="number" step="any" name="cantidad" value="0" autocomplete="off"/></td>
+               <td><input type="text" class="form-control" name="motivo" placeholder="Escribe el motivo del cambio"/></td>
                <td class="text-right">
                   <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">
                      <span class="glyphicon glyphicon-floppy-disk"></span>
@@ -538,6 +533,41 @@
             </form>
          </tr>
          {/if}
+      </table>
+   </div>
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-md-12">
+            <h2>Regularizaciones de stock:</h2>
+         </div>
+      </div>
+   </div>
+   <div class="table-responsive">
+      <table class="table table-hover">
+         <thead>
+            <tr>
+               <th class="text-left">Usuario</th>
+               <th class="text-left">Motivo</th>
+               <th class="text-right">Cantidad inicial</th>
+               <th class="text-right">Cantidad final</th>
+               <th class="text-right">Fecha</th>
+               <th class="text-right">Hora</th>
+            </tr>
+         </thead>
+         {loop="$fsc->regularizaciones"}
+         <tr{if="$value->cantidadfin<$value->cantidadini"} class="bg-danger"{/if}>
+            <td>{$value->nick}</td>
+            <td>{$value->motivo}</td>
+            <td class="text-right">{$value->cantidadini}</td>
+            <td class="text-right">{$value->cantidadfin}</td>
+            <td class="text-right">{$value->fecha}</td>
+            <td class="text-right">{$value->hora}</td>
+         </tr>
+         {else}
+         <tr class="bg-warning">
+            <td colspan="6">Sin resultados.</td>
+         </tr>
+         {/loop}
       </table>
    </div>
 </div>

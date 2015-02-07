@@ -72,9 +72,11 @@
             </td>
             <td class="text-right">
                <div class="btn-group">
+                  {if="$fsc->allow_delete"}
                   <a href="#" class="btn btn-sm btn-danger" onclick="eliminar_fp('{$value->codpago}')" title="Eliminar">
                      <span class="glyphicon glyphicon-trash"></span>
                   </a>
+                  {/if}
                   <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                      <span class="glyphicon glyphicon-floppy-disk"></span>
                   </button>

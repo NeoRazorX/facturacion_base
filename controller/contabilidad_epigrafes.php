@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -23,6 +23,7 @@ require_model('epigrafe.php');
 
 class contabilidad_epigrafes extends fs_controller
 {
+   public $allow_delete;
    public $codejercicio;
    public $ejercicio;
    public $epigrafe;
@@ -42,7 +43,10 @@ class contabilidad_epigrafes extends fs_controller
       $grupo0 = new grupo_epigrafes();
       $epi0 = new epigrafe();
       $this->super_epigrafes = array();;
-
+      
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
       if( isset($_POST['ngrupo']) ) /// nuevo grupo
       {
          $this->epigrafe = FALSE;

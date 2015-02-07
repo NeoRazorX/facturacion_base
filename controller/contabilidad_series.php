@@ -21,6 +21,7 @@ require_model('serie.php');
 
 class contabilidad_series extends fs_controller
 {
+   public $allow_delete;
    public $serie;
    
    public function __construct()
@@ -31,6 +32,9 @@ class contabilidad_series extends fs_controller
    protected function process()
    {
       $this->serie = new serie();
+      
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       if( isset($_POST['codserie']) )
       {

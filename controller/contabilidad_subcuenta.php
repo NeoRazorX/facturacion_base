@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -24,6 +24,7 @@ require_once 'plugins/facturacion_base/extras/libromayor.php';
 
 class contabilidad_subcuenta extends fs_controller
 {
+   public $allow_delete;
    public $cuenta;
    public $divisa;
    public $ejercicio;
@@ -40,6 +41,9 @@ class contabilidad_subcuenta extends fs_controller
    protected function process()
    {
       $this->divisa = new divisa();
+      
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       $subcuenta = new subcuenta();
       $this->subcuenta = FALSE;

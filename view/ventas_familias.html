@@ -2,7 +2,14 @@
 
 <script type="text/javascript">
    $(document).ready(function() {
+      
+      {if="$fsc->madre"}
+      $("#modal_nueva_familia").modal('show');
+      document.f_nueva_familia.ncodfamilia.focus();
+      {else}
       document.f_custom_search.query.focus();
+      {/if}
+      
       $("#b_nueva_familia").click(function(event) {
          event.preventDefault();
          $("#modal_nueva_familia").modal('show');
@@ -73,6 +80,9 @@
 </div>
 
 <form class="form" name="f_nueva_familia" action="{$fsc->url()}" method="post">
+   {if="$fsc->madre"}
+   <input type="hidden" name="madre" value="{$fsc->madre}"/>
+   {/if}
    <div class="modal" id="modal_nueva_familia">
       <div class="modal-dialog">
          <div class="modal-content">

@@ -27,6 +27,7 @@ var fin_busqueda1 = true;
 var fin_busqueda2 = true;
 var siniva = false;
 var irpf = 0;
+var solo_con_stock = true;
 
 function usar_cliente(codcliente)
 {
@@ -411,6 +412,8 @@ function buscar_articulos()
             var items = [];
             var insertar = false;
             $.each(json, function(key, val) {
+               var descripcion = val.descripcion.replace("&#39;", "\\'");
+               
                var tr_aux = '<tr>';
                if(val.bloqueado)
                {
@@ -425,12 +428,20 @@ function buscar_articulos()
                   tr_aux = "<tr class=\"bg-info\">";
                }
                
-               if(val.sevende)
+               if( val.sevende && (val.stockfis > 0 || val.controlstock) )
                {
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
-                     &nbsp; <a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+val.descripcion+"','"+val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+val.descripcion+"','"+val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+val.descripcion+"','"+val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
+                     &nbsp; <a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
+                     <td class=\"text-right\">"+val.stockfis+"</td></tr>");
+               }
+               else if(val.sevende && val.stockfis <= 0)
+               {
+                  items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
+                     &nbsp; <a href=\"#\" onclick=\"alert('Sin stock.')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"alert('Sin stock.')\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"alert('Sin stock.')\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
                      <td class=\"text-right\">"+val.stockfis+"</td></tr>");
                }
                

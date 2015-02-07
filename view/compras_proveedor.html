@@ -82,9 +82,11 @@
          <h2 style="margin-top: 0px;">Editar proveedor {$fsc->proveedor->codproveedor}</h2>
       </div>
       <div class="col-sm-2 text-right">
+         {if="$fsc->allow_delete"}
          <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
             <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
          </a>
+         {/if}
       </div>
    </div>
 </div>

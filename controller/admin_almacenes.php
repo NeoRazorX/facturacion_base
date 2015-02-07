@@ -22,6 +22,7 @@ require_model('pais.php');
 
 class admin_almacenes extends fs_controller
 {
+   public $allow_delete;
    public $almacen;
    public $pais;
    
@@ -34,6 +35,9 @@ class admin_almacenes extends fs_controller
    {
       $this->almacen = new almacen();
       $this->pais = new pais();
+      
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       if( isset($_POST['scodalmacen']) )
       {

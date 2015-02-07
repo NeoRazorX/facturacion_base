@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -36,6 +36,7 @@ class compras_albaran extends fs_controller
 {
    public $agente;
    public $albaran;
+   public $allow_delete;
    public $ejercicio;
    public $familia;
    public $impuesto;
@@ -62,6 +63,9 @@ class compras_albaran extends fs_controller
       $this->proveedor = new proveedor();
       $this->proveedor_s = FALSE;
       $this->serie = new serie();
+      
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       /// comprobamos si el usuario tiene acceso a nueva_compra
       $this->nuevo_albaran_url = FALSE;
@@ -97,20 +101,24 @@ class compras_albaran extends fs_controller
          $this->proveedor_s = $this->proveedor->get($this->albaran->codproveedor);
          
          /// comprobamos el albarán
-         if( $this->albaran->full_test() )
+         $this->albaran->full_test();
+         
+         if( isset($_GET['facturar']) AND isset($_GET['petid']) AND $this->albaran->ptefactura )
          {
-            if( isset($_GET['facturar']) AND isset($_GET['petid']) AND $this->albaran->ptefactura )
+            if( $this->duplicated_petition($_GET['petid']) )
             {
-               if( $this->duplicated_petition($_GET['petid']) )
-               {
-                  $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
-               }
-               else
-                  $this->generar_factura();
+               $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
             }
-            
-            if( isset($_POST['actualizar_precios']) )
-               $this->actualizar_precios();
+            else
+               $this->generar_factura();
+         }
+         else if( isset($_POST['actualizar_precios']) )
+         {
+            $this->actualizar_precios();
+         }
+         else if( isset($_GET['forze_fecha']) )
+         {
+            $this->forzar_fecha();
          }
       }
       else
@@ -133,20 +141,25 @@ class compras_albaran extends fs_controller
    
    private function modificar()
    {
+      $error = FALSE;
       $this->albaran->numproveedor = $_POST['numproveedor'];
       $this->albaran->observaciones = $_POST['observaciones'];
       
       if($this->albaran->ptefactura)
       {
-         /// obtenemos los datos del ejercicio para acotar la fecha
-         $eje0 = $this->ejercicio->get( $this->albaran->codejercicio );
-         if($eje0)
+         $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha']);
+         if($eje0->codejercicio == $this->albaran->codejercicio)
          {
-            $this->albaran->fecha = $eje0->get_best_fecha($_POST['fecha'], TRUE);
+            $this->albaran->fecha = $_POST['fecha'];
             $this->albaran->hora = $_POST['hora'];
          }
          else
-            $this->new_error_msg('No se encuentra el ejercicio asociado al '.FS_ALBARAN.'.');
+         {
+            $error = TRUE;
+            $this->new_error_msg('La fecha seleccionada está fuere del rando del ejercicio '.$this->albaran->codejercicio
+                    .'. Si deseas asignar la fecha '.$_POST['fecha'].' pulsa <a href="'.$this->url().'&forze_fecha='.$_POST['fecha'].'">aquí</a>'
+                    . ' y se asignará un nuevo código y un nuevo número al '.FS_ALBARAN.'.');
+         }
          
          /// ¿Cambiamos el proveedor?
          if($_POST['proveedor'] != $this->albaran->codproveedor)
@@ -340,11 +353,35 @@ class compras_albaran extends fs_controller
       
       if( $this->albaran->save() )
       {
-         $this->new_message(ucfirst(FS_ALBARAN)." modificado correctamente.");
+         if(!$error)
+         {
+            $this->new_message(ucfirst(FS_ALBARAN)." modificado correctamente.");
+         }
+         
          $this->new_change(ucfirst(FS_ALBARAN).' Proveedor '.$this->albaran->codigo, $this->albaran->url());
       }
       else
          $this->new_error_msg("¡Imposible modificar el ".FS_ALBARAN."!");
+   }
+   
+   private function forzar_fecha()
+   {
+      $eje0 = $this->ejercicio->get_by_fecha($_GET['forze_fecha']);
+      if($eje0)
+      {
+         $this->albaran->fecha = $_GET['forze_fecha'];
+         $this->albaran->codejercicio = $eje0->codejercicio;
+         $this->albaran->new_codigo();
+         
+         if( $this->albaran->save() )
+         {
+            $this->new_message(ucfirst(FS_ALBARAN)." modificado correctamente.");
+         }
+         else
+            $this->new_error_msg("¡Imposible modificar el ".FS_ALBARAN."!");
+      }
+      else
+         $this->new_error_msg('No se ha posido asignar un ejercicio a esta fecha.');
    }
    
    private function generar_factura()

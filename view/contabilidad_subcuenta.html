@@ -50,9 +50,11 @@
          </div>
          <div class="col-md-4 text-right">
             <div class="btn-group">
+               {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
                   <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
                </a>
+               {/if}
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
                   <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                </button>

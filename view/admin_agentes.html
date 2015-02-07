@@ -62,6 +62,10 @@
          <td>{if="$value->telefono==''"}-{else}{$value->telefono}{/if}</td>
          <td class="text-right">{if="$value->email==''"}-{else}{$value->email}{/if}</td>
       </tr>
+      {else}
+      <tr class="bg-warning">
+         <td colspan="4">Sin resultados.</td>
+      </tr>
       {/loop}
    </table>
 </div>

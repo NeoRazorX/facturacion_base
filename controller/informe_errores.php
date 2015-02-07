@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -128,8 +128,6 @@ class informe_errores extends fs_controller
                rewind($file);
                fwrite($file, join(';', $this->informe)."\n------\n" );
             }
-            else
-               $this->buttons[] = new fs_button_img('b_cancelar', 'Cancelar', 'remove.png', $this->url().'&cancelar=TRUE', TRUE);
             
             fclose($file);
          }
@@ -139,8 +137,6 @@ class informe_errores extends fs_controller
          $file = fopen('tmp/'.FS_TMP_NAME.'informe_errores.txt', 'w');
          if($file)
          {
-            $this->buttons[] = new fs_button_img('b_cancelar', 'Cancelar', 'remove.png', $this->url().'&cancelar=TRUE', TRUE);
-            
             if($_POST['modelo'] == 'todo')
             {
                $this->informe['model'] = 'asiento';

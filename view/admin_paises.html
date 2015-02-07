@@ -51,7 +51,7 @@
                <a href="http://es.wikipedia.org/wiki/ISO_3166-1#C.C3.B3digos_ISO_3166-1" target="_blank">Código Alfa-2</a>
             </th>
             <th class="text-left">Nombre</th>
-            <th align="right" width="140">Acciones</th>
+            <th class="text-right" align="right" width="140">Acciones</th>
          </tr>
       </thead>
       {loop="$fsc->pais->all()"}
@@ -65,9 +65,11 @@
             <td><input class="form-control" type="text" name="snombre" value="{$value->nombre}" autocomplete="off"/></td>
             <td class="text-right">
                <div class="btn-group">
+                  {if="$fsc->allow_delete"}
                   <a class="btn btn-sm btn-danger" onclick="delete_pais('{$fsc->url()}&delete={$value->codpais}')" title="Eliminar">
                      <span class="glyphicon glyphicon-trash"></span>
                   </a>
+                  {/if}
                   <button class="btn btn-sm btn-primary" type="submit" title="Guardar">
                      <span class="glyphicon glyphicon-floppy-disk"></span>
                   </button>
