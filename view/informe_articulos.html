@@ -3,6 +3,11 @@
 <ul class="nav nav-tabs">
    <li role="presentation"{if="$fsc->pestanya=='stats'"} class="active"{/if}><a href="{$fsc->url()}">Estadísticas</a></li>
    <li role="presentation"{if="$fsc->pestanya=='stock'"} class="active"{/if}><a href="{$fsc->url()}&tab=stock">Stock</a></li>
+   <li role="presentation"{if="$fsc->pestanya=='search'"} class="active"{/if}>
+      <a href="{$fsc->url()}&tab=search">
+         <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+      </a>
+   </li>
 </ul>
 
 {if="$fsc->pestanya=='stats'"}
@@ -196,6 +201,106 @@
    </li>
    {/if}
 </ul>
+{elseif="$fsc->pestanya=='search'"}
+<script type="text/javascript">
+   $(document).ready(function() {
+      $("#ac_referencia").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_referencia',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if(document.f_informe_articulo.referencia.value != suggestion.data)
+               {
+                  document.f_informe_articulo.referencia.value = suggestion.data;
+               }
+            }
+         }
+      });
+   });
+</script>
+
+<form name="f_informe_articulo" action="{$fsc->url()}&tab=search" method="post" class="form">
+   <input type="hidden" name="referencia" value="{$fsc->referencia}"/>
+   <div class="container-fluid" style="margin-top: 15px;">
+      <div class="row">
+         <div class="col-sm-3">
+            <div class="form-group">
+               Referencia:
+               <input class="form-control" type="text" name="ac_referencia" value="{$fsc->referencia}" id="ac_referencia" maxlength="18" placeholder="referencia" autocomplete="off"/>
+            </div>
+         </div>
+         <div class="col-sm-3">
+            <div class="form-group">
+               Desde:
+               <input class="form-control datepicker" type="text" name="desde" value="{$fsc->desde}"/>
+            </div>
+         </div>
+         <div class="col-sm-3">
+            <div class="form-group">
+               Hasta:
+               <input class="form-control datepicker" type="text" name="hasta" value="{$fsc->hasta}"/>
+            </div>
+         </div>
+         <div class="col-sm-3">
+            <div class="form-group">
+               Explorar:
+               <select name="documento" class="form-control">
+                  <option value="facturascli"{if="$fsc->documento=='facturascli'"} selected="selected"{/if}>Facturas de venta</option>
+                  <option value="facturasprov"{if="$fsc->documento=='facturasprov'"} selected="selected"{/if}>Facturas de compra</option>
+               </select>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-12">
+            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Mostrar
+            </button>
+         </div>
+      </div>
+   </div>
+   {if="$fsc->resultados"}
+   <br/>
+   <div class="table-responsive">
+      <table class="table table-hover">
+         <thead>
+            <tr>
+               <th>Fecha</th>
+               <th>Factura</th>
+               <th>Nombre</th>
+               <th>Empleado</th>
+               <th class="text-right">Cantidad</th>
+               <th class="text-right">PVP</th>
+               <th class="text-right">Dto.</th>
+               <th class="text-right">Neto</th>
+               <th class="text-right">Total</th>
+            </tr>
+         </thead>
+         <!--{$total=0}-->
+         {loop="$fsc->resultados"}
+         <tr>
+            <td>{$value['fecha']}</td>
+            <td><a href="{$value['url']}">{$value['codigo']}</a></td>
+            <td>{$value['nombre']}</td>
+            <td>{$value['agente']}</td>
+            <td class="text-right">{$value['cantidad']}</td>
+            <td class="text-right">{$fsc->show_precio($value['pvpunitario'])}</td>
+            <td class="text-right">{$fsc->show_numero($value['dtopor'])} %</td>
+            <td class="text-right">{$fsc->show_precio($value['pvptotal'])}</td>
+            <td class="text-right">
+               {$fsc->show_precio($value['total'])}
+               <!--{$total=$total+$value['total']}-->
+            </td>
+         </tr>
+         {/loop}
+         <tr>
+            <td colspan="9" class="text-right"><b>{$fsc->show_precio($total)}</b></td>
+         </tr>
+      </table>
+   </div>
+   {/if}
+</form>
 {/if}
 
 {include="footer"}

@@ -30,6 +30,7 @@ require_model('subcuenta.php');
 
 class contabilidad_ejercicio extends fs_controller
 {
+   public $allow_delete;
    public $asiento_apertura_url;
    public $asiento_cierre_url;
    public $asiento_pyg_url;
@@ -52,6 +53,8 @@ class contabilidad_ejercicio extends fs_controller
       $sec1 = new secuencia_contabilidad();
       $sec2 = new secuencia();
       
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       $this->ejercicio = FALSE;
       if( isset($_POST['codejercicio']) )
@@ -285,7 +288,6 @@ class contabilidad_ejercicio extends fs_controller
          $aux->addChild("codcuenta", $sc->codcuenta);
          $aux->addChild("codsubcuenta", $sc->codsubcuenta);
          $aux->addChild("descripcion", base64_encode($sc->descripcion) );
-         $aux->addChild("coddivisa", $sc->coddivisa);
       }
       
       /// volcamos el XML
@@ -522,7 +524,7 @@ class contabilidad_ejercicio extends fs_controller
                      {
                         $subcuenta->idcuenta = $cu->idcuenta;
                         $subcuenta->codcuenta = $cu->codcuenta;
-                        $subcuenta->coddivisa = $sc->coddivisa;
+                        $subcuenta->coddivisa = $this->empresa->coddivisa;
                         $subcuenta->codejercicio = $this->ejercicio->codejercicio;
                         $subcuenta->codsubcuenta = $sc->codsubcuenta;
                         $subcuenta->descripcion = base64_decode($sc->descripcion);

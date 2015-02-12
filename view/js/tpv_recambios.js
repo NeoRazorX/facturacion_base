@@ -3,21 +3,6 @@ var numlineas = 0;
 var lcd_txt = '-1';
 var tpv_url = '';
 
-function update_lcd(saldo)
-{
-   if(saldo != lcd_txt)
-   {
-      $.ajax({
-         type: 'POST',
-         url: tpv_url,
-         dataType: 'html',
-         data: 'saldo='+saldo
-      });
-      
-      lcd_txt = saldo;
-   }
-}
-
 function recalcular()
 {
    var l_uds = 0;
@@ -48,7 +33,10 @@ function recalcular()
    $("#aneto").html( show_numero(neto) );
    $("#aiva").html( show_numero(total_iva) );
    $("#atotal").html( show_numero(neto + total_iva) );
-   update_lcd(neto + total_iva);
+   
+   $("#tpv_total").val( show_precio(neto + total_iva) );
+   var tpv_efectivo = parseFloat( $("#tpv_efectivo").val() );
+   $("#tpv_cambio").val( show_precio(tpv_efectivo - neto - total_iva) );
 }
 
 function ajustar_totiva()
@@ -101,7 +89,6 @@ function ajustar_totiva()
    $("#aneto").html( show_numero(neto) );
    $("#aiva").html( show_numero(total_iva) );
    $("#atotal").html( show_numero(neto + total_iva) );
-   update_lcd(neto + total_iva);
 }
 
 function get_precios(ref)
@@ -210,5 +197,8 @@ $(document).ready(function() {
       buscar_articulos();
    });
    
-   update_lcd(0);
+   $("#b_tpv_guardar").click(function() {
+      $("#modal_guardar").modal('show');
+      document.f_new_albaran.tpv_efectivo.focus();
+   });
 });

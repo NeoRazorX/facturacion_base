@@ -21,6 +21,7 @@ require_model('caja.php');
 
 class tpv_caja extends fs_controller
 {
+   public $allow_delete;
    public $caja;
    public $offset;
    public $resultados;
@@ -35,6 +36,9 @@ class tpv_caja extends fs_controller
    {
       $this->caja = new caja();
       $this->show_cerrar = FALSE;
+      
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       if( isset($_GET['delete']) )
       {

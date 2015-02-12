@@ -75,9 +75,11 @@
          </div>
          <div class="col-md-5 text-right">
             <div class="btn-group">
+               {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar" class="btn btn-sm btn-danger" title="Eliminar ejercicio">
                   <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
                </a>
+               {/if}
                {if="$fsc->ejercicio->abierto()"}
                <button class="btn btn-sm btn-default" type="button" onclick="cerrar_ejercicio()" title="Cerrar ejercicio">
                   <span class="glyphicon glyphicon-lock"></span> &nbsp; Cerrar
@@ -142,7 +144,7 @@
          </tr>
       </thead>
       {loop="$fsc->listado"}
-      <tr>
+      <tr class="clickableRow" href="{$value->url()}">
          <td><a href="{$value->url()}">{$value->codgrupo}</a> {$value->descripcion}</td>
       </tr>
       {else}
@@ -162,7 +164,7 @@
          </tr>
       </thead>
       {loop="$fsc->listado"}
-      <tr>
+      <tr class="clickableRow" href="{$value->url()}">
          <td>{$value->codgrupo}</td>
          <td><a href="{$value->url()}">{$value->codepigrafe}</a> {$value->descripcion}</td>
       </tr>
@@ -186,7 +188,7 @@
          </tr>
       </thead>
       {loop="$fsc->listado"}
-      <tr>
+      <tr class="clickableRow" href="{$value->url()}">
          <td>{$value->codepigrafe}</td>
          <td><a href="{$value->url()}">{$value->codcuenta}</a> {$value->descripcion}</td>
          <td class="text-right">{$value->idcuentaesp}</td>
@@ -211,7 +213,7 @@
          </tr>
       </thead>
       {loop="$fsc->listado"}
-      <tr>
+      <tr class="clickableRow" href="{$value->url()}">
          <td>{$value->codcuenta}</td>
          <td><a href="{$value->url()}">{$value->codsubcuenta}</a> {$value->descripcion}</td>
          <td class="text-right">{$fsc->show_precio($value->saldo, $value->coddivisa)}</td>

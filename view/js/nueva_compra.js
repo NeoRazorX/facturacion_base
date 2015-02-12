@@ -23,6 +23,7 @@ var all_series = [];
 var proveedor = false;
 var nueva_compra_url = '';
 var fs_community_url = '';
+var precio_compra = 'coste';
 var fin_busqueda1 = true;
 var fin_busqueda2 = true;
 var siniva = false;
@@ -413,6 +414,11 @@ function buscar_articulos()
             var insertar = false;
             $.each(json, function(key, val) {
                var descripcion = val.descripcion.replace("&#39;", "\\'");
+               var precio = val.coste;
+               if(precio_compra == 'pvp')
+               {
+                  precio = val.pvp;
+               }
                
                var tr_aux = '<tr>';
                if(val.bloqueado)
@@ -431,7 +437,7 @@ function buscar_articulos()
                if(val.secompra)
                {
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
-                     &nbsp; <a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+descripcion+"','"+val.coste+"','0','"+val.codimpuesto+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
+                     &nbsp; <a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+descripcion+"','"+precio+"','0','"+val.codimpuesto+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+descripcion+"','"+val.coste+"','0','"+val.codimpuesto+"')\">"+show_precio(val.coste)+"</a></td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\">"+show_precio(val.pvp)+"</a></td>\n\
                      <td class=\"text-right\">"+val.stockfis+"</td></tr>");

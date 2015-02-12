@@ -417,7 +417,7 @@
                   {if="$fsc->articulo->secompra AND FS_COST_IS_AVERAGE"}
                   <input type="text" name="coste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" disabled="disabled">
                   {else}
-                  <input type="text" name="preciocoste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" onkeyup="cambiar_margen()" onclick="this.select()" autocomplete="off">
+                  <input type="text" name="preciocoste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" onclick="this.select()" autocomplete="off">
                   {/if}
                   <p class="help-block">
                      Puede cambiar la configuración de precio de coste desde el <a href="index.php?page=admin_home#avanzado">panel de control</a>.
