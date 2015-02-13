@@ -12,6 +12,9 @@
                autocomplete='off' placeholder='Seleccionar'/>\n\
          </td>\n\
          <td>\n\
+            <input class='form-control' type='text' id='desc_"+numlineas+"' name='desc_"+numlineas+"' disabled='disabled'/>\n\
+         </td>\n\
+         <td>\n\
             <input class='form-control text-right' type='text' id='saldo_"+numlineas+"' name='saldo_"+numlineas+"' value='0' disabled='disabled'/>\n\
          </td>\n\
          <td>\n\
@@ -27,19 +30,19 @@
                onclick=\"show_buscar_subcuentas('"+numlineas+"','contrapartida')\" onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'\n\
                autocomplete='off' placeholder='Seleccionar'/>\n\
          </td>\n\
-         <td>\n\
+         <td class='contrapartida'>\n\
             <input class='form-control text-right' type='text' id='saldoc_"+numlineas+"' name='saldoc_"+numlineas+"' value='0' disabled='disabled'/>\n\
          </td>\n\
-         <td>\n\
+         <td class='contrapartida'>\n\
             <select id='iva_"+numlineas+"' name='iva_"+numlineas+"' onchange='recalcular()' class='form-control'>\n\
                <option value='0'>---</option>\n\
                {loop="$fsc->impuesto->all()"}<option value='{$value->iva}'>{$value->descripcion}</option>{/loop}\n\
             </select>\n\
          </td>\n\
-         <td>\n\
+         <td class='contrapartida'>\n\
             <input class='form-control text-right' type='text' id='baseimp_"+numlineas+"' name='baseimp_"+numlineas+"' value='0' autocomplete='off'/>\n\
          </td>\n\
-         <td>\n\
+         <td class='contrapartida'>\n\
             <input class='form-control text-right' type='text' id='cifnif_"+numlineas+"' name='cifnif_"+numlineas+"'/>\n\
          </td>\n\
          <td class='text-right'>\n\
@@ -48,6 +51,7 @@
             </a>\n\
          </td>\n\
       </tr>");
+      recalcular();
    }
    function show_buscar_subcuentas(num, tipo)
    {
@@ -85,12 +89,13 @@
          });
       }
    }
-   function select_subcuenta(codsubcuenta, saldo)
+   function select_subcuenta(codsubcuenta, saldo, descripcion)
    {
       var num = document.f_buscar_subcuentas.numlinea.value;
       if(document.f_buscar_subcuentas.tipo.value == 'subcuenta')
       {
          $("#codsubcuenta_"+num).val(codsubcuenta);
+         $("#desc_"+num).val( Base64.decode(descripcion) );
          $("#saldo_"+num).val(saldo);
       }
       else
@@ -112,6 +117,7 @@
       var iva = 0;
       var t_debe = 0;
       var t_haber = 0;
+      var show_contrapartidas = false;
       
       for(var i=1; i<=numlineas; i++)
       {
@@ -122,9 +128,13 @@
             
             if( $("#codcontrapartida_"+i).val() != '' )
             {
+               show_contrapartida = true;
+               
                iva = parseFloat( $("#iva_"+i).val() );
                if(iva == 0)
+               {
                   $("#baseimp_"+i).val('0');
+               }
                else
                {
                   if(haber == 0)
@@ -140,14 +150,25 @@
             t_haber += haber;
          }
       }
+      
       document.f_asiento.importe.value = Math.max(t_debe, t_haber);
       document.f_asiento.descuadre.value = fs_round(t_debe - t_haber, 2);
+      
+      if(show_contrapartidas)
+      {
+         $(".contrapartida").show();
+      }
+      else
+      {
+         $(".contrapartida").hide();
+      }
    }
    function asigna_concepto()
    {
       document.f_asiento.concepto.value = $("#s_idconceptopar option:selected").text();
    }
    $(document).ready(function() {
+      recalcular();
       document.f_asiento.concepto.focus();
       $("#f_buscar_subcuentas").submit(function(event) {
          event.preventDefault();
@@ -246,20 +267,19 @@
          <thead>
             <tr>
                <th class="text-left">Subcuenta</th>
+               <th class="text-left">Descripción</th>
                <th class="text-right">Saldo</th>
                <th class="text-right">Debe</th>
                <th class="text-right">Haber</th>
                <th class="text-left">Contrapartida</th>
-               <th class="text-right">Saldo</th>
-               <th class="text-right">IVA</th>
-               <th class="text-right">Base Imp.</th>
-               <th class="text-left">{#FS_CIFNIF#}</th>
+               <th class="text-right contrapartida">Saldo</th>
+               <th class="text-right contrapartida">IVA</th>
+               <th class="text-right contrapartida">Base Imp.</th>
+               <th class="text-left contrapartida">{#FS_CIFNIF#}</th>
                <th></th>
             </tr>
          </thead>
-         <tbody id="partidas">
-            
-         </tbody>
+         <tbody id="partidas"></tbody>
       </table>
    </div>
       

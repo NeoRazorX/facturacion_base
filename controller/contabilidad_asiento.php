@@ -31,6 +31,7 @@ class contabilidad_asiento extends fs_controller
    public $divisa;
    public $ejercicio;
    public $impuesto;
+   public $lineas;
    public $resultados;
    public $subcuenta;
    
@@ -91,7 +92,10 @@ class contabilidad_asiento extends fs_controller
             $this->modificar();
          }
          
+         /// comprobamos el asiento
          $this->asiento->full_test();
+         
+         $this->lineas = $this->get_lineas_asiento();
       }
       else
          $this->new_error_msg("Asiento no encontrado.");
@@ -100,9 +104,13 @@ class contabilidad_asiento extends fs_controller
    public function url()
    {
       if( !isset($this->asiento) )
+      {
          return parent::url();
+      }
       else if($this->asiento)
+      {
          return $this->asiento->url();
+      }
       else
          return $this->ppage->url();
    }
@@ -250,5 +258,23 @@ class contabilidad_asiento extends fs_controller
       }
       else
          $this->new_error_msg('Imposible modificar el asiento.');
+   }
+   
+   private function get_lineas_asiento()
+   {
+      $lineas = $this->asiento->get_partidas();
+      $subc = new subcuenta();
+      
+      foreach($lineas as $i => $lin)
+      {
+         $subcuenta = $subc->get($lin->idsubcuenta);
+         if($subcuenta)
+         {
+            $lineas[$i]->desc_subcuenta = $subcuenta->descripcion;
+            $lineas[$i]->saldo = $subcuenta->saldo;
+         }
+      }
+      
+      return $lineas;
    }
 }

@@ -68,10 +68,6 @@ class ventas_familia extends fs_controller
             else
                $this->new_error_msg("Imposible modificar los datos.");
          }
-         else if( isset($_GET['download']) )
-         {
-            $this->download();
-         }
          
          $this->offset = 0;
          if( isset($_GET['offset']) )
@@ -119,28 +115,5 @@ class ventas_familia extends fs_controller
       }
       
       return $url;
-   }
-   
-   private function download()
-   {
-      /// desactivamos el motor de plantillas
-      $this->template = FALSE;
-      
-      header( "content-type: text/plain; charset=UTF-8" );
-      header('Content-Disposition: attachment; filename="familia_'.$this->familia->codfamilia.'.csv"');
-      
-      echo "REF;PVP;DESC;CODBAR;\n";
-      $num = 0;
-      $articulos = $this->familia->get_articulos($num);
-      while(count($articulos) > 0)
-      {
-         foreach($articulos as $a)
-         {
-            echo $a->referencia.';'.$a->pvp.';'.str_replace(';', '', $a->descripcion).';'.$a->codbarras.";\n";
-         }
-         unset($articulos);
-         $num += FS_ITEM_LIMIT;
-         $articulos = $this->familia->get_articulos($num);
-      }
    }
 }

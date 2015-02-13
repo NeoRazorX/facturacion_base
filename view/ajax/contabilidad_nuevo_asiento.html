@@ -25,12 +25,12 @@
       {loop="$fsc->resultados"}
       <tr>
          <td>
-            <a href="#" onclick="select_subcuenta('{$value->codsubcuenta}','{$value->saldo}')">
+            <a href="#" onclick="select_subcuenta('{$value->codsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}')">
                {$value->codsubcuenta}
             </a>
          </td>
          <td>
-            <a href="#" onclick="select_subcuenta('{$value->codsubcuenta}','{$value->saldo}')">
+            <a href="#" onclick="select_subcuenta('{$value->codsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}')">
                {$value->descripcion}
             </a>
          </td>
