@@ -50,11 +50,11 @@
       <thead>
          <tr>
             <th class="text-left">ID</th>
-            <th>Caja</th>
-            <th>Empleado</th>
-            <th>Fecha inicial</th>
+            <th class="text-left">Caja</th>
+            <th class="text-left">Empleado</th>
+            <th class="text-center">Fecha inicial</th>
             <th class="text-right">Dinero inicial</th>
-            <th>Fecha fin</th>
+            <th class="text-center">Fecha fin</th>
             <th class="text-right">Diferencia</th>
             <th class="text-right">Tickets</th>
             <th class="text-right">Acciones</th>
@@ -63,8 +63,8 @@
       {loop="$fsc->resultados"}
       <tr>
          <td>{$value->id}</td>
-         <td class="text-center">{$value->fs_id}</td>
-         <td class="text-center">
+         <td>{$value->fs_id}</td>
+         <td>
             {if="$value->agente"}
             <a href="{$value->agente->url()}">{$value->agente->get_fullname()}</a>
             {else}
@@ -77,9 +77,11 @@
          <td class="text-right">{$fsc->show_precio($value->diferencia())}</td>
          <td class="text-right">{$value->tickets}</td>
          <td class="text-right">
+            {if="$fsc->allow_delete"}
             <a href="#" class="btn btn-xs btn-danger" title="Eliminar" onclick="delete_caja('{$value->id}')">
                <span class="glyphicon glyphicon-trash"></span>
             </a>
+            {/if}
          </td>
       </tr>
       {else}

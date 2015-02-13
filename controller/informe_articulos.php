@@ -33,6 +33,10 @@ class informe_articulos extends fs_controller
    public $tipo_stock;
    public $top_ventas;
    public $top_compras;
+   public $desde;
+   public $hasta;
+   public $referencia;
+   public $documento;
 
    public function __construct()
    {
@@ -53,7 +57,11 @@ class informe_articulos extends fs_controller
          $this->offset = intval($_GET['offset']);
       }
       
-      if($this->pestanya == 'stats')
+      if( isset($_REQUEST['buscar_referencia']) )
+      {
+         $this->buscar_referencia();
+      }
+      else if($this->pestanya == 'stats')
       {
          $this->articulo = new articulo();
          $this->stats = $this->stats();
@@ -107,6 +115,25 @@ class informe_articulos extends fs_controller
          }
          else
             $this->resultados = $this->stock($this->offset, $this->tipo_stock);
+      }
+      else if($this->pestanya == 'search')
+      {
+         $this->referencia = '';
+         $this->desde = Date('1-m-Y');
+         $this->hasta = Date('d-m-Y', mktime(0, 0, 0, date("m")+1, date("1")-1, date("Y")));
+         $this->documento = 'facturascli';
+         
+         if( isset($_POST['referencia']) )
+         {
+            $this->referencia = $_POST['referencia'];
+            $this->desde = $_POST['desde'];
+            $this->hasta = $_POST['hasta'];
+            $this->documento = $_POST['documento'];
+            
+            $this->resultados = $this->resultados_articulo($this->referencia, $this->desde, $this->hasta, $this->documento);
+         }
+         else
+            $this->resultados = FALSE;
       }
    }
    
@@ -271,5 +298,88 @@ class informe_articulos extends fs_controller
       }
       
       return $url;
+   }
+   
+   private function buscar_referencia()
+   {
+      /// desactivamos la plantilla HTML
+      $this->template = FALSE;
+      
+      $articulo = new articulo();
+      $json = array();
+      foreach($articulo->search($_REQUEST['buscar_referencia']) as $art)
+      {
+         $json[] = array('value' => $art->referencia, 'data' => $art->referencia);
+      }
+      
+      header('Content-Type: application/json');
+      echo json_encode( array('query' => $_REQUEST['buscar_referencia'], 'suggestions' => $json) );
+   }
+   
+   private function resultados_articulo($ref, $desde, $hasta, $tabla)
+   {
+      $rlist = array();
+      $agente = new agente();
+      $agentes = $agente->all();
+      
+      $nombre = 'nombre';
+      if($tabla == 'facturascli')
+      {
+         $nombre = 'nombrecliente';
+      }
+      
+      $data = $this->db->select("SELECT f.idfactura,fecha,codigo,".$nombre.",codagente,cantidad,pvpunitario,dtopor,pvptotal,iva "
+              . "FROM ".$tabla." f, lineas".$tabla." l WHERE f.idfactura = l.idfactura "
+              . "AND l.referencia = ".$this->empresa->var2str($ref)." AND fecha >= ".$this->empresa->var2str($desde)
+              ." AND fecha <= ".$this->empresa->var2str($hasta)." ORDER BY fecha DESC;");
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $linea = array(
+                'idfactura' => intval($d['idfactura']),
+                'url' => '',
+                'fecha' => date('d-m-Y', strtotime($d['fecha'])),
+                'codigo' => $d['codigo'],
+                'nombre' => $d[$nombre],
+                'agente' => $d['codagente'],
+                'cantidad' => floatval($d['cantidad']),
+                'pvpunitario' => floatval($d['pvpunitario']),
+                'dtopor' => floatval($d['dtopor']),
+                'pvptotal' => floatval($d['pvptotal']),
+                'total' => floatval($d['pvptotal']) * (100 + floatval($d['iva'])) / 100
+            );
+            
+            if($tabla == 'facturascli')
+            {
+               $linea['url'] = 'index.php?page=ventas_factura&id='.$linea['idfactura'];
+            }
+            else if($tabla == 'facturasprov')
+            {
+               $linea['url'] = 'index.php?page=compras_factura&id='.$linea['idfactura'];
+            }
+            
+            /// rellenamos el nombre del agente
+            if( is_null($linea['agente']) )
+            {
+               $linea['agente'] = '-';
+            }
+            else
+            {
+               foreach($agentes as $ag)
+               {
+                  if($ag->codagente == $linea['agente'])
+                  {
+                     $linea['agente'] = $ag->get_fullname();
+                     break;
+                  }
+               }
+            }
+            
+            $rlist[] = $linea;
+         }
+      }
+      
+      return $rlist;
    }
 }

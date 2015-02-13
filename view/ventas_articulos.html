@@ -213,9 +213,11 @@
             </td>
             <td class="text-right">
                <div class="btn-group">
+                  {if="$fsc->allow_delete"}
                   <a class="btn btn-sm btn-danger" type="button" title="Eliminar" href="{$fsc->url()}&delete_tarifa={$value->codtarifa}#tarifas">
                      <span class="glyphicon glyphicon-trash"></span>
                   </a>
+                  {/if}
                   <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                      <span class="glyphicon glyphicon-floppy-disk"></span>
                   </button>

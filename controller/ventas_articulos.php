@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -24,6 +24,7 @@ require_model('tarifa.php');
 
 class ventas_articulos extends fs_controller
 {
+   public $allow_delete;
    public $codfamilia;
    public $con_stock;
    public $familia;
@@ -43,6 +44,9 @@ class ventas_articulos extends fs_controller
       $this->familia = new familia();
       $this->impuesto = new impuesto();
       $this->tarifa = new tarifa();
+      
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       $this->codfamilia = '';
       if( isset($_REQUEST['codfamilia']) )

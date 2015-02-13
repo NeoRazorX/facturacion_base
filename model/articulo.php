@@ -823,10 +823,21 @@ class articulo extends fs_model
       {
          /// intentamos obtener los datos de memcache
          if( $this->new_search_tag($query) )
+         {
             $artilist = $this->cache->get_array('articulos_search_'.$query);
+         }
+         else
+         {
+            /// buscamos la referencia completa, para ponerlo el primero
+            $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE lower(referencia) = ".$this->var2str($query).";");
+            if($data)
+            {
+               $artilist[] = new articulo($data[0]);
+            }
+         }
       }
       
-      if( count($artilist) == 0 )
+      if( count($artilist) <= 1 )
       {
          if($codfamilia == '')
             $sql = "SELECT * FROM ".$this->table_name." WHERE ";
@@ -854,7 +865,13 @@ class articulo extends fs_model
          if($articulos)
          {
             foreach($articulos as $a)
-               $artilist[] = new articulo($a);
+            {
+               /// ya hemos puesto el primero al artćiulo con la referencia exacta
+               if($a['referencia'] != $query)
+               {
+                  $artilist[] = new articulo($a);
+               }
+            }
          }
       }
       

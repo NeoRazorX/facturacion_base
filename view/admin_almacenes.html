@@ -123,9 +123,15 @@
       </div>
       <div class="panel-footer text-right">
          {if="$fsc->allow_delete"}
-         <a class="btn btn-sm btn-danger pull-left" onclick="delete_almacen('{$fsc->url()}&delete={$value->codalmacen}')">
-            <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
-         </a>
+            {if="$value->codalmacen==$fsc->empresa->codalmacen"}
+            <a class="btn btn-sm btn-warning pull-left" onclick="alert('No puedes eliminar el almacén predeterminado de la empresa.')">
+               <span class="glyphicon glyphicon-lock"></span> &nbsp; Eliminar
+            </a>
+            {else}
+            <a class="btn btn-sm btn-danger pull-left" onclick="delete_almacen('{$fsc->url()}&delete={$value->codalmacen}')">
+               <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+            </a>
+            {/if}
          {/if}
          <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
             <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar

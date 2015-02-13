@@ -25,6 +25,7 @@ require_model('tarifa.php');
 
 class ventas_clientes extends fs_controller
 {
+   public $allow_delete;
    public $cliente;
    public $clientes_grupo;
    public $grupo;
@@ -48,6 +49,9 @@ class ventas_clientes extends fs_controller
       $this->pais = new pais();
       $this->serie = new serie();
       $this->tarifa = new tarifa();
+      
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       if( isset($_GET['delete_grupo']) ) /// eliminar un grupo
       {
