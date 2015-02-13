@@ -319,6 +319,8 @@ class informe_articulos extends fs_controller
    private function resultados_articulo($ref, $desde, $hasta, $tabla)
    {
       $rlist = array();
+      $agente = new agente();
+      $agentes = $agente->all();
       
       $nombre = 'nombre';
       if($tabla == 'facturascli')
@@ -355,6 +357,23 @@ class informe_articulos extends fs_controller
             else if($tabla == 'facturasprov')
             {
                $linea['url'] = 'index.php?page=compras_factura&id='.$linea['idfactura'];
+            }
+            
+            /// rellenamos el nombre del agente
+            if( is_null($linea['agente']) )
+            {
+               $linea['agente'] = '-';
+            }
+            else
+            {
+               foreach($agentes as $ag)
+               {
+                  if($ag->codagente == $linea['agente'])
+                  {
+                     $linea['agente'] = $ag->get_fullname();
+                     break;
+                  }
+               }
             }
             
             $rlist[] = $linea;

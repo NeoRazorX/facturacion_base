@@ -278,6 +278,7 @@
             </tr>
          </thead>
          <!--{$total=0}-->
+         <!--{$cantidad=0}-->
          {loop="$fsc->resultados"}
          <tr>
             <td>{$value['fecha']}</td>
@@ -291,11 +292,13 @@
             <td class="text-right">
                {$fsc->show_precio($value['total'])}
                <!--{$total=$total+$value['total']}-->
+               <!--{$cantidad=$cantidad+$value['cantidad']}-->
             </td>
          </tr>
          {/loop}
          <tr>
-            <td colspan="9" class="text-right"><b>{$fsc->show_precio($total)}</b></td>
+            <td colspan="5" class="text-right"><b>{$cantidad}</b></td>
+            <td colspan="4" class="text-right"><b>{$fsc->show_precio($total)}</b></td>
          </tr>
       </table>
    </div>
