@@ -349,7 +349,7 @@ class ventas_agrupar_albaranes extends fs_controller
           'page_from' => __CLASS__,
           'page_to' => 'ventas_albaranes',
           'type' => 'button',
-          'text' => '<span class="glyphicon glyphicon-tasks"></span> &nbsp; Agrupar',
+          'text' => '<span class="glyphicon glyphicon-tasks"></span><span class="hidden-xs"> &nbsp; Agrupar</span>',
           'params' => ''
       );
       $fsext = new fs_extension($extension);
