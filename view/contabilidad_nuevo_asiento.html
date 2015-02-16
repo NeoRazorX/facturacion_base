@@ -104,6 +104,7 @@
          $("#saldoc_"+num).val(saldo);
       }
       $("#modal_subcuentas").modal('hide');
+      recalcular();
    }
    function clean_partida(num)
    {
@@ -128,7 +129,7 @@
             
             if( $("#codcontrapartida_"+i).val() != '' )
             {
-               show_contrapartida = true;
+               show_contrapartidas = true;
                
                iva = parseFloat( $("#iva_"+i).val() );
                if(iva == 0)
@@ -305,7 +306,7 @@
    <input type="hidden" name="tipo"/>
    <input type="hidden" name="numlinea"/>
    <div class="modal" id="modal_subcuentas">
-      <div class="modal-dialog" style="width: 99%; max-width: 900px;">
+      <div class="modal-dialog" style="width: 99%; max-width: 1000px;">
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>

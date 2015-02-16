@@ -18,7 +18,7 @@
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-md-2">
+      <div class="col-md-5">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -34,11 +34,18 @@
             {/if}
          </div>
          
-         <a href="#" id="b_nuevo_proveedor" class="btn btn-sm btn-success">
-            <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
-         </a>
+         <div class="btn-group">
+            <a href="#" id="b_nuevo_proveedor" class="btn btn-sm btn-success">
+               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
+            </a>
+            {loop="$fsc->extensions"}
+               {if="$value->type=='button'"}
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+               {/if}
+            {/loop}
+         </div>
       </div>
-      <div class="col-md-8 text-center">
+      <div class="col-md-5 text-right">
          <h2 style="margin-top: 0px;">
             {if="$fsc->query==''"}Proveedores{else}Resultados de la búsqueda "{$fsc->query}":{/if}
          </h2>
