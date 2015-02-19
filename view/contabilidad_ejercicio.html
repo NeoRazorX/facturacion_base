@@ -30,17 +30,17 @@
    <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
       <div class="row">
          <div class="col-md-7">
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="recargar la página">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             
-            <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_ejercicios">
+            <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_ejercicios" title="Ejercicios">
                <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Ejercicios
             </a>
             
             {if="$fsc->asiento_apertura_url OR $fsc->asiento_cierre_url OR $fsc->asiento_pyg_url"}
             <div class="btn-group">
-               <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+               <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" title="Asiento...">
                   Asiento... <span class="caret"></span>
                </button>
                <ul class="dropdown-menu" role="menu">
@@ -60,11 +60,11 @@
             {/if}
             
             <div class="btn-group">
-               <a id="b_importar" class="btn btn-sm btn-default" href="#">
+               <a id="b_importar" class="btn btn-sm btn-default" href="#" title="Importar...">
                   <span class="glyphicon glyphicon-import"></span> &nbsp; Importar...
                </a>
-               <a class="btn btn-sm btn-default" href="{$fsc->url()}&export=TRUE">
-                  <span class="glyphicon glyphicon-export"></span> &nbsp; Exportar
+               <a class="btn btn-sm btn-default" href="{$fsc->url()}&export=TRUE" title="Exportar...">
+                  <span class="glyphicon glyphicon-export"></span> &nbsp; Exportar...
                </a>
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}

@@ -20,13 +20,13 @@
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             
-            <a class="btn btn-sm btn-default" href="index.php?page=ventas_familias">
+            <a class="btn btn-sm btn-default" href="index.php?page=ventas_familias" title="Familias">
                <span class="glyphicon glyphicon-arrow-left"></span>
                <span class="hidden-xs"> &nbsp; Familias</span>
             </a>
             
             <div class="btn-group">
-               <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+               <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" title="Subfamilias">
                   Subfamilias <span class="caret"></span>
                </button>
                <ul class="dropdown-menu" role="menu">
@@ -43,7 +43,7 @@
             <div class="btn-group">
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
             </div>
@@ -54,12 +54,12 @@
          <div class="col-sm-3 col-xs-4 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
-               <a href="#" id="b_eliminar_familia" class="btn btn-sm btn-danger">
+               <a href="#" id="b_eliminar_familia" class="btn btn-sm btn-danger" title="Eliminar">
                   <span class="glyphicon glyphicon-trash"></span>
                   <span class="hidden-xs"> &nbsp; Eliminar</span>
                </a>
                {/if}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                   <span class="glyphicon glyphicon-floppy-disk"></span>
                   <span class="hidden-xs"> &nbsp; Guardar</span>
                </button>

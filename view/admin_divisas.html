@@ -16,11 +16,11 @@
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="Desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
             {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="Marcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
             {/if}
@@ -133,7 +133,7 @@
             <div class="panel-body">
                Puedes seleccionar la divisa predeterminada de FacturaScripts desde Admin &gt; Empresa.
                <br/><br/>
-               <a href="index.php?page=admin_empresa#facturacion" class="btn btn-sm btn-default">
+               <a href="index.php?page=admin_empresa#facturacion" class="btn btn-sm btn-default" title="Elegir divisa">
                   <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> &nbsp; Elegir divisa
                </a>
             </div>
@@ -147,7 +147,7 @@
             <div class="panel-body">
                Puedes cambiar el número de decimales, el separador, etc... desde el panel de control.
                <br/><br/>
-               <a href="index.php?page=admin_home#avanzado" class="btn btn-sm btn-default">
+               <a href="index.php?page=admin_home#avanzado" class="btn btn-sm btn-default" title="Panel de control">
                   <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> &nbsp; Panel de control
                </a>
             </div>

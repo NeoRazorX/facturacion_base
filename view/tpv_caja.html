@@ -16,11 +16,11 @@
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="Desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
             {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="Marcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
             {/if}
@@ -28,7 +28,7 @@
          
          <div class="btn-group">
             {if="$fsc->show_cerrar"}
-            <a class="btn btn-sm btn-danger" href="{$fsc->url()}&cerrar=TRUE">
+            <a class="btn btn-sm btn-danger" href="{$fsc->url()}&cerrar=TRUE" title="Cerrar caja">
                <span class="glyphicon glyphicon-lock"></span> &nbsp; Cerrar caja
             </a>
             {/if}

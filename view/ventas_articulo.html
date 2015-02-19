@@ -234,11 +234,11 @@
          <a href="{$fsc->url()}" class="btn btn-sm btn-default" title="Recargar la página">
             <span class="glyphicon glyphicon-refresh"></span>
          </a>
-         <a href="index.php?page=ventas_articulos" class="btn btn-sm btn-default">
+         <a href="index.php?page=ventas_articulos" class="btn btn-sm btn-default" title="Todos los artículos">
             <span class="glyphicon glyphicon-arrow-left"></span>
             <span class="hidden-xs"> &nbsp; Todos los artículos</span>
          </a>
-         <a href="#" id="b_imagen" class="btn btn-sm btn-default">
+         <a href="#" id="b_imagen" class="btn btn-sm btn-default" title="Imagen">
             <span class="glyphicon glyphicon-picture"></span>
             <span class="hidden-xs"> &nbsp; Imagen</span>
          </a>
@@ -248,7 +248,7 @@
       </div>
       <div class="col-sm-2 col-xs-2 text-right">
          {if="$fsc->allow_delete"}
-         <a href="#" id="b_eliminar_articulo" class="btn btn-sm btn-danger">
+         <a href="#" id="b_eliminar_articulo" class="btn btn-sm btn-danger" title="Eliminar">
             <span class="glyphicon glyphicon-trash"></span>
             <span class="hidden-xs"> &nbsp; Eliminar</span>
          </a>
@@ -396,7 +396,7 @@
             <textarea class="form-control" name="observaciones" rows="3">{$fsc->articulo->observaciones}</textarea>
          </div>
          <div class="col-lg-2 col-md-2 col-sm-2 text-right">
-            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                <span class="glyphicon glyphicon-floppy-disk"></span>
                <span class="hidden-xs"> &nbsp; Guardar</span>
             </button>
@@ -494,7 +494,7 @@
             {/loop}
             <tr>
                <td colspan="5" class="text-center">
-                  <a class="btn btn-sm btn-block btn-success" href="index.php?page=ventas_articulos#tarifas">Nueva tarifa</a>
+                  <a class="btn btn-sm btn-block btn-success" href="index.php?page=ventas_articulos#tarifas" title="Nueva tarifa">Nueva tarifa</a>
                </td>          
             </tr>
          </table>
@@ -503,7 +503,7 @@
          <div class="row">
             <div class="col-md-12 text-right">
                <br />
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                   <span class="glyphicon glyphicon-floppy-disk"></span>
                   <span class="hidden-xs"> &nbsp; Guardar</span>
                </button>
@@ -651,12 +651,12 @@
             </div>
             <div class="modal-footer">
                {if="$fsc->articulo->imagen_url()"}
-               <a class="btn btn-sm btn-danger" href="{$fsc->url()}&delete_img=TRUE">
+               <a class="btn btn-sm btn-danger" href="{$fsc->url()}&delete_img=TRUE" title="Eliminar">
                   <span class="glyphicon glyphicon-trash"></span>
                   <span class="hidden-xs"> &nbsp; Eliminar</span>
                </a>
                {else}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                   <span class="glyphicon glyphicon-floppy-disk"></span>
                   <span class="hidden-xs"> &nbsp; Guardar</span>
                </button>

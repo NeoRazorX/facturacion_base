@@ -26,12 +26,12 @@
             </a>
             
             {if="$fsc->factura->idasiento"}
-            <a class="btn btn-sm btn-default" href="{$fsc->factura->asiento_url()}">
+            <a class="btn btn-sm btn-default" href="{$fsc->factura->asiento_url()}" title="Asiento contable">
                <span class="glyphicon glyphicon-eye-open"></span>
                <span class="hidden-xs"> &nbsp; Asiento contable</span>
             </a>
             {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&gen_asiento=TRUE&petid={$fsc->random_string()}">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&gen_asiento=TRUE&petid={$fsc->random_string()}" title="Generar asiento">
                <span class="glyphicon glyphicon-paperclip"></span>
                <span class="hidden-xs"> &nbsp; Generar asiento</span>
             </a>
@@ -39,13 +39,13 @@
             
             <div class="btn-group">
                {if="$fsc->factura->pagada"}
-               <button type="button" class="btn btn-sm btn-info dropdown-toggle" data-toggle="dropdown">
+               <button type="button" class="btn btn-sm btn-info dropdown-toggle" data-toggle="dropdown" title="Pagada">
                   <span class="glyphicon glyphicon-ok"></span>
                   <span class="hidden-xs"> &nbsp; Pagada</span>
                   <span class="caret"></span>
                </button>
                {else}
-               <button type="button" class="btn btn-sm btn-warning dropdown-toggle" data-toggle="dropdown">
+               <button type="button" class="btn btn-sm btn-warning dropdown-toggle" data-toggle="dropdown" title="Sin pagar">
                   <span class="glyphicon glyphicon-remove"></span>
                   <span class="hidden-xs"> &nbsp; Sin pagar</span>
                   <span class="caret"></span>
@@ -73,12 +73,12 @@
          <div class="col-md-4 col-sm-4 col-xs-4 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
-               <a id="b_eliminar" class="btn btn-sm btn-danger" href="#">
+               <a id="b_eliminar" class="btn btn-sm btn-danger" href="#" title="Eliminar">
                   <span class="glyphicon glyphicon-trash"></span>
                   <span class="hidden-xs"> &nbsp; Eliminar</span>
                </a>
                {/if}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                   <span class="glyphicon glyphicon-floppy-disk"></span>
                   <span class="hidden-xs"> &nbsp; Guardar</span>
                </button>
@@ -157,7 +157,7 @@
                         <th class="text-left text-capitalize">{#FS_ALBARAN#}</th>
                         <th class="text-left">Artículo</th>
                         <th class="text-right">Cantidad</th>
-                        <th class="text-right">PVP</th>
+                        <th class="text-right">Precio</th>
                         <th class="text-right">Dto</th>
                         <th class="text-right">Neto</th>
                         <th class="text-right">IVA</th>
@@ -264,7 +264,7 @@
          </div>
          {/if}
          <div class="modal-footer">
-            <a class="btn btn-sm btn-danger" href="{$fsc->ppage->url()}&delete={$fsc->factura->idfactura}">
+            <a class="btn btn-sm btn-danger" href="{$fsc->ppage->url()}&delete={$fsc->factura->idfactura}" title="Eliminar">
                <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
             </a>
          </div>

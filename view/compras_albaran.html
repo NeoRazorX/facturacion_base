@@ -83,17 +83,17 @@
             
             <div class="btn-group">
                {if="$fsc->albaran->ptefactura"}
-               <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
+               <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}" title="Aprobar">
                   <span class="glyphicon glyphicon-paperclip"></span>
                   <span class="hidden-xs"> &nbsp; Aprobar</span>
                </a>
                {else}
-               <a class="btn btn-sm btn-default text-capitalize" href="{$fsc->albaran->factura_url()}">
+               <a class="btn btn-sm btn-default text-capitalize" href="{$fsc->albaran->factura_url()}" title="Ver Factura">
                   <span class="glyphicon glyphicon-eye-open"></span>
                   <span class="hidden-xs"> &nbsp; Ver Factura</span>
                </a>
                {/if}
-               <a id="b_precios" class="btn btn-sm btn-default" href="#">
+               <a id="b_precios" class="btn btn-sm btn-default" href="#" title="Precios">
                   <span class="glyphicon glyphicon-euro"></span>
                   <span class="hidden-xs"> &nbsp; Precios</span>
                </a>
@@ -110,12 +110,12 @@
          <div class="col-md-4 col-sm-4 col-xs-4 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
-               <a id="b_eliminar" class="btn btn-sm btn-danger" href="#">
+               <a id="b_eliminar" class="btn btn-sm btn-danger" href="#" title="Eliminar">
                   <span class="glyphicon glyphicon-trash"></span>
                   <span class="hidden-xs"> &nbsp; Eliminar</span>
                </a>
                {/if}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                   <span class="glyphicon glyphicon-floppy-disk"></span>
                   <span class="hidden-xs"> &nbsp; Guardar</span>
                </button>
@@ -146,7 +146,7 @@
                <div class="input-group">
                   <input class="form-control" type="text" name="ac_proveedor" id="ac_proveedor" value="{$fsc->albaran->nombre}" placeholder="Buscar" autocomplete="off"/>
                   <span class="input-group-btn">
-                     <button class="btn btn-default" type="button" onclick="document.f_albaran.ac_proveedor.value=''; document.f_albaran.ac_proveedor.focus();">
+                     <button class="btn btn-default" type="button" onclick="document.f_albaran.ac_proveedor.value=''; document.f_albaran.ac_proveedor.focus();" title="Editar">
                         <span class="glyphicon glyphicon-edit"></span>
                      </button>
                   </span>
@@ -220,7 +220,7 @@
                         <th class="text-left">Descripción</th>
                         <th class="text-right" width="90">Cantidad</th>
                         <th></th>
-                        <th class="text-right">PVP</th>
+                        <th class="text-right">Precio</th>
                         <th class="text-right" width="90">Dto. %</th>
                         <th class="text-right">Neto</th>
                         <th class="text-right" width="115">IVA</th>
@@ -245,7 +245,7 @@
                                   value="{$value->cantidad}" onchange="recalcular()" onkeyup="recalcular()" autocomplete="off" value="1"/>
                         </td>
                         <td>
-                           <button class="btn btn-sm btn-danger" type="button" onclick="$('#linea_{$counter}').remove();recalcular();">
+                           <button class="btn btn-sm btn-danger" type="button" onclick="$('#linea_{$counter}').remove();recalcular();" title="Eliminar">
                               <span class="glyphicon glyphicon-trash"></span>
                            </button>
                         </td>
@@ -319,7 +319,7 @@
                      <tr>
                         <th class="text-left">Artículo</th>
                         <th class="text-right">Cantidad</th>
-                        <th class="text-right">PVP</th>
+                        <th class="text-right">Precio</th>
                         <th class="text-right">Dto</th>
                         <th class="text-right">Neto</th>
                         <th class="text-right">IVA</th>
@@ -391,7 +391,7 @@
                         <div class="input-group">
                            <input class="form-control" type="text" name="query" autocomplete="off"/>
                            <span class="input-group-btn">
-                              <button class="btn btn-primary" type="submit">
+                              <button class="btn btn-primary" type="submit" title="Buscar">
                                  <span class="glyphicon glyphicon-search"></span>
                               </button>
                            </span>
@@ -448,8 +448,9 @@
                   </select>
                </div>
                <div class="text-right">
-                  <button class="btn btn-sm btn-primary" type="submit" onclick="new_articulo();return false;">
-                     <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar y seleccionar
+                  <button class="btn btn-sm btn-primary" type="submit" onclick="new_articulo();return false;" title="Guardar y seleccionar">
+                     <span class="glyphicon glyphicon-floppy-disk"></span>
+                     <span class="hidden-xs"> &nbsp; Guardar y seleccionar</span>
                   </button>
                </div>
             </form>
@@ -475,7 +476,8 @@
                   </label>
                </div>
                <button class="btn btn-sm btn-danger" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+                  <span class="glyphicon glyphicon-trash"></span>
+                  <span class="hidden-xs"> &nbsp; Eliminar</span>
                </button>
             </div>
             {if="$fsc->albaran->idfactura"}
@@ -551,7 +553,8 @@
                   </div>
                   
                   <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                     <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                     <span class="glyphicon glyphicon-floppy-disk"></span>
+                     <span class="hidden-xs"> &nbsp; Guardar</span>
                   </button>
                </div>
             </div>

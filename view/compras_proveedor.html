@@ -74,7 +74,7 @@
          <a href="{$fsc->url()}" class="btn btn-sm btn-default" title="Recarga la página">
             <span class="glyphicon glyphicon-refresh"></span>
          </a>
-         <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
+         <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default" title="Proveedores">
             <span class="glyphicon glyphicon-arrow-left"></span>
             <span class="hidden-xs"> &nbsp; Proveedores</span>
          </a>
@@ -84,7 +84,7 @@
       </div>
       <div class="col-sm-2 col-xs-2 text-right">
          {if="$fsc->allow_delete"}
-         <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
+         <a href="#" id="b_eliminar" class="btn btn-sm btn-danger" title="Eliminar">
             <span class="glyphicon glyphicon-trash"></span>
             <span class="hidden-xs"> &nbsp; Eliminar</span>
          </a>
@@ -199,7 +199,7 @@
                   </div>
                </div>
                <div class="panel-footer text-right">
-                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                      <span class="glyphicon glyphicon-floppy-disk"></span>
                      <span class="hidden-xs"> &nbsp; Guardar</span>
                   </button>
@@ -261,7 +261,7 @@
                   </div>
                </div>
                <div class="panel-footer text-right">
-                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                      <span class="glyphicon glyphicon-floppy-disk"></span>
                      <span class="hidden-xs"> &nbsp; Guardar</span>
                   </button>
@@ -293,11 +293,11 @@
                      </div>
                   </div>
                   <div class="panel-footer text-right">
-                     <a class="btn btn-sm btn-danger pull-left" type="button" href="{$fsc->url()}&delete_cuenta={$value->codcuenta}#facturacion">
+                     <a class="btn btn-sm btn-danger pull-left" type="button" href="{$fsc->url()}&delete_cuenta={$value->codcuenta}#facturacion" title="Eliminar">
                          <span class="glyphicon glyphicon-trash"></span>
                          <span class="hidden-xs"> &nbsp; Eliminar</span>
                      </a>
-                     <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                     <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                          <span class="glyphicon glyphicon-floppy-disk"></span>
                          <span class="hidden-xs"> &nbsp; Guardar</span>
                      </button>
@@ -368,11 +368,11 @@
                      </div>
                   </div>
                   <div class="panel-footer text-right">
-                     <a class="btn btn-sm btn-danger pull-left" type="button" href="{$fsc->url()}&delete_dir={$value->id}#direcciones">
+                     <a class="btn btn-sm btn-danger pull-left" type="button" href="{$fsc->url()}&delete_dir={$value->id}#direcciones" title="Eliminar">
                          <span class="glyphicon glyphicon-trash"></span>
                          <span class="hidden-xs"> &nbsp; Eliminar</span>
                      </a>
-                     <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                     <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                          <span class="glyphicon glyphicon-floppy-disk"></span>
                          <span class="hidden-xs"> &nbsp; Guardar</span>
                      </button>
@@ -428,7 +428,7 @@
                   {/loop}
                   <tr>
                      <td colspan="6" class="text-center">
-                        <a class="btn btn-sm btn-block btn-success" href="index.php?page=subcuenta_asociada&pro={$fsc->proveedor->codproveedor}">Asignar una nueva subcuenta...</a>
+                        <a class="btn btn-sm btn-block btn-success" href="index.php?page=subcuenta_asociada&pro={$fsc->proveedor->codproveedor}" title="Asignar una nueva subcuenta...">Asignar una nueva subcuenta...</a>
                      </td>
                   </tr>
                </table>
@@ -525,7 +525,7 @@
                </div>
             </div>
             <div class="modal-footer">
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                   <span class="glyphicon glyphicon-floppy-disk"></span>
                   <span class="hidden-xs"> &nbsp; Guardar</span>
                </button>

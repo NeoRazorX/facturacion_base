@@ -132,9 +132,9 @@
    <div class="row">
       <div class="col-sm-9">
          <div class="btn-group" role="group" aria-label="...">
-            <a href="{$fsc->url()}&tab=stock" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='todo'"} active{/if}">Todo</a>
-            <a href="{$fsc->url()}&tab=stock&tipo=min" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='min'"} active{/if}">Bajo mínimos</a>
-            <a href="{$fsc->url()}&tab=stock&tipo=max" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='max'"} active{/if}">Excesos</a>
+            <a href="{$fsc->url()}&tab=stock" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='todo'"} active{/if}" title="Todo">Todo</a>
+            <a href="{$fsc->url()}&tab=stock&tipo=min" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='min'"} active{/if}" title="Bajo mínimos">Bajo mínimos</a>
+            <a href="{$fsc->url()}&tab=stock&tipo=max" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='max'"} active{/if}" title="Excesos">Excesos</a>
             <a href="{$fsc->url()}&tab=stock&tipo=reg" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='reg'"} active{/if}" title="Regularizaciones de stock">
                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
             </a>
@@ -142,7 +142,7 @@
       </div>
       <div class="col-sm-3 text-right">
          {if="$fsc->tipo_stock!='reg'"}
-         <a href="{$fsc->url()}&tab=stock&tipo={$fsc->tipo_stock}&download=TRUE" class="btn btn-sm btn-default">
+         <a href="{$fsc->url()}&tab=stock&tipo={$fsc->tipo_stock}&download=TRUE" class="btn btn-sm btn-default" title="Descargar">
             <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> &nbsp; Descargar
          </a>
          {/if}
@@ -279,7 +279,7 @@
       </div>
       <div class="row">
          <div class="col-sm-12">
-            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Mostrar">
                <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Mostrar
             </button>
          </div>

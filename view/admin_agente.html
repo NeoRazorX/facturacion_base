@@ -18,7 +18,7 @@
             <span class="glyphicon glyphicon-refresh"></span>
          </a>
          
-         <a class="btn btn-sm btn-default" href="index.php?page=admin_agentes">
+         <a class="btn btn-sm btn-default" href="index.php?page=admin_agentes" title="Empleados">
             <span class="glyphicon glyphicon-arrow-left"></span>
             <span class="hidden-xs"> &nbsp; Empleados</span>
          </a>
@@ -28,7 +28,7 @@
       </div>
       <div class="col-lg-2 col-md-2 col-xs-2 text-right">
          {if="$fsc->allow_delete"}
-         <a href="#" id="b_delete_agente" class="btn btn-sm btn-danger">
+         <a href="#" id="b_delete_agente" class="btn btn-sm btn-danger" title="Eliminar">
             <span class="glyphicon glyphicon-trash"></span>
             <span class="hidden-xs"> &nbsp; Eliminar</span>
          </a>
@@ -84,7 +84,7 @@
                   </div>
                </div>
                <div class="panel-footer" style="text-align: right;">
-                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                      <span class="glyphicon glyphicon-floppy-disk"></span>
                      <span class="hidden-xs"> &nbsp; Guardar</span>
                   </button>

@@ -53,22 +53,22 @@
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="Desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
             {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="Marcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
             {/if}
          </div>
          
          <div class="btn-group">
-            <a class="btn btn-sm btn-success" href="index.php?page=nueva_venta&tipo=factura">
+            <a class="btn btn-sm btn-success" href="index.php?page=nueva_venta&tipo=factura" title="Nuevo">
                <span class="glyphicon glyphicon-plus"></span>
                <span class="hidden-xs"> &nbsp; Nuevo</span>
             </a>
-            <button class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_huecos">
+            <button class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_huecos" title="Huecos">
                <span class="glyphicon glyphicon-tasks"></span>
                <span class="hidden-xs"> &nbsp; Huecos</span>
             </button>
@@ -96,7 +96,7 @@
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
                <span class="input-group-btn">
-                  <button class="btn btn-primary hidden-sm" type="submit">
+                  <button class="btn btn-primary hidden-sm" type="submit" title="Buscar">
                      <span class="glyphicon glyphicon-search"></span>
                   </button>
                </span>
@@ -217,8 +217,8 @@
                   <td class="text-center">{$value.fecha} {$value.hora}</td>
                </tr>
                {else}
-               <tr class="bg-warning">
-                  <td colspan="2" class="text-center">No hay huecos.</td>
+               <tr class="bg-success">
+                  <td colspan="2">No hay huecos en la numeración de facturas. Eso es bueno ;-)</td>
                </tr>
                {/loop}
             </table>
@@ -239,7 +239,7 @@
                <div class="input-group">
                   <input class="form-control" type="text" name="buscar_lineas" placeholder="Referencia" autocomplete="off"/>
                   <span class="input-group-btn">
-                     <button class="btn btn-primary" type="submit">
+                     <button class="btn btn-primary" type="submit" title="Buscar">
                         <span class="glyphicon glyphicon-search"></span>
                      </button>
                   </span>

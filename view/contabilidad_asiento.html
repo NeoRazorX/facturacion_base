@@ -48,7 +48,7 @@
             <input class='form-control text-right' type='text' id='cifnif_"+numlineas+"' name='cifnif_"+numlineas+"'/>\n\
          </td>\n\
          <td class='text-right'>\n\
-            <a class='btn btn-sm btn-danger' onclick=\"clean_partida('"+numlineas+"')\">\n\
+            <a class='btn btn-sm btn-danger' onclick=\"clean_partida('"+numlineas+"')\" title=\"Eliminar\">\n\
                <span class='glyphicon glyphicon-trash'></span>\n\
             </a>\n\
          </td>\n\
@@ -212,7 +212,7 @@
             </div>
             
             <div class="btn-group">
-               <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
+               <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos" title="Asientos">
                   <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Asientos
                </a>
                {loop="$fsc->extensions"}
@@ -225,14 +225,14 @@
          <div class="col-lg-6 col-md-6 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
-               <a href="#" id="b_eliminar_asiento" class="btn btn-sm btn-danger">
+               <a href="#" id="b_eliminar_asiento" class="btn btn-sm btn-danger" title="Eliminar">
                   <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
                </a>
                {/if}
-               <a href="{$fsc->url()}&bloquear=TRUE" class="btn btn-sm btn-default">
+               <a href="{$fsc->url()}&bloquear=TRUE" class="btn btn-sm btn-default" title="Bloquear">
                   <span class="glyphicon glyphicon-lock"></span> &nbsp; Bloquear
                </a>
-               <button class="btn btn-sm btn-primary" type="submit">
+               <button class="btn btn-sm btn-primary" type="submit" title="Guardar">
                   <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                </button>
             </div>
@@ -346,7 +346,7 @@
                   <input class='form-control' type='text' id='cifnif_{$counter+1}' name='cifnif_{$counter+1}' value='{$value->cifnif}'/>
                </td>
                <td class="text-right">
-                  <button class="btn btn-sm btn-danger" type="button" onclick="clean_partida('{$counter+1}')">
+                  <button class="btn btn-sm btn-danger" type="button" onclick="clean_partida('{$counter+1}')" title="Eliminar">
                      <span class="glyphicon glyphicon-trash"></span>
                   </button>
                </td>
@@ -359,12 +359,12 @@
    <div class="container-fluid">
       <div class="row">
          <div class="col-lg-12 col-md-12 col-sm-12">
-            <a href="#" class="btn btn-sm btn-block btn-success" onclick="add_partida();return false;">Añadir línea...</a>
+            <a href="#" class="btn btn-sm btn-block btn-success" onclick="add_partida();return false;" title="Añadir línea...">Añadir línea...</a>
          </div>
       </div>
       <div class="row" style="margin-top: 20px;">
          <div class="col-lg-12 text-right">
-            <button class="btn btn-sm btn-primary" type="submit">
+            <button class="btn btn-sm btn-primary" type="submit" title="Guardar">
                <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
             </button>
          </div>
@@ -382,7 +382,7 @@
          </div>
          
          <div class="btn-group">
-            <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
+            <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos" title="Asientos">
                <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Asientos
             </a>
             {loop="$fsc->extensions"}
@@ -394,11 +394,11 @@
       </div>
       <div class="col-lg-6 col-md-6 col-sm-6 text-right">
          <div class="btn-group">
-            <a href="{$fsc->url()}&desbloquear=TRUE" class="btn btn-sm btn-default">
+            <a href="{$fsc->url()}&desbloquear=TRUE" class="btn btn-sm btn-default" title="Desbloquear">
                <span class="glyphicon glyphicon-lock"></span> &nbsp; Desbloquear
             </a>
             {if="$fsc->allow_delete"}
-            <a href="#" id="b_eliminar_asiento" class="btn btn-sm btn-danger">
+            <a href="#" id="b_eliminar_asiento" class="btn btn-sm btn-danger" title="Eliminar">
                <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
             </a>
             {/if}
@@ -488,7 +488,7 @@
    <input type="hidden" name="tipo"/>
    <input type="hidden" name="numlinea"/>
    <div class="modal" id="modal_subcuentas">
-      <div class="modal-dialog" style="width: 99%; max-width: 900px;">
+      <div class="modal-dialog" style="width: 99%; max-width: 1000px;">
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -498,7 +498,7 @@
                <div class="input-group">
                   <input class="form-control" type="text" name="query" onkeyup="buscar_subcuentas();" autocomplete="off" autofocus />
                   <span class="input-group-btn">
-                     <button class="btn btn-primary" type="submit">
+                     <button class="btn btn-primary" type="submit" title="Buscar">
                         <span class="glyphicon glyphicon-search"></span>
                      </button>
                   </span>

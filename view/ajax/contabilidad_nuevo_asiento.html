@@ -15,6 +15,7 @@
    <table class="table table-hover">
       <thead>
          <tr>
+            <th></th>
             <th class="text-left">Código</th>
             <th class="text-left">Descripción</th>
             <th class="text-right">Debe</th>
@@ -24,6 +25,11 @@
       </thead>
       {loop="$fsc->resultados"}
       <tr>
+         <td>
+            <a href="{$value->url()}" target="_blank" title="ver el detalle de la subcuenta">
+               <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+            </a>
+         </td>
          <td>
             <a href="#" onclick="select_subcuenta('{$value->codsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}')">
                {$value->codsubcuenta}
@@ -40,7 +46,7 @@
       </tr>
       {else}
       <tr class="bg-warning">
-         <td colspan="5">Sin resultados en el ejercicio.</td>
+         <td colspan="6">Sin resultados en el ejercicio.</td>
       </tr>
       {/loop}
    </table>
