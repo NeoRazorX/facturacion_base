@@ -18,7 +18,7 @@
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-md-2">
+      <div class="col-md-2 col-xs-2">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -35,15 +35,21 @@
          </div>
          
          <a href="#" id="b_nuevo_proveedor" class="btn btn-sm btn-success">
-            <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
+            <span class="glyphicon glyphicon-plus"></span>
+            <span class="hidden-xs"> &nbsp; Nuevo</span>
          </a>
       </div>
-      <div class="col-md-8 text-center">
+      <div class="col-md-8 hidden-xs text-center">
          <h2 style="margin-top: 0px;">
             {if="$fsc->query==''"}Proveedores{else}Resultados de la búsqueda "{$fsc->query}":{/if}
          </h2>
       </div>
-      <div class="col-md-2">
+      <div class="visible-xs col-xs-10 text-right">
+         <h2 style="margin-top: 0px;">
+            {if="$fsc->query==''"}Proveedores{else}Resultados de la búsqueda "{$fsc->query}":{/if}
+         </h2>
+      </div>
+      <div class="col-md-2 col-xs-12">
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">

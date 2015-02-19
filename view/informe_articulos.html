@@ -1,8 +1,33 @@
 {include="header"}
 
+<div class="container-fluid" style="margin-top: 10px;">
+   <div class="row">
+      <div class="col-md-6 col-xs-6">
+         <div class="btn-group hidden-xs">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+         </div>
+      </div>
+      <div class="col-md-6 col-xs-6 text-right">
+         <h2 style="margin-top: 0px;">Informes artículos</h2>
+      </div>
+   </div>
+</div>
+
 <ul class="nav nav-tabs">
-   <li role="presentation"{if="$fsc->pestanya=='stats'"} class="active"{/if}><a href="{$fsc->url()}">Estadísticas</a></li>
-   <li role="presentation"{if="$fsc->pestanya=='stock'"} class="active"{/if}><a href="{$fsc->url()}&tab=stock">Stock</a></li>
+   <li role="presentation"{if="$fsc->pestanya=='stats'"} class="active"{/if}>
+      <a href="{$fsc->url()}">
+         <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+         <span class="hidden-xs"> &nbsp; Estadísticas</span>
+      </a>
+   </li>
+   <li role="presentation"{if="$fsc->pestanya=='stock'"} class="active"{/if}>
+      <a href="{$fsc->url()}&tab=stock">
+         <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+         <span class="hidden-xs"> &nbsp; Stock</span>
+      </a>
+   </li>
    <li role="presentation"{if="$fsc->pestanya=='search'"} class="active"{/if}>
       <a href="{$fsc->url()}&tab=search">
          <span class="glyphicon glyphicon-search" aria-hidden="true"></span>

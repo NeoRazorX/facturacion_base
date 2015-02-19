@@ -111,7 +111,7 @@
                <div class="text-right">
                   <button class="btn btn-sm btn-primary" type="submit" onclick="new_articulo();return false;">
                      <span class="glyphicon glyphicon-floppy-disk"></span>
-                     &nbsp; Guardar y seleccionar
+                     <span class="hidden-xs"> &nbsp; Guardar y seleccionar</span>
                   </button>
                </div>
             </form>
@@ -126,18 +126,18 @@
    <input type="hidden" name="proveedor" value="{$fsc->proveedor_s->codproveedor}"/>
    <div class="container-fluid">
       <div class="row">
-         <div class="col-lg-8 col-md-8 col-sm-8">
+         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
             <h1>
                <a href="{$fsc->proveedor_s->url()}">{$fsc->proveedor_s->nombre}</a>
             </h1>
          </div>
-         <div class="col-lg-2 col-md-2 col-sm-2">
+         <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6">
             <div class="form-group">
                Fecha:
                <input type="text" name="fecha" class="form-control datepicker" value="{$fsc->today()}" autocomplete="off"/>
             </div>
          </div>
-         <div class="col-lg-2 col-md-2 col-sm-2">
+         <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6">
             <div class="form-group">
                Hora:
                <input type="text" name="hora" class="form-control" value="{$fsc->hour()}" autocomplete="off"/>
@@ -147,8 +147,18 @@
    </div>
    
    <ul class="nav nav-tabs" role="tablist">
-      <li class="active" id="li_lineas"><a href="#" id="b_lineas">Líneas</a></li>
-      <li id="li_opciones"><a href="#" id="b_opciones">Más opciones...</a></li>
+      <li class="active" id="li_lineas">
+         <a href="#" id="b_lineas">
+            <span class="glyphicon glyphicon-align-justify"></span>
+            <span class="hidden-xs"> &nbsp; Líneas</span>
+         </a>
+      </li>
+      <li id="li_opciones">
+         <a href="#" id="b_opciones">
+            <span class="glyphicon glyphicon-option-vertical"></span>
+            <span class="hidden-xs"> &nbsp; Más opciones...</span>
+         </a>
+      </li>
    </ul>
    
    <div class="table-responsive" id="div_lineas">
@@ -260,23 +270,25 @@
          </div>
       </div>
       <div class="row">
-         <div class="col-lg-6 col-md-6 col-sm-6">
-            <button class="btn btn-sm btn-default" type="button" onclick="window.location.href='{$fsc->url()}';">
-               <span class="glyphicon glyphicon-refresh"></span> &nbsp; Reiniciar
-            </button>
-         </div>
-         <div class="col-lg-6 col-md-6 col-sm-6 text-right">
-            <button class="btn btn-sm btn-primary" type="button" onclick="$('#modal_guardar').modal('show');">
-               <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar...
-            </button>
-         </div>
-      </div>
-      <div class="row">
          <div class="col-lg-12" style="margin-top: 20px;">
             <div class="form-group">
                Observaciones:
                <textarea class="form-control" name="observaciones" rows="3"></textarea>
             </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-lg-6 col-md-6 col-sm-6">
+            <button class="btn btn-sm btn-default" type="button" onclick="window.location.href='{$fsc->url()}';">
+               <span class="glyphicon glyphicon-refresh"></span>
+               <span class="hidden-xs"> &nbsp; Reiniciar</span>
+            </button>
+         </div>
+         <div class="col-lg-6 col-md-6 col-sm-6 text-right">
+            <button class="btn btn-sm btn-primary" type="button" onclick="$('#modal_guardar').modal('show');">
+               <span class="glyphicon glyphicon-floppy-disk"></span>
+               <span class="hidden-xs"> &nbsp; Guardar...</span>
+            </button>
          </div>
       </div>
    </div>
@@ -312,7 +324,8 @@
             </div>
             <div class="modal-footer">
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                  <span class="glyphicon glyphicon-floppy-disk"></span>
+                  <span class="hidden-xs"> &nbsp; Guardar</span>
                </button>
             </div>
          </div>
@@ -361,13 +374,19 @@
             <div class="modal-body">
                <div class="form-group">
                   <input class="form-control" type="text" name="ac_proveedor" id="ac_proveedor" placeholder="Buscar" autocomplete="off"/>
-                  <p class="help-block"><a href="{$fsc->proveedor->url()}#nuevo" target="_blank">Nuevo proveedor</a>.</p>
                </div>
             </div>
             <div class="modal-footer">
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-play"></span> &nbsp; Seleccionar
-               </button>
+               <div class="row">
+                     <a class="btn btn-sm btn-success" href="{$fsc->proveedor->url()}#nuevo" target="_blank" title="Nuevo proveedor">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        <span class="hidden-xs"> &nbsp; Nuevo proveedor</span>
+                     </a>
+                     <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Seleccionar">
+                        <span class="glyphicon glyphicon-play"></span>
+                        <span class="hidden-xs"> &nbsp; Seleccionar</span>
+                     </button>
+               </div>
             </div>
          </div>
       </div>
