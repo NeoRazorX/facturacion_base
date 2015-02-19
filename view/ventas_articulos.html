@@ -41,25 +41,26 @@
 
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
-      <div class="col-md-10 col-sm-9">
+      <div class="col-md-3 col-sm-4 col-xs-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="Desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
             {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="Marcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
             {/if}
          </div>
          
          <div class="btn-group">
-            <a id="b_nuevo_articulo" class="btn btn-sm btn-success" href="#">
-               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
+            <a id="b_nuevo_articulo" class="btn btn-sm btn-success" href="#" title="Nuevo">
+               <span class="glyphicon glyphicon-plus"></span>
+               <span class="hidden-xs"> &nbsp; Nuevo</span>
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -68,13 +69,19 @@
             {/loop}
          </div>
       </div>
-      <div class="col-md-2 col-sm-3">
+      <div class="col-md-6 col-sm-4 hidden-xs text-center">
+         <h2 style="margin-top: 0px;">{$fsc->page->title}</h2>
+      </div>
+      <div class="visible-xs col-xs-6 text-right">
+         <h2 style="margin-top: 0px;">{$fsc->page->title}</h2>
+      </div>
+      <div class="col-md-3 col-sm-4 col-xs-12 text-right">
          <div class="visible-xs"><br/></div>
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
                <span class="input-group-btn">
-                  <button class="btn btn-primary hidden-sm" type="submit">
+                  <button class="btn btn-primary" type="submit" title="Buscar">
                      <span class="glyphicon glyphicon-search"></span>
                   </button>
                </span>
@@ -120,15 +127,29 @@
 
 <ul class="nav nav-tabs" id="ul_tabs">
    <li{if="!isset($_GET['public']) AND !isset($_GET['solo_stock'])"} class="active"{/if}>
-      <a href="{$fsc->url()}">Todos</a>
+      <a href="{$fsc->url()}">
+         <span class="glyphicon glyphicon-list"></span>
+         <span class="hidden-xs"> &nbsp; Todos</span>
+      </a>
    </li>
    <li{if="isset($_GET['solo_stock'])"} class="active"{/if}>
-      <a href="{$fsc->url()}&solo_stock=TRUE">Stock</a>
+      <a href="{$fsc->url()}&solo_stock=TRUE">
+         <span class="glyphicon glyphicon-check"></span>
+         <span class="hidden-xs"> &nbsp; Stock</span>
+      </a>
    </li>
    <li{if="isset($_GET['public'])"} class="active"{/if}>
-      <a href="{$fsc->url()}&public=TRUE">Públicos</a>
+      <a href="{$fsc->url()}&public=TRUE">
+         <span class="glyphicon glyphicon-shopping-cart"></span>
+         <span class="hidden-xs"> &nbsp; Públicos</span>
+      </a>
    </li>
-   <li id="b_tarifas"><a href="#tarifas">Tarifas</a></li>
+   <li id="b_tarifas">
+      <a href="#tarifas">
+         <span class="glyphicon glyphicon-file"></span>
+         <span class="hidden-xs"> &nbsp; Tarifas</span>
+      </a>
+   </li>
 </ul>
 
 <div id="div_articulos">
@@ -285,8 +306,9 @@
                </div>
             </div>
             <div class="modal-footer">
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                  <span class="glyphicon glyphicon-floppy-disk"></span>
+                  <span class="hidden-xs"> &nbsp; Guardar</span>
                </button>
             </div>
             {else}

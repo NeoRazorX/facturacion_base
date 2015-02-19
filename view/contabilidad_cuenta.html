@@ -37,11 +37,11 @@
          <div class="col-md-4 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
-               <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
+               <a href="#" id="b_eliminar" class="btn btn-sm btn-danger" title="Eliminar">
                   <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
                </a>
                {/if}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                   <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                </button>
             </div>
@@ -106,7 +106,7 @@
       {/loop}
       <tr>
          <td colspan="4" class="text-center">
-            <a id="b_nueva_subcuenta" class="btn btn-sm btn-block btn-success" href="#">Nueva Subcuenta...</a>
+            <a id="b_nueva_subcuenta" class="btn btn-sm btn-block btn-success" href="#" title="Nueva Subcuenta...">Nueva Subcuenta...</a>
          </td>
       </tr>
    </table>

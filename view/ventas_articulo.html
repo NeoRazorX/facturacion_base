@@ -230,21 +230,27 @@
 
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
-      <div class="col-sm-10">
+      <div class="col-sm-5 col-xs-4">
          <a href="{$fsc->url()}" class="btn btn-sm btn-default" title="Recargar la página">
             <span class="glyphicon glyphicon-refresh"></span>
          </a>
-         <a href="index.php?page=ventas_articulos" class="btn btn-sm btn-default">
-            <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Todos los artículos
+         <a href="index.php?page=ventas_articulos" class="btn btn-sm btn-default" title="Todos los artículos">
+            <span class="glyphicon glyphicon-arrow-left"></span>
+            <span class="hidden-xs"> &nbsp; Todos los artículos</span>
          </a>
-         <a href="#" id="b_imagen" class="btn btn-sm btn-default">
-            <span class="glyphicon glyphicon-picture"></span> &nbsp; Imagen
+         <a href="#" id="b_imagen" class="btn btn-sm btn-default" title="Imagen">
+            <span class="glyphicon glyphicon-picture"></span>
+            <span class="hidden-xs"> &nbsp; Imagen</span>
          </a>
       </div>
-      <div class="col-sm-2 text-right">
+      <div class="col-sm-5 col-xs-6 text-left">
+         <h2 style="margin-top: 0px;">Artículo {$fsc->page->title}</h2>
+      </div>
+      <div class="col-sm-2 col-xs-2 text-right">
          {if="$fsc->allow_delete"}
-         <a href="#" id="b_eliminar_articulo" class="btn btn-sm btn-danger">
-            <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+         <a href="#" id="b_eliminar_articulo" class="btn btn-sm btn-danger" title="Eliminar">
+            <span class="glyphicon glyphicon-trash"></span>
+            <span class="hidden-xs"> &nbsp; Eliminar</span>
          </a>
          {/if}
       </div>
@@ -252,15 +258,37 @@
 </div>
 
 <ul class="nav nav-tabs" role="tablist">
-   <li id="b_generales"><a href="#">Datos generales</a></li>
-   <li id="b_precios"><a href="#precios">Precios</a></li>
-   <li id="b_stock"><a href="#stocks">Stock</a></li>
+   <li id="b_generales">
+      <a href="#" title="Datos generales">
+         <span class="glyphicon glyphicon-eye-open"></span>
+         <span class="hidden-xs"> &nbsp; Datos generales</span>
+      </a>
+   </li>
+   <li id="b_precios" title="Precios">
+      <a href="#precios">
+         <span class="glyphicon glyphicon-credit-card"></span>
+         <span class="hidden-xs"> &nbsp; Precios</span>
+      </a>
+   </li>
+   <li id="b_stock">
+      <a href="#stocks" title="Stock">
+         <span class="glyphicon glyphicon-check"></span>
+         <span class="hidden-xs"> &nbsp; Stock</span>
+      </a>
+   </li>
    {if="$fsc->equivalentes"}
-   <li id="b_equivalentes"><a href="#equivalentes">Equivalentes</a></li>
+   <li id="b_equivalentes">
+      <a href="#equivalentes" title="Equivalentes">
+         <span class="glyphicon glyphicon-check"></span>
+         <span class="hidden-xs"> &nbsp; Equivalentes</span>
+      </a>
+   </li>
    {/if}
    <li class="dropdown">
       <a class="dropdown-toggle" data-toggle="dropdown">
-         Buscar en... <span class="caret"></span>
+         <span class="glyphicon glyphicon-search"></span>
+         <span class="hidden-xs"> &nbsp; Buscar en...</span>
+         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu" role="menu">
       {loop="$fsc->extensions"}
@@ -368,8 +396,9 @@
             <textarea class="form-control" name="observaciones" rows="3">{$fsc->articulo->observaciones}</textarea>
          </div>
          <div class="col-lg-2 col-md-2 col-sm-2 text-right">
-            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-               <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+               <span class="glyphicon glyphicon-floppy-disk"></span>
+               <span class="hidden-xs"> &nbsp; Guardar</span>
             </button>
          </div>
       </div>
@@ -465,7 +494,7 @@
             {/loop}
             <tr>
                <td colspan="5" class="text-center">
-                  <a class="btn btn-sm btn-block btn-success" href="index.php?page=ventas_articulos#tarifas">Nueva tarifa</a>
+                  <a class="btn btn-sm btn-block btn-success" href="index.php?page=ventas_articulos#tarifas" title="Nueva tarifa">Nueva tarifa</a>
                </td>          
             </tr>
          </table>
@@ -474,8 +503,9 @@
          <div class="row">
             <div class="col-md-12 text-right">
                <br />
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                  <span class="glyphicon glyphicon-floppy-disk"></span>
+                  <span class="hidden-xs"> &nbsp; Guardar</span>
                </button>
             </div>
          </div>
@@ -621,12 +651,14 @@
             </div>
             <div class="modal-footer">
                {if="$fsc->articulo->imagen_url()"}
-               <a class="btn btn-sm btn-danger" href="{$fsc->url()}&delete_img=TRUE">
-                  <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+               <a class="btn btn-sm btn-danger" href="{$fsc->url()}&delete_img=TRUE" title="Eliminar">
+                  <span class="glyphicon glyphicon-trash"></span>
+                  <span class="hidden-xs"> &nbsp; Eliminar</span>
                </a>
                {else}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                  <span class="glyphicon glyphicon-floppy-disk"></span>
+                  <span class="hidden-xs"> &nbsp; Guardar</span>
                </button>
                {/if}
             </div>

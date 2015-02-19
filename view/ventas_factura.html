@@ -29,39 +29,47 @@
    <input type="hidden" name="idfactura" value="{$fsc->factura->idfactura}"/>
    <div class="container-fluid">
       <div class="row" style="margin-top: 10px;">
-         <div class="col-md-8 col-sm-8 col-xs-12">
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="recargar la página">
+         <div class="col-md-8 col-sm-8 col-xs-8">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             
             <div class="btn-group">
-               <a id="b_imprimir" class="btn btn-sm btn-default" href="#">
-                  <span class="glyphicon glyphicon-print"></span> &nbsp; Imprimir
+               <a id="b_imprimir" class="btn btn-sm btn-default" href="#" title="Imprimir">
+                  <span class="glyphicon glyphicon-print"></span>
+                  <span class="hidden-xs"> &nbsp; Imprimir</span>
                </a>
                {if="$fsc->empresa->can_send_mail()"}
-               <a id="b_enviar" class="btn btn-sm btn-default" href="#">
-                  <span class="glyphicon glyphicon-envelope"></span> &nbsp; Enviar
+               <a id="b_enviar" class="btn btn-sm btn-default" href="#" title="Enviar">
+                  <span class="glyphicon glyphicon-envelope"></span>
+                  <span class="hidden-xs"> &nbsp; Enviar</span>
                </a>
                {/if}
                {if="$fsc->factura->idasiento"}
-               <a class="btn btn-sm btn-default" href="{$fsc->factura->asiento_url()}">
-                  <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Asiento contable
+               <a class="btn btn-sm btn-default" href="{$fsc->factura->asiento_url()}" title="Asiento contable">
+                  <span class="glyphicon glyphicon-eye-open"></span>
+                  <span class="hidden-xs"> &nbsp; Asiento contable</span>
                </a>
                {else}
-               <a class="btn btn-sm btn-default" href="{$fsc->url()}&gen_asiento=TRUE&petid={$fsc->random_string()}">
-                  <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Generar asiento
+               <a class="btn btn-sm btn-default" href="{$fsc->url()}&gen_asiento=TRUE&petid={$fsc->random_string()}" title="Generar asiento">
+                  <span class="glyphicon glyphicon-paperclip"></span>
+                  <span class="hidden-xs"> &nbsp; Generar asiento</span>
                </a>
                {/if}
             </div>
             
             <div class="btn-group">
                {if="$fsc->factura->pagada"}
-               <button type="button" class="btn btn-sm btn-info dropdown-toggle" data-toggle="dropdown">
-                  <span class="glyphicon glyphicon-ok"></span> &nbsp; Pagada <span class="caret"></span>
+               <button type="button" class="btn btn-sm btn-info dropdown-toggle" data-toggle="dropdown" title="Pagada">
+                  <span class="glyphicon glyphicon-ok"></span>
+                  <span class="hidden-xs">  &nbsp; Pagada </span>
+                  <span class="caret"></span>
                </button>
                {else}
-               <button type="button" class="btn btn-sm btn-warning dropdown-toggle" data-toggle="dropdown">
-                  <span class="glyphicon glyphicon-remove"></span> &nbsp; Sin pagar <span class="caret"></span>
+               <button type="button" class="btn btn-sm btn-warning dropdown-toggle" data-toggle="dropdown" title="Sin pagar">
+                  <span class="glyphicon glyphicon-remove"></span>
+                  <span class="hidden-xs">  &nbsp; Sin pagar </span>
+                  <span class="caret"></span>
                </button>
                {/if}
                <ul class="dropdown-menu" role="menu">
@@ -83,15 +91,17 @@
             {/loop}
             </div>
          </div>
-         <div class="col-md-4 col-sm-4 text-right">
+         <div class="col-md-4 col-sm-4 col-xs-4 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
-               <a id="b_eliminar" class="btn btn-sm btn-danger" href="#">
-                  <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+               <a id="b_eliminar" class="btn btn-sm btn-danger" href="#" title="Eliminar">
+                  <span class="glyphicon glyphicon-trash"></span>
+                  <span class="hidden-xs"> &nbsp; Eliminar</span>
                </a>
                {/if}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                  <span class="glyphicon glyphicon-floppy-disk"></span>
+                  <span class="hidden-xs"> &nbsp; Guardar</span>
                </button>
             </div>
          </div>
@@ -110,31 +120,31 @@
       </div>
       
       <div class="row">
-         <div class="col-lg-2 col-md-2 col-sm-2">
+         <div class="col-md-3 col-sm-3">
             <div class="form-group">
                Número:
                <input class="form-control" type="text" name="numero" value="{$fsc->factura->numero}" autocomplete="off"/>
             </div>
          </div>
-         <div class="col-lg-2 col-md-2 col-sm-2">
+         <div class="col-md-3 col-sm-3">
             <div class="form-group">
                Número 2:
                <input class="form-control" type="text" name="numero2" value="{$fsc->factura->numero2}"/>
             </div>
          </div>
-         <div class="col-lg-2 col-md-2 col-sm-2">
+         <div class="col-md-2 col-sm-2">
             <div class="form-group">
                Serie:
                <div class="form-control">{$fsc->factura->codserie}</div>
             </div>
          </div>
-         <div class="col-lg-2 col-md-2 col-sm-2">
+         <div class="col-md-2 col-sm-2">
             <div class="form-group">
                Ejercicio:
                <div class="form-control">{$fsc->factura->codejercicio}</div>
             </div>
          </div>
-         <div class="col-lg-2 col-md-2 col-sm-2">
+         <div class="col-md-2 col-sm-2">
             <div class="form-group">
                Fecha:
                <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->factura->fecha}"/>
@@ -146,10 +156,16 @@
    <div role="tabpanel">
       <ul class="nav nav-tabs" role="tablist">
          <li role="presentation" class="active">
-            <a href="#lineas_f" aria-controls="lineas_f" role="tab" data-toggle="tab">Líneas</a>
+            <a href="#lineas_f" aria-controls="lineas_f" role="tab" data-toggle="tab">
+               <span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span>
+               <span class="hidden-xs"> &nbsp; Líneas</span>
+            </a>
          </li>
          <li role="presentation">
-            <a href="#lineas_iva" aria-controls="lineas_iva" role="tab" data-toggle="tab">Impuestos</a>
+            <a href="#lineas_iva" aria-controls="lineas_iva" role="tab" data-toggle="tab">
+               <span class="glyphicon glyphicon-option-vertical" aria-hidden="true"></span>
+               <span class="hidden-xs"> &nbsp; Impuestos</span>
+            </a>
          </li>
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
@@ -249,7 +265,7 @@
    
    <div class="container-fluid">
       <div class="row">
-         <div class="col-lg-12 col-md-12 col-sm-12">
+         <div class="col-md-12">
             <div class="form-group">
                Observaciones:
                <textarea class="form-control" name="observaciones" rows="3">{$fsc->factura->observaciones}</textarea>
@@ -269,7 +285,7 @@
          <div class="modal-body">
             {loop="$fsc->extensions"}
                {if="$value->type=='pdf'"}
-               <a href="index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}" target="_blank" class="btn btn-block btn-default">
+               <a href="index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}" target="_blank" class="btn btn-block btn-default" title="{$value->text}">
                   <span class="glyphicon glyphicon-print"></span> &nbsp; {$value->text}
                </a>
                {/if}
@@ -304,7 +320,7 @@
             <div class="modal-footer">
             {loop="$fsc->extensions"}
                {if="$value->type=='email'"}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}';this.form.submit();">
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}';this.form.submit();" title="Enviar {$value->text}">
                   <span class="glyphicon glyphicon-send"></span> &nbsp; Enviar {$value->text}
                </button>
                {/if}
@@ -328,7 +344,7 @@
          </div>
          {/if}
          <div class="modal-footer">
-            <a class="btn btn-sm btn-danger" href="{$fsc->ppage->url()}&delete={$fsc->factura->idfactura}">
+            <a class="btn btn-sm btn-danger" href="{$fsc->ppage->url()}&delete={$fsc->factura->idfactura}" title="Eliminar">
                <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
             </a>
          </div>

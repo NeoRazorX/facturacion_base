@@ -46,7 +46,7 @@
             <input class='form-control text-right' type='text' id='cifnif_"+numlineas+"' name='cifnif_"+numlineas+"'/>\n\
          </td>\n\
          <td class='text-right'>\n\
-            <a class='btn btn-sm btn-danger' onclick=\"clean_partida('"+numlineas+"')\">\n\
+            <a class='btn btn-sm btn-danger' onclick=\"clean_partida('"+numlineas+"')\" title=\"Eliminar\">\n\
                <span class='glyphicon glyphicon-trash'></span>\n\
             </a>\n\
          </td>\n\
@@ -202,7 +202,7 @@
             </div>
             
             <div class="btn-group">
-               <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
+               <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos" title="Asientos">
                   <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Asientos
                </a>
                {loop="$fsc->extensions"}
@@ -287,13 +287,13 @@
    <div class="container-fluid">
       <div class="row">
          <div class="col-lg-12 col-md-12 col-sm-12">
-            <a href="#" class="btn btn-sm btn-block btn-success" onclick="add_partida();return false;">Añadir línea...</a>
+            <a href="#" class="btn btn-sm btn-block btn-success" onclick="add_partida();return false;" title="Añadir línea...">Añadir línea...</a>
          </div>
       </div>
       
       <div class="row" style="margin-top: 20px;">
          <div class="col-lg-12 text-right">
-            <button class="btn btn-sm btn-primary" type="submit">
+            <button class="btn btn-sm btn-primary" type="submit" title="Guardar">
                <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
             </button>
          </div>
@@ -316,7 +316,7 @@
                <div class="input-group">
                   <input class="form-control" type="text" name="query" onkeyup="buscar_subcuentas();" autocomplete="off"/>
                   <span class="input-group-btn">
-                     <button class="btn btn-primary" type="submit">
+                     <button class="btn btn-primary" type="submit" title="Buscar">
                         <span class="glyphicon glyphicon-search"></span>
                      </button>
                   </span>

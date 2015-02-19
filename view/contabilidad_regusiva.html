@@ -49,18 +49,18 @@
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="Desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
             {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="Marcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
             {/if}
          </div>
          
          <div class="btn-group">
-            <a id="b_nueva_regiva" class="btn btn-sm btn-success" href="#">
+            <a id="b_nueva_regiva" class="btn btn-sm btn-success" href="#" title="Nueva">
                <span class="glyphicon glyphicon-plus"></span> &nbsp; Nueva
             </a>
             {loop="$fsc->extensions"}
@@ -140,7 +140,7 @@
                </div>
             </div>
             <div class="modal-footer">
-               <button class="btn btn-sm btn-default" type="button" onclick="completar_regiva()">
+               <button class="btn btn-sm btn-default" type="button" onclick="completar_regiva()" title="Completar">
                    <span class="glyphicon glyphicon-play"></span> &nbsp; Completar
                 </button>
             </div>

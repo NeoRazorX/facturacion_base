@@ -35,25 +35,25 @@
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-md-5">
+      <div class="col-md-4 col-sm-4 col-xs-3">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="Desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
             {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="Marcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
             {/if}
          </div>
-         
          <div class="btn-group">
-            <a href="#" id="b_nuevo_cliente" class="btn btn-sm btn-success">
-               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
+            <a href="#" id="b_nuevo_cliente" class="btn btn-sm btn-success" title="Nuevo">
+               <span class="glyphicon glyphicon-plus"></span>
+               <span class="hidden-xs"> &nbsp; Nuevo</span>
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -62,17 +62,22 @@
             {/loop}
          </div>
       </div>
-      <div class="col-md-5 text-right">
+      <div class="col-md-4 col-sm-4 hidden-xs text-center">
          <h2 style="margin-top: 0px;">
             {if="$fsc->query==''"}Clientes{else}Resultados de la búsqueda "{$fsc->query}":{/if}
          </h2>
       </div>
-      <div class="col-md-2">
+      <div class="visible-xs col-xs-9 text-right">
+         <h2 style="margin-top: 0px;">
+            {if="$fsc->query==''"}Clientes{else}Resultados de la búsqueda "{$fsc->query}":{/if}
+         </h2>
+      </div>
+      <div class="col-md-4 col-sm-4 col-xs-12">
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
                <span class="input-group-btn">
-                  <button class="btn btn-primary" type="submit">
+                  <button class="btn btn-primary" type="submit" title="Buscar">
                      <span class="glyphicon glyphicon-search"></span>
                   </button>
                </span>
@@ -82,18 +87,29 @@
    </div>
 </div>
 
-<div class="visible-xs visible-sm">
+<div class="visible-xs">
    <br/>
 </div>
 
 <div id="tab_clientes" role="tabpanel">
    <ul class="nav nav-tabs" role="tablist">
-      <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Todos</a></li>
-      <li role="presentation"><a href="#grupos" aria-controls="grupos" role="tab" data-toggle="tab">Grupos</a></li>
+      <li role="presentation" class="active">
+         <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
+            <span class="glyphicon glyphicon-list"></span>
+            <span class="hidden-xs"> &nbsp; Todos</span>
+         </a>
+      </li>
+      <li role="presentation">
+         <a href="#grupos" aria-controls="grupos" role="tab" data-toggle="tab">
+            <span class="glyphicon glyphicon-inbox"></span>
+            <span class="hidden-xs"> &nbsp; Grupos</span>
+         </a>
+      </li>
       {if="$fsc->clientes_grupo!==FALSE"}
       <li role="presentation">
          <a href="#clientes_grupo" aria-controls="clientes_grupo" role="tab" data-toggle="tab">
-            <span class="glyphicon glyphicon-eye-open"></span> &nbsp; {$fsc->nombre_grupo($_GET['grupo'])}
+            <span class="glyphicon glyphicon-eye-open"></span>
+            <span class="hidden-xs"> &nbsp; {$fsc->nombre_grupo($_GET['grupo'])}</span>
          </a>
       </li>
       {/if}
@@ -309,8 +325,9 @@
                </div>
             </div>
             <div class="modal-footer">
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                  <span class="glyphicon glyphicon-floppy-disk"></span>
+                  <span class="hidden-xs"> &nbsp; Guardar</span>
                </button>
             </div>
          </div>

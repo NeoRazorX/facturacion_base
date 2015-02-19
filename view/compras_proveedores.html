@@ -18,25 +18,26 @@
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-md-5">
+      <div class="col-md-4 col-sm-4 col-xs-2">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="Desmarcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
             {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="Marcar como página de inicio">
                <span class="glyphicon glyphicon-home"></span>
             </a>
             {/if}
          </div>
          
          <div class="btn-group">
-            <a href="#" id="b_nuevo_proveedor" class="btn btn-sm btn-success">
-               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
+            <a href="#" id="b_nuevo_proveedor" class="btn btn-sm btn-success" title="Nuevo">
+               <span class="glyphicon glyphicon-plus"></span>
+               <span class="hidden-xs"> &nbsp; Nuevo</span>
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -45,17 +46,22 @@
             {/loop}
          </div>
       </div>
-      <div class="col-md-5 text-right">
+      <div class="col-md-4 col-sm-4 hidden-xs text-center">
          <h2 style="margin-top: 0px;">
             {if="$fsc->query==''"}Proveedores{else}Resultados de la búsqueda "{$fsc->query}":{/if}
          </h2>
       </div>
-      <div class="col-md-2">
+      <div class="visible-xs col-xs-10 text-right">
+         <h2 style="margin-top: 0px;">
+            {if="$fsc->query==''"}Proveedores{else}Resultados de la búsqueda "{$fsc->query}":{/if}
+         </h2>
+      </div>
+      <div class="col-md-4 col-sm-4 col-xs-12">
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
                <span class="input-group-btn">
-                  <button class="btn btn-primary" type="submit">
+                  <button class="btn btn-primary" type="submit" title="Buscar">
                      <span class="glyphicon glyphicon-search"></span>
                   </button>
                </span>
@@ -63,6 +69,10 @@
          </form>
       </div>
    </div>
+</div>
+
+<div class="visible-xs">
+   <br/>
 </div>
 
 <div class="table-responsive">
