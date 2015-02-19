@@ -218,7 +218,7 @@ class ventas_facturas extends fs_controller
               'name' => 'facturas_articulo',
               'page_from' => __CLASS__,
               'page_to' => 'ventas_articulo',
-              'type' => 'button',
+              'type' => 'tab_button',
               'text' => 'Facturas de cliente',
               'params' => ''
           ),
