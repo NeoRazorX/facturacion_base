@@ -201,7 +201,7 @@
          </a>
          {loop="$fsc->extensions"}
             {if="$value->type=='button'"}
-            <a href="index.php?page={$value->from}&ref={function="urlencode($fsc->articulo->referencia)"}" class="btn btn-sm btn-default">
+            <a href="index.php?page={$value->from}&ref={function="urlencode($fsc->articulo->referencia)"}{$value->params}" class="btn btn-sm btn-default">
                {$value->text}
             </a>
             {/if}
@@ -248,7 +248,7 @@
          {loop="$fsc->extensions"}
             {if="$value->type=='tab_button'"}
             <li>
-               <a href="index.php?page={$value->from}&ref={function="urlencode($fsc->articulo->referencia)"}">
+               <a href="index.php?page={$value->from}&ref={function="urlencode($fsc->articulo->referencia)"}{$value->params}">
                   <span class="glyphicon glyphicon-list"></span> &nbsp; {$value->text}
                </a>
             </li>
