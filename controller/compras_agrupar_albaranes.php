@@ -32,6 +32,7 @@ require_model('subcuenta.php');
 class compras_agrupar_albaranes extends fs_controller
 {
    public $albaran;
+   public $codserie;
    public $desde;
    private $forma_pago;
    public $hasta;
@@ -49,42 +50,65 @@ class compras_agrupar_albaranes extends fs_controller
    protected function process()
    {
       $this->albaran = new albaran_proveedor();
+      $this->codserie = NULL;
       $this->forma_pago = new forma_pago();
-      $this->proveedor = new proveedor();
+      $this->proveedor = FALSE;
       $this->serie = new serie();
       $this->neto = 0;
       $this->total = 0;
-      
       $this->desde = Date('01-m-Y');
-      if( isset($_POST['desde']) )
-         $this->desde = $_POST['desde'];
-      
       $this->hasta = Date('t-m-Y');
-      if( isset($_POST['hasta']) )
-         $this->hasta = $_POST['hasta'];
       
-      if( isset($_POST['idalbaran']) )
+      if( isset($_REQUEST['buscar_proveedor']) )
       {
+         $this->buscar_proveedor();
+      }
+      else if( isset($_POST['idalbaran']) )
+      {
+         $this->proveedor = new proveedor();
          $this->agrupar();
       }
-      else if( isset($_POST['proveedor']) )
+      else if( isset($_POST['codproveedor']) )
       {
-         $this->save_codproveedor($_POST['proveedor']);
+         $pr0 = new proveedor();
+         $this->proveedor = $pr0->get($_REQUEST['codproveedor']);
+         $this->codserie = $_POST['serie'];
+         $this->desde = $_POST['desde'];
+         $this->hasta = $_POST['hasta'];
          
-         $this->resultados = $this->albaran->search_from_proveedor($_POST['proveedor'], $_POST['desde'], $_POST['hasta'], $_POST['serie']);
-         if($this->resultados)
+         if($this->proveedor)
          {
-            foreach($this->resultados as $alb)
+            $this->resultados = $this->albaran->search_from_proveedor($_POST['codproveedor'], $_POST['desde'], $_POST['hasta'], $_POST['serie']);
+            if($this->resultados)
             {
-               $this->neto += $alb->neto;
-               $this->total += $alb->total;
+               foreach($this->resultados as $alb)
+               {
+                  $this->neto += $alb->neto;
+                  $this->total += $alb->total;
+               }
             }
+            else
+               $this->new_message("Sin resultados.");
          }
-         else
-            $this->new_message("Sin resultados.");
       }
       else
          $this->share_extensions();
+   }
+   
+   private function buscar_proveedor()
+   {
+      /// desactivamos la plantilla HTML
+      $this->template = FALSE;
+      
+      $proveedor = new proveedor();
+      $json = array();
+      foreach($proveedor->search($_REQUEST['buscar_proveedor']) as $pro)
+      {
+         $json[] = array('value' => $pro->nombre, 'data' => $pro->codproveedor);
+      }
+      
+      header('Content-Type: application/json');
+      echo json_encode( array('query' => $_REQUEST['buscar_proveedor'], 'suggestions' => $json) );
    }
    
    private function agrupar()
@@ -94,9 +118,7 @@ class compras_agrupar_albaranes extends fs_controller
       
       if( $this->duplicated_petition($_POST['petition_id']) )
       {
-         $this->new_error_msg('Petición duplicada. Has hecho doble clic sobre el botón Guardar
-               y se han enviado dos peticiones. Mira en <a href="'.$this->ppage->url().'">'.FS_ALBARANES.'</a>
-               para ver si los '.FS_ALBARANES.' se han guardado correctamente.');
+         $this->new_error_msg('Petición duplicada. Has hecho doble clic sobre el botón y se han enviado dos peticiones.');
          $continuar = FALSE;
       }
       else
@@ -238,7 +260,6 @@ class compras_agrupar_albaranes extends fs_controller
                $n->cantidad = $l->cantidad;
                $n->codimpuesto = $l->codimpuesto;
                $n->descripcion = $l->descripcion;
-               $n->dtolineal = $l->dtolineal;
                $n->dtopor = $l->dtopor;
                $n->irpf = $l->irpf;
                $n->iva = $l->iva;

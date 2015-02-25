@@ -249,7 +249,6 @@ class compras_albaran extends fs_controller
                         $lineas[$k]->cantidad = floatval($_POST['cantidad_'.$num]);
                         $lineas[$k]->pvpunitario = floatval($_POST['pvp_'.$num]);
                         $lineas[$k]->dtopor = floatval($_POST['dto_'.$num]);
-                        $lineas[$k]->dtolineal = 0;
                         $lineas[$k]->pvpsindto = ($value->cantidad * $value->pvpunitario);
                         $lineas[$k]->pvptotal = ($value->cantidad * $value->pvpunitario * (100 - $value->dtopor)/100);
                         $lineas[$k]->descripcion = $_POST['desc_'.$num];
@@ -443,7 +442,6 @@ class compras_albaran extends fs_controller
             $linea->cantidad = $l->cantidad;
             $linea->codimpuesto = $l->codimpuesto;
             $linea->descripcion = $l->descripcion;
-            $linea->dtolineal = $l->dtolineal;
             $linea->dtopor = $l->dtopor;
             $linea->idalbaran = $l->idalbaran;
             $linea->idfactura = $factura->idfactura;

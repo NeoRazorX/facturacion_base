@@ -33,6 +33,7 @@ class ventas_agrupar_albaranes extends fs_controller
 {
    public $albaran;
    public $cliente;
+   public $codserie;
    public $desde;
    private $forma_pago;
    public $hasta;
@@ -49,48 +50,68 @@ class ventas_agrupar_albaranes extends fs_controller
    
    protected function process()
    {
-      $this->ppage = $this->page->get('ventas_albaranes');
       $this->albaran = new albaran_cliente();
-      $this->cliente = new cliente();
+      $this->cliente = FALSE;
+      $this->codserie = NULL;
       $this->forma_pago = new forma_pago();
       $this->serie = new serie();
       $this->neto = 0;
       $this->total = 0;
-      
       $this->desde = Date('01-m-Y');
-      if( isset($_POST['desde']) )
-         $this->desde = $_POST['desde'];
-      
       $this->hasta = Date('t-m-Y');
-      if( isset($_POST['hasta']) )
-         $this->hasta = $_POST['hasta'];
-      
       $this->observaciones = '';
-      if( isset($_POST['observaciones']) )
-         $this->observaciones = $_POST['observaciones'];
       
-      if( isset($_POST['idalbaran']) )
+      if( isset($_REQUEST['buscar_cliente']) )
       {
+         $this->buscar_cliente();
+      }
+      else if( isset($_POST['idalbaran']) )
+      {
+         $this->cliente = new cliente();
          $this->agrupar();
       }
-      else if( isset($_POST['cliente']) )
+      else if( isset($_POST['codcliente']) )
       {
-         $this->save_codcliente($_POST['cliente']);
+         $cli0 = new cliente();
+         $this->cliente = $cli0->get($_POST['codcliente']);
          
-         $this->resultados = $this->albaran->search_from_cliente($_POST['cliente'], $_POST['desde'], $_POST['hasta'], $_POST['serie'], $_POST['observaciones']);
-         if($this->resultados)
+         $this->desde = $_POST['desde'];
+         $this->hasta = $_POST['hasta'];
+         $this->observaciones = $_POST['observaciones'];
+         
+         if($this->cliente)
          {
-            foreach($this->resultados as $alb)
+            $this->resultados = $this->albaran->search_from_cliente($_POST['codcliente'], $_POST['desde'], $_POST['hasta'], $_POST['serie'], $_POST['observaciones']);
+            if($this->resultados)
             {
-               $this->neto += $alb->neto;
-               $this->total += $alb->total;
+               foreach($this->resultados as $alb)
+               {
+                  $this->neto += $alb->neto;
+                  $this->total += $alb->total;
+               }
             }
+            else
+               $this->new_message("Sin resultados.");
          }
-         else
-            $this->new_message("Sin resultados.");
       }
       else
          $this->share_extensions();
+   }
+   
+   private function buscar_cliente()
+   {
+      /// desactivamos la plantilla HTML
+      $this->template = FALSE;
+      
+      $cliente = new cliente();
+      $json = array();
+      foreach($cliente->search($_REQUEST['buscar_cliente']) as $cli)
+      {
+         $json[] = array('value' => $cli->nombre, 'data' => $cli->codcliente);
+      }
+      
+      header('Content-Type: application/json');
+      echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
    }
    
    private function agrupar()
@@ -100,9 +121,7 @@ class ventas_agrupar_albaranes extends fs_controller
       
       if( $this->duplicated_petition($_POST['petition_id']) )
       {
-         $this->new_error_msg('Petición duplicada. Has hecho doble clic sobre el botón Guardar
-               y se han enviado dos peticiones. Mira en <a href="'.$this->ppage->url().'">'.FS_ALBARANES.'</a>
-               para ver si los '.FS_ALBARANES.' se han guardado correctamente.');
+         $this->new_error_msg('Petición duplicada. Has hecho doble clic sobre el botón y se han enviado dos peticiones.');
          $continuar = FALSE;
       }
       else
@@ -258,7 +277,6 @@ class ventas_agrupar_albaranes extends fs_controller
                $n->cantidad = $l->cantidad;
                $n->codimpuesto = $l->codimpuesto;
                $n->descripcion = $l->descripcion;
-               $n->dtolineal = $l->dtolineal;
                $n->dtopor = $l->dtopor;
                $n->irpf = $l->irpf;
                $n->iva = $l->iva;

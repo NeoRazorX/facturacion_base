@@ -9,9 +9,30 @@
    {
       $("#f_agrupar_pro input[name='idalbaran[]']").prop('checked', false);
    }
+   $(document).ready(function() {
+      document.f_agrupar_alb.ac_proveedor.focus();
+      $("#ac_proveedor").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_proveedor',
+         onSelect: function(suggestion) {
+            if(suggestion)
+            {
+               if(document.f_agrupar_alb.codproveedor.value != suggestion.data && suggestion.data != '')
+               {
+                  document.f_agrupar_alb.codproveedor.value = suggestion.data;
+               }
+            }
+         }
+      });
+   });
 </script>
 
-<form action="{$fsc->url()}" method="post" class="form">
+<form name="f_agrupar_alb" action="{$fsc->url()}" method="post" class="form">
+   {if="$fsc->proveedor"}
+   <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
+   {else}
+   <input type="hidden" name="codproveedor"/>
+   {/if}
    <div class="container-fluid" style="margin-top: 10px;">
       <div class="row">
          <div class="col-md-6">
@@ -22,40 +43,43 @@
             </div>
             
             <div class="btn-group">
-               <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=compras_albaranes">
-                  <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Albaranes
+               <a class="btn btn-sm btn-default" href="index.php?page=compras_albaranes">
+                  <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; <span class="text-capitalize">{#FS_ALBARANES#}</span>
                </a>
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
             </div>
          </div>
          <div class="col-md-6 text-right">
-            <h2 style="margin-top: 0px;">Agrupar albaranes</h2>
+            <h2 style="margin-top: 0px;">Agrupar {#FS_ALBARANES#}</h2>
          </div>
       </div>
       <div class="row">
-         <div class="col-lg-4 col-md-4 col-sm-4">
-            Proveedor:
-            <select name="proveedor" class="form-control">
-            {loop="$fsc->proveedor->all_full()"}
-               {if="$value->is_default()"}
-				   <option value="{$value->codproveedor}" selected="selected">{$value->nombre}</option>
-               {else}
-				   <option value="{$value->codproveedor}">{$value->nombre}</option>
-               {/if}
-            {else}
-               <option value="">¡No hay proveedores!</option>
-            {/loop}
-            </select>
+         <div class="col-md-4">
+            <div class="form-group">
+               Proveedor:
+               <div class="input-group">
+                  {if="$fsc->proveedor"}
+                  <input class="form-control" type="text" name="ac_proveedor" value="{$fsc->proveedor->nombre}" id="ac_proveedor" placeholder="Buscar" autocomplete="off"/>
+                  {else}
+                  <input class="form-control" type="text" name="ac_proveedor" id="ac_proveedor" placeholder="Buscar" autocomplete="off"/>
+                  {/if}
+                  <span class="input-group-btn">
+                     <button class="btn btn-default" type="button" onclick="document.f_agrupar_pre.ac_proveedor.value='';document.f_agrupar_pre.ac_proveedor.focus();">
+                        <span class="glyphicon glyphicon-edit"></span>
+                     </button>
+                  </span>
+               </div>
+            </div>
          </div>
-         <div class="col-lg-2 col-md-2 col-sm-2">
+         <div class="col-md-2">
             Serie:
             <select name="serie" class="form-control">
             {loop="$fsc->serie->all()"}
-				   {if="$value->codserie==$_POST.serie"}
+				   {if="$value->codserie==$fsc->codserie"}
 				   <option value="{$value->codserie}" selected='selected'>{$value->descripcion}</option>
 				   {else}
 				   <option value="{$value->codserie}">{$value->descripcion}</option>
@@ -63,13 +87,13 @@
 				{/loop}
             </select>
          </div>
-         <div class="col-lg-2 col-md-2 col-sm-2">
+         <div class="col-md-3">
             <div class="form-group">
                Desde:
                <input type="text" name="desde" class="form-control datepicker" value="{$fsc->desde}"/>
             </div>
          </div>
-         <div class="col-lg-2 col-md-2 col-sm-2">
+         <div class="col-md-3">
             <div class="form-group">
                Hasta:
                <input type="text" name="hasta" class="form-control datepicker" value="{$fsc->hasta}"/>
@@ -125,7 +149,7 @@
    
    <div class="container-fluid">
       <div class="row">
-         <div class="col-lg-4 col-md-4 col-sm-4">
+         <div class="col-md-4">
             <div class="btn-group">
                <button class="btn btn-sm btn-default" type="button" onclick="fs_marcar_todo()" title="Marcar todo">
                   <span class="glyphicon glyphicon-check"></span>
@@ -135,13 +159,13 @@
                </button>
             </div>
          </div>
-         <div class="col-lg-4 col-md-4 col-sm-4 text-center">
+         <div class="col-md-4 text-center">
             <label>
                <input type="checkbox" name="individuales" value="TRUE"/>
                Generar facturas individuales
             </label>
          </div>
-         <div class="col-lg-4 col-md-4 col-sm-4 text-right">
+         <div class="col-md-4 text-right">
             <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
                <span class="glyphicon glyphicon-file"></span> &nbsp; Generar Factura
             </button>

@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -27,12 +27,13 @@ require_model('albaran_cliente.php');
 class linea_albaran_cliente extends fs_model
 {
    public $idlinea; /// pkey
+   public $idlineapedido;
    public $idalbaran;
+   public $idpedido;
    public $referencia;
    public $descripcion;
    public $cantidad;
    public $dtopor;
-   public $dtolineal;
    public $codimpuesto;
    public $iva;
    public $pvptotal;
@@ -56,12 +57,13 @@ class linea_albaran_cliente extends fs_model
       if($l)
       {
          $this->idlinea = $this->intval($l['idlinea']);
+         $this->idlineapedido = $this->intval($l['idlineapedido']);
          $this->idalbaran = $this->intval($l['idalbaran']);
+         $this->idpedido = $this->intval($l['idpedido']);
          $this->referencia = $l['referencia'];
          $this->descripcion = $l['descripcion'];
          $this->cantidad = floatval($l['cantidad']);
          $this->dtopor = floatval($l['dtopor']);
-         $this->dtolineal = floatval($l['dtolineal']);
          $this->codimpuesto = $l['codimpuesto'];
          $this->iva = floatval($l['iva']);
          $this->pvptotal = floatval($l['pvptotal']);
@@ -73,12 +75,13 @@ class linea_albaran_cliente extends fs_model
       else
       {
          $this->idlinea = NULL;
+         $this->idlineapedido = NULL;
          $this->idalbaran = NULL;
-         $this->referencia = '';
+         $this->idpedido = NULL;
+         $this->referencia = NULL;
          $this->descripcion = '';
          $this->cantidad = 0;
          $this->dtopor = 0;
-         $this->dtolineal = 0;
          $this->codimpuesto = NULL;
          $this->iva = 0;
          $this->pvptotal = 0;
@@ -134,7 +137,9 @@ class linea_albaran_cliente extends fs_model
    public function total_iva2()
    {
       if($this->cantidad == 0)
+      {
          return 0;
+      }
       else
          return $this->pvptotal*(100+$this->iva)/100/$this->cantidad;
    }
@@ -171,16 +176,15 @@ class linea_albaran_cliente extends fs_model
    
    public function url()
    {
-      if( is_null($this->idalbaran) )
-         return 'index.php?page=ventas_albaranes';
-      else
-         return 'index.php?page=ventas_albaran&id='.$this->idalbaran;
+      return 'index.php?page=ventas_albaran&id='.$this->idalbaran;
    }
    
    public function articulo_url()
    {
-      if( is_null($this->referencia) OR $this->referencia == ' ')
+      if( is_null($this->referencia) OR $this->referencia == '')
+      {
          return "index.php?page=ventas_articulos";
+      }
       else
          return "index.php?page=ventas_articulo&ref=".urlencode($this->referencia);
    }
@@ -188,16 +192,11 @@ class linea_albaran_cliente extends fs_model
    public function exists()
    {
       if( is_null($this->idlinea) )
+      {
          return FALSE;
+      }
       else
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idlinea = ".$this->var2str($this->idlinea).";");
-   }
-   
-   public function new_idlinea()
-   {
-      $newid = $this->db->nextval($this->table_name.'_idlinea_seq');
-      if($newid)
-         $this->idlinea = intval($newid);
    }
    
    public function test()
@@ -208,14 +207,12 @@ class linea_albaran_cliente extends fs_model
       
       if( !$this->floatcmp($this->pvptotal, $total, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Error en el valor de pvptotal de la línea ".
-                 $this->referencia." del ".FS_ALBARAN.". Valor correcto: ".$total);
+         $this->new_error_msg("Error en el valor de pvptotal de la línea ".$this->referencia." del ".FS_ALBARAN.". Valor correcto: ".$total);
          return FALSE;
       }
       else if( !$this->floatcmp($this->pvpsindto, $totalsindto, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Error en el valor de pvpsindto de la línea ".
-                 $this->referencia." del ".FS_ALBARAN.". Valor correcto: ".$totalsindto);
+         $this->new_error_msg("Error en el valor de pvpsindto de la línea ".$this->referencia." del ".FS_ALBARAN.". Valor correcto: ".$totalsindto);
          return FALSE;
       }
       else
@@ -227,34 +224,42 @@ class linea_albaran_cliente extends fs_model
       if( $this->test() )
       {
          $this->clean_cache();
+         
          if( $this->exists() )
          {
             $sql = "UPDATE ".$this->table_name." SET idalbaran = ".$this->var2str($this->idalbaran).",
+               idpedido = ".$this->var2str($this->idpedido).", idlineapedido = ".$this->var2str($this->idlineapedido).",
                referencia = ".$this->var2str($this->referencia).",
                descripcion = ".$this->var2str($this->descripcion).",
                cantidad = ".$this->var2str($this->cantidad).", dtopor = ".$this->var2str($this->dtopor).",
-               dtolineal = ".$this->var2str($this->dtolineal).",
                codimpuesto = ".$this->var2str($this->codimpuesto).",
                iva = ".$this->var2str($this->iva).", pvptotal = ".$this->var2str($this->pvptotal).",
                pvpsindto = ".$this->var2str($this->pvpsindto).",
                pvpunitario = ".$this->var2str($this->pvpunitario).",
                irpf = ".$this->var2str($this->irpf).", recargo = ".$this->var2str($this->recargo)."
-               WHERE idlinea = '".$this->idlinea."';";
+               WHERE idlinea = ".$this->var2str($this->idlinea).";";
+            
+            return $this->db->exec($sql);
          }
          else
          {
-            $this->new_idlinea();
-            $sql = "INSERT INTO ".$this->table_name." (idlinea,idalbaran,referencia,descripcion,
-               cantidad,dtopor,dtolineal,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo)
-               VALUES (".$this->var2str($this->idlinea).",".$this->var2str($this->idalbaran).",
+            $sql = "INSERT INTO ".$this->table_name." (idlineapedido,idalbaran,idpedido,referencia,descripcion,
+               cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo) VALUES
+               (".$this->var2str($this->idlineapedido).",".$this->var2str($this->idalbaran).",".$this->var2str($this->idpedido).",
                ".$this->var2str($this->referencia).",".$this->var2str($this->descripcion).",
                ".$this->var2str($this->cantidad).",".$this->var2str($this->dtopor).",
-               ".$this->var2str($this->dtolineal).",".$this->var2str($this->codimpuesto).",
-               ".$this->var2str($this->iva).",".$this->var2str($this->pvptotal).",
+               ".$this->var2str($this->codimpuesto).",".$this->var2str($this->iva).",".$this->var2str($this->pvptotal).",
                ".$this->var2str($this->pvpsindto).",".$this->var2str($this->pvpunitario).",
                ".$this->var2str($this->irpf).",".$this->var2str($this->recargo).");";
+            
+            if( $this->db->exec($sql) )
+            {
+               $this->idlinea = $this->db->lastval();
+               return TRUE;
+            }
+            else
+               return FALSE;
          }
-         return $this->db->exec($sql);
       }
       else
          return FALSE;
@@ -274,13 +279,14 @@ class linea_albaran_cliente extends fs_model
    public function all_from_albaran($id)
    {
       $linealist = array();
-      $lineas = $this->db->select("SELECT * FROM ".$this->table_name.
-              " WHERE idalbaran = ".$this->var2str($id)." ORDER BY idlinea ASC;");
+      
+      $lineas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($id)." ORDER BY idlinea ASC;");
       if($lineas)
       {
          foreach($lineas as $l)
             $linealist[] = new linea_albaran_cliente($l);
       }
+      
       return $linealist;
    }
    
@@ -398,11 +404,12 @@ class linea_albaran_cliente extends fs_model
    
    public function count_by_articulo()
    {
-      $num = 0;
-      $lineas = $this->db->select("SELECT COUNT(DISTINCT referencia) as total FROM ".
-              $this->table_name.";");
+      $lineas = $this->db->select("SELECT COUNT(DISTINCT referencia) as total FROM ".$this->table_name.";");
       if($lineas)
-         $num = intval($lineas[0]['total']);
-      return $num;
+      {
+         return intval($lineas[0]['total']);
+      }
+      else
+         return 0;
    }
 }
