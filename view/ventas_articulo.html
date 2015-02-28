@@ -223,40 +223,34 @@
    </div>
 </div>
 
-<ul class="nav nav-tabs" role="tablist">
-   <li id="b_generales">
-      <a href="#" title="Datos generales">
-         <span class="glyphicon glyphicon-eye-open"></span>
-         <span class="hidden-xs"> &nbsp; Datos generales</span>
-      </a>
-   </li>
-   <li id="b_precios" title="Precios">
-      <a href="#precios">
-         <span class="glyphicon glyphicon-credit-card"></span>
-         <span class="hidden-xs"> &nbsp; Precios</span>
-      </a>
-   </li>
-   <li id="b_stock">
-      <a href="#stocks" title="Stock">
-         <span class="glyphicon glyphicon-check"></span>
-         <span class="hidden-xs"> &nbsp; Stock</span>
-      </a>
-   </li>
-   {if="$fsc->equivalentes"}
-   <li id="b_equivalentes">
-      <a href="#equivalentes" title="Equivalentes">
-         <span class="glyphicon glyphicon-check"></span>
-         <span class="hidden-xs"> &nbsp; Equivalentes</span>
-      </a>
-   </li>
-   {/if}
-   <li class="dropdown">
-      <a class="dropdown-toggle" data-toggle="dropdown">
-         <span class="glyphicon glyphicon-search"></span>
-         <span class="hidden-xs"> &nbsp; Buscar en...</span>
-         <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu" role="menu">
+<div id="tab_articulo" role="tabpanel">
+   <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active">
+         <a href="#home" aria-controls="home" role="tab" data-toggle="tab" title="Datos generales">
+            <span class="glyphicon glyphicon-eye-open"></span>
+            <span class="hidden-xs"> &nbsp; Datos generales</span>
+         </a>
+      </li>
+      <li role="presentation">
+         <a href="#precios" aria-controls="precios" role="tab" data-toggle="tab" title="Precios">
+            <span class="glyphicon glyphicon-credit-card"></span>
+            <span class="hidden-xs"> &nbsp; Precios</span>
+         </a>
+      </li>
+      <li role="presentation">
+         <a href="#stock" aria-controls="stock" role="tab" data-toggle="tab" title="Stock">
+            <span class="glyphicon glyphicon-check"></span>
+            <span class="hidden-xs"> &nbsp; Stock</span>
+         </a>
+      </li>
+      {if="$fsc->equivalentes"}
+      <li role="presentation">
+         <a href="#equivalentes" aria-controls="settings" role="tab" data-toggle="tab" title="Equivalentes">
+            <span class="glyphicon glyphicon-check"></span>
+            <span class="hidden-xs"> &nbsp; Stock</span>
+         </a>
+      </li>
+      {/if}
       {loop="$fsc->extensions"}
          {if="$value->type=='tab'"}
          <li role="presentation">

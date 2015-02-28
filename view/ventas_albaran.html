@@ -396,7 +396,7 @@
                <input type="hidden" name="codcliente" value="{$fsc->albaran->codcliente}"/>
                <div class="container-fluid">
                   <div class="row">
-                     <div class="col-md-6 col-sm-6">
+                     <div class="col-lg-6 col-md-6 col-sm-6">
                         <div class="input-group">
                            <input class="form-control" type="text" name="query" autocomplete="off"/>
                            <span class="input-group-btn">
@@ -410,7 +410,7 @@
                            sólo con stock
                         </label>
                      </div>
-                     <div class="col-md-6 col-sm-6">
+                     <div class="col-lg-6 col-md-6 col-sm-6">
                         <select class="form-control" name="codfamilia" onchange="buscar_articulos()">
                            <option value="">Todas las familias</option>
                            <option value="">------</option>
@@ -440,7 +440,7 @@
                   Descripción:
                   <input class="form-control" type="text" name="descripcion" autocomplete="off"/>
                </div>
-               <div class="form-group col-md-6 col-sm-6">
+               <div class="form-group col-lg-6 col-md-6 col-sm-6">
                   <a href="{$fsc->familia->url()}">Familia</a>:
                   <select name="codfamilia" class="form-control">
                   {loop="$fsc->familia->all()"}
@@ -448,7 +448,7 @@
                   {/loop}
                   </select>
                </div>
-               <div class="form-group col-md-6 col-sm-6">
+               <div class="form-group col-lg-6 col-md-6 col-sm-6">
                   <a href="{$fsc->impuesto->url()}">IVA</a>:
                   <select name="codimpuesto" class="form-control">
                      {loop="$fsc->impuesto->all()"}
