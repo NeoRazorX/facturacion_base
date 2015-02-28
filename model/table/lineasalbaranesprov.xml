@@ -47,14 +47,10 @@
    <columna>
       <nombre>idlineapedido</nombre>
       <tipo>integer</tipo>
-      <nulo>NO</nulo>
-      <defecto>0</defecto>
    </columna>
    <columna>
       <nombre>idpedido</nombre>
       <tipo>integer</tipo>
-      <nulo>NO</nulo>
-      <defecto>0</defecto>
    </columna>
    <columna>
       <nombre>irpf</nombre>

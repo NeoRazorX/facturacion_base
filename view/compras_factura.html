@@ -21,7 +21,7 @@
    <div class="container-fluid">
       <div class="row" style="margin-top: 10px;">
          <div class="col-md-8 col-sm-8 col-xs-8">
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="recargar la página">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             
@@ -63,7 +63,7 @@
             <div class="btn-group">
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}&id={$fsc->factura->idfactura}" class="btn btn-sm btn-default">
+               <a href="index.php?page={$value->from}&id={$fsc->factura->idfactura}{$value->params}" class="btn btn-sm btn-default">
                   {$value->text}
                </a>
                {/if}
@@ -99,25 +99,25 @@
       </div>
       
       <div class="row">
-         <div class="col-lg-2 col-md-2 col-sm-2">
+         <div class="col-sm-3">
             <div class="form-group">
                Num. Proveedor:
                <input class="form-control" type="text" name="numproveedor" value="{$fsc->factura->numproveedor}"/>
             </div>
          </div>
-         <div class="col-lg-2 col-md-2 col-sm-2">
+         <div class="col-sm-3">
             <div class="form-group">
                Serie:
                <div class="form-control">{$fsc->factura->codserie}</div>
             </div>
          </div>
-         <div class="col-lg-2 col-md-2 col-sm-2">
+         <div class="col-sm-3">
             <div class="form-group">
                Ejercicio:
                <div class="form-control">{$fsc->factura->codejercicio}</div>
             </div>
          </div>
-         <div class="col-lg-2 col-md-2 col-sm-2">
+         <div class="col-sm-3">
             <div class="form-group">
                Fecha:
                <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->factura->fecha}"/>

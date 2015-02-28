@@ -98,7 +98,7 @@
                
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}&id={$fsc->albaran->idalbaran}" class="btn btn-sm btn-default">
+                  <a href="index.php?page={$value->from}&id={$fsc->albaran->idalbaran}{$value->params}" class="btn btn-sm btn-default">
                      {$value->text}
                   </a>
                   {/if}
@@ -233,6 +233,11 @@
                            <input type="hidden" name="idlinea_{$counter}" value="{$value->idlinea}"/>
                            <input type="hidden" name="referencia_{$counter}" value="{$value->referencia}"/>
                            <div class="form-control">
+                              {if="$value->idlineapedido"}
+                              <a target="_blank" href="index.php?page=ventas_pedido&id={$value->idpedido}" title="ver {#FS_PEDIDO#}">
+                                 <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                              </a> &nbsp;
+                              {/if}
                               <a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a>
                            </div>
                         </td>
@@ -327,7 +332,14 @@
                   </thead>
                   {loop="$fsc->albaran->get_lineas()"}
                   <tr{if="$value->cantidad<1"} class="bg-warning"{/if}>
-                     <td><a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion}</td>
+                     <td>
+                        {if="$value->idlineapedido"}
+                        <a target="_blank" href="index.php?page=ventas_pedido&id={$value->idpedido}" title="ver {#FS_PEDIDO#}">
+                           <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                        </a> &nbsp;
+                        {/if}
+                        <a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion}
+                     </td>
                      <td class="text-right">{$value->cantidad}</td>
                      <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->albaran->coddivisa)}</td>
                      <td class="text-right">{$fsc->show_numero($value->dtopor, 2)} %</td>

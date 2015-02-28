@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -38,7 +38,6 @@ class linea_factura_cliente extends fs_model
    public $idfactura;
    public $idalbaran;
    public $descripcion;
-   public $dtolineal;
    public $referencia;
    public $iva;
    
@@ -72,7 +71,6 @@ class linea_factura_cliente extends fs_model
          $this->pvpunitario = floatval($l['pvpunitario']);
          $this->pvpsindto = floatval($l['pvpsindto']);
          $this->dtopor = floatval($l['dtopor']);
-         $this->dtolineal = floatval($l['dtolineal']);
          $this->pvptotal = floatval($l['pvptotal']);
          $this->codimpuesto = $l['codimpuesto'];
          $this->iva = floatval($l['iva']);
@@ -84,13 +82,12 @@ class linea_factura_cliente extends fs_model
          $this->idlinea = NULL;
          $this->idfactura = NULL;
          $this->idalbaran = NULL;
-         $this->referencia = '';
+         $this->referencia = NULL;
          $this->descripcion = '';
          $this->cantidad = 0;
          $this->pvpunitario = 0;
          $this->pvpsindto = 0;
          $this->dtopor = 0;
-         $this->dtolineal = 0;
          $this->pvptotal = 0;
          $this->codimpuesto = NULL;
          $this->iva = 0;
@@ -201,10 +198,7 @@ class linea_factura_cliente extends fs_model
    
    public function url()
    {
-      if( is_null($this->idfactura) )
-         return 'index.php?page=ventas_facturas';
-      else
-         return 'index.php?page=ventas_factura&id='.$this->idfactura;
+      return 'index.php?page=ventas_factura&id='.$this->idfactura;
    }
    
    public function albaran_codigo()
@@ -217,7 +211,9 @@ class linea_factura_cliente extends fs_model
    public function albaran_url()
    {
       if( is_null($this->idalbaran) )
+      {
          return 'index.php?page=ventas_albaranes';
+      }
       else
          return 'index.php?page=ventas_albaran&id='.$this->idalbaran;
    }
@@ -238,8 +234,10 @@ class linea_factura_cliente extends fs_model
    
    public function articulo_url()
    {
-      if( is_null($this->referencia) OR $this->referencia == ' ')
+      if( is_null($this->referencia) OR $this->referencia == '')
+      {
          return "index.php?page=ventas_articulos";
+      }
       else
          return "index.php?page=ventas_articulo&ref=".urlencode($this->referencia);
    }
@@ -247,16 +245,11 @@ class linea_factura_cliente extends fs_model
    public function exists()
    {
       if( is_null($this->idlinea) )
+      {
          return FALSE;
+      }
       else
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idlinea = ".$this->var2str($this->idlinea).";");
-   }
-   
-   public function new_idlinea()
-   {
-      $newid = $this->db->nextval($this->table_name.'_idlinea_seq');
-      if($newid)
-         $this->idlinea = intval($newid);
    }
    
    public function test()
@@ -267,14 +260,12 @@ class linea_factura_cliente extends fs_model
       
       if( !$this->floatcmp($this->pvptotal, $total, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Error en el valor de pvptotal de la línea ".$this->referencia.
-            " de la factura. Valor correcto: ".$total);
+         $this->new_error_msg("Error en el valor de pvptotal de la línea ".$this->referencia." de la factura. Valor correcto: ".$total);
          return FALSE;
       }
       else if( !$this->floatcmp($this->pvpsindto, $totalsindto, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Error en el valor de pvpsindto de la línea ".$this->referencia.
-            " de la factura. Valor correcto: ".$totalsindto);
+         $this->new_error_msg("Error en el valor de pvpsindto de la línea ".$this->referencia." de la factura. Valor correcto: ".$totalsindto);
          return FALSE;
       }
       else
@@ -295,29 +286,34 @@ class linea_factura_cliente extends fs_model
                pvpunitario = ".$this->var2str($this->pvpunitario).",
                pvpsindto = ".$this->var2str($this->pvpsindto).",
                dtopor = ".$this->var2str($this->dtopor).",
-               dtolineal = ".$this->var2str($this->dtolineal).",
                pvptotal = ".$this->var2str($this->pvptotal).",
                codimpuesto = ".$this->var2str($this->codimpuesto).",
                iva = ".$this->var2str($this->iva).",
                recargo = ".$this->var2str($this->recargo).",
-               irpf = ".$this->var2str($this->irpf).
-               " WHERE idlinea = ".$this->var2str($this->idlinea).";";
+               irpf = ".$this->var2str($this->irpf)." WHERE idlinea = ".$this->var2str($this->idlinea).";";
+            
+            return $this->db->exec($sql);
          }
          else
          {
-            $this->new_idlinea();
-            $sql = "INSERT INTO ".$this->table_name." (idlinea,idfactura,idalbaran,referencia,
-               descripcion,cantidad,pvpunitario,pvpsindto,dtopor,dtolineal,pvptotal,codimpuesto,
-               iva,recargo,irpf) VALUES (".$this->var2str($this->idlinea).",
-               ".$this->var2str($this->idfactura).",".$this->var2str($this->idalbaran).",
-               ".$this->var2str($this->referencia).",".$this->var2str($this->descripcion).",
-               ".$this->var2str($this->cantidad).",".$this->var2str($this->pvpunitario).",
-               ".$this->var2str($this->pvpsindto).",".$this->var2str($this->dtopor).",
-               ".$this->var2str($this->dtolineal).",".$this->var2str($this->pvptotal).",
+            $sql = "INSERT INTO ".$this->table_name." (idfactura,idalbaran,referencia,
+               descripcion,cantidad,pvpunitario,pvpsindto,dtopor,pvptotal,codimpuesto,iva,recargo,irpf)
+               VALUES (".$this->var2str($this->idfactura).",".$this->var2str($this->idalbaran).",
+               ".$this->var2str($this->referencia).",
+               ".$this->var2str($this->descripcion).",".$this->var2str($this->cantidad).",
+               ".$this->var2str($this->pvpunitario).",".$this->var2str($this->pvpsindto).",
+               ".$this->var2str($this->dtopor).",".$this->var2str($this->pvptotal).",
                ".$this->var2str($this->codimpuesto).",".$this->var2str($this->iva).",
                ".$this->var2str($this->recargo).",".$this->var2str($this->irpf).");";
+            
+            if( $this->db->exec($sql) )
+            {
+               $this->idlinea = $this->db->lastval();
+               return TRUE;
+            }
+            else
+               return FALSE;
          }
-         return $this->db->exec($sql);
       }
       else
          return FALSE;
@@ -331,8 +327,8 @@ class linea_factura_cliente extends fs_model
    public function all_from_factura($id)
    {
       $linlist = array();
-      $lineas = $this->db->select("SELECT * FROM ".$this->table_name.
-              " WHERE idfactura = ".$this->var2str($id)." ORDER BY idlinea ASC;");
+      
+      $lineas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id)." ORDER BY idlinea ASC;");
       if($lineas)
       {
          $aux = array();
@@ -361,6 +357,7 @@ class linea_factura_cliente extends fs_model
             }
          }
       }
+      
       return $linlist;
    }
    
@@ -462,14 +459,15 @@ class linea_factura_cliente extends fs_model
    public function facturas_from_albaran($id)
    {
       $facturalist = array();
-      $lineas = $this->db->select("SELECT DISTINCT idfactura FROM ".$this->table_name.
-              " WHERE idalbaran = ".$this->var2str($id).";");
+      
+      $lineas = $this->db->select("SELECT DISTINCT idfactura FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($id).";");
       if($lineas)
       {
          $factura = new factura_cliente();
          foreach($lineas as $l)
             $facturalist[] = $factura->get( $l['idfactura'] );
       }
+      
       return $facturalist;
    }
 }

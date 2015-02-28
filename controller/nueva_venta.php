@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -436,7 +436,7 @@ class nueva_venta extends fs_controller
                $albaran->totalrecargo = round($albaran->totalrecargo, FS_NF0);
                $albaran->total = $albaran->neto + $albaran->totaliva - $albaran->totalirpf + $albaran->totalrecargo;
                
-               if( abs(floatval($_POST['atotal']) - $albaran->total) > .01 )
+               if( abs(floatval($_POST['atotal']) - $albaran->total) >= .02 )
                {
                   $this->new_error_msg("El total difiere entre la vista y el controlador (".$_POST['atotal'].
                           " frente a ".$albaran->total."). Debes informar del error.");
@@ -644,7 +644,7 @@ class nueva_venta extends fs_controller
                $factura->totalrecargo = round($factura->totalrecargo, FS_NF0);
                $factura->total = $factura->neto + $factura->totaliva - $factura->totalirpf + $factura->totalrecargo;
                
-               if( abs(floatval($_POST['atotal']) - $factura->total) > .01 )
+               if( abs(floatval($_POST['atotal']) - $factura->total) >= .02 )
                {
                   $this->new_error_msg("El total difiere entre la vista y el controlador (".$_POST['atotal'].
                           " frente a ".$factura->total."). Debes informar del error.");

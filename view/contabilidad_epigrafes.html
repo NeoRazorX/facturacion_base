@@ -99,7 +99,7 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr>
+      <tr class="clickableRow" href="{$value->url()}">
          <td><a href="{$value->url()}">{$value->codepigrafe}</a></td>
          <td>{$value->descripcion}</td>
       </tr>
@@ -177,14 +177,14 @@
          </tr>
       </thead>
       {loop="$fsc->epigrafe->hijos()"}
-      <tr>
+      <tr class="clickableRow" href="{$value->url()}">
          <td><a href="{$value->url()}">{$value->codepigrafe}</a></td>
          <td>{$value->descripcion}</td>
          <td class="text-right">-</td>
       </tr>
       {/loop}
       {loop="$fsc->resultados"}
-      <tr>
+      <tr class="clickableRow" href="{$value->url()}">
          <td><a href="{$value->url()}">{$value->codcuenta}</a></td>
          <td>{$value->descripcion}</td>
          <td class="text-right">{$value->idcuentaesp}</td>
@@ -206,7 +206,7 @@
 {else}
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
-      <div class="col-md-2 col-sm-2">
+      <div class="col-sm-2">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -222,7 +222,7 @@
             {/if}
          </div>
       </div>
-      <div class="col-md-2 col-sm-2">
+      <div class="col-sm-2">
          <form name="f_filtro_cuentas" action="{$fsc->url()}" method="post" class="post">
             <select name="ejercicio" class="form-control" onchange="document.f_filtro_cuentas.submit()">
             {loop="$fsc->ejercicio->all()"}
@@ -235,7 +235,7 @@
             </select>
          </form>
       </div>
-      <div class="col-md-8 col-sm-8 text-right">
+      <div class="col-sm-8 text-right">
          <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_cuentas" title="Cuentas">
             Cuentas &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
          </a>
@@ -252,13 +252,13 @@
          </tr>
       </thead>
       {loop="$fsc->super_epigrafes"}
-      <tr>
+      <tr class="clickableRow" href="{$value->url()}">
          <td><a href="{$value->url()}">{$value->codepigrafe}</a></td>
          <td>{$value->descripcion}</td>
       </tr>
       {/loop}
       {loop="$fsc->resultados"}
-      <tr>
+      <tr class="clickableRow" href="{$value->url()}">
          <td><a href="{$value->url()}">{$value->codgrupo}</a></td>
          <td>{$value->descripcion}</td>
       </tr>

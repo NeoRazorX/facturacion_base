@@ -84,7 +84,7 @@
             <div class="btn-group">
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}&id={$fsc->factura->idfactura}" class="btn btn-sm btn-default">
+               <a href="index.php?page={$value->from}&id={$fsc->factura->idfactura}{$value->params}" class="btn btn-sm btn-default">
                   {$value->text}
                </a>
                {/if}
@@ -120,31 +120,31 @@
       </div>
       
       <div class="row">
-         <div class="col-md-3 col-sm-3">
+         <div class="col-sm-3">
             <div class="form-group">
                Número:
                <input class="form-control" type="text" name="numero" value="{$fsc->factura->numero}" autocomplete="off"/>
             </div>
          </div>
-         <div class="col-md-3 col-sm-3">
+         <div class="col-sm-3">
             <div class="form-group">
                Número 2:
                <input class="form-control" type="text" name="numero2" value="{$fsc->factura->numero2}"/>
             </div>
          </div>
-         <div class="col-md-2 col-sm-2">
+         <div class="col-sm-2">
             <div class="form-group">
                Serie:
                <div class="form-control">{$fsc->factura->codserie}</div>
             </div>
          </div>
-         <div class="col-md-2 col-sm-2">
+         <div class="col-sm-2">
             <div class="form-group">
                Ejercicio:
                <div class="form-control">{$fsc->factura->codejercicio}</div>
             </div>
          </div>
-         <div class="col-md-2 col-sm-2">
+         <div class="col-sm-2">
             <div class="form-group">
                Fecha:
                <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->factura->fecha}"/>

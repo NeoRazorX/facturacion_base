@@ -72,7 +72,9 @@ class linea_iva_factura_cliente extends fs_model
    public function exists()
    {
       if( is_null($this->idfactura) )
+      {
          return FALSE;
+      }
       else
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idlinea = ".$this->var2str($this->idlinea).";");
    }
@@ -142,8 +144,9 @@ class linea_iva_factura_cliente extends fs_model
             iva = ".$this->var2str($this->iva).", totaliva = ".$this->var2str($this->totaliva).",
             recargo = ".$this->var2str($this->recargo).",
             totalrecargo = ".$this->var2str($this->totalrecargo).",
-            totallinea = ".$this->var2str($this->totallinea).
-            " WHERE idlinea = ".$this->var2str($this->idlinea).";";
+            totallinea = ".$this->var2str($this->totallinea)." WHERE idlinea = ".$this->var2str($this->idlinea).";";
+         
+         return $this->db->exec($sql);
       }
       else
       {
@@ -153,8 +156,15 @@ class linea_iva_factura_cliente extends fs_model
             ".$this->var2str($this->iva).",".$this->var2str($this->totaliva).",
             ".$this->var2str($this->recargo).",".$this->var2str($this->totalrecargo).",
             ".$this->var2str($this->totallinea).");";
+         
+         if( $this->db->exec($sql) )
+         {
+            $this->idlinea = $this->db->lastval();
+            return TRUE;
+         }
+         else
+            return FALSE;
       }
-      return $this->db->exec($sql);
    }
    
    public function delete()
@@ -165,12 +175,14 @@ class linea_iva_factura_cliente extends fs_model
    public function all_from_factura($id)
    {
       $linealist = array();
+      
       $lineas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id)." ORDER BY iva ASC;");
       if($lineas)
       {
          foreach($lineas as $l)
             $linealist[] = new linea_iva_factura_cliente($l);
       }
+      
       return $linealist;
    }
 }

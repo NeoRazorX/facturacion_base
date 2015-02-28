@@ -51,15 +51,15 @@
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
          </div>
       </div>
-      <div class="col-sm-4">
+      <div class="col-sm-5 text-right">
          <h2 style="margin-top: 0px;">Cuentas</h2>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-2">
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
@@ -77,12 +77,12 @@
 {if="$fsc->query==''"}
 <div class="container-fluid" style="margin-bottom: 10px;">
    <div class="row">
-      <div class="col-lg-10 col-md-10 col-sm-10">
+      <div class="col-sm-10">
          <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_epigrafes" title="Grupos y epígrafes">
             <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Grupos y epígrafes
          </a>
       </div>
-      <div class="col-lg-2 col-md-2 col-sm-2 text-right">
+      <div class="col-sm-2 text-right">
          <form name="f_filtro_cuentas" action="{$fsc->url()}" method="post" class="form">
             <select name="ejercicio" class="form-control" onchange="document.f_filtro_cuentas.submit()">
             {loop="$fsc->ejercicio->all()"}
@@ -108,12 +108,9 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr>
+      <tr class="clickableRow" href="{$value->url()}">
          <td>{$value->codejercicio}</td>
-         <td>
-            <a href="{$value->url()}">{$value->codcuenta}</a>
-            {$value->descripcion}
-         </td>
+         <td><a href="{$value->url()}">{$value->codcuenta}</a> {$value->descripcion}</td>
          <td class="text-right">{$value->idcuentaesp}</td>
       </tr>
       {else}
@@ -162,7 +159,7 @@
             </tr>
          </thead>
          {loop="$fsc->resultados"}
-         <tr>
+         <tr class="clickableRow" href="{$value->url()}">
             <td>{$value->codejercicio}</td>
             <td><a href="{$value->url()}">{$value->codcuenta}</a> {$value->descripcion}</td>
             <td class="text-right">{$value->idcuentaesp}</td>
@@ -205,7 +202,7 @@
          </tr>
       </thead>
       {loop="$fsc->resultados2"}
-      <tr>
+      <tr class="clickableRow" href="{$value->url()}">
          <td>{$value->codejercicio}</td>
          <td><a href="{$value->url()}">{$value->codsubcuenta}</a> {$value->descripcion}</td>
          <td class="text-right">{$fsc->show_precio($value->debe, $value->coddivisa)}</td>

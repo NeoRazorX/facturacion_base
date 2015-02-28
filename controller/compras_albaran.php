@@ -249,7 +249,6 @@ class compras_albaran extends fs_controller
                         $lineas[$k]->cantidad = floatval($_POST['cantidad_'.$num]);
                         $lineas[$k]->pvpunitario = floatval($_POST['pvp_'.$num]);
                         $lineas[$k]->dtopor = floatval($_POST['dto_'.$num]);
-                        $lineas[$k]->dtolineal = 0;
                         $lineas[$k]->pvpsindto = ($value->cantidad * $value->pvpunitario);
                         $lineas[$k]->pvptotal = ($value->cantidad * $value->pvpunitario * (100 - $value->dtopor)/100);
                         $lineas[$k]->descripcion = $_POST['desc_'.$num];
@@ -343,7 +342,7 @@ class compras_albaran extends fs_controller
             $this->albaran->totalrecargo = round($this->albaran->totalrecargo, FS_NF0);
             $this->albaran->total = $this->albaran->neto + $this->albaran->totaliva - $this->albaran->totalirpf + $this->albaran->totalrecargo;
             
-            if( abs(floatval($_POST['atotal']) - $this->albaran->total) > .01 )
+            if( abs(floatval($_POST['atotal']) - $this->albaran->total) >= .02 )
             {
                $this->new_error_msg("El total difiere entre el controlador y la vista (".$this->albaran->total.
                        " frente a ".$_POST['atotal']."). Debes informar del error.");
@@ -443,7 +442,6 @@ class compras_albaran extends fs_controller
             $linea->cantidad = $l->cantidad;
             $linea->codimpuesto = $l->codimpuesto;
             $linea->descripcion = $l->descripcion;
-            $linea->dtolineal = $l->dtolineal;
             $linea->dtopor = $l->dtopor;
             $linea->idalbaran = $l->idalbaran;
             $linea->idfactura = $factura->idfactura;

@@ -18,7 +18,7 @@
 <form action="{$fsc->url()}" method="post" class="form">
    <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
       <div class="row">
-         <div class="col-md-8">
+         <div class="col-sm-8">
             <a href="{$fsc->url()}" class="btn btn-sm btn-default" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
@@ -34,7 +34,7 @@
                {/loop}
             </div>
          </div>
-         <div class="col-md-4 text-right">
+         <div class="col-sm-4 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar" class="btn btn-sm btn-danger" title="Eliminar">
@@ -59,12 +59,8 @@
             </tr>
          </thead>
          <tr>
-            <td>
-               <div class="form-control">{$fsc->cuenta->codcuenta}</div>
-            </td>
-            <td>
-               <input class="form-control" type="text" name="descripcion" value="{$fsc->cuenta->descripcion}" autocomplete="off"/>
-            </td>
+            <td><div class="form-control">{$fsc->cuenta->codcuenta}</div></td>
+            <td><input class="form-control" type="text" name="descripcion" value="{$fsc->cuenta->descripcion}" autocomplete="off"/></td>
             <td>
                <select name="idcuentaesp" class="form-control">
                   <option value="---">Ninguna</option>
@@ -97,7 +93,7 @@
          </tr>
       </thead>
       {loop="$fsc->cuenta->get_subcuentas()"}
-      <tr>
+      <tr class="clickableRow" href="{$value->url()}">
          <td><a href="{$value->url()}">{$value->codsubcuenta}</a> {$value->descripcion}</td>
          <td class="text-right">{$fsc->show_precio($value->debe, $value->coddivisa)}</td>
          <td class="text-right">{$fsc->show_precio($value->haber, $value->coddivisa)}</td>

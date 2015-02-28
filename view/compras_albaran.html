@@ -82,6 +82,9 @@
             </a>
             
             <div class="btn-group">
+               <a id="b_precios" class="btn btn-sm btn-default" href="#">
+                  <span class="glyphicon glyphicon-euro"></span> &nbsp; Precios
+               </a>
                {if="$fsc->albaran->ptefactura"}
                <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}" title="Aprobar">
                   <span class="glyphicon glyphicon-paperclip"></span>
@@ -100,7 +103,7 @@
                
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}&id={$fsc->albaran->idalbaran}" class="btn btn-sm btn-default">
+                  <a href="index.php?page={$value->from}&id={$fsc->albaran->idalbaran}{$value->params}" class="btn btn-sm btn-default">
                      {$value->text}
                   </a>
                   {/if}
@@ -140,7 +143,7 @@
       
       <div class="row">
          {if="$fsc->albaran->ptefactura"}
-         <div class="col-md-5 col-sm-12">
+         <div class="col-md-5 col-sm-12 col-xs-12">
             <div class="form-group">
                Proveedor actual:
                <div class="input-group">
@@ -154,7 +157,7 @@
             </div>
          </div>
          {/if}
-         <div class="col-md-2 col-sm-2">
+         <div class="col-md-2 col-sm-3">
             <div class="form-group">
                Num. Proveedor:
                <input class="form-control" type="text" name="numproveedor" value="{$fsc->albaran->numproveedor}"/>

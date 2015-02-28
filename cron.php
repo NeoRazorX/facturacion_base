@@ -24,26 +24,34 @@ require_model('asiento.php');
 require_once 'plugins/facturacion_base/extras/libromayor.php';
 require_once 'plugins/facturacion_base/extras/inventarios_balances.php';
 
-$alb_cli = new albaran_cliente();
-echo "Ejecutando tareas para los ".FS_ALBARANES." de cliente...\n";
-$alb_cli->cron_job();
+class facturacion_base_cron
+{
+   public function __construct(&$db)
+   {
+      $alb_cli = new albaran_cliente();
+      echo "Ejecutando tareas para los ".FS_ALBARANES." de cliente...\n";
+      $alb_cli->cron_job();
+      
+      $alb_pro = new albaran_proveedor();
+      echo "Ejecutando tareas para los ".FS_ALBARANES." de proveedor...\n";
+      $alb_pro->cron_job();
+      
+      $articulo = new articulo();
+      echo "Ejecutando tareas para los artículos...";
+      $articulo->cron_job();
+      
+      $asiento = new asiento();
+      echo "\nEjecutando tareas para los asientos...\n";
+      $asiento->cron_job();
+      
+      $libro = new libro_mayor();
+      echo "Generamos el libro mayor para cada subcuenta y el libro diario para cada ejercicio...";
+      $libro->cron_job();
+      
+      $inventarios_balances = new inventarios_balances();
+      echo "\nGeneramos el libro de inventarios y balances para cada ejercicio...";
+      $inventarios_balances->cron_job();
+   }
+}
 
-$alb_pro = new albaran_proveedor();
-echo "Ejecutando tareas para los ".FS_ALBARANES." de proveedor...\n";
-$alb_pro->cron_job();
-
-$articulo = new articulo();
-echo "Ejecutando tareas para los artículos...";
-$articulo->cron_job();
-
-$asiento = new asiento();
-echo "\nEjecutando tareas para los asientos...\n";
-$asiento->cron_job();
-
-$libro = new libro_mayor();
-echo "Generamos el libro mayor para cada subcuenta y el libro diario para cada ejercicio...";
-$libro->cron_job();
-
-$inventarios_balances = new inventarios_balances();
-echo "\nGeneramos el libro de inventarios y balances para cada ejercicio...";
-$inventarios_balances->cron_job();
+new facturacion_base_cron($db);
