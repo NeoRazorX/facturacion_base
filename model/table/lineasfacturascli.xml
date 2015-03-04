@@ -23,7 +23,7 @@
    <columna>
       <nombre>dtolineal</nombre>
       <tipo>double precision</tipo>
-      <nulo>NO</nulo>
+      <defecto>0</defecto>
    </columna>
    <columna>
       <nombre>dtopor</nombre>

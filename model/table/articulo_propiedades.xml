@@ -20,7 +20,13 @@
       <tipo>text</tipo>
    </columna>
    <restriccion>
-      <nombre>fs_vars_pkey</nombre>
+      <nombre>articulo_propiedades_pkey</nombre>
       <consulta>PRIMARY KEY (name,referencia)</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>ca_articulo_propiedades_articulos</nombre>
+      <consulta>FOREIGN KEY (referencia)
+      REFERENCES articulos (referencia)
+      ON DELETE CASCADE ON UPDATE CASCADE</consulta>
    </restriccion>
 </tabla>

@@ -210,7 +210,7 @@ class compras_facturas extends fs_controller
           array(
               'name' => 'facturas_articulo',
               'page_from' => __CLASS__,
-              'page_to' => 'compras_articulo',
+              'page_to' => 'ventas_articulo',
               'type' => 'tab_button',
               'text' => 'Facturas de proveedor',
               'params' => ''

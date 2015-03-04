@@ -237,7 +237,7 @@ class compras_albaranes extends fs_controller
           array(
               'name' => 'albaranes_articulo',
               'page_from' => __CLASS__,
-              'page_to' => 'compras_articulo',
+              'page_to' => 'ventas_articulo',
               'type' => 'tab_button',
               'text' => ucfirst(FS_ALBARANES).' de proveedor',
               'params' => ''
