@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -210,7 +210,7 @@ class compras_facturas extends fs_controller
           array(
               'name' => 'facturas_articulo',
               'page_from' => __CLASS__,
-              'page_to' => 'ventas_articulo',
+              'page_to' => 'compras_articulo',
               'type' => 'tab_button',
               'text' => 'Facturas de proveedor',
               'params' => ''

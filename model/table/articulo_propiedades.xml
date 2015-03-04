@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : articulo_propiedades.xml
+    Description:
+        Estructura de la tabla articulo_propiedades.
+-->
+<tabla>
+   <columna>
+      <nombre>name</nombre>
+      <tipo>character varying(50)</tipo>
+      <nulo>NO</nulo>
+   </columna>
+   <columna>
+      <nombre>referencia</nombre>
+      <tipo>character varying(18)</tipo>
+      <nulo>NO</nulo>
+   </columna>
+   <columna>
+      <nombre>text</nombre>
+      <tipo>text</tipo>
+   </columna>
+   <restriccion>
+      <nombre>fs_vars_pkey</nombre>
+      <consulta>PRIMARY KEY (name,referencia)</consulta>
+   </restriccion>
+</tabla>

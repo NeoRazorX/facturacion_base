@@ -26,30 +26,91 @@ require_model('tarifa_articulo.php');
 require_model('stock.php');
 
 /**
- * Representa el artículo que se vende o compra.
+ * Almacena los datos de un artículos.
  */
 class articulo extends fs_model
 {
+   /**
+    * Clave primaria. Varchar (18).
+    * @var type 
+    */
    public $referencia;
+   
+   /**
+    * Código de la familia a la que pertenece. En la clase familia.
+    * @var type 
+    */
    public $codfamilia;
    public $descripcion;
+   
    public $pvp;
+   
+   /**
+    * Almacena el valor del pvp antes de hacer el cambio.
+    * Esta valor no se almacena en la base de datos, es decir,
+    * no se recuerda.
+    * @var type 
+    */
    public $pvp_ant;
+   
+   /**
+    * Fecha de actualización del pvp.
+    * @var type 
+    */
    public $factualizado;
+   
+   /**
+    * Coste medio al comprar el artículo. Calculado.
+    * @var type 
+    */
    public $costemedio;
+   
+   /**
+    * Precio de coste editado manualmente.
+    * @var type 
+    */
    public $preciocoste;
+   
+   /**
+    * Impuesto asignado. Clase impuesto.
+    * @var type 
+    */
    public $codimpuesto;
+   
+   /**
+    * % IVA del impuesto asignado.
+    * @var type 
+    */
    public $iva;
    public $destacado;
    public $bloqueado;
    public $secompra;
    public $sevende;
+   
+   /**
+    * TRUE -> se mostrará sincronizará con la tienda online.
+    * @var type 
+    */
    public $publico;
+   
+   /**
+    * Código de equivalencia. Varchar (18).
+    * @var type 
+    */
    public $equivalencia;
    public $stockfis;
    public $stockmin;
    public $stockmax;
-   public $controlstock; /// permitir ventas sin stock
+   
+   /**
+    * TRUE -> permitir ventas sin stock.
+    * Si, sé que no tiene sentido que poner controlstock a TRUE
+    * implique la ausencia de control de stock. Pero es una cagada de
+    * FacturaLux -> Abanq -> Eneboo, y por motivos de compatibilidad
+    * se mantiene.
+    * @var type 
+    */
+   public $controlstock;
    public $codbarras;
    public $observaciones;
    
@@ -945,34 +1006,19 @@ class articulo extends fs_model
    
    public function count($codfamilia=FALSE)
    {
-      $num = 0;
       if( $codfamilia )
       {
-         $articulos = $this->db->select("SELECT COUNT(*) as total FROM ".$this->table_name.
-                 " WHERE codfamilia = ".$this->var2str($codfamilia).";");
+         $articulos = $this->db->select("SELECT COUNT(*) as total FROM ".$this->table_name." WHERE codfamilia = ".$this->var2str($codfamilia).";");
       }
       else
          $articulos = $this->db->select("SELECT COUNT(*) as total FROM ".$this->table_name.";");
+      
+      $num = 0;
       if($articulos)
-         $num = intval($articulos[0]['total']);
-      return $num;
-   }
-   
-   public function move_codimpuesto($cod0, $cod1, $mantener=FALSE)
-   {
-      if($mantener)
       {
-         $this->clean_cache();
-         
-         $impuesto = new impuesto();
-         $impuesto0 = $impuesto->get($cod0);
-         $impuesto1 = $impuesto->get($cod1);
-         $multiplo = (100 + $impuesto0->iva) / (100 + $impuesto1->iva);
-         return $this->db->exec("UPDATE ".$this->table_name." SET codimpuesto = ".$this->var2str($cod1).
-                 ", pvp = (pvp*".$multiplo.") WHERE codimpuesto = ".$this->var2str($cod0).";");
+         $num = intval($articulos[0]['total']);
       }
-      else
-         return $this->db->exec("UPDATE ".$this->table_name." SET codimpuesto = ".$this->var2str($cod1).
-                 " WHERE codimpuesto = ".$this->var2str($cod0).";");
+      
+      return $num;
    }
 }

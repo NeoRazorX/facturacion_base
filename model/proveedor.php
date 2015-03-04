@@ -28,6 +28,10 @@ require_model('subcuenta_proveedor.php');
  */
 class proveedor extends fs_model
 {
+   /**
+    * Clave primaria. Varchar (6).
+    * @var type 
+    */
    public $codproveedor;
    public $nombre;
    public $nombrecomercial;

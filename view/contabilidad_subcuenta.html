@@ -128,7 +128,7 @@
       <table class="table table-hover">
          <thead>
             <tr>
-               <th title="puntear">P</th>
+               <th class="text-center" title="puntear">P</th>
                <th class="text-left">Asiento</th>
                <th>Fecha</th>
                <th class="text-left">Concepto</th>
@@ -148,7 +148,7 @@
                <input type="checkbox" name="punteada[]" value="{$value->idpartida}"{if="$value->punteada"} checked="checked"{/if}/>
             </td>
             <td><a href="{$value->url()}">{$value->numero}</a></td>
-            <td class="text-center">{$value->fecha}</td>
+            <td>{$value->fecha}</td>
             <td><a href="{$value->url()}">{$value->concepto}</a></td>
             <td class="text-right">{$fsc->show_precio($value->debe, $fsc->subcuenta->coddivisa)}</td>
             <td class="text-right">{$fsc->show_precio($value->haber, $fsc->subcuenta->coddivisa)}</td>
@@ -218,7 +218,7 @@
    {/if}
 </form>
 {else}
-<div class="text-center">
+<div class="thumbnail">
    <img src="view/img/fuuu_face.png" alt="fuuuuu"/>
 </div>
 {/if}

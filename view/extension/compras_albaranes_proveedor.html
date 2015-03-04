@@ -25,6 +25,17 @@
          });
       }
    }
+   function mas_resultados(num)
+   {
+      document.f_buscar_lineas.offset.value = parseInt(document.f_buscar_lineas.offset.value) + parseInt(num);
+      
+      if(document.f_buscar_lineas.offset.value < 0)
+      {
+         document.f_buscar_lineas.offset.value = 0;
+      }
+      
+      buscar_lineas();
+   }
    $(document).ready(function() {
       $("#b_buscar_lineas").click(function(event) {
          event.preventDefault();
@@ -108,6 +119,7 @@
 
 <form class="form" role="form" id="f_buscar_lineas" name="f_buscar_lineas" action="{$fsc->url()}" method="post">
    <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
+   <input type="hidden" name="offset" value="0"/>
    <div class="modal" id="modal_buscar_lineas">
       <div class="modal-dialog" style="width: 99%; max-width: 950px;">
          <div class="modal-content">

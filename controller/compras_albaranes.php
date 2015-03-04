@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -175,11 +175,11 @@ class compras_albaranes extends fs_controller
       
       if( isset($_POST['codproveedor']) )
       {
-         $this->lineas = $linea->search_from_proveedor($_POST['codproveedor'], $this->buscar_lineas);
+         $this->lineas = $linea->search_from_proveedor($_POST['codproveedor'], $this->buscar_lineas, $_POST['offset']);
       }
       else
       {
-         $this->lineas = $linea->search($this->buscar_lineas);
+         $this->lineas = $linea->search($this->buscar_lineas, $_POST['offset']);
       }
    }
    
@@ -237,7 +237,7 @@ class compras_albaranes extends fs_controller
           array(
               'name' => 'albaranes_articulo',
               'page_from' => __CLASS__,
-              'page_to' => 'ventas_articulo',
+              'page_to' => 'compras_articulo',
               'type' => 'tab_button',
               'text' => ucfirst(FS_ALBARANES).' de proveedor',
               'params' => ''

@@ -182,6 +182,7 @@ class ventas_agrupar_albaranes extends fs_controller
       
       $factura = new factura_cliente();
       $factura->automatica = TRUE;
+      $factura->codagente = $albaranes[0]->codagente;
       $factura->codalmacen = $albaranes[0]->codalmacen;
       $factura->coddivisa = $albaranes[0]->coddivisa;
       $factura->tasaconv = $albaranes[0]->tasaconv;

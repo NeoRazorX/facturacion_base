@@ -28,6 +28,10 @@ require_model('subcuenta_cliente.php');
  */
 class cliente extends fs_model
 {
+   /**
+    * Clave primaria. Varchar (6).
+    * @var type 
+    */
    public $codcliente;
    public $nombre;
    public $nombrecomercial;

@@ -13,6 +13,7 @@
                onclick=\"show_buscar_subcuentas('"+numlineas+"','subcuenta')\" onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'\n\
                autocomplete='off' placeholder='Seleccionar'/>\n\
          </td>\n\
+         <td></td>\n\
          <td>\n\
             <input class='form-control' type='text' id='desc_"+numlineas+"' name='desc_"+numlineas+"' disabled='disabled'/>\n\
          </td>\n\
@@ -217,7 +218,7 @@
                </a>
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
             </div>
@@ -285,6 +286,7 @@
          <thead>
             <tr>
                <th class="text-left">Subcuenta</th>
+               <th></th>
                <th class="text-left">Descripción</th>
                <th class="text-right">Saldo</th>
                <th class="text-right">Debe</th>
@@ -306,6 +308,11 @@
                          value="{$value->codsubcuenta}" onclick="show_buscar_subcuentas('{$counter+1}','subcuenta')"
                          onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'
                          autocomplete='off' placeholder='Seleccionar'/>
+               </td>
+               <td>
+                  <a href="{$value->subcuenta_url()}" target="_blank" class="btn btn-sm btn-default" title="ver la subcuenta">
+                     <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                  </a>
                </td>
                <td><input class='form-control' type='text' id='desc_{$counter+1}' name='desc_{$counter+1}' value='{$value->desc_subcuenta}' disabled='disabled'/></td>
                <td><input class='form-control text-right' type='text' id='saldo_{$counter+1}' name='saldo_{$counter+1}' value='{$value->saldo}' disabled='disabled'/></td>
@@ -387,7 +394,7 @@
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
          </div>
@@ -511,7 +518,7 @@
 </form>
 
 {else}
-<div class="text-center">
+<div class="thumbnail">
    <img src="view/img/fuuu_face.png" alt="fuuuuu"/>
 </div>
 {/if}
