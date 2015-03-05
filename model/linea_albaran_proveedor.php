@@ -244,7 +244,7 @@ class linea_albaran_proveedor extends fs_model
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (idlineapedido,idalbaran,idpedido,referencia,descripcion,
-               cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo) VALUE
+               cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo) VALUES
                (".$this->var2str($this->idlineapedido).",".$this->var2str($this->idalbaran).",".$this->var2str($this->idpedido).",
                ".$this->var2str($this->referencia).",".$this->var2str($this->descripcion).",
                ".$this->var2str($this->cantidad).",".$this->var2str($this->dtopor).",
