@@ -3,6 +3,8 @@
     Document   : articulos.xml
     Description:
         Estructura de la tabla articulos.
+        Algunas columnas de la tabla no se utilizan en FacturaScripts,
+        pero las añado para dar compatiilidad con Abanq/Eneboo.
 -->
 <tabla>
    <columna>
