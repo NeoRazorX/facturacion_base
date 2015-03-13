@@ -31,6 +31,8 @@ class ventas_articulo extends fs_controller
    public $articulo;
    public $familia;
    public $impuesto;
+   public $mostrar_tab_precios;
+   public $mostrar_tab_stock;
    public $nuevos_almacenes;
    public $stocks;
    public $equivalentes;
@@ -47,6 +49,34 @@ class ventas_articulo extends fs_controller
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
+      /**
+       * Si hay alguna extensión de tipo tab y texto Precios,
+       * desactivamos la pestaña precios.
+       */
+      $this->mostrar_tab_precios = TRUE;
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'tab' AND $ext->text == 'Precios')
+         {
+            $this->mostrar_tab_precios = FALSE;
+            break;
+         }
+      }
+      
+      /**
+       * Si hay alguna extensión de tipo tab y texto Stock,
+       * desactivamos la pestaña stock.
+       */
+      $this->mostrar_tab_stock = TRUE;
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'tab' AND $ext->text == 'Stock')
+         {
+            $this->mostrar_tab_stock = FALSE;
+            break;
+         }
+      }
       
       if( isset($_POST['pvpiva']) )
       {
@@ -118,7 +148,11 @@ class ventas_articulo extends fs_controller
          $this->articulo = $articulo->get($_POST['referencia']);
          if($this->articulo)
          {
-            if( $this->articulo->set_stock($_POST['almacen'], $_POST['cantidad']) )
+            if( $this->articulo->stockfis == intval($_POST['cantidad']) )
+            {
+               $this->new_message('Sin cambios.');
+            }
+            else if( $this->articulo->set_stock($_POST['almacen'], $_POST['cantidad']) )
             {
                $this->new_message("Stock guardado correctamente.");
                
@@ -134,6 +168,7 @@ class ventas_articulo extends fs_controller
                         $regularizacion->cantidadini = floatval($_POST['cantidadini']);
                      }
                      $regularizacion->cantidadfin = floatval($_POST['cantidad']);
+                     $regularizacion->codalmacendest = $_POST['almacen'];
                      $regularizacion->motivo = $_POST['motivo'];
                      $regularizacion->nick = $this->user->nick;
                      $regularizacion->save();

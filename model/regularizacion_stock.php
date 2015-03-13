@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -24,13 +24,33 @@
  */
 class regularizacion_stock extends fs_model
 {
-   public $id; /// pkey
+   /**
+    * Clave primaria.
+    * @var type 
+    */
+   public $id;
+   
+   /**
+    * ID del stock, en el modelo stock.
+    * @var type 
+    */
    public $idstock;
    public $cantidadini;
    public $cantidadfin;
+   
+   /**
+    * Código del almacén destino.
+    * @var type 
+    */
+   public $codalmacendest;
    public $fecha;
    public $hora;
    public $motivo;
+   
+   /**
+    * Nick del usuario que ha realizado la regularización.
+    * @var type 
+    */
    public $nick;
    
    public function __construct($r = FALSE)
@@ -42,6 +62,7 @@ class regularizacion_stock extends fs_model
          $this->idstock = $this->intval($r['idstock']);
          $this->cantidadini = floatval($r['cantidadini']);
          $this->cantidadfin = floatval($r['cantidadfin']);
+         $this->codalmacendest = $r['codalmacendest'];
          $this->fecha = date('d-m-Y', strtotime($r['fecha']));
          $this->hora = $r['hora'];
          $this->motivo = $r['motivo'];
@@ -53,6 +74,7 @@ class regularizacion_stock extends fs_model
          $this->idstock = NULL;
          $this->cantidadini = 0;
          $this->cantidadfin = 0;
+         $this->codalmacendest = NULL;
          $this->fecha = date('d-m-Y');
          $this->hora = date('H:i:s');
          $this->motivo = '';
@@ -65,6 +87,17 @@ class regularizacion_stock extends fs_model
       return '';
    }
    
+   public function get($id)
+   {
+      $data = $this->db->select("SELECT * FROM lineasregstocks WHERE id = ".$this->var2str($id).";");
+      if($data)
+      {
+         return new regularizacion_stock($data[0]);
+      }
+      else
+         return FALSE;
+   }
+   
    public function exists()
    {
       if( is_null($this->id) )
@@ -72,7 +105,7 @@ class regularizacion_stock extends fs_model
          return FALSE;
       }
       else
-         $this->db->select("SELECT * FROM lineasregstocks WHERE id = ".$this->var2str($this->id).";");
+         return $this->db->select("SELECT * FROM lineasregstocks WHERE id = ".$this->var2str($this->id).";");
    }
    
    public function save()
@@ -81,6 +114,7 @@ class regularizacion_stock extends fs_model
       {
          $sql = "UPDATE lineasregstocks SET idstock = ".$this->var2str($this->idstock).",
             cantidadini = ".$this->var2str($this->cantidadini).", cantidadfin = ".$this->var2str($this->cantidadfin).",
+            codalmacendest = ".$this->var2str($this->codalmacendest).",
             fecha = ".$this->var2str($this->fecha).", hora = ".$this->var2str($this->hora).",
             motivo = ".$this->var2str($this->motivo).", nick = ".$this->var2str($this->nick)."
             WHERE id = ".$this->var2str($this->id).";";
@@ -89,9 +123,9 @@ class regularizacion_stock extends fs_model
       }
       else
       {
-         $sql = "INSERT INTO lineasregstocks (idstock,cantidadini,cantidadfin,fecha,hora,motivo,nick) VALUES
-            (".$this->var2str($this->idstock).",".$this->var2str($this->cantidadini).",
-             ".$this->var2str($this->cantidadfin).",".$this->var2str($this->fecha).",
+         $sql = "INSERT INTO lineasregstocks (idstock,cantidadini,cantidadfin,codalmacendest,fecha,hora,motivo,nick)
+            VALUES (".$this->var2str($this->idstock).",".$this->var2str($this->cantidadini).",".$this->var2str($this->cantidadfin).",
+             ".$this->var2str($this->codalmacendest).",".$this->var2str($this->fecha).",
              ".$this->var2str($this->hora).",".$this->var2str($this->motivo).",".$this->var2str($this->nick).");";
          
          if( $this->db->exec($sql) )
@@ -106,7 +140,7 @@ class regularizacion_stock extends fs_model
    
    public function delete()
    {
-      $this->db->exec("DELETE FROM lineasregstocks WHERE id = ".$this->var2str($this->id).";");
+      return $this->db->exec("DELETE FROM lineasregstocks WHERE id = ".$this->var2str($this->id).";");
    }
    
    public function all_from_articulo($ref)

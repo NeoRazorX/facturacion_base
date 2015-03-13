@@ -22,7 +22,7 @@ var all_impuestos = [];
 var all_series = [];
 var cliente = false;
 var nueva_venta_url = '';
-var fs_community_url = '';
+var kiwimaru_url = '';
 var fin_busqueda1 = true;
 var fin_busqueda2 = true;
 var siniva = false;
@@ -315,11 +315,12 @@ function aux_all_impuestos(num,codimpuesto)
 
 function add_articulo(ref,desc,pvp,dto,codimpuesto)
 {
+   desc = Base64.decode(desc);
    $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\" value=\""+ref+"\"/>\n\
          <div class=\"form-control\"><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></div></td>\n\
-      <td><input type=\"text\" class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" value=\""+desc+"\" onclick=\"this.select()\"/></td>\n\
+      <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\">"+desc+"</textarea></td>\n\
       <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
          "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
       <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
@@ -383,7 +384,7 @@ function new_articulo()
             $("#kiwimaru_results").hide();
             $("#nuevo_articulo").hide();
             
-            add_articulo(datos[0].referencia, datos[0].descripcion, datos[0].pvp, 0, datos[0].codimpuesto);
+            add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].pvp, 0, datos[0].codimpuesto);
          }
       });
    }
@@ -412,7 +413,7 @@ function buscar_articulos()
             var items = [];
             var insertar = false;
             $.each(json, function(key, val) {
-               var descripcion = val.descripcion.replace("&#39;", "\\'");
+               var descripcion = Base64.encode(val.descripcion);
                
                var tr_aux = '<tr>';
                if(val.bloqueado)
@@ -468,10 +469,10 @@ function buscar_articulos()
          });
       }
       
-      if(fs_community_url !== '')
+      if(kiwimaru_url !== '')
       {
          fin_busqueda2 = false;
-         $.getJSON(fs_community_url+'/kiwimaru.php', $("form[name=f_buscar_articulos]").serialize(), function(json) {
+         $.getJSON(kiwimaru_url, $("form[name=f_buscar_articulos]").serialize(), function(json) {
             var items = [];
             var insertar = false;
             $.each(json, function(key, val) {

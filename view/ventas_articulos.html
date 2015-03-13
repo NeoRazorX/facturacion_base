@@ -142,7 +142,7 @@
                <th class="text-left">Familia</th>
                <th class="text-left">Referencia + Descripción</th>
                <th class="text-right">PVP</th>
-               <th class="text-right">PVP+IVA</th>
+               <th class="text-right">PVP+{#FS_IVA#}</th>
                <th class="text-right">Stock</th>
             </tr>
          </thead>
@@ -277,7 +277,7 @@
                   </div>
                </div>
                <div class="form-group">
-                  <label for="codimpuesto" class="col-lg-2 col-md-2 col-sm-2 control-label"><a href="{$fsc->impuesto->url()}">IVA</a></label>
+                  <label for="codimpuesto" class="col-lg-2 col-md-2 col-sm-2 control-label"><a href="{$fsc->impuesto->url()}">{#FS_IVA#}</a></label>
                   <div class="col-lg-10 col-md-10 col-sm-10">
                      <select class="form-control" name="codimpuesto">
                         {loop="$fsc->impuesto->all()"}

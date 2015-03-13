@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -581,22 +581,6 @@ class factura_cliente extends fs_model
             {
                $this->new_error_msg("Esta factura apunta a un <a href='".$this->asiento_url()."'>asiento incorrecto</a>.");
                $status = FALSE;
-            }
-            else
-            {
-               /// comprobamos las partidas del asiento
-               $neto_encontrado = FALSE;
-               foreach($asiento->get_partidas() as $p)
-               {
-                  if( $this->floatcmp3($this->neto, $p->debe, $p->haber, FS_NF0, TRUE) )
-                     $neto_encontrado = TRUE;
-               }
-               
-               if( !$neto_encontrado )
-               {
-                  $this->new_error_msg("No se ha encontrado la partida de neto en el asiento.");
-                  $status = FALSE;
-               }
             }
          }
          else

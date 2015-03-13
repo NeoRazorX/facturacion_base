@@ -113,8 +113,6 @@ class articulo extends fs_model
    public $controlstock;
    public $codbarras;
    public $observaciones;
-   public $codsubcuentacom;
-   public $codsubcuentairpfcom;
    
    private $imagen;
    private $has_imagen;
@@ -153,8 +151,6 @@ class articulo extends fs_model
          $this->equivalencia = $a['equivalencia'];
          $this->codbarras = $a['codbarras'];
          $this->observaciones = $this->no_html($a['observaciones']);
-         $this->codsubcuentacom = $a['codsubcuentacom'];
-         $this->codsubcuentairpfcom = $a['codsubcuentairpfcom'];
          
          /// no cargamos la imagen directamente por cuestión de rendimiento
          $this->imagen = NULL;
@@ -183,8 +179,6 @@ class articulo extends fs_model
          $this->equivalencia = NULL;
          $this->codbarras = '';
          $this->observaciones = '';
-         $this->codsubcuentacom = NULL;
-         $this->codsubcuentairpfcom = NULL;
          
          $this->imagen = NULL;
          $this->has_imagen = FALSE;
@@ -665,16 +659,10 @@ class articulo extends fs_model
          }
       }
       
-      $this->referencia = str_replace(' ', '_', trim($this->referencia));
-      
       $this->descripcion = $this->no_html($this->descripcion);
-      if( strlen($this->descripcion) > 100 )
-         $this->descripcion = substr($this->descripcion, 0, 99);
-      
       $this->equivalencia = str_replace(' ', '_', trim($this->equivalencia));
       $this->codbarras = $this->no_html($this->codbarras);
       $this->observaciones = $this->no_html($this->observaciones);
-      
       if($this->equivalencia == '')
       {
          $this->equivalencia = NULL;
@@ -721,16 +709,13 @@ class articulo extends fs_model
                equivalencia = ".$this->var2str($this->equivalencia).",
                codbarras = ".$this->var2str($this->codbarras).",
                observaciones = ".$this->var2str($this->observaciones).",
-               imagen = ".$this->bin2str($this->imagen).",
-               codsubcuentacom = ".$this->bin2str($this->codsubcuentacom).",
-               codsubcuentairpfcom = ".$this->bin2str($this->codsubcuentairpfcom)."
-               WHERE referencia = ".$this->var2str($this->referencia).";";
+               imagen = ".$this->bin2str($this->imagen)." WHERE referencia = ".$this->var2str($this->referencia).";";
          }
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (referencia,codfamilia,descripcion,pvp,
                factualizado,costemedio,preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,destacado,bloqueado,
-               secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,codsubcuentacom,codsubcuentairpfcom)
+               secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico)
                VALUES (".$this->var2str($this->referencia).",".$this->var2str($this->codfamilia).",
                ".$this->var2str($this->descripcion).",".$this->var2str($this->pvp).",
                ".$this->var2str($this->factualizado).",".$this->var2str($this->costemedio).",".$this->var2str($this->preciocoste).",
@@ -740,8 +725,7 @@ class articulo extends fs_model
                ".$this->var2str($this->secompra).",".$this->var2str($this->sevende).",
                ".$this->var2str($this->equivalencia).",".$this->var2str($this->codbarras).",
                ".$this->var2str($this->observaciones).",".$this->bin2str($this->imagen).",
-               ".$this->var2str($this->publico).",".$this->var2str($this->codsubcuentacom).",
-               ".$this->var2str($this->codsubcuentairpfcom).");";
+               ".$this->var2str($this->publico).");";
          }
          
          if( $this->db->exec($sql) )

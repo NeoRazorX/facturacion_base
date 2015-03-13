@@ -56,4 +56,10 @@
       <nombre>lineasregstocks_pkey</nombre>
       <consulta>PRIMARY KEY (id)</consulta>
    </restriccion>
+   <restriccion>
+      <nombre>ca_lineasregstocks_stocks</nombre>
+      <consulta>FOREIGN KEY (idstock)
+      REFERENCES stocks (idstock)
+      ON DELETE CASCADE ON UPDATE CASCADE</consulta>
+   </restriccion>
 </tabla>

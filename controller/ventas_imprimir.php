@@ -348,7 +348,7 @@ class ventas_imprimir extends fs_controller
                   $titulo['iva'.$i] = '<b>'.$imp->descripcion.'</b>';
                }
                else
-                  $titulo['iva'.$i] = '<b>IVA '.$i.'%</b>';
+                  $titulo['iva'.$i] = '<b>'.FS_IVA.' '.$i.'%</b>';
                
                $fila['iva'.$i] = $this->show_precio($value, $this->albaran->coddivisa);
                $opciones['cols']['iva'.$i] = array('justification' => 'right');
@@ -356,7 +356,7 @@ class ventas_imprimir extends fs_controller
             
             if($this->albaran->totalirpf != 0)
             {
-               $titulo['irpf'] = '<b>IRPF</b>';
+               $titulo['irpf'] = '<b>'.FS_IRPF.'</b>';
                $fila['irpf'] = $this->show_precio(0 - $this->albaran->totalirpf);
                $opciones['cols']['irpf'] = array('justification' => 'right');
             }
@@ -632,7 +632,7 @@ class ventas_imprimir extends fs_controller
                   $titulo['iva'.$li->iva] = '<b>'.$imp->descripcion.'</b>';
                }
                else
-                  $titulo['iva'.$li->iva] = '<b>IVA '.$li->iva.'%</b>';
+                  $titulo['iva'.$li->iva] = '<b>'.FS_IVA.' '.$li->iva.'%</b>';
                
                $fila['iva'.$li->iva] = $this->show_precio($li->totaliva, $this->factura->coddivisa);
                $opciones['cols']['iva'.$li->iva] = array('justification' => 'right');
@@ -640,7 +640,7 @@ class ventas_imprimir extends fs_controller
             
             if($this->factura->totalirpf != 0)
             {
-               $titulo['irpf'] = '<b>IRPF</b>';
+               $titulo['irpf'] = '<b>'.FS_IRPF.'</b>';
                $fila['irpf'] = $this->show_precio(0 - $this->factura->totalirpf);
                $opciones['cols']['irpf'] = array('justification' => 'right');
             }

@@ -222,12 +222,16 @@
       <li role="presentation" class="active">
          <a href="#home" aria-controls="home" role="tab" data-toggle="tab">Datos generales</a>
       </li>
+      {if="$fsc->mostrar_tab_precios"}
       <li role="presentation">
          <a href="#precios" aria-controls="precios" role="tab" data-toggle="tab">Precios</a>
       </li>
+      {/if}
+      {if="$fsc->mostrar_tab_stock"}
       <li role="presentation">
          <a href="#stock" aria-controls="stock" role="tab" data-toggle="tab">Stock</a>
       </li>
+      {/if}
       {if="$fsc->equivalentes"}
       <li role="presentation">
          <a href="#equivalentes" aria-controls="settings" role="tab" data-toggle="tab">Equivalentes</a>
@@ -268,14 +272,6 @@
                         Referencia:
                         <input class="form-control" type="text" name="nreferencia" value="{$fsc->articulo->referencia}" maxlength="18" autocomplete="off"/>
                      </div>
-                  </div>
-                  <div class="col-sm-6">
-                     <div class="form-group">
-                        Descripción:
-                        <input class="form-control" type="text" name="descripcion" value="{$fsc->articulo->descripcion}" autocomplete="off"/>
-                     </div>
-                  </div>
-                  <div class="col-sm-3">
                      <div class="form-group">
                         <a href="{$fsc->familia->url()}">Familia</a>:
                         <select class="form-control" name="codfamilia">
@@ -287,6 +283,12 @@
                            {/if}
                         {/loop}
                         </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-9">
+                     <div class="form-group">
+                        Descripción:
+                        <textarea name="descripcion" class="form-control" rows="4">{$fsc->articulo->descripcion}</textarea>
                      </div>
                   </div>
                </div>
@@ -381,6 +383,7 @@
             </div>
          </form>
       </div>
+      {if="$fsc->mostrar_tab_precios"}
       <div role="tabpanel" class="tab-pane" id="precios">
          <form action="{$fsc->url()}#precios" method="post" class="form">
             <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
@@ -396,7 +399,7 @@
                   </div>
                   <div class="col-md-4">
                      <div class="form-group">
-                        <a href="{$fsc->impuesto->url()}">IVA</a>:
+                        <a href="{$fsc->impuesto->url()}">{#FS_IVA#}</a>:
                         <select class="form-control" name="codimpuesto">
                         {loop="$fsc->impuesto->all()"}
                            {if="$value->codimpuesto==$fsc->articulo->codimpuesto"}
@@ -410,7 +413,7 @@
                   </div>
                   <div class="col-md-4">
                      <div class="form-group">
-                        PVP+IVA:
+                        PVP+{#FS_IVA#}:
                         <input type="text" class="form-control" id="pvpi" name="pvpiva" value="{$fsc->articulo->pvp_iva()}" autocomplete="off" onkeyup="cambiar_pvpi()" onclick="this.select()"/>
                      </div>
                   </div>
@@ -445,7 +448,7 @@
                         <th class="text-left">Tarifa</th>
                         <th class="text-right">Dto (%)</th>
                         <th class="text-right">PVP</th>
-                        <th class="text-right">PVP+IVA</th>
+                        <th class="text-right">PVP+{#FS_IVA#}</th>
                         <th class="text-right">Margen (% sobre Coste)</th>
                      </tr>
                   </thead>
@@ -485,14 +488,17 @@
             </div>
          </form>
       </div>
+      {/if}
+      {if="$fsc->mostrar_tab_stock"}
       <div role="tabpanel" class="tab-pane" id="stock">
          <div class="table-responsive">
             <table class="table table-hover">
                <thead>
                   <tr>
                      <th class="text-left">Almacén</th>
-                     <th class="text-right">Cantidad</th>
-                     <th>Motivo</th>
+                     <th class="text-right">Cantidad actual</th>
+                     <th class="text-right">Nueva cantidad</th>
+                     <th class="text-left">Motivo</th>
                      <th class="text-right">Acción</th>
                   </tr>
                </thead>
@@ -504,6 +510,7 @@
                      <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
                      <input type="hidden" name="cantidadini" value="{$value->cantidad}"/>
                      <td><div class="form-control">{$value->codalmacen}</div></td>
+                     <td><div class="form-control text-right">{$value->cantidad}</div></td>
                      <td><input type="number" step="any" class="form-control text-right" name="cantidad" value="{$value->cantidad}" autocomplete="off"/></td>
                      <td><input type="text" class="form-control" name="motivo" placeholder="Escribe el motivo del cambio"/></td>
                      <td class="text-right">
@@ -525,6 +532,7 @@
                            {/loop}
                         </select>
                      </td>
+                     <td><div class="form-control text-right">0</div></td>
                      <td><input class="form-control text-right" type="number" step="any" name="cantidad" value="0" autocomplete="off"/></td>
                      <td><input type="text" class="form-control" name="motivo" placeholder="Escribe el motivo del cambio"/></td>
                      <td class="text-right">
@@ -573,6 +581,7 @@
             </table>
          </div>
       </div>
+      {/if}
       {if="$fsc->equivalentes"}
       <div role="tabpanel" class="tab-pane" id="equivalentes">
          <div class="table-responsive">
@@ -580,7 +589,7 @@
                <thead>
                   <tr>
                      <th class="text-left">Artículo</th>
-                     <th class="text-right">PVP+IVA</th>
+                     <th class="text-right">PVP+{#FS_IVA#}</th>
                      <th class="text-right">Stock</th>
                   </tr>
                </thead>

@@ -10,7 +10,7 @@
    all_series = {function="json_encode($fsc->serie->all())"};
    cliente = {function="json_encode($fsc->cliente_s)"};
    nueva_venta_url = '{$fsc->nuevo_albaran_url}';
-   fs_community_url = '{#FS_COMMUNITY_URL#}';
+   kiwimaru_url = '{#FS_COMMUNITY_URL#}/index.php?page=kiwimaru';
    
    $(document).ready(function() {
       $("#numlineas").val(numlineas);
@@ -215,9 +215,9 @@
                         <th class="text-right">Precio</th>
                         <th class="text-right" width="90">Dto. %</th>
                         <th class="text-right">Neto</th>
-                        <th class="text-right" width="115">IVA</th>
+                        <th class="text-right" width="115">{#FS_IVA#}</th>
                         <th class="text-right recargo">RE %</th>
-                        <th class="text-right irpf">IRPF %</th>
+                        <th class="text-right irpf">{#FS_IRPF#} %</th>
                         <th class="text-right">Total</th>
                      </tr>
                   </thead>
@@ -236,7 +236,7 @@
                               <a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a>
                            </div>
                         </td>
-                        <td><input type="text" class="form-control" name="desc_{$counter}" value="{$value->descripcion}" onclick="this.select()"/></td>
+                        <td><textarea class="form-control" name="desc_{$counter}" rows="1" onclick="this.select()">{$value->descripcion}</textarea></td>
                         <td>
                            <input type="number" step="any" id="cantidad_{$counter}" class="form-control text-right" name="cantidad_{$counter}"
                                   value="{$value->cantidad}" onchange="recalcular()" onkeyup="recalcular()" autocomplete="off" value="1"/>
@@ -319,9 +319,9 @@
                         <th class="text-right">Precio</th>
                         <th class="text-right">Dto</th>
                         <th class="text-right">Neto</th>
-                        <th class="text-right">IVA</th>
+                        <th class="text-right">{#FS_IVA#}</th>
                         <th class="text-right recargo">RE</th>
-                        <th class="text-right irpf">IRPF</th>
+                        <th class="text-right irpf">{#FS_IRPF#}</th>
                         <th class="text-right">Total</th>
                      </tr>
                   </thead>
@@ -444,7 +444,7 @@
                   </select>
                </div>
                <div class="form-group col-lg-6 col-md-6 col-sm-6">
-                  <a href="{$fsc->impuesto->url()}">IVA</a>:
+                  <a href="{$fsc->impuesto->url()}">{#FS_IVA#}</a>:
                   <select name="codimpuesto" class="form-control">
                      {loop="$fsc->impuesto->all()"}
                      <option value="{$value->codimpuesto}"{if="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>

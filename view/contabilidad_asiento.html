@@ -293,7 +293,7 @@
                <th class="text-right">Haber</th>
                <th class="text-left">Contrapartida</th>
                <th class="text-right contrapartida">Saldo</th>
-               <th class="text-right contrapartida">IVA</th>
+               <th class="text-right contrapartida">{#FS_IVA#}</th>
                <th class="text-right contrapartida">Base Imp.</th>
                <th class="text-left contrapartida">{#FS_CIFNIF#}</th>
                <th></th>
@@ -465,7 +465,7 @@
             <td class="text-right"><span title="{$value->haber}">{$fsc->show_precio($value->haber, $value->coddivisa)}</span></td>
             <td class="text-right">
                {if="$value->iva!=0"}
-               IVA: {$value->iva}%
+               {#FS_IVA#}: {$value->iva}%
                {elseif="$value->recargo!=0"}
                RE: {$value->recargo}%
                {else}

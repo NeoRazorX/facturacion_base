@@ -102,7 +102,7 @@
    </columna>
    <columna>
       <nombre>descripcion</nombre>
-      <tipo>character varying(100)</tipo>
+      <tipo>text</tipo>
       <nulo>NO</nulo>
    </columna>
    <columna>

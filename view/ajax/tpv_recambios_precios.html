@@ -37,7 +37,7 @@
             <th class="text-left">Tarifa</th>
             <th class="text-right">Dto</th>
             <th class="text-right">PVP</th>
-            <th class="text-right">PVP+IVA</th>
+            <th class="text-right">PVP+{#FS_IVA#}</th>
             <th></th>
          </tr>
       </thead>
@@ -101,7 +101,7 @@
          <tr>
             <th class="text-left">Artículo</th>
             <th class="text-right">PVP</th>
-            <th class="text-right">PVP+IVA</th>
+            <th class="text-right">PVP+{#FS_IVA#}</th>
             <th class="text-right">Stock</th>
          </tr>
       </thead>
@@ -139,7 +139,7 @@
             <th class="text-left text-capitalize">{#FS_ALBARAN#}</th>
             <th class="text-right">PVP</th>
             <th class="text-right">Dto</th>
-            <th class="text-right">Total+IVA</th>
+            <th class="text-right">Total+{#FS_IVA#}</th>
          </tr>
       </thead>
       {loop="$fsc->articulo->get_lineas_albaran_prov(0, 10)"}
@@ -181,7 +181,7 @@
             <th class="text-left text-capitalize">{#FS_ALBARAN#}</th>
             <th class="text-right">PVP</th>
             <th class="text-right">Dto</th>
-            <th class="text-right">Total+IVA</th>
+            <th class="text-right">Total+{#FS_IVA#}</th>
          </tr>
       </thead>
       {loop="$fsc->articulo->get_lineas_albaran_cli(0, 10)"}
