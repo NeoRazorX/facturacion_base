@@ -107,6 +107,10 @@ function ajustar_totiva()
    $("#aneto").html( show_numero(neto) );
    $("#aiva").html( show_numero(total_iva) );
    $("#atotal").html( show_numero(neto + total_iva) );
+   
+   $("#tpv_total").val( show_precio(neto + total_iva) );
+   var tpv_efectivo = parseFloat( $("#tpv_efectivo").val() );
+   $("#tpv_cambio").val( show_precio(tpv_efectivo - neto - total_iva) );
 }
 
 function get_precios(ref)

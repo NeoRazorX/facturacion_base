@@ -126,7 +126,9 @@ class subcuenta extends fs_model
          $divisa = new divisa();
          $div0 = $divisa->get($this->coddivisa);
          if($div0)
+         {
             return $div0->tasaconv;
+         }
          else
             return 1;
       }
@@ -137,7 +139,9 @@ class subcuenta extends fs_model
    public function url()
    {
       if( is_null($this->idsubcuenta) )
+      {
          return 'index.php?page=contabilidad_cuentas';
+      }
       else
          return 'index.php?page=contabilidad_subcuenta&id='.$this->idsubcuenta;
    }
@@ -247,7 +251,8 @@ class subcuenta extends fs_model
    public function get_cuentaesp($id, $eje)
    {
       $data = $this->db->select("SELECT * FROM co_subcuentas WHERE idcuenta IN "
-         ."(SELECT idcuenta FROM co_cuentas WHERE idcuentaesp = ".$this->var2str($id)." AND codejercicio = ".$this->var2str($eje).");");
+         ."(SELECT idcuenta FROM co_cuentas WHERE idcuentaesp = ".$this->var2str($id)." AND codejercicio = ".$this->var2str($eje).")"
+         ." ORDER BY codsubcuenta ASC;");
       if($data)
       {
          return new subcuenta($data[0]);
@@ -284,7 +289,9 @@ class subcuenta extends fs_model
    public function exists()
    {
       if( is_null($this->idsubcuenta) )
+      {
          return FALSE;
+      }
       else
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idsubcuenta = ".$this->var2str($this->idsubcuenta).";");
    }
@@ -326,24 +333,27 @@ class subcuenta extends fs_model
                recargo = ".$this->var2str($this->recargo).", iva = ".$this->var2str($this->iva).",
                debe = ".$this->var2str($this->debe).", haber = ".$this->var2str($this->haber).",
                saldo = ".$this->var2str($this->saldo)." WHERE idsubcuenta = ".$this->var2str($this->idsubcuenta).";";
+            
+            return $this->db->exec($sql);
          }
          else
          {
-            $newid = $this->db->nextval($this->table_name.'_idsubcuenta_seq');
-            if($newid)
+            $sql = "INSERT INTO ".$this->table_name." (codsubcuenta,idcuenta,codcuenta,
+               codejercicio,coddivisa,codimpuesto,descripcion,debe,haber,saldo,recargo,iva) VALUES
+               (".$this->var2str($this->codsubcuenta).",".$this->var2str($this->idcuenta).",
+                ".$this->var2str($this->codcuenta).",".$this->var2str($this->codejercicio).",
+                ".$this->var2str($this->coddivisa).",".$this->var2str($this->codimpuesto).",
+                ".$this->var2str($this->descripcion).",0,0,0,
+                ".$this->var2str($this->recargo).",".$this->var2str($this->iva).");";
+            
+            if( $this->db->exec($sql) )
             {
-               $this->idsubcuenta = intval($newid);
-               $sql = "INSERT INTO ".$this->table_name." (idsubcuenta,codsubcuenta,idcuenta,codcuenta,
-                  codejercicio,coddivisa,codimpuesto,descripcion,debe,haber,saldo,recargo,iva) VALUES
-                  (".$this->var2str($this->idsubcuenta).",".$this->var2str($this->codsubcuenta).",
-                  ".$this->var2str($this->idcuenta).",
-                  ".$this->var2str($this->codcuenta).",".$this->var2str($this->codejercicio).",
-                  ".$this->var2str($this->coddivisa).",".$this->var2str($this->codimpuesto).",
-                  ".$this->var2str($this->descripcion).",0,0,0,
-                  ".$this->var2str($this->recargo).",".$this->var2str($this->iva).");";
+               $this->idsubcuenta = $this->db->lastval();
+               return TRUE;
             }
+            else
+               return FALSE;
          }
-         return $this->db->exec($sql);
       }
       else
          return FALSE;

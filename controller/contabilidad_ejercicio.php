@@ -174,9 +174,13 @@ class contabilidad_ejercicio extends fs_controller
    public function url()
    {
       if( !isset($this->ejercicio) )
+      {
          return parent::url();
+      }
       else if($this->ejercicio)
+      {
          return $this->ejercicio->url();
+      }
       else
          return parent::url();
    }
@@ -288,6 +292,7 @@ class contabilidad_ejercicio extends fs_controller
          $aux->addChild("codcuenta", $sc->codcuenta);
          $aux->addChild("codsubcuenta", $sc->codsubcuenta);
          $aux->addChild("descripcion", base64_encode($sc->descripcion) );
+         $aux->addChild("coddivisa", $sc->coddivisa);
       }
       
       /// volcamos el XML
