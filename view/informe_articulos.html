@@ -1,8 +1,18 @@
 {include="header"}
 
 <ul class="nav nav-tabs">
-   <li role="presentation"{if="$fsc->pestanya=='stats'"} class="active"{/if}><a href="{$fsc->url()}">Estadísticas</a></li>
-   <li role="presentation"{if="$fsc->pestanya=='stock'"} class="active"{/if}><a href="{$fsc->url()}&tab=stock">Stock</a></li>
+   <li role="presentation"{if="$fsc->pestanya=='stats'"} class="active"{/if}>
+      <a href="{$fsc->url()}">
+         <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Estadísticas</span>
+      </a>
+   </li>
+   <li role="presentation"{if="$fsc->pestanya=='stock'"} class="active"{/if}>
+      <a href="{$fsc->url()}&tab=stock">
+         <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Stock</span>
+      </a>
+   </li>
    <li role="presentation"{if="$fsc->pestanya=='search'"} class="active"{/if}>
       <a href="{$fsc->url()}&tab=search">
          <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
@@ -14,90 +24,104 @@
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 20px;">
    <div class="row">
       <div class="col-md-12">
-         Hay un total de <b>{$fsc->show_numero($fsc->stats['total'], 0)}</b> artículos,
-         <b>{$fsc->show_numero($fsc->stats['con_stock'], 0)}</b> de ellos tienen stock,
-         <b>{$fsc->show_numero($fsc->stats['publicos'], 0)}</b> son públicos
-         y <b>{$fsc->show_numero($fsc->stats['bloqueados'], 0)}</b> están bloqueados.
-         La última actualización de los artículos es del <b>{$fsc->stats['factualizado']}</b>.
+         <p>
+            Hay un total de <b>{$fsc->show_numero($fsc->stats['total'], 0)}</b> artículos,
+            <b>{$fsc->show_numero($fsc->stats['con_stock'], 0)}</b> de ellos tienen stock,
+            <b>{$fsc->show_numero($fsc->stats['publicos'], 0)}</b> son públicos
+            y <b>{$fsc->show_numero($fsc->stats['bloqueados'], 0)}</b> están bloqueados.
+            La última actualización de los artículos es del <b>{$fsc->stats['factualizado']}</b>.
+         </p>
       </div>
    </div>
-</div>
-
-<div class="panel panel-info" style="margin: 5px 5px 15px 5px;">
-   <div class="panel-heading">
-      <h3 class="panel-title">Top ventas (unidades)</h3>
-   </div>
-   <div class="panel-body">
-      <div class="container-fluid">
-         <div class="row">
-            {loop="$fsc->top_ventas"}
-            <div class="col-sm-4">
-               <a href="{$value.0->url()}">{$value.0->referencia}</a>
-               {$value.0->descripcion}
-               <span class="badge">{$value.1}</span>
+   <div class="row">
+      <div class="col-md-12">
+         <div class="panel panel-info">
+            <div class="panel-heading">
+               <h3 class="panel-title">Top ventas (unidades)</h3>
             </div>
-            {else}
-            <div class="col-sm-12">Sin resultados.</div>
-            {/loop}
+            <div class="panel-body">
+               <div class="container-fluid">
+                  <div class="row">
+                     {loop="$fsc->top_ventas"}
+                     <div class="col-sm-4">
+                        <a href="{$value.0->url()}">{$value.0->referencia}</a>
+                        {$value.0->descripcion}
+                        <span class="badge">{$value.1}</span>
+                     </div>
+                     {else}
+                     <div class="col-sm-12">Sin resultados.</div>
+                     {/loop}
+                  </div>
+               </div>
+            </div>
          </div>
       </div>
    </div>
-</div>
-
-<div class="panel panel-warning" style="margin: 5px 5px 15px 5px;">
-   <div class="panel-heading">
-      <h3 class="panel-title">Top artículos con stock aun no vendidos este año</h3>
-   </div>
-   <div class="panel-body">
-      <div class="container-fluid">
-         <div class="row">
-            {loop="$fsc->sin_vender"}
-            <div class="col-sm-4">
-               <a href="{$value->url()}">{$value->referencia}</a>
-               {$value->descripcion}
-               <span class="badge">{$value->stockfis}</span>
+   <div class="row">
+      <div class="col-md-12">
+         <div class="panel panel-warning">
+            <div class="panel-heading">
+               <h3 class="panel-title">Top artículos con stock aun no vendidos este año</h3>
             </div>
-            {else}
-            <div class="col-sm-12">Sin resultados.</div>
-            {/loop}
+            <div class="panel-body">
+               <div class="container-fluid">
+                  <div class="row">
+                     {loop="$fsc->sin_vender"}
+                     <div class="col-sm-4">
+                        <a href="{$value->url()}">{$value->referencia}</a>
+                        {$value->descripcion}
+                        <span class="badge">{$value->stockfis}</span>
+                     </div>
+                     {else}
+                     <div class="col-sm-12">Sin resultados.</div>
+                     {/loop}
+                  </div>
+               </div>
+            </div>
          </div>
       </div>
    </div>
-</div>
-
-<div class="panel panel-default" style="margin: 5px 5px 15px 5px;">
-   <div class="panel-heading">
-      <h3 class="panel-title">Top compras (Unidades)</h3>
-   </div>
-   <div class="panel-body">
-      <div class="container-fluid">
-         <div class="row">
-            {loop="$fsc->top_compras"}
-            <div class="col-sm-4">
-               <a href="{$value.0->url()}">{$value.0->referencia}</a>
-               {$value.0->descripcion}
-               <span class="badge">{$value.1}</span>
+   <div class="row">
+      <div class="col-md-12">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Top compras (Unidades)</h3>
             </div>
-            {else}
-            <div class="col-sm-12">Sin resultados.</div>
-            {/loop}
+            <div class="panel-body">
+               <div class="container-fluid">
+                  <div class="row">
+                     {loop="$fsc->top_compras"}
+                     <div class="col-sm-4">
+                        <a href="{$value.0->url()}">{$value.0->referencia}</a>
+                        {$value.0->descripcion}
+                        <span class="badge">{$value.1}</span>
+                     </div>
+                     {else}
+                     <div class="col-sm-12">Sin resultados.</div>
+                     {/loop}
+                  </div>
+               </div>
+            </div>
          </div>
       </div>
    </div>
-</div>
-
-<div class="panel panel-default" style="margin: 5px 5px 15px 5px;">
-   <div class="panel-heading">
-      <h3 class="panel-title">Búsquedas de artículos</h3>
-   </div>
-   <div class="panel-body">
-      <div class="container-fluid">
-         <div class="row">
-            {loop="$fsc->articulo->get_search_tags()"}
-            <div class="col-lg-3 col-md-3 col-sm-3">{$value.tag} ({$value.count})</div>
-            {else}
-            <div class="col-lg-12 col-md-12 col-sm-12">Ninguna búsqueda realizada.</div>
-            {/loop}
+   <div class="row">
+      <div class="col-md-12">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Búsquedas de artículos</h3>
+            </div>
+            <div class="panel-body">
+               <div class="container-fluid">
+                  <div class="row">
+                     {loop="$fsc->articulo->get_search_tags()"}
+                     <div class="col-lg-3 col-md-3 col-sm-3">{$value.tag} ({$value.count})</div>
+                     {else}
+                     <div class="col-lg-12 col-md-12 col-sm-12">Ninguna búsqueda realizada.</div>
+                     {/loop}
+                  </div>
+               </div>
+            </div>
          </div>
       </div>
    </div>

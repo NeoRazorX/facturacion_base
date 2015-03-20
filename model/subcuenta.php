@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -256,26 +256,6 @@ class subcuenta extends fs_model
       if($data)
       {
          return new subcuenta($data[0]);
-      }
-      else
-         return FALSE;
-   }
-   
-   public function is_outdated()
-   {
-      $sql = "SELECT * FROM ".$this->table_name." WHERE idsubcuenta = ".$this->var2str($this->idsubcuenta).
-              " AND codejercicio IN (SELECT codejercicio FROM ejercicios WHERE estado = 'ABIERTO')".
-              " AND (debe != (SELECT COALESCE(SUM(debe),0) as debe FROM co_partidas
-                   WHERE idsubcuenta = ".$this->var2str($this->idsubcuenta).")
-                 OR haber != (SELECT COALESCE(SUM(haber),0) as haber FROM co_partidas
-                   WHERE idsubcuenta = ".$this->var2str($this->idsubcuenta).")
-                 OR saldo != (SELECT COALESCE(SUM(debe),0)-COALESCE(SUM(haber),0) as saldo
-                   FROM co_partidas WHERE idsubcuenta = ".$this->var2str($this->idsubcuenta).")
-              );";
-      
-      if( $this->db->select($sql) )
-      {
-         return TRUE;
       }
       else
          return FALSE;

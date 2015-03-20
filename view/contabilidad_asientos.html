@@ -8,7 +8,7 @@
 
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
-      <div class="col-sm-10">
+      <div class="col-sm-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -23,7 +23,6 @@
             </a>
             {/if}
          </div>
-         
          <div class="btn-group">
             <a class="btn btn-sm btn-success" href="index.php?page=contabilidad_nuevo_asiento">
                <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
@@ -37,6 +36,9 @@
                {/if}
             {/loop}
          </div>
+      </div>
+      <div class="col-sm-4 text-right">
+         <h2 style="margin-top: 0px;">Asientos</h2>
       </div>
       <div class="col-sm-2">
          <div class="visible-xs"><br/></div>
@@ -55,17 +57,24 @@
 </div>
 
 {if="$fsc->query!=''"}
-<h3 class="text-center">Resultados de la búsqueda '{$fsc->query}':</h3>
-{/if}
-
 <ul class="nav nav-tabs" role="tablist">
-   <li{if="!isset($_GET['descuadrados'])"} class="active"{/if}>
-      <a href="{$fsc->url()}">Todos los asientos</a>
-   </li>
-   <li{if="isset($_GET['descuadrados'])"} class="active"{/if}>
-      <a href="{$fsc->url()}&descuadrados=TRUE">Descuadrados</a>
+   <li class="active">
+      <a href="#">Resultados de <b>{$fsc->query}</b></a>
    </li>
 </ul>
+{else}
+<ul class="nav nav-tabs" role="tablist">
+   <li{if="!isset($_GET['descuadrados'])"} class="active"{/if}>
+      <a href="{$fsc->url()}">Todo</a>
+   </li>
+   <li{if="isset($_GET['descuadrados'])"} class="active"{/if}>
+      <a href="{$fsc->url()}&descuadrados=TRUE">
+         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Descuadrados</span>
+      </a>
+   </li>
+</ul>
+{/if}
 
 <div class="table-responsive">
    <table class="table table-hover">

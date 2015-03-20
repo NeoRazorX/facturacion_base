@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'base/fs_model.php';
 require_model('asiento.php');
 require_model('ejercicio.php');
 require_model('linea_iva_factura_proveedor.php');
@@ -159,9 +158,13 @@ class factura_proveedor extends fs_model
    public function observaciones_resume()
    {
       if($this->observaciones == '')
+      {
          return '-';
+      }
       else if( strlen($this->observaciones) < 60 )
+      {
          return $this->observaciones;
+      }
       else
          return substr($this->observaciones, 0, 50).'...';
    }
@@ -169,7 +172,9 @@ class factura_proveedor extends fs_model
    public function url()
    {
       if( is_null($this->idfactura) )
+      {
          return 'index.php?page=compras_facturas';
+      }
       else
          return 'index.php?page=compras_factura&id='.$this->idfactura;
    }
@@ -177,7 +182,9 @@ class factura_proveedor extends fs_model
    public function asiento_url()
    {
       if( is_null($this->idasiento) )
+      {
          return 'index.php?page=contabilidad_asientos';
+      }
       else
          return 'index.php?page=contabilidad_asiento&id='.$this->idasiento;
    }
@@ -185,7 +192,9 @@ class factura_proveedor extends fs_model
    public function agente_url()
    {
       if( is_null($this->codagente) )
+      {
          return "index.php?page=admin_agentes";
+      }
       else
          return "index.php?page=admin_agente&cod=".$this->codagente;
    }
@@ -193,7 +202,9 @@ class factura_proveedor extends fs_model
    public function proveedor_url()
    {
       if( is_null($this->codproveedor) )
+      {
          return "index.php?page=compras_proveedores";
+      }
       else
          return "index.php?page=compras_proveedor&cod=".$this->codproveedor;
    }
@@ -353,7 +364,9 @@ class factura_proveedor extends fs_model
    {
       $fact = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id).";");
       if($fact)
+      {
          return new factura_proveedor($fact[0]);
+      }
       else
          return FALSE;
    }
@@ -362,7 +375,9 @@ class factura_proveedor extends fs_model
    {
       $fact = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codigo = ".$this->var2str($cod).";");
       if($fact)
+      {
          return new factura_proveedor($fact[0]);
+      }
       else
          return FALSE;
    }
@@ -370,7 +385,9 @@ class factura_proveedor extends fs_model
    public function exists()
    {
       if( is_null($this->idfactura) )
+      {
          return FALSE;
+      }
       else
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($this->idfactura).";");
    }
@@ -567,7 +584,6 @@ class factura_proveedor extends fs_model
    {
       if( $this->test() )
       {
-         $this->clean_cache();
          if( $this->exists() )
          {
             $sql = "UPDATE ".$this->table_name." SET deabono = ".$this->var2str($this->deabono).",
@@ -629,8 +645,6 @@ class factura_proveedor extends fs_model
    
    public function delete()
    {
-      $this->clean_cache();
-      
       if( $this->db->exec("DELETE FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($this->idfactura).";") )
       {
          if($this->idasiento)
@@ -653,11 +667,6 @@ class factura_proveedor extends fs_model
       }
       else
          return FALSE;
-   }
-   
-   private function clean_cache()
-   {
-      $this->cache->delete('factura_proveedor_huecos');
    }
    
    public function all($offset=0, $limit=FS_ITEM_LIMIT)

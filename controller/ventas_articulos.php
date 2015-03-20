@@ -173,15 +173,19 @@ class ventas_articulos extends fs_controller
          $extra = '&solo_stock=TRUE';
       }
       
-      if($this->query!='' AND $this->offset>'0')
+      if($this->query != '' AND $this->offset > 0)
       {
-         if( $this->con_stock )
+         if($this->con_stock)
+         {
             $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&con_stock=TRUE&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
+         }
          else
             $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
       }
-      else if($this->query=='' AND $this->offset>'0')
+      else if($this->query == '' AND $this->offset > 0)
+      {
          $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
+      }
       
       return $url;
    }
@@ -200,15 +204,19 @@ class ventas_articulos extends fs_controller
          $extra = '&solo_stock=TRUE';
       }
       
-      if($this->query!='' AND count($this->resultados)==FS_ITEM_LIMIT)
+      if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
       {
-         if( $this->con_stock )
+         if($this->con_stock)
+         {
             $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&con_stock=TRUE&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+         }
          else
             $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
       }
-      else if($this->query=='' AND count($this->resultados)==FS_ITEM_LIMIT)
+      else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
+      {
          $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+      }
       
       return $url;
    }

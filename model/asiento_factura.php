@@ -98,6 +98,7 @@ class asiento_factura
             $partida0->haber = $factura->total;
             $partida0->coddivisa = $factura->coddivisa;
             $partida0->tasaconv = $factura->tasaconv;
+            $partida0->codserie = $factura->codserie;
             if( !$partida0->save() )
             {
                $asiento_correcto = FALSE;
@@ -172,6 +173,7 @@ class asiento_factura
                $partida2->debe = $factura->neto;
                $partida2->coddivisa = $factura->coddivisa;
                $partida2->tasaconv = $factura->tasaconv;
+               $partida2->codserie = $factura->codserie;
                if( !$partida2->save() )
                {
                   $asiento_correcto = FALSE;
@@ -193,6 +195,7 @@ class asiento_factura
                   $partida3->haber = $factura->totalirpf;
                   $partida3->coddivisa = $factura->coddivisa;
                   $partida3->tasaconv = $factura->tasaconv;
+                  $partida3->codserie = $factura->codserie;
                   if( !$partida3->save() )
                   {
                      $asiento_correcto = FALSE;
@@ -276,6 +279,7 @@ class asiento_factura
             $partida0->debe = $factura->total;
             $partida0->coddivisa = $factura->coddivisa;
             $partida0->tasaconv = $factura->tasaconv;
+            $partida0->codserie = $factura->codserie;
             if( !$partida0->save() )
             {
                $asiento_correcto = FALSE;
@@ -350,6 +354,7 @@ class asiento_factura
                $partida2->haber = $factura->neto;
                $partida2->coddivisa = $factura->coddivisa;
                $partida2->tasaconv = $factura->tasaconv;
+               $partida2->codserie = $factura->codserie;
                if( !$partida2->save() )
                {
                   $asiento_correcto = FALSE;
@@ -377,6 +382,7 @@ class asiento_factura
                   $partida3->debe = $factura->totalirpf;
                   $partida3->coddivisa = $factura->coddivisa;
                   $partida3->tasaconv = $factura->tasaconv;
+                  $partida3->codserie = $factura->codserie;
                   if( !$partida3->save() )
                   {
                      $asiento_correcto = FALSE;

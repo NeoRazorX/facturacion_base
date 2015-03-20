@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -22,6 +22,12 @@ require_model('albaran_proveedor.php');
 
 class informe_albaranes extends fs_controller
 {
+   public $desde;
+   public $hasta;
+   public $mostrar;
+   public $resultados;
+   public $tipo;
+   
    public function __construct()
    {
       parent::__construct(__CLASS__, ucfirst(FS_ALBARANES), 'informes', FALSE, TRUE);
@@ -32,6 +38,39 @@ class informe_albaranes extends fs_controller
       /// declaramos los objetos sólo para asegurarnos de que existen las tablas
       $albaran_cli = new albaran_cliente();
       $albaran_pro = new albaran_proveedor();
+      
+      $this->mostrar = 'stats';
+      if( isset($_REQUEST['mostrar']) )
+      {
+         $this->mostrar = $_REQUEST['mostrar'];
+      }
+      
+      $this->tipo = 'ventas';
+      if( isset($_REQUEST['tipo']) )
+      {
+         $this->tipo = $_REQUEST['tipo'];
+      }
+      
+      if($this->mostrar == 'listado')
+      {
+         $this->desde = Date('1-m-Y');
+         $this->hasta = Date('d-m-Y', mktime(0, 0, 0, date("m")+1, date("1")-1, date("Y")));
+         
+         if( isset($_POST['desde']) )
+         {
+            $this->desde = $_POST['desde'];
+            $this->hasta = $_POST['hasta'];
+         }
+         
+         if($this->tipo == 'ventas')
+         {
+            $this->resultados = $albaran_cli->all_desde($this->desde, $this->hasta);
+         }
+         else
+         {
+            $this->resultados = $albaran_pro->all_desde($this->desde, $this->hasta);
+         }
+      }
    }
    
    public function stats_last_days()

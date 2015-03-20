@@ -38,16 +38,19 @@
 
 {if="$fsc->lineas"}
 <ul class="pager">
+   {if="$fsc->offset>0"}
    <li class="previous">
       <a href="#" onclick="mas_resultados('-{function="count($fsc->lineas)"}')">
          <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
       </a>
    </li>
-   
+   {/if}
+   {if="count($fsc->lineas)==FS_ITEM_LIMIT"}
    <li class="next">
       <a href="#" onclick="mas_resultados('{function="count($fsc->lineas)"}')">
          Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
       </a>
    </li>
+   {/if}
 </ul>
 {/if}

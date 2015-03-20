@@ -165,11 +165,11 @@ class ventas_clientes extends fs_controller
    {
       $url = '';
       
-      if($this->query!='' AND $this->offset>'0')
+      if($this->query != '' AND $this->offset > 0)
       {
          $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT);
       }
-      else if($this->query=='' AND $this->offset>'0')
+      else if($this->query == '' AND $this->offset > 0)
       {
          $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT);
       }
@@ -181,11 +181,11 @@ class ventas_clientes extends fs_controller
    {
       $url = '';
       
-      if($this->query!='' AND count($this->resultados)==FS_ITEM_LIMIT)
+      if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
       {
          $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT);
       }
-      else if($this->query=='' AND count($this->resultados)==FS_ITEM_LIMIT)
+      else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
       {
          $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT);
       }

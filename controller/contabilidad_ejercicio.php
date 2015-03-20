@@ -660,8 +660,7 @@ class contabilidad_ejercicio extends fs_controller
          $subcuenta = new subcuenta();
          foreach($subcuenta->all_from_ejercicio($this->ejercicio->codejercicio) as $sc)
          {
-            if( $sc->is_outdated() )
-               $sc->save();
+            $sc->save();
          }
          
          

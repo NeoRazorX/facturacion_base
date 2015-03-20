@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -40,8 +40,15 @@ class inventarios_balances
    public function cron_job()
    {
       $ejercicio = new ejercicio();
-      foreach($ejercicio->all() as $eje)
-         $this->generar_libro($eje);
+      $ejercicios = $ejercicio->all();
+      $random = mt_rand( 0, count($ejercicios)-1 );
+      foreach($ejercicios as $num => $eje)
+      {
+         if($num < 2 AND $num == $random)
+         {
+            $this->generar_libro($eje);
+         }
+      }
    }
    
    private function generar_libro(&$eje)

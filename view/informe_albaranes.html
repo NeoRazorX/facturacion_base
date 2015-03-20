@@ -1,5 +1,21 @@
 {include="header"}
 
+<ul class="nav nav-tabs">
+   <li role="presentation"{if="$fsc->mostrar=='stats'"} class="active"{/if}>
+      <a href="{$fsc->url()}">
+         <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Estadísticas</span>
+      </a>
+   </li>
+   <li role="presentation"{if="$fsc->mostrar=='listado'"} class="active"{/if}>
+      <a href="{$fsc->url()}&mostrar=listado">
+         <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Listado</span>
+      </a>
+   </li>
+</ul>
+
+{if="$fsc->mostrar=='stats'"}
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
    // Load the Visualization API and the piechart package.
@@ -60,31 +76,154 @@
    }
 </script>
 
-<div class="panel panel-default" style="margin: 5px;">
-   <div class="panel-heading">
-      <h3 class="panel-title"><span class="text-capitalize">{#FS_ALBARANES#}</span> de los últimos días</h3>
+<div class="container-fluid" style="margin-top: 10px;">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title"><span class="text-capitalize">{#FS_ALBARANES#}</span> de los últimos días</h3>
+            </div>
+            <div class="panel-body">
+               <div id="chart_facturas_day" style="width: 95%; margin-left: auto; margin-right: auto;"></div>
+            </div>
+         </div>
+      </div>
    </div>
-   <div class="panel-body">
-      <div id="chart_facturas_day" style="width: 95%; margin-left: auto; margin-right: auto;"></div>
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title"><span class="text-capitalize">{#FS_ALBARANES#}</span> de los últimos meses</h3>
+            </div>
+            <div class="panel-body">
+               <div id="chart_facturas_month" style="width: 95%; margin-left: auto; margin-right: auto; height: 300px;"></div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title"><span class="text-capitalize">{#FS_ALBARANES#}</span> de los últimos años</h3>
+            </div>
+            <div class="panel-body">
+               <div id="chart_facturas_year" style="width: 95%; margin-left: auto; margin-right: auto; height: 300px;"></div>
+            </div>
+         </div>
+      </div>
    </div>
 </div>
+{elseif="$fsc->mostrar=='listado'"}
+<form action="{$fsc->url()}&mostrar=listado" method="post" class="form">
+   <div class="container-fluid" style="margin-top: 10px;">
+      <div class="row">
+         <div class="col-sm-2">
+            <div class="form-group">
+               Desde:
+               <input type="text" name="desde" value="{$fsc->desde}" class="form-control datepicker" autocomplete="off"/>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               Hasta:
+               <input type="text" name="hasta" value="{$fsc->hasta}" class="form-control datepicker" autocomplete="off"/>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               Tipo:
+               <select name="tipo" class="form-control">
+                  <option value="ventas"{if="$fsc->tipo=='ventas'"} selected="selected"{/if}>Ventas</option>
+                  <option value="compras"{if="$fsc->tipo=='compras'"} selected="selected"{/if}>Compras</option>
+               </select>
+            </div>
+         </div>
+         <div class="col-sm-6 text-right">
+            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true;this.form.submit();">
+               <span class="glyphicon glyphicon-search"></span>
+               <span class="hidden-xs"> &nbsp; Buscar</span>
+            </button>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-12">
+            <h2 class="text-capitalize">{#FS_ALBARANES#}</h2>
+         </div>
+      </div>
+   </div>
+</form>
 
-<div class="panel panel-default" style="margin: 5px;">
-   <div class="panel-heading">
-      <h3 class="panel-title"><span class="text-capitalize">{#FS_ALBARANES#}</span> de los últimos meses</h3>
-   </div>
-   <div class="panel-body">
-      <div id="chart_facturas_month" style="width: 95%; margin-left: auto; margin-right: auto; height: 300px;"></div>
-   </div>
+<div class="table-responsive">
+   {if="$fsc->tipo=='ventas'"}
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th></th>
+            <th class="text-left">Código + Número 2</th>
+            <th class="text-left">Cliente</th>
+            <th class="text-left">Observaciones</th>
+            <th class="text-right">Total</th>
+            <th class="text-right">Fecha</th>
+            <th class="text-right">Hora</th>
+         </tr>
+      </thead>
+      {loop="$fsc->resultados"}
+      <tr class='clickableRow{if="$value->total<=0"} bg-warning{/if}' href="{$value->url()}">
+         <td class="text-center">
+            {if="$value->ptefactura"}
+            {else}
+            <span class="glyphicon glyphicon-paperclip" title="El {#FS_ALBARAN#} tiene vinculado una factura"></span>
+            {/if}
+         </td>
+         <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}</td>
+         <td>{$value->nombrecliente}</td>
+         <td>{$value->observaciones_resume()}</td>
+         <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
+         <td class="text-right">{$value->fecha}</td>
+         <td class="text-right">{$value->hora}</td>
+      </tr>
+      {else}
+      <tr class="bg-warning">
+         <td></td>
+         <td colspan="6">Ningún {#FS_ALBARAN#} encontrado.</td>
+      </tr>
+      {/loop}
+   </table>
+   {else}
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th></th>
+            <th class="text-left">Código + Núm. Proveedor</th>
+            <th class="text-left">Proveedor</th>
+            <th class="text-left">Observaciones</th>
+            <th class="text-right">Total</th>
+            <th class="text-right">Fecha</th>
+         </tr>
+      </thead>
+      {loop="$fsc->resultados"}
+      <tr class="clickableRow{if="$value->total<=0"} bg-warning{/if}" href="{$value->url()}">
+         <td class="text-center">
+            {if="!$value->ptefactura"}
+            <span class="glyphicon glyphicon-paperclip" title="facturado"></span>
+            {/if}
+         </td>
+         <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numproveedor}</td>
+         <td>{$value->nombre}</td>
+         <td>{$value->observaciones_resume()}</td>
+         <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
+         <td class="text-right"><span title="{$value->hora}">{$value->fecha}</span></td>
+      </tr>
+      {else}
+      <tr class="bg-warning">
+         <td></td>
+         <td colspan="5">Ningún {#FS_ALBARAN#} encontrado.</td>
+      </tr>
+      {/loop}
+   </table>
+   {/if}
 </div>
-
-<div class="panel panel-default" style="margin: 5px;">
-   <div class="panel-heading">
-      <h3 class="panel-title"><span class="text-capitalize">{#FS_ALBARANES#}</span> de los últimos años</h3>
-   </div>
-   <div class="panel-body">
-      <div id="chart_facturas_year" style="width: 95%; margin-left: auto; margin-right: auto; height: 300px;"></div>
-   </div>
-</div>
+{/if}
 
 {include="footer"}

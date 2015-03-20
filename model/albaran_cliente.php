@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'base/fs_model.php';
 require_model('ejercicio.php');
 require_model('factura_cliente.php');
 require_model('linea_albaran_cliente.php');
@@ -170,7 +169,9 @@ class albaran_cliente extends fs_model
    public function show_hora($s=TRUE)
    {
       if($s)
+      {
          return Date('H:i:s', strtotime($this->hora));
+      }
       else
          return Date('H:i', strtotime($this->hora));
    }
@@ -178,9 +179,13 @@ class albaran_cliente extends fs_model
    public function observaciones_resume()
    {
       if($this->observaciones == '')
+      {
          return '-';
+      }
       else if( strlen($this->observaciones) < 60 )
+      {
          return $this->observaciones;
+      }
       else
          return substr($this->observaciones, 0, 50).'...';
    }
@@ -188,7 +193,9 @@ class albaran_cliente extends fs_model
    public function url()
    {
       if( is_null($this->idalbaran) )
+      {
          return 'index.php?page=ventas_albaranes';
+      }
       else
          return 'index.php?page=ventas_albaran&id='.$this->idalbaran;
    }
@@ -202,7 +209,9 @@ class albaran_cliente extends fs_model
       else
       {
          if( is_null($this->idfactura) )
+         {
             return 'index.php?page=ventas_facturas';
+         }
          else
             return 'index.php?page=ventas_factura&id='.$this->idfactura;
       }
@@ -211,7 +220,9 @@ class albaran_cliente extends fs_model
    public function agente_url()
    {
       if( is_null($this->codagente) )
+      {
          return "index.php?page=admin_agentes";
+      }
       else
          return "index.php?page=admin_agente&cod=".$this->codagente;
    }
@@ -219,7 +230,9 @@ class albaran_cliente extends fs_model
    public function cliente_url()
    {
       if( is_null($this->codcliente) )
+      {
          return "index.php?page=ventas_clientes";
+      }
       else
          return "index.php?page=ventas_cliente&cod=".$this->codcliente;
    }
@@ -234,7 +247,9 @@ class albaran_cliente extends fs_model
    {
       $albaran = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($id).";");
       if($albaran)
+      {
          return new albaran_cliente($albaran[0]);
+      }
       else
          return FALSE;
    }
@@ -243,7 +258,9 @@ class albaran_cliente extends fs_model
    {
       $albaran = $this->db->select("SELECT * FROM ".$this->table_name." WHERE upper(codigo) = ".strtoupper($this->var2str($cod)).";");
       if($albaran)
+      {
          return new albaran_cliente($albaran[0]);
+      }
       else
          return FALSE;
    }
@@ -251,7 +268,9 @@ class albaran_cliente extends fs_model
    public function exists()
    {
       if( is_null($this->idalbaran) )
+      {
          return FALSE;
+      }
       else
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($this->idalbaran).";");
    }
@@ -273,7 +292,9 @@ class albaran_cliente extends fs_model
             FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).
             " AND codserie = ".$this->var2str($this->codserie).";");
          if($numero)
+         {
             $this->numero = 1 + intval($numero[0]['num']);
+         }
          else
             $this->numero = 1;
          
@@ -637,7 +658,7 @@ class albaran_cliente extends fs_model
    public function cron_job()
    {
       /*
-       * Marcamos como ptefactura = TRUE todos los albaranes de ejercicios
+       * Marcamos como ptefactura = FALSE todos los albaranes de ejercicios
        * ya cerrados. Así no se podrán modificar ni facturar.
        */
       $ejercicio = new ejercicio();

@@ -36,6 +36,9 @@
                   {/loop}
                   <li role="presentation" class="divider"></li>
                   <li><a href="index.php?page=ventas_familias&madre={$fsc->familia->codfamilia}">Nueva subfamilia</a></li>
+                  {if="$fsc->familia->madre"}
+                  <li><a href="index.php?page=ventas_familias&madre={$fsc->familia->madre}">Nueva familia hermana</a></li>
+                  {/if}
                </ul>
             </div>
             

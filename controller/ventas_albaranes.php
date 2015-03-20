@@ -43,9 +43,9 @@ class ventas_albaranes extends fs_controller
       $albaran = new albaran_cliente();
       
       $this->offset = 0;
-      if( isset($_GET['offset']) )
+      if( isset($_REQUEST['offset']) )
       {
-         $this->offset = intval($_GET['offset']);
+         $this->offset = intval($_REQUEST['offset']);
       }
       
       /// Usamos una cookie para recordar si el usuario quiere ver los pendientes
@@ -136,11 +136,11 @@ class ventas_albaranes extends fs_controller
          $extra = '&ptefactura=TRUE';
       }
       
-      if($this->query!='' AND $this->offset>'0')
+      if($this->query != '' AND $this->offset > 0)
       {
          $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
       }
-      else if($this->query=='' AND $this->offset>'0')
+      else if($this->query == '' AND $this->offset > 0)
       {
          $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
       }
@@ -170,11 +170,11 @@ class ventas_albaranes extends fs_controller
          $extra = '&ptefactura=TRUE';
       }
       
-      if($this->query!='' AND count($this->resultados)==FS_ITEM_LIMIT)
+      if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
       {
          $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
       }
-      else if($this->query=='' AND count($this->resultados)==FS_ITEM_LIMIT)
+      else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
       {
          $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
       }
@@ -192,11 +192,11 @@ class ventas_albaranes extends fs_controller
       
       if( isset($_POST['codcliente']) )
       {
-         $this->lineas = $linea->search_from_cliente2($_POST['codcliente'], $this->buscar_lineas, $_POST['buscar_lineas_o'], $_POST['offset']);
+         $this->lineas = $linea->search_from_cliente2($_POST['codcliente'], $this->buscar_lineas, $_POST['buscar_lineas_o'], $this->offset);
       }
       else
       {
-         $this->lineas = $linea->search($this->buscar_lineas, $_POST['offset']);
+         $this->lineas = $linea->search($this->buscar_lineas, $this->offset);
       }
    }
    
@@ -223,7 +223,9 @@ class ventas_albaranes extends fs_controller
          }
          
          if( $alb1->delete() )
+         {
             $this->new_message(FS_ALBARAN." ".$alb1->codigo." borrado correctamente.");
+         }
          else
             $this->new_error_msg("¡Imposible borrar el ".FS_ALBARAN."!");
       }

@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'base/fs_model.php';
 require_model('ejercicio.php');
 require_model('factura_proveedor.php');
 require_model('linea_albaran_proveedor.php');
@@ -143,9 +142,13 @@ class albaran_proveedor extends fs_model
    public function observaciones_resume()
    {
       if($this->observaciones == '')
+      {
          return '-';
+      }
       else if( strlen($this->observaciones) < 60 )
+      {
          return $this->observaciones;
+      }
       else
          return substr($this->observaciones, 0, 50).'...';
    }
@@ -153,7 +156,9 @@ class albaran_proveedor extends fs_model
    public function url()
    {
       if( is_null($this->idalbaran) )
+      {
          return 'index.php?page=compras_albaranes';
+      }
       else
          return 'index.php?page=compras_albaran&id='.$this->idalbaran;
    }
@@ -161,11 +166,15 @@ class albaran_proveedor extends fs_model
    public function factura_url()
    {
       if( $this->ptefactura )
+      {
          return '#';
+      }
       else
       {
          if( is_null($this->idfactura) )
+         {
             return 'index.php?page=compras_facturas';
+         }
          else
             return 'index.php?page=compras_factura&id='.$this->idfactura;
       }
@@ -174,7 +183,9 @@ class albaran_proveedor extends fs_model
    public function agente_url()
    {
       if( is_null($this->codagente) )
+      {
          return "index.php?page=admin_agentes";
+      }
       else
          return "index.php?page=admin_agente&cod=".$this->codagente;
    }
@@ -182,7 +193,9 @@ class albaran_proveedor extends fs_model
    public function proveedor_url()
    {
       if( is_null($this->codproveedor) )
+      {
          return "index.php?page=compras_proveedores";
+      }
       else
          return "index.php?page=compras_proveedor&cod=".$this->codproveedor;
    }
@@ -197,7 +210,9 @@ class albaran_proveedor extends fs_model
    {
       $albaran = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($id).";");
       if($albaran)
+      {
          return new albaran_proveedor($albaran[0]);
+      }
       else
          return FALSE;
    }
@@ -205,7 +220,9 @@ class albaran_proveedor extends fs_model
    public function exists()
    {
       if( is_null($this->idalbaran) )
+      {
          return FALSE;
+      }
       else
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($this->idalbaran).";");
    }
@@ -227,7 +244,9 @@ class albaran_proveedor extends fs_model
             FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).
             " AND codserie = ".$this->var2str($this->codserie).";");
          if($numero)
+         {
             $this->numero = 1 + intval($numero[0]['num']);
+         }
          else
             $this->numero = 1;
          

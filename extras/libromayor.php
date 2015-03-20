@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -38,18 +38,29 @@ class libro_mayor
    
    public function cron_job()
    {
-      foreach($this->subcuenta->all() as $subc)
+      /**
+       * Como es un proceso que tarda mucho, solamente comprobamos los dos primeros
+       * ejercicios de la lista (los más nuevos), más uno aleatorio.
+       */
+      $ejercicios = $this->ejercicio->all();
+      $random = mt_rand( 0, count($ejercicios)-1 );
+      foreach($ejercicios as $num => $eje)
       {
-         if( $subc->is_outdated() )
+         if($num < 2 OR $num == $random)
          {
-            $subc->save();
+            foreach($this->subcuenta->all_from_ejercicio($eje->codejercicio) as $sc)
+            {
+               $sc->save();
+               
+               if( mt_rand(0,1) == 0 )
+               {
+                  $this->libro_mayor($sc, TRUE);
+               }
+            }
+            
+            $this->libro_diario($eje);
          }
-         
-         $this->libro_mayor($subc, TRUE);
       }
-      
-      foreach($this->ejercicio->all() as $eje)
-         $this->libro_diario($eje);
    }
    
    public function libro_mayor(&$subc, $echos=FALSE)
