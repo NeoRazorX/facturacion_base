@@ -225,7 +225,7 @@ class compras_albaranes extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'compras_proveedor',
               'type' => 'button',
-              'text' => ucfirst(FS_ALBARANES),
+              'text' => '<span class="glyphicon glyphicon-list" aria-hidden="true"></span> &nbsp; '.ucfirst(FS_ALBARANES),
               'params' => ''
           ),
           array(
@@ -233,7 +233,7 @@ class compras_albaranes extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'admin_agente',
               'type' => 'button',
-              'text' => ucfirst(FS_ALBARANES).' de proveedor',
+              'text' => '<span class="glyphicon glyphicon-list" aria-hidden="true"></span> &nbsp; '.ucfirst(FS_ALBARANES).' de proveedor',
               'params' => ''
           ),
           array(
@@ -241,7 +241,7 @@ class compras_albaranes extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'ventas_articulo',
               'type' => 'tab_button',
-              'text' => ucfirst(FS_ALBARANES).' de proveedor',
+              'text' => '<span class="glyphicon glyphicon-list" aria-hidden="true"></span> &nbsp; '.ucfirst(FS_ALBARANES).' de proveedor',
               'params' => ''
           )
       );

@@ -242,7 +242,7 @@ class ventas_albaranes extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'ventas_cliente',
               'type' => 'button',
-              'text' => ucfirst(FS_ALBARANES),
+              'text' => '<span class="glyphicon glyphicon-list" aria-hidden="true"></span> &nbsp; '.ucfirst(FS_ALBARANES),
               'params' => ''
           ),
           array(
@@ -250,7 +250,7 @@ class ventas_albaranes extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'admin_agente',
               'type' => 'button',
-              'text' => ucfirst(FS_ALBARANES).' de cliente',
+              'text' => '<span class="glyphicon glyphicon-list" aria-hidden="true"></span> &nbsp; '.ucfirst(FS_ALBARANES).' de cliente',
               'params' => ''
           ),
           array(
@@ -258,7 +258,7 @@ class ventas_albaranes extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'ventas_articulo',
               'type' => 'tab_button',
-              'text' => ucfirst(FS_ALBARANES).' de cliente',
+              'text' => '<span class="glyphicon glyphicon-list" aria-hidden="true"></span> &nbsp; '.ucfirst(FS_ALBARANES).' de cliente',
               'params' => ''
           ),
       );

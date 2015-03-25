@@ -485,7 +485,7 @@ function buscar_articulos()
             $.each(json, function(key, val) {
                items.push( "<tr><td>"+val.sector+" / <a href=\""+val.link+"\" target=\"_blank\">"+val.tienda+"</a> / "+val.familia+"</td>\n\
                   <td><a href=\"#\" onclick=\"kiwi_import('"+val.referencia+"','"+val.descripcion+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
-                  <td class=\"text-right\"><span title=\"última comprobación "+val.fcomprobado+"\">"+show_numero(val.precio)+" €</span></td></tr>" );
+                  <td class=\"text-right\"><span title=\"última comprobación "+val.fcomprobado+"\">"+show_precio(val.precio)+"</span></td></tr>" );
                
                if(val.query == document.f_buscar_articulos.query.value)
                {

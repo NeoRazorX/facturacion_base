@@ -70,21 +70,23 @@
 
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
-      <div class="col-sm-3">
+      <div class="col-sm-3 col-xs-3">
          <a href="{$fsc->url()}" class="btn btn-sm btn-default" title="Recarga la página">
             <span class="glyphicon glyphicon-refresh"></span>
          </a>
          <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
-            <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Proveedores
+            <span class="glyphicon glyphicon-arrow-left"></span>
+            <span class="hidden-xs">&nbsp; Proveedores</span>
          </a>
       </div>
-      <div class="col-sm-7 text-center">
+      <div class="col-sm-7 col-xs-7 text-center">
          <h2 style="margin-top: 0px;">Editar proveedor {$fsc->proveedor->codproveedor}</h2>
       </div>
-      <div class="col-sm-2 text-right">
+      <div class="col-sm-2 col-xs-2 text-right">
          {if="$fsc->allow_delete"}
          <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
-            <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+            <span class="glyphicon glyphicon-trash"></span>
+            <span class="hidden-xs">&nbsp; Eliminar</span>
          </a>
          {/if}
       </div>
@@ -108,10 +110,11 @@
       // Create the data table.
       var data = new google.visualization.DataTable();
       data.addColumn('string', 'mes');
-      data.addColumn('number', 'compras');
+      data.addColumn('number', 'albaranes');
+      data.addColumn('number', 'facturas');
       data.addRows([
       {loop="$fsc->stats_from_prov()"}
-         ['{$value['mes']}', {$value['compras']}],
+         ['{$value['mes']}', {$value['albaranes']}, {$value['facturas']}],
       {/loop}
       ]);
       
@@ -130,7 +133,7 @@
                <span class="glyphicon glyphicon-dashboard"></span> &nbsp; Datos generales
             </a>
             <a id="b_facturacion" href="#facturacion" class="list-group-item">
-               <span class="glyphicon glyphicon-euro"></span> &nbsp; Facturación
+               <span class="glyphicon glyphicon-usd"></span> &nbsp; Facturación
             </a>
             <a id="b_direcciones" href="#direcciones" class="list-group-item">
                <span class="glyphicon glyphicon-road"></span> &nbsp; Direcciones
@@ -140,8 +143,8 @@
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a id="b_{$value->from}" href="index.php?page={$value->from}&codproveedor={$fsc->proveedor->codproveedor}" class="list-group-item">
-                  <span class="glyphicon glyphicon-list"></span> &nbsp; {$value->text}
+               <a id="b_{$value->from}" href="index.php?page={$value->from}{$value->params}&codproveedor={$fsc->proveedor->codproveedor}" class="list-group-item">
+                  {$value->text}
                </a>
                {/if}
             {/loop}
@@ -347,7 +350,7 @@
                         <input class="form-control" type="text" name="direccion" value="{$value->direccion}" autocomplete="off"/>
                      </div>
                      <div class="form-group col-lg-4 col-md-4 col-sm-4">
-                        {#FS_APARTADO#}:
+                        <span class="text-capitalize">{#FS_APARTADO#}</span>:
                         <input class="form-control" type="text" name="apartado" value="{$value->apartado}" autocomplete="off"/>
                      </div>
                      <div class="radio col-lg-3 col-md-3 col-sm-3">

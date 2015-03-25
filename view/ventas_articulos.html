@@ -41,7 +41,7 @@
 
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
-      <div class="col-md-8 col-sm-7">
+      <div class="col-md-8 col-sm-7 col-xs-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -56,10 +56,10 @@
             </a>
             {/if}
          </div>
-         
          <div class="btn-group">
             <a id="b_nuevo_articulo" class="btn btn-sm btn-success" href="#">
-               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
+               <span class="glyphicon glyphicon-plus"></span>
+               <span class="hidden-xs">&nbsp; Nuevo</span>
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -68,10 +68,10 @@
             {/loop}
          </div>
       </div>
-      <div class="col-md-2 col-sm-2 text-right">
+      <div class="col-md-2 col-sm-2 col-xs-6 text-right">
          <h2 style="margin-top: 0px;">Artículos</h2>
       </div>
-      <div class="col-md-2 col-sm-3">
+      <div class="col-md-2 col-sm-3 col-xs-12">
          <div class="visible-xs"><br/></div>
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="input-group">
@@ -123,15 +123,29 @@
 
 <ul class="nav nav-tabs" id="ul_tabs">
    <li{if="!isset($_GET['public']) AND !isset($_GET['solo_stock'])"} class="active"{/if}>
-      <a href="{$fsc->url()}">Todos</a>
+      <a href="{$fsc->url()}">
+         <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Todos</span>
+      </a>
    </li>
    <li{if="isset($_GET['solo_stock'])"} class="active"{/if}>
-      <a href="{$fsc->url()}&solo_stock=TRUE">Stock</a>
+      <a href="{$fsc->url()}&solo_stock=TRUE">
+         <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Stock</span>
+      </a>
    </li>
    <li{if="isset($_GET['public'])"} class="active"{/if}>
-      <a href="{$fsc->url()}&public=TRUE">Públicos</a>
+      <a href="{$fsc->url()}&public=TRUE">
+         <span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Públicos</span>
+      </a>
    </li>
-   <li id="b_tarifas"><a href="#tarifas">Tarifas</a></li>
+   <li id="b_tarifas">
+      <a href="#tarifas">
+         <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Tarifas</span>
+      </a>
+   </li>
 </ul>
 
 <div id="div_articulos">
@@ -172,7 +186,7 @@
       </table>
    </div>
    
-   <ul class="pager" id="ul_paginador">
+   <ul class="pager">
       {if="$fsc->anterior_url()!=''"}
       <li class="previous">
          <a href="{$fsc->anterior_url()}">

@@ -244,10 +244,20 @@
             <div class="modal-body">
                <div class="radio">
                   <label>
-                     <input type="radio" name="fuente" value="espanya" checked="checked"/>
+                     <input type="radio" name="fuente" value="plugins/facturacion_base/extras/espanya.xml" checked="checked"/>
                      Plan General Contable de <b>España</b>
                   </label>
                </div>
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='fuente'"}
+                  <div class="radio">
+                     <label>
+                        <input type="radio" name="fuente" value="{$value->params}" checked="checked"/>
+                        {$value->text}
+                     </label>
+                  </div>
+                  {/if}
+               {/loop}
                <div class="radio">
                   <label>
                      <input type="radio" id="rb_archivo" name="fuente" value="archivo" onclick="$('#div_externo').show();"/>

@@ -70,21 +70,23 @@
 
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
-      <div class="col-sm-3">
+      <div class="col-sm-3 col-xs-3">
          <a href="{$fsc->url()}" class="btn btn-sm btn-default" title="Recarga la página">
             <span class="glyphicon glyphicon-refresh"></span>
          </a>
          <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
-            <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Clientes
+            <span class="glyphicon glyphicon-arrow-left"></span>
+            <span class="hidden-xs">&nbsp; Clientes</span>
          </a>
       </div>
-      <div class="col-sm-7 text-center">
+      <div class="col-sm-7 col-xs-7 text-center">
          <h2 style="margin-top: 0px;">Editar cliente {$fsc->cliente->codcliente}</h2>
       </div>
-      <div class="col-sm-2 text-right">
+      <div class="col-sm-2 col-xs-2 text-right">
          {if="$fsc->allow_delete"}
          <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
-            <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+            <span class="glyphicon glyphicon-trash"></span>
+            <span class="hidden-xs">&nbsp; Eliminar</span>
          </a>
          {/if}
       </div>
@@ -108,10 +110,11 @@
       // Create the data table.
       var data = new google.visualization.DataTable();
       data.addColumn('string', 'mes');
-      data.addColumn('number', 'compras');
+      data.addColumn('number', 'albaranes');
+      data.addColumn('number', 'facturas');
       data.addRows([
       {loop="$fsc->stats_from_cli()"}
-         ['{$value['mes']}', {$value['compras']}],
+         ['{$value['mes']}', {$value['albaranes']}, {$value['facturas']}],
       {/loop}
       ]);
       
@@ -127,31 +130,26 @@
       <div class="col-lg-2 col-md-2 col-sm-3">
          <div class="list-group">
             <a id="b_generales" href="#" class="list-group-item active">
-               <span class="glyphicon glyphicon-dashboard"></span>
-               &nbsp; Datos generales
+               <span class="glyphicon glyphicon-dashboard"></span> &nbsp; Datos generales
             </a>
             <a id="b_facturacion" href="#facturacion" class="list-group-item">
-               <span class="glyphicon glyphicon-euro"></span>
-               &nbsp; Facturación
+               <span class="glyphicon glyphicon-usd"></span> &nbsp; Facturación
             </a>
             <a id="b_direcciones" href="#direcciones" class="list-group-item">
-               <span class="glyphicon glyphicon-road"></span>
-               &nbsp; Direcciones
+               <span class="glyphicon glyphicon-road"></span> &nbsp; Direcciones
             </a>
             <a id="b_subcuentas" href="#subcuentas" class="list-group-item">
-               <span class="glyphicon glyphicon-credit-card"></span>
-               &nbsp; Subcuentas
+               <span class="glyphicon glyphicon-credit-card"></span> &nbsp; Subcuentas
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a id="b_{$value->from}" href="index.php?page={$value->from}&codcliente={$fsc->cliente->codcliente}" class="list-group-item">
-                  <span class="glyphicon glyphicon-list"></span> &nbsp; {$value->text}
+               <a id="b_{$value->from}" href="index.php?page={$value->from}{$value->params}&codcliente={$fsc->cliente->codcliente}" class="list-group-item">
+                  {$value->text}
                </a>
                {/if}
             {/loop}
             <a id="b_stats" href="{$fsc->url()}&stats=TRUE#stats" class="list-group-item">
-               <span class="glyphicon glyphicon-stats"></span>
-               &nbsp; Estadísticas
+               <span class="glyphicon glyphicon-stats"></span> &nbsp; Estadísticas
             </a>
          </div>
       </div>
@@ -360,7 +358,7 @@
                         <input class="form-control" type="text" name="direccion" value="{$value->direccion}" autocomplete="off"/>
                      </div>
                      <div class="form-group col-lg-4 col-md-4 col-sm-4">
-                        {#FS_APARTADO#}:
+                        <span class="text-capitalize">{#FS_APARTADO#}</span>:
                         <input class="form-control" type="text" name="apartado" value="{$value->apartado}" autocomplete="off"/>
                      </div>
                      <div class="form-group col-lg-4 col-md-4 col-sm-4">

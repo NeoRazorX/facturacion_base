@@ -196,7 +196,7 @@ class compras_facturas extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'compras_proveedor',
               'type' => 'button',
-              'text' => 'Facturas',
+              'text' => '<span class="glyphicon glyphicon-list" aria-hidden="true"></span> &nbsp; Facturas',
               'params' => ''
           ),
           array(
@@ -204,7 +204,7 @@ class compras_facturas extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'admin_agente',
               'type' => 'button',
-              'text' => 'Facturas de proveedor',
+              'text' => '<span class="glyphicon glyphicon-list" aria-hidden="true"></span> &nbsp; Facturas de proveedor',
               'params' => ''
           ),
           array(
@@ -212,7 +212,7 @@ class compras_facturas extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'ventas_articulo',
               'type' => 'tab_button',
-              'text' => 'Facturas de proveedor',
+              'text' => '<span class="glyphicon glyphicon-list" aria-hidden="true"></span> &nbsp; Facturas de proveedor',
               'params' => ''
           )
       );

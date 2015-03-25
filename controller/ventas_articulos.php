@@ -164,7 +164,7 @@ class ventas_articulos extends fs_controller
       $url = '';
       $extra = '';
       
-      if( isset($_GET['publico']) )
+      if( isset($_GET['public']) )
       {
          $extra = '&public=TRUE';
       }
@@ -195,7 +195,7 @@ class ventas_articulos extends fs_controller
       $url = '';
       $extra = '';
       
-      if( isset($_GET['publico']) )
+      if( isset($_GET['public']) )
       {
          $extra = '&public=TRUE';
       }

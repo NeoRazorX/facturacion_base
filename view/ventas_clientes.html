@@ -35,7 +35,7 @@
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-md-5">
+      <div class="col-sm-5 col-xs-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -50,10 +50,10 @@
             </a>
             {/if}
          </div>
-         
          <div class="btn-group">
             <a href="#" id="b_nuevo_cliente" class="btn btn-sm btn-success">
-               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
+               <span class="glyphicon glyphicon-plus"></span>
+               <span class="hidden-xs">&nbsp; Nuevo</span>
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -62,16 +62,14 @@
             {/loop}
          </div>
       </div>
-      <div class="col-md-5 text-right">
-         <h2 style="margin-top: 0px;">
-            {if="$fsc->query==''"}Clientes{else}Resultados de la búsqueda "{$fsc->query}":{/if}
-         </h2>
+      <div class="col-sm-5 col-xs-6 text-right">
+         <h2 style="margin-top: 0px;">Clientes</h2>
       </div>
-      <div class="col-md-2">
+      <div class="col-sm-2 col-xs-12">
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
-               <span class="input-group-btn">
+               <span class="input-group-btn hidden-sm">
                   <button class="btn btn-primary" type="submit">
                      <span class="glyphicon glyphicon-search"></span>
                   </button>
@@ -82,14 +80,24 @@
    </div>
 </div>
 
-<div class="visible-xs visible-sm">
+<div class="visible-xs">
    <br/>
 </div>
 
 <div id="tab_clientes" role="tabpanel">
    <ul class="nav nav-tabs" role="tablist">
-      <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Todos</a></li>
-      <li role="presentation"><a href="#grupos" aria-controls="grupos" role="tab" data-toggle="tab">Grupos</a></li>
+      <li role="presentation" class="active">
+         <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
+            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+            <span class="hidden-xs">&nbsp; {if="$fsc->query==''"}Todos{else}Resultados{/if}</span>
+         </a>
+      </li>
+      <li role="presentation">
+         <a href="#grupos" aria-controls="grupos" role="tab" data-toggle="tab">
+            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+            <span class="hidden-xs">&nbsp; Grupos</span>
+         </a>
+      </li>
       {if="$fsc->clientes_grupo!==FALSE"}
       <li role="presentation">
          <a href="#clientes_grupo" aria-controls="clientes_grupo" role="tab" data-toggle="tab">

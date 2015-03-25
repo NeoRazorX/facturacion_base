@@ -52,13 +52,23 @@ class libro_mayor
             {
                $sc->save();
                
+               /**
+                * Son muchas subcuentas, mejor tirar una moneda y si sale cara, generamos.
+                */
                if( mt_rand(0,1) == 0 )
                {
                   $this->libro_mayor($sc, TRUE);
                }
             }
             
-            $this->libro_diario($eje);
+            /**
+             * Siempre generamos el libro diario del primer ejercicio, pero para
+             * el segundo tiramos una moneda, y si sale cara, generamos.
+             */
+            if( $num != 1 OR ($num == 1 AND mt_rand(0,1) == 0) )
+            {
+               $this->libro_diario($eje);
+            }
          }
       }
    }

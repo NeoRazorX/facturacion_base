@@ -238,7 +238,8 @@ class compras_proveedor extends fs_controller
          for($i = 1; $i <= 12; $i++)
          {
             $stats[$year.'-'.$i]['mes'] = $meses[$i-1].' '.$year;
-            $stats[$year.'-'.$i]['compras'] = 0;
+            $stats[$year.'-'.$i]['albaranes'] = 0;
+            $stats[$year.'-'.$i]['facturas'] = 0;
          }
          
          if( strtolower(FS_DB_TYPE) == 'postgresql')
@@ -253,7 +254,17 @@ class compras_proveedor extends fs_controller
          if($data)
          {
             foreach($data as $d)
-               $stats[$year.'-'.intval($d['mes'])]['compras'] = number_format($d['total'], FS_NF0, '.', '');
+               $stats[$year.'-'.intval($d['mes'])]['albaranes'] = number_format($d['total'], FS_NF0, '.', '');
+         }
+         
+         $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(total) as total
+            FROM facturasprov WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))."
+            AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))." AND codproveedor = ".$this->empresa->var2str($this->proveedor->codproveedor)."
+            GROUP BY ".$sql_aux." ORDER BY mes ASC;");
+         if($data)
+         {
+            foreach($data as $d)
+               $stats[$year.'-'.intval($d['mes'])]['facturas'] = number_format($d['total'], FS_NF0, '.', '');
          }
       }
       

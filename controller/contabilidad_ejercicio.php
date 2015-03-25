@@ -133,13 +133,21 @@ class contabilidad_ejercicio extends fs_controller
                $this->offset = intval($_GET['offset']);
             
             if( !isset($_GET['listar']) )
+            {
                $this->listar = 'cuentas';
+            }
             else if($_GET['listar'] == 'grupos')
+            {
                $this->listar = 'grupos';
+            }
             else if($_GET['listar'] == 'epigrafes')
+            {
                $this->listar = 'epigrafes';
+            }
             else if($_GET['listar'] == 'subcuentas')
+            {
                $this->listar = 'subcuentas';
+            }
             else
                $this->listar = 'cuentas';
             
@@ -309,11 +317,13 @@ class contabilidad_ejercicio extends fs_controller
       if( isset($_POST['fuente']) )
       {
          if( file_exists('tmp/'.FS_TMP_NAME.'ejercicio.xml') )
-            unlink('tmp/'.FS_TMP_NAME.'ejercicio.xml');
-         
-         if($_POST['fuente'] == 'espanya')
          {
-            copy('plugins/facturacion_base/extras/espanya.xml', 'tmp/'.FS_TMP_NAME.'ejercicio.xml');
+            unlink('tmp/'.FS_TMP_NAME.'ejercicio.xml');
+         }
+         
+         if($_POST['fuente'] != '')
+         {
+            copy($_POST['fuente'], 'tmp/'.FS_TMP_NAME.'ejercicio.xml');
          }
          else if( $_POST['fuente'] == 'archivo' AND isset($_POST['archivo']) )
          {
@@ -530,6 +540,10 @@ class contabilidad_ejercicio extends fs_controller
                         $subcuenta->idcuenta = $cu->idcuenta;
                         $subcuenta->codcuenta = $cu->codcuenta;
                         $subcuenta->coddivisa = $this->empresa->coddivisa;
+                        if( isset($sc->coddivisa) )
+                        {
+                           $subcuenta->coddivisa = $sc->coddivisa;
+                        }
                         $subcuenta->codejercicio = $this->ejercicio->codejercicio;
                         $subcuenta->codsubcuenta = $sc->codsubcuenta;
                         $subcuenta->descripcion = base64_decode($sc->descripcion);

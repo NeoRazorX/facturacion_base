@@ -220,16 +220,25 @@
 <div id="tab_articulo" role="tabpanel">
    <ul class="nav nav-tabs" role="tablist">
       <li role="presentation" class="active">
-         <a href="#home" aria-controls="home" role="tab" data-toggle="tab">Datos generales</a>
+         <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
+            <span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span>
+            <span class="hidden-xs">&nbsp; Datos generales</span>
+         </a>
       </li>
       {if="$fsc->mostrar_tab_precios"}
       <li role="presentation">
-         <a href="#precios" aria-controls="precios" role="tab" data-toggle="tab">Precios</a>
+         <a href="#precios" aria-controls="precios" role="tab" data-toggle="tab">
+            <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
+            <span class="hidden-xs">&nbsp; Precios</span>
+         </a>
       </li>
       {/if}
       {if="$fsc->mostrar_tab_stock"}
       <li role="presentation">
-         <a href="#stock" aria-controls="stock" role="tab" data-toggle="tab">Stock</a>
+         <a href="#stock" aria-controls="stock" role="tab" data-toggle="tab">
+            <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
+            <span class="hidden-xs">&nbsp; Stock</span>
+         </a>
       </li>
       {/if}
       {if="$fsc->equivalentes"}
@@ -253,7 +262,7 @@
             {if="$value->type=='tab_button'"}
             <li>
                <a href="index.php?page={$value->from}&ref={function="urlencode($fsc->articulo->referencia)"}{$value->params}">
-                  <span class="glyphicon glyphicon-list"></span> &nbsp; {$value->text}
+                  {$value->text}
                </a>
             </li>
             {/if}
@@ -362,7 +371,7 @@
                      <div class="checkbox">
                         <label>
                            <input type="checkbox" name="publico" value="TRUE"{if="$fsc->articulo->publico"} checked="checked"{/if}/>
-                           Público
+                           <span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Público
                         </label>
                      </div>
                   </div>
@@ -393,7 +402,10 @@
                   <div class="col-md-4">
                      <div class="form-group">
                         PVP:
-                        <input type="text" class="form-control" id="pvp" name="pvp" value="{$fsc->articulo->pvp}" autocomplete="off" onkeyup="cambiar_pvp()" onclick="this.select()"/>
+                        <div class="input-group">
+                           <span class="input-group-addon">{$fsc->simbolo_divisa()}</span>
+                           <input type="text" class="form-control" id="pvp" name="pvp" value="{$fsc->articulo->pvp}" autocomplete="off" onkeyup="cambiar_pvp()" onclick="this.select()"/>
+                        </div>
                         <p class="help-block">Último cambio de precio: {$fsc->articulo->factualizado}</p>
                      </div>
                   </div>
@@ -414,7 +426,10 @@
                   <div class="col-md-4">
                      <div class="form-group">
                         PVP+{#FS_IVA#}:
-                        <input type="text" class="form-control" id="pvpi" name="pvpiva" value="{$fsc->articulo->pvp_iva()}" autocomplete="off" onkeyup="cambiar_pvpi()" onclick="this.select()"/>
+                        <div class="input-group">
+                           <span class="input-group-addon">{$fsc->simbolo_divisa()}</span>
+                           <input type="text" class="form-control" id="pvpi" name="pvpiva" value="{$fsc->articulo->pvp_iva()}" autocomplete="off" onkeyup="cambiar_pvpi()" onclick="this.select()"/>
+                        </div>
                      </div>
                   </div>
                </div>
@@ -434,8 +449,12 @@
                   </div>
                   <div class="col-md-4">
                      <div class="form-group">
-                        Margen (% sobre Coste)
-                        <input type="text" class="form-control" id="margen" name="margen" value="0" autocomplete="off" onkeyup="cambiar_margen()" onclick="this.select()"/>
+                        Margen sobre precio de coste
+                        <div class="input-group">
+                           <span class="input-group-addon">%</span>
+                           <input type="text" class="form-control" id="margen" name="margen" value="0" autocomplete="off" onkeyup="cambiar_margen()" onclick="this.select()"/>
+                        </div>
+                        <p class="help-block">Sirve para calcular el PVP, pero no se almacena (todavía).</p>
                      </div>
                   </div>
                </div>

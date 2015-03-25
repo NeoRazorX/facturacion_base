@@ -27,14 +27,13 @@
             </a>
             {/if}
          </div>
-         
          <div class="btn-group">
             <a id="b_nuevo_ejercicio" class="btn btn-sm btn-success" href="#">
                <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
          </div>
@@ -61,6 +60,10 @@
          <td class="text-center">{$value->fechainicio}</td>
          <td class="text-center">{$value->fechafin}</td>
          <td class="text-right">{$value->estado}</td>
+      </tr>
+      {else}
+      <tr class="bg-warning">
+         <td colspan="4">Sin resultados.</td>
       </tr>
       {/loop}
    </table>
@@ -90,13 +93,13 @@
                <div class="form-group">
                   <label for="fechainicio" class="col-lg-2 col-md-2 col-sm-2 control-label">Fecha de inicio</label>
                   <div class="col-lg-10 col-md-10 col-sm-10">
-                     <input class="form-control datepicker" type="text" name="fechainicio" value="{$fsc->ejercicio->fechainicio}" />
+                     <input class="form-control datepicker" type="text" name="fechainicio" value="{$fsc->ejercicio->fechainicio}" autocomplete="off"/>
                   </div>
                </div>
                <div class="form-group">
                   <label for="fechafin" class="col-lg-2 col-md-2 col-sm-2 control-label">Fecha fin</label>
                   <div class="col-lg-10 col-md-10 col-sm-10">
-                     <input class="form-control datepicker" type="text" name="fechafin" value="{$fsc->ejercicio->fechafin}" />
+                     <input class="form-control datepicker" type="text" name="fechafin" value="{$fsc->ejercicio->fechafin}" autocomplete="off"/>
                   </div>
                </div>
                <div class="form-group">

@@ -45,7 +45,7 @@
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
       <div class="col-md-8 col-sm-7 col-xs-8">
-         <div class="btn-group">
+         <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
@@ -62,7 +62,8 @@
          
          <div class="btn-group">
             <a class="btn btn-sm btn-success" href="index.php?page=nueva_compra&tipo=factura">
-               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nueva
+               <span class="glyphicon glyphicon-plus"></span>
+               <span class="hidden-xs">&nbsp; Nueva</span>
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
