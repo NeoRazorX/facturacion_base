@@ -39,12 +39,16 @@ class inventarios_balances
    
    public function cron_job()
    {
+      /**
+       * Como es un proceso que tarda mucho, solamente comprobamos los dos primeros
+       * ejercicios de la lista (los más nuevos), más uno aleatorio.
+       */
       $ejercicio = new ejercicio();
       $ejercicios = $ejercicio->all();
       $random = mt_rand( 0, count($ejercicios)-1 );
       foreach($ejercicios as $num => $eje)
       {
-         if($num < 2 AND $num == $random)
+         if($num < 2 OR $num == $random)
          {
             $this->generar_libro($eje);
          }
@@ -68,10 +72,11 @@ class inventarios_balances
             $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
             $pdf_doc->pdf->ezStartPageNumbers(580, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
             
+            $excluir = FALSE;
             if( isset($eje->idasientocierre) AND isset($eje->idasientopyg) )
+            {
                $excluir = array($eje->idasientocierre, $eje->idasientopyg);
-            else
-               $excluir = FALSE;
+            }
             
             $this->sumas_y_saldos($pdf_doc, $eje, 'de apertura a cierre', $eje->fechainicio, $eje->fechafin, $excluir, FALSE);
             $this->sumas_y_saldos($pdf_doc, $eje, 'de apertura a apertura', $eje->fechainicio, $eje->fechainicio);
@@ -129,7 +134,7 @@ class inventarios_balances
     * Este informe muestra los saldos (distintos de cero) de cada cuenta y subcuenta
     * por periodos, pero siempre excluyendo los asientos de cierre y pérdidas y ganancias.
     */
-   private function sumas_y_saldos(&$pdf_doc, &$eje, $titulo, $fechaini, $fechafin, $excluir=FALSE, $np=TRUE)
+   public function sumas_y_saldos(&$pdf_doc, &$eje, $titulo, $fechaini, $fechafin, $excluir=FALSE, $np=TRUE)
    {
       $cuenta = new cuenta();
       $partida = new partida();
@@ -769,5 +774,3 @@ class inventarios_balances
       return number_format($num, FS_NF0, FS_NF1, FS_NF2);
    }
 }
-
-?>

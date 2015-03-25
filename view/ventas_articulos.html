@@ -39,7 +39,7 @@
    });
 </script>
 
-<div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
+<div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
       <div class="col-md-8 col-sm-7 col-xs-6">
          <div class="btn-group hidden-xs">
@@ -72,7 +72,6 @@
          <h2 style="margin-top: 0px;">Artículos</h2>
       </div>
       <div class="col-md-2 col-sm-3 col-xs-12">
-         <div class="visible-xs"><br/></div>
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
@@ -83,6 +82,7 @@
                </span>
             </div>
          </form>
+         <div class="visible-xs"><br/></div>
       </div>
    </div>
 </div>

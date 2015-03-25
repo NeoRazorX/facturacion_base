@@ -51,24 +51,10 @@ class libro_mayor
             foreach($this->subcuenta->all_from_ejercicio($eje->codejercicio) as $sc)
             {
                $sc->save();
-               
-               /**
-                * Son muchas subcuentas, mejor tirar una moneda y si sale cara, generamos.
-                */
-               if( mt_rand(0,1) == 0 )
-               {
-                  $this->libro_mayor($sc, TRUE);
-               }
+               $this->libro_mayor($sc, TRUE);
             }
             
-            /**
-             * Siempre generamos el libro diario del primer ejercicio, pero para
-             * el segundo tiramos una moneda, y si sale cara, generamos.
-             */
-            if( $num != 1 OR ($num == 1 AND mt_rand(0,1) == 0) )
-            {
-               $this->libro_diario($eje);
-            }
+            $this->libro_diario($eje);
          }
       }
    }
