@@ -222,4 +222,15 @@ class ventas_clientes extends fs_controller
       
       return $nombre;
    }
+   
+   public function total_clientes()
+   {
+      $data = $this->db->select("SELECT COUNT(*) as total FROM clientes;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
+   }
 }

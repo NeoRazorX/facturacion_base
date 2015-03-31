@@ -347,14 +347,27 @@ class contabilidad_ejercicio extends fs_controller
          }
          else
          {
-            $this->new_message('Datos importados correctamente.');
+            $this->new_advice('Datos importados correctamente &nbsp; <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
             $import_step = 0;
          }
       }
       
       if( file_exists('tmp/'.FS_TMP_NAME.'ejercicio.xml') AND $import_step > 0 )
       {
-         $this->new_message('Importando ejercicio: paso '.$import_step.' de 6 ...');
+         $offset = 0;
+         if( isset($_GET['offset']) )
+         {
+            $offset = intval($_GET['offset']);
+         }
+         
+         if($offset == 0)
+         {
+            $this->new_message('Importando ejercicio: paso '.$import_step.' de 6 ...');
+         }
+         else
+         {
+            $this->new_message('Importando ejercicio: paso '.$import_step.'.'.($offset/1000).' de 6 ...');
+         }
          
          $xml = simplexml_load_file('tmp/'.FS_TMP_NAME.'ejercicio.xml');
          if( $xml )
@@ -558,20 +571,50 @@ class contabilidad_ejercicio extends fs_controller
             if( $import_step == 5 )
             {
                $cliente = new cliente();
-               foreach($cliente->all_full() as $cli)
+               $clientes = $cliente->all($offset);
+               while($clientes)
                {
-                  /// forzamos la generación y asociación de una subcuenta para el cliente
-                  $cli->get_subcuenta( $this->ejercicio->codejercicio );
+                  foreach($clientes as $cli)
+                  {
+                     /// forzamos la generación y asociación de una subcuenta para el cliente
+                     $cli->get_subcuenta( $this->ejercicio->codejercicio );
+                     
+                     $offset++;
+                  }
+                  
+                  if( $offset%1000 == 0 )
+                  {
+                     /// cada 1000 clientes volvemos a recargar la página para continuar
+                     $this->importar_url = $this->url().'&importar='.$import_step.'&offset='.$offset;
+                     break;
+                  }
+                  else
+                     $clientes = $cliente->all($offset);
                }
             }
             
             if( $import_step == 6 )
             {
                $proveedor = new proveedor();
-               foreach($proveedor->all_full() as $pro)
+               $proveedores = $proveedor->all($offset);
+               while($proveedores)
                {
-                  /// forzamos la generación y asociación de una subcuenta para cada proveedor
-                  $pro->get_subcuenta( $this->ejercicio->codejercicio );
+                  foreach($proveedores as $pro)
+                  {
+                     /// forzamos la generación y asociación de una subcuenta para cada proveedor
+                     $pro->get_subcuenta( $this->ejercicio->codejercicio );
+                     
+                     $offset++;
+                  }
+                  
+                  if( $offset%1000 == 0 )
+                  {
+                     /// cada 1000 proveedores volvemos a recargar la página para continuar
+                     $this->importar_url = $this->url().'&importar='.$import_step.'&offset='.$offset;
+                     break;
+                  }
+                  else
+                     $proveedores = $proveedor->all($offset);
                }
             }
          }

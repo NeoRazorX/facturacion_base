@@ -225,4 +225,15 @@ class compras_facturas extends fs_controller
          }
       }
    }
+   
+   public function total_sinpagar()
+   {
+      $data = $this->db->select("SELECT COUNT(*) as total FROM facturasprov WHERE pagada = false;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
+   }
 }

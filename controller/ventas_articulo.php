@@ -31,6 +31,7 @@ class ventas_articulo extends fs_controller
    public $articulo;
    public $familia;
    public $impuesto;
+   public $mostrar_boton_publicar;
    public $mostrar_tab_precios;
    public $mostrar_tab_stock;
    public $nuevos_almacenes;
@@ -51,13 +52,13 @@ class ventas_articulo extends fs_controller
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       /**
-       * Si hay alguna extensión de tipo tab y texto Precios,
+       * Si hay alguna extensión de tipo config y texto no_tab_recios,
        * desactivamos la pestaña precios.
        */
       $this->mostrar_tab_precios = TRUE;
       foreach($this->extensions as $ext)
       {
-         if($ext->type == 'tab' AND $ext->text == 'Precios')
+         if($ext->type == 'config' AND $ext->text == 'no_tab_precios')
          {
             $this->mostrar_tab_precios = FALSE;
             break;
@@ -65,15 +66,29 @@ class ventas_articulo extends fs_controller
       }
       
       /**
-       * Si hay alguna extensión de tipo tab y texto Stock,
+       * Si hay alguna extensión de tipo config y texto no_tab_stock,
        * desactivamos la pestaña stock.
        */
       $this->mostrar_tab_stock = TRUE;
       foreach($this->extensions as $ext)
       {
-         if($ext->type == 'tab' AND $ext->text == 'Stock')
+         if($ext->type == 'config' AND $ext->text == 'no_tab_stock')
          {
             $this->mostrar_tab_stock = FALSE;
+            break;
+         }
+      }
+      
+      /**
+       * Si hay alguna extensión de tipo config y texto no_button_publicar,
+       * desactivamos el botón publicar.
+       */
+      $this->mostrar_boton_publicar = TRUE;
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'config' AND $ext->text == 'no_button_publicar')
+         {
+            $this->mostrar_boton_publicar = FALSE;
             break;
          }
       }

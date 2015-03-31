@@ -357,7 +357,7 @@ class compras_agrupar_albaranes extends fs_controller
           'page_from' => __CLASS__,
           'page_to' => 'compras_albaranes',
           'type' => 'button',
-          'text' => '<span class="glyphicon glyphicon-tasks"></span> &nbsp; Agrupar',
+          'text' => '<span class="glyphicon glyphicon-duplicate"></span> &nbsp; Agrupar',
           'params' => ''
       );
       $fsext = new fs_extension($extension);

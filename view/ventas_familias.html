@@ -35,20 +35,26 @@
             </a>
             {/if}
          </div>
-         
          <div class="btn-group">
             <a id="b_nueva_familia" class="btn btn-sm btn-success" href="#">
                <span class="glyphicon glyphicon-plus"></span> &nbsp; Nueva
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
          </div>
       </div>
       <div class="col-sm-5 text-right">
-         <h2 style="margin-top: 0px;">Familias de artículos</h2>
+         <h2 style="margin-top: 0px;">
+            {if="$fsc->query==''"}
+            Familias de artículos
+            <span class="hidden-xs badge">{$fsc->total_familias()}</span>
+            {else}
+            Resultados de '{$fsc->query}'
+            {/if}
+         </h2>
       </div>
       <div class="col-sm-2">
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">

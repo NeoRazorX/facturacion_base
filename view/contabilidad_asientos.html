@@ -59,7 +59,10 @@
 {if="$fsc->query!=''"}
 <ul class="nav nav-tabs" role="tablist">
    <li class="active">
-      <a href="#">Resultados de <b>{$fsc->query}</b></a>
+      <a href="#">
+         <span class="glyphicon glyphicon-search"></span>
+         <span class="hidden-xs">&nbsp; Resultados de "{$fsc->query}"</span>
+      </a>
    </li>
 </ul>
 {else}

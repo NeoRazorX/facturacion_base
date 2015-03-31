@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -31,6 +31,7 @@ class compras_factura extends fs_controller
    public $allow_delete;
    public $ejercicio;
    public $factura;
+   public $mostrar_boton_pagada;
    
    public function __construct()
    {
@@ -47,6 +48,20 @@ class compras_factura extends fs_controller
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
+      /**
+       * Si hay alguna extensión de tipo config y texto no_button_pagada,
+       * desactivamos el botón de pagada/sin pagar.
+       */
+      $this->mostrar_boton_pagada = TRUE;
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'config' AND $ext->text == 'no_button_pagada')
+         {
+            $this->mostrar_boton_pagada = FALSE;
+            break;
+         }
+      }
       
       if( isset($_POST['idfactura']) )
       {

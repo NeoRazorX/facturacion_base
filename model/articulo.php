@@ -215,7 +215,7 @@ class articulo extends fs_model
       return base64_encode($this->descripcion);
    }
    
-   public function pvp_iva($coma=TRUE)
+   public function pvp_iva()
    {
       return $this->pvp * (100+$this->get_iva()) / 100;
    }

@@ -89,7 +89,6 @@
    <columna>
       <nombre>referencia</nombre>
       <tipo>character varying(18)</tipo>
-      <nulo>NO</nulo>
    </columna>
    <restriccion>
       <nombre>ca_lineasalbaranesprov_albaranesprov2</nombre>

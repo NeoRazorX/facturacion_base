@@ -32,7 +32,7 @@ class contabilidad_ejercicios extends fs_controller
    {
       $this->ejercicio = new ejercicio();
       
-      if( isset($_GET['delete']) )
+      if( isset($_GET['delete']) ) /// eliminar
       {
          $eje0 = $this->ejercicio->get($_GET['delete']);
          if($eje0)
@@ -47,20 +47,29 @@ class contabilidad_ejercicios extends fs_controller
          else
             $this->new_error_msg("Ejercicio no encontrado");
       }
-      else if( isset($_POST['codejercicio']) )
+      else if( isset($_POST['codejercicio']) ) /// nuevo/modificar
       {
-         $this->ejercicio->codejercicio = $_POST['codejercicio'];
-         $this->ejercicio->nombre = $_POST['nombre'];
-         $this->ejercicio->fechainicio = $_POST['fechainicio'];
-         $this->ejercicio->fechafin = $_POST['fechafin'];
-         $this->ejercicio->estado = $_POST['estado'];
-         if( $this->ejercicio->save() )
+         /// ¿Existe ya el ejercicio?
+         $eje0 = $this->ejercicio->get($_POST['codejercicio']);
+         if($eje0)
          {
-            $this->new_message("Ejercicio ".$this->ejercicio->codejercicio." guardado correctamente.");
-            header('location: '.$this->ejercicio->url());
+            header('Location: '.$eje0->url());
          }
          else
-            $this->new_error_msg("¡Imposible guardar el ejercicio!");
+         {
+            $this->ejercicio->codejercicio = $_POST['codejercicio'];
+            $this->ejercicio->nombre = $_POST['nombre'];
+            $this->ejercicio->fechainicio = $_POST['fechainicio'];
+            $this->ejercicio->fechafin = $_POST['fechafin'];
+            $this->ejercicio->estado = $_POST['estado'];
+            if( $this->ejercicio->save() )
+            {
+               $this->new_message("Ejercicio ".$this->ejercicio->codejercicio." guardado correctamente.");
+               header('location: '.$this->ejercicio->url());
+            }
+            else
+               $this->new_error_msg("¡Imposible guardar el ejercicio!");
+         }
       }
    }
 }

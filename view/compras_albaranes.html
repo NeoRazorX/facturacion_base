@@ -78,7 +78,7 @@
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
          </div>
@@ -104,17 +104,22 @@
    </div>
 </div>
 
-{if="$fsc->query!=''"}
-<h3 class="text-center">Resultados de "{$fsc->query}":</h3>
-{/if}
-
 <ul class="nav nav-tabs" role="tablist">
    <li{if="!isset($_GET['ptefactura'])"} class="active"{/if}>
-      <a href="{$fsc->url()}">Todos los {#FS_ALBARANES#}</a>
+      <a href="{$fsc->url()}">
+         {if="$fsc->query==''"}
+         Todos los {#FS_ALBARANES#}
+         {else}
+         <span class="glyphicon glyphicon-search"></span>
+         <span class="hidden-xs">&nbsp; Resultados de "{$fsc->query}"</span>
+         {/if}
+      </a>
    </li>
    <li{if="isset($_GET['ptefactura'])"} class="active"{/if}>
       <a href="{$fsc->url()}&ptefactura=TRUE">
-         <span class="glyphicon glyphicon-time"></span> &nbsp; Pendientes
+         <span class="glyphicon glyphicon-time"></span>
+         <span class="hidden-xs">&nbsp; Pendientes</span>
+         <span class="hidden-xs badge">{$fsc->total_pendientes()}</span>
       </a>
    </li>
 </ul>

@@ -116,4 +116,16 @@ class ventas_familia extends fs_controller
       
       return $url;
    }
+   
+   public function total_familia()
+   {
+      $data = $this->db->select("SELECT COUNT(referencia) as total FROM articulos WHERE codfamilia = ".
+              $this->empresa->var2str($this->familia->codfamilia).";");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
+   }
 }

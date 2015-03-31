@@ -47,7 +47,12 @@
       </div>
       <div class="col-sm-5 col-xs-6 text-right">
          <h2 style="margin-top: 0px;">
-            {if="$fsc->query==''"}Proveedores{else}Resultados de la búsqueda "{$fsc->query}":{/if}
+            {if="$fsc->query==''"}
+            Proveedores
+            <span class="hidden-xs badge">{$fsc->total_proveedores()}</span>
+            {else}
+            Resultados de "{$fsc->query}"
+            {/if}
          </h2>
       </div>
       <div class="col-sm-2 col-xs-12">

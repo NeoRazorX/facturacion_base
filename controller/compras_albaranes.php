@@ -254,4 +254,15 @@ class compras_albaranes extends fs_controller
          }
       }
    }
+   
+   public function total_pendientes()
+   {
+      $data = $this->db->select("SELECT COUNT(*) as total FROM albaranesprov WHERE ptefactura;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
+   }
 }

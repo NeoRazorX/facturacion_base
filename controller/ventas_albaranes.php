@@ -103,6 +103,7 @@ class ventas_albaranes extends fs_controller
          
          if($this->query)
          {
+            $this->pendientes = FALSE;
             $this->resultados = $albaran->search($this->query, $this->offset);
          }
          else if($this->pendientes)
@@ -270,5 +271,16 @@ class ventas_albaranes extends fs_controller
             $this->new_error_msg('Imposible guardar los datos de la extensión '.$ext['name'].'.');
          }
       }
+   }
+   
+   public function total_pendientes()
+   {
+      $data = $this->db->select("SELECT COUNT(*) as total FROM albaranescli WHERE ptefactura;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
    }
 }

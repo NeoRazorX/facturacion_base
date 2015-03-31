@@ -96,7 +96,7 @@
    </columna>
    <columna>
       <nombre>numproveedor</nombre>
-      <tipo>character varying(20)</tipo>
+      <tipo>character varying(50)</tipo>
       <nulo>YES</nulo>
    </columna>
    <columna>

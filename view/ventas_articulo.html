@@ -368,12 +368,16 @@
                            Bloqueado
                         </label>
                      </div>
+                     {if="$fsc->mostrar_boton_publicar"}
                      <div class="checkbox">
                         <label>
                            <input type="checkbox" name="publico" value="TRUE"{if="$fsc->articulo->publico"} checked="checked"{/if}/>
                            <span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Público
                         </label>
                      </div>
+                     {elseif="$fsc->articulo->publico"}
+                     <input type="hidden" name="publico" value="TRUE"/>
+                     {/if}
                   </div>
                </div>
                <div class="row">

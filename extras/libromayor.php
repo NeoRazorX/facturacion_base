@@ -48,10 +48,18 @@ class libro_mayor
       {
          if($num < 2 OR $num == $random)
          {
+            $i = 0;
             foreach($this->subcuenta->all_from_ejercicio($eje->codejercicio) as $sc)
             {
                $sc->save();
-               $this->libro_mayor($sc, TRUE);
+               
+               /// si hay más de 1000 clientes, entonces no siempre generamos el libro
+               if($i < 1000 OR mt_rand(0,2) == 0)
+               {
+                  $this->libro_mayor($sc, TRUE);
+               }
+               
+               $i++;
             }
             
             $this->libro_diario($eje);

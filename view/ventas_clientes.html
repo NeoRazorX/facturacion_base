@@ -88,8 +88,14 @@
    <ul class="nav nav-tabs" role="tablist">
       <li role="presentation" class="active">
          <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
+            {if="$fsc->query==''"}
             <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; {if="$fsc->query==''"}Todos{else}Resultados{/if}</span>
+            <span class="hidden-xs">&nbsp; Todos</span>
+            <span class="badge">{$fsc->total_clientes()}</span>
+            {else}
+            <span class="glyphicon glyphicon-search"></span>
+            <span class="hidden-xs">&nbsp; Resultados de "{$fsc->query}"</span>
+            {/if}
          </a>
       </li>
       <li role="presentation">

@@ -131,7 +131,7 @@
    </columna>
    <columna>
       <nombre>numero2</nombre>
-      <tipo>character varying(20)</tipo>
+      <tipo>character varying(50)</tipo>
       <nulo>YES</nulo>
    </columna>
    <columna>
