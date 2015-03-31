@@ -44,13 +44,16 @@ class facturacion_base_cron
       echo "\nEjecutando tareas para los asientos...\n";
       $asiento->cron_job();
       
-      $libro = new libro_mayor();
-      echo "Generamos el libro mayor para cada subcuenta y el libro diario para cada ejercicio...";
-      $libro->cron_job();
-      
-      $inventarios_balances = new inventarios_balances();
-      echo "\nGeneramos el libro de inventarios y balances para cada ejercicio...";
-      $inventarios_balances->cron_job();
+      if(FS_LIBROS_CONTABLES)
+      {
+         $libro = new libro_mayor();
+         echo "Generamos el libro mayor para cada subcuenta y el libro diario para cada ejercicio...";
+         $libro->cron_job();
+         
+         $inventarios_balances = new inventarios_balances();
+         echo "\nGeneramos el libro de inventarios y balances para cada ejercicio...";
+         $inventarios_balances->cron_job();
+      }
    }
 }
 

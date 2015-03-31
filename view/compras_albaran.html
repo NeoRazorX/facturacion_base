@@ -76,14 +76,14 @@
    <input type="hidden" id="numlineas" name="numlineas" value="0"/>
    <div class="container-fluid">
       <div class="row" style="margin-top: 10px;">
-         <div class="col-md-8 col-sm-9 col-xs-8">
+         <div class="col-xs-8">
             <a class="btn btn-sm btn-default hidden-xs" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            
             <div class="btn-group">
                <a id="b_precios" class="btn btn-sm btn-default" href="#">
-                  <span class="glyphicon glyphicon-euro"></span> &nbsp; Precios
+                  <span class="glyphicon glyphicon-euro"></span>
+                  <span class="hidden-xs">&nbsp; Precios</span>
                </a>
                {if="$fsc->albaran->ptefactura"}
                <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
@@ -91,7 +91,8 @@
                </a>
                {else}
                <a class="btn btn-sm btn-default text-capitalize" href="{$fsc->albaran->factura_url()}">
-                  <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Ver Factura
+                  <span class="glyphicon glyphicon-eye-open"></span>
+                  <span class="hidden-xs">&nbsp; Ver Factura</span>
                </a>
                {/if}
                
@@ -104,7 +105,7 @@
                {/loop}
             </div>
          </div>
-         <div class="col-md-4 col-sm-3 col-xs-4 text-right">
+         <div class="col-xs-4 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a id="b_eliminar" class="btn btn-sm btn-danger" href="#">
@@ -134,7 +135,6 @@
             {/if}
          </div>
       </div>
-      
       <div class="row">
          {if="$fsc->albaran->ptefactura"}
          <div class="col-md-5 col-sm-12 col-xs-12">
@@ -193,7 +193,10 @@
    <div role="tabpanel">
       <ul class="nav nav-tabs" role="tablist">
          <li role="presentation" class="active">
-            <a href="#lineas_a" aria-controls="lineas_a" role="tab" data-toggle="tab">Líneas</a>
+            <a href="#lineas_a" aria-controls="lineas_a" role="tab" data-toggle="tab">
+               <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Líneas</span>
+            </a>
          </li>
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}

@@ -101,6 +101,8 @@
                   <select class="form-control" name="cuenta">
                      {loop="$fsc->cuenta->full_from_ejercicio($fsc->codejercicio)"}
                      <option value="{$value->idcuenta}">{$value->codcuenta} {$value->descripcion}</option>
+                     {else}
+                     <option value="">¡No hay cuentas!</option>
                      {/loop}
                   </select>
                </div>
