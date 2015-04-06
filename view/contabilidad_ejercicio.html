@@ -29,15 +29,14 @@
    <input type="hidden" name="codejercicio" value="{$fsc->ejercicio->codejercicio}"/>
    <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
       <div class="row">
-         <div class="col-md-7">
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="recargar la página">
+         <div class="col-xs-7">
+            <a class="btn btn-sm btn-default hidden-xs" href="{$fsc->url()}" title="recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            
             <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_ejercicios">
-               <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Ejercicios
+               <span class="glyphicon glyphicon-arrow-left"></span>
+               <span class="hidden-xs hidden-sm">&nbsp; Ejercicios</span>
             </a>
-            
             {if="$fsc->asiento_apertura_url OR $fsc->asiento_cierre_url OR $fsc->asiento_pyg_url"}
             <div class="btn-group">
                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
@@ -58,13 +57,14 @@
                </ul>
             </div>
             {/if}
-            
             <div class="btn-group">
                <a id="b_importar" class="btn btn-sm btn-default" href="#">
-                  <span class="glyphicon glyphicon-import"></span> &nbsp; Importar...
+                  <span class="glyphicon glyphicon-import"></span>
+                  <span class="hidden-xs">&nbsp; Importar</span>
                </a>
                <a class="btn btn-sm btn-default" href="{$fsc->url()}&export=TRUE">
-                  <span class="glyphicon glyphicon-export"></span> &nbsp; Exportar
+                  <span class="glyphicon glyphicon-export"></span>
+                  <span class="hidden-xs">&nbsp; Exportar</span>
                </a>
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
@@ -73,20 +73,23 @@
                {/loop}
             </div>
          </div>
-         <div class="col-md-5 text-right">
+         <div class="col-xs-5 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar" class="btn btn-sm btn-danger" title="Eliminar ejercicio">
-                  <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+                  <span class="glyphicon glyphicon-trash"></span>
+                  <span class="hidden-xs hidden-sm">&nbsp; Eliminar</span>
                </a>
                {/if}
                {if="$fsc->ejercicio->abierto()"}
                <button class="btn btn-sm btn-default" type="button" onclick="cerrar_ejercicio()" title="Cerrar ejercicio">
-                  <span class="glyphicon glyphicon-lock"></span> &nbsp; Cerrar
+                  <span class="glyphicon glyphicon-lock"></span>
+                  <span class="hidden-xs hidden-sm">&nbsp; Cerrar</span>
                </button>
                {/if}
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                  <span class="glyphicon glyphicon-floppy-disk"></span>
+                  <span class="hidden-xs">&nbsp; Guardar</span>
                </button>
             </div>
          </div>
@@ -239,7 +242,7 @@
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">Importar datos del ejercicio</h4>
-               <p>Se importarán grupos, epígrafes, cuentas, subcuentas y balances de...</p>
+               <p>Se importarán grupos, epígrafes, cuentas, subcuentas, etc.</p>
             </div>
             <div class="modal-body">
                <div class="radio">
@@ -257,6 +260,13 @@
                      </label>
                   </div>
                   {/if}
+               {else}
+               <div class="radio">
+                  <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
+                     <input type="radio" name="fuente" value="" disabled="disabled"/>
+                     PUC de <b>Colombia</b> (Requiere instalar plugin colombia)
+                  </label>
+               </div>
                {/loop}
                <div class="radio">
                   <label>

@@ -389,12 +389,25 @@ class articulo extends fs_model
       return $linea->all_from_articulo($this->referencia, $offset, $limit);
    }
    
+   /**
+    * Devuelve la media del precio de compra del artículo
+    * @return type
+    */
    public function get_costemedio()
    {
-      foreach($this->get_lineas_albaran_prov(0, 1) as $linea)
-         $this->costemedio = $linea->pvptotal/$linea->cantidad;
+      $coste = 0;
+      $stock = 0;
       
-      return $this->costemedio;
+      foreach($this->get_lineas_albaran_prov() as $linea)
+      {
+         if($stock < $this->stockfis)
+         {
+            $coste += $linea->pvptotal;
+            $stock += $linea->cantidad;
+         }
+      }
+      
+      return $coste/$stock;
    }
    
    public function imagen_url()
@@ -549,7 +562,6 @@ class articulo extends fs_model
          if($this->stockfis != $nuevo_stock)
          {
             $this->stockfis =  $nuevo_stock;
-            $this->get_costemedio();
             
             if($this->exists)
             {
@@ -600,7 +612,6 @@ class articulo extends fs_model
          if($this->stockfis != $nuevo_stock)
          {
             $this->stockfis =  $nuevo_stock;
-            $this->get_costemedio();
             
             if($this->exists)
             {
@@ -933,15 +944,18 @@ class articulo extends fs_model
       return $artilist;
    }
    
-   public function search_by_codbar($cod)
+   public function search_by_codbar($cod, $offset=0)
    {
       $artilist = array();
-      $articulos = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codbarras = ".$this->var2str($cod)." ORDER BY referencia ASC");
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codbarras = ".$this->var2str($cod)." ORDER BY referencia ASC";
+      
+      $articulos = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($articulos)
       {
          foreach($articulos as $a)
             $artilist[] = new articulo($a);
       }
+      
       return $artilist;
    }
    

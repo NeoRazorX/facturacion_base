@@ -2,7 +2,7 @@
 
 {if="$fsc->asiento"}
 <script type="text/javascript">
-   var numlineas = 0;
+   var numlineas = {function="count($fsc->lineas)"};
    function add_partida()
    {
       numlineas++;
@@ -105,6 +105,9 @@
       {
          $("#codcontrapartida_"+num).val(codsubcuenta);
          $("#saldoc_"+num).val(saldo);
+         $("#iva_"+num).prop('disabled', false);
+         $("#baseimp_"+num).prop('disabled', false);
+         $("#cifnif_"+num).prop('disabled', false);
       }
       $("#modal_subcuentas").modal('hide');
       recalcular();
@@ -123,13 +126,10 @@
       var t_haber = 0;
       var show_contrapartidas = false;
       
-      for(var i=1; i<200; i++)
+      for(var i=1; i<=numlineas; i++)
       {
          if( $("#partida_"+i).length > 0 )
          {
-            if(numlineas < i)
-               numlineas = i;
-            
             debe = parseFloat( $("#debe_"+i).val() );
             haber = parseFloat( $("#haber_"+i).val() );
             
@@ -159,7 +159,7 @@
       }
       
       document.f_asiento.importe.value = Math.max(t_debe, t_haber);
-      document.f_asiento.descuadre.value = fs_round(t_debe - t_haber, 2);
+      document.f_asiento.descuadre.value = fs_round(t_debe - t_haber, {#FS_NF0#});
       
       if(show_contrapartidas)
       {
@@ -205,13 +205,12 @@
    <input type="hidden" name="numlineas" value="0"/>
    <div class="container-fluid">
       <div class="row" style="margin-top: 10px; margin-bottom: 10px;">
-         <div class="col-lg-6 col-md-6">
+         <div class="col-xs-6">
             <div class="btn-group hidden-xs">
                <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
             </div>
-            
             <div class="btn-group">
                <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
                   <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Asientos
@@ -223,36 +222,39 @@
                {/loop}
             </div>
          </div>
-         <div class="col-lg-6 col-md-6 text-right">
+         <div class="col-xs-6 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar_asiento" class="btn btn-sm btn-danger">
-                  <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+                  <span class="glyphicon glyphicon-trash"></span>
+                  <span class="hidden-sm hidden-xs">&nbsp; Eliminar</span>
                </a>
                {/if}
                <a href="{$fsc->url()}&bloquear=TRUE" class="btn btn-sm btn-default">
-                  <span class="glyphicon glyphicon-lock"></span> &nbsp; Bloquear
+                  <span class="glyphicon glyphicon-lock"></span>
+                  <span class="hidden-sm hidden-xs">&nbsp; Bloquear</span>
                </a>
                <button class="btn btn-sm btn-primary" type="submit">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                  <span class="glyphicon glyphicon-floppy-disk"></span>
+                  <span class="hidden-xs">&nbsp; Guardar</span>
                </button>
             </div>
          </div>
       </div>
       <div class="row">
-         <div class="col-lg-2 col-md-2">
+         <div class="col-sm-2">
             <div class="form-group">
                Fecha:
                <input class="form-control datepicker" name="fecha" type="text" value="{$fsc->asiento->fecha}"/>
             </div>
          </div>
-         <div class="col-lg-4 col-md-4">
+         <div class="col-sm-4">
             <div class="form-group">
                Concepto:
                <input class="form-control" name="concepto" type="text" value="{$fsc->asiento->concepto}" autocomplete="off"/>
             </div>
          </div>
-         <div class="col-lg-2 col-md-2">
+         <div class="col-sm-2">
             <div class="form-group">
                Divisa:
                <select class="form-control" name="divisa">
@@ -266,13 +268,13 @@
                </select>
             </div>
          </div>
-         <div class="col-lg-2 col-md-2">
+         <div class="col-sm-2">
             <div class="form-group">
                Importe:
                <input class="form-control text-right" type="text" name="importe" value="{$fsc->asiento->importe}" disabled="disabled"/>
             </div>
          </div>
-         <div class="col-lg-2 col-md-2">
+         <div class="col-sm-2">
             <div class="form-group">
                Descuadre:
                <input class="form-control text-right" type="text" name="descuadre" value="0" disabled="disabled"/>
@@ -315,7 +317,10 @@
                   </a>
                </td>
                <td><input class='form-control' type='text' id='desc_{$counter+1}' name='desc_{$counter+1}' value='{$value->desc_subcuenta}' disabled='disabled'/></td>
-               <td><input class='form-control text-right' type='text' id='saldo_{$counter+1}' name='saldo_{$counter+1}' value='{$value->saldo}' disabled='disabled'/></td>
+               <td>
+                  <input class='form-control text-right' type='text' id='saldo_{$counter+1}' name='saldo_{$counter+1}'
+                         value='{function="round($value->saldo, FS_NF0)"}' disabled='disabled'/>
+               </td>
                <td>
                   <input class='form-control text-right' type='text' id='debe_{$counter+1}' name='debe_{$counter+1}' value='{$value->debe}'
                          onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>
@@ -334,7 +339,7 @@
                   <input class='form-control text-right' type='text' id='saldoc_{$counter+1}' name='saldoc_{$counter+1}' value='0' disabled='disabled'/>
                </td>
                <td class="contrapartida">
-                  <select class='form-control' id='iva_{$counter+1}' name='iva_{$counter+1}' onchange='recalcular()'>
+                  <select class='form-control' id='iva_{$counter+1}' name='iva_{$counter+1}' onchange='recalcular()' disabled='disabled'>
                      <option value='0'>---</option>
                      {loop="$fsc->impuesto->all()"}
                         {if="$value1->iva==$value2->iva"}
@@ -347,10 +352,10 @@
                </td>
                <td class="contrapartida">
                   <input class='form-control text-right' type='text' id='baseimp_{$counter+1}' name='baseimp_{$counter+1}'
-                         value='{$value->baseimponible}' autocomplete='off'/>
+                         value='{$value->baseimponible}' autocomplete='off' disabled='disabled'/>
                </td>
                <td class="contrapartida">
-                  <input class='form-control' type='text' id='cifnif_{$counter+1}' name='cifnif_{$counter+1}' value='{$value->cifnif}'/>
+                  <input class='form-control' type='text' id='cifnif_{$counter+1}' name='cifnif_{$counter+1}' value='{$value->cifnif}' disabled='disabled'/>
                </td>
                <td class="text-right">
                   <button class="btn btn-sm btn-danger" type="button" onclick="clean_partida('{$counter+1}')">
@@ -483,6 +488,10 @@
                {/if}
             </td>
             <td class="text-right">{if="$value->cifnif"}{$value->cifnif}{else}-{/if}</td>
+         </tr>
+         {else}
+         <tr class="bg-warning">
+            <td colspan="7">Sin líneas.</td>
          </tr>
          {/loop}
       </tbody>

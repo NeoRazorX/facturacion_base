@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -28,15 +28,18 @@ require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('familia.php');
 require_model('forma_pago.php');
+require_model('impuesto.php');
 require_model('serie.php');
 
 class tpv_recambios extends fs_controller
 {
    public $agente;
    public $almacen;
+   public $allow_delete;
    public $articulo;
    public $caja;
    public $cliente;
+   public $cliente_s;
    public $divisa;
    public $ejercicio;
    public $equivalentes;
@@ -44,6 +47,7 @@ class tpv_recambios extends fs_controller
    public $forma_pago;
    public $imprimir_descripciones;
    public $imprimir_observaciones;
+   public $impuesto;
    public $results;
    public $serie;
    public $tarifas;
@@ -55,28 +59,24 @@ class tpv_recambios extends fs_controller
       parent::__construct(__CLASS__, 'TPV Genérico', 'TPV', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
-      header('Access-Control-Allow-Origin: *');
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
+      $fsvar = new fs_var();
       $this->articulo = new articulo();
       $this->cliente = new cliente();
+      $this->cliente_s = FALSE;
       $this->familia = new familia();
+      $this->impuesto = new impuesto();
       $this->results = array();
       
-      if( isset($_POST['saldo']) )
+      if( isset($_REQUEST['buscar_cliente']) )
       {
-         $this->template = FALSE;
-         
-         if(FS_LCD != '')
-         {
-            $fpt = new fs_printer(FS_LCD);
-            $fpt->add( chr(12).'TOTAL               ' );
-            $fpt->add( substr(sprintf('%20s', $this->show_precio($_POST['saldo'], FALSE, FALSE)), 0, 20) );
-            $fpt->imprimir();
-         }
+         $this->buscar_cliente();
       }
-      else if( $this->query != '' )
+      else if($this->query != '')
       {
          $this->new_search();
       }
@@ -96,34 +96,77 @@ class tpv_recambios extends fs_controller
          
          $this->imprimir_descripciones = FALSE;
          if( isset($_POST['imprimir_desc']) )
+         {
             $this->imprimir_descripciones = TRUE;
+         }
          else if( isset($_COOKIE['imprimir_desc']) )
+         {
             $this->imprimir_descripciones = TRUE;
+         }
          
          $this->imprimir_observaciones = FALSE;
          if( isset($_POST['imprimir_obs']) )
-            $this->imprimir_observaciones = TRUE;
-         else if( isset($_COOKIE['imprimir_obs']) )
-            $this->imprimir_observaciones = TRUE;
-         
-         if( $this->agente )
          {
+            $this->imprimir_observaciones = TRUE;
+         }
+         else if( isset($_COOKIE['imprimir_obs']) )
+         {
+            $this->imprimir_observaciones = TRUE;
+         }
+         
+         if($this->agente)
+         {
+            if( isset($_POST['cliente']) )
+            {
+               $this->cliente_s = $this->cliente->get($_POST['cliente']);
+               $fsvar->simple_save('tpv_codcliente', $_POST['cliente']);
+            }
+            else
+            {
+               $codcliente = $fsvar->simple_get('tpv_codcliente');
+               if($codcliente)
+               {
+                  $this->cliente_s = $this->cliente->get($codcliente);
+               }
+               else
+               {
+                  foreach($this->cliente->all() as $cli)
+                  {
+                     $this->cliente_s = $cli;
+                     break;
+                  }
+               }
+            }
+            
             /// obtenemos el bloqueo de caja, sin esto no se puede continuar
             $this->caja = $this->caja->get_last_from_this_server();
-            if( $this->caja )
+            if($this->caja)
             {
                if($this->caja->codagente == $this->user->codagente)
                {
                   if( isset($_GET['abrir_caja']) )
+                  {
                      $this->abrir_caja();
+                  }
                   else if( isset($_GET['cerrar_caja']) )
+                  {
                      $this->cerrar_caja();
+                  }
                   else if( isset($_POST['cliente']) )
-                     $this->nuevo_albaran_cliente();
+                  {
+                     if( intval($_POST['numlineas']) > 0 )
+                     {
+                        $this->nuevo_albaran_cliente();
+                     }
+                  }
                   else if( isset($_GET['reticket']) )
+                  {
                      $this->reimprimir_ticket();
+                  }
                   else if( isset($_GET['delete']) )
+                  {
                      $this->borrar_ticket();
+                  }
                }
                else
                {
@@ -159,6 +202,21 @@ class tpv_recambios extends fs_controller
       }
    }
    
+   private function buscar_cliente()
+   {
+      /// desactivamos la plantilla HTML
+      $this->template = FALSE;
+      
+      $json = array();
+      foreach($this->cliente->search($_REQUEST['buscar_cliente']) as $cli)
+      {
+         $json[] = array('value' => $cli->nombre, 'data' => $cli->codcliente);
+      }
+      
+      header('Content-Type: application/json');
+      echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
+   }
+   
    private function new_search()
    {
       /// cambiamos la plantilla HTML
@@ -192,15 +250,6 @@ class tpv_recambios extends fs_controller
    private function nuevo_albaran_cliente()
    {
       $continuar = TRUE;
-      
-      $cliente = $this->cliente->get($_POST['cliente']);
-      if( $cliente )
-         $this->save_codcliente( $cliente->codcliente );
-      else
-      {
-         $this->new_error_msg('Cliente no encontrado.');
-         $continuar = FALSE;
-      }
       
       $almacen = $this->almacen->get($_POST['almacen']);
       if( $almacen )
@@ -294,13 +343,13 @@ class tpv_recambios extends fs_controller
          $albaran->irpf = $serie->irpf;
          $albaran->porcomision = $this->agente->porcomision;
          
-         foreach($cliente->get_direcciones() as $d)
+         foreach($this->cliente_s->get_direcciones() as $d)
          {
             if($d->domfacturacion)
             {
-               $albaran->codcliente = $cliente->codcliente;
-               $albaran->cifnif = $cliente->cifnif;
-               $albaran->nombrecliente = $cliente->nombrecomercial;
+               $albaran->codcliente = $this->cliente_s->codcliente;
+               $albaran->cifnif = $this->cliente_s->cifnif;
+               $albaran->nombrecliente = $this->cliente_s->nombrecomercial;
                $albaran->apartado = $d->apartado;
                $albaran->ciudad = $d->ciudad;
                $albaran->coddir = $d->id;
@@ -331,21 +380,19 @@ class tpv_recambios extends fs_controller
                      $linea->referencia = $articulo->referencia;
                      $linea->descripcion = $_POST['desc_'.$i];
                      
-                     if( !$serie->siniva OR $cliente->regimeniva != 'Exento' )
+                     if( !$serie->siniva OR $this->cliente_s->regimeniva != 'Exento' )
                      {
                         $linea->codimpuesto = $articulo->codimpuesto;
                         $linea->iva = floatval($_POST['iva_'.$i]);
                         $linea->recargo = floatval($_POST['recargo_'.$i]);
                      }
                      
-                     if($linea->iva > 0)
-                        $linea->irpf = $albaran->irpf;
-                     
+                     $linea->irpf = floatval($_POST['irpf_'.$i]);
                      $linea->pvpunitario = floatval($_POST['pvp_'.$i]);
                      $linea->cantidad = floatval($_POST['cantidad_'.$i]);
                      $linea->dtopor = floatval($_POST['dto_'.$i]);
                      $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
-                     $linea->pvptotal = floatval($_POST['total_'.$i]);
+                     $linea->pvptotal = floatval($_POST['neto_'.$i]);
                      
                      if( $linea->save() )
                      {
@@ -380,7 +427,13 @@ class tpv_recambios extends fs_controller
                $albaran->totalrecargo = round($albaran->totalrecargo, FS_NF0);
                $albaran->total = $albaran->neto + $albaran->totaliva - $albaran->totalirpf + $albaran->totalrecargo;
                
-               if( $albaran->save() )
+               if( abs(floatval($_POST['tpv_total']) - $albaran->total) >= .02 )
+               {
+                  $this->new_error_msg("El total difiere entre la vista y el controlador (".$_POST['tpv_total'].
+                          " frente a ".$albaran->total."). Debes informar del error.");
+                  $albaran->delete();
+               }
+               else if( $albaran->save() )
                {
                   $this->new_message("<a href='".$albaran->url()."'>".FS_ALBARAN."</a> guardado correctamente.");
                   
@@ -391,7 +444,9 @@ class tpv_recambios extends fs_controller
                   $this->caja->tickets += 1;
                   $this->caja->ip = $_SERVER['REMOTE_ADDR'];
                   if( !$this->caja->save() )
+                  {
                      $this->new_error_msg("¡Imposible actualizar la caja!");
+                  }
                }
                else
                   $this->new_error_msg("¡Imposible actualizar el <a href='".$albaran->url()."'>".FS_ALBARAN."</a>!");

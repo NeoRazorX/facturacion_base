@@ -2,12 +2,17 @@
 
 {if="$fsc->agente"}
    {if="$fsc->caja"}
-      {if="$fsc->caja->codagente==$fsc->user->codagente"}
-         {include="tpv_recambios2"}
-      {else}
+      {if="$fsc->caja->codagente!=$fsc->user->codagente"}
       <div class="thumbnail">
          <img src='view/img/big_lock.png' alt="acceso denegado"/>
       </div>
+      {elseif="!$fsc->cliente_s"}
+      <div class="alert alert-danger">No hay clientes. Debes añadir al menos uno.</div>
+      <div class="thumbnail">
+         <img src='view/img/fuuu_face.png' alt="acceso denegado"/>
+      </div>
+      {else}
+         {include="tpv_recambios2"}
       {/if}
    {else}
    <script type="text/javascript">

@@ -163,7 +163,7 @@ class ventas_articulo extends fs_controller
          $this->articulo = $articulo->get($_POST['referencia']);
          if($this->articulo)
          {
-            if( $this->articulo->stockfis == intval($_POST['cantidad']) )
+            if($_POST['cantidadini'] == $_POST['cantidad'])
             {
                $this->new_message('Sin cambios.');
             }
@@ -178,10 +178,7 @@ class ventas_articulo extends fs_controller
                   {
                      $regularizacion = new regularizacion_stock();
                      $regularizacion->idstock = $stock->idstock;
-                     if( isset($_POST['cantidadini']) )
-                     {
-                        $regularizacion->cantidadini = floatval($_POST['cantidadini']);
-                     }
+                     $regularizacion->cantidadini = floatval($_POST['cantidadini']);
                      $regularizacion->cantidadfin = floatval($_POST['cantidad']);
                      $regularizacion->codalmacendest = $_POST['almacen'];
                      $regularizacion->motivo = $_POST['motivo'];
@@ -229,6 +226,24 @@ class ventas_articulo extends fs_controller
          if( isset($_POST['codfamilia']) )
          {
             $this->articulo->codfamilia = $_POST['codfamilia'];
+         }
+         
+         /// ¿Existe ya ese código de barras?
+         if($_POST['codbarras'] != '')
+         {
+            $arts = $this->articulo->search_by_codbar($_POST['codbarras']);
+            if($arts)
+            {
+               foreach($arts as $art2)
+               {
+                  if($art2->referencia != $this->articulo->referencia)
+                  {
+                     $this->new_advice('Ya hay un artículo con este mismo código de barras. '
+                             . 'En concreto, el artículo <a href="'.$art2->url().'">'.$art2->referencia.'</a>.');
+                     break;
+                  }
+               }
+            }
          }
          
          $this->articulo->codbarras = $_POST['codbarras'];

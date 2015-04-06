@@ -263,7 +263,7 @@ class subcuenta extends fs_model
    
    public function tiene_saldo()
    {
-      return !$this->floatcmp($this->debe, $this->haber);
+      return !$this->floatcmp($this->debe, $this->haber, FS_NF0, TRUE);
    }
    
    public function exists()
@@ -281,9 +281,9 @@ class subcuenta extends fs_model
       $this->descripcion = $this->no_html($this->descripcion);
       
       $totales = $this->get_totales();
-      $this->debe = round($totales['debe'], FS_NF0+1);
-      $this->haber = round($totales['haber'], FS_NF0+1);
-      $this->saldo = round($totales['saldo'], FS_NF0+1);
+      $this->debe = $totales['debe'];
+      $this->haber = $totales['haber'];
+      $this->saldo = $totales['saldo'];
       
       if( strlen($this->codsubcuenta)>0 AND strlen($this->descripcion)>0 )
       {

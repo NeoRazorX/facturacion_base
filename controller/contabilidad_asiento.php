@@ -121,7 +121,14 @@ class contabilidad_asiento extends fs_controller
       $this->template = 'ajax/contabilidad_nuevo_asiento';
       
       $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha']);
-      $this->resultados = $this->subcuenta->search_by_ejercicio($eje0->codejercicio, $this->query);
+      if($eje0)
+      {
+         $this->resultados = $this->subcuenta->search_by_ejercicio($eje0->codejercicio, $this->query);
+      }
+      else
+      {
+         $this->resultados = array();
+      }
    }
    
    private function modificar()
@@ -129,7 +136,9 @@ class contabilidad_asiento extends fs_controller
       /// obtenemos el ejercicio para poder acotar la fecha
       $eje0 = $this->ejercicio->get($this->asiento->codejercicio);
       if($eje0)
+      {
          $this->asiento->fecha = $eje0->get_best_fecha($_POST['fecha']);
+      }
       else
          $this->new_error_msg('No se encuentra el ejercicio asociado al asiento.');
       
@@ -139,7 +148,9 @@ class contabilidad_asiento extends fs_controller
       /// obtenemos la divisa de las partidas
       $div0 = $this->divisa->get($_POST['divisa']);
       if($div0)
+      {
          $this->save_coddivisa($div0->coddivisa);
+      }
       
       if( !$eje0 OR !$div0 )
       {
@@ -149,6 +160,15 @@ class contabilidad_asiento extends fs_controller
       {
          $continuar = TRUE;
          $numlineas = intval($_POST['numlineas']);
+         
+         for($i = 1; $i <= $numlineas; $i++)
+         {
+            if( !isset($_POST['idpartida_'.$i]) )
+            {
+               $this->new_error_msg('Línea '.$i.' no encontrada.');
+               return 0;
+            }
+         }
          
          /// eliminamos las partidas que faltan
          foreach($this->asiento->get_partidas() as $pa)
@@ -183,7 +203,10 @@ class contabilidad_asiento extends fs_controller
             if( isset($_POST['idpartida_'.$i]) )
             {
                if($_POST['idpartida_'.$i] == '-1')
+               {
+                  /// las nuevas líneas llevan idpartida = -1
                   $partida = new partida();
+               }
                else
                {
                   $partida = $npartida->get( $_POST['idpartida_'.$i] );

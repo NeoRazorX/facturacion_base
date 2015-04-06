@@ -260,15 +260,10 @@ class asiento extends fs_model
             }
          }
       }
-      else
-      {
-         $this->new_error_msg('Asiento vacío.');
-         $status = FALSE;
-      }
       
-      if( !$this->floatcmp($debe, $haber, FS_NF0) )
+      if( !$this->floatcmp($debe, $haber, FS_NF0, TRUE) )
       {
-         $this->new_error_msg( "Asiento descuadrado. Descuadre: ".round($debe-$haber, FS_NF0) );
+         $this->new_error_msg( "Asiento descuadrado. Descuadre: ".round($debe-$haber, FS_NF0+1) );
          $status = FALSE;
       }
       
@@ -285,15 +280,17 @@ class asiento extends fs_model
          }
       }
       
-      
-      /// comprobamos la factura asociada
-      $fac = $this->get_factura();
-      if($fac)
+      if($partidas)
       {
-         if($fac->idasiento != $this->idasiento)
+         /// comprobamos la factura asociada
+         $fac = $this->get_factura();
+         if($fac)
          {
-            $status = FALSE;
-            $this->new_error_msg("Este asiento apunta a una <a href='".$fac->url()."'>factura incorrecta</a>.");
+            if($fac->idasiento != $this->idasiento)
+            {
+               $status = FALSE;
+               $this->new_error_msg("Este asiento apunta a una <a href='".$fac->url()."'>factura incorrecta</a>.");
+            }
          }
       }
       

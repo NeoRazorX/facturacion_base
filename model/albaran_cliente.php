@@ -382,30 +382,33 @@ class albaran_cliente extends fs_model
          $status = FALSE;
       }
       
-      /// comprobamos las facturas asociadas
-      $linea_factura = new linea_factura_cliente();
-      $facturas = $linea_factura->facturas_from_albaran($this->idalbaran);
-      if($facturas)
+      if($this->total != 0)
       {
-         if( count($facturas) > 1 )
+         /// comprobamos las facturas asociadas
+         $linea_factura = new linea_factura_cliente();
+         $facturas = $linea_factura->facturas_from_albaran($this->idalbaran);
+         if($facturas)
          {
-            $msg = "Este ".FS_ALBARAN." esta asociado a las siguientes facturas (y no debería):";
-            foreach($facturas as $f)
-               $msg .= " <a href='".$f->url()."'>".$f->codigo."</a>";
-            $this->new_error_msg($msg);
+            if( count($facturas) > 1 )
+            {
+               $msg = "Este ".FS_ALBARAN." esta asociado a las siguientes facturas (y no debería):";
+               foreach($facturas as $f)
+                  $msg .= " <a href='".$f->url()."'>".$f->codigo."</a>";
+               $this->new_error_msg($msg);
+               $status = FALSE;
+            }
+            else if($facturas[0]->idfactura != $this->idfactura)
+            {
+               $this->new_error_msg("Este ".FS_ALBARAN." esta asociado a una <a href='".$this->factura_url().
+                       "'>factura</a> incorrecta. La correcta es <a href='".$facturas[0]->url()."'>esta</a>.");
+               $status = FALSE;
+            }
+         }
+         else if( isset($this->idfactura) )
+         {
+            $this->new_error_msg("Este ".FS_ALBARAN." esta asociado a una <a href='".$this->factura_url()."'>factura</a> incorrecta.");
             $status = FALSE;
          }
-         else if($facturas[0]->idfactura != $this->idfactura)
-         {
-            $this->new_error_msg("Este ".FS_ALBARAN." esta asociado a una <a href='".$this->factura_url().
-                    "'>factura</a> incorrecta. La correcta es <a href='".$facturas[0]->url()."'>esta</a>.");
-            $status = FALSE;
-         }
-      }
-      else if( isset($this->idfactura) )
-      {
-         $this->new_error_msg("Este ".FS_ALBARAN." esta asociado a una <a href='".$this->factura_url()."'>factura</a> incorrecta.");
-         $status = FALSE;
       }
       
       if($status AND $duplicados)

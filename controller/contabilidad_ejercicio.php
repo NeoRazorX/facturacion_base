@@ -737,7 +737,9 @@ class contabilidad_ejercicio extends fs_controller
                $ppyg->codsubcuenta = $sc->codsubcuenta;
                
                if($sc->saldo < 0)
+               {
                   $ppyg->debe = abs($sc->saldo);
+               }
                else
                   $ppyg->haber = $sc->saldo;
                
@@ -799,7 +801,9 @@ class contabilidad_ejercicio extends fs_controller
                $pac->codsubcuenta = $sc->codsubcuenta;
                
                if($sc->saldo < 0)
+               {
                   $pac->debe = abs($sc->saldo);
+               }
                else
                   $pac->haber = $sc->saldo;
                
@@ -808,7 +812,9 @@ class contabilidad_ejercicio extends fs_controller
                   $continuar = FALSE;
                
                if($sc->codcuenta == '129')
+               {
                   $nsc = $subcuenta->get_by_codigo('1200000000', $siguiente_ejercicio->codejercicio, TRUE);
+               }
                else
                   $nsc = $subcuenta->get_by_codigo($sc->codsubcuenta, $siguiente_ejercicio->codejercicio, TRUE);
                
@@ -821,9 +827,11 @@ class contabilidad_ejercicio extends fs_controller
                   $paa->codsubcuenta = $nsc->codsubcuenta;
                   
                   if($sc->saldo > 0)
-                     $paa->debe = $sc->saldo;
+                  {
+                     $paa->debe = round($sc->saldo, FS_NF0);
+                  }
                   else
-                     $paa->haber = abs($sc->saldo);
+                     $paa->haber = round( abs($sc->saldo), FS_NF0 );
                   
                   $paa->coddivisa = $nsc->coddivisa;
                   if( !$paa->save() )
@@ -834,6 +842,62 @@ class contabilidad_ejercicio extends fs_controller
             }
          }
          
+         /// comprobamos los nuevos asientos
+         $total = 0;
+         foreach($asiento_pyg->get_partidas() as $part)
+         {
+            $total += $part->debe - $part->haber;
+         }
+         if( abs($total) >= 0.01 )
+         {
+            $continuar = FALSE;
+            $this->new_error_msg('Asiento de pérdidas y ganancias descuadrado.');
+         }
+         
+         $total = 0;
+         foreach($asiento_cierre->get_partidas() as $part)
+         {
+            $total += $part->debe - $part->haber;
+         }
+         if( abs($total) >= 0.01 )
+         {
+            $continuar = FALSE;
+            $this->new_error_msg('Asiento de cierre descuadrado.');
+         }
+         
+         $total = 0;
+         foreach($asiento_apertura->get_partidas() as $part)
+         {
+            $total += $part->debe - $part->haber;
+         }
+         if( abs($total) >= 0.01 )
+         {
+            $subcuenta_redondeo = $subcuenta->get_by_codigo('6780000000', $asiento_apertura->codejercicio);
+            if($subcuenta)
+            {
+               $npaa = new partida();
+               $npaa->idasiento = $asiento_apertura->idasiento;
+               $npaa->concepto = $asiento_apertura->concepto;
+               $npaa->idsubcuenta = $subcuenta_redondeo->idsubcuenta;
+               $npaa->codsubcuenta = $subcuenta_redondeo->codsubcuenta;
+               $npaa->coddivisa = $subcuenta_redondeo->coddivisa;
+               
+               if($total > 0)
+               {
+                  $npaa->haber = $total;
+               }
+               else
+                  $npaa->debe = $total;
+               
+               $npaa->save();
+            }
+            else
+            {
+               $continuar = FALSE;
+               $this->new_error_msg('Asiento de apertura descuadrado.');
+            }
+         }
+         
          /// cerramos el ejercicio
          if( $continuar )
          {
@@ -841,7 +905,9 @@ class contabilidad_ejercicio extends fs_controller
             $this->ejercicio->idasientopyg = $asiento_pyg->idasiento;
             $this->ejercicio->idasientocierre = $asiento_cierre->idasiento;
             if( $this->ejercicio->save() )
+            {
                $this->new_message('Ejercicio cerrado correctamente.');
+            }
             else
                $this->new_error_msg('Error al cerrar el ejercicio.');
             
@@ -854,17 +920,23 @@ class contabilidad_ejercicio extends fs_controller
             $this->new_error_msg('Error al generar los asientos.');
             
             if( $asiento_pyg->delete() )
+            {
                $this->new_message('Asiento de pérdidas y ganancias eliminado.');
+            }
             else
                $this->new_error_msg('Imposible eliminar el asiento de pérdidas y ganancias.');
             
             if( $asiento_cierre->delete() )
+            {
                $this->new_message('Asiento de cierre eliminado.');
+            }
             else
                $this->new_error_msg('Imposible eliminar el asiento de cierre.');
             
             if( $asiento_apertura->delete() )
+            {
                $this->new_message('Asiento de apertura eliminado.');
+            }
             else
                $this->new_error_msg('Imposible eliminar el asiento de apertura.');
          }

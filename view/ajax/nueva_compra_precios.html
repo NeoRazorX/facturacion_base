@@ -34,7 +34,7 @@
          <td class="text-left">{$fsc->articulo->stockmin}</td>
          <td class="text-left">{$fsc->articulo->stockmax}</td>
          <td class="text-right">
-            <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{$fsc->articulo->get_descripcion_64()}','{$fsc->articulo->costemedio}','0','{$fsc->articulo->codimpuesto}')">
+            <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{$fsc->articulo->get_descripcion_64()}','{$fsc->articulo->preciocoste()}','0','{$fsc->articulo->codimpuesto}')">
                {$fsc->show_precio($fsc->articulo->costemedio)}
             </a>
          </td>

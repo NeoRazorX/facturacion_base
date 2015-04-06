@@ -30,6 +30,7 @@ class informe_errores extends fs_controller
    public $ejercicio;
    public $errores;
    public $informe;
+   public $mostrar_cancelar;
    
    public function __construct()
    {
@@ -51,10 +52,14 @@ class informe_errores extends fs_controller
           'all' => FALSE,
           'ejercicio' => ''
       );
+      $this->mostrar_cancelar = FALSE;
       
       if( isset($_GET['cancelar']) )
       {
-         unlink('tmp/'.FS_TMP_NAME.'informe_errores.txt');
+         if( file_exists('tmp/'.FS_TMP_NAME.'informe_errores.txt') )
+         {
+            unlink('tmp/'.FS_TMP_NAME.'informe_errores.txt');
+         }
       }
       else if( file_exists('tmp/'.FS_TMP_NAME.'informe_errores.txt') ) /// continua examinando
       {
@@ -74,9 +79,13 @@ class informe_errores extends fs_controller
                $this->informe['pages'] = intval($linea[3]);
                
                if( isset($_POST['show_page']) )
+               {
                   $this->informe['show_page'] = intval($_POST['show_page']);
+               }
                else if( isset($_GET['show_page']) )
+               {
                   $this->informe['show_page'] = intval($_GET['show_page']);
+               }
                else
                   $this->informe['show_page'] = intval($linea[4]);
                
@@ -94,22 +103,23 @@ class informe_errores extends fs_controller
                while( !feof($file) )
                {
                   $linea = explode( ';', trim(fgets($file)) );
-                  if( count($linea) == 6 )
+                  if( count($linea) == 7 )
                   {
                      if($numlinea > $this->informe['show_page']*FS_ITEM_LIMIT AND $numlinea <= (1+$this->informe['show_page'])*FS_ITEM_LIMIT)
                      {
                         $this->errores[] = array(
-                            'model' => $linea[0],
-                            'ejercicio' => $linea[1],
-                            'id' => $linea[2],
-                            'url' => $linea[3],
-                            'fecha' => $linea[4],
-                            'fix' => ($linea[5]==1)
+                            'error' => $linea[0],
+                            'model' => $linea[1],
+                            'ejercicio' => $linea[2],
+                            'id' => $linea[3],
+                            'url' => $linea[4],
+                            'fecha' => $linea[5],
+                            'fix' => ($linea[6]==1)
                         );
                      }
-                     
-                     $numlinea++;
                   }
+                  
+                  $numlinea++;
                }
                
                $new_results = $this->test_models();
@@ -128,6 +138,8 @@ class informe_errores extends fs_controller
                rewind($file);
                fwrite($file, join(';', $this->informe)."\n------\n" );
             }
+            else
+               $this->mostrar_cancelar = TRUE;
             
             fclose($file);
          }
@@ -137,6 +149,8 @@ class informe_errores extends fs_controller
          $file = fopen('tmp/'.FS_TMP_NAME.'informe_errores.txt', 'w');
          if($file)
          {
+            $this->mostrar_cancelar = TRUE;
+            
             if($_POST['modelo'] == 'todo')
             {
                $this->informe['model'] = 'asiento';
@@ -156,7 +170,7 @@ class informe_errores extends fs_controller
                $this->informe['show_page'] = intval($_GET['show_page']);
             
             /// guardamos esta configuración
-            fwrite($file, join(';', $this->informe)."\n------\n" );
+            fwrite($file, join(';', $this->informe)."\n--------------------------------------------------------\n" );
             fclose($file);
          }
       }
@@ -174,6 +188,14 @@ class informe_errores extends fs_controller
             $asientos = $asiento->all($this->informe['offset'], $mpp);
             if($asientos)
             {
+               if($this->informe['offset'] == 0)
+               {
+                  foreach($this->check_partidas_erroneas() as $err)
+                  {
+                     $last_errores[] = $err;
+                  }
+               }
+               
                foreach($asientos as $asi)
                {
                   if($asi->codejercicio == $this->informe['ejercicio'])
@@ -188,6 +210,7 @@ class informe_errores extends fs_controller
                   else if( !$asi->full_test($this->informe['duplicados']) )
                   {
                      $last_errores[] = array(
+                         'error' => 'Fallo en full_test()',
                          'model' => $this->informe['model'],
                          'ejercicio' => $asi->codejercicio,
                          'id' => $asi->numero,
@@ -230,6 +253,7 @@ class informe_errores extends fs_controller
                   else if( !$fac->full_test($this->informe['duplicados']) )
                   {
                      $last_errores[] = array(
+                         'error' => 'Fallo en full_test()',
                          'model' => $this->informe['model'],
                          'ejercicio' => $fac->codejercicio,
                          'id' => $fac->codigo,
@@ -272,6 +296,7 @@ class informe_errores extends fs_controller
                   else if( !$fac->full_test($this->informe['duplicados']) )
                   {
                      $last_errores[] = array(
+                         'error' => 'Fallo en full_test()',
                          'model' => $this->informe['model'],
                          'ejercicio' => $fac->codejercicio,
                          'id' => $fac->codigo,
@@ -314,6 +339,7 @@ class informe_errores extends fs_controller
                   else if( !$alb->full_test($this->informe['duplicados']) )
                   {
                      $last_errores[] = array(
+                         'error' => 'Fallo en full_test()',
                          'model' => $this->informe['model'],
                          'ejercicio' => $alb->codejercicio,
                          'id' => $alb->codigo,
@@ -353,6 +379,7 @@ class informe_errores extends fs_controller
                   else if( !$alb->full_test($this->informe['duplicados']) )
                   {
                      $last_errores[] = array(
+                         'error' => 'Fallo en full_test()',
                          'model' => $this->informe['model'],
                          'ejercicio' => $alb->codejercicio,
                          'id' => $alb->codigo,
@@ -392,5 +419,40 @@ class informe_errores extends fs_controller
             unset($allp[$j]);
       }
       return $allp;
+   }
+   
+   private function check_partidas_erroneas()
+   {
+      $errores = array();
+      $asient0 = new asiento();
+      
+      foreach($this->ejercicio->all() as $eje)
+      {
+         $sql = "SELECT * FROM co_partidas WHERE idasiento IN
+            (SELECT idasiento FROM co_asientos WHERE codejercicio = ".$eje->var2str($eje->codejercicio).")
+            AND idsubcuenta NOT IN (SELECT idsubcuenta FROM co_subcuentas WHERE codejercicio = ".$eje->var2str($eje->codejercicio).");";
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $asiento = $asient0->get($d['idasiento']);
+               if($asiento)
+               {
+                  $errores[] = array(
+                      'error' => 'Subcuenta '.$d['codsubcuenta'].' no pertenece al mismo ejercicio que el asiento',
+                      'model' => 'asiento',
+                      'ejercicio' => $eje->codejercicio,
+                      'id' => $asiento->numero,
+                      'url' => $asiento->url(),
+                      'fecha' => $asiento->fecha,
+                      'fix' => FALSE
+                  );
+               }
+            }
+         }
+      }
+      
+      return $errores;
    }
 }

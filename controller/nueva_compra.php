@@ -71,11 +71,11 @@ class nueva_compra extends fs_controller
       {
          $this->datos_proveedor();
       }
-      else if( isset($_GET['new_articulo']) )
+      else if( isset($_REQUEST['new_articulo']) )
       {
          $this->new_articulo();
       }
-      else if( $this->query != '' )
+      else if($this->query != '')
       {
          $this->new_search();
       }
@@ -167,16 +167,21 @@ class nueva_compra extends fs_controller
       $this->template = FALSE;
       
       $art0 = new articulo();
-      $art0->referencia = $_POST['referencia'];
+      $art0->referencia = $_REQUEST['referencia'];
       if( $art0->exists() )
       {
-         $this->results[] = $art0->get($_POST['referencia']);
+         $this->results[] = $art0->get($_REQUEST['referencia']);
       }
       else
       {
-         $art0->descripcion = $_POST['descripcion'];
-         $art0->codfamilia = $_POST['codfamilia'];
-         $art0->set_impuesto($_POST['codimpuesto']);
+         $art0->descripcion = $_REQUEST['descripcion'];
+         $art0->set_impuesto($_REQUEST['codimpuesto']);
+         $art0->set_pvp( floatval($_REQUEST['pvp']) );
+         
+         if($_POST['codfamilia'] != '')
+         {
+            $art0->codfamilia = $_REQUEST['codfamilia'];
+         }
          
          if( $art0->save() )
          {
@@ -316,56 +321,66 @@ class nueva_compra extends fs_controller
             {
                if( isset($_POST['referencia_'.$i]) )
                {
-                  $articulo = $art0->get($_POST['referencia_'.$i]);
-                  if($articulo)
+                  $linea = new linea_albaran_proveedor();
+                  $linea->idalbaran = $albaran->idalbaran;
+                  $linea->descripcion = $_POST['desc_'.$i];
+                  
+                  if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
                   {
-                     $linea = new linea_albaran_proveedor();
-                     $linea->idalbaran = $albaran->idalbaran;
-                     $linea->referencia = $articulo->referencia;
-                     $linea->descripcion = $_POST['desc_'.$i];
-                     $linea->irpf = $albaran->irpf;
-                     
-                     if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
+                     $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$i]);
+                     if($imp0)
                      {
-                        $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$i]);
-                        if($imp0)
-                        {
-                           $linea->codimpuesto = $imp0->codimpuesto;
-                           $linea->iva = floatval($_POST['iva_'.$i]);
-                           $linea->recargo = floatval($_POST['recargo_'.$i]);
-                        }
-                        else
-                        {
-                           $linea->iva = floatval($_POST['iva_'.$i]);
-                           $linea->recargo = floatval($_POST['recargo_'.$i]);
-                        }
-                     }
-                     
-                     $linea->pvpunitario = floatval($_POST['pvp_'.$i]);
-                     $linea->cantidad = floatval($_POST['cantidad_'.$i]);
-                     $linea->dtopor = floatval($_POST['dto_'.$i]);
-                     $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
-                     $linea->pvptotal = floatval($_POST['neto_'.$i]);
-                     
-                     if( $linea->save() )
-                     {
-                        /// sumamos al stock
-                        $articulo->sum_stock($albaran->codalmacen, $linea->cantidad);
-                        
-                        $albaran->neto += $linea->pvptotal;
-                        $albaran->totaliva += ($linea->pvptotal * $linea->iva/100);
-                        $albaran->totalirpf += ($linea->pvptotal * $linea->irpf/100);
-                        $albaran->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                        $linea->codimpuesto = $imp0->codimpuesto;
+                        $linea->iva = floatval($_POST['iva_'.$i]);
+                        $linea->recargo = floatval($_POST['recargo_'.$i]);
                      }
                      else
                      {
-                        $this->new_error_msg("¡Imposible guardar la linea con referencia: ".$linea->referencia);
-                        $continuar = FALSE;
+                        $linea->iva = floatval($_POST['iva_'.$i]);
+                        $linea->recargo = floatval($_POST['recargo_'.$i]);
                      }
+                  }
+                  
+                  $linea->irpf = floatval($_POST['irpf_'.$i]);
+                  $linea->pvpunitario = floatval($_POST['pvp_'.$i]);
+                  $linea->cantidad = floatval($_POST['cantidad_'.$i]);
+                  $linea->dtopor = floatval($_POST['dto_'.$i]);
+                  $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
+                  $linea->pvptotal = floatval($_POST['neto_'.$i]);
+                  
+                  $articulo = $art0->get($_POST['referencia_'.$i]);
+                  if($articulo)
+                  {
+                     $linea->referencia = $articulo->referencia;
+                  }
+                  
+                  if( $linea->save() )
+                  {
+                     if($articulo)
+                     {
+                        if( isset($_POST['costemedio']) )
+                        {
+                           $articulo->costemedio = $articulo->get_costemedio();
+                        }
+                        
+                        if( isset($_POST['stock']) )
+                        {
+                           $articulo->sum_stock($albaran->codalmacen, $linea->cantidad);
+                        }
+                        else if( isset($_POST['costemedio']) )
+                        {
+                           $articulo->save();
+                        }
+                     }
+                     
+                     $albaran->neto += $linea->pvptotal;
+                     $albaran->totaliva += ($linea->pvptotal * $linea->iva/100);
+                     $albaran->totalirpf += ($linea->pvptotal * $linea->irpf/100);
+                     $albaran->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
                   }
                   else
                   {
-                     $this->new_error_msg("Artículo no encontrado: ".$_POST['referencia_'.$i]);
+                     $this->new_error_msg("¡Imposible guardar la linea con referencia: ".$linea->referencia);
                      $continuar = FALSE;
                   }
                }
@@ -390,6 +405,11 @@ class nueva_compra extends fs_controller
                {
                   $this->new_message("<a href='".$albaran->url()."'>".ucfirst(FS_ALBARAN)."</a> guardado correctamente.");
                   $this->new_change(ucfirst(FS_ALBARAN).' Proveedor '.$albaran->codigo, $albaran->url(), TRUE);
+                  
+                  if($_POST['redir'] == 'TRUE')
+                  {
+                     header('Location: '.$albaran->url());
+                  }
                }
                else
                   $this->new_error_msg("¡Imposible actualizar el <a href='".$albaran->url()."'>".FS_ALBARAN."</a>!");
@@ -504,62 +524,73 @@ class nueva_compra extends fs_controller
             {
                if( isset($_POST['referencia_'.$i]) )
                {
-                  $articulo = $art0->get($_POST['referencia_'.$i]);
-                  if($articulo)
+                  $linea = new linea_factura_proveedor();
+                  $linea->idfactura = $factura->idfactura;
+                  $linea->descripcion = $_POST['desc_'.$i];
+                  
+                  if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
                   {
-                     $linea = new linea_factura_proveedor();
-                     $linea->idfactura = $factura->idfactura;
-                     $linea->referencia = $articulo->referencia;
-                     $linea->descripcion = $_POST['desc_'.$i];
-                     $linea->irpf = $factura->irpf;
-                     
-                     if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
+                     $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$i]);
+                     if($imp0)
                      {
-                        $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$i]);
-                        if($imp0)
-                        {
-                           $linea->codimpuesto = $imp0->codimpuesto;
-                           $linea->iva = floatval($_POST['iva_'.$i]);
-                           $linea->recargo = floatval($_POST['recargo_'.$i]);
-                        }
-                        else
-                        {
-                           $linea->iva = floatval($_POST['iva_'.$i]);
-                           $linea->recargo = floatval($_POST['recargo_'.$i]);
-                        }
-                     }
-                     
-                     $linea->pvpunitario = floatval($_POST['pvp_'.$i]);
-                     $linea->cantidad = floatval($_POST['cantidad_'.$i]);
-                     $linea->dtopor = floatval($_POST['dto_'.$i]);
-                     $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
-                     $linea->pvptotal = floatval($_POST['neto_'.$i]);
-                     
-                     if( $linea->save() )
-                     {
-                        /// sumamos al stock
-                        $articulo->sum_stock($factura->codalmacen, $linea->cantidad);
-                        
-                        if($articulo->costemedio == 0)
-                        {
-                           $articulo->costemedio = $linea->pvptotal/$linea->cantidad;
-                           $articulo->save();
-                        }
-                        
-                        $factura->neto += $linea->pvptotal;
-                        $factura->totaliva += ($linea->pvptotal * $linea->iva/100);
-                        $factura->totalirpf += ($linea->pvptotal * $linea->irpf/100);
-                        $factura->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                        $linea->codimpuesto = $imp0->codimpuesto;
+                        $linea->iva = floatval($_POST['iva_'.$i]);
+                        $linea->recargo = floatval($_POST['recargo_'.$i]);
                      }
                      else
                      {
-                        $this->new_error_msg("¡Imposible guardar la linea con referencia: ".$linea->referencia);
-                        $continuar = FALSE;
+                        $linea->iva = floatval($_POST['iva_'.$i]);
+                        $linea->recargo = floatval($_POST['recargo_'.$i]);
                      }
+                  }
+                  
+                  $linea->irpf = floatval($_POST['irpf_'.$i]);
+                  $linea->pvpunitario = floatval($_POST['pvp_'.$i]);
+                  $linea->cantidad = floatval($_POST['cantidad_'.$i]);
+                  $linea->dtopor = floatval($_POST['dto_'.$i]);
+                  $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
+                  $linea->pvptotal = floatval($_POST['neto_'.$i]);
+                  
+                  $articulo = $art0->get($_POST['referencia_'.$i]);
+                  if($articulo)
+                  {
+                     $linea->referencia = $articulo->referencia;
+                  }
+                  
+                  if( $linea->save() )
+                  {
+                     if($articulo)
+                     {
+                        if( isset($_POST['costemedio']) )
+                        {
+                           if($articulo->costemedio == 0)
+                           {
+                              $articulo->costemedio = $linea->pvptotal/$linea->cantidad;
+                           }
+                           else
+                           {
+                              $articulo->costemedio = $articulo->get_costemedio();
+                           }
+                        }
+                        
+                        if( isset($_POST['stock']) )
+                        {
+                           $articulo->sum_stock($albaran->codalmacen, $linea->cantidad);
+                        }
+                        else if( isset($_POST['costemedio']) )
+                        {
+                           $articulo->save();
+                        }
+                     }
+                     
+                     $factura->neto += $linea->pvptotal;
+                     $factura->totaliva += ($linea->pvptotal * $linea->iva/100);
+                     $factura->totalirpf += ($linea->pvptotal * $linea->irpf/100);
+                     $factura->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
                   }
                   else
                   {
-                     $this->new_error_msg("Artículo no encontrado: ".$_POST['referencia_'.$i]);
+                     $this->new_error_msg("¡Imposible guardar la linea con referencia: ".$linea->referencia);
                      $continuar = FALSE;
                   }
                }
@@ -585,6 +616,11 @@ class nueva_compra extends fs_controller
                   $this->generar_asiento($factura);
                   $this->new_message("<a href='".$factura->url()."'>Factura</a> guardada correctamente.");
                   $this->new_change('Factura Proveedor '.$factura->codigo, $factura->url(), TRUE);
+                  
+                  if($_POST['redir'] == 'TRUE')
+                  {
+                     header('Location: '.$factura->url());
+                  }
                }
                else
                   $this->new_error_msg("¡Imposible actualizar la <a href='".$factura->url()."'>factura</a>!");

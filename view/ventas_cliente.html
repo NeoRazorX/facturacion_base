@@ -6,12 +6,13 @@
    {
       $("#panel_generales").hide();
       $("#panel_facturacion").hide();
-      $("#panel_cuentas").hide();
+      $("#panel_cuentasb").hide();
       $("#panel_direcciones").hide();
       $("#div_subcuentas").hide();
       $("#chart_albaranes_month").hide();
       $("#b_generales").removeClass('active');
       $("#b_facturacion").removeClass('active');
+      $("#b_cuentasb").removeClass('active');
       $("#b_direcciones").removeClass('active');
       $("#b_subcuentas").removeClass('active');
       $("#b_stats").removeClass('active');
@@ -19,9 +20,13 @@
       if(window.location.hash.substring(1) == 'facturacion')
       {
          $("#panel_facturacion").show();
-         $("#panel_cuentas").show();
          $("#b_facturacion").addClass('active');
          document.f_cliente.codgrupo.focus();
+      }
+      else if(window.location.hash.substring(1) == 'cuentasb')
+      {
+         $("#panel_cuentasb").show();
+         $("#b_cuentasb").addClass('active');
       }
       else if(window.location.hash.substring(1) == 'direcciones')
       {
@@ -135,6 +140,9 @@
             <a id="b_facturacion" href="#facturacion" class="list-group-item">
                <span class="glyphicon glyphicon-usd"></span> &nbsp; Facturación
             </a>
+            <a id="b_cuentasb" href="#cuentasb" class="list-group-item">
+               <span class="glyphicon glyphicon-credit-card"></span> &nbsp; Cuentas bancarias
+            </a>
             <a id="b_direcciones" href="#direcciones" class="list-group-item">
                <span class="glyphicon glyphicon-road"></span> &nbsp; Direcciones
             </a>
@@ -201,8 +209,7 @@
                </div>
                <div class="panel-footer text-right">
                   <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                     <span class="glyphicon glyphicon-floppy-disk"></span>
-                     &nbsp; Guardar
+                     <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                   </button>
                </div>
             </div>
@@ -271,14 +278,13 @@
                </div>
                <div class="panel-footer text-right">
                   <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='{$fsc->url()}#facturacion';this.form.submit();">
-                     <span class="glyphicon glyphicon-floppy-disk"></span>
-                     &nbsp; Guardar
+                     <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                   </button>
                </div>
             </div>
          </form>
          
-         <div class="panel-group" id="panel_cuentas">
+         <div id="panel_cuentasb">
             {loop="$fsc->cuenta_banco->all_from_cliente($fsc->cliente->codcliente)"}
             <form action="{$fsc->url()}#facturacion" method="post" class="form">
                <input type="hidden" name="codcuenta" value="{$value->codcuenta}"/>
@@ -323,7 +329,7 @@
             </div>
          </div>
          
-         <div class="panel-group" id="panel_direcciones">
+         <div id="panel_direcciones">
             {loop="$fsc->cliente->get_direcciones()"}
             <form action="{$fsc->url()}#direcciones" method="post" class="form">
                <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
@@ -357,23 +363,25 @@
                         Dirección:
                         <input class="form-control" type="text" name="direccion" value="{$value->direccion}" autocomplete="off"/>
                      </div>
-                     <div class="form-group col-lg-4 col-md-4 col-sm-4">
+                     <div class="form-group col-lg-3 col-md-3 col-sm-3">
                         <span class="text-capitalize">{#FS_APARTADO#}</span>:
                         <input class="form-control" type="text" name="apartado" value="{$value->apartado}" autocomplete="off"/>
                      </div>
-                     <div class="form-group col-lg-4 col-md-4 col-sm-4">
+                     <div class="form-group col-lg-3 col-md-4 col-sm-3">
+                        <div class="checkbox">
                         <label>
                            <input type="checkbox" name="direnvio" value="TRUE"{if="$value->domenvio"} checked="checked"{/if}/>
                            Dirección de envío
                         </label>
-                     </div>
-                     <div class="form-group col-lg-4 col-md-4 col-sm-4">
+                        </div>
+                        <div class="checkbox">
                         <label>
                            <input type="checkbox" name="dirfact" value="TRUE"{if="$value->domfacturacion"} checked="checked"{/if}/>
                            Dirección de facturación
                         </label>
+                        </div>
                      </div>
-                     <div class="form-group col-lg-12 col-md-12 col-sm-12">
+                     <div class="form-group col-lg-6 col-md-6 col-sm-6">
                         Descripción:
                         <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/>
                      </div>

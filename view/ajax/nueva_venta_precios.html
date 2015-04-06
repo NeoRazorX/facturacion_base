@@ -47,12 +47,12 @@
          <td class="text-right">0 %</td>
          <td class="text-right">{$fsc->show_precio($fsc->articulo->costemedio)}</td>
          <td class="text-right">
-            <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{$fsc->articulo->get_descripcion_64()}','{$fsc->articulo->costemedio}','0','{$fsc->articulo->codimpuesto}')">
+            <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{$fsc->articulo->get_descripcion_64()}','{$fsc->articulo->preciocoste()}','0','{$fsc->articulo->codimpuesto}')">
                {$fsc->show_precio($fsc->articulo->costemedio_iva())}
             </a>
          </td>
          <td class="text-right">
-            <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{$fsc->articulo->get_descripcion_64()}','{$fsc->articulo->costemedio}','0','{$fsc->articulo->codimpuesto}')">
+            <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{$fsc->articulo->get_descripcion_64()}','{$fsc->articulo->preciocoste()}','0','{$fsc->articulo->codimpuesto}')">
                <span class="glyphicon glyphicon-shopping-cart" title="añadir"></span>
             </a>
          </td>
