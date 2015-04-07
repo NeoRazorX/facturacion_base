@@ -100,7 +100,7 @@ class ventas_articulo extends fs_controller
          {
             $continuar = TRUE;
             $this->articulo->set_impuesto( $_POST['codimpuesto'] );
-            $this->articulo->set_pvp_iva( $_POST['pvpiva'] );
+            $this->articulo->set_pvp_iva( floatval($_POST['pvpiva']) );
             
             if( isset($_POST['preciocoste']) )
             {
@@ -109,52 +109,7 @@ class ventas_articulo extends fs_controller
             
             if( !$this->articulo->save() )
             {
-               $this->new_error_msg("¡Imposible modificar el artículo!");
-               $continuar = FALSE;
-            }
-            
-            /// No se guardan los precios si PVP es cero, porque se guarda 0% de descuento, independientemente de la tarifa
-            if($_POST['pvpiva'] > 0)
-            {
-               $tarifa_articulo = new tarifa_articulo();
-               for($i = 0; $i < 100; $i++)
-               {
-                  if( isset($_POST['codtarifa_'.$i]) )
-                  {
-                     $ta = FALSE;
-                     if($_POST['id_'.$i] != '')
-                     {
-                        $ta = $tarifa_articulo->get($_POST['id_'.$i]);
-                     }
-                     
-                     if(!$ta)
-                     {
-                        $ta = new tarifa_articulo();
-                        $ta->codtarifa = $_POST['codtarifa_'.$i];
-                        $ta->referencia = $this->articulo->referencia;
-                     }
-                     
-                     $ta->pvp = $this->articulo->pvp;
-                     $ta->iva = $this->articulo->get_iva();
-                     $ta->set_pvp_iva($_POST['pvpiva_'.$i]);
-                     if( !$ta->save() )
-                     {
-                        $this->new_error_msg("¡Imposible modificar la tarifa!");
-                        $continuar = FALSE;
-                     }
-                  }
-                  else
-                     break;
-               }
-            }
-            else
-            {
-               $this->new_advice("Debe establecer el Precio de Venta.");
-            }
-            
-            if($continuar)
-            {
-               $this->new_message("Precios modificadas correctamente.");
+               $this->new_message("Precio modificado correctamente.");
             }
          }
       }
@@ -255,8 +210,8 @@ class ventas_articulo extends fs_controller
          $this->articulo->sevende = isset($_POST['sevende']);
          $this->articulo->publico = isset($_POST['publico']);
          $this->articulo->observaciones = $_POST['observaciones'];
-         $this->articulo->stockmin = $_POST['stockmin'];
-         $this->articulo->stockmax = $_POST['stockmax'];
+         $this->articulo->stockmin = floatval($_POST['stockmin']);
+         $this->articulo->stockmax = floatval($_POST['stockmax']);
          if( $this->articulo->save() )
          {
             $this->new_message("Datos del articulo modificados correctamente");

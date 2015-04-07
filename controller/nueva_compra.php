@@ -358,17 +358,15 @@ class nueva_compra extends fs_controller
                   {
                      if($articulo)
                      {
-                        if( isset($_POST['costemedio']) )
-                        {
-                           $articulo->costemedio = $articulo->get_costemedio();
-                        }
-                        
                         if( isset($_POST['stock']) )
                         {
-                           $articulo->sum_stock($albaran->codalmacen, $linea->cantidad);
+                           $articulo->sum_stock($albaran->codalmacen, $linea->cantidad, isset($_POST['costemedio']) );
                         }
                         else if( isset($_POST['costemedio']) )
                         {
+                           $articulo->stockfis += $linea->cantidad;
+                           $articulo->costemedio = $articulo->get_costemedio();
+                           $articulo->stockfis -= $linea->cantidad;
                            $articulo->save();
                         }
                      }
@@ -575,7 +573,7 @@ class nueva_compra extends fs_controller
                         
                         if( isset($_POST['stock']) )
                         {
-                           $articulo->sum_stock($albaran->codalmacen, $linea->cantidad);
+                           $articulo->sum_stock($factura->codalmacen, $linea->cantidad);
                         }
                         else if( isset($_POST['costemedio']) )
                         {

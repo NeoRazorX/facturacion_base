@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -157,11 +157,18 @@ class contabilidad_nuevo_asiento extends fs_controller
                {
                   $this->new_message("<a href='".$this->asiento->url()."'>Asiento</a> guardado correctamente!");
                   $this->new_change('Asiento '.$this->asiento->numero, $this->asiento->url(), TRUE);
+                  
+                  if($_POST['redir'] == 'TRUE')
+                  {
+                     header('Location: '.$this->asiento->url());
+                  }
                }
                else
                {
                   if( $this->asiento->delete() )
+                  {
                      $this->new_error_msg("¡Error en alguna de las partidas! Se ha borrado el asiento.");
+                  }
                   else
                      $this->new_error_msg("¡Error en alguna de las partidas! Además ha sido imposible borrar el asiento.");
                }

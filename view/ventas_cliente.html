@@ -286,7 +286,7 @@
          
          <div id="panel_cuentasb">
             {loop="$fsc->cuenta_banco->all_from_cliente($fsc->cliente->codcliente)"}
-            <form action="{$fsc->url()}#facturacion" method="post" class="form">
+            <form action="{$fsc->url()}#cuentasb" method="post" class="form">
                <input type="hidden" name="codcuenta" value="{$value->codcuenta}"/>
                <input type="hidden" name="codcliente" value="{$value->codcliente}"/>
                <div class="panel panel-info">
@@ -308,13 +308,11 @@
                      </div>
                   </div>
                   <div class="panel-footer text-right">
-                     <a class="btn btn-sm btn-danger pull-left" type="button" href="{$fsc->url()}&delete_cuenta={$value->codcuenta}#facturacion">
-                         <span class="glyphicon glyphicon-trash"></span>
-                         &nbsp; Eliminar
+                     <a class="btn btn-sm btn-danger pull-left" type="button" href="{$fsc->url()}&delete_cuenta={$value->codcuenta}#cuentasb">
+                        <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
                      </a>
                      <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                         <span class="glyphicon glyphicon-floppy-disk"></span>
-                         &nbsp; Guardar
+                        <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                      </button>
                   </div>
                </div>
@@ -388,12 +386,10 @@
                   </div>
                   <div class="panel-footer text-right">
                      <a class="btn btn-sm btn-danger pull-left" type="button" href="{$fsc->url()}&delete_dir={$value->id}#direcciones">
-                         <span class="glyphicon glyphicon-trash"></span>
-                         &nbsp; Eliminar
+                        <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
                      </a>
                      <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                         <span class="glyphicon glyphicon-floppy-disk"></span>
-                         &nbsp; Guardar
+                        <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                      </button>
                   </div>
                </div>
@@ -457,7 +453,7 @@
    </div>
 </div>
 
-<form name="f_nueva_cuenta" action="{$fsc->url()}#facturacion" method="post" class="form">
+<form name="f_nueva_cuenta" action="{$fsc->url()}#cuentasb" method="post" class="form">
    <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
    <div class="modal" id="modal_nueva_cuenta">
       <div class="modal-dialog">
@@ -482,8 +478,7 @@
             </div>
             <div class="modal-footer">
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span>
-                  &nbsp; Guardar
+                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                </button>
             </div>
          </div>
@@ -549,8 +544,7 @@
             </div>
             <div class="modal-footer">
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span>
-                  &nbsp; Guardar
+                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                </button>
             </div>
          </div>

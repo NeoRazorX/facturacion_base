@@ -63,104 +63,17 @@
       {
          if( $("#dto_"+i) )
          {
-            dto = parseFloat( $("#dto_"+i).val() );
+            dto = parseFloat( $("#dto_"+i).html() );
             if( isNaN(dto) )
                dto = 0;
             
             npvp = pvp * (100 - dto)/100;
-            $("#pvp_"+i).val( npvp );
-            $("#pvpi_"+i).val( pvp * (100 - dto)/100 * (100 + iva)/100 );
+            $("#pvp_"+i).html( show_precio(npvp) );
+            $("#pvpi_"+i).html( show_precio(pvp * (100 - dto)/100 * (100 + iva)/100) );
             
             if(coste > 0)
             {
-               $("#margen_"+i).val( (npvp*100)/coste - 100 );
-            }
-         }
-      }
-   }
-   function tarifas_dto()
-   {
-      var coste = parseFloat( $("#coste").val() );
-      var pvp = parseFloat( $("#pvp").val() );
-      var iva = parseFloat( $("#iva").val() );
-      var npvp = 0;
-      var dto = 0;
-      for(var i=0; i<100; i++)
-      {
-         if( $("#dto_"+i) )
-         {
-            dto = parseFloat( $("#dto_"+i).val() );
-            if( isNaN(dto) )
-               dto = 0;
-            
-            npvp = pvp * (100 - dto)/100;
-            $("#pvp_"+i).val( npvp );
-            $("#pvpi_"+i).val( npvp * (100 + iva)/100 );
-            
-            if(coste > 0)
-            {
-               $("#margen_"+i).val( (npvp*100)/coste - 100 );
-            }
-         }
-      }
-   }
-   function tarifas_pvp()
-   {
-      var coste = parseFloat( $("#coste").val() );
-      var pvp = parseFloat( $("#pvp").val() );
-      var iva = parseFloat( $("#iva").val() );
-      var npvp = 0;
-      var dto = 0;
-      for(var i=0; i<100; i++)
-      {
-         if( $("#pvp_"+i) )
-         {
-            npvp = parseFloat( $("#pvp_"+i).val() );
-            if(pvp == 0)
-            {
-               $("#pvp").val(npvp);
-               cambiar_pvp();
-               pvp = parseFloat( $("#pvp").val() );
-               iva = parseFloat( $("#iva").val() );
-            }
-            
-            $("#dto_"+i).val( 100 - (100*npvp)/pvp );
-            $("#pvpi_"+i).val( npvp * (100 + iva)/100 );
-            
-            if(coste > 0)
-            {
-               $("#margen_"+i).val( (npvp*100)/coste - 100 );
-            }
-         }
-      }
-   }
-   function tarifas_pvpi()
-   {
-      var coste = parseFloat( $("#coste").val() );
-      var pvp = parseFloat( $("#pvp").val() );
-      var iva = parseFloat( $("#iva").val() );
-      var npvp = 0;
-      var npvpi = 0;
-      for(var i=0; i<100; i++)
-      {
-         if( $("#pvp_"+i) )
-         {
-            npvpi = parseFloat( $("#pvpi_"+i).val() );
-            if(parseFloat($("#pvpi").val()) == 0)
-            {
-               $("#pvpi").val(npvpi);
-               cambiar_pvpi();
-               pvp = parseFloat( $("#pvp").val() );
-               iva = parseFloat( $("#iva").val() );
-            }
-            
-            npvp = (100*npvpi)/(100+iva);
-            $("#pvp_"+i).val( npvp );
-            $("#dto_"+i).val( 100 - (100*npvp)/pvp );
-            
-            if(coste > 0)
-            {
-               $("#margen_"+i).val( (npvp*100)/coste - 100 );
+               $("#margen_"+i).html( (npvp*100)/coste - 100 );
             }
          }
       }
@@ -469,7 +382,7 @@
                   <thead>
                      <tr>
                         <th class="text-left">Tarifa</th>
-                        <th class="text-right">Dto (%)</th>
+                        <th class="text-right">Descuento %</th>
                         <th class="text-right">PVP</th>
                         <th class="text-right">PVP+{#FS_IVA#}</th>
                         <th class="text-right">Margen (% sobre Coste)</th>
@@ -478,31 +391,23 @@
                   {loop="$fsc->articulo->get_tarifas(TRUE)"}
                   <tr>
                      <td><div class="form-control"><a href="{$value->url()}">{$value->nombre}</a></div></td>
-                     <td>
-                        <input type="hidden" name="id_{$counter}" value="{$value->id}"/>
-                        <input type="hidden" name="codtarifa_{$counter}" value="{$value->codtarifa}"/>
-                        <input type="text" class="form-control text-right" id="dto_{$counter}" name="dto_{$counter}" value="{$value->descuento}" autocomplete="off" onkeyup="tarifas_dto()" onclick="this.select()"/>
-                     </td>
-                     <td>
-                        <input type="text" class="form-control text-right" id="pvp_{$counter}" name="pvp_{$counter}" value="{$value->pvp()}" autocomplete="off" onkeyup="tarifas_pvp()" onclick="this.select()"/>
-                     </td>
-                     <td>
-                        <input type="text" class="form-control text-right" id="pvpi_{$counter}" name="pvpiva_{$counter}" value="{$value->pvp_iva()}" autocomplete="off" onkeyup="tarifas_pvpi()" onclick="this.select()"/>
-                     </td>
-                     <td><input type="text" class="form-control text-right" id="margen_{$counter}" name="margen_{$counter}" disabled="disabled"/></td>
+                     <td><div id="dto_{$counter}" class="form-control text-right">{$value->descuento}</div></td>
+                     <td><div id="pvp_{$counter}" class="form-control text-right">{$fsc->show_precio($value->pvp())}</div></td>
+                     <td><div id="pvpi_{$counter}" class="form-control text-right">{$fsc->show_precio($value->pvp_iva())}</div></td>
+                     <td><div id="margen_{$counter}" class="form-control text-right">0</div></td>
                   </tr>
                   {/loop}
-                  <tr>
-                     <td colspan="5" class="text-center">
-                        <a class="btn btn-sm btn-block btn-success" href="index.php?page=ventas_articulos#tarifas">Nueva tarifa</a>
-                     </td>          
-                  </tr>
                </table>
             </div>
             <div class="container-fluid">
                <div class="row">
-                  <div class="col-md-12 text-right">
-                     <br />
+                  <div class="col-xs-6">
+                     <a class="btn btn-sm btn-success" href="index.php?page=ventas_articulos#tarifas">
+                        <span class="glyphicon glyphicon-edit"></span>
+                        <span class="hidden-xs">&nbsp; Nueva tarifa</span>
+                     </a>
+                  </div>
+                  <div class="col-xs-6 text-right">
                      <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
                         <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                      </button>
@@ -634,7 +539,8 @@
       {loop="$fsc->extensions"}
          {if="$value->type=='tab'"}
          <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
-            <iframe src="index.php?page={$value->from}{$value->params}&ref={function="urlencode($fsc->articulo->referencia)"}" width="100%" height="600" frameborder="0"></iframe>
+            <iframe src="index.php?page={$value->from}{$value->params}&ref={function="urlencode($fsc->articulo->referencia)"}" width="100%" height="600" frameborder="0">
+            </iframe>
          </div>
          {/if}
       {/loop}

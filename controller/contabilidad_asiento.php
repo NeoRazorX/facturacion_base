@@ -161,15 +161,6 @@ class contabilidad_asiento extends fs_controller
          $continuar = TRUE;
          $numlineas = intval($_POST['numlineas']);
          
-         for($i = 1; $i <= $numlineas; $i++)
-         {
-            if( !isset($_POST['idpartida_'.$i]) )
-            {
-               $this->new_error_msg('Línea '.$i.' no encontrada.');
-               return 0;
-            }
-         }
-         
          /// eliminamos las partidas que faltan
          foreach($this->asiento->get_partidas() as $pa)
          {
@@ -264,7 +255,7 @@ class contabilidad_asiento extends fs_controller
                   }
                   else
                   {
-                     $this->new_error_msg('Subcuenta '.$_POST['codsubcuenta_'.$i].' no encontrada.');
+                     $this->new_error_msg('Subcuenta '.$_POST['codsubcuenta_'.$i].' de la línea '.$i.' no encontrada.');
                      $continuar = FALSE;
                   }
                }

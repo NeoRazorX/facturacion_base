@@ -407,7 +407,12 @@ class articulo extends fs_model
          }
       }
       
-      return $coste/$stock;
+      if($stock > 0)
+      {
+         return $coste/$stock;
+      }
+      else
+         return $coste;
    }
    
    public function imagen_url()
@@ -581,7 +586,7 @@ class articulo extends fs_model
       return $result;
    }
    
-   public function sum_stock($almacen, $cantidad=1)
+   public function sum_stock($almacen, $cantidad=1, $recalcula_coste=FALSE)
    {
       $result = FALSE;
       $stock = new stock();
@@ -612,6 +617,10 @@ class articulo extends fs_model
          if($this->stockfis != $nuevo_stock)
          {
             $this->stockfis =  $nuevo_stock;
+            if($recalcula_coste)
+            {
+               $this->costemedio = $this->get_costemedio();
+            }
             
             if($this->exists)
             {
