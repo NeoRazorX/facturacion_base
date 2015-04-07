@@ -315,7 +315,8 @@ function aux_all_impuestos(num,codimpuesto)
    html += "<td class=\"recargo\"><input type=\"text\" class=\"form-control text-right\" id=\"recargo_"+num+"\" name=\"recargo_"+num+
            "\" value=\""+recargo+"\" onclick=\"this.select()\" onkeyup=\"recalcular()\" autocomplete=\"off\"/></td>";
    
-   html += "<td class=\"irpf\"><div class=\"form-control text-right\" id=\"irpf_"+num+"\">"+show_numero(irpf)+"</div></td>";
+   html += "<td class=\"irpf\"><input type=\"text\" class=\"form-control text-right\" id=\"irpf_"+num+"\" name=\"irpf_"+num+
+         "\" value=\""+irpf+"\" onclick=\"this.select()\" onkeyup=\"recalcular()\" autocomplete=\"off\"/></td>";
    
    return html;
 }
@@ -350,6 +351,39 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto)
    $("#kiwimaru_results").html('');
    $("#nuevo_articulo").hide();
    $("#modal_articulos").modal('hide');
+   
+   $("#desc_"+(numlineas-1)).select();
+}
+
+function add_linea_libre()
+{
+   codimpuesto = false;
+   for(var i=0; i<all_impuestos.length; i++)
+   {
+      codimpuesto = all_impuestos[i].codimpuesto;
+   }
+   
+   $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\
+      <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
+         <input type=\"hidden\" name=\"referencia_"+numlineas+"\"/>\n\
+         <div class=\"form-control\"></div></td>\n\
+      <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\"></textarea></td>\n\
+      <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
+         "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
+      <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
+         <span class=\"glyphicon glyphicon-trash\"></span></button></td>\n\
+      <td><input type=\"text\" class=\"form-control text-right\" id=\"pvp_"+numlineas+"\" name=\"pvp_"+numlineas+"\" value=\"0\"\n\
+          onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+      <td><input type=\"text\" id=\"dto_"+numlineas+"\" name=\"dto_"+numlineas+"\" value=\"0\" class=\"form-control text-right\"\n\
+          onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+      <td><input type=\"text\" class=\"form-control text-right\" id=\"neto_"+numlineas+"\" name=\"neto_"+numlineas+
+         "\" onchange=\"ajustar_neto()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+      "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
+      <td><input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
+         "\" onchange=\"ajustar_total()\" onclick=\"this.select()\" autocomplete=\"off\"/></td></tr>");
+   numlineas += 1;
+   $("#numlineas").val(numlineas);
+   recalcular();
    
    $("#desc_"+(numlineas-1)).select();
 }
@@ -484,7 +518,7 @@ function buscar_articulos()
             var insertar = false;
             $.each(json, function(key, val) {
                items.push( "<tr><td>"+val.sector+" / <a href=\""+val.link+"\" target=\"_blank\">"+val.tienda+"</a> / "+val.familia+"</td>\n\
-                  <td><a href=\"#\" onclick=\"kiwi_import('"+val.referencia+"','"+val.descripcion+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
+                  <td><a href=\"#\" onclick=\"kiwi_import('"+val.referencia+"','"+val.descripcion+"','"+val.precio+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
                   <td class=\"text-right\"><span title=\"última comprobación "+val.fcomprobado+"\">"+show_precio(val.precio)+"</span></td></tr>" );
                
                if(val.query == document.f_buscar_articulos.query.value)
@@ -529,7 +563,7 @@ function show_pvp_iva(pvp,codimpuesto)
    return show_precio(pvp + pvp*iva/100);
 }
 
-function kiwi_import(ref, desc)
+function kiwi_import(ref,desc,pvp)
 {
    $("#nav_articulos li").each(function() {
       $(this).removeClass("active");
@@ -540,6 +574,7 @@ function kiwi_import(ref, desc)
    $("#nuevo_articulo").show();
    document.f_nuevo_articulo.referencia.value = ref;
    document.f_nuevo_articulo.descripcion.value = desc;
+   document.f_nuevo_articulo.pvp.value = pvp;
    document.f_nuevo_articulo.referencia.select();
 }
 
