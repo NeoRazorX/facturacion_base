@@ -16,6 +16,11 @@
       $("#div_tarifas").show();
       document.f_nueva_tarifa.nombre.focus();
    }
+   function eliminar_tarifa(cod)
+   {
+      if( confirm("¿Realmente desea eliminar la tarifa "+cod+"?") )
+         window.location.href = '{$fsc->url()}&delete_tarifa='+cod+'#tarifas';
+   }
    $(document).ready(function() {
       document.f_custom_search.query.focus();
       
@@ -111,12 +116,14 @@
          <span class="hidden-xs">&nbsp; Públicos</span>
       </a>
    </li>
+   {if="$fsc->mostrar_tab_tarifas"}
    <li id="b_tarifas">
       <a href="#tarifas">
          <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
          <span class="hidden-xs">&nbsp; Tarifas</span>
       </a>
    </li>
+   {/if}
 </ul>
 
 <div id="div_articulos">
@@ -163,7 +170,7 @@
                <th class="text-right">Stock</th>
             </tr>
          </thead>
-         {if="isset($_GET['solo_stock'])"}
+         {if="isset($_GET['solo_stock']) AND $fsc->resultados"}
          <tr class="bg-info">
             <td colspan="5">
                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> &nbsp;
@@ -208,6 +215,7 @@
    </ul>
 </div>
 
+{if="$fsc->mostrar_tab_tarifas"}
 <div id="div_tarifas" class="table-responsive" style="display: none;">
    <table class="table table-hover">
       <thead>
@@ -222,9 +230,7 @@
       <form action="{$fsc->url()}#tarifas" method="post" class="form">
          <input type="hidden" name="codtarifa" value="{$value->codtarifa}"/>
          <tr>
-            <td>
-               <input class="form-control" type="text" name="codtarifa" value="{$value->codtarifa}" maxlength="6" autocomplete="off"/>
-            </td>
+            <td><div class="form-control">{$value->codtarifa}</div></td>
             <td>
                <input class="form-control" type="text" name="nombre" value="{$value->nombre}" maxlength="50" autocomplete="off"/>
             </td>
@@ -234,7 +240,7 @@
             <td class="text-right">
                <div class="btn-group">
                   {if="$fsc->allow_delete"}
-                  <a class="btn btn-sm btn-danger" type="button" title="Eliminar" href="{$fsc->url()}&delete_tarifa={$value->codtarifa}#tarifas">
+                  <a href="#" class="btn btn-sm btn-danger" title="Eliminar" onclick="eliminar_tarifa('{$value->codtarifa}')">
                      <span class="glyphicon glyphicon-trash"></span>
                   </a>
                   {/if}
@@ -266,6 +272,7 @@
       </form>
    </table>
 </div>
+{/if}
 
 <form class="form-horizontal" role="form" name="f_nuevo_articulo" action="{$fsc->url()}" method="post">
    <div class="modal" id="modal_nuevo_articulo">

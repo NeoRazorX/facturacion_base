@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -51,6 +51,16 @@ class grupo_clientes extends fs_model
       return '';
    }
    
+   public function url()
+   {
+      if( is_null($this->codgrupo) )
+      {
+         return 'index.php?page=ventas_clientes#grupos';
+      }
+      else
+         return 'index.php?page=ventas_clientes&grupo='.$this->codgrupo;
+   }
+   
    public function get_new_codigo()
    {
       $sql = "SELECT MAX(".$this->db->sql_to_int('codgrupo').") as cod FROM ".$this->table_name.";";
@@ -78,15 +88,9 @@ class grupo_clientes extends fs_model
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE codgrupo = ".$this->var2str($this->codgrupo).";");
    }
    
-   public function test()
-   {
-      $this->nombre = $this->no_html($this->nombre);
-      return TRUE;
-   }
-   
    public function save()
    {
-      $this->test();
+      $this->nombre = $this->no_html($this->nombre);
       
       if( $this->exists() )
       {
@@ -112,6 +116,20 @@ class grupo_clientes extends fs_model
       $glist = array();
       
       $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY codgrupo ASC;");
+      if($data)
+      {
+         foreach($data as $d)
+            $glist[] = new grupo_clientes($d);
+      }
+      
+      return $glist;
+   }
+   
+   public function all_with_tarifa($cod)
+   {
+      $glist = array();
+      
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codtarifa = ".$this->var2str($cod)." ORDER BY codgrupo ASC;");
       if($data)
       {
          foreach($data as $d)

@@ -28,8 +28,10 @@ require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('familia.php');
 require_model('forma_pago.php');
+require_model('grupo_clientes.php');
 require_model('impuesto.php');
 require_model('serie.php');
+require_model('tarifa.php');
 
 class tpv_recambios extends fs_controller
 {
@@ -50,7 +52,6 @@ class tpv_recambios extends fs_controller
    public $impuesto;
    public $results;
    public $serie;
-   public $tarifas;
    public $ultimas_compras;
    public $ultimas_ventas;
    
@@ -224,10 +225,29 @@ class tpv_recambios extends fs_controller
       
       $codfamilia = '';
       if( isset($_POST['codfamilia']) )
+      {
          $codfamilia = $_POST['codfamilia'];
+      }
       
       $con_stock = isset($_POST['con_stock']);
       $this->results = $this->articulo->search($this->query, 0, $codfamilia, $con_stock);
+      
+      /// añadimos el descuento y la cantidad
+      foreach($this->results as $i => $value)
+      {
+         $this->results[$i]->dtopor = 0;
+         $this->results[$i]->cantidad = 1;
+      }
+      
+      /// ejecutamos las funciones de las extensiones
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'function' AND $ext->params == 'new_search')
+         {
+            $name = $ext->text;
+            $name($this->db, $this->results);
+         }
+      }
       
       $cliente = $this->cliente->get($_POST['codcliente']);
       if($cliente)
@@ -236,6 +256,22 @@ class tpv_recambios extends fs_controller
          {
             foreach($this->results as $i => $value)
                $this->results[$i]->iva = 0;
+         }
+         
+         if($cliente->codgrupo)
+         {
+            $grupo0 = new grupo_clientes();
+            $tarifa0 = new tarifa();
+            
+            $grupo = $grupo0->get($cliente->codgrupo);
+            if($grupo)
+            {
+               $tarifa = $tarifa0->get($grupo->codtarifa);
+               if($tarifa)
+               {
+                  $tarifa->set_precios($this->results);
+               }
+            }
          }
       }
    }
@@ -247,6 +283,27 @@ class tpv_recambios extends fs_controller
       $this->articulo = $this->articulo->get($_REQUEST['referencia4precios']);
    }
    
+   public function get_tarifas_articulo($ref)
+   {
+      $tarlist = array();
+      $articulo = new articulo();
+      $tarifa = new tarifa();
+      
+      foreach($tarifa->all() as $tar)
+      {
+         $art = $articulo->get($ref);
+         if($art)
+         {
+            $art->dtopor = 0;
+            $aux = array($art);
+            $tar->set_precios($aux);
+            $tarlist[] = $aux[0];
+         }
+      }
+      
+      return $tarlist;
+   }
+
    private function nuevo_albaran_cliente()
    {
       $continuar = TRUE;

@@ -235,7 +235,7 @@ class ventas_facturas extends fs_controller
    
    public function total_sinpagar()
    {
-      $data = $this->db->select("SELECT COUNT(*) as total FROM facturascli WHERE pagada = false;");
+      $data = $this->db->select("SELECT COUNT(idfactura) as total FROM facturascli WHERE pagada = false;");
       if($data)
       {
          return intval($data[0]['total']);

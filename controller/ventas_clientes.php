@@ -225,7 +225,7 @@ class ventas_clientes extends fs_controller
    
    public function total_clientes()
    {
-      $data = $this->db->select("SELECT COUNT(*) as total FROM clientes;");
+      $data = $this->db->select("SELECT COUNT(codcliente) as total FROM clientes;");
       if($data)
       {
          return intval($data[0]['total']);

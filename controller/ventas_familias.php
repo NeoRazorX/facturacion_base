@@ -83,7 +83,7 @@ class ventas_familias extends fs_controller
    
    public function total_familias()
    {
-      $data = $this->db->select("SELECT COUNT(*) as total FROM familias;");
+      $data = $this->db->select("SELECT COUNT(codfamilia) as total FROM familias;");
       if($data)
       {
          return intval($data[0]['total']);

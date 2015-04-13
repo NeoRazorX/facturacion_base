@@ -24,23 +24,29 @@
       </thead>
       {loop="$fsc->results"}
          {if="$value->sevende"}
+         <!--
+         {$funcion="add_articulo('".$value->referencia."','".$value->get_descripcion_64()."','".$value->pvp."','".$value->dtopor."','".$value->codimpuesto."','".$value->cantidad."')"}
+         {if="$value->stockfis<=0 AND !$value->controlstock"}
+         {$funcion="alert('Sin stock.')"}
+         {elseif="$value->tipo"}
+         {$funcion="add_articulo_".$value->tipo."('".$value->referencia."','".$value->get_descripcion_64()."','".$value->pvp."','".$value->dtopor."','".$value->codimpuesto."','".$value->cantidad."')"}
+         {/if}
+         -->
+         
          <tr{if="$value->bloqueado"} class="bg-danger"{elseif="$value->stockfis<=0"} class="bg-warning"{else} class="bg-success"{/if}>
             <td>
                <a href="#" onclick="get_precios('{$value->referencia}')" title="más detalles"><span class="glyphicon glyphicon-eye-open"></span></a> &nbsp;
-               {if="$value->stockfis>0 OR $value->controlstock"}
-               <a href="#" onclick="add_articulo('{$value->referencia}','{$value->get_descripcion_64()}','{$value->pvp}','0','{$value->codimpuesto}')">
-                  {$value->referencia}
-               </a>
-               {else}
-               <a href="#" onclick="alert('Sin stock.')">{$value->referencia}</a>
-               {/if}
-               {$value->descripcion}
+               <a href="#" onclick="{$funcion}">{$value->referencia}</a> {$value->descripcion}
             </td>
             <td class="text-right">
-               <span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp)}</span>
+               <span title="actualizado el {$value->factualizado}">
+                  {$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100)}
+               </span>
             </td>
             <td class="text-right">
-               <span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp_iva())}</span>
+               <span title="actualizado el {$value->factualizado}">
+                  {$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100*(100 + $value->get_iva())/100)}
+               </span>
             </td>
             <td class="text-right">{$value->stockfis}</td>
          </tr>

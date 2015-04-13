@@ -10,6 +10,11 @@
    {
       $('#tab_clientes a[href="#grupos"]').tab('show');
    }
+   function eliminar_grupo(cod)
+   {
+      if( confirm("¿Realmente desea eliminar el grupo "+cod+"?") )
+         window.location.href = '{$fsc->url()}&delete_grupo='+cod+'#grupos';
+   }
    $(document).ready(function() {
       document.f_custom_search.query.focus();
       
@@ -172,7 +177,7 @@
             <form action="{$fsc->url()}#grupos" method="post" class="form">
                <tr>
                   <td>
-                     <a href="{$fsc->url()}&grupo={$value->codgrupo}" class="btn btn-sm btn-default" title="ver los clientes de este grupo">
+                     <a href="{$value->url()}" class="btn btn-block btn-default" title="ver los clientes de este grupo">
                         <span class="glyphicon glyphicon-eye-open"></span>
                      </a>
                   </td>
@@ -198,7 +203,7 @@
                   <td class="text-right">
                      <div class="btn-group">
                         {if="$fsc->allow_delete"}
-                        <a class="btn btn-sm btn-danger" title="Eliminar" href="{$fsc->url()}&delete_grupo={$value->codgrupo}#grupos">
+                        <a href="#" class="btn btn-sm btn-danger" title="Eliminar" onclick="eliminar_grupo('{$value->codgrupo}')">
                            <span class="glyphicon glyphicon-trash"></span>
                         </a>
                         {/if}

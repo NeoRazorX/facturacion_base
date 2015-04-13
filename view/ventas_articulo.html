@@ -16,8 +16,6 @@
       }
       
       $("#margen").val(margen);
-      
-      recalcular_tarifas();
    }
    function cambiar_pvpi()
    {
@@ -35,8 +33,6 @@
       }
       
       $("#margen").val(margen);
-      
-      recalcular_tarifas();
    }
    function cambiar_margen()
    {
@@ -49,36 +45,24 @@
          var pvp = coste*(100 + margen)/100;
          $("#pvp").val(pvp);
          $("#pvpi").val( pvp * (100 + iva)/100 );
-         recalcular_tarifas();
       }
    }
-   function recalcular_tarifas()
+   function calcular_margen()
    {
       var coste = parseFloat( $("#coste").val() );
-      var iva = parseFloat( $("#iva").val() );
       var pvp = parseFloat( $("#pvp").val() );
-      var npvp = 0;
-      var dto = 0;
-      for(var i=0; i<100; i++)
+      
+      var margen = 0;
+      if(coste > 0)
       {
-         if( $("#dto_"+i) )
-         {
-            dto = parseFloat( $("#dto_"+i).html() );
-            if( isNaN(dto) )
-               dto = 0;
-            
-            npvp = pvp * (100 - dto)/100;
-            $("#pvp_"+i).html( show_precio(npvp) );
-            $("#pvpi_"+i).html( show_precio(pvp * (100 - dto)/100 * (100 + iva)/100) );
-            
-            if(coste > 0)
-            {
-               $("#margen_"+i).html( (npvp*100)/coste - 100 );
-            }
-         }
+         margen = (pvp*100)/coste - 100;
       }
+      
+      $("#margen").val(margen);
    }
    $(document).ready(function() {
+      calcular_margen();
+      
       if(window.location.hash.substring(1) == 'precios')
       {
          $('#tab_articulo a[href="#precios"]').tab('show');
@@ -156,7 +140,10 @@
       {/if}
       {if="$fsc->equivalentes"}
       <li role="presentation">
-         <a href="#equivalentes" aria-controls="settings" role="tab" data-toggle="tab">Equivalentes</a>
+         <a href="#equivalentes" aria-controls="equivalentes" role="tab" data-toggle="tab">
+            <span class="glyphicon glyphicon-random" aria-hidden="true"></span>
+            <span class="hidden-xs">&nbsp; Equivalentes</span>
+         </a>
       </li>
       {/if}
       {loop="$fsc->extensions"}
@@ -195,15 +182,14 @@
                         <input class="form-control" type="text" name="nreferencia" value="{$fsc->articulo->referencia}" maxlength="18" autocomplete="off"/>
                      </div>
                      <div class="form-group">
-                        <a href="{$fsc->familia->url()}">Familia</a>:
-                        <select class="form-control" name="codfamilia">
-                        {loop="$fsc->familia->all()"}
-                           {if="$value->codfamilia===$fsc->articulo->codfamilia"}
-                           <option value="{$value->codfamilia}" selected="selected">{$value->descripcion}</option>
-                           {else}
-                           <option value="{$value->codfamilia}">{$value->descripcion}</option>
-                           {/if}
-                        {/loop}
+                        Tipo:
+                        <select name="tipo" class="form-control">
+                           <option value="">Producto simple</option>
+                           {loop="$fsc->extensions"}
+                              {if="$value->type=='tipo_art'"}
+                              <option value="{$value->params}"{if="$fsc->articulo->tipo==$value->params"} selected="selected"{/if}>{$value->text}</option>
+                              {/if}
+                           {/loop}
                         </select>
                      </div>
                   </div>
@@ -217,23 +203,34 @@
                <div class="row">
                   <div class="col-sm-3">
                      <div class="form-group">
-                        Código de barras:
-                        <input class="form-control" type="text" name="codbarras" value="{$fsc->articulo->codbarras}" autocomplete="off"/>
+                        <a href="{$fsc->familia->url()}">Familia</a>:
+                        <select class="form-control" name="codfamilia">
+                        {loop="$fsc->familia->all()"}
+                           {if="$value->codfamilia===$fsc->articulo->codfamilia"}
+                           <option value="{$value->codfamilia}" selected="selected">{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->codfamilia}">{$value->descripcion}</option>
+                           {/if}
+                        {/loop}
+                        </select>
                      </div>
                   </div>
-                  <div class="col-sm-6">
+                  <div class="col-sm-4">
+                     <div class="form-group">
+                        Código de barras:
+                        <div class="input-group">
+                           <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-barcode" aria-hidden="true"></span>
+                           </span>
+                           <input class="form-control" type="text" name="codbarras" value="{$fsc->articulo->codbarras}" autocomplete="off"/>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-sm-5">
                      <div class="form-group">
                         Código de equivalencia:
                         <input class="form-control" type="text" name="equivalencia" value="{$fsc->articulo->equivalencia}" autocomplete="off"/>
                         <p class="help-block">Dos o más artículos son equivalentes si tienen el mismo código de equivalencia.</p>
-                     </div>
-                  </div>
-                  <div class="col-sm-3">
-                     <div class="form-group">
-                        <label>
-                           <input type="checkbox" name="destacado" value="TRUE"{if="$fsc->articulo->destacado"} checked="checked"{/if}/>
-                           Destacar frente a productos equivalentes
-                        </label>
                      </div>
                   </div>
                </div>
@@ -376,25 +373,33 @@
                   </div>
                </div>
             </div>
-            
             <div class="table-responsive">
                <table class="table table-hover">
                   <thead>
                      <tr>
-                        <th class="text-left">Tarifa</th>
+                        <th colspan="2" class="text-left">Tarifa</th>
                         <th class="text-right">Descuento %</th>
                         <th class="text-right">PVP</th>
                         <th class="text-right">PVP+{#FS_IVA#}</th>
-                        <th class="text-right">Margen (% sobre Coste)</th>
                      </tr>
                   </thead>
-                  {loop="$fsc->articulo->get_tarifas(TRUE)"}
+                  {loop="$fsc->get_tarifas()"}
                   <tr>
-                     <td><div class="form-control"><a href="{$value->url()}">{$value->nombre}</a></div></td>
-                     <td><div id="dto_{$counter}" class="form-control text-right">{$value->descuento}</div></td>
-                     <td><div id="pvp_{$counter}" class="form-control text-right">{$fsc->show_precio($value->pvp())}</div></td>
-                     <td><div id="pvpi_{$counter}" class="form-control text-right">{$fsc->show_precio($value->pvp_iva())}</div></td>
-                     <td><div id="margen_{$counter}" class="form-control text-right">0</div></td>
+                     <td><div class="form-control"><a href="{$value->tarifa_url}">{$value->codtarifa}</a></div></td>
+                     <td><div class="form-control">{$value->tarifa_nombre}</div></td>
+                     <td class="text-right">
+                        <div class="form-control">{$fsc->show_numero($value->dtopor, 2)} %</div>
+                     </td>
+                     <td class="text-right">
+                        <div class="form-control">{$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100)}</div>
+                     </td>
+                     <td class="text-right">
+                        <div class="form-control">{$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100*(100 + $value->get_iva())/100)}</div>
+                     </td>
+                  </tr>
+                  {else}
+                  <tr class="bg-warning">
+                     <td colspan="5">No hay tarifas definidas.</td>
                   </tr>
                   {/loop}
                </table>
@@ -517,13 +522,18 @@
                <thead>
                   <tr>
                      <th class="text-left">Artículo</th>
+                     <th class="text-right">PVP</th>
                      <th class="text-right">PVP+{#FS_IVA#}</th>
                      <th class="text-right">Stock</th>
                   </tr>
                </thead>
                {loop="$fsc->equivalentes"}
-               <tr>
-                  <td><a href="{$value->url()}">{$value->referencia}</a></td>
+               <tr class="clickableRow" href="{$value->url()}">
+                  <td>
+                     <a href="{$value->url()}">{$value->referencia}</a>
+                     {$value->descripcion}
+                  </td>
+                  <td class="text-right">{$fsc->show_precio($value->pvp)}</td>
                   <td class="text-right">{$fsc->show_precio($value->pvp_iva())}</td>
                   <td class="text-right">{$value->stockfis}</td>
                </tr>

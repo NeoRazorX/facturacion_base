@@ -275,7 +275,7 @@ class ventas_albaranes extends fs_controller
    
    public function total_pendientes()
    {
-      $data = $this->db->select("SELECT COUNT(*) as total FROM albaranescli WHERE ptefactura;");
+      $data = $this->db->select("SELECT COUNT(idalbaran) as total FROM albaranescli WHERE ptefactura;");
       if($data)
       {
          return intval($data[0]['total']);

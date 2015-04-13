@@ -256,7 +256,7 @@ class compras_albaran extends fs_controller
                         $lineas[$k]->codimpuesto = NULL;
                         $lineas[$k]->iva = 0;
                         $lineas[$k]->recargo = 0;
-                        $lineas[$k]->irpf = $this->albaran->irpf;
+                        $lineas[$k]->irpf = floatval($_POST['irpf_'.$num]);
                         if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
                         {
                            $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$num]);

@@ -227,7 +227,7 @@ function get_precios(ref)
    });
 }
 
-function add_articulo(ref,desc,pvp,dto,codimpuesto)
+function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
 {
    numlineas += 1;
    $("#numlineas").val(numlineas);
@@ -258,7 +258,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto)
             <div class=\"form-control\"><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></div></td>\n\
          <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\">"+desc+"</textarea></td>\n\
          <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
-            "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
+            "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\""+cantidad+"\"/></td>\n\
          <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
             <span class=\"glyphicon glyphicon-trash\"></span></button></td>\n\
          <td><input type=\"text\" class=\"form-control text-right\" id=\"pvp_"+numlineas+"\" name=\"pvp_"+numlineas+"\" value=\""+pvp+

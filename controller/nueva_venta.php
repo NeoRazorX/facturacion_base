@@ -97,6 +97,19 @@ class nueva_venta extends fs_controller
       else if( isset($_POST['cliente']) )
       {
          $this->cliente_s = $this->cliente->get($_POST['cliente']);
+         
+         if( isset($_POST['nuevo_cliente']) )
+         {
+            if($_POST['nuevo_cliente'] != '')
+            {
+               $this->cliente_s = new cliente();
+               $this->cliente_s->codcliente = $this->cliente_s->get_new_codigo();
+               $this->cliente_s->nombre = $this->cliente_s->nombrecomercial = $_POST['nuevo_cliente'];
+               $this->cliente_s->cifnif = $_POST['nuevo_dni'];
+               $this->cliente_s->save();
+            }
+         }
+         
          if($this->cliente_s)
          {
             foreach($this->cliente_s->get_direcciones() as $dir)
@@ -237,11 +250,22 @@ class nueva_venta extends fs_controller
       $con_stock = isset($_REQUEST['con_stock']);
       $this->results = $articulo->search($this->query, 0, $codfamilia, $con_stock);
       
-      /// añadimos la busqueda
+      /// añadimos la busqueda, el descuento y la cantidad
       foreach($this->results as $i => $value)
       {
          $this->results[$i]->query = $this->query;
          $this->results[$i]->dtopor = 0;
+         $this->results[$i]->cantidad = 1;
+      }
+      
+      /// ejecutamos las funciones de las extensiones
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'function' AND $ext->params == 'new_search')
+         {
+            $name = $ext->text;
+            $name($this->db, $this->results);
+         }
       }
       
       /// buscamos el grupo de clientes y la tarifa
@@ -251,17 +275,15 @@ class nueva_venta extends fs_controller
          if($cliente->codgrupo)
          {
             $grupo0 = new grupo_clientes();
+            $tarifa0 = new tarifa();
+            
             $grupo = $grupo0->get($cliente->codgrupo);
             if($grupo)
             {
-               $tarifa0 = new tarifa();
                $tarifa = $tarifa0->get($grupo->codtarifa);
                if($tarifa)
                {
-                  foreach($this->results as $i => $value)
-                  {
-                     $this->results[$i]->dtopor = 0 - $tarifa->incporcentual;
-                  }
+                  $tarifa->set_precios($this->results);
                }
             }
          }
@@ -280,6 +302,27 @@ class nueva_venta extends fs_controller
       $this->articulo = $articulo->get($_POST['referencia4precios']);
    }
    
+   public function get_tarifas_articulo($ref)
+   {
+      $tarlist = array();
+      $articulo = new articulo();
+      $tarifa = new tarifa();
+      
+      foreach($tarifa->all() as $tar)
+      {
+         $art = $articulo->get($ref);
+         if($art)
+         {
+            $art->dtopor = 0;
+            $aux = array($art);
+            $tar->set_precios($aux);
+            $tarlist[] = $aux[0];
+         }
+      }
+      
+      return $tarlist;
+   }
+
    private function nuevo_albaran_cliente()
    {
       $continuar = TRUE;

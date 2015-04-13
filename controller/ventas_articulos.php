@@ -29,6 +29,7 @@ class ventas_articulos extends fs_controller
    public $con_stock;
    public $familia;
    public $impuesto;
+   public $mostrar_tab_tarifas;
    public $offset;
    public $resultados;
    public $tarifa;
@@ -47,6 +48,20 @@ class ventas_articulos extends fs_controller
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
+      /**
+       * Si hay alguna extensión de tipo config y texto no_tab_tarifas,
+       * desactivamos la pestaña tarifas.
+       */
+      $this->mostrar_tab_tarifas = TRUE;
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'config' AND $ext->text == 'no_tab_tarifas')
+         {
+            $this->mostrar_tab_tarifas = FALSE;
+            break;
+         }
+      }
       
       $this->codfamilia = '';
       if( isset($_REQUEST['codfamilia']) )

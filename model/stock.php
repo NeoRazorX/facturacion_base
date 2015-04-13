@@ -199,7 +199,7 @@ class stock extends fs_model
    {
       $num = 0;
       
-      $stocks = $this->db->select("SELECT COUNT(*) as total FROM ".$this->table_name.";");
+      $stocks = $this->db->select("SELECT COUNT(idstock) as total FROM ".$this->table_name.";");
       if($stocks)
       {
          $num = intval($stocks[0]['total']);

@@ -136,7 +136,7 @@ class compras_proveedores extends fs_controller
    
    public function total_proveedores()
    {
-      $data = $this->db->select("SELECT COUNT(*) as total FROM proveedores;");
+      $data = $this->db->select("SELECT COUNT(codproveedor) as total FROM proveedores;");
       if($data)
       {
          return intval($data[0]['total']);

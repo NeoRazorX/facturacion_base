@@ -23,6 +23,7 @@ require_model('familia.php');
 require_model('impuesto.php');
 require_model('regularizacion_stock.php');
 require_model('stock.php');
+require_model('tarifa.php');
 
 class ventas_articulo extends fs_controller
 {
@@ -47,6 +48,9 @@ class ventas_articulo extends fs_controller
    protected function process()
    {
       $articulo = new articulo();
+      $this->almacen = new almacen();
+      $this->articulo = FALSE;
+      $this->impuesto = new impuesto();
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -177,6 +181,12 @@ class ventas_articulo extends fs_controller
          $this->articulo = $articulo->get($_POST['referencia']);
          $this->articulo->descripcion = $_POST['descripcion'];
          
+         $this->articulo->tipo = NULL;
+         if($_POST['tipo'] != '')
+         {
+            $this->articulo->tipo = $_POST['tipo'];
+         }
+         
          $this->articulo->codfamilia = NULL;
          if( isset($_POST['codfamilia']) )
          {
@@ -203,7 +213,6 @@ class ventas_articulo extends fs_controller
          
          $this->articulo->codbarras = $_POST['codbarras'];
          $this->articulo->equivalencia = $_POST['equivalencia'];
-         $this->articulo->destacado = isset($_POST['destacado']);
          $this->articulo->bloqueado = isset($_POST['bloqueado']);
          $this->articulo->controlstock = isset($_POST['controlstock']);
          $this->articulo->secompra = isset($_POST['secompra']);
@@ -234,15 +243,12 @@ class ventas_articulo extends fs_controller
             $this->new_advice("Este artículo está bloqueado.");
          }
          
-         $this->almacen = new almacen();
-         
          $this->familia = $this->articulo->get_familia();
          if(!$this->familia)
          {
             $this->familia = new familia();
          }
          
-         $this->impuesto = new impuesto();
          $this->stocks = $this->articulo->get_stock();
          /// metemos en un array los almacenes que no tengan stock de este producto
          $this->nuevos_almacenes = array();
@@ -269,15 +275,31 @@ class ventas_articulo extends fs_controller
    
    public function url()
    {
-      if( !isset($this->articulo) )
-      {
-         return parent::url();
-      }
-      else if($this->articulo)
+      if($this->articulo)
       {
          return $this->articulo->url();
       }
       else
          return $this->page->url();
+   }
+   
+   public function get_tarifas()
+   {
+      $tarlist = array();
+      $tarifa = new tarifa();
+      
+      foreach($tarifa->all() as $tar)
+      {
+         $articulo = $this->articulo->get($this->articulo->referencia);
+         if($articulo)
+         {
+            $articulo->dtopor = 0;
+            $aux = array($articulo);
+            $tar->set_precios($aux);
+            $tarlist[] = $aux[0];
+         }
+      }
+      
+      return $tarlist;
    }
 }
