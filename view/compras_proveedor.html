@@ -4,18 +4,8 @@
 <script type="text/javascript">
    function comprobar_url()
    {
-      $("#panel_generales").hide();
-      $("#panel_facturacion").hide();
-      $("#panel_cuentasb").hide();
-      $("#panel_direcciones").hide();
-      $("#div_subcuentas").hide();
-      $("#chart_albaranes_month").hide();
-      $("#b_generales").removeClass('active');
-      $("#b_facturacion").removeClass('active');
-      $("#b_cuentasb").removeClass('active');
-      $("#b_direcciones").removeClass('active');
-      $("#b_subcuentas").removeClass('active');
-      $("#b_stats").removeClass('active');
+      $(".pseudotab_prov").hide();
+      $("#lista_botones_prov a").removeClass('active');
       
       if(window.location.hash.substring(1) == 'facturacion')
       {
@@ -50,9 +40,19 @@
          document.f_proveedor.nombre.focus();
       }
    }
+   function mostrar_tab(name)
+   {
+      $(".pseudotab_prov").hide();
+      $("#lista_botones_prov a").removeClass('active');
+      
+      $("#ext_"+name).show();
+      $("#b_ext_"+name).addClass('active');
+      
+      return false;
+   }
    $(document).ready(function() {
       comprobar_url();
-      window.onpopstate = function(){
+      window.onpopstate = function() {
          comprobar_url();
       }
       $("#b_eliminar").click(function(event) {
@@ -133,7 +133,7 @@
 <div class="container-fluid">
    <div class="row">
       <div class="col-lg-2 col-md-2 col-sm-3">
-         <div class="list-group">
+         <div id="lista_botones_prov" class="list-group">
             <a id="b_generales" href="#" class="list-group-item active">
                <span class="glyphicon glyphicon-dashboard"></span> &nbsp; Datos generales
             </a>
@@ -151,7 +151,11 @@
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a id="b_{$value->from}" href="index.php?page={$value->from}{$value->params}&codproveedor={$fsc->proveedor->codproveedor}" class="list-group-item">
+               <a href="index.php?page={$value->from}{$value->params}&codproveedor={$fsc->proveedor->codproveedor}" class="list-group-item">
+                  {$value->text}
+               </a>
+               {elseif="$value->type=='tab'"}
+               <a href="#" id="b_ext_{$key}" class="list-group-item" onclick="return mostrar_tab('{$key}');">
                   {$value->text}
                </a>
                {/if}
@@ -165,7 +169,7 @@
       <div class="col-lg-10 col-md-10 col-sm-9">
          <form name="f_proveedor" action="{$fsc->url()}" method="post" class="form">
             <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
-            <div class="panel panel-primary" id="panel_generales">
+            <div class="panel panel-primary pseudotab_prov" id="panel_generales">
                <div class="panel-heading">
                   <h3 class="panel-title">Datos generales</h3>
                </div>
@@ -196,7 +200,7 @@
                   </div>
                   <div class="form-group col-lg-4 col-md-4 col-sm-4">
                      Email:
-                     <input class="form-control" type="text" name="email" value="{$fsc->proveedor->email}" maxlength="50" autocomplete="off"/>
+                     <input class="form-control" type="text" name="email" value="{$fsc->proveedor->email}" autocomplete="off"/>
                   </div>
                   <div class="form-group col-lg-4 col-md-4 col-sm-4">
                      Web:
@@ -214,7 +218,7 @@
                </div>
             </div>
             
-            <div class="panel panel-primary" id="panel_facturacion">
+            <div class="panel panel-primary pseudotab_prov" id="panel_facturacion">
                <div class="panel-heading">
                   <h3 class="panel-title">Facturación</h3>
                </div>
@@ -276,7 +280,7 @@
             </div>
          </form>
          
-         <div id="panel_cuentasb">
+         <div id="panel_cuentasb" class="pseudotab_prov">
             {loop="$fsc->cuenta_banco->all_from_proveedor($fsc->proveedor->codproveedor)"}
             <form action="{$fsc->url()}#cuentasb" method="post" class="form">
                <input type="hidden" name="codcuenta" value="{$value->codcuenta}"/>
@@ -319,7 +323,7 @@
             </div>
          </div>
          
-         <div id="panel_direcciones">
+         <div id="panel_direcciones" class="pseudotab_prov">
             {loop="$fsc->proveedor->get_direcciones()"}
             <form action="{$fsc->url()}#direcciones" method="post" class="form">
                <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
@@ -392,7 +396,7 @@
             </div>
          </div>
          
-         <div class="table-responsive" id="div_subcuentas">
+         <div class="table-responsive pseudotab_prov" id="div_subcuentas">
             <div class="table-responsive">
                <table class="table table-hover">
                   <thead>
@@ -438,7 +442,15 @@
             </div>
          </div>
          
-         <div id="chart_albaranes_month" style="height: 400px;"></div>
+         {loop="$fsc->extensions"}
+            {if="$value->type=='tab'"}
+            <div id="ext_{$key}" class="pseudotab_prov">
+               <iframe src="index.php?page={$value->from}{$value->params}&cod={$fsc->proveedor->codproveedor}" width="100%" height="600" frameborder="0"></iframe>
+            </div>
+            {/if}
+         {/loop}
+         
+         <div id="chart_albaranes_month" class="pseudotab_prov" style="height: 400px;"></div>
       </div>
    </div>
 </div>
