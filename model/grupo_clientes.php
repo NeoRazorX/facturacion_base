@@ -58,7 +58,7 @@ class grupo_clientes extends fs_model
          return 'index.php?page=ventas_clientes#grupos';
       }
       else
-         return 'index.php?page=ventas_clientes&grupo='.$this->codgrupo;
+         return 'index.php?page=ventas_grupo&cod='.$this->codgrupo;
    }
    
    public function get_new_codigo()

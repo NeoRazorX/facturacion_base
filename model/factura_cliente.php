@@ -99,7 +99,9 @@ class factura_cliente extends fs_model
          
          $this->hora = '00:00:00';
          if( !is_null($f['hora']) )
-            $this->hora = $f['hora'];
+         {
+            $this->hora = date('h:i:s', strtotime($f['hora']));
+         }
          
          $this->codcliente = $f['codcliente'];
          $this->nombrecliente = $f['nombrecliente'];

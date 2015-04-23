@@ -27,7 +27,6 @@ class ventas_clientes extends fs_controller
 {
    public $allow_delete;
    public $cliente;
-   public $clientes_grupo;
    public $grupo;
    public $grupos;
    public $offset;
@@ -44,7 +43,6 @@ class ventas_clientes extends fs_controller
    protected function process()
    {
       $this->cliente = new cliente();
-      $this->clientes_grupo = FALSE;
       $this->grupo = new grupo_clientes();
       $this->pais = new pais();
       $this->serie = new serie();
@@ -154,11 +152,6 @@ class ventas_clientes extends fs_controller
          $this->resultados = $this->cliente->all($this->offset);
       
       $this->grupos = $this->grupo->all();
-      
-      if( isset($_GET['grupo']) )
-      {
-         $this->clientes_grupo = $this->clientes_from_grupo($_GET['grupo']);
-      }
    }
    
    public function anterior_url()
@@ -191,20 +184,6 @@ class ventas_clientes extends fs_controller
       }
       
       return $url;
-   }
-   
-   private function clientes_from_grupo($cod)
-   {
-      $clist = array();
-      
-      $data = $this->db->select("SELECT * FROM clientes WHERE codgrupo = ".$this->cliente->var2str($cod).";");
-      if($data)
-      {
-         foreach($data as $d)
-            $clist[] = new cliente($d);
-      }
-      
-      return $clist;
    }
    
    public function nombre_grupo($cod)

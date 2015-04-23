@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'base/fs_printer.php';
 require_model('agente.php');
 require_model('albaran_cliente.php');
 require_model('almacen.php');
@@ -32,6 +31,7 @@ require_model('grupo_clientes.php');
 require_model('impuesto.php');
 require_model('serie.php');
 require_model('tarifa.php');
+require_model('terminal_caja.php');
 
 class tpv_recambios extends fs_controller
 {
@@ -52,12 +52,13 @@ class tpv_recambios extends fs_controller
    public $impuesto;
    public $results;
    public $serie;
+   public $terminal;
    public $ultimas_compras;
    public $ultimas_ventas;
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'TPV Genérico', 'TPV', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'TPV Genérico', 'TPV');
    }
    
    protected function private_core()
@@ -65,7 +66,6 @@ class tpv_recambios extends fs_controller
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
-      $fsvar = new fs_var();
       $this->articulo = new articulo();
       $this->cliente = new cliente();
       $this->cliente_s = FALSE;
@@ -89,47 +89,90 @@ class tpv_recambios extends fs_controller
       {
          $this->agente = $this->user->get_agente();
          $this->almacen = new almacen();
-         $this->caja = new caja();
          $this->divisa = new divisa();
          $this->ejercicio = new ejercicio();
          $this->forma_pago = new forma_pago();
          $this->serie = new serie();
          
          $this->imprimir_descripciones = FALSE;
-         if( isset($_POST['imprimir_desc']) )
-         {
-            $this->imprimir_descripciones = TRUE;
-         }
-         else if( isset($_COOKIE['imprimir_desc']) )
+         if( isset($_REQUEST['imprimir_desc']) )
          {
             $this->imprimir_descripciones = TRUE;
          }
          
          $this->imprimir_observaciones = FALSE;
-         if( isset($_POST['imprimir_obs']) )
-         {
-            $this->imprimir_observaciones = TRUE;
-         }
-         else if( isset($_COOKIE['imprimir_obs']) )
+         if( isset($_REQUEST['imprimir_obs']) )
          {
             $this->imprimir_observaciones = TRUE;
          }
          
          if($this->agente)
          {
-            if( isset($_POST['cliente']) )
+            $this->caja = FALSE;
+            $this->terminal = FALSE;
+            $caja = new caja();
+            $terminal0 = new terminal_caja();
+            foreach($caja->all_by_agente($this->agente->codagente) as $cj)
             {
-               $this->cliente_s = $this->cliente->get($_POST['cliente']);
-               $fsvar->simple_save('tpv_codcliente', $_POST['cliente']);
-            }
-            else
-            {
-               $codcliente = $fsvar->simple_get('tpv_codcliente');
-               if($codcliente)
+               if( $cj->abierta() )
                {
-                  $this->cliente_s = $this->cliente->get($codcliente);
+                  $this->caja = $cj;
+                  $this->terminal = $terminal0->get($cj->fs_id);
+                  break;
                }
-               else
+            }
+            
+            if(!$this->caja)
+            {
+               if( isset($_POST['terminal']) )
+               {
+                  $this->terminal = $terminal0->get($_POST['terminal']);
+                  if(!$this->terminal)
+                  {
+                     $this->new_error_msg('Terminal no encontrado.');
+                  }
+                  else if( $this->terminal->disponible() )
+                  {
+                     $this->caja = new caja();
+                     $this->caja->fs_id = $this->terminal->id;
+                     $this->caja->codagente = $this->agente->codagente;
+                     $this->caja->dinero_inicial = floatval($_POST['d_inicial']);
+                     $this->caja->dinero_fin = floatval($_POST['d_inicial']);
+                     if( $this->caja->save() )
+                     {
+                        $this->new_message("Caja iniciada con ".$this->show_precio($this->caja->dinero_inicial) );
+                     }
+                     else
+                        $this->new_error_msg("¡Imposible guardar los datos de caja!");
+                  }
+                  else
+                     $this->new_error_msg('El terminal ya no está disponible.');
+               }
+               else if( isset($_GET['terminal']) )
+               {
+                  $this->terminal = $terminal0->get($_GET['terminal']);
+                  if($this->terminal)
+                  {
+                     $this->terminal->abrir_cajon();
+                     $this->terminal->save();
+                  }
+                  else
+                     $this->new_error_msg('Terminal no encontrado.');
+               }
+            }
+            
+            if($this->caja)
+            {
+               if( isset($_POST['cliente']) )
+               {
+                  $this->cliente_s = $this->cliente->get($_POST['cliente']);
+               }
+               else if($this->terminal)
+               {
+                  $this->cliente_s = $this->cliente->get($this->terminal->codcliente);
+               }
+               
+               if(!$this->cliente_s)
                {
                   foreach($this->cliente->all() as $cli)
                   {
@@ -137,62 +180,34 @@ class tpv_recambios extends fs_controller
                      break;
                   }
                }
-            }
-            
-            /// obtenemos el bloqueo de caja, sin esto no se puede continuar
-            $this->caja = $this->caja->get_last_from_this_server();
-            if($this->caja)
-            {
-               if($this->caja->codagente == $this->user->codagente)
+               
+               if( isset($_GET['abrir_caja']) )
                {
-                  if( isset($_GET['abrir_caja']) )
+                  $this->abrir_caja();
+               }
+               else if( isset($_GET['cerrar_caja']) )
+               {
+                  $this->cerrar_caja();
+               }
+               else if( isset($_POST['cliente']) )
+               {
+                  if( intval($_POST['numlineas']) > 0 )
                   {
-                     $this->abrir_caja();
-                  }
-                  else if( isset($_GET['cerrar_caja']) )
-                  {
-                     $this->cerrar_caja();
-                  }
-                  else if( isset($_POST['cliente']) )
-                  {
-                     if( intval($_POST['numlineas']) > 0 )
-                     {
-                        $this->nuevo_albaran_cliente();
-                     }
-                  }
-                  else if( isset($_GET['reticket']) )
-                  {
-                     $this->reimprimir_ticket();
-                  }
-                  else if( isset($_GET['delete']) )
-                  {
-                     $this->borrar_ticket();
+                     $this->nuevo_albaran_cliente();
                   }
                }
-               else
+               else if( isset($_GET['reticket']) )
                {
-                  $this->new_error_msg("Esta caja está bloqueada por el agente ".
-                     $this->caja->agente->get_fullname().". Puedes cerrarla desde TPV &gt; Caja."
-                  );
+                  $this->reimprimir_ticket();
                }
-            }
-            else if( isset($_POST['d_inicial']) )
-            {
-               $this->caja = new caja();
-               $this->caja->codagente = $this->user->codagente;
-               $this->caja->dinero_inicial = floatval($_POST['d_inicial']);
-               $this->caja->dinero_fin = floatval($_POST['d_inicial']);
-               if( $this->caja->save() )
+               else if( isset($_GET['delete']) )
                {
-                  $this->new_message("Caja iniciada con ".$this->show_precio($this->caja->dinero_inicial) );
+                  $this->borrar_ticket();
                }
-               else
-                  $this->new_error_msg("¡Imposible guardar los datos de caja!");
             }
             else
             {
-               $fpt = new fs_printer();
-               $fpt->abrir_cajon();
+               $this->results = $terminal0->disponibles();
             }
          }
          else
@@ -522,10 +537,13 @@ class tpv_recambios extends fs_controller
    
    private function abrir_caja()
    {
-      if( $this->user->admin )
+      if($this->user->admin)
       {
-         $fpt = new fs_printer();
-         $fpt->abrir_cajon();
+         if($this->terminal)
+         {
+            $this->terminal->abrir_cajon();
+            $this->terminal->save();
+         }
       }
       else
          $this->new_error_msg('Sólo un administrador puede abrir la caja.');
@@ -536,32 +554,39 @@ class tpv_recambios extends fs_controller
       $this->caja->fecha_fin = Date('d-m-Y H:i:s');
       if( $this->caja->save() )
       {
-         $fpt = new fs_printer();
-         $fpt->add_big("\nCIERRE DE CAJA:\n");
-         $fpt->add("Empleado: ".$this->user->codagente." ".$this->agente->get_fullname()."\n");
-         $fpt->add("Caja: ".$this->caja->fs_id."\n");
-         $fpt->add("Fecha inicial: ".$this->caja->fecha_inicial."\n");
-         $fpt->add("Dinero inicial: ".$this->show_precio($this->caja->dinero_inicial, FALSE, FALSE)."\n");
-         $fpt->add("Fecha fin: ".$this->caja->show_fecha_fin()."\n");
-         $fpt->add("Dinero fin: ".$this->show_precio($this->caja->dinero_fin, FALSE, FALSE)."\n");
-         $fpt->add("Diferencia: ".$this->show_precio($this->caja->diferencia(), FALSE, FALSE)."\n");
-         $fpt->add("Tickets: ".$this->caja->tickets."\n\n");
-         $fpt->add("Dinero pesado:\n\n\n");
-         $fpt->add("Observaciones:\n\n\n\n");
-         $fpt->add("Firma:\n\n\n\n\n\n\n");
-         
-         /// encabezado común para los tickets
-         $fpt->add_big( $fpt->center_text($this->empresa->nombre, 16)."\n");
-         $fpt->add( $fpt->center_text($this->empresa->lema) . "\n\n");
-         $fpt->add( $fpt->center_text($this->empresa->direccion . " - " . $this->empresa->ciudad) . "\n");
-         $fpt->add( $fpt->center_text("CIF: " . $this->empresa->cifnif) . chr(27).chr(105) . "\n\n"); /// corta el papel
-         $fpt->add( $fpt->center_text($this->empresa->horario) . "\n");
-         
-         $fpt->imprimir();
-         $fpt->abrir_cajon();
-         
-         /// recargamos la página
-         header('location: '.$this->url());
+         if( $this->terminal )
+         {
+            $this->terminal->add_linea_big("\nCIERRE DE CAJA:\n");
+            $this->terminal->add_linea("Empleado: ".$this->user->codagente." ".$this->agente->get_fullname()."\n");
+            $this->terminal->add_linea("Caja: ".$this->caja->fs_id."\n");
+            $this->terminal->add_linea("Fecha inicial: ".$this->caja->fecha_inicial."\n");
+            $this->terminal->add_linea("Dinero inicial: ".$this->show_precio($this->caja->dinero_inicial, FALSE, FALSE)."\n");
+            $this->terminal->add_linea("Fecha fin: ".$this->caja->show_fecha_fin()."\n");
+            $this->terminal->add_linea("Dinero fin: ".$this->show_precio($this->caja->dinero_fin, FALSE, FALSE)."\n");
+            $this->terminal->add_linea("Diferencia: ".$this->show_precio($this->caja->diferencia(), FALSE, FALSE)."\n");
+            $this->terminal->add_linea("Tickets: ".$this->caja->tickets."\n\n");
+            $this->terminal->add_linea("Dinero pesado:\n\n\n");
+            $this->terminal->add_linea("Observaciones:\n\n\n\n");
+            $this->terminal->add_linea("Firma:\n\n\n\n\n\n\n");
+            
+            /// encabezado común para los tickets
+            $this->terminal->add_linea_big( $this->terminal->center_text($this->empresa->nombre, 16)."\n");
+            $this->terminal->add_linea( $this->terminal->center_text($this->empresa->lema) . "\n\n");
+            $this->terminal->add_linea( $this->terminal->center_text($this->empresa->direccion . " - " . $this->empresa->ciudad) . "\n");
+            $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif) . chr(27).chr(105) . "\n\n"); /// corta el papel
+            $this->terminal->add_linea( $this->terminal->center_text($this->empresa->horario) . "\n");
+            
+            $this->terminal->abrir_cajon();
+            $this->terminal->save();
+            
+            /// recargamos la página
+            header('location: '.$this->url().'&terminal='.$this->terminal->id);
+         }
+         else
+         {
+            /// recargamos la página
+            header('location: '.$this->url());
+         }
       }
       else
          $this->new_error_msg("¡Imposible cerrar la caja!");
@@ -583,7 +608,9 @@ class tpv_recambios extends fs_controller
          $alb0 = $albaran->get_by_codigo($_GET['reticket']);
       
       if($alb0)
+      {
          $this->imprimir_ticket($alb0, 1, FALSE);
+      }
       else
          $this->new_error_msg("Ticket no encontrado.");
    }
@@ -615,7 +642,9 @@ class tpv_recambios extends fs_controller
                $this->caja->dinero_fin -= $alb->total;
                $this->caja->tickets -= 1;
                if( !$this->caja->save() )
+               {
                   $this->new_error_msg("¡Imposible actualizar la caja!");
+               }
             }
             else
                $this->new_error_msg("¡Imposible borrar el ticket ".$_GET['delete']."!");
@@ -627,67 +656,73 @@ class tpv_recambios extends fs_controller
          $this->new_error_msg("Ticket no encontrado.");
    }
    
-   private function imprimir_ticket($albaran, $num_tickets=1, $cajon=TRUE)
+   private function imprimir_ticket($albaran, $num_tickets = 1, $cajon = TRUE)
    {
-      $fpt = new fs_printer();
-      
-      if($cajon)
-         $fpt->abrir_cajon();
-      
-      while($num_tickets > 0)
+      if($this->terminal)
       {
-         $linea = "\nTicket: " . $albaran->codigo;
-         $linea .= " " . $albaran->fecha;
-         $linea .= " " . $albaran->show_hora(FALSE) . "\n";
-         $fpt->add($linea);
-         $fpt->add("Cliente: " . $albaran->nombrecliente . "\n");
-         $fpt->add("Empleado: " . $albaran->codagente . "\n\n");
-         
-         if($this->imprimir_observaciones)
+         if($cajon)
          {
-            $fpt->add('Observaciones: '.$albaran->observaciones."\n\n");
+            $this->terminal->abrir_cajon();
          }
          
-         $fpt->add(sprintf("%3s", "Ud.")." ".sprintf("%-25s", "Articulo")." ".sprintf("%10s", "TOTAL")."\n");
-         $fpt->add(sprintf("%3s", "---")." ".sprintf("%-25s", "-------------------------")." ".sprintf("%10s", "----------")."\n");
-         foreach($albaran->get_lineas() as $col)
+         while($num_tickets > 0)
          {
-            if($this->imprimir_descripciones)
+            $linea = "\nTicket: " . $albaran->codigo;
+            $linea .= " " . $albaran->fecha;
+            $linea .= " " . $albaran->show_hora(FALSE) . "\n";
+            $this->terminal->add_linea($linea);
+            $this->terminal->add_linea("Cliente: " . $albaran->nombrecliente . "\n");
+            $this->terminal->add_linea("Empleado: " . $albaran->codagente . "\n\n");
+            
+            if($this->imprimir_observaciones)
             {
-               $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-25s", substr($col->descripcion, 0, 24))." "
-                  .sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
-            }
-            else
-            {
-               $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-25s", $col->referencia)." "
-                  .sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
+               $this->terminal->add_linea('Observaciones: '.$albaran->observaciones."\n\n");
             }
             
-            $fpt->add($linea);
+            $this->terminal->add_linea(sprintf("%3s", "Ud.")." ".sprintf("%-25s", "Articulo")." ".sprintf("%10s", "TOTAL")."\n");
+            $this->terminal->add_linea(sprintf("%3s", "---")." ".sprintf("%-25s", "-------------------------")." ".sprintf("%10s", "----------")."\n");
+            foreach($albaran->get_lineas() as $col)
+            {
+               if($this->imprimir_descripciones)
+               {
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-25s", substr($col->descripcion, 0, 24))." "
+                     .sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
+               }
+               else
+               {
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-25s", $col->referencia)." "
+                     .sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
+               }
+               
+               $this->terminal->add_linea($linea);
+            }
+            
+            $linea = "----------------------------------------\n"
+               .$this->terminal->center_text(
+                  "IVA: ".$this->show_precio($albaran->totaliva, $albaran->coddivisa, FALSE).'   '.
+                  "Total: ".$this->show_precio($albaran->total, $albaran->coddivisa, FALSE)
+               )."\n\n\n\n";
+            $this->terminal->add_linea($linea);
+            
+            $this->terminal->add_linea_big( $this->terminal->center_text($this->empresa->nombre, 16)."\n");
+            
+            if($this->empresa->lema != '')
+            {
+               $this->terminal->add_linea( $this->terminal->center_text($this->empresa->lema) . "\n\n");
+            }
+            else
+               $this->terminal->add_linea("\n");
+            
+            $this->terminal->add_linea( $this->terminal->center_text($this->empresa->direccion . " - " . $this->empresa->ciudad) . "\n");
+            $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif) . chr(27).chr(105) . "\n\n"); /// corta el papel
+            
+            if($this->empresa->horario != '')
+               $this->terminal->add_linea( $this->terminal->center_text($this->empresa->horario) . "\n");
+            
+            $num_tickets--;
          }
          
-         $linea = "----------------------------------------\n"
-            .$fpt->center_text(
-               "IVA: ".$this->show_precio($albaran->totaliva, $albaran->coddivisa, FALSE).'   '.
-               "Total: ".$this->show_precio($albaran->total, $albaran->coddivisa, FALSE)
-            )."\n\n\n\n";
-         $fpt->add($linea);
-         
-         $fpt->add_big( $fpt->center_text($this->empresa->nombre, 16)."\n");
-         
-         if($this->empresa->lema != '')
-            $fpt->add( $fpt->center_text($this->empresa->lema) . "\n\n");
-         else
-            $fpt->add("\n");
-         
-         $fpt->add( $fpt->center_text($this->empresa->direccion . " - " . $this->empresa->ciudad) . "\n");
-         $fpt->add( $fpt->center_text("CIF: " . $this->empresa->cifnif) . chr(27).chr(105) . "\n\n"); /// corta el papel
-         
-         if($this->empresa->horario != '')
-            $fpt->add( $fpt->center_text($this->empresa->horario) . "\n");
-         
-         $fpt->imprimir();
-         $num_tickets--;
+         $this->terminal->save();
       }
    }
 }

@@ -17,30 +17,89 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('almacen.php');
 require_model('caja.php');
+require_model('serie.php');
+require_model('terminal_caja.php');
 
 class tpv_caja extends fs_controller
 {
    public $allow_delete;
+   public $almacen;
    public $caja;
    public $offset;
    public $resultados;
-   public $show_cerrar;
+   public $serie;
+   public $terminales;
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Caja', 'TPV', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Cajas', 'TPV', FALSE, TRUE);
    }
    
    protected function process()
    {
-      $this->caja = new caja();
-      $this->show_cerrar = FALSE;
-      
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
-      if( isset($_GET['delete']) )
+      $this->almacen = new almacen();
+      $this->caja = new caja();
+      $this->serie = new serie();
+      $terminal = new terminal_caja();
+      
+      if( isset($_POST['nuevot']) ) /// nuevo terminal
+      {
+         $terminal->codalmacen = $_POST['codalmacen'];
+         $terminal->codserie = $_POST['codserie'];
+         $terminal->codcliente = $_POST['codcliente'];
+         
+         if( $terminal->save() )
+         {
+            $this->new_message('Terminal añadido correctamente.');
+         }
+         else
+            $this->new_error_msg('Error al guardar los datos.');
+      }
+      else if( isset($_POST['idt']) ) /// editar terminal
+      {
+         $t2 = $terminal->get($_POST['idt']);
+         if($t2)
+         {
+            $t2->codalmacen = $_POST['codalmacen'];
+            $t2->codserie = $_POST['codserie'];
+            $t2->codcliente = $_POST['codcliente'];
+            
+            if( $t2->save() )
+            {
+               $this->new_message('Datos guardados correctamente.');
+            }
+            else
+               $this->new_error_msg('Error al guardar los datos.');
+         }
+         else
+            $this->new_error_msg('Terminal no encontrado.');
+      }
+      else if( isset($_GET['deletet']) ) /// eliminar terminal
+      {
+         if($this->user->admin)
+         {
+            $t2 = $terminal->get($_GET['deletet']);
+            if($t2)
+            {
+               if( $t2->delete() )
+               {
+                  $this->new_message('Terminal eliminado correctamente.');
+               }
+               else
+                  $this->new_error_msg('Error al eliminar el terminal.');
+            }
+            else
+               $this->new_error_msg('Terminal no encontrado.');
+         }
+         else
+            $this->new_error_msg("Tienes que ser administrador para poder eliminar terminales.");
+      }
+      else if( isset($_GET['delete']) ) /// eliminar caja
       {
          if($this->user->admin)
          {
@@ -49,7 +108,7 @@ class tpv_caja extends fs_controller
             {
                if( $caja2->delete() )
                {
-                  $this->new_message("Caja eliminadas correctamente.");
+                  $this->new_message("Caja eliminada correctamente.");
                }
                else
                   $this->new_error_msg("¡Imposible eliminar la caja!");
@@ -60,34 +119,36 @@ class tpv_caja extends fs_controller
          else
             $this->new_error_msg("Tienes que ser administrador para poder eliminar cajas.");
       }
-      
-      $caja0 = $this->caja->get_last_from_this_server();
-      if($caja0)
+      else if( isset($_GET['cerrar']) )
       {
-         if( isset($_GET['cerrar']) )
+         if($this->user->admin)
          {
-            if( $this->user->admin )
+            $caja2 = $this->caja->get($_GET['cerrar']);
+            if($caja2)
             {
-               $caja0->fecha_fin = Date('d-m-Y H:i:s');
-               if( $caja0->save() )
+               $caja2->fecha_fin = Date('d-m-Y H:i:s');
+               if( $caja2->save() )
                {
                   $this->new_message("Caja cerrada correctamente.");
                }
                else
-                  $this->new_error_msg("¡Imposible cerrar la caja!");
+                  $this->new_error_msg("¡Imposible eliminar la caja!");
             }
             else
-               $this->new_error_msg("Tienes que ser administrador para poder cerrar la caja desde aquí. ¡Listo!");
+               $this->new_error_msg("Caja no encontrada.");
          }
          else
-            $this->show_cerrar = TRUE;
+            $this->new_error_msg("Tienes que ser administrador para poder cerrar cajas.");
       }
       
       $this->offset = 0;
       if( isset($_GET['offset']) )
+      {
          $this->offset = intval($_GET['offset']);
+      }
       
       $this->resultados = $this->caja->all($this->offset);
+      $this->terminales = $terminal->all();
    }
    
    public function anterior_url()
