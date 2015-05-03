@@ -146,6 +146,19 @@ class nueva_venta extends fs_controller
             {
                $this->nueva_factura_cliente();
             }
+            
+            if(!$this->direccion)
+            {
+               $this->direccion = new direccion_cliente();
+               $this->direccion->codcliente = $this->cliente_s->codcliente;
+               $this->direccion->codpais = $_POST['codpais'];
+               $this->direccion->provincia = $_POST['provincia'];
+               $this->direccion->ciudad = $_POST['ciudad'];
+               $this->direccion->codpostal = $_POST['codpostal'];
+               $this->direccion->direccion = $_POST['direccion'];
+               $this->direccion->descripcion = 'Principal';
+               $this->direccion->save();
+            }
          }
       }
    }

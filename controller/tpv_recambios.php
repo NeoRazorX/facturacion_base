@@ -499,9 +499,9 @@ class tpv_recambios extends fs_controller
                $albaran->totalrecargo = round($albaran->totalrecargo, FS_NF0);
                $albaran->total = $albaran->neto + $albaran->totaliva - $albaran->totalirpf + $albaran->totalrecargo;
                
-               if( abs(floatval($_POST['tpv_total']) - $albaran->total) >= .02 )
+               if( abs(floatval($_POST['tpv_total2']) - $albaran->total) >= .02 )
                {
-                  $this->new_error_msg("El total difiere entre la vista y el controlador (".$_POST['tpv_total'].
+                  $this->new_error_msg("El total difiere entre la vista y el controlador (".$_POST['tpv_total2'].
                           " frente a ".$albaran->total."). Debes informar del error.");
                   $albaran->delete();
                }

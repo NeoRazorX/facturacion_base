@@ -159,6 +159,7 @@ function recalcular()
    }
    
    $("#tpv_total").val( show_precio(neto + total_iva - total_irpf + total_recargo) );
+   $("#tpv_total2").val(neto + total_iva - total_irpf + total_recargo);
    var tpv_efectivo = parseFloat( $("#tpv_efectivo").val() );
    $("#tpv_cambio").val( show_precio(tpv_efectivo - (neto + total_iva - total_irpf + total_recargo)) );
 }

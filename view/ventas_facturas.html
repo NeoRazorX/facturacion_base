@@ -67,7 +67,7 @@
             <a class="btn btn-sm btn-success" href="index.php?page=nueva_venta&tipo=factura">
                <span class="glyphicon glyphicon-plus"></span> &nbsp; Nueva
             </a>
-            {if="$fsc->factura->huecos()"}
+            {if="$fsc->huecos"}
             <button class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_huecos">
                <span class="glyphicon glyphicon-exclamation-sign"></span> &nbsp; Huecos
             </button>
@@ -206,7 +206,7 @@
                      <th>Fecha y hora</th>
                   </tr>
                </thead>
-               {loop="$fsc->factura->huecos()"}
+               {loop="$fsc->huecos"}
                <tr>
                   <td class="text-center">{$value.codigo}</td>
                   <td class="text-center">{$value.fecha} {$value.hora}</td>

@@ -29,6 +29,7 @@ class ventas_facturas extends fs_controller
    public $buscar_lineas;
    public $cliente;
    public $factura;
+   public $huecos;
    public $offset;
    public $resultados;
    
@@ -40,10 +41,13 @@ class ventas_facturas extends fs_controller
    protected function process()
    {
       $this->factura = new factura_cliente();
+      $this->huecos = array();
       
       $this->offset = 0;
       if( isset($_GET['offset']) )
+      {
          $this->offset = intval($_GET['offset']);
+      }
       
       if( isset($_POST['buscar_lineas']) )
       {
@@ -78,6 +82,7 @@ class ventas_facturas extends fs_controller
       else
       {
          $this->share_extension();
+         $this->huecos = $this->factura->huecos();
          
          if( isset($_GET['delete']) )
          {

@@ -26,6 +26,7 @@ class contabilidad_cuenta extends fs_controller
    public $allow_delete;
    public $cuenta;
    public $ejercicio;
+   public $nuevo_codsubcuenta;
    
    public function __construct()
    {
@@ -101,6 +102,7 @@ class contabilidad_cuenta extends fs_controller
          
          $this->page->title = 'Cuenta: '.$this->cuenta->codcuenta;
          $this->ejercicio = $this->cuenta->get_ejercicio();
+         $this->nuevo_codsubcuenta = sprintf('%-0'.$this->ejercicio->longsubcuenta.'s', $this->cuenta->codcuenta);
       }
       else
       {

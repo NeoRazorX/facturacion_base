@@ -194,6 +194,16 @@ class ventas_agrupar_albaranes extends fs_controller
       $factura->numero2 = $albaranes[0]->numero2;
       $factura->observaciones = $albaranes[0]->observaciones;
       $factura->recfinanciero = $albaranes[0]->recfinanciero;
+      $factura->apartado = $albaranes[0]->apartado;
+      $factura->cifnif = $albaranes[0]->cifnif;
+      $factura->ciudad = $albaranes[0]->ciudad;
+      $factura->codcliente = $albaranes[0]->codcliente;
+      $factura->coddir = $albaranes[0]->coddir;
+      $factura->codpais = $albaranes[0]->codpais;
+      $factura->codpostal = $albaranes[0]->codpostal;
+      $factura->direccion = $albaranes[0]->direccion;
+      $factura->nombrecliente = $albaranes[0]->nombrecliente;
+      $factura->provincia = $albaranes[0]->provincia;
       
       /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
       $formapago = $this->forma_pago->get($factura->codpago);
