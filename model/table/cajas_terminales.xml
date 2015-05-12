@@ -31,6 +31,18 @@
       <tipo>text</tipo>
       <nulo>YES</nulo>
    </columna>
+   <columna>
+      <nombre>anchopapel</nombre>
+      <tipo>integer</tipo>
+   </columna>
+   <columna>
+      <nombre>comandocorte</nombre>
+      <tipo>character varying(50)</tipo>
+   </columna>
+   <columna>
+      <nombre>comandoapertura</nombre>
+      <tipo>character varying(50)</tipo>
+   </columna>
    <restriccion>
       <nombre>cajas_terminales_pkey</nombre>
       <consulta>PRIMARY KEY (id)</consulta>

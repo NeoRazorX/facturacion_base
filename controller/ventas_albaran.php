@@ -27,6 +27,7 @@ require_model('factura_cliente.php');
 require_model('familia.php');
 require_model('forma_pago.php');
 require_model('impuesto.php');
+require_model('pais.php');
 require_model('partida.php');
 require_model('regularizacion_iva.php');
 require_model('serie.php');
@@ -43,6 +44,7 @@ class ventas_albaran extends fs_controller
    public $familia;
    public $impuesto;
    public $nuevo_albaran_url;
+   public $pais;
    public $serie;
    
    public function __construct()
@@ -63,6 +65,7 @@ class ventas_albaran extends fs_controller
       $this->familia = new familia();
       $this->impuesto = new impuesto();
       $this->nuevo_albaran_url = FALSE;
+      $this->pais = new pais();
       $this->serie = new serie();
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
@@ -188,7 +191,15 @@ class ventas_albaran extends fs_controller
                die('No se ha encontrado el cliente.');
          }
          else
+         {
+            $this->albaran->codpais = $_POST['codpais'];
+            $this->albaran->provincia = $_POST['provincia'];
+            $this->albaran->ciudad = $_POST['ciudad'];
+            $this->albaran->codpostal = $_POST['codpostal'];
+            $this->albaran->direccion = $_POST['direccion'];
+            
             $cliente = $this->cliente->get($this->albaran->codcliente);
+         }
          
          $serie = $this->serie->get($this->albaran->codserie);
          
@@ -516,7 +527,7 @@ class ventas_albaran extends fs_controller
          $this->new_error_msg("¡Imposible guardar la factura!");
    }
    
-   private function generar_asiento($factura)
+   private function generar_asiento(&$factura)
    {
       if($this->empresa->contintegrada)
       {

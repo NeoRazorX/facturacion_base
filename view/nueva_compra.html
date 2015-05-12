@@ -394,14 +394,32 @@
             </div>
             <div class="modal-body">
                <div class="form-group">
-                  <input class="form-control" type="text" name="ac_proveedor" id="ac_proveedor" placeholder="Buscar" autocomplete="off"/>
-                  <p class="help-block"><a href="{$fsc->proveedor->url()}#nuevo" target="_blank">Nuevo proveedor</a>.</p>
+                  <div class="input-group">
+                     <input class="form-control" type="text" name="ac_proveedor" id="ac_proveedor" placeholder="Buscar" autocomplete="off"/>
+                     <span class="input-group-btn">
+                        <button class="btn btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                           <span class="glyphicon glyphicon-share-alt"></span>
+                        </button>
+                     </span>
+                  </div>
                </div>
             </div>
-            <div class="modal-footer">
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-share-alt"></span> &nbsp; Seleccionar
-               </button>
+            <ul class="nav nav-tabs">
+               <li role="presentation" class="active">
+                  <a href="#">
+                     <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo proveedor
+                  </a>
+               </li>
+            </ul>
+            <div class="modal-body">
+               <div class="form-group">
+                  Nombre:
+                  <input type="text" name="nuevo_proveedor" class="form-control" autocomplete="off"/>
+               </div>
+               <div class="form-group">
+                  {#FS_CIFNIF#}:
+                  <input type="text" name="nuevo_dni" class="form-control" autocomplete="off"/>
+               </div>
             </div>
          </div>
       </div>

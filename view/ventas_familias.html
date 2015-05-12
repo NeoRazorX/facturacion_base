@@ -97,6 +97,12 @@
                <h4 class="modal-title">Nueva familia</h4>
             </div>
             <div class="modal-body">
+               {if="$fsc->madre"}
+               <div class="form-group">
+                  Madre:
+                  <input class="form-control" type="text" value="{$fsc->madre}" disabled="disabled"/>
+               </div>
+               {/if}
                <div class="form-group">
                   Código:
                   <input class="form-control" type="text" name="ncodfamilia" maxlength="4" autocomplete="off"/>

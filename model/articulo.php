@@ -936,8 +936,8 @@ class articulo extends fs_model
          {
             foreach($articulos as $a)
             {
-               /// ya hemos puesto el primero al artćiulo con la referencia exacta
-               if($a['referencia'] != $query)
+               /// PUEDE que hayamos puesto el primero al artćiulo con la referencia exacta
+               if($a['referencia'] != $query OR count($artilist) == 0)
                {
                   $artilist[] = new articulo($a);
                }

@@ -182,7 +182,10 @@
          {/if}
          {loop="$fsc->resultados"}
          <tr class="clickableRow{if="$value->bloqueado"} bg-danger{elseif="$value->stockfis<$value->stockmin"} bg-warning{/if}" href="{$value->url()}">
-            <td>{$value->codfamilia}</td>
+            <td>
+               {$value->codfamilia}
+               <a href="index.php?page=ventas_familia&cod={$value->codfamilia}" class="cancel_clickable" title="Ver más artículos de esta familia">[+]</a>
+            </td>
             <td><a href="{$value->url()}">{$value->referencia}</a> {$value->descripcion}</td>
             <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp)}</span></td>
             <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp_iva())}</span></td>

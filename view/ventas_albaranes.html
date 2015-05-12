@@ -134,7 +134,7 @@
             <th class="text-left">Observaciones</th>
             <th class="text-right">Total</th>
             <th class="text-right">Fecha</th>
-            <th class="text-right">Hora</th>
+            <th class="text-right hidden-sm">Hora</th>
          </tr>
       </thead>
       {loop="$fsc->resultados"}
@@ -147,11 +147,14 @@
             {/if}
          </td>
          <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}</td>
-         <td>{$value->nombrecliente}</td>
+         <td>
+            {$value->nombrecliente}
+            <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más {#FS_ALBARANES#} de {$value->nombrecliente}">[+]</a>
+         </td>
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
          <td class="text-right">{$value->fecha}</td>
-         <td class="text-right">{$value->hora}</td>
+         <td class="text-right hidden-sm">{$value->hora}</td>
       </tr>
       {else}
       <tr class="bg-warning">

@@ -730,7 +730,7 @@ class nueva_venta extends fs_controller
       }
    }
    
-   private function generar_asiento($factura)
+   private function generar_asiento(&$factura)
    {
       if($this->empresa->contintegrada)
       {

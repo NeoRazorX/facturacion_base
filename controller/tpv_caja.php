@@ -30,6 +30,7 @@ class tpv_caja extends fs_controller
    public $offset;
    public $resultados;
    public $serie;
+   public $terminal;
    public $terminales;
    
    public function __construct()
@@ -45,13 +46,23 @@ class tpv_caja extends fs_controller
       $this->almacen = new almacen();
       $this->caja = new caja();
       $this->serie = new serie();
+      $this->terminal = new terminal_caja();
       $terminal = new terminal_caja();
       
       if( isset($_POST['nuevot']) ) /// nuevo terminal
       {
          $terminal->codalmacen = $_POST['codalmacen'];
          $terminal->codserie = $_POST['codserie'];
-         $terminal->codcliente = $_POST['codcliente'];
+         
+         $terminal->codcliente = NULL;
+         if($_POST['codcliente'] != '')
+         {
+            $terminal->codcliente = $_POST['codcliente'];
+         }
+         
+         $terminal->anchopapel = intval($_POST['anchopapel']);
+         $terminal->comandoapertura = $_POST['comandoapertura'];
+         $terminal->comandocorte = $_POST['comandocorte'];
          
          if( $terminal->save() )
          {
@@ -67,7 +78,16 @@ class tpv_caja extends fs_controller
          {
             $t2->codalmacen = $_POST['codalmacen'];
             $t2->codserie = $_POST['codserie'];
-            $t2->codcliente = $_POST['codcliente'];
+            
+            $t2->codcliente = NULL;
+            if($_POST['codcliente'] != '')
+            {
+               $t2->codcliente = $_POST['codcliente'];
+            }
+            
+            $t2->anchopapel = intval($_POST['anchopapel']);
+            $t2->comandoapertura = $_POST['comandoapertura'];
+            $t2->comandocorte = $_POST['comandocorte'];
             
             if( $t2->save() )
             {

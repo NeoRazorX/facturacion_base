@@ -87,6 +87,18 @@ class nueva_compra extends fs_controller
       {
          $this->proveedor_s = $this->proveedor->get($_POST['proveedor']);
          
+         if( isset($_POST['nuevo_proveedor']) )
+         {
+            if($_POST['nuevo_proveedor'] != '')
+            {
+               $this->proveedor_s = new proveedor();
+               $this->proveedor_s->codproveedor = $this->proveedor_s->get_new_codigo();
+               $this->proveedor_s->nombre = $this->proveedor_s->nombrecomercial = $_POST['nuevo_proveedor'];
+               $this->proveedor_s->cifnif = $_POST['nuevo_dni'];
+               $this->proveedor_s->save();
+            }
+         }
+         
          if( isset($_POST['codagente']) )
          {
             $agente = new agente();
@@ -635,7 +647,7 @@ class nueva_compra extends fs_controller
       }
    }
    
-   private function generar_asiento($factura)
+   private function generar_asiento(&$factura)
    {
       if($this->empresa->contintegrada)
       {

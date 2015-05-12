@@ -196,6 +196,12 @@
                <span class="hidden-xs">&nbsp; Líneas</span>
             </a>
          </li>
+         <li role="presentation">
+            <a href="#direccion_p" aria-controls="direccion_p" role="tab" data-toggle="tab">
+               <span class="glyphicon glyphicon-road" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Dirección</span>
+            </a>
+         </li>
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <li role="presentation">
@@ -364,6 +370,46 @@
                   </tr>
                </table>
                {/if}
+            </div>
+         </div>
+         <div role="tabpanel" class="tab-pane" id="direccion_p">
+            <div class="container-fluid" style="margin-top: 10px;">
+               <div class="row">
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        <a href="{$fsc->pais->url()}">País</a>:
+                        <select class="form-control" name="codpais">
+                           {loop="$fsc->pais->all()"}
+                           <option value="{$value->codpais}"{if="$value->codpais==$fsc->albaran->codpais"} selected="selected"{/if}>{$value->nombre}</option>
+                           {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        <span class="text-capitalize">{#FS_PROVINCIA#}</span>:
+                        <input class="form-control" type="text" name="provincia" autocomplete="off" value="{$fsc->albaran->provincia}"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        Ciudad:
+                        <input class="form-control" type="text" name="ciudad" autocomplete="off" value="{$fsc->albaran->ciudad}"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        Código Postal:
+                        <input class="form-control" type="text" name="codpostal" autocomplete="off" value="{$fsc->albaran->codpostal}"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-6">
+                     <div class="form-group">
+                        Dirección:
+                        <input class="form-control" type="text" name="direccion" value="{$fsc->albaran->direccion}" autocomplete="off"/>
+                     </div>
+                  </div>
+               </div>
             </div>
          </div>
          {loop="$fsc->extensions"}

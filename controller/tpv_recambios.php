@@ -18,13 +18,14 @@
  */
 
 require_model('agente.php');
-require_model('albaran_cliente.php');
 require_model('almacen.php');
 require_model('articulo.php');
+require_model('asiento_factura.php');
 require_model('caja.php');
 require_model('cliente.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
+require_model('factura_cliente.php');
 require_model('familia.php');
 require_model('forma_pago.php');
 require_model('grupo_clientes.php');
@@ -193,7 +194,7 @@ class tpv_recambios extends fs_controller
                {
                   if( intval($_POST['numlineas']) > 0 )
                   {
-                     $this->nuevo_albaran_cliente();
+                     $this->nueva_factura_cliente();
                   }
                }
                else if( isset($_GET['reticket']) )
@@ -235,8 +236,8 @@ class tpv_recambios extends fs_controller
    
    private function new_search()
    {
-      /// cambiamos la plantilla HTML
-      $this->template = 'ajax/tpv_recambios';
+      /// desactivamos la plantilla HTML
+      $this->template = FALSE;
       
       $codfamilia = '';
       if( isset($_POST['codfamilia']) )
@@ -250,6 +251,7 @@ class tpv_recambios extends fs_controller
       /// añadimos el descuento y la cantidad
       foreach($this->results as $i => $value)
       {
+         $this->results[$i]->query = $this->query;
          $this->results[$i]->dtopor = 0;
          $this->results[$i]->cantidad = 1;
       }
@@ -264,31 +266,37 @@ class tpv_recambios extends fs_controller
          }
       }
       
-      $cliente = $this->cliente->get($_POST['codcliente']);
-      if($cliente)
+      if( isset($_REQUEST['codcliente']) )
       {
-         if($cliente->regimeniva == 'Exento')
+         $cliente = $this->cliente->get($_REQUEST['codcliente']);
+         if($cliente)
          {
-            foreach($this->results as $i => $value)
-               $this->results[$i]->iva = 0;
-         }
-         
-         if($cliente->codgrupo)
-         {
-            $grupo0 = new grupo_clientes();
-            $tarifa0 = new tarifa();
-            
-            $grupo = $grupo0->get($cliente->codgrupo);
-            if($grupo)
+            if($cliente->regimeniva == 'Exento')
             {
-               $tarifa = $tarifa0->get($grupo->codtarifa);
-               if($tarifa)
+               foreach($this->results as $i => $value)
+                  $this->results[$i]->iva = 0;
+            }
+            
+            if($cliente->codgrupo)
+            {
+               $grupo0 = new grupo_clientes();
+               $tarifa0 = new tarifa();
+               
+               $grupo = $grupo0->get($cliente->codgrupo);
+               if($grupo)
                {
-                  $tarifa->set_precios($this->results);
+                  $tarifa = $tarifa0->get($grupo->codtarifa);
+                  if($tarifa)
+                  {
+                     $tarifa->set_precios($this->results);
+                  }
                }
             }
          }
       }
+      
+      header('Content-Type: application/json');
+      echo json_encode($this->results);
    }
    
    private function get_precios_articulo()
@@ -319,22 +327,15 @@ class tpv_recambios extends fs_controller
       return $tarlist;
    }
 
-   private function nuevo_albaran_cliente()
+   private function nueva_factura_cliente()
    {
       $continuar = TRUE;
       
-      $almacen = $this->almacen->get($_POST['almacen']);
-      if( $almacen )
-         $this->save_codalmacen( $almacen->codalmacen );
-      else
-      {
-         $this->new_error_msg('Almacén no encontrado.');
-         $continuar = FALSE;
-      }
-      
       $ejercicio = $this->ejercicio->get_by_fecha($_POST['fecha']);
-      if( $ejercicio )
-         $this->save_codejercicio( $ejercicio->codejercicio );
+      if($ejercicio)
+      {
+         $this->save_codejercicio($ejercicio->codejercicio);
+      }
       else
       {
          $this->new_error_msg('Ejercicio no encontrado.');
@@ -342,8 +343,10 @@ class tpv_recambios extends fs_controller
       }
       
       $serie = $this->serie->get($_POST['serie']);
-      if( $serie )
-         $this->save_codserie( $serie->codserie );
+      if($serie)
+      {
+         $this->save_codserie($serie->codserie);
+      }
       else
       {
          $this->new_error_msg('Serie no encontrada.');
@@ -351,8 +354,10 @@ class tpv_recambios extends fs_controller
       }
       
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
-      if( $forma_pago )
+      if($forma_pago)
+      {
          $this->save_codpago( $forma_pago->codpago );
+      }
       else
       {
          $this->new_error_msg('Forma de pago no encontrada.');
@@ -360,8 +365,10 @@ class tpv_recambios extends fs_controller
       }
       
       $divisa = $this->divisa->get($_POST['divisa']);
-      if( $divisa )
+      if($divisa)
+      {
          $this->save_coddivisa( $divisa->coddivisa );
+      }
       else
       {
          $this->new_error_msg('Divisa no encontrada.');
@@ -390,54 +397,59 @@ class tpv_recambios extends fs_controller
          setcookie('imprimir_obs', FALSE, time()-FS_COOKIES_EXPIRE);
       }
       
-      $albaran = new albaran_cliente();
+      $factura = new factura_cliente();
       
       if( $this->duplicated_petition($_POST['petition_id']) )
       {
          $this->new_error_msg('Petición duplicada. Has hecho doble clic sobre el botón Guardar
-               y se han enviado dos peticiones. Mira en <a href="'.$albaran->url().'">'.FS_ALBARANES.'</a>
-               para ver si el '.FS_ALBARAN.' se ha guardado correctamente.');
+               y se han enviado dos peticiones. Mira en <a href="'.$factura->url().'">Facturas</a>
+               para ver si la factura se ha guardado correctamente.');
          $continuar = FALSE;
       }
       
-      if( $continuar )
+      if($continuar)
       {
-         $albaran->fecha = $_POST['fecha'];
-         $albaran->codalmacen = $almacen->codalmacen;
-         $albaran->codejercicio = $ejercicio->codejercicio;
-         $albaran->codserie = $serie->codserie;
-         $albaran->codpago = $forma_pago->codpago;
-         $albaran->coddivisa = $divisa->coddivisa;
-         $albaran->tasaconv = $divisa->tasaconv;
-         $albaran->codagente = $this->agente->codagente;
-         $albaran->observaciones = $_POST['observaciones'];
-         $albaran->numero2 = $_POST['numero2'];
-         $albaran->irpf = $serie->irpf;
-         $albaran->porcomision = $this->agente->porcomision;
+         $factura->fecha = $_POST['fecha'];
+         $factura->codalmacen = $_POST['almacen'];
+         $factura->codejercicio = $ejercicio->codejercicio;
+         $factura->codserie = $serie->codserie;
+         $factura->codpago = $forma_pago->codpago;
+         $factura->coddivisa = $divisa->coddivisa;
+         $factura->tasaconv = $divisa->tasaconv;
+         $factura->codagente = $this->agente->codagente;
+         $factura->observaciones = $_POST['observaciones'];
+         $factura->numero2 = $_POST['numero2'];
+         $factura->irpf = $serie->irpf;
+         $factura->porcomision = $this->agente->porcomision;
+         
+         if($forma_pago->genrecibos == 'Pagados')
+         {
+            $factura->pagada = TRUE;
+         }
          
          foreach($this->cliente_s->get_direcciones() as $d)
          {
             if($d->domfacturacion)
             {
-               $albaran->codcliente = $this->cliente_s->codcliente;
-               $albaran->cifnif = $this->cliente_s->cifnif;
-               $albaran->nombrecliente = $this->cliente_s->nombrecomercial;
-               $albaran->apartado = $d->apartado;
-               $albaran->ciudad = $d->ciudad;
-               $albaran->coddir = $d->id;
-               $albaran->codpais = $d->codpais;
-               $albaran->codpostal = $d->codpostal;
-               $albaran->direccion = $d->direccion;
-               $albaran->provincia = $d->provincia;
+               $factura->codcliente = $this->cliente_s->codcliente;
+               $factura->cifnif = $this->cliente_s->cifnif;
+               $factura->nombrecliente = $this->cliente_s->nombrecomercial;
+               $factura->apartado = $d->apartado;
+               $factura->ciudad = $d->ciudad;
+               $factura->coddir = $d->id;
+               $factura->codpais = $d->codpais;
+               $factura->codpostal = $d->codpostal;
+               $factura->direccion = $d->direccion;
+               $factura->provincia = $d->provincia;
                break;
             }
          }
          
-         if( is_null($albaran->codcliente) )
+         if( is_null($factura->codcliente) )
          {
             $this->new_error_msg("No hay ninguna dirección asociada al cliente.");
          }
-         else if( $albaran->save() )
+         else if( $factura->save() )
          {
             $n = floatval($_POST['numlineas']);
             for($i = 1; $i <= $n; $i++)
@@ -447,8 +459,8 @@ class tpv_recambios extends fs_controller
                   $articulo = $this->articulo->get($_POST['referencia_'.$i]);
                   if($articulo)
                   {
-                     $linea = new linea_albaran_cliente();
-                     $linea->idalbaran = $albaran->idalbaran;
+                     $linea = new linea_factura_cliente();
+                     $linea->idfactura = $factura->idfactura;
                      $linea->referencia = $articulo->referencia;
                      $linea->descripcion = $_POST['desc_'.$i];
                      
@@ -469,12 +481,12 @@ class tpv_recambios extends fs_controller
                      if( $linea->save() )
                      {
                         /// descontamos del stock
-                        $articulo->sum_stock($albaran->codalmacen, 0 - $linea->cantidad);
+                        $articulo->sum_stock($factura->codalmacen, 0 - $linea->cantidad);
                         
-                        $albaran->neto += $linea->pvptotal;
-                        $albaran->totaliva += ($linea->pvptotal * $linea->iva/100);
-                        $albaran->totalirpf += ($linea->pvptotal * $linea->irpf/100);
-                        $albaran->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                        $factura->neto += $linea->pvptotal;
+                        $factura->totaliva += ($linea->pvptotal * $linea->iva/100);
+                        $factura->totalirpf += ($linea->pvptotal * $linea->irpf/100);
+                        $factura->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
                      }
                      else
                      {
@@ -493,26 +505,27 @@ class tpv_recambios extends fs_controller
             if($continuar)
             {
                /// redondeamos
-               $albaran->neto = round($albaran->neto, FS_NF0);
-               $albaran->totaliva = round($albaran->totaliva, FS_NF0);
-               $albaran->totalirpf = round($albaran->totalirpf, FS_NF0);
-               $albaran->totalrecargo = round($albaran->totalrecargo, FS_NF0);
-               $albaran->total = $albaran->neto + $albaran->totaliva - $albaran->totalirpf + $albaran->totalrecargo;
+               $factura->neto = round($factura->neto, FS_NF0);
+               $factura->totaliva = round($factura->totaliva, FS_NF0);
+               $factura->totalirpf = round($factura->totalirpf, FS_NF0);
+               $factura->totalrecargo = round($factura->totalrecargo, FS_NF0);
+               $factura->total = $factura->neto + $factura->totaliva - $factura->totalirpf + $factura->totalrecargo;
                
-               if( abs(floatval($_POST['tpv_total2']) - $albaran->total) >= .02 )
+               if( abs(floatval($_POST['tpv_total2']) - $factura->total) >= .02 )
                {
                   $this->new_error_msg("El total difiere entre la vista y el controlador (".$_POST['tpv_total2'].
-                          " frente a ".$albaran->total."). Debes informar del error.");
-                  $albaran->delete();
+                          " frente a ".$factura->total."). Debes informar del error.");
+                  $factura->delete();
                }
-               else if( $albaran->save() )
+               else if( $factura->save() )
                {
-                  $this->new_message("<a href='".$albaran->url()."'>".FS_ALBARAN."</a> guardado correctamente.");
+                  $this->new_message("<a href='".$factura->url()."'>Factura</a> guardada correctamente.");
                   
-                  $this->imprimir_ticket( $albaran, floatval($_POST['num_tickets']) );
+                  $this->generar_asiento($factura);
+                  $this->imprimir_ticket( $factura, floatval($_POST['num_tickets']) );
                   
                   /// actualizamos la caja
-                  $this->caja->dinero_fin += $albaran->total;
+                  $this->caja->dinero_fin += $factura->total;
                   $this->caja->tickets += 1;
                   $this->caja->ip = $_SERVER['REMOTE_ADDR'];
                   if( !$this->caja->save() )
@@ -521,17 +534,17 @@ class tpv_recambios extends fs_controller
                   }
                }
                else
-                  $this->new_error_msg("¡Imposible actualizar el <a href='".$albaran->url()."'>".FS_ALBARAN."</a>!");
+                  $this->new_error_msg("¡Imposible actualizar la <a href='".$factura->url()."'>factura</a>!");
             }
-            else if( $albaran->delete() )
+            else if( $factura->delete() )
             {
-               $this->new_message(FS_ALBARAN." eliminado correctamente.");
+               $this->new_message("Factura eliminada correctamente.");
             }
             else
-               $this->new_error_msg("¡Imposible eliminar el <a href='".$albaran->url()."'>".FS_ALBARAN."</a>!");
+               $this->new_error_msg("¡Imposible eliminar la <a href='".$factura->url()."'>factura</a>!");
          }
          else
-            $this->new_error_msg("¡Imposible guardar el ".FS_ALBARAN."!");
+            $this->new_error_msg("¡Imposible guardar la factura!");
       }
    }
    
@@ -594,22 +607,23 @@ class tpv_recambios extends fs_controller
    
    private function reimprimir_ticket()
    {
-      $albaran = new albaran_cliente();
+      $factura = new factura_cliente();
+      $fac0 = FALSE;
       
       if($_GET['reticket'] == '')
       {
-         foreach($albaran->all() as $alb)
+         foreach($factura->all() as $fac)
          {
-            $alb0 = $alb;
+            $fac0 = $fac;
             break;
          }
       }
       else
-         $alb0 = $albaran->get_by_codigo($_GET['reticket']);
+         $fac0 = $factura->get_by_codigo($_GET['reticket']);
       
-      if($alb0)
+      if($fac0)
       {
-         $this->imprimir_ticket($alb0, 1, FALSE);
+         $this->imprimir_ticket($fac0, 1, FALSE);
       }
       else
          $this->new_error_msg("Ticket no encontrado.");
@@ -617,46 +631,17 @@ class tpv_recambios extends fs_controller
    
    private function borrar_ticket()
    {
-      $albaran = new albaran_cliente();
-      $alb = $albaran->get_by_codigo($_GET['delete']);
-      if($alb)
+      $factura = new factura_cliente();
+      $fac = $factura->get_by_codigo($_GET['delete']);
+      if($fac)
       {
-         if($alb->ptefactura)
-         {
-            $articulo = new articulo();
-            foreach($alb->get_lineas() as $linea)
-            {
-               $art0 = $articulo->get($linea->referencia);
-               if($art0)
-               {
-                  $art0->sum_stock($alb->codalmacen, $linea->cantidad);
-                  $art0->save();
-               }
-            }
-            
-            if( $alb->delete() )
-            {
-               $this->new_message("Ticket ".$_GET['delete']." borrado correctamente.");
-               
-               /// actualizamos la caja
-               $this->caja->dinero_fin -= $alb->total;
-               $this->caja->tickets -= 1;
-               if( !$this->caja->save() )
-               {
-                  $this->new_error_msg("¡Imposible actualizar la caja!");
-               }
-            }
-            else
-               $this->new_error_msg("¡Imposible borrar el ticket ".$_GET['delete']."!");
-         }
-         else
-            $this->new_error_msg('No se ha podido borrar este '.FS_ALBARAN.' porque ya está facturado.');
+         $this->new_message('No implementado.');
       }
       else
          $this->new_error_msg("Ticket no encontrado.");
    }
    
-   private function imprimir_ticket($albaran, $num_tickets = 1, $cajon = TRUE)
+   private function imprimir_ticket($factura, $num_tickets = 1, $cajon = TRUE)
    {
       if($this->terminal)
       {
@@ -667,21 +652,21 @@ class tpv_recambios extends fs_controller
          
          while($num_tickets > 0)
          {
-            $linea = "\nTicket: " . $albaran->codigo;
-            $linea .= " " . $albaran->fecha;
-            $linea .= " " . $albaran->show_hora(FALSE) . "\n";
+            $linea = "\nTicket: " . $factura->codigo;
+            $linea .= " " . $factura->fecha;
+            $linea .= " " . Date('H:i', strtotime($factura->hora)) . "\n";
             $this->terminal->add_linea($linea);
-            $this->terminal->add_linea("Cliente: " . $albaran->nombrecliente . "\n");
-            $this->terminal->add_linea("Empleado: " . $albaran->codagente . "\n\n");
+            $this->terminal->add_linea("Cliente: " . $factura->nombrecliente . "\n");
+            $this->terminal->add_linea("Empleado: " . $factura->codagente . "\n\n");
             
             if($this->imprimir_observaciones)
             {
-               $this->terminal->add_linea('Observaciones: '.$albaran->observaciones."\n\n");
+               $this->terminal->add_linea('Observaciones: '.$factura->observaciones."\n\n");
             }
             
             $this->terminal->add_linea(sprintf("%3s", "Ud.")." ".sprintf("%-25s", "Articulo")." ".sprintf("%10s", "TOTAL")."\n");
             $this->terminal->add_linea(sprintf("%3s", "---")." ".sprintf("%-25s", "-------------------------")." ".sprintf("%10s", "----------")."\n");
-            foreach($albaran->get_lineas() as $col)
+            foreach($factura->get_lineas() as $col)
             {
                if($this->imprimir_descripciones)
                {
@@ -699,8 +684,8 @@ class tpv_recambios extends fs_controller
             
             $linea = "----------------------------------------\n"
                .$this->terminal->center_text(
-                  "IVA: ".$this->show_precio($albaran->totaliva, $albaran->coddivisa, FALSE).'   '.
-                  "Total: ".$this->show_precio($albaran->total, $albaran->coddivisa, FALSE)
+                  "IVA: ".$this->show_precio($factura->totaliva, $factura->coddivisa, FALSE).'   '.
+                  "Total: ".$this->show_precio($factura->total, $factura->coddivisa, FALSE)
                )."\n\n\n\n";
             $this->terminal->add_linea($linea);
             
@@ -714,7 +699,9 @@ class tpv_recambios extends fs_controller
                $this->terminal->add_linea("\n");
             
             $this->terminal->add_linea( $this->terminal->center_text($this->empresa->direccion . " - " . $this->empresa->ciudad) . "\n");
-            $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif) . chr(27).chr(105) . "\n\n"); /// corta el papel
+            $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif));
+            $this->terminal->cortar_papel();
+            $this->terminal->add_linea("\n\n");
             
             if($this->empresa->horario != '')
                $this->terminal->add_linea( $this->terminal->center_text($this->empresa->horario) . "\n");
@@ -723,6 +710,25 @@ class tpv_recambios extends fs_controller
          }
          
          $this->terminal->save();
+      }
+   }
+   
+   private function generar_asiento(&$factura)
+   {
+      if($this->empresa->contintegrada)
+      {
+         $asiento_factura = new asiento_factura();
+         $asiento_factura->generar_asiento_venta($factura);
+         
+         foreach($asiento_factura->errors as $err)
+         {
+            $this->new_error_msg($err);
+         }
+         
+         foreach($asiento_factura->messages as $msg)
+         {
+            $this->new_message($msg);
+         }
       }
    }
 }

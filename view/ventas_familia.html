@@ -19,9 +19,15 @@
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
+            {if="$fsc->madre"}
+            <a class="btn btn-sm btn-default" href="{$fsc->madre->url()}" title="{$fsc->madre->descripcion}">
+               <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Madre
+            </a>
+            {else}
             <a class="btn btn-sm btn-default" href="index.php?page=ventas_familias">
                <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Familias
             </a>
+            {/if}
             <div class="btn-group">
                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                   Subfamilias <span class="caret"></span>

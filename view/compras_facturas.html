@@ -139,7 +139,10 @@
             {/if}
          </td>
          <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numproveedor}</td>
-         <td>{$value->nombre}</td>
+         <td>
+            {$value->nombre}
+            <a href="{$fsc->url()}&codproveedor={$value->codproveedor}" class="cancel_clickable" title="Ver más facturas de {$value->nombre}">[+]</a>
+         </td>
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
          <td class="text-right">{$value->fecha}</td>

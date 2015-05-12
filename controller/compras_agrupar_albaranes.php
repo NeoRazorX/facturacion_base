@@ -322,7 +322,7 @@ class compras_agrupar_albaranes extends fs_controller
          $this->new_error_msg("¡Imposible guardar la factura!");
    }
    
-   private function generar_asiento($factura)
+   private function generar_asiento(&$factura)
    {
       if($this->empresa->contintegrada)
       {

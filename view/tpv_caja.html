@@ -145,9 +145,12 @@
                      <th>ID</th>
                      <th>Almacén</th>
                      <th>Serie</th>
-                     <th>Cliente</th>
+                     <th>Código Cliente</th>
+                     <th>Ancho papel</th>
+                     <th>Comando corte</th>
+                     <th>Comando apertura</th>
                      <th></th>
-                     <th class="text-right">Acciones</th>
+                     <th class="text-right" width="120">Acciones</th>
                   </tr>
                </thead>
                {loop="$fsc->terminales"}
@@ -179,6 +182,15 @@
                      </td>
                      <td>
                         <input type="text" name="codcliente" value="{$value->codcliente}" class="form-control" maxlength="6" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input type="number" name="anchopapel" value="{$value->anchopapel}" class="form-control" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input type="text" name="comandocorte" value="{$value->comandocorte}" class="form-control" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input type="text" name="comandoapertura" value="{$value->comandoapertura}" class="form-control" autocomplete="off"/>
                      </td>
                      <td class="text-center">
                         {if="!$value->disponible()"}
@@ -223,7 +235,16 @@
                         </select>
                      </td>
                      <td>
-                        <input type="text" name="codcliente" value="" class="form-control" maxlength="6" autocomplete="off"/>
+                        <input type="text" name="codcliente" class="form-control" maxlength="6" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input type="number" name="anchopapel" value="{$fsc->terminal->anchopapel}" class="form-control" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input type="text" name="comandocorte" value="{$fsc->terminal->comandocorte}" class="form-control" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input type="text" name="comandoapertura" value="{$fsc->terminal->comandoapertura}" class="form-control" autocomplete="off"/>
                      </td>
                      <td></td>
                      <td class="text-right">

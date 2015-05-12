@@ -25,6 +25,7 @@ class ventas_familia extends fs_controller
    public $allow_delete;
    public $articulos;
    public $familia;
+   public $madre;
    public $offset;
 
    public function __construct()
@@ -34,15 +35,16 @@ class ventas_familia extends fs_controller
    
    protected function process()
    {
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
       $this->familia = FALSE;
       if( isset($_REQUEST['cod']) )
       {
          $fam = new familia();
          $this->familia = $fam->get($_REQUEST['cod']);
       }
-      
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      $this->madre = FALSE;
       
       if($this->familia)
       {
@@ -71,8 +73,11 @@ class ventas_familia extends fs_controller
          
          $this->offset = 0;
          if( isset($_GET['offset']) )
+         {
             $this->offset = intval($_GET['offset']);
+         }
          
+         $this->madre = $this->familia->get($this->familia->madre);
          $this->articulos = $this->familia->get_articulos($this->offset);
       }
       else

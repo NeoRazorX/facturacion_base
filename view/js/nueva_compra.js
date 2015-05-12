@@ -106,7 +106,7 @@ function recalcular()
          l_dto = parseFloat( $("#dto_"+i).val() );
          l_neto = l_uds*l_pvp*(100-l_dto)/100;
          l_iva = parseFloat( $("#iva_"+i).val() );
-         l_irpf = irpf;
+         l_irpf = parseFloat( $("#irpf_"+i).val() );
          
          if(tiene_recargo)
          {
@@ -145,7 +145,7 @@ function recalcular()
    $("#airpf").html( '-'+show_numero(total_irpf) );
    $("#atotal").val( neto + total_iva - total_irpf + total_recargo );
    
-   if(total_recargo == 0)
+   if(total_recargo == 0 && !tiene_recargo)
    {
       $(".recargo").hide();
    }
@@ -154,7 +154,7 @@ function recalcular()
       $(".recargo").show();
    }
    
-   if(total_irpf == 0)
+   if(total_irpf == 0 && irpf == 0)
    {
       $(".irpf").hide();
    }

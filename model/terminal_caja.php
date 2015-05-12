@@ -30,6 +30,9 @@ class terminal_caja extends fs_model
    public $codserie;
    public $codcliente;
    public $tickets;
+   public $anchopapel;
+   public $comandocorte;
+   public $comandoapertura;
    
    public function __construct($t = FALSE)
    {
@@ -41,6 +44,24 @@ class terminal_caja extends fs_model
          $this->codserie = $t['codserie'];
          $this->codcliente = $t['codcliente'];
          $this->tickets = $t['tickets'];
+         
+         $this->anchopapel = 40;
+         if( isset($t['anchopapel']) )
+         {
+            $this->anchopapel = intval($t['anchopapel']);
+         }
+         
+         $this->comandocorte = '27.105';
+         if( isset($t['comandocorte']) )
+         {
+            $this->comandocorte = $t['comandocorte'];
+         }
+         
+         $this->comandoapertura = '27.112.48';
+         if( isset($t['comandoapertura']) )
+         {
+            $this->comandoapertura = $t['comandoapertura'];
+         }
       }
       else
       {
@@ -49,6 +70,9 @@ class terminal_caja extends fs_model
          $this->codserie = NULL;
          $this->codcliente = NULL;
          $this->tickets = '';
+         $this->anchopapel = 40;
+         $this->comandocorte = '27.105';
+         $this->comandoapertura = '27.112.48';
       }
    }
    
@@ -79,18 +103,37 @@ class terminal_caja extends fs_model
    
    public function abrir_cajon()
    {
-      $this->tickets .= chr(27).chr(112).chr(48).' ';
+      $aux = explode('.', $this->comandoapertura);
+      if($aux)
+      {
+         foreach($aux as $a)
+            $this->tickets .= chr($a);
+      }
+      
+      $this->tickets .= ' ';
    }
    
-   public function center_text($word = '', $tot_width = 40)
+   public function cortar_papel()
    {
-      if( strlen($word) == $tot_width )
+      $aux = explode('.', $this->comandocorte);
+      if($aux)
+      {
+         foreach($aux as $a)
+            $this->tickets .= chr($a);
+      }
+      
+      $this->tickets .= ' ';
+   }
+   
+   public function center_text($word = '')
+   {
+      if( strlen($word) == $this->anchopapel )
       {
          return $word;
       }
-      else if( strlen($word) < $tot_width )
+      else if( strlen($word) < $this->anchopapel )
       {
-         return $this->center_text2($word, $tot_width);
+         return $this->center_text2($word, $this->anchopapel);
       }
       else
       {
@@ -102,7 +145,7 @@ class terminal_caja extends fs_model
             {
                $nword = $aux;
             }
-            else if( strlen($nword) + strlen($aux) + 1 <= $tot_width )
+            else if( strlen($nword) + strlen($aux) + 1 <= $this->anchopapel )
             {
                $nword = $nword.' '.$aux;
             }
@@ -110,7 +153,7 @@ class terminal_caja extends fs_model
             {
                if($result != '')
                   $result .= "\n";
-               $result .= $this->center_text2($nword, $tot_width);
+               $result .= $this->center_text2($nword);
                $nword = $aux;
             }
          }
@@ -118,16 +161,16 @@ class terminal_caja extends fs_model
          {
             if($result != '')
                $result .= "\n";
-            $result .= $this->center_text2($nword, $tot_width);
+            $result .= $this->center_text2($nword);
          }
          return $result;
       }
    }
    
-   private function center_text2($word = '', $tot_width = 40)
+   private function center_text2($word = '')
    {
       $symbol = " ";
-      $middle = round($tot_width / 2);
+      $middle = round($this->anchopapel / 2);
       $length_word = strlen($word);
       $middle_word = round($length_word / 2);
       $last_position = $middle + $middle_word;
@@ -169,17 +212,24 @@ class terminal_caja extends fs_model
                  ", codserie = ".$this->var2str($this->codserie).
                  ", codcliente = ".$this->var2str($this->codcliente).
                  ", tickets = ".$this->var2str($this->tickets).
+                 ", anchopapel = ".$this->var2str($this->anchopapel).
+                 ", comandocorte = ".$this->var2str($this->comandocorte).
+                 ", comandoapertura = ".$this->var2str($this->comandoapertura).
                  " WHERE id = ".$this->var2str($this->id).";";
          
          return $this->db->exec($sql);
       }
       else
       {
-         $sql = "INSERT INTO cajas_terminales (codalmacen,codserie,codcliente,tickets) VALUES (".
+         $sql = "INSERT INTO cajas_terminales (codalmacen,codserie,codcliente,tickets,anchopapel,"
+                 . "comandocorte,comandoapertura) VALUES (".
                  $this->var2str($this->codalmacen).",".
                  $this->var2str($this->codserie).",".
                  $this->var2str($this->codcliente).",".
-                 $this->var2str($this->tickets).");";
+                 $this->var2str($this->tickets).",".
+                 $this->var2str($this->anchopapel).",".
+                 $this->var2str($this->comandocorte).",".
+                 $this->var2str($this->comandoapertura).");";
          
          if( $this->db->exec($sql) )
          {
