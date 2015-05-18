@@ -201,10 +201,6 @@ class tpv_recambios extends fs_controller
                {
                   $this->reimprimir_ticket();
                }
-               else if( isset($_GET['delete']) )
-               {
-                  $this->borrar_ticket();
-               }
             }
             else
             {
@@ -624,18 +620,6 @@ class tpv_recambios extends fs_controller
       if($fac0)
       {
          $this->imprimir_ticket($fac0, 1, FALSE);
-      }
-      else
-         $this->new_error_msg("Ticket no encontrado.");
-   }
-   
-   private function borrar_ticket()
-   {
-      $factura = new factura_cliente();
-      $fac = $factura->get_by_codigo($_GET['delete']);
-      if($fac)
-      {
-         $this->new_message('No implementado.');
       }
       else
          $this->new_error_msg("Ticket no encontrado.");

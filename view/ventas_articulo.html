@@ -155,7 +155,9 @@
       {/loop}
       <li class="dropdown">
          <a class="dropdown-toggle" data-toggle="dropdown">
-            Buscar en... <span class="caret"></span>
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+            <span class="hidden-xs">&nbsp; Buscar en...</span>
+            <span class="caret"></span>
          </a>
          <ul class="dropdown-menu" role="menu">
          {loop="$fsc->extensions"}
@@ -378,7 +380,7 @@
                   <thead>
                      <tr>
                         <th colspan="2" class="text-left">Tarifa</th>
-                        <th class="text-right">Descuento %</th>
+                        <th class="text-left">Diferencia</th>
                         <th class="text-right">PVP</th>
                         <th class="text-right">PVP+{#FS_IVA#}</th>
                      </tr>
@@ -387,9 +389,7 @@
                   <tr>
                      <td><div class="form-control"><a href="{$value->tarifa_url}">{$value->codtarifa}</a></div></td>
                      <td><div class="form-control">{$value->tarifa_nombre}</div></td>
-                     <td class="text-right">
-                        <div class="form-control">{$fsc->show_numero($value->dtopor, 2)} %</div>
-                     </td>
+                     <td><div class="form-control">{$value->tarifa_diff}</div></td>
                      <td class="text-right">
                         <div class="form-control">{$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100)}</div>
                      </td>
@@ -458,6 +458,7 @@
                <tr class="bg-info">
                   <form action="{$fsc->url()}#stock" method="post" class="form">
                      <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
+                     <input type="hidden" name="cantidadini" value="0"/>
                      <td>
                         <select class="form-control" name="almacen">
                            {loop="$fsc->nuevos_almacenes"}

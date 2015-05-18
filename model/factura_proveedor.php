@@ -438,7 +438,14 @@ class factura_proveedor extends fs_model
          }
       }
       
-      $this->codigo = $this->codejercicio . sprintf('%02s', $this->codserie) . sprintf('%06s', $this->numero);
+      if(FS_NEW_CODIGO == 'eneboo')
+      {
+         $this->codigo = $this->codejercicio.sprintf('%02s', $this->codserie).sprintf('%06s', $this->numero);
+      }
+      else
+      {
+         $this->codigo = 'FAC'.$this->codejercicio.$this->codserie.$this->numero.'C';
+      }
    }
    
    public function test()

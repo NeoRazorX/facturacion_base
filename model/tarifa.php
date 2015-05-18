@@ -69,10 +69,21 @@ class tarifa extends fs_model
    {
       foreach($articulos as $i => $value)
       {
-         $articulos[$i]->dtopor = $this->dtopor();
          $articulos[$i]->codtarifa = $this->codtarifa;
          $articulos[$i]->tarifa_nombre = $this->nombre;
          $articulos[$i]->tarifa_url = $this->url();
+         
+         if($this->incporcentual > 0)
+         {
+            $articulos[$i]->dtopor = 0;
+            $articulos[$i]->pvp = $articulos[$i]->pvp*(100+$this->incporcentual)/100;
+            $articulos[$i]->tarifa_diff = 'PVP + '.$this->incporcentual.'%';
+         }
+         else
+         {
+            $articulos[$i]->dtopor = $this->dtopor();
+            $articulos[$i]->tarifa_diff = 'PVP - '.$this->dtopor().'%';
+         }
       }
    }
    

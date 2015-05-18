@@ -152,7 +152,7 @@ class tpv_caja extends fs_controller
                   $this->new_message("Caja cerrada correctamente.");
                }
                else
-                  $this->new_error_msg("¡Imposible eliminar la caja!");
+                  $this->new_error_msg("¡Imposible cerrar la caja!");
             }
             else
                $this->new_error_msg("Caja no encontrada.");

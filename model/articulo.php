@@ -253,7 +253,12 @@ class articulo extends fs_model
    
    public function preciocoste()
    {
-      return ($this->secompra AND FS_COST_IS_AVERAGE) ? $this->costemedio : $this->preciocoste;
+      if(FS_COST_IS_AVERAGE)
+      {
+         return $this->costemedio;
+      }
+      else
+         return $this->preciocoste;
    }
    
    public function preciocoste_iva()
