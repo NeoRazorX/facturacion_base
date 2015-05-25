@@ -45,7 +45,6 @@ function usar_cliente(codcliente)
                {
                   $("#iva_"+j).val(0);
                   $("#recargo_"+j).val(0);
-                  $("#irpf_"+j).html( show_numero(irpf) );
                }
             }
          }
@@ -67,8 +66,6 @@ function usar_serie()
          {
             if($("#linea_"+j).length > 0)
             {
-               $("#irpf_"+j).html( show_numero(irpf) );
-               
                if(siniva)
                {
                   $("#iva_"+j).val(0);
@@ -605,6 +602,19 @@ $(document).ready(function() {
    
    $("#i_new_line").keyup(function() {
       document.f_buscar_articulos.query.value = $("#i_new_line").val();
+      $("#i_new_line").val('');
+      $("#nav_articulos li").each(function() {
+         $(this).removeClass("active");
+      });
+      $("#li_mis_articulos").addClass('active');
+      $("#nav_articulos").hide();
+      $("#search_results").html('');
+      $("#search_results").show('');
+      $("#kiwimaru_results").html('');
+      $("#kiwimaru_results").hide();
+      $("#nuevo_articulo").hide();
+      $("#modal_articulos").modal('show');
+      document.f_buscar_articulos.query.focus();
       buscar_articulos();
    });
    

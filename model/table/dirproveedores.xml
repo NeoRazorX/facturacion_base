@@ -63,6 +63,6 @@
    </columna>
    <restriccion>
       <nombre>dirproveedores_pkey</nombre>
-      <consulta>PRIMARY KEY(id)</consulta>
+      <consulta>PRIMARY KEY (id)</consulta>
    </restriccion>
 </tabla>

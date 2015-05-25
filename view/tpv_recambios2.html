@@ -23,6 +23,8 @@
             }
          }
       });
+      
+      $("#i_new_line").focus();
    });
 </script>
 
@@ -89,13 +91,13 @@
                </p>
             </div>
          </div>
-         <div class="col-sm-3">
+         <div class="col-sm-2">
             <div class="form-group">
                Fecha:
                <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->today()}" autocomplete="off"/>
             </div>
          </div>
-         <div class="col-sm-3">
+         <div class="col-sm-4">
             <div class="form-group">
                Atiende:
                <div class="form-control">
@@ -319,7 +321,7 @@
                </div>
             </div>
             <div class="modal-footer">
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;$('#tpv_total').prop('disabled',false);this.form.submit();">
+               <button class="btn btn-sm btn-primary" type="button" onclick="this.disabled=true;$('#tpv_total').prop('disabled',false);this.form.submit();">
                   <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                </button>
             </div>

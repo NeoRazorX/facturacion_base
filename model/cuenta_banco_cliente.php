@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -24,21 +24,22 @@ require_once 'base/fs_model.php';
  */
 class cuenta_banco_cliente extends fs_model
 {
-   public $codcliente;
    public $codcuenta; /// pkey
+   public $codcliente;
    public $descripcion;
    public $iban;
+   public $swift;
    
    public function __construct($c = FALSE)
    {
       parent::__construct('cuentasbcocli', 'plugins/facturacion_base/');
-      
       if($c)
       {
          $this->codcliente = $c['codcliente'];
          $this->codcuenta = $c['codcuenta'];
          $this->descripcion = $c['descripcion'];
          $this->iban = $c['iban'];
+         $this->swift = $c['swift'];
       }
       else
       {
@@ -46,6 +47,7 @@ class cuenta_banco_cliente extends fs_model
          $this->codcuenta = NULL;
          $this->descripcion = NULL;
          $this->iban = NULL;
+         $this->swift = NULL;
       }
    }
    
@@ -58,7 +60,9 @@ class cuenta_banco_cliente extends fs_model
    {
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcuenta = ".$this->var2str($cod).";");
       if($data)
+      {
          return new cuenta_banco_cliente($data[0]);
+      }
       else
          return FALSE;
    }
@@ -68,7 +72,9 @@ class cuenta_banco_cliente extends fs_model
       $sql = "SELECT MAX(".$this->db->sql_to_int('codcuenta').") as cod FROM ".$this->table_name.";";
       $cod = $this->db->select($sql);
       if($cod)
+      {
          return 1 + intval($cod[0]['cod']);
+      }
       else
          return 1;
    }
@@ -76,39 +82,37 @@ class cuenta_banco_cliente extends fs_model
    public function exists()
    {
       if( is_null($this->codcuenta) )
+      {
          return FALSE;
+      }
       else
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcuenta = ".$this->var2str($this->codcuenta).";");
    }
    
-   public function test()
-   {
-      $this->descripcion = $this->no_html($this->descripcion);
-      return TRUE;
-   }
-   
    public function save()
    {
-      if( $this->test() )
+      $this->descripcion = $this->no_html($this->descripcion);
+      
+      if( $this->exists() )
       {
-         if( $this->exists() )
-         {
-            $sql = "UPDATE ".$this->table_name." SET descripcion = ".$this->var2str($this->descripcion).", "
-               . "iban = ".$this->var2str($this->iban)." WHERE codcuenta = ".$this->var2str($this->codcuenta)
-               ." AND codcliente = ".$this->var2str($this->codcliente).";";
-         }
-         else
-         {
-            $this->codcuenta = $this->get_new_codigo();
-            
-            $sql = "INSERT INTO ".$this->table_name." (codcliente,codcuenta,descripcion,iban) VALUES "
-               . "(".$this->var2str($this->codcliente).",".$this->var2str($this->codcuenta).","
-               . "".$this->var2str($this->descripcion).",".$this->var2str($this->iban).");";
-         }
-         return $this->db->exec($sql);
+         $sql = "UPDATE ".$this->table_name." SET descripcion = ".$this->var2str($this->descripcion).
+                 ", codcliente = ".$this->var2str($this->codcliente).
+                 ", iban = ".$this->var2str($this->iban).
+                 ", swift = ".$this->var2str($this->swift).
+                 " WHERE codcuenta = ".$this->var2str($this->codcuenta).";";
       }
       else
-         return FALSE;
+      {
+         $this->codcuenta = $this->get_new_codigo();
+         $sql = "INSERT INTO ".$this->table_name." (codcliente,codcuenta,descripcion,iban,swift)".
+                 " VALUES (".$this->var2str($this->codcliente).
+                 ",".$this->var2str($this->codcuenta).
+                 ",".$this->var2str($this->descripcion).
+                 ",".$this->var2str($this->iban).
+                 ",".$this->var2str($this->swift).");";
+      }
+      
+      return $this->db->exec($sql);
    }
    
    public function delete()

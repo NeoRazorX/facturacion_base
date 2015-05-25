@@ -33,7 +33,7 @@
    </columna>
    <restriccion>
       <nombre>co_subcuentasprov_pkey</nombre>
-      <consulta>PRIMARY KEY(id)</consulta>
+      <consulta>PRIMARY KEY (id)</consulta>
    </restriccion>
    <restriccion>
       <nombre>ca_co_subcuentasprov_ejercicios2</nombre>

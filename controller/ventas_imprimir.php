@@ -160,6 +160,7 @@ class ventas_imprimir extends fs_controller
       $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
       
       $lineas = $this->albaran->get_lineas();
+      $lineas_iva = $this->get_lineas_iva($lineas);
       if($lineas)
       {
          $linea_actual = 0;
@@ -259,17 +260,8 @@ class ventas_imprimir extends fs_controller
                )
             );
             $saltos = 0;
-            $subtotal = 0;
-            $impuestos = array();
             for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < count($lineas)));)
             {
-               if( !isset($impuestos[$lineas[$linea_actual]->codimpuesto]) )
-               {
-                  $impuestos[$lineas[$linea_actual]->codimpuesto] = $lineas[$linea_actual]->pvptotal * $lineas[$linea_actual]->iva / 100;
-               }
-               else
-                  $impuestos[$lineas[$linea_actual]->codimpuesto] += $lineas[$linea_actual]->pvptotal * $lineas[$linea_actual]->iva / 100;
-               
                $fila = array(
                   'descripcion' => $this->fix_html($lineas[$linea_actual]->descripcion),
                   'cantidad' => $lineas[$linea_actual]->cantidad,
@@ -340,18 +332,24 @@ class ventas_imprimir extends fs_controller
                 'showLines' => 4,
                 'width' => 540
             );
-            foreach($impuestos as $i => $value)
+            foreach($lineas_iva as $li)
             {
-               $imp = $this->impuesto->get($i);
+               $imp = $this->impuesto->get($li['codimpuesto']);
                if($imp)
                {
-                  $titulo['iva'.$i] = '<b>'.$imp->descripcion.'</b>';
+                  $titulo['iva'.$li['iva']] = '<b>'.$imp->descripcion.'</b>';
                }
                else
-                  $titulo['iva'.$i] = '<b>'.FS_IVA.' '.$i.'%</b>';
+                  $titulo['iva'.$li['iva']] = '<b>'.FS_IVA.' '.$li['iva'].'%</b>';
                
-               $fila['iva'.$i] = $this->show_precio($value, $this->albaran->coddivisa);
-               $opciones['cols']['iva'.$i] = array('justification' => 'right');
+               $fila['iva'.$li['iva']] = $this->show_precio($li['totaliva'], $this->albaran->coddivisa);
+               
+               if($li['totalrecargo'] != 0)
+               {
+                  $fila['iva'.$li['iva']] .= ' (RE: '.$this->show_precio($li['totalrecargo'], $this->albaran->coddivisa).')';
+               }
+               
+               $opciones['cols']['iva'.$li['iva']] = array('justification' => 'right');
             }
             
             if($this->albaran->totalirpf != 0)
@@ -635,6 +633,12 @@ class ventas_imprimir extends fs_controller
                   $titulo['iva'.$li->iva] = '<b>'.FS_IVA.' '.$li->iva.'%</b>';
                
                $fila['iva'.$li->iva] = $this->show_precio($li->totaliva, $this->factura->coddivisa);
+               
+               if($li->totalrecargo != 0)
+               {
+                  $fila['iva'.$li->iva] .= ' (RE: '.$this->show_precio($li->totalrecargo, $this->factura->coddivisa).')';
+               }
+               
                $opciones['cols']['iva'.$li->iva] = array('justification' => 'right');
             }
             
@@ -794,5 +798,42 @@ class ventas_imprimir extends fs_controller
       $newt = str_replace('&quot;', '"', $newt);
       $newt = str_replace('&#39;', "'", $newt);
       return $newt;
+   }
+   
+   private function get_lineas_iva($lineas)
+   {
+      $retorno = array();
+      $lineasiva = array();
+      
+      foreach($lineas as $lin)
+      {
+         if( isset($lineasiva[$lin->codimpuesto]) )
+         {
+            $lineasiva[$lin->codimpuesto]['neto'] += $lin->pvptotal;
+            $lineasiva[$lin->codimpuesto]['totaliva'] += ($lin->pvptotal*$lin->iva)/100;
+            $lineasiva[$lin->codimpuesto]['totalrecargo'] += ($lin->pvptotal*$lin->recargo)/100;
+            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto'] + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
+         }
+         else
+         {
+            $lineasiva[$lin->codimpuesto] = array(
+                'codimpuesto' => $lin->codimpuesto,
+                'iva' => $lin->iva,
+                'recargo' => $lin->recargo,
+                'neto' => $lin->pvptotal,
+                'totaliva' => ($lin->pvptotal*$lin->iva)/100,
+                'totalrecargo' => ($lin->pvptotal*$lin->recargo)/100,
+                'totallinea' => 0
+            );
+            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto'] + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
+         }
+      }
+      
+      foreach($lineasiva as $lin)
+      {
+         $retorno[] = $lin;
+      }
+      
+      return $retorno;
    }
 }

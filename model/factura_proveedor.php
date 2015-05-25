@@ -401,11 +401,11 @@ class factura_proveedor extends fs_model
       $numeros = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha
          FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).
          " AND codserie = ".$this->var2str($this->codserie)." ORDER BY numero ASC;");
-      if( $numeros )
+      if($numeros)
       {
          foreach($numeros as $n)
          {
-            if( intval($n['numero']) != $num )
+            if( intval($n['numero']) > $num )
             {
                $encontrado = TRUE;
                $fecha = Date('d-m-Y', strtotime($n['fecha']));
@@ -416,7 +416,7 @@ class factura_proveedor extends fs_model
          }
       }
       
-      if( $encontrado )
+      if($encontrado)
       {
          $this->numero = $num;
          $this->fecha = $fecha;

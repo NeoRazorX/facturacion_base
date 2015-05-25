@@ -78,6 +78,10 @@ class tpv_recambios extends fs_controller
       {
          $this->buscar_cliente();
       }
+      else if( isset($_REQUEST['datoscliente']) )
+      {
+         $this->datos_cliente();
+      }
       else if($this->query != '')
       {
          $this->new_search();
@@ -228,6 +232,21 @@ class tpv_recambios extends fs_controller
       
       header('Content-Type: application/json');
       echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
+   }
+   
+   private function datos_cliente()
+   {
+      /// desactivamos la plantilla HTML
+      $this->template = FALSE;
+      
+      $json = array();
+      foreach($this->cliente->get($_REQUEST['datoscliente']) as $cli)
+      {
+         $json[] = $cli;
+      }
+      
+      header('Content-Type: application/json');
+      echo json_encode($json);
    }
    
    private function new_search()
@@ -582,7 +601,9 @@ class tpv_recambios extends fs_controller
             $this->terminal->add_linea_big( $this->terminal->center_text($this->empresa->nombre, 16)."\n");
             $this->terminal->add_linea( $this->terminal->center_text($this->empresa->lema) . "\n\n");
             $this->terminal->add_linea( $this->terminal->center_text($this->empresa->direccion . " - " . $this->empresa->ciudad) . "\n");
-            $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif) . chr(27).chr(105) . "\n\n"); /// corta el papel
+            $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif) );
+            $this->terminal->cortar_papel();
+            $this->terminal->add_linea("\n\n");
             $this->terminal->add_linea( $this->terminal->center_text($this->empresa->horario) . "\n");
             
             $this->terminal->abrir_cajon();
