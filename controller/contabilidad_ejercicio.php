@@ -130,7 +130,9 @@ class contabilidad_ejercicio extends fs_controller
             
             $this->offset = 0;
             if( isset($_GET['offset']) )
+            {
                $this->offset = intval($_GET['offset']);
+            }
             
             if( !isset($_GET['listar']) )
             {
@@ -321,22 +323,31 @@ class contabilidad_ejercicio extends fs_controller
             unlink('tmp/'.FS_TMP_NAME.'ejercicio.xml');
          }
          
-         if($_POST['fuente'] != '')
+         if( $_POST['fuente'] == 'archivo' AND isset($_POST['archivo']) )
          {
-            copy($_POST['fuente'], 'tmp/'.FS_TMP_NAME.'ejercicio.xml');
+            if( copy($_FILES['farchivo']['tmp_name'], 'tmp/'.FS_TMP_NAME.'ejercicio.xml') )
+            {
+               $import_step = 1;
+               $this->importar_url = $this->url().'&importar='.(1 + $import_step);
+            }
+            else
+               $this->new_error_msg('Error al copiar el archivo.');
          }
-         else if( $_POST['fuente'] == 'archivo' AND isset($_POST['archivo']) )
+         else if($_POST['fuente'] != '')
          {
-            copy($_FILES['farchivo']['tmp_name'], 'tmp/'.FS_TMP_NAME.'ejercicio.xml');
+            if( copy($_POST['fuente'], 'tmp/'.FS_TMP_NAME.'ejercicio.xml') )
+            {
+               $import_step = 1;
+               $this->importar_url = $this->url().'&importar='.(1 + $import_step);
+            }
+            else
+               $this->new_error_msg('Error al copiar el archivo.');
          }
          else
          {
             $this->new_error_msg('Has seleccionado importar desde un archivo externo,
                pero no has seleccionado ningún archivo.');
          }
-         
-         $import_step = 1;
-         $this->importar_url = $this->url().'&importar='.(1 + $import_step);
       }
       else if( isset($_GET['importar']) )
       {

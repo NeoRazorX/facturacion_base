@@ -37,6 +37,9 @@ class inventarios_balances
       $this->empresa = new empresa();
    }
    
+   /**
+    * Función para ejecutar en el cron.php
+    */
    public function cron_job()
    {
       /**
@@ -55,6 +58,10 @@ class inventarios_balances
       }
    }
    
+   /**
+    * Genera el libro de inventarios y balances de un ejercicio.
+    * @param type $eje
+    */
    private function generar_libro(&$eje)
    {
       if($eje)
@@ -92,6 +99,10 @@ class inventarios_balances
       }
    }
    
+   /**
+    * Genera el balance de pérdidas y ganancias de un ejercicio.
+    * @param type $codeje
+    */
    public function generar_pyg($codeje)
    {
       $ejercicio = new ejercicio();
@@ -111,6 +122,10 @@ class inventarios_balances
       }
    }
    
+   /**
+    * Genera el balance de situación.
+    * @param type $codeje
+    */
    public function generar_sit($codeje)
    {
       $ejercicio = new ejercicio();
@@ -130,7 +145,8 @@ class inventarios_balances
       }
    }
    
-   /*
+   /**
+    * Función auxiliar para generar el balance de sumas y saldos de un ejercicio y unas fechas concretas.
     * Este informe muestra los saldos (distintos de cero) de cada cuenta y subcuenta
     * por periodos, pero siempre excluyendo los asientos de cierre y pérdidas y ganancias.
     */
@@ -267,7 +283,199 @@ class inventarios_balances
       }
    }
    
-   /*
+   /**
+    * Función auxiliar para generar el balance de sumas y saldos, en su versión de 3 dígitos.
+    */
+   public function sumas_y_saldos3(&$db, &$pdf_doc, &$eje, $titulo, $fechaini, $fechafin, $excluir=FALSE, $np=TRUE)
+   {
+      $ge0 = new grupo_epigrafes();
+      $epi0 = new epigrafe();
+      $cuenta0 = new cuenta();
+      
+      $lineas = array();
+      
+      $sql = "SELECT p.codsubcuenta, SUM(p.debe) as debe, SUM(p.haber) as haber".
+              " FROM co_partidas p, co_asientos a WHERE p.idasiento = a.idasiento".
+              " AND a.codejercicio = ".$this->empresa->var2str($eje->codejercicio).
+              " AND a.fecha >= ".$this->empresa->var2str($fechaini).
+              " AND fecha <= ".$this->empresa->var2str($fechafin).
+              " GROUP BY p.codsubcuenta ORDER BY codsubcuenta ASC;";
+      
+      $data = $db->select($sql);
+      if($data)
+      {
+         $grupos = $ge0->all_from_ejercicio($eje->codejercicio);
+         $epigrafes = $epi0->all_from_ejercicio($eje->codejercicio);
+         
+         for($i = 1; $i < 10; $i++)
+         {
+            $debe = 0;
+            $haber = 0;
+            foreach($data as $d)
+            {
+               if( substr($d['codsubcuenta'], 0, 1) == (string)$i )
+               {
+                  $debe += floatval($d['debe']);
+                  $haber += floatval($d['haber']);
+               }
+            }
+            
+            /// añadimos el grupo
+            foreach($grupos as $ge)
+            {
+               if($ge->codgrupo == $i)
+               {
+                  $lineas[] = array(
+                      'cuenta' => $i,
+                      'descripcion' => $ge->descripcion,
+                      'debe' => $debe,
+                      'haber' => $haber
+                  );
+                  break;
+               }
+            }
+            
+            for($j = 0; $j < 10; $j++)
+            {
+               $debe = 0;
+               $haber = 0;
+               foreach($data as $d)
+               {
+                  if( substr($d['codsubcuenta'], 0, 2) == (string)$i.$j )
+                  {
+                     $debe += floatval($d['debe']);
+                     $haber += floatval($d['haber']);
+                  }
+               }
+               
+               /// añadimos el epígrafe
+               foreach($epigrafes as $ep)
+               {
+                  if($ep->codepigrafe == (string)$i.$j )
+                  {
+                     $lineas[] = array(
+                         'cuenta' => $i.$j,
+                         'descripcion' => $ep->descripcion,
+                         'debe' => $debe,
+                         'haber' => $haber
+                     );
+                     break;
+                  }
+               }
+               
+               for($k = 0; $k < 10; $k++)
+               {
+                  $debe = 0;
+                  $haber = 0;
+                  foreach($data as $d)
+                  {
+                     if( substr($d['codsubcuenta'], 0, 3) == (string)$i.$j.$k )
+                     {
+                        $debe += floatval($d['debe']);
+                        $haber += floatval($d['haber']);
+                     }
+                  }
+                  
+                  /// añadimos la cuenta
+                  if($debe != 0 OR $haber != 0)
+                  {
+                     $cuenta = $cuenta0->get_by_codigo($i.$j.$k, $eje->codejercicio);
+                     if($cuenta)
+                     {
+                        $lineas[] = array(
+                            'cuenta' => $i.$j.$k,
+                            'descripcion' => $cuenta->descripcion,
+                            'debe' => $debe,
+                            'haber' => $haber
+                        );
+                     }
+                  }
+               }
+            }
+         }
+      }
+      
+      /// a partir de la lista generamos el documento
+      $linea = 0;
+      $tdebe = 0;
+      $thaber = 0;
+      while( $linea < count($lineas) )
+      {
+         if($linea > 0 OR $np)
+            $pdf_doc->pdf->ezNewPage();
+         
+         $pdf_doc->pdf->ezText($this->empresa->nombre." - Balance de sumas y saldos ".$eje->year().' '.$titulo.".\n\n", 12);
+         
+         /// Creamos la tabla con las lineas
+         $pdf_doc->new_table();
+         $pdf_doc->add_table_header(
+            array(
+                'cuenta' => '<b>Cuenta</b>',
+                'descripcion' => '<b>Descripción</b>',
+                'debe' => '<b>Debe</b>',
+                'haber' => '<b>Haber</b>',
+                'saldo' => '<b>Saldo</b>'
+            )
+         );
+         
+         for($i=$linea; $i<min( array($linea+48, count($lineas)) ); $i++)
+         {
+            if( strlen($lineas[$i]['cuenta']) == 1 )
+            {
+               $a = '<b>';
+               $b = '</b>';
+            }
+            else if( strlen($lineas[$i]['cuenta']) == 2 )
+            {
+               $a = $b = '';
+            }
+            else
+            {
+               $a = '<i>';
+               $b = '</i>';
+               $tdebe += $lineas[$i]['debe'];
+               $thaber += $lineas[$i]['haber'];
+            }
+            
+            $pdf_doc->add_table_row(
+               array(
+                   'cuenta' => $a.$lineas[$i]['cuenta'].$b,
+                   'descripcion' => $a.substr($lineas[$i]['descripcion'], 0, 50).$b,
+                   'debe' => $a.$this->show_numero($lineas[$i]['debe']).$b,
+                   'haber' => $a.$this->show_numero($lineas[$i]['haber']).$b,
+                   'saldo' => $a.$this->show_numero( floatval($lineas[$i]['debe']) - floatval($lineas[$i]['haber']) ).$b
+               )
+            );
+         }
+         $linea += 48;
+         
+         /// añadimos las sumas de la línea actual
+         $pdf_doc->add_table_row(
+            array(
+                'cuenta' => '',
+                'descripcion' => '<b>Suma y sigue</b>',
+                'debe' => '<b>'.$this->show_numero($tdebe).'</b>',
+                'haber' => '<b>'.$this->show_numero($thaber).'</b>',
+                'saldo' => '<b>'.$this->show_numero($tdebe-$thaber).'</b>'
+            )
+         );
+         $pdf_doc->save_table(
+            array(
+                'fontSize' => 9,
+                'cols' => array(
+                    'debe' => array('justification' => 'right'),
+                    'haber' => array('justification' => 'right'),
+                    'saldo' => array('justification' => 'right')
+                ),
+                'width' => 540,
+                'shaded' => 0
+            )
+         );
+      }
+   }
+   
+   /**
+    * Función auxiliar para generar el balance de pérdidas y ganancias.
     * Este informe se confecciona a partir de las cuentas que señalan los códigos
     * de balance que empiezan por PG.
     */
@@ -506,7 +714,8 @@ class inventarios_balances
       return $total;
    }
    
-   /*
+   /**
+    * Función auxiliar para generar el informe de situación.
     * Para generar este informe hay que leer los códigos de balance con naturaleza A o P
     * en orden. Pero como era demasiado sencillo, los hijos de puta de facturalux decidieron
     * añadir números romanos, para que no puedas ordenarlos fácilemnte.

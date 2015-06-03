@@ -305,9 +305,9 @@ function buscar_articulos()
             {
                tr_aux = "<tr class=\"bg-warning\">";
             }
-            else if(val.stockfis > val.stockmax)
+            else if(val.stockfis > 0)
             {
-               tr_aux = "<tr class=\"bg-info\">";
+               tr_aux = "<tr class=\"bg-success\">";
             }
             
             if(val.codbarras == document.f_buscar_articulos.query.value && !codbarras)

@@ -93,7 +93,16 @@
                      <div class="col-sm-2">
                         <div class="form-group">
                            Hasta:
-                           <input type="text" name="hasta" value="{$value->fechainicio}" class="form-control datepicker" autocomplete="off"/>
+                           <input type="text" name="hasta" value="{$value->fechafin}" class="form-control datepicker" autocomplete="off"/>
+                        </div>
+                     </div>
+                     <div class="col-sm-2">
+                        <div class="form-group">
+                           Tipo:
+                           <select name="tipo" class="form-control">
+                              <option value="3">3 dígitos</option>
+                              <option value="normal">Normal</option>
+                           </select>
                         </div>
                      </div>
                      <div class="col-sm-2">

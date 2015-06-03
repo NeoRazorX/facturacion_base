@@ -36,9 +36,15 @@
       <consulta>PRIMARY KEY (id)</consulta>
    </restriccion>
    <restriccion>
-      <nombre>ca_co_subcuentasprov_ejercicios2</nombre>
+      <nombre>ca_co_subcuentasprov_ejercicios</nombre>
       <consulta>FOREIGN KEY (codejercicio)
       REFERENCES ejercicios (codejercicio)
-      ON DELETE RESTRICT ON UPDATE CASCADE</consulta>
+      ON DELETE CASCADE ON UPDATE CASCADE</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>ca_co_subcuentasprov_proveedores</nombre>
+      <consulta>FOREIGN KEY (codproveedor)
+      REFERENCES proveedores (codproveedor)
+      ON DELETE CASCADE ON UPDATE CASCADE</consulta>
    </restriccion>
 </tabla>

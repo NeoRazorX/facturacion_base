@@ -65,4 +65,10 @@
       <nombre>dirproveedores_pkey</nombre>
       <consulta>PRIMARY KEY (id)</consulta>
    </restriccion>
+   <restriccion>
+      <nombre>ca_dirproveedores_proveedores</nombre>
+      <consulta>FOREIGN KEY (codproveedor)
+      REFERENCES proveedores (codproveedor)
+      ON DELETE CASCADE ON UPDATE CASCADE</consulta>
+   </restriccion>
 </tabla>

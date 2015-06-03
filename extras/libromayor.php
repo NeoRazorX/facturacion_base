@@ -58,11 +58,7 @@ class libro_mayor
                   {
                      $this->libro_mayor($sc, TRUE);
                   }
-                  else
-                     echo '_';
                }
-               else
-                  echo '_';
             }
             
             $this->libro_diario($eje);

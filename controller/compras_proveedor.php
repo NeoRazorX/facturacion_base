@@ -135,6 +135,8 @@ class compras_proveedor extends fs_controller
          else
             $cuentab->iban = $_POST['iban'];
          
+         $cuentab->swift = $_POST['swift'];
+         
          if( $cuentab->save() )
          {
             $this->new_message('Cuenta bancaria guardada correctamente.');

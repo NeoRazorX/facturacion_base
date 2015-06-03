@@ -76,6 +76,11 @@
                   {/if}
                </ul>
             </div>
+            {elseif="$fsc->factura->pagada"}
+            <a class="btn btn-sm btn-info" href="#">
+               <span class="glyphicon glyphicon-ok"></span>
+               <span class="hidden-xs">&nbsp; Pagada</span>
+            </a>
             {/if}
             
             <div class="btn-group">

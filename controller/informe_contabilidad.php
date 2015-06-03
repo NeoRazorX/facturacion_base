@@ -51,7 +51,7 @@ class informe_contabilidad extends fs_controller
       }
       else if( isset($_POST['codejercicio']) )
       {
-         $this->balance_situacion();
+         $this->balance_sumas_y_saldos();
       }
    }
    
@@ -87,27 +87,43 @@ class informe_contabilidad extends fs_controller
       }
    }
    
-   private function balance_situacion()
+   private function balance_sumas_y_saldos()
    {
       $eje = $this->ejercicio->get($_POST['codejercicio']);
       if($eje)
       {
-         $this->template = FALSE;
-         $pdf_doc = new fs_pdf();
-         $pdf_doc->pdf->addInfo('Title', 'Balance de situación de ' . $this->empresa->nombre);
-         $pdf_doc->pdf->addInfo('Subject', 'Balance de situación de ' . $this->empresa->nombre);
-         $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
-         $pdf_doc->pdf->ezStartPageNumbers(580, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
-         
-         $excluir = FALSE;
-         if( isset($eje->idasientocierre) AND isset($eje->idasientopyg) )
+         if( strtotime($_POST['desde']) < strtotime($eje->fechainicio) OR strtotime($_POST['hasta']) > strtotime($eje->fechafin) )
          {
-            $excluir = array($eje->idasientocierre, $eje->idasientopyg);
+            $this->new_error_msg('La fecha está fuera del rango del ejercicio.');
          }
-         
-         $iba = new inventarios_balances();
-         $iba->sumas_y_saldos($pdf_doc, $eje, 'de '.$_POST['desde'].' a '.$_POST['hasta'], $_POST['desde'], $_POST['hasta'], $excluir, FALSE);
-         $pdf_doc->show();
+         else
+         {
+            $this->template = FALSE;
+            $pdf_doc = new fs_pdf();
+            $pdf_doc->pdf->addInfo('Title', 'Balance de situación de ' . $this->empresa->nombre);
+            $pdf_doc->pdf->addInfo('Subject', 'Balance de situación de ' . $this->empresa->nombre);
+            $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
+            $pdf_doc->pdf->ezStartPageNumbers(580, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
+            
+            $excluir = FALSE;
+            if( isset($eje->idasientocierre) AND isset($eje->idasientopyg) )
+            {
+               $excluir = array($eje->idasientocierre, $eje->idasientopyg);
+            }
+            
+            $iba = new inventarios_balances();
+            
+            if($_POST['tipo'] == '3')
+            {
+               $iba->sumas_y_saldos3($this->db, $pdf_doc, $eje, 'de '.$_POST['desde'].' a '.$_POST['hasta'], $_POST['desde'], $_POST['hasta'], $excluir, FALSE);
+            }
+            else
+            {
+               $iba->sumas_y_saldos($pdf_doc, $eje, 'de '.$_POST['desde'].' a '.$_POST['hasta'], $_POST['desde'], $_POST['hasta'], $excluir, FALSE);
+            }
+            
+            $pdf_doc->show();
+         }
       }
    }
 }

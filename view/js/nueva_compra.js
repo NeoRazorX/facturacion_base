@@ -470,7 +470,7 @@ function buscar_articulos()
                }
                else if(val.stockfis > val.stockmax)
                {
-                  tr_aux = "<tr class=\"bg-info\">";
+                  tr_aux = "<tr class=\"bg-success\">";
                }
                
                if(val.secompra)

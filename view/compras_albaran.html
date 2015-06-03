@@ -95,7 +95,8 @@
                   <span class="hidden-xs">&nbsp; Ver Factura</span>
                </a>
                {/if}
-               
+            </div>
+            <div class="btn-group">
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}&id={$fsc->albaran->idalbaran}{$value->params}" class="btn btn-sm btn-default">

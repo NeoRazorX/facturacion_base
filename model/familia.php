@@ -161,11 +161,40 @@ class familia extends fs_model
          if($familias)
          {
             foreach($familias as $f)
-               $famlist[] = new familia($f);
+            {
+               if( is_null($f['madre']) )
+               {
+                  $final[] = new familia($f);
+                  foreach( $this->aux_all($familias, $f['codfamilia']) as $value )
+                  {
+                     $final[] = new familia($value);
+                  }
+               }
+            }
          }
          $this->cache->set('m_familia_all', $famlist);
       }
-      return $famlist;
+      
+      return $final;
+   }
+   
+   private function aux_all(&$familias, $madre)
+   {
+      $subfamilias = array();
+      
+      foreach($familias as $fam)
+      {
+         if($fam['madre'] == $madre)
+         {
+            $subfamilias[] = $fam;
+            foreach( $this->aux_all($familias, $fam['codfamilia']) as $value )
+            {
+               $subfamilias[] = $value;
+            }
+         }
+      }
+      
+      return $subfamilias;
    }
    
    public function madres()
