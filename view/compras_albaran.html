@@ -138,7 +138,7 @@
       </div>
       <div class="row">
          {if="$fsc->albaran->ptefactura"}
-         <div class="col-md-5 col-sm-12 col-xs-12">
+         <div class="col-md-4 col-sm-12">
             <div class="form-group">
                Proveedor actual:
                <div class="input-group">
@@ -152,37 +152,19 @@
             </div>
          </div>
          {/if}
-         <div class="col-md-2 col-sm-3">
+         <div class="col-md-4 col-sm-6">
             <div class="form-group">
-               Num. Proveedor:
+               Núm. Proveedor:
                <input class="form-control" type="text" name="numproveedor" value="{$fsc->albaran->numproveedor}"/>
             </div>
          </div>
-         <div class="col-md-2 col-sm-2">
-            <div class="form-group">
-               <a href="{$fsc->serie->url()}">Serie</a>:
-               {if="$fsc->albaran->ptefactura"}
-               <select class="form-control" name="serie" id="codserie" onchange="usar_serie();recalcular();">
-               {loop="$fsc->serie->all()"}
-                  {if="$value->codserie==$fsc->albaran->codserie"}
-                  <option value="{$value->codserie}" selected="selected">{$value->descripcion}</option>
-                  {else}
-                  <option value="{$value->codserie}">{$value->descripcion}</option>
-                  {/if}
-               {/loop}
-               </select>
-               {else}
-               <div class="form-control">{$fsc->albaran->codserie}</div>
-               {/if}
-            </div>
-         </div>
-         <div class="col-md-2 col-sm-2">
+         <div class="col-md-2 col-sm-3">
             <div class="form-group">
                Fecha:
                <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->albaran->fecha}" autocomplete="off"/>
             </div>
          </div>
-         <div class="col-md-1 col-sm-2">
+         <div class="col-md-2 col-sm-3">
             <div class="form-group">
                Hora:
                <input class="form-control" type="text" name="hora" value="{$fsc->albaran->hora}" autocomplete="off"/>
@@ -197,6 +179,12 @@
             <a href="#lineas_a" aria-controls="lineas_a" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
                <span class="hidden-xs">&nbsp; Líneas</span>
+            </a>
+         </li>
+         <li role="presentation">
+            <a href="#opciones" aria-controls="opciones" role="tab" data-toggle="tab">
+               <span class="glyphicon glyphicon-option-vertical" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Opciones</span>
             </a>
          </li>
          {loop="$fsc->extensions"}
@@ -357,6 +345,36 @@
                {/if}
             </div>
          </div>
+         <div role="tabpanel" class="tab-pane" id="opciones">
+            <div class="container-fluid" style="margin-top: 10px;">
+               <div class="row">
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        <a href="{$fsc->serie->url()}">Serie</a>:
+                        <select class="form-control" name="serie" id="codserie" onchange="usar_serie();recalcular();">
+                        {loop="$fsc->serie->all()"}
+                           {if="$value->codserie==$fsc->albaran->codserie"}
+                           <option value="{$value->codserie}" selected="selected">{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->codserie}">{$value->descripcion}</option>
+                           {/if}
+                        {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
+                        <select name="forma_pago" class="form-control">
+                           {loop="$fsc->forma_pago->all()"}
+                           <option value="{$value->codpago}"{if="$value->codpago==$fsc->albaran->codpago"} selected="selected"{/if}>{$value->descripcion}</option>
+                           {/loop}
+                        </select>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
@@ -465,7 +483,7 @@
                      </div>
                      <div class="col-sm-4">
                         <div class="form-group">
-                           PVP:
+                           Precio:
                            <input type="text" name="pvp" value="0" class="form-control" autocomplete="off"/>
                         </div>
                      </div>
@@ -530,8 +548,8 @@
                         <th width="100">Actualizar</th>
                         <th class="text-left">Artículo</th>
                         <th>Código de barras</th>
-                        <th class="text-right">PVP</th>
-                        <th width="100" class="text-right">PVP+{#FS_IVA#}</th>
+                        <th class="text-right">Precio</th>
+                        <th width="100" class="text-right">Precio+{#FS_IVA#}</th>
                      </tr>
                   </thead>
                   {loop="$fsc->albaran->get_lineas()"}

@@ -206,14 +206,8 @@ class nueva_venta extends fs_controller
       /// desactivamos la plantilla HTML
       $this->template = FALSE;
       
-      $json = array();
-      foreach($this->cliente->get($_REQUEST['datoscliente']) as $cli)
-      {
-         $json[] = $cli;
-      }
-      
       header('Content-Type: application/json');
-      echo json_encode($json);
+      echo json_encode( $this->cliente->get($_REQUEST['datoscliente']) );
    }
    
    private function new_articulo()
@@ -617,6 +611,8 @@ class nueva_venta extends fs_controller
          {
             $factura->pagada = TRUE;
          }
+         
+         $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$forma_pago->vencimiento));
          
          $factura->codcliente = $cliente->codcliente;
          $factura->cifnif = $cliente->cifnif;

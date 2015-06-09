@@ -29,6 +29,8 @@ class familia extends fs_model
    public $descripcion;
    public $madre;
    
+   public $nivel;
+   
    public function __construct($f=FALSE)
    {
       parent::__construct('familias', 'plugins/facturacion_base/');
@@ -42,12 +44,19 @@ class familia extends fs_model
          {
             $this->madre = $f['madre'];
          }
+         
+         $this->nivel = '';
+         if( isset($f['nivel']) )
+         {
+            $this->nivel = $f['nivel'];
+         }
       }
       else
       {
          $this->codfamilia = NULL;
          $this->descripcion = '';
          $this->madre = NULL;
+         $this->nivel = '';
       }
    }
    
@@ -165,7 +174,7 @@ class familia extends fs_model
                if( is_null($f['madre']) )
                {
                   $final[] = new familia($f);
-                  foreach( $this->aux_all($familias, $f['codfamilia']) as $value )
+                  foreach( $this->aux_all($familias, $f['codfamilia'], '· ') as $value )
                   {
                      $final[] = new familia($value);
                   }
@@ -178,7 +187,7 @@ class familia extends fs_model
       return $final;
    }
    
-   private function aux_all(&$familias, $madre)
+   private function aux_all(&$familias, $madre, $nivel)
    {
       $subfamilias = array();
       
@@ -186,8 +195,9 @@ class familia extends fs_model
       {
          if($fam['madre'] == $madre)
          {
+            $fam['nivel'] = $nivel;
             $subfamilias[] = $fam;
-            foreach( $this->aux_all($familias, $fam['codfamilia']) as $value )
+            foreach( $this->aux_all($familias, $fam['codfamilia'], '&nbsp;&nbsp;'.$nivel) as $value )
             {
                $subfamilias[] = $value;
             }

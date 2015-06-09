@@ -860,9 +860,9 @@ class articulo extends fs_model
    {
       if( file_exists('tmp/articulos/'.$this->referencia.'.png') )
       {
-         if( !unlink('tmp/articulos/'.$this->referencia.'.png') )
+         if( !@unlink('tmp/articulos/'.$this->referencia.'.png') )
          {
-            $this->new_error_msg('Error al borrar la imagen de tmp.');
+            $this->new_error_msg('Error al borrar tmp/articulos/'.$this->referencia.'.png');
          }
       }
    }

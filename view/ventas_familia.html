@@ -81,7 +81,7 @@
                   <option value="---">-----</option>
                   {loop="$fsc->familia->all()"}
                      {if="$value->codfamilia!=$fsc->familia->codfamilia"}
-                     <option value="{$value->codfamilia}"{if="$fsc->familia->madre==$value->codfamilia"} selected="selected"{/if}>{$value->descripcion}</option>
+                     <option value="{$value->codfamilia}"{if="$fsc->familia->madre==$value->codfamilia"} selected="selected"{/if}>{$value->nivel}{$value->descripcion}</option>
                      {/if}
                   {/loop}
                </select>
@@ -115,7 +115,7 @@
                   <tr>
                      <th class="text-left">Referencia + Descripción</th>
                      <th class="text-right">Coste</th>
-                     <th class="text-right">PVP</th>
+                     <th class="text-right">Precio</th>
                      <th class="text-right">Stock</th>
                   </tr>
                </thead>

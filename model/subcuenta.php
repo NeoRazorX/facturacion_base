@@ -348,13 +348,28 @@ class subcuenta extends fs_model
    public function clean_cache()
    {
       if( file_exists('tmp/'.FS_TMP_NAME.'libro_mayor/'.$this->idsubcuenta.'.pdf') )
-         unlink('tmp/'.FS_TMP_NAME.'libro_mayor/'.$this->idsubcuenta.'.pdf');
+      {
+         if( !@unlink('tmp/'.FS_TMP_NAME.'libro_mayor/'.$this->idsubcuenta.'.pdf') )
+         {
+            $this->new_error_msg('Error al eliminar tmp/'.FS_TMP_NAME.'libro_mayor/'.$this->idsubcuenta.'.pdf');
+         }
+      }
       
       if( file_exists('tmp/'.FS_TMP_NAME.'libro_diario/'.$this->codejercicio.'.pdf') )
-         unlink('tmp/'.FS_TMP_NAME.'libro_diario/'.$this->codejercicio.'.pdf');
+      {
+         if( !@unlink('tmp/'.FS_TMP_NAME.'libro_diario/'.$this->codejercicio.'.pdf') )
+         {
+            $this->new_error_msg('Error al eliminar tmp/'.FS_TMP_NAME.'libro_diario/'.$this->codejercicio.'.pdf');
+         }
+      }
       
       if( file_exists('tmp/'.FS_TMP_NAME.'inventarios_balances/'.$this->codejercicio.'.pdf') )
-         unlink('tmp/'.FS_TMP_NAME.'inventarios_balances/'.$this->codejercicio.'.pdf');
+      {
+         if( !@unlink('tmp/'.FS_TMP_NAME.'inventarios_balances/'.$this->codejercicio.'.pdf') )
+         {
+            $this->new_error_msg('Error al eliminar tmp/'.FS_TMP_NAME.'inventarios_balances/'.$this->codejercicio.'.pdf');
+         }
+      }
    }
    
    public function all()

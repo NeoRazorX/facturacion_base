@@ -137,7 +137,7 @@
                      <th class="text-left">Descripción</th>
                      <th class="text-right">Cantidad</th>
                      <th></th>
-                     <th class="text-right">PVP</th>
+                     <th class="text-right">Precio</th>
                      <th class="text-right">Dto. %</th>
                      <th class="text-right">Neto</th>
                      <th class="text-right">{#FS_IVA#} %</th>
@@ -359,7 +359,7 @@
                            <option value="">Todas las familias</option>
                            <option value="">------</option>
                            {loop="$fsc->familia->all()"}
-                           <option value="{$value->codfamilia}">{$value->descripcion}</option>
+                           <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
                            {/loop}
                         </select>
                      </div>

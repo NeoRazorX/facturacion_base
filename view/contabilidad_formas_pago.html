@@ -29,7 +29,7 @@
          <div class="btn-group">
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
          </div>
@@ -46,8 +46,8 @@
          <tr>
             <th class="text-left">Código</th>
             <th class="text-left">Descripción</th>
-            <th class="text-left">Generar recibos</th>
-            <th class="text-center">Domiciliado</th>
+            <th class="text-left">Generar facturas</th>
+            <th class="text-left">Vencimiento</th>
             <th class="text-right" width="120">Acciones</th>
          </tr>
       </thead>
@@ -63,12 +63,20 @@
             </td>
             <td>
                <select name="genrecibos" class="form-control">
-                  <option value="Emitidos"{if="$value->genrecibos=='Emitidos'"} selected="selected"{/if}>Emitidos</option>
-                  <option value="Pagados"{if="$value->genrecibos=='Pagados'"} selected="selected"{/if}>Pagados</option>
+                  <option value="Emitidos"{if="$value->genrecibos=='Emitidos'"} selected="selected"{/if}>Sin pagar</option>
+                  <option value="Pagados"{if="$value->genrecibos=='Pagados'"} selected="selected"{/if}>Pagadas</option>
                </select>
             </td>
-            <td class="text-center">
-               <input type="checkbox" name="domiciliado" value="TRUE"{if="$value->domiciliado"} checked="TRUE"{/if}/>
+            <td>
+               <select name="vencimiento" class="form-control">
+               {loop="$fsc->vencimientos()"}
+                  {if="$value1->vencimiento==$key2"}
+                  <option value="{$key2}" selected="selected">{$value2}</option>
+                  {else}
+                  <option value="{$key2}">{$value2}</option>
+                  {/if}
+               {/loop}
+               </select>
             </td>
             <td class="text-right">
                <div class="btn-group">
@@ -95,12 +103,16 @@
             </td>
             <td>
                <select name="genrecibos" class="form-control">
-                  <option value="Emitidos">Emitidos</option>
-                  <option value="Pagados">Pagados</option>
+                  <option value="Emitidos">Sin pagar</option>
+                  <option value="Pagados">Pagadas</option>
                </select>
             </td>
             <td class="text-center">
-               <input type="checkbox" name="domiciliado" value="TRUE"/>
+               <select name="vencimiento" class="form-control">
+                  {loop="$fsc->vencimientos()"}
+                  <option value="{$key}">{$value}</option>
+                  {/loop}
+               </select>
             </td>
             <td class="text-right">
                <div class="btn-group">

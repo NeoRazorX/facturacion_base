@@ -209,9 +209,9 @@
                         <select class="form-control" name="codfamilia">
                         {loop="$fsc->familia->all()"}
                            {if="$value->codfamilia===$fsc->articulo->codfamilia"}
-                           <option value="{$value->codfamilia}" selected="selected">{$value->descripcion}</option>
+                           <option value="{$value->codfamilia}" selected="selected">{$value->nivel}{$value->descripcion}</option>
                            {else}
-                           <option value="{$value->codfamilia}">{$value->descripcion}</option>
+                           <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
                            {/if}
                         {/loop}
                         </select>
@@ -317,7 +317,7 @@
                <div class="row">
                   <div class="col-md-4">
                      <div class="form-group">
-                        PVP:
+                        Precio:
                         <div class="input-group">
                            <span class="input-group-addon">{$fsc->simbolo_divisa()}</span>
                            <input type="text" class="form-control" id="pvp" name="pvp" value="{$fsc->articulo->pvp}" autocomplete="off" onkeyup="cambiar_pvp()" onclick="this.select()"/>
@@ -341,7 +341,7 @@
                   </div>
                   <div class="col-md-4">
                      <div class="form-group">
-                        PVP+{#FS_IVA#}:
+                        Precio+{#FS_IVA#}:
                         <div class="input-group">
                            <span class="input-group-addon">{$fsc->simbolo_divisa()}</span>
                            <input type="text" class="form-control" id="pvpi" name="pvpiva" value="{$fsc->articulo->pvp_iva()}" autocomplete="off" onkeyup="cambiar_pvpi()" onclick="this.select()"/>
@@ -370,7 +370,7 @@
                            <span class="input-group-addon">%</span>
                            <input type="text" class="form-control" id="margen" name="margen" value="0" autocomplete="off" onkeyup="cambiar_margen()" onclick="this.select()"/>
                         </div>
-                        <p class="help-block">Sirve para calcular el PVP, pero no se almacena (todavía).</p>
+                        <p class="help-block">Sirve para calcular el Precio, pero no se almacena (todavía).</p>
                      </div>
                   </div>
                </div>
@@ -381,8 +381,8 @@
                      <tr>
                         <th colspan="2" class="text-left">Tarifa</th>
                         <th class="text-left">Diferencia</th>
-                        <th class="text-right">PVP</th>
-                        <th class="text-right">PVP+{#FS_IVA#}</th>
+                        <th class="text-right">Precio</th>
+                        <th class="text-right">Precio+{#FS_IVA#}</th>
                      </tr>
                   </thead>
                   {loop="$fsc->get_tarifas()"}
@@ -523,8 +523,8 @@
                <thead>
                   <tr>
                      <th class="text-left">Artículo</th>
-                     <th class="text-right">PVP</th>
-                     <th class="text-right">PVP+{#FS_IVA#}</th>
+                     <th class="text-right">Precio</th>
+                     <th class="text-right">Precio+{#FS_IVA#}</th>
                      <th class="text-right">Stock</th>
                   </tr>
                </thead>

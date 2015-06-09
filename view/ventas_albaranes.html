@@ -162,7 +162,7 @@
          <td colspan="6">Ningún {#FS_ALBARAN#} encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</td>
       </tr>
       {/loop}
-      {if="$fsc->pendientes AND $fsc->offset==0"}
+      {if="$fsc->resultados AND $fsc->pendientes AND $fsc->offset==0"}
       <tr>
          <td colspan="4"></td>
          <td class="text-right"><b>{$fsc->show_precio($total)}</b></td>

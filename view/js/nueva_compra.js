@@ -499,7 +499,7 @@ function buscar_articulos()
             if(insertar)
             {
                $("#search_results").html("<div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>\n\
-                  <th class=\"text-left\">Referencia + descripción</th><th class=\"text-right\">Coste</th><th class=\"text-right\">PVP</th>\n\
+                  <th class=\"text-left\">Referencia + descripción</th><th class=\"text-right\">Coste</th><th class=\"text-right\">Precio</th>\n\
                   <th class=\"text-right\">Stock</th></tr></thead>"+items.join('')+"</table></div>");
             }
          });
@@ -533,7 +533,7 @@ function buscar_articulos()
             {
                $("#kiwimaru_results").html("<div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>\n\
                   <th class=\"text-left\">Sector / Tienda / Familia</th><th class=\"text-left\">Referencia + descripción</th>\n\
-                  <th class=\"text-right\">PVP+IVA</th></tr></thead>"+items.join('')+"</table></div>");
+                  <th class=\"text-right\">Precio+IVA</th></tr></thead>"+items.join('')+"</table></div>");
             }
          });
       }

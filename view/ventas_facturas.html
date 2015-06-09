@@ -132,11 +132,15 @@
             <th class="text-left">Observaciones</th>
             <th class="text-right">Total</th>
             <th class="text-right">Fecha</th>
+            {if="isset($_GET['sinpagar'])"}
+            <th class="text-right">Vencimiento</th>
+            {else}
             <th class="text-right hidden-sm">Hora</th>
+            {/if}
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr class="clickableRow{if="$value->total<=0"} bg-warning{/if}" href="{$value->url()}">
+      <tr class="clickableRow{if="$value->vencida()"} bg-danger{elseif="$value->total<=0"} bg-warning{/if}" href="{$value->url()}">
          <td class="text-center">
             {if="$value->pagada"}
             <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
@@ -157,7 +161,11 @@
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
          <td class="text-right">{$value->fecha}</td>
+         {if="isset($_GET['sinpagar'])"}
+         <td class="text-right">{$value->vencimiento}</td>
+         {else}
          <td class="text-right hidden-sm">{$value->hora}</td>
+         {/if}
       </tr>
       {else}
       <tr class="bg-warning">
@@ -166,7 +174,7 @@
          <td colspan="6">Ninguna factura encontrada. Pulsa <b>Nueva</b> para crear una.</td>
       </tr>
       {/loop}
-      {if="isset($_GET['sinpagar']) AND $fsc->offset==0"}
+      {if="$fsc->resultados AND isset($_GET['sinpagar']) AND $fsc->offset==0"}
       <tr>
          <td colspan="5"></td>
          <td class="text-right"><b>{$fsc->show_precio($total)}</b></td>

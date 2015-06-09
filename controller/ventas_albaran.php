@@ -42,6 +42,7 @@ class ventas_albaran extends fs_controller
    public $cliente_s;
    public $ejercicio;
    public $familia;
+   public $forma_pago;
    public $impuesto;
    public $nuevo_albaran_url;
    public $pais;
@@ -63,6 +64,7 @@ class ventas_albaran extends fs_controller
       $this->cliente_s = FALSE;
       $this->ejercicio = new ejercicio();
       $this->familia = new familia();
+      $this->forma_pago = new forma_pago();
       $this->impuesto = new impuesto();
       $this->nuevo_albaran_url = FALSE;
       $this->pais = new pais();
@@ -216,6 +218,8 @@ class ventas_albaran extends fs_controller
                $serie = $serie2;
             }
          }
+         
+         $this->albaran->codpago = $_POST['forma_pago'];
          
          if( isset($_POST['numlineas']) )
          {
@@ -451,6 +455,8 @@ class ventas_albaran extends fs_controller
          {
             $factura->pagada = TRUE;
          }
+         
+         $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$formapago->vencimiento));
       }
       
       /// asignamos la mejor fecha posible, pero dentro del ejercicio

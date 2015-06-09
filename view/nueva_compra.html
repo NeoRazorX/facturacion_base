@@ -216,9 +216,13 @@
                <div class="form-group">
                   <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
                   <select name="forma_pago" class="form-control">
-                     {loop="$fsc->forma_pago->all()"}
-                     <option value="{$value->codpago}"{if="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
-                     {/loop}
+                  {loop="$fsc->forma_pago->all()"}
+                     {if="$fsc->proveedor_s->codpago==$value->codpago"}
+                     <option value="{$value->codpago}" selected="selected">{$value->descripcion}</option>
+                     {else}
+                     <option value="{$value->codpago}">{$value->descripcion}</option>
+                     {/if}
+                  {/loop}
                   </select>
                </div>
                <div class="checkbox">
@@ -229,7 +233,7 @@
                </div>
                <div class="checkbox">
                   <label>
-                     <input type="checkbox" name="costemedio" value="TRUE" checked="checked"/>
+                     <input type="checkbox" name="costemedio" value="TRUE"{if="FS_COST_IS_AVERAGE"} checked="checked"{/if}/>
                      Actualizar precio de coste de los artículos
                   </label>
                </div>
@@ -280,7 +284,7 @@
                            <option value="">Todas las familias</option>
                            <option value="">------</option>
                            {loop="$fsc->familia->all()"}
-                           <option value="{$value->codfamilia}">{$value->descripcion}</option>
+                           <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
                            {/loop}
                         </select>
                      </div>
@@ -318,7 +322,7 @@
                            <a href="{$fsc->familia->url()}">Familia</a>:
                            <select name="codfamilia" class="form-control">
                               {loop="$fsc->familia->all()"}
-                              <option value="{$value->codfamilia}">{$value->descripcion}</option>
+                              <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
                               {/loop}
                            </select>
                         </div>
@@ -335,7 +339,7 @@
                      </div>
                      <div class="col-sm-4">
                         <div class="form-group">
-                           PVP:
+                           Precio:
                            <input type="text" name="pvp" value="0" class="form-control" autocomplete="off"/>
                         </div>
                      </div>

@@ -99,7 +99,12 @@ class compras_proveedores extends fs_controller
          $this->resultados = $this->proveedor->search($this->query, $this->offset);
       }
       else
+      {
+         /// corregimos errores en las tablas <- ELIMINAR EN LA SIGUIENTE ACTUALIZACIÓN
+         $this->fix_db();
+         
          $this->resultados = $this->proveedor->all($this->offset);
+      }
    }
    
    public function anterior_url()
@@ -143,5 +148,23 @@ class compras_proveedores extends fs_controller
       }
       else
          return 0;
+   }
+   
+   private function fix_db()
+   {
+      if( $this->db->table_exists('co_subcuentasprov') )
+      {
+         $this->db->exec("delete from co_subcuentasprov where codproveedor not in (select codproveedor from proveedores);");
+      }
+      
+      if( $this->db->table_exists('dirproveedores') )
+      {
+         $this->db->exec("delete from dirproveedores where codproveedor not in (select codproveedor from proveedores);");
+      }
+      
+      if( $this->db->table_exists('cuentasbcopro') )
+      {
+         $this->db->exec("delete from cuentasbcopro where codproveedor not in (select codproveedor from proveedores);");
+      }
    }
 }

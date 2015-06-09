@@ -370,7 +370,7 @@ function buscar_articulos()
          if(insertar)
          {
             $("#search_results").html("<div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>\n\
-               <th class=\"text-left\">Referencia + descripción</th><th class=\"text-right\">PVP</th><th class=\"text-right\">PVP+IVA</th>\n\
+               <th class=\"text-left\">Referencia + descripción</th><th class=\"text-right\">Precio</th><th class=\"text-right\">Precio+IVA</th>\n\
                <th class=\"text-right\">Stock</th></tr></thead>"+items.join('')+"</table></div>");
          }
       });

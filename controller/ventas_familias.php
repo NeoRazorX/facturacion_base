@@ -78,7 +78,10 @@ class ventas_familias extends fs_controller
          $this->resultados = $this->familia->search($this->query);
       }
       else
+      {
+         $this->check_familias();
          $this->resultados = $this->familia->madres();
+      }
    }
    
    public function total_familias()
@@ -90,5 +93,19 @@ class ventas_familias extends fs_controller
       }
       else
          return 0;
+   }
+   
+   private function check_familias()
+   {
+      $data = $this->db->select("select * from familias where madre is not null and madre not in (select codfamilia from familias);");
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $familia = new familia($d);
+            $familia->madre = NULL;
+            $familia->save();
+         }
+      }
    }
 }

@@ -101,28 +101,32 @@
       </div>
       
       <div class="row">
-         <div class="col-sm-3">
+         <div class="col-sm-4">
             <div class="form-group">
-               Num. Proveedor:
+               Núm. Proveedor:
                <input class="form-control" type="text" name="numproveedor" value="{$fsc->factura->numproveedor}"/>
             </div>
          </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               Serie:
-               <div class="form-control">{$fsc->factura->codserie}</div>
-            </div>
-         </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               Ejercicio:
-               <div class="form-control">{$fsc->factura->codejercicio}</div>
-            </div>
-         </div>
-         <div class="col-sm-3">
+         <div class="col-sm-2">
             <div class="form-group">
                Fecha:
-               <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->factura->fecha}"/>
+               <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->factura->fecha}" autocomplete="off"/>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               Hora:
+               <input class="form-control" type="text" name="hora" value="{$fsc->factura->hora}" autocomplete="off"/>
+            </div>
+         </div>
+         <div class="col-sm-4">
+            <div class="form-group">
+               <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
+               <select name="forma_pago" class="form-control">
+                  {loop="$fsc->forma_pago->all()"}
+                  <option value="{$value->codpago}"{if="$fsc->factura->codpago==$value->codpago"} selected="selected"{/if}>{$value->descripcion}</option>
+                  {/loop}
+               </select>
             </div>
          </div>
       </div>

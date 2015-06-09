@@ -280,7 +280,7 @@
                   <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
                   <select name="forma_pago" class="form-control">
                   {loop="$fsc->forma_pago->all()"}
-                     {if="$value->is_default()"}
+                     {if="$fsc->cliente_s->codpago==$value->codpago"}
                      <option value="{$value->codpago}" selected="selected">{$value->descripcion}</option>
                      {else}
                      <option value="{$value->codpago}">{$value->descripcion}</option>
@@ -343,7 +343,7 @@
                            <option value="">Todas las familias</option>
                            <option value="">------</option>
                            {loop="$fsc->familia->all()"}
-                           <option value="{$value->codfamilia}">{$value->descripcion}</option>
+                           <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
                            {/loop}
                         </select>
                      </div>
@@ -381,7 +381,7 @@
                            <a href="{$fsc->familia->url()}">Familia</a>:
                            <select name="codfamilia" class="form-control">
                               {loop="$fsc->familia->all()"}
-                              <option value="{$value->codfamilia}">{$value->descripcion}</option>
+                              <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
                               {/loop}
                            </select>
                         </div>
@@ -398,7 +398,7 @@
                      </div>
                      <div class="col-sm-4">
                         <div class="form-group">
-                           PVP:
+                           Precio:
                            <input type="text" name="pvp" value="0" class="form-control" autocomplete="off"/>
                         </div>
                      </div>

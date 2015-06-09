@@ -39,6 +39,7 @@ class compras_albaran extends fs_controller
    public $allow_delete;
    public $ejercicio;
    public $familia;
+   public $forma_pago;
    public $impuesto;
    public $nuevo_albaran_url;
    public $proveedor;
@@ -59,6 +60,7 @@ class compras_albaran extends fs_controller
       $this->albaran = FALSE;
       $this->ejercicio = new ejercicio();
       $this->familia = new familia();
+      $this->forma_pago = new forma_pago();
       $this->impuesto = new impuesto();
       $this->proveedor = new proveedor();
       $this->proveedor_s = FALSE;
@@ -192,6 +194,8 @@ class compras_albaran extends fs_controller
                $serie = $serie2;
             }
          }
+         
+         $this->albaran->codpago = $_POST['forma_pago'];
          
          if( isset($_POST['numlineas']) )
          {

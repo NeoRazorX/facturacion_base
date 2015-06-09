@@ -149,7 +149,12 @@ class ventas_clientes extends fs_controller
          $this->resultados = $this->cliente->search($this->query, $this->offset);
       }
       else
+      {
+         /// corregimos errores en las tablas <- ELIMINAR EN LA SIGUIENTE ACTUALIZACIÓN
+         $this->fix_db();
+         
          $this->resultados = $this->cliente->all($this->offset);
+      }
       
       $this->grupos = $this->grupo->all();
    }
@@ -211,5 +216,23 @@ class ventas_clientes extends fs_controller
       }
       else
          return 0;
+   }
+   
+   private function fix_db()
+   {
+      if( $this->db->table_exists('co_subcuentascli') )
+      {
+         $this->db->exec("delete from co_subcuentascli where codcliente not in (select codcliente from clientes);");
+      }
+      
+      if( $this->db->table_exists('dirclientes') )
+      {
+         $this->db->exec("delete from dirclientes where codcliente not in (select codcliente from clientes);");
+      }
+      
+      if( $this->db->table_exists('cuentasbcocli') )
+      {
+         $this->db->exec("delete from cuentasbcocli where codcliente not in (select codcliente from clientes);");
+      }
    }
 }
