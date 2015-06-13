@@ -3,6 +3,10 @@
 {if="$fsc->factura"}
 <script type="text/javascript">
    $(document).ready(function() {
+      $("#b_imprimir").click(function(event) {
+         event.preventDefault();
+         $("#modal_imprimir").modal('show');
+      });
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
          $("#modal_eliminar").modal('show');
@@ -24,6 +28,16 @@
             <a class="btn btn-sm btn-default hidden-xs" href="{$fsc->url()}" title="recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
+            <a id="b_imprimir" class="btn btn-sm btn-default" href="#">
+               <span class="glyphicon glyphicon-print"></span>
+               <span class="hidden-xs">&nbsp; Imprimir</span>
+            </a>
+            {if="$fsc->empresa->can_send_mail()"}
+            <a id="b_enviar" class="btn btn-sm btn-default" href="#">
+               <span class="glyphicon glyphicon-envelope"></span>
+               <span class="hidden-xs">&nbsp; Enviar</span>
+            </a>
+            {/if}
             {if="$fsc->factura->idasiento"}
             <a class="btn btn-sm btn-default" href="{$fsc->factura->asiento_url()}">
                <span class="glyphicon glyphicon-eye-open"></span>
@@ -277,6 +291,63 @@
       </div>
    </div>
 </div>
+
+<div class="modal fade" id="modal_imprimir">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Imprimir factura</h4>
+         </div>
+         <div class="modal-body">
+            {loop="$fsc->extensions"}
+            {$value->name}<br>
+               {if="$value->type=='pdf'"}
+               <a href="index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}" target="_blank" class="btn btn-block btn-default">
+                  <span class="glyphicon glyphicon-print"></span> &nbsp; {$value->text}
+               </a>
+               {/if}
+            {/loop}
+         </div>
+         <div class="modal-footer">
+            <a href="{$fsc->url()}&updatedir=TRUE">Actualizar la dirección de la factura.</a>
+         </div>
+      </div>
+   </div>
+</div>
+
+<form class="form" role="form" name="enviar_email" action="{$fsc->url()}" method="post">
+   <div class="modal" id="modal_enviar">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">Enviar factura</h4>
+            </div>
+            <div class="modal-body">
+               <div class="form-group">
+                  Email del cliente:
+                  <input class="form-control" type="text" name="email" value="{$fsc->cliente->email}" autocomplete="off"/>
+               </div>
+               <div class="form-group">
+                  Mensaje:
+                  <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto su factura {$fsc->factura->codigo}.
+{$fsc->empresa->email_firma}</textarea>
+               </div>
+            </div>
+            <div class="modal-footer">
+            {loop="$fsc->extensions"}
+               {if="$value->type=='email'"}
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}';this.form.submit();">
+                  <span class="glyphicon glyphicon-send"></span> &nbsp; Enviar {$value->text}
+               </button>
+               {/if}
+            {/loop}
+            </div>
+         </div>
+      </div>
+   </div>
+</form>
 {else}
 <div class="thumbnail">
    <img src="view/img/fuuu_face.png" alt="fuuuuu"/>
