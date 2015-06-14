@@ -160,13 +160,21 @@
          <div class="col-md-2 col-sm-3">
             <div class="form-group">
                Fecha:
+               {if="$fsc->albaran->ptefactura"}
                <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->albaran->fecha}" autocomplete="off"/>
+               {else}
+               <div class="form-control">{$fsc->albaran->fecha}</div>
+               {/if}
             </div>
          </div>
          <div class="col-md-2 col-sm-3">
             <div class="form-group">
                Hora:
+               {if="$fsc->albaran->ptefactura"}
                <input class="form-control" type="text" name="hora" value="{$fsc->albaran->hora}" autocomplete="off"/>
+               {else}
+               <div class="form-control">{$fsc->albaran->hora}</div>
+               {/if}
             </div>
          </div>
       </div>
@@ -180,6 +188,7 @@
                <span class="hidden-xs">&nbsp; Líneas</span>
             </a>
          </li>
+         {if="$fsc->albaran->ptefactura"}
          <li role="presentation">
             <a href="#direccion_p" aria-controls="direccion_p" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-road" aria-hidden="true"></span>
@@ -192,6 +201,7 @@
                <span class="hidden-xs">&nbsp; Opciones</span>
             </a>
          </li>
+         {/if}
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <li role="presentation">
@@ -362,6 +372,7 @@
                {/if}
             </div>
          </div>
+         {if="$fsc->albaran->ptefactura"}
          <div role="tabpanel" class="tab-pane" id="direccion_p">
             <div class="container-fluid" style="margin-top: 10px;">
                <div class="row">
@@ -452,6 +463,7 @@
                </div>
             </div>
          </div>
+         {/if}
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
