@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -40,7 +40,9 @@ class contabilidad_asientos extends fs_controller
          if($asiento)
          {
             if( $asiento->delete() )
+            {
                $this->new_message("Asiento eliminado correctamente.");
+            }
             else
                $this->new_error_msg("¡Imposible eliminar el asiento!");
          }
@@ -50,12 +52,16 @@ class contabilidad_asientos extends fs_controller
       else if( isset($_GET['renumerar']) )
       {
          if( $this->asiento->renumerar() )
+         {
             $this->new_message("Asientos renumerados.");
+         }
       }
       
       $this->offset = 0;
       if( isset($_GET['offset']) )
+      {
          $this->offset = intval($_GET['offset']);
+      }
       
       if( isset($_GET['descuadrados']) )
       {
@@ -99,5 +105,16 @@ class contabilidad_asientos extends fs_controller
       }
       
       return $url;
+   }
+   
+   public function total_asientos()
+   {
+      $data = $this->db->select("SELECT COUNT(idasiento) as total FROM co_asientos;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
    }
 }

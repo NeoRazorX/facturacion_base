@@ -392,7 +392,7 @@ class factura_proveedor extends fs_model
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($this->idfactura).";");
    }
    
-   private function new_codigo()
+   public function new_codigo()
    {
       /// buscamos un hueco
       $encontrado = FALSE;

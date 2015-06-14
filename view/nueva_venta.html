@@ -193,7 +193,7 @@
                         </select>
                      </div>
                   </div>
-                  <div class="col-sm-3">
+                  <div class="col-sm-2">
                      <div class="form-group">
                         <a href="{$fsc->almacen->url()}">Almacén</a>:
                         <select name="almacen" class="form-control">
@@ -203,7 +203,7 @@
                         </select>
                      </div>
                   </div>
-                  <div class="col-sm-3">
+                  <div class="col-sm-2">
                      <div class="form-group">
                         <a href="{$fsc->serie->url()}">Serie</a>:
                         <select name="serie" class="form-control" id="codserie" onchange="usar_serie();recalcular();">
@@ -217,7 +217,7 @@
                         </select>
                      </div>
                   </div>
-                  <div class="col-sm-3">
+                  <div class="col-sm-2">
                      <div class="form-group">
                         <a href="{$fsc->divisa->url()}">Divisa</a>:
                         <select name="divisa" class="form-control">
@@ -225,6 +225,12 @@
                            <option value="{$value->coddivisa}"{if="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
                            {/loop}
                         </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        Tasa de conversión a €
+                        <input type="text" name="tasaconv" class="form-control" placeholder="(predeterminada)" autocomplete="off"/>
                      </div>
                   </div>
                </div>

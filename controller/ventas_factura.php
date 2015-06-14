@@ -77,16 +77,6 @@ class ventas_factura extends fs_controller
          $this->factura->observaciones = $_POST['observaciones'];
          $this->factura->numero2 = $_POST['numero2'];
          
-         if($this->factura->codpago != $_POST['forma_pago'])
-         {
-            $this->factura->codpago = $_POST['forma_pago'];
-            $this->factura->vencimiento = $this->nuevo_vencimiento($this->factura->fecha, $this->factura->codpago);
-         }
-         else
-         {
-            $this->factura->vencimiento = $_POST['vencimiento'];
-         }
-         
          /// obtenemos el ejercicio para poder acotar la fecha
          $eje0 = $this->ejercicio->get( $this->factura->codejercicio );
          if( $eje0 )
@@ -96,6 +86,17 @@ class ventas_factura extends fs_controller
          }
          else
             $this->new_error_msg('No se encuentra el ejercicio asociado a la factura.');
+         
+         /// ¿cambiamos la forma de pago?
+         if($this->factura->codpago != $_POST['forma_pago'])
+         {
+            $this->factura->codpago = $_POST['forma_pago'];
+            $this->factura->vencimiento = $this->nuevo_vencimiento($this->factura->fecha, $this->factura->codpago);
+         }
+         else
+         {
+            $this->factura->vencimiento = $_POST['vencimiento'];
+         }
          
          if( $this->factura->save() )
          {
@@ -184,7 +185,7 @@ class ventas_factura extends fs_controller
          if($dir->domfacturacion)
          {
             $this->factura->cifnif = $this->cliente->cifnif;
-            $this->factura->nombrecliente = $this->cliente->nombrecomercial;
+            $this->factura->nombrecliente = $this->cliente->razonsocial;
             
             $this->factura->apartado = $dir->apartado;
             $this->factura->ciudad = $dir->ciudad;

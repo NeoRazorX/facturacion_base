@@ -124,4 +124,20 @@ class articulo_propiedad extends fs_model
       
       return $done;
    }
+   
+   public function simple_get($ref, $name)
+   {
+      $data = $this->db->select("SELECT * FROM articulo_propiedades WHERE referencia = ".$this->var2str($ref)." AND name = ".$this->var2str($name).";");
+      if($data)
+      {
+         return $data[0]['text'];
+      }
+      else
+         return FALSE;
+   }
+   
+   public function simple_delete($ref, $name)
+   {
+      return $this->db->exec("DELETE FROM articulo_propiedades WHERE referencia = ".$this->var2str($ref)." AND name = ".$this->var2str($name).";");
+   }
 }

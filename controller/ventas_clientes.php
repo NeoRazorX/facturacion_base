@@ -116,7 +116,7 @@ class ventas_clientes extends fs_controller
          $cliente = new cliente();
          $cliente->codcliente = $cliente->get_new_codigo();
          $cliente->nombre = $_POST['nombre'];
-         $cliente->nombrecomercial = $_POST['nombre'];
+         $cliente->razonsocial = $_POST['nombre'];
          $cliente->cifnif = $_POST['cifnif'];
          $cliente->codserie = $this->empresa->codserie;
          if( $cliente->save() )

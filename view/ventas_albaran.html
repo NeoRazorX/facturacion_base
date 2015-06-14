@@ -83,18 +83,6 @@
                   <span class="hidden-xs">&nbsp; Enviar</span>
                </a>
                {/if}
-               {if="$fsc->albaran->ptefactura"}
-               <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
-                  <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
-               </a>
-               {else}
-               <a class="btn btn-sm btn-default text-capitalize" href="{$fsc->albaran->factura_url()}">
-                  <span class="glyphicon glyphicon-eye-open"></span>
-                  <span class="hidden-xs">&nbsp; Ver Factura</span>
-               </a>
-               {/if}
-            </div>
-            <div class="btn-group">
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}&id={$fsc->albaran->idalbaran}{$value->params}" class="btn btn-sm btn-default">
@@ -102,6 +90,19 @@
                   </a>
                   {/if}
                {/loop}
+            </div>
+            
+            <div class="btn-group">
+               {if="$fsc->albaran->ptefactura"}
+               <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
+                  <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
+               </a>
+               {else}
+               <a class="btn btn-sm btn-info text-capitalize" href="{$fsc->albaran->factura_url()}">
+                  <span class="glyphicon glyphicon-eye-open"></span>
+                  <span class="hidden-xs">&nbsp; Ver Factura</span>
+               </a>
+               {/if}
             </div>
          </div>
          <div class="col-xs-4 text-right">
@@ -426,6 +427,26 @@
                            <option value="{$value->codpago}"{if="$value->codpago==$fsc->albaran->codpago"} selected="selected"{/if}>{$value->descripcion}</option>
                            {/loop}
                         </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        <a href="{$fsc->divisa->url()}">Divisa</a>:
+                        <select name="divisa" class="form-control">
+                        {loop="$fsc->divisa->all()"}
+                           {if="$value->coddivisa==$fsc->albaran->coddivisa"}
+                           <option value="{$value->coddivisa}" selected="selected">{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->coddivisa}">{$value->descripcion}</option>
+                           {/if}
+                        {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        Tasa de conversión a €
+                        <input type="text" name="tasaconv" class="form-control" placeholder="{$fsc->albaran->tasaconv}" autocomplete="off"/>
                      </div>
                   </div>
                </div>

@@ -28,27 +28,24 @@
             <a class="btn btn-sm btn-default hidden-xs" href="{$fsc->url()}" title="recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            <a id="b_imprimir" class="btn btn-sm btn-default" href="#">
-               <span class="glyphicon glyphicon-print"></span>
-               <span class="hidden-xs">&nbsp; Imprimir</span>
-            </a>
-            {if="$fsc->empresa->can_send_mail()"}
-            <a id="b_enviar" class="btn btn-sm btn-default" href="#">
-               <span class="glyphicon glyphicon-envelope"></span>
-               <span class="hidden-xs">&nbsp; Enviar</span>
-            </a>
-            {/if}
-            {if="$fsc->factura->idasiento"}
-            <a class="btn btn-sm btn-default" href="{$fsc->factura->asiento_url()}">
-               <span class="glyphicon glyphicon-eye-open"></span>
-               <span class="hidden-xs">&nbsp; Asiento contable</span>
-            </a>
-            {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&gen_asiento=TRUE&petid={$fsc->random_string()}">
-               <span class="glyphicon glyphicon-paperclip"></span>
-               <span class="hidden-xs">&nbsp; Generar asiento</span>
-            </a>
-            {/if}
+            
+            <div class="btn-group">
+               <a id="b_imprimir" class="btn btn-sm btn-default" href="#">
+                  <span class="glyphicon glyphicon-print"></span>
+                  <span class="hidden-xs">&nbsp; Imprimir</span>
+               </a>
+               {if="$fsc->factura->idasiento"}
+               <a class="btn btn-sm btn-default" href="{$fsc->factura->asiento_url()}">
+                  <span class="glyphicon glyphicon-eye-open"></span>
+                  <span class="hidden-xs">&nbsp; Asiento contable</span>
+               </a>
+               {else}
+               <a class="btn btn-sm btn-default" href="{$fsc->url()}&gen_asiento=TRUE&petid={$fsc->random_string()}">
+                  <span class="glyphicon glyphicon-paperclip"></span>
+                  <span class="hidden-xs">&nbsp; Generar asiento</span>
+               </a>
+               {/if}
+            </div>
             
             {if="$fsc->mostrar_boton_pagada"}
             <div class="btn-group">
@@ -308,45 +305,9 @@
                {/if}
             {/loop}
          </div>
-         <div class="modal-footer">
-            <a href="{$fsc->url()}&updatedir=TRUE">Actualizar la dirección de la factura.</a>
-         </div>
       </div>
    </div>
 </div>
-
-<form class="form" role="form" name="enviar_email" action="{$fsc->url()}" method="post">
-   <div class="modal" id="modal_enviar">
-      <div class="modal-dialog">
-         <div class="modal-content">
-            <div class="modal-header">
-               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Enviar factura</h4>
-            </div>
-            <div class="modal-body">
-               <div class="form-group">
-                  Email del cliente:
-                  <input class="form-control" type="text" name="email" value="{$fsc->cliente->email}" autocomplete="off"/>
-               </div>
-               <div class="form-group">
-                  Mensaje:
-                  <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto su factura {$fsc->factura->codigo}.
-{$fsc->empresa->email_firma}</textarea>
-               </div>
-            </div>
-            <div class="modal-footer">
-            {loop="$fsc->extensions"}
-               {if="$value->type=='email'"}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}';this.form.submit();">
-                  <span class="glyphicon glyphicon-send"></span> &nbsp; Enviar {$value->text}
-               </button>
-               {/if}
-            {/loop}
-            </div>
-         </div>
-      </div>
-   </div>
-</form>
 {else}
 <div class="thumbnail">
    <img src="view/img/fuuu_face.png" alt="fuuuuu"/>

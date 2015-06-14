@@ -20,9 +20,7 @@
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
-
 require_model('cliente.php');
-require_model('fs_var.php');
 
 /**
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes y facturas.
@@ -774,7 +772,7 @@ class ventas_imprimir extends fs_controller
             $mail->WordWrap = 50;
             $mail->MsgHTML( nl2br($_POST['mensaje']) );
             $mail->AddAttachment('tmp/'.FS_TMP_NAME.'enviar/'.$filename);
-            $mail->AddAddress($_POST['email'], $this->cliente->nombrecomercial);
+            $mail->AddAddress($_POST['email'], $this->cliente->razonsocial);
             $mail->IsHTML(TRUE);
             
             if( $mail->Send() )

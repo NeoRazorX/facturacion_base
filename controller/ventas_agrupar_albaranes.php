@@ -233,7 +233,7 @@ class ventas_agrupar_albaranes extends fs_controller
                $factura->codpais = $dir->codpais;
                $factura->codpostal = $dir->codpostal;
                $factura->direccion = $dir->direccion;
-               $factura->nombrecliente = $cliente->nombrecomercial;
+               $factura->nombrecliente = $cliente->razonsocial;
                $factura->provincia = $dir->provincia;
                break;
             }

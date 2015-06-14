@@ -444,7 +444,7 @@ class tpv_recambios extends fs_controller
             {
                $factura->codcliente = $this->cliente_s->codcliente;
                $factura->cifnif = $this->cliente_s->cifnif;
-               $factura->nombrecliente = $this->cliente_s->nombrecomercial;
+               $factura->nombrecliente = $this->cliente_s->razonsocial;
                $factura->apartado = $d->apartado;
                $factura->ciudad = $d->ciudad;
                $factura->coddir = $d->id;

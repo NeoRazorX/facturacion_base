@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'base/fs_model.php';
 require_model('cuenta.php');
 require_model('direccion_proveedor.php');
 require_model('subcuenta.php');
@@ -34,7 +33,23 @@ class proveedor extends fs_model
     */
    public $codproveedor;
    public $nombre;
+   
+   /**
+    * Razón social del proveedor, es decir, el nombre oficial.
+    * @var type 
+    */
+   public $razonsocial;
+   
+   /**
+    * El nombre oficial del proveedor se ha cambiado a razonsocial. Por motivos
+    * de compatibilidad se seguirá ofreciando la propiedad nombrecomercial,
+    * pero se eliminará muy pronto.
+    * Los cambios en esta propiedad ya no se guardan en la base de datos.
+    * Usa razonsocial.
+    * @var type 
+    */
    public $nombrecomercial;
+   
    public $cifnif;
    public $telefono1;
    public $telefono2;
@@ -55,7 +70,16 @@ class proveedor extends fs_model
       {
          $this->codproveedor = $p['codproveedor'];
          $this->nombre = $p['nombre'];
-         $this->nombrecomercial = $p['nombrecomercial'];
+         
+         if( is_null($p['razonsocial']) )
+         {
+            $this->razonsocial = $p['nombrecomercial'];
+         }
+         else
+         {
+            $this->razonsocial = $p['razonsocial'];
+         }
+         
          $this->cifnif = $p['cifnif'];
          $this->telefono1 = $p['telefono1'];
          $this->telefono2 = $p['telefono2'];
@@ -73,7 +97,7 @@ class proveedor extends fs_model
       {
          $this->codproveedor = NULL;
          $this->nombre = '';
-         $this->nombrecomercial = '';
+         $this->razonsocial = '';
          $this->cifnif = '';
          $this->telefono1 = '';
          $this->telefono2 = '';
@@ -87,6 +111,8 @@ class proveedor extends fs_model
          $this->tipoidfiscal = 'NIF';
          $this->regimeniva = 'General';
       }
+      
+      $this->nombrecomercial = $this->razonsocial;
    }
    
    protected function install()
@@ -230,14 +256,20 @@ class proveedor extends fs_model
       
       $this->codproveedor = trim($this->codproveedor);
       $this->nombre = $this->no_html($this->nombre);
-      $this->nombrecomercial = $this->no_html($this->nombrecomercial);
+      $this->razonsocial = $this->no_html($this->razonsocial);
       
       if( !preg_match("/^[A-Z0-9]{1,6}$/i", $this->codproveedor) )
+      {
          $this->new_error_msg("Código de proveedor no válido.");
+      }
       else if( strlen($this->nombre) < 1 OR strlen($this->nombre) > 100 )
+      {
          $this->new_error_msg("Nombre de proveedor no válido.");
-      else if( strlen($this->nombrecomercial) < 1 OR strlen($this->nombrecomercial) > 100 )
-         $this->new_error_msg("Nombre comercial de proveedor no válido.");
+      }
+      else if( strlen($this->razonsocial) < 1 OR strlen($this->razonsocial) > 100 )
+      {
+         $this->new_error_msg("Razón social del proveedor no válida.");
+      }
       else
          $status = TRUE;
       
@@ -252,7 +284,7 @@ class proveedor extends fs_model
          if( $this->exists() )
          {
             $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre).",
-               nombrecomercial = ".$this->var2str($this->nombrecomercial).", cifnif = ".$this->var2str($this->cifnif).",
+               razonsocial = ".$this->var2str($this->razonsocial).", cifnif = ".$this->var2str($this->cifnif).",
                telefono1 = ".$this->var2str($this->telefono1).", telefono2 = ".$this->var2str($this->telefono2).",
                fax = ".$this->var2str($this->fax).", email = ".$this->var2str($this->email).",
                web = ".$this->var2str($this->web).", codserie = ".$this->var2str($this->codserie).",
@@ -263,10 +295,10 @@ class proveedor extends fs_model
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (codproveedor,nombre,nombrecomercial,cifnif,telefono1,telefono2,
+            $sql = "INSERT INTO ".$this->table_name." (codproveedor,nombre,razonsocial,cifnif,telefono1,telefono2,
                fax,email,web,codserie,coddivisa,codpago,observaciones,tipoidfiscal,regimeniva) VALUES
                (".$this->var2str($this->codproveedor).",".$this->var2str($this->nombre).",
-               ".$this->var2str($this->nombrecomercial).",".$this->var2str($this->cifnif).",
+               ".$this->var2str($this->razonsocial).",".$this->var2str($this->cifnif).",
                ".$this->var2str($this->telefono1).",".$this->var2str($this->telefono2).",".$this->var2str($this->fax).",
                ".$this->var2str($this->email).",".$this->var2str($this->web).",".$this->var2str($this->codserie).",
                ".$this->var2str($this->coddivisa).",".$this->var2str($this->codpago).",".$this->var2str($this->observaciones).","

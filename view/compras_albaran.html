@@ -89,32 +89,35 @@
             <a class="btn btn-sm btn-default hidden-xs" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            <a id="b_imprimir" class="btn btn-sm btn-default">
-                <span class="glyphicon glyphicon-print"></span>
-                <span class="hidden-xs">&nbsp; Imprimir</span>
-            </a>
-            {if="$fsc->empresa->can_send_mail()"}
-            <a id="b_enviar" class="btn btn-sm btn-default" href="#">
-                <span class="glyphicon glyphicon-envelope"></span>
-                <span class="hidden-xs">&nbsp; Enviar</span>
-            </a>
-            {/if}
+            
             <div class="btn-group">
+               <a id="b_imprimir" class="btn btn-sm btn-default">
+                  <span class="glyphicon glyphicon-print"></span>
+                  <span class="hidden-xs">&nbsp; Imprimir</span>
+               </a>
+               {if="$fsc->empresa->can_send_mail()"}
+               <a id="b_enviar" class="btn btn-sm btn-default" href="#">
+                  <span class="glyphicon glyphicon-envelope"></span>
+                  <span class="hidden-xs">&nbsp; Enviar</span>
+               </a>
+               {/if}
                <a id="b_precios" class="btn btn-sm btn-default" href="#">
                   <span class="glyphicon glyphicon-euro"></span>
                   <span class="hidden-xs">&nbsp; Precios</span>
                </a>
-               {if="$fsc->albaran->ptefactura"}
+            </div>
+            
+            {if="$fsc->albaran->ptefactura"}
                <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
                   <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
                </a>
-               {else}
-               <a class="btn btn-sm btn-default text-capitalize" href="{$fsc->albaran->factura_url()}">
+            {else}
+               <a class="btn btn-sm btn-info text-capitalize" href="{$fsc->albaran->factura_url()}">
                   <span class="glyphicon glyphicon-eye-open"></span>
                   <span class="hidden-xs">&nbsp; Ver Factura</span>
                </a>
-               {/if}
-            </div>
+            {/if}
+            
             <div class="btn-group">
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
@@ -391,6 +394,26 @@
                         </select>
                      </div>
                   </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        <a href="{$fsc->divisa->url()}">Divisa</a>:
+                        <select name="divisa" class="form-control">
+                        {loop="$fsc->divisa->all()"}
+                           {if="$value->coddivisa==$fsc->albaran->coddivisa"}
+                           <option value="{$value->coddivisa}" selected="selected">{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->coddivisa}">{$value->descripcion}</option>
+                           {/if}
+                        {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        Tasa de conversión a €
+                        <input type="text" name="tasaconv" class="form-control" placeholder="(predeterminada)" autocomplete="off"/>
+                     </div>
+                  </div>
                </div>
             </div>
          </div>
@@ -552,12 +575,12 @@
             </div>
             <div class="modal-body">
                <div class="form-group">
-                  Email del cliente:
-                  <input class="form-control" type="text" name="email" value="{$fsc->cliente_s->email}" autocomplete="off"/>
+                  Email del proveedor:
+                  <input class="form-control" type="text" name="email" value="{$fsc->proveedor_s->email}" autocomplete="off"/>
                </div>
                <div class="form-group">
                   Mensaje:
-                  <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto su {#FS_ALBARAN#} {$fsc->albaran->codigo}.
+                  <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto mi {#FS_ALBARAN#} {$fsc->albaran->codigo}.
 {$fsc->empresa->email_firma}</textarea>
                </div>
             </div>
@@ -574,6 +597,7 @@
       </div>
    </div>
 </form>
+
 <form action="{$fsc->ppage->url()}" method="post">
    <input type="hidden" name="delete" value="{$fsc->albaran->idalbaran}"/>
    <div class="modal fade" id="modal_eliminar">

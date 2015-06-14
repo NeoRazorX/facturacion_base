@@ -69,7 +69,9 @@
 {else}
 <ul class="nav nav-tabs" role="tablist">
    <li{if="!isset($_GET['descuadrados'])"} class="active"{/if}>
-      <a href="{$fsc->url()}">Todo</a>
+      <a href="{$fsc->url()}">
+         Todos <span class="badge">{$fsc->total_asientos()}</span>
+      </a>
    </li>
    <li{if="isset($_GET['descuadrados'])"} class="active"{/if}>
       <a href="{$fsc->url()}&descuadrados=TRUE">

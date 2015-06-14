@@ -280,10 +280,31 @@ class subcuenta extends fs_model
    {
       $this->descripcion = $this->no_html($this->descripcion);
       
+      $limpiar_cache = FALSE;
       $totales = $this->get_totales();
-      $this->debe = $totales['debe'];
-      $this->haber = $totales['haber'];
-      $this->saldo = $totales['saldo'];
+      
+      if( abs($this->debe - $totales['debe']) > .01 )
+      {
+         $this->debe = $totales['debe'];
+         $limpiar_cache = TRUE;
+      }
+      
+      if( abs($this->haber - $totales['haber']) > .01 )
+      {
+         $this->haber = $totales['haber'];
+         $limpiar_cache = TRUE;
+      }
+      
+      if( abs($this->saldo - $totales['saldo']) > .01 )
+      {
+         $this->saldo = $totales['saldo'];
+         $limpiar_cache = TRUE;
+      }
+      
+      if($limpiar_cache)
+      {
+         $this->clean_cache();
+      }
       
       if( strlen($this->codsubcuenta)>0 AND strlen($this->descripcion)>0 )
       {
@@ -300,8 +321,6 @@ class subcuenta extends fs_model
    {
       if( $this->test() )
       {
-         $this->clean_cache();
-         
          if( $this->exists() )
          {
             $sql = "UPDATE ".$this->table_name." SET codsubcuenta = ".$this->var2str($this->codsubcuenta).",

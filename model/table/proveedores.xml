@@ -81,7 +81,7 @@
       <nulo>NO</nulo>
    </columna>
    <columna>
-      <nombre>nombrecomercial</nombre>
+      <nombre>razonsocial</nombre>
       <tipo>character varying(100)</tipo>
       <nulo>YES</nulo>
    </columna>

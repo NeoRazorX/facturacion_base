@@ -298,8 +298,17 @@ class inventarios_balances
               " FROM co_partidas p, co_asientos a WHERE p.idasiento = a.idasiento".
               " AND a.codejercicio = ".$this->empresa->var2str($eje->codejercicio).
               " AND a.fecha >= ".$this->empresa->var2str($fechaini).
-              " AND fecha <= ".$this->empresa->var2str($fechafin).
-              " GROUP BY p.codsubcuenta ORDER BY codsubcuenta ASC;";
+              " AND fecha <= ".$this->empresa->var2str($fechafin);
+      
+      if($excluir)
+      {
+         foreach($excluir as $exc)
+         {
+            $sql .= " AND p.idasiento != ".$this->empresa->var2str($exc);
+         }
+      }
+      
+      $sql .= " GROUP BY p.codsubcuenta ORDER BY codsubcuenta ASC;";
       
       $data = $db->select($sql);
       if($data)
@@ -424,6 +433,8 @@ class inventarios_balances
             {
                $a = '<b>';
                $b = '</b>';
+               $tdebe += $lineas[$i]['debe'];
+               $thaber += $lineas[$i]['haber'];
             }
             else if( strlen($lineas[$i]['cuenta']) == 2 )
             {
@@ -433,8 +444,6 @@ class inventarios_balances
             {
                $a = '<i>';
                $b = '</i>';
-               $tdebe += $lineas[$i]['debe'];
-               $thaber += $lineas[$i]['haber'];
             }
             
             $pdf_doc->add_table_row(
