@@ -19,6 +19,7 @@
 
 require_model('almacen.php');
 require_model('articulo.php');
+require_model('articulo_proveedor.php');
 require_model('familia.php');
 require_model('impuesto.php');
 require_model('regularizacion_stock.php');
@@ -301,5 +302,11 @@ class ventas_articulo extends fs_controller
       }
       
       return $tarlist;
+   }
+   
+   public function get_articulo_proveedores()
+   {
+      $artprov = new articulo_proveedor();
+      return $artprov->all_from_ref($this->articulo->referencia);
    }
 }

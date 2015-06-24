@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : articulosprov.xml
+    Description:
+        Estructura de la tabla articulosprov.
+-->
+<tabla>
+   <columna>
+      <nombre>id</nombre>
+      <tipo>serial</tipo>
+      <nulo>NO</nulo>
+      <defecto>nextval('articulosprov_id_seq'::regclass)</defecto>
+   </columna>
+   <columna>
+      <nombre>referencia</nombre>
+      <tipo>character varying(18)</tipo>
+      <nulo>NO</nulo>
+   </columna>
+   <columna>
+      <nombre>codproveedor</nombre>
+      <tipo>character varying(6)</tipo>
+      <nulo>NO</nulo>
+   </columna>
+   <columna>
+      <nombre>refproveedor</nombre>
+      <tipo>character varying(25)</tipo>
+   </columna>
+   <columna>
+      <nombre>precio</nombre>
+      <tipo>double precision</tipo>
+   </columna>
+   <columna>
+      <nombre>stock</nombre>
+      <tipo>double precision</tipo>
+   </columna>
+   <restriccion>
+      <nombre>articulosprov_pkey</nombre>
+      <consulta>PRIMARY KEY (id)</consulta>
+   </restriccion>
+</tabla>

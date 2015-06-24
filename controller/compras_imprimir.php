@@ -20,6 +20,7 @@
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
+require_model('articulo_proveedor.php');
 require_model('proveedor.php');
 
 /**
@@ -28,6 +29,7 @@ require_model('proveedor.php');
 class compras_imprimir extends fs_controller
 {
    public $albaran;
+   public $articulo_proveedor;
    public $proveedor;
    public $factura;
    public $impuesto;
@@ -40,6 +42,7 @@ class compras_imprimir extends fs_controller
    protected function process()
    {
       $this->albaran = FALSE;
+      $this->articulo_proveedor = new articulo_proveedor();
       $this->proveedor = FALSE;
       $this->factura = FALSE;
       $this->impuesto = new impuesto();
@@ -208,13 +211,13 @@ class compras_imprimir extends fs_controller
             /*
              * Creamos la tabla con las lineas del albarán:
              * 
-             * Cantidad    Descripción    PVP   DTO   Importe
+             * Cantidad    Ref. Prov. + Descripción    PVP   DTO   Importe
              */
             $pdf_doc->new_table();
             $pdf_doc->add_table_header(
                array(
                   'cantidad' => '<b>Cant.</b>',
-                  'descripcion' => '<b>Ref. + Descripción</b>',
+                  'descripcion' => '<b>Ref. Prov. + Descripción</b>',
                   'pvp' => '<b>PVP</b>',
                   'dto' => '<b>Dto.</b>',
                   'importe' => '<b>Importe</b>'
@@ -225,7 +228,8 @@ class compras_imprimir extends fs_controller
                $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
                if( !is_null($lineas[$linea_actual]->referencia) )
                {
-                  $descripcion = $this->fix_html('<b>'.$lineas[$linea_actual]->referencia.'</b> '.$lineas[$linea_actual]->descripcion);
+                  $descripcion = '<b>'.  $this->get_referencia_proveedor($lineas[$linea_actual]->referencia, $this->albaran->codproveedor).
+                          '</b> '.$this->fix_html($lineas[$linea_actual]->descripcion);
                }
                
                $fila = array(
@@ -419,13 +423,13 @@ class compras_imprimir extends fs_controller
             /*
              * Creamos la tabla con las lineas de la factura:
              * 
-             * Descripción    Cantidad  PVP   DTO    Importe
+             * Cantidad    Ref. Prov. + Descripción    PVP   DTO    Importe
              */
             $pdf_doc->new_table();
             $pdf_doc->add_table_header(
                array(
                   'cantidad' => '<b>Cant.</b>',
-                  'descripcion' => '<b>Ref. + Descripción</b>',
+                  'descripcion' => '<b>Ref. Prov. + Descripción</b>',
                   'pvp' => '<b>PVP</b>',
                   'dto' => '<b>Dto.</b>',
                   'importe' => '<b>Importe</b>'
@@ -436,7 +440,8 @@ class compras_imprimir extends fs_controller
                $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
                if( !is_null($lineas[$linea_actual]->referencia) )
                {
-                  $descripcion = $this->fix_html('<b>'.$lineas[$linea_actual]->referencia.'</b> '.$lineas[$linea_actual]->descripcion);
+                  $descripcion = '<b>'.  $this->get_referencia_proveedor($lineas[$linea_actual]->referencia, $this->factura->codproveedor).
+                          '</b> '.$this->fix_html($lineas[$linea_actual]->descripcion);
                }
                
                $fila = array(
@@ -531,6 +536,17 @@ class compras_imprimir extends fs_controller
       }
       else
          $pdf_doc->show();
+   }
+   
+   private function get_referencia_proveedor($ref, $codproveedor)
+   {
+      $artprov = $this->articulo_proveedor->get_by($ref, $codproveedor);
+      if($artprov)
+      {
+         return $artprov->refproveedor;
+      }
+      else
+         return $ref;
    }
    
    private function enviar_email($doc)

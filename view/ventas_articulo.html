@@ -86,15 +86,17 @@
 
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
-      <div class="col-sm-10">
-         <a href="{$fsc->url()}" class="btn btn-sm btn-default" title="Recargar la página">
+      <div class="col-xs-10">
+         <a href="{$fsc->url()}" class="btn btn-sm btn-default hidden-xs" title="Recargar la página">
             <span class="glyphicon glyphicon-refresh"></span>
          </a>
          <a href="index.php?page=ventas_articulos" class="btn btn-sm btn-default">
-            <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Todos los artículos
+            <span class="glyphicon glyphicon-arrow-left"></span>
+            <span class="hidden-xs">&nbsp; Todos los artículos</span>
          </a>
          <a href="#" id="b_imagen" class="btn btn-sm btn-default">
-            <span class="glyphicon glyphicon-picture"></span> &nbsp; Imagen
+            <span class="glyphicon glyphicon-picture"></span>
+            <span class="hidden-xs">&nbsp; Imagen</span>
          </a>
          {loop="$fsc->extensions"}
             {if="$value->type=='button'"}
@@ -104,10 +106,11 @@
             {/if}
          {/loop}
       </div>
-      <div class="col-sm-2 text-right">
+      <div class="col-xs-2 text-right">
          {if="$fsc->allow_delete"}
          <a href="#" id="b_eliminar_articulo" class="btn btn-sm btn-danger">
-            <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+            <span class="glyphicon glyphicon-trash"></span>
+            <span class="hidden-xs">&nbsp; Eliminar</span>
          </a>
          {/if}
       </div>
@@ -315,7 +318,7 @@
             <input type="hidden" id="iva" name="iva" value="{$fsc->articulo->get_iva()}"/>
             <div class="container-fluid" style="margin-top: 10px;">
                <div class="row">
-                  <div class="col-md-4">
+                  <div class="col-sm-4">
                      <div class="form-group">
                         Precio:
                         <div class="input-group">
@@ -325,7 +328,7 @@
                         <p class="help-block">Último cambio de precio: {$fsc->articulo->factualizado}</p>
                      </div>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-sm-4">
                      <div class="form-group">
                         <a href="{$fsc->impuesto->url()}">{#FS_IVA#}</a>:
                         <select class="form-control" name="codimpuesto">
@@ -339,7 +342,7 @@
                         </select>
                      </div>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-sm-4">
                      <div class="form-group">
                         Precio+{#FS_IVA#}:
                         <div class="input-group">
@@ -350,7 +353,7 @@
                   </div>
                </div>
                <div class="row">
-                  <div class="col-md-4">
+                  <div class="col-sm-4">
                      <div class="form-group">
                         Precio de Coste:
                         {if="$fsc->articulo->secompra AND FS_COST_IS_AVERAGE"}
@@ -363,7 +366,7 @@
                         </p>
                      </div>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-sm-4">
                      <div class="form-group">
                         Margen sobre precio de coste
                         <div class="input-group">
@@ -373,49 +376,88 @@
                         <p class="help-block">Sirve para calcular el Precio, pero no se almacena (todavía).</p>
                      </div>
                   </div>
-               </div>
-            </div>
-            <div class="table-responsive">
-               <table class="table table-hover">
-                  <thead>
-                     <tr>
-                        <th colspan="2" class="text-left">Tarifa</th>
-                        <th class="text-left">Diferencia</th>
-                        <th class="text-right">Precio</th>
-                        <th class="text-right">Precio+{#FS_IVA#}</th>
-                     </tr>
-                  </thead>
-                  {loop="$fsc->get_tarifas()"}
-                  <tr>
-                     <td><div class="form-control"><a href="{$value->tarifa_url}">{$value->codtarifa}</a></div></td>
-                     <td><div class="form-control">{$value->tarifa_nombre}</div></td>
-                     <td><div class="form-control">{$value->tarifa_diff}</div></td>
-                     <td class="text-right">
-                        <div class="form-control">{$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100)}</div>
-                     </td>
-                     <td class="text-right">
-                        <div class="form-control">{$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100*(100 + $value->get_iva())/100)}</div>
-                     </td>
-                  </tr>
-                  {else}
-                  <tr class="bg-warning">
-                     <td colspan="5">No hay tarifas definidas.</td>
-                  </tr>
-                  {/loop}
-               </table>
-            </div>
-            <div class="container-fluid">
-               <div class="row">
-                  <div class="col-xs-6">
-                     <a class="btn btn-sm btn-success" href="index.php?page=ventas_articulos#tarifas">
-                        <span class="glyphicon glyphicon-edit"></span>
-                        <span class="hidden-xs">&nbsp; Nueva tarifa</span>
-                     </a>
-                  </div>
-                  <div class="col-xs-6 text-right">
+                  <div class="col-sm-4">
+                     <div class="hidden-xs"><br/></div>
                      <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
                         <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                      </button>
+                     <div class="visible-xs"><br/></div>
+                  </div>
+               </div>
+            </div>
+            <div>
+               <ul class="nav nav-tabs" role="tablist">
+                  <li role="presentation" class="active">
+                     <a href="#tarifas" aria-controls="tarifas" role="tab" data-toggle="tab">Tarifas</a>
+                  </li>
+                  <li role="presentation">
+                     <a href="#proveedores" aria-controls="proveedores" role="tab" data-toggle="tab">Proveedores</a>
+                  </li>
+               </ul>
+               <div class="tab-content">
+                  <div role="tabpanel" class="tab-pane active" id="tarifas">
+                     <div class="table-responsive">
+                        <table class="table table-hover">
+                           <thead>
+                              <tr>
+                                 <th colspan="2" class="text-left">Tarifa</th>
+                                 <th class="text-left">Diferencia</th>
+                                 <th class="text-right">Precio</th>
+                                 <th class="text-right">Precio+{#FS_IVA#}</th>
+                              </tr>
+                           </thead>
+                           {loop="$fsc->get_tarifas()"}
+                           <tr>
+                              <td><div class="form-control"><a href="{$value->tarifa_url}">{$value->codtarifa}</a></div></td>
+                              <td><div class="form-control">{$value->tarifa_nombre}</div></td>
+                              <td><div class="form-control">{$value->tarifa_diff}</div></td>
+                              <td class="text-right">
+                                 <div class="form-control">{$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100)}</div>
+                              </td>
+                              <td class="text-right">
+                                 <div class="form-control">{$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100*(100 + $value->get_iva())/100)}</div>
+                              </td>
+                           </tr>
+                           {else}
+                           <tr class="bg-warning">
+                              <td colspan="5">No hay tarifas definidas.</td>
+                           </tr>
+                           {/loop}
+                        </table>
+                     </div>
+                     <div class="container-fluid">
+                        <div class="row">
+                           <div class="col-xs-12">
+                              <a class="btn btn-sm btn-success" href="index.php?page=ventas_articulos#tarifas">
+                                 <span class="glyphicon glyphicon-edit"></span> &nbsp; Nueva tarifa
+                              </a>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div role="tabpanel" class="tab-pane" id="proveedores">
+                     <div class="table-responsive">
+                        <table class="table table-hover">
+                           <thead>
+                              <tr>
+                                 <th>Proveedor</th>
+                                 <th>Ref. Proveedor</th>
+                                 <th class="text-right">Precio</th>
+                                 <th class="text-right">Stock</th>
+                              </tr>
+                           </thead>
+                           {loop="$fsc->get_articulo_proveedores()"}
+                           <tr>
+                              <td>{$value->nombre_proveedor()}</td>
+                              <td>{$value->refproveedor}</td>
+                              <td class="text-right">{$fsc->show_precio($value->precio)}</td>
+                              <td class="text-right">{$value->stock}</td>
+                           </tr>
+                           {else}
+                           <tr><td colspan="4" class="bg-warning">Sin resultados.</td></tr>
+                           {/loop}
+                        </table>
+                     </div>
                   </div>
                </div>
             </div>
@@ -481,7 +523,7 @@
          </div>
          <div class="container-fluid">
             <div class="row">
-               <div class="col-md-12">
+               <div class="col-sm-12">
                   <h2>Regularizaciones de stock:</h2>
                </div>
             </div>
