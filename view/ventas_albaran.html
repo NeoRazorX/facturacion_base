@@ -629,15 +629,13 @@
                   <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto su {#FS_ALBARAN#} {$fsc->albaran->codigo}.
 {$fsc->empresa->email_firma}</textarea>
                </div>
-            </div>
-            <div class="modal-footer">
-            {loop="$fsc->extensions"}
-               {if="$value->type=='email'"}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}';this.form.submit();">
-                  <span class="glyphicon glyphicon-send"></span> &nbsp; Enviar {$value->text}
-               </button>
-               {/if}
-            {/loop}
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='email'"}
+                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}';this.form.submit();">
+                     <span class="glyphicon glyphicon-send"></span> &nbsp; {$value->text}
+                  </button>
+                  {/if}
+               {/loop}
             </div>
          </div>
       </div>

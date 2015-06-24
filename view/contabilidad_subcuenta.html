@@ -137,8 +137,8 @@
                <th class="text-right">Saldo</th>
                <th class="text-right">{#FS_IVA#}</th>
                <th class="text-right">Base imponible</th>
-               <th>Contrapartida</th>
-               <th>{#FS_CIFNIF#}</th>
+               <th class="text-center">Contrapartida</th>
+               <th class="text-right">{#FS_CIFNIF#}</th>
             </tr>
          </thead>
          {$total=-1+count($fsc->resultados)}
@@ -166,7 +166,7 @@
                -
                {/if}
             </td>
-            <td class="text-center">
+            <td class="text-right">
                {if="$value->cifnif"}{$value->cifnif}{else}-{/if}
             </td>
          </tr>

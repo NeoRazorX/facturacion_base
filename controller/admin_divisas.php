@@ -48,6 +48,7 @@ class admin_divisas extends fs_controller
          $div0->descripcion = $_POST['descripcion'];
          $div0->codiso = $_POST['codiso'];
          $div0->tasaconv = floatval($_POST['tasaconv']);
+         $div0->tasaconv_compra = floatval($_POST['tasaconv_compra']);
          if( $div0->save() )
          {
             $this->new_message('Divisa '.$div0->coddivisa.' guardada correctamente.');

@@ -22,6 +22,7 @@ require_model('proveedor.php');
 
 class compras_proveedores extends fs_controller
 {
+   public $mostrar;
    public $offset;
    public $pais;
    public $proveedor;
@@ -29,7 +30,7 @@ class compras_proveedores extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Proveedores', 'compras', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Proveedores / Acreedores', 'compras', FALSE, TRUE);
    }
    
    protected function process()
@@ -67,6 +68,7 @@ class compras_proveedores extends fs_controller
          $proveedor->razonsocial = $_POST['nombre'];
          $proveedor->cifnif = $_POST['cifnif'];
          $proveedor->codserie = $this->empresa->codserie;
+         $proveedor->acreedor = isset($_POST['acreedor']);
          if( $proveedor->save() )
          {
             $dirproveedor = new direccion_proveedor();
@@ -88,6 +90,12 @@ class compras_proveedores extends fs_controller
             $this->new_error_msg("¡Imposible guardar el proveedor!");
       }
       
+      $this->mostrar = 'todo';
+      if( isset($_GET['mostrar']) )
+      {
+         $this->mostrar = $_GET['mostrar'];
+      }
+      
       $this->offset = 0;
       if( isset($_GET['offset']) )
       {
@@ -100,24 +108,27 @@ class compras_proveedores extends fs_controller
       }
       else
       {
-         /// corregimos errores en las tablas <- ELIMINAR EN LA SIGUIENTE ACTUALIZACIÓN
-         $this->fix_db();
-         
-         $this->resultados = $this->proveedor->all($this->offset);
+         if($this->mostrar == 'acreedores')
+         {
+            $this->resultados = $this->proveedor->all($this->offset, TRUE);
+         }
+         else
+            $this->resultados = $this->proveedor->all($this->offset);
       }
    }
    
    public function anterior_url()
    {
       $url = '';
+      $extra = '&mostrar='.$this->mostrar;
       
       if($this->query != '' AND $this->offset > 0)
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT);
+         $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
       }
       else if($this->query == '' AND $this->offset > 0)
       {
-         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT);
+         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
       }
       
       return $url;
@@ -126,14 +137,15 @@ class compras_proveedores extends fs_controller
    public function siguiente_url()
    {
       $url = '';
+      $extra = '&mostrar='.$this->mostrar;
       
       if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT);
+         $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
       }
       else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
       {
-         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT);
+         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
       }
       
       return $url;
@@ -148,23 +160,5 @@ class compras_proveedores extends fs_controller
       }
       else
          return 0;
-   }
-   
-   private function fix_db()
-   {
-      if( $this->db->table_exists('co_subcuentasprov') )
-      {
-         $this->db->exec("delete from co_subcuentasprov where codproveedor not in (select codproveedor from proveedores);");
-      }
-      
-      if( $this->db->table_exists('dirproveedores') )
-      {
-         $this->db->exec("delete from dirproveedores where codproveedor not in (select codproveedor from proveedores);");
-      }
-      
-      if( $this->db->table_exists('cuentasbcopro') )
-      {
-         $this->db->exec("delete from cuentasbcopro where codproveedor not in (select codproveedor from proveedores);");
-      }
    }
 }

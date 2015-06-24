@@ -149,6 +149,7 @@
                      <th>Ancho papel</th>
                      <th>Comando corte</th>
                      <th>Comando apertura</th>
+                     <th>nº tickets</th>
                      <th></th>
                      <th class="text-right" width="120">Acciones</th>
                   </tr>
@@ -191,6 +192,9 @@
                      </td>
                      <td>
                         <input type="text" name="comandoapertura" value="{$value->comandoapertura}" class="form-control" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input type="number" name="num_tickets" value="{$value->num_tickets}" class="form-control" autocomplete="off"/>
                      </td>
                      <td class="text-center">
                         {if="!$value->disponible()"}
@@ -245,6 +249,9 @@
                      </td>
                      <td>
                         <input type="text" name="comandoapertura" value="{$fsc->terminal->comandoapertura}" class="form-control" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input type="number" name="num_tickets" value="{$fsc->terminal->num_tickets}" class="form-control" autocomplete="off"/>
                      </td>
                      <td></td>
                      <td class="text-right">

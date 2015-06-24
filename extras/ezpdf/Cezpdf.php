@@ -140,8 +140,8 @@ class Cezpdf extends Cpdf {
         // also set the margins to some reasonable defaults
         $this->ez['topMargin']=30;
         $this->ez['bottomMargin']=30;
-        $this->ez['leftMargin']=30;
-        $this->ez['rightMargin']=30;
+        $this->ez['leftMargin']=40;
+        $this->ez['rightMargin']=20;
 
         // set the current writing position to the top of the first page
         $this->y = $this->ez['pageHeight']-$this->ez['topMargin'];

@@ -25,7 +25,6 @@
             </a>
             {/if}
          </div>
-         
          <div class="btn-group">
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -49,6 +48,7 @@
             <th class="text-left">Descripción</th>
             <th class="text-left">Código ISO</th>
             <th class="text-left">Tasa de conversión a €</th>
+            <th class="text-left">Tasa de conversión a € (compras)</th>
             <th class="text-right" width="120">Acciones</th>
          </tr>
       </thead>
@@ -59,18 +59,11 @@
                <input type="hidden" name="coddivisa" value="{$value->coddivisa}"/>
                <div class="form-control">{$value->coddivisa}</div>
             </td>
-            <td>
-               <input class="form-control" type="text" name="simbolo" value="{$value->simbolo}" autocomplete="off"/>
-            </td>
-            <td>
-               <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/>
-            </td>
-            <td>
-               <input class="form-control" type="text" name="codiso" value="{$value->codiso}" autocomplete="off"/>
-            </td>
-            <td>
-               <input class="form-control" type="text" name="tasaconv" value="{$value->tasaconv}" autocomplete="off"/>
-            </td>
+            <td><input class="form-control" type="text" name="simbolo" value="{$value->simbolo}" autocomplete="off"/></td>
+            <td><input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/></td>
+            <td><input class="form-control" type="text" name="codiso" value="{$value->codiso}" autocomplete="off"/></td>
+            <td><input class="form-control" type="text" name="tasaconv" value="{$value->tasaconv}" autocomplete="off"/></td>
+            <td><input class="form-control" type="text" name="tasaconv_compra" value="{$value->tasaconv_compra}" autocomplete="off"/></td>
             <td class="text-right">
                <div class="btn-group">
                   {if="$fsc->allow_delete"}
@@ -94,21 +87,12 @@
       {/loop}
       <form action="{$fsc->url()}" method="post" class="form">
          <tr class="bg-info">
-            <td>
-               <input class="form-control" type="text" name="coddivisa" autocomplete="off" placeholder="Nueva..."/>
-            </td>
-            <td>
-               <input class="form-control" type="text" name="simbolo" autocomplete="off"/>
-            </td>
-            <td>
-               <input class="form-control" type="text" name="descripcion" autocomplete="off"/>
-            </td>
-            <td>
-               <input class="form-control" type="text" name="codiso" autocomplete="off"/>
-            </td>
-            <td>
-               <input class="form-control" type="text" name="tasaconv" value="1" autocomplete="off"/>
-            </td>
+            <td><input class="form-control" type="text" name="coddivisa" autocomplete="off" placeholder="Nueva..."/></td>
+            <td><input class="form-control" type="text" name="simbolo" autocomplete="off" placeholder="$"/></td>
+            <td><input class="form-control" type="text" name="descripcion" autocomplete="off" placeholder="Moneda"/></td>
+            <td><input class="form-control" type="text" name="codiso" autocomplete="off"/></td>
+            <td><input class="form-control" type="text" name="tasaconv" value="1" autocomplete="off"/></td>
+            <td><input class="form-control" type="text" name="tasaconv_compra" value="1" autocomplete="off"/></td>
             <td class="text-right">
                <div class="btn-group">
                   <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">

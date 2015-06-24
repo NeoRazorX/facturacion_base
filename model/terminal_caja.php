@@ -33,6 +33,7 @@ class terminal_caja extends fs_model
    public $anchopapel;
    public $comandocorte;
    public $comandoapertura;
+   public $num_tickets;
    
    public function __construct($t = FALSE)
    {
@@ -62,6 +63,12 @@ class terminal_caja extends fs_model
          {
             $this->comandoapertura = $t['comandoapertura'];
          }
+         
+         $this->num_tickets = 1;
+         if( isset($t['num_tickets']) )
+         {
+            $this->num_tickets = intval($t['num_tickets']);
+         }
       }
       else
       {
@@ -73,6 +80,7 @@ class terminal_caja extends fs_model
          $this->anchopapel = 40;
          $this->comandocorte = '27.105';
          $this->comandoapertura = '27.112.48';
+         $this->num_tickets = 1;
       }
    }
    
@@ -125,15 +133,20 @@ class terminal_caja extends fs_model
       $this->tickets .= ' ';
    }
    
-   public function center_text($word = '')
+   public function center_text($word = '', $ancho = FALSE)
    {
-      if( strlen($word) == $this->anchopapel )
+      if(!$ancho)
+      {
+         $ancho = $this->anchopapel;
+      }
+      
+      if( strlen($word) == $ancho )
       {
          return $word;
       }
-      else if( strlen($word) < $this->anchopapel )
+      else if( strlen($word) < $ancho )
       {
-         return $this->center_text2($word, $this->anchopapel);
+         return $this->center_text2($word, $ancho);
       }
       else
       {
@@ -145,32 +158,39 @@ class terminal_caja extends fs_model
             {
                $nword = $aux;
             }
-            else if( strlen($nword) + strlen($aux) + 1 <= $this->anchopapel )
+            else if( strlen($nword) + strlen($aux) + 1 <= $ancho )
             {
                $nword = $nword.' '.$aux;
             }
             else
             {
                if($result != '')
+               {
                   $result .= "\n";
-               $result .= $this->center_text2($nword);
+               }
+               
+               $result .= $this->center_text2($nword, $ancho);
                $nword = $aux;
             }
          }
          if($nword != '')
          {
             if($result != '')
+            {
                $result .= "\n";
-            $result .= $this->center_text2($nword);
+            }
+            
+            $result .= $this->center_text2($nword, $ancho);
          }
+         
          return $result;
       }
    }
    
-   private function center_text2($word = '')
+   private function center_text2($word = '', $ancho = 40)
    {
       $symbol = " ";
-      $middle = round($this->anchopapel / 2);
+      $middle = round($ancho / 2);
       $length_word = strlen($word);
       $middle_word = round($length_word / 2);
       $last_position = $middle + $middle_word;
@@ -215,6 +235,7 @@ class terminal_caja extends fs_model
                  ", anchopapel = ".$this->var2str($this->anchopapel).
                  ", comandocorte = ".$this->var2str($this->comandocorte).
                  ", comandoapertura = ".$this->var2str($this->comandoapertura).
+                 ", num_tickets = ".$this->var2str($this->num_tickets).
                  " WHERE id = ".$this->var2str($this->id).";";
          
          return $this->db->exec($sql);
@@ -222,14 +243,15 @@ class terminal_caja extends fs_model
       else
       {
          $sql = "INSERT INTO cajas_terminales (codalmacen,codserie,codcliente,tickets,anchopapel,"
-                 . "comandocorte,comandoapertura) VALUES (".
+                 . "comandocorte,comandoapertura,num_tickets) VALUES (".
                  $this->var2str($this->codalmacen).",".
                  $this->var2str($this->codserie).",".
                  $this->var2str($this->codcliente).",".
                  $this->var2str($this->tickets).",".
                  $this->var2str($this->anchopapel).",".
                  $this->var2str($this->comandocorte).",".
-                 $this->var2str($this->comandoapertura).");";
+                 $this->var2str($this->comandoapertura).",".
+                 $this->var2str($this->num_tickets).");";
          
          if( $this->db->exec($sql) )
          {

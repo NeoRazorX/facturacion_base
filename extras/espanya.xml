@@ -6319,118 +6319,6 @@
       <codcuenta>100</codcuenta>
       <descripcion/>
    </balance_cuenta_a>
-   <cuenta_especial>
-      <idcuentaesp>CAJA</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSBjYWph</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>CAMNEG</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSBkaWZlcmVuY2lhcyBuZWdhdGl2YXMgZGUgY2FtYmlv</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>CAMPOS</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSBkaWZlcmVuY2lhcyBwb3NpdGl2YXMgZGUgY2FtYmlv</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>CLIENT</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSBjbGllbnRlcw==</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>COMPRA</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSBjb21wcmFz</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>DEVCOM</idcuentaesp>
-      <descripcion>RGV2b2x1Y2lvbmVzIGRlIGNvbXByYXM=</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>DEVVEN</idcuentaesp>
-      <descripcion>RGV2b2x1Y2lvbmVzIGRlIHZlbnRhcw==</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>DIVPOS</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBwb3IgZGlmZXJlbmNpYXMgcG9zaXRpdmFzIGVuIGRpdmlzYSBleHRyYW5qZXJh</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>EURNEG</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBwb3IgZGlmZXJlbmNpYXMgbmVnYXRpdmFzIGRlIGNvbnZlcnNpw7NuIGEgbGEgbW9uZWRhIGxvY2Fs</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>EURPOS</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBwb3IgZGlmZXJlbmNpYXMgcG9zaXRpdmFzIGRlIGNvbnZlcnNpw7NuIGEgbGEgbW9uZWRhIGxvY2Fs</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>GTORF</idcuentaesp>
-      <descripcion>R2FzdG9zIHBvciByZWNhcmdvIGZpbmFuY2llcm8=</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>INGRF</idcuentaesp>
-      <descripcion>SW5ncmVzb3MgcG9yIHJlY2FyZ28gZmluYW5jaWVybw==</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>IRPF</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSByZXRlbmNpb25lcyBJUlBG</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>IRPFPR</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSByZXRlbmNpb25lcyBwYXJhIHByb3ZlZWRvcmVzIElSUEZQUg==</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>IVAACR</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBhY3JlZWRvcmFzIGRlIElWQSBlbiBsYSByZWd1bGFyaXphY2nDs24=</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>IVADEU</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZXVkb3JhcyBkZSBJVkEgZW4gbGEgcmVndWxhcml6YWNpw7Nu</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>IVAEUE</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSBJVkEgcmVwZXJjdXRpZG8gZW4gZW50cmVnYXMgaW50cmFjb211bml0YXJpYXM=</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>IVAREP</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSBJVkEgcmVwZXJjdXRpZG8=</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>IVAREX</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSBJVkEgcmVwZXJjdXRpZG8gcGFyYSBjbGllbnRlcyBleGVudG9zIGRlIElWQQ==</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>IVARUE</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSBJVkEgcmVwZXJjdXRpZG8gZW4gYWRxdWlzaWNpb25lcyBpbnRyYWNvbXVuaXRhcmlhcw==</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>IVARXP</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSBJVkEgcmVwZXJjdXRpZG8gZW4gZXhwb3J0YWNpb25lcw==</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>IVASIM</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSBJVkEgc29wb3J0YWRvIGVuIGltcG9ydGFjaW9uZXM=</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>IVASOP</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSBJVkEgc29wb3J0YWRv</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>IVASUE</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSBJVkEgc29wb3J0YWRvIGVuIGFkcXVpc2ljaW9uZXMgaW50cmFjb211bml0YXJpYXM=</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>PREVIO</idcuentaesp>
-      <descripcion>Q3VlbnRhcyByZWxhdGl2YXMgYWwgZWplcmNpY2lvIHByZXZpbw==</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>PROVEE</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSBwcm92ZWVkb3JlcyB5IGFjcmVlZG9yZXM=</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>PYG</idcuentaesp>
-      <descripcion>UMOpcmRpZGFzIHkgZ2FuYW5jaWFz</descripcion>
-   </cuenta_especial>
-   <cuenta_especial>
-      <idcuentaesp>VENTAS</idcuentaesp>
-      <descripcion>Q3VlbnRhcyBkZSB2ZW50YXM=</descripcion>
-   </cuenta_especial>
    <grupo_epigrafes>
       <codgrupo>1</codgrupo>
       <descripcion>RmluYW5jaWFjacOzbiBiw6FzaWNh</descripcion>
@@ -8193,37 +8081,37 @@
       <codepigrafe>41</codepigrafe>
       <codcuenta>410</codcuenta>
       <descripcion>QWNyZWVkb3Jlcw==</descripcion>
-      <idcuentaesp>PROVEE</idcuentaesp>
+      <idcuentaesp>ACREED</idcuentaesp>
    </cuenta>
    <cuenta>
       <codepigrafe>41</codepigrafe>
       <codcuenta>4100</codcuenta>
       <descripcion>QWNyZWVkb3JlcyBwb3IgcHJlc3RhY2lvbmVzIGRlIHNlcnZpY2lvcyAoZXVyb3Mp</descripcion>
-      <idcuentaesp>PROVEE</idcuentaesp>
+      <idcuentaesp>ACREED</idcuentaesp>
    </cuenta>
    <cuenta>
       <codepigrafe>41</codepigrafe>
       <codcuenta>4104</codcuenta>
       <descripcion>QWNyZWVkb3JlcyBwb3IgcHJlc3RhY2lvbmVzIGRlIHNlcnZpY2lvcywgKG1vbmVkYSBleHRyYW5qZXJhKQ==</descripcion>
-      <idcuentaesp>PROVEE</idcuentaesp>
+      <idcuentaesp>ACREED</idcuentaesp>
    </cuenta>
    <cuenta>
       <codepigrafe>41</codepigrafe>
       <codcuenta>4109</codcuenta>
       <descripcion>QWNyZWVkb3JlcyBwb3IgcHJlc3RhY2lvbmVzIGRlIHNlcnZpY2lvcywgZmFjdHVyYXMgcGVuZGllbnRlcyBkZSByZWNpYmlyIG8gZGUgZm9ybWFsaXphcg==</descripcion>
-      <idcuentaesp>PROVEE</idcuentaesp>
+      <idcuentaesp>ACREED</idcuentaesp>
    </cuenta>
    <cuenta>
       <codepigrafe>41</codepigrafe>
       <codcuenta>411</codcuenta>
       <descripcion>QWNyZWVkb3JlcywgZWZlY3RvcyBjb21lcmNpYWxlcyBhIHBhZ2Fy</descripcion>
-      <idcuentaesp>PROVEE</idcuentaesp>
+      <idcuentaesp>ACREED</idcuentaesp>
    </cuenta>
    <cuenta>
       <codepigrafe>41</codepigrafe>
       <codcuenta>419</codcuenta>
       <descripcion>QWNyZWVkb3JlcyBwb3Igb3BlcmFjaW9uZXMgZW4gY29tw7pu</descripcion>
-      <idcuentaesp>PROVEE</idcuentaesp>
+      <idcuentaesp>ACREED</idcuentaesp>
    </cuenta>
    <cuenta>
       <codepigrafe>43</codepigrafe>

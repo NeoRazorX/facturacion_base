@@ -958,7 +958,7 @@ class factura_cliente extends fs_model
       {
          $sql .= " AND codserie = ".$this->var2str($serie);
       }
-      $sql .= " ORDER BY codigo ASC;";
+      $sql .= " ORDER BY fecha ASC, codigo ASC;";
       
       $facturas = $this->db->select($sql);
       if($facturas)

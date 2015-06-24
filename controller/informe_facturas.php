@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -445,8 +445,8 @@ class informe_facturas extends fs_controller
       $this->template = FALSE;
       
       $pdf_doc = new fs_pdf('a4', 'landscape', 'Courier');
-      $pdf_doc->pdf->addInfo('Title', 'Facturas emitidas del '.$_POST['dfecha'].' al '.$_POST['hfecha'] );
-      $pdf_doc->pdf->addInfo('Subject', 'Facturas emitidas del '.$_POST['dfecha'].' al '.$_POST['hfecha'] );
+      $pdf_doc->pdf->addInfo('Title', 'Facturas recibidas del '.$_POST['dfecha'].' al '.$_POST['hfecha'] );
+      $pdf_doc->pdf->addInfo('Subject', 'Facturas recibidas del '.$_POST['dfecha'].' al '.$_POST['hfecha'] );
       $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
       
       $serie = FALSE;

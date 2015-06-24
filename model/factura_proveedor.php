@@ -737,7 +737,7 @@ class factura_proveedor extends fs_model
       {
          $sql .= " AND codserie = ".$this->var2str($serie);
       }
-      $sql .= " ORDER BY codigo ASC;";
+      $sql .= " ORDER BY fecha asc, codigo ASC;";
       
       $facturas = $this->db->select($sql);
       if($facturas)

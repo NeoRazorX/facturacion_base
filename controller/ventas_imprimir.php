@@ -235,7 +235,7 @@ class ventas_imprimir extends fs_controller
                        'dato2' => array('justification' => 'left')
                    ),
                    'showLines' => 0,
-                   'width' => 540,
+                   'width' => 520,
                    'shaded' => 0
                )
             );
@@ -257,7 +257,6 @@ class ventas_imprimir extends fs_controller
                   'importe' => '<b>Importe</b>'
                )
             );
-            $saltos = 0;
             for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < count($lineas)));)
             {
                $fila = array(
@@ -269,7 +268,6 @@ class ventas_imprimir extends fs_controller
                );
                
                $pdf_doc->add_table_row($fila);
-               $saltos++;
                $linea_actual++;
             }
             $pdf_doc->save_table(
@@ -281,36 +279,12 @@ class ventas_imprimir extends fs_controller
                        'dto' => array('justification' => 'right'),
                        'importe' => array('justification' => 'right')
                    ),
-                   'width' => 540,
+                   'width' => 520,
                    'shaded' => 0
                )
             );
             
-            
-            /*
-             * Rellenamos el hueco que falta hasta donde debe aparecer la última tabla
-             */
-            if($this->albaran->observaciones == '')
-            {
-               $salto = '';
-            }
-            else
-            {
-               $salto = "\n<b>Observaciones</b>: " . $this->fix_html($this->albaran->observaciones);
-               $saltos += count( explode("\n", $this->albaran->observaciones) ) - 1;
-            }
-            
-            if($saltos < $lppag)
-            {
-               for(;$saltos < $lppag; $saltos++)
-                  $salto .= "\n";
-               $pdf_doc->pdf->ezText($salto, 11);
-            }
-            else if($linea_actual >= $lineasfact)
-               $pdf_doc->pdf->ezText($salto, 11);
-            else
-               $pdf_doc->pdf->ezText("\n", 11);
-            
+            $pdf_doc->set_y(80);
             
             /*
              * Rellenamos la última tabla de la página:
@@ -328,7 +302,7 @@ class ventas_imprimir extends fs_controller
                     'neto' => array('justification' => 'right'),
                 ),
                 'showLines' => 4,
-                'width' => 540
+                'width' => 520
             );
             foreach($lineas_iva as $li)
             {
@@ -352,7 +326,7 @@ class ventas_imprimir extends fs_controller
             
             if($this->albaran->totalirpf != 0)
             {
-               $titulo['irpf'] = '<b>'.FS_IRPF.'</b>';
+               $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->albaran->irpf.'%</b>';
                $fila['irpf'] = $this->show_precio(0 - $this->albaran->totalirpf);
                $opciones['cols']['irpf'] = array('justification' => 'right');
             }
@@ -363,7 +337,6 @@ class ventas_imprimir extends fs_controller
             $pdf_doc->add_table_header($titulo);
             $pdf_doc->add_table_row($fila);
             $pdf_doc->save_table($opciones);
-            $pdf_doc->pdf->ezText("\n", 10);
             
             $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text($this->fix_html($this->empresa->pie_factura), 153), 0, 1.5);
             
@@ -447,7 +420,7 @@ class ventas_imprimir extends fs_controller
                           'cliente' => array('justification' => 'right')
                       ),
                       'showLines' => 0,
-                      'width' => 540
+                      'width' => 520
                   )
                );
                $pdf_doc->pdf->ezText("\n\n\n", 14);
@@ -518,7 +491,7 @@ class ventas_imprimir extends fs_controller
                         'dato2' => array('justification' => 'left')
                      ),
                      'showLines' => 0,
-                     'width' => 540,
+                     'width' => 520,
                      'shaded' => 0
                   )
                );
@@ -545,7 +518,6 @@ class ventas_imprimir extends fs_controller
                   'importe' => '<b>Importe</b>'
                )
             );
-            $saltos = 0;
             for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < $lineasfact));)
             {
                $fila = array(
@@ -557,7 +529,6 @@ class ventas_imprimir extends fs_controller
                );
                
                $pdf_doc->add_table_row($fila);
-               $saltos++;
                $linea_actual++;
             }
             $pdf_doc->save_table(
@@ -569,91 +540,10 @@ class ventas_imprimir extends fs_controller
                        'dto' => array('justification' => 'right'),
                        'importe' => array('justification' => 'right')
                    ),
-                   'width' => 540,
+                   'width' => 520,
                    'shaded' => 0
                )
             );
-            
-            
-            /*
-             * Rellenamos el hueco que falta hasta donde debe aparecer la última tabla
-             */
-            if($this->factura->observaciones == '' OR $tipo == 'firma')
-            {
-               $salto = '';
-            }
-            else
-            {
-               $salto = "\n<b>Observaciones</b>: " . $this->fix_html($this->factura->observaciones);
-               $saltos += count( explode("\n", $this->factura->observaciones) ) - 1;
-            }
-            
-            if($saltos < $lppag)
-            {
-               for(;$saltos < $lppag; $saltos++)
-                  $salto .= "\n";
-               $pdf_doc->pdf->ezText($salto, 11);
-            }
-            else if($linea_actual >= $lineasfact)
-            {
-               $pdf_doc->pdf->ezText($salto, 11);
-            }
-            else
-               $pdf_doc->pdf->ezText("\n", 11);
-            
-            
-            /*
-             * Rellenamos la última tabla de la página:
-             * 
-             * Página            Neto    IVA   Total
-             */
-            $pdf_doc->new_table();
-            $titulo = array('pagina' => '<b>Página</b>', 'neto' => '<b>Neto</b>',);
-            $fila = array(
-                'pagina' => $pagina . '/' . ceil(count($lineas) / $lppag),
-                'neto' => $this->show_precio($this->factura->neto, $this->factura->coddivisa),
-            );
-            $opciones = array(
-                'cols' => array(
-                    'neto' => array('justification' => 'right'),
-                ),
-                'showLines' => 4,
-                'width' => 540
-            );
-            foreach($lineas_iva as $li)
-            {
-               $imp = $this->impuesto->get($li->codimpuesto);
-               if($imp)
-               {
-                  $titulo['iva'.$li->iva] = '<b>'.$imp->descripcion.'</b>';
-               }
-               else
-                  $titulo['iva'.$li->iva] = '<b>'.FS_IVA.' '.$li->iva.'%</b>';
-               
-               $fila['iva'.$li->iva] = $this->show_precio($li->totaliva, $this->factura->coddivisa);
-               
-               if($li->totalrecargo != 0)
-               {
-                  $fila['iva'.$li->iva] .= ' (RE: '.$this->show_precio($li->totalrecargo, $this->factura->coddivisa).')';
-               }
-               
-               $opciones['cols']['iva'.$li->iva] = array('justification' => 'right');
-            }
-            
-            if($this->factura->totalirpf != 0)
-            {
-               $titulo['irpf'] = '<b>'.FS_IRPF.'</b>';
-               $fila['irpf'] = $this->show_precio(0 - $this->factura->totalirpf);
-               $opciones['cols']['irpf'] = array('justification' => 'right');
-            }
-            
-            $titulo['liquido'] = '<b>Total</b>';
-            $fila['liquido'] = $this->show_precio($this->factura->total, $this->factura->coddivisa);
-            $opciones['cols']['liquido'] = array('justification' => 'right');
-            $pdf_doc->add_table_header($titulo);
-            $pdf_doc->add_table_row($fila);
-            $pdf_doc->save_table($opciones);
-            
             
             /*
              * Añadimos la parte de la firma y las observaciones,
@@ -681,12 +571,65 @@ class ventas_imprimir extends fs_controller
                         'campo2' => array('justification' => 'right')
                      ),
                      'showLines' => 0,
-                     'width' => 540,
+                     'width' => 520,
                      'shaded' => 0
                   )
                );
             }
             
+            $pdf_doc->set_y(80);
+            
+            /*
+             * Rellenamos la última tabla de la página:
+             * 
+             * Página            Neto    IVA   Total
+             */
+            $pdf_doc->new_table();
+            $titulo = array('pagina' => '<b>Página</b>', 'neto' => '<b>Neto</b>',);
+            $fila = array(
+                'pagina' => $pagina . '/' . ceil(count($lineas) / $lppag),
+                'neto' => $this->show_precio($this->factura->neto, $this->factura->coddivisa),
+            );
+            $opciones = array(
+                'cols' => array(
+                    'neto' => array('justification' => 'right'),
+                ),
+                'showLines' => 4,
+                'width' => 520
+            );
+            foreach($lineas_iva as $li)
+            {
+               $imp = $this->impuesto->get($li->codimpuesto);
+               if($imp)
+               {
+                  $titulo['iva'.$li->iva] = '<b>'.$imp->descripcion.'</b>';
+               }
+               else
+                  $titulo['iva'.$li->iva] = '<b>'.FS_IVA.' '.$li->iva.'%</b>';
+               
+               $fila['iva'.$li->iva] = $this->show_precio($li->totaliva, $this->factura->coddivisa);
+               
+               if($li->totalrecargo != 0)
+               {
+                  $fila['iva'.$li->iva] .= ' (RE: '.$this->show_precio($li->totalrecargo, $this->factura->coddivisa).')';
+               }
+               
+               $opciones['cols']['iva'.$li->iva] = array('justification' => 'right');
+            }
+            
+            if($this->factura->totalirpf != 0)
+            {
+               $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->factura->irpf.'%</b>';
+               $fila['irpf'] = $this->show_precio(0 - $this->factura->totalirpf);
+               $opciones['cols']['irpf'] = array('justification' => 'right');
+            }
+            
+            $titulo['liquido'] = '<b>Total</b>';
+            $fila['liquido'] = $this->show_precio($this->factura->total, $this->factura->coddivisa);
+            $opciones['cols']['liquido'] = array('justification' => 'right');
+            $pdf_doc->add_table_header($titulo);
+            $pdf_doc->add_table_row($fila);
+            $pdf_doc->save_table($opciones);
             
             /// pié de página para la factura
             if($tipo == 'simple' OR $tipo == 'firma')

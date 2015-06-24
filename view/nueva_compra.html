@@ -231,6 +231,7 @@
                   {/loop}
                   </select>
                </div>
+               {if="!$fsc->proveedor_s->acreedor"}
                <div class="checkbox">
                   <label>
                      <input type="checkbox" name="stock" value="TRUE" checked="checked"/>
@@ -243,6 +244,7 @@
                      Actualizar precio de coste de los artículos
                   </label>
                </div>
+               {/if}
             </div>
             <div class="modal-footer">
                <div class="btn-group">

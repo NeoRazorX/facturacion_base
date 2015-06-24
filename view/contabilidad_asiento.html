@@ -303,7 +303,7 @@
          </thead>
          <tbody id="partidas">
             {loop="$fsc->lineas"}
-            <tr id='partida_{$counter+1}'>
+            <tr id="partida_{$counter+1}">
                <td>
                   <input type="hidden" name="idpartida_{$counter+1}" value="{$value->idpartida}"/>
                   <input class="form-control" id='codsubcuenta_{$counter+1}' name='codsubcuenta_{$counter+1}' type='text'
@@ -339,7 +339,7 @@
                   <input class='form-control text-right' type='text' id='saldoc_{$counter+1}' name='saldoc_{$counter+1}' value='0' disabled='disabled'/>
                </td>
                <td class="contrapartida">
-                  <select class='form-control' id='iva_{$counter+1}' name='iva_{$counter+1}' onchange='recalcular()' disabled='disabled'>
+                  <select class='form-control' id='iva_{$counter+1}' name='iva_{$counter+1}' onchange='recalcular()'{if="!$value->codcontrapartida"} disabled='disabled'{/if}>
                      <option value='0'>---</option>
                      {loop="$fsc->impuesto->all()"}
                         {if="$value1->iva==$value2->iva"}
@@ -352,10 +352,10 @@
                </td>
                <td class="contrapartida">
                   <input class='form-control text-right' type='text' id='baseimp_{$counter+1}' name='baseimp_{$counter+1}'
-                         value='{$value->baseimponible}' autocomplete='off' disabled='disabled'/>
+                         value='{$value->baseimponible}' autocomplete='off'{if="!$value->codcontrapartida"} disabled='disabled'{/if}/>
                </td>
                <td class="contrapartida">
-                  <input class='form-control' type='text' id='cifnif_{$counter+1}' name='cifnif_{$counter+1}' value='{$value->cifnif}' disabled='disabled'/>
+                  <input class='form-control' type='text' id='cifnif_{$counter+1}' name='cifnif_{$counter+1}' value='{$value->cifnif}'{if="!$value->codcontrapartida"} disabled='disabled'{/if}/>
                </td>
                <td class="text-right">
                   <button class="btn btn-sm btn-danger" type="button" onclick="clean_partida('{$counter+1}')">

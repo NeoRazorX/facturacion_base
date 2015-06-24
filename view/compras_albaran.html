@@ -254,6 +254,11 @@
                            <input type="hidden" name="idlinea_{$counter}" value="{$value->idlinea}"/>
                            <input type="hidden" name="referencia_{$counter}" value="{$value->referencia}"/>
                            <div class="form-control">
+                              {if="$value->idlineapedido"}
+                              <a target="_blank" href="index.php?page=compras_pedido&id={$value->idpedido}" title="ver {#FS_PEDIDO#}">
+                                 <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                              </a> &nbsp;
+                              {/if}
                               <a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a>
                            </div>
                         </td>
@@ -354,7 +359,14 @@
                   </thead>
                   {loop="$fsc->albaran->get_lineas()"}
                   <tr{if="$value->cantidad<1"} class="bg-warning"{/if}>
-                     <td><a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion}</td>
+                     <td>
+                        {if="$value->idlineapedido"}
+                        <a target="_blank" href="index.php?page=compras_pedido&id={$value->idpedido}" title="ver {#FS_PEDIDO#}">
+                           <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                        </a> &nbsp;
+                        {/if}
+                        <a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion}
+                     </td>
                      <td class="text-right">{$value->cantidad}</td>
                      <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->albaran->coddivisa)}</td>
                      <td class="text-right">{$fsc->show_numero($value->dtopor, 2)} %</td>
@@ -556,7 +568,6 @@
    </div>
 </div>
 
-
 <div class="modal fade" id="modal_imprimir_albaran">
    <div class="modal-dialog">
       <div class="modal-content">
@@ -595,15 +606,13 @@
                   <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto mi {#FS_ALBARAN#} {$fsc->albaran->codigo}.
 {$fsc->empresa->email_firma}</textarea>
                </div>
-            </div>
-            <div class="modal-footer">
-            {loop="$fsc->extensions"}
-               {if="$value->type=='email'"}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}';this.form.submit();">
-                  <span class="glyphicon glyphicon-send"></span> &nbsp; Enviar {$value->text}
-               </button>
-               {/if}
-            {/loop}
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='email'"}
+                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}';this.form.submit();">
+                     <span class="glyphicon glyphicon-send"></span> &nbsp; {$value->text}
+                  </button>
+                  {/if}
+               {/loop}
             </div>
          </div>
       </div>
@@ -648,6 +657,9 @@
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h3 class="modal-title">Actualizar precios de los artículos</h3>
+               <p>
+                  Aquí puedes utilizar <mark>los datos del {#FS_ALBARAN#}</mark> para actualizar los datos de los artículos.
+               </p>
             </div>
             <div class="table-responsive">
                <table class="table table-hover">
@@ -666,8 +678,10 @@
                         <input class="cb_update" type="checkbox" name="referencia_{$counter}" value="{$value->referencia}" checked="checked"/>
                      </td>
                      <td>
-                        <a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a>
-                        {$value->descripcion}
+                        <div class="form-control">
+                           <a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a>
+                           {$value->descripcion}
+                        </div>
                      </td>
                      <td>
                         <input class="form-control" type="text" name="codbar_{$counter}" autocomplete="off"/>
@@ -682,30 +696,30 @@
                      </td>
                   </tr>
                   {/loop}
+                  <tr>
+                     <td></td>
+                     <td colspan="2">
+                        <label>
+                           <input type="checkbox" name="update_all" value="TRUE"/>
+                           Actualizar descripción y código de barras
+                        </label>
+                     </td>
+                     <td colspan="2"></td>
+                  </tr>
                </table>
             </div>
             <div class="modal-footer">
-               <div class="text-center">
-                  <label>
-                     <input type="checkbox" name="update_all" value="TRUE"/>
-                     Actualizar descripción y código de barras
-                  </label>
-               </div>
-               
-               <div>
-                  <div class="btn-group pull-left">
-                     <button class="btn btn-sm btn-default" type="button" onclick="fs_marcar_todo()" title="Marcar todo">
-                        <span class="glyphicon glyphicon-check"></span>
-                     </button>
-                     <button class="btn btn-sm btn-default" type="button" onclick="fs_marcar_nada()" title="Desmarcar todo">
-                        <span class="glyphicon glyphicon-unchecked"></span>
-                     </button>
-                  </div>
-                  
-                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                     <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+               <div class="btn-group pull-left">
+                  <button class="btn btn-sm btn-default" type="button" onclick="fs_marcar_todo()" title="Marcar todo">
+                     <span class="glyphicon glyphicon-check"></span>
+                  </button>
+                  <button class="btn btn-sm btn-default" type="button" onclick="fs_marcar_nada()" title="Desmarcar todo">
+                     <span class="glyphicon glyphicon-unchecked"></span>
                   </button>
                </div>
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+               </button>
             </div>
          </div>
       </div>

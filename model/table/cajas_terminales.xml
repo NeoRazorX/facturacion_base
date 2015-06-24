@@ -43,6 +43,10 @@
       <nombre>comandoapertura</nombre>
       <tipo>character varying(50)</tipo>
    </columna>
+   <columna>
+      <nombre>num_tickets</nombre>
+      <tipo>integer</tipo>
+   </columna>
    <restriccion>
       <nombre>cajas_terminales_pkey</nombre>
       <consulta>PRIMARY KEY (id)</consulta>
