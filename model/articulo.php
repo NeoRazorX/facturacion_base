@@ -459,14 +459,14 @@ class articulo extends fs_model
    {
       $this->pvp_ant = $this->pvp;
       $this->factualizado = Date('d-m-Y');
-      $this->pvp = round($p, 3);
+      $this->pvp = round($p, FS_NF0+2);
    }
    
    public function set_pvp_iva($p)
    {
       $this->pvp_ant = $this->pvp;
       $this->factualizado = Date('d-m-Y');
-      $this->pvp = round((100*$p)/(100+$this->get_iva()), 3);
+      $this->pvp = round((100*$p)/(100+$this->get_iva()), FS_NF0+2);
    }
    
    public function set_referencia($ref)
