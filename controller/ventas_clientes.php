@@ -76,12 +76,11 @@ class ventas_clientes extends fs_controller
          }
          $grupo->nombre = $_POST['nombre'];
          
-         if($_POST['codtarifa'] == '---')
+         $grupo->codtarifa = NULL;
+         if($_POST['codtarifa'] != '---')
          {
-            $grupo->codtarifa = NULL;
-         }
-         else
             $grupo->codtarifa = $_POST['codtarifa'];
+         }
          
          if( $grupo->save() )
          {
@@ -119,6 +118,15 @@ class ventas_clientes extends fs_controller
          $cliente->razonsocial = $_POST['nombre'];
          $cliente->cifnif = $_POST['cifnif'];
          $cliente->codserie = $this->empresa->codserie;
+         
+         if( isset($_POST['scodgrupo']) )
+         {
+            if($_POST['scodgrupo'] != '')
+            {
+               $cliente->codgrupo = $_POST['scodgrupo'];
+            }
+         }
+         
          if( $cliente->save() )
          {
             $dircliente = new direccion_cliente();
@@ -142,7 +150,9 @@ class ventas_clientes extends fs_controller
       
       $this->offset = 0;
       if( isset($_GET['offset']) )
+      {
          $this->offset = intval($_GET['offset']);
+      }
       
       if($this->query != '')
       {

@@ -297,7 +297,7 @@
                      <tr class="bg-info">
                         <td><input id="i_new_line" class="form-control" type="text" placeholder="Buscar para añadir..." autocomplete="off"/></td>
                         <td>
-                           <a href="#" class="btn btn-sm btn-default" title="Añadir sin buscar" onclick="add_linea_libre()">
+                           <a href="#" class="btn btn-sm btn-default" title="Añadir sin buscar" onclick="return add_linea_libre()">
                               <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                            </a>
                         </td>
@@ -599,13 +599,16 @@
             <h4 class="modal-title">Imprimir {#FS_ALBARAN#}</h4>
          </div>
          <div class="modal-body">
-            {loop="$fsc->extensions"}
-               {if="$value->type=='pdf'"}
-               <a href="index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}" target="_blank" class="btn btn-block btn-default">
-                  <span class="glyphicon glyphicon-print"></span> &nbsp; {$value->text}
-               </a>
-               {/if}
-            {/loop}
+         {loop="$fsc->extensions"}
+            {if="$value->type=='pdf'"}
+            <a href="index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}" target="_blank" class="btn btn-block btn-default">
+               <span class="glyphicon glyphicon-print"></span> &nbsp; {$value->text}
+            </a>
+            {/if}
+         {/loop}
+         </div>
+         <div class="modal-footer">
+            <a href="index.php?page=admin_empresa#impresion" target="_blank">Opciones de impresión</a>
          </div>
       </div>
    </div>

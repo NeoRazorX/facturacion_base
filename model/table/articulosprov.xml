@@ -37,4 +37,8 @@
       <nombre>articulosprov_pkey</nombre>
       <consulta>PRIMARY KEY (id)</consulta>
    </restriccion>
+   <restriccion>
+      <nombre>uniq_articulo_proveedor</nombre>
+      <consulta>UNIQUE (codproveedor, referencia)</consulta>
+   </restriccion>
 </tabla>

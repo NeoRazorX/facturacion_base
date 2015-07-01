@@ -351,6 +351,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto)
    $("#modal_articulos").modal('hide');
    
    $("#desc_"+(numlineas-1)).select();
+   return false;
 }
 
 function add_linea_libre()
@@ -384,6 +385,7 @@ function add_linea_libre()
    recalcular();
    
    $("#desc_"+(numlineas-1)).select();
+   return false;
 }
 
 function get_precios(ref)
@@ -476,9 +478,9 @@ function buscar_articulos()
                if(val.secompra)
                {
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
-                     &nbsp; <a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+descripcion+"','"+precio+"','0','"+val.codimpuesto+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+descripcion+"','"+val.coste+"','0','"+val.codimpuesto+"')\">"+show_precio(val.coste)+"</a></td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\">"+show_precio(val.pvp)+"</a></td>\n\
+                     &nbsp; <a href=\"#\" onclick=\"return add_articulo('"+val.referencia+"','"+descripcion+"','"+precio+"','0','"+val.codimpuesto+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"+val.referencia+"','"+descripcion+"','"+val.coste+"','0','"+val.codimpuesto+"')\">"+show_precio(val.coste)+"</a></td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\">"+show_precio(val.pvp)+"</a></td>\n\
                      <td class=\"text-right\">"+val.stockfis+"</td></tr>");
                }
                

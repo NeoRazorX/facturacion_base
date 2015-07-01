@@ -496,7 +496,7 @@ class albaran_proveedor extends fs_model
       return $albalist;
    }
    
-   public function all_ptefactura($offset=0, $order='DESC')
+   public function all_ptefactura($offset=0, $order='ASC')
    {
       $albalist = array();
       $albaranes = $this->db->select_limit("SELECT * FROM ".$this->table_name.

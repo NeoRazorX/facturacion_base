@@ -350,6 +350,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
    $("#modal_articulos").modal('hide');
    
    $("#desc_"+(numlineas-1)).select();
+   return false;
 }
 
 function add_linea_libre()
@@ -383,6 +384,7 @@ function add_linea_libre()
    recalcular();
    
    $("#desc_"+(numlineas-1)).select();
+   return false;
 }
 
 function get_precios(ref)
@@ -477,9 +479,9 @@ function buscar_articulos()
                   }
                   
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
-                     &nbsp; <a href=\"#\" onclick=\""+funcion+"\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\""+funcion+"\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\""+funcion+"\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
+                     &nbsp; <a href=\"#\" onclick=\"return "+funcion+"\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
                      <td class=\"text-right\">"+val.stockfis+"</td></tr>");
                }
                else if(val.sevende && val.stockfis <= 0)

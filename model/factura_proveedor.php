@@ -692,7 +692,7 @@ class factura_proveedor extends fs_model
    {
       $faclist = array();
       $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name.
-         " WHERE pagada = false ORDER BY fecha DESC, codigo DESC", $limit, $offset);
+         " WHERE pagada = false ORDER BY fecha ASC, codigo ASC", $limit, $offset);
       if($facturas)
       {
          foreach($facturas as $f)

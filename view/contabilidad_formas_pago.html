@@ -48,6 +48,9 @@
             <th class="text-left">Descripción</th>
             <th class="text-left">Generar facturas</th>
             <th class="text-left">Vencimiento</th>
+            <th class="text-left">
+               <a href="index.php?page=admin_empresa#cuentasb" target="_blank">Cuenta bancaria</a>
+            </th>
             <th class="text-right" width="120">Acciones</th>
          </tr>
       </thead>
@@ -58,9 +61,7 @@
                <input type="hidden" name="codpago" value="{$value->codpago}"/>
                <div class="form-control">{$value->codpago}</div>
             </td>
-            <td>
-               <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/>
-            </td>
+            <td><input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/></td>
             <td>
                <select name="genrecibos" class="form-control">
                   <option value="Emitidos"{if="$value->genrecibos=='Emitidos'"} selected="selected"{/if}>Sin pagar</option>
@@ -76,6 +77,19 @@
                   <option value="{$key2}">{$value2}</option>
                   {/if}
                {/loop}
+               </select>
+            </td>
+            <td>
+               <select name="codcuenta" class="form-control">
+                  <option value="">Ninguna</option>
+                  <option value="">------</option>
+                  {loop="$fsc->cuentas_banco"}
+                     {if="$value1->codcuenta==$value->codcuenta"}
+                     <option value="{$value->codcuenta}" selected="selected">{$value->descripcion}</option>
+                     {else}
+                     <option value="{$value->codcuenta}">{$value->descripcion}</option>
+                     {/if}
+                  {/loop}
                </select>
             </td>
             <td class="text-right">
@@ -111,6 +125,15 @@
                <select name="vencimiento" class="form-control">
                   {loop="$fsc->vencimientos()"}
                   <option value="{$key}">{$value}</option>
+                  {/loop}
+               </select>
+            </td>
+            <td>
+               <select name="codcuenta" class="form-control">
+                  <option value="">Ninguna</option>
+                  <option value="">------</option>
+                  {loop="$fsc->cuentas_banco"}
+                  <option value="{$value->codcuenta}">{$value->descripcion}</option>
                   {/loop}
                </select>
             </td>

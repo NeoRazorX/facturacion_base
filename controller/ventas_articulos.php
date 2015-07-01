@@ -73,6 +73,7 @@ class ventas_articulos extends fs_controller
       
       if( isset($_POST['codtarifa']) )
       {
+         /// crear/editar tarifa
          $tar0 = $this->tarifa->get($_POST['codtarifa']);
          if( !$tar0 )
          {
@@ -90,6 +91,7 @@ class ventas_articulos extends fs_controller
       }
       else if( isset($_GET['delete_tarifa']) )
       {
+         /// eliminar tarifa
          $tar0 = $this->tarifa->get($_GET['delete_tarifa']);
          if($tar0)
          {
@@ -103,21 +105,9 @@ class ventas_articulos extends fs_controller
          else
             $this->new_error_msg("¡La tarifa no existe!");
       }
-      else if( isset($_POST['mod_iva']) )
+      else if( isset($_POST['referencia']) AND isset($_POST['codfamilia']) AND isset($_POST['codimpuesto']) )
       {
-         if($_POST['codimpuesto'] == $_POST['codimpuesto2'])
-         {
-            $this->new_error_msg("¡Has seleccionado el mismo IVA dos veces!");
-         }
-         else if( $articulo->move_codimpuesto($_POST['codimpuesto'], $_POST['codimpuesto2'], isset($_POST['mantener'])) )
-         {
-            $this->new_message("Artículos modificados correctamente.");
-         }
-         else
-            $this->new_error_msg("¡Impodible modificar los artículos!");
-      }
-      else if(isset($_POST['referencia']) AND isset($_POST['codfamilia']) AND isset($_POST['codimpuesto']))
-      {
+         /// nuevo artículo
          $this->save_codfamilia( $_POST['codfamilia'] );
          $this->save_codimpuesto( $_POST['codimpuesto'] );
          
@@ -142,6 +132,7 @@ class ventas_articulos extends fs_controller
       }
       else if( isset($_GET['delete']) )
       {
+         /// eliminar artículo
          $art = $articulo->get($_GET['delete']);
          if($art)
          {
@@ -156,7 +147,9 @@ class ventas_articulos extends fs_controller
       
       $this->offset = 0;
       if( isset($_GET['offset']) )
+      {
          $this->offset = intval($_GET['offset']);
+      }
       
       if($this->query != '')
       {
@@ -171,7 +164,12 @@ class ventas_articulos extends fs_controller
          $this->resultados = $articulo->all_publico($this->offset);
       }
       else
+      {
+         /// correcciones a la tabla articulosprov. A eliminar en la siguiente actualización
+         $this->fix_db();
+         
          $this->resultados = $articulo->all($this->offset);
+      }
    }
    
    public function anterior_url()
@@ -234,5 +232,21 @@ class ventas_articulos extends fs_controller
       }
       
       return $url;
+   }
+   
+   private function fix_db()
+   {
+      $data = $this->db->select("SELECT codproveedor,referencia,COUNT(*) as count FROM articulosprov GROUP BY codproveedor,referencia HAVING COUNT(*) > 1;");
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $data2 = $this->db->select("SELECT * FROM articulosprov WHERE codproveedor = '".$d['codproveedor']."' AND referencia = '".$d['referencia']."';");
+            if($data2)
+            {
+               $this->db->exec("DELETE FROM articulosprov WHERE id = ".$this->empresa->var2str($data2[1]['id']).";");
+            }
+         }
+      }
    }
 }

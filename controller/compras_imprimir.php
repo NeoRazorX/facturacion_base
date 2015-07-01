@@ -136,15 +136,18 @@ class compras_imprimir extends fs_controller
       if($lineas)
       {
          $linea_actual = 0;
-         $lppag = 42;
          $pagina = 1;
          
          /// imprimimos las páginas necesarias
          while( $linea_actual < count($lineas) )
          {
+            $lppag = 35;
+            
             /// salto de página
             if($linea_actual > 0)
+            {
                $pdf_doc->pdf->ezNewPage();
+            }
             
             /// ¿Añadimos el logo?
             if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
@@ -257,6 +260,14 @@ class compras_imprimir extends fs_controller
                )
             );
             
+            if( $linea_actual == count($lineas) )
+            {
+               if($this->albaran->observaciones != '')
+               {
+                  $pdf_doc->pdf->ezText("\n".$this->albaran->observaciones, 9);
+               }
+            }
+            
             $pdf_doc->set_y(80);
             
             /*
@@ -346,12 +357,13 @@ class compras_imprimir extends fs_controller
       {
          $lineasfact = count($lineas);
          $linea_actual = 0;
-         $lppag = 42; /// líneas por página
          $pagina = 1;
          
          // Imprimimos las páginas necesarias
          while($linea_actual < $lineasfact)
          {
+            $lppag = 35; /// líneas por página
+            
             /// salto de página
             if($linea_actual > 0)
             {
@@ -468,6 +480,14 @@ class compras_imprimir extends fs_controller
                    'shaded' => 0
                )
             );
+            
+            if( $linea_actual == count($lineas) )
+            {
+               if($this->factura->observaciones != '')
+               {
+                  $pdf_doc->pdf->ezText("\n".$this->factura->observaciones, 9);
+               }
+            }
             
             $pdf_doc->set_y(80);
             

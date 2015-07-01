@@ -147,7 +147,7 @@ class articulo_proveedor extends fs_model
       }
       else
       {
-         $sql = "INSERT INTO articulosprov (referencia,codproveedor,refproveedor,stock) VALUES ".
+         $sql = "INSERT INTO articulosprov (referencia,codproveedor,refproveedor,precio,stock) VALUES ".
                  "(".$this->var2str($this->referencia).
                  ",".$this->var2str($this->codproveedor).
                  ",".$this->var2str($this->refproveedor).

@@ -21,6 +21,8 @@ require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
 require_model('cliente.php');
+require_model('cuenta_banco.php');
+require_model('forma_pago.php');
 
 /**
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes y facturas.
@@ -30,6 +32,7 @@ class ventas_imprimir extends fs_controller
    public $albaran;
    public $cliente;
    public $factura;
+   public $impresion;
    public $impuesto;
    
    public function __construct()
@@ -43,6 +46,15 @@ class ventas_imprimir extends fs_controller
       $this->cliente = FALSE;
       $this->factura = FALSE;
       $this->impuesto = new impuesto();
+      
+      /// obtenemos los datos de configuración de impresión
+      $this->impresion = array(
+          'print_ref' => '1',
+          'print_dto' => '1',
+          'print_alb' => '1'
+      );
+      $fsvar = new fs_var();
+      $this->impresion = $fsvar->array_get($this->impresion, FALSE);
       
       if( isset($_REQUEST['albaran']) AND isset($_REQUEST['id']) )
       {
@@ -162,15 +174,18 @@ class ventas_imprimir extends fs_controller
       if($lineas)
       {
          $linea_actual = 0;
-         $lppag = 42;
          $pagina = 1;
          
          /// imprimimos las páginas necesarias
          while( $linea_actual < count($lineas) )
          {
+            $lppag = 35;
+            
             /// salto de página
             if($linea_actual > 0)
+            {
                $pdf_doc->pdf->ezNewPage();
+            }
             
             /// ¿Añadimos el logo?
             if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
@@ -248,19 +263,41 @@ class ventas_imprimir extends fs_controller
              * Descripción    PVP   DTO   Cantidad    Importe
              */
             $pdf_doc->new_table();
-            $pdf_doc->add_table_header(
-               array(
-                  'descripcion' => '<b>Descripción</b>',
-                  'cantidad' => '<b>Cantidad</b>',
-                  'pvp' => '<b>PVP</b>',
-                  'dto' => '<b>DTO</b>',
-                  'importe' => '<b>Importe</b>'
-               )
-            );
+            
+            if($this->impresion['print_dto'])
+            {
+               $pdf_doc->add_table_header(
+                  array(
+                     'descripcion' => '<b>Descripción</b>',
+                     'cantidad' => '<b>Cantidad</b>',
+                     'pvp' => '<b>PVP</b>',
+                     'dto' => '<b>DTO</b>',
+                     'importe' => '<b>Importe</b>'
+                  )
+               );
+            }
+            else
+            {
+               $pdf_doc->add_table_header(
+                  array(
+                     'descripcion' => '<b>Descripción</b>',
+                     'cantidad' => '<b>Cantidad</b>',
+                     'pvp' => '<b>PVP</b>',
+                     'importe' => '<b>Importe</b>'
+                  )
+               );
+            }
+            
             for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < count($lineas)));)
             {
+               $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
+               if( $this->impresion['print_ref'] AND !is_null($lineas[$linea_actual]->referencia) )
+               {
+                  $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
+               }
+               
                $fila = array(
-                  'descripcion' => $this->fix_html($lineas[$linea_actual]->descripcion),
+                  'descripcion' => $descripcion,
                   'cantidad' => $lineas[$linea_actual]->cantidad,
                   'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $this->albaran->coddivisa),
                   'dto' => $this->show_numero($lineas[$linea_actual]->dtopor, 0) . " %",
@@ -283,6 +320,14 @@ class ventas_imprimir extends fs_controller
                    'shaded' => 0
                )
             );
+            
+            if( $linea_actual == count($lineas) )
+            {
+               if($this->albaran->observaciones != '')
+               {
+                  $pdf_doc->pdf->ezText("\n".$this->albaran->observaciones, 9);
+               }
+            }
             
             $pdf_doc->set_y(80);
             
@@ -375,12 +420,13 @@ class ventas_imprimir extends fs_controller
       {
          $lineasfact = count($lineas);
          $linea_actual = 0;
-         $lppag = 42; /// líneas por página
          $pagina = 1;
          
          // Imprimimos las páginas necesarias
          while($linea_actual < $lineasfact)
          {
+            $lppag = 35; /// líneas por página
+            
             /// salto de página
             if($linea_actual > 0)
             {
@@ -392,8 +438,6 @@ class ventas_imprimir extends fs_controller
              */
             if($tipo == 'carta')
             {
-               $lppag = 40; /// en el modelo carta caben menos líneas
-               
                $direccion = $this->factura->nombrecliente."\n".$this->factura->direccion;
                if($this->factura->codpostal AND $this->factura->ciudad)
                   $direccion .= "\n CP: " . $this->factura->codpostal . ' ' . $this->factura->ciudad;
@@ -499,7 +543,9 @@ class ventas_imprimir extends fs_controller
                
                /// en el tipo 'firma' caben menos líneas
                if($tipo == 'firma')
-                  $lppag -= 10;
+               {
+                  $lppag -= 3;
+               }
             }
             
             
@@ -508,20 +554,38 @@ class ventas_imprimir extends fs_controller
              * 
              * Descripción    Cantidad  PVP   DTO    Importe
              */
-            $pdf_doc->new_table();
-            $pdf_doc->add_table_header(
-               array(
+            $columnas = array(
+                  'alb' => '<b>'.ucfirst(FS_ALBARAN).'</b>',
                   'descripcion' => '<b>Descripción</b>',
                   'cantidad' => '<b>Cantidad</b>',
                   'pvp' => '<b>PVP</b>',
                   'dto' => '<b>DTO</b>',
                   'importe' => '<b>Importe</b>'
-               )
             );
+            
+            if(!$this->impresion['print_alb'])
+            {
+               unset($columnas['alb']);
+            }
+            
+            if(!$this->impresion['print_dto'])
+            {
+               unset($columnas['dto']);
+            }
+            
+            $pdf_doc->new_table();
+            $pdf_doc->add_table_header($columnas);
             for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < $lineasfact));)
             {
+               $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
+               if( $this->impresion['print_ref'] AND !is_null($lineas[$linea_actual]->referencia) )
+               {
+                  $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
+               }
+               
                $fila = array(
-                  'descripcion' => $this->fix_html($lineas[$linea_actual]->descripcion),
+                  'alb' => $lineas[$linea_actual]->albaran_numero(),
+                  'descripcion' => $descripcion,
                   'cantidad' => $lineas[$linea_actual]->cantidad,
                   'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $this->factura->coddivisa),
                   'dto' => $this->show_numero($lineas[$linea_actual]->dtopor, 0) . " %",
@@ -545,36 +609,79 @@ class ventas_imprimir extends fs_controller
                )
             );
             
-            /*
-             * Añadimos la parte de la firma y las observaciones,
-             * para el tipo 'firma'
-             */
-            if($tipo == 'firma')
+            if( $linea_actual == count($lineas) )
             {
-               $pdf_doc->new_table();
-               $pdf_doc->add_table_row(
-                  array(
-                     'campo1' => "<b>Observaciones</b>",
-                     'campo2' => "<b>Firma</b>"
-                  )
-               );
-               $pdf_doc->add_table_row(
-                  array(
-                     'campo1' => $this->fix_html($this->factura->observaciones),
-                     'campo2' => ""
-                  )
-               );
-               $pdf_doc->save_table(
-                  array(
-                     'cols' => array(
-                        'campo1' => array('justification' => 'left'),
-                        'campo2' => array('justification' => 'right')
-                     ),
-                     'showLines' => 0,
-                     'width' => 520,
-                     'shaded' => 0
-                  )
-               );
+               /*
+                * Añadimos la parte de la firma y las observaciones,
+                * para el tipo 'firma'
+                */
+               if($tipo == 'firma')
+               {
+                  $pdf_doc->pdf->ezText("\n", 9);
+                  
+                  $pdf_doc->new_table();
+                  $pdf_doc->add_table_header(
+                     array(
+                        'campo1' => "<b>Observaciones</b>",
+                        'campo2' => "<b>Firma</b>"
+                     )
+                  );
+                  $pdf_doc->add_table_row(
+                     array(
+                        'campo1' => $this->fix_html($this->factura->observaciones),
+                        'campo2' => ""
+                     )
+                  );
+                  $pdf_doc->save_table(
+                     array(
+                        'cols' => array(
+                           'campo1' => array('justification' => 'left'),
+                           'campo2' => array('justification' => 'right', 'width' => 100)
+                        ),
+                        'showLines' => 4,
+                        'width' => 530,
+                        'shaded' => 0
+                     )
+                  );
+               }
+               else if($this->factura->observaciones != '')
+               {
+                  $pdf_doc->pdf->ezText("\n".$this->factura->observaciones, 9);
+               }
+               
+               if(!$this->factura->pagada)
+               {
+                  $fp0 = new forma_pago();
+                  $forma_pago = $fp0->get($this->factura->codpago);
+                  if($forma_pago)
+                  {
+                     if( is_null($forma_pago->codcuenta) )
+                     {
+                        $pdf_doc->pdf->ezText("\n<b>Forma de pago</b>: ".$forma_pago->descripcion." - Vencimiento: ".$this->factura->vencimiento, 9);
+                     }
+                     else
+                     {
+                        $texto_pago = "\n<b>Forma de pago</b>: ".$forma_pago->descripcion;
+                        
+                        $cb0 = new cuenta_banco();
+                        $cuenta_banco = $cb0->get($forma_pago->codcuenta);
+                        if($cuenta_banco)
+                        {
+                           if($cuenta_banco->iban)
+                           {
+                              $texto_pago .= "\n<b>IBAN</b>: ".$cuenta_banco->iban;
+                           }
+                           else
+                           {
+                              $texto_pago .= "\n<b>SWIFT o BIC</b>: ".$cuenta_banco->swift;
+                           }
+                        }
+                        
+                        $texto_pago .= "\n<b>Vencimiento</b>: ".$this->factura->vencimiento;
+                        $pdf_doc->pdf->ezText($texto_pago, 9);
+                     }
+                  }
+               }
             }
             
             $pdf_doc->set_y(80);
@@ -632,8 +739,7 @@ class ventas_imprimir extends fs_controller
             $pdf_doc->save_table($opciones);
             
             /// pié de página para la factura
-            if($tipo == 'simple' OR $tipo == 'firma')
-               $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text($this->fix_html($this->empresa->pie_factura), 153), 0, 1.5);
+            $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text($this->fix_html($this->empresa->pie_factura), 153), 0, 1.5);
             
             $pagina++;
          }
