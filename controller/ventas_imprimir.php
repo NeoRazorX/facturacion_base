@@ -51,7 +51,7 @@ class ventas_imprimir extends fs_controller
       $this->impresion = array(
           'print_ref' => '1',
           'print_dto' => '1',
-          'print_alb' => '1'
+          'print_alb' => '0'
       );
       $fsvar = new fs_var();
       $this->impresion = $fsvar->array_get($this->impresion, FALSE);

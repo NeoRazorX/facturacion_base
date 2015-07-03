@@ -169,6 +169,17 @@ class proveedor extends fs_model
          return FALSE;
    }
    
+   public function get_by_cifnif($cifnif)
+   {
+      $prov = $this->db->select("SELECT * FROM ".$this->table_name." WHERE cifnif = ".$this->var2str($cifnif).";");
+      if($prov)
+      {
+         return new proveedor($prov[0]);
+      }
+      else
+         return FALSE;
+   }
+   
    public function get_new_codigo()
    {
       $cod = $this->db->select("SELECT MAX(".$this->db->sql_to_int('codproveedor').") as cod FROM ".$this->table_name.";");

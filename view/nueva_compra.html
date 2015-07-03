@@ -92,12 +92,8 @@
                            </a>
                         </td>
                         <td colspan="4" class="text-right">Totales:</td>
-                        <td>
-                           <div id="aneto" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div>
-                        </td>
-                        <td>
-                           <div id="aiva" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div>
-                        </td>
+                        <td><div id="aneto" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div></td>
+                        <td><div id="aiva" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div></td>
                         <td class="recargo">
                            <div id="are" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div>
                         </td>
@@ -309,15 +305,22 @@
          <div id="kiwimaru_results"></div>
          <div id="nuevo_articulo" class="modal-body" style="display: none;">
             <form name="f_nuevo_articulo" action="{$fsc->url()}" method="post" class="form">
+               <input type="hidden" name="codproveedor" value="{$fsc->proveedor_s->codproveedor}"/>
                <div class="container-fluid">
                   <div class="row">
-                     <div class="col-sm-4">
+                     <div class="col-sm-3">
                         <div class="form-group">
                            Referencia:
                            <input class="form-control" type="text" name="referencia" maxlength="18" autocomplete="off"/>
                         </div>
                      </div>
-                     <div class="col-sm-8">
+                     <div class="col-sm-3">
+                        <div class="form-group">
+                           Ref. Proveedor:
+                           <input class="form-control" type="text" name="refproveedor" maxlength="25" autocomplete="off"/>
+                        </div>
+                     </div>
+                     <div class="col-sm-6">
                         <div class="form-group">
                            Descripción:
                            <textarea name="descripcion" rows="1" class="form-control"></textarea>
@@ -325,7 +328,7 @@
                      </div>
                   </div>
                   <div class="row">
-                     <div class="col-sm-4">
+                     <div class="col-sm-3">
                         <div class="form-group">
                            <a href="{$fsc->familia->url()}">Familia</a>:
                            <select name="codfamilia" class="form-control">
@@ -335,7 +338,19 @@
                            </select>
                         </div>
                      </div>
-                     <div class="col-sm-4">
+                     <div class="col-sm-3">
+                        <div class="form-group">
+                           Coste:
+                           <input type="text" name="coste" value="0" class="form-control" autocomplete="off"/>
+                        </div>
+                     </div>
+                     <div class="col-sm-3">
+                        <div class="form-group">
+                           Precio:
+                           <input type="text" name="pvp" value="0" class="form-control" autocomplete="off"/>
+                        </div>
+                     </div>
+                     <div class="col-sm-3">
                         <div class="form-group">
                            <a href="{$fsc->impuesto->url()}">{#FS_IVA#}</a>:
                            <select name="codimpuesto" class="form-control">
@@ -343,12 +358,6 @@
                               <option value="{$value->codimpuesto}"{if="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
                               {/loop}
                            </select>
-                        </div>
-                     </div>
-                     <div class="col-sm-4">
-                        <div class="form-group">
-                           Precio:
-                           <input type="text" name="pvp" value="0" class="form-control" autocomplete="off"/>
                         </div>
                      </div>
                   </div>

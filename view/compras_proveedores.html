@@ -1,6 +1,11 @@
 {include="header"}
 
 <script type="text/javascript">
+   function acreedores_help()
+   {
+      alert('Los acreedores son todos aquellos proveedores a los que no les compramos mercancias. Por ejemplo: proveedor de internet, teléfono, bancos...');
+      return false;
+   }
    $(document).ready(function() {
       document.f_custom_search.query.focus();
       if(window.location.hash.substring(1) == 'nuevo')
@@ -74,8 +79,13 @@
    </li>
    <li role="presentation"{if="$fsc->mostrar=='acreedores'"} class="active"{/if}>
       <a href="{$fsc->url()}&mostrar=acreedores">
-         <span class="glyphicon glyphicon-piggy-bank"></span>
+         <span class="glyphicon glyphicon-briefcase"></span>
          <span class="hidden-xs">&nbsp; Acreedores</span>
+      </a>
+   </li>
+   <li>
+      <a href="{$fsc->url()}&mostrar=acreedores" onclick="return acreedores_help()">
+         <span class="glyphicon glyphicon-question-sign"></span>
       </a>
    </li>
 </ul>
@@ -95,7 +105,7 @@
             <a href="{$value->url()}">{$value->codproveedor}</a>
             {$value->nombre}
             {if="$value->acreedor"}
-            &nbsp; <span class="glyphicon glyphicon-piggy-bank" title="Es un acreedor"></span>
+            &nbsp; <span class="glyphicon glyphicon-briefcase" title="Es un acreedor"></span>
             {/if}
          </td>
          <td>{$value->cifnif}</td>
@@ -148,6 +158,9 @@
                   <label>
                      <input type="checkbox" name="acreedor" value="TRUE"/>
                      Es un <b>acreedor</b>
+                     <a href="#" onclick="return acreedores_help()">
+                        <span class="glyphicon glyphicon-question-sign"></span>
+                     </a>
                   </label>
                </div>
                <div class="form-group">

@@ -83,7 +83,6 @@ class ventas_familias extends fs_controller
       }
       else
       {
-         $this->check_familias();
          $this->resultados = $this->familia->madres();
       }
    }
@@ -97,19 +96,5 @@ class ventas_familias extends fs_controller
       }
       else
          return 0;
-   }
-   
-   private function check_familias()
-   {
-      $data = $this->db->select("SELECT * FROM familias WHERE madre IS NOT NULL AND madre NOT IN (SELECT codfamilia FROM familias);");
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $familia = new familia($d);
-            $familia->madre = NULL;
-            $familia->save();
-         }
-      }
    }
 }

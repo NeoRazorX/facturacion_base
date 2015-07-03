@@ -160,7 +160,9 @@
          </td>
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
-         <td class="text-right">{$value->fecha}</td>
+         <td class="text-right">
+            {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
+         </td>
          {if="isset($_GET['sinpagar'])"}
          <td class="text-right">{$value->vencimiento}</td>
          {else}

@@ -425,7 +425,14 @@ function new_articulo()
             $("#kiwimaru_results").hide();
             $("#nuevo_articulo").hide();
             
-            add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].pvp, 0, datos[0].codimpuesto);
+            if(precio_compra == 'coste')
+            {
+               add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].coste, 0, datos[0].codimpuesto);
+            }
+            else
+            {
+               add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].pvp, 0, datos[0].codimpuesto);
+            }
          }
       });
    }
@@ -433,6 +440,9 @@ function new_articulo()
 
 function buscar_articulos()
 {
+   document.f_nuevo_articulo.referencia.value = document.f_buscar_articulos.query.value;
+   document.f_nuevo_articulo.refproveedor.value = document.f_buscar_articulos.query.value;
+   
    if(document.f_buscar_articulos.query.value == '')
    {
       $("#nav_articulos").hide();
@@ -478,8 +488,8 @@ function buscar_articulos()
                if(val.secompra)
                {
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
-                     &nbsp; <a href=\"#\" onclick=\"return add_articulo('"+val.referencia+"','"+descripcion+"','"+precio+"','0','"+val.codimpuesto+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"+val.referencia+"','"+descripcion+"','"+val.coste+"','0','"+val.codimpuesto+"')\">"+show_precio(val.coste)+"</a></td>\n\
+                     &nbsp; <a href=\"#\" onclick=\"return add_articulo('"+val.referencia+"','"+descripcion+"','"+precio+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"+val.referencia+"','"+descripcion+"','"+val.coste+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"+show_precio(val.coste)+"</a></td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\">"+show_precio(val.pvp)+"</a></td>\n\
                      <td class=\"text-right\">"+val.stockfis+"</td></tr>");
                }

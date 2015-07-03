@@ -26,16 +26,40 @@
       <tipo>character varying(25)</tipo>
    </columna>
    <columna>
+      <nombre>descripcion</nombre>
+      <tipo>text</tipo>
+   </columna>
+   <columna>
       <nombre>precio</nombre>
       <tipo>double precision</tipo>
+   </columna>
+   <columna>
+      <nombre>dto</nombre>
+      <tipo>double precision</tipo>
+   </columna>
+   <columna>
+      <nombre>codimpuesto</nombre>
+      <tipo>character varying(10)</tipo>
    </columna>
    <columna>
       <nombre>stock</nombre>
       <tipo>double precision</tipo>
    </columna>
+   <columna>
+      <nombre>nostock</nombre>
+      <tipo>boolean</tipo>
+      <nulo>YES</nulo>
+      <defecto>true</defecto>
+   </columna>
    <restriccion>
       <nombre>articulosprov_pkey</nombre>
       <consulta>PRIMARY KEY (id)</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>ca_articulosprov_proveedores</nombre>
+      <consulta>FOREIGN KEY (codproveedor)
+      REFERENCES proveedores (codproveedor)
+      ON DELETE CASCADE ON UPDATE CASCADE</consulta>
    </restriccion>
    <restriccion>
       <nombre>uniq_articulo_proveedor</nombre>

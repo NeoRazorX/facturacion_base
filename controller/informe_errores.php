@@ -21,6 +21,7 @@ require_model('asiento.php');
 require_model('ejercicio.php');
 require_model('factura_cliente.php');
 require_model('factura_proveedor.php');
+require_model('familia.php');
 require_model('albaran_cliente.php');
 require_model('albaran_proveedor.php');
 
@@ -153,7 +154,7 @@ class informe_errores extends fs_controller
             
             if($_POST['modelo'] == 'todo')
             {
-               $this->informe['model'] = 'asiento';
+               $this->informe['model'] = 'tablas';
                $this->informe['started'] = TRUE;
                $this->informe['all'] = TRUE;
             }
@@ -164,10 +165,14 @@ class informe_errores extends fs_controller
             }
             
             if( isset($_POST['ejercicio']) )
+            {
                $this->informe['ejercicio'] = $_POST['ejercicio'];
+            }
             
             if( isset($_GET['show_page']) )
+            {
                $this->informe['show_page'] = intval($_GET['show_page']);
+            }
             
             /// guardamos esta configuración
             fwrite($file, join(';', $this->informe)."\n--------------------------------------------------------\n" );
@@ -184,6 +189,89 @@ class informe_errores extends fs_controller
       switch( $this->informe['model'] )
       {
          default:
+            /// tablas
+            $recargar = FALSE;
+            
+            /// comprobamos la tabla familias
+            if( $this->db->table_exists('familias') AND $this->informe['offset'] == 0 )
+            {
+               $data = $this->db->select("SELECT * FROM familias WHERE madre IS NOT NULL AND madre NOT IN (SELECT codfamilia FROM familias);");
+               if($data)
+               {
+                  foreach($data as $d)
+                  {
+                     $familia = new familia($d);
+                     $familia->madre = NULL;
+                     $familia->save();
+                  }
+               }
+            }
+            
+            /// comprobamos la tabla de articulos de proveedor
+            if( $this->db->table_exists('articulosprov') )
+            {
+               $this->db->exec("DELETE FROM articulosprov WHERE codproveedor NOT IN (SELECT codproveedor FROM proveedores);");
+               $data = $this->db->select("SELECT codproveedor,referencia,COUNT(*) as count FROM articulosprov GROUP BY codproveedor,referencia HAVING COUNT(*) > 1;");
+               if($data)
+               {
+                  foreach($data as $d)
+                  {
+                     $data2 = $this->db->select("SELECT * FROM articulosprov WHERE codproveedor = '".$d['codproveedor']."' AND referencia = '".$d['referencia']."';");
+                     if($data2)
+                     {
+                        $this->db->exec("DELETE FROM articulosprov WHERE id = ".$this->empresa->var2str($data2[1]['id']).";");
+                     }
+                  }
+                  
+                  $recargar = TRUE;
+                  $this->informe['offset'] += 1;
+               }
+            }
+            
+            /// comprobamos la tabla de regulaciones de stock
+            if( $this->db->table_exists('lineasregstocks') AND $this->informe['offset'] == 0 )
+            {
+               $this->db->exec("DELETE FROM lineasregstocks WHERE idstock NOT IN (SELECT idstock FROM stocks);");
+            }
+            
+            /// comprobamos la tabla de subcuentas de proveedores
+            if( $this->db->table_exists('co_subcuentasprov') AND $this->informe['offset'] == 0 )
+            {
+               $this->db->exec("DELETE FROM co_subcuentasprov WHERE codproveedor NOT IN (SELECT codproveedor FROM proveedores);");
+            }
+            
+            /// comprobamos la tabla de direcciones de proveedores
+            if( $this->db->table_exists('dirproveedores') AND $this->informe['offset'] == 0 )
+            {
+               $this->db->exec("DELETE FROM dirproveedores WHERE codproveedor NOT IN (SELECT codproveedor FROM proveedores);");
+            }
+            
+            /// comprobamos la tabla de subcuentas de clientes
+            if( $this->db->table_exists('co_subcuentascli') AND $this->informe['offset'] == 0 )
+            {
+               $this->db->exec("DELETE FROM co_subcuentascli WHERE codcliente NOT IN (SELECT codcliente FROM clientes);");
+            }
+            
+            /// comprobamos la tabla de direcciones de clientes
+            if( $this->db->table_exists('dirclientes') AND $this->informe['offset'] == 0 )
+            {
+               $this->db->exec("DELETE FROM dirclientes WHERE codcliente NOT IN (SELECT codcliente FROM clientes);");
+            }
+            
+            if(!$recargar)
+            {
+               if($this->informe['all'])
+               {
+                  $this->informe['model'] = 'asiento';
+               }
+               else
+                  $this->informe['model'] = 'fin';
+               
+               $this->informe['offset'] = 0;
+            }
+            break;
+         
+         case 'asiento':
             $asiento = new asiento();
             $asientos = $asiento->all($this->informe['offset'], $mpp);
             if($asientos)

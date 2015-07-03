@@ -432,6 +432,8 @@ function new_articulo()
 
 function buscar_articulos()
 {
+   document.f_nuevo_articulo.referencia.value = document.f_buscar_articulos.query.value;
+   
    if(document.f_buscar_articulos.query.value === '')
    {
       $("#nav_articulos").hide();

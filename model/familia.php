@@ -133,16 +133,21 @@ class familia extends fs_model
       if( $this->test() )
       {
          $this->clean_cache();
+         
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET descripcion = ".$this->var2str($this->descripcion).",
-               madre = ".$this->var2str($this->madre)." WHERE codfamilia = ".$this->var2str($this->codfamilia).";";
+            $sql = "UPDATE ".$this->table_name." SET descripcion = ".$this->var2str($this->descripcion).
+                    ", madre = ".$this->var2str($this->madre).
+                    " WHERE codfamilia = ".$this->var2str($this->codfamilia).";";
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (codfamilia,descripcion,madre) VALUES
-               (".$this->var2str($this->codfamilia).",".$this->var2str($this->descripcion).",".$this->var2str($this->madre).");";
+            $sql = "INSERT INTO ".$this->table_name." (codfamilia,descripcion,madre) VALUES ".
+                    "(".$this->var2str($this->codfamilia).
+                    ",".$this->var2str($this->descripcion).
+                    ",".$this->var2str($this->madre).");";
          }
+         
          return $this->db->exec($sql);
       }
       else
@@ -167,27 +172,28 @@ class familia extends fs_model
    public function all()
    {
       $famlist = $this->cache->get_array('m_familia_all');
-      if( !$famlist )
+      if(!$famlist)
       {
-         $familias = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY descripcion ASC;");
-         if($familias)
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY descripcion ASC;");
+         if($data)
          {
-            foreach($familias as $f)
+            foreach($data as $d)
             {
-               if( is_null($f['madre']) )
+               if( is_null($d['madre']) )
                {
-                  $final[] = new familia($f);
-                  foreach( $this->aux_all($familias, $f['codfamilia'], '· ') as $value )
+                  $famlist[] = new familia($d);
+                  foreach( $this->aux_all($data, $d['codfamilia'], '· ') as $value )
                   {
-                     $final[] = new familia($value);
+                     $famlist[] = new familia($value);
                   }
                }
             }
          }
+         
          $this->cache->set('m_familia_all', $famlist);
       }
       
-      return $final;
+      return $famlist;
    }
    
    private function aux_all(&$familias, $madre, $nivel)

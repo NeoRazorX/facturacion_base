@@ -30,17 +30,74 @@ class articulo_proveedor extends fs_model
     * @var type 
     */
    public $id;
+   
+   /**
+    * Referencia del artículo en nuestro catálogo. Puede no estar actualmente.
+    * @var type 
+    */
    public $referencia;
+   
+   /**
+    * Código del proveedor asociado.
+    * @var type 
+    */
    public $codproveedor;
+   
+   /**
+    * Referencia del artículo para el proveedor.
+    * @var type 
+    */
    public $refproveedor;
+   
+   public $descripcion;
+   
+   /**
+    * Precio neto al que nos ofrece el proveedor este producto.
+    * @var type 
+    */
    public $precio;
+   
+   /**
+    * Descuento sobre el precio que nos hace el proveedor.
+    * @var type 
+    */
+   public $dto;
+   
+   /**
+    * Impuesto asignado. Clase impuesto.
+    * @var type 
+    */
+   public $codimpuesto;
+   
+   /**
+    * Stock del artículo en el almacén del proveedor.
+    * @var type 
+    */
    public $stock;
    
+   /**
+    * TRUE -> el artículo no ofrece stock.
+    * @var type 
+    */
+   public $nostock;
+   
+   /**
+    * % IVA del impuesto asignado.
+    * @var type 
+    */
+   private $iva;
+   
+   private static $impuestos;
    private static $nombres;
    
    public function __construct($a = FALSE)
    {
       parent::__construct('articulosprov', 'plugins/facturacion_base/');
+      
+      if( !isset(self::$impuestos) )
+      {
+         self::$impuestos = array();
+      }
       
       if( !isset(self::$nombres) )
       {
@@ -53,6 +110,7 @@ class articulo_proveedor extends fs_model
          $this->referencia = $a['referencia'];
          $this->codproveedor = $a['codproveedor'];
          $this->refproveedor = $a['refproveedor'];
+         $this->descripcion = $a['descripcion'];
          
          /// En algunos módulos de eneboo se usa coste como precio
          if( is_null($a['precio']) AND isset($a['coste']) )
@@ -62,7 +120,10 @@ class articulo_proveedor extends fs_model
          else
             $this->precio = floatval($a['precio']);
          
+         $this->dto = floatval($a['dto']);
+         $this->codimpuesto = $a['codimpuesto'];
          $this->stock = floatval($a['stock']);
+         $this->nostock = $this->str2bool($a['nostock']);
       }
       else
       {
@@ -70,9 +131,15 @@ class articulo_proveedor extends fs_model
          $this->referencia = NULL;
          $this->codproveedor = NULL;
          $this->refproveedor = NULL;
+         $this->descripcion = NULL;
          $this->precio = 0;
+         $this->dto = 0;
+         $this->codimpuesto = NULL;
          $this->stock = 0;
+         $this->nostock = TRUE;
       }
+      
+      $this->iva = NULL;
    }
    
    protected function install()
@@ -99,6 +166,65 @@ class articulo_proveedor extends fs_model
       }
    }
    
+   public function url_proveedor()
+   {
+      return 'index.php?page=compras_proveedor&cod='.$this->codproveedor;
+   }
+   
+   /**
+    * Devuelve el % de IVA del artículo.
+    * Si $reload es TRUE, vuelve a consultarlo en lugar de usar los datos cargados.
+    * @param type $reload
+    * @return type
+    */
+   public function get_iva($reload = TRUE)
+   {
+      if($reload)
+      {
+         $this->iva = NULL;
+      }
+      
+      if( is_null($this->iva) )
+      {
+         $this->iva = 0;
+         
+         if( !is_null($this->codimpuesto) )
+         {
+            $encontrado = FALSE;
+            foreach(self::$impuestos as $i)
+            {
+               if($i->codimpuesto == $this->codimpuesto)
+               {
+                  $this->iva = $i->iva;
+                  $encontrado = TRUE;
+                  break;
+               }
+            }
+            if(!$encontrado)
+            {
+               $imp = new impuesto();
+               $imp0 = $imp->get($this->codimpuesto);
+               if($imp0)
+               {
+                  $this->iva = $imp0->iva;
+                  self::$impuestos[] = $imp0;
+               }
+            }
+         }
+      }
+      
+      return $this->iva;
+   }
+   
+   /**
+    * Devuelve el precio final, aplicando descuento e impuesto.
+    * @return type
+    */
+   public function total_iva()
+   {
+      return $this->precio * (100-$this->dto) / 100 * (100+$this->get_iva()) / 100;
+   }
+   
    public function get($id)
    {
       $data = $this->db->select("SELECT * FROM articulosprov WHERE id = ".$this->var2str($id).";");
@@ -110,6 +236,13 @@ class articulo_proveedor extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve el primer elemento que tiene a $ref como referencia y a $codproveedor
+    * como codproveedor.
+    * @param type $ref
+    * @param type $codproveedor
+    * @return \articulo_proveedor|boolean
+    */
    public function get_by($ref, $codproveedor)
    {
       $data = $this->db->select("SELECT * FROM articulosprov WHERE referencia = ".$this->var2str($ref).
@@ -134,25 +267,36 @@ class articulo_proveedor extends fs_model
    
    public function save()
    {
+      $this->descripcion = $this->no_html($this->descripcion);
+      
       if( $this->exists() )
       {
          $sql = "UPDATE articulosprov SET referencia = ".$this->var2str($this->referencia).
                  ", codproveedor = ".$this->var2str($this->codproveedor).
                  ", refproveedor = ".$this->var2str($this->refproveedor).
+                 ", descripcion = ".$this->var2str($this->descripcion).
                  ", precio = ".$this->var2str($this->precio).
+                 ", dto = ".$this->var2str($this->dto).
+                 ", codimpuesto = ".$this->var2str($this->codimpuesto).
                  ", stock = ".$this->var2str($this->stock).
+                 ", nostock = ".$this->var2str($this->nostock).
                  " WHERE id = ".$this->var2str($this->id).";";
          
          return $this->db->exec($sql);
       }
       else
       {
-         $sql = "INSERT INTO articulosprov (referencia,codproveedor,refproveedor,precio,stock) VALUES ".
+         $sql = "INSERT INTO articulosprov (referencia,codproveedor,refproveedor,descripcion,".
+                 "precio,dto,codimpuesto,stock,nostock) VALUES ".
                  "(".$this->var2str($this->referencia).
                  ",".$this->var2str($this->codproveedor).
                  ",".$this->var2str($this->refproveedor).
+                 ",".$this->var2str($this->descripcion).
                  ",".$this->var2str($this->precio).
-                 ",".$this->var2str($this->stock).");";
+                 ",".$this->var2str($this->dto).
+                 ",".$this->var2str($this->codimpuesto).
+                 ",".$this->var2str($this->stock).
+                 ",".$this->var2str($this->nostock).");";
          
          if( $this->db->exec($sql) )
          {
@@ -169,6 +313,11 @@ class articulo_proveedor extends fs_model
       return $this->db->exec("DELETE FROM articulosprov WHERE id = ".$this->var2str($this->id).";");
    }
    
+   /**
+    * Devuelve todos los elementos que tienen $ref como referencia.
+    * @param type $ref
+    * @return \articulo_proveedor
+    */
    public function all_from_ref($ref)
    {
       $alist = array();

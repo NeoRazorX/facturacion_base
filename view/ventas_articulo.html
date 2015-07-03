@@ -245,8 +245,8 @@
                         Stock:
                         <input class="form-control" type="text" name="stockfis" value="{$fsc->articulo->stockfis}" disabled="disabled"/>
                         <label>
-                           <input type="checkbox" name="controlstock" value="TRUE"{if="$fsc->articulo->controlstock"} checked="checked"{/if}/>
-                           Permitir ventas sin stock
+                           <input type="checkbox" name="nostock" value="TRUE"{if="$fsc->articulo->nostock"} checked="checked"{/if}/>
+                           No controlar stock
                         </label>
                      </div>
                   </div>
@@ -275,6 +275,12 @@
                            Se vende
                         </label>
                      </div>
+                     <div class="checkbox">
+                        <label>
+                           <input type="checkbox" name="controlstock" value="TRUE"{if="$fsc->articulo->controlstock"} checked="checked"{/if}/>
+                           Permitir ventas sin stock
+                        </label>
+                     </div>
                   </div>
                   <div class="col-sm-3">
                      <div class="checkbox">
@@ -285,9 +291,9 @@
                      </div>
                      {if="$fsc->mostrar_boton_publicar"}
                      <div class="checkbox">
-                        <label>
+                        <label title="Sincronizar con tienda online (si está disponible)">
                            <input type="checkbox" name="publico" value="TRUE"{if="$fsc->articulo->publico"} checked="checked"{/if}/>
-                           <span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Público
+                           <span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Público
                         </label>
                      </div>
                      {elseif="$fsc->articulo->publico"}
@@ -443,18 +449,24 @@
                                  <th>Proveedor</th>
                                  <th>Ref. Proveedor</th>
                                  <th class="text-right">Precio</th>
+                                 <th class="text-right">Descuento</th>
+                                 <th class="text-right">Total+{#FS_IVA#}</th>
                                  <th class="text-right">Stock</th>
                               </tr>
                            </thead>
                            {loop="$fsc->get_articulo_proveedores()"}
                            <tr>
-                              <td>{$value->nombre_proveedor()}</td>
+                              <td><a href="{$value->url_proveedor()}">{$value->nombre_proveedor()}</a></td>
                               <td>{$value->refproveedor}</td>
                               <td class="text-right">{$fsc->show_precio($value->precio)}</td>
-                              <td class="text-right">{$value->stock}</td>
+                              <td class="text-right">{$fsc->show_numero($value->dto)} %</td>
+                              <td class="text-right">{$fsc->show_precio($value->total_iva())}</td>
+                              <td class="text-right">
+                                 {if="$value->nostock"}-{else}{$value->stock}{/if}
+                              </td>
                            </tr>
                            {else}
-                           <tr><td colspan="4" class="bg-warning">Sin resultados.</td></tr>
+                           <tr><td colspan="6" class="bg-warning">Sin resultados.</td></tr>
                            {/loop}
                         </table>
                      </div>

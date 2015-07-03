@@ -175,6 +175,17 @@ class cliente extends fs_model
          return FALSE;
    }
    
+   public function get_by_cifnif($cifnif)
+   {
+      $cli = $this->db->select("SELECT * FROM ".$this->table_name." WHERE cifnif = ".$this->var2str($cifnif).";");
+      if($cli)
+      {
+         return new cliente($cli[0]);
+      }
+      else
+         return FALSE;
+   }
+   
    public function get_direcciones()
    {
       $dir = new direccion_cliente();

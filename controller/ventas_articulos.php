@@ -121,6 +121,7 @@ class ventas_articulos extends fs_controller
             $articulo->referencia = $_POST['referencia'];
             $articulo->descripcion = $_POST['referencia'];
             $articulo->codfamilia = $_POST['codfamilia'];
+            $articulo->set_pvp( floatval($_POST['pvp']) );
             $articulo->set_impuesto($_POST['codimpuesto']);
             if( $articulo->save() )
             {
@@ -165,9 +166,6 @@ class ventas_articulos extends fs_controller
       }
       else
       {
-         /// correcciones a la tabla articulosprov. A eliminar en la siguiente actualización
-         $this->fix_db();
-         
          $this->resultados = $articulo->all($this->offset);
       }
    }
@@ -232,21 +230,5 @@ class ventas_articulos extends fs_controller
       }
       
       return $url;
-   }
-   
-   private function fix_db()
-   {
-      $data = $this->db->select("SELECT codproveedor,referencia,COUNT(*) as count FROM articulosprov GROUP BY codproveedor,referencia HAVING COUNT(*) > 1;");
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $data2 = $this->db->select("SELECT * FROM articulosprov WHERE codproveedor = '".$d['codproveedor']."' AND referencia = '".$d['referencia']."';");
-            if($data2)
-            {
-               $this->db->exec("DELETE FROM articulosprov WHERE id = ".$this->empresa->var2str($data2[1]['id']).";");
-            }
-         }
-      }
    }
 }

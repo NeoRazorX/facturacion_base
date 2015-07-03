@@ -81,12 +81,6 @@ class articulo extends fs_model
     * @var type 
     */
    public $codimpuesto;
-   
-   /**
-    * % IVA del impuesto asignado.
-    * @var type 
-    */
-   public $iva;
    public $bloqueado;
    public $secompra;
    public $sevende;
@@ -123,11 +117,24 @@ class articulo extends fs_model
    public $controlstock;
    
    /**
+    * TRUE -> no controlar el stock.
+    * Activarlo implica poner a TRUE $controlstock;
+    * @var type 
+    */
+   public $nostock;
+   
+   /**
     * Código de barras.
     * @var type 
     */
    public $codbarras;
    public $observaciones;
+   
+   /**
+    * % IVA del impuesto asignado.
+    * @var type 
+    */
+   private $iva;
    
    private $imagen;
    private $has_imagen;
@@ -151,7 +158,7 @@ class articulo extends fs_model
       if( !isset(self::$column_list) )
       {
          self::$column_list = 'referencia,codfamilia,descripcion,pvp,factualizado,costemedio,'.
-                 'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,bloqueado,'.
+                 'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,'.
                  'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo';
       }
       
@@ -169,7 +176,14 @@ class articulo extends fs_model
          $this->stockfis = floatval($a['stockfis']);
          $this->stockmin = floatval($a['stockmin']);
          $this->stockmax = floatval($a['stockmax']);
+         
          $this->controlstock = $this->str2bool($a['controlstock']);
+         $this->nostock = $this->str2bool($a['nostock']);
+         if($this->nostock)
+         {
+            $this->controlstock = TRUE;
+         }
+         
          $this->bloqueado = $this->str2bool($a['bloqueado']);
          $this->secompra = $this->str2bool($a['secompra']);
          $this->sevende = $this->str2bool($a['sevende']);
@@ -198,6 +212,7 @@ class articulo extends fs_model
          $this->stockmin = 0;
          $this->stockmax = 0;
          $this->controlstock = (bool)FS_VENTAS_SIN_STOCK;
+         $this->nostock = FALSE;
          $this->bloqueado = FALSE;
          $this->secompra = TRUE;
          $this->sevende = TRUE;
@@ -310,33 +325,48 @@ class articulo extends fs_model
       return $imp->get($this->codimpuesto);
    }
    
-   public function get_iva()
+   /**
+    * Devuelve el % de IVA del artículo.
+    * Si $reload es TRUE, vuelve a consultarlo en lugar de usar los datos cargados.
+    * @param type $reload
+    * @return type
+    */
+   public function get_iva($reload = FALSE)
    {
+      if($reload)
+      {
+         $this->iva = NULL;
+      }
+      
       if( is_null($this->iva) )
       {
-         $encontrado = FALSE;
-         foreach(self::$impuestos as $i)
+         $this->iva = 0;
+         
+         if( !is_null($this->codimpuesto) )
          {
-            if($i->codimpuesto == $this->codimpuesto)
+            $encontrado = FALSE;
+            foreach(self::$impuestos as $i)
             {
-               $this->iva = floatval($i->iva);
-               $encontrado = TRUE;
-               break;
+               if($i->codimpuesto == $this->codimpuesto)
+               {
+                  $this->iva = $i->iva;
+                  $encontrado = TRUE;
+                  break;
+               }
             }
-         }
-         if( !$encontrado )
-         {
-            $imp = new impuesto();
-            $imp0 = $imp->get($this->codimpuesto);
-            if($imp0)
+            if(!$encontrado)
             {
-               $this->iva = floatval($imp0->iva);
-               self::$impuestos[] = $imp0;
+               $imp = new impuesto();
+               $imp0 = $imp->get($this->codimpuesto);
+               if($imp0)
+               {
+                  $this->iva = $imp0->iva;
+                  self::$impuestos[] = $imp0;
+               }
             }
-            else
-               $this->iva = 0;
          }
       }
+      
       return $this->iva;
    }
    
@@ -524,106 +554,120 @@ class articulo extends fs_model
    
    public function set_stock($almacen, $cantidad=1)
    {
-      $result = FALSE;
-      $stock = new stock();
-      $encontrado = FALSE;
-      
-      $stocks = $stock->all_from_articulo($this->referencia);
-      foreach($stocks as $k => $value)
+      if($this->nostock)
       {
-         if($value->codalmacen == $almacen)
-         {
-            $stocks[$k]->set_cantidad($cantidad);
-            $result = $stocks[$k]->save();
-            $encontrado = TRUE;
-            break;
-         }
-      }
-      if( !$encontrado )
-      {
-         $stock->referencia = $this->referencia;
-         $stock->codalmacen = $almacen;
-         $stock->set_cantidad($cantidad);
-         $result = $stock->save();
-      }
-      
-      if($result)
-      {
-         $nuevo_stock = $stock->total_from_articulo($this->referencia);
-         if($this->stockfis != $nuevo_stock)
-         {
-            $this->stockfis =  $nuevo_stock;
-            
-            if($this->exists)
-            {
-               $this->clean_cache();
-               $result = $this->db->exec("UPDATE ".$this->table_name." SET stockfis = ".$this->var2str($this->stockfis)."
-                  WHERE referencia = ".$this->var2str($this->referencia).";");
-            }
-            else if( !$this->save() )
-            {
-               $this->new_error_msg("¡Error al actualizar el stock del artículo!");
-            }
-         }
+         return TRUE;
       }
       else
-         $this->new_error_msg("Error al guardar el stock");
-      
-      return $result;
+      {
+         $result = FALSE;
+         $stock = new stock();
+         $encontrado = FALSE;
+         
+         $stocks = $stock->all_from_articulo($this->referencia);
+         foreach($stocks as $k => $value)
+         {
+            if($value->codalmacen == $almacen)
+            {
+               $stocks[$k]->set_cantidad($cantidad);
+               $result = $stocks[$k]->save();
+               $encontrado = TRUE;
+               break;
+            }
+         }
+         if( !$encontrado )
+         {
+            $stock->referencia = $this->referencia;
+            $stock->codalmacen = $almacen;
+            $stock->set_cantidad($cantidad);
+            $result = $stock->save();
+         }
+         
+         if($result)
+         {
+            $nuevo_stock = $stock->total_from_articulo($this->referencia);
+            if($this->stockfis != $nuevo_stock)
+            {
+               $this->stockfis =  $nuevo_stock;
+               
+               if($this->exists)
+               {
+                  $this->clean_cache();
+                  $result = $this->db->exec("UPDATE ".$this->table_name." SET stockfis = ".
+                          $this->var2str($this->stockfis)." WHERE referencia = ".$this->var2str($this->referencia).";");
+               }
+               else if( !$this->save() )
+               {
+                  $this->new_error_msg("¡Error al actualizar el stock del artículo!");
+               }
+            }
+         }
+         else
+            $this->new_error_msg("Error al guardar el stock");
+         
+         return $result;
+      }
    }
    
    public function sum_stock($almacen, $cantidad=1, $recalcula_coste=FALSE)
    {
-      $result = FALSE;
-      $stock = new stock();
-      $encontrado = FALSE;
-      
-      $stocks = $stock->all_from_articulo($this->referencia);
-      foreach($stocks as $k => $value)
+      if($this->nostock)
       {
-         if($value->codalmacen == $almacen)
-         {
-            $stocks[$k]->sum_cantidad($cantidad);
-            $result = $stocks[$k]->save();
-            $encontrado = TRUE;
-            break;
-         }
-      }
-      if( !$encontrado )
-      {
-         $stock->referencia = $this->referencia;
-         $stock->codalmacen = $almacen;
-         $stock->set_cantidad($cantidad);
-         $result = $stock->save();
-      }
-      
-      if($result)
-      {
-         $nuevo_stock = $stock->total_from_articulo($this->referencia);
-         if($this->stockfis != $nuevo_stock)
-         {
-            $this->stockfis =  $nuevo_stock;
-            if($recalcula_coste)
-            {
-               $this->costemedio = $this->get_costemedio();
-            }
-            
-            if($this->exists)
-            {
-               $this->clean_cache();
-               $result = $this->db->exec("UPDATE ".$this->table_name." SET stockfis = ".$this->var2str($this->stockfis).",
-                  costemedio = ".$this->var2str($this->costemedio)." WHERE referencia = ".$this->var2str($this->referencia).";");
-            }
-            else if( !$this->save() )
-            {
-               $this->new_error_msg("¡Error al actualizar el stock del artículo!");
-            }
-         }
+         return TRUE;
       }
       else
-         $this->new_error_msg("¡Error al guardar el stock!");
-      
-      return $result;
+      {
+         $result = FALSE;
+         $stock = new stock();
+         $encontrado = FALSE;
+         
+         $stocks = $stock->all_from_articulo($this->referencia);
+         foreach($stocks as $k => $value)
+         {
+            if($value->codalmacen == $almacen)
+            {
+               $stocks[$k]->sum_cantidad($cantidad);
+               $result = $stocks[$k]->save();
+               $encontrado = TRUE;
+               break;
+            }
+         }
+         if( !$encontrado )
+         {
+            $stock->referencia = $this->referencia;
+            $stock->codalmacen = $almacen;
+            $stock->set_cantidad($cantidad);
+            $result = $stock->save();
+         }
+         
+         if($result)
+         {
+            $nuevo_stock = $stock->total_from_articulo($this->referencia);
+            if($this->stockfis != $nuevo_stock)
+            {
+               $this->stockfis =  $nuevo_stock;
+               if($recalcula_coste)
+               {
+                  $this->costemedio = $this->get_costemedio();
+               }
+               
+               if($this->exists)
+               {
+                  $this->clean_cache();
+                  $result = $this->db->exec("UPDATE ".$this->table_name." SET stockfis = ".$this->var2str($this->stockfis).",
+                     costemedio = ".$this->var2str($this->costemedio)." WHERE referencia = ".$this->var2str($this->referencia).";");
+               }
+               else if( !$this->save() )
+               {
+                  $this->new_error_msg("¡Error al actualizar el stock del artículo!");
+               }
+            }
+         }
+         else
+            $this->new_error_msg("¡Error al guardar el stock!");
+         
+         return $result;
+      }
    }
    
    /**
@@ -677,6 +721,11 @@ class articulo extends fs_model
          $this->equivalencia = NULL;
       }
       
+      if($this->nostock)
+      {
+         $this->controlstock = TRUE;
+      }
+      
       if( !preg_match("/^[A-Z0-9_\+\.\*\/\-]{1,18}$/i", $this->referencia) )
       {
          $this->new_error_msg("¡Referencia de artículo no válida! Debe tener entre 1 y 18 caracteres.
@@ -713,6 +762,7 @@ class articulo extends fs_model
                     ", stockmin = ".$this->var2str($this->stockmin).
                     ", stockmax = ".$this->var2str($this->stockmax).
                     ", controlstock = ".$this->var2str($this->controlstock).
+                    ", nostock = ".$this->var2str($this->nostock).
                     ", bloqueado = ".$this->var2str($this->bloqueado).
                     ", sevende = ".$this->var2str($this->sevende).
                     ", publico = ".$this->var2str($this->publico).
@@ -739,6 +789,7 @@ class articulo extends fs_model
                     $this->var2str($this->stockmin).",".
                     $this->var2str($this->stockmax).",".
                     $this->var2str($this->controlstock).",".
+                    $this->var2str($this->nostock).",".
                     $this->var2str($this->bloqueado).",".
                     $this->var2str($this->secompra).",".
                     $this->var2str($this->sevende).",".
@@ -767,7 +818,8 @@ class articulo extends fs_model
       $this->clean_cache();
       $this->clean_image_cache();
       
-      $sql = "DELETE FROM ".$this->table_name." WHERE referencia = ".$this->var2str($this->referencia).";";
+      $sql = "DELETE FROM articulosprov WHERE referencia = ".$this->var2str($this->referencia).";";
+      $sql .= "DELETE FROM ".$this->table_name." WHERE referencia = ".$this->var2str($this->referencia).";";
       if( $this->db->exec($sql) )
       {
          $this->exists = FALSE;
