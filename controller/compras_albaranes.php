@@ -43,7 +43,9 @@ class compras_albaranes extends fs_controller
       
       $this->offset = 0;
       if( isset($_REQUEST['offset']) )
+      {
          $this->offset = intval($_REQUEST['offset']);
+      }
       
       if( isset($_POST['buscar_lineas']) )
       {

@@ -562,7 +562,9 @@ function kiwi_import(ref,desc,pvp)
    $("#kiwimaru_results").hide();
    $("#nuevo_articulo").show();
    document.f_nuevo_articulo.referencia.value = ref;
+   document.f_nuevo_articulo.refproveedor.value = ref;
    document.f_nuevo_articulo.descripcion.value = desc;
+   document.f_nuevo_articulo.coste.value = pvp;
    document.f_nuevo_articulo.pvp.value = pvp;
    document.f_nuevo_articulo.referencia.select();
 }
