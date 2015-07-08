@@ -22,6 +22,7 @@ require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
 require_model('cliente.php');
 require_model('cuenta_banco.php');
+require_model('cuenta_banco_cliente.php');
 require_model('forma_pago.php');
 
 /**
@@ -236,7 +237,8 @@ class ventas_imprimir extends fs_controller
             $pdf_doc->add_table_row(
                array(
                    'campo1' => "<b>Dirección:</b>",
-                   'dato1' => $this->fix_html($this->albaran->direccion.' CP: '.$this->albaran->codpostal.' - '.$this->albaran->ciudad.' ('.$this->albaran->provincia.')'),
+                   'dato1' => $this->fix_html($this->albaran->direccion.' CP: '.$this->albaran->codpostal.
+                           ' - '.$this->albaran->ciudad.' ('.$this->albaran->provincia.')'),
                    'campo2' => "<b>Teléfonos:</b>",
                    'dato2' => $this->cliente->telefono1.'  '.$this->cliente->telefono2
                )
@@ -657,23 +659,48 @@ class ventas_imprimir extends fs_controller
                   {
                      if( is_null($forma_pago->codcuenta) )
                      {
-                        $pdf_doc->pdf->ezText("\n<b>Forma de pago</b>: ".$forma_pago->descripcion." - Vencimiento: ".$this->factura->vencimiento, 9);
+                        $pdf_doc->pdf->ezText("\n<b>Forma de pago</b>: ".$forma_pago->descripcion."\n<b>Vencimiento</b>: ".$this->factura->vencimiento, 9);
                      }
                      else
                      {
                         $texto_pago = "\n<b>Forma de pago</b>: ".$forma_pago->descripcion;
                         
-                        $cb0 = new cuenta_banco();
-                        $cuenta_banco = $cb0->get($forma_pago->codcuenta);
-                        if($cuenta_banco)
+                        if($forma_pago->domiciliado)
                         {
-                           if($cuenta_banco->iban)
+                           $cbc0 = new cuenta_banco_cliente();
+                           $encontrada = FALSE;
+                           foreach($cbc0->all_from_cliente($this->factura->codcliente) as $cbc)
                            {
-                              $texto_pago .= "\n<b>IBAN</b>: ".$cuenta_banco->iban;
+                              if($cbc->iban)
+                              {
+                                 $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->iban;
+                              }
+                              else
+                              {
+                                 $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->swift;
+                              }
+                              $encontrada = TRUE;
+                              break;
                            }
-                           else
+                           if(!$encontrada)
                            {
-                              $texto_pago .= "\n<b>SWIFT o BIC</b>: ".$cuenta_banco->swift;
+                              $texto_pago .= "\n<b>El cliente no tiene cuenta bancaria asignada.</b>";
+                           }
+                        }
+                        else
+                        {
+                           $cb0 = new cuenta_banco();
+                           $cuenta_banco = $cb0->get($forma_pago->codcuenta);
+                           if($cuenta_banco)
+                           {
+                              if($cuenta_banco->iban)
+                              {
+                                 $texto_pago .= "\n<b>IBAN</b>: ".$cuenta_banco->iban;
+                              }
+                              else
+                              {
+                                 $texto_pago .= "\n<b>SWIFT o BIC</b>: ".$cuenta_banco->swift;
+                              }
                            }
                         }
                         

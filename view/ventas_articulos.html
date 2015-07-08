@@ -96,7 +96,7 @@
    <li{if="!isset($_GET['public']) AND !isset($_GET['solo_stock'])"} class="active"{/if}>
       <a href="{$fsc->url()}">
          {if="$fsc->query==''"}
-         <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+         <span class="glyphicon glyphicon-sort-by-alphabet" aria-hidden="true"></span>
          <span class="hidden-xs">&nbsp; Todos</span>
          {else}
          <span class="glyphicon glyphicon-search"></span>
@@ -189,7 +189,9 @@
             <td><a href="{$value->url()}">{$value->referencia}</a> {$value->descripcion}</td>
             <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp)}</span></td>
             <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp_iva())}</span></td>
-            <td class="text-right">{$value->stockfis}</td>
+            <td class="text-right">
+               {if="$value->nostock"}-{else}{$value->stockfis}{/if}
+            </td>
          </tr>
          {else}
          <tr class="bg-warning">

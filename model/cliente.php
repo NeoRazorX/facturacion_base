@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -139,9 +139,13 @@ class cliente extends fs_model
    public function observaciones_resume()
    {
       if($this->observaciones == '')
+      {
          return '-';
+      }
       else if( strlen($this->observaciones) < 60 )
+      {
          return $this->observaciones;
+      }
       else
          return substr($this->observaciones, 0, 50).'...';
    }
@@ -149,7 +153,9 @@ class cliente extends fs_model
    public function url()
    {
       if( is_null($this->codcliente) )
+      {
          return "index.php?page=ventas_clientes";
+      }
       else
          return "index.php?page=ventas_cliente&cod=".$this->codcliente;
    }
@@ -255,6 +261,8 @@ class cliente extends fs_model
                   $this->new_error_msg('Imposible asociar la subcuenta para el cliente '.$this->codcliente);
             }
          }
+         else
+            $this->new_error_msg('No se encuentra ninguna cuenta especial para clientes.');
       }
       
       return $subcuenta;

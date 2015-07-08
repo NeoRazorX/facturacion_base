@@ -27,7 +27,7 @@ class ventas_familias extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Familias', 'ventas', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Familias', 'ventas', FALSE, FALSE);
    }
    
    protected function process()
@@ -84,6 +84,7 @@ class ventas_familias extends fs_controller
       else
       {
          $this->resultados = $this->familia->madres();
+         $this->share_extensions();
       }
    }
    
@@ -96,5 +97,17 @@ class ventas_familias extends fs_controller
       }
       else
          return 0;
+   }
+   
+   private function share_extensions()
+   {
+      /// añadimos la extensión para ventas_artículos
+      $fsext = new fs_extension();
+      $fsext->name = 'btn_familias';
+      $fsext->from = __CLASS__;
+      $fsext->to = 'ventas_articulos';
+      $fsext->type = 'button';
+      $fsext->text = '<span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span><span class="hidden-xs"> &nbsp; Familias</span>';
+      $fsext->save();
    }
 }

@@ -64,6 +64,8 @@ class tpv_recambios extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extensions();
+      
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
@@ -689,7 +691,7 @@ class tpv_recambios extends fs_controller
             
             $linea = "----------------------------------------\n"
                .$this->terminal->center_text(
-                  "IVA: ".$this->show_precio($factura->totaliva, $factura->coddivisa, FALSE).'   '.
+                  FS_IVA.": ".$this->show_precio($factura->totaliva, $factura->coddivisa, FALSE).'   '.
                   "Total: ".$this->show_precio($factura->total, $factura->coddivisa, FALSE)
                )."\n\n\n\n";
             $this->terminal->add_linea($linea);
@@ -709,7 +711,9 @@ class tpv_recambios extends fs_controller
             $this->terminal->add_linea("\n\n");
             
             if($this->empresa->horario != '')
+            {
                $this->terminal->add_linea( $this->terminal->center_text($this->empresa->horario) . "\n");
+            }
             
             $num_tickets--;
          }
@@ -801,5 +805,15 @@ class tpv_recambios extends fs_controller
             $this->new_message($msg);
          }
       }
+   }
+   
+   private function share_extensions()
+   {
+      $fsext = new fs_extension();
+      $fsext->name = 'api_remote_printer';
+      $fsext->from = __CLASS__;
+      $fsext->type = 'api';
+      $fsext->text = 'remote_printer';
+      $fsext->save();
    }
 }

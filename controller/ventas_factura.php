@@ -128,7 +128,7 @@ class ventas_factura extends fs_controller
             $agente = new agente();
             $this->agente = $agente->get($this->factura->codagente);
          }
-            
+         
          /// cargamos el cliente
          $cliente = new cliente();
          $this->cliente = $cliente->get($this->factura->codcliente);
@@ -216,6 +216,7 @@ class ventas_factura extends fs_controller
       else
       {
          $asiento_factura = new asiento_factura();
+         $asiento_factura->soloasiento = TRUE;
          if( $asiento_factura->generar_asiento_venta($this->factura) )
          {
             $this->new_message("<a href='".$asiento_factura->asiento->url()."'>Asiento</a> generado correctamente.");

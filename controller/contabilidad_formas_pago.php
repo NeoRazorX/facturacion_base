@@ -53,6 +53,7 @@ class contabilidad_formas_pago extends fs_controller
          $fp0->descripcion = $_POST['descripcion'];
          $fp0->genrecibos = $_POST['genrecibos'];
          $fp0->vencimiento = $_POST['vencimiento'];
+         $fp0->domiciliado = isset($_POST['domiciliado']);
          
          $fp0->codcuenta = NULL;
          if($_POST['codcuenta'] != '')

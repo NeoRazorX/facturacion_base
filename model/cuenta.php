@@ -73,7 +73,9 @@ class cuenta extends fs_model
    public function url()
    {
       if( is_null($this->idcuenta) )
+      {
          return 'index.php?page=contabilidad_cuentas';
+      }
       else
          return 'index.php?page=contabilidad_cuenta&id='.$this->idcuenta;
    }
@@ -92,20 +94,23 @@ class cuenta extends fs_model
    
    public function get($id)
    {
-      $cuenta = $this->db->select("SELECT * FROM ".$this->table_name.
-              " WHERE idcuenta = ".$this->var2str($id).";");
+      $cuenta = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idcuenta = ".$this->var2str($id).";");
       if($cuenta)
+      {
          return new cuenta($cuenta[0]);
+      }
       else
          return FALSE;
    }
    
    public function get_by_codigo($cod, $ejercicio)
    {
-      $cuenta = $this->db->select("SELECT * FROM ".$this->table_name.
-         " WHERE codcuenta = ".$this->var2str($cod)." AND codejercicio = ".$this->var2str($ejercicio).";");
+      $cuenta = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcuenta = ".$this->var2str($cod).
+              " AND codejercicio = ".$this->var2str($ejercicio).";");
       if($cuenta)
+      {
          return new cuenta($cuenta[0]);
+      }
       else
          return FALSE;
    }
@@ -118,10 +123,12 @@ class cuenta extends fs_model
     */
    public function get_cuentaesp($id, $ejercicio)
    {
-      $cuenta = $this->db->select("SELECT * FROM ".$this->table_name.
-         " WHERE idcuentaesp = ".$this->var2str($id)." AND codejercicio = ".$this->var2str($ejercicio).";");
+      $cuenta = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idcuentaesp = ".$this->var2str($id).
+              " AND codejercicio = ".$this->var2str($ejercicio).";");
       if($cuenta)
+      {
          return new cuenta($cuenta[0]);
+      }
       else
          return FALSE;
    }
@@ -129,7 +136,9 @@ class cuenta extends fs_model
    public function exists()
    {
       if( is_null($this->idcuenta) )
+      {
          return FALSE;
+      }
       else
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idcuenta = ".$this->var2str($this->idcuenta).";");
    }
@@ -155,25 +164,31 @@ class cuenta extends fs_model
       {
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET codcuenta = ".$this->var2str($this->codcuenta).",
-               codejercicio = ".$this->var2str($this->codejercicio).",
-               idepigrafe = ".$this->var2str($this->idepigrafe).", codepigrafe = ".$this->var2str($this->codepigrafe).",
-               descripcion = ".$this->var2str($this->descripcion).", idcuentaesp = ".$this->var2str($this->idcuentaesp)."
-               WHERE idcuenta = ".$this->var2str($this->idcuenta).";";
+            $sql = "UPDATE ".$this->table_name." SET codcuenta = ".$this->var2str($this->codcuenta).
+                    ", codejercicio = ".$this->var2str($this->codejercicio).
+                    ", idepigrafe = ".$this->var2str($this->idepigrafe).
+                    ", codepigrafe = ".$this->var2str($this->codepigrafe).
+                    ", descripcion = ".$this->var2str($this->descripcion).
+                    ", idcuentaesp = ".$this->var2str($this->idcuentaesp).
+                    " WHERE idcuenta = ".$this->var2str($this->idcuenta).";";
+            
             return $this->db->exec($sql);
          }
          else
          {
-            $newid = $this->db->nextval($this->table_name.'_idcuenta_seq');
-            if($newid)
+            $sql = "INSERT INTO ".$this->table_name." (codcuenta,codejercicio,idepigrafe,codepigrafe,".
+                    "descripcion,idcuentaesp) VALUES (".
+                    $this->var2str($this->codcuenta).",".
+                    $this->var2str($this->codejercicio).",".
+                    $this->var2str($this->idepigrafe).",".
+                    $this->var2str($this->codepigrafe).",".
+                    $this->var2str($this->descripcion).",".
+                    $this->var2str($this->idcuentaesp).");";
+            
+            if( $this->db->exec($sql) )
             {
-               $this->idcuenta = intval($newid);
-               $sql = "INSERT INTO ".$this->table_name." (idcuenta,codcuenta,codejercicio,idepigrafe,codepigrafe,
-                  descripcion,idcuentaesp) VALUES (".$this->var2str($this->idcuenta).",
-                  ".$this->var2str($this->codcuenta).",".$this->var2str($this->codejercicio).",
-                  ".$this->var2str($this->idepigrafe).",".$this->var2str($this->codepigrafe).",
-                  ".$this->var2str($this->descripcion).",".$this->var2str($this->idcuentaesp).");";
-               return $this->db->exec($sql);
+               $this->idcuenta = $this->db->lastval();
+               return TRUE;
             }
             else
                return FALSE;
@@ -191,50 +206,65 @@ class cuenta extends fs_model
    public function all($offset=0)
    {
       $cuenlist = array();
+      
       $cuentas = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY codejercicio DESC, codcuenta ASC", FS_ITEM_LIMIT, $offset);
       if($cuentas)
       {
          foreach($cuentas as $c)
             $cuenlist[] = new cuenta($c);
       }
+      
       return $cuenlist;
    }
    
    public function full_from_epigrafe($id)
    {
       $cuenlist = array();
-      $cuentas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idepigrafe = ".$this->var2str($id)." ORDER BY codcuenta ASC;");
+      
+      $cuentas = $this->db->select("SELECT * FROM ".$this->table_name.
+              " WHERE idepigrafe = ".$this->var2str($id).
+              " ORDER BY codcuenta ASC;");
+      
       if($cuentas)
       {
          foreach($cuentas as $c)
             $cuenlist[] = new cuenta($c);
       }
+      
       return $cuenlist;
    }
    
    public function all_from_ejercicio($codejercicio, $offset=0)
    {
       $cuenlist = array();
-      $cuentas = $this->db->select_limit("SELECT * FROM ".$this->table_name."
-         WHERE codejercicio = ".$this->var2str($codejercicio)." ORDER BY codcuenta ASC", FS_ITEM_LIMIT, $offset);
+      
+      $cuentas = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+              " WHERE codejercicio = ".$this->var2str($codejercicio).
+              " ORDER BY codcuenta ASC", FS_ITEM_LIMIT, $offset);
+      
       if($cuentas)
       {
          foreach($cuentas as $c)
             $cuenlist[] = new cuenta($c);
       }
+      
       return $cuenlist;
    }
    
    public function full_from_ejercicio($codejercicio)
    {
       $cuenlist = array();
-      $cuentas = $this->db->select("SELECT * FROM ".$this->table_name."
-         WHERE codejercicio = ".$this->var2str($codejercicio)." ORDER BY codcuenta ASC;");
+      
+      $cuentas = $this->db->select("SELECT * FROM ".$this->table_name.
+              " WHERE codejercicio = ".$this->var2str($codejercicio).
+              " ORDER BY codcuenta ASC;");
+      
       if($cuentas)
       {
          foreach($cuentas as $c)
             $cuenlist[] = new cuenta($c);
       }
+      
       return $cuenlist;
    }
    
@@ -242,13 +272,17 @@ class cuenta extends fs_model
    {
       $cuenlist = array();
       $query = strtolower( $this->no_html($query) );
-      $cuentas = $this->db->select_limit("SELECT * FROM ".$this->table_name." WHERE codcuenta LIKE '".$query."%'
-         OR lower(descripcion) LIKE '%".$query."%' ORDER BY codejercicio DESC, codcuenta ASC", FS_ITEM_LIMIT, $offset);
+      
+      $cuentas = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+              " WHERE codcuenta LIKE '".$query."%' OR lower(descripcion) LIKE '%".$query."%'".
+              " ORDER BY codejercicio DESC, codcuenta ASC", FS_ITEM_LIMIT, $offset);
+      
       if($cuentas)
       {
          foreach($cuentas as $c)
             $cuenlist[] = new cuenta($c);
       }
+      
       return $cuenlist;
    }
    
@@ -258,7 +292,7 @@ class cuenta extends fs_model
       $eje0 = $ejercicio->get($this->codejercicio);
       if($eje0)
       {
-         $codsubcuenta = intval( sprintf('%-0'.$eje0->longsubcuenta.'s', $this->codcuenta) ) + $suma_codigo;
+         $codsubcuenta = floatval( sprintf('%-0'.$eje0->longsubcuenta.'s', $this->codcuenta) ) + $suma_codigo;
          $subcuenta = new subcuenta();
          $subc0 = $subcuenta->get_by_codigo($codsubcuenta, $this->codejercicio);
          if($subc0)

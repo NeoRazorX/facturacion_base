@@ -164,6 +164,7 @@ class compras_factura extends fs_controller
       else
       {
          $asiento_factura = new asiento_factura();
+         $asiento_factura->soloasiento = TRUE;
          if( $asiento_factura->generar_asiento_compra($this->factura) )
          {
             $this->new_message("<a href='".$asiento_factura->asiento->url()."'>Asiento</a> generado correctamente.");

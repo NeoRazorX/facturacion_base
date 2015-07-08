@@ -50,6 +50,7 @@
             <th class="text-left">
                <a href="index.php?page=admin_empresa#cuentasb" target="_blank">Cuenta bancaria</a>
             </th>
+            <th class="text-center">Domiciliado</th>
             <th class="text-right" width="120">Acciones</th>
          </tr>
       </thead>
@@ -90,6 +91,13 @@
                      {/if}
                   {/loop}
                </select>
+            </td>
+            <td class="text-center">
+               <div class="checkbox">
+                  <label title="¿Domiciliado?">
+                     <input type="checkbox" name="domiciliado" value="TRUE"{if="$value->domiciliado"} checked="checked"{/if}/>
+                  </label>
+               </div>
             </td>
             <td class="text-right">
                <div class="btn-group">
@@ -135,6 +143,13 @@
                   <option value="{$value->codcuenta}">{$value->descripcion}</option>
                   {/loop}
                </select>
+            </td>
+            <td class="text-center">
+               <div class="checkbox">
+                  <label title="¿Domiciliado?">
+                     <input type="checkbox" name="domiciliado" value="TRUE"/>
+                  </label>
+               </div>
             </td>
             <td class="text-right">
                <div class="btn-group">

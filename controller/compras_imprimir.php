@@ -656,7 +656,8 @@ class compras_imprimir extends fs_controller
             $lineasiva[$lin->codimpuesto]['neto'] += $lin->pvptotal;
             $lineasiva[$lin->codimpuesto]['totaliva'] += ($lin->pvptotal*$lin->iva)/100;
             $lineasiva[$lin->codimpuesto]['totalrecargo'] += ($lin->pvptotal*$lin->recargo)/100;
-            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto'] + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
+            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto'] + $lineasiva[$lin->codimpuesto]['totaliva']
+                    + $lineasiva[$lin->codimpuesto]['totalrecargo'];
          }
          else
          {
@@ -669,7 +670,8 @@ class compras_imprimir extends fs_controller
                 'totalrecargo' => ($lin->pvptotal*$lin->recargo)/100,
                 'totallinea' => 0
             );
-            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto'] + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
+            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto'] + $lineasiva[$lin->codimpuesto]['totaliva']
+                    + $lineasiva[$lin->codimpuesto]['totalrecargo'];
          }
       }
       

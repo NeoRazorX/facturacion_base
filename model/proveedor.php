@@ -264,6 +264,8 @@ class proveedor extends fs_model
                   $this->new_error_msg('Imposible asociar la subcuenta para el proveedor '.$this->codproveedor);
             }
          }
+         else
+            $this->new_error_msg('No se encuentra ninguna cuenta especial para proveedores.');
       }
       
       return $subcuenta;

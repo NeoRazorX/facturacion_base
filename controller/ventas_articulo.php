@@ -245,6 +245,14 @@ class ventas_articulo extends fs_controller
             $this->new_advice("Este artículo está bloqueado.");
          }
          
+         /**
+          * Si está desactivado el control de stok en el artículo, no muestro la pestaña.
+          */
+         if($this->articulo->nostock)
+         {
+            $this->mostrar_tab_stock = FALSE;
+         }
+         
          $this->familia = $this->articulo->get_familia();
          if(!$this->familia)
          {

@@ -32,6 +32,7 @@ class asiento_factura
    
    public $messages;
    public $errors;
+   public $soloasiento;
    
    public function __construct()
    {
@@ -40,6 +41,7 @@ class asiento_factura
       
       $this->messages = array();
       $this->errors = array();
+      $this->soloasiento = FALSE;
    }
    
    private function new_message($msg)
@@ -75,9 +77,13 @@ class asiento_factura
       {
          $eje0 = $this->ejercicio->get( $factura->codejercicio );
          $this->new_message("No se ha podido generar una subcuenta para el proveedor
-            <a href='".$eje0->url()."'>¿Has importado los datos del ejercicio?</a>
-            Aun así la <a href='".$factura->url()."'>factura</a> se ha generado correctamente,
+            <a href='".$eje0->url()."'>¿Has importado los datos del ejercicio?</a>");
+         
+         if(!$this->soloasiento)
+         {
+            $this->new_message("Aun así la <a href='".$factura->url()."'>factura</a> se ha generado correctamente,
             pero sin asiento contable.");
+         }
       }
       else
       {
@@ -256,9 +262,13 @@ class asiento_factura
       {
          $eje0 = $this->ejercicio->get( $factura->codejercicio );
          $this->new_message("No se ha podido generar una subcuenta para el cliente
-            <a href='".$eje0->url()."'>¿Has importado los datos del ejercicio?</a>
-            Aun así la <a href='".$factura->url()."'>factura</a> se ha generado correctamente,
+            <a href='".$eje0->url()."'>¿Has importado los datos del ejercicio?</a>");
+         
+         if(!$this->soloasiento)
+         {
+            $this->new_message("Aun así la <a href='".$factura->url()."'>factura</a> se ha generado correctamente,
             pero sin asiento contable.");
+         }
       }
       else
       {
