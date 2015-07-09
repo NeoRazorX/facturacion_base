@@ -112,13 +112,18 @@ class ventas_clientes extends fs_controller
       {
          $this->save_codpais( $_POST['pais'] );
          
-         $cliente = $this->cliente->get_by_cifnif($_POST['cifnif']);
-         if($cliente)
+         $cliente = FALSE;
+         if($_POST['cifnif'] != '')
          {
-            $this->new_advice('Ya existe un cliente con el '.FS_CIFNIF.' '.$_POST['cifnif']);
-            $this->query = $_POST['cifnif'];
+            $cliente = $this->cliente->get_by_cifnif($_POST['cifnif']);
+            if($cliente)
+            {
+               $this->new_advice('Ya existe un cliente con el '.FS_CIFNIF.' '.$_POST['cifnif']);
+               $this->query = $_POST['cifnif'];
+            }
          }
-         else
+         
+         if(!$cliente)
          {
             $cliente = new cliente();
             $cliente->codcliente = $cliente->get_new_codigo();

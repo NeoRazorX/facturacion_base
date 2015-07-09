@@ -62,13 +62,18 @@ class compras_proveedores extends fs_controller
       {
          $this->save_codpais( $_POST['pais'] );
          
-         $proveedor = $this->proveedor->get_by_cifnif($_POST['cifnif']);
-         if($proveedor)
+         $proveedor = FALSE;
+         if($_POST['cifnif'] != '')
          {
-            $this->new_advice('Ya existe un proveedor con el '.FS_CIFNIF.' '.$_POST['cifnif']);
-            $this->query = $_POST['cifnif'];
+            $proveedor = $this->proveedor->get_by_cifnif($_POST['cifnif']);
+            if($proveedor)
+            {
+               $this->new_advice('Ya existe un proveedor con el '.FS_CIFNIF.' '.$_POST['cifnif']);
+               $this->query = $_POST['cifnif'];
+            }
          }
-         else
+         
+         if(!$proveedor)
          {
             $proveedor = new proveedor();
             $proveedor->codproveedor = $proveedor->get_new_codigo();

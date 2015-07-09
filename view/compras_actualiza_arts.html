@@ -40,14 +40,14 @@
       <table class="table table-hover">
          <thead>
             <tr>
-               <th></th>
-               <th>Ref. Proveedor</th>
-               <th>Referencia</th>
+               <th width="40"></th>
+               <th width="180">Ref. Proeedor</th>
+               <th width="150">Referencia</th>
                <th>Descripción</th>
-               <th>Código de barras</th>
-               <th class="text-right">Precio de compra</th>
-               <th class="text-right">% dto. compra</th>
-               <th class="text-right">Precio de venta</th>
+               <th width="200">Código de barras</th>
+               <th class="text-right" width="150">Precio de compra</th>
+               <th class="text-right" width="120">% dto. compra</th>
+               <th class="text-right" width="180">Precio de venta</th>
             </tr>
          </thead>
          {loop="$fsc->lineas"}
@@ -84,8 +84,7 @@
                   </label>
                </div>
             </td>
-            <td colspan="2"></td>
-            <td>
+            <td colspan="3">
                <div class="checkbox text-right">
                   <label>
                      <input type="checkbox" name="pvps" value="TRUE" checked="checked"/> actualizar precios de venta

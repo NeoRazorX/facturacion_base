@@ -93,12 +93,17 @@ class nueva_compra extends fs_controller
          {
             if($_POST['nuevo_proveedor'] != '')
             {
-               $this->proveedor_s = $this->proveedor->get_by_cifnif($_POST['nuevo_dni']);
-               if($this->proveedor_s)
+               $this->proveedor_s = FALSE;
+               if($_POST['nuevo_dni'] != '')
                {
-                  $this->new_advice('Ya existe un proveedor con ese '.FS_CIFNIF.'. Se ha seleccionado.');
+                  $this->proveedor_s = $this->proveedor->get_by_cifnif($_POST['nuevo_dni']);
+                  if($this->proveedor_s)
+                  {
+                     $this->new_advice('Ya existe un proveedor con ese '.FS_CIFNIF.'. Se ha seleccionado.');
+                  }
                }
-               else
+               
+               if(!$this->proveedor_s)
                {
                   $this->proveedor_s = new proveedor();
                   $this->proveedor_s->codproveedor = $this->proveedor_s->get_new_codigo();

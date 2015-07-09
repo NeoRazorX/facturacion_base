@@ -74,8 +74,12 @@
       
       $("#b_eliminar_articulo").click(function(event) {
          event.preventDefault();
+         {if="$fsc->articulo->publico"}
+         alert('Este artículo es público. Si estas seguro de que quieres eliminarlo, desmarcalo como público, guarda y pulsa eliminar.');
+         {else}
          if( confirm("¿Estas seguro de que deseas eliminar este articulo?") )
             window.location.href = "index.php?page=ventas_articulos&delete={function="urlencode($fsc->articulo->referencia)"}";
+         {/if}
       });
       $("#b_imagen").click(function(event) {
          event.preventDefault();

@@ -331,4 +331,20 @@ class articulo_proveedor extends fs_model
       
       return $alist;
    }
+   
+   /**
+    * Devuelve el artículo con menor precio de los que tienen $ref como referencia.
+    * @param type $ref
+    * @return \articulo_proveedor
+    */
+   public function mejor_from_ref($ref)
+   {
+      $data = $this->db->select("SELECT * FROM articulosprov WHERE referencia = ".$this->var2str($ref)." ORDER BY precio ASC;");
+      if($data)
+      {
+         return new articulo_proveedor($data[0]);
+      }
+      else
+         return FALSE;
+   }
 }

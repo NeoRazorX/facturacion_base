@@ -773,6 +773,14 @@ class articulo extends fs_model
                     ", tipo = ".$this->var2str($this->tipo).
                     ", imagen = ".$this->bin2str($this->imagen).
                     " WHERE referencia = ".$this->var2str($this->referencia).";";
+            
+            if($this->nostock AND $this->stockfis != 0)
+            {
+               $this->stockfis = 0;
+               $sql .= "DELETE FROM stocks WHERE referencia = ".$this->var2str($this->referencia).";";
+               $sql .= "UPDATE ".$this->table_name." SET stockfis = ".$this->var2str($this->stockfis).
+                    " WHERE referencia = ".$this->var2str($this->referencia).";";
+            }
          }
          else
          {

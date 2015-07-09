@@ -32,10 +32,15 @@ class cliente extends fs_model
     * @var type 
     */
    public $codcliente;
+   
+   /**
+    * Nombre por el que conocemos al cliente, no necesariamente el oficial.
+    * @var type 
+    */
    public $nombre;
    
    /**
-    * Razón social del cliente, es decir, el nombre oficial.
+    * Razón social del cliente, es decir, el nombre oficial. El que aparece en las facturas.
     * @var type
     */
    public $razonsocial;
@@ -50,23 +55,83 @@ class cliente extends fs_model
     */
    public $nombrecomercial;
    
+   /**
+    * Identificador fiscal del cliente.
+    * @var type 
+    */
    public $cifnif;
    public $telefono1;
    public $telefono2;
    public $fax;
    public $email;
    public $web;
+   
+   /**
+    * Serie predeterminada para este cliente.
+    * @var type 
+    */
    public $codserie;
+   
+   /**
+    * Divisa predeterminada para este cliente.
+    * @var type 
+    */
    public $coddivisa;
+   
+   /**
+    * Forma de pago predeterminada para este cliente.
+    * @var type 
+    */
    public $codpago;
+   
+   /**
+    * Empleado/agente asignado al cliente.
+    * @var type 
+    */
    public $codagente;
+   
+   /**
+    * Grupo al que pertenece el cliente.
+    * @var type 
+    */
    public $codgrupo;
+   
+   /**
+    * TRUE -> el cliente ya no se usa.
+    * Todavía no está implementado.
+    * @var type 
+    */
    public $debaja;
+   
+   /**
+    * Fecha en la que se dió de baja al cliente.
+    * Todavía no está implementado.
+    * @var type 
+    */
    public $fechabaja;
    public $observaciones;
+   
+   /**
+    * Tipo de identificador fiscal del cliente.
+    * Todavía no implementado.
+    * @var type 
+    */
    public $tipoidfiscal;
+   
+   /**
+    * Régimen de fiscalidad del cliente. Por ahora solo están implementados
+    * general y exento.
+    * @var type 
+    */
    public $regimeniva;
+   
+   /**
+    * TRUE -> al cliente se le aplica recargo de equivalencia.
+    * @var type 
+    */
    public $recargo;
+   
+   private static $regimenes_iva;
 
    public function __construct($c=FALSE)
    {
@@ -165,9 +230,30 @@ class cliente extends fs_model
       return ( $this->codcliente == $this->default_items->codcliente() );
    }
    
+   /**
+    * Devuelve un array con los regimenes de iva disponibles.
+    * @return type
+    */
    public function regimenes_iva()
    {
-      return array('General', 'Exportaciones', 'U.E.', 'Exento');
+      if( !isset(self::$regimenes_iva) )
+      {
+         self::$regimenes_iva = array('General', 'Exento');
+         
+         $data = $this->db->select("SELECT DISTINCT regimeniva FROM proveedores ORDER BY regimeniva ASC;");
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               if( !in_array($d['regimeniva'], self::$regimenes_iva) )
+               {
+                  self::$regimenes_iva[] = $d['regimeniva'];
+               }
+            }
+         }
+      }
+      
+      return self::$regimenes_iva;
    }
    
    public function get($cod)
@@ -192,12 +278,21 @@ class cliente extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve un array con las direcciones asociadas al cliente.
+    * @return type
+    */
    public function get_direcciones()
    {
       $dir = new direccion_cliente();
       return $dir->all_from_cliente($this->codcliente);
    }
    
+   /**
+    * Devuelve un array con todas las subcuentas asociadas al cliente.
+    * Una para cada ejercicio.
+    * @return type
+    */
    public function get_subcuentas()
    {
       $subclist = array();
@@ -216,6 +311,12 @@ class cliente extends fs_model
       return $subclist;
    }
    
+   /**
+    * Devuelve la subcuenta asociada al cliente para el ejercicio $eje.
+    * Si no existe intenta crearla. Si falla devuelve FALSE.
+    * @param type $ejercicio
+    * @return type
+    */
    public function get_subcuenta($ejercicio)
    {
       $subcuenta = FALSE;
@@ -278,6 +379,10 @@ class cliente extends fs_model
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($this->codcliente).";");
    }
    
+   /**
+    * Devuelve un código que se usará como clave primaria/identificador único para este cliente.
+    * @return string
+    */
    public function get_new_codigo()
    {
       $cod = $this->db->select("SELECT MAX(".$this->db->sql_to_int('codcliente').") as cod FROM ".$this->table_name.";");

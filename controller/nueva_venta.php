@@ -105,12 +105,17 @@ class nueva_venta extends fs_controller
          {
             if($_POST['nuevo_cliente'] != '')
             {
-               $this->cliente_s = $this->cliente->get_by_cifnif($_POST['nuevo_dni']);
-               if($this->cliente_s)
+               $this->cliente_s = FALSE;
+               if($_POST['nuevo_dni'] != '')
                {
-                  $this->new_advice('Ya existe un cliente con ese '.FS_CIFNIF.'. Se ha seleccionado.');
+                  $this->cliente_s = $this->cliente->get_by_cifnif($_POST['nuevo_dni']);
+                  if($this->cliente_s)
+                  {
+                     $this->new_advice('Ya existe un cliente con ese '.FS_CIFNIF.'. Se ha seleccionado.');
+                  }
                }
-               else
+               
+               if(!$this->cliente_s)
                {
                   $this->cliente_s = new cliente();
                   $this->cliente_s->codcliente = $this->cliente_s->get_new_codigo();

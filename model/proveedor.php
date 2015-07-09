@@ -32,10 +32,16 @@ class proveedor extends fs_model
     * @var type 
     */
    public $codproveedor;
+   
+   /**
+    * Nombre por el que se conoce al proveedor, puede ser el nombre oficial o no.
+    * @var type 
+    */
    public $nombre;
    
    /**
-    * Razón social del proveedor, es decir, el nombre oficial.
+    * Razón social del proveedor, es decir, el nombre oficial, el que se usa en
+    * las facturas.
     * @var type 
     */
    public $razonsocial;
@@ -50,19 +56,57 @@ class proveedor extends fs_model
     */
    public $nombrecomercial;
    
+   /**
+    * Identificador fiscal del proveedor.
+    * @var type
+    */
    public $cifnif;
    public $telefono1;
    public $telefono2;
    public $fax;
    public $email;
    public $web;
+   
+   /**
+    * Serie predeterminada para este proveedor.
+    * @var type
+    */
    public $codserie;
+   
+   /**
+    * Divisa predeterminada para este proveedor.
+    * @var type
+    */
    public $coddivisa;
+   
+   /**
+    *
+    * @var type Forma de pago predeterminada para este proveedor.
+    */
    public $codpago;
    public $observaciones;
+   
+   /**
+    * Tipo de identificador fiscal, todavía sin uso.
+    * @var type 
+    */
    public $tipoidfiscal;
+   
+   /**
+    * Régimen de fiscalidad del proveedor. Por ahora solo están implementados
+    * general y exento.
+    * @var type 
+    */
    public $regimeniva;
+   
+   /**
+    * TRUE -> el proveedor es un acreedor, es decir, no le compramos mercancia,
+    * le compramos servicios, etc.
+    * @var type
+    */
    public $acreedor;
+   
+   private static $regimenes_iva;
    
    public function __construct($p=FALSE)
    {
@@ -124,9 +168,30 @@ class proveedor extends fs_model
       return '';
    }
    
+   /**
+    * Devuelve un array con los regimenes de iva disponibles.
+    * @return type
+    */
    public function regimenes_iva()
    {
-      return array('General', 'U.E.', 'Exento', 'Importaciones', 'Agrario');
+      if( !isset(self::$regimenes_iva) )
+      {
+         self::$regimenes_iva = array('General', 'Exento');
+         
+         $data = $this->db->select("SELECT DISTINCT regimeniva FROM proveedores ORDER BY regimeniva ASC;");
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               if( !in_array($d['regimeniva'], self::$regimenes_iva) )
+               {
+                  self::$regimenes_iva[] = $d['regimeniva'];
+               }
+            }
+         }
+      }
+      
+      return self::$regimenes_iva;
    }
    
    public function observaciones_resume()
@@ -180,6 +245,10 @@ class proveedor extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve un nuevo código que se usará como clave primaria/identificador único para este proveedor.
+    * @return string
+    */
    public function get_new_codigo()
    {
       $cod = $this->db->select("SELECT MAX(".$this->db->sql_to_int('codproveedor').") as cod FROM ".$this->table_name.";");
@@ -191,6 +260,10 @@ class proveedor extends fs_model
          return '000001';
    }
    
+   /**
+    * Devuelve las subcuentas asociadas al proveedor, una para cada ejercicio.
+    * @return type
+    */
    public function get_subcuentas()
    {
       $sublist = array();
@@ -209,6 +282,12 @@ class proveedor extends fs_model
       return $sublist;
    }
    
+   /**
+    * Devuelve la subcuenta asignada al proveedor para el ejercicio $eje,
+    * si no hay una subcuenta asignada, intenta crearla.  Si falla devuelve FALSE.
+    * @param type $eje
+    * @return type
+    */
    public function get_subcuenta($eje)
    {
       $subcuenta = FALSE;
@@ -271,6 +350,10 @@ class proveedor extends fs_model
       return $subcuenta;
    }
    
+   /**
+    * Devuelve las direcciones asociadas al proveedor.
+    * @return type
+    */
    public function get_direcciones()
    {
       $dir = new direccion_proveedor();

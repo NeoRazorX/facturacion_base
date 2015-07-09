@@ -117,6 +117,8 @@
             </h3>
             {if="$fsc->agente"}
             <p>Factura creada por <a href="{$fsc->agente->url()}">{$fsc->agente->get_fullname()}</a>.</p>
+            {else}
+            <p>Sin datos de qué empleado ha creado esta factura.</p>
             {/if}
          </div>
       </div>
