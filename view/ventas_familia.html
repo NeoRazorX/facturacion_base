@@ -81,7 +81,7 @@
                   <option value="---">-----</option>
                   {loop="$fsc->familia->all()"}
                      {if="$value->codfamilia!=$fsc->familia->codfamilia"}
-                     <option value="{$value->codfamilia}"{if="$fsc->familia->madre==$value->codfamilia"} selected="selected"{/if}>{$value->descripcion}</option>
+                     <option value="{$value->codfamilia}"{if="$fsc->familia->madre==$value->codfamilia"} selected="selected"{/if}>{$value->nivel}{$value->descripcion}</option>
                      {/if}
                   {/loop}
                </select>
@@ -115,14 +115,14 @@
                   <tr>
                      <th class="text-left">Referencia + Descripción</th>
                      <th class="text-right">Coste</th>
-                     <th class="text-right">PVP</th>
+                     <th class="text-right">Precio</th>
                      <th class="text-right">Stock</th>
                   </tr>
                </thead>
                {loop="$fsc->articulos"}
                <tr class="clickableRow{if="$value->bloqueado"} bg-danger{elseif="$value->stockfis<$value->stockmin"} bg-warning{/if}" href="{$value->url()}">
                   <td><a href="{$value->url()}">{$value->referencia}</a> {$value->descripcion}</td>
-                  <td class="text-right">{$fsc->show_precio($value->costemedio)}</td>
+                  <td class="text-right">{$fsc->show_precio($value->preciocoste())}</td>
                   <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp)}</span></td>
                   <td class="text-right">{$value->stockfis}</td>
                </tr>

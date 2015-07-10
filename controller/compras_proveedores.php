@@ -22,6 +22,7 @@ require_model('proveedor.php');
 
 class compras_proveedores extends fs_controller
 {
+   public $mostrar;
    public $offset;
    public $pais;
    public $proveedor;
@@ -29,7 +30,7 @@ class compras_proveedores extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Proveedores', 'compras', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Proveedores / Acreedores', 'compras', FALSE, TRUE);
    }
    
    protected function process()
@@ -61,31 +62,47 @@ class compras_proveedores extends fs_controller
       {
          $this->save_codpais( $_POST['pais'] );
          
-         $proveedor = new proveedor();
-         $proveedor->codproveedor = $proveedor->get_new_codigo();
-         $proveedor->nombre = $_POST['nombre'];
-         $proveedor->nombrecomercial = $_POST['nombre'];
-         $proveedor->cifnif = $_POST['cifnif'];
-         $proveedor->codserie = $this->empresa->codserie;
-         if( $proveedor->save() )
+         $proveedor = $this->proveedor->get_by_cifnif($_POST['cifnif']);
+         if($proveedor)
          {
-            $dirproveedor = new direccion_proveedor();
-            $dirproveedor->codproveedor = $proveedor->codproveedor;
-            $dirproveedor->descripcion = "Principal";
-            $dirproveedor->codpais = $_POST['pais'];
-            $dirproveedor->provincia = $_POST['provincia'];
-            $dirproveedor->ciudad = $_POST['ciudad'];
-            $dirproveedor->codpostal = $_POST['codpostal'];
-            $dirproveedor->direccion = $_POST['direccion'];
-            if( $dirproveedor->save() )
-            {
-               header('location: '.$proveedor->url());
-            }
-            else
-               $this->new_error_msg("¡Imposible guardar la dirección el proveedor!");
+            $this->new_advice('Ya existe un proveedor con el '.FS_CIFNIF.' '.$_POST['cifnif']);
+            $this->query = $_POST['cifnif'];
          }
          else
-            $this->new_error_msg("¡Imposible guardar el proveedor!");
+         {
+            $proveedor = new proveedor();
+            $proveedor->codproveedor = $proveedor->get_new_codigo();
+            $proveedor->nombre = $_POST['nombre'];
+            $proveedor->razonsocial = $_POST['nombre'];
+            $proveedor->cifnif = $_POST['cifnif'];
+            $proveedor->codserie = $this->empresa->codserie;
+            $proveedor->acreedor = isset($_POST['acreedor']);
+            if( $proveedor->save() )
+            {
+               $dirproveedor = new direccion_proveedor();
+               $dirproveedor->codproveedor = $proveedor->codproveedor;
+               $dirproveedor->descripcion = "Principal";
+               $dirproveedor->codpais = $_POST['pais'];
+               $dirproveedor->provincia = $_POST['provincia'];
+               $dirproveedor->ciudad = $_POST['ciudad'];
+               $dirproveedor->codpostal = $_POST['codpostal'];
+               $dirproveedor->direccion = $_POST['direccion'];
+               if( $dirproveedor->save() )
+               {
+                  header('location: '.$proveedor->url());
+               }
+               else
+                  $this->new_error_msg("¡Imposible guardar la dirección el proveedor!");
+            }
+            else
+               $this->new_error_msg("¡Imposible guardar el proveedor!");
+         }
+      }
+      
+      $this->mostrar = 'todo';
+      if( isset($_GET['mostrar']) )
+      {
+         $this->mostrar = $_GET['mostrar'];
       }
       
       $this->offset = 0;
@@ -99,20 +116,28 @@ class compras_proveedores extends fs_controller
          $this->resultados = $this->proveedor->search($this->query, $this->offset);
       }
       else
-         $this->resultados = $this->proveedor->all($this->offset);
+      {
+         if($this->mostrar == 'acreedores')
+         {
+            $this->resultados = $this->proveedor->all($this->offset, TRUE);
+         }
+         else
+            $this->resultados = $this->proveedor->all($this->offset);
+      }
    }
    
    public function anterior_url()
    {
       $url = '';
+      $extra = '&mostrar='.$this->mostrar;
       
       if($this->query != '' AND $this->offset > 0)
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT);
+         $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
       }
       else if($this->query == '' AND $this->offset > 0)
       {
-         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT);
+         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
       }
       
       return $url;
@@ -121,14 +146,15 @@ class compras_proveedores extends fs_controller
    public function siguiente_url()
    {
       $url = '';
+      $extra = '&mostrar='.$this->mostrar;
       
       if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT);
+         $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
       }
       else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
       {
-         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT);
+         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
       }
       
       return $url;

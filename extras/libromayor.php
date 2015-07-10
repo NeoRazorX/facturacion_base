@@ -50,19 +50,11 @@ class libro_mayor
          {
             foreach($this->subcuenta->all_from_ejercicio($eje->codejercicio) as $sc)
             {
-               if($sc->debe > 0 OR $sc->haber > 0)
+               if($sc->debe > 2000 OR $sc->haber > 2000)
                {
                   $sc->save();
-                  
-                  if($sc->debe > 1000 OR $sc->haber > 1000)
-                  {
-                     $this->libro_mayor($sc, TRUE);
-                  }
-                  else
-                     echo '_';
+                  $this->libro_mayor($sc, TRUE);
                }
-               else
-                  echo '_';
             }
             
             $this->libro_diario($eje);

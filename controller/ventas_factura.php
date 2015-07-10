@@ -22,7 +22,7 @@ require_model('asiento_factura.php');
 require_model('cliente.php');
 require_model('ejercicio.php');
 require_model('factura_cliente.php');
-require_model('fs_var.php');
+require_model('forma_pago.php');
 require_model('partida.php');
 require_model('subcuenta.php');
 
@@ -33,6 +33,7 @@ class ventas_factura extends fs_controller
    public $cliente;
    public $ejercicio;
    public $factura;
+   public $forma_pago;
    public $mostrar_boton_pagada;
    
    public function __construct()
@@ -48,6 +49,7 @@ class ventas_factura extends fs_controller
       $this->cliente = FALSE;
       $factura = new factura_cliente();
       $this->factura = FALSE;
+      $this->forma_pago = new forma_pago();
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -66,28 +68,42 @@ class ventas_factura extends fs_controller
          }
       }
       
+      /**
+       * ¿Modificamos la factura?
+       */
       if( isset($_POST['idfactura']) )
       {
          $this->factura = $factura->get($_POST['idfactura']);
          $this->factura->observaciones = $_POST['observaciones'];
          $this->factura->numero2 = $_POST['numero2'];
-         $this->cambiar_numero_factura();
          
          /// obtenemos el ejercicio para poder acotar la fecha
          $eje0 = $this->ejercicio->get( $this->factura->codejercicio );
          if( $eje0 )
          {
             $this->factura->fecha = $eje0->get_best_fecha($_POST['fecha'], TRUE);
+            $this->factura->hora = $_POST['hora'];
          }
          else
             $this->new_error_msg('No se encuentra el ejercicio asociado a la factura.');
+         
+         /// ¿cambiamos la forma de pago?
+         if($this->factura->codpago != $_POST['forma_pago'])
+         {
+            $this->factura->codpago = $_POST['forma_pago'];
+            $this->factura->vencimiento = $this->nuevo_vencimiento($this->factura->fecha, $this->factura->codpago);
+         }
+         else
+         {
+            $this->factura->vencimiento = $_POST['vencimiento'];
+         }
          
          if( $this->factura->save() )
          {
             $asiento = $this->factura->get_asiento();
             if($asiento)
             {
-               $asiento->fecha = $_POST['fecha'];
+               $asiento->fecha = $this->factura->fecha;
                if( !$asiento->save() )
                   $this->new_error_msg("Imposible modificar la fecha del asiento.");
             }
@@ -162,42 +178,6 @@ class ventas_factura extends fs_controller
          return $this->ppage->url();
    }
    
-   private function cambiar_numero_factura()
-   {
-      $new_numero = intval($_POST['numero']);
-      if($new_numero != $this->factura->numero)
-      {
-         $new_codigo = $this->factura->codejercicio.sprintf('%02s', $this->factura->codserie).sprintf('%06s', $new_numero);
-         if( $this->factura->get_by_codigo($new_codigo) )
-         {
-            $this->new_error_msg("Ya hay una factura con el número ".$new_numero);
-         }
-         else if(!$this->user->admin)
-         {
-            $this->new_error_msg('Solamente un administrador puede cambiarle el número a una factura.');
-         }
-         else
-         {
-            $asiento = $this->factura->get_asiento();
-            if($asiento)
-            {
-               if( $asiento->delete() )
-               {
-                  $this->new_message('Asiento eliminado, debes regenerarlo!');
-                  $this->factura->numero = $new_numero;
-                  $this->factura->codigo = $new_codigo;
-                  $this->factura->idasiento = NULL;
-               }
-            }
-            else
-            {
-               $this->factura->numero = $new_numero;
-               $this->factura->codigo = $new_codigo;
-            }
-         }
-      }
-   }
-   
    private function actualizar_direccion()
    {
       foreach($this->cliente->get_direcciones() as $dir)
@@ -205,7 +185,7 @@ class ventas_factura extends fs_controller
          if($dir->domfacturacion)
          {
             $this->factura->cifnif = $this->cliente->cifnif;
-            $this->factura->nombrecliente = $this->cliente->nombrecomercial;
+            $this->factura->nombrecliente = $this->cliente->razonsocial;
             
             $this->factura->apartado = $dir->apartado;
             $this->factura->ciudad = $dir->ciudad;
@@ -252,5 +232,18 @@ class ventas_factura extends fs_controller
             $this->new_message($msg);
          }
       }
+   }
+   
+   private function nuevo_vencimiento($fecha, $codpago)
+   {
+      $vencimiento = $fecha;
+      
+      $formap = $this->forma_pago->get($codpago);
+      if($formap)
+      {
+         $vencimiento = Date('d-m-Y', strtotime($fecha.' '.$formap->vencimiento));
+      }
+      
+      return $vencimiento;
    }
 }

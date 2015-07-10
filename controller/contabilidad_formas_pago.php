@@ -18,11 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('cuenta_banco.php');
 require_model('forma_pago.php');
 
 class contabilidad_formas_pago extends fs_controller
 {
    public $allow_delete;
+   public $cuentas_banco;
    public $forma_pago;
    
    public function __construct()
@@ -32,10 +34,13 @@ class contabilidad_formas_pago extends fs_controller
    
    protected function process()
    {
-      $this->forma_pago = new forma_pago();
-      
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
+      $cuentab = new cuenta_banco();
+      $this->cuentas_banco = $cuentab->all_from_empresa();
+      
+      $this->forma_pago = new forma_pago();
       
       if( isset($_POST['codpago']) )
       {
@@ -47,9 +52,19 @@ class contabilidad_formas_pago extends fs_controller
          }
          $fp0->descripcion = $_POST['descripcion'];
          $fp0->genrecibos = $_POST['genrecibos'];
-         $fp0->domiciliado = isset($_POST['domiciliado']);
+         $fp0->vencimiento = $_POST['vencimiento'];
          
-         if( $fp0->save() )
+         $fp0->codcuenta = NULL;
+         if($_POST['codcuenta'] != '')
+         {
+            $fp0->codcuenta = $_POST['codcuenta'];
+         }
+         
+         if($fp0->codpago == '' OR $fp0->descripcion == '')
+         {
+            $this->new_error_msg('Debes poner algún nombre a la forma de pago.');
+         }
+         else if( $fp0->save() )
          {
             $this->new_message('Forma pago '.$fp0->codpago.' guardada correctamente.');
          }
@@ -75,5 +90,27 @@ class contabilidad_formas_pago extends fs_controller
          else
             $this->new_error_msg('Forma de pago no encontrada.');
       }
+   }
+   
+   public function vencimientos()
+   {
+      return array(
+          '+1day' => '1 día',
+          '+1week' => '1 semana',
+          '+2week' => '2 semanas',
+          '+3week' => '3 semanas',
+          '+1month' => '1 mes',
+          '+2month' => '2 meses',
+          '+3month' => '3 meses',
+          '+4month' => '4 meses',
+          '+5month' => '5 meses',
+          '+6month' => '6 meses',
+          '+7month' => '7 meses',
+          '+8month' => '8 meses',
+          '+9month' => '9 meses',
+          '+10month' => '10 meses',
+          '+11month' => '11 meses',
+          '+12month' => '12 meses',
+      );
    }
 }

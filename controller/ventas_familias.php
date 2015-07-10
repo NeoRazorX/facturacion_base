@@ -63,14 +63,18 @@ class ventas_familias extends fs_controller
       }
       else if( isset($_GET['delete']) )
       {
-         $fam = new familia();
-         $fam->codfamilia = $_GET['delete'];
-         if( $fam->delete() )
+         $fam = $this->familia->get($_GET['delete']);
+         if($fam)
          {
-            $this->new_message("Familia ".$_GET['delete']." eliminada correctamente");
+            if( $fam->delete() )
+            {
+               $this->new_message("Familia ".$_GET['delete']." eliminada correctamente");
+            }
+            else
+               $this->new_error_msg("¡Imposible eliminar la familia ".$_GET['delete']."!");
          }
          else
-            $this->new_error_msg("¡Imposible eliminar la familia ".$_GET['delete']."!");
+            $this->new_error_msg("Familia ".$_GET['delete']." no encontrada.");
       }
       
       if($this->query != '')
@@ -78,7 +82,9 @@ class ventas_familias extends fs_controller
          $this->resultados = $this->familia->search($this->query);
       }
       else
+      {
          $this->resultados = $this->familia->madres();
+      }
    }
    
    public function total_familias()

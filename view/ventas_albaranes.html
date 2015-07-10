@@ -153,7 +153,9 @@
          </td>
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
-         <td class="text-right">{$value->fecha}</td>
+         <td class="text-right">
+            {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
+         </td>
          <td class="text-right hidden-sm">{$value->hora}</td>
       </tr>
       {else}
@@ -162,7 +164,7 @@
          <td colspan="6">Ningún {#FS_ALBARAN#} encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</td>
       </tr>
       {/loop}
-      {if="$fsc->pendientes AND $fsc->offset==0"}
+      {if="$fsc->resultados AND $fsc->pendientes AND $fsc->offset==0"}
       <tr>
          <td colspan="4"></td>
          <td class="text-right"><b>{$fsc->show_precio($total)}</b></td>

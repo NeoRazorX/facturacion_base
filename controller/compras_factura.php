@@ -21,6 +21,7 @@ require_model('asiento.php');
 require_model('asiento_factura.php');
 require_model('ejercicio.php');
 require_model('factura_proveedor.php');
+require_model('forma_pago.php');
 require_model('partida.php');
 require_model('proveedor.php');
 require_model('subcuenta.php');
@@ -31,6 +32,7 @@ class compras_factura extends fs_controller
    public $allow_delete;
    public $ejercicio;
    public $factura;
+   public $forma_pago;
    public $mostrar_boton_pagada;
    
    public function __construct()
@@ -45,6 +47,7 @@ class compras_factura extends fs_controller
       $this->ejercicio = new ejercicio();
       $factura = new factura_proveedor();
       $this->factura = FALSE;
+      $this->forma_pago = new forma_pago();
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -68,12 +71,14 @@ class compras_factura extends fs_controller
          $this->factura = $factura->get($_POST['idfactura']);
          $this->factura->numproveedor = $_POST['numproveedor'];
          $this->factura->observaciones = $_POST['observaciones'];
+         $this->factura->codpago = $_POST['forma_pago'];
          
          /// obtenemos el ejercicio para poder acotar la fecha
          $eje0 = $this->ejercicio->get( $this->factura->codejercicio );
          if( $eje0 )
          {
             $this->factura->fecha = $eje0->get_best_fecha($_POST['fecha'], TRUE);
+            $this->factura->hora = $_POST['hora'];
          }
          else
             $this->new_error_msg('No se encuentra el ejercicio asociado a la factura.');
@@ -83,7 +88,7 @@ class compras_factura extends fs_controller
             $asiento = $this->factura->get_asiento();
             if($asiento)
             {
-               $asiento->fecha = $_POST['fecha'];
+               $asiento->fecha = $this->factura->fecha;
                if( !$asiento->save() )
                   $this->new_error_msg("Imposible modificar la fecha del asiento.");
             }

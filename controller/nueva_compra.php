@@ -18,8 +18,10 @@
  */
 
 require_model('almacen.php');
+require_model('articulo_proveedor.php');
 require_model('asiento_factura.php');
 require_model('forma_pago.php');
+require_model('pedido_proveedor.php');
 require_model('proveedor.php');
 
 class nueva_compra extends fs_controller
@@ -91,11 +93,19 @@ class nueva_compra extends fs_controller
          {
             if($_POST['nuevo_proveedor'] != '')
             {
-               $this->proveedor_s = new proveedor();
-               $this->proveedor_s->codproveedor = $this->proveedor_s->get_new_codigo();
-               $this->proveedor_s->nombre = $this->proveedor_s->nombrecomercial = $_POST['nuevo_proveedor'];
-               $this->proveedor_s->cifnif = $_POST['nuevo_dni'];
-               $this->proveedor_s->save();
+               $this->proveedor_s = $this->proveedor->get_by_cifnif($_POST['nuevo_dni']);
+               if($this->proveedor_s)
+               {
+                  $this->new_advice('Ya existe un proveedor con ese '.FS_CIFNIF.'. Se ha seleccionado.');
+               }
+               else
+               {
+                  $this->proveedor_s = new proveedor();
+                  $this->proveedor_s->codproveedor = $this->proveedor_s->get_new_codigo();
+                  $this->proveedor_s->nombre = $this->proveedor_s->razonsocial = $_POST['nuevo_proveedor'];
+                  $this->proveedor_s->cifnif = $_POST['nuevo_dni'];
+                  $this->proveedor_s->save();
+               }
             }
          }
          
@@ -114,7 +124,16 @@ class nueva_compra extends fs_controller
          
          if( isset($_POST['tipo']) )
          {
-            if($_POST['tipo'] == 'albaran')
+            if($_POST['tipo'] == 'pedido')
+            {
+               if( class_exists('pedido_proveedor') )
+               {
+                  $this->nuevo_pedido_proveedor();
+               }
+               else
+                  $this->new_error_msg('Clase pedido_proveedor no encontrada.');
+            }
+            else if($_POST['tipo'] == 'albaran')
             {
                $this->nuevo_albaran_proveedor();
             }
@@ -135,8 +154,15 @@ class nueva_compra extends fs_controller
    {
       $tipos = array();
       
+      if( $this->user->have_access_to('compras_pedido') AND class_exists('pedido_proveedor') )
+      {
+         $tipos[] = array('tipo' => 'pedido', 'nombre' => 'Pedido a proveedor');
+      }
+      
       if( $this->user->have_access_to('compras_albaran') )
+      {
          $tipos[] = array('tipo' => 'albaran', 'nombre' => ucfirst(FS_ALBARAN).' de proveedor');
+      }
       
       if( $this->user->have_access_to('compras_factura') )
          $tipos[] = array('tipo' => 'factura', 'nombre' => 'Factura de proveedor');
@@ -189,7 +215,6 @@ class nueva_compra extends fs_controller
          $art0->descripcion = $_REQUEST['descripcion'];
          $art0->set_impuesto($_REQUEST['codimpuesto']);
          $art0->set_pvp( floatval($_REQUEST['pvp']) );
-         
          if($_POST['codfamilia'] != '')
          {
             $art0->codfamilia = $_REQUEST['codfamilia'];
@@ -197,6 +222,29 @@ class nueva_compra extends fs_controller
          
          if( $art0->save() )
          {
+            $art0->coste = floatval($_POST['coste']);
+            $art0->dtopor = 0;
+            
+            /// guardamos el artículo del proveedor
+            $ap0 = new articulo_proveedor();
+            $ap = $ap0->get_by($art0->referencia, $_POST['codproveedor']);
+            if($ap)
+            {
+               $art0->coste = $ap->precio;
+               $art0->dtopor = $ap->dto;
+            }
+            else
+            {
+               $ap = new articulo_proveedor();
+               $ap->referencia = $art0->referencia;
+               $ap->codproveedor = $_POST['codproveedor'];
+               $ap->refproveedor = $_POST['refproveedor'];
+               $ap->precio = floatval($_POST['coste']);
+            }
+            $ap->codimpuesto = $art0->codimpuesto;
+            $ap->descripcion = $art0->descripcion;
+            $ap->save();
+            
             $this->results[] = $art0;
          }
       }
@@ -211,6 +259,7 @@ class nueva_compra extends fs_controller
       $this->template = FALSE;
       
       $articulo = new articulo();
+      $articulo_proveedor = new articulo_proveedor();
       $codfamilia = '';
       if( isset($_REQUEST['codfamilia']) )
       {
@@ -225,6 +274,14 @@ class nueva_compra extends fs_controller
       {
          $this->results[$i]->query = $this->query;
          $this->results[$i]->coste = $value->preciocoste();
+         $this->results[$i]->dtopor = 0;
+         
+         $ap = $articulo_proveedor->get_by($value->referencia, $_REQUEST['codproveedor']);
+         if($ap)
+         {
+            $this->results[$i]->coste = $ap->precio;
+            $this->results[$i]->dtopor = $ap->dto;
+         }
       }
       
       header('Content-Type: application/json');
@@ -238,6 +295,214 @@ class nueva_compra extends fs_controller
       
       $articulo = new articulo();
       $this->articulo = $articulo->get($_POST['referencia4precios']);
+   }
+   
+   private function nuevo_pedido_proveedor()
+   {
+      $continuar = TRUE;
+      
+      $proveedor = $this->proveedor->get($_POST['proveedor']);
+      if( $proveedor )
+         $this->save_codproveedor( $proveedor->codproveedor );
+      else
+      {
+         $this->new_error_msg('Proveedor no encontrado.');
+         $continuar = FALSE;
+      }
+      
+      $almacen = $this->almacen->get($_POST['almacen']);
+      if( $almacen )
+         $this->save_codalmacen( $almacen->codalmacen );
+      else
+      {
+         $this->new_error_msg('Almacén no encontrado.');
+         $continuar = FALSE;
+      }
+      
+      $eje0 = new ejercicio();
+      $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
+      if( $ejercicio )
+         $this->save_codejercicio( $ejercicio->codejercicio );
+      else
+      {
+         $this->new_error_msg('Ejercicio no encontrado.');
+         $continuar = FALSE;
+      }
+      
+      $serie = $this->serie->get($_POST['serie']);
+      if( !$serie )
+      {
+         $this->new_error_msg('Serie no encontrada.');
+         $continuar = FALSE;
+      }
+      
+      $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
+      if( $forma_pago )
+         $this->save_codpago( $forma_pago->codpago );
+      else
+      {
+         $this->new_error_msg('Forma de pago no encontrada.');
+         $continuar = FALSE;
+      }
+      
+      $divisa = $this->divisa->get($_POST['divisa']);
+      if( $divisa )
+         $this->save_coddivisa( $divisa->coddivisa );
+      else
+      {
+         $this->new_error_msg('Divisa no encontrada.');
+         $continuar = FALSE;
+      }
+      
+      $pedido = new pedido_proveedor();
+      
+      if( $this->duplicated_petition($_POST['petition_id']) )
+      {
+         $this->new_error_msg('Petición duplicada. Has hecho doble clic sobre el botón guardar
+               y se han enviado dos peticiones. Mira en <a href="'.$pedido->url().'">'.FS_PEDIDOS.'</a>
+               para ver si el '.FS_PEDIDO.' se ha guardado correctamente.');
+         $continuar = FALSE;
+      }
+      
+      if( $continuar )
+      {
+         $pedido->fecha = $_POST['fecha'];
+         $pedido->hora = $_POST['hora'];
+         $pedido->codproveedor = $proveedor->codproveedor;
+         $pedido->nombre = $proveedor->razonsocial;
+         $pedido->cifnif = $proveedor->cifnif;
+         $pedido->codalmacen = $almacen->codalmacen;
+         $pedido->codejercicio = $ejercicio->codejercicio;
+         $pedido->codserie = $serie->codserie;
+         $pedido->codpago = $forma_pago->codpago;
+         $pedido->coddivisa = $divisa->coddivisa;
+         $pedido->tasaconv = $divisa->tasaconv_compra;
+         
+         if($_POST['tasaconv'] != '')
+         {
+            $pedido->tasaconv = floatval($_POST['tasaconv']);
+         }
+         
+         $pedido->codagente = $this->agente->codagente;
+         $pedido->numproveedor = $_POST['numproveedor'];
+         $pedido->observaciones = $_POST['observaciones'];
+         $pedido->irpf = $serie->irpf;
+         
+         if( $pedido->save() )
+         {
+            $art0 = new articulo();
+            $n = floatval($_POST['numlineas']);
+            for($i = 0; $i < $n; $i++)
+            {
+               if( isset($_POST['referencia_'.$i]) )
+               {
+                  $linea = new linea_pedido_proveedor();
+                  $linea->idpedido = $pedido->idpedido;
+                  $linea->descripcion = $_POST['desc_'.$i];
+                  
+                  if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
+                  {
+                     $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$i]);
+                     if($imp0)
+                     {
+                        $linea->codimpuesto = $imp0->codimpuesto;
+                        $linea->iva = floatval($_POST['iva_'.$i]);
+                        $linea->recargo = floatval($_POST['recargo_'.$i]);
+                     }
+                     else
+                     {
+                        $linea->iva = floatval($_POST['iva_'.$i]);
+                        $linea->recargo = floatval($_POST['recargo_'.$i]);
+                     }
+                  }
+                  
+                  $linea->irpf = floatval($_POST['irpf_'.$i]);
+                  $linea->pvpunitario = floatval($_POST['pvp_'.$i]);
+                  $linea->cantidad = floatval($_POST['cantidad_'.$i]);
+                  $linea->dtopor = floatval($_POST['dto_'.$i]);
+                  $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
+                  $linea->pvptotal = floatval($_POST['neto_'.$i]);
+                  
+                  $articulo = $art0->get($_POST['referencia_'.$i]);
+                  if($articulo)
+                  {
+                     $linea->referencia = $articulo->referencia;
+                  }
+                  
+                  if( $linea->save() )
+                  {
+                     if($articulo)
+                     {
+                        if( isset($_POST['costemedio']) )
+                        {
+                           if($articulo->costemedio == 0)
+                           {
+                              $articulo->costemedio = $linea->pvptotal/$linea->cantidad;
+                           }
+                           else
+                           {
+                              $articulo->costemedio = $articulo->get_costemedio();
+                              if($articulo->costemedio == 0)
+                              {
+                                 $articulo->costemedio = $linea->pvptotal/$linea->cantidad;
+                              }
+                           }
+                           
+                           $articulo->save();
+                        }
+                     }
+                     
+                     $pedido->neto += $linea->pvptotal;
+                     $pedido->totaliva += ($linea->pvptotal * $linea->iva/100);
+                     $pedido->totalirpf += ($linea->pvptotal * $linea->irpf/100);
+                     $pedido->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                  }
+                  else
+                  {
+                     $this->new_error_msg("¡Imposible guardar la linea con referencia: ".$linea->referencia);
+                     $continuar = FALSE;
+                  }
+               }
+            }
+            
+            if($continuar)
+            {
+               /// redondeamos
+               $pedido->neto = round($pedido->neto, FS_NF0);
+               $pedido->totaliva = round($pedido->totaliva, FS_NF0);
+               $pedido->totalirpf = round($pedido->totalirpf, FS_NF0);
+               $pedido->totalrecargo = round($pedido->totalrecargo, FS_NF0);
+               $pedido->total = $pedido->neto + $pedido->totaliva - $pedido->totalirpf + $pedido->totalrecargo;
+               
+               if( abs(floatval($_POST['atotal']) - $pedido->total) >= .02 )
+               {
+                  $this->new_error_msg("El total difiere entre la vista y el controlador (".
+                          $_POST['atotal']." frente a ".$pedido->total."). Debes informar del error.");
+                  $pedido->delete();
+               }
+               else if( $pedido->save() )
+               {
+                  $this->new_message("<a href='".$pedido->url()."'>".ucfirst(FS_PEDIDO)."</a> guardado correctamente.");
+                  $this->new_change(ucfirst(FS_PEDIDO).' Proveedor '.$pedido->codigo, $pedido->url(), TRUE);
+                  
+                  if($_POST['redir'] == 'TRUE')
+                  {
+                     header('Location: '.$pedido->url());
+                  }
+               }
+               else
+                  $this->new_error_msg("¡Imposible actualizar el <a href='".$pedido->url()."'>".FS_PEDIDO."</a>!");
+            }
+            else if( $pedido->delete() )
+            {
+               $this->new_message(ucfirst(FS_PEDIDO)." eliminado correctamente.");
+            }
+            else
+               $this->new_error_msg("¡Imposible eliminar el <a href='".$pedido->url()."'>".FS_PEDIDO."</a>!");
+         }
+         else
+            $this->new_error_msg("¡Imposible guardar el ".FS_PEDIDO."!");
+      }
    }
    
    private function nuevo_albaran_proveedor()
@@ -312,14 +577,20 @@ class nueva_compra extends fs_controller
          $albaran->fecha = $_POST['fecha'];
          $albaran->hora = $_POST['hora'];
          $albaran->codproveedor = $proveedor->codproveedor;
-         $albaran->nombre = $proveedor->nombrecomercial;
+         $albaran->nombre = $proveedor->razonsocial;
          $albaran->cifnif = $proveedor->cifnif;
          $albaran->codalmacen = $almacen->codalmacen;
          $albaran->codejercicio = $ejercicio->codejercicio;
          $albaran->codserie = $serie->codserie;
          $albaran->codpago = $forma_pago->codpago;
          $albaran->coddivisa = $divisa->coddivisa;
-         $albaran->tasaconv = $divisa->tasaconv;
+         $albaran->tasaconv = $divisa->tasaconv_compra;
+         
+         if($_POST['tasaconv'] != '')
+         {
+            $albaran->tasaconv = floatval($_POST['tasaconv']);
+         }
+         
          $albaran->codagente = $this->agente->codagente;
          $albaran->numproveedor = $_POST['numproveedor'];
          $albaran->observaciones = $_POST['observaciones'];
@@ -359,7 +630,7 @@ class nueva_compra extends fs_controller
                   $linea->dtopor = floatval($_POST['dto_'.$i]);
                   $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
                   $linea->pvptotal = floatval($_POST['neto_'.$i]);
-                  
+                     
                   $articulo = $art0->get($_POST['referencia_'.$i]);
                   if($articulo)
                   {
@@ -508,14 +779,20 @@ class nueva_compra extends fs_controller
          $factura->fecha = $_POST['fecha'];
          $factura->hora = $_POST['hora'];
          $factura->codproveedor = $proveedor->codproveedor;
-         $factura->nombre = $proveedor->nombrecomercial;
+         $factura->nombre = $proveedor->razonsocial;
          $factura->cifnif = $proveedor->cifnif;
          $factura->codalmacen = $almacen->codalmacen;
          $factura->codejercicio = $ejercicio->codejercicio;
          $factura->codserie = $serie->codserie;
          $factura->codpago = $forma_pago->codpago;
          $factura->coddivisa = $divisa->coddivisa;
-         $factura->tasaconv = $divisa->tasaconv;
+         $factura->tasaconv = $divisa->tasaconv_compra;
+         
+         if($_POST['tasaconv'] != '')
+         {
+            $factura->tasaconv = floatval($_POST['tasaconv']);
+         }
+         
          $factura->codagente = $this->agente->codagente;
          $factura->numproveedor = $_POST['numproveedor'];
          $factura->observaciones = $_POST['observaciones'];
@@ -537,23 +814,23 @@ class nueva_compra extends fs_controller
                   $linea = new linea_factura_proveedor();
                   $linea->idfactura = $factura->idfactura;
                   $linea->descripcion = $_POST['desc_'.$i];
-                  
+                     
                   if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
                   {
-                     $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$i]);
-                     if($imp0)
-                     {
-                        $linea->codimpuesto = $imp0->codimpuesto;
-                        $linea->iva = floatval($_POST['iva_'.$i]);
-                        $linea->recargo = floatval($_POST['recargo_'.$i]);
-                     }
-                     else
-                     {
-                        $linea->iva = floatval($_POST['iva_'.$i]);
-                        $linea->recargo = floatval($_POST['recargo_'.$i]);
-                     }
+                        $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$i]);
+                        if($imp0)
+                        {
+                           $linea->codimpuesto = $imp0->codimpuesto;
+                           $linea->iva = floatval($_POST['iva_'.$i]);
+                           $linea->recargo = floatval($_POST['recargo_'.$i]);
+                        }
+                        else
+                        {
+                           $linea->iva = floatval($_POST['iva_'.$i]);
+                           $linea->recargo = floatval($_POST['recargo_'.$i]);
+                        }
                   }
-                  
+                     
                   $linea->irpf = floatval($_POST['irpf_'.$i]);
                   $linea->pvpunitario = floatval($_POST['pvp_'.$i]);
                   $linea->cantidad = floatval($_POST['cantidad_'.$i]);
@@ -580,6 +857,10 @@ class nueva_compra extends fs_controller
                            else
                            {
                               $articulo->costemedio = $articulo->get_costemedio();
+                              if($articulo->costemedio == 0)
+                              {
+                                 $articulo->costemedio = $linea->pvptotal/$linea->cantidad;
+                              }
                            }
                         }
                         
@@ -647,7 +928,7 @@ class nueva_compra extends fs_controller
       }
    }
    
-   private function generar_asiento(&$factura)
+   private function generar_asiento($factura)
    {
       if($this->empresa->contintegrada)
       {

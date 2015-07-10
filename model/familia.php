@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'base/fs_model.php';
 require_model('articulo.php');
 
 /**
@@ -28,6 +27,8 @@ class familia extends fs_model
    public $codfamilia;
    public $descripcion;
    public $madre;
+   
+   public $nivel;
    
    public function __construct($f=FALSE)
    {
@@ -42,12 +43,19 @@ class familia extends fs_model
          {
             $this->madre = $f['madre'];
          }
+         
+         $this->nivel = '';
+         if( isset($f['nivel']) )
+         {
+            $this->nivel = $f['nivel'];
+         }
       }
       else
       {
          $this->codfamilia = NULL;
          $this->descripcion = '';
          $this->madre = NULL;
+         $this->nivel = '';
       }
    }
    
@@ -125,16 +133,21 @@ class familia extends fs_model
       if( $this->test() )
       {
          $this->clean_cache();
+         
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET descripcion = ".$this->var2str($this->descripcion).",
-               madre = ".$this->var2str($this->madre)." WHERE codfamilia = ".$this->var2str($this->codfamilia).";";
+            $sql = "UPDATE ".$this->table_name." SET descripcion = ".$this->var2str($this->descripcion).
+                    ", madre = ".$this->var2str($this->madre).
+                    " WHERE codfamilia = ".$this->var2str($this->codfamilia).";";
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (codfamilia,descripcion,madre) VALUES
-               (".$this->var2str($this->codfamilia).",".$this->var2str($this->descripcion).",".$this->var2str($this->madre).");";
+            $sql = "INSERT INTO ".$this->table_name." (codfamilia,descripcion,madre) VALUES ".
+                    "(".$this->var2str($this->codfamilia).
+                    ",".$this->var2str($this->descripcion).
+                    ",".$this->var2str($this->madre).");";
          }
+         
          return $this->db->exec($sql);
       }
       else
@@ -144,7 +157,11 @@ class familia extends fs_model
    public function delete()
    {
       $this->clean_cache();
-      return $this->db->exec("DELETE FROM ".$this->table_name." WHERE codfamilia = ".$this->var2str($this->codfamilia).";");
+      $sql = "DELETE FROM ".$this->table_name." WHERE codfamilia = ".$this->var2str($this->codfamilia).";"
+              . "UPDATE ".$this->table_name." SET madre = ".$this->var2str($this->madre)." WHERE madre = ".$this->var2str($this->codfamilia).";"
+              . "UPDATE articulos SET codfamilia = ".$this->var2str($this->madre)." WHERE codfamilia = ".$this->var2str($this->codfamilia).";";
+      
+      return $this->db->exec($sql);
    }
    
    private function clean_cache()
@@ -155,17 +172,48 @@ class familia extends fs_model
    public function all()
    {
       $famlist = $this->cache->get_array('m_familia_all');
-      if( !$famlist )
+      if(!$famlist)
       {
-         $familias = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY descripcion ASC;");
-         if($familias)
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY descripcion ASC;");
+         if($data)
          {
-            foreach($familias as $f)
-               $famlist[] = new familia($f);
+            foreach($data as $d)
+            {
+               if( is_null($d['madre']) )
+               {
+                  $famlist[] = new familia($d);
+                  foreach( $this->aux_all($data, $d['codfamilia'], '· ') as $value )
+                  {
+                     $famlist[] = new familia($value);
+                  }
+               }
+            }
          }
+         
          $this->cache->set('m_familia_all', $famlist);
       }
+      
       return $famlist;
+   }
+   
+   private function aux_all(&$familias, $madre, $nivel)
+   {
+      $subfamilias = array();
+      
+      foreach($familias as $fam)
+      {
+         if($fam['madre'] == $madre)
+         {
+            $fam['nivel'] = $nivel;
+            $subfamilias[] = $fam;
+            foreach( $this->aux_all($familias, $fam['codfamilia'], '&nbsp;&nbsp;'.$nivel) as $value )
+            {
+               $subfamilias[] = $value;
+            }
+         }
+      }
+      
+      return $subfamilias;
    }
    
    public function madres()

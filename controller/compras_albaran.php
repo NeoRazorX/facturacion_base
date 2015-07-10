@@ -21,6 +21,7 @@ require_model('albaran_proveedor.php');
 require_model('articulo.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
+require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('factura_proveedor.php');
 require_model('familia.php');
@@ -37,8 +38,10 @@ class compras_albaran extends fs_controller
    public $agente;
    public $albaran;
    public $allow_delete;
+   public $divisa;
    public $ejercicio;
    public $familia;
+   public $forma_pago;
    public $impuesto;
    public $nuevo_albaran_url;
    public $proveedor;
@@ -57,8 +60,10 @@ class compras_albaran extends fs_controller
       
       $albaran = new albaran_proveedor();
       $this->albaran = FALSE;
+      $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
       $this->familia = new familia();
+      $this->forma_pago = new forma_pago();
       $this->impuesto = new impuesto();
       $this->proveedor = new proveedor();
       $this->proveedor_s = FALSE;
@@ -168,7 +173,7 @@ class compras_albaran extends fs_controller
             if($proveedor)
             {
                $this->albaran->codproveedor = $proveedor->codproveedor;
-               $this->albaran->nombre = $proveedor->nombrecomercial;
+               $this->albaran->nombre = $proveedor->razonsocial;
                $this->albaran->cifnif = $proveedor->cifnif;
             }
             else
@@ -191,6 +196,23 @@ class compras_albaran extends fs_controller
                
                $serie = $serie2;
             }
+         }
+         
+         $this->albaran->codpago = $_POST['forma_pago'];
+         
+         /// ¿Cambiamos la divisa?
+         if($_POST['divisa'] != $this->albaran->coddivisa)
+         {
+            $divisa = $this->divisa->get($_POST['divisa']);
+            if($divisa)
+            {
+               $this->albaran->coddivisa = $divisa->coddivisa;
+               $this->albaran->tasaconv = $divisa->tasaconv_compra;
+            }
+         }
+         else if($_POST['tasaconv'] != '')
+         {
+            $this->albaran->tasaconv = floatval($_POST['tasaconv']);
          }
          
          if( isset($_POST['numlineas']) )
@@ -544,7 +566,11 @@ class compras_albaran extends fs_controller
                   if( isset($_POST['update_all']) )
                   {
                      $art0->descripcion = $linea->descripcion;
-                     $art0->codbarras = $_POST['codbar_'.$i];
+                     
+                     if($_POST['codbar_'.$i] != '')
+                     {
+                        $art0->codbarras = $_POST['codbar_'.$i];
+                     }
                   }
                   
                   $art0->set_impuesto($linea->codimpuesto);

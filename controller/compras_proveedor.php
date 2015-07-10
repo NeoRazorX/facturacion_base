@@ -135,6 +135,8 @@ class compras_proveedor extends fs_controller
          else
             $cuentab->iban = $_POST['iban'];
          
+         $cuentab->swift = $_POST['swift'];
+         
          if( $cuentab->save() )
          {
             $this->new_message('Cuenta bancaria guardada correctamente.');
@@ -145,7 +147,7 @@ class compras_proveedor extends fs_controller
       else if( isset($_POST['codproveedor']) ) /// modificar el proveedor
       {
          $this->proveedor->nombre = $_POST['nombre'];
-         $this->proveedor->nombrecomercial = $_POST['nombrecomercial'];
+         $this->proveedor->razonsocial = $_POST['razonsocial'];
          $this->proveedor->cifnif = $_POST['cifnif'];
          $this->proveedor->telefono1 = $_POST['telefono1'];
          $this->proveedor->telefono2 = $_POST['telefono2'];
@@ -157,6 +159,7 @@ class compras_proveedor extends fs_controller
          $this->proveedor->codpago = $_POST['codpago'];
          $this->proveedor->coddivisa = $_POST['coddivisa'];
          $this->proveedor->regimeniva = $_POST['regimeniva'];
+         $this->proveedor->acreedor = isset($_POST['acreedor']);
          if( $this->proveedor->save() )
          {
             $this->new_message('Datos del proveedor modificados correctamente.');

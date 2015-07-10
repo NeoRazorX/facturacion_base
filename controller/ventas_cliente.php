@@ -142,6 +142,8 @@ class ventas_cliente extends fs_controller
          else
             $cuentab->iban = $_POST['iban'];
          
+         $cuentab->swift = $_POST['swift'];
+         
          if( $cuentab->save() )
          {
             $this->new_message('Cuenta bancaria guardada correctamente.');
@@ -152,7 +154,7 @@ class ventas_cliente extends fs_controller
       else if( isset($_POST['codcliente']) ) /// modificar cliente
       {
          $this->cliente->nombre = $_POST['nombre'];
-         $this->cliente->nombrecomercial = $_POST['nombrecomercial'];
+         $this->cliente->razonsocial = $_POST['razonsocial'];
          $this->cliente->cifnif = $_POST['cifnif'];
          $this->cliente->telefono1 = $_POST['telefono1'];
          $this->cliente->telefono2 = $_POST['telefono2'];

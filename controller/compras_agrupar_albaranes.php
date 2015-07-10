@@ -208,7 +208,7 @@ class compras_agrupar_albaranes extends fs_controller
       {
          $factura->cifnif = $proveedor->cifnif;
          $factura->codproveedor = $proveedor->codproveedor;
-         $factura->nombre = $proveedor->nombrecomercial;
+         $factura->nombre = $proveedor->razonsocial;
       }
       
       /// calculamos neto e iva

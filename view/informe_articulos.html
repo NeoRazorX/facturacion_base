@@ -29,7 +29,7 @@
             <b>{$fsc->show_numero($fsc->stats['con_stock'], 0)}</b> de ellos tienen stock,
             <b>{$fsc->show_numero($fsc->stats['publicos'], 0)}</b> son públicos
             y <b>{$fsc->show_numero($fsc->stats['bloqueados'], 0)}</b> están bloqueados.
-            La última actualización de los artículos es del <b>{$fsc->stats['factualizado']}</b>.
+            La última actualización de precio de un artículo es del <b>{$fsc->stats['factualizado']}</b>.
          </p>
       </div>
    </div>
@@ -195,9 +195,9 @@
       <tr class="clickableRow{if="intval($value['cantidad'])<intval($value['stockmin'])"} bg-danger{/if}" href="index.php?page=ventas_articulo&ref={$value['referencia']}">
          <td>{$value['codalmacen']}</td>
          <td><a href="index.php?page=ventas_articulo&ref={$value['referencia']}">{$value['referencia']}</a> {$value['descripcion']}</td>
-         <td class="text-right">{$fsc->show_numero($value['cantidad'])}</td>
-         <td class="text-right">{$fsc->show_numero($value['stockmin'])}</td>
-         <td class="text-right">{$fsc->show_numero($value['stockmax'])}</td>
+         <td class="text-right">{$value['cantidad']}</td>
+         <td class="text-right">{$value['stockmin']}</td>
+         <td class="text-right">{$value['stockmax']}</td>
       </tr>
       {else}
       <tr class="bg-warning">
@@ -295,7 +295,7 @@
                <th>Nombre</th>
                <th>Empleado</th>
                <th class="text-right">Cantidad</th>
-               <th class="text-right">PVP</th>
+               <th class="text-right">Precio</th>
                <th class="text-right">Dto.</th>
                <th class="text-right">Neto</th>
                <th class="text-right">Total</th>

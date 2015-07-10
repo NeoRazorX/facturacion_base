@@ -43,7 +43,6 @@ function usar_cliente(codcliente)
                {
                   $("#iva_"+j).val(0);
                   $("#recargo_"+j).val(0);
-                  $("#irpf_"+j).html( show_numero(irpf) );
                }
             }
          }
@@ -65,8 +64,6 @@ function usar_serie()
          {
             if($("#linea_"+j).length > 0)
             {
-               $("#irpf_"+j).html( show_numero(irpf) );
-               
                if(siniva)
                {
                   $("#iva_"+j).val(0);
@@ -308,9 +305,9 @@ function buscar_articulos()
             {
                tr_aux = "<tr class=\"bg-warning\">";
             }
-            else if(val.stockfis > val.stockmax)
+            else if(val.stockfis > 0)
             {
-               tr_aux = "<tr class=\"bg-info\">";
+               tr_aux = "<tr class=\"bg-success\">";
             }
             
             if(val.codbarras == document.f_buscar_articulos.query.value && !codbarras)
@@ -364,10 +361,16 @@ function buscar_articulos()
             }
          });
          
+         if(items.length == 0 && !fin_busqueda1)
+         {
+            items.push("<tr><td colspan=\"4\" class=\"bg-warning\">Sin resultados.</td></tr>");
+            insertar = true;
+         }
+         
          if(insertar)
          {
             $("#search_results").html("<div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>\n\
-               <th class=\"text-left\">Referencia + descripción</th><th class=\"text-right\">PVP</th><th class=\"text-right\">PVP+IVA</th>\n\
+               <th class=\"text-left\">Referencia + descripción</th><th class=\"text-right\">Precio</th><th class=\"text-right\">Precio+IVA</th>\n\
                <th class=\"text-right\">Stock</th></tr></thead>"+items.join('')+"</table></div>");
          }
       });
@@ -397,10 +400,6 @@ $(document).ready(function() {
       window.location.href = tpv_url+"&reticket="+prompt('Introduce el código del ticket (o déjalo en blanco para re-imprimir el último):');
    });
    
-   $("#b_borrar_ticket").click(function() {
-      window.location.href = tpv_url+"&delete="+prompt('Introduce el código del ticket:');
-   });
-   
    $("#b_cerrar_caja").click(function() {
       if( confirm("¿Realmente deseas cerrar la caja?") )
          window.location.href = tpv_url+"&cerrar_caja=TRUE";
@@ -416,7 +415,10 @@ $(document).ready(function() {
    
    $("#i_new_line").keyup(function() {
       document.f_buscar_articulos.query.value = $("#i_new_line").val();
+      $("#i_new_line").val('');
       buscar_articulos();
+      $("#modal_articulos").modal('show');
+      document.f_buscar_articulos.query.focus();
    });
    
    $("#f_buscar_articulos").keyup(function() {

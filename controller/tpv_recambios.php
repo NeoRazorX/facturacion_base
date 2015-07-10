@@ -78,6 +78,10 @@ class tpv_recambios extends fs_controller
       {
          $this->buscar_cliente();
       }
+      else if( isset($_REQUEST['datoscliente']) )
+      {
+         $this->datos_cliente();
+      }
       else if($this->query != '')
       {
          $this->new_search();
@@ -95,17 +99,8 @@ class tpv_recambios extends fs_controller
          $this->forma_pago = new forma_pago();
          $this->serie = new serie();
          
-         $this->imprimir_descripciones = FALSE;
-         if( isset($_REQUEST['imprimir_desc']) )
-         {
-            $this->imprimir_descripciones = TRUE;
-         }
-         
-         $this->imprimir_observaciones = FALSE;
-         if( isset($_REQUEST['imprimir_obs']) )
-         {
-            $this->imprimir_observaciones = TRUE;
-         }
+         $this->imprimir_descripciones = isset($_REQUEST['imprimir_desc']);
+         $this->imprimir_observaciones = isset($_REQUEST['imprimir_obs']);
          
          if($this->agente)
          {
@@ -230,18 +225,27 @@ class tpv_recambios extends fs_controller
       echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
    }
    
+   private function datos_cliente()
+   {
+      /// desactivamos la plantilla HTML
+      $this->template = FALSE;
+      
+      header('Content-Type: application/json');
+      echo json_encode( $this->cliente->get($_REQUEST['datoscliente']) );
+   }
+   
    private function new_search()
    {
       /// desactivamos la plantilla HTML
       $this->template = FALSE;
       
       $codfamilia = '';
-      if( isset($_POST['codfamilia']) )
+      if( isset($_REQUEST['codfamilia']) )
       {
-         $codfamilia = $_POST['codfamilia'];
+         $codfamilia = $_REQUEST['codfamilia'];
       }
       
-      $con_stock = isset($_POST['con_stock']);
+      $con_stock = isset($_REQUEST['con_stock']);
       $this->results = $this->articulo->search($this->query, 0, $codfamilia, $con_stock);
       
       /// añadimos el descuento y la cantidad
@@ -412,6 +416,12 @@ class tpv_recambios extends fs_controller
          $factura->codpago = $forma_pago->codpago;
          $factura->coddivisa = $divisa->coddivisa;
          $factura->tasaconv = $divisa->tasaconv;
+         
+         if($_POST['tasaconv'] != '')
+         {
+            $factura->tasaconv = floatval($_POST['tasaconv']);
+         }
+         
          $factura->codagente = $this->agente->codagente;
          $factura->observaciones = $_POST['observaciones'];
          $factura->numero2 = $_POST['numero2'];
@@ -423,13 +433,15 @@ class tpv_recambios extends fs_controller
             $factura->pagada = TRUE;
          }
          
+         $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$forma_pago->vencimiento));
+         
          foreach($this->cliente_s->get_direcciones() as $d)
          {
             if($d->domfacturacion)
             {
                $factura->codcliente = $this->cliente_s->codcliente;
                $factura->cifnif = $this->cliente_s->cifnif;
-               $factura->nombrecliente = $this->cliente_s->nombrecomercial;
+               $factura->nombrecliente = $this->cliente_s->razonsocial;
                $factura->apartado = $d->apartado;
                $factura->ciudad = $d->ciudad;
                $factura->coddir = $d->id;
@@ -518,7 +530,15 @@ class tpv_recambios extends fs_controller
                   $this->new_message("<a href='".$factura->url()."'>Factura</a> guardada correctamente.");
                   
                   $this->generar_asiento($factura);
-                  $this->imprimir_ticket( $factura, floatval($_POST['num_tickets']) );
+                  
+                  if($_POST['regalo'] == 'TRUE')
+                  {
+                     $this->imprimir_ticket_regalo($factura);
+                  }
+                  else
+                  {
+                     $this->imprimir_ticket( $factura, floatval($_POST['num_tickets']) );
+                  }
                   
                   /// actualizamos la caja
                   $this->caja->dinero_fin += $factura->total;
@@ -582,7 +602,9 @@ class tpv_recambios extends fs_controller
             $this->terminal->add_linea_big( $this->terminal->center_text($this->empresa->nombre, 16)."\n");
             $this->terminal->add_linea( $this->terminal->center_text($this->empresa->lema) . "\n\n");
             $this->terminal->add_linea( $this->terminal->center_text($this->empresa->direccion . " - " . $this->empresa->ciudad) . "\n");
-            $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif) . chr(27).chr(105) . "\n\n"); /// corta el papel
+            $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif) );
+            $this->terminal->cortar_papel();
+            $this->terminal->add_linea("\n\n");
             $this->terminal->add_linea( $this->terminal->center_text($this->empresa->horario) . "\n");
             
             $this->terminal->abrir_cajon();
@@ -636,9 +658,8 @@ class tpv_recambios extends fs_controller
          
          while($num_tickets > 0)
          {
-            $linea = "\nTicket: " . $factura->codigo;
-            $linea .= " " . $factura->fecha;
-            $linea .= " " . Date('H:i', strtotime($factura->hora)) . "\n";
+            $linea = "\nFactura simplificada: " . $factura->codigo . "\n";
+            $linea .= $factura->fecha. " " . Date('H:i', strtotime($factura->hora)) . "\n";
             $this->terminal->add_linea($linea);
             $this->terminal->add_linea("Cliente: " . $factura->nombrecliente . "\n");
             $this->terminal->add_linea("Empleado: " . $factura->codagente . "\n\n");
@@ -672,6 +693,72 @@ class tpv_recambios extends fs_controller
                   "Total: ".$this->show_precio($factura->total, $factura->coddivisa, FALSE)
                )."\n\n\n\n";
             $this->terminal->add_linea($linea);
+            
+            $this->terminal->add_linea_big( $this->terminal->center_text($this->empresa->nombre, 16)."\n");
+            
+            if($this->empresa->lema != '')
+            {
+               $this->terminal->add_linea( $this->terminal->center_text($this->empresa->lema) . "\n\n");
+            }
+            else
+               $this->terminal->add_linea("\n");
+            
+            $this->terminal->add_linea( $this->terminal->center_text($this->empresa->direccion . " - " . $this->empresa->ciudad) . "\n");
+            $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif));
+            $this->terminal->cortar_papel();
+            $this->terminal->add_linea("\n\n");
+            
+            if($this->empresa->horario != '')
+               $this->terminal->add_linea( $this->terminal->center_text($this->empresa->horario) . "\n");
+            
+            $num_tickets--;
+         }
+         
+         $this->terminal->save();
+      }
+   }
+   
+   private function imprimir_ticket_regalo($factura, $num_tickets = 1, $cajon = TRUE)
+   {
+      if($this->terminal)
+      {
+         if($cajon)
+         {
+            $this->terminal->abrir_cajon();
+         }
+         
+         while($num_tickets > 0)
+         {
+            $linea = "\nFactura simplificada: " . $factura->codigo . "\n";
+            $linea .= $factura->fecha. " " . Date('H:i', strtotime($factura->hora)) . "\n";
+            $this->terminal->add_linea($linea);
+            $this->terminal->add_linea("Cliente: " . $factura->nombrecliente . "\n");
+            $this->terminal->add_linea("Empleado: " . $factura->codagente . "\n\n");
+            
+            if($this->imprimir_observaciones)
+            {
+               $this->terminal->add_linea('Observaciones: '.$factura->observaciones."\n\n");
+            }
+            
+            $this->terminal->add_linea(sprintf("%3s", "Ud.")." ".sprintf("%-25s", "Articulo")." ".sprintf("%10s", "TOTAL")."\n");
+            $this->terminal->add_linea(sprintf("%3s", "---")." ".sprintf("%-25s", "-------------------------")." ".sprintf("%10s", "----------")."\n");
+            foreach($factura->get_lineas() as $col)
+            {
+               if($this->imprimir_descripciones)
+               {
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-25s", substr($col->descripcion, 0, 24))." "
+                     .sprintf("%10s", '-')."\n";
+               }
+               else
+               {
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-25s", $col->referencia)." "
+                     .sprintf("%10s", '-')."\n";
+               }
+               
+               $this->terminal->add_linea($linea);
+            }
+            
+            $this->terminal->add_linea("\n\n\n\n");
             
             $this->terminal->add_linea_big( $this->terminal->center_text($this->empresa->nombre, 16)."\n");
             

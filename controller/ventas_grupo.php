@@ -21,6 +21,7 @@
 require_model('cliente.php');
 require_model('factura_cliente.php');
 require_model('grupo_clientes.php');
+require_model('tarifa.php');
 
 /**
  * Description of ventas_grupo
@@ -33,6 +34,7 @@ class ventas_grupo extends fs_controller
    public $mostrar;
    public $offset;
    public $resultados;
+   public $tarifa;
    
    public function __construct()
    {
@@ -54,6 +56,7 @@ class ventas_grupo extends fs_controller
       }
       
       $this->grupo = FALSE;
+      $this->tarifa = FALSE;
       if( isset($_REQUEST['cod']) )
       {
          $grupo = new grupo_clientes();
@@ -62,6 +65,9 @@ class ventas_grupo extends fs_controller
       
       if($this->grupo)
       {
+         $tar0 = new tarifa();
+         $this->tarifa = $tar0->get($this->grupo->codtarifa);
+         
          if($this->mostrar == 'clientes')
          {
             $this->resultados = $this->clientes_from_grupo($this->grupo->codgrupo, $this->offset);

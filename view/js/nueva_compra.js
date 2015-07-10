@@ -46,7 +46,6 @@ function usar_proveedor(codproveedor)
                {
                   $("#iva_"+j).val(0);
                   $("#recargo_"+j).val(0);
-                  $("#irpf_"+j).html( show_numero(irpf) );
                }
             }
          }
@@ -68,8 +67,6 @@ function usar_serie()
          {
             if($("#linea_"+j).length > 0)
             {
-               $("#irpf_"+j).html( show_numero(irpf) );
-               
                if(siniva)
                {
                   $("#iva_"+j).val(0);
@@ -354,6 +351,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto)
    $("#modal_articulos").modal('hide');
    
    $("#desc_"+(numlineas-1)).select();
+   return false;
 }
 
 function add_linea_libre()
@@ -387,6 +385,7 @@ function add_linea_libre()
    recalcular();
    
    $("#desc_"+(numlineas-1)).select();
+   return false;
 }
 
 function get_precios(ref)
@@ -426,7 +425,14 @@ function new_articulo()
             $("#kiwimaru_results").hide();
             $("#nuevo_articulo").hide();
             
-            add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].pvp, 0, datos[0].codimpuesto);
+            if(precio_compra == 'coste')
+            {
+               add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].coste, 0, datos[0].codimpuesto);
+            }
+            else
+            {
+               add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].pvp, 0, datos[0].codimpuesto);
+            }
          }
       });
    }
@@ -434,6 +440,9 @@ function new_articulo()
 
 function buscar_articulos()
 {
+   document.f_nuevo_articulo.referencia.value = document.f_buscar_articulos.query.value;
+   document.f_nuevo_articulo.refproveedor.value = document.f_buscar_articulos.query.value;
+   
    if(document.f_buscar_articulos.query.value == '')
    {
       $("#nav_articulos").hide();
@@ -473,15 +482,15 @@ function buscar_articulos()
                }
                else if(val.stockfis > val.stockmax)
                {
-                  tr_aux = "<tr class=\"bg-info\">";
+                  tr_aux = "<tr class=\"bg-success\">";
                }
                
                if(val.secompra)
                {
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
-                     &nbsp; <a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+descripcion+"','"+precio+"','0','"+val.codimpuesto+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+descripcion+"','"+val.coste+"','0','"+val.codimpuesto+"')\">"+show_precio(val.coste)+"</a></td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\">"+show_precio(val.pvp)+"</a></td>\n\
+                     &nbsp; <a href=\"#\" onclick=\"return add_articulo('"+val.referencia+"','"+descripcion+"','"+precio+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"+val.referencia+"','"+descripcion+"','"+val.coste+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"+show_precio(val.coste)+"</a></td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\">"+show_precio(val.pvp)+"</a></td>\n\
                      <td class=\"text-right\">"+val.stockfis+"</td></tr>");
                }
                
@@ -502,7 +511,7 @@ function buscar_articulos()
             if(insertar)
             {
                $("#search_results").html("<div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>\n\
-                  <th class=\"text-left\">Referencia + descripción</th><th class=\"text-right\">Coste</th><th class=\"text-right\">PVP</th>\n\
+                  <th class=\"text-left\">Referencia + descripción</th><th class=\"text-right\">Coste</th><th class=\"text-right\">Precio</th>\n\
                   <th class=\"text-right\">Stock</th></tr></thead>"+items.join('')+"</table></div>");
             }
          });
@@ -536,7 +545,7 @@ function buscar_articulos()
             {
                $("#kiwimaru_results").html("<div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>\n\
                   <th class=\"text-left\">Sector / Tienda / Familia</th><th class=\"text-left\">Referencia + descripción</th>\n\
-                  <th class=\"text-right\">PVP+IVA</th></tr></thead>"+items.join('')+"</table></div>");
+                  <th class=\"text-right\">Precio+IVA</th></tr></thead>"+items.join('')+"</table></div>");
             }
          });
       }
@@ -553,7 +562,9 @@ function kiwi_import(ref,desc,pvp)
    $("#kiwimaru_results").hide();
    $("#nuevo_articulo").show();
    document.f_nuevo_articulo.referencia.value = ref;
+   document.f_nuevo_articulo.refproveedor.value = ref;
    document.f_nuevo_articulo.descripcion.value = desc;
+   document.f_nuevo_articulo.coste.value = pvp;
    document.f_nuevo_articulo.pvp.value = pvp;
    document.f_nuevo_articulo.referencia.select();
 }
@@ -578,6 +589,19 @@ $(document).ready(function() {
    
    $("#i_new_line").keyup(function() {
       document.f_buscar_articulos.query.value = $("#i_new_line").val();
+      $("#i_new_line").val('');
+      $("#nav_articulos li").each(function() {
+         $(this).removeClass("active");
+      });
+      $("#li_mis_articulos").addClass('active');
+      $("#nav_articulos").hide();
+      $("#search_results").html('');
+      $("#search_results").show('');
+      $("#kiwimaru_results").html('');
+      $("#kiwimaru_results").hide();
+      $("#nuevo_articulo").hide();
+      $("#modal_articulos").modal('show');
+      document.f_buscar_articulos.query.focus();
       buscar_articulos();
    });
    

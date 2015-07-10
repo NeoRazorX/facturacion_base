@@ -106,6 +106,10 @@
       <nulo>NO</nulo>
    </columna>
    <columna>
+      <nombre>vencimiento</nombre>
+      <tipo>date</tipo>
+   </columna>
+   <columna>
       <nombre>hora</nombre>
       <tipo>time without time zone</tipo>
       <nulo>NO</nulo>

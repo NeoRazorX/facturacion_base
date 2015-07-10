@@ -83,17 +83,6 @@
                   <span class="hidden-xs">&nbsp; Enviar</span>
                </a>
                {/if}
-               {if="$fsc->albaran->ptefactura"}
-               <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
-                  <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
-               </a>
-               {else}
-               <a class="btn btn-sm btn-default text-capitalize" href="{$fsc->albaran->factura_url()}">
-                  <span class="glyphicon glyphicon-eye-open"></span>
-                  <span class="hidden-xs">&nbsp; Ver Factura</span>
-               </a>
-               {/if}
-               
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}&id={$fsc->albaran->idalbaran}{$value->params}" class="btn btn-sm btn-default">
@@ -101,6 +90,19 @@
                   </a>
                   {/if}
                {/loop}
+            </div>
+            
+            <div class="btn-group">
+               {if="$fsc->albaran->ptefactura"}
+               <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
+                  <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
+               </a>
+               {else}
+               <a class="btn btn-sm btn-info text-capitalize" href="{$fsc->albaran->factura_url()}">
+                  <span class="glyphicon glyphicon-eye-open"></span>
+                  <span class="hidden-xs">&nbsp; Ver Factura</span>
+               </a>
+               {/if}
             </div>
          </div>
          <div class="col-xs-4 text-right">
@@ -111,7 +113,7 @@
                   <span class="hidden-sm hidden-xs">&nbsp; Eliminar</span>
                </a>
                {/if}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <button class="btn btn-sm btn-primary" type="button" onclick="this.disabled=true;this.form.submit();">
                   <span class="glyphicon glyphicon-floppy-disk"></span>
                   <span class="hidden-xs">&nbsp; Guardar</span>
                </button>
@@ -135,7 +137,7 @@
       </div>
       <div class="row">
          {if="$fsc->albaran->ptefactura"}
-         <div class="col-md-5 col-sm-12">
+         <div class="col-md-4 col-sm-12">
             <div class="form-group">
                Cliente actual:
                <div class="input-group">
@@ -149,40 +151,30 @@
             </div>
          </div>
          {/if}
-         <div class="col-md-2 col-sm-2">
+         <div class="col-md-4 col-sm-6">
             <div class="form-group">
                Número 2:
                <input class="form-control" type="text" name="numero2" value="{$fsc->albaran->numero2}"/>
             </div>
          </div>
-         <div class="col-md-2 col-sm-2">
+         <div class="col-md-2 col-sm-3">
             <div class="form-group">
-               <a href="{$fsc->serie->url()}">Serie</a>:
+               Fecha:
                {if="$fsc->albaran->ptefactura"}
-               <select class="form-control" name="serie" id="codserie" onchange="usar_serie();recalcular();">
-               {loop="$fsc->serie->all()"}
-                  {if="$value->codserie==$fsc->albaran->codserie"}
-                  <option value="{$value->codserie}" selected="selected">{$value->descripcion}</option>
-                  {else}
-                  <option value="{$value->codserie}">{$value->descripcion}</option>
-                  {/if}
-               {/loop}
-               </select>
+               <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->albaran->fecha}" autocomplete="off"/>
                {else}
-               <div class="form-control">{$fsc->albaran->codserie}</div>
+               <div class="form-control">{$fsc->albaran->fecha}</div>
                {/if}
             </div>
          </div>
-         <div class="col-md-2 col-sm-2">
-            <div class="form-group">
-               Fecha:
-               <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->albaran->fecha}" autocomplete="off"/>
-            </div>
-         </div>
-         <div class="col-md-1 col-sm-2">
+         <div class="col-md-2 col-sm-3">
             <div class="form-group">
                Hora:
+               {if="$fsc->albaran->ptefactura"}
                <input class="form-control" type="text" name="hora" value="{$fsc->albaran->hora}" autocomplete="off"/>
+               {else}
+               <div class="form-control">{$fsc->albaran->hora}</div>
+               {/if}
             </div>
          </div>
       </div>
@@ -196,12 +188,20 @@
                <span class="hidden-xs">&nbsp; Líneas</span>
             </a>
          </li>
+         {if="$fsc->albaran->ptefactura"}
          <li role="presentation">
             <a href="#direccion_p" aria-controls="direccion_p" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-road" aria-hidden="true"></span>
                <span class="hidden-xs">&nbsp; Dirección</span>
             </a>
          </li>
+         <li role="presentation">
+            <a href="#opciones" aria-controls="opciones" role="tab" data-toggle="tab">
+               <span class="glyphicon glyphicon-option-vertical" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Opciones</span>
+            </a>
+         </li>
+         {/if}
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <li role="presentation">
@@ -297,7 +297,7 @@
                      <tr class="bg-info">
                         <td><input id="i_new_line" class="form-control" type="text" placeholder="Buscar para añadir..." autocomplete="off"/></td>
                         <td>
-                           <a href="#" class="btn btn-sm btn-default" title="Añadir sin buscar" onclick="add_linea_libre()">
+                           <a href="#" class="btn btn-sm btn-default" title="Añadir sin buscar" onclick="return add_linea_libre()">
                               <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                            </a>
                         </td>
@@ -372,6 +372,7 @@
                {/if}
             </div>
          </div>
+         {if="$fsc->albaran->ptefactura"}
          <div role="tabpanel" class="tab-pane" id="direccion_p">
             <div class="container-fluid" style="margin-top: 10px;">
                <div class="row">
@@ -412,6 +413,57 @@
                </div>
             </div>
          </div>
+         <div role="tabpanel" class="tab-pane" id="opciones">
+            <div class="container-fluid" style="margin-top: 10px;">
+               <div class="row">
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        <a href="{$fsc->serie->url()}">Serie</a>:
+                        <select class="form-control" name="serie" id="codserie" onchange="usar_serie();recalcular();">
+                        {loop="$fsc->serie->all()"}
+                           {if="$value->codserie==$fsc->albaran->codserie"}
+                           <option value="{$value->codserie}" selected="selected">{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->codserie}">{$value->descripcion}</option>
+                           {/if}
+                        {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
+                        <select name="forma_pago" class="form-control">
+                           {loop="$fsc->forma_pago->all()"}
+                           <option value="{$value->codpago}"{if="$value->codpago==$fsc->albaran->codpago"} selected="selected"{/if}>{$value->descripcion}</option>
+                           {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        <a href="{$fsc->divisa->url()}">Divisa</a>:
+                        <select name="divisa" class="form-control">
+                        {loop="$fsc->divisa->all()"}
+                           {if="$value->coddivisa==$fsc->albaran->coddivisa"}
+                           <option value="{$value->coddivisa}" selected="selected">{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->coddivisa}">{$value->descripcion}</option>
+                           {/if}
+                        {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        Tasa de conversión a €
+                        <input type="text" name="tasaconv" class="form-control" placeholder="{$fsc->albaran->tasaconv}" autocomplete="off"/>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         {/if}
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
@@ -520,7 +572,7 @@
                      </div>
                      <div class="col-sm-4">
                         <div class="form-group">
-                           PVP:
+                           Precio:
                            <input type="text" name="pvp" value="0" class="form-control" autocomplete="off"/>
                         </div>
                      </div>
@@ -547,13 +599,16 @@
             <h4 class="modal-title">Imprimir {#FS_ALBARAN#}</h4>
          </div>
          <div class="modal-body">
-            {loop="$fsc->extensions"}
-               {if="$value->type=='pdf'"}
-               <a href="index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}" target="_blank" class="btn btn-block btn-default">
-                  <span class="glyphicon glyphicon-print"></span> &nbsp; {$value->text}
-               </a>
-               {/if}
-            {/loop}
+         {loop="$fsc->extensions"}
+            {if="$value->type=='pdf'"}
+            <a href="index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}" target="_blank" class="btn btn-block btn-default">
+               <span class="glyphicon glyphicon-print"></span> &nbsp; {$value->text}
+            </a>
+            {/if}
+         {/loop}
+         </div>
+         <div class="modal-footer">
+            <a href="index.php?page=admin_empresa#impresion" target="_blank">Opciones de impresión</a>
          </div>
       </div>
    </div>
@@ -577,15 +632,13 @@
                   <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto su {#FS_ALBARAN#} {$fsc->albaran->codigo}.
 {$fsc->empresa->email_firma}</textarea>
                </div>
-            </div>
-            <div class="modal-footer">
-            {loop="$fsc->extensions"}
-               {if="$value->type=='email'"}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}';this.form.submit();">
-                  <span class="glyphicon glyphicon-send"></span> &nbsp; Enviar {$value->text}
-               </button>
-               {/if}
-            {/loop}
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='email'"}
+                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}';this.form.submit();">
+                     <span class="glyphicon glyphicon-send"></span> &nbsp; {$value->text}
+                  </button>
+                  {/if}
+               {/loop}
             </div>
          </div>
       </div>

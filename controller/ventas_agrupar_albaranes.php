@@ -213,6 +213,8 @@ class ventas_agrupar_albaranes extends fs_controller
          {
             $factura->pagada = TRUE;
          }
+         
+         $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$formapago->vencimiento));
       }
       
       /// obtenemos los datos actuales del cliente, por si ha habido cambios
@@ -231,7 +233,7 @@ class ventas_agrupar_albaranes extends fs_controller
                $factura->codpais = $dir->codpais;
                $factura->codpostal = $dir->codpostal;
                $factura->direccion = $dir->direccion;
-               $factura->nombrecliente = $cliente->nombrecomercial;
+               $factura->nombrecliente = $cliente->razonsocial;
                $factura->provincia = $dir->provincia;
                break;
             }

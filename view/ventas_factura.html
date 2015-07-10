@@ -76,6 +76,11 @@
                   {/if}
                </ul>
             </div>
+            {elseif="$fsc->factura->pagada"}
+            <a class="btn btn-sm btn-info" href="#">
+               <span class="glyphicon glyphicon-ok"></span>
+               <span class="hidden-xs">&nbsp; Pagada</span>
+            </a>
             {/if}
             
             <div class="btn-group">
@@ -117,13 +122,7 @@
       </div>
       
       <div class="row">
-         <div class="col-sm-2">
-            <div class="form-group">
-               Número:
-               <input class="form-control" type="text" name="numero" value="{$fsc->factura->numero}" autocomplete="off"/>
-            </div>
-         </div>
-         <div class="col-sm-3">
+         <div class="col-sm-4">
             <div class="form-group">
                Número 2:
                <input class="form-control" type="text" name="numero2" value="{$fsc->factura->numero2}"/>
@@ -131,20 +130,30 @@
          </div>
          <div class="col-sm-2">
             <div class="form-group">
-               Serie:
-               <div class="form-control">{$fsc->factura->codserie}</div>
+               Fecha:
+               <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->factura->fecha}" autocomplete="off"/>
             </div>
          </div>
          <div class="col-sm-2">
             <div class="form-group">
-               Ejercicio:
-               <div class="form-control">{$fsc->factura->codejercicio}</div>
+               Hora:
+               <input class="form-control" type="text" name="hora" value="{$fsc->factura->hora}" autocomplete="off"/>
             </div>
          </div>
-         <div class="col-sm-3">
+         <div class="col-sm-2">
             <div class="form-group">
-               Fecha:
-               <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->factura->fecha}"/>
+               <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
+               <select name="forma_pago" class="form-control">
+                  {loop="$fsc->forma_pago->all()"}
+                  <option value="{$value->codpago}"{if="$fsc->factura->codpago==$value->codpago"} selected="selected"{/if}>{$value->descripcion}</option>
+                  {/loop}
+               </select>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group{if="$fsc->factura->vencida()"} has-warning{/if}">
+               Vencimiento:
+               <input class="form-control datepicker" type="text" name="vencimiento" value="{$fsc->factura->vencimiento}" autocomplete="off"/>
             </div>
          </div>
       </div>
@@ -280,16 +289,18 @@
             <h4 class="modal-title">Imprimir factura</h4>
          </div>
          <div class="modal-body">
-            {loop="$fsc->extensions"}
-               {if="$value->type=='pdf'"}
-               <a href="index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}" target="_blank" class="btn btn-block btn-default">
-                  <span class="glyphicon glyphicon-print"></span> &nbsp; {$value->text}
-               </a>
-               {/if}
-            {/loop}
+         {loop="$fsc->extensions"}
+            {if="$value->type=='pdf'"}
+            <a href="index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}" target="_blank" class="btn btn-block btn-default">
+               <span class="glyphicon glyphicon-print"></span> &nbsp; {$value->text}
+            </a>
+            {/if}
+         {/loop}
          </div>
          <div class="modal-footer">
-            <a href="{$fsc->url()}&updatedir=TRUE">Actualizar la dirección de la factura.</a>
+            <a href="{$fsc->url()}&updatedir=TRUE">Actualizar la dirección de la factura</a>
+            <br/>
+            <a href="index.php?page=admin_empresa#impresion" target="_blank">Opciones de impresión</a>
          </div>
       </div>
    </div>
@@ -313,15 +324,13 @@
                   <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto su factura {$fsc->factura->codigo}.
 {$fsc->empresa->email_firma}</textarea>
                </div>
-            </div>
-            <div class="modal-footer">
-            {loop="$fsc->extensions"}
-               {if="$value->type=='email'"}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}';this.form.submit();">
-                  <span class="glyphicon glyphicon-send"></span> &nbsp; Enviar {$value->text}
-               </button>
-               {/if}
-            {/loop}
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='email'"}
+                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}';this.form.submit();">
+                     <span class="glyphicon glyphicon-send"></span> &nbsp; {$value->text}
+                  </button>
+                  {/if}
+               {/loop}
             </div>
          </div>
       </div>

@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('cliente.php');
+require_model('proveedor.php');
+
 /**
  * Esta clase permite genera un asiento a partir de una factura.
  *

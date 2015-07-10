@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : articulosprov.xml
+    Description:
+        Estructura de la tabla articulosprov.
+-->
+<tabla>
+   <columna>
+      <nombre>id</nombre>
+      <tipo>serial</tipo>
+      <nulo>NO</nulo>
+      <defecto>nextval('articulosprov_id_seq'::regclass)</defecto>
+   </columna>
+   <columna>
+      <nombre>referencia</nombre>
+      <tipo>character varying(18)</tipo>
+      <nulo>NO</nulo>
+   </columna>
+   <columna>
+      <nombre>codproveedor</nombre>
+      <tipo>character varying(6)</tipo>
+      <nulo>NO</nulo>
+   </columna>
+   <columna>
+      <nombre>refproveedor</nombre>
+      <tipo>character varying(25)</tipo>
+   </columna>
+   <columna>
+      <nombre>descripcion</nombre>
+      <tipo>text</tipo>
+   </columna>
+   <columna>
+      <nombre>precio</nombre>
+      <tipo>double precision</tipo>
+   </columna>
+   <columna>
+      <nombre>dto</nombre>
+      <tipo>double precision</tipo>
+   </columna>
+   <columna>
+      <nombre>codimpuesto</nombre>
+      <tipo>character varying(10)</tipo>
+   </columna>
+   <columna>
+      <nombre>stock</nombre>
+      <tipo>double precision</tipo>
+   </columna>
+   <columna>
+      <nombre>nostock</nombre>
+      <tipo>boolean</tipo>
+      <nulo>YES</nulo>
+      <defecto>true</defecto>
+   </columna>
+   <restriccion>
+      <nombre>articulosprov_pkey</nombre>
+      <consulta>PRIMARY KEY (id)</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>ca_articulosprov_proveedores</nombre>
+      <consulta>FOREIGN KEY (codproveedor)
+      REFERENCES proveedores (codproveedor)
+      ON DELETE CASCADE ON UPDATE CASCADE</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>uniq_articulo_proveedor</nombre>
+      <consulta>UNIQUE (codproveedor, referencia)</consulta>
+   </restriccion>
+</tabla>

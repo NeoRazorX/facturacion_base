@@ -19,6 +19,7 @@
 
 require_model('almacen.php');
 require_model('articulo.php');
+require_model('articulo_proveedor.php');
 require_model('familia.php');
 require_model('impuesto.php');
 require_model('regularizacion_stock.php');
@@ -215,6 +216,7 @@ class ventas_articulo extends fs_controller
          $this->articulo->equivalencia = $_POST['equivalencia'];
          $this->articulo->bloqueado = isset($_POST['bloqueado']);
          $this->articulo->controlstock = isset($_POST['controlstock']);
+         $this->articulo->nostock = isset($_POST['nostock']);
          $this->articulo->secompra = isset($_POST['secompra']);
          $this->articulo->sevende = isset($_POST['sevende']);
          $this->articulo->publico = isset($_POST['publico']);
@@ -301,5 +303,35 @@ class ventas_articulo extends fs_controller
       }
       
       return $tarlist;
+   }
+   
+   public function get_articulo_proveedores()
+   {
+      $artprov = new articulo_proveedor();
+      $alist = $artprov->all_from_ref($this->articulo->referencia);
+      
+      /// revismos el impuesto y la descripción
+      foreach($alist as $i => $value)
+      {
+         $guardar = FALSE;
+         if( is_null($value->codimpuesto) )
+         {
+            $alist[$i]->codimpuesto = $this->articulo->codimpuesto;
+            $guardar = TRUE;
+         }
+         
+         if( is_null($value->descripcion) )
+         {
+            $alist[$i]->descripcion = $this->articulo->descripcion;
+            $guardar = TRUE;
+         }
+         
+         if($guardar)
+         {
+            $alist[$i]->save();
+         }
+      }
+      
+      return $alist;
    }
 }

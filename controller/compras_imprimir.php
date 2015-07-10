@@ -20,50 +20,41 @@
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
-require_model('cliente.php');
-require_model('cuenta_banco.php');
-require_model('forma_pago.php');
+require_model('articulo_proveedor.php');
+require_model('proveedor.php');
 
 /**
- * Esta clase agrupa los procedimientos de imprimir/enviar albaranes y facturas.
+ * Esta clase agrupa los procedimientos de imprimir/enviar albaranes e imprimir facturas.
  */
-class ventas_imprimir extends fs_controller
+class compras_imprimir extends fs_controller
 {
    public $albaran;
-   public $cliente;
+   public $articulo_proveedor;
+   public $proveedor;
    public $factura;
-   public $impresion;
    public $impuesto;
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'imprimir', 'ventas', FALSE, FALSE);
+      parent::__construct(__CLASS__, 'imprimir', 'compras', FALSE, FALSE);
    }
    
    protected function process()
    {
       $this->albaran = FALSE;
-      $this->cliente = FALSE;
+      $this->articulo_proveedor = new articulo_proveedor();
+      $this->proveedor = FALSE;
       $this->factura = FALSE;
       $this->impuesto = new impuesto();
       
-      /// obtenemos los datos de configuración de impresión
-      $this->impresion = array(
-          'print_ref' => '1',
-          'print_dto' => '1',
-          'print_alb' => '0'
-      );
-      $fsvar = new fs_var();
-      $this->impresion = $fsvar->array_get($this->impresion, FALSE);
-      
       if( isset($_REQUEST['albaran']) AND isset($_REQUEST['id']) )
       {
-         $alb = new albaran_cliente();
+         $alb = new albaran_proveedor();
          $this->albaran = $alb->get($_REQUEST['id']);
          if($this->albaran)
          {
-            $cliente = new cliente();
-            $this->cliente = $cliente->get($this->albaran->codcliente);
+            $proveedor = new proveedor();
+            $this->proveedor = $proveedor->get($this->albaran->codproveedor);
          }
          
          if( isset($_POST['email']) )
@@ -75,20 +66,15 @@ class ventas_imprimir extends fs_controller
       }
       else if( isset($_REQUEST['factura']) AND isset($_REQUEST['id']) )
       {
-         $fac = new factura_cliente();
+         $fac = new factura_proveedor();
          $this->factura = $fac->get($_REQUEST['id']);
          if($this->factura)
          {
-            $cliente = new cliente();
-            $this->cliente = $cliente->get($this->factura->codcliente);
+            $proveedor = new proveedor();
+            $this->proveedor = $proveedor->get($this->factura->codproveedor);
          }
          
-         if( isset($_POST['email']) )
-         {
-            $this->enviar_email('factura', $_REQUEST['tipo']);
-         }
-         else
-            $this->generar_pdf_factura($_REQUEST['tipo']);
+         $this->generar_pdf_factura();
       }
       
       $this->share_extensions();
@@ -98,53 +84,29 @@ class ventas_imprimir extends fs_controller
    {
       $extensiones = array(
           array(
-              'name' => 'imprimir_albaran',
+              'name' => 'imprimir_albaran_proveedor',
               'page_from' => __CLASS__,
-              'page_to' => 'ventas_albaran',
+              'page_to' => 'compras_albaran',
               'type' => 'pdf',
               'text' => ucfirst(FS_ALBARAN).' simple',
               'params' => '&albaran=TRUE'
           ),
           array(
-              'name' => 'email_albaran',
+              'name' => 'email_albaran_proveedor',
               'page_from' => __CLASS__,
-              'page_to' => 'ventas_albaran',
+              'page_to' => 'compras_albaran',
               'type' => 'email',
               'text' => ucfirst(FS_ALBARAN).' simple',
               'params' => '&albaran=TRUE'
           ),
           array(
-              'name' => 'imprimir_factura',
+              'name' => 'imprimir_factura_proveedor',
               'page_from' => __CLASS__,
-              'page_to' => 'ventas_factura',
+              'page_to' => 'compras_factura',
               'type' => 'pdf',
               'text' => 'Factura simple',
-              'params' => '&factura=TRUE&tipo=simple'
+              'params' => '&factura=TRUE'
           ),
-          array(
-              'name' => 'imprimir_factura_firma',
-              'page_from' => __CLASS__,
-              'page_to' => 'ventas_factura',
-              'type' => 'pdf',
-              'text' => 'Factura con firma',
-              'params' => '&factura=TRUE&tipo=firma'
-          ),
-          array(
-              'name' => 'imprimir_factura_carta',
-              'page_from' => __CLASS__,
-              'page_to' => 'ventas_factura',
-              'type' => 'pdf',
-              'text' => 'Modelo carta',
-              'params' => '&factura=TRUE&tipo=carta'
-          ),
-          array(
-              'name' => 'email_factura',
-              'page_from' => __CLASS__,
-              'page_to' => 'ventas_factura',
-              'type' => 'email',
-              'text' => 'Factura simple',
-              'params' => '&factura=TRUE&tipo=simple'
-          )
       );
       foreach($extensiones as $ext)
       {
@@ -166,7 +128,7 @@ class ventas_imprimir extends fs_controller
       
       $pdf_doc = new fs_pdf();
       $pdf_doc->pdf->addInfo('Title', FS_ALBARAN.' '. $this->albaran->codigo);
-      $pdf_doc->pdf->addInfo('Subject', FS_ALBARAN.' de cliente ' . $this->albaran->codigo);
+      $pdf_doc->pdf->addInfo('Subject', FS_ALBARAN.' de proveedor ' . $this->albaran->codigo);
       $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
       
       $lineas = $this->albaran->get_lineas();
@@ -211,9 +173,9 @@ class ventas_imprimir extends fs_controller
             }
             
             /*
-             * Esta es la tabla con los datos del cliente:
+             * Esta es la tabla con los datos del proveedor:
              * Albarán:             Fecha:
-             * Cliente:             CIF/NIF:
+             * Proveedor:             CIF/NIF:
              * Dirección:           Teléfonos:
              */
             $pdf_doc->new_table();
@@ -227,18 +189,10 @@ class ventas_imprimir extends fs_controller
             );
             $pdf_doc->add_table_row(
                array(
-                   'campo1' => "<b>Cliente:</b>",
-                   'dato1' => $this->fix_html($this->albaran->nombrecliente),
+                   'campo1' => "<b>Proveedor:</b>",
+                   'dato1' => $this->fix_html($this->albaran->nombre),
                    'campo2' => "<b>".FS_CIFNIF.":</b>",
                    'dato2' => $this->albaran->cifnif
-               )
-            );
-            $pdf_doc->add_table_row(
-               array(
-                   'campo1' => "<b>Dirección:</b>",
-                   'dato1' => $this->fix_html($this->albaran->direccion.' CP: '.$this->albaran->codpostal.' - '.$this->albaran->ciudad.' ('.$this->albaran->provincia.')'),
-                   'campo2' => "<b>Teléfonos:</b>",
-                   'dato2' => $this->cliente->telefono1.'  '.$this->cliente->telefono2
                )
             );
             $pdf_doc->save_table(
@@ -260,45 +214,30 @@ class ventas_imprimir extends fs_controller
             /*
              * Creamos la tabla con las lineas del albarán:
              * 
-             * Descripción    PVP   DTO   Cantidad    Importe
+             * Cantidad    Ref. Prov. + Descripción    PVP   DTO   Importe
              */
             $pdf_doc->new_table();
-            
-            if($this->impresion['print_dto'])
-            {
-               $pdf_doc->add_table_header(
-                  array(
-                     'descripcion' => '<b>Descripción</b>',
-                     'cantidad' => '<b>Cantidad</b>',
-                     'pvp' => '<b>PVP</b>',
-                     'dto' => '<b>DTO</b>',
-                     'importe' => '<b>Importe</b>'
-                  )
-               );
-            }
-            else
-            {
-               $pdf_doc->add_table_header(
-                  array(
-                     'descripcion' => '<b>Descripción</b>',
-                     'cantidad' => '<b>Cantidad</b>',
-                     'pvp' => '<b>PVP</b>',
-                     'importe' => '<b>Importe</b>'
-                  )
-               );
-            }
-            
+            $pdf_doc->add_table_header(
+               array(
+                  'cantidad' => '<b>Cant.</b>',
+                  'descripcion' => '<b>Ref. Prov. + Descripción</b>',
+                  'pvp' => '<b>PVP</b>',
+                  'dto' => '<b>Dto.</b>',
+                  'importe' => '<b>Importe</b>'
+               )
+            );
             for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < count($lineas)));)
             {
                $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
-               if( $this->impresion['print_ref'] AND !is_null($lineas[$linea_actual]->referencia) )
+               if( !is_null($lineas[$linea_actual]->referencia) )
                {
-                  $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
+                  $descripcion = '<b>'.  $this->get_referencia_proveedor($lineas[$linea_actual]->referencia, $this->albaran->codproveedor).
+                          '</b> '.$this->fix_html($lineas[$linea_actual]->descripcion);
                }
                
                $fila = array(
-                  'descripcion' => $descripcion,
                   'cantidad' => $lineas[$linea_actual]->cantidad,
+                  'descripcion' => $descripcion,
                   'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $this->albaran->coddivisa),
                   'dto' => $this->show_numero($lineas[$linea_actual]->dtopor, 0) . " %",
                   'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $this->albaran->coddivisa)
@@ -383,8 +322,6 @@ class ventas_imprimir extends fs_controller
             $pdf_doc->add_table_row($fila);
             $pdf_doc->save_table($opciones);
             
-            $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text($this->fix_html($this->empresa->pie_factura), 153), 0, 1.5);
-            
             $pagina++;
          }
       }
@@ -400,7 +337,7 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->show();
    }
    
-   private function generar_pdf_factura($tipo='simple', $archivo=FALSE)
+   private function generar_pdf_factura($archivo=FALSE)
    {
       if(!$archivo)
       {
@@ -411,7 +348,7 @@ class ventas_imprimir extends fs_controller
       /// Creamos el PDF y escribimos sus metadatos
       $pdf_doc = new fs_pdf();
       $pdf_doc->pdf->addInfo('Title', 'Factura ' . $this->factura->codigo);
-      $pdf_doc->pdf->addInfo('Subject', 'Factura de cliente ' . $this->factura->codigo);
+      $pdf_doc->pdf->addInfo('Subject', 'Factura de proveedor ' . $this->factura->codigo);
       $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
       
       $lineas = $this->factura->get_lineas();
@@ -433,52 +370,14 @@ class ventas_imprimir extends fs_controller
                $pdf_doc->pdf->ezNewPage();
             }
             
-            /*
-             * Creamos la cabecera de la página, en este caso para el modelo carta
-             */
-            if($tipo == 'carta')
+            /// ¿Añadimos el logo?
+            if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
             {
-               $direccion = $this->factura->nombrecliente."\n".$this->factura->direccion;
-               if($this->factura->codpostal AND $this->factura->ciudad)
-                  $direccion .= "\n CP: " . $this->factura->codpostal . ' ' . $this->factura->ciudad;
-               else if($this->factura->ciudad)
-                  $direccion .= "\n" . $this->factura->ciudad;
-               
-               if($this->factura->provincia)
-                  $direccion .= "\n(" . $this->factura->provincia . ")";
-               
-               $pdf_doc->pdf->ezText("\n\n", 10);
-               $pdf_doc->new_table();
-               $pdf_doc->add_table_row(
-                  array(
-                      'campos' => "<b>Factura de cliente:</b>\n<b>Fecha:</b>\n<b>".FS_CIFNIF.":</b>",
-                      'factura' => $this->factura->codigo."\n".$this->factura->fecha."\n".$this->factura->cifnif,
-                      'cliente' => $this->fix_html($direccion)
-                  )
-               );
-               $pdf_doc->save_table(
-                  array(
-                      'cols' => array(
-                          'campos' => array('justification' => 'right', 'width' => 100),
-                          'factura' => array('justification' => 'left'),
-                          'cliente' => array('justification' => 'right')
-                      ),
-                      'showLines' => 0,
-                      'width' => 520
-                  )
-               );
-               $pdf_doc->pdf->ezText("\n\n\n", 14);
-            }
-            else /// esta es la cabecera de la página para los modelos 'simple' y 'firma'
-            {
-               /// ¿Añadimos el logo?
-               if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
-               {
                   $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
                   $lppag -= 2; /// si metemos el logo, caben menos líneas
-               }
-               else
-               {
+            }
+            else
+            {
                   $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 16, array('justification' => 'center'));
                   $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'center'));
                   
@@ -492,101 +391,74 @@ class ventas_imprimir extends fs_controller
                   if($this->empresa->telefono)
                      $direccion .= ' - Teléfono: ' . $this->empresa->telefono;
                   $pdf_doc->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
-               }
-               
-               /*
-                * Esta es la tabla con los datos del cliente:
-                * Factura:             Fecha:
-                * Cliente:             CIF/NIF:
-                * Dirección:           Teléfonos:
-                */
-               $pdf_doc->new_table();
-               $pdf_doc->add_table_row(
-                  array(
-                     'campo1' => "<b>Factura:</b>",
-                     'dato1' => $this->factura->codigo,
-                     'campo2' => "<b>Fecha:</b>",
-                     'dato2' => $this->factura->fecha
-                  )
-               );
-               $pdf_doc->add_table_row(
-                  array(
-                     'campo1' => "<b>Cliente:</b>",
-                     'dato1' => $this->fix_html($this->factura->nombrecliente),
-                     'campo2' => "<b>".FS_CIFNIF.":</b>",
-                     'dato2' => $this->factura->cifnif
-                  )
-               );
-               $pdf_doc->add_table_row(
-                  array(
-                     'campo1' => "<b>Dirección:</b>",
-                     'dato1' => $this->factura->direccion.' CP: '.$this->factura->codpostal.' - '.$this->factura->ciudad.
-                                 ' ('.$this->factura->provincia.')',
-                     'campo2' => "<b>Teléfonos:</b>",
-                     'dato2' => $this->cliente->telefono1.'  '.$this->cliente->telefono2
-                  )
-               );
-               $pdf_doc->save_table(
-                  array(
-                     'cols' => array(
-                        'campo1' => array('justification' => 'right'),
-                        'dato1' => array('justification' => 'left'),
-                        'campo2' => array('justification' => 'right'),
-                        'dato2' => array('justification' => 'left')
-                     ),
-                     'showLines' => 0,
-                     'width' => 520,
-                     'shaded' => 0
-                  )
-               );
-               $pdf_doc->pdf->ezText("\n", 10);
-               
-               /// en el tipo 'firma' caben menos líneas
-               if($tipo == 'firma')
-               {
-                  $lppag -= 3;
-               }
             }
+            
+            /*
+             * Esta es la tabla con los datos del proveedor:
+             * Factura:             Fecha:
+             * Proveedor:             CIF/NIF:
+             * Dirección:           Teléfonos:
+             */
+            $pdf_doc->new_table();
+            $pdf_doc->add_table_row(
+               array(
+                  'campo1' => "<b>Factura:</b>",
+                  'dato1' => $this->factura->codigo,
+                  'campo2' => "<b>Fecha:</b>",
+                  'dato2' => $this->factura->fecha
+               )
+            );
+            $pdf_doc->add_table_row(
+               array(
+                  'campo1' => "<b>Proveedor:</b>",
+                  'dato1' => $this->fix_html($this->factura->nombre),
+                  'campo2' => "<b>".FS_CIFNIF.":</b>",
+                  'dato2' => $this->factura->cifnif
+               )
+            );
+            $pdf_doc->save_table(
+               array(
+                  'cols' => array(
+                     'campo1' => array('justification' => 'right'),
+                     'dato1' => array('justification' => 'left'),
+                     'campo2' => array('justification' => 'right'),
+                     'dato2' => array('justification' => 'left')
+                  ),
+                  'showLines' => 0,
+                  'width' => 520,
+                  'shaded' => 0
+               )
+            );
+            $pdf_doc->pdf->ezText("\n", 10);
             
             
             /*
              * Creamos la tabla con las lineas de la factura:
              * 
-             * Descripción    Cantidad  PVP   DTO    Importe
+             * Cantidad    Ref. Prov. + Descripción    PVP   DTO    Importe
              */
-            $columnas = array(
-                  'alb' => '<b>'.ucfirst(FS_ALBARAN).'</b>',
-                  'descripcion' => '<b>Descripción</b>',
-                  'cantidad' => '<b>Cantidad</b>',
-                  'pvp' => '<b>PVP</b>',
-                  'dto' => '<b>DTO</b>',
-                  'importe' => '<b>Importe</b>'
-            );
-            
-            if(!$this->impresion['print_alb'])
-            {
-               unset($columnas['alb']);
-            }
-            
-            if(!$this->impresion['print_dto'])
-            {
-               unset($columnas['dto']);
-            }
-            
             $pdf_doc->new_table();
-            $pdf_doc->add_table_header($columnas);
+            $pdf_doc->add_table_header(
+               array(
+                  'cantidad' => '<b>Cant.</b>',
+                  'descripcion' => '<b>Ref. Prov. + Descripción</b>',
+                  'pvp' => '<b>PVP</b>',
+                  'dto' => '<b>Dto.</b>',
+                  'importe' => '<b>Importe</b>'
+               )
+            );
             for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < $lineasfact));)
             {
                $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
-               if( $this->impresion['print_ref'] AND !is_null($lineas[$linea_actual]->referencia) )
+               if( !is_null($lineas[$linea_actual]->referencia) )
                {
-                  $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
+                  $descripcion = '<b>'.  $this->get_referencia_proveedor($lineas[$linea_actual]->referencia, $this->factura->codproveedor).
+                          '</b> '.$this->fix_html($lineas[$linea_actual]->descripcion);
                }
                
                $fila = array(
-                  'alb' => $lineas[$linea_actual]->albaran_numero(),
-                  'descripcion' => $descripcion,
                   'cantidad' => $lineas[$linea_actual]->cantidad,
+                  'descripcion' => $descripcion,
                   'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $this->factura->coddivisa),
                   'dto' => $this->show_numero($lineas[$linea_actual]->dtopor, 0) . " %",
                   'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $this->factura->coddivisa)
@@ -611,76 +483,9 @@ class ventas_imprimir extends fs_controller
             
             if( $linea_actual == count($lineas) )
             {
-               /*
-                * Añadimos la parte de la firma y las observaciones,
-                * para el tipo 'firma'
-                */
-               if($tipo == 'firma')
-               {
-                  $pdf_doc->pdf->ezText("\n", 9);
-                  
-                  $pdf_doc->new_table();
-                  $pdf_doc->add_table_header(
-                     array(
-                        'campo1' => "<b>Observaciones</b>",
-                        'campo2' => "<b>Firma</b>"
-                     )
-                  );
-                  $pdf_doc->add_table_row(
-                     array(
-                        'campo1' => $this->fix_html($this->factura->observaciones),
-                        'campo2' => ""
-                     )
-                  );
-                  $pdf_doc->save_table(
-                     array(
-                        'cols' => array(
-                           'campo1' => array('justification' => 'left'),
-                           'campo2' => array('justification' => 'right', 'width' => 100)
-                        ),
-                        'showLines' => 4,
-                        'width' => 530,
-                        'shaded' => 0
-                     )
-                  );
-               }
-               else if($this->factura->observaciones != '')
+               if($this->factura->observaciones != '')
                {
                   $pdf_doc->pdf->ezText("\n".$this->factura->observaciones, 9);
-               }
-               
-               if(!$this->factura->pagada)
-               {
-                  $fp0 = new forma_pago();
-                  $forma_pago = $fp0->get($this->factura->codpago);
-                  if($forma_pago)
-                  {
-                     if( is_null($forma_pago->codcuenta) )
-                     {
-                        $pdf_doc->pdf->ezText("\n<b>Forma de pago</b>: ".$forma_pago->descripcion." - Vencimiento: ".$this->factura->vencimiento, 9);
-                     }
-                     else
-                     {
-                        $texto_pago = "\n<b>Forma de pago</b>: ".$forma_pago->descripcion;
-                        
-                        $cb0 = new cuenta_banco();
-                        $cuenta_banco = $cb0->get($forma_pago->codcuenta);
-                        if($cuenta_banco)
-                        {
-                           if($cuenta_banco->iban)
-                           {
-                              $texto_pago .= "\n<b>IBAN</b>: ".$cuenta_banco->iban;
-                           }
-                           else
-                           {
-                              $texto_pago .= "\n<b>SWIFT o BIC</b>: ".$cuenta_banco->swift;
-                           }
-                        }
-                        
-                        $texto_pago .= "\n<b>Vencimiento</b>: ".$this->factura->vencimiento;
-                        $pdf_doc->pdf->ezText($texto_pago, 9);
-                     }
-                  }
                }
             }
             
@@ -738,9 +543,6 @@ class ventas_imprimir extends fs_controller
             $pdf_doc->add_table_row($fila);
             $pdf_doc->save_table($opciones);
             
-            /// pié de página para la factura
-            $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text($this->fix_html($this->empresa->pie_factura), 153), 0, 1.5);
-            
             $pagina++;
          }
       }
@@ -756,14 +558,25 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->show();
    }
    
-   private function enviar_email($doc, $tipo='simple')
+   private function get_referencia_proveedor($ref, $codproveedor)
+   {
+      $artprov = $this->articulo_proveedor->get_by($ref, $codproveedor);
+      if($artprov)
+      {
+         return $artprov->refproveedor;
+      }
+      else
+         return $ref;
+   }
+   
+   private function enviar_email($doc)
    {
       if( $this->empresa->can_send_mail() )
       {
-         if( $_POST['email'] != $this->cliente->email )
+         if( $_POST['email'] != $this->proveedor->email )
          {
-            $this->cliente->email = $_POST['email'];
-            $this->cliente->save();
+            $this->proveedor->email = $_POST['email'];
+            $this->proveedor->save();
          }
          
          /// obtenemos la configuración extra del email
@@ -776,16 +589,8 @@ class ventas_imprimir extends fs_controller
          $fsvar = new fs_var();
          $mailop = $fsvar->array_get($mailop, FALSE);
          
-         if($doc == 'factura')
-         {
-            $filename = 'factura_'.$this->factura->codigo.'.pdf';
-            $this->generar_pdf_factura($tipo, $filename);
-         }
-         else
-         {
-            $filename = 'albaran_'.$this->albaran->codigo.'.pdf';
-            $this->generar_pdf_albaran($filename);
-         }
+         $filename = 'albaran_'.$this->albaran->codigo.'.pdf';
+         $this->generar_pdf_albaran($filename);
          
          if( file_exists('tmp/'.FS_TMP_NAME.'enviar/'.$filename) )
          {
@@ -807,21 +612,13 @@ class ventas_imprimir extends fs_controller
             $mail->FromName = $this->user->nick;
             $mail->CharSet = 'UTF-8';
             
-            if($doc == 'factura')
-            {
-               $mail->Subject = $this->empresa->nombre . ': Su factura '.$this->factura->codigo;
-               $mail->AltBody = 'Buenos días, le adjunto su factura '.$this->factura->codigo.".\n".$this->empresa->email_firma;
-            }
-            else
-            {
-               $mail->Subject = $this->empresa->nombre . ': Su '.FS_ALBARAN.' '.$this->albaran->codigo;
-               $mail->AltBody = 'Buenos días, le adjunto su '.FS_ALBARAN.' '.$this->albaran->codigo.".\n".$this->empresa->email_firma;
-            }
+            $mail->Subject = $this->empresa->nombre . ': Mi '.FS_ALBARAN.' '.$this->albaran->codigo;
+            $mail->AltBody = 'Buenos días, le adjunto mi '.FS_ALBARAN.' '.$this->albaran->codigo.".\n".$this->empresa->email_firma;
             
             $mail->WordWrap = 50;
             $mail->MsgHTML( nl2br($_POST['mensaje']) );
             $mail->AddAttachment('tmp/'.FS_TMP_NAME.'enviar/'.$filename);
-            $mail->AddAddress($_POST['email'], $this->cliente->razonsocial);
+            $mail->AddAddress($_POST['email'], $this->proveedor->razonsocial);
             $mail->IsHTML(TRUE);
             
             if( $mail->Send() )

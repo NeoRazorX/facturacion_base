@@ -35,7 +35,7 @@ class ventas_facturas extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Facturas de cliente', 'ventas', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Facturas de cliente', 'ventas');
    }
    
    protected function process()

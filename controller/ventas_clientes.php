@@ -76,12 +76,11 @@ class ventas_clientes extends fs_controller
          }
          $grupo->nombre = $_POST['nombre'];
          
-         if($_POST['codtarifa'] == '---')
+         $grupo->codtarifa = NULL;
+         if($_POST['codtarifa'] != '---')
          {
-            $grupo->codtarifa = NULL;
-         }
-         else
             $grupo->codtarifa = $_POST['codtarifa'];
+         }
          
          if( $grupo->save() )
          {
@@ -113,43 +112,65 @@ class ventas_clientes extends fs_controller
       {
          $this->save_codpais( $_POST['pais'] );
          
-         $cliente = new cliente();
-         $cliente->codcliente = $cliente->get_new_codigo();
-         $cliente->nombre = $_POST['nombre'];
-         $cliente->nombrecomercial = $_POST['nombre'];
-         $cliente->cifnif = $_POST['cifnif'];
-         $cliente->codserie = $this->empresa->codserie;
-         if( $cliente->save() )
+         $cliente = $this->cliente->get_by_cifnif($_POST['cifnif']);
+         if($cliente)
          {
-            $dircliente = new direccion_cliente();
-            $dircliente->codcliente = $cliente->codcliente;
-            $dircliente->codpais = $_POST['pais'];
-            $dircliente->provincia = $_POST['provincia'];
-            $dircliente->ciudad = $_POST['ciudad'];
-            $dircliente->codpostal = $_POST['codpostal'];
-            $dircliente->direccion = $_POST['direccion'];
-            $dircliente->descripcion = 'Principal';
-            if( $dircliente->save() )
-            {
-               header('location: '.$cliente->url());
-            }
-            else
-               $this->new_error_msg("¡Imposible guardar la dirección del cliente!");
+            $this->new_advice('Ya existe un cliente con el '.FS_CIFNIF.' '.$_POST['cifnif']);
+            $this->query = $_POST['cifnif'];
          }
          else
-            $this->new_error_msg("¡Imposible guardar los datos del cliente!");
+         {
+            $cliente = new cliente();
+            $cliente->codcliente = $cliente->get_new_codigo();
+            $cliente->nombre = $_POST['nombre'];
+            $cliente->razonsocial = $_POST['nombre'];
+            $cliente->cifnif = $_POST['cifnif'];
+            $cliente->codserie = $this->empresa->codserie;
+            
+            if( isset($_POST['scodgrupo']) )
+            {
+               if($_POST['scodgrupo'] != '')
+               {
+                  $cliente->codgrupo = $_POST['scodgrupo'];
+               }
+            }
+            
+            if( $cliente->save() )
+            {
+               $dircliente = new direccion_cliente();
+               $dircliente->codcliente = $cliente->codcliente;
+               $dircliente->codpais = $_POST['pais'];
+               $dircliente->provincia = $_POST['provincia'];
+               $dircliente->ciudad = $_POST['ciudad'];
+               $dircliente->codpostal = $_POST['codpostal'];
+               $dircliente->direccion = $_POST['direccion'];
+               $dircliente->descripcion = 'Principal';
+               if( $dircliente->save() )
+               {
+                  header('location: '.$cliente->url());
+               }
+               else
+                  $this->new_error_msg("¡Imposible guardar la dirección del cliente!");
+            }
+            else
+               $this->new_error_msg("¡Imposible guardar los datos del cliente!");
+         }
       }
       
       $this->offset = 0;
       if( isset($_GET['offset']) )
+      {
          $this->offset = intval($_GET['offset']);
+      }
       
       if($this->query != '')
       {
          $this->resultados = $this->cliente->search($this->query, $this->offset);
       }
       else
+      {
          $this->resultados = $this->cliente->all($this->offset);
+      }
       
       $this->grupos = $this->grupo->all();
    }

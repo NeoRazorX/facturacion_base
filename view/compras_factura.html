@@ -3,6 +3,10 @@
 {if="$fsc->factura"}
 <script type="text/javascript">
    $(document).ready(function() {
+      $("#b_imprimir").click(function(event) {
+         event.preventDefault();
+         $("#modal_imprimir").modal('show');
+      });
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
          $("#modal_eliminar").modal('show');
@@ -24,17 +28,24 @@
             <a class="btn btn-sm btn-default hidden-xs" href="{$fsc->url()}" title="recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            {if="$fsc->factura->idasiento"}
-            <a class="btn btn-sm btn-default" href="{$fsc->factura->asiento_url()}">
-               <span class="glyphicon glyphicon-eye-open"></span>
-               <span class="hidden-xs">&nbsp; Asiento contable</span>
-            </a>
-            {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&gen_asiento=TRUE&petid={$fsc->random_string()}">
-               <span class="glyphicon glyphicon-paperclip"></span>
-               <span class="hidden-xs">&nbsp; Generar asiento</span>
-            </a>
-            {/if}
+            
+            <div class="btn-group">
+               <a id="b_imprimir" class="btn btn-sm btn-default" href="#">
+                  <span class="glyphicon glyphicon-print"></span>
+                  <span class="hidden-xs">&nbsp; Imprimir</span>
+               </a>
+               {if="$fsc->factura->idasiento"}
+               <a class="btn btn-sm btn-default" href="{$fsc->factura->asiento_url()}">
+                  <span class="glyphicon glyphicon-eye-open"></span>
+                  <span class="hidden-xs">&nbsp; Asiento contable</span>
+               </a>
+               {else}
+               <a class="btn btn-sm btn-default" href="{$fsc->url()}&gen_asiento=TRUE&petid={$fsc->random_string()}">
+                  <span class="glyphicon glyphicon-paperclip"></span>
+                  <span class="hidden-xs">&nbsp; Generar asiento</span>
+               </a>
+               {/if}
+            </div>
             
             {if="$fsc->mostrar_boton_pagada"}
             <div class="btn-group">
@@ -55,6 +66,11 @@
                   {/if}
                </ul>
             </div>
+            {elseif="$fsc->factura->pagada"}
+            <a class="btn btn-sm btn-info" href="#">
+               <span class="glyphicon glyphicon-ok"></span>
+               <span class="hidden-xs">&nbsp; Pagada</span>
+            </a>
             {/if}
             
             <div class="btn-group">
@@ -96,28 +112,32 @@
       </div>
       
       <div class="row">
-         <div class="col-sm-3">
+         <div class="col-sm-4">
             <div class="form-group">
-               Num. Proveedor:
+               Núm. Proveedor:
                <input class="form-control" type="text" name="numproveedor" value="{$fsc->factura->numproveedor}"/>
             </div>
          </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               Serie:
-               <div class="form-control">{$fsc->factura->codserie}</div>
-            </div>
-         </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               Ejercicio:
-               <div class="form-control">{$fsc->factura->codejercicio}</div>
-            </div>
-         </div>
-         <div class="col-sm-3">
+         <div class="col-sm-2">
             <div class="form-group">
                Fecha:
-               <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->factura->fecha}"/>
+               <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->factura->fecha}" autocomplete="off"/>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               Hora:
+               <input class="form-control" type="text" name="hora" value="{$fsc->factura->hora}" autocomplete="off"/>
+            </div>
+         </div>
+         <div class="col-sm-4">
+            <div class="form-group">
+               <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
+               <select name="forma_pago" class="form-control">
+                  {loop="$fsc->forma_pago->all()"}
+                  <option value="{$value->codpago}"{if="$fsc->factura->codpago==$value->codpago"} selected="selected"{/if}>{$value->descripcion}</option>
+                  {/loop}
+               </select>
             </div>
          </div>
       </div>
@@ -264,6 +284,26 @@
             <a class="btn btn-sm btn-danger" href="{$fsc->ppage->url()}&delete={$fsc->factura->idfactura}">
                <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
             </a>
+         </div>
+      </div>
+   </div>
+</div>
+
+<div class="modal fade" id="modal_imprimir">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Imprimir factura</h4>
+         </div>
+         <div class="modal-body">
+            {loop="$fsc->extensions"}
+               {if="$value->type=='pdf'"}
+               <a href="index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}" target="_blank" class="btn btn-block btn-default">
+                  <span class="glyphicon glyphicon-print"></span> &nbsp; {$value->text}
+               </a>
+               {/if}
+            {/loop}
          </div>
       </div>
    </div>

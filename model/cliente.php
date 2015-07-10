@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'base/fs_model.php';
 require_model('cuenta.php');
 require_model('direccion_cliente.php');
 require_model('subcuenta.php');
@@ -34,7 +33,23 @@ class cliente extends fs_model
     */
    public $codcliente;
    public $nombre;
+   
+   /**
+    * Razón social del cliente, es decir, el nombre oficial.
+    * @var type
+    */
+   public $razonsocial;
+   
+   /**
+    * El nombre oficial del cliente se ha cambiado a razonsocial. Por motivos
+    * de compatibilidad se seguirá ofreciando la propiedad nombrecomercial,
+    * pero se eliminará muy pronto.
+    * Los cambios en esta propiedad ya no se guardan en la base de datos.
+    * Usa razonsocial.
+    * @var type 
+    */
    public $nombrecomercial;
+   
    public $cifnif;
    public $telefono1;
    public $telefono2;
@@ -60,7 +75,16 @@ class cliente extends fs_model
       {
          $this->codcliente = $c['codcliente'];
          $this->nombre = $c['nombre'];
-         $this->nombrecomercial = $c['nombrecomercial'];
+         
+         if( is_null($c['razonsocial']) )
+         {
+            $this->razonsocial = $c['nombrecomercial'];
+         }
+         else
+         {
+            $this->razonsocial = $c['razonsocial'];
+         }
+         
          $this->cifnif = $c['cifnif'];
          $this->telefono1 = $c['telefono1'];
          $this->telefono2 = $c['telefono2'];
@@ -83,7 +107,7 @@ class cliente extends fs_model
       {
          $this->codcliente = NULL;
          $this->nombre = '';
-         $this->nombrecomercial = '';
+         $this->razonsocial = '';
          $this->cifnif = '';
          $this->telefono1 = '';
          $this->telefono2 = '';
@@ -102,6 +126,8 @@ class cliente extends fs_model
          $this->regimeniva = 'General';
          $this->recargo = FALSE;
       }
+      
+      $this->nombrecomercial = $this->razonsocial;
    }
    
    protected function install()
@@ -141,6 +167,17 @@ class cliente extends fs_model
    public function get($cod)
    {
       $cli = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($cod).";");
+      if($cli)
+      {
+         return new cliente($cli[0]);
+      }
+      else
+         return FALSE;
+   }
+   
+   public function get_by_cifnif($cifnif)
+   {
+      $cli = $this->db->select("SELECT * FROM ".$this->table_name." WHERE cifnif = ".$this->var2str($cifnif).";");
       if($cli)
       {
          return new cliente($cli[0]);
@@ -226,7 +263,9 @@ class cliente extends fs_model
    public function exists()
    {
       if( is_null($this->codcliente) )
+      {
          return FALSE;
+      }
       else
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($this->codcliente).";");
    }
@@ -235,7 +274,9 @@ class cliente extends fs_model
    {
       $cod = $this->db->select("SELECT MAX(".$this->db->sql_to_int('codcliente').") as cod FROM ".$this->table_name.";");
       if($cod)
+      {
          return sprintf('%06s', (1 + intval($cod[0]['cod'])));
+      }
       else
          return '000001';
    }
@@ -246,16 +287,22 @@ class cliente extends fs_model
       
       $this->codcliente = trim($this->codcliente);
       $this->nombre = $this->no_html($this->nombre);
-      $this->nombrecomercial = $this->no_html($this->nombrecomercial);
+      $this->razonsocial = $this->no_html($this->razonsocial);
       $this->cifnif = $this->no_html($this->cifnif);
       $this->observaciones = $this->no_html($this->observaciones);
       
       if( !preg_match("/^[A-Z0-9]{1,6}$/i", $this->codcliente) )
+      {
          $this->new_error_msg("Código de cliente no válido.");
+      }
       else if( strlen($this->nombre) < 1 OR strlen($this->nombre) > 100 )
+      {
          $this->new_error_msg("Nombre de cliente no válido.");
-      else if( strlen($this->nombrecomercial) < 1 OR strlen($this->nombrecomercial) > 100 )
-         $this->new_error_msg("Nombre comercial de cliente no válido.");
+      }
+      else if( strlen($this->razonsocial) < 1 OR strlen($this->razonsocial) > 100 )
+      {
+         $this->new_error_msg("Razón social del cliente no válida.");
+      }
       else
          $status = TRUE;
       
@@ -270,7 +317,7 @@ class cliente extends fs_model
          if( $this->exists() )
          {
             $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre).",
-               nombrecomercial = ".$this->var2str($this->nombrecomercial).", cifnif = ".$this->var2str($this->cifnif).",
+               razonsocial = ".$this->var2str($this->razonsocial).", cifnif = ".$this->var2str($this->cifnif).",
                telefono1 = ".$this->var2str($this->telefono1).", telefono2 = ".$this->var2str($this->telefono2).",
                fax = ".$this->var2str($this->fax).", email = ".$this->var2str($this->email).",
                web = ".$this->var2str($this->web).", codserie = ".$this->var2str($this->codserie).",
@@ -284,11 +331,11 @@ class cliente extends fs_model
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,nombrecomercial,cifnif,telefono1,
+            $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,razonsocial,cifnif,telefono1,
                telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,debaja,fechabaja,
                observaciones,tipoidfiscal,regimeniva,recargo)
                VALUES (".$this->var2str($this->codcliente).",".$this->var2str($this->nombre).",
-               ".$this->var2str($this->nombrecomercial).",".$this->var2str($this->cifnif).",
+               ".$this->var2str($this->razonsocial).",".$this->var2str($this->cifnif).",
                ".$this->var2str($this->telefono1).",".$this->var2str($this->telefono2).",
                ".$this->var2str($this->fax).",".$this->var2str($this->email).",
                ".$this->var2str($this->web).",".$this->var2str($this->codserie).",

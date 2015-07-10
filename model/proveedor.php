@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'base/fs_model.php';
 require_model('cuenta.php');
 require_model('direccion_proveedor.php');
 require_model('subcuenta.php');
@@ -34,7 +33,23 @@ class proveedor extends fs_model
     */
    public $codproveedor;
    public $nombre;
+   
+   /**
+    * Razón social del proveedor, es decir, el nombre oficial.
+    * @var type 
+    */
+   public $razonsocial;
+   
+   /**
+    * El nombre oficial del proveedor se ha cambiado a razonsocial. Por motivos
+    * de compatibilidad se seguirá ofreciando la propiedad nombrecomercial,
+    * pero se eliminará muy pronto.
+    * Los cambios en esta propiedad ya no se guardan en la base de datos.
+    * Usa razonsocial.
+    * @var type 
+    */
    public $nombrecomercial;
+   
    public $cifnif;
    public $telefono1;
    public $telefono2;
@@ -47,6 +62,7 @@ class proveedor extends fs_model
    public $observaciones;
    public $tipoidfiscal;
    public $regimeniva;
+   public $acreedor;
    
    public function __construct($p=FALSE)
    {
@@ -55,7 +71,16 @@ class proveedor extends fs_model
       {
          $this->codproveedor = $p['codproveedor'];
          $this->nombre = $p['nombre'];
-         $this->nombrecomercial = $p['nombrecomercial'];
+         
+         if( is_null($p['razonsocial']) )
+         {
+            $this->razonsocial = $p['nombrecomercial'];
+         }
+         else
+         {
+            $this->razonsocial = $p['razonsocial'];
+         }
+         
          $this->cifnif = $p['cifnif'];
          $this->telefono1 = $p['telefono1'];
          $this->telefono2 = $p['telefono2'];
@@ -68,12 +93,13 @@ class proveedor extends fs_model
          $this->observaciones = $this->no_html($p['observaciones']);
          $this->tipoidfiscal = $p['tipoidfiscal'];
          $this->regimeniva = $p['regimeniva'];
+         $this->acreedor = $this->str2bool($p['acreedor']);
       }
       else
       {
          $this->codproveedor = NULL;
          $this->nombre = '';
-         $this->nombrecomercial = '';
+         $this->razonsocial = '';
          $this->cifnif = '';
          $this->telefono1 = '';
          $this->telefono2 = '';
@@ -86,7 +112,10 @@ class proveedor extends fs_model
          $this->observaciones = '';
          $this->tipoidfiscal = 'NIF';
          $this->regimeniva = 'General';
+         $this->acreedor = FALSE;
       }
+      
+      $this->nombrecomercial = $this->razonsocial;
    }
    
    protected function install()
@@ -103,9 +132,13 @@ class proveedor extends fs_model
    public function observaciones_resume()
    {
       if($this->observaciones == '')
+      {
          return '-';
+      }
       else if( strlen($this->observaciones) < 60 )
+      {
          return $this->observaciones;
+      }
       else
          return substr($this->observaciones, 0, 50).'...';
    }
@@ -113,7 +146,9 @@ class proveedor extends fs_model
    public function url()
    {
       if( is_null($this->codproveedor) )
+      {
          return "index.php?page=compras_proveedores";
+      }
       else
          return "index.php?page=compras_proveedor&cod=".$this->codproveedor;
    }
@@ -127,7 +162,20 @@ class proveedor extends fs_model
    {
       $prov = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codproveedor = ".$this->var2str($cod).";");
       if($prov)
+      {
          return new proveedor($prov[0]);
+      }
+      else
+         return FALSE;
+   }
+   
+   public function get_by_cifnif($cifnif)
+   {
+      $prov = $this->db->select("SELECT * FROM ".$this->table_name." WHERE cifnif = ".$this->var2str($cifnif).";");
+      if($prov)
+      {
+         return new proveedor($prov[0]);
+      }
       else
          return FALSE;
    }
@@ -136,7 +184,9 @@ class proveedor extends fs_model
    {
       $cod = $this->db->select("SELECT MAX(".$this->db->sql_to_int('codproveedor').") as cod FROM ".$this->table_name.";");
       if($cod)
+      {
          return sprintf('%06s', (1 + intval($cod[0]['cod'])));
+      }
       else
          return '000001';
    }
@@ -176,9 +226,19 @@ class proveedor extends fs_model
       {
          /// intentamos crear la subcuenta y asociarla
          $continuar = TRUE;
-         
          $cuenta = new cuenta();
-         $cpro = $cuenta->get_cuentaesp('PROVEE', $eje);
+         
+         if($this->acreedor)
+         {
+            $cpro = $cuenta->get_cuentaesp('ACREED', $eje);
+            if(!$cpro)
+            {
+               $cpro = $cuenta->get_by_codigo('410', $eje);
+            }
+         }
+         else
+            $cpro = $cuenta->get_cuentaesp('PROVEE', $eje);
+         
          if($cpro)
          {
             $subc0 = $cpro->new_subcuenta($this->codproveedor);
@@ -218,10 +278,11 @@ class proveedor extends fs_model
    public function exists()
    {
       if( is_null($this->codproveedor) )
+      {
          return FALSE;
+      }
       else
-         return $this->db->select("SELECT * FROM ".$this->table_name."
-            WHERE codproveedor = ".$this->var2str($this->codproveedor).";");
+         return $this->db->select("SELECT * FROM ".$this->table_name." WHERE codproveedor = ".$this->var2str($this->codproveedor).";");
    }
    
    public function test()
@@ -230,14 +291,20 @@ class proveedor extends fs_model
       
       $this->codproveedor = trim($this->codproveedor);
       $this->nombre = $this->no_html($this->nombre);
-      $this->nombrecomercial = $this->no_html($this->nombrecomercial);
+      $this->razonsocial = $this->no_html($this->razonsocial);
       
       if( !preg_match("/^[A-Z0-9]{1,6}$/i", $this->codproveedor) )
+      {
          $this->new_error_msg("Código de proveedor no válido.");
+      }
       else if( strlen($this->nombre) < 1 OR strlen($this->nombre) > 100 )
+      {
          $this->new_error_msg("Nombre de proveedor no válido.");
-      else if( strlen($this->nombrecomercial) < 1 OR strlen($this->nombrecomercial) > 100 )
-         $this->new_error_msg("Nombre comercial de proveedor no válido.");
+      }
+      else if( strlen($this->razonsocial) < 1 OR strlen($this->razonsocial) > 100 )
+      {
+         $this->new_error_msg("Razón social del proveedor no válida.");
+      }
       else
          $status = TRUE;
       
@@ -249,29 +316,48 @@ class proveedor extends fs_model
       if( $this->test() )
       {
          $this->clean_cache();
+         
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre).",
-               nombrecomercial = ".$this->var2str($this->nombrecomercial).", cifnif = ".$this->var2str($this->cifnif).",
-               telefono1 = ".$this->var2str($this->telefono1).", telefono2 = ".$this->var2str($this->telefono2).",
-               fax = ".$this->var2str($this->fax).", email = ".$this->var2str($this->email).",
-               web = ".$this->var2str($this->web).", codserie = ".$this->var2str($this->codserie).",
-               coddivisa = ".$this->var2str($this->coddivisa).", codpago = ".$this->var2str($this->codpago).",
-               observaciones = ".$this->var2str($this->observaciones).",
-               tipoidfiscal = ".$this->var2str($this->tipoidfiscal).", regimeniva = ".$this->var2str($this->regimeniva)."
-               WHERE codproveedor = ".$this->var2str($this->codproveedor).";";
+            $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre).
+                    ", razonsocial = ".$this->var2str($this->razonsocial).
+                    ", cifnif = ".$this->var2str($this->cifnif).
+                    ", telefono1 = ".$this->var2str($this->telefono1).
+                    ", telefono2 = ".$this->var2str($this->telefono2).
+                    ", fax = ".$this->var2str($this->fax).
+                    ", email = ".$this->var2str($this->email).
+                    ", web = ".$this->var2str($this->web).
+                    ", codserie = ".$this->var2str($this->codserie).
+                    ", coddivisa = ".$this->var2str($this->coddivisa).
+                    ", codpago = ".$this->var2str($this->codpago).
+                    ", observaciones = ".$this->var2str($this->observaciones).
+                    ", tipoidfiscal = ".$this->var2str($this->tipoidfiscal).
+                    ", regimeniva = ".$this->var2str($this->regimeniva).
+                    ", acreedor = ".$this->var2str($this->acreedor).
+                    " WHERE codproveedor = ".$this->var2str($this->codproveedor).";";
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (codproveedor,nombre,nombrecomercial,cifnif,telefono1,telefono2,
-               fax,email,web,codserie,coddivisa,codpago,observaciones,tipoidfiscal,regimeniva) VALUES
-               (".$this->var2str($this->codproveedor).",".$this->var2str($this->nombre).",
-               ".$this->var2str($this->nombrecomercial).",".$this->var2str($this->cifnif).",
-               ".$this->var2str($this->telefono1).",".$this->var2str($this->telefono2).",".$this->var2str($this->fax).",
-               ".$this->var2str($this->email).",".$this->var2str($this->web).",".$this->var2str($this->codserie).",
-               ".$this->var2str($this->coddivisa).",".$this->var2str($this->codpago).",".$this->var2str($this->observaciones).","
-               .$this->var2str($this->tipoidfiscal).",".$this->var2str($this->regimeniva).");";
+            $sql = "INSERT INTO ".$this->table_name." (codproveedor,nombre,razonsocial,cifnif,telefono1,telefono2,
+                    fax,email,web,codserie,coddivisa,codpago,observaciones,tipoidfiscal,regimeniva,acreedor)
+                    VALUES (".$this->var2str($this->codproveedor).
+                    ",".$this->var2str($this->nombre).
+                    ",".$this->var2str($this->razonsocial).
+                    ",".$this->var2str($this->cifnif).
+                    ",".$this->var2str($this->telefono1).
+                    ",".$this->var2str($this->telefono2).
+                    ",".$this->var2str($this->fax).
+                    ",".$this->var2str($this->email).
+                    ",".$this->var2str($this->web).
+                    ",".$this->var2str($this->codserie).
+                    ",".$this->var2str($this->coddivisa).
+                    ",".$this->var2str($this->codpago).
+                    ",".$this->var2str($this->observaciones).
+                    ",".$this->var2str($this->tipoidfiscal).
+                    ",".$this->var2str($this->regimeniva).
+                    ",".$this->var2str($this->acreedor).");";
          }
+         
          return $this->db->exec($sql);
       }
       else
@@ -281,10 +367,6 @@ class proveedor extends fs_model
    public function delete()
    {
       $this->clean_cache();
-      
-      foreach($this->get_direcciones() as $dir)
-         $dir->delete();
-      
       return $this->db->exec("DELETE FROM ".$this->table_name." WHERE codproveedor = ".$this->var2str($this->codproveedor).";");
    }
    
@@ -293,16 +375,22 @@ class proveedor extends fs_model
       $this->cache->delete('m_proveedor_all');
    }
    
-   public function all($offset=0)
+   public function all($offset = 0, $solo_acreedores = FALSE)
    {
       $provelist = array();
-      $proveedores = $this->db->select_limit("SELECT * FROM ".$this->table_name."
-         ORDER BY nombre ASC", FS_ITEM_LIMIT, $offset);
-      if($proveedores)
+      $sql = "SELECT * FROM ".$this->table_name." ORDER BY nombre ASC";
+      if($solo_acreedores)
       {
-         foreach($proveedores as $p)
+         $sql = "SELECT * FROM ".$this->table_name." WHERE acreedor ORDER BY nombre ASC";
+      }
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      if($data)
+      {
+         foreach($data as $p)
             $provelist[] = new proveedor($p);
       }
+      
       return $provelist;
    }
    

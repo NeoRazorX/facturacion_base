@@ -392,7 +392,7 @@ class factura_proveedor extends fs_model
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($this->idfactura).";");
    }
    
-   private function new_codigo()
+   public function new_codigo()
    {
       /// buscamos un hueco
       $encontrado = FALSE;
@@ -401,11 +401,11 @@ class factura_proveedor extends fs_model
       $numeros = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha
          FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).
          " AND codserie = ".$this->var2str($this->codserie)." ORDER BY numero ASC;");
-      if( $numeros )
+      if($numeros)
       {
          foreach($numeros as $n)
          {
-            if( intval($n['numero']) != $num )
+            if( intval($n['numero']) > $num )
             {
                $encontrado = TRUE;
                $fecha = Date('d-m-Y', strtotime($n['fecha']));
@@ -416,7 +416,7 @@ class factura_proveedor extends fs_model
          }
       }
       
-      if( $encontrado )
+      if($encontrado)
       {
          $this->numero = $num;
          $this->fecha = $fecha;
@@ -692,7 +692,7 @@ class factura_proveedor extends fs_model
    {
       $faclist = array();
       $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name.
-         " WHERE pagada = false ORDER BY fecha DESC, codigo DESC", $limit, $offset);
+         " WHERE pagada = false ORDER BY fecha ASC, codigo ASC", $limit, $offset);
       if($facturas)
       {
          foreach($facturas as $f)
@@ -737,7 +737,7 @@ class factura_proveedor extends fs_model
       {
          $sql .= " AND codserie = ".$this->var2str($serie);
       }
-      $sql .= " ORDER BY codigo ASC;";
+      $sql .= " ORDER BY fecha asc, codigo ASC;";
       
       $facturas = $this->db->select($sql);
       if($facturas)

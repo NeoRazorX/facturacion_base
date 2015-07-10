@@ -22,6 +22,7 @@ require_model('articulo.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
 require_model('cliente.php');
+require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('factura_cliente.php');
 require_model('familia.php');
@@ -40,8 +41,10 @@ class ventas_albaran extends fs_controller
    public $allow_delete;
    public $cliente;
    public $cliente_s;
+   public $divisa;
    public $ejercicio;
    public $familia;
+   public $forma_pago;
    public $impuesto;
    public $nuevo_albaran_url;
    public $pais;
@@ -61,8 +64,10 @@ class ventas_albaran extends fs_controller
       $this->albaran = FALSE;
       $this->cliente = new cliente();
       $this->cliente_s = FALSE;
+      $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
       $this->familia = new familia();
+      $this->forma_pago = new forma_pago();
       $this->impuesto = new impuesto();
       $this->nuevo_albaran_url = FALSE;
       $this->pais = new pais();
@@ -175,7 +180,7 @@ class ventas_albaran extends fs_controller
                   {
                      $this->albaran->codcliente = $cliente->codcliente;
                      $this->albaran->cifnif = $cliente->cifnif;
-                     $this->albaran->nombrecliente = $cliente->nombrecomercial;
+                     $this->albaran->nombrecliente = $cliente->razonsocial;
                      $this->albaran->apartado = $d->apartado;
                      $this->albaran->ciudad = $d->ciudad;
                      $this->albaran->coddir = $d->id;
@@ -215,6 +220,23 @@ class ventas_albaran extends fs_controller
                
                $serie = $serie2;
             }
+         }
+         
+         $this->albaran->codpago = $_POST['forma_pago'];
+         
+         /// ¿Cambiamos la divisa?
+         if($_POST['divisa'] != $this->albaran->coddivisa)
+         {
+            $divisa = $this->divisa->get($_POST['divisa']);
+            if($divisa)
+            {
+               $this->albaran->coddivisa = $divisa->coddivisa;
+               $this->albaran->tasaconv = $divisa->tasaconv;
+            }
+         }
+         else if($_POST['tasaconv'] != '')
+         {
+            $this->albaran->tasaconv = floatval($_POST['tasaconv']);
          }
          
          if( isset($_POST['numlineas']) )
@@ -451,6 +473,8 @@ class ventas_albaran extends fs_controller
          {
             $factura->pagada = TRUE;
          }
+         
+         $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$formapago->vencimiento));
       }
       
       /// asignamos la mejor fecha posible, pero dentro del ejercicio

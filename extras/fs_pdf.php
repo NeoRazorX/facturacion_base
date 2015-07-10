@@ -37,6 +37,16 @@ class fs_pdf
       $this->pdf->selectFont("plugins/facturacion_base/extras/ezpdf/fonts/".$font.".afm");
    }
    
+   public function get_y()
+   {
+      return $this->pdf->y;
+   }
+   
+   public function set_y($y)
+   {
+      $this->pdf->ezSetY($y);
+   }
+   
    public function show()
    {
       $this->pdf->ezStream();
@@ -66,9 +76,13 @@ class fs_pdf
    public function center_text($word='', $tot_width=140)
    {
       if( strlen($word) == $tot_width )
+      {
          return $word;
+      }
       else if( strlen($word) < $tot_width )
+      {
          return $this->center_text2($word, $tot_width);
+      }
       else
       {
          $result = '';
@@ -76,9 +90,13 @@ class fs_pdf
          foreach( explode(' ', $word) as $aux )
          {
             if($nword == '')
+            {
                $nword = $aux;
+            }
             else if( strlen($nword) + strlen($aux) + 1 <= $tot_width )
+            {
                $nword = $nword.' '.$aux;
+            }
             else
             {
                if($result != '')
@@ -107,7 +125,9 @@ class fs_pdf
       $number_of_spaces = $middle - $middle_word;
       $result = sprintf("%'{$symbol}{$last_position}s", $word);
       for($i = 0; $i < $number_of_spaces; $i++)
+      {
          $result .= "$symbol";
+      }
       return $result;
    }
    
