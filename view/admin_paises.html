@@ -10,7 +10,7 @@
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-sm-6">
+      <div class="col-xs-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -33,7 +33,7 @@
             {/loop}
          </div>
       </div>
-      <div class="col-sm-6 text-right">
+      <div class="col-xs-6 text-right">
          <h2 style="margin-top: 0px;">Paises</h2>
       </div>
    </div>
@@ -43,14 +43,14 @@
    <table class="table table-hover">
       <thead>
          <tr>
-            <th class="text-left">
+            <th class="text-left" width="190">
                <a href="http://es.wikipedia.org/wiki/ISO_3166-1#C.C3.B3digos_ISO_3166-1" target="_blank">Código Alfa-3</a>
             </th>
-            <th class="text-left">
+            <th class="text-left" width="190">
                <a href="http://es.wikipedia.org/wiki/ISO_3166-1#C.C3.B3digos_ISO_3166-1" target="_blank">Código Alfa-2</a>
             </th>
             <th class="text-left">Nombre</th>
-            <th class="text-right" align="right" width="140">Acciones</th>
+            <th class="text-right" width="120">Acciones</th>
          </tr>
       </thead>
       {loop="$fsc->pais->all()"}
@@ -85,7 +85,7 @@
       {/loop}
       <form class="form" role="form" name="f_nuevo_pais" action ="{$fsc->url()}" method="post">
          <tr class="bg-info">
-            <td><input class="form-control" type="text" name="scodpais" placeholder="Nuevo código Alfa-3" autocomplete="off"/></td>
+            <td><input class="form-control" type="text" name="scodpais" maxlength="20" placeholder="Nuevo código Alfa-3" autocomplete="off"/></td>
             <td><input class="form-control" type="text" name="scodiso" placeholder="Código Alfa-2" autocomplete="off"/></td>
             <td><input class="form-control" type="text" name="snombre" placeholder="Nuevo nombre" autocomplete="off"/></td>
             <td class="text-right">

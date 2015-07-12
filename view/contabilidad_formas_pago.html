@@ -10,7 +10,7 @@
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-sm-6">
+      <div class="col-xs-4">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -33,7 +33,7 @@
             {/loop}
          </div>
       </div>
-      <div class="col-sm-6 text-right">
+      <div class="col-xs-8 text-right">
          <h2 style="margin-top: 0px;">Formas de pago</h2>
       </div>
    </div>
@@ -47,6 +47,9 @@
             <th class="text-left">Descripción</th>
             <th class="text-left">Generar facturas</th>
             <th class="text-left">Vencimiento</th>
+            {if="$fsc->button_plazos"}
+            <th width="80"></th>
+            {/if}
             <th class="text-left">
                <a href="index.php?page=admin_empresa#cuentasb" target="_blank">Cuenta bancaria</a>
             </th>
@@ -79,6 +82,17 @@
                {/loop}
                </select>
             </td>
+            {if="$fsc->button_plazos"}
+               {if="$value->genrecibos=='Emitidos'"}
+               <td>
+                  <a href="index.php?page={$fsc->button_plazos}&cod={$value->codpago}" class="btn btn-sm btn-default" title="Plazos de pago">
+                     <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+                  </a>
+               </td>
+               {else}
+               <td></td>
+               {/if}
+            {/if}
             <td>
                <select name="codcuenta" class="form-control">
                   <option value="">Ninguna</option>
@@ -135,6 +149,9 @@
                   {/loop}
                </select>
             </td>
+            {if="$fsc->button_plazos"}
+            <td></td>
+            {/if}
             <td>
                <select name="codcuenta" class="form-control">
                   <option value="">Ninguna</option>

@@ -26,9 +26,14 @@
    </div>
    <div class="row">
       <div class="col-sm-12">
-         <p class="text-right">
+         <p class="text-justify">
             Desde aquí puedes actualizar los datos de tus artículos a partir de las líneas
             del <b>{$fsc->tipodoc}</b>.
+            Coloca el puntero del ratón sobre un precio para ver el precio actual
+            del artículo. Usa los
+            <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+            para elegir qué es lo que quieres
+            actualizar y lo que no.
          </p>
       </div>
    </div>
@@ -63,9 +68,15 @@
             <td><input type="text" name="referencia_{$value->idlinea}" value="{$value->referencia}" class="form-control" disabled="disabled"/></td>
             <td><input type="text" name="descripcion_{$value->idlinea}" value="{$value->descripcion}" class="form-control" autocomplete="off"/></td>
             <td><input type="text" name="codbarras_{$value->idlinea}" value="{$value->codbarras}" class="form-control" autocomplete="off"/></td>
-            <td><input type="text" name="coste_{$value->idlinea}" value="{$value->pvpunitario}" class="form-control text-right" autocomplete="off"/></td>
-            <td><input type="text" name="dto_{$value->idlinea}" value="{$value->dtopor}" class="form-control text-right" autocomplete="off"/></td>
-            <td><input type="text" name="pvp_{$value->idlinea}" value="{$value->pvpunitario}" class="form-control text-right" autocomplete="off"/></td>
+            <td>
+               <input type="text" name="coste_{$value->idlinea}" value="{$value->pvpunitario}" class="form-control text-right" title="Actual: {$fsc->show_precio($value->precio_compra)}" autocomplete="off"/>
+            </td>
+            <td>
+               <input type="text" name="dto_{$value->idlinea}" value="{$value->dtopor}" class="form-control text-right" title="Actual: {$fsc->show_numero($value->dto_compra)} %" autocomplete="off"/>
+            </td>
+            <td>
+               <input type="text" name="pvp_{$value->idlinea}" value="{$value->pvpunitario}" class="form-control text-right" title="Actual: {$fsc->show_precio($value->precio_venta)}" autocomplete="off"/>
+            </td>
          </tr>
          {/loop}
          <tr>

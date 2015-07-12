@@ -14,7 +14,6 @@
    <columna>
       <nombre>referencia</nombre>
       <tipo>character varying(18)</tipo>
-      <nulo>NO</nulo>
    </columna>
    <columna>
       <nombre>codproveedor</nombre>
@@ -24,6 +23,7 @@
    <columna>
       <nombre>refproveedor</nombre>
       <tipo>character varying(25)</tipo>
+      <nulo>NO</nulo>
    </columna>
    <columna>
       <nombre>descripcion</nombre>
@@ -62,7 +62,7 @@
       ON DELETE CASCADE ON UPDATE CASCADE</consulta>
    </restriccion>
    <restriccion>
-      <nombre>uniq_articulo_proveedor</nombre>
-      <consulta>UNIQUE (codproveedor, referencia)</consulta>
+      <nombre>uniq_articulo_proveedor2</nombre>
+      <consulta>UNIQUE (codproveedor, refproveedor)</consulta>
    </restriccion>
 </tabla>

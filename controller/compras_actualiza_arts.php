@@ -73,17 +73,23 @@ class compras_actualiza_arts extends fs_controller
             {
                $this->lineas[$i]->refproveedor = $value->referencia;
                $this->lineas[$i]->codbarras = '';
+               $this->lineas[$i]->precio_compra = 0;
+               $this->lineas[$i]->dto_compra = 0;
+               $this->lineas[$i]->precio_venta = 0;
                
                $ap = $ap0->get_by($value->referencia, $this->documento->codproveedor);
                if($ap)
                {
                   $this->lineas[$i]->refproveedor = $ap->refproveedor;
+                  $this->lineas[$i]->precio_compra = $ap->precio;
+                  $this->lineas[$i]->dto_compra = $ap->dto;
                }
                
                $articulo = $art0->get($value->referencia);
                if($articulo)
                {
                   $this->lineas[$i]->codbarras = $articulo->codbarras;
+                  $this->lineas[$i]->precio_venta = $articulo->pvp;
                }
                
                /// ¿Tenemos los datos del form?

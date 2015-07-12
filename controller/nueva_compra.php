@@ -232,7 +232,7 @@ class nueva_compra extends fs_controller
             
             /// guardamos el artículo del proveedor
             $ap0 = new articulo_proveedor();
-            $ap = $ap0->get_by($art0->referencia, $_POST['codproveedor']);
+            $ap = $ap0->get_by($art0->referencia, $_POST['codproveedor'], $_POST['refproveedor']);
             if($ap)
             {
                $art0->coste = $ap->precio;

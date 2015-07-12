@@ -10,7 +10,7 @@
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-sm-6">
+      <div class="col-xs-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -25,7 +25,6 @@
             </a>
             {/if}
          </div>
-         
          <div class="btn-group">
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -34,7 +33,7 @@
             {/loop}
          </div>
       </div>
-      <div class="col-sm-6 text-right">
+      <div class="col-xs-6 text-right">
          <h2 style="margin-top: 0px;">Series</h2>
       </div>
    </div>
@@ -44,7 +43,7 @@
    <table class="table table-hover">
       <thead>
          <tr>
-            <th class="text-left">Código</th>
+            <th class="text-left" width="150">Código</th>
             <th class="text-left">Descripción</th>
             <th class="text-center">Sin {#FS_IVA#}</th>
             <th class="text-right">% {#FS_IRPF#}</th>
@@ -76,7 +75,7 @@
       {/loop}
       <form class="form" name="f_nueva_serie" action ="{$fsc->url()}" method="post">
          <tr class="bg-info">
-            <td><input class="form-control" type="text" name="codserie" placeholder="Nuevo código..." autocomplete="off"/></td>
+            <td><input class="form-control" type="text" name="codserie" maxlength="2" placeholder="Nuevo código..." autocomplete="off"/></td>
             <td><input class="form-control" type="text" name="descripcion" autocomplete="off"/></td>
             <td class="text-center"><input type="checkbox" name="siniva" value="TRUE"/></td>
             <td><input class="form-control text-right" type="text" name="irpf" value="0" autocomplete="off"/></td>

@@ -24,6 +24,7 @@ require_model('forma_pago.php');
 class contabilidad_formas_pago extends fs_controller
 {
    public $allow_delete;
+   public $button_plazos;
    public $cuentas_banco;
    public $forma_pago;
    
@@ -36,6 +37,20 @@ class contabilidad_formas_pago extends fs_controller
    {
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
+      /**
+       * Si hay alguna extensión de tipo config y texto button_plazos,
+       * mostramos un botón con enlace a la página de la extensión.
+       */
+      $this->button_plazos = FALSE;
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'config' AND $ext->text == 'button_plazos')
+         {
+            $this->button_plazos = $ext->from;
+            break;
+         }
+      }
       
       $cuentab = new cuenta_banco();
       $this->cuentas_banco = $cuentab->all_from_empresa();

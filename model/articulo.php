@@ -507,7 +507,7 @@ class articulo extends fs_model
          $this->new_error_msg("¡Referencia de artículo no válida! Debe tener entre 1 y 18 caracteres.
             Se admiten letras, números, '_', '.', '*', '/' ó '-'.");
       }
-      else if($ref != $this->referencia)
+      else if( $ref != $this->referencia AND !is_null($this->referencia) )
       {
          $sql = "UPDATE ".$this->table_name." SET referencia = ".$this->var2str($ref)." WHERE referencia = ".$this->var2str($this->referencia).";";
          if( $this->db->exec($sql) )

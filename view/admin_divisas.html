@@ -10,7 +10,7 @@
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-sm-6">
+      <div class="col-xs-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -33,7 +33,7 @@
             {/loop}
          </div>
       </div>
-      <div class="col-sm-6 text-right">
+      <div class="col-xs-6 text-right">
          <h2 style="margin-top: 0px;">Divisas</h2>
       </div>
    </div>
@@ -43,10 +43,10 @@
    <table class="table table-hover">
       <thead>
          <tr>
-            <th class="text-left">Código</th>
-            <th class="text-left">Símbolo</th>
+            <th class="text-left" width="120">Código</th>
+            <th class="text-left" width="120">Símbolo</th>
             <th class="text-left">Descripción</th>
-            <th class="text-left">Código ISO</th>
+            <th class="text-left" width="120">Código ISO</th>
             <th class="text-left">Tasa de conversión a €</th>
             <th class="text-left">Tasa de conversión a € (compras)</th>
             <th class="text-right" width="120">Acciones</th>
@@ -87,7 +87,7 @@
       {/loop}
       <form action="{$fsc->url()}" method="post" class="form">
          <tr class="bg-info">
-            <td><input class="form-control" type="text" name="coddivisa" autocomplete="off" placeholder="Nueva..."/></td>
+            <td><input class="form-control" type="text" name="coddivisa" maxlength="3" autocomplete="off" placeholder="Nueva..."/></td>
             <td><input class="form-control" type="text" name="simbolo" autocomplete="off" placeholder="$"/></td>
             <td><input class="form-control" type="text" name="descripcion" autocomplete="off" placeholder="Moneda"/></td>
             <td><input class="form-control" type="text" name="codiso" autocomplete="off"/></td>
