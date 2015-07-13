@@ -211,12 +211,15 @@ class informe_errores extends fs_controller
             if( $this->db->table_exists('articulosprov') )
             {
                $this->db->exec("DELETE FROM articulosprov WHERE codproveedor NOT IN (SELECT codproveedor FROM proveedores);");
-               $data = $this->db->select("SELECT codproveedor,referencia,COUNT(*) as count FROM articulosprov GROUP BY codproveedor,referencia HAVING COUNT(*) > 1;");
+               $this->db->exec("UPDATE articulosprov SET refproveedor = referencia WHERE refproveedor IS NULL;");
+               
+               /// buscamos duplicados
+               $data = $this->db->select("SELECT codproveedor,refproveedor,COUNT(*) as count FROM articulosprov GROUP BY codproveedor,refproveedor HAVING COUNT(*) > 1;");
                if($data)
                {
                   foreach($data as $d)
                   {
-                     $data2 = $this->db->select("SELECT * FROM articulosprov WHERE codproveedor = '".$d['codproveedor']."' AND referencia = '".$d['referencia']."';");
+                     $data2 = $this->db->select("SELECT * FROM articulosprov WHERE codproveedor = '".$d['codproveedor']."' AND refproveedor = '".$d['refproveedor']."';");
                      if($data2)
                      {
                         $this->db->exec("DELETE FROM articulosprov WHERE id = ".$this->empresa->var2str($data2[1]['id']).";");

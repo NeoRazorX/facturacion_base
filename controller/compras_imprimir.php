@@ -152,8 +152,16 @@ class compras_imprimir extends fs_controller
             /// ¿Añadimos el logo?
             if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
             {
-               $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
-               $lppag -= 2; /// si metemos el logo, caben menos líneas
+               if( function_exists('imagecreatefromstring') )
+               {
+                  $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
+                  $lppag -= 2; /// si metemos el logo, caben menos líneas
+               }
+               else
+               {
+                  die('ERROR: no se encuentra la función imagecreatefromstring(). '
+                  . 'Y por tanto no se puede usar el logotipo en los documentos.');
+               }
             }
             else
             {
@@ -373,24 +381,32 @@ class compras_imprimir extends fs_controller
             /// ¿Añadimos el logo?
             if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
             {
+               if( function_exists('imagecreatefromstring') )
+               {
                   $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
                   $lppag -= 2; /// si metemos el logo, caben menos líneas
+               }
+               else
+               {
+                  die('ERROR: no se encuentra la función imagecreatefromstring(). '
+                  . 'Y por tanto no se puede usar el logotipo en los documentos.');
+               }
             }
             else
             {
-                  $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 16, array('justification' => 'center'));
-                  $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'center'));
-                  
-                  $direccion = $this->empresa->direccion;
-                  if($this->empresa->codpostal)
-                     $direccion .= ' - ' . $this->empresa->codpostal;
-                  if($this->empresa->ciudad)
-                     $direccion .= ' - ' . $this->empresa->ciudad;
-                  if($this->empresa->provincia)
-                     $direccion .= ' (' . $this->empresa->provincia . ')';
-                  if($this->empresa->telefono)
-                     $direccion .= ' - Teléfono: ' . $this->empresa->telefono;
-                  $pdf_doc->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
+               $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 16, array('justification' => 'center'));
+               $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'center'));
+               
+               $direccion = $this->empresa->direccion;
+               if($this->empresa->codpostal)
+                  $direccion .= ' - ' . $this->empresa->codpostal;
+               if($this->empresa->ciudad)
+                  $direccion .= ' - ' . $this->empresa->ciudad;
+               if($this->empresa->provincia)
+                  $direccion .= ' (' . $this->empresa->provincia . ')';
+               if($this->empresa->telefono)
+                  $direccion .= ' - Teléfono: ' . $this->empresa->telefono;
+               $pdf_doc->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
             }
             
             /*

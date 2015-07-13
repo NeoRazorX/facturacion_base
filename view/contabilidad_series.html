@@ -61,9 +61,15 @@
             <td class="text-right">
                <div class="btn-group">
                   {if="$fsc->allow_delete"}
-                  <a class="btn btn-sm btn-danger" title="Eliminar" onclick="delete_serie('{$value->codserie}')">
-                     <span class="glyphicon glyphicon-trash"></span>
-                  </a>
+                     {if="$value->codserie==$fsc->empresa->codserie"}
+                     <a href="#" class="btn btn-sm btn-warning" title="Bloqueado" onclick="alert('No puedes eliminar la serie predeterminada.')">
+                        <span class="glyphicon glyphicon-lock"></span>
+                     </a>
+                     {else}
+                     <a class="btn btn-sm btn-danger" title="Eliminar" onclick="delete_serie('{$value->codserie}')">
+                        <span class="glyphicon glyphicon-trash"></span>
+                     </a>
+                     {/if}
                   {/if}
                   <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">
                      <span class="glyphicon glyphicon-floppy-disk"></span>

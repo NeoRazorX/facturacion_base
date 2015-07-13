@@ -191,8 +191,16 @@ class ventas_imprimir extends fs_controller
             /// ¿Añadimos el logo?
             if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
             {
-               $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
-               $lppag -= 2; /// si metemos el logo, caben menos líneas
+               if( function_exists('imagecreatefromstring') )
+               {
+                  $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
+                  $lppag -= 2; /// si metemos el logo, caben menos líneas
+               }
+               else
+               {
+                  die('ERROR: no se encuentra la función imagecreatefromstring(). '
+                  . 'Y por tanto no se puede usar el logotipo en los documentos.');
+               }
             }
             else
             {
@@ -476,8 +484,16 @@ class ventas_imprimir extends fs_controller
                /// ¿Añadimos el logo?
                if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
                {
-                  $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
-                  $lppag -= 2; /// si metemos el logo, caben menos líneas
+                  if( function_exists('imagecreatefromstring') )
+                  {
+                     $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
+                     $lppag -= 2; /// si metemos el logo, caben menos líneas
+                  }
+                  else
+                  {
+                     die('ERROR: no se encuentra la función imagecreatefromstring(). '
+                     . 'Y por tanto no se puede usar el logotipo en los documentos.');
+                  }
                }
                else
                {
@@ -659,7 +675,8 @@ class ventas_imprimir extends fs_controller
                   {
                      if( is_null($forma_pago->codcuenta) )
                      {
-                        $pdf_doc->pdf->ezText("\n<b>Forma de pago</b>: ".$forma_pago->descripcion."\n<b>Vencimiento</b>: ".$this->factura->vencimiento, 9);
+                        $pdf_doc->pdf->ezText("\n<b>Forma de pago</b>: ".$forma_pago->descripcion.
+                                "\n<b>Vencimiento</b>: ".$this->factura->vencimiento, 9);
                      }
                      else
                      {
@@ -886,7 +903,8 @@ class ventas_imprimir extends fs_controller
             $lineasiva[$lin->codimpuesto]['neto'] += $lin->pvptotal;
             $lineasiva[$lin->codimpuesto]['totaliva'] += ($lin->pvptotal*$lin->iva)/100;
             $lineasiva[$lin->codimpuesto]['totalrecargo'] += ($lin->pvptotal*$lin->recargo)/100;
-            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto'] + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
+            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto']
+                    + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
          }
          else
          {
@@ -899,7 +917,8 @@ class ventas_imprimir extends fs_controller
                 'totalrecargo' => ($lin->pvptotal*$lin->recargo)/100,
                 'totallinea' => 0
             );
-            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto'] + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
+            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto']
+                    + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
          }
       }
       
