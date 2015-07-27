@@ -2,7 +2,7 @@
 
 {if="$fsc->albaran"}
 {if="$fsc->albaran->ptefactura"}
-<script type="text/javascript" src="plugins/facturacion_base/view/js/nueva_compra.js"></script>
+<script type="text/javascript" src="{$fsc->get_js_location('nueva_compra.js')}"></script>
 <script type="text/javascript">
    numlineas = {function="count($fsc->albaran->get_lineas())"};
    fs_nf0 = {#FS_NF0#};

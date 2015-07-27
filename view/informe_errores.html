@@ -1,9 +1,12 @@
 {if="!$fsc->informe['started']"}
    {include="header"}
    
-   <div class="container" style="margin-top: 15px;">
+   <br/>
+   <br/>
+   
+   <div class="container">
       <div class="row">
-         <div class="col-sm-12">
+         <div class="col-sm-6">
             <form action="{$fsc->url()}" method="post" class="form">
                <div class="panel panel-info">
                   <div class="panel-heading">
@@ -15,7 +18,7 @@
                         <select class="form-control" name="modelo">
                            <option value="todo">Todo</option>
                            <option value="todo">-------</option>
-                           <option value="tablas">Tablas</option>
+                           <option value="tablas" selected="selected">Tablas</option>
                            <option value="asiento">Asientos</option>
                            <option value="factura cliente">Facturas de cliente</option>
                            <option value="factura proveedor">Facturas de proveedor</option>
@@ -33,7 +36,7 @@
                            <option value="">Todos</option>
                         </select>
                      </div>
-                     <div class="form-group">
+                     <div class="checkbox">
                         <label>
                            <input type="checkbox" name="duplicados" value="TRUE"/>
                            Detectar duplicados
@@ -42,11 +45,24 @@
                   </div>
                   <div class="panel-footer">
                      <button class="btn btn-sm btn-primary" type="submit" onclick="this.form.submit();">
-                        <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Mostrar
+                        <span class="glyphicon glyphicon-play"></span> &nbsp; Iniciar comprobación
                      </button>
                   </div>
                </div>
             </form>
+         </div>
+         <div class="col-sm-6">
+            <div class="thumbnail">
+               <img src="view/img/help-menu.png" alt="informar..."/>
+               <div class="caption">
+                  <h3>¿No se soluciona el error?</h3>
+                  <p>
+                     Si los errores persisten, es mejor que nos informes.
+                     Usa el menú de ayuda, pulsa informar... y después
+                     enviar.
+                  </p>
+               </div>
+            </div>
          </div>
       </div>
    </div>
@@ -139,12 +155,27 @@
    </div>
    
    <div style="text-align: center;">
-      <div class="btn-group">
-         {loop="$fsc->all_pages()"}
-         <a href="{$fsc->url()}&show_page={$value['page']}" class="btn btn-sm btn-default{if="$value['selected']"} active{/if}">
-            {$value['num']}
-         </a>
-         {/loop}
+      
+   </div>
+   
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-sm-9">
+            <div class="btn-group">
+               {loop="$fsc->all_pages()"}
+               <a href="{$fsc->url()}&show_page={$value['page']}" class="btn btn-sm btn-default{if="$value['selected']"} active{/if}">
+                  {$value['num']}
+               </a>
+               {/loop}
+            </div>
+         </div>
+         <div class="col-sm-3 text-right">
+            {if="$fsc->informe['model']=='fin'"}
+            <a href="{$fsc->url()}&cancelar=TRUE" class="btn btn-sm btn-info">
+               <span class="glyphicon glyphicon-ok"></span> &nbsp; Finalizar
+            </a>
+            {/if}
+         </div>
       </div>
    </div>
 {/if}

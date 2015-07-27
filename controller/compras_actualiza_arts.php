@@ -129,6 +129,12 @@ class compras_actualiza_arts extends fs_controller
                            $articulo->set_pvp( floatval($_POST['pvp_'.$value->idlinea]) );
                         }
                         
+                        /// ¿usamos la referencia de proveedor como equivalencia?
+                        if($_POST['refproveedor_'.$value->idlinea] != '' AND $_POST['refproveedor_'.$value->idlinea] != $articulo->referencia)
+                        {
+                           $articulo->equivalencia = $_POST['refproveedor_'.$value->idlinea];
+                        }
+                        
                         $articulo->save();
                      }
                   }

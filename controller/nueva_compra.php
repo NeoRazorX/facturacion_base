@@ -29,6 +29,7 @@ class nueva_compra extends fs_controller
    public $agente;
    public $almacen;
    public $articulo;
+   public $articulo_prov;
    public $divisa;
    public $familia;
    public $forma_pago;
@@ -46,10 +47,11 @@ class nueva_compra extends fs_controller
    
    protected function process()
    {
-      $this->proveedor = new proveedor();
-      $this->proveedor_s = FALSE;
+      $this->articulo_prov = new articulo_proveedor();
       $this->familia = new familia();
       $this->impuesto = new impuesto();
+      $this->proveedor = new proveedor();
+      $this->proveedor_s = FALSE;
       $this->results = array();
       
       if( isset($_REQUEST['tipo']) )
@@ -225,14 +227,18 @@ class nueva_compra extends fs_controller
             $art0->codfamilia = $_REQUEST['codfamilia'];
          }
          
+         if($_POST['refproveedor'] != '' AND $_POST['refproveedor'] != $_POST['referencia'])
+         {
+            $art0->equivalencia = $_POST['refproveedor'];
+         }
+         
          if( $art0->save() )
          {
             $art0->coste = floatval($_POST['coste']);
             $art0->dtopor = 0;
             
             /// guardamos el artículo del proveedor
-            $ap0 = new articulo_proveedor();
-            $ap = $ap0->get_by($art0->referencia, $_POST['codproveedor'], $_POST['refproveedor']);
+            $ap = $this->articulo_prov->get_by($art0->referencia, $_POST['codproveedor'], $_POST['refproveedor']);
             if($ap)
             {
                $art0->coste = $ap->precio;
@@ -264,7 +270,6 @@ class nueva_compra extends fs_controller
       $this->template = FALSE;
       
       $articulo = new articulo();
-      $articulo_proveedor = new articulo_proveedor();
       $codfamilia = '';
       if( isset($_REQUEST['codfamilia']) )
       {
@@ -281,7 +286,7 @@ class nueva_compra extends fs_controller
          $this->results[$i]->coste = $value->preciocoste();
          $this->results[$i]->dtopor = 0;
          
-         $ap = $articulo_proveedor->get_by($value->referencia, $_REQUEST['codproveedor']);
+         $ap = $this->articulo_prov->get_by($value->referencia, $_REQUEST['codproveedor']);
          if($ap)
          {
             $this->results[$i]->coste = $ap->precio;
@@ -454,6 +459,7 @@ class nueva_compra extends fs_controller
                            }
                            
                            $articulo->save();
+                           $this->actualizar_precio_proveedor($pedido->codproveedor, $linea);
                         }
                      }
                      
@@ -656,6 +662,11 @@ class nueva_compra extends fs_controller
                            $articulo->costemedio = $articulo->get_costemedio();
                            $articulo->stockfis -= $linea->cantidad;
                            $articulo->save();
+                        }
+                        
+                        if( isset($_POST['costemedio']) )
+                        {
+                           $this->actualizar_precio_proveedor($albaran->codproveedor, $linea);
                         }
                      }
                      
@@ -867,6 +878,8 @@ class nueva_compra extends fs_controller
                                  $articulo->costemedio = $linea->pvptotal/$linea->cantidad;
                               }
                            }
+                           
+                           $this->actualizar_precio_proveedor($factura->codproveedor, $linea);
                         }
                         
                         if( isset($_POST['stock']) )
@@ -949,6 +962,27 @@ class nueva_compra extends fs_controller
          {
             $this->new_message($msg);
          }
+      }
+   }
+   
+   private function actualizar_precio_proveedor($codproveedor, $linea)
+   {
+      if( !is_null($linea->referencia) )
+      {
+         $artp = $this->articulo_prov->get_by($linea->referencia, $codproveedor);
+         if(!$artp)
+         {
+            $artp = new articulo_proveedor();
+            $artp->codproveedor = $codproveedor;
+            $artp->referencia = $linea->referencia;
+            $artp->refproveedor = $linea->referencia;
+            $artp->codimpuesto = $linea->codimpuesto;
+            $artp->descripcion = $linea->descripcion;
+         }
+         
+         $artp->precio = $linea->pvpunitario;
+         $artp->dto = $linea->dtopor;
+         $artp->save();
       }
    }
 }

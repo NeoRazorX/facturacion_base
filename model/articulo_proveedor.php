@@ -282,7 +282,16 @@ class articulo_proveedor extends fs_model
    {
       $this->descripcion = $this->no_html($this->descripcion);
       
-      if( $this->exists() )
+      if($this->nostock)
+      {
+         $this->stock = 0;
+      }
+      
+      if( is_null($this->refproveedor) OR strlen($this->refproveedor) < 1 OR strlen($this->refproveedor) > 25 )
+      {
+         $this->new_error_msg('La referencia de proveedor debe contener entre 1 y 25 caracteres.');
+      }
+      else if( $this->exists() )
       {
          $sql = "UPDATE articulosprov SET referencia = ".$this->var2str($this->referencia).
                  ", codproveedor = ".$this->var2str($this->codproveedor).

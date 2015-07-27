@@ -131,6 +131,18 @@ class articulo extends fs_model
    public $observaciones;
    
    /**
+    * Código de la subcuenta para compras.
+    * @var type 
+    */
+   public $codsubcuentacom;
+   
+   /**
+    * Código para la subcuenta de compras, pero con IRPF.
+    * @var type 
+    */
+   public $codsubcuentairpfcom;
+   
+   /**
     * % IVA del impuesto asignado.
     * @var type 
     */
@@ -159,7 +171,8 @@ class articulo extends fs_model
       {
          self::$column_list = 'referencia,codfamilia,descripcion,pvp,factualizado,costemedio,'.
                  'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,'.
-                 'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo';
+                 'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,'.
+                 'codsubcuentacom,codsubcuentairpfcom';
       }
       
       if($a)
@@ -191,6 +204,8 @@ class articulo extends fs_model
          $this->equivalencia = $a['equivalencia'];
          $this->codbarras = $a['codbarras'];
          $this->observaciones = $this->no_html($a['observaciones']);
+         $this->codsubcuentacom = $a['codsubcuentacom'];
+         $this->codsubcuentairpfcom = $a['codsubcuentairpfcom'];
          
          /// no cargamos la imagen directamente por cuestión de rendimiento
          $this->imagen = NULL;
@@ -220,6 +235,8 @@ class articulo extends fs_model
          $this->equivalencia = NULL;
          $this->codbarras = '';
          $this->observaciones = '';
+         $this->codsubcuentacom = NULL;
+         $this->codsubcuentairpfcom = NULL;
          
          $this->imagen = NULL;
          $this->has_imagen = FALSE;
@@ -251,6 +268,11 @@ class articulo extends fs_model
       return '';
    }
    
+   /**
+    * Devuelve la descripción en base64.
+    * Obsoleto.
+    * @return type
+    */
    public function get_descripcion_64()
    {
       return base64_encode($this->descripcion);
@@ -266,6 +288,10 @@ class articulo extends fs_model
       return $this->costemedio * (100+$this->get_iva()) / 100;
    }
    
+   /**
+    * Devuelve el precio de coste, ya esté configurado como calculado o editable.
+    * @return type
+    */
    public function preciocoste()
    {
       if(FS_COST_IS_AVERAGE)
@@ -281,6 +307,11 @@ class articulo extends fs_model
       return $this->preciocoste() * (100+$this->get_iva()) / 100;
    }
    
+   /**
+    * Devuelve la fecha de la última modificación del precio, pero en formato
+    * 'hace x horas/días/meses'
+    * @return type
+    */
    public function factualizado()
    {
       return $this->var2timesince($this->factualizado);
@@ -370,6 +401,11 @@ class articulo extends fs_model
       return $this->iva;
    }
    
+   /**
+    * Devuelve un array con los artículos que tengan el mismo código de
+    * equivalencia que el artículo.
+    * @return \articulo
+    */
    public function get_equivalentes()
    {
       $artilist = array();
@@ -455,12 +491,19 @@ class articulo extends fs_model
             if( isset($this->imagen) )
             {
                if( !file_exists('tmp/articulos') )
-                  mkdir('tmp/articulos');
+               {
+                  @mkdir('tmp/articulos');
+               }
                
-               $f = fopen('tmp/articulos/'.$this->referencia.'.png', 'a');
-               fwrite($f, $this->imagen);
-               fclose($f);
-               return 'tmp/articulos/'.$this->referencia.'.png';
+               $f = @fopen('tmp/articulos/'.$this->referencia.'.png', 'a');
+               if($f)
+               {
+                  fwrite($f, $this->imagen);
+                  fclose($f);
+                  return 'tmp/articulos/'.$this->referencia.'.png';
+               }
+               else
+                  return FALSE;
             }
             else
                return FALSE;
@@ -487,18 +530,25 @@ class articulo extends fs_model
    
    public function set_pvp($p)
    {
-      $this->pvp_ant = $this->pvp;
-      $this->factualizado = Date('d-m-Y');
-      $this->pvp = round($p, FS_NF0+2);
+      if( !$this->floatcmp($this->pvp, $p, FS_NF0+2) )
+      {
+         $this->pvp_ant = $this->pvp;
+         $this->factualizado = Date('d-m-Y');
+         $this->pvp = round($p, FS_NF0+2);
+      }
    }
    
    public function set_pvp_iva($p)
    {
-      $this->pvp_ant = $this->pvp;
-      $this->factualizado = Date('d-m-Y');
-      $this->pvp = round((100*$p)/(100+$this->get_iva()), FS_NF0+2);
+      $pvp = round((100*$p)/(100+$this->get_iva()), FS_NF0+2);
+      $this->set_pvp($pvp);
    }
    
+   /**
+    * Cambia la referencia del artículo.
+    * Lo hace en el momento, no hace falta hacer save().
+    * @param type $ref
+    */
    public function set_referencia($ref)
    {
       $ref = str_replace(' ', '_', trim($ref));
@@ -521,6 +571,10 @@ class articulo extends fs_model
       }
    }
    
+   /**
+    * Cambia el impuesto asociado al artículo.
+    * @param type $codimpuesto
+    */
    public function set_impuesto($codimpuesto)
    {
       if($codimpuesto != $this->codimpuesto)
@@ -552,7 +606,13 @@ class articulo extends fs_model
       }
    }
    
-   public function set_stock($almacen, $cantidad=1)
+   /**
+    * Modifica el stock del artículo en un almacén concreto.
+    * @param type $almacen
+    * @param type $cantidad
+    * @return boolean
+    */
+   public function set_stock($almacen, $cantidad = 1)
    {
       if($this->nostock)
       {
@@ -609,7 +669,14 @@ class articulo extends fs_model
       }
    }
    
-   public function sum_stock($almacen, $cantidad=1, $recalcula_coste=FALSE)
+   /**
+    * Suma la cantidad especificada al stock del artículo en el almacén especificado.
+    * @param type $almacen
+    * @param type $cantidad
+    * @param type $recalcula_coste
+    * @return boolean
+    */
+   public function sum_stock($almacen, $cantidad = 1, $recalcula_coste = FALSE)
    {
       if($this->nostock)
       {
@@ -689,6 +756,10 @@ class articulo extends fs_model
       return $this->exists;
    }
    
+   /**
+    * Devuelve TRUE  si los datos del artículo son correctos.
+    * @return boolean
+    */
    public function test()
    {
       $status = FALSE;
@@ -715,7 +786,6 @@ class articulo extends fs_model
       $this->codbarras = $this->no_html($this->codbarras);
       $this->observaciones = $this->no_html($this->observaciones);
       
-      $this->equivalencia = str_replace(' ', '_', trim($this->equivalencia));
       if($this->equivalencia == '')
       {
          $this->equivalencia = NULL;
@@ -726,15 +796,14 @@ class articulo extends fs_model
          $this->controlstock = TRUE;
       }
       
-      if( !preg_match("/^[A-Z0-9_\+\.\*\/\-]{1,18}$/i", $this->referencia) )
+      if( is_null($this->referencia) OR strlen($this->referencia) < 1 OR strlen($this->referencia) > 18 )
       {
-         $this->new_error_msg("¡Referencia de artículo no válida! Debe tener entre 1 y 18 caracteres.
-            Se admiten letras (excepto Ñ), números, '_', '.', '*', '/' ó '-'.");
+         $this->new_error_msg("Referencia de artículo no válida: ".$this->referencia.". Debe tener entre 1 y 18 caracteres.");
       }
-      else if( isset($this->equivalencia) AND !preg_match("/^[A-Z0-9_\+\.\*\/\-]{1,25}$/i", $this->equivalencia) )
+      else if( isset($this->equivalencia) AND strlen($this->equivalencia) > 25 )
       {
-         $this->new_error_msg("¡Código de equivalencia del artículos no válido! Debe tener entre 1 y 25 caracteres.
-            Se admiten letras (excepto Ñ), números, '_', '.', '*', '/' ó '-'.");
+         $this->new_error_msg("Código de equivalencia del artículos no válido: ".$this->equivalencia.
+                 ". Debe tener entre 1 y 25 caracteres.");
       }
       else
          $status = TRUE;
@@ -742,6 +811,10 @@ class articulo extends fs_model
       return $status;
    }
    
+   /**
+    * Guarda en la base de datos los datos del artículo.
+    * @return boolean
+    */
    public function save()
    {
       if( $this->test() )
@@ -772,6 +845,8 @@ class articulo extends fs_model
                     ", observaciones = ".$this->var2str($this->observaciones).
                     ", tipo = ".$this->var2str($this->tipo).
                     ", imagen = ".$this->bin2str($this->imagen).
+                    ", codsubcuentacom = ".$this->var2str($this->codsubcuentacom).
+                    ", codsubcuentairpfcom = ".$this->var2str($this->codsubcuentairpfcom).
                     " WHERE referencia = ".$this->var2str($this->referencia).";";
             
             if($this->nostock AND $this->stockfis != 0)
@@ -806,7 +881,9 @@ class articulo extends fs_model
                     $this->var2str($this->observaciones).",".
                     $this->bin2str($this->imagen).",".
                     $this->var2str($this->publico).",".
-                    $this->var2str($this->tipo).");";
+                    $this->var2str($this->tipo).",".
+                    $this->var2str($this->codsubcuentacom).",".
+                    $this->var2str($this->codsubcuentairpfcom).");";
          }
          
          if( $this->db->exec($sql) )
@@ -821,6 +898,10 @@ class articulo extends fs_model
          return FALSE;
    }
    
+   /**
+    * Elimina el artículo de la base de datos.
+    * @return boolean
+    */
    public function delete()
    {
       $this->clean_cache();

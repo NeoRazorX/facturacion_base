@@ -231,6 +231,12 @@ class informe_errores extends fs_controller
                }
             }
             
+            /// comprobamos la tabla de stock
+            if( $this->db->table_exists('stocks') AND $this->informe['offset'] == 0 )
+            {
+               $this->db->exec("DELETE FROM stocks WHERE referencia NOT IN (SELECT referencia FROM articulos);");
+            }
+            
             /// comprobamos la tabla de regulaciones de stock
             if( $this->db->table_exists('lineasregstocks') AND $this->informe['offset'] == 0 )
             {
