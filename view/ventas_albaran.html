@@ -100,7 +100,7 @@
                {else}
                <a class="btn btn-sm btn-info text-capitalize" href="{$fsc->albaran->factura_url()}">
                   <span class="glyphicon glyphicon-eye-open"></span>
-                  <span class="hidden-xs">&nbsp; Ver Factura</span>
+                  <span class="hidden-xs">&nbsp; Ver {#FS_FACTURA#}</span>
                </a>
                {/if}
             </div>
@@ -155,7 +155,7 @@
          {/if}
          <div class="col-md-4 col-sm-6">
             <div class="form-group">
-               Número 2:
+               <span class='text-capitalize'>{#FS_NUMERO2#}:</span>
                <input class="form-control" type="text" name="numero2" value="{$fsc->albaran->numero2}"/>
             </div>
          </div>
@@ -669,7 +669,7 @@
             </div>
             {if="$fsc->albaran->idfactura"}
             <div class="alert alert-info">
-               Hay una factura asociada que será eliminada junto con este {#FS_ALBARAN#}.
+               Hay una {#FS_FACTURA#} asociada que será eliminada junto con este {#FS_ALBARAN#}.
             </div>
             {/if}
          </div>

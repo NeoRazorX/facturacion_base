@@ -95,13 +95,18 @@ class compras_actualiza_arts extends fs_controller
                /// ¿Tenemos los datos del form?
                if( isset($_POST['update_'.$value->idlinea]) )
                {
+                  /**
+                   * Volvemos a buscar el artículos del proveedor, pero esta vez
+                   * buscamos también con la referencia del proveedor.
+                   */
+                  $ap = $ap0->get_by($value->referencia, $this->documento->codproveedor, $_POST['refproveedor_'.$value->idlinea]);
                   if(!$ap)
                   {
                      $ap = new articulo_proveedor();
-                     $ap->referencia = $value->referencia;
                      $ap->codproveedor = $this->documento->codproveedor;
                   }
                   
+                  $ap->referencia = $value->referencia;
                   $ap->refproveedor = $_POST['refproveedor_'.$value->idlinea];
                   $this->lineas[$i]->refproveedor = $ap->refproveedor;
                   

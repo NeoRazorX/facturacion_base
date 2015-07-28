@@ -237,10 +237,10 @@ class articulo_proveedor extends fs_model
    }
    
    /**
-    * Devuelve el primer elemento que tiene $ref como referencia y $codproveedor
+    * Devuelve el primer elemento que tenga $ref como referencia y $codproveedor
     * como codproveedor. Si se proporciona $refprov, entonces lo que devuelve es el
-    * primer elemento que tenga $refprov como refproveedor y $codproveedor como
-    * codproveedor.
+    * primer elemento que tenga $codproveedor como codproveedor y $refprov como refproveedor
+    * o bien $ref como referencia.
     * @param type $ref
     * @param type $codproveedor
     * @param type $refprov
@@ -250,13 +250,14 @@ class articulo_proveedor extends fs_model
    {
       if($refprov)
       {
-         $sql = "SELECT * FROM articulosprov WHERE refproveedor = ".$this->var2str($refprov).
-              " AND codproveedor = ".$this->var2str($codproveedor).";";
+         $sql = "SELECT * FROM articulosprov WHERE codproveedor = ".$this->var2str($codproveedor)
+                 ." AND (refproveedor = ".$this->var2str($refprov)
+                 ." OR referencia = ".$this->var2str($ref).");";
       }
       else
       {
-         $sql = "SELECT * FROM articulosprov WHERE referencia = ".$this->var2str($ref).
-              " AND codproveedor = ".$this->var2str($codproveedor).";";
+         $sql = "SELECT * FROM articulosprov WHERE referencia = ".$this->var2str($ref)
+                 ." AND codproveedor = ".$this->var2str($codproveedor).";";
       }
       
       $data = $this->db->select($sql);

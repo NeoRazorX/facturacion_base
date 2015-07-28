@@ -58,20 +58,34 @@ class admin_agente extends fs_controller
                $this->agente->nombre = $_POST['nombre'];
                $this->agente->apellidos = $_POST['apellidos'];
                $this->agente->dnicif = $_POST['dnicif'];
-               $this->agente->email = $_POST['email'];
                $this->agente->telefono = $_POST['telefono'];
-               $this->agente->porcomision = floatval($_POST['porcomision']);
-               $this->agente->direccion = $_POST['direccion'];
-               $this->agente->ciudad = $_POST['ciudad'];
+               $this->agente->email = $_POST['email'];
                $this->agente->cargo = $_POST['cargo'];
+               $this->agente->provincia = $_POST['provincia'];
+               $this->agente->ciudad = $_POST['ciudad'];
+               $this->agente->direccion = $_POST['direccion'];
+               
+               $this->agente->f_nacimiento = NULL;
+               if($_POST['f_nacimiento'] != '')
+               {
+                  $this->agente->f_nacimiento = $_POST['f_nacimiento'];
+               }
+               
+               $this->agente->f_alta = NULL;
+               if($_POST['f_alta'] != '')
+               {
+                  $this->agente->f_alta = $_POST['f_alta'];
+               }
+               
+               $this->agente->f_baja = NULL;
+               if($_POST['f_baja'] != '')
+               {
+                  $this->agente->f_baja = $_POST['f_baja'];
+               }
+               
                $this->agente->seg_social = $_POST['seg_social'];
                $this->agente->banco = $_POST['banco'];
-               if ($_POST['f_nacimiento'] != '')
-                    $this->agente->f_nacimiento = $_POST['f_nacimiento'];
-               if ($_POST['f_alta'] != '')
-                    $this->agente->f_alta = $_POST['f_alta'];
-               if ($_POST['f_baja'] != '')
-                    $this->agente->f_baja = $_POST['f_baja'];
+               $this->agente->porcomision = floatval($_POST['porcomision']);
                
                if( $this->agente->save() )
                {

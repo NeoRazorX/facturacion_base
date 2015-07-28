@@ -55,20 +55,19 @@
             <th class="text-left">Nombre + Apellidos</th>
             <th class="text-left">{#FS_CIFNIF#}</th>
             <th class="text-left">Cargo</th>
-            <th class="text-left">Nacimiento</th>
-            <th class="text-left">Fecha Contrato</th>
             <th class="text-left">Teléfono</th>
-
+            <th class="text-left">Nacimiento</th>
+            <th class="text-right">Fecha Alta</th>
          </tr>
       </thead>
       {loop="$fsc->agente->all()"}
-      <tr class="clickableRow" href="{$value->url()}">
+      <tr class='clickableRow{if="$value->f_baja"} bg-danger{/if}' href='{$value->url()}'>
          <td>{$value->get_fullname()}</td>
          <td>{$value->dnicif}</td>
          <td>{$value->cargo}</td>
-         <td>{$value->f_nacimiento}</td>
-         <td>{$value->f_alta}</td>
          <td>{if="$value->telefono==''"}-{else}{$value->telefono}{/if}</td>
+         <td>{$value->f_nacimiento}</td>
+         <td class="text-right">{$value->f_alta}</td>
       </tr>
       {else}
       <tr class="bg-warning">

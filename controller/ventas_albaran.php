@@ -489,7 +489,8 @@ class ventas_albaran extends fs_controller
       }
       else if( $regularizacion->get_fecha_inside($factura->fecha) )
       {
-         $this->new_error_msg("El IVA de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.");
+         $this->new_error_msg("El IVA de ese periodo ya ha sido regularizado. No se pueden añadir más "
+                 .FS_FACTURAS." en esa fecha.");
       }
       else if( $factura->save() )
       {
@@ -528,27 +529,27 @@ class ventas_albaran extends fs_controller
             }
             else
             {
-               $this->new_error_msg("¡Imposible vincular el ".FS_ALBARAN." con la nueva factura!");
+               $this->new_error_msg("¡Imposible vincular el ".FS_ALBARAN." con la nueva ".FS_FACTURA."!");
                if( $factura->delete() )
                {
                   $this->new_error_msg("La factura se ha borrado.");
                }
                else
-                  $this->new_error_msg("¡Imposible borrar la factura!");
+                  $this->new_error_msg("¡Imposible borrar la ".FS_FACTURA."!");
             }
          }
          else
          {
             if( $factura->delete() )
             {
-               $this->new_error_msg("La factura se ha borrado.");
+               $this->new_error_msg("La ".FS_FACTURA." se ha borrado.");
             }
             else
-               $this->new_error_msg("¡Imposible borrar la factura!");
+               $this->new_error_msg("¡Imposible borrar la ".FS_FACTURA."!");
          }
       }
       else
-         $this->new_error_msg("¡Imposible guardar la factura!");
+         $this->new_error_msg("¡Imposible guardar la ".FS_FACTURA."!");
    }
    
    private function generar_asiento(&$factura)
@@ -558,7 +559,7 @@ class ventas_albaran extends fs_controller
          $asiento_factura = new asiento_factura();
          if( $asiento_factura->generar_asiento_venta($factura) )
          {
-            $this->new_message("<a href='".$factura->url()."'>Factura</a> generada correctamente.");
+            $this->new_message("<a href='".$factura->url()."'>".ucfirst(FS_FACTURA)."</a> generada correctamente.");
          }
          
          foreach($asiento_factura->errors as $err)
@@ -573,9 +574,9 @@ class ventas_albaran extends fs_controller
       }
       else
       {
-         $this->new_message("<a href='".$factura->url()."'>Factura</a> generada correctamente.");
+         $this->new_message("<a href='".$factura->url()."'>".ucfirst(FS_FACTURA)."</a> generada correctamente.");
       }
       
-      $this->new_change('Factura Cliente '.$factura->codigo, $factura->url(), TRUE);
+      $this->new_change(ucfirst(FS_FACTURA).' '.$factura->codigo, $factura->url(), TRUE);
    }
 }

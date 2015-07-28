@@ -111,7 +111,7 @@
       <div class="row">
          <div class="col-md-12">
             <h3 style="margin-bottom: 0px;">
-               <a href="{$fsc->ppage->url()}">Facturas</a> /
+               <a href="{$fsc->ppage->url()}" class="text-capitalize">{#FS_FACTURAS#}</a> /
                <a href="{$fsc->factura->cliente_url()}">{$fsc->factura->nombrecliente}</a> /
                {$fsc->factura->codigo}
             </h3>
@@ -126,7 +126,7 @@
       <div class="row">
          <div class="col-sm-4">
             <div class="form-group">
-               Número 2:
+               <span class='text-capitalize'>{#FS_NUMERO2#}:</span>
                <input class="form-control" type="text" name="numero2" value="{$fsc->factura->numero2}"/>
             </div>
          </div>
@@ -288,7 +288,7 @@
       <div class="modal-content">
          <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Imprimir factura</h4>
+            <h4 class="modal-title">Imprimir {#FS_FACTURA#}</h4>
          </div>
          <div class="modal-body">
          {loop="$fsc->extensions"}
@@ -300,7 +300,7 @@
          {/loop}
          </div>
          <div class="modal-footer">
-            <a href="{$fsc->url()}&updatedir=TRUE">Actualizar la dirección de la factura</a>
+            <a href="{$fsc->url()}&updatedir=TRUE">Actualizar la dirección de la {#FS_FACTURA#}</a>
             <br/>
             <a href="index.php?page=admin_empresa#impresion" target="_blank">Opciones de impresión</a>
          </div>
@@ -314,7 +314,7 @@
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Enviar factura</h4>
+               <h4 class="modal-title">Enviar {#FS_FACTURA#}</h4>
             </div>
             <div class="modal-body">
                <div class="form-group">
@@ -323,7 +323,7 @@
                </div>
                <div class="form-group">
                   Mensaje:
-                  <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto su factura {$fsc->factura->codigo}.
+                  <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto su {#FS_FACTURA#} {$fsc->factura->codigo}.
 {$fsc->empresa->email_firma}</textarea>
                </div>
                {loop="$fsc->extensions"}
@@ -344,11 +344,11 @@
       <div class="modal-content">
          <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">¿Realmente desea eliminar esta factura?</h4>
+            <h4 class="modal-title">¿Realmente desea eliminar esta {#FS_FACTURA#}?</h4>
          </div>
          {if="$fsc->factura->idasiento"}
          <div class="modal-body">
-            Hay asociado un asiento contable que será eliminado junto con la factura.
+            Hay asociado un asiento contable que será eliminado junto con la {#FS_FACTURA#}.
          </div>
          {/if}
          <div class="modal-footer">

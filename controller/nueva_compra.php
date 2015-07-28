@@ -237,7 +237,7 @@ class nueva_compra extends fs_controller
             $art0->coste = floatval($_POST['coste']);
             $art0->dtopor = 0;
             
-            /// guardamos el artículo del proveedor
+            /// buscamos y guardamos el artículo del proveedor
             $ap = $this->articulo_prov->get_by($art0->referencia, $_POST['codproveedor'], $_POST['refproveedor']);
             if($ap)
             {
@@ -247,13 +247,13 @@ class nueva_compra extends fs_controller
             else
             {
                $ap = new articulo_proveedor();
-               $ap->referencia = $art0->referencia;
                $ap->codproveedor = $_POST['codproveedor'];
-               $ap->refproveedor = $_POST['refproveedor'];
-               $ap->precio = floatval($_POST['coste']);
             }
-            $ap->codimpuesto = $art0->codimpuesto;
+            $ap->referencia = $art0->referencia;
+            $ap->refproveedor = $_POST['refproveedor'];
             $ap->descripcion = $art0->descripcion;
+            $ap->codimpuesto = $art0->codimpuesto;
+            $ap->precio = floatval($_POST['coste']);
             $ap->save();
             
             $this->results[] = $art0;

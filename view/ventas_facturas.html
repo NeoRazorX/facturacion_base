@@ -104,7 +104,7 @@
    <li{if="!isset($_GET['sinpagar'])"} class="active"{/if}>
       <a href="{$fsc->url()}">
          {if="$fsc->query==''"}
-         Todas las facturas
+         Todas las {#FS_FACTURAS#}
          {else}
          <span class="glyphicon glyphicon-search"></span>
          <span class="hidden-xs">&nbsp; Resultados de "{$fsc->query}"</span>
@@ -127,7 +127,7 @@
          <tr>
             <th></th>
             <th></th>
-            <th class="text-left">Código + Número 2</th>
+            <th class="text-left">Código + {#FS_NUMERO2#}</th>
             <th class="text-left">Cliente</th>
             <th class="text-left">Observaciones</th>
             <th class="text-right">Total</th>
@@ -143,20 +143,20 @@
       <tr class="clickableRow{if="$value->vencida()"} bg-danger{elseif="$value->total<=0"} bg-warning{/if}" href="{$value->url()}">
          <td class="text-center">
             {if="$value->pagada"}
-            <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
+            <span class="glyphicon glyphicon-ok" title="La {#FS_FACTURA#} está pagada"></span>
             {else}
             <!--{$total+=$value->total}-->
             {/if}
          </td>
          <td class="text-center">
             {if="$value->idasiento"}
-            <span class="glyphicon glyphicon-paperclip" title="La factura tiene vinculado un asiento contable"></span>
+            <span class="glyphicon glyphicon-paperclip" title="La {#FS_FACTURA#} tiene vinculado un asiento contable"></span>
             {/if}
          </td>
          <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}</td>
          <td>
             {$value->nombrecliente}
-            <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más facturas de {$value->nombrecliente}">[+]</a>
+            <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más {#FS_FACTURAS#} de {$value->nombrecliente}">[+]</a>
          </td>
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
@@ -173,7 +173,7 @@
       <tr class="bg-warning">
          <td></td>
          <td></td>
-         <td colspan="6">Ninguna factura encontrada. Pulsa <b>Nueva</b> para crear una.</td>
+         <td colspan="6">Ninguna {#FS_FACTURA#} encontrada. Pulsa <b>Nueva</b> para crear una.</td>
       </tr>
       {/loop}
       {if="$fsc->resultados AND isset($_GET['sinpagar']) AND $fsc->offset==0"}
@@ -226,7 +226,7 @@
                </tr>
                {else}
                <tr class="bg-success">
-                  <td colspan="2">No hay huecos en la numeración de facturas. Eso es bueno ;-)</td>
+                  <td colspan="2">No hay huecos en la numeración de {#FS_FACTURAS#}. Eso es bueno ;-)</td>
                </tr>
                {/loop}
             </table>

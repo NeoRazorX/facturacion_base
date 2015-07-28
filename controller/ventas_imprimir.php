@@ -119,7 +119,7 @@ class ventas_imprimir extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'ventas_factura',
               'type' => 'pdf',
-              'text' => 'Factura simple',
+              'text' => ucfirst(FS_FACTURA).' simple',
               'params' => '&factura=TRUE&tipo=simple'
           ),
           array(
@@ -127,7 +127,7 @@ class ventas_imprimir extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'ventas_factura',
               'type' => 'pdf',
-              'text' => 'Factura con firma',
+              'text' => ucfirst(FS_FACTURA).' con firma',
               'params' => '&factura=TRUE&tipo=firma'
           ),
           array(
@@ -143,7 +143,7 @@ class ventas_imprimir extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'ventas_factura',
               'type' => 'email',
-              'text' => 'Factura simple',
+              'text' => ucfirst(FS_FACTURA).' simple',
               'params' => '&factura=TRUE&tipo=simple'
           )
       );
@@ -420,8 +420,8 @@ class ventas_imprimir extends fs_controller
       
       /// Creamos el PDF y escribimos sus metadatos
       $pdf_doc = new fs_pdf();
-      $pdf_doc->pdf->addInfo('Title', 'Factura ' . $this->factura->codigo);
-      $pdf_doc->pdf->addInfo('Subject', 'Factura de cliente ' . $this->factura->codigo);
+      $pdf_doc->pdf->addInfo('Title', ucfirst(FS_FACTURA).' '.$this->factura->codigo);
+      $pdf_doc->pdf->addInfo('Subject', ucfirst(FS_FACTURA).' '.$this->factura->codigo);
       $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
       
       $lineas = $this->factura->get_lineas();
@@ -461,7 +461,7 @@ class ventas_imprimir extends fs_controller
                $pdf_doc->new_table();
                $pdf_doc->add_table_row(
                   array(
-                      'campos' => "<b>Factura de cliente:</b>\n<b>Fecha:</b>\n<b>".FS_CIFNIF.":</b>",
+                      'campos' => "<b>".ucfirst(FS_FACTURA).":</b>\n<b>Fecha:</b>\n<b>".FS_CIFNIF.":</b>",
                       'factura' => $this->factura->codigo."\n".$this->factura->fecha."\n".$this->factura->cifnif,
                       'cliente' => $this->fix_html($direccion)
                   )
@@ -521,7 +521,7 @@ class ventas_imprimir extends fs_controller
                $pdf_doc->new_table();
                $pdf_doc->add_table_row(
                   array(
-                     'campo1' => "<b>Factura:</b>",
+                     'campo1' => "<b>".ucfirst(FS_FACTURA).":</b>",
                      'dato1' => $this->factura->codigo,
                      'campo2' => "<b>Fecha:</b>",
                      'dato2' => $this->factura->fecha
