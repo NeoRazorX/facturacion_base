@@ -114,34 +114,34 @@ class compras_actualiza_arts extends fs_controller
                   $ap->dto = floatval($_POST['dto_'.$value->idlinea]);
                   $ap->save();
                   
-                  if( isset($_POST['descripciones']) OR isset($_POST['codbarras']) OR isset($_POST['pvps']) )
+                  if($articulo)
                   {
-                     if($articulo)
+                     if( isset($_POST['descripciones']) )
                      {
-                        if( isset($_POST['descripciones']) )
-                        {
-                           $articulo->descripcion = $_POST['descripcion_'.$value->idlinea];
-                        }
-                        
-                        if( isset($_POST['codbarras']) )
-                        {
-                           $articulo->codbarras = $_POST['codbarras_'.$value->idlinea];
-                           $this->lineas[$i]->codbarras = $articulo->codbarras;
-                        }
-                        
-                        if( isset($_POST['pvps']) )
-                        {
-                           $articulo->set_pvp( floatval($_POST['pvp_'.$value->idlinea]) );
-                        }
-                        
-                        /// ¿usamos la referencia de proveedor como equivalencia?
-                        if($_POST['refproveedor_'.$value->idlinea] != '' AND $_POST['refproveedor_'.$value->idlinea] != $articulo->referencia)
+                        $articulo->descripcion = $_POST['descripcion_'.$value->idlinea];
+                     }
+                     
+                     if( isset($_POST['codbarras']) )
+                     {
+                        $articulo->codbarras = $_POST['codbarras_'.$value->idlinea];
+                        $this->lineas[$i]->codbarras = $articulo->codbarras;
+                     }
+                     
+                     if( isset($_POST['pvps']) )
+                     {
+                        $articulo->set_pvp( floatval($_POST['pvp_'.$value->idlinea]) );
+                     }
+                     
+                     /// ¿usamos la referencia de proveedor como equivalencia?
+                     if($_POST['refproveedor_'.$value->idlinea] != '' AND $_POST['refproveedor_'.$value->idlinea] != $articulo->referencia)
+                     {
+                        if( is_null($articulo->equivalencia) )
                         {
                            $articulo->equivalencia = $_POST['refproveedor_'.$value->idlinea];
                         }
-                        
-                        $articulo->save();
                      }
+                     
+                     $articulo->save();
                   }
                   
                   $cambios++;
