@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('articulo.php');
-
 /**
  * Una familia de artículos (el equivalente a la marca del artículo).
  */

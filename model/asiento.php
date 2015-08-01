@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'base/fs_model.php';
 require_model('ejercicio.php');
 require_model('factura_cliente.php');
 require_model('factura_proveedor.php');

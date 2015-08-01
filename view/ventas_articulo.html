@@ -608,7 +608,7 @@
       {loop="$fsc->extensions"}
          {if="$value->type=='tab'"}
          <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
-            <iframe src="index.php?page={$value->from}{$value->params}&ref={function="urlencode($fsc->articulo->referencia)"}" width="100%" height="900" frameborder="0">
+            <iframe src="index.php?page={$value->from}{$value->params}&ref={function="urlencode($fsc->articulo->referencia)"}" width="100%" height="2000" frameborder="0">
             </iframe>
          </div>
          {/if}

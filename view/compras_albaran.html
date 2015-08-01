@@ -341,7 +341,7 @@
                      </tr>
                   </thead>
                   {loop="$fsc->albaran->get_lineas()"}
-                  <tr{if="$value->cantidad<1"} class="bg-warning"{/if}>
+                  <tr{if="$value->cantidad<=0"} class="bg-warning"{/if}>
                      <td>
                         {if="$value->idlineapedido"}
                         <a target="_blank" href="index.php?page=compras_pedido&id={$value->idpedido}" title="ver {#FS_PEDIDO#}">

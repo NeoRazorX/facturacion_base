@@ -202,7 +202,7 @@
                      </tr>
                   </thead>
                   {loop="$fsc->factura->get_lineas()"}
-                  <tr{if="$value->cantidad<1"} class="bg-warning"{/if}>
+                  <tr{if="$value->cantidad<=0"} class="bg-warning"{/if}>
                      <td>
                         {if="$value->idalbaran"}
                         <a href="{$value->albaran_url()}">{$value->albaran_codigo()}</a>

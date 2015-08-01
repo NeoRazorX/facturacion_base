@@ -13,7 +13,7 @@
       </tr>
    </thead>
    {loop="$fsc->resultados"}
-   <tr{if="$value->cantidad<1"} class="bg-warning"{/if}>
+   <tr{if="$value->cantidad<=0"} class="bg-warning"{/if}>
       <td>
          <a href="{$value->url()}">{$value->show_codigo()}</a>
          {$value->show_nombre()}
