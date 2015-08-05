@@ -183,13 +183,13 @@ class cliente extends fs_model
          $this->coddivisa = $this->default_items->coddivisa();
          $this->codpago = $this->default_items->codpago();
          $this->codagente = NULL;
+         $this->codgrupo = NULL;
          $this->debaja = FALSE;
          $this->fechabaja = NULL;
          $this->observaciones = NULL;
          $this->tipoidfiscal = 'NIF';
          $this->regimeniva = 'General';
          $this->recargo = FALSE;
-         $this->codgrupo = '';
       }
       
       $this->nombrecomercial = $this->razonsocial;
@@ -256,6 +256,11 @@ class cliente extends fs_model
       return self::$regimenes_iva;
    }
    
+   /**
+    * Devuelve un cliente a partir del codcliente
+    * @param type $cod
+    * @return \cliente|boolean
+    */
    public function get($cod)
    {
       $cli = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($cod).";");
@@ -267,6 +272,11 @@ class cliente extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve un cliente a partir del cifnif
+    * @param type $cifnif
+    * @return \cliente|boolean
+    */
    public function get_by_cifnif($cifnif)
    {
       $cli = $this->db->select("SELECT * FROM ".$this->table_name." WHERE cifnif = ".$this->var2str($cifnif).";");
@@ -315,7 +325,7 @@ class cliente extends fs_model
     * Devuelve la subcuenta asociada al cliente para el ejercicio $eje.
     * Si no existe intenta crearla. Si falla devuelve FALSE.
     * @param type $ejercicio
-    * @return type
+    * @return subcuenta
     */
    public function get_subcuenta($ejercicio)
    {
@@ -427,36 +437,56 @@ class cliente extends fs_model
       if( $this->test() )
       {
          $this->clean_cache();
+         
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre).",
-               razonsocial = ".$this->var2str($this->razonsocial).", cifnif = ".$this->var2str($this->cifnif).",
-               telefono1 = ".$this->var2str($this->telefono1).", telefono2 = ".$this->var2str($this->telefono2).",
-               fax = ".$this->var2str($this->fax).", email = ".$this->var2str($this->email).",
-               web = ".$this->var2str($this->web).", codserie = ".$this->var2str($this->codserie).",
-               coddivisa = ".$this->var2str($this->coddivisa).", codpago = ".$this->var2str($this->codpago).",
-               codagente = ".$this->var2str($this->codagente).", codgrupo = ".$this->var2str($this->codgrupo).",
-               debaja = ".$this->var2str($this->debaja).", fechabaja = ".$this->var2str($this->fechabaja).",
-               observaciones = ".$this->var2str($this->observaciones).",
-               tipoidfiscal = ".$this->var2str($this->tipoidfiscal).", regimeniva = ".$this->var2str($this->regimeniva).",
-               recargo = ".$this->var2str($this->recargo).", codgrupo = ".$this->var2str($this->codgrupo)."
-               WHERE codcliente = ".$this->var2str($this->codcliente).";";
+            $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre)
+                    .", razonsocial = ".$this->var2str($this->razonsocial)
+                    .", cifnif = ".$this->var2str($this->cifnif)
+                    .", telefono1 = ".$this->var2str($this->telefono1)
+                    .", telefono2 = ".$this->var2str($this->telefono2)
+                    .", fax = ".$this->var2str($this->fax)
+                    .", email = ".$this->var2str($this->email)
+                    .", web = ".$this->var2str($this->web)
+                    .", codserie = ".$this->var2str($this->codserie)
+                    .", coddivisa = ".$this->var2str($this->coddivisa)
+                    .", codpago = ".$this->var2str($this->codpago)
+                    .", codagente = ".$this->var2str($this->codagente)
+                    .", codgrupo = ".$this->var2str($this->codgrupo)
+                    .", debaja = ".$this->var2str($this->debaja)
+                    .", fechabaja = ".$this->var2str($this->fechabaja)
+                    .", observaciones = ".$this->var2str($this->observaciones)
+                    .", tipoidfiscal = ".$this->var2str($this->tipoidfiscal)
+                    .", regimeniva = ".$this->var2str($this->regimeniva)
+                    .", recargo = ".$this->var2str($this->recargo)
+                    ."  WHERE codcliente = ".$this->var2str($this->codcliente).";";
          }
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,razonsocial,cifnif,telefono1,
                telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,debaja,fechabaja,
-               observaciones,tipoidfiscal,regimeniva,recargo)
-               VALUES (".$this->var2str($this->codcliente).",".$this->var2str($this->nombre).",
-               ".$this->var2str($this->razonsocial).",".$this->var2str($this->cifnif).",
-               ".$this->var2str($this->telefono1).",".$this->var2str($this->telefono2).",
-               ".$this->var2str($this->fax).",".$this->var2str($this->email).",
-               ".$this->var2str($this->web).",".$this->var2str($this->codserie).",
-               ".$this->var2str($this->coddivisa).",".$this->var2str($this->codpago).",".$this->var2str($this->codagente).",
-               ".$this->var2str($this->codgrupo).",".$this->var2str($this->debaja).",".$this->var2str($this->fechabaja).",
-               ".$this->var2str($this->observaciones).",".$this->var2str($this->tipoidfiscal).",
-               ".$this->var2str($this->regimeniva).",".$this->var2str($this->recargo).");";
+               observaciones,tipoidfiscal,regimeniva,recargo) VALUES (".$this->var2str($this->codcliente)
+                    .",".$this->var2str($this->nombre)
+                    .",".$this->var2str($this->razonsocial)
+                    .",".$this->var2str($this->cifnif)
+                    .",".$this->var2str($this->telefono1)
+                    .",".$this->var2str($this->telefono2)
+                    .",".$this->var2str($this->fax)
+                    .",".$this->var2str($this->email)
+                    .",".$this->var2str($this->web)
+                    .",".$this->var2str($this->codserie)
+                    .",".$this->var2str($this->coddivisa)
+                    .",".$this->var2str($this->codpago)
+                    .",".$this->var2str($this->codagente)
+                    .",".$this->var2str($this->codgrupo)
+                    .",".$this->var2str($this->debaja)
+                    .",".$this->var2str($this->fechabaja)
+                    .",".$this->var2str($this->observaciones)
+                    .",".$this->var2str($this->tipoidfiscal)
+                    .",".$this->var2str($this->regimeniva)
+                    .",".$this->var2str($this->recargo).");";
          }
+         
          return $this->db->exec($sql);
       }
       else
@@ -477,12 +507,14 @@ class cliente extends fs_model
    public function all($offset=0)
    {
       $clientlist = array();
-      $clientes = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC", FS_ITEM_LIMIT, $offset);
-      if($clientes)
+      
+      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC", FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($clientes as $c)
-            $clientlist[] = new cliente($c);
+         foreach($data as $d)
+            $clientlist[] = new cliente($d);
       }
+      
       return $clientlist;
    }
    
@@ -491,11 +523,11 @@ class cliente extends fs_model
       $clientlist = $this->cache->get_array('m_cliente_all');
       if( !$clientlist )
       {
-         $clientes = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
-         if($clientes)
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
+         if($data)
          {
-            foreach($clientes as $c)
-               $clientlist[] = new cliente($c);
+            foreach($data as $d)
+               $clientlist[] = new cliente($d);
          }
          $this->cache->set('m_cliente_all', $clientlist);
       }
@@ -520,11 +552,11 @@ class cliente extends fs_model
       }
       $consulta .= " ORDER BY nombre ASC";
       
-      $clientes = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-      if($clientes)
+      $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($clientes as $c)
-            $clilist[] = new cliente($c);
+         foreach($data as $d)
+            $clilist[] = new cliente($d);
       }
       
       return $clilist;
@@ -535,11 +567,12 @@ class cliente extends fs_model
       $clilist = array();
       $query = strtolower( $this->no_html($dni) );
       $consulta = "SELECT * FROM ".$this->table_name." WHERE lower(cifnif) LIKE '".$query."%' ORDER BY nombre ASC";
-      $clientes = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-      if($clientes)
+      
+      $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($clientes as $c)
-            $clilist[] = new cliente($c);
+         foreach($data as $d)
+            $clilist[] = new cliente($d);
       }
       
       return $clilist;

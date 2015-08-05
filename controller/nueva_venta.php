@@ -50,7 +50,6 @@ class nueva_venta extends fs_controller
    public $serie;
    public $tipo;
    public $grupo;
-
    
    public function __construct()
    {
@@ -66,7 +65,6 @@ class nueva_venta extends fs_controller
       $this->impuesto = new impuesto();
       $this->results = array();
       $this->grupo = new grupo_clientes();
-
       
       if( isset($_REQUEST['tipo']) )
       {
@@ -125,16 +123,14 @@ class nueva_venta extends fs_controller
                   $this->cliente_s->codcliente = $this->cliente_s->get_new_codigo();
                   $this->cliente_s->nombre = $this->cliente_s->razonsocial = $_POST['nuevo_cliente'];
                   $this->cliente_s->cifnif = $_POST['nuevo_dni'];
-                  $this->cliente_s->codgrupo = $_POST['codgrupo'];
+                  if($_POST['codgrupo'] != '')
+                  {
+                     $this->cliente_s->codgrupo = $_POST['codgrupo'];
+                  }
                   $this->cliente_s->save();
                }
             }
          }
-         
-         $this->cliente->codgrupo = NULL;
-         if($_POST['codgrupo'] != '---')
-            $this->cliente->codgrupo = $_POST['codgrupo'];
-         
          
          if($this->cliente_s)
          {

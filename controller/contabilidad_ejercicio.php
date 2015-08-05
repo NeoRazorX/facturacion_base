@@ -277,6 +277,7 @@ class contabilidad_ejercicio extends fs_controller
       {
          $aux = $archivo_xml->addChild("epigrafe");
          $aux->addChild("codgrupo", $ep->codgrupo);
+         $aux->addChild("codpadre", $ep->codpadre());
          $aux->addChild("codepigrafe", $ep->codepigrafe);
          $aux->addChild("descripcion", base64_encode($ep->descripcion) );
       }
@@ -511,6 +512,7 @@ class contabilidad_ejercicio extends fs_controller
                         $ge = $grupo_epigrafes->get_by_codigo($ep->codgrupo, $this->ejercicio->codejercicio);
                         if($ge)
                         {
+                           /// si encuentra el grupo, lo añade con el grupo
                            $epigrafe->idgrupo = $ge->idgrupo;
                            $epigrafe->codgrupo = $ge->codgrupo;
                            $epigrafe->codejercicio = $this->ejercicio->codejercicio;
@@ -519,6 +521,21 @@ class contabilidad_ejercicio extends fs_controller
                            
                            if( !$epigrafe->save() )
                               $this->importar_url = FALSE;
+                        }
+                        else if($ep->codpadre)
+                        {
+                           $padre = $epigrafe->get_by_codigo($ep->codpadre, $this->ejercicio->codejercicio);
+                           if($padre)
+                           {
+                              /// si encuentra al padre, lo añade con el padre
+                              $epigrafe->idpadre = $padre->idepigrafe;
+                              $epigrafe->codejercicio = $this->ejercicio->codejercicio;
+                              $epigrafe->codepigrafe = $ep->codepigrafe;
+                              $epigrafe->descripcion = base64_decode($ep->descripcion);
+                              
+                              if( !$epigrafe->save() )
+                                 $this->importar_url = FALSE;
+                           }
                         }
                      }
                   }

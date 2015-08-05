@@ -223,6 +223,11 @@ class proveedor extends fs_model
       return ( $this->codproveedor == $this->default_items->codproveedor() );
    }
    
+   /**
+    * Devuelve un proveedor a partir de su codproveedor
+    * @param type $cod
+    * @return boolean|\proveedor
+    */
    public function get($cod)
    {
       $prov = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codproveedor = ".$this->var2str($cod).";");
@@ -234,6 +239,11 @@ class proveedor extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve un proveedor a partir de su cifnif
+    * @param type $cifnif
+    * @return boolean|\proveedor
+    */
    public function get_by_cifnif($cifnif)
    {
       $prov = $this->db->select("SELECT * FROM ".$this->table_name." WHERE cifnif = ".$this->var2str($cifnif).";");
@@ -286,7 +296,7 @@ class proveedor extends fs_model
     * Devuelve la subcuenta asignada al proveedor para el ejercicio $eje,
     * si no hay una subcuenta asignada, intenta crearla.  Si falla devuelve FALSE.
     * @param type $eje
-    * @return type
+    * @return subcuenta
     */
    public function get_subcuenta($eje)
    {
@@ -484,11 +494,11 @@ class proveedor extends fs_model
       $provelist = $this->cache->get_array('m_proveedor_all');
       if( !$provelist )
       {
-         $proveedores = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
-         if($proveedores)
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
+         if($data)
          {
-            foreach($proveedores as $p)
-               $provelist[] = new proveedor($p);
+            foreach($data as $d)
+               $provelist[] = new proveedor($d);
          }
          $this->cache->set('m_proveedor_all', $provelist);
       }
@@ -511,12 +521,13 @@ class proveedor extends fs_model
       }
       $consulta .= " ORDER BY nombre ASC";
       
-      $proveedores = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-      if($proveedores)
+      $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($proveedores as $p)
-            $prolist[] = new proveedor($p);
+         foreach($data as $d)
+            $prolist[] = new proveedor($d);
       }
+      
       return $prolist;
    }
 }

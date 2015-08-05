@@ -327,6 +327,11 @@ class articulo extends fs_model
          return "index.php?page=ventas_articulo&ref=".urlencode($this->referencia);
    }
    
+   /**
+    * Devuelve un artículo a partir de su referencia
+    * @param type $ref
+    * @return boolean|\articulo
+    */
    public function get($ref)
    {
       $art = $this->db->select("SELECT ".self::$column_list." FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref).";");
@@ -338,6 +343,10 @@ class articulo extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve la familia del artículo
+    * @return familia
+    */
    public function get_familia()
    {
       $fam = new familia();
@@ -350,6 +359,10 @@ class articulo extends fs_model
       return $stock->all_from_articulo($this->referencia);
    }
    
+   /**
+    * Devuelve el impuesto del artículo
+    * @return impuesto
+    */
    public function get_impuesto()
    {
       $imp = new impuesto();
