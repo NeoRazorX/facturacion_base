@@ -14,7 +14,10 @@
       <nombre>inclineal</nombre>
       <tipo>double precision</tipo>
       <nulo>NO</nulo>
-      <defecto>0</defecto>
+   </columna>
+   <columna>
+      <nombre>aplicar_a</nombre>
+      <tipo>character varying(12)</tipo>
    </columna>
    <columna>
       <nombre>nombre</nombre>
