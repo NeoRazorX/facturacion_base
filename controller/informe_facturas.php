@@ -21,6 +21,8 @@ require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_model('factura_cliente.php');
 require_model('factura_proveedor.php');
 require_model('serie.php');
+require_model('cliente.php');
+require_model('proveedor.php');
 
 class informe_facturas extends fs_controller
 {
@@ -29,6 +31,10 @@ class informe_facturas extends fs_controller
    public $factura_pro;
    public $hasta;
    public $serie;
+   public $cliente;
+   public $pagada;
+   public $agente;
+   public $proveedor;
    
    public function __construct()
    {
@@ -42,6 +48,18 @@ class informe_facturas extends fs_controller
       $this->factura_pro = new factura_proveedor();
       $this->hasta = Date('d-m-Y', mktime(0, 0, 0, date("m")+1, date("1")-1, date("Y")));
       $this->serie = new serie();
+      $this->cliente = new cliente();
+      $this->agente = new agente();
+
+       if( isset($_REQUEST['buscar_cliente']) )
+      {
+         $this->buscar_cliente();
+      }
+      
+       if( isset($_REQUEST['buscar_proveedor']) )
+      {
+         $this->buscar_proveedor();
+      }
       
       if( isset($_POST['listado']) )
       {
@@ -66,6 +84,38 @@ class informe_facturas extends fs_controller
       }
    }
    
+   private function buscar_cliente()
+   {
+      /// desactivamos la plantilla HTML
+      $this->template = FALSE;
+      
+      $cliente = new cliente();
+      $json = array();
+      foreach($cliente->search($_REQUEST['buscar_cliente']) as $cli)
+      {
+         $json[] = array('value' => $cli->nombre, 'data' => $cli->codcliente);
+      }
+      
+      header('Content-Type: application/json');
+      echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
+   }
+   
+    private function buscar_proveedor()
+   {
+      /// desactivamos la plantilla HTML
+      $this->template = FALSE;
+      
+      $proveedor = new proveedor();
+      $json = array();
+      foreach($proveedor->search($_REQUEST['buscar_proveedor']) as $pro)
+      {
+         $json[] = array('value' => $pro->nombre, 'data' => $pro->codproveedor);
+      }
+      
+      header('Content-Type: application/json');
+      echo json_encode( array('query' => $_REQUEST['buscar_proveedor'], 'suggestions' => $json) );
+   }
+   
    private function csv_facturas_cli()
    {
       $this->template = FALSE;
@@ -79,7 +129,20 @@ class informe_facturas extends fs_controller
       {
          $serie = $_POST['codserie'];
       }
-      $facturas = $this->factura_cli->all_desde($_POST['dfecha'], $_POST['hfecha'], $serie);
+       
+       $codcliente = FALSE;     
+      if($_POST['codcliente'] != 'Todos')
+      {
+          $codcliente = $_POST['codcliente'];
+      }
+      $pagada = FALSE;     
+      if($_POST['pagada'] != 'Todas')
+      {
+          $pagada = $_POST['pagada'];
+      }
+           
+          $facturas = $this->factura_cli->all_listados($_POST['dfecha'], $_POST['hfecha'], $serie, $codcliente, $pagada);
+      
       if($facturas)
       {
          foreach($facturas as $fac)
@@ -166,7 +229,26 @@ class informe_facturas extends fs_controller
       {
          $serie = $_POST['codserie'];
       }
-      $facturas = $this->factura_pro->all_desde($_POST['dfecha'], $_POST['hfecha'], $serie);
+      
+      $codproveedor = FALSE;     
+      if($_POST['codproveedor'] != 'Todos')
+      {
+          $codproveedor = $_POST['codproveedor'];
+      }
+      $pagada = FALSE;     
+      if($_POST['pagada'] != 'Todas')
+      {
+          $pagada = $_POST['pagada'];
+      }
+      
+      $codagente = FALSE;     
+      if($_POST['codagente'] != 'Ninguno')
+      {
+          $codagente = $_POST['codagente'];
+      }
+               
+      $facturas = $this->factura_pro->all_listados($_POST['dfecha'], $_POST['hfecha'], $serie, $codproveedor, $pagada, $codagente);
+      
       if($facturas)
       {
          foreach($facturas as $fac)
@@ -255,7 +337,26 @@ class informe_facturas extends fs_controller
       {
          $serie = $_POST['codserie'];
       }
-      $facturas = $this->factura_cli->all_desde($_POST['dfecha'], $_POST['hfecha'], $serie);
+    
+      $codcliente = FALSE;     
+      if($_POST['codcliente'] != 'Todos')
+      {
+          $codcliente = $_POST['codcliente'];
+      }
+      $pagada = FALSE;     
+      if($_POST['pagada'] != 'Todas')
+      {
+          $pagada = $_POST['pagada'];
+      }
+      
+      $codagente = FALSE;     
+      if($_POST['codagente'] != 'Ninguno')
+      {
+          $codagente = $_POST['codagente'];
+      }
+               
+      $facturas = $this->factura_cli->all_listados($_POST['dfecha'], $_POST['hfecha'], $serie, $codcliente, $pagada, $codagente);
+      
       if($facturas)
       {
          $total_lineas = count($facturas);
@@ -274,7 +375,42 @@ class informe_facturas extends fs_controller
             }
             
             /// encabezado
-            $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de ventas del ".$_POST['dfecha']." al ".$_POST['hfecha'].":\n\n", 14);
+            $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de ventas del ".$_POST['dfecha']." al ".$_POST['hfecha']);
+
+            if ($serie)
+            {
+                $pdf_doc->pdf->ezText("Serie: ".$_POST['codserie']);
+            }
+
+            if ($codcliente)
+            {
+                $nombre = '';
+                $cliente = new cliente();
+                $cliente = $cliente->get($_POST['codcliente']);
+                $nombre = $cliente->nombre;
+                $pdf_doc->pdf->ezText("Cliente: ".$nombre);
+            }
+
+            if ($pagada == 'false')
+            {
+                $pdf_doc->pdf->ezText("Estado: Sin Pagar");
+            }
+
+             if ($pagada == 'true')
+            {
+                $pdf_doc->pdf->ezText("Estado: Pagadas");
+            }
+
+              if ($codagente)
+              {      
+               $agente = '';
+                $agente = new agente();
+                $agente = $agente->get($_POST['codagente']);
+                $nombre_agente = $agente->nombre;
+                $pdf_doc->pdf->ezText("Agente: ". $nombre_agente);
+            }
+
+      $pdf_doc->pdf->ezText("\n", 14);
             
             /// tabla principal
             $pdf_doc->new_table();
@@ -299,7 +435,7 @@ class informe_facturas extends fs_controller
             {
                $linea = array(
                    'serie' => $facturas[$linea_actual]->codserie,
-                   'factura' => $facturas[$linea_actual]->numero,
+                   'factura' => $facturas[$linea_actual]->codigo,
                    'asiento' => '-',
                    'fecha' => $facturas[$linea_actual]->fecha,
                    'subcuenta' => '-',
@@ -454,7 +590,26 @@ class informe_facturas extends fs_controller
       {
          $serie = $_POST['codserie'];
       }
-      $facturas = $this->factura_pro->all_desde($_POST['dfecha'], $_POST['hfecha'], $serie);
+     
+      $codproveedor = FALSE;     
+      if($_POST['codproveedor'] != 'Todos')
+      {
+          $codproveedor = $_POST['codproveedor'];
+      }
+      $pagada = FALSE;     
+      if($_POST['pagada'] != 'Todas')
+      {
+          $pagada = $_POST['pagada'];
+      }
+      
+      $codagente = FALSE;     
+      if($_POST['codagente'] != 'Ninguno')
+      {
+          $codagente = $_POST['codagente'];
+      }
+               
+      $facturas = $this->factura_pro->all_listados($_POST['dfecha'], $_POST['hfecha'], $serie, $codproveedor, $pagada, $codagente);
+      
       if($facturas)
       {
          $total_lineas = count($facturas);
@@ -473,7 +628,44 @@ class informe_facturas extends fs_controller
             }
             
             /// encabezado
-            $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de compras del ".$_POST['dfecha']." al ".$_POST['hfecha'].":\n\n", 14);
+           $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de compras del ".$_POST['dfecha']." al ".$_POST['hfecha']);
+            
+          if ($serie)
+          {
+              $pdf_doc->pdf->ezText("Serie: ".$_POST['codserie']);
+          }
+
+          if ($codproveedor)
+          {
+              $nombre = '';
+              $proveedor = new proveedor();
+              $proveedor = $proveedor->get($_POST['codproveedor']);
+              $proveedor = $proveedor->nombre;
+              $pdf_doc->pdf->ezText("Proveedor: ".$proveedor);
+          }
+
+         if ($pagada == 'false')
+          {
+              $pdf_doc->pdf->ezText("Estado: Sin Pagar");
+          }
+
+           if ($pagada == 'true')
+          {
+              $pdf_doc->pdf->ezText("Estado: Pagadas");
+          }
+
+           if ($codagente)
+          {
+            $agente = '';
+              $agente = new agente();
+              $agente = $agente->get($_POST['codagente']);
+              $nombre_agente = $agente->nombre;
+              $pdf_doc->pdf->ezText("Agente: ". $nombre_agente);
+          }
+
+          $pdf_doc->pdf->ezText("\n", 14);
+
+
             
             /// tabla principal
             $pdf_doc->new_table();
@@ -498,7 +690,7 @@ class informe_facturas extends fs_controller
             {
                $linea = array(
                    'serie' => $facturas[$linea_actual]->codserie,
-                   'factura' => $facturas[$linea_actual]->numero,
+                   'factura' => $facturas[$linea_actual]->codigo,
                    'asiento' => '-',
                    'fecha' => $facturas[$linea_actual]->fecha,
                    'subcuenta' => '-',
