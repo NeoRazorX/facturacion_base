@@ -25,6 +25,8 @@ class tarifa extends fs_model
    public $codtarifa;
    public $nombre;
    public $incporcentual;
+   public $inclineal;
+   public $aplicar_a;
    
    public function __construct($t = FALSE)
    {
@@ -34,12 +36,16 @@ class tarifa extends fs_model
          $this->codtarifa = $t['codtarifa'];
          $this->nombre = $t['nombre'];
          $this->incporcentual = floatval( $t['incporcentual'] );
+         $this->inclineal = floatval( $t['inclineal'] );
+         $this->aplicar_a = $t['aplicar_a'];
       }
       else
       {
          $this->codtarifa = NULL;
          $this->nombre = NULL;
          $this->incporcentual = 0;
+         $this->inclineal = 0;
+         $this->aplicar_a = NULL;
       }
    }
    
@@ -58,6 +64,11 @@ class tarifa extends fs_model
       return (0 - $this->incporcentual);
    }
    
+    public function inclineal()
+   {
+      return (0 - $this->inclineal);
+   }
+   
    /**
     * Rellenamos los descuentos y los datos de la tarifa de una lista de
     * artículos.
@@ -70,18 +81,11 @@ class tarifa extends fs_model
          $articulos[$i]->codtarifa = $this->codtarifa;
          $articulos[$i]->tarifa_nombre = $this->nombre;
          $articulos[$i]->tarifa_url = $this->url();
+         $aplicartarifa= $this->aplicar_a;
          
-         if($this->incporcentual > 0)
-         {
-            $articulos[$i]->dtopor = 0;
-            $articulos[$i]->pvp = $articulos[$i]->pvp*(100+$this->incporcentual)/100;
-            $articulos[$i]->tarifa_diff = 'PVP + '.$this->incporcentual.'%';
-         }
-         else
-         {
-            $articulos[$i]->dtopor = $this->dtopor();
-            $articulos[$i]->tarifa_diff = 'PVP - '.$this->dtopor().'%';
-         }
+         $articulos[$i]->dtopor = 0;
+         $articulos[$i]->pvp = $articulos[$i]->$aplicartarifa*(100+$this->incporcentual)/100+$this->inclineal;
+         $articulos[$i]->tarifa_diff = $aplicartarifa.' + '.$this->incporcentual.'% +'.$this->inclineal.' €';
       }
    }
    
@@ -145,14 +149,16 @@ class tarifa extends fs_model
          if( $this->exists() )
          {
             $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre).",
-               incporcentual = ".$this->var2str($this->incporcentual)."
+               incporcentual = ".$this->var2str($this->incporcentual).",
+               inclineal =".$this->var2str($this->inclineal).",
+               aplicar_a =".$this->var2str($this->aplicar_a)."
                WHERE codtarifa = ".$this->var2str($this->codtarifa).";";
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (codtarifa,nombre,incporcentual)
+            $sql = "INSERT INTO ".$this->table_name." (codtarifa,nombre,incporcentual,inclineal,aplicar_a)
                VALUES (".$this->var2str($this->codtarifa).",".$this->var2str($this->nombre).",
-               ".$this->var2str($this->incporcentual).");";
+               ".$this->var2str($this->incporcentual).",".$this->var2str($this->inclineal).",".$this->var2str($this->aplicar_a).");";
          }
          return $this->db->exec($sql);
       }
