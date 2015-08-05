@@ -183,13 +183,13 @@ class cliente extends fs_model
          $this->coddivisa = $this->default_items->coddivisa();
          $this->codpago = $this->default_items->codpago();
          $this->codagente = NULL;
-         $this->codgrupo = NULL;
          $this->debaja = FALSE;
          $this->fechabaja = NULL;
          $this->observaciones = NULL;
          $this->tipoidfiscal = 'NIF';
          $this->regimeniva = 'General';
          $this->recargo = FALSE;
+         $this->codgrupo = '';
       }
       
       $this->nombrecomercial = $this->razonsocial;
@@ -439,7 +439,7 @@ class cliente extends fs_model
                debaja = ".$this->var2str($this->debaja).", fechabaja = ".$this->var2str($this->fechabaja).",
                observaciones = ".$this->var2str($this->observaciones).",
                tipoidfiscal = ".$this->var2str($this->tipoidfiscal).", regimeniva = ".$this->var2str($this->regimeniva).",
-               recargo = ".$this->var2str($this->recargo)."
+               recargo = ".$this->var2str($this->recargo).", codgrupo = ".$this->var2str($this->codgrupo)."
                WHERE codcliente = ".$this->var2str($this->codcliente).";";
          }
          else
