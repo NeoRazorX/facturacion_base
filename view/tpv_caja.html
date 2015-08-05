@@ -181,21 +181,11 @@
                         {/loop}
                         </select>
                      </td>
-                     <td>
-                        <input type="text" name="codcliente" value="{$value->codcliente}" class="form-control" maxlength="6" autocomplete="off"/>
-                     </td>
-                     <td>
-                        <input type="number" name="anchopapel" value="{$value->anchopapel}" class="form-control" autocomplete="off"/>
-                     </td>
-                     <td>
-                        <input type="text" name="comandocorte" value="{$value->comandocorte}" class="form-control" autocomplete="off"/>
-                     </td>
-                     <td>
-                        <input type="text" name="comandoapertura" value="{$value->comandoapertura}" class="form-control" autocomplete="off"/>
-                     </td>
-                     <td>
-                        <input type="number" name="num_tickets" value="{$value->num_tickets}" class="form-control" autocomplete="off"/>
-                     </td>
+                     <td><input type="text" name="codcliente" value="{$value->codcliente}" class="form-control" maxlength="6" autocomplete="off"/></td>
+                     <td><input type="number" name="anchopapel" value="{$value->anchopapel}" class="form-control" autocomplete="off"/></td>
+                     <td><input type="text" name="comandocorte" value="{$value->comandocorte}" class="form-control" autocomplete="off"/></td>
+                     <td><input type="text" name="comandoapertura" value="{$value->comandoapertura}" class="form-control" autocomplete="off"/></td>
+                     <td><input type="number" name="num_tickets" value="{$value->num_tickets}" class="form-control" autocomplete="off"/></td>
                      <td class="text-center">
                         {if="!$value->disponible()"}
                         <a href="#terminales" class="btn btn-sm btn-warning" title="Terminal en uso">
@@ -221,9 +211,7 @@
                <form action="{$fsc->url()}#terminales" method="post" class="form">
                   <input type="hidden" name="nuevot" value="TRUE"/>
                   <tr class="bg-info">
-                     <td>
-                        <input type="text" name="idt" class="form-control" autocomplete="off" disabled="disabled"/>
-                     </td>
+                     <td><input type="text" name="idt" class="form-control" autocomplete="off" disabled="disabled"/></td>
                      <td>
                         <select name="codalmacen" class="form-control">
                            {loop="$fsc->almacen->all()"}
@@ -238,21 +226,11 @@
                            {/loop}
                         </select>
                      </td>
-                     <td>
-                        <input type="text" name="codcliente" class="form-control" maxlength="6" autocomplete="off"/>
-                     </td>
-                     <td>
-                        <input type="number" name="anchopapel" value="{$fsc->terminal->anchopapel}" class="form-control" autocomplete="off"/>
-                     </td>
-                     <td>
-                        <input type="text" name="comandocorte" value="{$fsc->terminal->comandocorte}" class="form-control" autocomplete="off"/>
-                     </td>
-                     <td>
-                        <input type="text" name="comandoapertura" value="{$fsc->terminal->comandoapertura}" class="form-control" autocomplete="off"/>
-                     </td>
-                     <td>
-                        <input type="number" name="num_tickets" value="{$fsc->terminal->num_tickets}" class="form-control" autocomplete="off"/>
-                     </td>
+                     <td><input type="text" name="codcliente" class="form-control" maxlength="6" autocomplete="off"/></td>
+                     <td><input type="number" name="anchopapel" value="{$fsc->terminal->anchopapel}" class="form-control" autocomplete="off"/></td>
+                     <td><input type="text" name="comandocorte" value="{$fsc->terminal->comandocorte}" class="form-control" autocomplete="off"/></td>
+                     <td><input type="text" name="comandoapertura" value="{$fsc->terminal->comandoapertura}" class="form-control" autocomplete="off"/></td>
+                     <td><input type="number" name="num_tickets" value="{$fsc->terminal->num_tickets}" class="form-control" autocomplete="off"/></td>
                      <td></td>
                      <td class="text-right">
                         <div class="btn-group">

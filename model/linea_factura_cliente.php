@@ -25,19 +25,79 @@ require_model('factura_cliente.php');
  */
 class linea_factura_cliente extends fs_model
 {
+   /**
+    * Clave primaria.
+    * @var type 
+    */
+   public $idlinea;
+   
+   /**
+    * ID de la factura de esta línea.
+    * @var type 
+    */
+   public $idfactura;
+   
+   /**
+    * ID del albarán relacionado con esta factura, si lo hay.
+    * @var type 
+    */
+   public $idalbaran;
+   
+   /**
+    * Importe neto de la línea, sin impuestos.
+    * @var type 
+    */
    public $pvptotal;
+   
+   /**
+    * % de descuento.
+    * @var type 
+    */
    public $dtopor;
+   
+   /**
+    * % de recargo de equivalencia.
+    * @var type 
+    */
    public $recargo;
+   
+   /**
+    * % de IRPF.
+    * @var type 
+    */
    public $irpf;
+   
+   /**
+    * Importe neto sin descuentos.
+    * @var type 
+    */
    public $pvpsindto;
    public $cantidad;
+   
+   /**
+    * Impuesto del artículo.
+    * @var type 
+    */
    public $codimpuesto;
+   
+   /**
+    * Precio del artículo, una unidad.
+    * @var type 
+    */
    public $pvpunitario;
-   public $idlinea;
-   public $idfactura;
-   public $idalbaran;
+   
    public $descripcion;
+   
+   /**
+    * Referencia del artículo.
+    * @var type 
+    */
    public $referencia;
+   
+   /**
+    * % de IVA de la línea, el que corresponde al impuesto.
+    * @var type 
+    */
    public $iva;
    
    private $codigo;

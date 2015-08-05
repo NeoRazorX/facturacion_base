@@ -111,7 +111,7 @@
    </columna>
    <columna>
       <nombre>codfamilia</nombre>
-      <tipo>character varying(4)</tipo>
+      <tipo>character varying(8)</tipo>
       <nulo>YES</nulo>
    </columna>
    <columna>
