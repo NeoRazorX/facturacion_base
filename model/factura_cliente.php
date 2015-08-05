@@ -969,6 +969,39 @@ class factura_cliente extends fs_model
       return $faclist;
    }
    
+   public function all_listados($desde, $hasta, $serie=FALSE, $codcliente=FALSE, $pagada=FALSE, $codagente=FALSE)
+   {
+      $faclist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE fecha >= ".$this->var2str($desde)." AND fecha <= ".$this->var2str($hasta);
+      if($serie)
+      {
+         $sql .= " AND codserie = ".$this->var2str($serie);
+      }
+      if($codcliente)
+      {
+         $sql .= "AND codcliente = ".$this->var2str($codcliente);
+      }
+      if($pagada)
+      {
+         $sql .= "AND pagada = ".$this->var2str($pagada);
+      }  
+     
+          if($codagente)
+      {
+         $sql .= "AND codagente = ".$this->var2str($codagente);
+      }  
+      
+      $sql .= " ORDER BY fecha ASC, codigo ASC;";
+      $facturas = $this->db->select($sql);
+      if($facturas)
+      {
+         foreach($facturas as $f)
+            $faclist[] = new factura_cliente($f);
+      }
+      return $faclist;
+   }
+   
+   
    public function search($query, $offset=0)
    {
       $faclist = array();
