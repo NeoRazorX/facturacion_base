@@ -722,12 +722,12 @@ class factura_cliente extends fs_model
       if($status AND $duplicados)
       {
          /// comprobamos si es un duplicado
-         $facturas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE fecha = ".$this->var2str($this->fecha)."
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE fecha = ".$this->var2str($this->fecha)."
             AND codcliente = ".$this->var2str($this->codcliente)." AND total = ".$this->var2str($this->total)."
             AND observaciones = ".$this->var2str($this->observaciones)." AND idfactura != ".$this->var2str($this->idfactura).";");
-         if($facturas)
+         if($data)
          {
-            foreach($facturas as $fac)
+            foreach($data as $fac)
             {
                /// comprobamos las líneas
                $aux = $this->db->select("SELECT referencia FROM lineasfacturascli WHERE
@@ -884,7 +884,8 @@ class factura_cliente extends fs_model
          }
          
          /// desvinculamos el/los albaranes asociados
-         $this->db->exec("UPDATE albaranescli SET idfactura = NULL, ptefactura = TRUE WHERE idfactura = ".$this->var2str($this->idfactura).";");
+         $this->db->exec("UPDATE albaranescli SET idfactura = NULL, ptefactura = TRUE WHERE idfactura = "
+                 .$this->var2str($this->idfactura).";");
          
          return TRUE;
       }
@@ -900,107 +901,102 @@ class factura_cliente extends fs_model
    public function all($offset=0, $limit=FS_ITEM_LIMIT)
    {
       $faclist = array();
-      $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY fecha DESC, codigo DESC", $limit, $offset);
-      if($facturas)
+      
+      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY fecha DESC, codigo DESC", $limit, $offset);
+      if($data)
       {
-         foreach($facturas as $f)
+         foreach($data as $f)
             $faclist[] = new factura_cliente($f);
       }
+      
       return $faclist;
    }
    
    public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT)
    {
       $faclist = array();
-      $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      
+      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
          " WHERE pagada = false ORDER BY vencimiento ASC, codigo ASC", $limit, $offset);
-      if($facturas)
+      if($data)
       {
-         foreach($facturas as $f)
+         foreach($data as $f)
             $faclist[] = new factura_cliente($f);
       }
+      
       return $faclist;
    }
    
    public function all_from_agente($codagente, $offset=0)
    {
       $faclist = array();
-      $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      
+      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
          " WHERE codagente = ".$this->var2str($codagente).
          " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
-      if($facturas)
+      if($data)
       {
-         foreach($facturas as $f)
+         foreach($data as $f)
             $faclist[] = new factura_cliente($f);
       }
+      
       return $faclist;
    }
    
    public function all_from_cliente($codcliente, $offset=0)
    {
       $faclist = array();
-      $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      
+      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
          " WHERE codcliente = ".$this->var2str($codcliente).
          " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
-      if($facturas)
+      if($data)
       {
-         foreach($facturas as $f)
+         foreach($data as $f)
             $faclist[] = new factura_cliente($f);
       }
-      return $faclist;
-   }
-   
-   public function all_desde($desde, $hasta, $serie=FALSE)
-   {
-      $faclist = array();
-      $sql = "SELECT * FROM ".$this->table_name." WHERE fecha >= ".$this->var2str($desde)." AND fecha <= ".$this->var2str($hasta);
-      if($serie)
-      {
-         $sql .= " AND codserie = ".$this->var2str($serie);
-      }
-      $sql .= " ORDER BY fecha ASC, codigo ASC;";
       
-      $facturas = $this->db->select($sql);
-      if($facturas)
-      {
-         foreach($facturas as $f)
-            $faclist[] = new factura_cliente($f);
-      }
       return $faclist;
    }
    
-   public function all_listados($desde, $hasta, $serie=FALSE, $codcliente=FALSE, $pagada=FALSE, $codagente=FALSE)
+   public function all_desde($desde, $hasta, $codserie=FALSE, $codagente=FALSE, $codcliente=FALSE, $estado=FALSE)
    {
       $faclist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE fecha >= ".$this->var2str($desde)." AND fecha <= ".$this->var2str($hasta);
-      if($serie)
+      if($codserie)
       {
-         $sql .= " AND codserie = ".$this->var2str($serie);
+         $sql .= " AND codserie = ".$this->var2str($codserie);
+      }
+      if($codagente)
+      {
+         $sql .= " AND codagente = ".$this->var2str($codagente);
       }
       if($codcliente)
       {
-         $sql .= "AND codcliente = ".$this->var2str($codcliente);
+         $sql .= " AND codcliente = ".$this->var2str($codcliente);
       }
-      if($pagada)
+      if($estado)
       {
-         $sql .= "AND pagada = ".$this->var2str($pagada);
-      }  
-     
-          if($codagente)
-      {
-         $sql .= "AND codagente = ".$this->var2str($codagente);
-      }  
-      
+         if($estado == 'pagada')
+         {
+            $sql .= " AND pagada";
+         }
+         else
+         {
+            $sql .= " AND pagada = false";
+         }
+      }
       $sql .= " ORDER BY fecha ASC, codigo ASC;";
-      $facturas = $this->db->select($sql);
-      if($facturas)
+      
+      $data = $this->db->select($sql);
+      if($data)
       {
-         foreach($facturas as $f)
+         foreach($data as $f)
             $faclist[] = new factura_cliente($f);
       }
+      
       return $faclist;
    }
-   
    
    public function search($query, $offset=0)
    {
@@ -1024,12 +1020,13 @@ class factura_cliente extends fs_model
       }
       $consulta .= " ORDER BY fecha DESC, codigo DESC";
       
-      $facturas = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-      if($facturas)
+      $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($facturas as $f)
+         foreach($data as $f)
             $faclist[] = new factura_cliente($f);
       }
+      
       return $faclist;
    }
    
@@ -1045,12 +1042,13 @@ class factura_cliente extends fs_model
       
       $sql .= " ORDER BY fecha DESC, codigo DESC;";
       
-      $facturas = $this->db->select($sql);
-      if($facturas)
+      $data = $this->db->select($sql);
+      if($data)
       {
-         foreach($facturas as $f)
+         foreach($data as $f)
             $faclist[] = new factura_cliente($f);
       }
+      
       return $faclist;
    }
    

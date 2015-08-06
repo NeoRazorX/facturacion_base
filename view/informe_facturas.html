@@ -60,11 +60,8 @@
       var chart3 = new google.visualization.AreaChart(document.getElementById('chart_facturas_year'));
       chart3.draw(data3);
    }
-</script>
-
-<script type="text/javascript">
+   
    $(document).ready(function() {
-      document.listado_facturas.ac_cliente.focus();
       $("#ac_cliente").autocomplete({
          serviceUrl: '{$fsc->url()}',
          paramName: 'buscar_cliente',
@@ -78,12 +75,6 @@
             }
          }
       });
-   });
-</script>
-
-<script type="text/javascript">
-   $(document).ready(function() {
-      document.listado_proveedor.ac_proveedor.focus();
       $("#ac_proveedor").autocomplete({
          serviceUrl: '{$fsc->url()}',
          paramName: 'buscar_proveedor',
@@ -119,7 +110,7 @@
    <div class="tab-pane active" id="home">
       <div class="container-fluid" style="margin-top: 10px;">
          <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="col-sm-12">
                <div class="panel panel-default">
                   <div class="panel-heading">
                      <h3 class="panel-title">Facturación de los últimos días</h3>
@@ -131,7 +122,7 @@
             </div>
          </div>
          <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="col-sm-12">
                <div class="panel panel-default">
                   <div class="panel-heading">
                      <h3 class="panel-title">Facturación de los últimos meses</h3>
@@ -143,7 +134,7 @@
             </div>
          </div>
          <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="col-sm-12">
                <div class="panel panel-default">
                   <div class="panel-heading">
                      <h3 class="panel-title">Facturación de los últimos años</h3>
@@ -157,82 +148,79 @@
       </div>
    </div>
    <div class="tab-pane" id="listados">
-      <div class="container-fluid" style="margin-top: 15px;">
+      <div class="container" style="margin-top: 15px;">
          <div class="row">
-            <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="col-sm-6">
                <form name="listado_proveedor" action="{$fsc->url()}" method="post" target="_blank" class="form">
                   <input type="hidden" name="listado" value="facturasprov"/>
-                   {if="$fsc->proveedor"}
-                    <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
-                    {else}
-                    <input type="hidden" name="codproveedor"/>
-                    {/if}
+                  {if="$fsc->proveedor"}
+                  <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
+                  {else}
+                  <input type="hidden" name="codproveedor"/>
+                  {/if}
                   <div class="panel panel-info">
                      <div class="panel-heading">
                         <h3 class="panel-title">Facturas de compras</h3>
                      </div>
                      <div class="panel-body">
-                        <div class="form-group col-md-3">
+                        <div class="form-group">
                            Desde:
-                           <input class="form-control datepicker" type="text" name="dfecha" value="{$fsc->desde}"/>
+                           <input class="form-control datepicker" type="text" name="desde" value="{$fsc->desde}" autocomplete="off"/>
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="form-group">
                            Hasta:
-                           <input class="form-control datepicker" type="text" name="hfecha" value="{$fsc->hasta}"/>
+                           <input class="form-control datepicker" type="text" name="hasta" value="{$fsc->hasta}" autocomplete="off"/>
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="form-group">
                            <a href="{$fsc->serie->url()}">Serie</a>:
                            <select class="form-control" name="codserie">
-                              <option value="---">Todas</option>
-                              <option value="---">-----</option>
+                              <option value="">Todas</option>
+                              <option value="">-----</option>
                               {loop="$fsc->serie->all()"}
                               <option value="{$value->codserie}">{$value->descripcion}</option>
                               {/loop}
                            </select>
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="form-group">
+                           <a href="{$fsc->agente->all()}">Empleado</a>:
+                           <select name="codagente" class="form-control">
+                              <option value="">Todos</option>
+                              <option value="">------</option>
+                              {loop="$fsc->agente->all()"}
+                              <option value="{$value->codagente}">{$value->get_fullname()}</option>
+                              {/loop}
+                           </select>
+                        </div>
+                        <div class="form-group">
+                           Proveedor:
+                           <div class="input-group">
+                              {if="$fsc->proveedor"}
+                              <input class="form-control" type="text" name="ac_proveedor" value="{$fsc->proveedor->nombre}" id="ac_proveedor" placeholder="Buscar" autocomplete="off"/>
+                              {else}
+                              <input class="form-control" type="text" name="ac_proveedor" id="ac_proveedor" placeholder="Buscar" autocomplete="off"/>
+                              {/if}
+                              <span class="input-group-btn">
+                                 <button class="btn btn-default" type="button" onclick="document.listado_proveedor.ac_proveedor.value='';document.listado_proveedor.ac_proveedor.focus();">
+                                    <span class="glyphicon glyphicon-edit"></span>
+                                 </button>
+                              </span>
+                           </div>
+                           <p class="help-block">Dejar en blanco para seleccionar todos los proveedores.</p>
+                        </div>
+                        <div class="form-group">
+                           Estado de la factura:
+                           <select class="form-control" name="estado">
+                              <option value="">Todas</option>
+                              <option value="pagada">Pagada</option>
+                              <option value="sinpagar">Sin pagar</option>
+                           </select>
+                        </div>
+                        <div class="form-group">
                            Generar:
                            <select name="generar" class="form-control">
                               <option value="pdf">PDF</option>
                               <option value="csv">CSV</option>
                            </select>
-                        </div>
-                     </div>
-                     <div class="panel-body">
-                         <div class="form-group col-md-6">
-                            <div class="form-group">
-                               Proveedor:
-                               <div class="input-group">
-                                  {if="$fsc->proveedor"}
-                                  <input class="form-control" type="text" name="ac_proveedor" value="{$fsc->proveedor->nombre}" id="ac_proveedor" placeholder="Buscar" autocomplete="off"/>
-                                  {else}
-                                  <input class="form-control" type="text" name="ac_proveedor" id="ac_proveedor" placeholder="Buscar" autocomplete="off"/>
-                                  {/if}
-                                  <span class="input-group-btn">
-                                     <button class="btn btn-default" type="button" onclick="document.listado_proveedor.ac_proveedor.value='';document.listado_proveedor.ac_proveedor.focus();">
-                                        <span class="glyphicon glyphicon-edit"></span>
-                                     </button>
-                                  </span>
-                               </div>
-                            </div>
-                         </div>
-                         <div class="form-group col-md-3">
-                            Estado:
-                            <select class="form-control chosen-select-no-results" name="pagada">
-                                <option value="">Todas</option>
-                                <option value="true">Pagada</option>
-                                <option value="false">Sin pagar</option>
-
-                            </select>
-                            </div> 
-                        <div class="form-group col-md-3">
-                           Agente:
-                           <select name="codagente" class="form-control">
-                            <option value="">Ninguno</option>
-                            {loop="$fsc->agente->all()"}
-                            <option value="{$value->codagente}">{$value->get_fullname()}</option>
-                            {/loop}
-                            </select>
                         </div>
                      </div>
                      <div class="panel-footer">
@@ -243,85 +231,80 @@
                   </div>
                </form>
             </div>
-            <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="col-sm-6">
                <form name ="listado_facturas" action="{$fsc->url()}" method="post" target="_blank" class="form">
                   <input type="hidden" name="listado" value="facturascli"/>
-                   {if="$fsc->cliente"}
+                  {if="$fsc->cliente"}
                   <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
-                   <input type="hidden" name="nombre" value="{$fsc->cliente->nombre}"/>
-                    {else}
+                  {else}
                   <input type="hidden" name="codcliente"/>
-                 
-                    {/if}
+                  {/if}
                   <input type="hidden" name="nombre" value="{$fsc->cliente->nombre}"/>
                   <div class="panel panel-info">
                      <div class="panel-heading">
                         <h3 class="panel-title">Facturas de ventas</h3>
                      </div>
                      <div class="panel-body">
-                        <div class="form-group col-md-3">
+                        <div class="form-group">
                            Desde:
-                           <input class="form-control datepicker" type="text" name="dfecha" value="{$fsc->desde}" size="12"/>
+                           <input class="form-control datepicker" type="text" name="desde" value="{$fsc->desde}" autocomplete="off"/>
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="form-group">
                            Hasta:
-                           <input class="form-control datepicker" type="text" name="hfecha" value="{$fsc->hasta}" size="12"/>
+                           <input class="form-control datepicker" type="text" name="hasta" value="{$fsc->hasta}" autocomplete="off"/>
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="form-group">
                            <a href="{$fsc->serie->url()}">Serie</a>:
                            <select class="form-control" name="codserie">
-                              <option value="---">Todas</option>
-                              <option value="---">-----</option>
+                              <option value="">Todas</option>
+                              <option value="">-----</option>
                               {loop="$fsc->serie->all()"}
                               <option value="{$value->codserie}">{$value->descripcion}</option>
                               {/loop}
                            </select>
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="form-group">
+                           Agente:
+                           <select name="codagente" class="form-control">
+                              <option value="">Todos</option>
+                              <option value="">---</option>
+                              {loop="$fsc->agente->all()"}
+                              <option value="{$value->codagente}">{$value->get_fullname()}</option>
+                              {/loop}
+                           </select>
+                        </div>
+                        <div class="form-group">
+                           Cliente:
+                           <div class="input-group">
+                              {if="$fsc->cliente"}
+                              <input class="form-control" type="text" name="ac_cliente" value="{$fsc->cliente->nombre}" id="ac_cliente" placeholder="Buscar" autocomplete="off"/>
+                              {else}
+                              <input class="form-control" type="text" name="ac_cliente" id="ac_cliente" placeholder="Buscar" autocomplete="off"/>
+                              {/if}
+                              <span class="input-group-btn">
+                                 <button class="btn btn-default" type="button" onclick="document.listado_facturas.ac_cliente.value='';document.listado_facturas.ac_cliente.focus();">
+                                    <span class="glyphicon glyphicon-edit"></span>
+                                 </button>
+                              </span>
+                           </div>
+                           <p class="help-block">Dejar en blanco para seleccionar todos los clientes.</p>
+                        </div>
+                        <div class="form-group">
+                           Estado de la factura:
+                           <select class="form-control" name="estado">
+                              <option value="">Todas</option>
+                              <option value="pagada">Pagada</option>
+                              <option value="sinpagar">Sin pagar</option>
+                           </select>
+                        </div>
+                        <div class="form-group">
                            Generar:
                            <select name="generar" class="form-control">
                               <option value="pdf">PDF</option>
                               <option value="csv">CSV</option>
                            </select>
                         </div>
-                         </div>
-                        <div class="panel-body">
-                            <div class="form-group col-md-6">
-                          
-                                Cliente:
-                                <div class="input-group">
-                                   {if="$fsc->cliente"}
-                                   <input class="form-control" type="text" name="ac_cliente" value="{$fsc->cliente->nombre}" id="ac_cliente" placeholder="Buscar" autocomplete="off"/>
-                                   {else}
-                                   <input class="form-control" type="text" name="ac_cliente" id="ac_cliente" placeholder="Buscar" autocomplete="off"/>
-                                   {/if}
-                                   <span class="input-group-btn">
-                                      <button class="btn btn-default" type="button" onclick="document.listado_facturas.ac_cliente.value='';document.listado_facturas.ac_cliente.focus();">
-                                         <span class="glyphicon glyphicon-edit"></span>
-                                      </button>
-                                   </span>
-                                </div>
-
-                            </div> 
-                           <div class="form-group col-md-3">
-                            Estado:
-                            <select class="form-control chosen-select-no-results" name="pagada">
-                                <option value="">Todas</option>
-                                <option value="true">Pagada</option>
-                                <option value="false">Sin pagar</option>
-
-                            </select>
-                            </div> 
-                        <div class="form-group col-md-3">
-                           Agente:
-                           <select name="codagente" class="form-control">
-                            <option value="">Ninguno</option>
-                            {loop="$fsc->agente->all()"}
-                            <option value="{$value->codagente}">{$value->get_fullname()}</option>
-                            {/loop}
-                            </select>
-                        </div>
-                       </div>
+                     </div>
                      <div class="panel-footer">
                         <button class="btn btn-sm btn-primary" type="submit">
                            <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Mostrar

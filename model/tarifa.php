@@ -22,10 +22,34 @@
  */
 class tarifa extends fs_model
 {
+   /**
+    * Clave primaria.
+    * @var type 
+    */
    public $codtarifa;
+   
+   /**
+    * Nombre de la tarifa.
+    * @var type 
+    */
    public $nombre;
-   public $incporcentual;
-   public $inclineal;
+   
+   /**
+    * Incremento porcentual o descuento
+    * @var type 
+    */
+   private $incporcentual;
+   
+   /**
+    * Incremento lineal o descuento lineal
+    * @var type 
+    */
+   private $inclineal;
+   
+   /**
+    * Fórmula a aplicar
+    * @var type 
+    */
    public $aplicar_a;
    
    public function __construct($t = FALSE)
@@ -35,8 +59,8 @@ class tarifa extends fs_model
       {
          $this->codtarifa = $t['codtarifa'];
          $this->nombre = $t['nombre'];
-         $this->incporcentual = floatval( $t['incporcentual'] );
-         $this->inclineal = floatval( $t['inclineal'] );
+         $this->incporcentual = floatval($t['incporcentual']);
+         $this->inclineal = floatval($t['inclineal']);
          $this->aplicar_a = $t['aplicar_a'];
       }
       else
@@ -59,14 +83,64 @@ class tarifa extends fs_model
       return 'index.php?page=ventas_articulos#tarifas';
    }
    
-   public function dtopor()
+   public function x()
    {
-      return (0 - $this->incporcentual);
+      if($this->aplicar_a == 'pvp')
+      {
+         return (0 - $this->incporcentual);
+      }
+      else
+      {
+         return $this->incporcentual;
+      }
    }
    
-    public function inclineal()
+   public function set_x($dto)
    {
-      return (0 - $this->inclineal);
+      if($this->aplicar_a == 'pvp')
+      {
+         $this->incporcentual = 0 - $dto;
+      }
+      else
+      {
+         $this->incporcentual = $dto;
+      }
+   }
+   
+   public function y()
+   {
+      if($this->aplicar_a == 'pvp')
+      {
+         return (0 - $this->inclineal);
+      }
+      else
+      {
+         return $this->inclineal;
+      }
+   }
+   
+   public function set_y($inc)
+   {
+      if($this->aplicar_a == 'pvp')
+      {
+         $this->inclineal = 0 - $inc;
+      }
+      else
+      {
+         $this->inclineal = $inc;
+      }
+   }
+   
+   public function diff()
+   {
+      if($this->aplicar_a == 'pvp')
+      {
+         return 'Precio de venta - '.$this->x().'% - '.$this->y();
+      }
+      else
+      {
+         return 'Precio de coste + '.$this->x().'% + '.$this->y();
+      }
    }
    
    /**
@@ -81,11 +155,26 @@ class tarifa extends fs_model
          $articulos[$i]->codtarifa = $this->codtarifa;
          $articulos[$i]->tarifa_nombre = $this->nombre;
          $articulos[$i]->tarifa_url = $this->url();
-         $aplicartarifa= $this->aplicar_a;
-         
          $articulos[$i]->dtopor = 0;
-         $articulos[$i]->pvp = $articulos[$i]->$aplicartarifa*(100+$this->incporcentual)/100+$this->inclineal;
-         $articulos[$i]->tarifa_diff = $aplicartarifa.' + '.$this->incporcentual.'% +'.$this->inclineal.' €';
+         
+         if($this->aplicar_a == 'pvp')
+         {
+            if( $this->x() >= 0 )
+            {
+               $articulos[$i]->dtopor = $this->x();
+               $articulos[$i]->pvp = $articulos[$i]->pvp - $this->y();
+            }
+            else
+            {
+               $articulos[$i]->pvp = $articulos[$i]->pvp * (100 - $this->x())/100 - $this->y();
+            }
+         }
+         else
+         {
+            $articulos[$i]->pvp = $articulos[$i]->preciocoste() * (100 + $this->x())/100 + $this->y();
+         }
+         
+         $articulos[$i]->tarifa_diff = $this->diff();
       }
    }
    
@@ -128,13 +217,13 @@ class tarifa extends fs_model
       $this->codtarifa = trim($this->codtarifa);
       $this->nombre = $this->no_html($this->nombre);
       
-      if( !preg_match("/^[A-Z0-9]{1,6}$/i", $this->codtarifa) )
+      if( strlen($this->codtarifa) < 1 OR strlen($this->codtarifa) > 6 )
       {
-         $this->new_error_msg("Código de tarifa no válido.");
+         $this->new_error_msg("Código de tarifa no válido. Debe tener entre 1 y 6 caracteres.");
       }
       else if( strlen($this->nombre) < 1 OR strlen($this->nombre) > 50 )
       {
-         $this->new_error_msg("Nombre de tarifa no válido.");
+         $this->new_error_msg("Nombre de tarifa no válido. Debe tener entre 1 y 50 caracteres.");
       }
       else
          $status = TRUE;

@@ -221,82 +221,93 @@
 </div>
 
 {if="$fsc->mostrar_tab_tarifas"}
-<div id="div_tarifas" class="table-responsive" style="display: none;">
-   <table class="table table-hover">
-      <thead>
-        <tr>
-            <th class="text-left">Código</th>
-            <th class="text-left">Nombre</th>
-            <th class="text-left">Aplicar a</th>
-            <th class="text-right">% descuento</th>
-            <th class="text-right">Lineal</th>
-            <th class="text-right">Acción</th>
-         </tr>
-      </thead>
-      {loop="$fsc->tarifa->all()"}
-      <form action="{$fsc->url()}#tarifas" method="post" class="form">
-         <input type="hidden" name="codtarifa" value="{$value->codtarifa}"/>
-        <tr>
-            <td><div class="form-control">{$value->codtarifa}</div></td>
-            <td>
-               <input class="form-control" type="text" name="nombre" value="{$value->nombre}" maxlength="50" autocomplete="off"/>
-            </td>
-            <td>
-               <select name="aplicar_a" class="form-control">
-                    <option value="pvp" {if="$value->aplicar_a =='pvp'"} selected{/if}>PVP</option>
-                    <option value="preciocoste" {if="$value->aplicar_a =='preciocoste'"} selected{/if}>Precio Coste</option>
-                    <option value="costemedio" {if="$value->aplicar_a =='costemedio '"} selected{/if}>Coste Medio</option>
-               </select>
-            </td>
-            <td>
-               <input class="form-control text-right" type="number" step="any" name="dtopor" value="{$value->dtopor()}" autocomplete="off"/>
-            </td>
-            <td>
-               <input class="form-control text-right" type="number" step="any" name="inclineal" value="{$value->inclineal()}" autocomplete="off"/>
-            </td>
-            <td class="text-right">
-               <div class="btn-group">
-                  {if="$fsc->allow_delete"}
-                  <a href="#" class="btn btn-sm btn-danger" title="Eliminar" onclick="eliminar_tarifa('{$value->codtarifa}')">
-                     <span class="glyphicon glyphicon-trash"></span>
-                  </a>
-                  {/if}
+<div id="div_tarifas" style="display: none;">
+   <div class="table-responsive">
+      <table class="table table-hover">
+         <thead>
+           <tr>
+               <th class="text-left" width="120">Código</th>
+               <th class="text-left">Nombre</th>
+               <th class="text-left">Aplicar</th>
+               <th class="text-right">X %</th>
+               <th class="text-right">Y</th>
+               <th></th>
+               <th class="text-right">Acción</th>
+            </tr>
+         </thead>
+         {loop="$fsc->tarifa->all()"}
+         <form action="{$fsc->url()}#tarifas" method="post" class="form">
+            <input type="hidden" name="codtarifa" value="{$value->codtarifa}"/>
+           <tr>
+               <td><div class="form-control">{$value->codtarifa}</div></td>
+               <td>
+                  <input class="form-control" type="text" name="nombre" value="{$value->nombre}" maxlength="50" autocomplete="off"/>
+               </td>
+               <td>
+                  <select name="aplicar_a" class="form-control">
+                     <option value="pvp" {if="$value->aplicar_a=='pvp'"} selected="selected"{/if}>Precio de venta - X% - Y</option>
+                     <option value="coste" {if="$value->aplicar_a=='coste'"} selected{/if}>Precio de coste + X% + Y</option>
+                  </select>
+               </td>
+               <td>
+                  <input class="form-control text-right" type="number" step="any" name="dtopor" value="{$value->x()}" autocomplete="off"/>
+               </td>
+               <td>
+                  <input class="form-control text-right" type="number" step="any" name="inclineal" value="{$value->y()}" autocomplete="off"/>
+               </td>
+               <td><div class="form-control">{$value->diff()}</div></td>
+               <td class="text-right">
+                  <div class="btn-group">
+                     {if="$fsc->allow_delete"}
+                     <a href="#" class="btn btn-sm btn-danger" title="Eliminar" onclick="eliminar_tarifa('{$value->codtarifa}')">
+                        <span class="glyphicon glyphicon-trash"></span>
+                     </a>
+                     {/if}
+                     <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                        <span class="glyphicon glyphicon-floppy-disk"></span>
+                     </button>
+                  </div>
+               </td>
+            </tr>
+         </form>
+         {/loop}
+         <form name="f_nueva_tarifa" action="{$fsc->url()}#tarifas" method="post" class="form">
+            <tr class="bg-info">
+               <td>
+                  <input class="form-control" type="text" name="codtarifa" value="{$fsc->tarifa->get_new_codigo()}" maxlength="6" autocomplete="off"/>
+               </td>
+               <td>
+                  <input class="form-control" type="text" name="nombre" maxlength="50" placeholder="Nueva Tarifa" autocomplete="off"/>
+               </td>
+               <td>
+                  <select name="aplicar_a" class="form-control">
+                     <option value="pvp">Precio de venta - X% - Y</option>
+                     <option value="coste">Precio de coste + X% + Y</option>
+                  </select>
+               </td>
+               <td><input class="form-control text-right" type="number" step="any" name="dtopor" value="0" autocomplete="off"/></td>
+               <td><input class="form-control text-right" type="number" step="any" name="inclineal" value="0" autocomplete="off"/></td>
+               <td></td>
+               <td class="text-right">
                   <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                      <span class="glyphicon glyphicon-floppy-disk"></span>
                   </button>
-               </div>
-            </td>
-         </tr>
-      </form>
-      {/loop}
-      <form name="f_nueva_tarifa" action="{$fsc->url()}#tarifas" method="post" class="form">
-          <tr class="bg-info">
-            <td>
-               <input class="form-control" type="text" name="codtarifa" value="{$fsc->tarifa->get_new_codigo()}" maxlength="6" autocomplete="off"/>
-            </td>
-            <td>
-               <input class="form-control" type="text" name="nombre" maxlength="50" placeholder="Nueva Tarifa" autocomplete="off"/>
-            </td>
-            <td>
-               <select name="aplicar_a" class="form-control">
-                              <option value="pvp">PVP</option>
-                              <option value="preciocoste">Coste</option>
-               </select>
-            </td>
-            <td>
-               <input class="form-control text-right" type="number" step="any" name="dtopor" value="0" autocomplete="off"/>
-            </td>
-            <td>
-               <input class="form-control text-right" type="number" step="any" name="inclineal" value="0" autocomplete="off"/>
-            </td>
-            <td class="text-right">
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
-                  <span class="glyphicon glyphicon-floppy-disk"></span>
-               </button>
-            </td>
-         </tr>
-      </form>
-   </table>
+               </td>
+            </tr>
+         </form>
+      </table>
+   </div>
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-sm-12">
+            <p class="help-block">
+               Desde aquí puedes configurar las tarifas de venta a clientes.
+               Crea todas las tarifas que necesites, después asígna las tarifas
+               a los <a href="index.php?page=ventas_clientes#grupos">grupos de clientes</a>.
+            </p>
+         </div>
+      </div>
+   </div>
 </div>
 {/if}
 

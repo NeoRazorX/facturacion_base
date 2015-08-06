@@ -81,13 +81,9 @@ class ventas_articulos extends fs_controller
             $tar0->codtarifa = $_POST['codtarifa'];
          }
          $tar0->nombre = $_POST['nombre'];
-         $tar0->incporcentual = 0-floatval($_POST['dtopor']);
-           
-         if (isset($_POST['inclineal']))   { 
-            $tar0->inclineal =  0-floatval($_POST['inclineal']);
-         }
-         
-         $tar0->aplicar_a =($_POST['aplicar_a']);
+         $tar0->aplicar_a = $_POST['aplicar_a'];
+         $tar0->set_x( floatval($_POST['dtopor']) );
+         $tar0->set_y( floatval($_POST['inclineal']) );
          
          if( $tar0->save() )
          {

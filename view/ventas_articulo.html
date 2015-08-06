@@ -411,14 +411,14 @@
                            <thead>
                               <tr>
                                  <th colspan="2" class="text-left">Tarifa</th>
-                                 <th class="text-left">Diferencia</th>
-                                 <th class="text-right">Precio</th>
-                                 <th class="text-right">Precio+{#FS_IVA#}</th>
+                                 <th class="text-left">Aplicar</th>
+                                 <th class="text-right">Nuevo Precio</th>
+                                 <th class="text-right">Nuevo Precio+{#FS_IVA#}</th>
                               </tr>
                            </thead>
                            {loop="$fsc->get_tarifas()"}
                            <tr>
-                              <td><div class="form-control"><a href="{$value->tarifa_url}">{$value->codtarifa}</a></div></td>
+                              <td width="120"><div class="form-control"><a href="{$value->tarifa_url}">{$value->codtarifa}</a></div></td>
                               <td><div class="form-control">{$value->tarifa_nombre}</div></td>
                               <td><div class="form-control">{$value->tarifa_diff}</div></td>
                               <td class="text-right">
