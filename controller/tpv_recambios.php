@@ -660,7 +660,7 @@ class tpv_recambios extends fs_controller
          
          while($num_tickets > 0)
          {
-            $linea = "\nFactura simplificada: " . $factura->codigo . "\n";
+            $linea = "\n".ucfirst(FS_FACTURA_SIMPLIFICADA).": " . $factura->codigo . "\n";
             $linea .= $factura->fecha. " " . Date('H:i', strtotime($factura->hora)) . "\n";
             $this->terminal->add_linea($linea);
             $this->terminal->add_linea("Cliente: " . $factura->nombrecliente . "\n");
