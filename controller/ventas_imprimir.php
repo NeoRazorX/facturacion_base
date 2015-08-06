@@ -335,7 +335,7 @@ class ventas_imprimir extends fs_controller
             {
                if($this->albaran->observaciones != '')
                {
-                  $pdf_doc->pdf->ezText("\n".$this->albaran->observaciones, 9);
+                  $pdf_doc->pdf->ezText("\n".$this->fix_html($this->albaran->observaciones), 9);
                }
             }
             
@@ -664,7 +664,7 @@ class ventas_imprimir extends fs_controller
                }
                else if($this->factura->observaciones != '')
                {
-                  $pdf_doc->pdf->ezText("\n".$this->factura->observaciones, 9);
+                  $pdf_doc->pdf->ezText("\n".$this->fix_html($this->factura->observaciones), 9);
                }
                
                if(!$this->factura->pagada)

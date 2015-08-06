@@ -51,6 +51,14 @@
       <nulo>YES</nulo>
       <defecto>true</defecto>
    </columna>
+   <columna>
+      <nombre>nombre</nombre>
+      <tipo>character varying(100)</tipo>
+   </columna>
+   <columna>
+      <nombre>coddivisa</nombre>
+      <tipo>character varying(3)</tipo>
+   </columna>
    <restriccion>
       <nombre>articulosprov_pkey</nombre>
       <consulta>PRIMARY KEY (id)</consulta>
