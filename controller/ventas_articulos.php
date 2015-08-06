@@ -159,7 +159,7 @@ class ventas_articulos extends fs_controller
       }
       $codfabricante = $_POST['codfabricante'];
       $codfamilia = $this->codfamilia;
-      echo "familia ->".$codfamilia;
+      
       
       $this->offset = 0;
       if( isset($_GET['offset']) )
