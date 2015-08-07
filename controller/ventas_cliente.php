@@ -289,4 +289,20 @@ class ventas_cliente extends fs_controller
       
       return $stats;
    }
+   
+   public function tiene_facturas()
+   {
+      $tiene = FALSE;
+      
+      if( $this->db->table_exists('facturascli') )
+      {
+         $data = $this->db->select("SELECT * FROM facturascli WHERE codcliente = '".$this->cliente->codcliente."';");
+         if($data)
+         {
+            $tiene = TRUE;
+         }
+      }
+      
+      return $tiene;
+   }
 }

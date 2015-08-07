@@ -273,4 +273,20 @@ class compras_proveedor extends fs_controller
       
       return $stats;
    }
+   
+   public function tiene_facturas()
+   {
+      $tiene = FALSE;
+      
+      if( $this->db->table_exists('facturasprov') )
+      {
+         $data = $this->db->select("SELECT * FROM facturasprov WHERE codproveedor = '".$this->proveedor->codproveedor."';");
+         if($data)
+         {
+            $tiene = TRUE;
+         }
+      }
+      
+      return $tiene;
+   }
 }

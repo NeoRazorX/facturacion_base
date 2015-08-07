@@ -95,10 +95,17 @@
       </div>
       <div class="col-sm-2 col-xs-2 text-right">
          {if="$fsc->allow_delete"}
-         <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
-            <span class="glyphicon glyphicon-trash"></span>
-            <span class="hidden-xs">&nbsp; Eliminar</span>
-         </a>
+            {if="$fsc->tiene_facturas()"}
+            <a href="#" class="btn btn-sm btn-warning" onclick="alert('Este proveedor ya tiene facturas. No puedes eliminarlo.')">
+               <span class="glyphicon glyphicon-lock"></span>
+               <span class="hidden-xs">&nbsp; Eliminar</span>
+            </a>
+            {else}
+            <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
+               <span class="glyphicon glyphicon-trash"></span>
+               <span class="hidden-xs">&nbsp; Eliminar</span>
+            </a>
+            {/if}
          {/if}
       </div>
    </div>
