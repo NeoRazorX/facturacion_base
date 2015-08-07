@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('tarifa.php');
+
 /**
  * Un grupo de clientes, que puede estar asociado a una tarifa.
  */
@@ -46,6 +48,9 @@ class grupo_clientes extends fs_model
    
    protected function install()
    {
+      /// como hay una clave ajena a tarifas, tenemos que comprobar esa tabla antes
+      new tarifa();
+      
       return '';
    }
    
