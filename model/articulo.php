@@ -22,6 +22,7 @@ require_model('albaran_proveedor.php');
 require_model('familia.php');
 require_model('impuesto.php');
 require_model('stock.php');
+require_model('fabricante.php');
 
 /**
  * Almacena los datos de un artículos.
@@ -47,6 +48,8 @@ class articulo extends fs_model
     */
    public $codfamilia;
    public $descripcion;
+   public $codfabricante;
+   public $nombre;
    
    public $pvp;
    
@@ -169,7 +172,7 @@ class articulo extends fs_model
       
       if( !isset(self::$column_list) )
       {
-         self::$column_list = 'referencia,codfamilia,descripcion,pvp,factualizado,costemedio,'.
+         self::$column_list = 'referencia,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,'.
                  'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,'.
                  'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,'.
                  'codsubcuentacom,codsubcuentairpfcom';
@@ -180,6 +183,7 @@ class articulo extends fs_model
          $this->referencia = $a['referencia'];
          $this->tipo = $a['tipo'];
          $this->codfamilia = $a['codfamilia'];
+         $this->codfabricante = $a['codfabricante'];
          $this->descripcion = $this->no_html($a['descripcion']);
          $this->pvp = floatval($a['pvp']);
          $this->factualizado = Date('d-m-Y', strtotime($a['factualizado']));
@@ -217,6 +221,7 @@ class articulo extends fs_model
          $this->referencia = NULL;
          $this->tipo = NULL;
          $this->codfamilia = NULL;
+         $this->codfabricante = NULL;
          $this->descripcion = '';
          $this->pvp = 0;
          $this->factualizado = Date('d-m-Y');
@@ -249,9 +254,10 @@ class articulo extends fs_model
    
    protected function install()
    {
-      /// la tabla articulos tiene claves ajeas a familias, impuestos y stocks
+      /// la tabla articulos tiene claves ajeas a familias,fabricantes impuestos y stocks
       new familia();
       new impuesto();
+      new fabricante();
       
       $this->clean_cache();
       
@@ -351,6 +357,12 @@ class articulo extends fs_model
    {
       $fam = new familia();
       return $fam->get($this->codfamilia);
+   }
+   
+     public function get_fabricante()
+   {
+      $fab = new fabricante();
+      return $fab->get($this->codfabricante);
    }
    
    public function get_stock()
@@ -839,6 +851,7 @@ class articulo extends fs_model
          {
             $sql = "UPDATE ".$this->table_name." SET descripcion = ".$this->var2str($this->descripcion).
                     ", codfamilia = ".$this->var2str($this->codfamilia).
+                    ", codfabricante = ".$this->var2str($this->codfabricante).
                     ", pvp = ".$this->var2str($this->pvp).
                     ", factualizado = ".$this->var2str($this->factualizado).
                     ", costemedio = ".$this->var2str($this->costemedio).
@@ -875,6 +888,7 @@ class articulo extends fs_model
             $sql = "INSERT INTO ".$this->table_name." (".self::$column_list.") VALUES (".
                     $this->var2str($this->referencia).",".
                     $this->var2str($this->codfamilia).",".
+                    $this->var2str($this->codfabricante).",".
                     $this->var2str($this->descripcion).",".
                     $this->var2str($this->pvp).",".
                     $this->var2str($this->factualizado).",".
@@ -1042,12 +1056,12 @@ class articulo extends fs_model
       }
    }
    
-   public function search($query, $offset=0, $codfamilia='', $con_stock=FALSE)
+   public function search($query, $offset=0, $codfamilia='', $con_stock=FALSE, $codfabricante='')
    {
       $artilist = array();
       $query = $this->no_html( strtolower($query) );
       
-      if($offset == 0 AND $codfamilia == '' AND !$con_stock)
+      if($offset == 0 AND $codfamilia == '' AND !$con_stock AND $codfabricante == '')
       {
          /// intentamos obtener los datos de memcache
          if( $this->new_search_tag($query) )
@@ -1073,6 +1087,13 @@ class articulo extends fs_model
          }
          else
             $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = ".$this->var2str($codfamilia)." AND ";
+         
+          if($codfabricante == '')
+         {
+            $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE ";
+         }
+         else
+            $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfabricante = ".$this->var2str($codfabricante)." AND ";
          
          if($con_stock)
          {
@@ -1158,6 +1179,21 @@ class articulo extends fs_model
       $artilist = array();
       
       $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = ".$this->var2str($cod)." ORDER BY referencia ASC";
+      $data = $this->db->select_limit($sql, $limit, $offset);
+      if($data)
+      {
+         foreach($data as $d)
+            $artilist[] = new articulo($d);
+      }
+      
+      return $artilist;
+   }
+   
+    public function all_from_fabricante($cod, $offset=0, $limit=FS_ITEM_LIMIT)
+   {
+      $artilist = array();
+      
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codfabricante = ".$this->var2str($cod)." ORDER BY codfabricante ASC";
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
