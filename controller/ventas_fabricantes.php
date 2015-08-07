@@ -31,6 +31,7 @@ class ventas_fabricantes extends fs_controller
    
    protected function process()
    {
+      $this->share_extensions();
       $this->fabricante = new fabricante();
 
       if( isset($_POST['ncodfabricante']) )
@@ -38,7 +39,7 @@ class ventas_fabricantes extends fs_controller
          $fab = $this->fabricante->get($_POST['ncodfabricante']);
          if($fab)
          {
-            $this->new_error_msg('E fabricante <a href="'.$fab->url().'">'.$_POST['ncodfabricante'].'</a> ya existe.');
+            $this->new_error_msg('El fabricante <a href="'.$fab->url().'">'.$fab->codfabricante.'</a> ya existe.');
          }
          else
          {
@@ -51,7 +52,6 @@ class ventas_fabricantes extends fs_controller
             }
             else
                $this->new_error_msg("¡Imposible guardar el fabricante!");
-            echo  $fab->codfabricante ;
          }
       }
       else if( isset($_GET['delete']) )
@@ -61,19 +61,16 @@ class ventas_fabricantes extends fs_controller
          {
             if( $fab->delete() )
             {
-               $this->new_message("Familia ".$_GET['delete']." eliminada correctamente");
+               $this->new_message("Fabricante ".$_GET['delete']." eliminado correctamente");
             }
             else
                $this->new_error_msg("¡Imposible eliminar el fabricante ".$_GET['delete']."!");
          }
          else
-            $this->new_error_msg("Familia ".$_GET['delete']." no encontrada.");
+            $this->new_error_msg("Fabricante ".$_GET['delete']." no encontrado.");
       }
       
-     
-         $this->resultados = $this->fabricante->search($this->query);
-     
-
+      $this->resultados = $this->fabricante->search($this->query);
    }
    
    public function total_fabricantes()

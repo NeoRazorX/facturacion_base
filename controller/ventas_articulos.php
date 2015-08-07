@@ -49,7 +49,6 @@ class ventas_articulos extends fs_controller
       $this->fabricante = new fabricante();
       $this->impuesto = new impuesto();
       $this->tarifa = new tarifa();
-     
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -67,20 +66,6 @@ class ventas_articulos extends fs_controller
             break;
          }
       }
-      
-      $this->codfamilia = '';
-      if( isset($_REQUEST['codfamilia']) )
-      {
-         $this->codfamilia = $_REQUEST['codfamilia'];
-      }
-      
-      $this->codfabricante = '';
-      if( isset($_REQUEST['codfabricante']) )
-      {
-         $this->codfabricante = $_REQUEST['codfabricante'];
-      }
-
-      $this->con_stock = isset($_REQUEST['con_stock']);
       
       if( isset($_POST['codtarifa']) )
       {
@@ -135,7 +120,12 @@ class ventas_articulos extends fs_controller
             $articulo->referencia = $_POST['referencia'];
             $articulo->descripcion = $_POST['referencia'];
             $articulo->codfamilia = $_POST['codfamilia'];
-            $articulo->codfabricante = $_POST['codfabricante'];
+            
+            if($_POST['codfabricante'] != '')
+            {
+               $articulo->codfabricante = $_POST['codfabricante'];
+            }
+            
             $articulo->set_pvp( floatval($_POST['pvp']) );
             $articulo->set_impuesto($_POST['codimpuesto']);
             if( $articulo->save() )
@@ -160,9 +150,21 @@ class ventas_articulos extends fs_controller
                $this->new_error_msg("¡Error al eliminarl el articulo!");
          }
       }
-      $codfabricante = $_POST['codfabricante'];
-      $codfamilia = $this->codfamilia;
-      echo "familia ->".$codfamilia;
+      
+      /// recogemos los datos necesarios para la búsqueda
+      $this->codfamilia = '';
+      if( isset($_REQUEST['codfamilia']) )
+      {
+         $this->codfamilia = $_REQUEST['codfamilia'];
+      }
+      
+      $this->codfabricante = '';
+      if( isset($_REQUEST['codfabricante']) )
+      {
+         $this->codfabricante = $_REQUEST['codfabricante'];
+      }
+
+      $this->con_stock = isset($_REQUEST['con_stock']);
       
       $this->offset = 0;
       if( isset($_GET['offset']) )
@@ -172,11 +174,11 @@ class ventas_articulos extends fs_controller
       
       if($this->query != '')
       {
-         $this->resultados = $articulo->search($this->query, $this->offset, $this->codfamilia, $this->con_stock, $codfabricante);
+         $this->resultados = $articulo->search($this->query, $this->offset, $this->codfamilia, $this->con_stock, $this->codfabricante);
       }
       else if( isset($_GET['solo_stock']) )
       {
-         $this->resultados = $articulo->search('', $this->offset, '', '',TRUE);
+         $this->resultados = $articulo->search('', $this->offset, '', TRUE);
       }
       else if( isset($_GET['public']) )
       {

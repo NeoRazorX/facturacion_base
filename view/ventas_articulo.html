@@ -224,23 +224,23 @@
                         </select>
                      </div>
                   </div>
-                   <div class="col-sm-3">
+                   <div class="col-sm-2">
                      <div class="form-group">
                         <a href="{$fsc->fabricante->url()}">Fabricante</a>:
                         <select class="form-control" name="codfabricante">
-                        <option value="">Ninguno</option>
-                        <option value="">-------</option>
-                        {loop="$fsc->fabricante->all()"}
-                           {if="$value->codfabricante===$fsc->articulo->codfabricante"}
-                           <option value="{$value->codfabricante}" selected="selected">{$value->nombre}</option>
-                           {else}
-                           <option value="{$value->codfabricante}">{$value->nombre}</option>
-                           {/if}
-                        {/loop}
+                           <option value="">Ninguno</option>
+                           <option value="">-------</option>
+                           {loop="$fsc->fabricante->all()"}
+                              {if="$value->codfabricante===$fsc->articulo->codfabricante"}
+                              <option value="{$value->codfabricante}" selected="selected">{$value->nombre}</option>
+                              {else}
+                              <option value="{$value->codfabricante}">{$value->nombre}</option>
+                              {/if}
+                           {/loop}
                         </select>
                      </div>
                   </div>
-                  <div class="col-sm-4">
+                  <div class="col-sm-3">
                      <div class="form-group">
                         Código de barras:
                         <div class="input-group">
@@ -251,7 +251,7 @@
                         </div>
                      </div>
                   </div>
-                  <div class="col-sm-5">
+                  <div class="col-sm-4">
                      <div class="form-group">
                         Código de equivalencia:
                         <input class="form-control" type="text" name="equivalencia" value="{$fsc->articulo->equivalencia}" autocomplete="off"/>
@@ -306,7 +306,7 @@
                      <div class="checkbox">
                         <label>
                            <input type="checkbox" name="bloqueado" value="TRUE"{if="$fsc->articulo->bloqueado"} checked="checked"{/if}/>
-                           Bloqueado
+                           <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Bloqueado / Obsoleto
                         </label>
                      </div>
                      {if="$fsc->mostrar_boton_publicar"}

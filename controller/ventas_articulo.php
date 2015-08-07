@@ -32,6 +32,7 @@ class ventas_articulo extends fs_controller
    public $allow_delete;
    public $almacen;
    public $articulo;
+   public $fabricante;
    public $familia;
    public $impuesto;
    public $mostrar_boton_publicar;
@@ -41,8 +42,7 @@ class ventas_articulo extends fs_controller
    public $stocks;
    public $equivalentes;
    public $regularizaciones;
-   public $fabricante;
-
+   
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Articulo', 'ventas', FALSE, FALSE);
@@ -197,8 +197,8 @@ class ventas_articulo extends fs_controller
             $this->articulo->codfamilia = $_POST['codfamilia'];
          }
          
-          $this->articulo->codfabricante = NULL;
-         if( isset($_POST['codfabricante']) )
+         $this->articulo->codfabricante = NULL;
+         if($_POST['codfabricante'] != '')
          {
             $this->articulo->codfabricante = $_POST['codfabricante'];
          }

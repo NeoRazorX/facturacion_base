@@ -24,9 +24,6 @@ class fabricante extends fs_model
 {
    public $codfabricante;
    public $nombre;
-
-   
-   public $nivel;
    
    public function __construct($f=FALSE)
    {
@@ -35,8 +32,6 @@ class fabricante extends fs_model
       {
          $this->codfabricante = $f['codfabricante'];
          $this->nombre = $f['nombre'];
-         
-   
       }
       else
       {
@@ -61,11 +56,6 @@ class fabricante extends fs_model
          return "index.php?page=ventas_fabricante&cod=".$this->codfabricante;
    }
    
-   public function is_default()
-   {
-      return ( $this->codfabricante == $this->default_items->codfabricante() );
-   }
-   
    public function get($cod)
    {
       $f = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codfabricante = ".$this->var2str($cod).";");
@@ -76,7 +66,7 @@ class fabricante extends fs_model
       else
          return FALSE;
    }
-
+   
    public function get_articulos($offset=0, $limit=FS_ITEM_LIMIT)
    {
       $articulo = new articulo();
@@ -100,9 +90,9 @@ class fabricante extends fs_model
       $this->codfabricante = trim($this->codfabricante);
       $this->nombre = $this->no_html($this->nombre);
       
-      if( !preg_match("/^[A-Z0-9_]{1,8}$/i", $this->codfabricante) )
+      if( strlen($this->codfabricante) < 1 OR strlen($this->codfabricante) > 8 )
       {
-         $this->new_error_msg("Código de fabricante no válido. Deben ser entre 1 y 8 caracteres alfanuméricos.");
+         $this->new_error_msg("Código de fabricante no válido. Deben ser entre 1 y 8 caracteres.");
       }
       else if( strlen($this->nombre) < 1 OR strlen($this->nombre) > 100 )
       {
@@ -142,7 +132,7 @@ class fabricante extends fs_model
    {
       $this->clean_cache();
       $sql = "DELETE FROM ".$this->table_name." WHERE codfabricante = ".$this->var2str($this->codfabricante).";"
-              . "UPDATE articulos SET codfabricante = '' WHERE codfabricante = ".$this->var2str($this->codfabricante).";";
+              . "UPDATE articulos SET codfabricante = NULL WHERE codfabricante = ".$this->var2str($this->codfabricante).";";
  
       return $this->db->exec($sql);
    }

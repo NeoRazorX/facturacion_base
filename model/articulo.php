@@ -19,10 +19,10 @@
 
 require_model('albaran_cliente.php');
 require_model('albaran_proveedor.php');
+require_model('fabricante.php');
 require_model('familia.php');
 require_model('impuesto.php');
 require_model('stock.php');
-require_model('fabricante.php');
 
 /**
  * Almacena los datos de un artículos.
@@ -47,10 +47,23 @@ class articulo extends fs_model
     * @var type 
     */
    public $codfamilia;
-   public $descripcion;
-   public $codfabricante;
-   public $nombre;
    
+   /**
+    * Descripción del artículo. Tipo text, sin límite de caracteres.
+    * @var type 
+    */
+   public $descripcion;
+   
+   /**
+    * Código del fabricante al que pertenece. En la clase fabricante.
+    * @var type 
+    */
+   public $codfabricante;
+   
+   /**
+    * Precio del artículo, sin impuestos.
+    * @var type 
+    */
    public $pvp;
    
    /**
@@ -350,7 +363,7 @@ class articulo extends fs_model
    }
    
    /**
-    * Devuelve la familia del artículo
+    * Devuelve la familia del artículo.
     * @return familia
     */
    public function get_familia()
@@ -359,7 +372,11 @@ class articulo extends fs_model
       return $fam->get($this->codfamilia);
    }
    
-     public function get_fabricante()
+   /**
+    * Devuelve el fabricante del artículo.
+    * @return fabricante
+    */
+   public function get_fabricante()
    {
       $fab = new fabricante();
       return $fab->get($this->codfabricante);
@@ -577,10 +594,9 @@ class articulo extends fs_model
    public function set_referencia($ref)
    {
       $ref = str_replace(' ', '_', trim($ref));
-      if( !preg_match("/^[A-Z0-9_\+\.\*\/\-]{1,18}$/i", $ref) )
+      if( is_null($ref) OR strlen($ref) < 1 OR strlen($ref) > 18 )
       {
-         $this->new_error_msg("¡Referencia de artículo no válida! Debe tener entre 1 y 18 caracteres.
-            Se admiten letras, números, '_', '.', '*', '/' ó '-'.");
+         $this->new_error_msg("¡Referencia de artículo no válida! Debe tener entre 1 y 18 caracteres.");
       }
       else if( $ref != $this->referencia AND !is_null($this->referencia) )
       {
@@ -766,7 +782,7 @@ class articulo extends fs_model
     * Esta función devuelve TRUE si el artículo ya existe en la base de datos.
     * Por motivos de rendimiento y al ser esta una clase de uso intensivo,
     * se utiliza la variable $this->exists para almacenar el resultado.
-    * @return type
+    * @return boolean
     */
    public function exists()
    {
@@ -1088,12 +1104,10 @@ class articulo extends fs_model
          else
             $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = ".$this->var2str($codfamilia)." AND ";
          
-          if($codfabricante == '')
+         if($codfabricante != '')
          {
-            $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE ";
+            $sql .= "codfabricante = ".$this->var2str($codfabricante)." AND ";
          }
-         else
-            $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfabricante = ".$this->var2str($codfabricante)." AND ";
          
          if($con_stock)
          {
@@ -1114,10 +1128,10 @@ class articulo extends fs_model
          
          $sql .= " ORDER BY referencia ASC";
          
-         $articulos = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-         if($articulos)
+         $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+         if($data)
          {
-            foreach($articulos as $a)
+            foreach($data as $a)
             {
                /// PUEDE que hayamos puesto el primero al artćiulo con la referencia exacta
                if($a['referencia'] != $query OR count($artilist) == 0)
@@ -1174,6 +1188,13 @@ class articulo extends fs_model
       return $artilist;
    }
    
+   /**
+    * Devuelve los artículos de una familia.
+    * @param type $cod
+    * @param type $offset
+    * @param type $limit
+    * @return \articulo
+    */
    public function all_from_familia($cod, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
@@ -1189,7 +1210,14 @@ class articulo extends fs_model
       return $artilist;
    }
    
-    public function all_from_fabricante($cod, $offset=0, $limit=FS_ITEM_LIMIT)
+   /**
+    * Devuelve los artículos de un fabricante.
+    * @param type $cod
+    * @param type $offset
+    * @param type $limit
+    * @return \articulo
+    */
+   public function all_from_fabricante($cod, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
       

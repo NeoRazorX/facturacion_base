@@ -188,7 +188,7 @@
          </thead>
          {if="isset($_GET['solo_stock']) AND $fsc->resultados"}
          <tr class="bg-info">
-            <td colspan="5">
+            <td colspan="6">
                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> &nbsp;
                <a href="index.php?page=informe_articulos&tab=stock">
                   Tienes un informe detallado del stock en Informes > Artículos.
@@ -203,11 +203,11 @@
                <a href="index.php?page=ventas_familia&cod={$value->codfamilia}" class="cancel_clickable" title="Ver más artículos de esta familia">[+]</a>
             </td>
             <td>
-               {if="$value->codfabricante==''"}
-               <span></span>
+               {if="is_null($value->codfabricante)"}
+                  <span>-</span>
                {else}
-               {$value->codfabricante}
-               <a href="index.php?page=ventas_fabricante&cod={$value->codfabricante}" class="cancel_clickable" title="Ver más artículos de este fabricante">[+]</a>
+                  {$value->codfabricante}
+                  <a href="index.php?page=ventas_fabricante&cod={$value->codfabricante}" class="cancel_clickable" title="Ver más artículos de este fabricante">[+]</a>
                {/if}
             </td>
             <td><a href="{$value->url()}">{$value->referencia}</a> {$value->descripcion}</td>
@@ -219,7 +219,7 @@
          </tr>
          {else}
          <tr class="bg-warning">
-            <td colspan="5">Ningun artículo encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</td>
+            <td colspan="6">Ningun artículo encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</td>
          </tr>
          {/loop}
       </table>
@@ -359,18 +359,8 @@
                      </select>
                   </div>
                </div>
-              
                <div class="form-group">
-                  <label class="col-sm-2 control-label">Precio</label>
-                  <div class="col-sm-10">
-                     <div class="input-group">
-                        <input class="form-control" type="text" name="pvp" value="0" autocomplete="off"/>
-                        <div class="input-group-addon">{$fsc->simbolo_divisa()}</div>
-                     </div>
-                  </div>
-               </div>
-               <div class="form-group">
-                  <label class="col-sm-2 control-label">Fabricante</label>
+                  <label class="col-sm-2 control-label"><a href="{$fsc->fabricante->url()}">Fabricante</a></label>
                   <div class="col-sm-10">
                      <select class="form-control" name="codfabricante">
                         <option value="">Ninguno</option>
@@ -379,6 +369,15 @@
                         <option value="{$value->codfabricante}">{$value->codfabricante}</option>
                         {/loop}
                      </select>
+                  </div>
+               </div>
+               <div class="form-group">
+                  <label class="col-sm-2 control-label">Precio</label>
+                  <div class="col-sm-10">
+                     <div class="input-group">
+                        <input class="form-control" type="text" name="pvp" value="0" autocomplete="off"/>
+                        <div class="input-group-addon">{$fsc->simbolo_divisa()}</div>
+                     </div>
                   </div>
                </div>
                <div class="form-group">
