@@ -21,6 +21,7 @@ require_model('almacen.php');
 require_model('articulo.php');
 require_model('articulo_proveedor.php');
 require_model('familia.php');
+require_model('fabricante.php');
 require_model('impuesto.php');
 require_model('regularizacion_stock.php');
 require_model('stock.php');
@@ -40,6 +41,7 @@ class ventas_articulo extends fs_controller
    public $stocks;
    public $equivalentes;
    public $regularizaciones;
+   public $fabricante;
 
    public function __construct()
    {
@@ -52,6 +54,7 @@ class ventas_articulo extends fs_controller
       $this->almacen = new almacen();
       $this->articulo = FALSE;
       $this->impuesto = new impuesto();
+      $this->fabricante= new fabricante();
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -194,6 +197,12 @@ class ventas_articulo extends fs_controller
             $this->articulo->codfamilia = $_POST['codfamilia'];
          }
          
+          $this->articulo->codfabricante = NULL;
+         if( isset($_POST['codfabricante']) )
+         {
+            $this->articulo->codfabricante = $_POST['codfabricante'];
+         }
+         
          /// ¿Existe ya ese código de barras?
          if($_POST['codbarras'] != '')
          {
@@ -259,6 +268,14 @@ class ventas_articulo extends fs_controller
             $this->familia = new familia();
          }
          
+         $this->fabricante = $this->articulo->get_fabricante();
+         if(!$this->fabricante)
+         {
+            $this->fabricante = new fabricante();
+           
+         }
+         
+              
          $this->stocks = $this->articulo->get_stock();
          /// metemos en un array los almacenes que no tengan stock de este producto
          $this->nuevos_almacenes = array();

@@ -161,4 +161,9 @@
       <nombre>articulos_pkey</nombre>
       <consulta>PRIMARY KEY (referencia)</consulta>
    </restriccion>
+    <columna>
+      <nombre>codfabricante</nombre>
+      <tipo>character varying(8)</tipo>
+      <nulo>YES</nulo>
+   </columna>
 </tabla>
