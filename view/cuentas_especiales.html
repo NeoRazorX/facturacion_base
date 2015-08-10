@@ -1,61 +1,75 @@
 {include="header"}
 
-<div class="table-responsive">
-   <table class="table table-condensed">
-      <thead>
-         <tr>
-            <th class="text-left">Identificador</th>
-            <th class="text-left">Descripción</th>
-            <th width="120"></th>
-         </tr>
-      </thead>
-      <tbody>
-         {loop="$fsc->cuenta_especial->all()"}
-         <form action="{$fsc->url()}" method="post" class="form">
-            <tr>
-                <td>
-                  <input class="form-control" type="text" name="idcuentaesp" value="{$value->idcuentaesp}" autocomplete="off"/>
-                </td>
-                <td>
-                    <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/>
-                </td>
-                <td class="text-right">
-                  <div class="btn-group">
-                     <a class="btn btn-sm btn-danger" href="{$fsc->url()}&delete={$value->idcuentaesp}" title="Eliminar">
-                        <span class="glyphicon glyphicon-trash"></span>
-                     </a>
-                     <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true; this.form.submit();" title="Guardar">
-                        <span class="glyphicon glyphicon-floppy-disk"></span>
-                     </button>
-                  </div>
-               </td>
-            </tr>
-         </form>  
-         {else}
-         <tr class="bg-warning">
-            <td colspan="3">Sin resultados</td>
-         </tr>
-         {/loop}
-         
-         {if="$fsc->query==''"}
-         <form action="{$fsc->url()}" method="post" class="form">
-            <tr class="bg-info">
-               <td>
-                  <input class="form-control" type="text" name="idcuentaesp" autocomplete="off"/>
-               </td>
-               <td>
-                  <input class="form-control" type="text" name="descripcion" autocomplete="off"/>
-               </td>
-               <td class="text-right">
-                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true; this.form.submit();" title="Guardar">
-                     <span class="glyphicon glyphicon-floppy-disk"></span>
-                  </button>
-               </td>
-            </tr>
-         </form>
-        {/if}
-        </tbody>
-    </table>
+<div class="container">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               Cuentas especiales
+               <a href="{$fsc->url()}" class='btn btn-xs btn-default'>
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+            </h1>
+            <p class="help-block">
+               Cada país tiene su plan contable, pero ¿Cómo puede saber
+               FacturaScripts cuál es la cuenta de clientes? ¿O la de {#FS_IVA#}?
+               Para solucionar este problema, cuando FacturaScripts necesita la
+               cuenta de clientes, lo que busca es la primera cuenta asociada a
+               la cuenta especial <b>CLIENT</b>. Así tú puedes elegir qué cuenta
+               usar.
+            </p>
+         </div>
+         <div class="table-responsive">
+            <table class="table table-condensed">
+               <thead>
+                  <tr>
+                     <th class="text-left" width="200">Identificador</th>
+                     <th class="text-left">Descripción</th>
+                     <th class="text-right" width="120">Acciones</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  {loop="$fsc->cuenta_especial->all()"}
+                  <form action="{$fsc->url()}" method="post" class="form">
+                     <input type="hidden" name="idcuentaesp" value="{$value->idcuentaesp}"/>
+                     <tr>
+                        <td><div class="form-control">{$value->idcuentaesp}</div></td>
+                        <td>
+                           <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/>
+                        </td>
+                        <td class="text-right">
+                           <div class="btn-group">
+                              <a class="btn btn-sm btn-danger" href="{$fsc->url()}&delete={$value->idcuentaesp}" title="Eliminar">
+                                 <span class="glyphicon glyphicon-trash"></span>
+                              </a>
+                              <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true; this.form.submit();" title="Guardar">
+                                 <span class="glyphicon glyphicon-floppy-disk"></span>
+                              </button>
+                           </div>
+                        </td>
+                     </tr>
+                  </form>  
+                  {/loop}
+                  <form action="{$fsc->url()}" method="post" class="form">
+                     <tr class="bg-info">
+                        <td>
+                           <input class="form-control" type="text" name="idcuentaesp" placeholder="Nuevo código" autocomplete="off"/>
+                        </td>
+                        <td>
+                           <input class="form-control" type="text" name="descripcion" placeholder="Nueva descripción" autocomplete="off"/>
+                        </td>
+                        <td class="text-right">
+                           <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true; this.form.submit();" title="Guardar">
+                              <span class="glyphicon glyphicon-floppy-disk"></span>
+                           </button>
+                        </td>
+                     </tr>
+                  </form>
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </div>
 </div>
 
 {include="footer"}

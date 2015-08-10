@@ -98,6 +98,7 @@
          {if="$fsc->query==''"}
          <span class="glyphicon glyphicon-sort-by-alphabet" aria-hidden="true"></span>
          <span class="hidden-xs">&nbsp; Todos</span>
+         <span class="badge">{$fsc->total_articulos()}</span>
          {else}
          <span class="glyphicon glyphicon-search"></span>
          <span class="hidden-xs">&nbsp; Resultados de "{$fsc->query}"</span>
@@ -197,10 +198,14 @@
          </tr>
          {/if}
          {loop="$fsc->resultados"}
-         <tr class="clickableRow{if="$value->bloqueado"} bg-danger{elseif="$value->stockfis<$value->stockmin"} bg-warning{/if}" href="{$value->url()}">
+         <tr class='clickableRow{if="$value->bloqueado"} bg-danger{elseif="$value->stockfis<$value->stockmin"} bg-warning{/if}' href='{$value->url()}'>
             <td>
-               {$value->codfamilia}
-               <a href="index.php?page=ventas_familia&cod={$value->codfamilia}" class="cancel_clickable" title="Ver más artículos de esta familia">[+]</a>
+               {if="is_null($value->codfamilia)"}
+                  <span>-</span>
+               {else}
+                  {$value->codfamilia}
+                  <a href="index.php?page=ventas_familia&cod={$value->codfamilia}" class="cancel_clickable" title="Ver más artículos de esta familia">[+]</a>
+               {/if}
             </td>
             <td>
                {if="is_null($value->codfabricante)"}

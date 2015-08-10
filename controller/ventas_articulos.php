@@ -208,10 +208,14 @@ class ventas_articulos extends fs_controller
       {
          if($this->con_stock)
          {
-            $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&codfabricante=".$this->codfabricante."&con_stock=TRUE&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
+            $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&codfabricante=".
+                    $this->codfabricante."&con_stock=TRUE&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
          }
          else
-            $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&codfabricante=".$this->codfabricante."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
+         {
+            $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&codfabricante=".
+                    $this->codfabricante."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
+         }
       }
       else if($this->query == '' AND $this->offset > 0)
       {
@@ -239,10 +243,14 @@ class ventas_articulos extends fs_controller
       {
          if($this->con_stock)
          {
-            $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&codfabricante=".$this->codfabricante."&con_stock=TRUE&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+            $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&codfabricante=".
+                    $this->codfabricante."&con_stock=TRUE&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
          }
          else
-            $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&codfabricante=".$this->codfabricante."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+         {
+            $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&codfabricante=".
+                    $this->codfabricante."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+         }
       }
       else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
       {
@@ -250,5 +258,16 @@ class ventas_articulos extends fs_controller
       }
       
       return $url;
+   }
+   
+   public function total_articulos()
+   {
+      $data = $this->db->select("SELECT COUNT(referencia) as total FROM articulos;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
    }
 }

@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -30,17 +30,12 @@ class cuentas_especiales extends fs_controller
    
    protected function process()
    {
-      $this->ppage = $this->page->get('contabilidad_cuentas');
       $this->cuenta_especial = new cuenta_especial();
       
-      if( isset($_POST['descripcion']) )
+      if( isset($_POST['idcuentaesp']) )
       {
-         /// si tenemos el id, buscamos el cuenta_especial y así lo modificamos
-         if( isset($_POST['idcuentaesp']) )
-         {
-            $cesp0 = $this->cuenta_especial->get($_POST['idcuentaesp']);
-         }
-         
+         /// crear/editar una cuentaesp
+         $cesp0 = $this->cuenta_especial->get($_POST['idcuentaesp']);
          if(!$cesp0)
          {
             $cesp0 = new cuenta_especial();
