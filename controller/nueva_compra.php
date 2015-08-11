@@ -111,6 +111,7 @@ class nueva_compra extends fs_controller
                   $this->proveedor_s->codproveedor = $this->proveedor_s->get_new_codigo();
                   $this->proveedor_s->nombre = $this->proveedor_s->razonsocial = $_POST['nuevo_proveedor'];
                   $this->proveedor_s->cifnif = $_POST['nuevo_dni'];
+                  $this->proveedor_s->acreedor = isset($_POST['acreedor']);
                   $this->proveedor_s->save();
                }
             }

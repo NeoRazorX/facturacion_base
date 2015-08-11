@@ -251,7 +251,7 @@ class ventas_articulo extends fs_controller
          
          if($this->articulo->bloqueado)
          {
-            $this->new_advice("Este artículo está bloqueado.");
+            $this->new_advice("Este artículo está bloqueado / obsoleto.");
          }
          
          /**

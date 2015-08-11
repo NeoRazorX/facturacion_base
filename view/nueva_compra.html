@@ -385,6 +385,11 @@
 </div>
 {else}
 <script type="text/javascript">
+   function acreedores_help()
+   {
+      alert('Los acreedores son todos aquellos proveedores a los que no les compramos mercancias. Por ejemplo: proveedor de internet, teléfono, bancos...');
+      return false;
+   }
    $(document).ready(function() {
       $("#modal_proveedor").modal('show');
       document.f_nueva_compra.ac_proveedor.focus();
@@ -440,6 +445,13 @@
                <div class="form-group">
                   {#FS_CIFNIF#}:
                   <input type="text" name="nuevo_dni" class="form-control" autocomplete="off"/>
+                  <label>
+                     <input type="checkbox" name="acreedor" value="TRUE"/>
+                     Es un <b>acreedor</b>
+                     <a href="#" onclick="return acreedores_help()">
+                        <span class="glyphicon glyphicon-question-sign"></span>
+                     </a>
+                  </label>
                </div>
             </div>
          </div>

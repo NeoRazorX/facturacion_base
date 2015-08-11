@@ -518,7 +518,7 @@ class informe_errores extends fs_controller
          /// comprobamos la tabla de stock
          if( $this->db->table_exists('stocks') )
          {
-            $this->db->exec("DELETE FROM stocks WHERE referencia NOT IN (SELECT referencia FROM articulos);");
+            $this->db->exec("DELETE FROM stocks s WHERE NOT EXISTS (SELECT referencia FROM articulos a WHERE a.referencia = s.referencia);");
          }
          
          $recargar = TRUE;
