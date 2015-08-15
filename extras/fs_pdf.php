@@ -24,6 +24,10 @@ require_once 'plugins/facturacion_base/extras/ezpdf/Cezpdf.php';
  */
 class fs_pdf
 {
+   /**
+    * Documento Cezpdf
+    * @var Cezpdf
+    */
    public $pdf;
    public $table_header;
    public $table_rows;
@@ -47,9 +51,9 @@ class fs_pdf
       $this->pdf->ezSetY($y);
    }
    
-   public function show()
+   public function show($filename = 'doc.pdf')
    {
-      $this->pdf->ezStream();
+      $this->pdf->ezStream( array('Content-Disposition' => $filename) );
    }
    
    public function save($filename)

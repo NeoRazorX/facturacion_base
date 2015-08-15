@@ -192,7 +192,7 @@ class ventas_articulo extends fs_controller
          }
          
          $this->articulo->codfamilia = NULL;
-         if( isset($_POST['codfamilia']) )
+         if($_POST['codfamilia'] != '')
          {
             $this->articulo->codfamilia = $_POST['codfamilia'];
          }

@@ -398,6 +398,10 @@ class ventas_imprimir extends fs_controller
             $pagina++;
          }
       }
+      else
+      {
+         $pdf_doc->pdf->ezText('¡'.ucfirst(FS_ALBARAN).' sin líneas!', 20);
+      }
       
       if($archivo)
       {
@@ -407,7 +411,7 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->save('tmp/'.FS_TMP_NAME.'enviar/'.$archivo);
       }
       else
-         $pdf_doc->show();
+         $pdf_doc->show(FS_ALBARAN.'_'.$this->albaran->codigo.'.pdf');
    }
    
    private function generar_pdf_factura($tipo='simple', $archivo=FALSE)
@@ -788,6 +792,10 @@ class ventas_imprimir extends fs_controller
             $pagina++;
          }
       }
+      else
+      {
+         $pdf_doc->pdf->ezText('¡'.ucfirst(FS_FACTURA).' sin líneas!', 20);
+      }
       
       if($archivo)
       {
@@ -797,7 +805,7 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->save('tmp/'.FS_TMP_NAME.'enviar/'.$archivo);
       }
       else
-         $pdf_doc->show();
+         $pdf_doc->show(FS_FACTURA.'_'.$this->factura->codigo.'.pdf');
    }
    
    private function enviar_email($doc, $tipo='simple')

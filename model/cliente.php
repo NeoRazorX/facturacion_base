@@ -238,8 +238,24 @@ class cliente extends fs_model
    {
       if( !isset(self::$regimenes_iva) )
       {
-         self::$regimenes_iva = array('General', 'Exento');
+         /// Si hay usa lista personalizada en fs_vars, la usamos
+         $fsvar = new fs_var();
+         $data = $fsvar->simple_get('cliente::regimenes_iva');
+         if($data)
+         {
+            self::$regimenes_iva = array();
+            foreach( explode(',', $data) as $d )
+            {
+               self::$regimenes_iva[] = trim($d);
+            }
+         }
+         else
+         {
+            /// sino usamos estos
+            self::$regimenes_iva = array('General', 'Exento');
+         }
          
+         /// además de añadir los que haya en la base de datos
          $data = $this->db->select("SELECT DISTINCT regimeniva FROM proveedores ORDER BY regimeniva ASC;");
          if($data)
          {

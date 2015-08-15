@@ -214,13 +214,15 @@
                      <div class="form-group">
                         <a href="{$fsc->familia->url()}">Familia</a>:
                         <select class="form-control" name="codfamilia">
-                        {loop="$fsc->familia->all()"}
-                           {if="$value->codfamilia===$fsc->articulo->codfamilia"}
-                           <option value="{$value->codfamilia}" selected="selected">{$value->nivel}{$value->descripcion}</option>
-                           {else}
-                           <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
-                           {/if}
-                        {/loop}
+                           <option value="">Ninguna</option>
+                           <option value="">-------</option>
+                           {loop="$fsc->familia->all()"}
+                              {if="$value->codfamilia===$fsc->articulo->codfamilia"}
+                              <option value="{$value->codfamilia}" selected="selected">{$value->nivel}{$value->descripcion}</option>
+                              {else}
+                              <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
+                              {/if}
+                           {/loop}
                         </select>
                      </div>
                   </div>
