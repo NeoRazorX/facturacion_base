@@ -21,6 +21,7 @@ require_model('agente.php');
 require_model('albaran_cliente.php');
 require_model('articulo.php');
 require_model('cliente.php');
+require_model('serie.php');
 
 class ventas_albaranes extends fs_controller
 {
@@ -28,11 +29,20 @@ class ventas_albaranes extends fs_controller
    public $articulo;
    public $buscar_lineas;
    public $cliente;
+   public $codagente;
+   public $codserie;
+   public $desde;
+   public $hasta;
    public $lineas;
+   public $mostrar;
+   public $num_resultados;
    public $offset;
-   public $pendientes;
+   public $order;
    public $resultados;
-
+   public $serie;
+   public $total_resultados;
+   public $total_resultados_txt;
+   
    public function __construct()
    {
       parent::__construct(__CLASS__, ucfirst(FS_ALBARANES).' de cliente', 'ventas', FALSE, TRUE, TRUE);
@@ -41,6 +51,19 @@ class ventas_albaranes extends fs_controller
    protected function process()
    {
       $albaran = new albaran_cliente();
+      $this->agente = new agente();
+      $this->serie = new serie();
+      
+      $this->mostrar = 'todo';
+      if( isset($_GET['mostrar']) )
+      {
+         $this->mostrar = $_GET['mostrar'];
+         setcookie('ventas_alb_mostrar', $this->mostrar, time()+FS_COOKIES_EXPIRE);
+      }
+      else if( isset($_COOKIE['ventas_alb_mostrar']) )
+      {
+         $this->mostrar = $_COOKIE['ventas_alb_mostrar'];
+      }
       
       $this->offset = 0;
       if( isset($_REQUEST['offset']) )
@@ -48,39 +71,40 @@ class ventas_albaranes extends fs_controller
          $this->offset = intval($_REQUEST['offset']);
       }
       
-      /// Usamos una cookie para recordar si el usuario quiere ver los pendientes
-      $this->pendientes = isset($_COOKIE['ventas_alb_ptes']);
-      if( isset($_GET['ptefactura']) )
+      $this->order = 'fecha DESC';
+      if( isset($_GET['order']) )
       {
-         $this->pendientes = ($_GET['ptefactura'] == 'TRUE');
-         
-         if($this->pendientes)
+         if($_GET['order'] == 'fecha_desc')
          {
-            setcookie('ventas_alb_ptes', 'TRUE', time()+FS_COOKIES_EXPIRE);
+            $this->order = 'fecha DESC';
          }
-         else
-            setcookie('ventas_alb_ptes', FALSE, time()-FS_COOKIES_EXPIRE);
+         else if($_GET['order'] == 'fecha_asc')
+         {
+            $this->order = 'fecha ASC';
+         }
+         else if($_GET['order'] == 'codigo_desc')
+         {
+            $this->order = 'codigo DESC';
+         }
+         else if($_GET['order'] == 'codigo_asc')
+         {
+            $this->order = 'codigo ASC';
+         }
+         
+         setcookie('ventas_alb_order', $this->order, time()+FS_COOKIES_EXPIRE);
+      }
+      else if( isset($_COOKIE['ventas_alb_order']) )
+      {
+         $this->order = $_COOKIE['ventas_alb_order'];
       }
       
       if( isset($_POST['buscar_lineas']) )
       {
          $this->buscar_lineas();
       }
-      else if( isset($_GET['codagente']) )
+      else if( isset($_REQUEST['buscar_cliente']) )
       {
-         $this->template = 'extension/ventas_albaranes_agente';
-         
-         $agente = new agente();
-         $this->agente = $agente->get($_GET['codagente']);
-         $this->resultados = $albaran->all_from_agente($_GET['codagente'], $this->offset);
-      }
-      else if( isset($_GET['codcliente']) )
-      {
-         $this->template = 'extension/ventas_albaranes_cliente';
-         
-         $cliente = new cliente();
-         $this->cliente = $cliente->get($_GET['codcliente']);
-         $this->resultados = $albaran->all_from_cliente($_GET['codcliente'], $this->offset);
+         $this->buscar_cliente();
       }
       else if( isset($_GET['ref']) )
       {
@@ -95,55 +119,102 @@ class ventas_albaranes extends fs_controller
       else
       {
          $this->share_extension();
+         $this->cliente = FALSE;
+         $this->codagente = '';
+         $this->codserie = '';
+         $this->desde = '';
+         $this->hasta = '';
+         $this->num_resultados = '';
+         $this->total_resultados = '';
+         $this->total_resultados_txt = '';
          
          if( isset($_POST['delete']) )
          {
             $this->delete_albaran();
          }
-         
-         if($this->query)
+         else if( isset($_REQUEST['query']) OR isset($_REQUEST['codagente']) OR isset($_REQUEST['codcliente']) )
          {
-            $this->pendientes = FALSE;
-            $this->resultados = $albaran->search($this->query, $this->offset);
+            $this->mostrar = 'buscar';
+            
+            if( isset($_REQUEST['codcliente']) )
+            {
+               if($_REQUEST['codcliente'] != '')
+               {
+                  $cli0 = new cliente();
+                  $this->cliente = $cli0->get($_REQUEST['codcliente']);
+               }
+            }
+            
+            if( isset($_REQUEST['codagente']) )
+            {
+               $this->codagente = $_REQUEST['codagente'];
+            }
+            
+            if( isset($_REQUEST['codserie']) )
+            {
+               $this->codserie = $_REQUEST['codserie'];
+               $this->desde = $_REQUEST['desde'];
+               $this->hasta = $_REQUEST['hasta'];
+            }
          }
-         else if($this->pendientes)
+         
+         if($this->mostrar == 'pendientes')
          {
-            $this->resultados = $albaran->all_ptefactura($this->offset);
+            $this->resultados = $albaran->all_ptefactura($this->offset, $this->order);
+            
+            if($this->offset == 0)
+            {
+               $this->total_resultados = 0;
+               $this->total_resultados_txt = 'Suma total de esta página:';
+               foreach($this->resultados as $alb)
+               {
+                  $this->total_resultados += $alb->total;
+               }
+            }
+         }
+         else if($this->mostrar == 'buscar')
+         {
+            $this->buscar();
          }
          else
-            $this->resultados = $albaran->all($this->offset);
+            $this->resultados = $albaran->all($this->offset, $this->order);
       }
+   }
+   
+   private function buscar_cliente()
+   {
+      /// desactivamos la plantilla HTML
+      $this->template = FALSE;
+      
+      $cli0 = new cliente();
+      $json = array();
+      foreach($cli0->search($_REQUEST['buscar_cliente']) as $cli)
+      {
+         $json[] = array('value' => $cli->nombre, 'data' => $cli->codcliente);
+      }
+      
+      header('Content-Type: application/json');
+      echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
    }
    
    public function anterior_url()
    {
       $url = '';
-      $extra = '';
-      
-      if( isset($_GET['codagente']) )
+      $codcliente = '';
+      if($this->cliente)
       {
-         $extra = '&codagente='.$_GET['codagente'];
-      }
-      else if( isset($_GET['codcliente']) )
-      {
-         $extra = '&codcliente='.$_GET['codcliente'];
-      }
-      else if( isset($_GET['ref']) )
-      {
-         $extra = '&ref='.$_GET['ref'];
-      }
-      else if($this->pendientes)
-      {
-         $extra = '&ptefactura=TRUE';
+         $codcliente = $this->cliente->codcliente;
       }
       
-      if($this->query != '' AND $this->offset > 0)
+      if($this->offset > 0)
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
-      }
-      else if($this->query == '' AND $this->offset > 0)
-      {
-         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
+         $url = $this->url()."&query=".$this->query
+                 ."&codserie=".$this->codserie
+                 ."&codagente=".$this->codagente
+                 ."&codcliente=".$codcliente
+                 ."&desde=".$this->desde
+                 ."&hasta=".$this->hasta
+                 ."&offset=".($this->offset-FS_ITEM_LIMIT);
       }
       
       return $url;
@@ -152,32 +223,21 @@ class ventas_albaranes extends fs_controller
    public function siguiente_url()
    {
       $url = '';
-      $extra = '';
-      
-      if( isset($_GET['codagente']) )
+      $codcliente = '';
+      if($this->cliente)
       {
-         $extra = '&codagente='.$_GET['codagente'];
-      }
-      else if( isset($_GET['codcliente']) )
-      {
-         $extra = '&codcliente='.$_GET['codcliente'];
-      }
-      else if( isset($_GET['ref']) )
-      {
-         $extra = '&ref='.$_GET['ref'];
-      }
-      else if($this->pendientes)
-      {
-         $extra = '&ptefactura=TRUE';
+         $codcliente = $this->cliente->codcliente;
       }
       
-      if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
+      if( count($this->resultados) == FS_ITEM_LIMIT )
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
-      }
-      else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
-      {
-         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+         $url = $this->url()."&query=".$this->query
+                 ."&codserie=".$this->codserie
+                 ."&codagente=".$this->codagente
+                 ."&codcliente=".$codcliente
+                 ."&desde=".$this->desde
+                 ."&hasta=".$this->hasta
+                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
       }
       
       return $url;
@@ -282,5 +342,81 @@ class ventas_albaranes extends fs_controller
       }
       else
          return 0;
+   }
+   
+   private function buscar()
+   {
+      $this->resultados = array();
+      $this->num_resultados = 0;
+      $query = $this->agente->no_html( strtolower($this->query) );
+      $sql = " FROM albaranescli ";
+      $where = 'WHERE ';
+      
+      if($this->query != '')
+      {
+         $sql .= $where;
+         if( is_numeric($query) )
+         {
+            $sql .= "(codigo LIKE '%".$query."%' OR numero2 LIKE '%".$query."%' OR observaciones LIKE '%".$query."%')";
+         }
+         else
+         {
+            $sql .= "(lower(codigo) LIKE '%".$query."%' OR lower(numero2) LIKE '%".$query."%' "
+                    . "OR lower(observaciones) LIKE '%".str_replace(' ', '%', $query)."%')";
+         }
+         $where = ' AND ';
+      }
+      
+      if($this->codagente != '')
+      {
+         $sql .= $where."codagente = ".$this->agente->var2str($this->codagente);
+         $where = ' AND ';
+      }
+      
+      if($this->cliente)
+      {
+         $sql .= $where."codcliente = ".$this->agente->var2str($this->cliente->codcliente);
+         $where = ' AND ';
+      }
+      
+      if($this->codserie != '')
+      {
+         $sql .= $where."codserie = ".$this->agente->var2str($this->codserie);
+         $where = ' AND ';
+      }
+      
+      if($this->desde != '')
+      {
+         $sql .= $where."fecha >= ".$this->agente->var2str($this->desde);
+         $where = ' AND ';
+      }
+      
+      if($this->hasta != '')
+      {
+         $sql .= $where."fecha >= ".$this->agente->var2str($this->hasta);
+         $where = ' AND ';
+      }
+      
+      $data = $this->db->select("SELECT COUNT(idalbaran) as total".$sql);
+      if($data)
+      {
+         $this->num_resultados = intval($data[0]['total']);
+         
+         $data2 = $this->db->select_limit("SELECT *".$sql."ORDER BY ".$this->order, FS_ITEM_LIMIT, $this->offset);
+         if($data2)
+         {
+            foreach($data2 as $d)
+            {
+               $this->resultados[] = new albaran_cliente($d);
+            }
+         }
+         
+         $data2 = $this->db->select("SELECT SUM(total) as total".$sql);
+         if($data2)
+         {
+            $this->total_resultados = floatval($data2[0]['total']);
+            $this->total_resultados_txt = 'Suma total de los resultados:';
+         }
+      }
    }
 }

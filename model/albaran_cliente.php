@@ -546,28 +546,33 @@ class albaran_cliente extends fs_model
          return FALSE;
    }
    
-   public function all($offset=0)
+   public function all($offset=0, $order='fecha DESC')
    {
       $albalist = array();
-      $albaranes = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
+      $sql = "SELECT * FROM ".$this->table_name." ORDER BY ".$order;
+      
+      $albaranes = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($albaranes)
       {
          foreach($albaranes as $a)
             $albalist[] = new albaran_cliente($a);
       }
+      
       return $albalist;
    }
    
-   public function all_ptefactura($offset=0, $order='ASC')
+   public function all_ptefactura($offset=0, $order='fecha ASC')
    {
       $albalist = array();
-      $albaranes = $this->db->select_limit("SELECT * FROM ".$this->table_name.
-              " WHERE ptefactura = true ORDER BY fecha ".$order.", codigo ".$order, FS_ITEM_LIMIT, $offset);
+      $sql = "SELECT * FROM ".$this->table_name." WHERE ptefactura = true ORDER BY ".$order;
+      
+      $albaranes = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($albaranes)
       {
          foreach($albaranes as $a)
             $albalist[] = new albaran_cliente($a);
       }
+      
       return $albalist;
    }
    
