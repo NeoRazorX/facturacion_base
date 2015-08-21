@@ -134,18 +134,7 @@ class ventas_facturas extends fs_controller
          
          if( isset($_GET['delete']) )
          {
-            $fact = $this->factura->get($_GET['delete']);
-            if($fact)
-            {
-               if( $fact->delete() )
-               {
-                  $this->new_message("Factura eliminada correctamente.");
-               }
-               else
-                  $this->new_error_msg("¡Imposible eliminar la factura!");
-            }
-            else
-               $this->new_error_msg("¡Factura no encontrada!");
+            $this->delete_factura();
          }
          else
          {
@@ -415,5 +404,35 @@ class ventas_facturas extends fs_controller
             }
          }
       }
+   }
+   
+   private function delete_factura()
+   {
+      $fact = $this->factura->get($_GET['delete']);
+      if($fact)
+      {
+         /// ¿Sumamos stock?
+         $art0 = new articulo();
+         foreach($fact->get_lineas() as $linea)
+         {
+            if( is_null($linea->idalbaran) )
+            {
+               $articulo = $art0->get($linea->referencia);
+               if($articulo)
+               {
+                  $articulo->sum_stock($fact->codalmacen, $linea->cantidad);
+               }
+            }
+         }
+         
+         if( $fact->delete() )
+         {
+            $this->new_message("Factura eliminada correctamente.");
+         }
+         else
+            $this->new_error_msg("¡Imposible eliminar la factura!");
+      }
+      else
+         $this->new_error_msg("Factura no encontrada.");
    }
 }

@@ -43,7 +43,9 @@ class compras_facturas extends fs_controller
       
       $this->offset = 0;
       if( isset($_GET['offset']) )
+      {
          $this->offset = intval($_GET['offset']);
+      }
       
       if( isset($_POST['buscar_lineas']) )
       {
@@ -81,18 +83,7 @@ class compras_facturas extends fs_controller
          
          if( isset($_GET['delete']) )
          {
-            $fact = $this->factura->get($_GET['delete']);
-            if($fact)
-            {
-               if( $fact->delete() )
-               {
-                  $this->new_message("Factura eliminada correctamente.");
-               }
-               else
-                  $this->new_error_msg("¡Imposible eliminar la factura!");
-            }
-            else
-               $this->new_error_msg("Factura no encontrada.");
+            $this->delete_factura();
          }
          
          if($this->query != '')
@@ -104,7 +95,9 @@ class compras_facturas extends fs_controller
             $this->resultados = $this->factura->all_sin_pagar($this->offset);
          }
          else
+         {
             $this->resultados = $this->factura->all($this->offset);
+         }
       }
    }
    
@@ -235,5 +228,35 @@ class compras_facturas extends fs_controller
       }
       else
          return 0;
+   }
+   
+   private function delete_factura()
+   {
+      $fact = $this->factura->get($_GET['delete']);
+      if($fact)
+      {
+         /// ¿Descontamos stock?
+         $art0 = new articulo();
+         foreach($fact->get_lineas() as $linea)
+         {
+            if( is_null($linea->idalbaran) )
+            {
+               $articulo = $art0->get($linea->referencia);
+               if($articulo)
+               {
+                  $articulo->sum_stock($fact->codalmacen, 0 - $linea->cantidad, TRUE);
+               }
+            }
+         }
+         
+         if( $fact->delete() )
+         {
+            $this->new_message("Factura eliminada correctamente.");
+         }
+         else
+            $this->new_error_msg("¡Imposible eliminar la factura!");
+      }
+      else
+         $this->new_error_msg("Factura no encontrada.");
    }
 }
