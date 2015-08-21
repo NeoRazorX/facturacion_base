@@ -31,7 +31,7 @@ class admin_almacenes extends fs_controller
       parent::__construct(__CLASS__, 'Almacenes', 'admin', TRUE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->almacen = new almacen();
       $this->pais = new pais();

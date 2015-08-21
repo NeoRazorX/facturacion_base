@@ -32,7 +32,7 @@ class ventas_fabricante extends fs_controller
       parent::__construct(__CLASS__, 'Familia', 'ventas', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);

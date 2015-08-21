@@ -56,7 +56,7 @@ class nueva_venta extends fs_controller
       parent::__construct(__CLASS__, 'nueva venta', 'ventas', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->cliente = new cliente();
       $this->cliente_s = FALSE;

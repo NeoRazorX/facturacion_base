@@ -102,8 +102,15 @@
          <div class="col-md-12">
             <h3 style="margin-bottom: 0px;">
                <a href="{$fsc->ppage->url()}">Facturas</a> /
-               <a href="{$fsc->factura->proveedor_url()}">{$fsc->factura->nombre}</a> /
-               {$fsc->factura->codigo}
+               <a href="{$fsc->factura->proveedor_url()}">{$fsc->factura->nombre}</a>
+               {if="$fsc->proveedor"}
+                  {if="$fsc->proveedor->nombre!=$fsc->factura->nombre"}
+                  <a href="#" class="btn btn-xs btn-default" onclick="alert('Proveedor conocido como: {$fsc->proveedor->nombre}')">
+                     <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                  </a>
+                  {/if}
+               {/if}
+               / {$fsc->factura->codigo}
             </h3>
             {if="$fsc->agente"}
             <p>Factura creada por <a href="{$fsc->agente->url()}">{$fsc->agente->get_fullname()}</a>.</p>

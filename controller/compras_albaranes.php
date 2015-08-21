@@ -37,7 +37,7 @@ class compras_albaranes extends fs_controller
       parent::__construct(__CLASS__, ucfirst(FS_ALBARANES).' de proveedor', 'compras', FALSE, TRUE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $albaran = new albaran_proveedor();
       

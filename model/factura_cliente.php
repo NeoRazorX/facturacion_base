@@ -912,7 +912,7 @@ class factura_cliente extends fs_model
       return $faclist;
    }
    
-   public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT, $order='vencimeinto ASC')
+   public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT, $order='vencimiento ASC')
    {
       $faclist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE pagada = false ORDER BY ".$order;

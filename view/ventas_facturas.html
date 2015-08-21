@@ -253,7 +253,7 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr class="clickableRow{if="$value->vencida()"} bg-danger{elseif="$value->total<=0"} bg-warning{/if}" href="{$value->url()}">
+      <tr class="clickableRow{if="$value->vencida()"} danger{elseif="$value->pagada"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}">
          <td class="text-center">
             {if="$value->pagada"}
             <span class="glyphicon glyphicon-ok" title="La {#FS_FACTURA#} está pagada"></span>
@@ -287,6 +287,10 @@
          <td></td>
          <td></td>
          <td colspan="6">Ninguna {#FS_FACTURA#} encontrada. Pulsa <b>Nueva</b> para crear una.</td>
+         {if="$fsc->codagente!==''"}
+         <td></td>
+         <td></td>
+         {/if}
       </tr>
       {/loop}
       {if="$fsc->total_resultados!==''"}
@@ -332,16 +336,16 @@
          </div>
          <div class="modal-body">
             <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=fecha_desc" class="btn btn-sm btn-block btn-default{if="$fsc->order=='fecha DESC'"} active{/if}">
-               Ordenar por fecha descendente
+               Fecha <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
             </a>
             <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=fecha_asc" class="btn btn-sm btn-block btn-default{if="$fsc->order=='fecha ASC'"} active{/if}">
-               Ordenar por fecha ascendente
+               Fecha <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
             </a>
             <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=vencimiento_desc" class="btn btn-sm btn-block btn-default{if="$fsc->order=='vencimiento DESC'"} active{/if}">
-               Ordenar por vencimiento descendente
+               Vencimiento <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
             </a>
             <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=vencimiento_asc" class="btn btn-sm btn-block btn-default{if="$fsc->order=='vencimiento ASC'"} active{/if}">
-               Ordenar por vencimiento ascendente
+               Vencimiento <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
             </a>
          </div>
       </div>

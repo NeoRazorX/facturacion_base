@@ -48,7 +48,7 @@ class ventas_articulo extends fs_controller
       parent::__construct(__CLASS__, 'Articulo', 'ventas', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $articulo = new articulo();
       $this->almacen = new almacen();
@@ -272,10 +272,8 @@ class ventas_articulo extends fs_controller
          if(!$this->fabricante)
          {
             $this->fabricante = new fabricante();
-           
          }
          
-              
          $this->stocks = $this->articulo->get_stock();
          /// metemos en un array los almacenes que no tengan stock de este producto
          $this->nuevos_almacenes = array();

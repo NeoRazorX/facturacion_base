@@ -44,7 +44,7 @@ class ventas_cliente extends fs_controller
       parent::__construct(__CLASS__, 'Cliente', 'ventas', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->ppage = $this->page->get('ventas_clientes');
       $this->agente = new agente();
@@ -296,7 +296,7 @@ class ventas_cliente extends fs_controller
       
       if( $this->db->table_exists('facturascli') )
       {
-         $data = $this->db->select("SELECT * FROM facturascli WHERE codcliente = '".$this->cliente->codcliente."';");
+         $data = $this->db->select_limit("SELECT * FROM facturascli WHERE codcliente = '".$this->cliente->codcliente."'", 5, 0);
          if($data)
          {
             $tiene = TRUE;

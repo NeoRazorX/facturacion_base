@@ -115,6 +115,7 @@
                   <tr>
                      <th class="text-left">Código + Nombre</th>
                      <th class="text-left">{#FS_CIFNIF#}</th>
+                     <th class="text-left">email</th>
                      <th class="text-left">Observaciones</th>
                      <th class="text-right">Grupo</th>
                   </tr>
@@ -123,12 +124,13 @@
                <tr class="clickableRow" href="{$value->url()}">
                   <td><a href="{$value->url()}">{$value->codcliente}</a> {$value->nombre}</td>
                   <td>{$value->cifnif}</td>
+                  <td>{$value->email}</td>
                   <td>{$value->observaciones_resume()}</td>
                   <td class="text-right">{$fsc->nombre_grupo($value->codgrupo)}</td>
                </tr>
                {else}
                <tr class="bg-warning">
-                  <td colspan="4">Ningún cliente encontrado. Pulse el botón <b>Nuevo</b> para crear uno.</td>
+                  <td colspan="5">Ningún cliente encontrado. Pulse el botón <b>Nuevo</b> para crear uno.</td>
                </tr>
                {/loop}
             </table>

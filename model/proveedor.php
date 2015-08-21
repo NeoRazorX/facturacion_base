@@ -53,6 +53,7 @@ class proveedor extends fs_model
     * Los cambios en esta propiedad ya no se guardan en la base de datos.
     * Usa razonsocial.
     * @var type 
+    * @deprecated since version 2015.038
     */
    public $nombrecomercial;
    

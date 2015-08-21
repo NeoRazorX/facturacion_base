@@ -48,7 +48,7 @@ class ventas_albaranes extends fs_controller
       parent::__construct(__CLASS__, ucfirst(FS_ALBARANES).' de cliente', 'ventas', FALSE, TRUE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $albaran = new albaran_cliente();
       $this->agente = new agente();
@@ -132,9 +132,12 @@ class ventas_albaranes extends fs_controller
          {
             $this->delete_albaran();
          }
-         else if( isset($_REQUEST['query']) OR isset($_REQUEST['codagente']) OR isset($_REQUEST['codcliente']) )
+         else
          {
-            $this->mostrar = 'buscar';
+            if( isset($_REQUEST['codagente']) OR isset($_REQUEST['codcliente']) )
+            {
+               $this->mostrar = 'buscar';
+            }
             
             if( isset($_REQUEST['codcliente']) )
             {
@@ -208,7 +211,8 @@ class ventas_albaranes extends fs_controller
       
       if($this->offset > 0)
       {
-         $url = $this->url()."&query=".$this->query
+         $url = $this->url()."&mostrar=".$this->mostrar
+                 ."&query=".$this->query
                  ."&codserie=".$this->codserie
                  ."&codagente=".$this->codagente
                  ."&codcliente=".$codcliente
@@ -231,7 +235,8 @@ class ventas_albaranes extends fs_controller
       
       if( count($this->resultados) == FS_ITEM_LIMIT )
       {
-         $url = $this->url()."&query=".$this->query
+         $url = $this->url()."&mostrar=".$this->mostrar
+                 ."&query=".$this->query
                  ."&codserie=".$this->codserie
                  ."&codagente=".$this->codagente
                  ."&codcliente=".$codcliente
@@ -393,7 +398,7 @@ class ventas_albaranes extends fs_controller
       
       if($this->hasta != '')
       {
-         $sql .= $where."fecha >= ".$this->agente->var2str($this->hasta);
+         $sql .= $where."fecha <= ".$this->agente->var2str($this->hasta);
          $where = ' AND ';
       }
       
@@ -402,7 +407,7 @@ class ventas_albaranes extends fs_controller
       {
          $this->num_resultados = intval($data[0]['total']);
          
-         $data2 = $this->db->select_limit("SELECT *".$sql."ORDER BY ".$this->order, FS_ITEM_LIMIT, $this->offset);
+         $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$this->order, FS_ITEM_LIMIT, $this->offset);
          if($data2)
          {
             foreach($data2 as $d)

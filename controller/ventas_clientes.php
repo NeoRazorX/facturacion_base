@@ -40,7 +40,7 @@ class ventas_clientes extends fs_controller
       parent::__construct(__CLASS__, 'Clientes', 'ventas', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->cliente = new cliente();
       $this->grupo = new grupo_clientes();

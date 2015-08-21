@@ -42,7 +42,7 @@ class ventas_articulos extends fs_controller
       parent::__construct(__CLASS__, 'Artículos', 'ventas', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $articulo = new articulo();
       $this->familia = new familia();

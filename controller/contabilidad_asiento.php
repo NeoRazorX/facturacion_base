@@ -40,7 +40,7 @@ class contabilidad_asiento extends fs_controller
       parent::__construct(__CLASS__, 'Asiento', 'contabilidad', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->asiento = FALSE;
       $this->ppage = $this->page->get('contabilidad_asientos');

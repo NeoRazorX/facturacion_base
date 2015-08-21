@@ -55,7 +55,7 @@ class ventas_albaran extends fs_controller
       parent::__construct(__CLASS__, FS_ALBARAN.' de cliente', 'ventas', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->ppage = $this->page->get('ventas_albaranes');
       $this->agente = FALSE;

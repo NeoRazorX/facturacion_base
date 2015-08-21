@@ -44,7 +44,7 @@ class informe_errores extends fs_controller
       parent::__construct(__CLASS__, 'Errores', 'informes', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->ajax = FALSE;
       $this->ejercicio = new ejercicio();

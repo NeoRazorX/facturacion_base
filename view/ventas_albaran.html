@@ -124,8 +124,15 @@
          <div class="col-md-12">
             <h3 class="text-capitalize" style="margin-bottom: 0px;">
                <a href="{$fsc->ppage->url()}">{#FS_ALBARANES#}</a> /
-               <a href="{$fsc->albaran->cliente_url()}">{$fsc->albaran->nombrecliente}</a> /
-               {$fsc->albaran->codigo}
+               <a href="{$fsc->albaran->cliente_url()}">{$fsc->albaran->nombrecliente}</a>
+               {if="$fsc->cliente_s"}
+                  {if="$fsc->cliente_s->nombre!=$fsc->albaran->nombrecliente"}
+                  <a href="#" class="btn btn-xs btn-default" onclick="alert('Cliente conocido como: {$fsc->cliente_s->nombre}')">
+                     <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                  </a>
+                  {/if}
+               {/if}
+               / {$fsc->albaran->codigo}
             </h3>
             {if="$fsc->agente"}
             <p>

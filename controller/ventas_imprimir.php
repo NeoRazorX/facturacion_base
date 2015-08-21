@@ -41,7 +41,7 @@ class ventas_imprimir extends fs_controller
       parent::__construct(__CLASS__, 'imprimir', 'ventas', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->albaran = FALSE;
       $this->cliente = FALSE;

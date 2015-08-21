@@ -45,7 +45,7 @@ class nueva_compra extends fs_controller
       parent::__construct(__CLASS__, 'nueva compra', 'compras', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->articulo_prov = new articulo_proveedor();
       $this->familia = new familia();

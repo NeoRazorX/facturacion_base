@@ -112,8 +112,15 @@
          <div class="col-md-12">
             <h3 style="margin-bottom: 0px;">
                <a href="{$fsc->ppage->url()}" class="text-capitalize">{#FS_FACTURAS#}</a> /
-               <a href="{$fsc->factura->cliente_url()}">{$fsc->factura->nombrecliente}</a> /
-               {$fsc->factura->codigo}
+               <a href="{$fsc->factura->cliente_url()}">{$fsc->factura->nombrecliente}</a>
+               {if="$fsc->cliente"}
+                  {if="$fsc->cliente->nombre!=$fsc->factura->nombrecliente"}
+                  <a href="#" class="btn btn-xs btn-default" onclick="alert('Cliente conocido como: {$fsc->cliente->nombre}')">
+                     <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                  </a>
+                  {/if}
+               {/if}
+               / {$fsc->factura->codigo}
             </h3>
             {if="$fsc->agente"}
             <p>Factura creada por <a href="{$fsc->agente->url()}">{$fsc->agente->get_fullname()}</a>.</p>

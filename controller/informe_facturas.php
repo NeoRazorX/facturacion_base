@@ -41,7 +41,7 @@ class informe_facturas extends fs_controller
       parent::__construct(__CLASS__, 'Facturas', 'informes', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->agente = new agente();
       $this->cliente = new cliente();

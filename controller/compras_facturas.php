@@ -37,7 +37,7 @@ class compras_facturas extends fs_controller
       parent::__construct(__CLASS__, 'Facturas de proveedor', 'compras', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->factura = new factura_proveedor();
       

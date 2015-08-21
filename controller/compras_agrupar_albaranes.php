@@ -47,7 +47,7 @@ class compras_agrupar_albaranes extends fs_controller
       parent::__construct(__CLASS__, 'Agrupar '.FS_ALBARANES, 'compras', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->albaran = new albaran_proveedor();
       $this->codserie = NULL;

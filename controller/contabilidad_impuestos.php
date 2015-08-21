@@ -29,7 +29,7 @@ class contabilidad_impuestos extends fs_controller
       parent::__construct(__CLASS__, 'Impuestos', 'contabilidad', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->impuesto = new impuesto();
       

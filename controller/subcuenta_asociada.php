@@ -41,7 +41,7 @@ class subcuenta_asociada extends fs_controller
       parent::__construct(__CLASS__, 'Asignar subcuenta...', 'contabilidad', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->tipo = FALSE;
       $this->subcuenta = FALSE;

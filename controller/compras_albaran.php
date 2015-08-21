@@ -53,7 +53,7 @@ class compras_albaran extends fs_controller
       parent::__construct(__CLASS__, FS_ALBARAN.' de proveedor', 'compras', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->ppage = $this->page->get('compras_albaranes');
       $this->agente = FALSE;

@@ -38,7 +38,7 @@ class tpv_caja extends fs_controller
       parent::__construct(__CLASS__, 'Cajas', 'TPV', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);

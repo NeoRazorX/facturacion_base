@@ -45,7 +45,7 @@ class contabilidad_ejercicio extends fs_controller
       parent::__construct(__CLASS__, 'Ejercicio', 'contabilidad', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       /// cargamos las putas secuencias para que se actualicen.
       /// Abanq/Eneboo, yo te maldigooooo!!!!!!!!!!!!!!!!!!!!!!

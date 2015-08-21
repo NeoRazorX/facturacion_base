@@ -39,7 +39,7 @@ class compras_imprimir extends fs_controller
       parent::__construct(__CLASS__, 'imprimir', 'compras', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->albaran = FALSE;
       $this->articulo_proveedor = new articulo_proveedor();

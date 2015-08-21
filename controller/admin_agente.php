@@ -33,7 +33,7 @@ class admin_agente extends fs_controller
       parent::__construct(__CLASS__, 'Empleado', 'admin', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->ppage = $this->page->get('admin_agentes');
       

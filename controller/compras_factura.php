@@ -34,13 +34,14 @@ class compras_factura extends fs_controller
    public $factura;
    public $forma_pago;
    public $mostrar_boton_pagada;
+   public $proveedor;
    
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Factura de proveedor', 'compras', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->ppage = $this->page->get('compras_facturas');
       $this->agente = FALSE;
@@ -48,6 +49,7 @@ class compras_factura extends fs_controller
       $factura = new factura_proveedor();
       $this->factura = FALSE;
       $this->forma_pago = new forma_pago();
+      $this->proveedor = FALSE;
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -107,6 +109,17 @@ class compras_factura extends fs_controller
       {
          $this->page->title = $this->factura->codigo;
          
+         /// cargamos el agente
+         if( !is_null($this->factura->codagente) )
+         {
+            $agente = new agente();
+            $this->agente = $agente->get($this->factura->codagente);
+         }
+         
+         /// cargamos el proveedor
+         $proveedor = new proveedor();
+         $this->proveedor = $proveedor->get($this->factura->codproveedor);
+         
          if( isset($_GET['gen_asiento']) AND isset($_GET['petid']) )
          {
             if( $this->duplicated_petition($_GET['petid']) )
@@ -129,13 +142,6 @@ class compras_factura extends fs_controller
          
          /// comprobamos la factura
          $this->factura->full_test();
-         
-         /// cargamos el agente
-         if( !is_null($this->factura->codagente) )
-         {
-            $agente = new agente();
-            $this->agente = $agente->get($this->factura->codagente);
-         }
       }
       else
          $this->new_error_msg("¡Factura de proveedor no encontrada!");

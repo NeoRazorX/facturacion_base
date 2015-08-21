@@ -28,7 +28,7 @@ class cuentas_especiales extends fs_controller
       parent::__construct(__CLASS__, 'Cuentas Especiales', 'contabilidad', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->cuenta_especial = new cuenta_especial();
       

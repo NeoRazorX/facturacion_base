@@ -33,7 +33,7 @@ class informe_albaranes extends fs_controller
       parent::__construct(__CLASS__, ucfirst(FS_ALBARANES), 'informes', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       /// declaramos los objetos sólo para asegurarnos de que existen las tablas
       $albaran_cli = new albaran_cliente();
