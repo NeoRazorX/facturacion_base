@@ -36,7 +36,7 @@ class factura_cliente extends fs_model
    public $idfactura;
    
    /**
-    * Asiento asociado.
+    * ID del asiento relacionado, si lo hay.
     * @var type 
     */
    public $idasiento;
@@ -45,19 +45,25 @@ class factura_cliente extends fs_model
     * Sin uso.
     * @var type 
     */
-   public $idpagodevol;
+   private $idpagodevol;
    
    /**
     * Todavía sin uso.
     * @var type 
     */
-   public $idfacturarect;
+   private $idfacturarect;
    
    /**
-    * Código único de la factura.
+    * Código único de la factura. Para humanos.
     * @var type 
     */
    public $codigo;
+   
+   /**
+    * Número de la factura.
+    * Único dentro de la serie+ejercicio.
+    * @var type 
+    */
    public $numero;
    
    /**
@@ -70,9 +76,24 @@ class factura_cliente extends fs_model
     * Todavía sin uso.
     * @var type 
     */
-   public $codigorect;
+   private $codigorect;
+   
+   /**
+    * Ejercicio relacionado. El que corresponde a la fecha.
+    * @var type 
+    */
    public $codejercicio;
+   
+   /**
+    * Serie relacionada.
+    * @var type 
+    */
    public $codserie;
+   
+   /**
+    * Almacén del que sale la mercancía.
+    * @var type 
+    */
    public $codalmacen;
    
    /**
@@ -80,9 +101,19 @@ class factura_cliente extends fs_model
     * @var type 
     */
    public $codpago;
+   
+   /**
+    * Divisa de la factura.
+    * @var type 
+    */
    public $coddivisa;
    public $fecha;
    public $hora;
+   
+   /**
+    * Código identificador del cliente de la factura.
+    * @var type 
+    */
    public $codcliente;
    public $nombrecliente;
    public $cifnif;
@@ -93,15 +124,38 @@ class factura_cliente extends fs_model
    
    /**
     * ID de la dirección en dirclientes.
+    * Modelo direccion_cliente.
     * @var type 
     */
    public $coddir;
    
    public $codpostal;
    public $codpais;
+   
+   /**
+    * Empleado que ha creado la factura.
+    * Modelo agente.
+    * @var type 
+    */
    public $codagente;
+   
+   /**
+    * Suma de los pvptotal de las líneas.
+    * Es el total antes de impuestos.
+    * @var type 
+    */
    public $neto;
+   
+   /**
+    * Suma total del IVA de las líneas.
+    * @var type 
+    */
    public $totaliva;
+   
+   /**
+    * Suma total de la factura, con impuestos.
+    * @var type 
+    */
    public $total;
    
    /**
@@ -110,8 +164,19 @@ class factura_cliente extends fs_model
     * Ni siquiera hace falta rellenarlo, al hacer save() se calcula el valor.
     * @var type 
     */
-   public $totaleuros;
+   private $totaleuros;
+   
+   /**
+    * % de retención IRPF de la factura.
+    * Puede variar en cada línea.
+    * @var type 
+    */
    public $irpf;
+   
+   /**
+    * Suma total de retenciones IRPF de las líneas.
+    * @var type 
+    */
    public $totalirpf;
    
    /**
@@ -119,15 +184,25 @@ class factura_cliente extends fs_model
     * @var type 
     */
    public $porcomision;
+   
+   /**
+    * Tasa de conversión a Euros de la divisa de la factura.
+    * @var type 
+    */
    public $tasaconv;
    
    /**
     * Sin uso.
     * @var type 
     */
-   public $recfinanciero;
+   private $recfinanciero;
    
+   /**
+    * Suma del recargo de equivalencia de las líneas.
+    * @var type 
+    */
    public $totalrecargo;
+   
    public $observaciones;
    public $pagada;
    
@@ -135,25 +210,25 @@ class factura_cliente extends fs_model
     * Sin uso.
     * @var type 
     */
-   public $deabono;
+   private $deabono;
    
    /**
     * Sin uso.
     * @var type 
     */
-   public $automatica;
+   private $automatica;
    
    /**
     * Sin uso.
     * @var type 
     */
-   public $editable;
+   private $editable;
    
    /**
     * Sin uso.
     * @var type 
     */
-   public $nogenerarasiento;
+   private $nogenerarasiento;
    
    /**
     * Fecha de vencimiento de la factura.
@@ -355,6 +430,11 @@ class factura_cliente extends fs_model
       return $linea->all_from_factura($this->idfactura);
    }
    
+   /**
+    * Devuelve las líneas de IVA de la factura.
+    * Si no hay, las crea.
+    * @return \linea_iva_factura_cliente
+    */
    public function get_lineas_iva()
    {
       $linea_iva = new linea_iva_factura_cliente();
@@ -797,7 +877,7 @@ class factura_cliente extends fs_model
                     ", nogenerarasiento = ".$this->var2str($this->nogenerarasiento).
                     ", hora = ".$this->var2str($this->hora).
                     ", vencimiento = ".$this->var2str($this->vencimiento).
-                    " WHERE idfactura = ".$this->var2str($this->idfactura).";";
+                    "  WHERE idfactura = ".$this->var2str($this->idfactura).";";
             
             return $this->db->exec($sql);
          }

@@ -29,39 +29,191 @@ require_model('serie.php');
  */
 class factura_proveedor extends fs_model
 {
-   public $automatica;
+   /**
+    * Clave primaria.
+    * @var type 
+    */
+   public $idfactura;
+   
+   /**
+    * Todavía sin uso.
+    * @var type 
+    */
+   private $idfacturarect;
+   
+   /**
+    * Todavía sin uso.
+    * @var type 
+    */
+   private $idpagodevol;
+   
+   /**
+    * ID del asiento relacionado, si lo hay.
+    * @var type 
+    */
+   public $idasiento;
+   
+   /**
+    * Todavía sin uso.
+    * @var type 
+    */
+   private $automatica;
+   
    public $cifnif;
+   
+   /**
+    * Empleado que ha creado la factura.
+    * Modelo agente.
+    * @var type 
+    */
    public $codagente;
+   
+   /**
+    * Almacén en el que entra la mercancía.
+    * @var type 
+    */
    public $codalmacen;
+   
+   /**
+    * Divisa de la factura.
+    * @var type 
+    */
    public $coddivisa;
+   
+   /**
+    * Ejercicio relacionado. El que corresponde a la fecha.
+    * @var type 
+    */
    public $codejercicio;
+   
+   /**
+    * Código único de la factura. Para humanos.
+    * @var type 
+    */
    public $codigo;
-   public $codigorect;
+   
+   /**
+    * Todavía sin uso.
+    * @var type 
+    */
+   private $codigorect;
+   
+   /**
+    * Forma d epago usada.
+    * @var type 
+    */
    public $codpago;
+   
+   /**
+    * Proveedor de la factura.
+    * @var type 
+    */
    public $codproveedor;
+   
+   /**
+    * Serie de la factura.
+    * @var type 
+    */
    public $codserie;
-   public $deabono;
-   public $editable;
+   
+   /**
+    * Todavía sin uso.
+    * @var type 
+    */
+   private $deabono;
+   
+   /**
+    * Todavía sin uso.
+    * @var type 
+    */
+   private $editable;
+   
    public $fecha;
    public $hora;
-   public $idasiento;
-   public $idfactura;
-   public $idfacturarect;
-   public $idpagodevol;
+   
+   /**
+    * % de retención IRPF de la factura.
+    * Cada línea puede tener uno distinto.
+    * @var type 
+    */
    public $irpf;
+   
+   /**
+    * Suma total antes de impuestos.
+    * @var type 
+    */
    public $neto;
-   public $nogenerarasiento;
+   
+   /**
+    * Todavía sin uso.
+    * @var type 
+    */
+   private $nogenerarasiento;
+   
+   /**
+    * Nombre del proveedor.
+    * @var type 
+    */
    public $nombre;
+   
+   /**
+    * Número de la factura.
+    * Único dentro de serie+ejercicio.
+    * @var type 
+    */
    public $numero;
+   
+   /**
+    * Número de factura del proveedor, si lo hay.
+    * @var type 
+    */
    public $numproveedor;
+   
    public $observaciones;
    public $pagada;
-   public $recfinanciero;
+   
+   /**
+    * Todavía sin uso.
+    * @var type 
+    */
+   private $recfinanciero;
+   
+   /**
+    * Tasa de conversión a Euros de la divisa de la factura.
+    * @var type 
+    */
    public $tasaconv;
+   
+   /**
+    * Importe total de la factura, con impuestos.
+    * @var type 
+    */
    public $total;
-   public $totaleuros;
+   
+   /**
+    * totaleuros = total*tasaconv
+    * Esto es para dar compatibilidad a Eneboo. Fuera de eso, no tiene sentido.
+    * Ni siquiera hace falta rellenarlo, al hacer save() se calcula el valor.
+    * @var type 
+    */
+   private $totaleuros;
+   
+   /**
+    * Suma total de retenciones IRPF de las líneas.
+    * @var type 
+    */
    public $totalirpf;
+   
+   /**
+    * Suma total del IVA de las líneas.
+    * @var type 
+    */
    public $totaliva;
+   
+   /**
+    * Suma del recargo de equivalencia de las líneas.
+    * @var type 
+    */
    public $totalrecargo;
    
    public function __construct($f=FALSE)
@@ -215,6 +367,11 @@ class factura_proveedor extends fs_model
       return $linea->all_from_factura($this->idfactura);
    }
    
+   /**
+    * Devuelve las líneas de IVA de la factura.
+    * Si no hay, las crea.
+    * @return \linea_iva_factura_proveedor
+    */
    public function get_lineas_iva()
    {
       $linea_iva = new linea_iva_factura_proveedor();

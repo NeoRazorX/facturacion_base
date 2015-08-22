@@ -172,7 +172,7 @@ class familia extends fs_model
       $famlist = $this->cache->get_array('m_familia_all');
       if(!$famlist)
       {
-         $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY descripcion ASC;");
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY lower(descripcion) ASC;");
          if($data)
          {
             foreach($data as $d)
@@ -218,7 +218,7 @@ class familia extends fs_model
    {
       $famlist = array();
       
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE madre IS NULL ORDER BY descripcion ASC;");
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE madre IS NULL ORDER BY lower(descripcion) ASC;");
       if($data)
       {
          foreach($data as $d)
