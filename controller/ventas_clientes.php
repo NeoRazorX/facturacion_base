@@ -34,19 +34,50 @@ class ventas_clientes extends fs_controller
    public $resultados;
    public $serie;
    public $tarifa;
+   public $ct_setup;
    
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Clientes', 'ventas', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->cliente = new cliente();
       $this->grupo = new grupo_clientes();
       $this->pais = new pais();
       $this->serie = new serie();
       $this->tarifa = new tarifa();
+     
+       /// cargamos la configuración
+      $fsvar = new fs_var();
+      $this->ct_setup = $fsvar->array_get(
+         array(
+            'ct_nombre' => 0,
+            'ct_nombre_req' => 0,
+            'ct_cifnif' => 0,
+            'ct_cifnif_req' => 0,
+            'ct_direccion' => 0,
+            'ct_direccion_req' => 0,
+            'ct_codpostal' => 0,
+            'ct_codpostal_req' => 0,
+            'ct_pais' => 0,
+            'ct_pais_req' => 0,
+            'ct_provincia' => 0,
+            'ct_provincia_req' => 0,
+            'ct_ciudad' => 0,
+            'ct_ciudad_req' => 0,
+            'ct_telefono1' => 0,
+            'ct_telefono1_req' => 0,
+            'ct_telefono2' => 0,
+            'ct_telefono2_req' => 0,
+            'ct_grupo' => 0,
+            'ct_grupo_req' => 0, 
+            'ct_grupo_pred' => 0,
+            
+         ),
+         FALSE
+      );
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -130,15 +161,11 @@ class ventas_clientes extends fs_controller
             $cliente->nombre = $_POST['nombre'];
             $cliente->razonsocial = $_POST['nombre'];
             $cliente->cifnif = $_POST['cifnif'];
+            $cliente->telefono1 = $_POST['telefono1'];
+            $cliente->telefono2 = $_POST['telefono2'];
             $cliente->codserie = $this->empresa->codserie;
-            
-            if( isset($_POST['scodgrupo']) )
-            {
-               if($_POST['scodgrupo'] != '')
-               {
-                  $cliente->codgrupo = $_POST['scodgrupo'];
-               }
-            }
+            $cliente->codgrupo = $_POST['scodgrupo'];
+
             
             if( $cliente->save() )
             {
