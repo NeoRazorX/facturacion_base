@@ -245,7 +245,7 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr class="clickableRow{if="$value->total<=0"} warning{/if}" href="{$value->url()}">
+      <tr class="clickableRow{if="$value->pagada"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}">
          <td class="text-center">
             {if="$value->pagada"}
             <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
