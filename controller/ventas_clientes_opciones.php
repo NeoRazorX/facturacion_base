@@ -19,7 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('grupo_clientes.php');
+require_model('cliente.php');
+
 /**
  * Description of opciones_servicios
  *
@@ -27,9 +28,9 @@ require_model('grupo_clientes.php');
  */
 class ventas_clientes_opciones extends fs_controller
 {
-   public $allow_delete;
-   public $ct_setup;
+   public $nuevocli_setup;
    public $grupo;
+   
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Opciones', 'clientes', FALSE, FALSE);
@@ -37,83 +38,53 @@ class ventas_clientes_opciones extends fs_controller
    
    protected function private_core()
    {
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
-      $this->grupo = new grupo_clientes();
-      $this->share_extensions();
-      
       /// cargamos la configuración
       $fsvar = new fs_var();
-      $this->ct_setup = $fsvar->array_get(
+      $this->nuevocli_setup = $fsvar->array_get(
          array(
-            'ct_nombre' => 0,
-            'ct_nombre_req' => 0,
-            'ct_cifnif' => 0,
-            'ct_cifnif_req' => 0,
-            'ct_direccion' => 0,
-            'ct_direccion_req' => 0,
-            'ct_codpostal' => 0,
-            'ct_codpostal_req' => 0,
-            'ct_pais' => 0,
-            'ct_pais_req' => 0,
-            'ct_provincia' => 0,
-            'ct_provincia_req' => 0,
-            'ct_ciudad' => 0,
-            'ct_ciudad_req' => 0,
-            'ct_telefono1' => 0,
-            'ct_telefono1_req' => 0,
-            'ct_telefono2' => 0,
-            'ct_telefono2_req' => 0,
-            'ct_grupo' => 0,
-            'ct_grupo_req' => 0, 
-            'ct_grupo_pred' => 0,
-            
+            'nuevocli_cifnif_req' => 0,
+            'nuevocli_direccion' => 1,
+            'nuevocli_direccion_req' => 0,
+            'nuevocli_codpostal' => 1,
+            'nuevocli_codpostal_req' => 0,
+            'nuevocli_pais' => 0,
+            'nuevocli_pais_req' => 0,
+            'nuevocli_provincia' => 1,
+            'nuevocli_provincia_req' => 0,
+            'nuevocli_ciudad' => 1,
+            'nuevocli_ciudad_req' => 0,
+            'nuevocli_telefono1' => 0,
+            'nuevocli_telefono1_req' => 0,
+            'nuevocli_telefono2' => 0,
+            'nuevocli_telefono2_req' => 0,
          ),
          FALSE
       );
       
-      if( isset($_POST['ct_setup']) )
+      if( isset($_POST['setup']) )
       {
-         $this->ct_setup['ct_nombre'] = ( isset($_POST['ct_nombre']) ? 1 : 0 );
-         $this->ct_setup['ct_nombre_req'] = ( isset($_POST['ct_nombre_req']) ? 1 : 0 );
-         $this->ct_setup['ct_cifnif'] = ( isset($_POST['ct_cifnif']) ? 1 : 0 );
-         $this->ct_setup['ct_cifnif_req'] = ( isset($_POST['ct_cifnif_req']) ? 1 : 0 );
-         $this->ct_setup['ct_direccion'] = ( isset($_POST['ct_direccion']) ? 1 : 0 );
-         $this->ct_setup['ct_direccion_req'] = ( isset($_POST['ct_direccion_req']) ? 1 : 0 );
-         $this->ct_setup['ct_codpostal'] = ( isset($_POST['ct_codpostal']) ? 1 : 0 );
-         $this->ct_setup['ct_codpostal_req'] = ( isset($_POST['ct_codpostal_req']) ? 1 : 0 );
-         $this->ct_setup['ct_pais'] = ( isset($_POST['ct_pais']) ? 1 : 0 );
-         $this->ct_setup['ct_pais_req'] = ( isset($_POST['ct_pais_req']) ? 1 : 0 );
-         $this->ct_setup['ct_provincia'] = ( isset($_POST['ct_provincia']) ? 1 : 0 );
-         $this->ct_setup['ct_provincia_req'] = ( isset($_POST['ct_provincia_req']) ? 1 : 0 );
-         $this->ct_setup['ct_ciudad'] = ( isset($_POST['ct_ciudad']) ? 1 : 0 );
-         $this->ct_setup['ct_ciudad_req'] = ( isset($_POST['ct_ciudad_req']) ? 1 : 0 );
-         $this->ct_setup['ct_telefono1'] = ( isset($_POST['ct_telefono1']) ? 1 : 0 );
-         $this->ct_setup['ct_telefono1_req'] = ( isset($_POST['ct_telefono1_req']) ? 1 : 0 );
-         $this->ct_setup['ct_telefono2'] = ( isset($_POST['ct_telefono2']) ? 1 : 0 );
-         $this->ct_setup['ct_telefono2_req'] = ( isset($_POST['ct_telefono2_req']) ? 1 : 0 );
-         $this->ct_setup['ct_grupo'] = ( isset($_POST['ct_grupo']) ? 1 : 0 );
-         $this->ct_setup['ct_grupo_req'] = ( isset($_POST['ct_grupo_req']) ? 1 : 0 );
-         $this->ct_setup['ct_grupo_pred'] = $_POST['ct_grupo_pred'];
-         if( $fsvar->array_save($this->ct_setup) )
+         $this->nuevocli_setup['nuevocli_cifnif_req'] = ( isset($_POST['nuevocli_cifnif_req']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_direccion'] = ( isset($_POST['nuevocli_direccion']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_direccion_req'] = ( isset($_POST['nuevocli_direccion_req']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_codpostal'] = ( isset($_POST['nuevocli_codpostal']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_codpostal_req'] = ( isset($_POST['nuevocli_codpostal_req']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_pais'] = ( isset($_POST['nuevocli_pais']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_pais_req'] = ( isset($_POST['nuevocli_pais_req']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_provincia'] = ( isset($_POST['nuevocli_provincia']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_provincia_req'] = ( isset($_POST['nuevocli_provincia_req']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_ciudad'] = ( isset($_POST['nuevocli_ciudad']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_ciudad_req'] = ( isset($_POST['nuevocli_ciudad_req']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_telefono1'] = ( isset($_POST['nuevocli_telefono1']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_telefono1_req'] = ( isset($_POST['nuevocli_telefono1_req']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_telefono2'] = ( isset($_POST['nuevocli_telefono2']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_telefono2_req'] = ( isset($_POST['nuevocli_telefono2_req']) ? 1 : 0 );
+         
+         if( $fsvar->array_save($this->nuevocli_setup) )
          {
             $this->new_message('Datos guardados correctamente.');
          }
          else
             $this->new_error_msg('Error al guardar los datos.');
       }
-      
-   }
-   
-   private function share_extensions()
-   {
-      $fsext = new fs_extension();
-      $fsext->name = 'opciones_clientes';
-      $fsext->from = __CLASS__;
-      $fsext->to = 'ventas_clientes';
-      $fsext->type = 'button';
-      $fsext->text = '<span class="glyphicon glyphicon-wrench" aria-hidden="true">'
-              . '</span><span class="hidden-xs">&nbsp; Opciones</span>';
-      $fsext->save();
    }
 }

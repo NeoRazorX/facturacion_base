@@ -44,13 +44,13 @@ class nueva_venta extends fs_controller
    public $divisa;
    public $familia;
    public $forma_pago;
+   public $grupo;
    public $impuesto;
+   public $nuevocli_setup;
    public $pais;
    public $results;
    public $serie;
    public $tipo;
-   public $grupo;
-   public $ct_setup;
    
    public function __construct()
    {
@@ -68,37 +68,28 @@ class nueva_venta extends fs_controller
       $this->grupo = new grupo_clientes();
       $this->pais = new pais();
       
-      
       /// cargamos la configuración
       $fsvar = new fs_var();
-      $this->ct_setup = $fsvar->array_get(
+      $this->nuevocli_setup = $fsvar->array_get(
          array(
-            'ct_nombre' => 0,
-            'ct_nombre_req' => 0,
-            'ct_cifnif' => 0,
-            'ct_cifnif_req' => 0,
-            'ct_direccion' => 0,
-            'ct_direccion_req' => 0,
-            'ct_codpostal' => 0,
-            'ct_codpostal_req' => 0,
-            'ct_pais' => 0,
-            'ct_pais_req' => 0,
-            'ct_provincia' => 0,
-            'ct_provincia_req' => 0,
-            'ct_ciudad' => 0,
-            'ct_ciudad_req' => 0,
-            'ct_telefono1' => 0,
-            'ct_telefono1_req' => 0,
-            'ct_telefono2' => 0,
-            'ct_telefono2_req' => 0,
-            'ct_grupo' => 0,
-            'ct_grupo_req' => 0, 
-            'ct_grupo_pred' => 0,
-            
+            'nuevocli_cifnif_req' => 0,
+            'nuevocli_direccion' => 0,
+            'nuevocli_direccion_req' => 0,
+            'nuevocli_codpostal' => 0,
+            'nuevocli_codpostal_req' => 0,
+            'nuevocli_pais' => 0,
+            'nuevocli_pais_req' => 0,
+            'nuevocli_provincia' => 0,
+            'nuevocli_provincia_req' => 0,
+            'nuevocli_ciudad' => 0,
+            'nuevocli_ciudad_req' => 0,
+            'nuevocli_telefono1' => 0,
+            'nuevocli_telefono1_req' => 0,
+            'nuevocli_telefono2' => 0,
+            'nuevocli_telefono2_req' => 0,
          ),
          FALSE
       );
-      
       
       if( isset($_REQUEST['tipo']) )
       {
@@ -137,14 +128,17 @@ class nueva_venta extends fs_controller
       {
          $this->cliente_s = $this->cliente->get($_POST['cliente']);
          
+         /**
+          * Nuevo cliente
+          */
          if( isset($_POST['nuevo_cliente']) )
          {
             if($_POST['nuevo_cliente'] != '')
             {
                $this->cliente_s = FALSE;
-               if($_POST['nuevo_dni'] != '')
+               if($_POST['nuevo_cifnif'] != '')
                {
-                  $this->cliente_s = $this->cliente->get_by_cifnif($_POST['nuevo_dni']);
+                  $this->cliente_s = $this->cliente->get_by_cifnif($_POST['nuevo_cifnif']);
                   if($this->cliente_s)
                   {
                      $this->new_advice('Ya existe un cliente con ese '.FS_CIFNIF.'. Se ha seleccionado.');
@@ -156,32 +150,68 @@ class nueva_venta extends fs_controller
                   $this->cliente_s = new cliente();
                   $this->cliente_s->codcliente = $this->cliente_s->get_new_codigo();
                   $this->cliente_s->nombre = $this->cliente_s->razonsocial = $_POST['nuevo_cliente'];
-                  $this->cliente_s->cifnif = $_POST['nuevo_dni'];
-                  $this->cliente_s->telefono1 = $_POST['nuevo_telefono1'];
-                  $this->cliente_s->telefono2 = $_POST['nuevo_telefono2'];
+                  $this->cliente_s->cifnif = $_POST['nuevo_cifnif'];
                   $this->cliente_s->codserie = $this->empresa->codserie;
-                  if($_POST['codgrupo'] != '')
+                  
+                  if( isset($_POST['codgrupo']) )
                   {
-                     $this->cliente_s->codgrupo = $_POST['codgrupo'];
+                     if($_POST['codgrupo'] != '')
+                     {
+                        $this->cliente_s->codgrupo = $_POST['codgrupo'];
+                     }
+                  }
+                  
+                  if( isset($_POST['nuevo_telefono1']) )
+                  {
+                     $this->cliente_s->telefono1 = $_POST['nuevo_telefono1'];
+                  }
+                  
+                  if( isset($_POST['nuevo_telefono2']) )
+                  {
+                     $this->cliente_s->telefono2 = $_POST['nuevo_telefono2'];
                   }
                   
                   if( $this->cliente_s->save() )
                   {
-                    $dircliente = new direccion_cliente();
-                    $dircliente->codcliente = $this->cliente_s->codcliente;
-                    $dircliente->provincia = $_POST['nuevo_provincia'];
-                    $dircliente->ciudad = $_POST['nuevo_ciudad'];
-                    $dircliente->codpostal = $_POST['nuevo_codpostal'];
-                    $dircliente->direccion = $_POST['nuevo_direccion'];
-                    $dircliente->descripcion = 'Principal';
-
-                    if( $dircliente->save() )
-                    {
+                     $dircliente = new direccion_cliente();
+                     $dircliente->codcliente = $this->cliente_s->codcliente;
+                     $dircliente->codpais = $this->empresa->codpais;
+                     $dircliente->provincia = $this->empresa->provincia;
+                     $dircliente->ciudad = $this->empresa->ciudad;
+                     $dircliente->descripcion = 'Principal';
+                     
+                     if( isset($_POST['nuevo_pais']) )
+                     {
+                        $dircliente->codpais = $_POST['nuevo_pais'];
+                     }
+                     
+                     if( isset($_POST['nuevo_provincia']) )
+                     {
+                        $dircliente->provincia = $_POST['nuevo_provincia'];
+                     }
+                     
+                     if( isset($_POST['nuevo_ciudad']) )
+                     {
+                        $dircliente->ciudad = $_POST['nuevo_ciudad'];
+                     }
+                     
+                     if( isset($_POST['nuevo_codpostal']) )
+                     {
+                        $dircliente->codpostal = $_POST['nuevo_codpostal'];
+                     }
+                     
+                     if( isset($_POST['nuevo_direccion']) )
+                     {
+                        $dircliente->direccion = $_POST['nuevo_direccion'];
+                     }
+                     
+                     if( $dircliente->save() )
+                     {
                         $this->new_message('Cliente agregado correctamente.');
-                    }
-            }
-            else
-               $this->new_error_msg("¡Imposible guardar la dirección del cliente!");  
+                     }
+                  }
+                  else
+                     $this->new_error_msg("¡Imposible guardar la dirección del cliente!");  
                }
             }
          }
