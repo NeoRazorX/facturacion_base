@@ -26,6 +26,7 @@ require_model('forma_pago.php');
 require_model('grupo_clientes.php');
 require_model('pais.php');
 require_model('serie.php');
+require_model('provincia.php');
 
 class ventas_cliente extends fs_controller
 {
@@ -38,6 +39,9 @@ class ventas_cliente extends fs_controller
    public $grupo;
    public $pais;
    public $serie;
+   public $nueva_venta_url;
+   
+
    
    public function __construct()
    {
@@ -54,6 +58,15 @@ class ventas_cliente extends fs_controller
       $this->grupo = new grupo_clientes();
       $this->pais = new pais();
       $this->serie = new serie();
+      $this->provincia = new provincia();
+      $this->nueva_venta_url = FALSE;
+      
+       if( $this->user->have_access_to('nueva_venta', FALSE) )
+      {
+         $nueva_venta = $this->page->get('nueva_venta');
+         if($nueva_venta)
+            $this->nueva_venta_url = $nueva_venta->url();
+      }
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);

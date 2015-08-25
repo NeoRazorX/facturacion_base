@@ -449,7 +449,22 @@
             }
          }
       });
-   });
+
+    $("#ac_provincia").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_provincia',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if(document.f_nueva_venta.provincia.value != suggestion.data && suggestion.data != '')
+               {
+                  document.f_nueva_venta.provincia.value = suggestion.data;
+                  usar_provincia(suggestion.data);
+               }
+            }
+         }
+      });
+      });
 </script>
 
 <form name="f_nueva_venta" class="form" action="{$fsc->url()}" method="post">
@@ -481,24 +496,115 @@
                </li>
             </ul>
             <div class="modal-body">
-               <div class="form-group">
-                  Nombre:
-                  <input type="text" name="nuevo_cliente" class="form-control" autocomplete="off"/>
+               <div class="row">
+                {if="$fsc->ct_setup['ct_nombre']"}
+                <div class="col-lg-9">
+                    <div class="form-group {if="$fsc->ct_setup['ct_nombre_req']"}has-error{/if}">
+                    Nombre:
+                    <input type="text" name="nuevo_cliente" class="form-control" autocomplete="off"{if="$fsc->ct_setup['ct_nombre_req']"} required{/if}/>
+                    </div>
+                </div>
+                {/if}
+               {if="$fsc->ct_setup['ct_cifnif']"}
+                <div class="col-lg-3">
+                    <div class="form-group {if="$fsc->ct_setup['ct_cifnif_req']"}has-error{/if}">
+                    Cif/Nif:
+                    <input type="text" name="nuevo_dni" class="form-control" autocomplete="off"{if="$fsc->ct_setup['ct_cifnif_req']"} required{/if}/>
+                    </div>
+                </div>
+                {/if}
                </div>
-               <div class="form-group">
-                  {#FS_CIFNIF#}:
-                  <input type="text" name="nuevo_dni" class="form-control" autocomplete="off"/>
+               <div class="row">
+               {if="$fsc->ct_setup['ct_direccion']"}
+                <div class="col-lg-9">
+                    <div class="form-group {if="$fsc->ct_setup['ct_direccion_req']"}has-error{/if}">
+                    Direccion:
+                    <input type="text" name="nuevo_direccion" class="form-control" autocomplete="off"{if="$fsc->ct_setup['ct_direccion_req']"} required{/if}/>
+                    </div>
+                </div>
+                {/if}
+               {if="$fsc->ct_setup['ct_codpostal']"}
+                <div class="col-lg-3">
+                    <div class="form-group {if="$fsc->ct_setup['ct_codpostal_req']"}has-error{/if}">
+                    Codpostal:
+                    <input type="text" name="nuevo_codpostal" class="form-control" autocomplete="off"{if="$fsc->ct_setup['ct_codpostal_req']"} required{/if} maxlength="5" minlength="5"/>
+                    </div>
+                </div>
+                {/if}
                </div>
-               <div class="form-group">
-                  <a href="{$fsc->grupo->url()}">Grupo de clientes</a>:
-                  <select class="form-control" name="codgrupo">
-                     <option value="">Ninguno</option>
-                     <option value="">-----</option>
-                     {loop="$fsc->grupo->all()"}
-                     <option value="{$value->codgrupo}">{$value->nombre}</option>
-                     {/loop}
-                  </select>
-               </div>
+               <div class="row">
+                {if="$fsc->ct_setup['ct_pais']"}
+                <div class="col-lg-3">
+                   <div class="form-group {if="$fsc->ct_setup['ct_pais_req']"}has-error{/if}">
+                     <a href="{$fsc->pais->url()}">País</a>:
+                           <select class="form-control" name="codpais" {if="$fsc->ct_setup['ct_pais_req']"} required{/if}>
+                              {loop="$fsc->pais->all()"}
+                                <option value="{$value->codpais}"{if="$value->is_default()"} selected="selected"{/if}>{$value->nombre}</option>
+                               {/loop}
+                           </select>
+                    </div>
+                </div>
+                {/if}
+                {if="$fsc->ct_setup['ct_provincia']"}
+                <div class="col-lg-4">
+                     <a href="{$fsc->provincia->url()}">Provincia</a>:
+                    <div class="input-group">
+                      <input class="form-control" type="text" name="nuevo_provincia" id="ac_provincia" placeholder="Buscar" autocomplete="off"/>
+                      <span class="input-group-btn">
+                         <button class="btn btn-default" type="button" onclick="document.f_nueva_venta.ac_provincia.value=''; document.f_nueva_venta.ac_provincia.focus();">
+                            <span class="glyphicon glyphicon-edit"></span>
+                         </button>
+                      </span>
+                    </div>
+                </div>
+                {/if}
+                {if="$fsc->ct_setup['ct_ciudad']"}
+                <div class="col-lg-5">
+                    <div class="form-group {if="$fsc->ct_setup['ct_ciudad_req']"}has-error{/if}">
+                    Ciudad:
+                    <input type="text" name="nuevo_ciudad" class="form-control" autocomplete="off"{if="$fsc->ct_setup['ct_ciudad_req']"} required{/if}/>
+                    </div>
+                </div>
+                {/if}
+                
+              </div>
+              <div class="row">
+                {if="$fsc->ct_setup['ct_telefono1']"}
+                <div class="col-lg-4">
+                    <div class="form-group {if="$fsc->ct_setup['ct_telefono1_req']"}has-error{/if}">
+                    Telefono1:
+                    <input type="number" name="nuevo_telefono1" class="form-control" autocomplete="off"{if="$fsc->ct_setup['ct_telefono1_req']"} required{/if} maxlength="5" minlength="5"/>
+                    </div>
+                </div>
+                {/if}
+                {if="$fsc->ct_setup['ct_telefono2']"}
+                <div class="col-lg-4">
+                    <div class="form-group {if="$fsc->ct_setup['ct_telefono2_req']"}has-error{/if}">
+                    Telefono2:
+                    <input type="nyumber" name="nuevo_telefono2" class="form-control" autocomplete="off"{if="$fsc->ct_setup['ct_telefono2_req']"} required{/if} maxlength="5" minlength="5"/>
+                    </div>
+                </div>
+                {/if}
+                {if="$fsc->ct_setup['ct_grupo']"}
+                <div class="col-lg-4">
+                    <div class="form-group {if="$fsc->ct_setup['ct_grupo_req']"}has-error{/if}">
+                        <a href="{$fsc->grupo->url()}">Grupo</a>:
+                        <select class="form-control" name="codgrupo">
+                           <option value="">Ninguno</option>
+                           <option value="">-----</option>
+                           {loop="$fsc->grupo->all()"}
+                           <option value="{$value->codgrupo}"{if="$value->codgrupo==$fsc->ct_setup['ct_grupo_pred']"} selected="selected"{/if}>{$value->nombre}</option>
+                           {/loop}
+                        </select>
+                     </div>
+                    </div>
+                 {/if}
+                </div>
+                 <div class="text-right">
+                           <button class="btn btn-sm btn-primary" type="submit">
+                              <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar y seleccionar
+                           </button>
+                  </div>
             </div>
          </div>
       </div>
