@@ -549,7 +549,11 @@
                <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_provincia_req']"} has-warning{/if}">
                   <label class="col-sm-2 control-label text-capitalize">{#FS_PROVINCIA#}</label>
                   <div class="col-sm-10">
-                     <input type="text" name="nuevo_provincia" value="{$fsc->empresa->provincia}" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_provincia_req']"} required=""{/if}/>
+                     {if="$fsc->nuevocli_setup['nuevocli_provincia_req']"}
+                     <input type="text" name="nuevo_provincia" class="form-control" required=""/>
+                     {else}
+                     <input type="text" name="nuevo_provincia" value="{$fsc->empresa->provincia}" class="form-control"/>
+                     {/if}
                   </div>
                </div>
                {/if}
@@ -557,7 +561,11 @@
                <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_ciudad_req']"} has-warning{/if}">
                   <label class="col-sm-2 control-label">Ciudad</label>
                   <div class="col-sm-10">
-                     <input type="text" name="nuevo_ciudad" value="{$fsc->empresa->ciudad}" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_ciudad_req']"} required=""{/if}/>
+                     {if="$fsc->nuevocli_setup['nuevocli_ciudad_req']"}
+                     <input type="text" name="nuevo_ciudad" class="form-control" required=""/>
+                     {else}
+                     <input type="text" name="nuevo_ciudad" value="{$fsc->empresa->ciudad}" class="form-control"/>
+                     {/if}
                   </div>
                </div>
                {/if}
@@ -565,7 +573,11 @@
                <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_codpostal_req']"} has-warning{/if}">
                   <label class="col-sm-2 control-label">Código Postal</label>
                   <div class="col-sm-10">
-                     <input type="text" name="nuevo_codpostal" value="{$fsc->empresa->codpostal}" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_codpostal_req']"} required=""{/if}/>
+                     {if="$fsc->nuevocli_setup['nuevocli_codpostal_req']"}
+                     <input type="text" name="nuevo_codpostal" class="form-control" required=""/>
+                     {else}
+                     <input type="text" name="nuevo_codpostal" value="{$fsc->empresa->codpostal}" class="form-control"/>
+                     {/if}
                   </div>
                </div>
                {/if}
@@ -573,7 +585,11 @@
                <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_direccion_req']"} has-warning{/if}">
                   <label class="col-sm-2 control-label">Dirección</label>
                   <div class="col-sm-10">
-                     <input type="text" name="nuevo_direccion" value="C/ " class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_direccion_req']"} required=""{/if}/>
+                     {if="$fsc->nuevocli_setup['nuevocli_direccion_req']"}
+                     <input type="text" name="nuevo_direccion" class="form-control" autocomplete="off" required=""/>
+                     {else}
+                     <input type="text" name="nuevo_direccion" value="C/ " class="form-control" autocomplete="off"/>
+                     {/if}
                   </div>
                </div>
                {/if}
