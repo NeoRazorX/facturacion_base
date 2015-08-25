@@ -96,6 +96,8 @@
          <tr>
             <th class="text-left">Código + Nombre</th>
             <th class="text-left">{#FS_CIFNIF#}</th>
+            <th class="text-left">email</th>
+            <th class="text-left">Teléfono</th>
             <th class="text-left">Observaciones</th>
          </tr>
       </thead>
@@ -109,11 +111,13 @@
             {/if}
          </td>
          <td>{$value->cifnif}</td>
+         <td>{$value->email}</td>
+         <td>{$value->telefono1}</td>
          <td>{$value->observaciones_resume()}</td>
       </tr>
       {else}
       <tr class="bg-warning">
-         <td colspan="3">
+         <td colspan="5">
             Ningún {if="$fsc->mostrar=='acreedores'"}acreedor{else}proveedor{/if} encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.
          </td>
       </tr>

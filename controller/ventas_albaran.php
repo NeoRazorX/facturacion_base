@@ -435,7 +435,6 @@ class ventas_albaran extends fs_controller
    {
       $factura = new factura_cliente();
       $factura->apartado = $this->albaran->apartado;
-      $factura->automatica = TRUE;
       $factura->cifnif = $this->albaran->cifnif;
       $factura->ciudad = $this->albaran->ciudad;
       $factura->codagente = $this->albaran->codagente;
@@ -450,7 +449,6 @@ class ventas_albaran extends fs_controller
       $factura->codpostal = $this->albaran->codpostal;
       $factura->codserie = $this->albaran->codserie;
       $factura->direccion = $this->albaran->direccion;
-      $factura->editable = FALSE;
       $factura->neto = $this->albaran->neto;
       $factura->nombrecliente = $this->albaran->nombrecliente;
       $factura->observaciones = $this->albaran->observaciones;
@@ -462,7 +460,6 @@ class ventas_albaran extends fs_controller
       $factura->totalirpf = $this->albaran->totalirpf;
       $factura->totalrecargo = $this->albaran->totalrecargo;
       $factura->porcomision = $this->albaran->porcomision;
-      $factura->recfinanciero = $this->albaran->recfinanciero;
       
       /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
       $forma0 = new forma_pago();

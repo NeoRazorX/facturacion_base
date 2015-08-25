@@ -99,14 +99,14 @@
             </div>
             
             {if="$fsc->albaran->ptefactura"}
-               <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
-                  <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
-               </a>
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
+               <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
+            </a>
             {else}
-               <a class="btn btn-sm btn-info text-capitalize" href="{$fsc->albaran->factura_url()}">
-                  <span class="glyphicon glyphicon-eye-open"></span>
-                  <span class="hidden-xs">&nbsp; Ver Factura</span>
-               </a>
+            <a class="btn btn-sm btn-info text-capitalize" href="{$fsc->albaran->factura_url()}">
+               <span class="glyphicon glyphicon-eye-open"></span>
+               <span class="hidden-xs">&nbsp; Ver Factura</span>
+            </a>
             {/if}
          </div>
          <div class="col-xs-4 text-right">
@@ -631,6 +631,11 @@
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h3 class="modal-title">¿Realmente desea eliminar este {#FS_ALBARAN#}?</h3>
             </div>
+            {if="$fsc->albaran->idfactura"}
+            <div class="alert alert-warning">
+               Hay una <b>factura</b> asociada que <b>será eliminada</b> junto con este {#FS_ALBARAN#}.
+            </div>
+            {/if}
             <div class="modal-footer">
                <div class="pull-left">
                   <label>
@@ -642,11 +647,6 @@
                   <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
                </button>
             </div>
-            {if="$fsc->albaran->idfactura"}
-            <div class="alert alert-info">
-               Hay una factura asociada que será eliminada junto con este {#FS_ALBARAN#}.
-            </div>
-            {/if}
          </div>
       </div>
    </div>

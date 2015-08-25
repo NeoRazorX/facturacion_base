@@ -39,25 +39,13 @@ class factura_proveedor extends fs_model
     * Todavía sin uso.
     * @var type 
     */
-   private $idfacturarect;
-   
-   /**
-    * Todavía sin uso.
-    * @var type 
-    */
-   private $idpagodevol;
+   public $idfacturarect;
    
    /**
     * ID del asiento relacionado, si lo hay.
     * @var type 
     */
    public $idasiento;
-   
-   /**
-    * Todavía sin uso.
-    * @var type 
-    */
-   private $automatica;
    
    public $cifnif;
    
@@ -96,7 +84,7 @@ class factura_proveedor extends fs_model
     * Todavía sin uso.
     * @var type 
     */
-   private $codigorect;
+   public $codigorect;
    
    /**
     * Forma d epago usada.
@@ -116,18 +104,6 @@ class factura_proveedor extends fs_model
     */
    public $codserie;
    
-   /**
-    * Todavía sin uso.
-    * @var type 
-    */
-   private $deabono;
-   
-   /**
-    * Todavía sin uso.
-    * @var type 
-    */
-   private $editable;
-   
    public $fecha;
    public $hora;
    
@@ -143,12 +119,6 @@ class factura_proveedor extends fs_model
     * @var type 
     */
    public $neto;
-   
-   /**
-    * Todavía sin uso.
-    * @var type 
-    */
-   private $nogenerarasiento;
    
    /**
     * Nombre del proveedor.
@@ -170,13 +140,8 @@ class factura_proveedor extends fs_model
    public $numproveedor;
    
    public $observaciones;
-   public $pagada;
    
-   /**
-    * Todavía sin uso.
-    * @var type 
-    */
-   private $recfinanciero;
+   public $pagada;
    
    /**
     * Tasa de conversión a Euros de la divisa de la factura.
@@ -221,8 +186,6 @@ class factura_proveedor extends fs_model
       parent::__construct('facturasprov', 'plugins/facturacion_base/');
       if($f)
       {
-         $this->editable = $this->str2bool($f['editable']);
-         $this->automatica = $this->str2bool($f['automatica']);
          $this->cifnif = $f['cifnif'];
          $this->codagente = $f['codagente'];
          $this->codalmacen = $f['codalmacen'];
@@ -233,7 +196,6 @@ class factura_proveedor extends fs_model
          $this->codpago = $f['codpago'];
          $this->codproveedor = $f['codproveedor'];
          $this->codserie = $f['codserie'];
-         $this->deabono = $this->str2bool($f['deabono']);
          $this->fecha = Date('d-m-Y', strtotime($f['fecha']));
          
          $this->hora = '00:00:00';
@@ -243,16 +205,13 @@ class factura_proveedor extends fs_model
          $this->idasiento = $this->intval($f['idasiento']);
          $this->idfactura = $this->intval($f['idfactura']);
          $this->idfacturarect = $this->intval($f['idfacturarect']);
-         $this->idpagodevol = $this->intval($f['idpagodevol']);
          $this->irpf = floatval($f['irpf']);
          $this->neto = floatval($f['neto']);
-         $this->nogenerarasiento = $this->str2bool($f['nogenerarasiento']);
          $this->nombre = $f['nombre'];
          $this->numero = $f['numero'];
          $this->numproveedor = $f['numproveedor'];
          $this->observaciones = $this->no_html($f['observaciones']);
          $this->pagada = $this->str2bool($f['pagada']);
-         $this->recfinanciero = floatval($f['recfinanciero']);
          $this->tasaconv = floatval($f['tasaconv']);
          $this->total = floatval($f['total']);
          $this->totaleuros = floatval($f['totaleuros']);
@@ -262,8 +221,6 @@ class factura_proveedor extends fs_model
       }
       else
       {
-         $this->editable = TRUE;
-         $this->automatica = FALSE;
          $this->cifnif = NULL;
          $this->codagente = NULL;
          $this->codalmacen = NULL;
@@ -274,22 +231,18 @@ class factura_proveedor extends fs_model
          $this->codpago = NULL;
          $this->codproveedor = NULL;
          $this->codserie = NULL;
-         $this->deabono = FALSE;
          $this->fecha = Date('d-m-Y');
          $this->hora = Date('H:i:s');
          $this->idasiento = NULL;
          $this->idfactura = NULL;
          $this->idfacturarect = NULL;
-         $this->idpagodevol = NULL;
          $this->irpf = 0;
          $this->neto = 0;
-         $this->nogenerarasiento = FALSE;
          $this->nombre = NULL;
          $this->numero = NULL;
          $this->numproveedor = NULL;
          $this->observaciones = NULL;
          $this->pagada = FALSE;
-         $this->recfinanciero = 0;
          $this->tasaconv = 1;
          $this->total = 0;
          $this->totaleuros = 0;
@@ -750,15 +703,12 @@ class factura_proveedor extends fs_model
       {
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET deabono = ".$this->var2str($this->deabono)
-                    .", codigo = ".$this->var2str($this->codigo)
-                    .", automatica = ".$this->var2str($this->automatica)
+            $sql = "UPDATE ".$this->table_name." SET codigo = ".$this->var2str($this->codigo)
                     .", total = ".$this->var2str($this->total)
                     .", neto = ".$this->var2str($this->neto)
                     .", cifnif = ".$this->var2str($this->cifnif)
                     .", pagada = ".$this->var2str($this->pagada)
                     .", observaciones = ".$this->var2str($this->observaciones)
-                    .", idpagodevol = ".$this->var2str($this->idpagodevol)
                     .", codagente = ".$this->var2str($this->codagente)
                     .", codalmacen = ".$this->var2str($this->codalmacen)
                     .", irpf = ".$this->var2str($this->irpf)
@@ -777,12 +727,9 @@ class factura_proveedor extends fs_model
                     .", numero = ".$this->var2str($this->numero)
                     .", codejercicio = ".$this->var2str($this->codejercicio)
                     .", tasaconv = ".$this->var2str($this->tasaconv)
-                    .", recfinanciero = ".$this->var2str($this->recfinanciero)
-                    .", nogenerarasiento = ".$this->var2str($this->nogenerarasiento)
                     .", totalrecargo = ".$this->var2str($this->totalrecargo)
                     .", fecha = ".$this->var2str($this->fecha)
                     .", hora = ".$this->var2str($this->hora)
-                    .", editable = ".$this->var2str($this->editable)
                     ."  WHERE idfactura = ".$this->var2str($this->idfactura).";";
             
             return $this->db->exec($sql);
@@ -790,18 +737,15 @@ class factura_proveedor extends fs_model
          else
          {
             $this->new_codigo();
-            $sql = "INSERT INTO ".$this->table_name." (deabono,codigo,automatica,total,neto,cifnif,pagada,observaciones,
-               idpagodevol,codagente,codalmacen,irpf,totaleuros,nombre,codpago,codproveedor,idfacturarect,numproveedor,
+            $sql = "INSERT INTO ".$this->table_name." (codigo,total,neto,cifnif,pagada,observaciones,
+               codagente,codalmacen,irpf,totaleuros,nombre,codpago,codproveedor,idfacturarect,numproveedor,
                codigorect,codserie,idasiento,totalirpf,totaliva,coddivisa,numero,codejercicio,tasaconv,
-               recfinanciero,nogenerarasiento,totalrecargo,fecha,hora,editable) VALUES (".$this->var2str($this->deabono)
-                    .",".$this->var2str($this->codigo)
-                    .",".$this->var2str($this->automatica)
+               totalrecargo,fecha,hora) VALUES (".$this->var2str($this->codigo)
                     .",".$this->var2str($this->total)
                     .",".$this->var2str($this->neto)
                     .",".$this->var2str($this->cifnif)
                     .",".$this->var2str($this->pagada)
                     .",".$this->var2str($this->observaciones)
-                    .",".$this->var2str($this->idpagodevol)
                     .",".$this->var2str($this->codagente)
                     .",".$this->var2str($this->codalmacen)
                     .",".$this->var2str($this->irpf)
@@ -820,12 +764,9 @@ class factura_proveedor extends fs_model
                     .",".$this->var2str($this->numero)
                     .",".$this->var2str($this->codejercicio)
                     .",".$this->var2str($this->tasaconv)
-                    .",".$this->var2str($this->recfinanciero)
-                    .",".$this->var2str($this->nogenerarasiento)
                     .",".$this->var2str($this->totalrecargo)
                     .",".$this->var2str($this->fecha)
-                    .",".$this->var2str($this->hora)
-                    .",".$this->var2str($this->editable).");";
+                    .",".$this->var2str($this->hora).");";
             
             if( $this->db->exec($sql) )
             {
@@ -975,12 +916,8 @@ class factura_proveedor extends fs_model
       $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )
       {
-         $consulta .= "codigo LIKE '%".$query."%' OR numproveedor LIKE '%".$query."%' OR observaciones LIKE '%".
-            $query."%' OR total BETWEEN ".($query-.01)." AND ".($query+.01);
-      }
-      else if( preg_match('/^([0-9]{1,2})-([0-9]{1,2})-([0-9]{4})$/i', $query) )
-      {
-         $consulta .= "fecha = ".$this->var2str($query)." OR observaciones LIKE '%".$query."%'";
+         $consulta .= "codigo LIKE '%".$query."%' OR numproveedor LIKE '%".$query
+                 ."%' OR observaciones LIKE '%".$query."%'";
       }
       else
       {

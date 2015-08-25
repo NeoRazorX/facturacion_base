@@ -43,6 +43,11 @@
       document.f_custom_search.ac_cliente.focus();
    }
    $(document).ready(function() {
+      
+      {if="$fsc->mostrar=='buscar'"}
+      document.f_custom_search.query.focus();
+      {/if}
+      
       $('#b_buscar_lineas').click(function(event) {
          event.preventDefault();
          $('#modal_buscar_lineas').modal('show');

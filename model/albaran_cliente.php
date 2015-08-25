@@ -178,12 +178,6 @@ class albaran_cliente extends fs_model
    public $tasaconv;
    
    /**
-    * Todavía sin uso.
-    * @var type 
-    */
-   private $recfinanciero;
-   
-   /**
     * Suma total del recargo de equivalencia de las líneas.
     * @var type 
     */
@@ -203,16 +197,15 @@ class albaran_cliente extends fs_model
       if($a)
       {
          $this->idalbaran = $this->intval($a['idalbaran']);
-         if( $this->str2bool($a['ptefactura']) )
+         
+         $this->idfactura = $this->intval($a['idfactura']);
+         $this->ptefactura = $this->str2bool($a['ptefactura']);
+         if($this->idfactura)
          {
-            $this->ptefactura = TRUE;
-            $this->idfactura = NULL;
-         }
-         else
-         {
+            /// si ya hay una factura enlazada, no puede estar pendiente de factura
             $this->ptefactura = FALSE;
-            $this->idfactura = $this->intval($a['idfactura']);
          }
+         
          $this->codigo = $a['codigo'];
          $this->codagente = $a['codagente'];
          $this->codserie = $a['codserie'];
@@ -246,7 +239,6 @@ class albaran_cliente extends fs_model
          $this->totalirpf = floatval($a['totalirpf']);
          $this->porcomision = floatval($a['porcomision']);
          $this->tasaconv = floatval($a['tasaconv']);
-         $this->recfinanciero = floatval($a['recfinanciero']);
          $this->totalrecargo = floatval($a['totalrecargo']);
          $this->observaciones = $this->no_html($a['observaciones']);
       }
@@ -283,7 +275,6 @@ class albaran_cliente extends fs_model
          $this->totalirpf = 0;
          $this->porcomision = 0;
          $this->tasaconv = 1;
-         $this->recfinanciero = 0;
          $this->totalrecargo = 0;
          $this->observaciones = NULL;
          $this->ptefactura = TRUE;
@@ -449,6 +440,11 @@ class albaran_cliente extends fs_model
       $this->observaciones = $this->no_html($this->observaciones);
       $this->totaleuros = $this->total * $this->tasaconv;
       
+      if($this->idfactura)
+      {
+         $this->ptefactura = FALSE;
+      }
+      
       if( $this->floatcmp($this->total, $this->neto+$this->totaliva-$this->totalirpf+$this->totalrecargo, FS_NF0, TRUE) )
       {
          return TRUE;
@@ -550,13 +546,13 @@ class albaran_cliente extends fs_model
       if($status AND $duplicados)
       {
          /// comprobamos si es un duplicado
-         $albaranes = $this->db->select("SELECT * FROM ".$this->table_name." WHERE fecha = ".$this->var2str($this->fecha)."
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE fecha = ".$this->var2str($this->fecha)."
             AND codcliente = ".$this->var2str($this->codcliente)." AND total = ".$this->var2str($this->total)."
             AND codagente = ".$this->var2str($this->codagente)." AND numero2 = ".$this->var2str($this->numero2)."
             AND observaciones = ".$this->var2str($this->observaciones)." AND idalbaran != ".$this->var2str($this->idalbaran).";");
-         if($albaranes)
+         if($data)
          {
-            foreach($albaranes as $alb)
+            foreach($data as $alb)
             {
                /// comprobamos las líneas
                $aux = $this->db->select("SELECT referencia FROM lineasalbaranescli WHERE
@@ -613,7 +609,6 @@ class albaran_cliente extends fs_model
                     .", totalirpf = ".$this->var2str($this->totalirpf)
                     .", porcomision = ".$this->var2str($this->porcomision)
                     .", tasaconv = ".$this->var2str($this->tasaconv)
-                    .", recfinanciero = ".$this->var2str($this->recfinanciero)
                     .", totalrecargo = ".$this->var2str($this->totalrecargo)
                     .", observaciones = ".$this->var2str($this->observaciones)
                     .", ptefactura = ".$this->var2str($this->ptefactura)
@@ -628,7 +623,7 @@ class albaran_cliente extends fs_model
                codserie,codejercicio,codcliente,codpago,coddivisa,codalmacen,codpais,coddir,
                codpostal,numero,numero2,nombrecliente,cifnif,direccion,ciudad,provincia,apartado,
                fecha,hora,neto,total,totaliva,totaleuros,irpf,totalirpf,porcomision,tasaconv,
-               recfinanciero,totalrecargo,observaciones,ptefactura) VALUES (".$this->var2str($this->idfactura)
+               totalrecargo,observaciones,ptefactura) VALUES (".$this->var2str($this->idfactura)
                     .",".$this->var2str($this->codigo)
                     .",".$this->var2str($this->codagente)
                     .",".$this->var2str($this->codserie)
@@ -658,7 +653,6 @@ class albaran_cliente extends fs_model
                     .",".$this->var2str($this->totalirpf)
                     .",".$this->var2str($this->porcomision)
                     .",".$this->var2str($this->tasaconv)
-                    .",".$this->var2str($this->recfinanciero)
                     .",".$this->var2str($this->totalrecargo)
                     .",".$this->var2str($this->observaciones)
                     .",".$this->var2str($this->ptefactura).");";
@@ -705,10 +699,10 @@ class albaran_cliente extends fs_model
       $albalist = array();
       $sql = "SELECT * FROM ".$this->table_name." ORDER BY ".$order;
       
-      $albaranes = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-      if($albaranes)
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($albaranes as $a)
+         foreach($data as $a)
             $albalist[] = new albaran_cliente($a);
       }
       
@@ -720,10 +714,10 @@ class albaran_cliente extends fs_model
       $albalist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE ptefactura = true ORDER BY ".$order;
       
-      $albaranes = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-      if($albaranes)
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($albaranes as $a)
+         foreach($data as $a)
             $albalist[] = new albaran_cliente($a);
       }
       
@@ -733,42 +727,45 @@ class albaran_cliente extends fs_model
    public function all_from_cliente($codcliente, $offset=0)
    {
       $albalist = array();
-      $albaranes = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
               " WHERE codcliente = ".$this->var2str($codcliente).
               " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
-      if($albaranes)
+      if($data)
       {
-         foreach($albaranes as $a)
+         foreach($data as $a)
             $albalist[] = new albaran_cliente($a);
       }
+      
       return $albalist;
    }
    
    public function all_from_agente($codagente, $offset=0)
    {
       $albalist = array();
-      $albaranes = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
               " WHERE codagente = ".$this->var2str($codagente).
               " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
-      if($albaranes)
+      if($data)
       {
-         foreach($albaranes as $a)
+         foreach($data as $a)
             $albalist[] = new albaran_cliente($a);
       }
+      
       return $albalist;
    }
    
    public function all_desde($desde, $hasta)
    {
       $alblist = array();
-      $albaranes = $this->db->select("SELECT * FROM ".$this->table_name.
+      $data = $this->db->select("SELECT * FROM ".$this->table_name.
          " WHERE fecha >= ".$this->var2str($desde)." AND fecha <= ".$this->var2str($hasta).
          " ORDER BY codigo ASC;");
-      if($albaranes)
+      if($data)
       {
-         foreach($albaranes as $a)
+         foreach($data as $a)
             $alblist[] = new albaran_cliente($a);
       }
+      
       return $alblist;
    }
    
@@ -780,12 +777,7 @@ class albaran_cliente extends fs_model
       $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )
       {
-         $consulta .= "codigo LIKE '%".$query."%' OR numero2 LIKE '%".$query."%' OR observaciones LIKE '%".$query."%'
-            OR total BETWEEN '".($query-.01)."' AND '".($query+.01)."'";
-      }
-      else if( preg_match('/^([0-9]{1,2})-([0-9]{1,2})-([0-9]{4})$/i', $query) ) /// es una fecha
-      {
-         $consulta .= "fecha = ".$this->var2str($query)." OR observaciones LIKE '%".$query."%'";
+         $consulta .= "codigo LIKE '%".$query."%' OR numero2 LIKE '%".$query."%' OR observaciones LIKE '%".$query."%'";
       }
       else
       {
@@ -794,12 +786,13 @@ class albaran_cliente extends fs_model
       }
       $consulta .= " ORDER BY fecha DESC, codigo DESC";
       
-      $albaranes = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-      if($albaranes)
+      $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($albaranes as $a)
+         foreach($data as $a)
             $alblist[] = new albaran_cliente($a);
       }
+      
       return $alblist;
    }
    
@@ -811,16 +804,19 @@ class albaran_cliente extends fs_model
          " AND codserie = ".$this->var2str($serie);
       
       if($obs != '')
+      {
          $sql .= " AND lower(observaciones) = ".$this->var2str(strtolower($obs));
+      }
       
       $sql .= " ORDER BY fecha DESC, codigo DESC;";
       
-      $albaranes = $this->db->select($sql);
-      if($albaranes)
+      $data = $this->db->select($sql);
+      if($data)
       {
-         foreach($albaranes as $a)
+         foreach($data as $a)
             $albalist[] = new albaran_cliente($a);
       }
+      
       return $albalist;
    }
    

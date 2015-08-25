@@ -42,12 +42,6 @@ class factura_cliente extends fs_model
    public $idasiento;
    
    /**
-    * Sin uso.
-    * @var type 
-    */
-   private $idpagodevol;
-   
-   /**
     * Todavía sin uso.
     * @var type 
     */
@@ -192,12 +186,6 @@ class factura_cliente extends fs_model
    public $tasaconv;
    
    /**
-    * Sin uso.
-    * @var type 
-    */
-   private $recfinanciero;
-   
-   /**
     * Suma del recargo de equivalencia de las líneas.
     * @var type 
     */
@@ -205,30 +193,6 @@ class factura_cliente extends fs_model
    
    public $observaciones;
    public $pagada;
-   
-   /**
-    * Sin uso.
-    * @var type 
-    */
-   private $deabono;
-   
-   /**
-    * Sin uso.
-    * @var type 
-    */
-   private $automatica;
-   
-   /**
-    * Sin uso.
-    * @var type 
-    */
-   private $editable;
-   
-   /**
-    * Sin uso.
-    * @var type 
-    */
-   private $nogenerarasiento;
    
    /**
     * Fecha de vencimiento de la factura.
@@ -243,7 +207,6 @@ class factura_cliente extends fs_model
       {
          $this->idfactura = $this->intval($f['idfactura']);
          $this->idasiento = $this->intval($f['idasiento']);
-         $this->idpagodevol = $this->intval($f['idpagodevol']);
          $this->idfacturarect = $this->intval($f['idfacturarect']);
          $this->codigo = $f['codigo'];
          $this->numero = $f['numero'];
@@ -281,14 +244,9 @@ class factura_cliente extends fs_model
          $this->totalirpf = floatval($f['totalirpf']);
          $this->porcomision = floatval($f['porcomision']);
          $this->tasaconv = floatval($f['tasaconv']);
-         $this->recfinanciero = floatval($f['recfinanciero']);
          $this->totalrecargo = floatval($f['totalrecargo']);
          $this->observaciones = $this->no_html($f['observaciones']);
          $this->pagada = $this->str2bool($f['pagada']);
-         $this->deabono = $this->str2bool($f['deabono']);
-         $this->automatica = $this->str2bool($f['automatica']);
-         $this->editable = $this->str2bool($f['editable']);
-         $this->nogenerarasiento = $this->str2bool($f['nogenerarasiento']);
          
          $this->vencimiento = Date('d-m-Y', strtotime($f['fecha'].' +1month'));
          if( !is_null($f['vencimiento']) )
@@ -300,7 +258,6 @@ class factura_cliente extends fs_model
       {
          $this->idfactura = NULL;
          $this->idasiento = NULL;
-         $this->idpagodevol = NULL;
          $this->idfacturarect = NULL;
          $this->codigo = NULL;
          $this->numero = NULL;
@@ -332,14 +289,9 @@ class factura_cliente extends fs_model
          $this->totalirpf = 0;
          $this->porcomision = 0;
          $this->tasaconv = 1;
-         $this->recfinanciero = 0;
          $this->totalrecargo = 0;
          $this->observaciones = NULL;
          $this->pagada = FALSE;
-         $this->deabono = FALSE;
-         $this->automatica = FALSE;
-         $this->editable = TRUE;
-         $this->nogenerarasiento = FALSE;
          $this->vencimiento = Date('d-m-Y', strtotime('+1month'));
       }
    }
@@ -836,7 +788,6 @@ class factura_cliente extends fs_model
          if( $this->exists() )
          {
             $sql = "UPDATE ".$this->table_name." SET idasiento = ".$this->var2str($this->idasiento).
-                    ", idpagodevol = ".$this->var2str($this->idpagodevol).
                     ", idfacturarect = ".$this->var2str($this->idfacturarect).
                     ", codigo = ".$this->var2str($this->codigo).
                     ", numero = ".$this->var2str($this->numero).
@@ -867,14 +818,9 @@ class factura_cliente extends fs_model
                     ", totalirpf = ".$this->var2str($this->totalirpf).
                     ", porcomision = ".$this->var2str($this->porcomision).
                     ", tasaconv = ".$this->var2str($this->tasaconv).
-                    ", recfinanciero = ".$this->var2str($this->recfinanciero).
                     ", totalrecargo = ".$this->var2str($this->totalrecargo).
                     ", observaciones = ".$this->var2str($this->observaciones).
                     ", pagada = ".$this->var2str($this->pagada).
-                    ", deabono = ".$this->var2str($this->deabono).
-                    ", automatica = ".$this->var2str($this->automatica).
-                    ", editable = ".$this->var2str($this->editable).
-                    ", nogenerarasiento = ".$this->var2str($this->nogenerarasiento).
                     ", hora = ".$this->var2str($this->hora).
                     ", vencimiento = ".$this->var2str($this->vencimiento).
                     "  WHERE idfactura = ".$this->var2str($this->idfactura).";";
@@ -884,12 +830,11 @@ class factura_cliente extends fs_model
          else
          {
             $this->new_codigo();
-            $sql = "INSERT INTO ".$this->table_name." (idasiento,idpagodevol,idfacturarect,codigo,numero,
+            $sql = "INSERT INTO ".$this->table_name." (idasiento,idfacturarect,codigo,numero,
                codigorect,codejercicio,codserie,codalmacen,codpago,coddivisa,fecha,codcliente,nombrecliente,
                cifnif,direccion,ciudad,provincia,apartado,coddir,codpostal,codpais,codagente,neto,totaliva,total,totaleuros,
-               irpf,totalirpf,porcomision,tasaconv,recfinanciero,totalrecargo,pagada,observaciones,deabono,automatica,editable,
-               nogenerarasiento,hora,numero2,vencimiento) VALUES (".$this->var2str($this->idasiento).
-                    ",".$this->var2str($this->idpagodevol).
+               irpf,totalirpf,porcomision,tasaconv,totalrecargo,pagada,observaciones,
+               hora,numero2,vencimiento) VALUES (".$this->var2str($this->idasiento).
                     ",".$this->var2str($this->idfacturarect).
                     ",".$this->var2str($this->codigo).
                     ",".$this->var2str($this->numero).
@@ -919,14 +864,9 @@ class factura_cliente extends fs_model
                     ",".$this->var2str($this->totalirpf).
                     ",".$this->var2str($this->porcomision).
                     ",".$this->var2str($this->tasaconv).
-                    ",".$this->var2str($this->recfinanciero).
                     ",".$this->var2str($this->totalrecargo).
                     ",".$this->var2str($this->pagada).
                     ",".$this->var2str($this->observaciones).
-                    ",".$this->var2str($this->deabono).
-                    ",".$this->var2str($this->automatica).
-                    ",".$this->var2str($this->editable).
-                    ",".$this->var2str($this->nogenerarasiento).
                     ",".$this->var2str($this->hora).
                     ",".$this->var2str($this->numero2).
                     ",".$this->var2str($this->vencimiento).");";
@@ -1086,12 +1026,7 @@ class factura_cliente extends fs_model
       $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )
       {
-         $consulta .= "codigo LIKE '%".$query."%' OR numero2 LIKE '%".$query."%' OR observaciones LIKE '%".$query."%'
-            OR total BETWEEN ".($query-.01)." AND ".($query+.01);
-      }
-      else if( preg_match('/^([0-9]{1,2})-([0-9]{1,2})-([0-9]{4})$/i', $query) )
-      {
-         $consulta .= "fecha = ".$this->var2str($query)." OR observaciones LIKE '%".$query."%'";
+         $consulta .= "codigo LIKE '%".$query."%' OR numero2 LIKE '%".$query."%' OR observaciones LIKE '%".$query."%'";
       }
       else
       {
@@ -1118,7 +1053,9 @@ class factura_cliente extends fs_model
          " AND codserie = ".$this->var2str($serie);
       
       if($obs != '')
+      {
          $sql .= " AND lower(observaciones) = ".$this->var2str(strtolower($obs));
+      }
       
       $sql .= " ORDER BY fecha DESC, codigo DESC;";
       

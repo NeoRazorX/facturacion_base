@@ -268,8 +268,8 @@ class ventas_albaranes extends fs_controller
    
    private function delete_albaran()
    {
-      $alb1 = new albaran_cliente();
-      $alb1 = $alb1->get($_POST['delete']);
+      $alb = new albaran_cliente();
+      $alb1 = $alb->get($_POST['delete']);
       if($alb1)
       {
          /// ¿Actualizamos el stock de los artículos?

@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -21,16 +21,27 @@ require_model('agente.php');
 require_model('albaran_proveedor.php');
 require_model('articulo.php');
 require_model('proveedor.php');
+require_model('serie.php');
 
 class compras_albaranes extends fs_controller
 {
    public $agente;
    public $articulo;
    public $buscar_lineas;
+   public $codagente;
+   public $codserie;
+   public $desde;
+   public $hasta;
    public $lineas;
+   public $mostrar;
+   public $num_resultados;
    public $offset;
+   public $order;
    public $proveedor;
    public $resultados;
+   public $serie;
+   public $total_resultados;
+   public $total_resultados_txt;
    
    public function __construct()
    {
@@ -40,6 +51,19 @@ class compras_albaranes extends fs_controller
    protected function private_core()
    {
       $albaran = new albaran_proveedor();
+      $this->agente = new agente();
+      $this->serie = new serie();
+      
+      $this->mostrar = 'todo';
+      if( isset($_GET['mostrar']) )
+      {
+         $this->mostrar = $_GET['mostrar'];
+         setcookie('compras_alb_mostrar', $this->mostrar, time()+FS_COOKIES_EXPIRE);
+      }
+      else if( isset($_COOKIE['compras_alb_mostrar']) )
+      {
+         $this->mostrar = $_COOKIE['compras_alb_mostrar'];
+      }
       
       $this->offset = 0;
       if( isset($_REQUEST['offset']) )
@@ -47,25 +71,40 @@ class compras_albaranes extends fs_controller
          $this->offset = intval($_REQUEST['offset']);
       }
       
+      $this->order = 'fecha DESC';
+      if( isset($_GET['order']) )
+      {
+         if($_GET['order'] == 'fecha_desc')
+         {
+            $this->order = 'fecha DESC';
+         }
+         else if($_GET['order'] == 'fecha_asc')
+         {
+            $this->order = 'fecha ASC';
+         }
+         else if($_GET['order'] == 'codigo_desc')
+         {
+            $this->order = 'codigo DESC';
+         }
+         else if($_GET['order'] == 'codigo_asc')
+         {
+            $this->order = 'codigo ASC';
+         }
+         
+         setcookie('compras_alb_order', $this->order, time()+FS_COOKIES_EXPIRE);
+      }
+      else if( isset($_COOKIE['compras_alb_order']) )
+      {
+         $this->order = $_COOKIE['compras_alb_order'];
+      }
+      
       if( isset($_POST['buscar_lineas']) )
       {
          $this->buscar_lineas();
       }
-      else if( isset($_GET['codagente']) )
+      else if( isset($_REQUEST['buscar_proveedor']) )
       {
-         $this->template = 'extension/compras_albaranes_agente';
-         
-         $agente = new agente();
-         $this->agente = $agente->get($_GET['codagente']);
-         $this->resultados = $albaran->all_from_agente($_GET['codagente'], $this->offset);
-      }
-      else if( isset($_GET['codproveedor']) )
-      {
-         $this->template = 'extension/compras_albaranes_proveedor';
-         
-         $proveedor = new proveedor();
-         $this->proveedor = $proveedor->get($_GET['codproveedor']);
-         $this->resultados = $albaran->all_from_proveedor($_GET['codproveedor'], $this->offset);
+         $this->buscar_proveedor();
       }
       else if( isset($_GET['ref']) )
       {
@@ -80,54 +119,106 @@ class compras_albaranes extends fs_controller
       else
       {
          $this->share_extension();
+         $this->codagente = '';
+         $this->codserie = '';
+         $this->desde = '';
+         $this->hasta = '';
+         $this->num_resultados = '';
+         $this->proveedor = FALSE;
+         $this->total_resultados = '';
+         $this->total_resultados_txt = '';
          
          if( isset($_POST['delete']) )
          {
             $this->delete_albaran();
          }
-         
-         if($this->query != '')
+         else
          {
-            $this->resultados = $albaran->search($this->query, $this->offset);
+            if( isset($_REQUEST['codagente']) OR isset($_REQUEST['codproveedor']) )
+            {
+               $this->mostrar = 'buscar';
+            }
+            
+            if( isset($_REQUEST['codproveedor']) )
+            {
+               if($_REQUEST['codproveedor'] != '')
+               {
+                  $pro0 = new proveedor();
+                  $this->proveedor = $pro0->get($_REQUEST['codproveedor']);
+               }
+            }
+            
+            if( isset($_REQUEST['codagente']) )
+            {
+               $this->codagente = $_REQUEST['codagente'];
+            }
+            
+            if( isset($_REQUEST['codserie']) )
+            {
+               $this->codserie = $_REQUEST['codserie'];
+               $this->desde = $_REQUEST['desde'];
+               $this->hasta = $_REQUEST['hasta'];
+            }
          }
-         else if( isset($_GET['ptefactura']) )
+         
+         if($this->mostrar == 'pendientes')
          {
-            $this->resultados = $albaran->all_ptefactura($this->offset);
+            $this->resultados = $albaran->all_ptefactura($this->offset, $this->order);
+            
+            if($this->offset == 0)
+            {
+               $this->total_resultados = 0;
+               $this->total_resultados_txt = 'Suma total de esta página:';
+               foreach($this->resultados as $alb)
+               {
+                  $this->total_resultados += $alb->total;
+               }
+            }
+         }
+         else if($this->mostrar == 'buscar')
+         {
+            $this->buscar();
          }
          else
-            $this->resultados = $albaran->all($this->offset);
+            $this->resultados = $albaran->all($this->offset, $this->order);
       }
+   }
+   
+   private function buscar_proveedor()
+   {
+      /// desactivamos la plantilla HTML
+      $this->template = FALSE;
+      
+      $pro0 = new proveedor();
+      $json = array();
+      foreach($pro0->search($_REQUEST['buscar_proveedor']) as $pro)
+      {
+         $json[] = array('value' => $pro->nombre, 'data' => $pro->codproveedor);
+      }
+      
+      header('Content-Type: application/json');
+      echo json_encode( array('query' => $_REQUEST['buscar_proveedor'], 'suggestions' => $json) );
    }
    
    public function anterior_url()
    {
       $url = '';
-      $extra = '';
-      
-      if( isset($_GET['ptefactura']) )
+      $codproveedor = '';
+      if($this->proveedor)
       {
-         $extra = '&ptefactura=TRUE';
-      }
-      else if( isset($_GET['codagente']) )
-      {
-         $extra = '&codagente='.$_GET['codagente'];
-      }
-      else if( isset($_GET['codproveedor']) )
-      {
-         $extra = '&codproveedor='.$_GET['codproveedor'];
-      }
-      else if( isset($_GET['ref']) )
-      {
-         $extra = '&ref='.$_GET['ref'];
+         $codproveedor = $this->proveedor->codproveedor;
       }
       
-      if($this->query != '' AND $this->offset > 0)
+      if($this->offset > 0)
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
-      }
-      else if($this->query == '' AND $this->offset > 0)
-      {
-         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
+         $url = $this->url()."&mostrar=".$this->mostrar
+                 ."&query=".$this->query
+                 ."&codserie=".$this->codserie
+                 ."&codagente=".$this->codagente
+                 ."&codproveedor=".$codproveedor
+                 ."&desde=".$this->desde
+                 ."&hasta=".$this->hasta
+                 ."&offset=".($this->offset-FS_ITEM_LIMIT);
       }
       
       return $url;
@@ -136,32 +227,22 @@ class compras_albaranes extends fs_controller
    public function siguiente_url()
    {
       $url = '';
-      $extra = '';
-      
-      if( isset($_GET['ptefactura']) )
+      $codproveedor = '';
+      if($this->proveedor)
       {
-         $extra = '&ptefactura=TRUE';
-      }
-      else if( isset($_GET['codagente']) )
-      {
-         $extra = '&codagente='.$_GET['codagente'];
-      }
-      else if( isset($_GET['codproveedor']) )
-      {
-         $extra = '&codproveedor='.$_GET['codproveedor'];
-      }
-      else if( isset($_GET['ref']) )
-      {
-         $extra = '&ref='.$_GET['ref'];
+         $codproveedor = $this->proveedor->codproveedor;
       }
       
-      if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
+      if( count($this->resultados) == FS_ITEM_LIMIT )
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
-      }
-      else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
-      {
-         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+         $url = $this->url()."&mostrar=".$this->mostrar
+                 ."&query=".$this->query
+                 ."&codserie=".$this->codserie
+                 ."&codagente=".$this->codagente
+                 ."&codproveedor=".$codproveedor
+                 ."&desde=".$this->desde
+                 ."&hasta=".$this->hasta
+                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
       }
       
       return $url;
@@ -187,8 +268,8 @@ class compras_albaranes extends fs_controller
    
    private function delete_albaran()
    {
-      $alb1 = new albaran_proveedor();
-      $alb1 = $alb1->get($_POST['delete']);
+      $alb = new albaran_proveedor();
+      $alb1 = $alb->get($_POST['delete']);
       if($alb1)
       {
          /// ¿Actualizamos el stock de los artículos?
@@ -266,5 +347,81 @@ class compras_albaranes extends fs_controller
       }
       else
          return 0;
+   }
+   
+   private function buscar()
+   {
+      $this->resultados = array();
+      $this->num_resultados = 0;
+      $query = $this->agente->no_html( strtolower($this->query) );
+      $sql = " FROM albaranesprov ";
+      $where = 'WHERE ';
+      
+      if($this->query != '')
+      {
+         $sql .= $where;
+         if( is_numeric($query) )
+         {
+            $sql .= "(codigo LIKE '%".$query."%' OR numproveedor LIKE '%".$query."%' OR observaciones LIKE '%".$query."%')";
+         }
+         else
+         {
+            $sql .= "(lower(codigo) LIKE '%".$query."%' OR lower(numproveedor) LIKE '%".$query."%' "
+                    . "OR lower(observaciones) LIKE '%".str_replace(' ', '%', $query)."%')";
+         }
+         $where = ' AND ';
+      }
+      
+      if($this->codagente != '')
+      {
+         $sql .= $where."codagente = ".$this->agente->var2str($this->codagente);
+         $where = ' AND ';
+      }
+      
+      if($this->proveedor)
+      {
+         $sql .= $where."codproveedor = ".$this->agente->var2str($this->proveedor->codproveedor);
+         $where = ' AND ';
+      }
+      
+      if($this->codserie != '')
+      {
+         $sql .= $where."codserie = ".$this->agente->var2str($this->codserie);
+         $where = ' AND ';
+      }
+      
+      if($this->desde != '')
+      {
+         $sql .= $where."fecha >= ".$this->agente->var2str($this->desde);
+         $where = ' AND ';
+      }
+      
+      if($this->hasta != '')
+      {
+         $sql .= $where."fecha <= ".$this->agente->var2str($this->hasta);
+         $where = ' AND ';
+      }
+      
+      $data = $this->db->select("SELECT COUNT(idalbaran) as total".$sql);
+      if($data)
+      {
+         $this->num_resultados = intval($data[0]['total']);
+         
+         $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$this->order, FS_ITEM_LIMIT, $this->offset);
+         if($data2)
+         {
+            foreach($data2 as $d)
+            {
+               $this->resultados[] = new albaran_proveedor($d);
+            }
+         }
+         
+         $data2 = $this->db->select("SELECT SUM(total) as total".$sql);
+         if($data2)
+         {
+            $this->total_resultados = floatval($data2[0]['total']);
+            $this->total_resultados_txt = 'Suma total de los resultados:';
+         }
+      }
    }
 }

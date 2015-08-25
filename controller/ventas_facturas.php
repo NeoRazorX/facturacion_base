@@ -33,6 +33,7 @@ class ventas_facturas extends fs_controller
    public $desde;
    public $factura;
    public $hasta;
+   public $huecos;
    public $lineas;
    public $mostrar;
    public $num_resultados;
@@ -51,9 +52,9 @@ class ventas_facturas extends fs_controller
    
    protected function private_core()
    {
+      $this->agente = new agente();
       $this->factura = new factura_cliente();
       $this->huecos = array();
-      $this->agente = new agente();
       $this->serie = new serie();
       
       $this->mostrar = 'todo';
@@ -173,9 +174,9 @@ class ventas_facturas extends fs_controller
             {
                $this->total_resultados = 0;
                $this->total_resultados_txt = 'Suma total de esta página:';
-               foreach($this->resultados as $alb)
+               foreach($this->resultados as $fac)
                {
-                  $this->total_resultados += $alb->total;
+                  $this->total_resultados += $fac->total;
                }
             }
          }

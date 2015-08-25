@@ -285,10 +285,15 @@
             <h3 class="modal-title">¿Realmente desea eliminar esta factura?</h3>
          </div>
          {if="$fsc->factura->idasiento"}
-         <div class="modal-body">
-            Hay asociado un asiento contable que será eliminado junto con la factura.
+         <div class="alert alert-warning">
+            Hay asociado un <b>asiento contable</b> que <b>será eliminado</b> junto con la factura.
             <br/>
             Además, si no hay asociado un {#FS_ALBARAN#} o {#FS_ALBARANES#},
+            se descontará el stock de los artículos.
+         </div>
+         {else}
+         <div class="alert alert-info">
+            Si no hay asociado un {#FS_ALBARAN#} o {#FS_ALBARANES#},
             se descontará el stock de los artículos.
          </div>
          {/if}

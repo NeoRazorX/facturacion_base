@@ -406,8 +406,6 @@ class compras_albaran extends fs_controller
    private function generar_factura()
    {
       $factura = new factura_proveedor();
-      $factura->automatica = TRUE;
-      $factura->editable = FALSE;
       $factura->cifnif = $this->albaran->cifnif;
       $factura->codalmacen = $this->albaran->codalmacen;
       $factura->coddivisa = $this->albaran->coddivisa;
@@ -421,7 +419,6 @@ class compras_albaran extends fs_controller
       $factura->nombre = $this->albaran->nombre;
       $factura->numproveedor = $this->albaran->numproveedor;
       $factura->observaciones = $this->albaran->observaciones;
-      $factura->recfinanciero = $this->albaran->recfinanciero;
       $factura->total = $this->albaran->total;
       $factura->totalirpf = $this->albaran->totalirpf;
       $factura->totaliva = $this->albaran->totaliva;

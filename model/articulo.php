@@ -88,6 +88,8 @@ class articulo extends fs_model
    
    /**
     * Precio de coste editado manualmente.
+    * No necesariamente es el precio de compra, puede incluir
+    * también otros costes.
     * @var type 
     */
    public $preciocoste;
@@ -97,6 +99,11 @@ class articulo extends fs_model
     * @var type 
     */
    public $codimpuesto;
+   
+   /**
+    * TRUE => el artículos está bloqueado / obsoleto.
+    * @var type 
+    */
    public $bloqueado;
    public $secompra;
    public $sevende;
@@ -1087,7 +1094,8 @@ class articulo extends fs_model
          else
          {
             /// buscamos la referencia completa, para ponerlo el primero
-            $data = $this->db->select("SELECT ".self::$column_list." FROM ".$this->table_name." WHERE lower(referencia) = ".$this->var2str($query).";");
+            $data = $this->db->select("SELECT ".self::$column_list." FROM ".$this->table_name
+                    ." WHERE lower(referencia) = ".$this->var2str($query).";");
             if($data)
             {
                $artilist[] = new articulo($data[0]);
@@ -1102,7 +1110,10 @@ class articulo extends fs_model
             $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE ";
          }
          else
-            $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = ".$this->var2str($codfamilia)." AND ";
+         {
+            $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = "
+                 .$this->var2str($codfamilia)." AND ";
+         }
          
          if($codfabricante != '')
          {
@@ -1116,8 +1127,8 @@ class articulo extends fs_model
          
          if( is_numeric($query) )
          {
-            $sql .= "(referencia LIKE '%".$query."%' OR equivalencia LIKE '%".$query."%' OR descripcion LIKE '%".$query."%'
-               OR codbarras = '".$query."')";
+            $sql .= "(referencia LIKE '%".$query."%' OR equivalencia LIKE '%".$query."%'"
+                    . " OR descripcion LIKE '%".$query."%' OR codbarras = '".$query."')";
          }
          else
          {
@@ -1133,7 +1144,7 @@ class articulo extends fs_model
          {
             foreach($data as $a)
             {
-               /// PUEDE que hayamos puesto el primero al artćiulo con la referencia exacta
+               /// PUEDE que hayamos puesto el primero al artículo con la referencia exacta
                if($a['referencia'] != $query OR count($artilist) == 0)
                {
                   $artilist[] = new articulo($a);
@@ -1148,8 +1159,9 @@ class articulo extends fs_model
    public function search_by_codbar($cod, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
+      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name
+              ." WHERE codbarras = ".$this->var2str($cod)." ORDER BY referencia ASC";
       
-      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codbarras = ".$this->var2str($cod)." ORDER BY referencia ASC";
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
@@ -1160,11 +1172,18 @@ class articulo extends fs_model
       return $artilist;
    }
    
+   /**
+    * Devuelve el listado de artículos desde el resultado $offset hasta $offset+$limit.
+    * @param integer $offset desde
+    * @param integer $limit nº de elementos devuelto
+    * @return \articulo
+    */
    public function all($offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
+      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." ORDER BY referencia ASC";
       
-      $data = $this->db->select_limit("SELECT ".self::$column_list." FROM ".$this->table_name." ORDER BY referencia ASC", $limit, $offset);
+      $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
          foreach($data as $d)
@@ -1177,8 +1196,10 @@ class articulo extends fs_model
    public function all_publico($offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
+      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name
+              ." WHERE publico ORDER BY referencia ASC";
       
-      $data = $this->db->select_limit("SELECT ".self::$column_list." FROM ".$this->table_name." WHERE publico ORDER BY referencia ASC", $limit, $offset);
+      $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
          foreach($data as $d)
@@ -1198,8 +1219,9 @@ class articulo extends fs_model
    public function all_from_familia($cod, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
+      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = "
+              .$this->var2str($cod)." ORDER BY referencia ASC";
       
-      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = ".$this->var2str($cod)." ORDER BY referencia ASC";
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
@@ -1220,8 +1242,9 @@ class articulo extends fs_model
    public function all_from_fabricante($cod, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codfabricante = "
+              .$this->var2str($cod)." ORDER BY codfabricante ASC";
       
-      $sql = "SELECT * FROM ".$this->table_name." WHERE codfabricante = ".$this->var2str($cod)." ORDER BY codfabricante ASC";
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {

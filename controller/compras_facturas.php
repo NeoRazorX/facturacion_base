@@ -27,11 +27,22 @@ class compras_facturas extends fs_controller
    public $agente;
    public $articulo;
    public $buscar_lineas;
+   public $codagente;
+   public $codserie;
+   public $desde;
    public $factura;
+   public $hasta;
+   public $lineas;
+   public $mostrar;
+   public $num_resultados;
    public $offset;
+   public $order;
    public $proveedor;
    public $resultados;
-
+   public $serie;
+   public $total_resultados;
+   public $total_resultados_txt;
+   
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Facturas de proveedor', 'compras', FALSE, TRUE);
@@ -39,7 +50,20 @@ class compras_facturas extends fs_controller
    
    protected function private_core()
    {
+      $this->agente = new agente();
       $this->factura = new factura_proveedor();
+      $this->serie = new serie();
+      
+      $this->mostrar = 'todo';
+      if( isset($_GET['mostrar']) )
+      {
+         $this->mostrar = $_GET['mostrar'];
+         setcookie('compras_fac_mostrar', $this->mostrar, time()+FS_COOKIES_EXPIRE);
+      }
+      else if( isset($_COOKIE['compras_fac_mostrar']) )
+      {
+         $this->mostrar = $_COOKIE['compras_fac_mostrar'];
+      }
       
       $this->offset = 0;
       if( isset($_GET['offset']) )
@@ -47,25 +71,40 @@ class compras_facturas extends fs_controller
          $this->offset = intval($_GET['offset']);
       }
       
+      $this->order = 'fecha DESC';
+      if( isset($_GET['order']) )
+      {
+         if($_GET['order'] == 'fecha_desc')
+         {
+            $this->order = 'fecha DESC';
+         }
+         else if($_GET['order'] == 'fecha_asc')
+         {
+            $this->order = 'fecha ASC';
+         }
+         else if($_GET['order'] == 'codigo_desc')
+         {
+            $this->order = 'codigo DESC';
+         }
+         else if($_GET['order'] == 'codigo_asc')
+         {
+            $this->order = 'codigo ASC';
+         }
+         
+         setcookie('compras_fac_order', $this->order, time()+FS_COOKIES_EXPIRE);
+      }
+      else if( isset($_COOKIE['compras_fac_order']) )
+      {
+         $this->order = $_COOKIE['compras_fac_order'];
+      }
+      
       if( isset($_POST['buscar_lineas']) )
       {
          $this->buscar_lineas();
       }
-      else if( isset($_GET['codagente']) )
+      else if( isset($_REQUEST['buscar_proveedor']) )
       {
-         $this->template = 'extension/compras_facturas_agente';
-         
-         $agente = new agente();
-         $this->agente = $agente->get($_GET['codagente']);
-         $this->resultados = $this->factura->all_from_agente($_GET['codagente'], $this->offset);
-      }
-      else if( isset($_GET['codproveedor']) )
-      {
-         $this->template = 'extension/compras_facturas_proveedor';
-         
-         $proveedor = new proveedor();
-         $this->proveedor = $proveedor->get($_GET['codproveedor']);
-         $this->resultados = $this->factura->all_from_proveedor($_GET['codproveedor'], $this->offset);
+         $this->buscar_proveedor();
       }
       else if( isset($_GET['ref']) )
       {
@@ -80,56 +119,106 @@ class compras_facturas extends fs_controller
       else
       {
          $this->share_extension();
+         $this->proveedor = FALSE;
+         $this->codagente = '';
+         $this->codserie = '';
+         $this->desde = '';
+         $this->hasta = '';
+         $this->num_resultados = '';
+         $this->total_resultados = '';
+         $this->total_resultados_txt = '';
          
          if( isset($_GET['delete']) )
          {
             $this->delete_factura();
          }
-         
-         if($this->query != '')
-         {
-            $this->resultados = $this->factura->search($this->query, $this->offset);
-         }
-         else if( isset($_GET['sinpagar']) )
-         {
-            $this->resultados = $this->factura->all_sin_pagar($this->offset);
-         }
          else
          {
-            $this->resultados = $this->factura->all($this->offset);
+            if( isset($_REQUEST['codagente']) OR isset($_REQUEST['codproveedor']) )
+            {
+               $this->mostrar = 'buscar';
+            }
+            
+            if( isset($_REQUEST['codproveedor']) )
+            {
+               if($_REQUEST['codproveedor'] != '')
+               {
+                  $pro0 = new proveedor();
+                  $this->proveedor = $pro0->get($_REQUEST['codproveedor']);
+               }
+            }
+            
+            if( isset($_REQUEST['codagente']) )
+            {
+               $this->codagente = $_REQUEST['codagente'];
+            }
+            
+            if( isset($_REQUEST['codserie']) )
+            {
+               $this->codserie = $_REQUEST['codserie'];
+               $this->desde = $_REQUEST['desde'];
+               $this->hasta = $_REQUEST['hasta'];
+            }
          }
+         
+         if($this->mostrar == 'sinpagar')
+         {
+            $this->resultados = $this->factura->all_sin_pagar($this->offset, FS_ITEM_LIMIT, $this->order);
+            
+            if($this->offset == 0)
+            {
+               $this->total_resultados = 0;
+               $this->total_resultados_txt = 'Suma total de esta página:';
+               foreach($this->resultados as $alb)
+               {
+                  $this->total_resultados += $alb->total;
+               }
+            }
+         }
+         else if($this->mostrar == 'buscar')
+         {
+            $this->buscar();
+         }
+         else
+            $this->resultados = $this->factura->all($this->offset, FS_ITEM_LIMIT, $this->order);
       }
+   }
+   
+   private function buscar_proveedor()
+   {
+      /// desactivamos la plantilla HTML
+      $this->template = FALSE;
+      
+      $pro0 = new proveedor();
+      $json = array();
+      foreach($pro0->search($_REQUEST['buscar_proveedor']) as $pro)
+      {
+         $json[] = array('value' => $pro->nombre, 'data' => $pro->codproveedor);
+      }
+      
+      header('Content-Type: application/json');
+      echo json_encode( array('query' => $_REQUEST['buscar_proveedor'], 'suggestions' => $json) );
    }
    
    public function anterior_url()
    {
       $url = '';
-      $extra = '';
-      
-      if( isset($_GET['sinpagar']) )
+      $codproveedor = '';
+      if($this->proveedor)
       {
-         $extra = '&sinpagar=TRUE';
-      }
-      else if( isset($_GET['codagente']) )
-      {
-         $extra = '&codagente='.$_GET['codagente'];
-      }
-      else if( isset($_GET['codproveedor']) )
-      {
-         $extra = '&codproveedor='.$_GET['codproveedor'];
-      }
-      else if( isset($_GET['ref']) )
-      {
-         $extra = '&ref='.$_GET['ref'];
+         $codproveedor = $this->proveedor->codproveedor;
       }
       
-      if($this->query != '' AND $this->offset > 0)
+      if($this->offset > 0)
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
-      }
-      else if($this->query == '' AND $this->offset > 0)
-      {
-         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
+         $url = $this->url()."&mostrar=".$this->mostrar
+                 ."&query=".$this->query
+                 ."&codserie=".$this->codserie
+                 ."&codagente=".$this->codagente
+                 ."&codproveedor=".$codproveedor
+                 ."&desde=".$this->desde
+                 ."&hasta=".$this->hasta
+                 ."&offset=".($this->offset-FS_ITEM_LIMIT);
       }
       
       return $url;
@@ -138,32 +227,22 @@ class compras_facturas extends fs_controller
    public function siguiente_url()
    {
       $url = '';
-      $extra = '';
-      
-      if( isset($_GET['sinpagar']) )
+      $codproveedor = '';
+      if($this->proveedor)
       {
-         $extra = '&sinpagar=TRUE';
-      }
-      else if( isset($_GET['codagente']) )
-      {
-         $extra = '&codagente='.$_GET['codagente'];
-      }
-      else if( isset($_GET['codproveedor']) )
-      {
-         $extra = '&codproveedor='.$_GET['codproveedor'];
-      }
-      else if( isset($_GET['ref']) )
-      {
-         $extra = '&ref='.$_GET['ref'];
+         $codproveedor = $this->proveedor->codproveedor;
       }
       
-      if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
+      if( count($this->resultados) == FS_ITEM_LIMIT )
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
-      }
-      else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
-      {
-         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+         $url = $this->url()."&mostrar=".$this->mostrar
+                 ."&query=".$this->query
+                 ."&codserie=".$this->codserie
+                 ."&codagente=".$this->codagente
+                 ."&codproveedor=".$codproveedor
+                 ."&desde=".$this->desde
+                 ."&hasta=".$this->hasta
+                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
       }
       
       return $url;
@@ -228,6 +307,82 @@ class compras_facturas extends fs_controller
       }
       else
          return 0;
+   }
+   
+   private function buscar()
+   {
+      $this->resultados = array();
+      $this->num_resultados = 0;
+      $query = $this->agente->no_html( strtolower($this->query) );
+      $sql = " FROM facturasprov ";
+      $where = 'WHERE ';
+      
+      if($this->query != '')
+      {
+         $sql .= $where;
+         if( is_numeric($query) )
+         {
+            $sql .= "(codigo LIKE '%".$query."%' OR numproveedor LIKE '%".$query."%' OR observaciones LIKE '%".$query."%')";
+         }
+         else
+         {
+            $sql .= "(lower(codigo) LIKE '%".$query."%' OR lower(numproveedor) LIKE '%".$query."%' "
+                    . "OR lower(observaciones) LIKE '%".str_replace(' ', '%', $query)."%')";
+         }
+         $where = ' AND ';
+      }
+      
+      if($this->codagente != '')
+      {
+         $sql .= $where."codagente = ".$this->agente->var2str($this->codagente);
+         $where = ' AND ';
+      }
+      
+      if($this->proveedor)
+      {
+         $sql .= $where."codproveedor = ".$this->agente->var2str($this->proveedor->codproveedor);
+         $where = ' AND ';
+      }
+      
+      if($this->codserie != '')
+      {
+         $sql .= $where."codserie = ".$this->agente->var2str($this->codserie);
+         $where = ' AND ';
+      }
+      
+      if($this->desde != '')
+      {
+         $sql .= $where."fecha >= ".$this->agente->var2str($this->desde);
+         $where = ' AND ';
+      }
+      
+      if($this->hasta != '')
+      {
+         $sql .= $where."fecha <= ".$this->agente->var2str($this->hasta);
+         $where = ' AND ';
+      }
+      
+      $data = $this->db->select("SELECT COUNT(idfactura) as total".$sql);
+      if($data)
+      {
+         $this->num_resultados = intval($data[0]['total']);
+         
+         $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$this->order, FS_ITEM_LIMIT, $this->offset);
+         if($data2)
+         {
+            foreach($data2 as $d)
+            {
+               $this->resultados[] = new factura_proveedor($d);
+            }
+         }
+         
+         $data2 = $this->db->select("SELECT SUM(total) as total".$sql);
+         if($data2)
+         {
+            $this->total_resultados = floatval($data2[0]['total']);
+            $this->total_resultados_txt = 'Suma total de los resultados:';
+         }
+      }
    }
    
    private function delete_factura()

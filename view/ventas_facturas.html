@@ -32,6 +32,11 @@
       document.f_custom_search.ac_cliente.focus();
    }
    $(document).ready(function() {
+      
+      {if="$fsc->mostrar=='buscar'"}
+      document.f_custom_search.query.focus();
+      {/if}
+      
       $('#b_huecos').click(function() {
          $('#modal_huecos').modal('show');
       });

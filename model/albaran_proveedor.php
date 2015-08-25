@@ -152,12 +152,6 @@ class albaran_proveedor extends fs_model
    public $tasaconv;
    
    /**
-    * Todavía sin uso.
-    * @var type 
-    */
-   private $recfinanciero;
-   
-   /**
     * Suma total del recargo de equivalencia de las líneas.
     * @var type 
     */
@@ -177,16 +171,15 @@ class albaran_proveedor extends fs_model
       if($a)
       {
          $this->idalbaran = $this->intval($a['idalbaran']);
-         if( $this->str2bool($a['ptefactura']) )
+         
+         $this->idfactura = $this->intval($a['idfactura']);
+         $this->ptefactura = $this->str2bool($a['ptefactura']);
+         if($this->idfactura)
          {
-            $this->ptefactura = TRUE;
-            $this->idfactura = NULL;
-         }
-         else
-         {
+            /// si ya hay una factura enlazada, no puede estar pendiente de factura
             $this->ptefactura = FALSE;
-            $this->idfactura = $this->intval($a['idfactura']);
          }
+         
          $this->codigo = $a['codigo'];
          $this->numero = $a['numero'];
          $this->numproveedor = $a['numproveedor'];
@@ -212,7 +205,6 @@ class albaran_proveedor extends fs_model
          $this->irpf = floatval($a['irpf']);
          $this->totalirpf = floatval($a['totalirpf']);
          $this->tasaconv = floatval($a['tasaconv']);
-         $this->recfinanciero = floatval($a['recfinanciero']);
          $this->totalrecargo = floatval($a['totalrecargo']);
          $this->observaciones = $this->no_html($a['observaciones']);
       }
@@ -241,7 +233,6 @@ class albaran_proveedor extends fs_model
          $this->irpf = 0;
          $this->totalirpf = 0;
          $this->tasaconv = 1;
-         $this->recfinanciero = 0;
          $this->totalrecargo = 0;
          $this->observaciones = '';
          $this->ptefactura = TRUE;
@@ -387,6 +378,11 @@ class albaran_proveedor extends fs_model
    {
       $this->observaciones = $this->no_html($this->observaciones);
       $this->totaleuros = $this->total * $this->tasaconv;
+      
+      if($this->idfactura)
+      {
+         $this->ptefactura = FALSE;
+      }
       
       if( $this->floatcmp($this->total, $this->neto+$this->totaliva-$this->totalirpf+$this->totalrecargo, FS_NF0, TRUE) )
       {
@@ -543,7 +539,6 @@ class albaran_proveedor extends fs_model
                     .", irpf = ".$this->var2str($this->irpf)
                     .", totalirpf = ".$this->var2str($this->totalirpf)
                     .", tasaconv = ".$this->var2str($this->tasaconv)
-                    .", recfinanciero = ".$this->var2str($this->recfinanciero)
                     .", totalrecargo = ".$this->var2str($this->totalrecargo)
                     .", observaciones = ".$this->var2str($this->observaciones)
                     .", hora = ".$this->var2str($this->hora)
@@ -558,7 +553,7 @@ class albaran_proveedor extends fs_model
             $sql = "INSERT INTO ".$this->table_name." (codigo,numero,numproveedor,
                codejercicio,codserie,coddivisa,codpago,codagente,codalmacen,fecha,codproveedor,
                nombre,cifnif,neto,total,totaliva,totaleuros,irpf,totalirpf,tasaconv,
-               recfinanciero,totalrecargo,observaciones,ptefactura,hora) VALUES
+               totalrecargo,observaciones,ptefactura,hora) VALUES
                       (".$this->var2str($this->codigo)
                     .",".$this->var2str($this->numero)
                     .",".$this->var2str($this->numproveedor)
@@ -579,7 +574,6 @@ class albaran_proveedor extends fs_model
                     .",".$this->var2str($this->irpf)
                     .",".$this->var2str($this->totalirpf)
                     .",".$this->var2str($this->tasaconv)
-                    .",".$this->var2str($this->recfinanciero)
                     .",".$this->var2str($this->totalrecargo)
                     .",".$this->var2str($this->observaciones)
                     .",".$this->var2str($this->ptefactura)
@@ -637,11 +631,10 @@ class albaran_proveedor extends fs_model
       return $albalist;
    }
    
-   public function all_ptefactura($offset=0, $order='ASC')
+   public function all_ptefactura($offset=0, $order='fecha ASC')
    {
       $albalist = array();
-      $sql = "SELECT * FROM ".$this->table_name." WHERE ptefactura = true"
-              . " ORDER BY fecha ".$order.", codigo ".$order;
+      $sql = "SELECT * FROM ".$this->table_name." WHERE ptefactura = true ORDER BY ".$order;
       
       $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
@@ -710,12 +703,7 @@ class albaran_proveedor extends fs_model
       $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )
       {
-         $consulta .= "codigo LIKE '%".$query."%' OR numproveedor LIKE '%".$query."%' OR observaciones LIKE '%".$query."%'
-            OR total BETWEEN '".($query-.01)."' AND '".($query+.01)."'";
-      }
-      else if( preg_match('/^([0-9]{1,2})-([0-9]{1,2})-([0-9]{4})$/i', $query) ) /// es una fecha
-      {
-         $consulta .= "fecha = ".$this->var2str($query)." OR observaciones LIKE '%".$query."%'";
+         $consulta .= "codigo LIKE '%".$query."%' OR numproveedor LIKE '%".$query."%' OR observaciones LIKE '%".$query."%'";
       }
       else
       {

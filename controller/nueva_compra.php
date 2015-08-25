@@ -173,7 +173,9 @@ class nueva_compra extends fs_controller
       }
       
       if( $this->user->have_access_to('compras_factura') )
+      {
          $tipos[] = array('tipo' => 'factura', 'nombre' => 'Factura de proveedor');
+      }
       
       return $tipos;
    }
@@ -223,6 +225,9 @@ class nueva_compra extends fs_controller
          $art0->descripcion = $_REQUEST['descripcion'];
          $art0->set_impuesto($_REQUEST['codimpuesto']);
          $art0->set_pvp( floatval($_REQUEST['pvp']) );
+         $art0->costemedio = floatval($_REQUEST['coste']);
+         $art0->preciocoste = floatval($_REQUEST['coste']);
+         
          if($_POST['codfamilia'] != '')
          {
             $art0->codfamilia = $_REQUEST['codfamilia'];
