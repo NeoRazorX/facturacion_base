@@ -1,0 +1,100 @@
+{include="header"}
+
+<script type="text/javascript">
+   function delete_provincia(url)
+   {
+      if( confirm("¿Realmente desea eliminar este provincia?") )
+         window.location.href = url;
+   }
+</script>
+
+<div class="container">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               Provincias
+               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+               <div class="btn-group">
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='button'"}
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                  {/if}
+               {/loop}
+               </div>
+            </h1>
+         </div>
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th class="text-left" width="190">
+                        Código
+                     </th>
+                     <th class="text-left" width="190">
+                        País
+                     </th>
+                     <th class="text-left">Nombre</th>
+                     <th class="text-right" width="120">Acciones</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->provincia->all()"}
+               <form action="{$fsc->url()}" method="post" class="form" role="form">
+                  <tr>
+                     <td>
+                        <input type="hidden" name="scodprovincia" value="{$value->codprovincia}"/>
+                        <div class="form-control">{$value1->codprovincia}</div>
+                     </td>
+                     <td>
+                       
+                          <select class="form-control" name="scodpais">
+                              {loop="$fsc->pais->all()"}
+                              <option value="{$value2->codpais}"{if="$value2->codpais==$value1->codpais"} selected="selected"{/if}>{$value->nombre}</option>
+                               {/loop}
+                           </select>
+                          
+                     </td>
+                     <td><input class="form-control" type="text" name="snombre" value="{$value->nombre}" autocomplete="off"/></td>
+                     <td class="text-right">
+                        <div class="btn-group">
+                           {if="$fsc->allow_delete"}
+                              
+                              <a class="btn btn-sm btn-danger" onclick="delete_provincia('{$fsc->url()}&delete={$value1->codprovincia}')" title="Eliminar">
+                                 <span class="glyphicon glyphicon-trash"></span>
+                              </a>
+                              {/if}
+                           <button class="btn btn-sm btn-primary" type="submit" title="Guardar">
+                              <span class="glyphicon glyphicon-floppy-disk"></span>
+                           </button>
+                        </div>
+                     </td>
+                  </tr>
+               </form>
+               {/loop}
+               <form class="form" role="form" name="f_nuevo_provincia" action ="{$fsc->url()}" method="post">
+                  <tr class="bg-info">
+                     <td><input class="form-control" type="text" name="scodprovincia" maxlength="20" placeholder="Nuevo código" autocomplete="off"/></td>
+                     <td>
+                     <select class="form-control" name="scodpais">
+                              {loop="$fsc->pais->all()"}
+                                <option value="{$value->codpais}"{if="$value->is_default()"} selected="selected"{/if}>{$value->nombre}</option>
+                               {/loop}
+                     </select>
+                     </td>
+                     <td><input class="form-control" type="text" name="snombre" placeholder="Nuevo nombre" autocomplete="off"/></td>
+                     <td class="text-right">
+                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                           <span class="glyphicon glyphicon-floppy-disk"></span>
+                        </button>
+                     </td>
+                  </tr>
+               </form>
+            </table>
+         </div>
+      </div>
+   </div>
+</div>
+
+{include="footer"}

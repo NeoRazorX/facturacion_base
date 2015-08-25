@@ -28,6 +28,7 @@ require_model('forma_pago.php');
 require_model('grupo_clientes.php');
 require_model('impuesto.php');
 require_model('pais.php');
+require_model('provincia.php');
 require_model('pedido_cliente.php');
 require_model('presupuesto_cliente.php');
 require_model('serie.php');
@@ -51,6 +52,7 @@ class nueva_venta extends fs_controller
    public $tipo;
    public $grupo;
    public $ct_setup;
+   public $provincia;
    
    public function __construct()
    {
@@ -67,6 +69,7 @@ class nueva_venta extends fs_controller
       $this->results = array();
       $this->grupo = new grupo_clientes();
       $this->pais = new pais();
+      $this->provincia = new provincia();
       
       
       /// cargamos la configuración
@@ -116,6 +119,10 @@ class nueva_venta extends fs_controller
       if( isset($_REQUEST['buscar_cliente']) )
       {
          $this->buscar_cliente();
+      }
+       else if( isset($_REQUEST['buscar_provincia']) )
+      {
+         $this->buscar_provincia();
       }
       else if( isset($_REQUEST['datoscliente']) )
       {
@@ -297,6 +304,21 @@ class nueva_venta extends fs_controller
       
       header('Content-Type: application/json');
       echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
+   }
+   
+   private function buscar_provincia()
+   {
+      /// desactivamos la plantilla HTML
+      $this->template = FALSE;
+      
+      $json = array();
+      foreach($this->provincia->search($_REQUEST['buscar_provincia']) as $prov)
+      {
+         $json[] = array('value' => $prov->nombre, 'data' => $prov->codprovincia);
+      }
+      
+      header('Content-Type: application/json');
+      echo json_encode( array('query' => $_REQUEST['buscar_provincia'], 'suggestions' => $json) );
    }
    
    private function datos_cliente()

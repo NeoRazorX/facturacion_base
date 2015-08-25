@@ -71,6 +71,20 @@
          $("#modal_nueva_direccion").modal('show');
          document.f_nueva_direccion.provincia.focus();
       });
+       $("#ac_provincia").autocomplete({
+         serviceUrl: '{$fsc->nueva_venta_url}',
+         paramName: 'buscar_provincia',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if(document.f_nuevo_cliente.provincia.value != suggestion.data && suggestion.data != '')
+               {
+                  document.f_nuevo_cliente.provincia.value = suggestion.data;
+                  usar_provincia(suggestion.data);
+               }
+            }
+         }
+      });
    });
 </script>
 
@@ -407,8 +421,15 @@
                         </select>
                      </div>
                      <div class="form-group col-lg-4 col-md-4 col-sm-4">
-                        <span class="text-capitalize">{#FS_PROVINCIA#}</span>:
-                        <input class="form-control" type="text" name="provincia" value="{$value->provincia}"/>
+                        <a href="{$fsc->provincia->url()}">{#FS_PROVINCIA#}</a>:
+                            <div class="input-group">
+                                <input class="form-control" type="text" name="provincia" value="{$value->provincia}" id="ac_provincia" placeholder="Buscar" autocomplete="off"/>
+                              <span class="input-group-btn">
+                                 <button class="btn btn-default" type="button" onclick="document.f_nueva_venta.ac_provincia.value=''; document.f_nueva_venta.ac_provincia.focus();">
+                                   <span class="glyphicon glyphicon-edit"></span>
+                                 </button>
+                              </span>
+                    </div>
                      </div>
                      <div class="form-group col-lg-4 col-md-4 col-sm-4">
                         Ciudad:

@@ -449,16 +449,22 @@
             }
          }
       });
-   });
-   $(function()
-{
-  $('#f_nueva_venta').submit(function(){
-    $("input[type='submit']", this)
-      .val("Guardando...")
-      .attr('disabled', 'disabled');
-    return true;
-  });
-});
+
+    $("#ac_provincia").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_provincia',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if(document.f_nueva_venta.provincia.value != suggestion.data && suggestion.data != '')
+               {
+                  document.f_nueva_venta.provincia.value = suggestion.data;
+                  usar_provincia(suggestion.data);
+               }
+            }
+         }
+      });
+      });
 </script>
 
 <form name="f_nueva_venta" class="form" action="{$fsc->url()}" method="post">
@@ -521,7 +527,7 @@
                 <div class="col-lg-3">
                     <div class="form-group {if="$fsc->ct_setup['ct_codpostal_req']"}has-error{/if}">
                     Codpostal:
-                    <input type="number" name="nuevo_codpostal" class="form-control" autocomplete="off"{if="$fsc->ct_setup['ct_codpostal_req']"} required{/if} maxlength="5" minlength="5"/>
+                    <input type="text" name="nuevo_codpostal" class="form-control" autocomplete="off"{if="$fsc->ct_setup['ct_codpostal_req']"} required{/if} maxlength="5" minlength="5"/>
                     </div>
                 </div>
                 {/if}
@@ -541,13 +547,18 @@
                 {/if}
                 {if="$fsc->ct_setup['ct_provincia']"}
                 <div class="col-lg-4">
-                    <div class="form-group {if="$fsc->ct_setup['ct_provincia_req']"}has-error{/if}">
-                    Provincia:
-                    <input type="text" name="nuevo_provincia" class="form-control" autocomplete="off"{if="$fsc->ct_setup['ct_provincia_req']"} required{/if}/>
+                     <a href="{$fsc->provincia->url()}">Provincia</a>:
+                    <div class="input-group">
+                      <input class="form-control" type="text" name="nuevo_provincia" id="ac_provincia" placeholder="Buscar" autocomplete="off"/>
+                      <span class="input-group-btn">
+                         <button class="btn btn-default" type="button" onclick="document.f_nueva_venta.ac_provincia.value=''; document.f_nueva_venta.ac_provincia.focus();">
+                            <span class="glyphicon glyphicon-edit"></span>
+                         </button>
+                      </span>
                     </div>
                 </div>
                 {/if}
-                 {if="$fsc->ct_setup['ct_ciudad']"}
+                {if="$fsc->ct_setup['ct_ciudad']"}
                 <div class="col-lg-5">
                     <div class="form-group {if="$fsc->ct_setup['ct_ciudad_req']"}has-error{/if}">
                     Ciudad:
@@ -555,6 +566,7 @@
                     </div>
                 </div>
                 {/if}
+                
               </div>
               <div class="row">
                 {if="$fsc->ct_setup['ct_telefono1']"}
@@ -576,7 +588,7 @@
                 {if="$fsc->ct_setup['ct_grupo']"}
                 <div class="col-lg-4">
                     <div class="form-group {if="$fsc->ct_setup['ct_grupo_req']"}has-error{/if}">
-                        <a href="{$fsc->grupo->url()}">Grupo de clientes</a>:
+                        <a href="{$fsc->grupo->url()}">Grupo</a>:
                         <select class="form-control" name="codgrupo">
                            <option value="">Ninguno</option>
                            <option value="">-----</option>

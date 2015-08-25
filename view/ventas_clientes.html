@@ -31,6 +31,21 @@
          event.preventDefault();
          show_nuevo_cliente();
       });
+     
+        $("#ac_provincia").autocomplete({
+         serviceUrl: '{$fsc->nueva_venta_url}',
+         paramName: 'buscar_provincia',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if(document.f_nuevo_cliente.provincia.value != suggestion.data && suggestion.data != '')
+               {
+                  document.f_nuevo_cliente.provincia.value = suggestion.data;
+                  usar_provincia(suggestion.data);
+               }
+            }
+         }
+      });
    });
 </script>
 
@@ -297,9 +312,14 @@
                 {/if}
                 {if="$fsc->ct_setup['ct_provincia']"}
                 <div class="col-lg-4">
-                    <div class="form-group {if="$fsc->ct_setup['ct_provincia_req']"}has-error{/if}">
-                    Provincia:
-                    <input type="text" name="provincia" class="form-control" autocomplete="off"{if="$fsc->ct_setup['ct_provincia_req']"} required{/if}/>
+                     <a href="{$fsc->provincia->url()}">Provincia</a>:
+                    <div class="input-group">
+                      <input class="form-control" type="text" name="provincia" id="ac_provincia" placeholder="Buscar" autocomplete="off"/>
+                      <span class="input-group-btn">
+                         <button class="btn btn-default" type="button" onclick="document.f_nueva_venta.ac_provincia.value=''; document.f_nueva_venta.ac_provincia.focus();">
+                            <span class="glyphicon glyphicon-edit"></span>
+                         </button>
+                      </span>
                     </div>
                 </div>
                 {/if}
