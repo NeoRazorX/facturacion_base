@@ -1,6 +1,7 @@
 {include="header"}
 
 {if="$fsc->cliente"}
+<script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript">
    function comprobar_url()
    {
@@ -408,7 +409,7 @@
                      </div>
                      <div class="form-group col-lg-4 col-md-4 col-sm-4">
                         <span class="text-capitalize">{#FS_PROVINCIA#}</span>:
-                        <input class="form-control" type="text" name="provincia" value="{$value->provincia}"/>
+                        <input class="form-control" type="text" name="provincia" id="ac_provincia" value="{$value->provincia}"/>
                      </div>
                      <div class="form-group col-lg-4 col-md-4 col-sm-4">
                         Ciudad:
@@ -416,7 +417,7 @@
                      </div>
                      <div class="form-group col-lg-3 col-md-3 col-sm-3">
                         Código Postal:
-                        <input class="form-control" type="text" name="codpostal" value="{$value->codpostal}" autocomplete="off"/>
+                        <input class="form-control" type="text" name="codpostal" value="{$value->codpostal}"/>
                      </div>
                      <div class="form-group col-lg-9 col-md-9 col-sm-9">
                         Dirección:
@@ -579,8 +580,8 @@
                   </select>
                </div>
                <div class="form-group">
-                  {#FS_PROVINCIA#}:
-                  <input class="form-control" type="text" name="provincia" value="{$fsc->empresa->provincia}"/>
+                  <span class="text-capitalize">{#FS_PROVINCIA#}:</span>
+                  <input id="ac_provincia2" class="form-control" type="text" name="provincia" value="{$fsc->empresa->provincia}"/>
                </div>
                <div class="form-group">
                   Ciudad:
@@ -588,14 +589,14 @@
                </div>
                <div class="form-group">
                   Código Postal:
-                  <input class="form-control" type="text" name="codpostal" autocomplete="off"/>
+                  <input class="form-control" type="text" name="codpostal"/>
                </div>
                <div class="form-group">
                   Dirección:
                   <input class="form-control" type="text" name="direccion" autocomplete="off"/>
                </div>
                <div class="form-group">
-                  {#FS_APARTADO#}:
+                  <span class="text-capitalize">{#FS_APARTADO#}:</span>
                   <input class="form-control" type="text" name="apartado" autocomplete="off"/>
                </div>
                <div class="form-group">

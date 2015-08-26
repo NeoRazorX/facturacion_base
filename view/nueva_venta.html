@@ -432,6 +432,7 @@
    <p>Si crees que es un error de FacturaScripts, haz clic en el botón de ayuda, arriba a la derecha, e infórmanos del error.</p>
 </div>
 {else}
+<script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript">
    $(document).ready(function() {
       $("#modal_cliente").modal('show');
@@ -550,9 +551,9 @@
                   <label class="col-sm-2 control-label text-capitalize">{#FS_PROVINCIA#}</label>
                   <div class="col-sm-10">
                      {if="$fsc->nuevocli_setup['nuevocli_provincia_req']"}
-                     <input type="text" name="nuevo_provincia" class="form-control" required=""/>
+                     <input type="text" name="nuevo_provincia" id="ac_provincia" class="form-control" autocomplete="off" required=""/>
                      {else}
-                     <input type="text" name="nuevo_provincia" value="{$fsc->empresa->provincia}" class="form-control"/>
+                     <input type="text" name="nuevo_provincia" value="{$fsc->empresa->provincia}" id="ac_provincia" class="form-control" autocomplete="off"/>
                      {/if}
                   </div>
                </div>

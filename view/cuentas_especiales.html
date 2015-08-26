@@ -23,8 +23,9 @@
             <table class="table table-condensed">
                <thead>
                   <tr>
-                     <th class="text-left" width="200">Identificador</th>
+                     <th class="text-left" width="150">Identificador</th>
                      <th class="text-left">Descripción</th>
+                     <th class="text-left">Cuenta de {$fsc->empresa->codejercicio}</th>
                      <th class="text-right" width="120">Acciones</th>
                   </tr>
                </thead>
@@ -36,6 +37,9 @@
                         <td><div class="form-control">{$value->idcuentaesp}</div></td>
                         <td>
                            <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/>
+                        </td>
+                        <td class="info" data-toggle="modal" data-target="#modal_ayuda_cuenta">
+                           <textarea rows="1" class="form-control">{$fsc->get_codcuenta_cuentaesp($value->idcuentaesp)}</textarea>
                         </td>
                         <td class="text-right">
                            <div class="btn-group">
@@ -58,6 +62,7 @@
                         <td>
                            <input class="form-control" type="text" name="descripcion" placeholder="Nueva descripción" autocomplete="off"/>
                         </td>
+                        <td></td>
                         <td class="text-right">
                            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true; this.form.submit();" title="Guardar">
                               <span class="glyphicon glyphicon-floppy-disk"></span>
@@ -67,6 +72,34 @@
                   </form>
                </tbody>
             </table>
+         </div>
+      </div>
+   </div>
+</div>
+
+<div class="modal fade" id="modal_ayuda_cuenta" tabindex="-1" role="dialog">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title">
+               <span class="glyphicon glyphicon-question-sign"></span>
+               Seleccionar una cuenta
+            </h4>
+         </div>
+         <div class="modal-body">
+            <p>
+               Este campo es simplemente para que veas qué cuenta o cuentas están
+               marcadas como cuentas especiales. Si quieres cambiar alguna,
+               <b>debes hacerlo desde la propia cuenta</b>.
+            </p>
+            <p>
+               Busca la cuenta que quieras marcar/desmarcar desde Contabilidad &gt; Cuentas,
+               haz clic en ella y al lado de la descripción tienes el campo para
+               seleccionar la cuenta especial que representa.
+            </p>
          </div>
       </div>
    </div>

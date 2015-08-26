@@ -119,7 +119,11 @@ class ventas_articulos extends fs_controller
          {
             $articulo->referencia = $_POST['referencia'];
             $articulo->descripcion = $_POST['referencia'];
-            $articulo->codfamilia = $_POST['codfamilia'];
+            
+            if($_POST['codfamilia'] != '')
+            {
+               $articulo->codfamilia = $_POST['codfamilia'];
+            }
             
             if($_POST['codfabricante'] != '')
             {

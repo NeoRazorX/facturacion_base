@@ -1,6 +1,7 @@
 {include="header"}
 
 {if="$fsc->agente"}
+<script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript">
    $(document).ready(function () {
       $("#b_delete_agente").click(function (event) {
@@ -95,13 +96,13 @@
                   <div class="col-sm-3">
                      <div class="form-group">
                         Provincia:
-                        <input class="form-control" type="text" name="provincia" value="{$fsc->agente->provincia}" autocomplete="off"/>
+                        <input id="ac_provincia" class="form-control" type="text" name="provincia" value="{$fsc->agente->provincia}" autocomplete="off"/>
                      </div>
                   </div>
                   <div class="col-sm-3">
                      <div class="form-group">
                         Ciudad:
-                        <input class="form-control" type="text" name="ciudad" value="{$fsc->agente->ciudad}" autocomplete="off"/>
+                        <input class="form-control" type="text" name="ciudad" value="{$fsc->agente->ciudad}"/>
                      </div>
                   </div>
                   <div class="col-sm-6">

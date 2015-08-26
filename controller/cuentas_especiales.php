@@ -17,10 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('cuenta.php');
 require_model('cuenta_especial.php');
 
 class cuentas_especiales extends fs_controller
 {
+   private $cuenta;
    public $cuenta_especial;
    
    public function __construct()
@@ -30,6 +32,7 @@ class cuentas_especiales extends fs_controller
    
    protected function private_core()
    {
+      $this->cuenta = new cuenta();
       $this->cuenta_especial = new cuenta_especial();
       
       if( isset($_POST['idcuentaesp']) )
@@ -68,5 +71,24 @@ class cuentas_especiales extends fs_controller
             }
          }
       }
+   }
+   
+   public function get_codcuenta_cuentaesp($idcuentaesp)
+   {
+      $codcuenta = '';
+      
+      foreach( $this->cuenta->all_from_cuentaesp($idcuentaesp, $this->empresa->codejercicio) as $cuen )
+      {
+         if($codcuenta == '')
+         {
+            $codcuenta = $cuen->codcuenta;
+         }
+         else
+         {
+            $codcuenta .= ', '.$cuen->codcuenta;
+         }
+      }
+      
+      return $codcuenta;
    }
 }

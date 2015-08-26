@@ -257,7 +257,7 @@ class cliente extends fs_model
          }
          
          /// además de añadir los que haya en la base de datos
-         $data = $this->db->select("SELECT DISTINCT regimeniva FROM proveedores ORDER BY regimeniva ASC;");
+         $data = $this->db->select("SELECT DISTINCT regimeniva FROM clientes ORDER BY regimeniva ASC;");
          if($data)
          {
             foreach($data as $d)
