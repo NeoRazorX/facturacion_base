@@ -73,6 +73,11 @@
             {/loop}
          </div>
       </div>
+      {if="$fsc->buscar"}
+      <div class="col-md-4 col-sm-5 col-xs-6 text-right">
+         <h2 style="margin-top: 0px;">Artículos</h2>
+      </div>
+      {else}
       <div class="col-md-2 col-sm-2 col-xs-6 text-right">
          <h2 style="margin-top: 0px;">Artículos</h2>
       </div>
@@ -89,19 +94,20 @@
          </form>
          <div class="visible-xs"><br/></div>
       </div>
+      {/if}
    </div>
 </div>
 
 <ul class="nav nav-tabs" id="ul_tabs">
    <li{if="!isset($_GET['public']) AND !isset($_GET['solo_stock'])"} class="active"{/if}>
       <a href="{$fsc->url()}">
-         {if="$fsc->query==''"}
+         {if="$fsc->buscar"}
+         <span class="glyphicon glyphicon-search"></span>
+         <span class="hidden-xs">&nbsp; Resultados</span>
+         {else}
          <span class="glyphicon glyphicon-sort-by-alphabet" aria-hidden="true"></span>
          <span class="hidden-xs">&nbsp; Todos</span>
          <span class="badge">{$fsc->total_articulos()}</span>
-         {else}
-         <span class="glyphicon glyphicon-search"></span>
-         <span class="hidden-xs">&nbsp; Resultados de "{$fsc->query}"</span>
          {/if}
       </a>
    </li>
@@ -128,11 +134,22 @@
 </ul>
 
 <div id="div_articulos">
-   {if="$fsc->query!=''"}
-   <form name="custom_search2" action="{$fsc->url()}" method="post" class="form">
-      <input type="hidden" name="query" value="{$fsc->query}"/>
+   {if="$fsc->buscar"}
+   <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
       <div class="container-fluid" style="margin-top: 10px;">
          <div class="row">
+            <div class="col-sm-2">
+               <div class="form-group">
+                  <div class="input-group">
+                     <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
+                     <span class="input-group-btn">
+                        <button class="btn btn-primary hidden-sm" type="submit">
+                           <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                     </span>
+                  </div>
+               </div>
+            </div>
             <div class="col-sm-2">
                <div class="form-group">
                   <select class="form-control" name="codfamilia" onchange="this.form.submit()">
@@ -171,6 +188,14 @@
                   </label>
                </div>
             </div>
+            <div class="col-sm-3">
+               <div class="checkbox">
+                  <label>
+                     <input type="checkbox" name="bloqueados"{if="$fsc->bloqueados"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
+                     <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Bloqueados / Obsoletos
+                  </label>
+               </div>
+            </div>
          </div>
       </div>
    </form>
@@ -185,11 +210,12 @@
                <th class="text-right">Precio</th>
                <th class="text-right">Precio+{#FS_IVA#}</th>
                <th class="text-right">Stock</th>
+               <th class="text-right"></th>
             </tr>
          </thead>
          {if="isset($_GET['solo_stock']) AND $fsc->resultados"}
          <tr class="bg-info">
-            <td colspan="6">
+            <td colspan="7">
                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> &nbsp;
                <a href="index.php?page=informe_articulos&tab=stock">
                   Tienes un informe detallado del stock en Informes > Artículos.
@@ -198,7 +224,7 @@
          </tr>
          {/if}
          {loop="$fsc->resultados"}
-         <tr class='clickableRow{if="$value->bloqueado"} bg-danger{elseif="$value->stockfis<$value->stockmin"} bg-warning{/if}' href='{$value->url()}'>
+         <tr class='clickableRow{if="$value->bloqueado"} danger{elseif="$value->stockfis<=$value->stockmin"} warning{/if}' href='{$value->url()}'>
             <td>
                {if="is_null($value->codfamilia)"}
                   <span>-</span>
@@ -221,10 +247,15 @@
             <td class="text-right">
                {if="$value->nostock"}-{else}{$value->stockfis}{/if}
             </td>
+            <td class="text-right">
+               {if="$value->publico"}
+               <span class="glyphicon glyphicon-globe" aria-hidden="true" title="Artículo público"></span>
+               {/if}
+            </td>
          </tr>
          {else}
          <tr class="bg-warning">
-            <td colspan="6">Ningun artículo encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</td>
+            <td colspan="7">Ningun artículo encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</td>
          </tr>
          {/loop}
       </table>
@@ -322,18 +353,23 @@
                </td>
             </tr>
          </form>
+         <tr>
+            <td colspan="2">
+               <p class="help-block">
+                  Desde aquí puedes configurar las tarifas de venta a clientes.
+                  Crea todas las tarifas que necesites, después <b>asígna las tarifas</b>
+                  a los <a href="index.php?page=ventas_clientes#grupos">grupos de clientes</a>.
+               </p>
+            </td>
+            <td colspan="5">
+               <p class="help-block">
+                  ¿Buscas <b>Precio de venta + X% + Y</b>? ¿O <b>Precio de coste - X% - Y</b>?
+                  Puedes usar números negativos, simplemente pon un <b>-</b> delante.
+                  <mark>1 - -1 = 1 + 1</mark>
+               </p>
+            </td>
+         </tr>
       </table>
-   </div>
-   <div class="container-fluid">
-      <div class="row">
-         <div class="col-sm-12">
-            <p class="help-block">
-               Desde aquí puedes configurar las tarifas de venta a clientes.
-               Crea todas las tarifas que necesites, después asígna las tarifas
-               a los <a href="index.php?page=ventas_clientes#grupos">grupos de clientes</a>.
-            </p>
-         </div>
-      </div>
    </div>
 </div>
 {/if}
@@ -379,15 +415,6 @@
                   </div>
                </div>
                <div class="form-group">
-                  <label class="col-sm-2 control-label">Precio</label>
-                  <div class="col-sm-10">
-                     <div class="input-group">
-                        <input class="form-control" type="text" name="pvp" value="0" autocomplete="off"/>
-                        <div class="input-group-addon">{$fsc->simbolo_divisa()}</div>
-                     </div>
-                  </div>
-               </div>
-               <div class="form-group">
                   <label class="col-sm-2 control-label"><a href="{$fsc->impuesto->url()}">{#FS_IVA#}</a></label>
                   <div class="col-sm-10">
                      <select class="form-control" name="codimpuesto">
@@ -397,8 +424,23 @@
                      </select>
                   </div>
                </div>
+               <div class="form-group">
+                  <label class="col-sm-2 control-label">Precio</label>
+                  <div class="col-sm-10">
+                     <div class="input-group">
+                        <input class="form-control" type="text" name="pvp" value="0" autocomplete="off"/>
+                        <div class="input-group-addon">{$fsc->simbolo_divisa()}</div>
+                     </div>
+                     <p class="help-block">Precio sin {#FS_IVA#}</p>
+                  </div>
+               </div>
             </div>
             <div class="modal-footer">
+               <div class="checkbox pull-left">
+                  <label>
+                     <input type="checkbox" name="nostock" value="TRUE"/> No controlar stock
+                  </label>
+               </div>
                <button class="btn btn-sm btn-primary" type="submit">
                   <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                </button>

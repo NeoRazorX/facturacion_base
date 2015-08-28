@@ -24,6 +24,7 @@ require_model('asiento_factura.php');
 require_model('cliente.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
+require_model('fabricante.php');
 require_model('factura_cliente.php');
 require_model('familia.php');
 require_model('forma_pago.php');
@@ -43,6 +44,7 @@ class ventas_albaran extends fs_controller
    public $cliente_s;
    public $divisa;
    public $ejercicio;
+   public $fabricante;
    public $familia;
    public $forma_pago;
    public $impuesto;
@@ -66,6 +68,7 @@ class ventas_albaran extends fs_controller
       $this->cliente_s = FALSE;
       $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
+      $this->fabricante = new fabricante();
       $this->familia = new familia();
       $this->forma_pago = new forma_pago();
       $this->impuesto = new impuesto();

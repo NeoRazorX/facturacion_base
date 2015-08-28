@@ -61,7 +61,12 @@ class tarifa extends fs_model
          $this->nombre = $t['nombre'];
          $this->incporcentual = floatval($t['incporcentual']);
          $this->inclineal = floatval($t['inclineal']);
-         $this->aplicar_a = $t['aplicar_a'];
+         
+         $this->aplicar_a = 'pvp';
+         if( !is_null($t['aplicar_a']) )
+         {
+            $this->aplicar_a = $t['aplicar_a'];
+         }
       }
       else
       {
@@ -69,7 +74,7 @@ class tarifa extends fs_model
          $this->nombre = NULL;
          $this->incporcentual = 0;
          $this->inclineal = 0;
-         $this->aplicar_a = NULL;
+         $this->aplicar_a = 'pvp';
       }
    }
    

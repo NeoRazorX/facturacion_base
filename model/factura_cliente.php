@@ -918,7 +918,7 @@ class factura_cliente extends fs_model
       $this->cache->delete('factura_cliente_huecos');
    }
    
-   public function all($offset=0, $limit=FS_ITEM_LIMIT, $order='fecha DESC')
+   public function all($offset=0, $limit=FS_ITEM_LIMIT, $order='fecha DESC, codigo DESC')
    {
       $faclist = array();
       
@@ -932,7 +932,7 @@ class factura_cliente extends fs_model
       return $faclist;
    }
    
-   public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT, $order='vencimiento ASC')
+   public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT, $order='vencimiento ASC, codigo ASC')
    {
       $faclist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE pagada = false ORDER BY ".$order;

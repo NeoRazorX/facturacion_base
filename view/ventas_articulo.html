@@ -359,7 +359,7 @@
                   <div class="col-sm-4">
                      <div class="form-group">
                         <a href="{$fsc->impuesto->url()}">{#FS_IVA#}</a>:
-                        <select class="form-control" name="codimpuesto">
+                        <select class="form-control" name="codimpuesto" onchange="this.form.submit()">
                         {loop="$fsc->impuesto->all()"}
                            {if="$value->codimpuesto==$fsc->articulo->codimpuesto"}
                            <option value="{$value->codimpuesto}" selected="selected">{$value->descripcion}</option>

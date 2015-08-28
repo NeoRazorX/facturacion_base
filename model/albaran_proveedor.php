@@ -616,10 +616,10 @@ class albaran_proveedor extends fs_model
          return FALSE;
    }
    
-   public function all($offset=0)
+   public function all($offset=0, $order='fecha DESC, codigo DESC')
    {
       $albalist = array();
-      $sql = "SELECT * FROM ".$this->table_name." ORDER BY fecha DESC, codigo DESC";
+      $sql = "SELECT * FROM ".$this->table_name." ORDER BY ".$order;
       
       $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
@@ -631,7 +631,7 @@ class albaran_proveedor extends fs_model
       return $albalist;
    }
    
-   public function all_ptefactura($offset=0, $order='fecha ASC')
+   public function all_ptefactura($offset=0, $order='fecha ASC, codigo ASC')
    {
       $albalist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE ptefactura = true ORDER BY ".$order;

@@ -14,9 +14,15 @@
                Cada país tiene su plan contable, pero ¿Cómo puede saber
                FacturaScripts cuál es la cuenta de clientes? ¿O la de {#FS_IVA#}?
                Para solucionar este problema, cuando FacturaScripts necesita la
-               cuenta de clientes, lo que busca es la primera cuenta asociada a
-               la cuenta especial <b>CLIENT</b>. Así tú puedes elegir qué cuenta
+               cuenta de clientes, lo que busca es <b>la primera cuenta asociada</b>
+               a la cuenta especial <b>CLIENT</b>. Así tú puedes elegir qué cuenta
                usar.
+            </p>
+            <p class="help-block">
+               En cambio, cuando FacturaScripts tiene que generar un asiento a partir
+               de una factura y necesita añadir la línea de {#FS_IVA#}, lo que hace
+               es buscar la primera subcuenta de la primera cuenta marcada como
+               <b>IVASOP</b> (en el caso de compras) o <b>IVAREP</b> (en el caso de ventas).
             </p>
          </div>
          <div class="table-responsive">

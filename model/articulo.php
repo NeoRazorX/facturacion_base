@@ -1079,62 +1079,70 @@ class articulo extends fs_model
       }
    }
    
-   public function search($query, $offset=0, $codfamilia='', $con_stock=FALSE, $codfabricante='')
+   public function search($query='', $offset=0, $codfamilia='', $con_stock=FALSE, $codfabricante='', $bloqueados=FALSE)
    {
       $artilist = array();
       $query = $this->no_html( strtolower($query) );
       
-      if($offset == 0 AND $codfamilia == '' AND !$con_stock AND $codfabricante == '')
+      if($query != '' AND $offset == 0 AND $codfamilia == '' AND $codfabricante == '' AND !$con_stock AND !$bloqueados)
       {
          /// intentamos obtener los datos de memcache
          if( $this->new_search_tag($query) )
          {
             $artilist = $this->cache->get_array('articulos_search_'.$query);
          }
-         else
-         {
-            /// buscamos la referencia completa, para ponerlo el primero
-            $data = $this->db->select("SELECT ".self::$column_list." FROM ".$this->table_name
-                    ." WHERE lower(referencia) = ".$this->var2str($query).";");
-            if($data)
-            {
-               $artilist[] = new articulo($data[0]);
-            }
-         }
       }
       
       if( count($artilist) <= 1 )
       {
-         if($codfamilia == '')
+         $sql = "SELECT ".self::$column_list." FROM ".$this->table_name;
+         $separador = ' WHERE';
+         
+         if($codfamilia != '')
          {
-            $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE ";
-         }
-         else
-         {
-            $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = "
-                 .$this->var2str($codfamilia)." AND ";
+            $sql .= $separador." codfamilia = ".$this->var2str($codfamilia);
+            $separador = ' AND';
          }
          
          if($codfabricante != '')
          {
-            $sql .= "codfabricante = ".$this->var2str($codfabricante)." AND ";
+            $sql .= $separador." codfabricante = ".$this->var2str($codfabricante);
+            $separador = ' AND';
          }
          
          if($con_stock)
          {
-            $sql .= "stockfis > 0 AND ";
+            $sql .= $separador." stockfis > 0";
+            $separador = ' AND';
          }
          
-         if( is_numeric($query) )
+         if($bloqueados)
          {
-            $sql .= "(referencia LIKE '%".$query."%' OR equivalencia LIKE '%".$query."%'"
+            $sql .= $separador." bloqueado";
+            $separador = ' AND';
+         }
+         else
+         {
+            $sql .= $separador." bloqueado = FALSE";
+            $separador = ' AND';
+         }
+         
+         if($query == '')
+         {
+            /// nada
+         }
+         else if( is_numeric($query) )
+         {
+            $sql .= $separador." (lower(referencia) = ".$this->var2str($query)
+                    . " OR referencia LIKE '%".$query."%' OR equivalencia LIKE '%".$query."%'"
                     . " OR descripcion LIKE '%".$query."%' OR codbarras = '".$query."')";
          }
          else
          {
             $buscar = str_replace(' ', '%', $query);
-            $sql .= "(lower(referencia) LIKE '%".$buscar."%' OR lower(equivalencia) LIKE '%".$buscar."%'
-               OR lower(descripcion) LIKE '%".$buscar."%')";
+            $sql .= $separador." (lower(referencia) = ".$this->var2str($query)
+                    . " OR lower(referencia) LIKE '%".$buscar."%' OR lower(equivalencia) LIKE '%".$buscar."%'"
+                    . " OR lower(descripcion) LIKE '%".$buscar."%')";
          }
          
          $sql .= " ORDER BY referencia ASC";
@@ -1144,11 +1152,7 @@ class articulo extends fs_model
          {
             foreach($data as $a)
             {
-               /// PUEDE que hayamos puesto el primero al artículo con la referencia exacta
-               if($a['referencia'] != $query OR count($artilist) == 0)
-               {
-                  $artilist[] = new articulo($a);
-               }
+               $artilist[] = new articulo($a);
             }
          }
       }

@@ -68,7 +68,7 @@
 
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
-      <div class="col-sm-10 col-xs-8">
+      <div class="col-sm-8 col-xs-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -95,10 +95,45 @@
             {/loop}
          </div>
       </div>
-      <div class="col-sm-2 col-xs-4 text-right">
+      <div class="col-sm-4 col-xs-6 text-right">
          <a id="b_buscar_lineas" class="btn btn-sm btn-info" title="Buscar en las líneas">
             <span class="glyphicon glyphicon-search"></span> &nbsp; Líneas
          </a>
+         <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+               <li>
+                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=fecha_desc">
+                     <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                     &nbsp; Fecha &nbsp;
+                     {if="$fsc->order=='fecha DESC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                  </a>
+               </li>
+               <li>
+                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=fecha_asc">
+                     <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                     &nbsp; Fecha &nbsp;
+                     {if="$fsc->order=='fecha ASC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                  </a>
+               </li>
+               <li>
+                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=codigo_desc">
+                     <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                     &nbsp; Código &nbsp;
+                     {if="$fsc->order=='codigo DESC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                  </a>
+               </li>
+               <li>
+                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=codigo_asc">
+                     <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                     &nbsp; Código &nbsp;
+                     {if="$fsc->order=='codigo ASC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                  </a>
+               </li>
+            </ul>
+         </div>
       </div>
    </div>
 </div>
@@ -215,33 +250,11 @@
          <tr>
             <th></th>
             <th></th>
-            <th class="text-left">
-               Código + Num. Proveedor
-               {if="$fsc->order=='codigo DESC'"}
-               <a href="#" data-toggle="modal" data-target="#modal_orden">
-                  <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-               </a>
-               {elseif="$fsc->order=='codigo ASC'"}
-               <a href="#" data-toggle="modal" data-target="#modal_orden">
-                  <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-               </a>
-               {/if}
-            </th>
+            <th class="text-left">Código + Num. Proveedor</th>
             <th class="text-left">Proveedor</th>
             <th class="text-left">Observaciones</th>
             <th class="text-right">Total</th>
-            <th class="text-right">
-               Fecha
-               {if="$fsc->order=='fecha DESC'"}
-               <a href="#" data-toggle="modal" data-target="#modal_orden">
-                  <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-               </a>
-               {elseif="$fsc->order=='fecha ASC'"}
-               <a href="#" data-toggle="modal" data-target="#modal_orden">
-                  <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-               </a>
-               {/if}
-            </th>
+            <th class="text-right">Fecha</th>
          </tr>
       </thead>
       {loop="$fsc->resultados"}
@@ -304,33 +317,6 @@
    </li>
    {/if}
 </ul>
-
-<div class="modal fade" id="modal_orden" tabindex="-1" role="dialog">
-   <div class="modal-dialog" role="document">
-      <div class="modal-content">
-         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-               <span aria-hidden="true">&times;</span>
-            </button>
-            <h4 class="modal-title">Selecciona el orden de los resultados</h4>
-         </div>
-         <div class="modal-body">
-            <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=fecha_desc" class="btn btn-sm btn-block btn-default{if="$fsc->order=='fecha DESC'"} active{/if}">
-               Fecha <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-            </a>
-            <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=fecha_asc" class="btn btn-sm btn-block btn-default{if="$fsc->order=='fecha ASC'"} active{/if}">
-               Fecha <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-            </a>
-            <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=codigo_desc" class="btn btn-sm btn-block btn-default{if="$fsc->order=='codigo DESC'"} active{/if}">
-               Código <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-            </a>
-            <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=codigo_asc" class="btn btn-sm btn-block btn-default{if="$fsc->order=='codigo ASC'"} active{/if}">
-               Código <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-            </a>
-         </div>
-      </div>
-   </div>
-</div>
 
 <form class="form" role="form" id="f_buscar_lineas" name="f_buscar_lineas" action="{$fsc->url()}" method="post">
    <div class="modal" id="modal_buscar_lineas">

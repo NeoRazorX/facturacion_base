@@ -23,6 +23,7 @@ require_model('articulo.php');
 require_model('asiento_factura.php');
 require_model('cliente.php');
 require_model('divisa.php');
+require_model('fabricante.php');
 require_model('familia.php');
 require_model('forma_pago.php');
 require_model('grupo_clientes.php');
@@ -42,6 +43,7 @@ class nueva_venta extends fs_controller
    public $cliente_s;
    public $direccion;
    public $divisa;
+   public $fabricante;
    public $familia;
    public $forma_pago;
    public $grupo;
@@ -62,6 +64,7 @@ class nueva_venta extends fs_controller
       $this->cliente = new cliente();
       $this->cliente_s = FALSE;
       $this->direccion = FALSE;
+      $this->fabricante = new fabricante();
       $this->familia = new familia();
       $this->impuesto = new impuesto();
       $this->results = array();
@@ -355,9 +358,14 @@ class nueva_venta extends fs_controller
          $art0->set_impuesto($_REQUEST['codimpuesto']);
          $art0->set_pvp( floatval($_REQUEST['pvp']) );
          
-         if($_POST['codfamilia'] != '')
+         if($_REQUEST['codfamilia'] != '')
          {
             $art0->codfamilia = $_REQUEST['codfamilia'];
+         }
+         
+         if($_REQUEST['codfabricante'] != '')
+         {
+            $art0->codfabricante = $_REQUEST['codfabricante'];
          }
          
          if( $art0->save() )
@@ -381,9 +389,13 @@ class nueva_venta extends fs_controller
       {
          $codfamilia = $_REQUEST['codfamilia'];
       }
-      
+      $codfabricante = '';
+      if( isset($_REQUEST['codfabricante']) )
+      {
+         $codfabricante = $_REQUEST['codfabricante'];
+      }
       $con_stock = isset($_REQUEST['con_stock']);
-      $this->results = $articulo->search($this->query, 0, $codfamilia, $con_stock);
+      $this->results = $articulo->search($this->query, 0, $codfamilia, $con_stock, $codfabricante);
       
       /// añadimos la busqueda, el descuento y la cantidad
       foreach($this->results as $i => $value)

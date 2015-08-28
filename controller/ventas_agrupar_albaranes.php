@@ -181,7 +181,6 @@ class ventas_agrupar_albaranes extends fs_controller
       $continuar = TRUE;
       
       $factura = new factura_cliente();
-      $factura->automatica = TRUE;
       $factura->codagente = $this->user->codagente;
       $factura->codalmacen = $albaranes[0]->codalmacen;
       $factura->coddivisa = $albaranes[0]->coddivisa;
@@ -189,11 +188,9 @@ class ventas_agrupar_albaranes extends fs_controller
       $factura->codejercicio = $albaranes[0]->codejercicio;
       $factura->codpago = $albaranes[0]->codpago;
       $factura->codserie = $albaranes[0]->codserie;
-      $factura->editable = FALSE;
       $factura->irpf = $albaranes[0]->irpf;
       $factura->numero2 = $albaranes[0]->numero2;
       $factura->observaciones = $albaranes[0]->observaciones;
-      $factura->recfinanciero = $albaranes[0]->recfinanciero;
       $factura->apartado = $albaranes[0]->apartado;
       $factura->cifnif = $albaranes[0]->cifnif;
       $factura->ciudad = $albaranes[0]->ciudad;

@@ -31,6 +31,11 @@
                (sección facturación). Y se aplica a los clientes si está activado
                en los datos generales de ese cliente.
             </p>
+            <p class="help-block">
+               La subcuenta predeterminada para compras es la marcada como
+               <a href="index.php?page=cuentas_especiales">cuenta especial</a>
+               IVASOP, y la de ventas la marcada como IVAREP.
+            </p>
          </div>
          <div class="table-responsive">
             <table class="table table-hover">
@@ -40,7 +45,9 @@
                      <th class="text-left">Descripción</th>
                      <th class="text-right">% {#FS_IVA#}</th>
                      <th class="text-right">% Recargo</th>
-                     <th class="text-right" width="140">Acciones</th>
+                     <th class="text-left">Subcuenta compras {$fsc->empresa->codejercicio}</th>
+                     <th class="text-left">Subcuenta ventas {$fsc->empresa->codejercicio}</th>
+                     <th class="text-right" width="120">Acciones</th>
                   </tr>
                </thead>
                {loop="$fsc->impuesto->all()"}
@@ -56,6 +63,12 @@
                      </td>
                      <td>
                         <input class="form-control text-right" type="number" step="any" name="recargo" value="{$value->recargo}" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input class="form-control" type="text" name="codsubcuentasop" value="{$value->codsubcuentasop}" placeholder="{$fsc->codsubcuentasop}" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input class="form-control" type="text" name="codsubcuentarep" value="{$value->codsubcuentarep}" placeholder="{$fsc->codsubcuentarep}" autocomplete="off"/>
                      </td>
                      <td class="text-right">
                         <div class="btn-group">
@@ -78,6 +91,8 @@
                      <td><input class="form-control" type="text" name="descripcion" placeholder="Descripción" autocomplete="off"/></td>
                      <td><input class="form-control text-right" type="number" step="any" name="iva" value="0" autocomplete="off"/></td>
                      <td><input class="form-control text-right" type="number" step="any" name="recargo" value="0" autocomplete="off"/></td>
+                     <td><input class="form-control" type="text" name="codsubcuenta" placeholder="{$fsc->codsubcuentasop}" autocomplete="off"/></td>
+                     <td><input class="form-control" type="text" name="codsubcuenta" placeholder="{$fsc->codsubcuentarep}" autocomplete="off"/></td>
                      <td class="text-right">
                         <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
                            <span class="glyphicon glyphicon-floppy-disk"></span>

@@ -20,6 +20,8 @@
 require_model('almacen.php');
 require_model('articulo_proveedor.php');
 require_model('asiento_factura.php');
+require_model('fabricante.php');
+require_model('familia.php');
 require_model('forma_pago.php');
 require_model('pedido_proveedor.php');
 require_model('proveedor.php');
@@ -31,6 +33,7 @@ class nueva_compra extends fs_controller
    public $articulo;
    public $articulo_prov;
    public $divisa;
+   public $fabricante;
    public $familia;
    public $forma_pago;
    public $impuesto;
@@ -48,6 +51,7 @@ class nueva_compra extends fs_controller
    protected function private_core()
    {
       $this->articulo_prov = new articulo_proveedor();
+      $this->fabricante = new fabricante();
       $this->familia = new familia();
       $this->impuesto = new impuesto();
       $this->proveedor = new proveedor();
@@ -227,10 +231,16 @@ class nueva_compra extends fs_controller
          $art0->set_pvp( floatval($_REQUEST['pvp']) );
          $art0->costemedio = floatval($_REQUEST['coste']);
          $art0->preciocoste = floatval($_REQUEST['coste']);
+         $art0->publico = isset($_POST['publico']);
          
          if($_POST['codfamilia'] != '')
          {
             $art0->codfamilia = $_REQUEST['codfamilia'];
+         }
+         
+         if($_POST['codfabricante'] != '')
+         {
+            $art0->codfabricante = $_REQUEST['codfabricante'];
          }
          
          if($_POST['refproveedor'] != '' AND $_POST['refproveedor'] != $_POST['referencia'])
@@ -275,15 +285,7 @@ class nueva_compra extends fs_controller
       /// desactivamos la plantilla HTML
       $this->template = FALSE;
       
-      $articulo = new articulo();
-      $codfamilia = '';
-      if( isset($_REQUEST['codfamilia']) )
-      {
-         $codfamilia = $_REQUEST['codfamilia'];
-      }
-      
-      $con_stock = isset($_REQUEST['con_stock']);
-      $this->results = $articulo->search($this->query, 0, $codfamilia, $con_stock);
+      $this->results = $this->search_from_proveedor();
       
       /// completamos los datos
       foreach($this->results as $i => $value)
@@ -292,11 +294,14 @@ class nueva_compra extends fs_controller
          $this->results[$i]->coste = $value->preciocoste();
          $this->results[$i]->dtopor = 0;
          
-         $ap = $this->articulo_prov->get_by($value->referencia, $_REQUEST['codproveedor']);
-         if($ap)
+         if( isset($_REQUEST['codproveedor']) )
          {
-            $this->results[$i]->coste = $ap->precio;
-            $this->results[$i]->dtopor = $ap->dto;
+            $ap = $this->articulo_prov->get_by($value->referencia, $_REQUEST['codproveedor']);
+            if($ap)
+            {
+               $this->results[$i]->coste = $ap->precio;
+               $this->results[$i]->dtopor = $ap->dto;
+            }
          }
       }
       
@@ -990,5 +995,65 @@ class nueva_compra extends fs_controller
          $artp->dto = $linea->dtopor;
          $artp->save();
       }
+   }
+   
+   private function search_from_proveedor()
+   {
+      $artilist = array();
+      $query = $this->articulo_prov->no_html( strtolower($this->query) );
+      $sql = "SELECT * FROM articulos";
+      $separador = ' WHERE';
+      
+      if($_REQUEST['codfamilia'] != '')
+      {
+         $sql .= $separador." codfamilia = ".$this->articulo_prov->var2str($_REQUEST['codfamilia']);
+         $separador = ' AND';
+      }
+      
+      if($_REQUEST['codfabricante'] != '')
+      {
+         $sql .= $separador." codfabricante = ".$this->articulo_prov->var2str($_REQUEST['codfabricante']);
+         $separador = ' AND';
+      }
+      
+      if( isset($_REQUEST['con_stock']) )
+      {
+         $sql .= $separador." stockfis > 0";
+         $separador = ' AND';
+      }
+      
+      if( isset($_REQUEST['solo_proveedor']) AND isset($_REQUEST['codproveedor']) )
+      {
+         $sql .= $separador." referencia IN (SELECT referencia FROM articulosprov WHERE codproveedor = "
+                 .$this->articulo_prov->var2str($_REQUEST['codproveedor']).")";
+         $separador = ' AND';
+      }
+      
+      if( is_numeric($this->query) )
+      {
+         $sql .= $separador." (lower(referencia) = ".$this->articulo_prov->var2str($this->query)
+                 . " OR referencia LIKE '%".$this->query."%' OR equivalencia LIKE '%".$this->query."%'"
+                 . " OR descripcion LIKE '%".$this->query."%' OR codbarras = '".$this->query."')";
+      }
+      else
+      {
+         $buscar = str_replace(' ', '%', $this->query);
+         $sql .= $separador." (lower(referencia) = ".$this->articulo_prov->var2str($this->query)
+                 . " OR lower(referencia) LIKE '%".$buscar."%' OR lower(equivalencia) LIKE '%".$buscar."%'"
+                 . " OR lower(descripcion) LIKE '%".$buscar."%')";
+      }
+      
+      $sql .= " ORDER BY referencia ASC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, 0);
+      if($data)
+      {
+         foreach($data as $a)
+         {
+            $artilist[] = new articulo($a);
+         }
+      }
+      
+      return $artilist;
    }
 }

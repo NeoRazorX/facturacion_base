@@ -178,8 +178,6 @@ class compras_agrupar_albaranes extends fs_controller
       $continuar = TRUE;
       
       $factura = new factura_proveedor();
-      $factura->automatica = TRUE;
-      $factura->editable = FALSE;
       $factura->codagente = $this->user->codagente;
       $factura->codalmacen = $albaranes[0]->codalmacen;
       $factura->coddivisa = $albaranes[0]->coddivisa;
@@ -190,7 +188,6 @@ class compras_agrupar_albaranes extends fs_controller
       $factura->irpf = $albaranes[0]->irpf;
       $factura->numproveedor = $albaranes[0]->numproveedor;
       $factura->observaciones = $albaranes[0]->observaciones;
-      $factura->recfinanciero = $albaranes[0]->recfinanciero;
       
       /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
       $formapago = $this->forma_pago->get($factura->codpago);
