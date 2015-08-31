@@ -25,6 +25,16 @@
       <nulo>NO</nulo>
    </columna>
    <columna>
+      <nombre>mincoste</nombre>
+      <tipo>boolean</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>maxpvp</nombre>
+      <tipo>boolean</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
       <nombre>codtarifa</nombre>
       <tipo>character varying(6)</tipo>
       <nulo>NO</nulo>
