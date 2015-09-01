@@ -117,11 +117,15 @@ class ventas_albaran extends fs_controller
          /// comprobamos el albarán
          $this->albaran->full_test();
          
-         if( isset($_GET['facturar']) AND isset($_GET['petid']) AND $this->albaran->ptefactura )
+         if( isset($_GET['facturar']) AND isset($_GET['petid']) )
          {
             if( $this->duplicated_petition($_GET['petid']) )
             {
                $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
+            }
+            else if( !$this->albaran->ptefactura OR !is_null($this->albaran->idfactura) )
+            {
+               $this->new_error_msg('Parece que este '.FS_ALBARAN.' ya está facturado.');
             }
             else
                $this->generar_factura();

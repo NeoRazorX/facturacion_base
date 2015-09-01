@@ -559,7 +559,9 @@ class cliente extends fs_model
       $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )
       {
-         $consulta .= "codcliente LIKE '%".$query."%' OR cifnif LIKE '%".$query."%' OR observaciones LIKE '%".$query."%'";
+         $consulta .= "codcliente LIKE '%".$query."%' OR cifnif LIKE '%".$query."%'"
+                 . " OR telefono1 LIKE '".$query."%' OR telefono2 LIKE '".$query."%'"
+                 . " OR observaciones LIKE '%".$query."%'";
       }
       else
       {

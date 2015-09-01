@@ -50,7 +50,13 @@ class libro_mayor
          {
             foreach($this->subcuenta->all_from_ejercicio($eje->codejercicio) as $sc)
             {
-               if($sc->debe > 2000 OR $sc->haber > 2000)
+               /**
+                * Recalcular los saldos de las subcuentas es un proceso lento,
+                * por eso evitamos hacerlo siempre.
+                * En este caso solamente se hace cuando del debe o el haber supera
+                * los 2000 o cada 3 veces (el mt_rand() genera un número aleatorio).
+                */
+               if($sc->debe > 2000 OR $sc->haber > 2000 OR mt_rand(0, 2) == 0 )
                {
                   $sc->save();
                   $this->libro_mayor($sc, TRUE);
