@@ -56,14 +56,25 @@ class libro_mayor
                 * En este caso solamente se hace cuando del debe o el haber supera
                 * los 2000 o cada 3 veces (el mt_rand() genera un número aleatorio).
                 */
-               if($sc->debe > 2000 OR $sc->haber > 2000 OR mt_rand(0, 2) == 0 )
+               if($sc->debe > 2000 OR $sc->haber > 2000 OR mt_rand(0, 3) == 0 )
                {
                   $sc->save();
-                  $this->libro_mayor($sc, TRUE);
+                  
+                  if(FS_LIBROS_CONTABLES)
+                  {
+                     $this->libro_mayor($sc, TRUE);
+                  }
+                  else
+                  {
+                     echo '.';
+                  }
                }
             }
             
-            $this->libro_diario($eje);
+            if(FS_LIBROS_CONTABLES)
+            {
+               $this->libro_diario($eje);
+            }
          }
       }
    }

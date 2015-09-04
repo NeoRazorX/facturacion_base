@@ -109,5 +109,9 @@ class contabilidad_impuestos extends fs_controller
          else
             $this->new_error_msg("¡Error al guardar el impuesto!");
       }
+      else if( isset($_GET['set_default']) )
+      {
+         $this->save_codimpuesto($_GET['set_default']);
+      }
    }
 }

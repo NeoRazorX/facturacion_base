@@ -22,9 +22,9 @@
    });
 </script>
 
-<div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
+<div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-sm-10 col-xs-12">
+      <div class="col-sm-5 col-xs-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -51,8 +51,10 @@
             {/loop}
          </div>
       </div>
+      <div class="col-sm-5 col-xs-6 text-right">
+         <h2 style="margin-top: 0px;">Proveedores</h2>
+      </div>
       <div class="col-sm-2 col-xs-12">
-         <div class="visible-xs"><br/></div>
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
@@ -67,11 +69,15 @@
    </div>
 </div>
 
+<div class="visible-xs">
+   <br/>
+</div>
+
 <ul class="nav nav-tabs">
    <li role="presentation"{if="$fsc->mostrar=='todo'"} class="active"{/if}>
       <a href="{$fsc->url()}&mostrar=todo">
          {if="$fsc->query==''"}
-         Todos los proveedores <span class="badge">{$fsc->total_proveedores()}</span>
+         Todos <span class="badge">{$fsc->total_proveedores()}</span>
          {else}
          <span class="glyphicon glyphicon-search"></span>
          <span class="hidden-xs">&nbsp; Resultados de "{$fsc->query}"</span>

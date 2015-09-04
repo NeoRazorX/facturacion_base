@@ -93,18 +93,21 @@
                {/loop}
             </div>
             
-            <div class="btn-group">
-               {if="$fsc->albaran->ptefactura"}
-               <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
-                  <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
-               </a>
-               {else}
-               <a class="btn btn-sm btn-info text-capitalize" href="{$fsc->albaran->factura_url()}">
-                  <span class="glyphicon glyphicon-eye-open"></span>
-                  <span class="hidden-xs">&nbsp; Ver {#FS_FACTURA#}</span>
-               </a>
-               {/if}
-            </div>
+            {if="$fsc->albaran->idfactura"}
+            <a class="btn btn-sm btn-info" href="{$fsc->albaran->factura_url()}">
+               <span class="glyphicon glyphicon-eye-open"></span>
+               <span class="hidden-xs">&nbsp; Ver Factura</span>
+            </a>
+            {elseif="$fsc->albaran->ptefactura"}
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
+               <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
+            </a>
+            {else}
+            <a class="btn btn-sm btn-warning" href="#">
+               <span class="glyphicon glyphicon-lock"></span>
+               <span class="hidden-xs">&nbsp; Bloqueado</span>
+            </a>
+            {/if}
          </div>
          <div class="col-xs-4 text-right">
             <div class="btn-group">
