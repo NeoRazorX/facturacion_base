@@ -115,6 +115,12 @@ class articulo extends fs_model
    public $publico;
    
    /**
+    * TRUE -> se gestión de numeros de serie.
+    * @var type 
+    */
+   public $trazabilidad;
+   
+   /**
     * Código de equivalencia. Varchar (18).
     * Dos artículos o más son equivalentes si tienen el mismo código de equivalencia.
     * @var type 
@@ -195,7 +201,7 @@ class articulo extends fs_model
          self::$column_list = 'referencia,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,'.
                  'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,'.
                  'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,'.
-                 'codsubcuentacom,codsubcuentairpfcom';
+                 'codsubcuentacom,codsubcuentairpfcom,trazabilidad';
       }
       
       if($a)
@@ -225,6 +231,7 @@ class articulo extends fs_model
          $this->secompra = $this->str2bool($a['secompra']);
          $this->sevende = $this->str2bool($a['sevende']);
          $this->publico = $this->str2bool($a['publico']);
+         $this->trazabilidad = $this->str2bool($a['trazabilidad']);
          $this->equivalencia = $a['equivalencia'];
          $this->codbarras = $a['codbarras'];
          $this->observaciones = $this->no_html($a['observaciones']);
@@ -257,6 +264,7 @@ class articulo extends fs_model
          $this->secompra = TRUE;
          $this->sevende = TRUE;
          $this->publico = FALSE;
+         $this->trazabilidad = FALSE;
          $this->equivalencia = NULL;
          $this->codbarras = '';
          $this->observaciones = '';
@@ -888,6 +896,7 @@ class articulo extends fs_model
                     ", bloqueado = ".$this->var2str($this->bloqueado).
                     ", sevende = ".$this->var2str($this->sevende).
                     ", publico = ".$this->var2str($this->publico).
+                    ", trazabilidad = ".$this->var2str($this->trazabilidad).
                     ", secompra = ".$this->var2str($this->secompra).
                     ", equivalencia = ".$this->var2str($this->equivalencia).
                     ", codbarras = ".$this->var2str($this->codbarras).
@@ -931,6 +940,7 @@ class articulo extends fs_model
                     $this->var2str($this->observaciones).",".
                     $this->bin2str($this->imagen).",".
                     $this->var2str($this->publico).",".
+                    $this->var2str($this->trazabilidad).",".
                     $this->var2str($this->tipo).",".
                     $this->var2str($this->codsubcuentacom).",".
                     $this->var2str($this->codsubcuentairpfcom).");";
