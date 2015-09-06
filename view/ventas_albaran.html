@@ -12,6 +12,16 @@
    cliente = {function="json_encode($fsc->cliente_s)"};
    nueva_venta_url = '{$fsc->nuevo_albaran_url}';
    kiwimaru_url = '{#FS_COMMUNITY_URL#}/index.php?page=kiwimaru';
+   function check(id) {
+      if($("#"+id).is(":checked"))
+      {
+         $("#checked_"+id).prop("disabled",false);
+      }
+      else
+      {
+         $("#checked_"+id).prop("disabled",true);
+      }
+   };
    
    $(document).ready(function() {
       $("#numlineas").val(numlineas);
@@ -673,10 +683,17 @@
                   Email del cliente:
                   <input class="form-control" type="text" name="email" value="{$fsc->cliente_s->email}" autocomplete="off"/>
                </div>
+                <div class="form-group">
+                  <label>
+                     <input id="copia" onclick="check(this.id)" type="checkbox" name="concopia" value="TRUE" checked="checked"/>
+                     Enviar copia:
+                  </label>
+                  <input id="checked_copia" class="form-control" type="text" name="email_copia" value="{$fsc->empresa->email}" autocomplete="off"/>
+               </div>
                <div class="form-group">
                   Mensaje:
                   <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto su {#FS_ALBARAN#} {$fsc->albaran->codigo}.
-{$fsc->empresa->email_firma}</textarea>
+                {$fsc->empresa->email_firma}</textarea>
                </div>
                {loop="$fsc->extensions"}
                   {if="$value->type=='email'"}

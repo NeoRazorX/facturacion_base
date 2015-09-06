@@ -874,6 +874,10 @@ class ventas_imprimir extends fs_controller
             $mail->MsgHTML( nl2br($_POST['mensaje']) );
             $mail->AddAttachment('tmp/'.FS_TMP_NAME.'enviar/'.$filename);
             $mail->AddAddress($_POST['email'], $this->cliente->razonsocial);
+            if(isset($_POST['concopia']))
+            {
+                $mail->AddCC($_POST['email_copia'], $this->cliente->razonsocial);
+            }
             $mail->IsHTML(TRUE);
             
             if( $mail->Send() )
