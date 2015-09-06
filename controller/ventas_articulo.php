@@ -26,6 +26,7 @@ require_model('impuesto.php');
 require_model('regularizacion_stock.php');
 require_model('stock.php');
 require_model('tarifa.php');
+require_model('articulos_unicos.php');
 
 class ventas_articulo extends fs_controller
 {
@@ -42,6 +43,7 @@ class ventas_articulo extends fs_controller
    public $stocks;
    public $equivalentes;
    public $regularizaciones;
+   public $mostrar_trazabilidad;
    
    public function __construct()
    {
@@ -55,6 +57,14 @@ class ventas_articulo extends fs_controller
       $this->articulo = FALSE;
       $this->impuesto = new impuesto();
       $this->fabricante= new fabricante();
+      
+      $this->mostrar_trazabilidad = FALSE;
+      if(class_exists('articulo_unico'))
+      {
+          $this->mostrar_trazabilidad = TRUE;
+      }
+      
+      
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -229,6 +239,7 @@ class ventas_articulo extends fs_controller
          $this->articulo->secompra = isset($_POST['secompra']);
          $this->articulo->sevende = isset($_POST['sevende']);
          $this->articulo->publico = isset($_POST['publico']);
+         $this->articulo->trazabilidad = isset($_POST['trazabilidad']);
          $this->articulo->observaciones = $_POST['observaciones'];
          $this->articulo->stockmin = floatval($_POST['stockmin']);
          $this->articulo->stockmax = floatval($_POST['stockmax']);

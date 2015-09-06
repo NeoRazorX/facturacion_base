@@ -52,6 +52,18 @@ class tarifa extends fs_model
     */
    public $aplicar_a;
    
+   /**
+    * no vender por debajo de coste
+    * @var boolean 
+    */
+   public $mincoste;
+   
+   /**
+    * no vender por encima de pvp
+    * @var boolean 
+    */
+   public $maxpvp;
+   
    public function __construct($t = FALSE)
    {
       parent::__construct('tarifas', 'plugins/facturacion_base/');
@@ -61,6 +73,8 @@ class tarifa extends fs_model
          $this->nombre = $t['nombre'];
          $this->incporcentual = floatval($t['incporcentual']);
          $this->inclineal = floatval($t['inclineal']);
+         $this->mincoste = $this->str2bool($t['mincoste']);
+         $this->maxpvp = $this->str2bool($t['maxpvp']);
          
          $this->aplicar_a = 'pvp';
          if( !is_null($t['aplicar_a']) )
@@ -75,6 +89,8 @@ class tarifa extends fs_model
          $this->incporcentual = 0;
          $this->inclineal = 0;
          $this->aplicar_a = 'pvp';
+         $this->mincoste = FALSE;
+         $this->maxventa = FALSE;
       }
    }
    
@@ -161,6 +177,8 @@ class tarifa extends fs_model
          $articulos[$i]->tarifa_nombre = $this->nombre;
          $articulos[$i]->tarifa_url = $this->url();
          $articulos[$i]->dtopor = 0;
+         $pvp = $articulos[$i]->pvp;
+         $preciocoste = $articulos[$i]->preciocoste;
          
          if($this->aplicar_a == 'pvp')
          {
@@ -168,15 +186,36 @@ class tarifa extends fs_model
             {
                $articulos[$i]->dtopor = $this->x();
                $articulos[$i]->pvp = $articulos[$i]->pvp - $this->y();
+               if($this->mincoste)
+               {
+                   if($articulos[$i]->pvp < $preciocoste)
+                   {
+                       $articulos[$i]->pvp = $preciocoste;
+                   }
+               } 
             }
             else
             {
                $articulos[$i]->pvp = $articulos[$i]->pvp * (100 - $this->x())/100 - $this->y();
+               if($this->maxpvp)
+               {
+                   if($articulos[$i]->pvp > $pvp)
+                   {
+                       $articulos[$i]->pvp = $pvp;
+                   }
+               } 
             }
          }
          else
          {
             $articulos[$i]->pvp = $articulos[$i]->preciocoste() * (100 + $this->x())/100 + $this->y();
+            if($this->mincoste)
+               {
+                   if($articulos[$i]->pvp < $preciocoste)
+                   {
+                       $articulos[$i]->pvp = $preciocoste;
+                   }
+               } 
          }
          
          $articulos[$i]->tarifa_diff = $this->diff();
@@ -246,13 +285,15 @@ class tarifa extends fs_model
                incporcentual = ".$this->var2str($this->incporcentual).",
                inclineal =".$this->var2str($this->inclineal).",
                aplicar_a =".$this->var2str($this->aplicar_a)."
+               mincoste =".$this->var2str($this->mincoste).",
+               maxpvp =".$this->var2str($this->maxpvp)."    
                WHERE codtarifa = ".$this->var2str($this->codtarifa).";";
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (codtarifa,nombre,incporcentual,inclineal,aplicar_a)
+            $sql = "INSERT INTO ".$this->table_name." (codtarifa,nombre,incporcentual,inclineal,aplicar_a,mincoste,maxpvp)
                VALUES (".$this->var2str($this->codtarifa).",".$this->var2str($this->nombre).",
-               ".$this->var2str($this->incporcentual).",".$this->var2str($this->inclineal).",".$this->var2str($this->aplicar_a).");";
+               ".$this->var2str($this->incporcentual).",".$this->var2str($this->inclineal).",".$this->var2str($this->aplicar_a).",".$this->var2str($this->mincoste).",".$this->var2str($this->maxpvp).");";
          }
          return $this->db->exec($sql);
       }

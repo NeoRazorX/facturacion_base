@@ -303,6 +303,14 @@
                            Permitir ventas sin stock
                         </label>
                      </div>
+                     {if="$fsc->mostrar_trazabilidad"}
+                     <div class="checkbox">
+                        <label>
+                           <input type="checkbox" name="trazabilidad" value="TRUE"{if="$fsc->articulo->trazabilidad"} checked="checked"{/if}/>
+                           Trazabilidad
+                        </label>
+                    </div>
+                     {/if}
                   </div>
                   <div class="col-sm-3">
                      <div class="checkbox">
