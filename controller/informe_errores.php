@@ -338,7 +338,7 @@ class informe_errores extends fs_controller
          
          case 'albaran cliente':
             $albaran = new albaran_cliente();
-            $albaranes = $albaran->all($this->informe['offset'], $mpp);
+            $albaranes = $albaran->all($this->informe['offset']);
             if($albaranes)
             {
                foreach($albaranes as $alb)
@@ -381,7 +381,7 @@ class informe_errores extends fs_controller
          
          case 'albaran proveedor':
             $albaran = new albaran_proveedor();
-            $albaranes = $albaran->all($this->informe['offset'], $mpp);
+            $albaranes = $albaran->all($this->informe['offset']);
             if($albaranes)
             {
                foreach($albaranes as $alb)

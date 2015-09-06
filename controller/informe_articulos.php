@@ -18,6 +18,7 @@
  */
 
 require_model('articulo.php');
+require_model('impuesto.php');
 require_model('linea_factura_cliente.php');
 require_model('linea_factura_proveedor.php');
 require_model('regularizacion_stock.php');
@@ -25,19 +26,21 @@ require_model('regularizacion_stock.php');
 class informe_articulos extends fs_controller
 {
    public $articulo;
+   public $codimpuesto;
+   public $desde;
+   public $documento;
+   public $hasta;
+   public $impuesto;
    private $offset;
    public $pestanya;
+   public $referencia;
    public $resultados;
    public $sin_vender;
    public $stats;
    public $tipo_stock;
    public $top_ventas;
    public $top_compras;
-   public $desde;
-   public $hasta;
-   public $referencia;
-   public $documento;
-
+   
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Artículos', 'informes', FALSE, TRUE);
@@ -115,6 +118,60 @@ class informe_articulos extends fs_controller
          }
          else
             $this->resultados = $this->stock($this->offset, $this->tipo_stock);
+      }
+      else if($this->pestanya == 'impuestos')
+      {
+         $this->impuesto = new impuesto();
+         
+         $this->codimpuesto = '';
+         if( isset($_REQUEST['codimpuesto']) )
+         {
+            $this->codimpuesto = $_REQUEST['codimpuesto'];
+         }
+         
+         /// ¿Hacemos cambio?
+         if( isset($_POST['new_codimpuesto']) )
+         {
+            if($_POST['new_codimpuesto'] != '')
+            {
+               $sql = "UPDATE articulos SET codimpuesto = ".$this->impuesto->var2str($_POST['new_codimpuesto']);
+               if($this->codimpuesto == '')
+               {
+                  $sql .= " WHERE codimpuesto IS NULL";
+               }
+               else
+               {
+                  $sql .= " WHERE codimpuesto = ".$this->impuesto->var2str($this->codimpuesto);
+               }
+               
+               if( $this->db->exec($sql) )
+               {
+                  $this->new_message('cambios aplicados correctamente.');
+               }
+               else
+               {
+                  $this->new_error_msg('Error al aplicar los cambios.');
+               }
+            }
+         }
+         
+         /// buscamos en la tabla
+         $sql = "SELECT * FROM articulos";
+         if($this->codimpuesto == '')
+         {
+            $sql .= " WHERE codimpuesto IS NULL";
+         }
+         else
+         {
+            $sql .= " WHERE codimpuesto = ".$this->impuesto->var2str($this->codimpuesto);
+         }
+         $this->resultados = array();
+         $data = $this->db->select_limit($sql.' ORDER BY referencia ASC', 1000, 0);
+         if($data)
+         {
+            foreach($data as $d)
+               $this->resultados[] = new articulo($d);
+         }
       }
       else if($this->pestanya == 'search')
       {

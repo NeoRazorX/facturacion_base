@@ -1133,7 +1133,7 @@ class articulo extends fs_model
          }
          else if( is_numeric($query) )
          {
-            $sql .= $separador." (lower(referencia) = ".$this->var2str($query)
+            $sql .= $separador." (referencia = ".$this->var2str($query)
                     . " OR referencia LIKE '%".$query."%' OR equivalencia LIKE '%".$query."%'"
                     . " OR descripcion LIKE '%".$query."%' OR codbarras = '".$query."')";
          }
@@ -1145,7 +1145,14 @@ class articulo extends fs_model
                     . " OR lower(descripcion) LIKE '%".$buscar."%')";
          }
          
-         $sql .= " ORDER BY referencia ASC";
+         if( strtolower(FS_DB_TYPE) == 'mysql' )
+         {
+            $sql .= " ORDER BY lower(referencia) ASC";
+         }
+         else
+         {
+            $sql .= " ORDER BY referencia ASC";
+         }
          
          $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
          if($data)
@@ -1164,7 +1171,8 @@ class articulo extends fs_model
    {
       $artilist = array();
       $sql = "SELECT ".self::$column_list." FROM ".$this->table_name
-              ." WHERE codbarras = ".$this->var2str($cod)." ORDER BY referencia ASC";
+              ." WHERE codbarras = ".$this->var2str($cod)
+              ." ORDER BY lower(referencia) ASC";
       
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
@@ -1185,7 +1193,8 @@ class articulo extends fs_model
    public function all($offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
-      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." ORDER BY referencia ASC";
+      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name
+              ." ORDER BY lower(referencia) ASC";
       
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
@@ -1197,11 +1206,17 @@ class articulo extends fs_model
       return $artilist;
    }
    
+   /**
+    * Devuelve el listado de artículos públicos, desde $offset hasta $offset+$limit
+    * @param type $offset
+    * @param type $limit
+    * @return \articulo
+    */
    public function all_publico($offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
       $sql = "SELECT ".self::$column_list." FROM ".$this->table_name
-              ." WHERE publico ORDER BY referencia ASC";
+              ." WHERE publico ORDER BY lower(referencia) ASC";
       
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
@@ -1224,7 +1239,7 @@ class articulo extends fs_model
    {
       $artilist = array();
       $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = "
-              .$this->var2str($cod)." ORDER BY referencia ASC";
+              .$this->var2str($cod)." ORDER BY lower(referencia) ASC";
       
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
@@ -1247,7 +1262,7 @@ class articulo extends fs_model
    {
       $artilist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codfabricante = "
-              .$this->var2str($cod)." ORDER BY codfabricante ASC";
+              .$this->var2str($cod)." ORDER BY lower(referencia) ASC";
       
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)

@@ -559,13 +559,16 @@ class cliente extends fs_model
       $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )
       {
-         $consulta .= "codcliente LIKE '%".$query."%' OR cifnif LIKE '%".$query."%' OR observaciones LIKE '%".$query."%'";
+         $consulta .= "codcliente LIKE '%".$query."%' OR cifnif LIKE '%".$query."%'"
+                 . " OR telefono1 LIKE '".$query."%' OR telefono2 LIKE '".$query."%'"
+                 . " OR observaciones LIKE '%".$query."%'";
       }
       else
       {
          $buscar = str_replace(' ', '%', $query);
-         $consulta .= "lower(nombre) LIKE '%".$buscar."%' OR lower(cifnif) LIKE '%".$buscar."%'
-            OR lower(observaciones) LIKE '%".$buscar."%' OR lower(email) LIKE '%".$buscar."%'";
+         $consulta .= "lower(nombre) LIKE '%".$buscar."%' OR lower(razonsocial) LIKE '%".$buscar."%'"
+                 . " OR lower(cifnif) LIKE '%".$buscar."%' OR lower(observaciones) LIKE '%".$buscar."%'"
+                 . " OR lower(email) LIKE '%".$buscar."%'";
       }
       $consulta .= " ORDER BY nombre ASC";
       

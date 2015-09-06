@@ -101,8 +101,8 @@ class tpv_recambios extends fs_controller
          $this->forma_pago = new forma_pago();
          $this->serie = new serie();
          
-         $this->imprimir_descripciones = isset($_REQUEST['imprimir_desc']);
-         $this->imprimir_observaciones = isset($_REQUEST['imprimir_obs']);
+         $this->imprimir_descripciones = isset($_COOKIE['imprimir_desc']);
+         $this->imprimir_observaciones = isset($_COOKIE['imprimir_obs']);
          
          if($this->agente)
          {

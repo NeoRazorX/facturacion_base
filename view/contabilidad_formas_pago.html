@@ -59,7 +59,7 @@
       </thead>
       {loop="$fsc->forma_pago->all()"}
       <form action="{$fsc->url()}" method="post" class="form" role="form">
-         <tr>
+         <tr{if="$value->genrecibos=='Pagados'"} class="success"{/if}>
             <td>
                <input type="hidden" name="codpago" value="{$value->codpago}"/>
                <div class="form-control">{$value->codpago}</div>

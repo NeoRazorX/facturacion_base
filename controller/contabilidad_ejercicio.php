@@ -59,8 +59,8 @@ class contabilidad_ejercicio extends fs_controller
       $this->ejercicio = FALSE;
       if( isset($_POST['codejercicio']) )
       {
-         $this->ejercicio = new ejercicio();
-         $this->ejercicio = $this->ejercicio->get($_POST['codejercicio']);
+         $eje0 = new ejercicio();
+         $this->ejercicio = $eje0->get($_POST['codejercicio']);
          if($this->ejercicio)
          {
             $this->ejercicio->nombre = $_POST['nombre'];
@@ -76,8 +76,8 @@ class contabilidad_ejercicio extends fs_controller
       }
       else if( isset($_GET['cod']) )
       {
-         $this->ejercicio = new ejercicio();
-         $this->ejercicio = $this->ejercicio->get($_GET['cod']);
+         $eje0 = new ejercicio();
+         $this->ejercicio = $eje0->get($_GET['cod']);
       }
       
       if($this->ejercicio)

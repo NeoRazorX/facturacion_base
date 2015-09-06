@@ -54,6 +54,12 @@ class facturacion_base_cron
          echo "\nGeneramos el libro de inventarios y balances para cada ejercicio...";
          $inventarios_balances->cron_job();
       }
+      else
+      {
+         $libro = new libro_mayor();
+         echo "Comprobamos algunas subcuentas...";
+         $libro->cron_job();
+      }
    }
 }
 

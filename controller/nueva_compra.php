@@ -1029,21 +1029,28 @@ class nueva_compra extends fs_controller
          $separador = ' AND';
       }
       
-      if( is_numeric($this->query) )
+      if( is_numeric($query) )
       {
-         $sql .= $separador." (lower(referencia) = ".$this->articulo_prov->var2str($this->query)
-                 . " OR referencia LIKE '%".$this->query."%' OR equivalencia LIKE '%".$this->query."%'"
-                 . " OR descripcion LIKE '%".$this->query."%' OR codbarras = '".$this->query."')";
+         $sql .= $separador." (referencia = ".$this->articulo_prov->var2str($query)
+                 . " OR referencia LIKE '%".$query."%' OR equivalencia LIKE '%".$query."%'"
+                 . " OR descripcion LIKE '%".$query."%' OR codbarras = '".$query."')";
       }
       else
       {
-         $buscar = str_replace(' ', '%', $this->query);
-         $sql .= $separador." (lower(referencia) = ".$this->articulo_prov->var2str($this->query)
+         $buscar = str_replace(' ', '%', $query);
+         $sql .= $separador." (lower(referencia) = ".$this->articulo_prov->var2str($query)
                  . " OR lower(referencia) LIKE '%".$buscar."%' OR lower(equivalencia) LIKE '%".$buscar."%'"
                  . " OR lower(descripcion) LIKE '%".$buscar."%')";
       }
       
-      $sql .= " ORDER BY referencia ASC";
+      if( strtolower(FS_DB_TYPE) == 'mysql' )
+      {
+         $sql .= " ORDER BY lower(referencia) ASC";
+      }
+      else
+      {
+         $sql .= " ORDER BY referencia ASC";
+      }
       
       $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, 0);
       if($data)

@@ -173,6 +173,11 @@ class albaran_proveedor extends fs_model
          $this->idalbaran = $this->intval($a['idalbaran']);
          
          $this->idfactura = $this->intval($a['idfactura']);
+         if($this->idfactura == 0)
+         {
+            $this->idfactura = NULL;
+         }
+         
          $this->ptefactura = $this->str2bool($a['ptefactura']);
          if($this->idfactura)
          {
@@ -272,19 +277,12 @@ class albaran_proveedor extends fs_model
    
    public function factura_url()
    {
-      if( $this->ptefactura )
+      if( is_null($this->idfactura) )
       {
          return '#';
       }
       else
-      {
-         if( is_null($this->idfactura) )
-         {
-            return 'index.php?page=compras_facturas';
-         }
-         else
-            return 'index.php?page=compras_factura&id='.$this->idfactura;
-      }
+         return 'index.php?page=compras_factura&id='.$this->idfactura;
    }
    
    public function agente_url()
@@ -477,7 +475,11 @@ class albaran_proveedor extends fs_model
          }
          else if( isset($this->idfactura) )
          {
-            $this->new_error_msg("Este ".FS_ALBARAN." esta asociado a una <a href='".$this->factura_url()."'>factura</a> incorrecta.");
+            $this->new_error_msg("Este ".FS_ALBARAN." esta asociado a una <a href='".$this->factura_url()
+                    ."'>factura</a> que ya no existe. <b>Corregido</b>.");
+            $this->idfactura = NULL;
+            $this->save();
+            
             $status = FALSE;
          }
       }
@@ -756,5 +758,10 @@ class albaran_proveedor extends fs_model
                WHERE codejercicio = ".$this->var2str($eje->codejercicio).";");
          }
       }
+      
+      /**
+       * Ponemos a NULL todos los idfactura = 0
+       */
+      $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura = '0';");
    }
 }

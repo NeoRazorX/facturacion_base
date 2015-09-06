@@ -310,17 +310,19 @@ function buscar_articulos()
                tr_aux = "<tr class=\"bg-success\">";
             }
             
-            if(val.codbarras == document.f_buscar_articulos.query.value && !codbarras)
+            if(val.codbarras != '' && val.codbarras == document.f_buscar_articulos.query.value && !codbarras)
             {
                codbarras = true;
                
                if( val.sevende && (val.stockfis > 0 || val.controlstock) )
                {
-                  var funcion = "add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
+                  var funcion = "add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"
+                          +val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
                   
                   if(val.tipo)
                   {
-                     funcion = "add_articulo_"+val.tipo+"('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
+                     funcion = "add_articulo_"+val.tipo+"('"+val.referencia+"','"+descripcion+"','"
+                             +val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
                   }
                   
                   eval(funcion);
@@ -332,14 +334,17 @@ function buscar_articulos()
             }
             else if( val.sevende && (val.stockfis > 0 || val.controlstock) )
             {
-               var funcion = "add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
+               var funcion = "add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"
+                       +val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
                
                if(val.tipo)
                {
-                  funcion = "add_articulo_"+val.tipo+"('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
+                  funcion = "add_articulo_"+val.tipo+"('"+val.referencia+"','"+descripcion+"','"+val.pvp
+                          +"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
                }
                
-               items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
+               items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
+                  <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
                   &nbsp; <a href=\"#\" onclick=\""+funcion+"\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
                   <td class=\"text-right\"><a href=\"#\" onclick=\""+funcion+"\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
                   <td class=\"text-right\"><a href=\"#\" onclick=\""+funcion+"\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
@@ -347,7 +352,8 @@ function buscar_articulos()
             }
             else if(val.sevende && val.stockfis <= 0)
             {
-               items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
+               items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
+                  <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
                   &nbsp; <a href=\"#\" onclick=\"alert('Sin stock.')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
                   <td class=\"text-right\"><a href=\"#\" onclick=\"alert('Sin stock.')\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
                   <td class=\"text-right\"><a href=\"#\" onclick=\"alert('Sin stock.')\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
