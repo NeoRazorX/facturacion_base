@@ -90,6 +90,9 @@ class nueva_venta extends fs_controller
             'nuevocli_telefono1_req' => 0,
             'nuevocli_telefono2' => 0,
             'nuevocli_telefono2_req' => 0,
+            'nuevocli_grupo' => 0,
+            'nuevocli_grupo_req' => 0,
+            'nuevocli_grupo_pred' => 0,
          ),
          FALSE
       );
@@ -156,11 +159,11 @@ class nueva_venta extends fs_controller
                   $this->cliente_s->cifnif = $_POST['nuevo_cifnif'];
                   $this->cliente_s->codserie = $this->empresa->codserie;
                   
-                  if( isset($_POST['codgrupo']) )
+                  if( isset($_POST['nuevo_grupo']) )
                   {
-                     if($_POST['codgrupo'] != '')
+                     if($_POST['nuevo_grupo'] != '')
                      {
-                        $this->cliente_s->codgrupo = $_POST['codgrupo'];
+                        $this->cliente_s->codgrupo = $_POST['nuevo_grupo'];
                      }
                   }
                   
