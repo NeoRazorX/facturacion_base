@@ -275,7 +275,7 @@
                         <option value="">Ninguno</option>
                         <option value="">------</option>
                         {loop="$fsc->grupos"}
-                        <option value="{$value->codgrupo}">{$value->nombre}</option>
+                        <<option value="{$value->codgrupo}"{if="$value->codgrupo==$fsc->nuevocli_setup['nuevocli_grupo_pred']"} selected="selected"{/if}>{$value->nombre}</option>
                         {/loop}
                      </select>
                   </div>

@@ -82,7 +82,8 @@ class ventas_articulos extends fs_controller
          $tar0->aplicar_a = $_POST['aplicar_a'];
          $tar0->set_x( floatval($_POST['dtopor']) );
          $tar0->set_y( floatval($_POST['inclineal']) );
-         
+         $tar0->mincoste = isset($_POST['mincoste']);
+         $tar0->maxpvp = isset($_POST['maxpvp']);
          if( $tar0->save() )
          {
             $this->new_message("Tarifa guardada correctamente.");

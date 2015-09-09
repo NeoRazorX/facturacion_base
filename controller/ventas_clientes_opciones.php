@@ -20,6 +20,7 @@
  */
 
 require_model('cliente.php');
+require_model('grupo_clientes.php');
 
 /**
  * Description of opciones_servicios
@@ -40,6 +41,7 @@ class ventas_clientes_opciones extends fs_controller
    {
       /// cargamos la configuración
       $fsvar = new fs_var();
+      $this->grupo = new grupo_clientes();
       $this->nuevocli_setup = $fsvar->array_get(
          array(
             'nuevocli_cifnif_req' => 0,
@@ -57,6 +59,9 @@ class ventas_clientes_opciones extends fs_controller
             'nuevocli_telefono1_req' => 0,
             'nuevocli_telefono2' => 0,
             'nuevocli_telefono2_req' => 0,
+            'nuevocli_grupo' => 0,
+            'nuevocli_grupo_req' => 0,
+            'nuevocli_grupo_pred' => 0,
          ),
          FALSE
       );
@@ -78,6 +83,9 @@ class ventas_clientes_opciones extends fs_controller
          $this->nuevocli_setup['nuevocli_telefono1_req'] = ( isset($_POST['nuevocli_telefono1_req']) ? 1 : 0 );
          $this->nuevocli_setup['nuevocli_telefono2'] = ( isset($_POST['nuevocli_telefono2']) ? 1 : 0 );
          $this->nuevocli_setup['nuevocli_telefono2_req'] = ( isset($_POST['nuevocli_telefono2_req']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_grupo'] = ( isset($_POST['nuevocli_grupo']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_grupo_req'] = ( isset($_POST['nuevocli_grupo_req']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_grupo_pred'] = ( isset($_POST['nuevocli_grupo_pred']) ? 1 : 0 );
          
          if( $fsvar->array_save($this->nuevocli_setup) )
          {

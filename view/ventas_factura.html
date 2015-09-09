@@ -16,6 +16,16 @@
          event.preventDefault();
          $("#modal_eliminar").modal('show');
       });
+      function check(id) {
+      if($("#"+id).is(":checked"))
+      {
+         $("#checked_"+id).prop("disabled",false);
+      }
+      else
+      {
+         $("#checked_"+id).prop("disabled",true);
+      }
+   };
       {if="$fsc->factura->totalrecargo==0"}
       $(".recargo").hide();
       {/if}
@@ -327,6 +337,13 @@
                <div class="form-group">
                   Email del cliente:
                   <input class="form-control" type="text" name="email" value="{$fsc->cliente->email}" autocomplete="off"/>
+               </div>
+               <div class="form-group">
+                  <label>
+                     <input id="copia" onclick="check(this.id)" type="checkbox" name="concopia" value="TRUE" checked="checked"/>
+                     Enviar copia:
+                  </label>
+                  <input id="checked_copia" class="form-control" type="text" name="email_copia" value="{$fsc->empresa->email}" autocomplete="off"/>
                </div>
                <div class="form-group">
                   Mensaje:
