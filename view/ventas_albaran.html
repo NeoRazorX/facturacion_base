@@ -284,7 +284,7 @@
                            <select class="form-control" id="iva_{$counter}" name="iva_{$counter}" onchange="ajustar_iva('{$counter}')">
                            {loop="$fsc->impuesto->all()"}
                               {if="$value1->codimpuesto==$value2->codimpuesto"}
-                              <option value="{$value2->iva}" selected="selected">{$value2->descripcion}</option>
+                              <option value="{$value2->iva}" selected="">{$value2->descripcion}</option>
                               {else}
                               <option value="{$value2->iva}">{$value2->descripcion}</option>
                               {/if}
@@ -394,7 +394,7 @@
                         <a href="{$fsc->pais->url()}">País</a>:
                         <select class="form-control" name="codpais">
                            {loop="$fsc->pais->all()"}
-                           <option value="{$value->codpais}"{if="$value->codpais==$fsc->albaran->codpais"} selected="selected"{/if}>{$value->nombre}</option>
+                           <option value="{$value->codpais}"{if="$value->codpais==$fsc->albaran->codpais"} selected=""{/if}>{$value->nombre}</option>
                            {/loop}
                         </select>
                      </div>
@@ -435,7 +435,7 @@
                         <select class="form-control" name="serie" id="codserie" onchange="usar_serie();recalcular();">
                         {loop="$fsc->serie->all()"}
                            {if="$value->codserie==$fsc->albaran->codserie"}
-                           <option value="{$value->codserie}" selected="selected">{$value->descripcion}</option>
+                           <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
                            {else}
                            <option value="{$value->codserie}">{$value->descripcion}</option>
                            {/if}
@@ -448,7 +448,7 @@
                         <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
                         <select name="forma_pago" class="form-control">
                            {loop="$fsc->forma_pago->all()"}
-                           <option value="{$value->codpago}"{if="$value->codpago==$fsc->albaran->codpago"} selected="selected"{/if}>{$value->descripcion}</option>
+                           <option value="{$value->codpago}"{if="$value->codpago==$fsc->albaran->codpago"} selected=""{/if}>{$value->descripcion}</option>
                            {/loop}
                         </select>
                      </div>
@@ -459,7 +459,7 @@
                         <select name="divisa" class="form-control">
                         {loop="$fsc->divisa->all()"}
                            {if="$value->coddivisa==$fsc->albaran->coddivisa"}
-                           <option value="{$value->coddivisa}" selected="selected">{$value->descripcion}</option>
+                           <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
                            {else}
                            <option value="{$value->coddivisa}">{$value->descripcion}</option>
                            {/if}
@@ -611,7 +611,7 @@
                            <a href="{$fsc->impuesto->url()}">{#FS_IVA#}</a>:
                            <select name="codimpuesto" class="form-control">
                               {loop="$fsc->impuesto->all()"}
-                              <option value="{$value->codimpuesto}"{if="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
+                              <option value="{$value->codimpuesto}"{if="$value->is_default()"} selected=""{/if}>{$value->descripcion}</option>
                               {/loop}
                            </select>
                         </div>

@@ -24,14 +24,27 @@ require_model('tarifa.php');
  */
 class grupo_clientes extends fs_model
 {
+   /**
+    * Clave primaria
+    * @var type 
+    */
    public $codgrupo;
+   
+   /**
+    * Nombre del grupo
+    * @var type 
+    */
    public $nombre;
+   
+   /**
+    * Código de la tarifa asociada, si la hay
+    * @var type 
+    */
    public $codtarifa;
    
    public function __construct($g = FALSE)
    {
       parent::__construct('gruposclientes', 'plugins/facturacion_base/');
-      
       if($g)
       {
          $this->codgrupo = $g['codgrupo'];
@@ -69,7 +82,9 @@ class grupo_clientes extends fs_model
       $sql = "SELECT MAX(".$this->db->sql_to_int('codgrupo').") as cod FROM ".$this->table_name.";";
       $cod = $this->db->select($sql);
       if($cod)
+      {
          return 1 + intval($cod[0]['cod']);
+      }
       else
          return 1;
    }
@@ -78,7 +93,9 @@ class grupo_clientes extends fs_model
    {
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codgrupo = ".$this->var2str($cod).";");
       if($data)
+      {
          return new grupo_clientes($data[0]);
+      }
       else
          return FALSE;
    }
@@ -86,7 +103,9 @@ class grupo_clientes extends fs_model
    public function exists()
    {
       if( is_null($this->codgrupo) )
+      {
          return FALSE;
+      }
       else
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE codgrupo = ".$this->var2str($this->codgrupo).";");
    }
@@ -97,13 +116,16 @@ class grupo_clientes extends fs_model
       
       if( $this->exists() )
       {
-         $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre).", "
-            . "codtarifa = ".$this->var2str($this->codtarifa)." WHERE codgrupo = ".$this->var2str($this->codgrupo).";";
+         $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre)
+                 .", codtarifa = ".$this->var2str($this->codtarifa)
+                 ."  WHERE codgrupo = ".$this->var2str($this->codgrupo).";";
       }
       else
       {
          $sql = "INSERT INTO ".$this->table_name." (codgrupo,nombre,codtarifa) VALUES "
-            . "(".$this->var2str($this->codgrupo).",".$this->var2str($this->nombre).",".$this->var2str($this->codtarifa).");";
+                 . "(".$this->var2str($this->codgrupo)
+                 . ",".$this->var2str($this->nombre)
+                 . ",".$this->var2str($this->codtarifa).");";
       }
       
       return $this->db->exec($sql);
@@ -118,7 +140,7 @@ class grupo_clientes extends fs_model
    {
       $glist = array();
       
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY codgrupo ASC;");
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
       if($data)
       {
          foreach($data as $d)

@@ -90,6 +90,7 @@ class nueva_venta extends fs_controller
             'nuevocli_telefono1_req' => 0,
             'nuevocli_telefono2' => 0,
             'nuevocli_telefono2_req' => 0,
+            'nuevocli_codgrupo' => '',
          ),
          FALSE
       );
@@ -431,10 +432,10 @@ class nueva_venta extends fs_controller
                if($tarifa)
                {
                   $tarifa->set_precios($this->results);
-                  }
                }
             }
          }
+      }
       
       header('Content-Type: application/json');
       echo json_encode($this->results);

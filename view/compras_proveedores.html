@@ -178,7 +178,7 @@
                   <a href="{$fsc->pais->url()}">País</a>:
                   <select name="pais" class="form-control">
                      {loop="$fsc->pais->all()"}
-                     <option value="{$value->codpais}"{if="$value->is_default()"} selected="selected"{/if}>{$value->nombre}</option>
+                     <option value="{$value->codpais}"{if="$value->is_default()"} selected=""{/if}>{$value->nombre}</option>
                      {/loop}
                   </select>
                </div>

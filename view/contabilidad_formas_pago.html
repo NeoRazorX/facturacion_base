@@ -67,15 +67,15 @@
             <td><input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/></td>
             <td>
                <select name="genrecibos" class="form-control">
-                  <option value="Emitidos"{if="$value->genrecibos=='Emitidos'"} selected="selected"{/if}>Sin pagar</option>
-                  <option value="Pagados"{if="$value->genrecibos=='Pagados'"} selected="selected"{/if}>Pagadas</option>
+                  <option value="Emitidos"{if="$value->genrecibos=='Emitidos'"} selected=""{/if}>Sin pagar</option>
+                  <option value="Pagados"{if="$value->genrecibos=='Pagados'"} selected=""{/if}>Pagadas</option>
                </select>
             </td>
             <td>
                <select name="vencimiento" class="form-control">
                {loop="$fsc->vencimientos()"}
                   {if="$value1->vencimiento==$key2"}
-                  <option value="{$key2}" selected="selected">{$value2}</option>
+                  <option value="{$key2}" selected="">{$value2}</option>
                   {else}
                   <option value="{$key2}">{$value2}</option>
                   {/if}
@@ -99,7 +99,7 @@
                   <option value="">------</option>
                   {loop="$fsc->cuentas_banco"}
                      {if="$value1->codcuenta==$value->codcuenta"}
-                     <option value="{$value->codcuenta}" selected="selected">{$value->descripcion}</option>
+                     <option value="{$value->codcuenta}" selected="">{$value->descripcion}</option>
                      {else}
                      <option value="{$value->codcuenta}">{$value->descripcion}</option>
                      {/if}

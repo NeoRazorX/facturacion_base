@@ -68,7 +68,7 @@
                   <option value="---">Ninguna</option>
                   <option value="---">-------</option>
                   {loop="$fsc->cuentas_especiales()"}
-                  <option value="{$value->idcuentaesp}"{if="$value->idcuentaesp==$fsc->cuenta->idcuentaesp"} selected="selected"{/if}>
+                  <option value="{$value->idcuentaesp}"{if="$value->idcuentaesp==$fsc->cuenta->idcuentaesp"} selected=""{/if}>
                      {$value->descripcion}
                   </option>
                   {/loop}

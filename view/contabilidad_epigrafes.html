@@ -227,7 +227,7 @@
             <select name="ejercicio" class="form-control" onchange="document.f_filtro_cuentas.submit()">
             {loop="$fsc->ejercicio->all()"}
                {if="$value->codejercicio==$fsc->codejercicio"}
-               <option value="{$value->codejercicio}" selected="selected">{$value->nombre} ({$value->codejercicio})</option>
+               <option value="{$value->codejercicio}" selected="">{$value->nombre} ({$value->codejercicio})</option>
                {else}
                <option value="{$value->codejercicio}">{$value->nombre} ({$value->codejercicio})</option>
                {/if}
@@ -286,7 +286,7 @@
                   <select name="ejercicio" class="form-control">
                      {loop="$fsc->ejercicio->all()"}
                         {if="$value->codejercicio==$fsc->codejercicio"}
-                        <option value="{$value->codejercicio}" selected="selected">{$value->nombre} ({$value->codejercicio})</option>
+                        <option value="{$value->codejercicio}" selected="">{$value->nombre} ({$value->codejercicio})</option>
                         {else}
                         <option value="{$value->codejercicio}">{$value->nombre} ({$value->codejercicio})</option>
                         {/if}

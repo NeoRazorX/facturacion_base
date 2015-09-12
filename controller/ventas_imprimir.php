@@ -677,57 +677,49 @@ class ventas_imprimir extends fs_controller
                   $forma_pago = $fp0->get($this->factura->codpago);
                   if($forma_pago)
                   {
-                     if( is_null($forma_pago->codcuenta) )
+                     $texto_pago = "\n<b>Forma de pago</b>: ".$forma_pago->descripcion;
+                     
+                     if($forma_pago->domiciliado)
                      {
-                        $pdf_doc->pdf->ezText("\n<b>Forma de pago</b>: ".$forma_pago->descripcion.
-                                "\n<b>Vencimiento</b>: ".$this->factura->vencimiento, 9);
-                     }
-                     else
-                     {
-                        $texto_pago = "\n<b>Forma de pago</b>: ".$forma_pago->descripcion;
-                        
-                        if($forma_pago->domiciliado)
+                        $cbc0 = new cuenta_banco_cliente();
+                        $encontrada = FALSE;
+                        foreach($cbc0->all_from_cliente($this->factura->codcliente) as $cbc)
                         {
-                           $cbc0 = new cuenta_banco_cliente();
-                           $encontrada = FALSE;
-                           foreach($cbc0->all_from_cliente($this->factura->codcliente) as $cbc)
+                           if($cbc->iban)
                            {
-                              if($cbc->iban)
-                              {
-                                 $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->iban;
-                              }
-                              else
-                              {
-                                 $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->swift;
-                              }
-                              $encontrada = TRUE;
-                              break;
+                              $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->iban;
                            }
-                           if(!$encontrada)
+                           else
                            {
-                              $texto_pago .= "\n<b>El cliente no tiene cuenta bancaria asignada.</b>";
+                              $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->swift;
+                           }
+                           $encontrada = TRUE;
+                           break;
+                        }
+                        if(!$encontrada)
+                        {
+                           $texto_pago .= "\n<b>El cliente no tiene cuenta bancaria asignada.</b>";
+                        }
+                     }
+                     else if($forma_pago->codcuenta)
+                     {
+                        $cb0 = new cuenta_banco();
+                        $cuenta_banco = $cb0->get($forma_pago->codcuenta);
+                        if($cuenta_banco)
+                        {
+                           if($cuenta_banco->iban)
+                           {
+                              $texto_pago .= "\n<b>IBAN</b>: ".$cuenta_banco->iban;
+                           }
+                           else
+                           {
+                              $texto_pago .= "\n<b>SWIFT o BIC</b>: ".$cuenta_banco->swift;
                            }
                         }
-                        else
-                        {
-                           $cb0 = new cuenta_banco();
-                           $cuenta_banco = $cb0->get($forma_pago->codcuenta);
-                           if($cuenta_banco)
-                           {
-                              if($cuenta_banco->iban)
-                              {
-                                 $texto_pago .= "\n<b>IBAN</b>: ".$cuenta_banco->iban;
-                              }
-                              else
-                              {
-                                 $texto_pago .= "\n<b>SWIFT o BIC</b>: ".$cuenta_banco->swift;
-                              }
-                           }
-                        }
-                        
-                        $texto_pago .= "\n<b>Vencimiento</b>: ".$this->factura->vencimiento;
-                        $pdf_doc->pdf->ezText($texto_pago, 9);
                      }
+                     
+                     $texto_pago .= "\n<b>Vencimiento</b>: ".$this->factura->vencimiento;
+                     $pdf_doc->pdf->ezText($texto_pago, 9);
                   }
                }
             }

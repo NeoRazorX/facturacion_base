@@ -163,7 +163,7 @@
                         <select name="codalmacen" class="form-control">
                         {loop="$fsc->almacen->all()"}
                            {if="$value1->codalmacen==$value2->codalmacen"}
-                           <option value="{$value2->codalmacen}" selected="selected">{$value2->nombre}</option>
+                           <option value="{$value2->codalmacen}" selected="">{$value2->nombre}</option>
                            {else}
                            <option value="{$value2->codalmacen}">{$value2->nombre}</option>
                            {/if}
@@ -174,7 +174,7 @@
                         <select name="codserie" class="form-control">
                         {loop="$fsc->serie->all()"}
                            {if="$value1->codserie==$value2->codserie"}
-                           <option value="{$value2->codserie}" selected="selected">{$value2->descripcion}</option>
+                           <option value="{$value2->codserie}" selected="">{$value2->descripcion}</option>
                            {else}
                            <option value="{$value2->codserie}">{$value2->descripcion}</option>
                            {/if}

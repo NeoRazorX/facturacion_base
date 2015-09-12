@@ -26,15 +26,21 @@ require_model('tarifa.php');
 class ventas_clientes extends fs_controller
 {
    public $allow_delete;
+   public $ciudad;
    public $cliente;
+   public $codgrupo;
+   public $codpais;
    public $grupo;
    public $grupos;
    public $nuevocli_setup;
    public $offset;
    public $pais;
+   public $provincia;
    public $resultados;
    public $serie;
    public $tarifa;
+   public $tarifas;
+   public $total_resultados;
    
    public function __construct()
    {
@@ -51,6 +57,7 @@ class ventas_clientes extends fs_controller
       $this->pais = new pais();
       $this->serie = new serie();
       $this->tarifa = new tarifa();
+      $this->tarifas = $this->tarifa->all();
       
       /// cargamos la configuración
       $fsvar = new fs_var();
@@ -71,6 +78,7 @@ class ventas_clientes extends fs_controller
             'nuevocli_telefono1_req' => 0,
             'nuevocli_telefono2' => 0,
             'nuevocli_telefono2_req' => 0,
+            'nuevocli_codgrupo' => '',
          ),
          FALSE
       );
@@ -155,7 +163,11 @@ class ventas_clientes extends fs_controller
             $cliente->razonsocial = $_POST['nombre'];
             $cliente->cifnif = $_POST['cifnif'];
             $cliente->codserie = $this->empresa->codserie;
-            $cliente->codgrupo = $_POST['scodgrupo'];
+            
+            if($_POST['scodgrupo'] != '')
+            {
+               $cliente->codgrupo = $_POST['scodgrupo'];
+            }
             
             if( isset($_POST['telefono1']) )
             {
@@ -219,15 +231,31 @@ class ventas_clientes extends fs_controller
          $this->offset = intval($_GET['offset']);
       }
       
-      if($this->query != '')
+      $this->ciudad = '';
+      if( isset($_REQUEST['ciudad']) )
       {
-         $this->resultados = $this->cliente->search($this->query, $this->offset);
-      }
-      else
-      {
-         $this->resultados = $this->cliente->all($this->offset);
+         $this->ciudad = $_REQUEST['ciudad'];
       }
       
+      $this->provincia = '';
+      if( isset($_REQUEST['provincia']) )
+      {
+         $this->provincia = $_REQUEST['provincia'];
+      }
+      
+      $this->codpais = '';
+      if( isset($_POST['codpais']) )
+      {
+         $this->codpais = $_POST['codpais'];
+      }
+      
+      $this->codgrupo = '';
+      if( isset($_POST['bcodgrupo']) )
+      {
+         $this->codgrupo = $_POST['bcodgrupo'];
+      }
+      
+      $this->buscar();
       $this->grupos = $this->grupo->all();
    }
    
@@ -235,13 +263,14 @@ class ventas_clientes extends fs_controller
    {
       $url = '';
       
-      if($this->query != '' AND $this->offset > 0)
+      if($this->offset > 0)
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT);
-      }
-      else if($this->query == '' AND $this->offset > 0)
-      {
-         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT);
+         $url = $this->url()."&query=".$this->query
+                 ."&ciudad=".$this->ciudad
+                 ."&provincia=".$this->provincia
+                 ."&codpais=".$this->codpais
+                 ."&codgrupo=".$this->codgrupo
+                 ."&offset=".($this->offset-FS_ITEM_LIMIT);
       }
       
       return $url;
@@ -251,13 +280,14 @@ class ventas_clientes extends fs_controller
    {
       $url = '';
       
-      if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
+      if( count($this->resultados) == FS_ITEM_LIMIT )
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT);
-      }
-      else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
-      {
-         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT);
+         $url = $this->url()."&query=".$this->query
+                 ."&ciudad=".$this->ciudad
+                 ."&provincia=".$this->provincia
+                 ."&codpais=".$this->codpais
+                 ."&codgrupo=".$this->codgrupo
+                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
       }
       
       return $url;
@@ -279,14 +309,132 @@ class ventas_clientes extends fs_controller
       return $nombre;
    }
    
-   public function total_clientes()
+   public function ciudades()
    {
-      $data = $this->db->select("SELECT COUNT(codcliente) as total FROM clientes;");
+      $final = array();
+      
+      $ciudades = array();
+      $sql = "SELECT DISTINCT ciudad FROM dirclientes ORDER BY ciudad ASC;";
+      if($this->provincia != '')
+      {
+         $sql = "SELECT DISTINCT ciudad FROM dirclientes WHERE lower(provincia) = '"
+                 .$this->provincia."' ORDER BY ciudad ASC;";
+      }
+      $data = $this->db->select($sql);
       if($data)
       {
-         return intval($data[0]['total']);
+         foreach($data as $d)
+            $ciudades[] = $d['ciudad'];
+      }
+      
+      /// usamos las minúsculas para filtrar
+      foreach($ciudades as $ciu)
+      {
+         if($ciu != '')
+         {
+            $final[ mb_strtolower($ciu) ] = $ciu;
+         }
+      }
+      
+      return $final;
+   }
+   
+   public function provincias()
+   {
+      $final = array();
+      
+      $provincias = array();
+      $sql = "SELECT DISTINCT provincia FROM dirclientes ORDER BY provincia ASC;";
+      if($this->codpais != '')
+      {
+         $sql = "SELECT DISTINCT provincia FROM dirclientes WHERE codpais = '".$this->codpais
+                 ."' ORDER BY provincia ASC;";
+      }
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+            $provincias[] = $d['provincia'];
+      }
+      
+      foreach($provincias as $pro)
+      {
+         if($pro != '')
+         {
+            $final[ mb_strtolower($pro) ] = $pro;
+         }
+      }
+      
+      return $final;
+   }
+   
+   private function buscar()
+   {
+      $this->total_resultados = 0;
+      $query = strtolower( $this->cliente->no_html($this->query) );
+      $sql = " FROM clientes";
+      $and = ' WHERE ';
+      
+      if( is_numeric($query) )
+      {
+         $sql .= $and."(codcliente LIKE '%".$query."%' OR cifnif LIKE '%".$query."%'"
+                 . " OR telefono1 LIKE '".$query."%' OR telefono2 LIKE '".$query."%'"
+                 . " OR observaciones LIKE '%".$query."%')";
+         $and = ' AND ';
       }
       else
-         return 0;
+      {
+         $buscar = str_replace(' ', '%', $query);
+         $sql .= $and."(lower(nombre) LIKE '%".$buscar."%' OR lower(razonsocial) LIKE '%".$buscar."%'"
+                 . " OR lower(cifnif) LIKE '%".$buscar."%' OR lower(observaciones) LIKE '%".$buscar."%'"
+                 . " OR lower(email) LIKE '%".$buscar."%')";
+         $and = ' AND ';
+      }
+      
+      if($this->ciudad != '' OR $this->provincia != '' OR $this->codpais != '')
+      {
+         $sql .= $and." codcliente IN (SELECT codcliente FROM dirclientes WHERE ";
+         $and2 = '';
+         
+         if($this->ciudad != '')
+         {
+            $sql .= "lower(ciudad) = '".$this->ciudad."'";
+            $and2 = ' AND ';
+         }
+         
+         if($this->provincia != '')
+         {
+            $sql .= $and2."lower(provincia) = '".$this->provincia."'";
+            $and2 = ' AND ';
+         }
+         
+         if($this->codpais != '')
+         {
+            $sql .= $and2."codpais = '".$this->codpais."'";
+         }
+         
+         $sql .= ")";
+         $and = ' AND ';
+      }
+      
+      if($this->codgrupo != '')
+      {
+         $sql .= $and."codgrupo = '".$this->codgrupo."'";
+      }
+      
+      $data = $this->db->select("SELECT COUNT(codcliente) as total".$sql);
+      if($data)
+      {
+         $this->total_resultados = intval($data[0]['total']);
+         
+         $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY nombre ASC", FS_ITEM_LIMIT, $this->offset);
+         if($data2)
+         {
+            foreach($data2 as $d)
+            {
+               $this->resultados[] = new cliente($d);
+            }
+         }
+      }
    }
 }

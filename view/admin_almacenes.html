@@ -71,7 +71,7 @@
                               <a href="{$fsc->pais->url()}">País</a>
                               <select name="scodpais" class="form-control">
                               {loop="$fsc->pais->all()"}
-                                 <option value="{$value2->codpais}"{if="$value1->codpais==$value2->codpais OR $value2->codpais==$fsc->empresa->codpais"} selected="selected"{/if}>{$value2->nombre}</option>
+                                 <option value="{$value2->codpais}"{if="$value1->codpais==$value2->codpais OR $value2->codpais==$fsc->empresa->codpais"} selected=""{/if}>{$value2->nombre}</option>
                               {/loop}
                               </select>
                            </div>
@@ -178,7 +178,7 @@
                   <div class="col-lg-10 col-md-10 col-sm-10">
                      <select name="scodpais" class="form-control col-lg-10 col-md-10 col-sm-10">
                         {loop="$fsc->pais->all()"}
-                        <option value="{$value->codpais}"{if="$value->is_default()"} selected="selected"{/if}>{$value->nombre}</option>
+                        <option value="{$value->codpais}"{if="$value->is_default()"} selected=""{/if}>{$value->nombre}</option>
                         {/loop}
                      </select>
                   </div>

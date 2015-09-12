@@ -182,7 +182,7 @@
                <h4 class="modal-title">Guardar ticket</h4>
                <p class="help-block">
                   <b>Recuerda</b> que para poder imprimir tickets necesitas estar ejecutando la aplicación
-                  <a target="_blank" href="http://www.facturascripts.com/community/item/imprimir-tickets-desde-windows-llevo-toda-la-tarde-programando-para-poder-618.html">Remote printer</a>.
+                  <a target="_blank" href="https://www.facturascripts.com/comm3/index.php?page=community_item&id=170">Remote printer</a>.
                </p>
             </div>
             <ul class="nav nav-tabs" role="tablist">
@@ -225,7 +225,7 @@
                         <select name="forma_pago" class="form-control">
                         {loop="$fsc->forma_pago->all()"}
                            {if="$value->is_default()"}
-                           <option value="{$value->codpago}" selected="selected">{$value->descripcion}</option>
+                           <option value="{$value->codpago}" selected="">{$value->descripcion}</option>
                            {else}
                            <option value="{$value->codpago}">{$value->descripcion}</option>
                            {/if}
@@ -242,7 +242,7 @@
                         <select name="divisa" class="form-control">
                         {loop="$fsc->divisa->all()"}
                            {if="$value->is_default()"}
-                           <option value="{$value->coddivisa}" selected="selected">{$value->descripcion}</option>
+                           <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
                            {else}
                            <option value="{$value->coddivisa}">{$value->descripcion}</option>
                            {/if}

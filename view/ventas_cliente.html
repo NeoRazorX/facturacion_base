@@ -243,7 +243,7 @@
                                  <option value="---">Ninguno</option>
                                  <option value="---">-----</option>
                                  {loop="$fsc->grupo->all()"}
-                                 <option value="{$value->codgrupo}"{if="$value->codgrupo==$fsc->cliente->codgrupo"} selected="selected"{/if}>{$value->nombre}</option>
+                                 <option value="{$value->codgrupo}"{if="$value->codgrupo==$fsc->cliente->codgrupo"} selected=""{/if}>{$value->nombre}</option>
                                  {/loop}
                               </select>
                            </div>
@@ -253,7 +253,7 @@
                               <a href="{$fsc->serie->url()}">Serie</a>:
                               <select class="form-control" name="codserie">
                                  {loop="$fsc->serie->all()"}
-                                 <option value="{$value->codserie}"{if="$value->codserie==$fsc->cliente->codserie"} selected="selected"{/if}>{$value->descripcion}</option>
+                                 <option value="{$value->codserie}"{if="$value->codserie==$fsc->cliente->codserie"} selected=""{/if}>{$value->descripcion}</option>
                                  {/loop}
                               </select>
                            </div>
@@ -264,7 +264,7 @@
                               <select class="form-control" name="coddivisa">
                               {loop="$fsc->divisa->all()"}
                                  {if="$value->coddivisa==$fsc->cliente->coddivisa"}
-                                 <option value="{$value->coddivisa}" selected="selected">{$value->descripcion}</option>
+                                 <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
                                  {else}
                                  <option value="{$value->coddivisa}">{$value->descripcion}</option>
                                  {/if}
@@ -277,7 +277,7 @@
                               <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
                               <select class="form-control" name="codpago">
                                  {loop="$fsc->forma_pago->all()"}
-                                 <option value="{$value->codpago}"{if="$value->codpago==$fsc->cliente->codpago"} selected="selected"{/if}>{$value->descripcion}</option>
+                                 <option value="{$value->codpago}"{if="$value->codpago==$fsc->cliente->codpago"} selected=""{/if}>{$value->descripcion}</option>
                                  {/loop}
                               </select>
                            </div>
@@ -289,7 +289,7 @@
                               Régimen {#FS_IVA#}:
                               <select class="form-control" name="regimeniva">
                                  {loop="$fsc->cliente->regimenes_iva()"}
-                                 <option value="{$value}"{if="$value==$fsc->cliente->regimeniva"} selected="selected"{/if}>{$value}</option>
+                                 <option value="{$value}"{if="$value==$fsc->cliente->regimeniva"} selected=""{/if}>{$value}</option>
                                  {/loop}
                               </select>
                               <label>
@@ -305,7 +305,7 @@
                                  <option value="---">Ninguno</option>
                                  <option value="---">-----</option>
                                  {loop="$fsc->agente->all()"}
-                                 <option value="{$value->codagente}"{if="$value->codagente==$fsc->cliente->codagente"} selected="selected"{/if}>{$value->get_fullname()}</option>
+                                 <option value="{$value->codagente}"{if="$value->codagente==$fsc->cliente->codagente"} selected=""{/if}>{$value->get_fullname()}</option>
                                  {/loop}
                               </select>
                            </div>
@@ -403,7 +403,7 @@
                         <a href="{$fsc->pais->url()}">País</a>
                         <select class="form-control" name="pais">
                         {loop="$fsc->pais->all()"}
-                        <option value="{$value2->codpais}"{if="$value1->codpais==$value2->codpais"} selected="selected"{/if}>{$value2->nombre}</option>
+                        <option value="{$value2->codpais}"{if="$value1->codpais==$value2->codpais"} selected=""{/if}>{$value2->nombre}</option>
                         {/loop}
                         </select>
                      </div>
@@ -575,7 +575,7 @@
                   <a href="{$fsc->pais->url()}">País</a>:
                   <select name="pais" class="form-control">
                      {loop="$fsc->pais->all()"}
-                     <option value="{$value->codpais}"{if="$value->is_default()"} selected="selected"{/if}>{$value->nombre}</option>
+                     <option value="{$value->codpais}"{if="$value->is_default()"} selected=""{/if}>{$value->nombre}</option>
                      {/loop}
                   </select>
                </div>

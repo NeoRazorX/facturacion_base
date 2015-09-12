@@ -359,6 +359,7 @@ function add_linea_libre()
    for(var i=0; i<all_impuestos.length; i++)
    {
       codimpuesto = all_impuestos[i].codimpuesto;
+      break;
    }
    
    $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\

@@ -91,7 +91,7 @@
             <td>
                <select name="coddivisa" class="form-control">
                {loop="$fsc->divisa->all()"}
-               <option value="{$value->coddivisa}"{if="$fsc->subcuenta->coddivisa==$value->coddivisa"} selected="selected"{/if}>{$value->descripcion}</option>
+               <option value="{$value->coddivisa}"{if="$fsc->subcuenta->coddivisa==$value->coddivisa"} selected=""{/if}>{$value->descripcion}</option>
                {/loop}
                </select>
             </td>

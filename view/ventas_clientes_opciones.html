@@ -188,7 +188,26 @@
          </div>
       </div>
       <div class="row">
-         <div class="col-sm-12 text-right">
+         <div class="col-sm-3">
+            <div class="panel panel-default">
+               <div class="panel-heading text-center">Grupo</div>
+               <div class="panel-body">
+                  <p class="help-block">Elige el grupo predeterminado.</p>
+                  <select name="nuevocli_codgrupo" class="form-control">
+                     <option value="">Ninguno</option>
+                     <option value="">------</option>
+                     {loop="$fsc->grupo->all()"}
+                        {if="$value->codgrupo==$fsc->nuevocli_setup['nuevocli_codgrupo']"}
+                        <option value="{$value->codgrupo}" selected="">{$value->nombre}</option>
+                        {else}
+                        <option value="{$value->codgrupo}">{$value->nombre}</option>
+                        {/if}
+                     {/loop}
+                  </select>
+               </div>
+            </div>
+         </div>
+         <div class="col-sm-9 text-right">
             <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true; this.form.submit();">
                <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
             </button>

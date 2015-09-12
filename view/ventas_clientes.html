@@ -17,8 +17,6 @@
          window.location.href = '{$fsc->url()}&delete_grupo='+cod+'#grupos';
    }
    $(document).ready(function() {
-      document.f_custom_search.query.focus();
-      
       if(window.location.hash.substring(1) == 'nuevo')
       {
          show_nuevo_cliente();
@@ -26,6 +24,10 @@
       else if(window.location.hash.substring(1) == 'grupos')
       {
          show_grupos();
+      }
+      else
+      {
+         document.f_custom_search.query.focus();
       }
       
       $("#b_nuevo_cliente").click(function(event) {
@@ -37,7 +39,7 @@
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-sm-5 col-xs-6">
+      <div class="col-sm-7 col-xs-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -67,37 +69,16 @@
       <div class="col-sm-5 col-xs-6 text-right">
          <h2 style="margin-top: 0px;">Clientes</h2>
       </div>
-      <div class="col-sm-2 col-xs-12">
-         <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
-            <div class="input-group">
-               <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
-               <span class="input-group-btn hidden-sm">
-                  <button class="btn btn-primary" type="submit">
-                     <span class="glyphicon glyphicon-search"></span>
-                  </button>
-               </span>
-            </div>
-         </form>
-      </div>
    </div>
-</div>
-
-<div class="visible-xs">
-   <br/>
 </div>
 
 <div id="tab_clientes" role="tabpanel">
    <ul class="nav nav-tabs" role="tablist">
       <li role="presentation" class="active">
          <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
-            {if="$fsc->query==''"}
-            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Todos</span>
-            <span class="badge">{$fsc->total_clientes()}</span>
-            {else}
             <span class="glyphicon glyphicon-search"></span>
-            <span class="hidden-xs">&nbsp; Resultados de "{$fsc->query}"</span>
-            {/if}
+            <span class="hidden-xs">&nbsp; Resultados</span>
+            <span class="badge">{$fsc->total_resultados}</span>
          </a>
       </li>
       <li role="presentation">
@@ -110,6 +91,75 @@
    </ul>
    <div class="tab-content">
       <div role="tabpanel" class="tab-pane active" id="home">
+         <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
+            <div class="container-fluid" style="margin-top: 15px; margin-bottom: 10px;">
+               <div class="row">
+                  <div class="col-sm-2">
+                     <div class="input-group">
+                        <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
+                        <span class="input-group-btn hidden-sm">
+                           <button class="btn btn-primary" type="submit">
+                              <span class="glyphicon glyphicon-search"></span>
+                           </button>
+                        </span>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <select name="codpais" class="form-control" onchange="this.form.submit()">
+                        <option value="">Cualquier pais</option>
+                        <option value="">------</option>
+                        {loop="$fsc->pais->all()"}
+                           {if="$value->codpais==$fsc->codpais"}
+                           <option value="{$value->codpais}" selected="">{$value->nombre}</option>
+                           {else}
+                           <option value="{$value->codpais}">{$value->nombre}</option>
+                           {/if}
+                        {/loop}
+                     </select>
+                  </div>
+                  <div class="col-sm-2">
+                     <select name="provincia" class="form-control" onchange="this.form.submit()">
+                        <option value="">Cualquier provincia</option>
+                        <option value="">------</option>
+                        {loop="$fsc->provincias()"}
+                           {if="$key===$fsc->provincia"}
+                           <option value="{$key}" selected="">{$value}</option>
+                           {else}
+                           <option value="{$key}">{$value}</option>
+                           {/if}
+                        {/loop}
+                     </select>
+                  </div>
+                  <div class="col-sm-3">
+                     <select name="ciudad" class="form-control" onchange="this.form.submit()">
+                        <option value="">Cualquier ciudad</option>
+                        <option value="">------</option>
+                        {loop="$fsc->ciudades()"}
+                           {if="$key===$fsc->ciudad"}
+                           <option value="{$key}" selected="">{$value}</option>
+                           {else}
+                           <option value="{$key}">{$value}</option>
+                           {/if}
+                        {/loop}
+                     </select>
+                  </div>
+                  <div class="col-sm-3">
+                     <select name="bcodgrupo" class="form-control" onchange="this.form.submit()">
+                        <option value="">Cualquier grupo</option>
+                        <option value="">------</option>
+                        {loop="$fsc->grupos"}
+                           {if="$value->codgrupo==$fsc->codgrupo"}
+                           <option value="{$value->codgrupo}" selected="">{$value->nombre}</option>
+                           {else}
+                           <option value="{$value->codgrupo}">{$value->nombre}</option>
+                           {/if}
+                        {/loop}
+                     </select>
+                  </div>
+               </div>
+            </div>
+         </form>
+         
          <div class="table-responsive">
             <table class="table table-hover">
                <thead>
@@ -162,7 +212,7 @@
             <thead>
                <tr>
                   <th width="70"></th>
-                  <th class="text-left">Código</th>
+                  <th class="text-left" width="150">Código</th>
                   <th class="text-left">Nombre</th>
                   <th class="text-left">
                      <a href="{$fsc->tarifa->url()}">Tarifa</a>
@@ -188,9 +238,9 @@
                      <select name="codtarifa" class="form-control">
                         <option value="---">Ninguna</option>
                         <option value="---">---</option>
-                        {loop="$fsc->tarifa->all()"}
+                        {loop="$fsc->tarifas"}
                            {if="$value1->codtarifa==$value2->codtarifa"}
-                           <option value="{$value2->codtarifa}" selected="selected">{$value2->nombre}</option>
+                           <option value="{$value2->codtarifa}" selected="">{$value2->nombre}</option>
                            {else}
                            <option value="{$value2->codtarifa}">{$value2->nombre}</option>
                            {/if}
@@ -225,7 +275,7 @@
                      <select name="codtarifa" class="form-control">
                         <option value="---">Ninguna</option>
                         <option value="---">---</option>
-                        {loop="$fsc->tarifa->all()"}
+                        {loop="$fsc->tarifas"}
                         <option value="{$value->codtarifa}">{$value->nombre}</option>
                         {/loop}
                      </select>
@@ -275,7 +325,11 @@
                         <option value="">Ninguno</option>
                         <option value="">------</option>
                         {loop="$fsc->grupos"}
-                        <option value="{$value->codgrupo}">{$value->nombre}</option>
+                           {if="$value->codgrupo==$fsc->nuevocli_setup['nuevocli_codgrupo']"}
+                           <option value="{$value->codgrupo}" selected="">{$value->nombre}</option>
+                           {else}
+                           <option value="{$value->codgrupo}">{$value->nombre}</option>
+                           {/if}
                         {/loop}
                      </select>
                   </div>
@@ -305,7 +359,7 @@
                   <div class="col-sm-10">
                      <select class="form-control" name="pais">
                      {loop="$fsc->pais->all()"}
-                        <option value="{$value->codpais}"{if="$value->is_default()"} selected="selected"{/if}>{$value->nombre}</option>
+                        <option value="{$value->codpais}"{if="$value->is_default()"} selected=""{/if}>{$value->nombre}</option>
                      {/loop}
                      </select>
                   </div>

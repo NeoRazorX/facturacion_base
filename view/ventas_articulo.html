@@ -196,7 +196,7 @@
                            <option value="">Producto simple</option>
                            {loop="$fsc->extensions"}
                               {if="$value->type=='tipo_art'"}
-                              <option value="{$value->params}"{if="$fsc->articulo->tipo==$value->params"} selected="selected"{/if}>{$value->text}</option>
+                              <option value="{$value->params}"{if="$fsc->articulo->tipo==$value->params"} selected=""{/if}>{$value->text}</option>
                               {/if}
                            {/loop}
                         </select>
@@ -218,7 +218,7 @@
                            <option value="">-------</option>
                            {loop="$fsc->familia->all()"}
                               {if="$value->codfamilia===$fsc->articulo->codfamilia"}
-                              <option value="{$value->codfamilia}" selected="selected">{$value->nivel}{$value->descripcion}</option>
+                              <option value="{$value->codfamilia}" selected="">{$value->nivel}{$value->descripcion}</option>
                               {else}
                               <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
                               {/if}
@@ -234,7 +234,7 @@
                            <option value="">-------</option>
                            {loop="$fsc->fabricante->all()"}
                               {if="$value->codfabricante===$fsc->articulo->codfabricante"}
-                              <option value="{$value->codfabricante}" selected="selected">{$value->nombre}</option>
+                              <option value="{$value->codfabricante}" selected="">{$value->nombre}</option>
                               {else}
                               <option value="{$value->codfabricante}">{$value->nombre}</option>
                               {/if}
@@ -362,7 +362,7 @@
                         <select class="form-control" name="codimpuesto" onchange="this.form.submit()">
                         {loop="$fsc->impuesto->all()"}
                            {if="$value->codimpuesto==$fsc->articulo->codimpuesto"}
-                           <option value="{$value->codimpuesto}" selected="selected">{$value->descripcion}</option>
+                           <option value="{$value->codimpuesto}" selected="">{$value->descripcion}</option>
                            {else}
                            <option value="{$value->codimpuesto}">{$value->descripcion}</option>
                            {/if}

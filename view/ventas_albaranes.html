@@ -201,7 +201,7 @@
                   <option value="">-----</option>
                   {loop="$fsc->serie->all()"}
                      {if="$value->codserie==$fsc->codserie"}
-                     <option value="{$value->codserie}" selected="selected">{$value->descripcion}</option>
+                     <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
                      {else}
                      <option value="{$value->codserie}">{$value->descripcion}</option>
                      {/if}
@@ -216,7 +216,7 @@
                   <option value="">------</option>
                   {loop="$fsc->agente->all()"}
                      {if="$value->codagente==$fsc->codagente"}
-                     <option value="{$value->codagente}" selected="selected">{$value->get_fullname()}</option>
+                     <option value="{$value->codagente}" selected="">{$value->get_fullname()}</option>
                      {else}
                      <option value="{$value->codagente}">{$value->get_fullname()}</option>
                      {/if}

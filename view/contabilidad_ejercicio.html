@@ -114,8 +114,8 @@
             <td><input class="form-control" type="number" name="longsubcuenta" value="{$fsc->ejercicio->longsubcuenta}"/></td>
             <td>
                <select name="estado" class="form-control">
-                  <option value="ABIERTO"{if="$fsc->ejercicio->abierto()"} selected="selected"{/if}>ABIERTO</option>
-                  <option value="CERRADO"{if="!$fsc->ejercicio->abierto()"} selected="selected"{/if}>CERRADO</option>
+                  <option value="ABIERTO"{if="$fsc->ejercicio->abierto()"} selected=""{/if}>ABIERTO</option>
+                  <option value="CERRADO"{if="!$fsc->ejercicio->abierto()"} selected=""{/if}>CERRADO</option>
                </select>
             </td>
          </tr>

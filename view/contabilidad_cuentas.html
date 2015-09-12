@@ -90,7 +90,7 @@
             <select name="ejercicio" class="form-control" onchange="document.f_filtro_cuentas.submit()">
             {loop="$fsc->ejercicio->all()"}
                {if="$value->is_default()"}
-               <option value="{$value->codejercicio}" selected="selected">{$value->nombre} ({$value->codejercicio})</option>
+               <option value="{$value->codejercicio}" selected="">{$value->nombre} ({$value->codejercicio})</option>
                {else}
                <option value="{$value->codejercicio}">{$value->nombre} ({$value->codejercicio})</option>
                {/if}

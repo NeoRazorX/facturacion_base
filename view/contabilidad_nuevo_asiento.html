@@ -280,7 +280,7 @@
                Divisa:
                <select name='divisa' class='form-control'>
                {loop="$fsc->divisa->all()"}
-                  <option value='{$value->coddivisa}'{if="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
+                  <option value='{$value->coddivisa}'{if="$value->is_default()"} selected=""{/if}>{$value->descripcion}</option>
                {/loop}
                </select>
             </div>

@@ -414,7 +414,7 @@ class ventas_facturas extends fs_controller
          if($this->codagente !== '')
          {
             /// calculamos la comisión del empleado
-            $data2 = $this->db->select("SELECT SUM(total*porcomision/100) as total".$sql);
+            $data2 = $this->db->select("SELECT SUM(neto*porcomision/100) as total".$sql);
             if($data2)
             {
                $this->total_resultados_comision = floatval($data2[0]['total']);

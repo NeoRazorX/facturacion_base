@@ -52,6 +52,18 @@ class tarifa extends fs_model
     */
    public $aplicar_a;
    
+   /**
+    * no vender por debajo de coste
+    * @var boolean 
+    */
+   public $mincoste;
+   
+   /**
+    * no vender por encima de pvp
+    * @var boolean 
+    */
+   public $maxpvp;
+   
    public function __construct($t = FALSE)
    {
       parent::__construct('tarifas', 'plugins/facturacion_base/');
@@ -61,6 +73,8 @@ class tarifa extends fs_model
          $this->nombre = $t['nombre'];
          $this->incporcentual = floatval($t['incporcentual']);
          $this->inclineal = floatval($t['inclineal']);
+         $this->mincoste = $this->str2bool($t['mincoste']);
+         $this->maxpvp = $this->str2bool($t['maxpvp']);
          
          $this->aplicar_a = 'pvp';
          if( !is_null($t['aplicar_a']) )
@@ -75,6 +89,8 @@ class tarifa extends fs_model
          $this->incporcentual = 0;
          $this->inclineal = 0;
          $this->aplicar_a = 'pvp';
+         $this->mincoste = TRUE;
+         $this->maxpvp = TRUE;
       }
    }
    
@@ -138,14 +154,42 @@ class tarifa extends fs_model
    
    public function diff()
    {
+      $texto = '';
+      $x = $this->x();
+      $y = $this->y();
+      
       if($this->aplicar_a == 'pvp')
       {
-         return 'Precio de venta - '.$this->x().'% - '.$this->y();
+         $texto = 'Precio de venta ';
+         $x = 0 - $x;
+         $y = 0 - $y;
       }
       else
       {
-         return 'Precio de coste + '.$this->x().'% + '.$this->y();
+         $texto = 'Precio de coste ';
       }
+      
+      if($x != 0)
+      {
+         if($x > 0)
+         {
+            $texto .= '+';
+         }
+         
+         $texto .= $x.'% ';
+      }
+      
+      if($y != 0)
+      {
+         if($y > 0)
+         {
+            $texto .= ' +';
+         }
+         
+         $texto .= $y;
+      }
+      
+      return $texto;
    }
    
    /**
@@ -162,6 +206,7 @@ class tarifa extends fs_model
          $articulos[$i]->tarifa_url = $this->url();
          $articulos[$i]->dtopor = 0;
          
+         $pvp = $articulos[$i]->pvp;
          if($this->aplicar_a == 'pvp')
          {
             if( $this->x() >= 0 )
@@ -177,6 +222,24 @@ class tarifa extends fs_model
          else
          {
             $articulos[$i]->pvp = $articulos[$i]->preciocoste() * (100 + $this->x())/100 + $this->y();
+         }
+         
+         if($this->mincoste)
+         {
+            if( $articulos[$i]->pvp * (100 - $articulos[$i]->dtopor) / 100 < $articulos[$i]->preciocoste() )
+            {
+               $articulos[$i]->dtopor = 0;
+               $articulos[$i]->pvp = $articulos[$i]->preciocoste();
+            }
+         }
+         
+         if($this->maxpvp)
+         {
+            if($articulos[$i]->pvp * (100 - $articulos[$i]->dtopor) / 100 > $pvp)
+            {
+               $articulos[$i]->dtopor = 0;
+               $articulos[$i]->pvp = $pvp;
+            }
          }
          
          $articulos[$i]->tarifa_diff = $this->diff();
@@ -242,18 +305,26 @@ class tarifa extends fs_model
       {
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre).",
-               incporcentual = ".$this->var2str($this->incporcentual).",
-               inclineal =".$this->var2str($this->inclineal).",
-               aplicar_a =".$this->var2str($this->aplicar_a)."
-               WHERE codtarifa = ".$this->var2str($this->codtarifa).";";
+            $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre)
+                    .", incporcentual = ".$this->var2str($this->incporcentual)
+                    .", inclineal =".$this->var2str($this->inclineal)
+                    .", aplicar_a =".$this->var2str($this->aplicar_a)
+                    .", mincoste =".$this->var2str($this->mincoste)
+                    .", maxpvp =".$this->var2str($this->maxpvp)
+                    ."  WHERE codtarifa = ".$this->var2str($this->codtarifa).";";
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (codtarifa,nombre,incporcentual,inclineal,aplicar_a)
-               VALUES (".$this->var2str($this->codtarifa).",".$this->var2str($this->nombre).",
-               ".$this->var2str($this->incporcentual).",".$this->var2str($this->inclineal).",".$this->var2str($this->aplicar_a).");";
+            $sql = "INSERT INTO ".$this->table_name." (codtarifa,nombre,incporcentual,inclineal,
+               aplicar_a,mincoste,maxpvp) VALUES (".$this->var2str($this->codtarifa)
+                    .",".$this->var2str($this->nombre)
+                    .",".$this->var2str($this->incporcentual)
+                    .",".$this->var2str($this->inclineal)
+                    .",".$this->var2str($this->aplicar_a)
+                    .",".$this->var2str($this->mincoste)
+                    .",".$this->var2str($this->maxpvp).");";
          }
+         
          return $this->db->exec($sql);
       }
       else

@@ -154,7 +154,7 @@
                <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
                <select name="forma_pago" class="form-control">
                   {loop="$fsc->forma_pago->all()"}
-                  <option value="{$value->codpago}"{if="$fsc->factura->codpago==$value->codpago"} selected="selected"{/if}>{$value->descripcion}</option>
+                  <option value="{$value->codpago}"{if="$fsc->factura->codpago==$value->codpago"} selected=""{/if}>{$value->descripcion}</option>
                   {/loop}
                </select>
             </div>

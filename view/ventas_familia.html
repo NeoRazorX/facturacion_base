@@ -82,7 +82,7 @@
                   {loop="$fsc->familia->all()"}
                      {if="$value->codfamilia==$fsc->familia->codfamilia"}
                      {elseif="$fsc->familia->madre==$value->codfamilia"}
-                     <option value="{$value->codfamilia}" selected="selected">{$value->nivel}{$value->descripcion}</option>
+                     <option value="{$value->codfamilia}" selected="">{$value->nivel}{$value->descripcion}</option>
                      {else}
                      <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
                      {/if}

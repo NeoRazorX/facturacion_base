@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('cliente.php');
+require_model('grupo_clientes.php');
 
 /**
  * Description of opciones_servicios
@@ -38,6 +38,8 @@ class ventas_clientes_opciones extends fs_controller
    
    protected function private_core()
    {
+      $this->grupo = new grupo_clientes();
+      
       /// cargamos la configuración
       $fsvar = new fs_var();
       $this->nuevocli_setup = $fsvar->array_get(
@@ -57,6 +59,7 @@ class ventas_clientes_opciones extends fs_controller
             'nuevocli_telefono1_req' => 0,
             'nuevocli_telefono2' => 0,
             'nuevocli_telefono2_req' => 0,
+            'nuevocli_codgrupo' => '',
          ),
          FALSE
       );
@@ -78,6 +81,7 @@ class ventas_clientes_opciones extends fs_controller
          $this->nuevocli_setup['nuevocli_telefono1_req'] = ( isset($_POST['nuevocli_telefono1_req']) ? 1 : 0 );
          $this->nuevocli_setup['nuevocli_telefono2'] = ( isset($_POST['nuevocli_telefono2']) ? 1 : 0 );
          $this->nuevocli_setup['nuevocli_telefono2_req'] = ( isset($_POST['nuevocli_telefono2_req']) ? 1 : 0 );
+         $this->nuevocli_setup['nuevocli_codgrupo'] = $_POST['nuevocli_codgrupo'];
          
          if( $fsvar->array_save($this->nuevocli_setup) )
          {

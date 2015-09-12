@@ -21,6 +21,7 @@ require_model('albaran_cliente.php');
 require_model('albaran_proveedor.php');
 require_model('almacen.php');
 require_model('asiento.php');
+require_model('direccion_cliente.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('factura_cliente.php');
@@ -189,7 +190,6 @@ class informe_errores extends fs_controller
    
    private function test_models()
    {
-      $mpp = 100;
       $last_errores = array();
       
       switch( $this->informe['model'] )
@@ -201,7 +201,7 @@ class informe_errores extends fs_controller
          
          case 'asiento':
             $asiento = new asiento();
-            $asientos = $asiento->all($this->informe['offset'], $mpp);
+            $asientos = $asiento->all($this->informe['offset']);
             if($asientos)
             {
                if($this->informe['offset'] == 0)
@@ -236,7 +236,7 @@ class informe_errores extends fs_controller
                      );
                   }
                }
-               $this->informe['offset'] += $mpp;
+               $this->informe['offset'] += FS_ITEM_LIMIT;
             }
             else if($this->informe['all'])
             {
@@ -252,7 +252,7 @@ class informe_errores extends fs_controller
          
          case 'factura cliente':
             $factura = new factura_cliente();
-            $facturas = $factura->all($this->informe['offset'], $mpp);
+            $facturas = $factura->all($this->informe['offset']);
             if($facturas)
             {
                foreach($facturas as $fac)
@@ -279,7 +279,7 @@ class informe_errores extends fs_controller
                      );
                   }
                }
-               $this->informe['offset'] += $mpp;
+               $this->informe['offset'] += FS_ITEM_LIMIT;
             }
             else if($this->informe['all'])
             {
@@ -295,7 +295,7 @@ class informe_errores extends fs_controller
          
          case 'factura proveedor':
             $factura = new factura_proveedor();
-            $facturas = $factura->all($this->informe['offset'], $mpp);
+            $facturas = $factura->all($this->informe['offset']);
             if($facturas)
             {
                foreach($facturas as $fac)
@@ -322,7 +322,7 @@ class informe_errores extends fs_controller
                      );
                   }
                }
-               $this->informe['offset'] += $mpp;
+               $this->informe['offset'] += FS_ITEM_LIMIT;
             }
             else if($this->informe['all'])
             {
@@ -365,7 +365,7 @@ class informe_errores extends fs_controller
                      );
                   }
                }
-               $this->informe['offset'] += $mpp;
+               $this->informe['offset'] += FS_ITEM_LIMIT;
             }
             else if($this->informe['all'])
             {
@@ -405,7 +405,27 @@ class informe_errores extends fs_controller
                      );
                   }
                }
-               $this->informe['offset'] += $mpp;
+               $this->informe['offset'] += FS_ITEM_LIMIT;
+            }
+            else
+            {
+               $this->informe['model'] = 'dirclientes';
+               $this->informe['offset'] = 0;
+            }
+            break;
+         
+         case 'dirclientes':
+            $dircli0 = new direccion_cliente();
+            $direcciones = $dircli0->all($this->informe['offset']);
+            if($direcciones)
+            {
+               foreach($direcciones as $dir)
+               {
+                  /// simplemente guardamos para que se eliminen espacios de ciudades, provincias, etc...
+                  $dir->save();
+               }
+               
+               $this->informe['offset'] += FS_ITEM_LIMIT;
             }
             else
             {
@@ -518,7 +538,11 @@ class informe_errores extends fs_controller
          /// comprobamos la tabla de stock
          if( $this->db->table_exists('stocks') )
          {
-            $this->db->exec("DELETE FROM stocks s WHERE NOT EXISTS (SELECT referencia FROM articulos a WHERE a.referencia = s.referencia);");
+            /**
+             * Esta consulta produce un error si no hay datos erroneos, pero da igual
+             */
+            $this->db->exec("DELETE FROM stocks s WHERE NOT EXISTS "
+                    . "(SELECT referencia FROM articulos a WHERE a.referencia = s.referencia);");
          }
          
          $recargar = TRUE;

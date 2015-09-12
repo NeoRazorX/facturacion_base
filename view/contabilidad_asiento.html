@@ -285,7 +285,7 @@
                <select class="form-control" name="divisa">
                {loop="$fsc->divisa->all()"}
                   {if="$value->coddivisa==$fsc->asiento->coddivisa()"}
-                  <option value="{$value->coddivisa}" selected="selected">{$value->descripcion}</option>
+                  <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
                   {else}
                   <option value="{$value->coddivisa}">{$value->descripcion}</option>
                   {/if}
@@ -368,7 +368,7 @@
                      <option value='0'>---</option>
                      {loop="$fsc->impuesto->all()"}
                         {if="$value1->iva==$value2->iva"}
-                        <option value='{$value->iva}' selected="selected">{$value->descripcion}</option>
+                        <option value='{$value->iva}' selected="">{$value->descripcion}</option>
                         {else}
                         <option value='{$value->iva}'>{$value->descripcion}</option>
                         {/if}

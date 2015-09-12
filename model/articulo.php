@@ -296,7 +296,7 @@ class articulo extends fs_model
    
    /**
     * Devuelve la descripción en base64.
-    * Obsoleto.
+    * @deprecated since version 50
     * @return type
     */
    public function get_descripcion_64()
@@ -309,6 +309,10 @@ class articulo extends fs_model
       return $this->pvp * (100+$this->get_iva()) / 100;
    }
    
+   /**
+    * @deprecated since version 50
+    * @return type
+    */
    public function costemedio_iva()
    {
       return $this->costemedio * (100+$this->get_iva()) / 100;
@@ -331,16 +335,6 @@ class articulo extends fs_model
    public function preciocoste_iva()
    {
       return $this->preciocoste() * (100+$this->get_iva()) / 100;
-   }
-   
-   /**
-    * Devuelve la fecha de la última modificación del precio, pero en formato
-    * 'hace x horas/días/meses'
-    * @return type
-    */
-   public function factualizado()
-   {
-      return $this->var2timesince($this->factualizado);
    }
    
    public function url()
