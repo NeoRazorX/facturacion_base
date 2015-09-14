@@ -73,9 +73,13 @@ class familia extends fs_model
          return "index.php?page=ventas_familia&cod=".$this->codfamilia;
    }
    
+   /**
+    * @deprecated since version 50
+    * @return type
+    */
    public function is_default()
    {
-      return ( $this->codfamilia == $this->default_items->codfamilia() );
+      return FALSE;
    }
    
    public function get($cod)

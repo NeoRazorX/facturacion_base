@@ -147,10 +147,6 @@ class contabilidad_asiento extends fs_controller
       
       /// obtenemos la divisa de las partidas
       $div0 = $this->divisa->get($_POST['divisa']);
-      if($div0)
-      {
-         $this->save_coddivisa($div0->coddivisa);
-      }
       
       if( !$eje0 OR !$div0 )
       {

@@ -173,8 +173,15 @@
                   </tr>
                </thead>
                {loop="$fsc->resultados"}
-               <tr class="clickableRow" href="{$value->url()}">
-                  <td><a href="{$value->url()}">{$value->codcliente}</a> {$value->nombre}</td>
+               <tr class='clickableRow{if="$value->debaja"} danger{elseif="$value->fechaalta==$fsc->today()"} success{/if}' href='{$value->url()}'>
+                  <td>
+                     <a href="{$value->url()}">{$value->codcliente}</a> {$value->nombre}
+                     {if="$value->debaja"}
+                     &nbsp; <span class="label label-danger" title="cliente dado de baja">Baja</span>
+                     {elseif="$value->fechaalta==$fsc->today()"}
+                     &nbsp; <span class="label label-success" title="Nuevo cliente">Nuevo</span>
+                     {/if}
+                  </td>
                   <td>{$value->cifnif}</td>
                   <td>{$value->email}</td>
                   <td>{$value->telefono1}</td>
@@ -182,7 +189,7 @@
                   <td class="text-right">{$fsc->nombre_grupo($value->codgrupo)}</td>
                </tr>
                {else}
-               <tr class="bg-warning">
+               <tr class="warning">
                   <td colspan="6">Ningún cliente encontrado. Pulse el botón <b>Nuevo</b> para crear uno.</td>
                </tr>
                {/loop}

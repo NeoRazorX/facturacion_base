@@ -70,7 +70,6 @@ class contabilidad_cuentas extends fs_controller
       }
       else if( isset($_POST['ejercicio']) )
       {
-         $this->save_codejercicio( $_POST['ejercicio'] );
          $this->resultados = $this->cuenta->all_from_ejercicio($_POST['ejercicio'], $this->offset);
          $this->resultados2 = array();
       }

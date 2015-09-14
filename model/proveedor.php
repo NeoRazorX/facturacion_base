@@ -235,9 +235,13 @@ class proveedor extends fs_model
          return "index.php?page=compras_proveedor&cod=".$this->codproveedor;
    }
    
+   /**
+    * @deprecated since version 50
+    * @return type
+    */
    public function is_default()
    {
-      return ( $this->codproveedor == $this->default_items->codproveedor() );
+      return FALSE;
    }
    
    /**

@@ -111,7 +111,6 @@ class ventas_articulos extends fs_controller
       else if( isset($_POST['referencia']) AND isset($_POST['codfamilia']) AND isset($_POST['codimpuesto']) )
       {
          /// nuevo artículo
-         $this->save_codfamilia( $_POST['codfamilia'] );
          $this->save_codimpuesto( $_POST['codimpuesto'] );
          
          $art0 = $articulo->get($_POST['referencia']);

@@ -142,8 +142,6 @@ class ventas_clientes extends fs_controller
       }
       else if( isset($_POST['cifnif']) ) /// añadir un nuevo cliente
       {
-         $this->save_codpais( $_POST['pais'] );
-         
          $cliente = FALSE;
          if($_POST['cifnif'] != '')
          {

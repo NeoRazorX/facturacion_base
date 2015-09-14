@@ -18,23 +18,36 @@
    });
 </script>
 
-<div class="container-fluid" style="margin-top: 10px;">
+<div class="container">
    <div class="row">
-      <div class="col-sm-5">
-         <div class="btn-group hidden-xs">
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
-               <span class="glyphicon glyphicon-refresh"></span>
-            </a>
-            {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
-            </a>
-            {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
-            </a>
-            {/if}
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               {if="$fsc->query==''"}
+               <span class="glyphicon glyphicon-folder-open"></span>
+               &nbsp; Familias de artículos
+               <span class="hidden-xs badge">{$fsc->total_familias()}</span>
+               {else}
+               <span class="glyphicon glyphicon-search"></span>
+               &nbsp; Resultados de '{$fsc->query}'
+               {/if}
+            </h1>
+            <p class="help-block">
+               Las familias son una forma sencilla de agrupar artículos. Además
+               puedes meter familias dentro de otras, es decir, subfamilias.
+            </p>
          </div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-sm-9">
+         <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+            <span class="glyphicon glyphicon-refresh"></span>
+         </a>
+         <a class="btn btn-sm btn-default" href="index.php?page=ventas_articulos">
+            <span class="glyphicon glyphicon-chevron-left"></span>
+            <span class="hidden-xs">&nbsp; Artículos</span>
+         </a>
          <div class="btn-group">
             <a id="b_nueva_familia" class="btn btn-sm btn-success" href="#">
                <span class="glyphicon glyphicon-plus"></span> &nbsp; Nueva
@@ -46,17 +59,7 @@
             {/loop}
          </div>
       </div>
-      <div class="col-sm-5 text-right">
-         <h2 style="margin-top: 0px;">
-            {if="$fsc->query==''"}
-            Familias de artículos
-            <span class="hidden-xs badge">{$fsc->total_familias()}</span>
-            {else}
-            Resultados de '{$fsc->query}'
-            {/if}
-         </h2>
-      </div>
-      <div class="col-sm-2">
+      <div class="col-sm-3">
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
@@ -69,16 +72,21 @@
          </form>
       </div>
    </div>
-</div>
-
-<div class="container-fluid" style="margin-top: 20px;">
+   <div class="row">
+      <div class="col-sm-12">
+         <br/>
+      </div>
+   </div>
    <div class="row">
       {loop="$fsc->resultados"}
-      <div class="col-md-3 col-sm-3" style="margin-bottom: 5px;">
-         <a class="btn btn-block btn-default" href="{$value->url()}">{$value->descripcion}</a>
+      <div class="col-sm-3" style="margin-bottom: 5px;">
+         <a class="btn btn-block btn-default" href="{$value->url()}">
+            <span class="glyphicon glyphicon-folder-open"></span>
+            &nbsp; {$value->descripcion}
+         </a>
       </div>
       {else}
-      <div class="col-md-12 col-sm-12">
+      <div class="col-sm-12">
          <div class="alert alert-warning">Ninguna familia encontrada. Pulsa el botón <b>Nueva</b> para crear una.</div>
       </div>
       {/loop}
@@ -95,6 +103,11 @@
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">Nueva familia</h4>
+               <p class="help-block">
+                  Si quieres crear una subfamilia puedes hacerlo de dos formas:
+                  primero creas la familia y luego le asignas la "madre", o bien
+                  buscas la familia, haces clic en ella y creas ahí la subfamilia.
+               </p>
             </div>
             <div class="modal-body">
                {if="$fsc->madre"}

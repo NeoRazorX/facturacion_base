@@ -60,8 +60,6 @@ class compras_proveedores extends fs_controller
       }
       else if( isset($_POST['cifnif']) )
       {
-         $this->save_codpais( $_POST['pais'] );
-         
          $proveedor = FALSE;
          if($_POST['cifnif'] != '')
          {

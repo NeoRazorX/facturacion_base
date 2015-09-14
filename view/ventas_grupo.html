@@ -58,22 +58,29 @@
          <tr>
             <th class="text-left">Código + Nombre</th>
             <th class="text-left">{#FS_CIFNIF#}</th>
+            <th class="text-left">email</th>
+            <th class="text-left">Teléfono</th>
             <th class="text-left">Observaciones</th>
-            <th class="text-left">Teléfonos</th>
-            <th class="text-right">Email</th>
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr class="clickableRow" href="{$value->url()}">
-         <td><a href="{$value->url()}">{$value->codcliente}</a> {$value->nombre}</td>
+      <tr class='clickableRow{if="$value->debaja"} danger{elseif="$value->fechaalta==$fsc->today()"} success{/if}' href='{$value->url()}'>
+         <td>
+            <a href="{$value->url()}">{$value->codcliente}</a> {$value->nombre}
+            {if="$value->debaja"}
+            &nbsp; <span class="label label-danger" title="cliente dado de baja">Baja</span>
+            {elseif="$value->fechaalta==$fsc->today()"}
+            &nbsp; <span class="label label-success" title="Nuevo cliente">Nuevo</span>
+            {/if}
+         </td>
          <td>{$value->cifnif}</td>
+         <td>{$value->email}</td>
+         <td>{$value->telefono1}</td>
          <td>{$value->observaciones_resume()}</td>
-         <td>{$value->telefono1} &nbsp; {$value->telefono2}</td>
-         <td class="text-right">{$value->email}</td>
       </tr>
       {else}
-      <tr class="bg-warning">
-         <td colspan="5">Ningún cliente encontrado.</td>
+      <tr class="warning">
+         <td colspan="5">Ningún cliente encontrado. Pulse el botón <b>Nuevo</b> para crear uno.</td>
       </tr>
       {/loop}
    </table>

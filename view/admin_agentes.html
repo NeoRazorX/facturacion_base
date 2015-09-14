@@ -61,8 +61,13 @@
          </tr>
       </thead>
       {loop="$fsc->agente->all()"}
-      <tr class='clickableRow{if="$value->f_baja"} bg-danger{/if}' href='{$value->url()}'>
-         <td>{$value->get_fullname()}</td>
+      <tr class='clickableRow{if="$value->f_baja"} danger{/if}' href='{$value->url()}'>
+         <td>
+            {$value->get_fullname()}
+            {if="$value->f_baja"}
+            &nbsp; <span class="label label-danger" title="Empleado dado de baja">Baja</span>
+            {/if}
+         </td>
          <td>{$value->dnicif}</td>
          <td>{$value->cargo}</td>
          <td>{if="$value->telefono==''"}-{else}{$value->telefono}{/if}</td>

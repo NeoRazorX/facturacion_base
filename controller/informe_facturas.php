@@ -35,6 +35,7 @@ class informe_facturas extends fs_controller
    public $pagada;
    public $proveedor;
    public $serie;
+   public $stats;
    
    public function __construct()
    {
@@ -79,6 +80,10 @@ class informe_facturas extends fs_controller
             else
                $this->csv_facturas_prov();
          }
+      }
+      else
+      {
+         $this->albaranes_pendientes();
       }
    }
    
@@ -1125,5 +1130,57 @@ class informe_facturas extends fs_controller
       }
       
       return $dates;
+   }
+   
+   private function albaranes_pendientes()
+   {
+      $this->stats = array(
+          'alb_ptes_compra' => 0,
+          'alb_ptes_compra_importe' => 0,
+          'alb_ptes_venta' => 0,
+          'alb_ptes_venta_importe' => 0,
+          'facturas_compra' => 0,
+          'facturas_compra_importe' => 0,
+          'facturas_venta' => 0,
+          'facturas_venta_importe' => 0,
+          'total' => 0
+      );
+      
+      $sql = "SELECT COUNT(idalbaran) as num, SUM(total) as total FROM albaranesprov WHERE ptefactura;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $this->stats['alb_ptes_compra'] = intval($data[0]['num']);
+         $this->stats['alb_ptes_compra_importe'] = floatval($data[0]['total']);
+      }
+      
+      $sql = "SELECT COUNT(idalbaran) as num, SUM(total) as total FROM albaranescli WHERE ptefactura;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $this->stats['alb_ptes_venta'] = intval($data[0]['num']);
+         $this->stats['alb_ptes_venta_importe'] = floatval($data[0]['total']);
+      }
+      
+      $sql = "SELECT COUNT(idfactura) as num, SUM(total) as total FROM facturasprov WHERE fecha >= "
+              .$this->empresa->var2str($this->desde)." AND fecha <= ".$this->empresa->var2str($this->hasta).";";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $this->stats['facturas_compra'] = intval($data[0]['num']);
+         $this->stats['facturas_compra_importe'] = floatval($data[0]['total']);
+      }
+      
+      $sql = "SELECT COUNT(idfactura) as num, SUM(total) as total FROM facturascli WHERE fecha >= "
+              .$this->empresa->var2str($this->desde)." AND fecha <= ".$this->empresa->var2str($this->hasta).";";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $this->stats['facturas_venta'] = intval($data[0]['num']);
+         $this->stats['facturas_venta_importe'] = floatval($data[0]['total']);
+      }
+      
+      $this->stats['total'] = $this->stats['facturas_venta_importe'] + $this->stats['alb_ptes_venta_importe'];
+      $this->stats['total'] -= $this->stats['facturas_compra_importe'] + $this->stats['alb_ptes_compra_importe'];
    }
 }

@@ -55,8 +55,13 @@
                   </tr>
                </thead>
                {loop="$fsc->ejercicio->all()"}
-               <tr class="clickableRow{if="!$value->abierto()"} bg-warning{/if}" href="{$value->url()}">
-                  <td><a href="{$value->url()}">{$value->codejercicio}</a> {$value->nombre}</td>
+               <tr class="clickableRow{if="!$value->abierto()"} warning{/if}" href="{$value->url()}">
+                  <td>
+                     <a href="{$value->url()}">{$value->codejercicio}</a> {$value->nombre}
+                     {if="$value->is_default()"}
+                     &nbsp; <span class="label label-info">Predeterminado</span>
+                     {/if}
+                  </td>
                   <td class="text-center">{$value->fechainicio}</td>
                   <td class="text-center">{$value->fechafin}</td>
                   <td class="text-right">{$value->estado}</td>

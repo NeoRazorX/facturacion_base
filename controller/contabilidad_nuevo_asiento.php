@@ -60,18 +60,14 @@ class contabilidad_nuevo_asiento extends fs_controller
          $continuar = TRUE;
          
          $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha']);
-         if($eje0)
-            $this->save_codejercicio($eje0->codejercicio);
-         else
+         if(!$eje0)
          {
             $this->new_error_msg('Ejercicio no encontrado.');
             $continuar = FALSE;
          }
          
          $div0 = $this->divisa->get($_POST['divisa']);
-         if($div0)
-            $this->save_coddivisa($div0->coddivisa);
-         else
+         if(!$div0)
          {
             $this->new_error_msg('Divisa no encontrada.');
             $continuar = FALSE;

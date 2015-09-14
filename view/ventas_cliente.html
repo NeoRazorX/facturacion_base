@@ -91,10 +91,15 @@
       </div>
       <div class="col-sm-2 col-xs-2 text-right">
          {if="$fsc->allow_delete"}
-            {if="$fsc->tiene_facturas()"}
-            <a href="#" class="btn btn-sm btn-warning" onclick="alert('Este cliente ya tiene facturas. No puedes eliminarlo.')">
+            {if="$fsc->cliente->debaja"}
+            <a href="#" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modal_debaja">
                <span class="glyphicon glyphicon-lock"></span>
-               <span class="hidden-xs">&nbsp; Eliminar</span>
+               <span class="hidden-xs">&nbsp; De baja</span>
+            </a>
+            {elseif="$fsc->tiene_facturas()"}
+            <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_debaja">
+               <span class="glyphicon glyphicon-lock"></span>
+               <span class="hidden-xs">&nbsp; Dar de baja</span>
             </a>
             {else}
             <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
@@ -175,7 +180,7 @@
       <div class="col-lg-10 col-md-10 col-sm-9">
          <form name="f_cliente" action="{$fsc->url()}" method="post" class="form">
             <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
-            <div class="panel panel-primary pseudotab_cli" id="panel_generales">
+            <div class='panel {if="$fsc->cliente->debaja"}panel-danger{else}panel-primary{/if} pseudotab_cli' id='panel_generales'>
                <div class="panel-heading">
                   <h3 class="panel-title">Datos generales</h3>
                </div>
@@ -322,9 +327,45 @@
                   </div>
                </div>
                <div class="panel-footer text-right">
+                  <small class="pull-left">Fecha de alta: {$fsc->cliente->fechaalta}</small>
                   <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
                      <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                   </button>
+               </div>
+            </div>
+            
+            <div class="modal fade" id="modal_debaja" tabindex="-1" role="dialog">
+               <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                     <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                           <span aria-hidden="true">&times;</span>
+                        </button>
+                        {if="$fsc->cliente->debaja"}
+                        <h4 class="modal-title" id="myModalLabel">Este cliente ha sido dado de baja</h4>
+                        <p class="help-block">Concretamente el día {$fsc->cliente->fechabaja}</p>
+                        {else}
+                        <h4 class="modal-title" id="myModalLabel">¿Deseas dar de baja al cliente?</h4>
+                        {/if}
+                     </div>
+                     <div class="modal-body">
+                        <div class="checkbox">
+                           <label>
+                              {if="$fsc->cliente->debaja"}
+                              <input type="checkbox" name="debaja" value="TRUE" checked=""/>
+                              {else}
+                              <input type="checkbox" name="debaja" value="TRUE"/>
+                              {/if}
+                              Dar de baja al cliente
+                           </label>
+                        </div>
+                     </div>
+                     <div class="modal-footer">
+                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                           <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                        </button>
+                     </div>
+                  </div>
                </div>
             </div>
          </form>

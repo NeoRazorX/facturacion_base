@@ -46,17 +46,6 @@ class cliente extends fs_model
    public $razonsocial;
    
    /**
-    * El nombre oficial del cliente se ha cambiado a razonsocial. Por motivos
-    * de compatibilidad se seguirá ofreciando la propiedad nombrecomercial,
-    * pero se eliminará muy pronto.
-    * Los cambios en esta propiedad ya no se guardan en la base de datos.
-    * Usa razonsocial.
-    * @var type 
-    * @deprecated since version 2015.038
-    */
-   public $nombrecomercial;
-   
-   /**
     * Identificador fiscal del cliente.
     * @var type 
     */
@@ -98,26 +87,24 @@ class cliente extends fs_model
    public $codgrupo;
    
    /**
-    * TRUE -> el cliente ya no se usa.
-    * Todavía no está implementado.
+    * TRUE -> el cliente ya no nos compra o no queremos nada con él.
     * @var type 
     */
    public $debaja;
    
    /**
     * Fecha en la que se dió de baja al cliente.
-    * Todavía no está implementado.
     * @var type 
     */
    public $fechabaja;
-   public $observaciones;
    
    /**
-    * Tipo de identificador fiscal del cliente.
-    * Todavía no implementado.
+    * Fecha en la que se dió de alta al cliente.
     * @var type 
     */
-   public $tipoidfiscal;
+   public $fechaalta;
+   
+   public $observaciones;
    
    /**
     * Régimen de fiscalidad del cliente. Por ahora solo están implementados
@@ -163,9 +150,15 @@ class cliente extends fs_model
          $this->codagente = $c['codagente'];
          $this->codgrupo = $c['codgrupo'];
          $this->debaja = $this->str2bool($c['debaja']);
-         $this->fechabaja = $c['fechabaja'];
+         
+         $this->fechabaja = NULL;
+         if($c['fechabaja'])
+         {
+            $this->fechabaja = date('d-m-Y', strtotime($c['fechabaja']));
+         }
+         
+         $this->fechaalta = date('d-m-Y', strtotime($c['fechaalta']));
          $this->observaciones = $this->no_html($c['observaciones']);
-         $this->tipoidfiscal = $c['tipoidfiscal'];
          $this->regimeniva = $c['regimeniva'];
          $this->recargo = $this->str2bool($c['recargo']);
       }
@@ -187,13 +180,11 @@ class cliente extends fs_model
          $this->codgrupo = NULL;
          $this->debaja = FALSE;
          $this->fechabaja = NULL;
+         $this->fechaalta = date('d-m-Y');
          $this->observaciones = NULL;
-         $this->tipoidfiscal = 'NIF';
          $this->regimeniva = 'General';
          $this->recargo = FALSE;
       }
-      
-      $this->nombrecomercial = $this->razonsocial;
    }
    
    protected function install()
@@ -225,10 +216,14 @@ class cliente extends fs_model
       else
          return "index.php?page=ventas_cliente&cod=".$this->codcliente;
    }
-
+   
+   /**
+    * @deprecated since version 50
+    * @return type
+    */
    public function is_default()
    {
-      return ( $this->codcliente == $this->default_items->codcliente() );
+      return FALSE;
    }
    
    /**
@@ -431,6 +426,18 @@ class cliente extends fs_model
       $this->cifnif = $this->no_html($this->cifnif);
       $this->observaciones = $this->no_html($this->observaciones);
       
+      if($this->debaja)
+      {
+         if( is_null($this->fechabaja) )
+         {
+            $this->fechabaja = date('d-m-Y');
+         }
+      }
+      else
+      {
+         $this->fechabaja = NULL;
+      }
+      
       if( !preg_match("/^[A-Z0-9]{1,6}$/i", $this->codcliente) )
       {
          $this->new_error_msg("Código de cliente no válido.");
@@ -472,8 +479,8 @@ class cliente extends fs_model
                     .", codgrupo = ".$this->var2str($this->codgrupo)
                     .", debaja = ".$this->var2str($this->debaja)
                     .", fechabaja = ".$this->var2str($this->fechabaja)
+                    .", fechaalta = ".$this->var2str($this->fechaalta)
                     .", observaciones = ".$this->var2str($this->observaciones)
-                    .", tipoidfiscal = ".$this->var2str($this->tipoidfiscal)
                     .", regimeniva = ".$this->var2str($this->regimeniva)
                     .", recargo = ".$this->var2str($this->recargo)
                     ."  WHERE codcliente = ".$this->var2str($this->codcliente).";";
@@ -482,7 +489,7 @@ class cliente extends fs_model
          {
             $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,razonsocial,cifnif,telefono1,
                telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,debaja,fechabaja,
-               observaciones,tipoidfiscal,regimeniva,recargo) VALUES (".$this->var2str($this->codcliente)
+               fechaalta,observaciones,regimeniva,recargo) VALUES (".$this->var2str($this->codcliente)
                     .",".$this->var2str($this->nombre)
                     .",".$this->var2str($this->razonsocial)
                     .",".$this->var2str($this->cifnif)
@@ -498,8 +505,8 @@ class cliente extends fs_model
                     .",".$this->var2str($this->codgrupo)
                     .",".$this->var2str($this->debaja)
                     .",".$this->var2str($this->fechabaja)
+                    .",".$this->var2str($this->fechaalta)
                     .",".$this->var2str($this->observaciones)
-                    .",".$this->var2str($this->tipoidfiscal)
                     .",".$this->var2str($this->regimeniva)
                     .",".$this->var2str($this->recargo).");";
          }
@@ -556,19 +563,19 @@ class cliente extends fs_model
       $clilist = array();
       $query = strtolower( $this->no_html($query) );
       
-      $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
+      $consulta = "SELECT * FROM ".$this->table_name." WHERE debaja = FALSE AND ";
       if( is_numeric($query) )
       {
-         $consulta .= "codcliente LIKE '%".$query."%' OR cifnif LIKE '%".$query."%'"
+         $consulta .= "(codcliente LIKE '%".$query."%' OR cifnif LIKE '%".$query."%'"
                  . " OR telefono1 LIKE '".$query."%' OR telefono2 LIKE '".$query."%'"
-                 . " OR observaciones LIKE '%".$query."%'";
+                 . " OR observaciones LIKE '%".$query."%')";
       }
       else
       {
          $buscar = str_replace(' ', '%', $query);
-         $consulta .= "lower(nombre) LIKE '%".$buscar."%' OR lower(razonsocial) LIKE '%".$buscar."%'"
+         $consulta .= "(lower(nombre) LIKE '%".$buscar."%' OR lower(razonsocial) LIKE '%".$buscar."%'"
                  . " OR lower(cifnif) LIKE '%".$buscar."%' OR lower(observaciones) LIKE '%".$buscar."%'"
-                 . " OR lower(email) LIKE '%".$buscar."%'";
+                 . " OR lower(email) LIKE '%".$buscar."%')";
       }
       $consulta .= " ORDER BY nombre ASC";
       
@@ -582,11 +589,18 @@ class cliente extends fs_model
       return $clilist;
    }
    
+   /**
+    * Busca por cifnif.
+    * @param type $dni
+    * @param type $offset
+    * @return \cliente
+    */
    public function search_by_dni($dni, $offset=0)
    {
       $clilist = array();
       $query = strtolower( $this->no_html($dni) );
-      $consulta = "SELECT * FROM ".$this->table_name." WHERE lower(cifnif) LIKE '".$query."%' ORDER BY nombre ASC";
+      $consulta = "SELECT * FROM ".$this->table_name." WHERE debaja = FALSE "
+              . "AND lower(cifnif) LIKE '".$query."%' ORDER BY nombre ASC";
       
       $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
       if($data)

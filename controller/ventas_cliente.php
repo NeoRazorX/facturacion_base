@@ -66,7 +66,9 @@ class ventas_cliente extends fs_controller
          $this->cliente = $cliente->get( $_POST['codcliente'] );
       }
       else if( isset($_GET['cod']) )
+      {
          $this->cliente = $cliente->get($_GET['cod']);
+      }
       
       /// ¿Hay que hacer algo más?
       if( isset($_GET['delete_cuenta']) ) /// eliminar cuenta bancaria
@@ -104,7 +106,9 @@ class ventas_cliente extends fs_controller
       {
          $dir = new direccion_cliente();
          if($_POST['coddir'] != '')
+         {
             $dir = $dir->get($_POST['coddir']);
+         }
          $dir->apartado = $_POST['apartado'];
          $dir->ciudad = $_POST['ciudad'];
          $dir->codcliente = $this->cliente->codcliente;
@@ -167,14 +171,19 @@ class ventas_cliente extends fs_controller
          $this->cliente->coddivisa = $_POST['coddivisa'];
          $this->cliente->regimeniva = $_POST['regimeniva'];
          $this->cliente->recargo = isset($_POST['recargo']);
+         $this->cliente->debaja = isset($_POST['debaja']);
          
          $this->cliente->codagente = NULL;
          if($_POST['codagente'] != '---')
+         {
             $this->cliente->codagente = $_POST['codagente'];
+         }
          
          $this->cliente->codgrupo = NULL;
          if($_POST['codgrupo'] != '---')
+         {
             $this->cliente->codgrupo = $_POST['codgrupo'];
+         }
          
          if( $this->cliente->save() )
          {

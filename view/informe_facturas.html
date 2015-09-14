@@ -127,6 +127,17 @@
             </div>
             <div class="panel-body">
                <div id="chart_facturas_day"></div>
+               <p class="help-block">
+                  Este mes hay {$fsc->stats['facturas_compra']} facturas de compra por un importe total
+                  de <b>{$fsc->show_precio($fsc->stats['facturas_compra_importe'])}</b>,
+                  además de {$fsc->stats['alb_ptes_compra']} {#FS_ALBARANES#} de compra pendientes
+                  por un importe de <b>{$fsc->show_precio($fsc->stats['alb_ptes_compra_importe'])}</b>.
+                  En todo el mes hay {$fsc->stats['facturas_venta']} facturas de venta
+                  por un importe total de <b>{$fsc->show_precio($fsc->stats['facturas_venta_importe'])}</b>,
+                  además de {$fsc->stats['alb_ptes_venta']} {#FS_ALBARANES#} de venta pendientes
+                  por un importe de <b>{$fsc->show_precio($fsc->stats['alb_ptes_venta_importe'])}</b>.
+                  Si lo sumamos todo, tenemos un importe de <mark>{$fsc->show_precio($fsc->stats['total'])}</mark>.
+               </p>
             </div>
          </div>
       </div>
@@ -138,7 +149,7 @@
                <h3 class="panel-title">Facturación de los últimos meses</h3>
             </div>
             <div class="panel-body">
-               <div id="chart_facturas_month"></div>
+               <div id="chart_facturas_month" style="height: 400px;"></div>
             </div>
          </div>
       </div>
@@ -150,7 +161,7 @@
                <h3 class="panel-title">Facturación de los últimos años</h3>
             </div>
             <div class="panel-body">
-               <div id="chart_facturas_year"></div>
+               <div id="chart_facturas_year" style="height: 400px;"></div>
             </div>
          </div>
       </div>

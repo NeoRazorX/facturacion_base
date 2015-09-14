@@ -334,44 +334,28 @@ class tpv_recambios extends fs_controller
       $continuar = TRUE;
       
       $ejercicio = $this->ejercicio->get_by_fecha($_POST['fecha']);
-      if($ejercicio)
-      {
-         $this->save_codejercicio($ejercicio->codejercicio);
-      }
-      else
+      if(!$ejercicio)
       {
          $this->new_error_msg('Ejercicio no encontrado.');
          $continuar = FALSE;
       }
       
       $serie = $this->serie->get($_POST['serie']);
-      if($serie)
-      {
-         $this->save_codserie($serie->codserie);
-      }
-      else
+      if(!$serie)
       {
          $this->new_error_msg('Serie no encontrada.');
          $continuar = FALSE;
       }
       
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
-      if($forma_pago)
-      {
-         $this->save_codpago( $forma_pago->codpago );
-      }
-      else
+      if(!$forma_pago)
       {
          $this->new_error_msg('Forma de pago no encontrada.');
          $continuar = FALSE;
       }
       
       $divisa = $this->divisa->get($_POST['divisa']);
-      if($divisa)
-      {
-         $this->save_coddivisa( $divisa->coddivisa );
-      }
-      else
+      if(!$divisa)
       {
          $this->new_error_msg('Divisa no encontrada.');
          $continuar = FALSE;
