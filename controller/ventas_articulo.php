@@ -115,9 +115,13 @@ class ventas_articulo extends fs_controller
                $this->articulo->costemedio = $this->articulo->preciocoste = floatval($_POST['preciocoste']);
             }
             
-            if( !$this->articulo->save() )
+            if( $this->articulo->save() )
             {
                $this->new_message("Precio modificado correctamente.");
+            }
+            else
+            {
+               $this->new_error_msg("Error al modificar el precio.");
             }
          }
       }

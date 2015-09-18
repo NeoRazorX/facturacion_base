@@ -78,8 +78,8 @@ class compras_proveedores extends fs_controller
             $proveedor->nombre = $_POST['nombre'];
             $proveedor->razonsocial = $_POST['nombre'];
             $proveedor->cifnif = $_POST['cifnif'];
-            $proveedor->codserie = $this->empresa->codserie;
             $proveedor->acreedor = isset($_POST['acreedor']);
+            
             if( $proveedor->save() )
             {
                $dirproveedor = new direccion_proveedor();

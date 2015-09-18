@@ -160,7 +160,6 @@ class ventas_clientes extends fs_controller
             $cliente->nombre = $_POST['nombre'];
             $cliente->razonsocial = $_POST['nombre'];
             $cliente->cifnif = $_POST['cifnif'];
-            $cliente->codserie = $this->empresa->codserie;
             
             if($_POST['scodgrupo'] != '')
             {
@@ -369,7 +368,7 @@ class ventas_clientes extends fs_controller
    private function buscar()
    {
       $this->total_resultados = 0;
-      $query = strtolower( $this->cliente->no_html($this->query) );
+      $query = mb_strtolower( $this->cliente->no_html($this->query) );
       $sql = " FROM clientes";
       $and = ' WHERE ';
       
@@ -396,13 +395,13 @@ class ventas_clientes extends fs_controller
          
          if($this->ciudad != '')
          {
-            $sql .= "lower(ciudad) = '".$this->ciudad."'";
+            $sql .= "lower(ciudad) = '".mb_strtolower($this->ciudad)."'";
             $and2 = ' AND ';
          }
          
          if($this->provincia != '')
          {
-            $sql .= $and2."lower(provincia) = '".$this->provincia."'";
+            $sql .= $and2."lower(provincia) = '".mb_strtolower($this->provincia)."'";
             $and2 = ' AND ';
          }
          

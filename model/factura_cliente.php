@@ -918,6 +918,14 @@ class factura_cliente extends fs_model
       $this->cache->delete('factura_cliente_huecos');
    }
    
+   /**
+    * Devuelve un array con las últimas facturas (con el orden por defecto).
+    * Si alteras el orden puedes obtener lo que desees.
+    * @param type $offset
+    * @param type $limit
+    * @param type $order
+    * @return \factura_cliente
+    */
    public function all($offset=0, $limit=FS_ITEM_LIMIT, $order='fecha DESC, codigo DESC')
    {
       $faclist = array();

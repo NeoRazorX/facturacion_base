@@ -348,7 +348,11 @@ class tpv_recambios extends fs_controller
       }
       
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
-      if(!$forma_pago)
+      if($forma_pago)
+      {
+         $this->save_codpago($_POST['forma_pago']);
+      }
+      else
       {
          $this->new_error_msg('Forma de pago no encontrada.');
          $continuar = FALSE;

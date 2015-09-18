@@ -214,6 +214,9 @@
                <div class="form-group">
                   Núm. proveedor:
                   <input class="form-control" type="text" name="numproveedor" autocomplete="off"/>
+                  <p class="help-block">
+                     Si quieres, puedes guardar el número de documento del proveedor
+                  </p>
                </div>
                <div class="form-group">
                   <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
@@ -469,7 +472,14 @@
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Selecciona el proveedor</h4>
+               <h4 class="modal-title">
+                  <span class="glyphicon glyphicon-search"></span>
+                  &nbsp; Selecciona el proveedor
+               </h4>
+               <p class="help-block">
+                  Busca y selecciona el proveedor o bien puedes crear uno nuevo usando
+                  el recuadro en azul.
+               </p>
             </div>
             <div class="modal-body">
                <div class="form-group">
@@ -483,21 +493,16 @@
                   </div>
                </div>
             </div>
-            <ul class="nav nav-tabs">
-               <li role="presentation" class="active">
-                  <a href="#">
-                     <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo proveedor
-                  </a>
-               </li>
-            </ul>
-            <div class="modal-body">
+            <div class="modal-body bg-info">
                <div class="form-group">
-                  Nombre:
-                  <input type="text" name="nuevo_proveedor" class="form-control" autocomplete="off"/>
+                  Nuevo proveedor:
+                  <input type="text" name="nuevo_proveedor" class="form-control" placeholder="Nombre" autocomplete="off"/>
                </div>
                <div class="form-group">
-                  {#FS_CIFNIF#}:
-                  <input type="text" name="nuevo_dni" class="form-control" autocomplete="off"/>
+                  <div class="input-group">
+                     <span class="input-group-addon">{#FS_CIFNIF#}</span>
+                     <input type="text" name="nuevo_dni" class="form-control" autocomplete="off"/>
+                  </div>
                   <label>
                      <input type="checkbox" name="acreedor" value="TRUE"/>
                      Es un <b>acreedor</b>

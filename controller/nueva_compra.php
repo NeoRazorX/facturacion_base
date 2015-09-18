@@ -330,7 +330,11 @@ class nueva_compra extends fs_controller
       }
       
       $almacen = $this->almacen->get($_POST['almacen']);
-      if(!$almacen)
+      if($almacen)
+      {
+         $this->save_codalmacen($_POST['almacen']);
+      }
+      else
       {
          $this->new_error_msg('Almacén no encontrado.');
          $continuar = FALSE;
@@ -352,7 +356,11 @@ class nueva_compra extends fs_controller
       }
       
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
-      if(!$forma_pago)
+      if($forma_pago)
+      {
+         $this->save_codpago($_POST['forma_pago']);
+      }
+      else
       {
          $this->new_error_msg('Forma de pago no encontrada.');
          $continuar = FALSE;
@@ -529,7 +537,11 @@ class nueva_compra extends fs_controller
       }
       
       $almacen = $this->almacen->get($_POST['almacen']);
-      if(!$almacen)
+      if($almacen)
+      {
+         $this->save_codalmacen($_POST['almacen']);
+      }
+      else
       {
          $this->new_error_msg('Almacén no encontrado.');
          $continuar = FALSE;
@@ -551,7 +563,11 @@ class nueva_compra extends fs_controller
       }
       
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
-      if(!$forma_pago)
+      if($forma_pago)
+      {
+         $this->save_codpago($_POST['forma_pago']);
+      }
+      else
       {
          $this->new_error_msg('Forma de pago no encontrada.');
          $continuar = FALSE;
@@ -726,7 +742,11 @@ class nueva_compra extends fs_controller
       }
       
       $almacen = $this->almacen->get($_POST['almacen']);
-      if(!$almacen)
+      if($almacen)
+      {
+         $this->save_codalmacen($_POST['almacen']);
+      }
+      else
       {
          $this->new_error_msg('Almacén no encontrado.');
          $continuar = FALSE;
@@ -748,7 +768,11 @@ class nueva_compra extends fs_controller
       }
       
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
-      if(!$forma_pago)
+      if($forma_pago)
+      {
+         $this->save_codpago($_POST['forma_pago']);
+      }
+      else
       {
          $this->new_error_msg('Forma de pago no encontrada.');
          $continuar = FALSE;

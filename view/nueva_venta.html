@@ -282,6 +282,10 @@
                <div class="form-group">
                   <span class='text-capitalize'>{#FS_NUMERO2#}:</span>
                   <input class="form-control" type="text" name="numero2" autocomplete="off"/>
+                  <p class="help-block">
+                     Puedes usar este campo como desées. Incluso puedes cambiarle el nombre
+                     desde Admin &gt; Panel de control &gt; Avanzado.
+                  </p>
                </div>
                <div class="form-group">
                   <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
@@ -493,9 +497,13 @@
       <div class="modal-content">
          <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Selecciona el cliente</h4>
+            <h4 class="modal-title">
+               <span class="glyphicon glyphicon-search"></span>
+               &nbsp; Selecciona el cliente
+            </h4>
             <p class="help-block">
-               Si quieres, puedes cambiar las
+               Busca y selecciona el cliente o bien puedes crear uno nuevo usando
+               el recuadro en azul. Además, puedes cambiar las
                <a href="index.php?page=ventas_clientes_opciones">opciones para nuevos clientes</a>.
             </p>
          </div>
@@ -514,20 +522,13 @@
                </div>
             </form>
          </div>
-         <ul class="nav nav-tabs">
-            <li role="presentation" class="active">
-               <a href="#">
-                  <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo cliente
-               </a>
-            </li>
-         </ul>
-         <div class="modal-body">
+         <div class="modal-body bg-info">
             <form action="{$fsc->url()}" method="post" class="form-horizontal">
                <input type="hidden" name="cliente"/>
                <div class="form-group">
-                  <label class="col-sm-2 control-label">Nombre</label>
+                  <label class="col-sm-2 control-label">Nuevo</label>
                   <div class="col-sm-10">
-                     <input type="text" name="nuevo_cliente" class="form-control" autocomplete="off" required=""/>
+                     <input type="text" name="nuevo_cliente" class="form-control" placeholder="Nuevo cliente" autocomplete="off" required=""/>
                   </div>
                </div>
                <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_cifnif_req']"} has-warning{/if}">

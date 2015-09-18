@@ -157,6 +157,10 @@
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">Nuevo proveedor / acreedor</h4>
+               <p class="help-block">
+                  Los acreedores son todos aquellos proveedores a los que no les compramos mercancias.
+                  Por ejemplo: proveedor de internet, teléfono, bancos...
+               </p>
             </div>
             <div class="modal-body">
                <div class="form-group">
@@ -164,14 +168,12 @@
                   <input type="text" name="nombre" class="form-control" autocomplete="off" required=""/>
                </div>
                <div class="form-group">
-                  {#FS_CIFNIF#}:
-                  <input type="text" name="cifnif" class="form-control" autocomplete="off"/>
+                  <div class="input-group">
+                     <span class="input-group-addon">{#FS_CIFNIF#}</span>
+                     <input type="text" name="cifnif" class="form-control" autocomplete="off"/>
+                  </div>
                   <label>
-                     <input type="checkbox" name="acreedor" value="TRUE"/>
-                     Es un <b>acreedor</b>
-                     <a href="#" onclick="return acreedores_help()">
-                        <span class="glyphicon glyphicon-question-sign"></span>
-                     </a>
+                     <input type="checkbox" name="acreedor" value="TRUE"/> es un <b>acreedor</b>
                   </label>
                </div>
                <div class="form-group">

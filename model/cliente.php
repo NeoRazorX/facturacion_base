@@ -561,7 +561,7 @@ class cliente extends fs_model
    public function search($query, $offset=0)
    {
       $clilist = array();
-      $query = strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query) );
       
       $consulta = "SELECT * FROM ".$this->table_name." WHERE debaja = FALSE AND ";
       if( is_numeric($query) )

@@ -155,7 +155,6 @@ class nueva_venta extends fs_controller
                   $this->cliente_s->codcliente = $this->cliente_s->get_new_codigo();
                   $this->cliente_s->nombre = $this->cliente_s->razonsocial = $_POST['nuevo_cliente'];
                   $this->cliente_s->cifnif = $_POST['nuevo_cifnif'];
-                  $this->cliente_s->codserie = $this->empresa->codserie;
                   
                   if( isset($_POST['codgrupo']) )
                   {
@@ -483,7 +482,11 @@ class nueva_venta extends fs_controller
       }
       
       $almacen = $this->almacen->get($_POST['almacen']);
-      if(!$almacen)
+      if($almacen)
+      {
+         $this->save_codalmacen($_POST['almacen']);
+      }
+      else
       {
          $this->new_error_msg('Almacén no encontrado.');
          $continuar = FALSE;
@@ -505,7 +508,11 @@ class nueva_venta extends fs_controller
       }
       
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
-      if(!$forma_pago)
+      if($forma_pago)
+      {
+         $this->save_codpago($_POST['forma_pago']);
+      }
+      else
       {
          $this->new_error_msg('Forma de pago no encontrada.');
          $continuar = FALSE;
@@ -673,7 +680,11 @@ class nueva_venta extends fs_controller
       }
       
       $almacen = $this->almacen->get($_POST['almacen']);
-      if(!$almacen)
+      if($almacen)
+      {
+         $this->save_codalmacen($_POST['almacen']);
+      }
+      else
       {
          $this->new_error_msg('Almacén no encontrado.');
          $continuar = FALSE;
@@ -695,7 +706,11 @@ class nueva_venta extends fs_controller
       }
       
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
-      if(!$forma_pago)
+      if($forma_pago)
+      {
+         $this->save_codpago($_POST['forma_pago']);
+      }
+      else
       {
          $this->new_error_msg('Forma de pago no encontrada.');
          $continuar = FALSE;
@@ -890,7 +905,11 @@ class nueva_venta extends fs_controller
       }
       
       $almacen = $this->almacen->get($_POST['almacen']);
-      if(!$almacen)
+      if($almacen)
+      {
+         $this->save_codalmacen($_POST['almacen']);
+      }
+      else
       {
          $this->new_error_msg('Almacén no encontrado.');
          $continuar = FALSE;
@@ -912,7 +931,11 @@ class nueva_venta extends fs_controller
       }
       
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
-      if(!$forma_pago)
+      if($forma_pago)
+      {
+         $this->save_codpago($_POST['forma_pago']);
+      }
+      else
       {
          $this->new_error_msg('Forma de pago no encontrada.');
          $continuar = FALSE;
@@ -1074,7 +1097,11 @@ class nueva_venta extends fs_controller
       }
       
       $almacen = $this->almacen->get($_POST['almacen']);
-      if(!$almacen)
+      if($almacen)
+      {
+         $this->save_codalmacen($_POST['almacen']);
+      }
+      else
       {
          $this->new_error_msg('Almacén no encontrado.');
          $continuar = FALSE;
@@ -1096,7 +1123,11 @@ class nueva_venta extends fs_controller
       }
       
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
-      if(!$forma_pago)
+      if($forma_pago)
+      {
+         $this->save_codpago($_POST['forma_pago']);
+      }
+      else
       {
          $this->new_error_msg('Forma de pago no encontrada.');
          $continuar = FALSE;

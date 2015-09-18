@@ -305,7 +305,10 @@
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Nuevo cliente</h4>
+               <h4 class="modal-title">
+                  <span class="glyphicon glyphicon-user"></span>
+                  &nbsp; Nuevo cliente
+               </h4>
                <p class="help-block">
                   Si quieres, puedes cambiar las
                   <a href="index.php?page=ventas_clientes_opciones">opciones para nuevos clientes</a>.
@@ -403,7 +406,7 @@
                      {if="$fsc->nuevocli_setup['nuevocli_codpostal_req']"}
                      <input type="text" name="codpostal" class="form-control" required=""/>
                      {else}
-                     <input type="text" name="codpostal" value="{$fsc->empresa->codpostal}" class="form-control"/>
+                     <input type="text" name="codpostal" class="form-control"/>
                      {/if}
                   </div>
                </div>
@@ -415,7 +418,7 @@
                      {if="$fsc->nuevocli_setup['nuevocli_direccion_req']"}
                      <input type="text" name="direccion" class="form-control" autocomplete="off" required=""/>
                      {else}
-                     <input type="text" name="direccion" value="C/ " class="form-control" autocomplete="off"/>
+                     <input type="text" name="direccion" class="form-control" autocomplete="off"/>
                      {/if}
                   </div>
                </div>
