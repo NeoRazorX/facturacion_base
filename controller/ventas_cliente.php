@@ -38,6 +38,7 @@ class ventas_cliente extends fs_controller
    public $grupo;
    public $pais;
    public $serie;
+   public $direccion_cliente;
    
    public function __construct()
    {
@@ -199,6 +200,10 @@ class ventas_cliente extends fs_controller
       }
       else
          $this->new_error_msg("¡Cliente no encontrado!");
+
+      $direc = new direccion_cliente();
+      $clien = $this->cliente->codcliente;
+      $this->direccion_cliente = $direc->all_from_cliente_direccion($clien);
    }
    
    public function url()
