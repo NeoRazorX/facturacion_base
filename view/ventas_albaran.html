@@ -5,17 +5,6 @@
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('nueva_venta.js')}"></script>
 <script type="text/javascript">
-   function check_enviar_copia()
-   {
-      if($("#copia").is(":checked"))
-      {
-         $("#checked_copia").prop("disabled",false);
-      }
-      else
-      {
-         $("#checked_copia").prop("disabled",true);
-      }
-   }
    numlineas = {function="count($fsc->albaran->get_lineas())"};
    fs_nf0 = {#FS_NF0#};
    all_impuestos = {function="json_encode($fsc->impuesto->all())"};
@@ -46,6 +35,18 @@
 </script>
 {else}
 <script type="text/javascript">
+   function check_enviar_copia()
+   {
+      if($("#copia").is(":checked"))
+      {
+         $("#checked_copia").prop("disabled",false);
+      }
+      else
+      {
+         $("#checked_copia").prop("disabled",true);
+      }
+   }
+   
    $(document).ready(function() {
       {if="$fsc->albaran->totalrecargo==0"}
       $(".recargo").hide();

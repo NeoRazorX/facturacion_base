@@ -416,23 +416,37 @@ function new_articulo()
          dataType: 'json',
          data: $("form[name=f_nuevo_articulo]").serialize(),
          success: function(datos) {
-            document.f_buscar_articulos.query.value = document.f_nuevo_articulo.referencia.value;
-            $("#nav_articulos li").each(function() {
-               $(this).removeClass("active");
-            });
-            $("#li_mis_articulos").addClass('active');
-            $("#search_results").html('');
-            $("#search_results").show('');
-            $("#kiwimaru_results").hide();
-            $("#nuevo_articulo").hide();
-            
-            if(precio_compra == 'coste')
+            if(typeof datos[0] == 'undefined')
             {
-               add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].coste, 0, datos[0].codimpuesto);
+               if(document.f_nuevo_articulo.referencia.value == '')
+               {
+                  alert('Debes escribir una referencia.');
+               }
+               else
+               {
+                  alert('Se ha producido un error al crear el artículo.');
+               }
             }
             else
             {
-               add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].pvp, 0, datos[0].codimpuesto);
+               document.f_buscar_articulos.query.value = document.f_nuevo_articulo.referencia.value;
+               $("#nav_articulos li").each(function() {
+                  $(this).removeClass("active");
+               });
+               $("#li_mis_articulos").addClass('active');
+               $("#search_results").html('');
+               $("#search_results").show('');
+               $("#kiwimaru_results").hide();
+               $("#nuevo_articulo").hide();
+               
+               if(precio_compra == 'coste')
+               {
+                  add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].coste, 0, datos[0].codimpuesto);
+               }
+               else
+               {
+                  add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].pvp, 0, datos[0].codimpuesto);
+               }
             }
          }
       });

@@ -270,7 +270,12 @@ class nueva_compra extends fs_controller
             $ap->descripcion = $art0->descripcion;
             $ap->codimpuesto = $art0->codimpuesto;
             $ap->precio = floatval($_POST['coste']);
-            $ap->save();
+            
+            /// pero solamente si tiene una refproveedor asignada
+            if($_POST['refproveedor'] != '')
+            {
+               $ap->save();
+            }
             
             $this->results[] = $art0;
          }

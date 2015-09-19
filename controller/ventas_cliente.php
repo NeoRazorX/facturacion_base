@@ -312,6 +312,15 @@ class ventas_cliente extends fs_controller
          }
       }
       
+      if( !$tiene AND $this->db->table_exists('albaranescli') )
+      {
+         $data = $this->db->select_limit("SELECT * FROM albaranescli WHERE codcliente = '".$this->cliente->codcliente."'", 5, 0);
+         if($data)
+         {
+            $tiene = TRUE;
+         }
+      }
+      
       return $tiene;
    }
 }
