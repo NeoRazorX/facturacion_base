@@ -2,6 +2,17 @@
 
 {if="$fsc->factura"}
 <script type="text/javascript">
+    function check_enviar_copia()
+   {
+      if($("#copia").is(":checked"))
+      {
+         $("#checked_copia").prop("disabled",false);
+      }
+      else
+      {
+         $("#checked_copia").prop("disabled",true);
+      }
+   }
    $(document).ready(function() {
       $("#b_imprimir").click(function(event) {
          event.preventDefault();
@@ -329,6 +340,13 @@
                <div class="form-group">
                   Email del cliente:
                   <input class="form-control" type="text" name="email" value="{$fsc->cliente->email}" autocomplete="off"/>
+               </div>
+               <div class="form-group">
+                  <label>
+                     <input id="copia" onclick="check_enviar_copia()" type="checkbox" name="concopia" value="TRUE"/>
+                     Enviar copia:
+                  </label>
+                  <input id="checked_copia" class="form-control" type="text" name="email_copia" autocomplete="off" disabled=""/>
                </div>
                <div class="form-group">
                   Mensaje:
