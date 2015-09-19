@@ -17,16 +17,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'base/fs_model.php';
-
 /**
  * Una tarifa para los artículos.
  */
 class tarifa extends fs_model
 {
+   /**
+    * Clave primaria.
+    * @var type 
+    */
    public $codtarifa;
+   
+   /**
+    * Nombre de la tarifa.
+    * @var type 
+    */
    public $nombre;
-   public $incporcentual;
+   
+   /**
+    * Incremento porcentual o descuento
+    * @var type 
+    */
+   private $incporcentual;
+   
+   /**
+    * Incremento lineal o descuento lineal
+    * @var type 
+    */
+   private $inclineal;
+   
+   /**
+    * Fórmula a aplicar
+    * @var type 
+    */
+   public $aplicar_a;
+   
+   /**
+    * no vender por debajo de coste
+    * @var boolean 
+    */
+   public $mincoste;
+   
+   /**
+    * no vender por encima de pvp
+    * @var boolean 
+    */
+   public $maxpvp;
    
    public function __construct($t = FALSE)
    {
@@ -35,13 +71,26 @@ class tarifa extends fs_model
       {
          $this->codtarifa = $t['codtarifa'];
          $this->nombre = $t['nombre'];
-         $this->incporcentual = floatval( $t['incporcentual'] );
+         $this->incporcentual = floatval($t['incporcentual']);
+         $this->inclineal = floatval($t['inclineal']);
+         $this->mincoste = $this->str2bool($t['mincoste']);
+         $this->maxpvp = $this->str2bool($t['maxpvp']);
+         
+         $this->aplicar_a = 'pvp';
+         if( !is_null($t['aplicar_a']) )
+         {
+            $this->aplicar_a = $t['aplicar_a'];
+         }
       }
       else
       {
          $this->codtarifa = NULL;
          $this->nombre = NULL;
          $this->incporcentual = 0;
+         $this->inclineal = 0;
+         $this->aplicar_a = 'pvp';
+         $this->mincoste = TRUE;
+         $this->maxpvp = TRUE;
       }
    }
    
@@ -55,9 +104,92 @@ class tarifa extends fs_model
       return 'index.php?page=ventas_articulos#tarifas';
    }
    
-   public function dtopor()
+   public function x()
    {
-      return (0 - $this->incporcentual);
+      if($this->aplicar_a == 'pvp')
+      {
+         return (0 - $this->incporcentual);
+      }
+      else
+      {
+         return $this->incporcentual;
+      }
+   }
+   
+   public function set_x($dto)
+   {
+      if($this->aplicar_a == 'pvp')
+      {
+         $this->incporcentual = 0 - $dto;
+      }
+      else
+      {
+         $this->incporcentual = $dto;
+      }
+   }
+   
+   public function y()
+   {
+      if($this->aplicar_a == 'pvp')
+      {
+         return (0 - $this->inclineal);
+      }
+      else
+      {
+         return $this->inclineal;
+      }
+   }
+   
+   public function set_y($inc)
+   {
+      if($this->aplicar_a == 'pvp')
+      {
+         $this->inclineal = 0 - $inc;
+      }
+      else
+      {
+         $this->inclineal = $inc;
+      }
+   }
+   
+   public function diff()
+   {
+      $texto = '';
+      $x = $this->x();
+      $y = $this->y();
+      
+      if($this->aplicar_a == 'pvp')
+      {
+         $texto = 'Precio de venta ';
+         $x = 0 - $x;
+         $y = 0 - $y;
+      }
+      else
+      {
+         $texto = 'Precio de coste ';
+      }
+      
+      if($x != 0)
+      {
+         if($x > 0)
+         {
+            $texto .= '+';
+         }
+         
+         $texto .= $x.'% ';
+      }
+      
+      if($y != 0)
+      {
+         if($y > 0)
+         {
+            $texto .= ' +';
+         }
+         
+         $texto .= $y;
+      }
+      
+      return $texto;
    }
    
    /**
@@ -72,18 +204,45 @@ class tarifa extends fs_model
          $articulos[$i]->codtarifa = $this->codtarifa;
          $articulos[$i]->tarifa_nombre = $this->nombre;
          $articulos[$i]->tarifa_url = $this->url();
+         $articulos[$i]->dtopor = 0;
          
-         if($this->incporcentual > 0)
+         $pvp = $articulos[$i]->pvp;
+         if($this->aplicar_a == 'pvp')
          {
-            $articulos[$i]->dtopor = 0;
-            $articulos[$i]->pvp = $articulos[$i]->pvp*(100+$this->incporcentual)/100;
-            $articulos[$i]->tarifa_diff = 'PVP + '.$this->incporcentual.'%';
+            if( $this->x() >= 0 )
+            {
+               $articulos[$i]->dtopor = $this->x();
+               $articulos[$i]->pvp = $articulos[$i]->pvp - $this->y();
+            }
+            else
+            {
+               $articulos[$i]->pvp = $articulos[$i]->pvp * (100 - $this->x())/100 - $this->y();
+            }
          }
          else
          {
-            $articulos[$i]->dtopor = $this->dtopor();
-            $articulos[$i]->tarifa_diff = 'PVP - '.$this->dtopor().'%';
+            $articulos[$i]->pvp = $articulos[$i]->preciocoste() * (100 + $this->x())/100 + $this->y();
          }
+         
+         if($this->mincoste)
+         {
+            if( $articulos[$i]->pvp * (100 - $articulos[$i]->dtopor) / 100 < $articulos[$i]->preciocoste() )
+            {
+               $articulos[$i]->dtopor = 0;
+               $articulos[$i]->pvp = $articulos[$i]->preciocoste();
+            }
+         }
+         
+         if($this->maxpvp)
+         {
+            if($articulos[$i]->pvp * (100 - $articulos[$i]->dtopor) / 100 > $pvp)
+            {
+               $articulos[$i]->dtopor = 0;
+               $articulos[$i]->pvp = $pvp;
+            }
+         }
+         
+         $articulos[$i]->tarifa_diff = $this->diff();
       }
    }
    
@@ -126,13 +285,13 @@ class tarifa extends fs_model
       $this->codtarifa = trim($this->codtarifa);
       $this->nombre = $this->no_html($this->nombre);
       
-      if( !preg_match("/^[A-Z0-9]{1,6}$/i", $this->codtarifa) )
+      if( strlen($this->codtarifa) < 1 OR strlen($this->codtarifa) > 6 )
       {
-         $this->new_error_msg("Código de tarifa no válido.");
+         $this->new_error_msg("Código de tarifa no válido. Debe tener entre 1 y 6 caracteres.");
       }
       else if( strlen($this->nombre) < 1 OR strlen($this->nombre) > 50 )
       {
-         $this->new_error_msg("Nombre de tarifa no válido.");
+         $this->new_error_msg("Nombre de tarifa no válido. Debe tener entre 1 y 50 caracteres.");
       }
       else
          $status = TRUE;
@@ -146,16 +305,26 @@ class tarifa extends fs_model
       {
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre).",
-               incporcentual = ".$this->var2str($this->incporcentual)."
-               WHERE codtarifa = ".$this->var2str($this->codtarifa).";";
+            $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre)
+                    .", incporcentual = ".$this->var2str($this->incporcentual)
+                    .", inclineal =".$this->var2str($this->inclineal)
+                    .", aplicar_a =".$this->var2str($this->aplicar_a)
+                    .", mincoste =".$this->var2str($this->mincoste)
+                    .", maxpvp =".$this->var2str($this->maxpvp)
+                    ."  WHERE codtarifa = ".$this->var2str($this->codtarifa).";";
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (codtarifa,nombre,incporcentual)
-               VALUES (".$this->var2str($this->codtarifa).",".$this->var2str($this->nombre).",
-               ".$this->var2str($this->incporcentual).");";
+            $sql = "INSERT INTO ".$this->table_name." (codtarifa,nombre,incporcentual,inclineal,
+               aplicar_a,mincoste,maxpvp) VALUES (".$this->var2str($this->codtarifa)
+                    .",".$this->var2str($this->nombre)
+                    .",".$this->var2str($this->incporcentual)
+                    .",".$this->var2str($this->inclineal)
+                    .",".$this->var2str($this->aplicar_a)
+                    .",".$this->var2str($this->mincoste)
+                    .",".$this->var2str($this->maxpvp).");";
          }
+         
          return $this->db->exec($sql);
       }
       else

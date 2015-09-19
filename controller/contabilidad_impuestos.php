@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -17,11 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('subcuenta.php');
 require_model('impuesto.php');
 
 class contabilidad_impuestos extends fs_controller
 {
    public $allow_delete;
+   public $codsubcuentasop;
+   public $codsubcuentarep;
    public $impuesto;
    
    public function __construct()
@@ -29,12 +32,27 @@ class contabilidad_impuestos extends fs_controller
       parent::__construct(__CLASS__, 'Impuestos', 'contabilidad', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
-      $this->impuesto = new impuesto();
-      
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
+      $this->impuesto = new impuesto();
+      
+      /// Leemos las subcuentas predeterminadas
+      $subcuenta = new subcuenta();
+      $this->codsubcuentasop = '';
+      $subcuentasop = $subcuenta->get_cuentaesp('IVASOP', $this->empresa->codejercicio);
+      if($subcuentasop)
+      {
+         $this->codsubcuentasop = $subcuentasop->codsubcuenta;
+      }
+      $this->codsubcuentarep = '';
+      $subcuentarep = $subcuenta->get_cuentaesp('IVAREP', $this->empresa->codejercicio);
+      if($subcuentarep)
+      {
+         $this->codsubcuentarep = $subcuentarep->codsubcuenta;
+      }
       
       if( isset($_GET['delete']) )
       {
@@ -66,15 +84,34 @@ class contabilidad_impuestos extends fs_controller
             $impuesto = new impuesto();
             $impuesto->codimpuesto = $_POST['codimpuesto'];
          }
+         
          $impuesto->descripcion = $_POST['descripcion'];
+         
+         $impuesto->codsubcuentarep = NULL;
+         if($_POST['codsubcuentarep'] != '')
+         {
+            $impuesto->codsubcuentarep = $_POST['codsubcuentarep'];
+         }
+         
+         $impuesto->codsubcuentasop = NULL;
+         if($_POST['codsubcuentasop'] != '')
+         {
+            $impuesto->codsubcuentasop = $_POST['codsubcuentasop'];
+         }
+         
          $impuesto->iva = floatval( $_POST['iva'] );
          $impuesto->recargo = floatval( $_POST['recargo'] );
+         
          if( $impuesto->save() )
          {
             $this->new_message("Impuesto ".$impuesto->codimpuesto." guardado correctamente.");
          }
          else
             $this->new_error_msg("¡Error al guardar el impuesto!");
+      }
+      else if( isset($_GET['set_default']) )
+      {
+         $this->save_codimpuesto($_GET['set_default']);
       }
    }
 }

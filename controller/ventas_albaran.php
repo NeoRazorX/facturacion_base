@@ -24,6 +24,7 @@ require_model('asiento_factura.php');
 require_model('cliente.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
+require_model('fabricante.php');
 require_model('factura_cliente.php');
 require_model('familia.php');
 require_model('forma_pago.php');
@@ -43,6 +44,7 @@ class ventas_albaran extends fs_controller
    public $cliente_s;
    public $divisa;
    public $ejercicio;
+   public $fabricante;
    public $familia;
    public $forma_pago;
    public $impuesto;
@@ -55,7 +57,7 @@ class ventas_albaran extends fs_controller
       parent::__construct(__CLASS__, FS_ALBARAN.' de cliente', 'ventas', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->ppage = $this->page->get('ventas_albaranes');
       $this->agente = FALSE;
@@ -66,6 +68,7 @@ class ventas_albaran extends fs_controller
       $this->cliente_s = FALSE;
       $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
+      $this->fabricante = new fabricante();
       $this->familia = new familia();
       $this->forma_pago = new forma_pago();
       $this->impuesto = new impuesto();
@@ -114,11 +117,15 @@ class ventas_albaran extends fs_controller
          /// comprobamos el albarán
          $this->albaran->full_test();
          
-         if( isset($_GET['facturar']) AND isset($_GET['petid']) AND $this->albaran->ptefactura )
+         if( isset($_GET['facturar']) AND isset($_GET['petid']) )
          {
             if( $this->duplicated_petition($_GET['petid']) )
             {
                $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
+            }
+            else if( !$this->albaran->ptefactura OR !is_null($this->albaran->idfactura) )
+            {
+               $this->new_error_msg('Parece que este '.FS_ALBARAN.' ya está facturado.');
             }
             else
                $this->generar_factura();
@@ -435,7 +442,6 @@ class ventas_albaran extends fs_controller
    {
       $factura = new factura_cliente();
       $factura->apartado = $this->albaran->apartado;
-      $factura->automatica = TRUE;
       $factura->cifnif = $this->albaran->cifnif;
       $factura->ciudad = $this->albaran->ciudad;
       $factura->codagente = $this->albaran->codagente;
@@ -450,7 +456,6 @@ class ventas_albaran extends fs_controller
       $factura->codpostal = $this->albaran->codpostal;
       $factura->codserie = $this->albaran->codserie;
       $factura->direccion = $this->albaran->direccion;
-      $factura->editable = FALSE;
       $factura->neto = $this->albaran->neto;
       $factura->nombrecliente = $this->albaran->nombrecliente;
       $factura->observaciones = $this->albaran->observaciones;
@@ -462,7 +467,6 @@ class ventas_albaran extends fs_controller
       $factura->totalirpf = $this->albaran->totalirpf;
       $factura->totalrecargo = $this->albaran->totalrecargo;
       $factura->porcomision = $this->albaran->porcomision;
-      $factura->recfinanciero = $this->albaran->recfinanciero;
       
       /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
       $forma0 = new forma_pago();

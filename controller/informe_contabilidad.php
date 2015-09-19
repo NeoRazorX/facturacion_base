@@ -29,7 +29,7 @@ class informe_contabilidad extends fs_controller
       parent::__construct(__CLASS__, 'Contabilidad', 'informes', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->ejercicio = new ejercicio();
       

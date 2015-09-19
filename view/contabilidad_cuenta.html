@@ -29,7 +29,7 @@
             <div class="btn-group">
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
             </div>
@@ -54,7 +54,9 @@
             <tr>
                <th class="text-left">Cuenta</th>
                <th class="text-left">Descripción</th>
-               <th class="text-left">Cuenta especial</th>
+               <th class="text-left">
+                  <a href="index.php?page=cuentas_especiales">Cuenta especial</a>
+               </th>
                <th class="text-left">Ejercicio</th>
             </tr>
          </thead>
@@ -66,7 +68,7 @@
                   <option value="---">Ninguna</option>
                   <option value="---">-------</option>
                   {loop="$fsc->cuentas_especiales()"}
-                  <option value="{$value->idcuentaesp}"{if="$value->idcuentaesp==$fsc->cuenta->idcuentaesp"} selected="selected"{/if}>
+                  <option value="{$value->idcuentaesp}"{if="$value->idcuentaesp==$fsc->cuenta->idcuentaesp"} selected=""{/if}>
                      {$value->descripcion}
                   </option>
                   {/loop}

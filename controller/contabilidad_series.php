@@ -29,7 +29,7 @@ class contabilidad_series extends fs_controller
       parent::__construct(__CLASS__, 'Series', 'contabilidad', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->serie = new serie();
       

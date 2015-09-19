@@ -41,7 +41,7 @@ class ventas_factura extends fs_controller
       parent::__construct(__CLASS__, 'Factura de cliente', 'ventas', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->ppage = $this->page->get('ventas_facturas');
       $this->ejercicio = new ejercicio();

@@ -33,32 +33,47 @@
    {else}
    <input type="hidden" name="codproveedor"/>
    {/if}
-   <div class="container-fluid" style="margin-top: 10px;">
+   <div class="container">
       <div class="row">
-         <div class="col-md-6">
-            <div class="btn-group hidden-xs">
-               <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
-                  <span class="glyphicon glyphicon-refresh"></span>
-               </a>
+         <div class="col-xs-12">
+            <div class="page-header">
+               <h1>
+                  <span class="glyphicon glyphicon-duplicate"></span>
+                  Agrupar {#FS_ALBARANES#}
+               </h1>
             </div>
-            
-            <div class="btn-group">
-               <a class="btn btn-sm btn-default" href="index.php?page=compras_albaranes">
-                  <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; <span class="text-capitalize">{#FS_ALBARANES#}</span>
-               </a>
-               {loop="$fsc->extensions"}
-                  {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
-                  {/if}
-               {/loop}
-            </div>
-         </div>
-         <div class="col-md-6 text-right">
-            <h2 style="margin-top: 0px;">Agrupar {#FS_ALBARANES#}</h2>
          </div>
       </div>
       <div class="row">
-         <div class="col-md-4">
+         <div class="col-xs-6">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+            <a class="btn btn-sm btn-default" href="index.php?page=compras_albaranes">
+               <span class="glyphicon glyphicon-arrow-left"></span>
+               <span class="text-capitalize">&nbsp; {#FS_ALBARANES#}</span>
+            </a>
+            <div class="btn-group">
+            {loop="$fsc->extensions"}
+               {if="$value->type=='button'"}
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+               {/if}
+            {/loop}
+            </div>
+         </div>
+         <div class="col-xs-6 text-right">
+            <button type="submit" class="btn btn-sm btn-primary" onclick="this.disabled=true;this.form.submit();">
+               <span class="glyphicon glyphicon-search"></span> &nbsp; Buscar
+            </button>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-xs-12">
+            <br/>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-5">
             <div class="form-group">
                Proveedor:
                <div class="input-group">
@@ -75,7 +90,7 @@
                </div>
             </div>
          </div>
-         <div class="col-md-2">
+         <div class="col-sm-3">
             Serie:
             <select name="serie" class="form-control">
             {loop="$fsc->serie->all()"}
@@ -87,24 +102,17 @@
 				{/loop}
             </select>
          </div>
-         <div class="col-md-3">
+         <div class="col-sm-2">
             <div class="form-group">
                Desde:
                <input type="text" name="desde" class="form-control datepicker" value="{$fsc->desde}"/>
             </div>
          </div>
-         <div class="col-md-3">
+         <div class="col-sm-2">
             <div class="form-group">
                Hasta:
                <input type="text" name="hasta" class="form-control datepicker" value="{$fsc->hasta}"/>
             </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-md-12">
-            <button type="submit" class="btn btn-sm btn-primary" onclick="this.disabled=true;this.form.submit();">
-               <span class="glyphicon glyphicon-search"></span> &nbsp; Buscar
-            </button>
          </div>
       </div>
    </div>
@@ -113,43 +121,46 @@
 {if="$fsc->resultados"}
 <form id="f_agrupar_pro" action="{$fsc->url()}" method="post" class="form">
    <input type="hidden" name="petition_id" value="{$fsc->random_string()}"/>
-   <div class="table-responsive">
-      <table class="table table-hover">
-         <thead>
-            <tr>
-               <th class="text-left">Código + Núm. Proveedor</th>
-               <th class="text-left">Observaciones</th>
-               <th class="text-right">Neto</th>
-               <th class="text-right">Total</th>
-               <th class="text-right">Fecha</th>
-            </tr>
-         </thead>
-         {loop="$fsc->resultados"}
-         <tr{if="$value->total<0"} class="bg-warning"{/if}>
-            <td>
-               <div>
-                  <input type="checkbox" name="idalbaran[]" value="{$value->idalbaran}" checked="checked"/>
-                  <a href="{$value->url()}">{$value->codigo}</a> {$value->numproveedor}
-               </div>
-            </td>
-            <td>{$value->observaciones_resume()}</td>
-            <td class="text-right">{$fsc->show_precio($value->neto, $value->coddivisa)}</td>
-            <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
-            <td class="text-right">{$value->fecha}</td>
-         </tr>
-         {/loop}
-         <tr>
-            <td colspan="2"></td>
-            <td class="text-right"><b>{$fsc->show_precio($fsc->neto)}</b></td>
-            <td class="text-right"><b>{$fsc->show_precio($fsc->total)}</b></td>
-            <td></td>
-         </tr>
-      </table>
-   </div>
-   
-   <div class="container-fluid">
+   <div class="container">
       <div class="row">
-         <div class="col-md-4">
+         <div class="col-sm-12">
+            <div class="table-responsive">
+               <table class="table table-hover">
+                  <thead>
+                     <tr>
+                        <th class="text-left">Código + Núm. Proveedor</th>
+                        <th class="text-left">Observaciones</th>
+                        <th class="text-right">Neto</th>
+                        <th class="text-right">Total</th>
+                        <th class="text-right">Fecha</th>
+                     </tr>
+                  </thead>
+                  {loop="$fsc->resultados"}
+                  <tr{if="$value->total<0"} class="bg-warning"{/if}>
+                     <td>
+                        <div>
+                           <input type="checkbox" name="idalbaran[]" value="{$value->idalbaran}" checked="checked"/>
+                           <a href="{$value->url()}">{$value->codigo}</a> {$value->numproveedor}
+                        </div>
+                     </td>
+                     <td>{$value->observaciones_resume()}</td>
+                     <td class="text-right">{$fsc->show_precio($value->neto, $value->coddivisa)}</td>
+                     <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
+                     <td class="text-right">{$value->fecha}</td>
+                  </tr>
+                  {/loop}
+                  <tr>
+                     <td colspan="2"></td>
+                     <td class="text-right"><b>{$fsc->show_precio($fsc->neto)}</b></td>
+                     <td class="text-right"><b>{$fsc->show_precio($fsc->total)}</b></td>
+                     <td></td>
+                  </tr>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-4">
             <div class="btn-group">
                <button class="btn btn-sm btn-default" type="button" onclick="fs_marcar_todo()" title="Marcar todo">
                   <span class="glyphicon glyphicon-check"></span>
@@ -159,13 +170,13 @@
                </button>
             </div>
          </div>
-         <div class="col-md-4 text-center">
+         <div class="col-sm-4 text-center">
             <label>
                <input type="checkbox" name="individuales" value="TRUE"/>
                Generar facturas individuales
             </label>
          </div>
-         <div class="col-md-4 text-right">
+         <div class="col-sm-4 text-right">
             <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
                <span class="glyphicon glyphicon-file"></span> &nbsp; Generar Factura
             </button>
@@ -173,6 +184,38 @@
       </div>
    </div>
 </form>
+{elseif="$fsc->proveedor"}
+<div class="container">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="panel panel-info">
+            <div class="panel-heading">
+               <h3 class="panel-title">Ayuda</h3>
+            </div>
+            <div class="panel-body">
+               No se han encontrado resultados para esta búsqueda.
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{else}
+<div class="container">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Ayuda</h3>
+            </div>
+            <div class="panel-body">
+               Con esta herramienta puedes buscar y agrupar varios {#FS_ALBARANES#}
+               de un mismo proveedor y generar una factura (o una para cada uno).
+               Eso si, solamente puedes agrupar {#FS_ALBARANES#} pendientes.
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
 {/if}
 
 {include="footer"}

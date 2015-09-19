@@ -46,16 +46,6 @@ class cliente extends fs_model
    public $razonsocial;
    
    /**
-    * El nombre oficial del cliente se ha cambiado a razonsocial. Por motivos
-    * de compatibilidad se seguirá ofreciando la propiedad nombrecomercial,
-    * pero se eliminará muy pronto.
-    * Los cambios en esta propiedad ya no se guardan en la base de datos.
-    * Usa razonsocial.
-    * @var type 
-    */
-   public $nombrecomercial;
-   
-   /**
     * Identificador fiscal del cliente.
     * @var type 
     */
@@ -97,26 +87,24 @@ class cliente extends fs_model
    public $codgrupo;
    
    /**
-    * TRUE -> el cliente ya no se usa.
-    * Todavía no está implementado.
+    * TRUE -> el cliente ya no nos compra o no queremos nada con él.
     * @var type 
     */
    public $debaja;
    
    /**
     * Fecha en la que se dió de baja al cliente.
-    * Todavía no está implementado.
     * @var type 
     */
    public $fechabaja;
-   public $observaciones;
    
    /**
-    * Tipo de identificador fiscal del cliente.
-    * Todavía no implementado.
+    * Fecha en la que se dió de alta al cliente.
     * @var type 
     */
-   public $tipoidfiscal;
+   public $fechaalta;
+   
+   public $observaciones;
    
    /**
     * Régimen de fiscalidad del cliente. Por ahora solo están implementados
@@ -162,9 +150,15 @@ class cliente extends fs_model
          $this->codagente = $c['codagente'];
          $this->codgrupo = $c['codgrupo'];
          $this->debaja = $this->str2bool($c['debaja']);
-         $this->fechabaja = $c['fechabaja'];
+         
+         $this->fechabaja = NULL;
+         if($c['fechabaja'])
+         {
+            $this->fechabaja = date('d-m-Y', strtotime($c['fechabaja']));
+         }
+         
+         $this->fechaalta = date('d-m-Y', strtotime($c['fechaalta']));
          $this->observaciones = $this->no_html($c['observaciones']);
-         $this->tipoidfiscal = $c['tipoidfiscal'];
          $this->regimeniva = $c['regimeniva'];
          $this->recargo = $this->str2bool($c['recargo']);
       }
@@ -186,13 +180,11 @@ class cliente extends fs_model
          $this->codgrupo = NULL;
          $this->debaja = FALSE;
          $this->fechabaja = NULL;
+         $this->fechaalta = date('d-m-Y');
          $this->observaciones = NULL;
-         $this->tipoidfiscal = 'NIF';
          $this->regimeniva = 'General';
          $this->recargo = FALSE;
       }
-      
-      $this->nombrecomercial = $this->razonsocial;
    }
    
    protected function install()
@@ -224,10 +216,14 @@ class cliente extends fs_model
       else
          return "index.php?page=ventas_cliente&cod=".$this->codcliente;
    }
-
+   
+   /**
+    * @deprecated since version 50
+    * @return type
+    */
    public function is_default()
    {
-      return ( $this->codcliente == $this->default_items->codcliente() );
+      return FALSE;
    }
    
    /**
@@ -238,9 +234,25 @@ class cliente extends fs_model
    {
       if( !isset(self::$regimenes_iva) )
       {
-         self::$regimenes_iva = array('General', 'Exento');
+         /// Si hay usa lista personalizada en fs_vars, la usamos
+         $fsvar = new fs_var();
+         $data = $fsvar->simple_get('cliente::regimenes_iva');
+         if($data)
+         {
+            self::$regimenes_iva = array();
+            foreach( explode(',', $data) as $d )
+            {
+               self::$regimenes_iva[] = trim($d);
+            }
+         }
+         else
+         {
+            /// sino usamos estos
+            self::$regimenes_iva = array('General', 'Exento');
+         }
          
-         $data = $this->db->select("SELECT DISTINCT regimeniva FROM proveedores ORDER BY regimeniva ASC;");
+         /// además de añadir los que haya en la base de datos
+         $data = $this->db->select("SELECT DISTINCT regimeniva FROM clientes ORDER BY regimeniva ASC;");
          if($data)
          {
             foreach($data as $d)
@@ -256,6 +268,11 @@ class cliente extends fs_model
       return self::$regimenes_iva;
    }
    
+   /**
+    * Devuelve un cliente a partir del codcliente
+    * @param type $cod
+    * @return \cliente|boolean
+    */
    public function get($cod)
    {
       $cli = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($cod).";");
@@ -267,6 +284,11 @@ class cliente extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve un cliente a partir del cifnif
+    * @param type $cifnif
+    * @return \cliente|boolean
+    */
    public function get_by_cifnif($cifnif)
    {
       $cli = $this->db->select("SELECT * FROM ".$this->table_name." WHERE cifnif = ".$this->var2str($cifnif).";");
@@ -315,7 +337,7 @@ class cliente extends fs_model
     * Devuelve la subcuenta asociada al cliente para el ejercicio $eje.
     * Si no existe intenta crearla. Si falla devuelve FALSE.
     * @param type $ejercicio
-    * @return type
+    * @return subcuenta
     */
    public function get_subcuenta($ejercicio)
    {
@@ -404,6 +426,18 @@ class cliente extends fs_model
       $this->cifnif = $this->no_html($this->cifnif);
       $this->observaciones = $this->no_html($this->observaciones);
       
+      if($this->debaja)
+      {
+         if( is_null($this->fechabaja) )
+         {
+            $this->fechabaja = date('d-m-Y');
+         }
+      }
+      else
+      {
+         $this->fechabaja = NULL;
+      }
+      
       if( !preg_match("/^[A-Z0-9]{1,6}$/i", $this->codcliente) )
       {
          $this->new_error_msg("Código de cliente no válido.");
@@ -427,36 +461,56 @@ class cliente extends fs_model
       if( $this->test() )
       {
          $this->clean_cache();
+         
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre).",
-               razonsocial = ".$this->var2str($this->razonsocial).", cifnif = ".$this->var2str($this->cifnif).",
-               telefono1 = ".$this->var2str($this->telefono1).", telefono2 = ".$this->var2str($this->telefono2).",
-               fax = ".$this->var2str($this->fax).", email = ".$this->var2str($this->email).",
-               web = ".$this->var2str($this->web).", codserie = ".$this->var2str($this->codserie).",
-               coddivisa = ".$this->var2str($this->coddivisa).", codpago = ".$this->var2str($this->codpago).",
-               codagente = ".$this->var2str($this->codagente).", codgrupo = ".$this->var2str($this->codgrupo).",
-               debaja = ".$this->var2str($this->debaja).", fechabaja = ".$this->var2str($this->fechabaja).",
-               observaciones = ".$this->var2str($this->observaciones).",
-               tipoidfiscal = ".$this->var2str($this->tipoidfiscal).", regimeniva = ".$this->var2str($this->regimeniva).",
-               recargo = ".$this->var2str($this->recargo)."
-               WHERE codcliente = ".$this->var2str($this->codcliente).";";
+            $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre)
+                    .", razonsocial = ".$this->var2str($this->razonsocial)
+                    .", cifnif = ".$this->var2str($this->cifnif)
+                    .", telefono1 = ".$this->var2str($this->telefono1)
+                    .", telefono2 = ".$this->var2str($this->telefono2)
+                    .", fax = ".$this->var2str($this->fax)
+                    .", email = ".$this->var2str($this->email)
+                    .", web = ".$this->var2str($this->web)
+                    .", codserie = ".$this->var2str($this->codserie)
+                    .", coddivisa = ".$this->var2str($this->coddivisa)
+                    .", codpago = ".$this->var2str($this->codpago)
+                    .", codagente = ".$this->var2str($this->codagente)
+                    .", codgrupo = ".$this->var2str($this->codgrupo)
+                    .", debaja = ".$this->var2str($this->debaja)
+                    .", fechabaja = ".$this->var2str($this->fechabaja)
+                    .", fechaalta = ".$this->var2str($this->fechaalta)
+                    .", observaciones = ".$this->var2str($this->observaciones)
+                    .", regimeniva = ".$this->var2str($this->regimeniva)
+                    .", recargo = ".$this->var2str($this->recargo)
+                    ."  WHERE codcliente = ".$this->var2str($this->codcliente).";";
          }
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,razonsocial,cifnif,telefono1,
                telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,debaja,fechabaja,
-               observaciones,tipoidfiscal,regimeniva,recargo)
-               VALUES (".$this->var2str($this->codcliente).",".$this->var2str($this->nombre).",
-               ".$this->var2str($this->razonsocial).",".$this->var2str($this->cifnif).",
-               ".$this->var2str($this->telefono1).",".$this->var2str($this->telefono2).",
-               ".$this->var2str($this->fax).",".$this->var2str($this->email).",
-               ".$this->var2str($this->web).",".$this->var2str($this->codserie).",
-               ".$this->var2str($this->coddivisa).",".$this->var2str($this->codpago).",".$this->var2str($this->codagente).",
-               ".$this->var2str($this->codgrupo).",".$this->var2str($this->debaja).",".$this->var2str($this->fechabaja).",
-               ".$this->var2str($this->observaciones).",".$this->var2str($this->tipoidfiscal).",
-               ".$this->var2str($this->regimeniva).",".$this->var2str($this->recargo).");";
+               fechaalta,observaciones,regimeniva,recargo) VALUES (".$this->var2str($this->codcliente)
+                    .",".$this->var2str($this->nombre)
+                    .",".$this->var2str($this->razonsocial)
+                    .",".$this->var2str($this->cifnif)
+                    .",".$this->var2str($this->telefono1)
+                    .",".$this->var2str($this->telefono2)
+                    .",".$this->var2str($this->fax)
+                    .",".$this->var2str($this->email)
+                    .",".$this->var2str($this->web)
+                    .",".$this->var2str($this->codserie)
+                    .",".$this->var2str($this->coddivisa)
+                    .",".$this->var2str($this->codpago)
+                    .",".$this->var2str($this->codagente)
+                    .",".$this->var2str($this->codgrupo)
+                    .",".$this->var2str($this->debaja)
+                    .",".$this->var2str($this->fechabaja)
+                    .",".$this->var2str($this->fechaalta)
+                    .",".$this->var2str($this->observaciones)
+                    .",".$this->var2str($this->regimeniva)
+                    .",".$this->var2str($this->recargo).");";
          }
+         
          return $this->db->exec($sql);
       }
       else
@@ -477,12 +531,14 @@ class cliente extends fs_model
    public function all($offset=0)
    {
       $clientlist = array();
-      $clientes = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC", FS_ITEM_LIMIT, $offset);
-      if($clientes)
+      
+      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC", FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($clientes as $c)
-            $clientlist[] = new cliente($c);
+         foreach($data as $d)
+            $clientlist[] = new cliente($d);
       }
+      
       return $clientlist;
    }
    
@@ -491,11 +547,11 @@ class cliente extends fs_model
       $clientlist = $this->cache->get_array('m_cliente_all');
       if( !$clientlist )
       {
-         $clientes = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
-         if($clientes)
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
+         if($data)
          {
-            foreach($clientes as $c)
-               $clientlist[] = new cliente($c);
+            foreach($data as $d)
+               $clientlist[] = new cliente($d);
          }
          $this->cache->set('m_cliente_all', $clientlist);
       }
@@ -505,41 +561,52 @@ class cliente extends fs_model
    public function search($query, $offset=0)
    {
       $clilist = array();
-      $query = strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query) );
       
-      $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
+      $consulta = "SELECT * FROM ".$this->table_name." WHERE debaja = FALSE AND ";
       if( is_numeric($query) )
       {
-         $consulta .= "codcliente LIKE '%".$query."%' OR cifnif LIKE '%".$query."%' OR observaciones LIKE '%".$query."%'";
+         $consulta .= "(codcliente LIKE '%".$query."%' OR cifnif LIKE '%".$query."%'"
+                 . " OR telefono1 LIKE '".$query."%' OR telefono2 LIKE '".$query."%'"
+                 . " OR observaciones LIKE '%".$query."%')";
       }
       else
       {
          $buscar = str_replace(' ', '%', $query);
-         $consulta .= "lower(nombre) LIKE '%".$buscar."%' OR lower(cifnif) LIKE '%".$buscar."%'
-            OR lower(observaciones) LIKE '%".$buscar."%'";
+         $consulta .= "(lower(nombre) LIKE '%".$buscar."%' OR lower(razonsocial) LIKE '%".$buscar."%'"
+                 . " OR lower(cifnif) LIKE '%".$buscar."%' OR lower(observaciones) LIKE '%".$buscar."%'"
+                 . " OR lower(email) LIKE '%".$buscar."%')";
       }
       $consulta .= " ORDER BY nombre ASC";
       
-      $clientes = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-      if($clientes)
+      $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($clientes as $c)
-            $clilist[] = new cliente($c);
+         foreach($data as $d)
+            $clilist[] = new cliente($d);
       }
       
       return $clilist;
    }
    
+   /**
+    * Busca por cifnif.
+    * @param type $dni
+    * @param type $offset
+    * @return \cliente
+    */
    public function search_by_dni($dni, $offset=0)
    {
       $clilist = array();
       $query = strtolower( $this->no_html($dni) );
-      $consulta = "SELECT * FROM ".$this->table_name." WHERE lower(cifnif) LIKE '".$query."%' ORDER BY nombre ASC";
-      $clientes = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-      if($clientes)
+      $consulta = "SELECT * FROM ".$this->table_name." WHERE debaja = FALSE "
+              . "AND lower(cifnif) LIKE '".$query."%' ORDER BY nombre ASC";
+      
+      $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($clientes as $c)
-            $clilist[] = new cliente($c);
+         foreach($data as $d)
+            $clilist[] = new cliente($d);
       }
       
       return $clilist;

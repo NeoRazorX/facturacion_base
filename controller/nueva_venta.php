@@ -23,6 +23,7 @@ require_model('articulo.php');
 require_model('asiento_factura.php');
 require_model('cliente.php');
 require_model('divisa.php');
+require_model('fabricante.php');
 require_model('familia.php');
 require_model('forma_pago.php');
 require_model('grupo_clientes.php');
@@ -42,9 +43,12 @@ class nueva_venta extends fs_controller
    public $cliente_s;
    public $direccion;
    public $divisa;
+   public $fabricante;
    public $familia;
    public $forma_pago;
+   public $grupo;
    public $impuesto;
+   public $nuevocli_setup;
    public $pais;
    public $results;
    public $serie;
@@ -55,14 +59,41 @@ class nueva_venta extends fs_controller
       parent::__construct(__CLASS__, 'nueva venta', 'ventas', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->cliente = new cliente();
       $this->cliente_s = FALSE;
       $this->direccion = FALSE;
+      $this->fabricante = new fabricante();
       $this->familia = new familia();
       $this->impuesto = new impuesto();
       $this->results = array();
+      $this->grupo = new grupo_clientes();
+      $this->pais = new pais();
+      
+      /// cargamos la configuración
+      $fsvar = new fs_var();
+      $this->nuevocli_setup = $fsvar->array_get(
+         array(
+            'nuevocli_cifnif_req' => 0,
+            'nuevocli_direccion' => 0,
+            'nuevocli_direccion_req' => 0,
+            'nuevocli_codpostal' => 0,
+            'nuevocli_codpostal_req' => 0,
+            'nuevocli_pais' => 0,
+            'nuevocli_pais_req' => 0,
+            'nuevocli_provincia' => 0,
+            'nuevocli_provincia_req' => 0,
+            'nuevocli_ciudad' => 0,
+            'nuevocli_ciudad_req' => 0,
+            'nuevocli_telefono1' => 0,
+            'nuevocli_telefono1_req' => 0,
+            'nuevocli_telefono2' => 0,
+            'nuevocli_telefono2_req' => 0,
+            'nuevocli_codgrupo' => '',
+         ),
+         FALSE
+      );
       
       if( isset($_REQUEST['tipo']) )
       {
@@ -101,14 +132,17 @@ class nueva_venta extends fs_controller
       {
          $this->cliente_s = $this->cliente->get($_POST['cliente']);
          
+         /**
+          * Nuevo cliente
+          */
          if( isset($_POST['nuevo_cliente']) )
          {
             if($_POST['nuevo_cliente'] != '')
             {
                $this->cliente_s = FALSE;
-               if($_POST['nuevo_dni'] != '')
+               if($_POST['nuevo_cifnif'] != '')
                {
-                  $this->cliente_s = $this->cliente->get_by_cifnif($_POST['nuevo_dni']);
+                  $this->cliente_s = $this->cliente->get_by_cifnif($_POST['nuevo_cifnif']);
                   if($this->cliente_s)
                   {
                      $this->new_advice('Ya existe un cliente con ese '.FS_CIFNIF.'. Se ha seleccionado.');
@@ -120,8 +154,67 @@ class nueva_venta extends fs_controller
                   $this->cliente_s = new cliente();
                   $this->cliente_s->codcliente = $this->cliente_s->get_new_codigo();
                   $this->cliente_s->nombre = $this->cliente_s->razonsocial = $_POST['nuevo_cliente'];
-                  $this->cliente_s->cifnif = $_POST['nuevo_dni'];
-                  $this->cliente_s->save();
+                  $this->cliente_s->cifnif = $_POST['nuevo_cifnif'];
+                  
+                  if( isset($_POST['codgrupo']) )
+                  {
+                     if($_POST['codgrupo'] != '')
+                     {
+                        $this->cliente_s->codgrupo = $_POST['codgrupo'];
+                     }
+                  }
+                  
+                  if( isset($_POST['nuevo_telefono1']) )
+                  {
+                     $this->cliente_s->telefono1 = $_POST['nuevo_telefono1'];
+                  }
+                  
+                  if( isset($_POST['nuevo_telefono2']) )
+                  {
+                     $this->cliente_s->telefono2 = $_POST['nuevo_telefono2'];
+                  }
+                  
+                  if( $this->cliente_s->save() )
+                  {
+                     $dircliente = new direccion_cliente();
+                     $dircliente->codcliente = $this->cliente_s->codcliente;
+                     $dircliente->codpais = $this->empresa->codpais;
+                     $dircliente->provincia = $this->empresa->provincia;
+                     $dircliente->ciudad = $this->empresa->ciudad;
+                     $dircliente->descripcion = 'Principal';
+                     
+                     if( isset($_POST['nuevo_pais']) )
+                     {
+                        $dircliente->codpais = $_POST['nuevo_pais'];
+                     }
+                     
+                     if( isset($_POST['nuevo_provincia']) )
+                     {
+                        $dircliente->provincia = $_POST['nuevo_provincia'];
+                     }
+                     
+                     if( isset($_POST['nuevo_ciudad']) )
+                     {
+                        $dircliente->ciudad = $_POST['nuevo_ciudad'];
+                     }
+                     
+                     if( isset($_POST['nuevo_codpostal']) )
+                     {
+                        $dircliente->codpostal = $_POST['nuevo_codpostal'];
+                     }
+                     
+                     if( isset($_POST['nuevo_direccion']) )
+                     {
+                        $dircliente->direccion = $_POST['nuevo_direccion'];
+                     }
+                     
+                     if( $dircliente->save() )
+                     {
+                        $this->new_message('Cliente agregado correctamente.');
+                     }
+                  }
+                  else
+                     $this->new_error_msg("¡Imposible guardar la dirección del cliente!");  
                }
             }
          }
@@ -150,7 +243,7 @@ class nueva_venta extends fs_controller
          $this->serie = new serie();
          $this->forma_pago = new forma_pago();
          $this->divisa = new divisa();
-         $this->pais = new pais();
+         
          
          if( isset($_POST['tipo']) )
          {
@@ -265,9 +358,14 @@ class nueva_venta extends fs_controller
          $art0->set_impuesto($_REQUEST['codimpuesto']);
          $art0->set_pvp( floatval($_REQUEST['pvp']) );
          
-         if($_POST['codfamilia'] != '')
+         if($_REQUEST['codfamilia'] != '')
          {
             $art0->codfamilia = $_REQUEST['codfamilia'];
+         }
+         
+         if($_REQUEST['codfabricante'] != '')
+         {
+            $art0->codfabricante = $_REQUEST['codfabricante'];
          }
          
          if( $art0->save() )
@@ -291,9 +389,13 @@ class nueva_venta extends fs_controller
       {
          $codfamilia = $_REQUEST['codfamilia'];
       }
-      
+      $codfabricante = '';
+      if( isset($_REQUEST['codfabricante']) )
+      {
+         $codfabricante = $_REQUEST['codfabricante'];
+      }
       $con_stock = isset($_REQUEST['con_stock']);
-      $this->results = $articulo->search($this->query, 0, $codfamilia, $con_stock);
+      $this->results = $articulo->search($this->query, 0, $codfamilia, $con_stock, $codfabricante);
       
       /// añadimos la busqueda, el descuento y la cantidad
       foreach($this->results as $i => $value)
@@ -329,10 +431,10 @@ class nueva_venta extends fs_controller
                if($tarifa)
                {
                   $tarifa->set_precios($this->results);
-                  }
                }
             }
          }
+      }
       
       header('Content-Type: application/json');
       echo json_encode($this->results);
@@ -373,17 +475,17 @@ class nueva_venta extends fs_controller
       $continuar = TRUE;
       
       $cliente = $this->cliente->get($_POST['cliente']);
-      if( $cliente )
-         $this->save_codcliente( $cliente->codcliente );
-      else
+      if(!$cliente)
       {
          $this->new_error_msg('Cliente no encontrado.');
          $continuar = FALSE;
       }
       
       $almacen = $this->almacen->get($_POST['almacen']);
-      if( $almacen )
-         $this->save_codalmacen( $almacen->codalmacen );
+      if($almacen)
+      {
+         $this->save_codalmacen($_POST['almacen']);
+      }
       else
       {
          $this->new_error_msg('Almacén no encontrado.');
@@ -392,24 +494,24 @@ class nueva_venta extends fs_controller
       
       $eje0 = new ejercicio();
       $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
-      if( $ejercicio )
-         $this->save_codejercicio( $ejercicio->codejercicio );
-      else
+      if(!$ejercicio)
       {
          $this->new_error_msg('Ejercicio no encontrado.');
          $continuar = FALSE;
       }
       
       $serie = $this->serie->get($_POST['serie']);
-      if( !$serie )
+      if(!$serie)
       {
          $this->new_error_msg('Serie no encontrada.');
          $continuar = FALSE;
       }
       
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
-      if( $forma_pago )
-         $this->save_codpago( $forma_pago->codpago );
+      if($forma_pago)
+      {
+         $this->save_codpago($_POST['forma_pago']);
+      }
       else
       {
          $this->new_error_msg('Forma de pago no encontrada.');
@@ -417,9 +519,7 @@ class nueva_venta extends fs_controller
       }
       
       $divisa = $this->divisa->get($_POST['divisa']);
-      if( $divisa )
-         $this->save_coddivisa( $divisa->coddivisa );
-      else
+      if(!$divisa)
       {
          $this->new_error_msg('Divisa no encontrada.');
          $continuar = FALSE;
@@ -573,17 +673,17 @@ class nueva_venta extends fs_controller
       $continuar = TRUE;
       
       $cliente = $this->cliente->get($_POST['cliente']);
-      if( $cliente )
-         $this->save_codcliente( $cliente->codcliente );
-      else
+      if(!$cliente)
       {
          $this->new_error_msg('Cliente no encontrado.');
          $continuar = FALSE;
       }
       
       $almacen = $this->almacen->get($_POST['almacen']);
-      if( $almacen )
-         $this->save_codalmacen( $almacen->codalmacen );
+      if($almacen)
+      {
+         $this->save_codalmacen($_POST['almacen']);
+      }
       else
       {
          $this->new_error_msg('Almacén no encontrado.');
@@ -592,24 +692,24 @@ class nueva_venta extends fs_controller
       
       $eje0 = new ejercicio();
       $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
-      if( $ejercicio )
-         $this->save_codejercicio( $ejercicio->codejercicio );
-      else
+      if(!$ejercicio)
       {
          $this->new_error_msg('Ejercicio no encontrado.');
          $continuar = FALSE;
       }
       
       $serie = $this->serie->get($_POST['serie']);
-      if( !$serie )
+      if(!$serie)
       {
          $this->new_error_msg('Serie no encontrada.');
          $continuar = FALSE;
       }
       
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
-      if( $forma_pago )
-         $this->save_codpago( $forma_pago->codpago );
+      if($forma_pago)
+      {
+         $this->save_codpago($_POST['forma_pago']);
+      }
       else
       {
          $this->new_error_msg('Forma de pago no encontrada.');
@@ -617,9 +717,7 @@ class nueva_venta extends fs_controller
       }
       
       $divisa = $this->divisa->get($_POST['divisa']);
-      if( $divisa )
-         $this->save_coddivisa( $divisa->coddivisa );
-      else
+      if(!$divisa)
       {
          $this->new_error_msg('Divisa no encontrada.');
          $continuar = FALSE;
@@ -800,17 +898,17 @@ class nueva_venta extends fs_controller
       $continuar = TRUE;
       
       $cliente = $this->cliente->get($_POST['cliente']);
-      if( $cliente )
-         $this->save_codcliente( $cliente->codcliente );
-      else
+      if(!$cliente)
       {
          $this->new_error_msg('Cliente no encontrado.');
          $continuar = FALSE;
       }
       
       $almacen = $this->almacen->get($_POST['almacen']);
-      if( $almacen )
-         $this->save_codalmacen( $almacen->codalmacen );
+      if($almacen)
+      {
+         $this->save_codalmacen($_POST['almacen']);
+      }
       else
       {
          $this->new_error_msg('Almacén no encontrado.');
@@ -819,24 +917,24 @@ class nueva_venta extends fs_controller
       
       $eje0 = new ejercicio();
       $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
-      if( $ejercicio )
-         $this->save_codejercicio( $ejercicio->codejercicio );
-      else
+      if(!$ejercicio)
       {
          $this->new_error_msg('Ejercicio no encontrado.');
          $continuar = FALSE;
       }
       
       $serie = $this->serie->get($_POST['serie']);
-      if( !$serie )
+      if(!$serie)
       {
          $this->new_error_msg('Serie no encontrada.');
          $continuar = FALSE;
       }
       
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
-      if( $forma_pago )
-         $this->save_codpago( $forma_pago->codpago );
+      if($forma_pago)
+      {
+         $this->save_codpago($_POST['forma_pago']);
+      }
       else
       {
          $this->new_error_msg('Forma de pago no encontrada.');
@@ -844,9 +942,7 @@ class nueva_venta extends fs_controller
       }
       
       $divisa = $this->divisa->get($_POST['divisa']);
-      if( $divisa )
-         $this->save_coddivisa( $divisa->coddivisa );
-      else
+      if(!$divisa)
       {
          $this->new_error_msg('Divisa no encontrada.');
          $continuar = FALSE;
@@ -994,17 +1090,17 @@ class nueva_venta extends fs_controller
       $continuar = TRUE;
       
       $cliente = $this->cliente->get($_POST['cliente']);
-      if( $cliente )
-         $this->save_codcliente( $cliente->codcliente );
-      else
+      if(!$cliente)
       {
          $this->new_error_msg('Cliente no encontrado.');
          $continuar = FALSE;
       }
       
       $almacen = $this->almacen->get($_POST['almacen']);
-      if( $almacen )
-         $this->save_codalmacen( $almacen->codalmacen );
+      if($almacen)
+      {
+         $this->save_codalmacen($_POST['almacen']);
+      }
       else
       {
          $this->new_error_msg('Almacén no encontrado.');
@@ -1013,24 +1109,24 @@ class nueva_venta extends fs_controller
       
       $eje0 = new ejercicio();
       $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
-      if( $ejercicio )
-         $this->save_codejercicio( $ejercicio->codejercicio );
-      else
+      if(!$ejercicio)
       {
          $this->new_error_msg('Ejercicio no encontrado.');
          $continuar = FALSE;
       }
       
       $serie = $this->serie->get($_POST['serie']);
-      if( !$serie )
+      if(!$serie)
       {
          $this->new_error_msg('Serie no encontrada.');
          $continuar = FALSE;
       }
       
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
-      if( $forma_pago )
-         $this->save_codpago( $forma_pago->codpago );
+      if($forma_pago)
+      {
+         $this->save_codpago($_POST['forma_pago']);
+      }
       else
       {
          $this->new_error_msg('Forma de pago no encontrada.');
@@ -1038,9 +1134,7 @@ class nueva_venta extends fs_controller
       }
       
       $divisa = $this->divisa->get($_POST['divisa']);
-      if( $divisa )
-         $this->save_coddivisa( $divisa->coddivisa );
-      else
+      if(!$divisa)
       {
          $this->new_error_msg('Divisa no encontrada.');
          $continuar = FALSE;

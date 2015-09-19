@@ -13,6 +13,12 @@
          <span class="hidden-xs">&nbsp; Stock</span>
       </a>
    </li>
+   <li role="presentation"{if="$fsc->pestanya=='impuestos'"} class="active"{/if}>
+      <a href="{$fsc->url()}&tab=impuestos">
+         <span class="glyphicon glyphicon-magnet" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Impuestos</span>
+      </a>
+   </li>
    <li role="presentation"{if="$fsc->pestanya=='search'"} class="active"{/if}>
       <a href="{$fsc->url()}&tab=search">
          <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
@@ -225,6 +231,106 @@
    </li>
    {/if}
 </ul>
+{elseif="$fsc->pestanya=='impuestos'"}
+<br/>
+<form action="{$fsc->url()}&tab=impuestos" method="post" class="form">
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-sm-3">
+            <div class="form-group">
+               <a href="{$fsc->impuesto->url()}">Impuesto</a>
+               <select name="codimpuesto" class="form-control" onchange="this.form.submit()">
+                  {loop="$fsc->impuesto->all()"}
+                     {if="$value->codimpuesto==$fsc->codimpuesto"}
+                     <option value="{$value->codimpuesto}" selected="">{$value->descripcion}</option>
+                     {else}
+                     <option value="{$value->codimpuesto}">{$value->descripcion}</option>
+                     {/if}
+                  {/loop}
+                  <option value="">------</option>
+                  {if="$fsc->codimpuesto==''"}
+                  <option value="" selected="">Sin impuesto</option>
+                  {else}
+                  <option value="">Sin impuesto</option>
+                  {/if}
+               </select>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <br/>
+            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Mostrar
+            </button>
+         </div>
+         <div class="col-sm-4">
+         </div>
+         <div class="col-sm-3">
+            <div class="form-group">
+               Cambiar a
+               <select name="new_codimpuesto" class="form-control" onchange="this.form.submit()">
+                  <option value="">(Sin cambios)</option>
+                  <option value="">------</option>
+                  {loop="$fsc->impuesto->all()"}
+                  <option value="{$value->codimpuesto}">{$value->descripcion}</option>
+                  {/loop}
+               </select>
+            </div>
+         </div>
+      </div>
+   </div>
+</form>
+<div class="table-responsive">
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th class="text-left">Familia</th>
+            <th class="text-left">Fabricante</th>
+            <th class="text-left">Referencia + Descripción</th>
+            <th class="text-right">Precio</th>
+            <th class="text-right">Impuesto</th>
+            <th class="text-right">Precio+{#FS_IVA#}</th>
+            <th class="text-right">Stock</th>
+            <th class="text-right"></th>
+         </tr>
+      </thead>
+      {loop="$fsc->resultados"}
+      <tr class='clickableRow{if="$value->bloqueado"} danger{elseif="$value->stockfis<=$value->stockmin"} warning{/if}' href='{$value->url()}'>
+         <td>
+            {if="is_null($value->codfamilia)"}
+            <span>-</span>
+            {else}
+            {$value->codfamilia}
+            <a href="index.php?page=ventas_familia&cod={$value->codfamilia}" class="cancel_clickable" title="Ver más artículos de esta familia">[+]</a>
+            {/if}
+         </td>
+         <td>
+            {if="is_null($value->codfabricante)"}
+            <span>-</span>
+            {else}
+            {$value->codfabricante}
+            <a href="index.php?page=ventas_fabricante&cod={$value->codfabricante}" class="cancel_clickable" title="Ver más artículos de este fabricante">[+]</a>
+            {/if}
+         </td>
+         <td><a href="{$value->url()}">{$value->referencia}</a> {$value->descripcion}</td>
+         <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp)}</span></td>
+         <td class="text-right info">{$value->codimpuesto}</td>
+         <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp_iva())}</span></td>
+         <td class="text-right">
+            {if="$value->nostock"}-{else}{$value->stockfis}{/if}
+         </td>
+         <td class="text-right">
+            {if="$value->publico"}
+            <span class="glyphicon glyphicon-globe" aria-hidden="true" title="Artículo público"></span>
+            {/if}
+         </td>
+      </tr>
+      {else}
+      <tr class="bg-warning">
+         <td colspan="8">Ningun artículo encontrado.</td>
+      </tr>
+      {/loop}
+   </table>
+</div>
 {elseif="$fsc->pestanya=='search'"}
 <script type="text/javascript">
    $(document).ready(function() {
@@ -270,8 +376,8 @@
             <div class="form-group">
                Explorar:
                <select name="documento" class="form-control" onchange="this.form.submit();">
-                  <option value="facturascli"{if="$fsc->documento=='facturascli'"} selected="selected"{/if}>Facturas de venta</option>
-                  <option value="facturasprov"{if="$fsc->documento=='facturasprov'"} selected="selected"{/if}>Facturas de compra</option>
+                  <option value="facturascli"{if="$fsc->documento=='facturascli'"} selected=""{/if}>Facturas de venta</option>
+                  <option value="facturasprov"{if="$fsc->documento=='facturasprov'"} selected=""{/if}>Facturas de compra</option>
                </select>
             </div>
          </div>

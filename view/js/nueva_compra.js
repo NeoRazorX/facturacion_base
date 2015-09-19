@@ -360,6 +360,7 @@ function add_linea_libre()
    for(var i=0; i<all_impuestos.length; i++)
    {
       codimpuesto = all_impuestos[i].codimpuesto;
+      break;
    }
    
    $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\
@@ -487,10 +488,17 @@ function buscar_articulos()
                
                if(val.secompra)
                {
-                  items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
-                     &nbsp; <a href=\"#\" onclick=\"return add_articulo('"+val.referencia+"','"+descripcion+"','"+precio+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"+val.referencia+"','"+descripcion+"','"+val.coste+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"+show_precio(val.coste)+"</a></td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\">"+show_precio(val.pvp)+"</a></td>\n\
+                  items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
+                     <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
+                     &nbsp; <a href=\"#\" onclick=\"return add_articulo('"
+                          +val.referencia+"','"+descripcion+"','"+precio+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"
+                          +val.referencia+'</a> '+val.descripcion+"</td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"
+                          +val.referencia+"','"+descripcion+"','"+val.coste+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"
+                          +show_precio(val.coste)+"</a></td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"
+                          +val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\">"
+                          +show_precio(val.pvp)+"</a></td>\n\
                      <td class=\"text-right\">"+val.stockfis+"</td></tr>");
                }
                
@@ -503,7 +511,8 @@ function buscar_articulos()
             
             if(items.length == 0 && !fin_busqueda1)
             {
-               items.push("<tr><td colspan=\"4\" class=\"bg-warning\">Sin resultados. Usa la pestaña <b>Nuevo</b> para crear uno.</td></tr>");
+               items.push("<tr><td colspan=\"4\" class=\"bg-warning\">Sin resultados. Usa la pestaña\n\
+                              <b>Nuevo</b> para crear uno.</td></tr>");
                document.f_nuevo_articulo.referencia.value = document.f_buscar_articulos.query.value;
                insertar = true;
             }
@@ -511,8 +520,9 @@ function buscar_articulos()
             if(insertar)
             {
                $("#search_results").html("<div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>\n\
-                  <th class=\"text-left\">Referencia + descripción</th><th class=\"text-right\">Coste</th><th class=\"text-right\">Precio</th>\n\
-                  <th class=\"text-right\">Stock</th></tr></thead>"+items.join('')+"</table></div>");
+                  <th class=\"text-left\">Referencia + descripción</th><th class=\"text-right\">Coste</th>\n\
+                  <th class=\"text-right\">Precio</th><th class=\"text-right\">Stock</th></tr></thead>"
+                       +items.join('')+"</table></div>");
             }
          });
       }
@@ -524,9 +534,13 @@ function buscar_articulos()
             var items = [];
             var insertar = false;
             $.each(json, function(key, val) {
-               items.push( "<tr><td>"+val.sector+" / <a href=\""+val.link+"\" target=\"_blank\">"+val.tienda+"</a> / "+val.familia+"</td>\n\
-                  <td><a href=\"#\" onclick=\"kiwi_import('"+val.referencia+"','"+val.descripcion+"','"+val.precio+"')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
-                  <td class=\"text-right\"><span title=\"última comprobación "+val.fcomprobado+"\">"+show_precio(val.precio)+"</span></td></tr>" );
+               items.push( "<tr><td>"+val.sector+" / <a href=\""+val.link+"\" target=\"_blank\">"
+                       +val.tienda+"</a> / "+val.familia+"</td>\n\
+                  <td><a href=\""+val.link+"\" target=\"_blank\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
+                  <a href=\"#\" onclick=\"kiwi_import('"+val.referencia+"','"+val.descripcion+"','"+val.precio+"')\">"
+                       +val.referencia+'</a> '+val.descripcion+"</td>\n\
+                  <td class=\"text-right\"><a href=\"#\" onclick=\"kiwi_import('"
+                       +val.referencia+"','"+val.descripcion+"','"+val.precio+"')\">"+show_precio(val.precio)+"</a></td></tr>" );
                
                if(val.query == document.f_buscar_articulos.query.value)
                {
@@ -543,7 +557,13 @@ function buscar_articulos()
             
             if(insertar)
             {
-               $("#kiwimaru_results").html("<div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>\n\
+               $("#kiwimaru_results").html("<p class=\"help-block\" style=\"padding: 5px;\">Estos son\n\
+                  los resultados de <b>kiwimaru</b>, el potente buscador de tiendas online integrado en\n\
+                  FacturaScripts, para que puedas buscar nuevos proveedores o simplemente comparar precios.\n\
+                  Si deseas añadir tus artículos a este buscador y ganar nuevos clientes fácilmente,\n\
+                  <a href=\"https://www.facturascripts.com/comm3/index.php?page=community_feedback&feedback_privado=TRUE\" target=\"_blank\">\n\
+                  contacta con nosotros</a>.</p>\n\
+                  <div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>\n\
                   <th class=\"text-left\">Sector / Tienda / Familia</th><th class=\"text-left\">Referencia + descripción</th>\n\
                   <th class=\"text-right\">Precio+IVA</th></tr></thead>"+items.join('')+"</table></div>");
             }

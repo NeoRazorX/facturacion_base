@@ -19,6 +19,7 @@
 
 require_model('albaran_cliente.php');
 require_model('albaran_proveedor.php');
+require_model('fabricante.php');
 require_model('familia.php');
 require_model('impuesto.php');
 require_model('stock.php');
@@ -46,8 +47,23 @@ class articulo extends fs_model
     * @var type 
     */
    public $codfamilia;
+   
+   /**
+    * Descripción del artículo. Tipo text, sin límite de caracteres.
+    * @var type 
+    */
    public $descripcion;
    
+   /**
+    * Código del fabricante al que pertenece. En la clase fabricante.
+    * @var type 
+    */
+   public $codfabricante;
+   
+   /**
+    * Precio del artículo, sin impuestos.
+    * @var type 
+    */
    public $pvp;
    
    /**
@@ -72,6 +88,8 @@ class articulo extends fs_model
    
    /**
     * Precio de coste editado manualmente.
+    * No necesariamente es el precio de compra, puede incluir
+    * también otros costes.
     * @var type 
     */
    public $preciocoste;
@@ -81,6 +99,11 @@ class articulo extends fs_model
     * @var type 
     */
    public $codimpuesto;
+   
+   /**
+    * TRUE => el artículos está bloqueado / obsoleto.
+    * @var type 
+    */
    public $bloqueado;
    public $secompra;
    public $sevende;
@@ -169,7 +192,7 @@ class articulo extends fs_model
       
       if( !isset(self::$column_list) )
       {
-         self::$column_list = 'referencia,codfamilia,descripcion,pvp,factualizado,costemedio,'.
+         self::$column_list = 'referencia,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,'.
                  'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,'.
                  'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,'.
                  'codsubcuentacom,codsubcuentairpfcom';
@@ -180,6 +203,7 @@ class articulo extends fs_model
          $this->referencia = $a['referencia'];
          $this->tipo = $a['tipo'];
          $this->codfamilia = $a['codfamilia'];
+         $this->codfabricante = $a['codfabricante'];
          $this->descripcion = $this->no_html($a['descripcion']);
          $this->pvp = floatval($a['pvp']);
          $this->factualizado = Date('d-m-Y', strtotime($a['factualizado']));
@@ -217,6 +241,7 @@ class articulo extends fs_model
          $this->referencia = NULL;
          $this->tipo = NULL;
          $this->codfamilia = NULL;
+         $this->codfabricante = NULL;
          $this->descripcion = '';
          $this->pvp = 0;
          $this->factualizado = Date('d-m-Y');
@@ -249,9 +274,10 @@ class articulo extends fs_model
    
    protected function install()
    {
-      /// la tabla articulos tiene claves ajeas a familias, impuestos y stocks
+      /// la tabla articulos tiene claves ajeas a familias,fabricantes impuestos y stocks
       new familia();
       new impuesto();
+      new fabricante();
       
       $this->clean_cache();
       
@@ -270,7 +296,7 @@ class articulo extends fs_model
    
    /**
     * Devuelve la descripción en base64.
-    * Obsoleto.
+    * @deprecated since version 50
     * @return type
     */
    public function get_descripcion_64()
@@ -283,6 +309,10 @@ class articulo extends fs_model
       return $this->pvp * (100+$this->get_iva()) / 100;
    }
    
+   /**
+    * @deprecated since version 50
+    * @return type
+    */
    public function costemedio_iva()
    {
       return $this->costemedio * (100+$this->get_iva()) / 100;
@@ -307,16 +337,6 @@ class articulo extends fs_model
       return $this->preciocoste() * (100+$this->get_iva()) / 100;
    }
    
-   /**
-    * Devuelve la fecha de la última modificación del precio, pero en formato
-    * 'hace x horas/días/meses'
-    * @return type
-    */
-   public function factualizado()
-   {
-      return $this->var2timesince($this->factualizado);
-   }
-   
    public function url()
    {
       if( is_null($this->referencia) )
@@ -327,6 +347,11 @@ class articulo extends fs_model
          return "index.php?page=ventas_articulo&ref=".urlencode($this->referencia);
    }
    
+   /**
+    * Devuelve un artículo a partir de su referencia
+    * @param type $ref
+    * @return boolean|\articulo
+    */
    public function get($ref)
    {
       $art = $this->db->select("SELECT ".self::$column_list." FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref).";");
@@ -338,10 +363,24 @@ class articulo extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve la familia del artículo.
+    * @return familia
+    */
    public function get_familia()
    {
       $fam = new familia();
       return $fam->get($this->codfamilia);
+   }
+   
+   /**
+    * Devuelve el fabricante del artículo.
+    * @return fabricante
+    */
+   public function get_fabricante()
+   {
+      $fab = new fabricante();
+      return $fab->get($this->codfabricante);
    }
    
    public function get_stock()
@@ -350,6 +389,10 @@ class articulo extends fs_model
       return $stock->all_from_articulo($this->referencia);
    }
    
+   /**
+    * Devuelve el impuesto del artículo
+    * @return impuesto
+    */
    public function get_impuesto()
    {
       $imp = new impuesto();
@@ -552,10 +595,9 @@ class articulo extends fs_model
    public function set_referencia($ref)
    {
       $ref = str_replace(' ', '_', trim($ref));
-      if( !preg_match("/^[A-Z0-9_\+\.\*\/\-]{1,18}$/i", $ref) )
+      if( is_null($ref) OR strlen($ref) < 1 OR strlen($ref) > 18 )
       {
-         $this->new_error_msg("¡Referencia de artículo no válida! Debe tener entre 1 y 18 caracteres.
-            Se admiten letras, números, '_', '.', '*', '/' ó '-'.");
+         $this->new_error_msg("¡Referencia de artículo no válida! Debe tener entre 1 y 18 caracteres.");
       }
       else if( $ref != $this->referencia AND !is_null($this->referencia) )
       {
@@ -741,7 +783,7 @@ class articulo extends fs_model
     * Esta función devuelve TRUE si el artículo ya existe en la base de datos.
     * Por motivos de rendimiento y al ser esta una clase de uso intensivo,
     * se utiliza la variable $this->exists para almacenar el resultado.
-    * @return type
+    * @return boolean
     */
    public function exists()
    {
@@ -826,6 +868,7 @@ class articulo extends fs_model
          {
             $sql = "UPDATE ".$this->table_name." SET descripcion = ".$this->var2str($this->descripcion).
                     ", codfamilia = ".$this->var2str($this->codfamilia).
+                    ", codfabricante = ".$this->var2str($this->codfabricante).
                     ", pvp = ".$this->var2str($this->pvp).
                     ", factualizado = ".$this->var2str($this->factualizado).
                     ", costemedio = ".$this->var2str($this->costemedio).
@@ -862,6 +905,7 @@ class articulo extends fs_model
             $sql = "INSERT INTO ".$this->table_name." (".self::$column_list.") VALUES (".
                     $this->var2str($this->referencia).",".
                     $this->var2str($this->codfamilia).",".
+                    $this->var2str($this->codfabricante).",".
                     $this->var2str($this->descripcion).",".
                     $this->var2str($this->pvp).",".
                     $this->var2str($this->factualizado).",".
@@ -1029,67 +1073,87 @@ class articulo extends fs_model
       }
    }
    
-   public function search($query, $offset=0, $codfamilia='', $con_stock=FALSE)
+   public function search($query='', $offset=0, $codfamilia='', $con_stock=FALSE, $codfabricante='', $bloqueados=FALSE)
    {
       $artilist = array();
       $query = $this->no_html( strtolower($query) );
       
-      if($offset == 0 AND $codfamilia == '' AND !$con_stock)
+      if($query != '' AND $offset == 0 AND $codfamilia == '' AND $codfabricante == '' AND !$con_stock AND !$bloqueados)
       {
          /// intentamos obtener los datos de memcache
          if( $this->new_search_tag($query) )
          {
             $artilist = $this->cache->get_array('articulos_search_'.$query);
          }
-         else
-         {
-            /// buscamos la referencia completa, para ponerlo el primero
-            $data = $this->db->select("SELECT ".self::$column_list." FROM ".$this->table_name." WHERE lower(referencia) = ".$this->var2str($query).";");
-            if($data)
-            {
-               $artilist[] = new articulo($data[0]);
-            }
-         }
       }
       
       if( count($artilist) <= 1 )
       {
-         if($codfamilia == '')
+         $sql = "SELECT ".self::$column_list." FROM ".$this->table_name;
+         $separador = ' WHERE';
+         
+         if($codfamilia != '')
          {
-            $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE ";
+            $sql .= $separador." codfamilia = ".$this->var2str($codfamilia);
+            $separador = ' AND';
          }
-         else
-            $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = ".$this->var2str($codfamilia)." AND ";
+         
+         if($codfabricante != '')
+         {
+            $sql .= $separador." codfabricante = ".$this->var2str($codfabricante);
+            $separador = ' AND';
+         }
          
          if($con_stock)
          {
-            $sql .= "stockfis > 0 AND ";
+            $sql .= $separador." stockfis > 0";
+            $separador = ' AND';
          }
          
-         if( is_numeric($query) )
+         if($bloqueados)
          {
-            $sql .= "(referencia LIKE '%".$query."%' OR equivalencia LIKE '%".$query."%' OR descripcion LIKE '%".$query."%'
-               OR codbarras = '".$query."')";
+            $sql .= $separador." bloqueado";
+            $separador = ' AND';
+         }
+         else
+         {
+            $sql .= $separador." bloqueado = FALSE";
+            $separador = ' AND';
+         }
+         
+         if($query == '')
+         {
+            /// nada
+         }
+         else if( is_numeric($query) )
+         {
+            $sql .= $separador." (referencia = ".$this->var2str($query)
+                    . " OR referencia LIKE '%".$query."%' OR equivalencia LIKE '%".$query."%'"
+                    . " OR descripcion LIKE '%".$query."%' OR codbarras = '".$query."')";
          }
          else
          {
             $buscar = str_replace(' ', '%', $query);
-            $sql .= "(lower(referencia) LIKE '%".$buscar."%' OR lower(equivalencia) LIKE '%".$buscar."%'
-               OR lower(descripcion) LIKE '%".$buscar."%')";
+            $sql .= $separador." (lower(referencia) = ".$this->var2str($query)
+                    . " OR lower(referencia) LIKE '%".$buscar."%' OR lower(equivalencia) LIKE '%".$buscar."%'"
+                    . " OR lower(descripcion) LIKE '%".$buscar."%')";
          }
          
-         $sql .= " ORDER BY referencia ASC";
-         
-         $articulos = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-         if($articulos)
+         if( strtolower(FS_DB_TYPE) == 'mysql' )
          {
-            foreach($articulos as $a)
+            $sql .= " ORDER BY lower(referencia) ASC";
+         }
+         else
+         {
+            $sql .= " ORDER BY referencia ASC";
+         }
+         
+         $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+         if($data)
+         {
+            foreach($data as $a)
             {
-               /// PUEDE que hayamos puesto el primero al artćiulo con la referencia exacta
-               if($a['referencia'] != $query OR count($artilist) == 0)
-               {
-                  $artilist[] = new articulo($a);
-               }
+               $artilist[] = new articulo($a);
             }
          }
       }
@@ -1100,8 +1164,10 @@ class articulo extends fs_model
    public function search_by_codbar($cod, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
+      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name
+              ." WHERE codbarras = ".$this->var2str($cod)
+              ." ORDER BY lower(referencia) ASC";
       
-      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codbarras = ".$this->var2str($cod)." ORDER BY referencia ASC";
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
@@ -1112,11 +1178,19 @@ class articulo extends fs_model
       return $artilist;
    }
    
+   /**
+    * Devuelve el listado de artículos desde el resultado $offset hasta $offset+$limit.
+    * @param integer $offset desde
+    * @param integer $limit nº de elementos devuelto
+    * @return \articulo
+    */
    public function all($offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
+      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name
+              ." ORDER BY lower(referencia) ASC";
       
-      $data = $this->db->select_limit("SELECT ".self::$column_list." FROM ".$this->table_name." ORDER BY referencia ASC", $limit, $offset);
+      $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
          foreach($data as $d)
@@ -1126,11 +1200,19 @@ class articulo extends fs_model
       return $artilist;
    }
    
+   /**
+    * Devuelve el listado de artículos públicos, desde $offset hasta $offset+$limit
+    * @param type $offset
+    * @param type $limit
+    * @return \articulo
+    */
    public function all_publico($offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
+      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name
+              ." WHERE publico ORDER BY lower(referencia) ASC";
       
-      $data = $this->db->select_limit("SELECT ".self::$column_list." FROM ".$this->table_name." WHERE publico ORDER BY referencia ASC", $limit, $offset);
+      $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
          foreach($data as $d)
@@ -1140,11 +1222,42 @@ class articulo extends fs_model
       return $artilist;
    }
    
+   /**
+    * Devuelve los artículos de una familia.
+    * @param type $cod
+    * @param type $offset
+    * @param type $limit
+    * @return \articulo
+    */
    public function all_from_familia($cod, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
+      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = "
+              .$this->var2str($cod)." ORDER BY lower(referencia) ASC";
       
-      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = ".$this->var2str($cod)." ORDER BY referencia ASC";
+      $data = $this->db->select_limit($sql, $limit, $offset);
+      if($data)
+      {
+         foreach($data as $d)
+            $artilist[] = new articulo($d);
+      }
+      
+      return $artilist;
+   }
+   
+   /**
+    * Devuelve los artículos de un fabricante.
+    * @param type $cod
+    * @param type $offset
+    * @param type $limit
+    * @return \articulo
+    */
+   public function all_from_fabricante($cod, $offset=0, $limit=FS_ITEM_LIMIT)
+   {
+      $artilist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codfabricante = "
+              .$this->var2str($cod)." ORDER BY lower(referencia) ASC";
+      
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {

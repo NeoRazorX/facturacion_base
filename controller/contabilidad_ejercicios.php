@@ -28,7 +28,7 @@ class contabilidad_ejercicios extends fs_controller
       parent::__construct(__CLASS__, 'Ejercicios', 'contabilidad', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->ejercicio = new ejercicio();
       

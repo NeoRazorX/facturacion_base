@@ -30,7 +30,7 @@ class ventas_familias extends fs_controller
       parent::__construct(__CLASS__, 'Familias', 'ventas', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->familia = new familia();
       
@@ -45,7 +45,7 @@ class ventas_familias extends fs_controller
          $fam = $this->familia->get($_POST['ncodfamilia']);
          if($fam)
          {
-            $this->new_error_msg('La familia <a href="'.$fam->url().'">'.$_POST['ncodfamilia'].'</a> ya existe.');
+            $this->new_error_msg('La familia <a href="'.$fam->url().'">'.$fam->codfamilia.'</a> ya existe.');
          }
          else
          {

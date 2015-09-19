@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -53,6 +53,12 @@ class facturacion_base_cron
          $inventarios_balances = new inventarios_balances();
          echo "\nGeneramos el libro de inventarios y balances para cada ejercicio...";
          $inventarios_balances->cron_job();
+      }
+      else
+      {
+         $libro = new libro_mayor();
+         echo "Comprobamos algunas subcuentas...";
+         $libro->cron_job();
       }
    }
 }

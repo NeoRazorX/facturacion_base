@@ -40,7 +40,7 @@ class contabilidad_asiento extends fs_controller
       parent::__construct(__CLASS__, 'Asiento', 'contabilidad', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->asiento = FALSE;
       $this->ppage = $this->page->get('contabilidad_asientos');
@@ -147,10 +147,6 @@ class contabilidad_asiento extends fs_controller
       
       /// obtenemos la divisa de las partidas
       $div0 = $this->divisa->get($_POST['divisa']);
-      if($div0)
-      {
-         $this->save_coddivisa($div0->coddivisa);
-      }
       
       if( !$eje0 OR !$div0 )
       {

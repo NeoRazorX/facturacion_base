@@ -29,7 +29,7 @@ class admin_paises extends fs_controller
       parent::__construct(__CLASS__, 'Paises', 'admin', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->pais = new pais();
       

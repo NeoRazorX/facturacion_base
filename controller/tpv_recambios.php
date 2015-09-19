@@ -101,8 +101,8 @@ class tpv_recambios extends fs_controller
          $this->forma_pago = new forma_pago();
          $this->serie = new serie();
          
-         $this->imprimir_descripciones = isset($_REQUEST['imprimir_desc']);
-         $this->imprimir_observaciones = isset($_REQUEST['imprimir_obs']);
+         $this->imprimir_descripciones = isset($_COOKIE['imprimir_desc']);
+         $this->imprimir_observaciones = isset($_COOKIE['imprimir_obs']);
          
          if($this->agente)
          {
@@ -334,22 +334,14 @@ class tpv_recambios extends fs_controller
       $continuar = TRUE;
       
       $ejercicio = $this->ejercicio->get_by_fecha($_POST['fecha']);
-      if($ejercicio)
-      {
-         $this->save_codejercicio($ejercicio->codejercicio);
-      }
-      else
+      if(!$ejercicio)
       {
          $this->new_error_msg('Ejercicio no encontrado.');
          $continuar = FALSE;
       }
       
       $serie = $this->serie->get($_POST['serie']);
-      if($serie)
-      {
-         $this->save_codserie($serie->codserie);
-      }
-      else
+      if(!$serie)
       {
          $this->new_error_msg('Serie no encontrada.');
          $continuar = FALSE;
@@ -358,7 +350,7 @@ class tpv_recambios extends fs_controller
       $forma_pago = $this->forma_pago->get($_POST['forma_pago']);
       if($forma_pago)
       {
-         $this->save_codpago( $forma_pago->codpago );
+         $this->save_codpago($_POST['forma_pago']);
       }
       else
       {
@@ -367,11 +359,7 @@ class tpv_recambios extends fs_controller
       }
       
       $divisa = $this->divisa->get($_POST['divisa']);
-      if($divisa)
-      {
-         $this->save_coddivisa( $divisa->coddivisa );
-      }
-      else
+      if(!$divisa)
       {
          $this->new_error_msg('Divisa no encontrada.');
          $continuar = FALSE;
@@ -660,7 +648,7 @@ class tpv_recambios extends fs_controller
          
          while($num_tickets > 0)
          {
-            $linea = "\nFactura simplificada: " . $factura->codigo . "\n";
+            $linea = "\n".ucfirst(FS_FACTURA_SIMPLIFICADA).": " . $factura->codigo . "\n";
             $linea .= $factura->fecha. " " . Date('H:i', strtotime($factura->hora)) . "\n";
             $this->terminal->add_linea($linea);
             $this->terminal->add_linea("Cliente: " . $factura->nombrecliente . "\n");

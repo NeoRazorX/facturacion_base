@@ -33,7 +33,7 @@ class compras_proveedores extends fs_controller
       parent::__construct(__CLASS__, 'Proveedores / Acreedores', 'compras', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->pais = new pais();
       $this->proveedor = new proveedor();
@@ -60,8 +60,6 @@ class compras_proveedores extends fs_controller
       }
       else if( isset($_POST['cifnif']) )
       {
-         $this->save_codpais( $_POST['pais'] );
-         
          $proveedor = FALSE;
          if($_POST['cifnif'] != '')
          {
@@ -80,8 +78,8 @@ class compras_proveedores extends fs_controller
             $proveedor->nombre = $_POST['nombre'];
             $proveedor->razonsocial = $_POST['nombre'];
             $proveedor->cifnif = $_POST['cifnif'];
-            $proveedor->codserie = $this->empresa->codserie;
             $proveedor->acreedor = isset($_POST['acreedor']);
+            
             if( $proveedor->save() )
             {
                $dirproveedor = new direccion_proveedor();

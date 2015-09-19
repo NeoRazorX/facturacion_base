@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'base/fs_model.php';
-
 /**
  * Una dirección de un cliente. Puede tener varias.
  */
@@ -78,7 +76,9 @@ class direccion_cliente extends fs_model
    {
       $dir = $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($id).";");
       if($dir)
+      {
          return new direccion_cliente($dir[0]);
+      }
       else
          return FALSE;
    }
@@ -86,12 +86,14 @@ class direccion_cliente extends fs_model
    public function exists()
    {
       if( is_null($this->id) )
+      {
          return FALSE;
+      }
       else
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($this->id).";");
    }
    
-   public function test()
+   public function save()
    {
       $this->apartado = $this->no_html($this->apartado);
       $this->ciudad = $this->no_html($this->ciudad);
@@ -99,42 +101,45 @@ class direccion_cliente extends fs_model
       $this->descripcion = $this->no_html($this->descripcion);
       $this->direccion = $this->no_html($this->direccion);
       $this->provincia = $this->no_html($this->provincia);
-      return TRUE;
-   }
-   
-   public function save()
-   {
-      if( $this->test() )
+      
+      if( $this->exists() )
       {
-         if( $this->exists() )
-         {
-            $sql = "UPDATE ".$this->table_name." SET codcliente = ".$this->var2str($this->codcliente).",
-               codpais = ".$this->var2str($this->codpais).", apartado = ".$this->var2str($this->apartado).",
-               provincia = ".$this->var2str($this->provincia).", ciudad = ".$this->var2str($this->ciudad).",
-               codpostal = ".$this->var2str($this->codpostal).", direccion = ".$this->var2str($this->direccion).",
-               domenvio = ".$this->var2str($this->domenvio).", domfacturacion = ".$this->var2str($this->domfacturacion).",
-               descripcion = ".$this->var2str($this->descripcion)." WHERE id = ".$this->var2str($this->id).";";
-            return $this->db->exec($sql);
-         }
-         else
-         {
-            $sql = "INSERT INTO ".$this->table_name." (codcliente,codpais,apartado,provincia,ciudad,codpostal,direccion,
-               domenvio,domfacturacion,descripcion) VALUES (".$this->var2str($this->codcliente).",".$this->var2str($this->codpais).",
-               ".$this->var2str($this->apartado).",".$this->var2str($this->provincia).",".$this->var2str($this->ciudad).",
-               ".$this->var2str($this->codpostal).",".$this->var2str($this->direccion).",".$this->var2str($this->domenvio).",
-               ".$this->var2str($this->domfacturacion).",".$this->var2str($this->descripcion).");";
-            $resultado = $this->db->exec($sql);
-            if($resultado)
-            {
-               $newid = $this->db->lastval();
-               if($newid)
-                  $this->id = intval($newid);
-            }
-            return $resultado;
-         }
+         $sql = "UPDATE ".$this->table_name." SET codcliente = ".$this->var2str($this->codcliente)
+                 .", codpais = ".$this->var2str($this->codpais)
+                 .", apartado = ".$this->var2str($this->apartado)
+                 .", provincia = ".$this->var2str($this->provincia)
+                 .", ciudad = ".$this->var2str($this->ciudad)
+                 .", codpostal = ".$this->var2str($this->codpostal)
+                 .", direccion = ".$this->var2str($this->direccion)
+                 .", domenvio = ".$this->var2str($this->domenvio)
+                 .", domfacturacion = ".$this->var2str($this->domfacturacion)
+                 .", descripcion = ".$this->var2str($this->descripcion)
+                 ."  WHERE id = ".$this->var2str($this->id).";";
+         
+         return $this->db->exec($sql);
       }
       else
-         return FALSE;
+      {
+         $sql = "INSERT INTO ".$this->table_name." (codcliente,codpais,apartado,provincia,ciudad,codpostal,
+            direccion,domenvio,domfacturacion,descripcion) VALUES (".$this->var2str($this->codcliente)
+                 .",".$this->var2str($this->codpais)
+                 .",".$this->var2str($this->apartado)
+                 .",".$this->var2str($this->provincia)
+                 .",".$this->var2str($this->ciudad)
+                 .",".$this->var2str($this->codpostal)
+                 .",".$this->var2str($this->direccion)
+                 .",".$this->var2str($this->domenvio)
+                 .",".$this->var2str($this->domfacturacion)
+                 .",".$this->var2str($this->descripcion).");";
+         
+         if( $this->db->exec($sql) )
+         {
+            $this->id = $this->db->lastval();
+            return TRUE;
+         }
+         else
+            return FALSE;
+      }
    }
    
    public function delete()
@@ -142,16 +147,31 @@ class direccion_cliente extends fs_model
       return $this->db->exec("DELETE FROM ".$this->table_name." WHERE id = ".$this->var2str($this->id).";");
    }
    
+   public function all($offset = 0)
+   {
+      $dirlist = array();
+      
+      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY id ASC", FS_ITEM_LIMIT, $offset);
+      if($data)
+      {
+         foreach($data as $d)
+            $dirlist[] = new direccion_cliente($d);
+      }
+      
+      return $dirlist;
+   }
+   
    public function all_from_cliente($cod)
    {
       $dirlist = array();
-      $dirs = $this->db->select("SELECT * FROM ".$this->table_name.
-              " WHERE codcliente = ".$this->var2str($cod).";");
-      if($dirs)
+      
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($cod)." ORDER BY id ASC;");
+      if($data)
       {
-         foreach($dirs as $d)
+         foreach($data as $d)
             $dirlist[] = new direccion_cliente($d);
       }
+      
       return $dirlist;
    }
 }

@@ -1,6 +1,7 @@
 {include="header"}
 
 {if="$fsc->agente"}
+<script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript">
    $(document).ready(function () {
       $("#b_delete_agente").click(function (event) {
@@ -51,9 +52,14 @@
       </div>
       <div class="col-lg-10 col-md-9 col-sm-9">
          <form class="form" role="form" action="{$fsc->url()}" method="post">
-            <div class="panel panel-primary" id="panel_generales">
+            <div class='panel {if="$fsc->agente->f_baja"}panel-danger{else}panel-primary{/if}' id='panel_generales'>
                <div class="panel-heading">
-                  <h3 class="panel-title">{$fsc->agente->get_fullname()}</h3>
+                  <h3 class="panel-title">
+                     {$fsc->agente->get_fullname()}
+                     {if="$fsc->agente->f_baja"}
+                     &nbsp; <span class="label label-default" title="El empleado ha sido dado de baja">Baja</span>
+                     {/if}
+                  </h3>
                </div>
                <div class="panel-body">
                   <div class="col-sm-3">
@@ -95,13 +101,13 @@
                   <div class="col-sm-3">
                      <div class="form-group">
                         Provincia:
-                        <input class="form-control" type="text" name="provincia" value="{$fsc->agente->provincia}" autocomplete="off"/>
+                        <input id="ac_provincia" class="form-control" type="text" name="provincia" value="{$fsc->agente->provincia}" autocomplete="off"/>
                      </div>
                   </div>
                   <div class="col-sm-3">
                      <div class="form-group">
                         Ciudad:
-                        <input class="form-control" type="text" name="ciudad" value="{$fsc->agente->ciudad}" autocomplete="off"/>
+                        <input class="form-control" type="text" name="ciudad" value="{$fsc->agente->ciudad}"/>
                      </div>
                   </div>
                   <div class="col-sm-6">

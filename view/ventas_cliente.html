@@ -1,6 +1,7 @@
 {include="header"}
 
 {if="$fsc->cliente"}
+<script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript">
    function comprobar_url()
    {
@@ -90,10 +91,22 @@
       </div>
       <div class="col-sm-2 col-xs-2 text-right">
          {if="$fsc->allow_delete"}
-         <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
-            <span class="glyphicon glyphicon-trash"></span>
-            <span class="hidden-xs">&nbsp; Eliminar</span>
-         </a>
+            {if="$fsc->cliente->debaja"}
+            <a href="#" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modal_debaja">
+               <span class="glyphicon glyphicon-lock"></span>
+               <span class="hidden-xs">&nbsp; De baja</span>
+            </a>
+            {elseif="$fsc->tiene_facturas()"}
+            <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_debaja">
+               <span class="glyphicon glyphicon-lock"></span>
+               <span class="hidden-xs">&nbsp; Dar de baja</span>
+            </a>
+            {else}
+            <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
+               <span class="glyphicon glyphicon-trash"></span>
+               <span class="hidden-xs">&nbsp; Eliminar</span>
+            </a>
+            {/if}
          {/if}
       </div>
    </div>
@@ -167,7 +180,7 @@
       <div class="col-lg-10 col-md-10 col-sm-9">
          <form name="f_cliente" action="{$fsc->url()}" method="post" class="form">
             <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
-            <div class="panel panel-primary pseudotab_cli" id="panel_generales">
+            <div class='panel {if="$fsc->cliente->debaja"}panel-danger{else}panel-primary{/if} pseudotab_cli' id='panel_generales'>
                <div class="panel-heading">
                   <h3 class="panel-title">Datos generales</h3>
                </div>
@@ -235,7 +248,7 @@
                                  <option value="---">Ninguno</option>
                                  <option value="---">-----</option>
                                  {loop="$fsc->grupo->all()"}
-                                 <option value="{$value->codgrupo}"{if="$value->codgrupo==$fsc->cliente->codgrupo"} selected="selected"{/if}>{$value->nombre}</option>
+                                 <option value="{$value->codgrupo}"{if="$value->codgrupo==$fsc->cliente->codgrupo"} selected=""{/if}>{$value->nombre}</option>
                                  {/loop}
                               </select>
                            </div>
@@ -245,7 +258,7 @@
                               <a href="{$fsc->serie->url()}">Serie</a>:
                               <select class="form-control" name="codserie">
                                  {loop="$fsc->serie->all()"}
-                                 <option value="{$value->codserie}"{if="$value->codserie==$fsc->cliente->codserie"} selected="selected"{/if}>{$value->descripcion}</option>
+                                 <option value="{$value->codserie}"{if="$value->codserie==$fsc->cliente->codserie"} selected=""{/if}>{$value->descripcion}</option>
                                  {/loop}
                               </select>
                            </div>
@@ -256,7 +269,7 @@
                               <select class="form-control" name="coddivisa">
                               {loop="$fsc->divisa->all()"}
                                  {if="$value->coddivisa==$fsc->cliente->coddivisa"}
-                                 <option value="{$value->coddivisa}" selected="selected">{$value->descripcion}</option>
+                                 <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
                                  {else}
                                  <option value="{$value->coddivisa}">{$value->descripcion}</option>
                                  {/if}
@@ -269,7 +282,7 @@
                               <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
                               <select class="form-control" name="codpago">
                                  {loop="$fsc->forma_pago->all()"}
-                                 <option value="{$value->codpago}"{if="$value->codpago==$fsc->cliente->codpago"} selected="selected"{/if}>{$value->descripcion}</option>
+                                 <option value="{$value->codpago}"{if="$value->codpago==$fsc->cliente->codpago"} selected=""{/if}>{$value->descripcion}</option>
                                  {/loop}
                               </select>
                            </div>
@@ -281,7 +294,7 @@
                               Régimen {#FS_IVA#}:
                               <select class="form-control" name="regimeniva">
                                  {loop="$fsc->cliente->regimenes_iva()"}
-                                 <option value="{$value}"{if="$value==$fsc->cliente->regimeniva"} selected="selected"{/if}>{$value}</option>
+                                 <option value="{$value}"{if="$value==$fsc->cliente->regimeniva"} selected=""{/if}>{$value}</option>
                                  {/loop}
                               </select>
                               <label>
@@ -297,7 +310,7 @@
                                  <option value="---">Ninguno</option>
                                  <option value="---">-----</option>
                                  {loop="$fsc->agente->all()"}
-                                 <option value="{$value->codagente}"{if="$value->codagente==$fsc->cliente->codagente"} selected="selected"{/if}>{$value->get_fullname()}</option>
+                                 <option value="{$value->codagente}"{if="$value->codagente==$fsc->cliente->codagente"} selected=""{/if}>{$value->get_fullname()}</option>
                                  {/loop}
                               </select>
                            </div>
@@ -314,9 +327,45 @@
                   </div>
                </div>
                <div class="panel-footer text-right">
+                  <small class="pull-left">Fecha de alta: {$fsc->cliente->fechaalta}</small>
                   <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
                      <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                   </button>
+               </div>
+            </div>
+            
+            <div class="modal fade" id="modal_debaja" tabindex="-1" role="dialog">
+               <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                     <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                           <span aria-hidden="true">&times;</span>
+                        </button>
+                        {if="$fsc->cliente->debaja"}
+                        <h4 class="modal-title" id="myModalLabel">Este cliente ha sido dado de baja</h4>
+                        <p class="help-block">Concretamente el día {$fsc->cliente->fechabaja}</p>
+                        {else}
+                        <h4 class="modal-title" id="myModalLabel">¿Deseas dar de baja al cliente?</h4>
+                        {/if}
+                     </div>
+                     <div class="modal-body">
+                        <div class="checkbox">
+                           <label>
+                              {if="$fsc->cliente->debaja"}
+                              <input type="checkbox" name="debaja" value="TRUE" checked=""/>
+                              {else}
+                              <input type="checkbox" name="debaja" value="TRUE"/>
+                              {/if}
+                              Dar de baja al cliente
+                           </label>
+                        </div>
+                     </div>
+                     <div class="modal-footer">
+                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                           <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                        </button>
+                     </div>
+                  </div>
                </div>
             </div>
          </form>
@@ -395,13 +444,13 @@
                         <a href="{$fsc->pais->url()}">País</a>
                         <select class="form-control" name="pais">
                         {loop="$fsc->pais->all()"}
-                        <option value="{$value2->codpais}"{if="$value1->codpais==$value2->codpais"} selected="selected"{/if}>{$value2->nombre}</option>
+                        <option value="{$value2->codpais}"{if="$value1->codpais==$value2->codpais"} selected=""{/if}>{$value2->nombre}</option>
                         {/loop}
                         </select>
                      </div>
                      <div class="form-group col-lg-4 col-md-4 col-sm-4">
                         <span class="text-capitalize">{#FS_PROVINCIA#}</span>:
-                        <input class="form-control" type="text" name="provincia" value="{$value->provincia}"/>
+                        <input class="form-control" type="text" name="provincia" id="ac_provincia" value="{$value->provincia}"/>
                      </div>
                      <div class="form-group col-lg-4 col-md-4 col-sm-4">
                         Ciudad:
@@ -409,7 +458,7 @@
                      </div>
                      <div class="form-group col-lg-3 col-md-3 col-sm-3">
                         Código Postal:
-                        <input class="form-control" type="text" name="codpostal" value="{$value->codpostal}" autocomplete="off"/>
+                        <input class="form-control" type="text" name="codpostal" value="{$value->codpostal}"/>
                      </div>
                      <div class="form-group col-lg-9 col-md-9 col-sm-9">
                         Dirección:
@@ -567,13 +616,13 @@
                   <a href="{$fsc->pais->url()}">País</a>:
                   <select name="pais" class="form-control">
                      {loop="$fsc->pais->all()"}
-                     <option value="{$value->codpais}"{if="$value->is_default()"} selected="selected"{/if}>{$value->nombre}</option>
+                     <option value="{$value->codpais}"{if="$value->is_default()"} selected=""{/if}>{$value->nombre}</option>
                      {/loop}
                   </select>
                </div>
                <div class="form-group">
-                  {#FS_PROVINCIA#}:
-                  <input class="form-control" type="text" name="provincia" value="{$fsc->empresa->provincia}"/>
+                  <span class="text-capitalize">{#FS_PROVINCIA#}:</span>
+                  <input id="ac_provincia2" class="form-control" type="text" name="provincia" value="{$fsc->empresa->provincia}"/>
                </div>
                <div class="form-group">
                   Ciudad:
@@ -581,14 +630,14 @@
                </div>
                <div class="form-group">
                   Código Postal:
-                  <input class="form-control" type="text" name="codpostal" autocomplete="off"/>
+                  <input class="form-control" type="text" name="codpostal"/>
                </div>
                <div class="form-group">
                   Dirección:
                   <input class="form-control" type="text" name="direccion" autocomplete="off"/>
                </div>
                <div class="form-group">
-                  {#FS_APARTADO#}:
+                  <span class="text-capitalize">{#FS_APARTADO#}:</span>
                   <input class="form-control" type="text" name="apartado" autocomplete="off"/>
                </div>
                <div class="form-group">

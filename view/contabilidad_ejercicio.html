@@ -68,7 +68,7 @@
                </a>
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
             </div>
@@ -114,8 +114,8 @@
             <td><input class="form-control" type="number" name="longsubcuenta" value="{$fsc->ejercicio->longsubcuenta}"/></td>
             <td>
                <select name="estado" class="form-control">
-                  <option value="ABIERTO"{if="$fsc->ejercicio->abierto()"} selected="selected"{/if}>ABIERTO</option>
-                  <option value="CERRADO"{if="!$fsc->ejercicio->abierto()"} selected="selected"{/if}>CERRADO</option>
+                  <option value="ABIERTO"{if="$fsc->ejercicio->abierto()"} selected=""{/if}>ABIERTO</option>
+                  <option value="CERRADO"{if="!$fsc->ejercicio->abierto()"} selected=""{/if}>CERRADO</option>
                </select>
             </td>
          </tr>
@@ -241,8 +241,16 @@
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Importar datos del ejercicio</h4>
-               <p>Se importarán grupos, epígrafes, cuentas, subcuentas, etc.</p>
+               <h4 class="modal-title">
+                  <span class="glyphicon glyphicon-import"></span>
+                  &nbsp; Importar datos del ejercicio
+               </h4>
+               <p class="help-block">
+                  Se importarán grupos, epígrafes, cuentas, subcuentas, etc.
+                  <br/>
+                  ¿No está el plan contable de tu país?
+                  <a href="https://www.youtube.com/watch?v=LtnbPTLCiJY" target="_blank">Créalo</a>.
+               </p>
             </div>
             <div class="modal-body">
                <div class="radio">

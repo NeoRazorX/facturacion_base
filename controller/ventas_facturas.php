@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -28,46 +28,86 @@ class ventas_facturas extends fs_controller
    public $articulo;
    public $buscar_lineas;
    public $cliente;
+   public $codagente;
+   public $codserie;
+   public $desde;
    public $factura;
+   public $hasta;
    public $huecos;
+   public $lineas;
+   public $mostrar;
+   public $num_resultados;
    public $offset;
+   public $order;
    public $resultados;
+   public $serie;
+   public $total_resultados;
+   public $total_resultados_comision;
+   public $total_resultados_txt;
    
    public function __construct()
    {
       parent::__construct(__CLASS__, ucfirst(FS_FACTURAS).' de cliente', 'ventas');
    }
    
-   protected function process()
+   protected function private_core()
    {
+      $this->agente = new agente();
       $this->factura = new factura_cliente();
       $this->huecos = array();
+      $this->serie = new serie();
+      
+      $this->mostrar = 'todo';
+      if( isset($_GET['mostrar']) )
+      {
+         $this->mostrar = $_GET['mostrar'];
+         setcookie('ventas_fac_mostrar', $this->mostrar, time()+FS_COOKIES_EXPIRE);
+      }
+      else if( isset($_COOKIE['ventas_fac_mostrar']) )
+      {
+         $this->mostrar = $_COOKIE['ventas_fac_mostrar'];
+      }
       
       $this->offset = 0;
-      if( isset($_GET['offset']) )
+      if( isset($_REQUEST['offset']) )
       {
-         $this->offset = intval($_GET['offset']);
+         $this->offset = intval($_REQUEST['offset']);
+      }
+      
+      $this->order = 'fecha DESC';
+      if( isset($_GET['order']) )
+      {
+         if($_GET['order'] == 'fecha_desc')
+         {
+            $this->order = 'fecha DESC';
+         }
+         else if($_GET['order'] == 'fecha_asc')
+         {
+            $this->order = 'fecha ASC';
+         }
+         else if($_GET['order'] == 'vencimiento_desc')
+         {
+            $this->order = 'vencimiento DESC';
+         }
+         else if($_GET['order'] == 'vencimiento_asc')
+         {
+            $this->order = 'vencimiento ASC';
+         }
+         
+         setcookie('ventas_fac_order', $this->order, time()+FS_COOKIES_EXPIRE);
+      }
+      else if( isset($_COOKIE['ventas_fac_order']) )
+      {
+         $this->order = $_COOKIE['ventas_fac_order'];
       }
       
       if( isset($_POST['buscar_lineas']) )
       {
          $this->buscar_lineas();
       }
-      else if( isset($_GET['codagente']) )
+      else if( isset($_REQUEST['buscar_cliente']) )
       {
-         $this->template = 'extension/ventas_facturas_agente';
-         
-         $agente = new agente();
-         $this->agente = $agente->get($_GET['codagente']);
-         $this->resultados = $this->factura->all_from_agente($_GET['codagente'], $this->offset);
-      }
-      else if( isset($_GET['codcliente']) )
-      {
-         $this->template = 'extension/ventas_facturas_cliente';
-         
-         $cliente = new cliente();
-         $this->cliente = $cliente->get($_GET['codcliente']);
-         $this->resultados = $this->factura->all_from_cliente($_GET['codcliente'], $this->offset);
+         $this->buscar_cliente();
       }
       else if( isset($_GET['ref']) )
       {
@@ -83,65 +123,123 @@ class ventas_facturas extends fs_controller
       {
          $this->share_extension();
          $this->huecos = $this->factura->huecos();
+         $this->cliente = FALSE;
+         $this->codagente = '';
+         $this->codserie = '';
+         $this->desde = '';
+         $this->hasta = '';
+         $this->num_resultados = '';
+         $this->total_resultados = '';
+         $this->total_resultados_comision = 0;
+         $this->total_resultados_txt = '';
          
          if( isset($_GET['delete']) )
          {
-            $fact = $this->factura->get($_GET['delete']);
-            if($fact)
-            {
-               if( $fact->delete() )
-               {
-                  $this->new_message("Factura eliminada correctamente.");
-               }
-               else
-                  $this->new_error_msg("¡Imposible eliminar la factura!");
-            }
-            else
-               $this->new_error_msg("¡Factura no encontrada!");
-         }
-         
-         if($this->query != '')
-         {
-            $this->resultados = $this->factura->search($this->query, $this->offset);
-         }
-         else if( isset($_GET['sinpagar']) )
-         {
-            $this->resultados = $this->factura->all_sin_pagar($this->offset);
+            $this->delete_factura();
          }
          else
-            $this->resultados = $this->factura->all($this->offset);
+         {
+            if( !isset($_GET['mostrar']) AND (isset($_REQUEST['codagente']) OR isset($_REQUEST['codcliente'])) )
+            {
+               /**
+                * si obtenermos un codagente o un codcliente pasamos direcatemente
+                * a la pestaña de búsqueda, a menos que tengamos un mostrar, que
+                * entonces nos indica donde tenemos que estar.
+                */
+               $this->mostrar = 'buscar';
+            }
+            
+            if( isset($_REQUEST['codcliente']) )
+            {
+               if($_REQUEST['codcliente'] != '')
+               {
+                  $cli0 = new cliente();
+                  $this->cliente = $cli0->get($_REQUEST['codcliente']);
+               }
+            }
+            
+            if( isset($_REQUEST['codagente']) )
+            {
+               $this->codagente = $_REQUEST['codagente'];
+            }
+            
+            if( isset($_REQUEST['codserie']) )
+            {
+               $this->codserie = $_REQUEST['codserie'];
+               $this->desde = $_REQUEST['desde'];
+               $this->hasta = $_REQUEST['hasta'];
+            }
+         }
+         
+         /// añadimos segundo nivel de ordenación
+         $order2 = '';
+         if( substr($this->order, -4) == 'DESC' )
+         {
+            $order2 = ', codigo DESC';
+         }
+         else
+         {
+            $order2 = ', codigo ASC';
+         }
+         
+         if($this->mostrar == 'sinpagar')
+         {
+            $this->resultados = $this->factura->all_sin_pagar($this->offset, FS_ITEM_LIMIT, $this->order.$order2);
+            
+            if($this->offset == 0)
+            {
+               $this->total_resultados = 0;
+               $this->total_resultados_txt = 'Suma total de esta página:';
+               foreach($this->resultados as $fac)
+               {
+                  $this->total_resultados += $fac->total;
+               }
+            }
+         }
+         else if($this->mostrar == 'buscar')
+         {
+            $this->buscar($order2);
+         }
+         else
+            $this->resultados = $this->factura->all($this->offset, FS_ITEM_LIMIT, $this->order.$order2);
       }
+   }
+   
+   private function buscar_cliente()
+   {
+      /// desactivamos la plantilla HTML
+      $this->template = FALSE;
+      
+      $cli0 = new cliente();
+      $json = array();
+      foreach($cli0->search($_REQUEST['buscar_cliente']) as $cli)
+      {
+         $json[] = array('value' => $cli->nombre, 'data' => $cli->codcliente);
+      }
+      
+      header('Content-Type: application/json');
+      echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
    }
    
    public function anterior_url()
    {
       $url = '';
-      $extra = '';
-      
-      if( isset($_GET['sinpagar']) )
+      $codcliente = '';
+      if($this->cliente)
       {
-         $extra = '&sinpagar=TRUE';
-      }
-      else if( isset($_GET['codagente']) )
-      {
-         $extra = '&codagente='.$_GET['codagente'];
-      }
-      else if( isset($_GET['codcliente']) )
-      {
-         $extra = '&codcliente='.$_GET['codcliente'];
-      }
-      else if( isset($_GET['ref']) )
-      {
-         $extra = '&ref='.$_GET['ref'];
+         $codcliente = $this->cliente->codcliente;
       }
       
-      if($this->query != '' AND $this->offset > 0)
+      if($this->offset > 0)
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
-      }
-      else if($this->query == '' AND $this->offset > 0)
-      {
-         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
+         $url = $this->url()."&mostrar=".$this->mostrar
+                 ."&query=".$this->query
+                 ."&codserie=".$this->codserie
+                 ."&codagente=".$this->codagente
+                 ."&codcliente=".$codcliente
+                 ."&desde=".$this->desde
+                 ."&hasta=".$this->hasta
+                 ."&offset=".($this->offset-FS_ITEM_LIMIT);
       }
       
       return $url;
@@ -150,32 +248,22 @@ class ventas_facturas extends fs_controller
    public function siguiente_url()
    {
       $url = '';
-      $extra = '';
-      
-      if( isset($_GET['sinpagar']) )
+      $codcliente = '';
+      if($this->cliente)
       {
-         $extra = '&sinpagar=TRUE';
-      }
-      else if( isset($_GET['codagente']) )
-      {
-         $extra = '&codagente='.$_GET['codagente'];
-      }
-      else if( isset($_GET['codcliente']) )
-      {
-         $extra = '&codcliente='.$_GET['codcliente'];
-      }
-      else if( isset($_GET['ref']) )
-      {
-         $extra = '&ref='.$_GET['ref'];
+         $codcliente = $this->cliente->codcliente;
       }
       
-      if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
+      if( count($this->resultados) == FS_ITEM_LIMIT )
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
-      }
-      else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
-      {
-         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+         $url = $this->url()."&mostrar=".$this->mostrar
+                 ."&query=".$this->query
+                 ."&codserie=".$this->codserie
+                 ."&codagente=".$this->codagente
+                 ."&codcliente=".$codcliente
+                 ."&desde=".$this->desde
+                 ."&hasta=".$this->hasta
+                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
       }
       
       return $url;
@@ -247,5 +335,121 @@ class ventas_facturas extends fs_controller
       }
       else
          return 0;
+   }
+   
+   private function buscar($order2)
+   {
+      $this->resultados = array();
+      $this->num_resultados = 0;
+      $query = $this->agente->no_html( strtolower($this->query) );
+      $sql = " FROM facturascli ";
+      $where = 'WHERE ';
+      
+      if($this->query != '')
+      {
+         $sql .= $where;
+         if( is_numeric($query) )
+         {
+            $sql .= "(codigo LIKE '%".$query."%' OR numero2 LIKE '%".$query."%' OR observaciones LIKE '%".$query."%')";
+         }
+         else
+         {
+            $sql .= "(lower(codigo) LIKE '%".$query."%' OR lower(numero2) LIKE '%".$query."%' "
+                    . "OR lower(observaciones) LIKE '%".str_replace(' ', '%', $query)."%')";
+         }
+         $where = ' AND ';
+      }
+      
+      if($this->codagente != '')
+      {
+         $sql .= $where."codagente = ".$this->agente->var2str($this->codagente);
+         $where = ' AND ';
+      }
+      
+      if($this->cliente)
+      {
+         $sql .= $where."codcliente = ".$this->agente->var2str($this->cliente->codcliente);
+         $where = ' AND ';
+      }
+      
+      if($this->codserie != '')
+      {
+         $sql .= $where."codserie = ".$this->agente->var2str($this->codserie);
+         $where = ' AND ';
+      }
+      
+      if($this->desde != '')
+      {
+         $sql .= $where."fecha >= ".$this->agente->var2str($this->desde);
+         $where = ' AND ';
+      }
+      
+      if($this->hasta != '')
+      {
+         $sql .= $where."fecha <= ".$this->agente->var2str($this->hasta);
+         $where = ' AND ';
+      }
+      
+      $data = $this->db->select("SELECT COUNT(idfactura) as total".$sql);
+      if($data)
+      {
+         $this->num_resultados = intval($data[0]['total']);
+         
+         $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$this->order.$order2, FS_ITEM_LIMIT, $this->offset);
+         if($data2)
+         {
+            foreach($data2 as $d)
+            {
+               $this->resultados[] = new factura_cliente($d);
+            }
+         }
+         
+         $data2 = $this->db->select("SELECT SUM(total) as total".$sql);
+         if($data2)
+         {
+            $this->total_resultados = floatval($data2[0]['total']);
+            $this->total_resultados_txt = 'Suma total de los resultados:';
+         }
+         
+         if($this->codagente !== '')
+         {
+            /// calculamos la comisión del empleado
+            $data2 = $this->db->select("SELECT SUM(neto*porcomision/100) as total".$sql);
+            if($data2)
+            {
+               $this->total_resultados_comision = floatval($data2[0]['total']);
+            }
+         }
+      }
+   }
+   
+   private function delete_factura()
+   {
+      $fact = $this->factura->get($_GET['delete']);
+      if($fact)
+      {
+         /// ¿Sumamos stock?
+         $art0 = new articulo();
+         foreach($fact->get_lineas() as $linea)
+         {
+            if( is_null($linea->idalbaran) )
+            {
+               $articulo = $art0->get($linea->referencia);
+               if($articulo)
+               {
+                  $articulo->sum_stock($fact->codalmacen, $linea->cantidad);
+               }
+            }
+         }
+         
+         if( $fact->delete() )
+         {
+            $this->new_message("Factura eliminada correctamente.");
+         }
+         else
+            $this->new_error_msg("¡Imposible eliminar la factura!");
+      }
+      else
+         $this->new_error_msg("Factura no encontrada.");
    }
 }

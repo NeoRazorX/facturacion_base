@@ -45,7 +45,7 @@ class contabilidad_ejercicio extends fs_controller
       parent::__construct(__CLASS__, 'Ejercicio', 'contabilidad', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       /// cargamos las putas secuencias para que se actualicen.
       /// Abanq/Eneboo, yo te maldigooooo!!!!!!!!!!!!!!!!!!!!!!
@@ -59,8 +59,8 @@ class contabilidad_ejercicio extends fs_controller
       $this->ejercicio = FALSE;
       if( isset($_POST['codejercicio']) )
       {
-         $this->ejercicio = new ejercicio();
-         $this->ejercicio = $this->ejercicio->get($_POST['codejercicio']);
+         $eje0 = new ejercicio();
+         $this->ejercicio = $eje0->get($_POST['codejercicio']);
          if($this->ejercicio)
          {
             $this->ejercicio->nombre = $_POST['nombre'];
@@ -76,8 +76,8 @@ class contabilidad_ejercicio extends fs_controller
       }
       else if( isset($_GET['cod']) )
       {
-         $this->ejercicio = new ejercicio();
-         $this->ejercicio = $this->ejercicio->get($_GET['cod']);
+         $eje0 = new ejercicio();
+         $this->ejercicio = $eje0->get($_GET['cod']);
       }
       
       if($this->ejercicio)
@@ -277,6 +277,7 @@ class contabilidad_ejercicio extends fs_controller
       {
          $aux = $archivo_xml->addChild("epigrafe");
          $aux->addChild("codgrupo", $ep->codgrupo);
+         $aux->addChild("codpadre", $ep->codpadre());
          $aux->addChild("codepigrafe", $ep->codepigrafe);
          $aux->addChild("descripcion", base64_encode($ep->descripcion) );
       }
@@ -511,6 +512,7 @@ class contabilidad_ejercicio extends fs_controller
                         $ge = $grupo_epigrafes->get_by_codigo($ep->codgrupo, $this->ejercicio->codejercicio);
                         if($ge)
                         {
+                           /// si encuentra el grupo, lo añade con el grupo
                            $epigrafe->idgrupo = $ge->idgrupo;
                            $epigrafe->codgrupo = $ge->codgrupo;
                            $epigrafe->codejercicio = $this->ejercicio->codejercicio;
@@ -519,6 +521,21 @@ class contabilidad_ejercicio extends fs_controller
                            
                            if( !$epigrafe->save() )
                               $this->importar_url = FALSE;
+                        }
+                        else if($ep->codpadre)
+                        {
+                           $padre = $epigrafe->get_by_codigo($ep->codpadre, $this->ejercicio->codejercicio);
+                           if($padre)
+                           {
+                              /// si encuentra al padre, lo añade con el padre
+                              $epigrafe->idpadre = $padre->idepigrafe;
+                              $epigrafe->codejercicio = $this->ejercicio->codejercicio;
+                              $epigrafe->codepigrafe = $ep->codepigrafe;
+                              $epigrafe->descripcion = base64_decode($ep->descripcion);
+                              
+                              if( !$epigrafe->save() )
+                                 $this->importar_url = FALSE;
+                           }
                         }
                      }
                   }

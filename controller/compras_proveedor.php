@@ -39,7 +39,7 @@ class compras_proveedor extends fs_controller
       parent::__construct(__CLASS__, 'Proveedor', 'compras', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->ppage = $this->page->get('compras_proveedores');
       $this->cuenta_banco = new cuenta_banco_proveedor();
@@ -272,5 +272,21 @@ class compras_proveedor extends fs_controller
       }
       
       return $stats;
+   }
+   
+   public function tiene_facturas()
+   {
+      $tiene = FALSE;
+      
+      if( $this->db->table_exists('facturasprov') )
+      {
+         $data = $this->db->select_limit("SELECT * FROM facturasprov WHERE codproveedor = '".$this->proveedor->codproveedor."'", 5, 0);
+         if($data)
+         {
+            $tiene = TRUE;
+         }
+      }
+      
+      return $tiene;
    }
 }

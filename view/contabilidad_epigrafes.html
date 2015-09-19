@@ -49,7 +49,7 @@
             <div class="btn-group">
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
             </div>
@@ -126,7 +126,7 @@
             <div class="btn-group">
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
             </div>
@@ -227,7 +227,7 @@
             <select name="ejercicio" class="form-control" onchange="document.f_filtro_cuentas.submit()">
             {loop="$fsc->ejercicio->all()"}
                {if="$value->codejercicio==$fsc->codejercicio"}
-               <option value="{$value->codejercicio}" selected="selected">{$value->nombre} ({$value->codejercicio})</option>
+               <option value="{$value->codejercicio}" selected="">{$value->nombre} ({$value->codejercicio})</option>
                {else}
                <option value="{$value->codejercicio}">{$value->nombre} ({$value->codejercicio})</option>
                {/if}
@@ -286,7 +286,7 @@
                   <select name="ejercicio" class="form-control">
                      {loop="$fsc->ejercicio->all()"}
                         {if="$value->codejercicio==$fsc->codejercicio"}
-                        <option value="{$value->codejercicio}" selected="selected">{$value->nombre} ({$value->codejercicio})</option>
+                        <option value="{$value->codejercicio}" selected="">{$value->nombre} ({$value->codejercicio})</option>
                         {else}
                         <option value="{$value->codejercicio}">{$value->nombre} ({$value->codejercicio})</option>
                         {/if}

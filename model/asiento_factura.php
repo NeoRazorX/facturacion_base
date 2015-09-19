@@ -18,6 +18,7 @@
  */
 
 require_model('cliente.php');
+require_model('impuesto.php');
 require_model('proveedor.php');
 
 /**
@@ -29,6 +30,7 @@ class asiento_factura
 {
    public $asiento;
    private $ejercicio;
+   private $impuestos;
    
    public $messages;
    public $errors;
@@ -38,6 +40,13 @@ class asiento_factura
    {
       $this->asiento = FALSE;
       $this->ejercicio = new ejercicio();
+      
+      $impuesto = new impuesto();
+      $this->impuestos = array();
+      foreach( $impuesto->all() as $imp )
+      {
+         $this->impuestos[$imp->codimpuesto] = $imp;
+      }
       
       $this->messages = array();
       $this->errors = array();
@@ -58,7 +67,7 @@ class asiento_factura
     * Genera el asiento contable para una factura de compra.
     * Devuelve TRUE si el asiento se ha generado correctamente, False en caso contrario.
     * Si genera el asiento, este es accesible desde $this->asiento.
-    * @param type $factura
+    * @param factura_proveedor $factura
     */
    public function generar_asiento_compra(&$factura)
    {
@@ -115,9 +124,24 @@ class asiento_factura
             }
             
             /// generamos una partida por cada impuesto
-            $subcuenta_iva = $subcuenta->get_cuentaesp('IVASOP', $asiento->codejercicio);
             foreach($factura->get_lineas_iva() as $li)
             {
+               $subcuenta_iva = FALSE;
+               
+               /// ¿El impuesto tiene una subcuenta específica?
+               if( isset($this->impuestos[$li->codimpuesto]) )
+               {
+                  if($this->impuestos[$li->codimpuesto]->codsubcuentasop)
+                  {
+                     $subcuenta_iva = $subcuenta->get_by_codigo($this->impuestos[$li->codimpuesto]->codsubcuentasop, $asiento->codejercicio);
+                  }
+               }
+               
+               if(!$subcuenta_iva)
+               {
+                  $subcuenta_iva = $subcuenta->get_cuentaesp('IVASOP', $asiento->codejercicio);
+               }
+               
                if($subcuenta_iva AND $asiento_correcto)
                {
                   $partida1 = new partida();
@@ -300,9 +324,24 @@ class asiento_factura
             }
             
             /// generamos una partida por cada impuesto
-            $subcuenta_iva = $subcuenta->get_cuentaesp('IVAREP', $asiento->codejercicio);
             foreach($factura->get_lineas_iva() as $li)
             {
+               $subcuenta_iva = FALSE;
+               
+               /// ¿El impuesto tiene una subcuenta específica?
+               if( isset($this->impuestos[$li->codimpuesto]) )
+               {
+                  if($this->impuestos[$li->codimpuesto]->codsubcuentarep)
+                  {
+                     $subcuenta_iva = $subcuenta->get_by_codigo($this->impuestos[$li->codimpuesto]->codsubcuentarep, $asiento->codejercicio);
+                  }
+               }
+               
+               if(!$subcuenta_iva)
+               {
+                  $subcuenta_iva = $subcuenta->get_cuentaesp('IVAREP', $asiento->codejercicio);
+               }
+               
                if($subcuenta_iva AND $asiento_correcto)
                {
                   $partida1 = new partida();

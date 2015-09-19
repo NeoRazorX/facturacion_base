@@ -8,93 +8,120 @@
    }
 </script>
 
-<div class="container-fluid" style="margin-top: 10px;">
+<div class="container">
    <div class="row">
-      <div class="col-xs-6">
-         <div class="btn-group hidden-xs">
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
-               <span class="glyphicon glyphicon-refresh"></span>
-            </a>
-            {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
-            </a>
-            {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
-            </a>
-            {/if}
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               Impuestos
+               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+               <div class="btn-group">
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='button'"}
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                  {/if}
+               {/loop}
+               </div>
+            </h1>
+            <p class="help-block">
+               El <b>% Recargo</b> es un impuesto que se aplica a las compras a
+               proveedores si lo tenemos activado en las opciones de la empresa
+               (sección facturación). Y se aplica a los clientes si está activado
+               en los datos generales de ese cliente.
+            </p>
+            <p class="help-block">
+               La subcuenta predeterminada para compras es la marcada como
+               <a href="index.php?page=cuentas_especiales">cuenta especial</a>
+               IVASOP, y la de ventas la marcada como IVAREP.
+            </p>
+            <p class="help-block">
+               ¿Quieres ver <b>los artículos</b> que tienes con cada impuesto?
+               Lo tienes muy fácil desde el informe de artículos,
+               <a href="index.php?page=informe_articulos&tab=impuestos">
+                  pestaña impuestos
+               </a>.
+            </p>
          </div>
-         <div class="btn-group">
-            {loop="$fsc->extensions"}
-               {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
-               {/if}
-            {/loop}
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th class="text-left" width="150">Código</th>
+                     <th class="text-left">Descripción</th>
+                     <th class="text-right" width="120">% {#FS_IVA#}</th>
+                     <th class="text-right" width="120">% Recargo</th>
+                     <th class="text-left">Subcuenta compras {$fsc->empresa->codejercicio}</th>
+                     <th class="text-left">Subcuenta ventas {$fsc->empresa->codejercicio}</th>
+                     <th class="text-right" width="180">Acciones</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->impuesto->all()"}
+               <form class="form" role="form" action ="{$fsc->url()}" method="post">
+                  <input type="hidden" name="codimpuesto" value="{$value->codimpuesto}"/>
+                  <tr>
+                     <td><div class="form-control">{$value->codimpuesto}</div></td>
+                     <td>
+                        <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input class="form-control text-right" type="number" step="any" name="iva" value="{$value->iva}" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input class="form-control text-right" type="number" step="any" name="recargo" value="{$value->recargo}" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input class="form-control" type="text" name="codsubcuentasop" value="{$value->codsubcuentasop}" placeholder="{$fsc->codsubcuentasop}" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input class="form-control" type="text" name="codsubcuentarep" value="{$value->codsubcuentarep}" placeholder="{$fsc->codsubcuentarep}" autocomplete="off"/>
+                     </td>
+                     <td class="text-right">
+                        <div class="btn-group">
+                           {if="$value->is_default()"}
+                           <a href="#" class="btn btn-sm btn-success" title="Impuesto predeterminado">
+                              <span class="glyphicon glyphicon-flag"></span>
+                           </a>
+                           {else}
+                           <a href="{$fsc->url()}&set_default={$value->codimpuesto}" class="btn btn-sm btn-default" title="Marcar como impuesto predeterminado">
+                              <span class="glyphicon glyphicon-flag"></span>
+                           </a>
+                           {/if}
+                        </div>
+                        <div class="btn-group">
+                           {if="$fsc->allow_delete"}
+                           <button class="btn btn-sm btn-danger" type="button" title="Eliminar" onclick="delete_impuesto('{$value->codimpuesto}')">
+                              <span class="glyphicon glyphicon-trash"></span>
+                           </button>
+                           {/if}
+                           <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                              <span class="glyphicon glyphicon-floppy-disk"></span>
+                           </button>
+                        </div>
+                     </td>
+                  </tr>
+               </form>
+               {/loop}
+               <form class="form" name="f_nuevo_impuesto" action="{$fsc->url()}" method="post">
+                  <tr class="bg-info">
+                     <td><input class="form-control" type="text" name="codimpuesto" maxlength="10" placeholder="Nuevo código..." autocomplete="off"/></td>
+                     <td><input class="form-control" type="text" name="descripcion" placeholder="Descripción" autocomplete="off"/></td>
+                     <td><input class="form-control text-right" type="number" step="any" name="iva" value="0" autocomplete="off"/></td>
+                     <td><input class="form-control text-right" type="number" step="any" name="recargo" value="0" autocomplete="off"/></td>
+                     <td><input class="form-control" type="text" name="codsubcuentasop" placeholder="{$fsc->codsubcuentasop}" autocomplete="off"/></td>
+                     <td><input class="form-control" type="text" name="codsubcuentarep" placeholder="{$fsc->codsubcuentarep}" autocomplete="off"/></td>
+                     <td class="text-right">
+                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                           <span class="glyphicon glyphicon-floppy-disk"></span>
+                        </button>
+                     </td>
+                  </tr>
+               </form>
+            </table>
          </div>
-      </div>
-      <div class="col-xs-6 text-right">
-         <h2 style="margin-top: 0px;">Impuestos</h2>
       </div>
    </div>
-</div>
-
-<div class="table-responsive">
-   <table class="table table-hover">
-      <thead>
-         <tr>
-            <th class="text-left" width="150">Código</th>
-            <th class="text-left">Descripción</th>
-            <th class="text-right">% {#FS_IVA#}</th>
-            <th class="text-right">% Recargo</th>
-            <th class="text-right" width="140">Acciones</th>
-         </tr>
-      </thead>
-      {loop="$fsc->impuesto->all()"}
-      <form class="form" role="form" action ="{$fsc->url()}" method="post">
-         <input type="hidden" name="codimpuesto" value="{$value->codimpuesto}"/>
-         <tr>
-            <td>
-               <div class="form-control">{$value->codimpuesto}</div>
-            </td>
-            <td>
-               <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/>
-            </td>
-            <td>
-               <input class="form-control text-right" type="number" step="any" name="iva" value="{$value->iva}" autocomplete="off"/>
-            </td>
-            <td>
-               <input class="form-control text-right" type="number" step="any" name="recargo" value="{$value->recargo}" autocomplete="off"/>
-            </td>
-            <td class="text-right">
-               <div class="btn-group">
-                  {if="$fsc->allow_delete"}
-                  <button class="btn btn-sm btn-danger" type="button" title="Eliminar" onclick="delete_impuesto('{$value->codimpuesto}')">
-                     <span class="glyphicon glyphicon-trash"></span>
-                  </button>
-                  {/if}
-                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
-                     <span class="glyphicon glyphicon-floppy-disk"></span>
-                  </button>
-               </div>
-            </td>
-         </tr>
-      </form>
-      {/loop}
-      <form class="form" name="f_nuevo_impuesto" action="{$fsc->url()}" method="post">
-         <tr class="bg-info">
-            <td><input class="form-control" type="text" name="codimpuesto" maxlength="10" placeholder="Nuevo código..." autocomplete="off"/></td>
-            <td><input class="form-control" type="text" name="descripcion" autocomplete="off"/></td>
-            <td><input class="form-control text-right" type="number" step="any" name="iva" value="0" autocomplete="off"/></td>
-            <td><input class="form-control text-right" type="number" step="any" name="recargo" value="0" autocomplete="off"/></td>
-            <td class="text-right">
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
-                  <span class="glyphicon glyphicon-floppy-disk"></span>
-               </button>
-            </td>
-         </tr>
-      </form>
-   </table>
 </div>
 
 {include="footer"}

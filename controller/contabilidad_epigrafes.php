@@ -36,7 +36,7 @@ class contabilidad_epigrafes extends fs_controller
       parent::__construct(__CLASS__, 'Grupos y epígrafes', 'contabilidad', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->codejercicio = $this->empresa->codejercicio;
       $this->ejercicio = new ejercicio();

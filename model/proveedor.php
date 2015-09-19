@@ -53,6 +53,7 @@ class proveedor extends fs_model
     * Los cambios en esta propiedad ya no se guardan en la base de datos.
     * Usa razonsocial.
     * @var type 
+    * @deprecated since version 2015.038
     */
    public $nombrecomercial;
    
@@ -176,8 +177,24 @@ class proveedor extends fs_model
    {
       if( !isset(self::$regimenes_iva) )
       {
-         self::$regimenes_iva = array('General', 'Exento');
+         /// Si hay usa lista personalizada en fs_vars, la usamos
+         $fsvar = new fs_var();
+         $data = $fsvar->simple_get('proveedor::regimenes_iva');
+         if($data)
+         {
+            self::$regimenes_iva = array();
+            foreach( explode(',', $data) as $d )
+            {
+               self::$regimenes_iva[] = trim($d);
+            }
+         }
+         else
+         {
+            /// sino usamos estos
+            self::$regimenes_iva = array('General', 'Exento');
+         }
          
+         /// además de los que haya en la base de datos
          $data = $this->db->select("SELECT DISTINCT regimeniva FROM proveedores ORDER BY regimeniva ASC;");
          if($data)
          {
@@ -218,11 +235,20 @@ class proveedor extends fs_model
          return "index.php?page=compras_proveedor&cod=".$this->codproveedor;
    }
    
+   /**
+    * @deprecated since version 50
+    * @return type
+    */
    public function is_default()
    {
-      return ( $this->codproveedor == $this->default_items->codproveedor() );
+      return FALSE;
    }
    
+   /**
+    * Devuelve un proveedor a partir de su codproveedor
+    * @param type $cod
+    * @return boolean|\proveedor
+    */
    public function get($cod)
    {
       $prov = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codproveedor = ".$this->var2str($cod).";");
@@ -234,6 +260,11 @@ class proveedor extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve un proveedor a partir de su cifnif
+    * @param type $cifnif
+    * @return boolean|\proveedor
+    */
    public function get_by_cifnif($cifnif)
    {
       $prov = $this->db->select("SELECT * FROM ".$this->table_name." WHERE cifnif = ".$this->var2str($cifnif).";");
@@ -286,7 +317,7 @@ class proveedor extends fs_model
     * Devuelve la subcuenta asignada al proveedor para el ejercicio $eje,
     * si no hay una subcuenta asignada, intenta crearla.  Si falla devuelve FALSE.
     * @param type $eje
-    * @return type
+    * @return subcuenta
     */
    public function get_subcuenta($eje)
    {
@@ -484,11 +515,11 @@ class proveedor extends fs_model
       $provelist = $this->cache->get_array('m_proveedor_all');
       if( !$provelist )
       {
-         $proveedores = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
-         if($proveedores)
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
+         if($data)
          {
-            foreach($proveedores as $p)
-               $provelist[] = new proveedor($p);
+            foreach($data as $d)
+               $provelist[] = new proveedor($d);
          }
          $this->cache->set('m_proveedor_all', $provelist);
       }
@@ -498,25 +529,31 @@ class proveedor extends fs_model
    public function search($query, $offset=0)
    {
       $prolist = array();
-      $query = strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query) );
       
       $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )
-         $consulta .= "codproveedor LIKE '%".$query."%' OR cifnif LIKE '%".$query."%' OR observaciones LIKE '%".$query."%'";
+      {
+         $consulta .= "codproveedor LIKE '%".$query."%' OR cifnif LIKE '%".$query."%'"
+                 . " OR telefono1 LIKE '".$query."%' OR telefono2 LIKE '".$query."%'"
+                 . " OR observaciones LIKE '%".$query."%'";
+      }
       else
       {
          $buscar = str_replace(' ', '%', $query);
-         $consulta .= "lower(nombre) LIKE '%".$buscar."%' OR lower(cifnif) LIKE '%".$buscar."%'
-            OR lower(observaciones) LIKE '%".$buscar."%'";
+         $consulta .= "lower(nombre) LIKE '%".$buscar."%' OR lower(razonsocial) LIKE '%".$buscar."%'"
+                 . " OR lower(cifnif) LIKE '%".$buscar."%' OR lower(email) LIKE '%".$buscar."%'"
+                 . " OR lower(observaciones) LIKE '%".$buscar."%'";
       }
       $consulta .= " ORDER BY nombre ASC";
       
-      $proveedores = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-      if($proveedores)
+      $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($proveedores as $p)
-            $prolist[] = new proveedor($p);
+         foreach($data as $d)
+            $prolist[] = new proveedor($d);
       }
+      
       return $prolist;
    }
 }

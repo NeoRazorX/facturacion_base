@@ -2,6 +2,17 @@
 
 {if="$fsc->factura"}
 <script type="text/javascript">
+    function check_enviar_copia()
+   {
+      if($("#copia").is(":checked"))
+      {
+         $("#checked_copia").prop("disabled",false);
+      }
+      else
+      {
+         $("#checked_copia").prop("disabled",true);
+      }
+   }
    $(document).ready(function() {
       $("#b_imprimir").click(function(event) {
          event.preventDefault();
@@ -112,8 +123,15 @@
          <div class="col-md-12">
             <h3 style="margin-bottom: 0px;">
                <a href="{$fsc->ppage->url()}" class="text-capitalize">{#FS_FACTURAS#}</a> /
-               <a href="{$fsc->factura->cliente_url()}">{$fsc->factura->nombrecliente}</a> /
-               {$fsc->factura->codigo}
+               <a href="{$fsc->factura->cliente_url()}">{$fsc->factura->nombrecliente}</a>
+               {if="$fsc->cliente"}
+                  {if="$fsc->cliente->nombre!=$fsc->factura->nombrecliente"}
+                  <a href="#" class="btn btn-xs btn-default" onclick="alert('Cliente conocido como: {$fsc->cliente->nombre}')">
+                     <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                  </a>
+                  {/if}
+               {/if}
+               / {$fsc->factura->codigo}
             </h3>
             {if="$fsc->agente"}
             <p>Factura creada por <a href="{$fsc->agente->url()}">{$fsc->agente->get_fullname()}</a>.</p>
@@ -147,7 +165,7 @@
                <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
                <select name="forma_pago" class="form-control">
                   {loop="$fsc->forma_pago->all()"}
-                  <option value="{$value->codpago}"{if="$fsc->factura->codpago==$value->codpago"} selected="selected"{/if}>{$value->descripcion}</option>
+                  <option value="{$value->codpago}"{if="$fsc->factura->codpago==$value->codpago"} selected=""{/if}>{$value->descripcion}</option>
                   {/loop}
                </select>
             </div>
@@ -202,7 +220,7 @@
                      </tr>
                   </thead>
                   {loop="$fsc->factura->get_lineas()"}
-                  <tr{if="$value->cantidad<1"} class="bg-warning"{/if}>
+                  <tr{if="$value->cantidad<=0"} class="bg-warning"{/if}>
                      <td>
                         {if="$value->idalbaran"}
                         <a href="{$value->albaran_url()}">{$value->albaran_codigo()}</a>
@@ -289,6 +307,9 @@
          <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title">Imprimir {#FS_FACTURA#}</h4>
+            <p class="help-block">
+               Más formatos en la <a href="https://www.facturascripts.com/store" target="_blank">tienda de plugins</a>.
+            </p>
          </div>
          <div class="modal-body">
          {loop="$fsc->extensions"}
@@ -300,8 +321,7 @@
          {/loop}
          </div>
          <div class="modal-footer">
-            <a href="{$fsc->url()}&updatedir=TRUE">Actualizar la dirección de la {#FS_FACTURA#}</a>
-            <br/>
+            <a href="{$fsc->url()}&updatedir=TRUE">Actualizar la dirección de la {#FS_FACTURA#}</a><br/>
             <a href="index.php?page=admin_empresa#impresion" target="_blank">Opciones de impresión</a>
          </div>
       </div>
@@ -320,6 +340,13 @@
                <div class="form-group">
                   Email del cliente:
                   <input class="form-control" type="text" name="email" value="{$fsc->cliente->email}" autocomplete="off"/>
+               </div>
+               <div class="form-group">
+                  <label>
+                     <input id="copia" onclick="check_enviar_copia()" type="checkbox" name="concopia" value="TRUE"/>
+                     Enviar copia:
+                  </label>
+                  <input id="checked_copia" class="form-control" type="text" name="email_copia" autocomplete="off" disabled=""/>
                </div>
                <div class="form-group">
                   Mensaje:
@@ -349,6 +376,9 @@
          {if="$fsc->factura->idasiento"}
          <div class="modal-body">
             Hay asociado un asiento contable que será eliminado junto con la {#FS_FACTURA#}.
+            <br/>
+            Además, si no hay asociado un {#FS_ALBARAN#} o {#FS_ALBARANES#},
+            se restaurará el stock de los artículos.
          </div>
          {/if}
          <div class="modal-footer">

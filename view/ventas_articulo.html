@@ -192,11 +192,11 @@
                      </div>
                      <div class="form-group">
                         Tipo:
-                        <select name="tipo" class="form-control">
+                        <select name="tipo" class="form-control" onchange="this.form.submit()">
                            <option value="">Producto simple</option>
                            {loop="$fsc->extensions"}
                               {if="$value->type=='tipo_art'"}
-                              <option value="{$value->params}"{if="$fsc->articulo->tipo==$value->params"} selected="selected"{/if}>{$value->text}</option>
+                              <option value="{$value->params}"{if="$fsc->articulo->tipo==$value->params"} selected=""{/if}>{$value->text}</option>
                               {/if}
                            {/loop}
                         </select>
@@ -214,17 +214,35 @@
                      <div class="form-group">
                         <a href="{$fsc->familia->url()}">Familia</a>:
                         <select class="form-control" name="codfamilia">
-                        {loop="$fsc->familia->all()"}
-                           {if="$value->codfamilia===$fsc->articulo->codfamilia"}
-                           <option value="{$value->codfamilia}" selected="selected">{$value->nivel}{$value->descripcion}</option>
-                           {else}
-                           <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
-                           {/if}
-                        {/loop}
+                           <option value="">Ninguna</option>
+                           <option value="">-------</option>
+                           {loop="$fsc->familia->all()"}
+                              {if="$value->codfamilia===$fsc->articulo->codfamilia"}
+                              <option value="{$value->codfamilia}" selected="">{$value->nivel}{$value->descripcion}</option>
+                              {else}
+                              <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
+                              {/if}
+                           {/loop}
                         </select>
                      </div>
                   </div>
-                  <div class="col-sm-4">
+                   <div class="col-sm-2">
+                     <div class="form-group">
+                        <a href="{$fsc->fabricante->url()}">Fabricante</a>:
+                        <select class="form-control" name="codfabricante">
+                           <option value="">Ninguno</option>
+                           <option value="">-------</option>
+                           {loop="$fsc->fabricante->all()"}
+                              {if="$value->codfabricante===$fsc->articulo->codfabricante"}
+                              <option value="{$value->codfabricante}" selected="">{$value->nombre}</option>
+                              {else}
+                              <option value="{$value->codfabricante}">{$value->nombre}</option>
+                              {/if}
+                           {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
                      <div class="form-group">
                         Código de barras:
                         <div class="input-group">
@@ -235,7 +253,7 @@
                         </div>
                      </div>
                   </div>
-                  <div class="col-sm-5">
+                  <div class="col-sm-4">
                      <div class="form-group">
                         Código de equivalencia:
                         <input class="form-control" type="text" name="equivalencia" value="{$fsc->articulo->equivalencia}" autocomplete="off"/>
@@ -290,7 +308,7 @@
                      <div class="checkbox">
                         <label>
                            <input type="checkbox" name="bloqueado" value="TRUE"{if="$fsc->articulo->bloqueado"} checked="checked"{/if}/>
-                           Bloqueado
+                           <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Bloqueado / Obsoleto
                         </label>
                      </div>
                      {if="$fsc->mostrar_boton_publicar"}
@@ -341,10 +359,10 @@
                   <div class="col-sm-4">
                      <div class="form-group">
                         <a href="{$fsc->impuesto->url()}">{#FS_IVA#}</a>:
-                        <select class="form-control" name="codimpuesto">
+                        <select class="form-control" name="codimpuesto" onchange="this.form.submit()">
                         {loop="$fsc->impuesto->all()"}
                            {if="$value->codimpuesto==$fsc->articulo->codimpuesto"}
-                           <option value="{$value->codimpuesto}" selected="selected">{$value->descripcion}</option>
+                           <option value="{$value->codimpuesto}" selected="">{$value->descripcion}</option>
                            {else}
                            <option value="{$value->codimpuesto}">{$value->descripcion}</option>
                            {/if}
@@ -411,14 +429,14 @@
                            <thead>
                               <tr>
                                  <th colspan="2" class="text-left">Tarifa</th>
-                                 <th class="text-left">Diferencia</th>
-                                 <th class="text-right">Precio</th>
-                                 <th class="text-right">Precio+{#FS_IVA#}</th>
+                                 <th class="text-left">Aplicar</th>
+                                 <th class="text-right">Nuevo Precio</th>
+                                 <th class="text-right">Nuevo Precio+{#FS_IVA#}</th>
                               </tr>
                            </thead>
                            {loop="$fsc->get_tarifas()"}
                            <tr>
-                              <td><div class="form-control"><a href="{$value->tarifa_url}">{$value->codtarifa}</a></div></td>
+                              <td width="120"><div class="form-control"><a href="{$value->tarifa_url}">{$value->codtarifa}</a></div></td>
                               <td><div class="form-control">{$value->tarifa_nombre}</div></td>
                               <td><div class="form-control">{$value->tarifa_diff}</div></td>
                               <td class="text-right">
@@ -608,7 +626,7 @@
       {loop="$fsc->extensions"}
          {if="$value->type=='tab'"}
          <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
-            <iframe src="index.php?page={$value->from}{$value->params}&ref={function="urlencode($fsc->articulo->referencia)"}" width="100%" height="900" frameborder="0">
+            <iframe src="index.php?page={$value->from}{$value->params}&ref={function="urlencode($fsc->articulo->referencia)"}" width="100%" height="2000" frameborder="0">
             </iframe>
          </div>
          {/if}

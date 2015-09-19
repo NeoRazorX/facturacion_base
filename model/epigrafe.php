@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'base/fs_model.php';
 require_model('cuenta.php');
 
 /**
@@ -25,10 +24,14 @@ require_model('cuenta.php');
  */
 class grupo_epigrafes extends fs_model
 {
+   /**
+    * Clave primaria
+    * @var type 
+    */
+   public $idgrupo;
+   public $codgrupo;
    public $codejercicio;
    public $descripcion;
-   public $codgrupo;
-   public $idgrupo; /// pkey
    
    public function __construct($f = FALSE)
    {
@@ -125,17 +128,19 @@ class grupo_epigrafes extends fs_model
       {
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET codgrupo = ".$this->var2str($this->codgrupo).",
-               descripcion = ".$this->var2str($this->descripcion).",
-               codejercicio = ".$this->var2str($this->codejercicio)."
-               WHERE idgrupo = ".$this->var2str($this->idgrupo).";";
+            $sql = "UPDATE ".$this->table_name." SET codgrupo = ".$this->var2str($this->codgrupo)
+                    .", descripcion = ".$this->var2str($this->descripcion)
+                    .", codejercicio = ".$this->var2str($this->codejercicio)
+                    ."  WHERE idgrupo = ".$this->var2str($this->idgrupo).";";
+            
             return $this->db->exec($sql);
          }
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (codgrupo,descripcion,codejercicio) VALUES
-               (".$this->var2str($this->codgrupo).",".$this->var2str($this->descripcion).",
-               ".$this->var2str($this->codejercicio).");";
+                     (".$this->var2str($this->codgrupo).
+                    ",".$this->var2str($this->descripcion).
+                    ",".$this->var2str($this->codejercicio).");";
             
             if( $this->db->exec($sql) )
             {
@@ -178,7 +183,11 @@ class grupo_epigrafes extends fs_model
  */
 class epigrafe extends fs_model
 {
-   public $idepigrafe; /// pkey
+   /**
+    * Clave primaria.
+    * @var type 
+    */
+   public $idepigrafe;
    
    /**
     * Existen varias versiones de la contabilidad de Eneboo/Abanq,
@@ -250,6 +259,26 @@ class epigrafe extends fs_model
       }
       else
          return 'index.php?page=contabilidad_epigrafes&epi='.$this->idepigrafe;
+   }
+   
+   /**
+    * Devuelve el codepigrade del epigrafe padre o false si no lo hay
+    * @return type
+    */
+   public function codpadre()
+   {
+      $cod = FALSE;
+      
+      if($this->idpadre)
+      {
+         $padre = $this->get($this->idpadre);
+         if($padre)
+         {
+            $cod = $padre->codepigrafe;
+         }
+      }
+      
+      return $cod;
    }
    
    public function hijos()
@@ -327,18 +356,23 @@ class epigrafe extends fs_model
       {
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET codepigrafe = ".$this->var2str($this->codepigrafe).",
-               idgrupo = ".$this->var2str($this->idgrupo).", descripcion = ".$this->var2str($this->descripcion).",
-               codejercicio = ".$this->var2str($this->codejercicio).", idpadre = ".$this->var2str($this->idpadre)."
-               WHERE idepigrafe = ".$this->var2str($this->idepigrafe).";";
+            $sql = "UPDATE ".$this->table_name." SET codepigrafe = ".$this->var2str($this->codepigrafe)
+                    .", idgrupo = ".$this->var2str($this->idgrupo)
+                    .", descripcion = ".$this->var2str($this->descripcion)
+                    .", codejercicio = ".$this->var2str($this->codejercicio)
+                    .", idpadre = ".$this->var2str($this->idpadre)
+                    ."  WHERE idepigrafe = ".$this->var2str($this->idepigrafe).";";
             
             return $this->db->exec($sql);
          }
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (codepigrafe,idgrupo,descripcion,idpadre,codejercicio)
-               VALUES (".$this->var2str($this->codepigrafe).",".$this->var2str($this->idgrupo).",".$this->var2str($this->descripcion).",
-               ".$this->var2str($this->idpadre).",".$this->var2str($this->codejercicio).");";
+                     VALUES (".$this->var2str($this->codepigrafe).
+                    ",".$this->var2str($this->idgrupo).
+                    ",".$this->var2str($this->descripcion).
+                    ",".$this->var2str($this->idpadre).
+                    ",".$this->var2str($this->codejercicio).");";
             
             if( $this->db->exec($sql) )
             {

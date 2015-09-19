@@ -39,7 +39,7 @@ class compras_imprimir extends fs_controller
       parent::__construct(__CLASS__, 'imprimir', 'compras', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->albaran = FALSE;
       $this->articulo_proveedor = new articulo_proveedor();
@@ -272,7 +272,7 @@ class compras_imprimir extends fs_controller
             {
                if($this->albaran->observaciones != '')
                {
-                  $pdf_doc->pdf->ezText("\n".$this->albaran->observaciones, 9);
+                  $pdf_doc->pdf->ezText("\n".$this->fix_html($this->albaran->observaciones), 9);
                }
             }
             
@@ -333,6 +333,10 @@ class compras_imprimir extends fs_controller
             $pagina++;
          }
       }
+      else
+      {
+         $pdf_doc->pdf->ezText('¡'.ucfirst(FS_ALBARAN).' sin líneas!', 20);
+      }
       
       if($archivo)
       {
@@ -342,7 +346,7 @@ class compras_imprimir extends fs_controller
          $pdf_doc->save('tmp/'.FS_TMP_NAME.'enviar/'.$archivo);
       }
       else
-         $pdf_doc->show();
+         $pdf_doc->show(FS_ALBARAN.'_compra_'.$this->albaran->codigo.'.pdf');
    }
    
    private function generar_pdf_factura($archivo=FALSE)
@@ -501,7 +505,7 @@ class compras_imprimir extends fs_controller
             {
                if($this->factura->observaciones != '')
                {
-                  $pdf_doc->pdf->ezText("\n".$this->factura->observaciones, 9);
+                  $pdf_doc->pdf->ezText("\n".$this->fix_html($this->factura->observaciones), 9);
                }
             }
             
@@ -562,6 +566,10 @@ class compras_imprimir extends fs_controller
             $pagina++;
          }
       }
+      else
+      {
+         $pdf_doc->pdf->ezText('¡Factura sin líneas!', 20);
+      }
       
       if($archivo)
       {
@@ -571,7 +579,7 @@ class compras_imprimir extends fs_controller
          $pdf_doc->save('tmp/'.FS_TMP_NAME.'enviar/'.$archivo);
       }
       else
-         $pdf_doc->show();
+         $pdf_doc->show('factura_compra_'.$this->factura->codigo.'.pdf');
    }
    
    private function get_referencia_proveedor($ref, $codproveedor)

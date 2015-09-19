@@ -44,7 +44,7 @@ class ventas_cliente extends fs_controller
       parent::__construct(__CLASS__, 'Cliente', 'ventas', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->ppage = $this->page->get('ventas_clientes');
       $this->agente = new agente();
@@ -66,7 +66,9 @@ class ventas_cliente extends fs_controller
          $this->cliente = $cliente->get( $_POST['codcliente'] );
       }
       else if( isset($_GET['cod']) )
+      {
          $this->cliente = $cliente->get($_GET['cod']);
+      }
       
       /// ¿Hay que hacer algo más?
       if( isset($_GET['delete_cuenta']) ) /// eliminar cuenta bancaria
@@ -104,7 +106,9 @@ class ventas_cliente extends fs_controller
       {
          $dir = new direccion_cliente();
          if($_POST['coddir'] != '')
+         {
             $dir = $dir->get($_POST['coddir']);
+         }
          $dir->apartado = $_POST['apartado'];
          $dir->ciudad = $_POST['ciudad'];
          $dir->codcliente = $this->cliente->codcliente;
@@ -167,14 +171,19 @@ class ventas_cliente extends fs_controller
          $this->cliente->coddivisa = $_POST['coddivisa'];
          $this->cliente->regimeniva = $_POST['regimeniva'];
          $this->cliente->recargo = isset($_POST['recargo']);
+         $this->cliente->debaja = isset($_POST['debaja']);
          
          $this->cliente->codagente = NULL;
          if($_POST['codagente'] != '---')
+         {
             $this->cliente->codagente = $_POST['codagente'];
+         }
          
          $this->cliente->codgrupo = NULL;
          if($_POST['codgrupo'] != '---')
+         {
             $this->cliente->codgrupo = $_POST['codgrupo'];
+         }
          
          if( $this->cliente->save() )
          {
@@ -288,5 +297,21 @@ class ventas_cliente extends fs_controller
       }
       
       return $stats;
+   }
+   
+   public function tiene_facturas()
+   {
+      $tiene = FALSE;
+      
+      if( $this->db->table_exists('facturascli') )
+      {
+         $data = $this->db->select_limit("SELECT * FROM facturascli WHERE codcliente = '".$this->cliente->codcliente."'", 5, 0);
+         if($data)
+         {
+            $tiene = TRUE;
+         }
+      }
+      
+      return $tiene;
    }
 }

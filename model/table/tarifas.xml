@@ -14,12 +14,25 @@
       <nombre>inclineal</nombre>
       <tipo>double precision</tipo>
       <nulo>NO</nulo>
-      <defecto>0</defecto>
+   </columna>
+   <columna>
+      <nombre>aplicar_a</nombre>
+      <tipo>character varying(12)</tipo>
    </columna>
    <columna>
       <nombre>nombre</nombre>
       <tipo>character varying(50)</tipo>
       <nulo>NO</nulo>
+   </columna>
+   <columna>
+      <nombre>mincoste</nombre>
+      <tipo>boolean</tipo>
+      <defecto>false</defecto>
+   </columna>
+   <columna>
+      <nombre>maxpvp</nombre>
+      <tipo>boolean</tipo>
+      <defecto>false</defecto>
    </columna>
    <columna>
       <nombre>codtarifa</nombre>

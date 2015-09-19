@@ -41,7 +41,7 @@ class ventas_imprimir extends fs_controller
       parent::__construct(__CLASS__, 'imprimir', 'ventas', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->albaran = FALSE;
       $this->cliente = FALSE;
@@ -335,7 +335,7 @@ class ventas_imprimir extends fs_controller
             {
                if($this->albaran->observaciones != '')
                {
-                  $pdf_doc->pdf->ezText("\n".$this->albaran->observaciones, 9);
+                  $pdf_doc->pdf->ezText("\n".$this->fix_html($this->albaran->observaciones), 9);
                }
             }
             
@@ -398,6 +398,10 @@ class ventas_imprimir extends fs_controller
             $pagina++;
          }
       }
+      else
+      {
+         $pdf_doc->pdf->ezText('¡'.ucfirst(FS_ALBARAN).' sin líneas!', 20);
+      }
       
       if($archivo)
       {
@@ -407,7 +411,7 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->save('tmp/'.FS_TMP_NAME.'enviar/'.$archivo);
       }
       else
-         $pdf_doc->show();
+         $pdf_doc->show(FS_ALBARAN.'_'.$this->albaran->codigo.'.pdf');
    }
    
    private function generar_pdf_factura($tipo='simple', $archivo=FALSE)
@@ -664,7 +668,7 @@ class ventas_imprimir extends fs_controller
                }
                else if($this->factura->observaciones != '')
                {
-                  $pdf_doc->pdf->ezText("\n".$this->factura->observaciones, 9);
+                  $pdf_doc->pdf->ezText("\n".$this->fix_html($this->factura->observaciones), 9);
                }
                
                if(!$this->factura->pagada)
@@ -673,57 +677,49 @@ class ventas_imprimir extends fs_controller
                   $forma_pago = $fp0->get($this->factura->codpago);
                   if($forma_pago)
                   {
-                     if( is_null($forma_pago->codcuenta) )
+                     $texto_pago = "\n<b>Forma de pago</b>: ".$forma_pago->descripcion;
+                     
+                     if($forma_pago->domiciliado)
                      {
-                        $pdf_doc->pdf->ezText("\n<b>Forma de pago</b>: ".$forma_pago->descripcion.
-                                "\n<b>Vencimiento</b>: ".$this->factura->vencimiento, 9);
-                     }
-                     else
-                     {
-                        $texto_pago = "\n<b>Forma de pago</b>: ".$forma_pago->descripcion;
-                        
-                        if($forma_pago->domiciliado)
+                        $cbc0 = new cuenta_banco_cliente();
+                        $encontrada = FALSE;
+                        foreach($cbc0->all_from_cliente($this->factura->codcliente) as $cbc)
                         {
-                           $cbc0 = new cuenta_banco_cliente();
-                           $encontrada = FALSE;
-                           foreach($cbc0->all_from_cliente($this->factura->codcliente) as $cbc)
+                           if($cbc->iban)
                            {
-                              if($cbc->iban)
-                              {
-                                 $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->iban;
-                              }
-                              else
-                              {
-                                 $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->swift;
-                              }
-                              $encontrada = TRUE;
-                              break;
+                              $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->iban;
                            }
-                           if(!$encontrada)
+                           else
                            {
-                              $texto_pago .= "\n<b>El cliente no tiene cuenta bancaria asignada.</b>";
+                              $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->swift;
+                           }
+                           $encontrada = TRUE;
+                           break;
+                        }
+                        if(!$encontrada)
+                        {
+                           $texto_pago .= "\n<b>El cliente no tiene cuenta bancaria asignada.</b>";
+                        }
+                     }
+                     else if($forma_pago->codcuenta)
+                     {
+                        $cb0 = new cuenta_banco();
+                        $cuenta_banco = $cb0->get($forma_pago->codcuenta);
+                        if($cuenta_banco)
+                        {
+                           if($cuenta_banco->iban)
+                           {
+                              $texto_pago .= "\n<b>IBAN</b>: ".$cuenta_banco->iban;
+                           }
+                           else
+                           {
+                              $texto_pago .= "\n<b>SWIFT o BIC</b>: ".$cuenta_banco->swift;
                            }
                         }
-                        else
-                        {
-                           $cb0 = new cuenta_banco();
-                           $cuenta_banco = $cb0->get($forma_pago->codcuenta);
-                           if($cuenta_banco)
-                           {
-                              if($cuenta_banco->iban)
-                              {
-                                 $texto_pago .= "\n<b>IBAN</b>: ".$cuenta_banco->iban;
-                              }
-                              else
-                              {
-                                 $texto_pago .= "\n<b>SWIFT o BIC</b>: ".$cuenta_banco->swift;
-                              }
-                           }
-                        }
-                        
-                        $texto_pago .= "\n<b>Vencimiento</b>: ".$this->factura->vencimiento;
-                        $pdf_doc->pdf->ezText($texto_pago, 9);
                      }
+                     
+                     $texto_pago .= "\n<b>Vencimiento</b>: ".$this->factura->vencimiento;
+                     $pdf_doc->pdf->ezText($texto_pago, 9);
                   }
                }
             }
@@ -788,6 +784,10 @@ class ventas_imprimir extends fs_controller
             $pagina++;
          }
       }
+      else
+      {
+         $pdf_doc->pdf->ezText('¡'.ucfirst(FS_FACTURA).' sin líneas!', 20);
+      }
       
       if($archivo)
       {
@@ -797,7 +797,7 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->save('tmp/'.FS_TMP_NAME.'enviar/'.$archivo);
       }
       else
-         $pdf_doc->show();
+         $pdf_doc->show(FS_FACTURA.'_'.$this->factura->codigo.'.pdf');
    }
    
    private function enviar_email($doc, $tipo='simple')
@@ -866,6 +866,10 @@ class ventas_imprimir extends fs_controller
             $mail->MsgHTML( nl2br($_POST['mensaje']) );
             $mail->AddAttachment('tmp/'.FS_TMP_NAME.'enviar/'.$filename);
             $mail->AddAddress($_POST['email'], $this->cliente->razonsocial);
+            if( isset($_POST['concopia']) )
+            {
+               $mail->AddCC($_POST['email_copia'], $this->cliente->razonsocial);
+            }
             $mail->IsHTML(TRUE);
             
             if( $mail->Send() )

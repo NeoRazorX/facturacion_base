@@ -33,7 +33,7 @@ class contabilidad_cuentas extends fs_controller
       parent::__construct(__CLASS__, 'Cuentas', 'contabilidad', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->cuenta = new cuenta();
       $this->ejercicio = new ejercicio();
@@ -70,7 +70,6 @@ class contabilidad_cuentas extends fs_controller
       }
       else if( isset($_POST['ejercicio']) )
       {
-         $this->save_codejercicio( $_POST['ejercicio'] );
          $this->resultados = $this->cuenta->all_from_ejercicio($_POST['ejercicio'], $this->offset);
          $this->resultados2 = array();
       }

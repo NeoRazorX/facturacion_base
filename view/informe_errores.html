@@ -18,12 +18,13 @@
                         <select class="form-control" name="modelo">
                            <option value="todo">Todo</option>
                            <option value="todo">-------</option>
-                           <option value="tablas" selected="selected">Tablas</option>
+                           <option value="tablas" selected="">Tablas</option>
                            <option value="asiento">Asientos</option>
                            <option value="factura cliente">Facturas de cliente</option>
                            <option value="factura proveedor">Facturas de proveedor</option>
-                           <option value="albaran cliente"><span class="text-capitalize">{#FS_ALBARANES#}</span> de cliente</option>
-                           <option value="albaran proveedor"><span class="text-capitalize">{#FS_ALBARANES#}</span> de proveedor</option>
+                           <option value="albaran cliente">{function="ucfirst(FS_ALBARANES)"} de cliente</option>
+                           <option value="albaran proveedor">{function="ucfirst(FS_ALBARANES)"} de proveedor</option>
+                           <option value="dirclientes">Direcciones de clientes</option>
                         </select>
                      </div>
                      <div class="form-group">
@@ -33,7 +34,7 @@
                            <option value="{$value->codejercicio}">{$value->nombre}</option>
                            {/loop}
                            <option value="">---</option>
-                           <option value="">Todos</option>
+                           <option value="">Comprobar todos</option>
                         </select>
                      </div>
                      <div class="checkbox">
@@ -123,6 +124,22 @@
          Comprobado hasta {$fsc->informe['model']} {$fsc->informe['offset']}...
          {$fsc->duration()}
       </div>
+   {/if}
+   
+   {if="$fsc->get_errors()"}
+   <div class="alert alert-danger hidden-print">
+      <ul>{loop="$fsc->get_errors()"}<li>{$value}</li>{/loop}</ul>
+   </div>
+   {/if}
+   {if="$fsc->get_messages()"}
+   <div class="alert alert-success hidden-print">
+      <ul>{loop="$fsc->get_messages()"}<li>{$value}</li>{/loop}</ul>
+   </div>
+   {/if}
+   {if="$fsc->get_advices()"}
+   <div class="alert alert-info hidden-print">
+      <ul>{loop="$fsc->get_advices()"}<li>{$value}</li>{/loop}</ul>
+   </div>
    {/if}
    
    <div class="table-responsive">

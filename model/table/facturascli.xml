@@ -13,7 +13,6 @@
    <columna>
       <nombre>automatica</nombre>
       <tipo>boolean</tipo>
-      <nulo>NO</nulo>
    </columna>
    <columna>
       <nombre>cifnif</nombre>
@@ -88,7 +87,6 @@
    <columna>
       <nombre>deabono</nombre>
       <tipo>boolean</tipo>
-      <nulo>NO</nulo>
    </columna>
    <columna>
       <nombre>direccion</nombre>
@@ -98,7 +96,7 @@
    <columna>
       <nombre>editable</nombre>
       <tipo>boolean</tipo>
-      <nulo>NO</nulo>
+      <defecto>false</defecto>
    </columna>
    <columna>
       <nombre>fecha</nombre>
@@ -154,7 +152,6 @@
    <columna>
       <nombre>nogenerarasiento</nombre>
       <tipo>boolean</tipo>
-      <nulo>NO</nulo>
    </columna>
    <columna>
       <nombre>nombrecliente</nombre>
@@ -195,7 +192,6 @@
    <columna>
       <nombre>recfinanciero</nombre>
       <tipo>double precision</tipo>
-      <nulo>NO</nulo>
    </columna>
    <columna>
       <nombre>tasaconv</nombre>

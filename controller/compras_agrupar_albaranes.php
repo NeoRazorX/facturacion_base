@@ -47,7 +47,7 @@ class compras_agrupar_albaranes extends fs_controller
       parent::__construct(__CLASS__, 'Agrupar '.FS_ALBARANES, 'compras', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->albaran = new albaran_proveedor();
       $this->codserie = NULL;
@@ -178,8 +178,6 @@ class compras_agrupar_albaranes extends fs_controller
       $continuar = TRUE;
       
       $factura = new factura_proveedor();
-      $factura->automatica = TRUE;
-      $factura->editable = FALSE;
       $factura->codagente = $this->user->codagente;
       $factura->codalmacen = $albaranes[0]->codalmacen;
       $factura->coddivisa = $albaranes[0]->coddivisa;
@@ -190,7 +188,6 @@ class compras_agrupar_albaranes extends fs_controller
       $factura->irpf = $albaranes[0]->irpf;
       $factura->numproveedor = $albaranes[0]->numproveedor;
       $factura->observaciones = $albaranes[0]->observaciones;
-      $factura->recfinanciero = $albaranes[0]->recfinanciero;
       
       /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
       $formapago = $this->forma_pago->get($factura->codpago);
@@ -357,7 +354,7 @@ class compras_agrupar_albaranes extends fs_controller
           'page_from' => __CLASS__,
           'page_to' => 'compras_albaranes',
           'type' => 'button',
-          'text' => '<span class="glyphicon glyphicon-duplicate"></span> &nbsp; Agrupar',
+          'text' => '<span class="glyphicon glyphicon-duplicate"></span><span class="hidden-xs">&nbsp; Agrupar</span>',
           'params' => ''
       );
       $fsext = new fs_extension($extension);

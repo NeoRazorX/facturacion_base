@@ -29,39 +29,156 @@ require_model('serie.php');
  */
 class factura_proveedor extends fs_model
 {
-   public $automatica;
+   /**
+    * Clave primaria.
+    * @var type 
+    */
+   public $idfactura;
+   
+   /**
+    * Todavía sin uso.
+    * @var type 
+    */
+   public $idfacturarect;
+   
+   /**
+    * ID del asiento relacionado, si lo hay.
+    * @var type 
+    */
+   public $idasiento;
+   
    public $cifnif;
+   
+   /**
+    * Empleado que ha creado la factura.
+    * Modelo agente.
+    * @var type 
+    */
    public $codagente;
+   
+   /**
+    * Almacén en el que entra la mercancía.
+    * @var type 
+    */
    public $codalmacen;
+   
+   /**
+    * Divisa de la factura.
+    * @var type 
+    */
    public $coddivisa;
+   
+   /**
+    * Ejercicio relacionado. El que corresponde a la fecha.
+    * @var type 
+    */
    public $codejercicio;
+   
+   /**
+    * Código único de la factura. Para humanos.
+    * @var type 
+    */
    public $codigo;
+   
+   /**
+    * Todavía sin uso.
+    * @var type 
+    */
    public $codigorect;
+   
+   /**
+    * Forma d epago usada.
+    * @var type 
+    */
    public $codpago;
+   
+   /**
+    * Proveedor de la factura.
+    * @var type 
+    */
    public $codproveedor;
+   
+   /**
+    * Serie de la factura.
+    * @var type 
+    */
    public $codserie;
-   public $deabono;
-   public $editable;
+   
    public $fecha;
    public $hora;
-   public $idasiento;
-   public $idfactura;
-   public $idfacturarect;
-   public $idpagodevol;
+   
+   /**
+    * % de retención IRPF de la factura.
+    * Cada línea puede tener uno distinto.
+    * @var type 
+    */
    public $irpf;
+   
+   /**
+    * Suma total antes de impuestos.
+    * @var type 
+    */
    public $neto;
-   public $nogenerarasiento;
+   
+   /**
+    * Nombre del proveedor.
+    * @var type 
+    */
    public $nombre;
+   
+   /**
+    * Número de la factura.
+    * Único dentro de serie+ejercicio.
+    * @var type 
+    */
    public $numero;
+   
+   /**
+    * Número de factura del proveedor, si lo hay.
+    * @var type 
+    */
    public $numproveedor;
+   
    public $observaciones;
+   
    public $pagada;
-   public $recfinanciero;
+   
+   /**
+    * Tasa de conversión a Euros de la divisa de la factura.
+    * @var type 
+    */
    public $tasaconv;
+   
+   /**
+    * Importe total de la factura, con impuestos.
+    * @var type 
+    */
    public $total;
-   public $totaleuros;
+   
+   /**
+    * totaleuros = total*tasaconv
+    * Esto es para dar compatibilidad a Eneboo. Fuera de eso, no tiene sentido.
+    * Ni siquiera hace falta rellenarlo, al hacer save() se calcula el valor.
+    * @var type 
+    */
+   private $totaleuros;
+   
+   /**
+    * Suma total de retenciones IRPF de las líneas.
+    * @var type 
+    */
    public $totalirpf;
+   
+   /**
+    * Suma total del IVA de las líneas.
+    * @var type 
+    */
    public $totaliva;
+   
+   /**
+    * Suma del recargo de equivalencia de las líneas.
+    * @var type 
+    */
    public $totalrecargo;
    
    public function __construct($f=FALSE)
@@ -69,8 +186,6 @@ class factura_proveedor extends fs_model
       parent::__construct('facturasprov', 'plugins/facturacion_base/');
       if($f)
       {
-         $this->editable = $this->str2bool($f['editable']);
-         $this->automatica = $this->str2bool($f['automatica']);
          $this->cifnif = $f['cifnif'];
          $this->codagente = $f['codagente'];
          $this->codalmacen = $f['codalmacen'];
@@ -81,7 +196,6 @@ class factura_proveedor extends fs_model
          $this->codpago = $f['codpago'];
          $this->codproveedor = $f['codproveedor'];
          $this->codserie = $f['codserie'];
-         $this->deabono = $this->str2bool($f['deabono']);
          $this->fecha = Date('d-m-Y', strtotime($f['fecha']));
          
          $this->hora = '00:00:00';
@@ -91,16 +205,13 @@ class factura_proveedor extends fs_model
          $this->idasiento = $this->intval($f['idasiento']);
          $this->idfactura = $this->intval($f['idfactura']);
          $this->idfacturarect = $this->intval($f['idfacturarect']);
-         $this->idpagodevol = $this->intval($f['idpagodevol']);
          $this->irpf = floatval($f['irpf']);
          $this->neto = floatval($f['neto']);
-         $this->nogenerarasiento = $this->str2bool($f['nogenerarasiento']);
          $this->nombre = $f['nombre'];
          $this->numero = $f['numero'];
          $this->numproveedor = $f['numproveedor'];
          $this->observaciones = $this->no_html($f['observaciones']);
          $this->pagada = $this->str2bool($f['pagada']);
-         $this->recfinanciero = floatval($f['recfinanciero']);
          $this->tasaconv = floatval($f['tasaconv']);
          $this->total = floatval($f['total']);
          $this->totaleuros = floatval($f['totaleuros']);
@@ -110,8 +221,6 @@ class factura_proveedor extends fs_model
       }
       else
       {
-         $this->editable = TRUE;
-         $this->automatica = FALSE;
          $this->cifnif = NULL;
          $this->codagente = NULL;
          $this->codalmacen = NULL;
@@ -122,22 +231,18 @@ class factura_proveedor extends fs_model
          $this->codpago = NULL;
          $this->codproveedor = NULL;
          $this->codserie = NULL;
-         $this->deabono = FALSE;
          $this->fecha = Date('d-m-Y');
          $this->hora = Date('H:i:s');
          $this->idasiento = NULL;
          $this->idfactura = NULL;
          $this->idfacturarect = NULL;
-         $this->idpagodevol = NULL;
          $this->irpf = 0;
          $this->neto = 0;
-         $this->nogenerarasiento = FALSE;
          $this->nombre = NULL;
          $this->numero = NULL;
          $this->numproveedor = NULL;
          $this->observaciones = NULL;
          $this->pagada = FALSE;
-         $this->recfinanciero = 0;
          $this->tasaconv = 1;
          $this->total = 0;
          $this->totaleuros = 0;
@@ -215,6 +320,11 @@ class factura_proveedor extends fs_model
       return $linea->all_from_factura($this->idfactura);
    }
    
+   /**
+    * Devuelve las líneas de IVA de la factura.
+    * Si no hay, las crea.
+    * @return \linea_iva_factura_proveedor
+    */
    public function get_lineas_iva()
    {
       $linea_iva = new linea_iva_factura_proveedor();
@@ -593,49 +703,70 @@ class factura_proveedor extends fs_model
       {
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET deabono = ".$this->var2str($this->deabono).",
-               codigo = ".$this->var2str($this->codigo).", automatica = ".$this->var2str($this->automatica).",
-               total = ".$this->var2str($this->total).", neto = ".$this->var2str($this->neto).",
-               cifnif = ".$this->var2str($this->cifnif).", pagada = ".$this->var2str($this->pagada).",
-               observaciones = ".$this->var2str($this->observaciones).",
-               idpagodevol = ".$this->var2str($this->idpagodevol).", codagente = ".$this->var2str($this->codagente).",
-               codalmacen = ".$this->var2str($this->codalmacen).",
-               irpf = ".$this->var2str($this->irpf).", totaleuros = ".$this->var2str($this->totaleuros).",
-               nombre = ".$this->var2str($this->nombre).", codpago = ".$this->var2str($this->codpago).",
-               codproveedor = ".$this->var2str($this->codproveedor).", idfacturarect = ".$this->var2str($this->idfacturarect).",
-               numproveedor = ".$this->var2str($this->numproveedor).", codigorect = ".$this->var2str($this->codigorect).",
-               codserie = ".$this->var2str($this->codserie).", idasiento = ".$this->var2str($this->idasiento).",
-               totalirpf = ".$this->var2str($this->totalirpf).", totaliva = ".$this->var2str($this->totaliva).",
-               coddivisa = ".$this->var2str($this->coddivisa).", numero = ".$this->var2str($this->numero).",
-               codejercicio = ".$this->var2str($this->codejercicio).", tasaconv = ".$this->var2str($this->tasaconv).",
-               recfinanciero = ".$this->var2str($this->recfinanciero).", nogenerarasiento = ".$this->var2str($this->nogenerarasiento).",
-               totalrecargo = ".$this->var2str($this->totalrecargo).", fecha = ".$this->var2str($this->fecha).",
-               hora = ".$this->var2str($this->hora).", editable = ".$this->var2str($this->editable)."
-               WHERE idfactura = ".$this->var2str($this->idfactura).";";
+            $sql = "UPDATE ".$this->table_name." SET codigo = ".$this->var2str($this->codigo)
+                    .", total = ".$this->var2str($this->total)
+                    .", neto = ".$this->var2str($this->neto)
+                    .", cifnif = ".$this->var2str($this->cifnif)
+                    .", pagada = ".$this->var2str($this->pagada)
+                    .", observaciones = ".$this->var2str($this->observaciones)
+                    .", codagente = ".$this->var2str($this->codagente)
+                    .", codalmacen = ".$this->var2str($this->codalmacen)
+                    .", irpf = ".$this->var2str($this->irpf)
+                    .", totaleuros = ".$this->var2str($this->totaleuros)
+                    .", nombre = ".$this->var2str($this->nombre)
+                    .", codpago = ".$this->var2str($this->codpago)
+                    .", codproveedor = ".$this->var2str($this->codproveedor)
+                    .", idfacturarect = ".$this->var2str($this->idfacturarect)
+                    .", numproveedor = ".$this->var2str($this->numproveedor)
+                    .", codigorect = ".$this->var2str($this->codigorect)
+                    .", codserie = ".$this->var2str($this->codserie)
+                    .", idasiento = ".$this->var2str($this->idasiento)
+                    .", totalirpf = ".$this->var2str($this->totalirpf)
+                    .", totaliva = ".$this->var2str($this->totaliva)
+                    .", coddivisa = ".$this->var2str($this->coddivisa)
+                    .", numero = ".$this->var2str($this->numero)
+                    .", codejercicio = ".$this->var2str($this->codejercicio)
+                    .", tasaconv = ".$this->var2str($this->tasaconv)
+                    .", totalrecargo = ".$this->var2str($this->totalrecargo)
+                    .", fecha = ".$this->var2str($this->fecha)
+                    .", hora = ".$this->var2str($this->hora)
+                    ."  WHERE idfactura = ".$this->var2str($this->idfactura).";";
             
             return $this->db->exec($sql);
          }
          else
          {
             $this->new_codigo();
-            $sql = "INSERT INTO ".$this->table_name." (deabono,codigo,automatica,total,neto,cifnif,pagada,observaciones,
-               idpagodevol,codagente,codalmacen,irpf,totaleuros,nombre,codpago,codproveedor,idfacturarect,numproveedor,
+            $sql = "INSERT INTO ".$this->table_name." (codigo,total,neto,cifnif,pagada,observaciones,
+               codagente,codalmacen,irpf,totaleuros,nombre,codpago,codproveedor,idfacturarect,numproveedor,
                codigorect,codserie,idasiento,totalirpf,totaliva,coddivisa,numero,codejercicio,tasaconv,
-               recfinanciero,nogenerarasiento,totalrecargo,fecha,hora,editable) VALUES (".$this->var2str($this->deabono).",
-               ".$this->var2str($this->codigo).",".$this->var2str($this->automatica).",".$this->var2str($this->total).",
-               ".$this->var2str($this->neto).",".$this->var2str($this->cifnif).",".$this->var2str($this->pagada).",
-               ".$this->var2str($this->observaciones).",".$this->var2str($this->idpagodevol).",
-               ".$this->var2str($this->codagente).",
-               ".$this->var2str($this->codalmacen).",".$this->var2str($this->irpf).",".$this->var2str($this->totaleuros).",
-               ".$this->var2str($this->nombre).",".$this->var2str($this->codpago).",".$this->var2str($this->codproveedor).",
-               ".$this->var2str($this->idfacturarect).",".$this->var2str($this->numproveedor).",
-               ".$this->var2str($this->codigorect).",
-               ".$this->var2str($this->codserie).",".$this->var2str($this->idasiento).",
-               ".$this->var2str($this->totalirpf).",".$this->var2str($this->totaliva).",".$this->var2str($this->coddivisa).",
-               ".$this->var2str($this->numero).",".$this->var2str($this->codejercicio).",".$this->var2str($this->tasaconv).",
-               ".$this->var2str($this->recfinanciero).",".$this->var2str($this->nogenerarasiento).",
-               ".$this->var2str($this->totalrecargo).",".$this->var2str($this->fecha).",
-               ".$this->var2str($this->hora).",".$this->var2str($this->editable).");";
+               totalrecargo,fecha,hora) VALUES (".$this->var2str($this->codigo)
+                    .",".$this->var2str($this->total)
+                    .",".$this->var2str($this->neto)
+                    .",".$this->var2str($this->cifnif)
+                    .",".$this->var2str($this->pagada)
+                    .",".$this->var2str($this->observaciones)
+                    .",".$this->var2str($this->codagente)
+                    .",".$this->var2str($this->codalmacen)
+                    .",".$this->var2str($this->irpf)
+                    .",".$this->var2str($this->totaleuros)
+                    .",".$this->var2str($this->nombre)
+                    .",".$this->var2str($this->codpago)
+                    .",".$this->var2str($this->codproveedor)
+                    .",".$this->var2str($this->idfacturarect)
+                    .",".$this->var2str($this->numproveedor)
+                    .",".$this->var2str($this->codigorect)
+                    .",".$this->var2str($this->codserie)
+                    .",".$this->var2str($this->idasiento)
+                    .",".$this->var2str($this->totalirpf)
+                    .",".$this->var2str($this->totaliva)
+                    .",".$this->var2str($this->coddivisa)
+                    .",".$this->var2str($this->numero)
+                    .",".$this->var2str($this->codejercicio)
+                    .",".$this->var2str($this->tasaconv)
+                    .",".$this->var2str($this->totalrecargo)
+                    .",".$this->var2str($this->fecha)
+                    .",".$this->var2str($this->hora).");";
             
             if( $this->db->exec($sql) )
             {
@@ -668,7 +799,8 @@ class factura_proveedor extends fs_model
          }
          
          /// desvinculamos el/los albaranes asociados
-         $this->db->exec("UPDATE albaranesprov SET idfactura = NULL, ptefactura = TRUE WHERE idfactura = ".$this->var2str($this->idfactura).";");
+         $this->db->exec("UPDATE albaranesprov SET idfactura = NULL, ptefactura = TRUE WHERE idfactura = "
+                 .$this->var2str($this->idfactura).";");
          
          return TRUE;
       }
@@ -676,75 +808,103 @@ class factura_proveedor extends fs_model
          return FALSE;
    }
    
-   public function all($offset=0, $limit=FS_ITEM_LIMIT)
+   public function all($offset=0, $limit=FS_ITEM_LIMIT, $order='fecha DESC, codigo DESC')
    {
       $faclist = array();
-      $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY fecha DESC, codigo DESC", $limit, $offset);
-      if($facturas)
+      
+      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY ".$order, $limit, $offset);
+      if($data)
       {
-         foreach($facturas as $f)
+         foreach($data as $f)
             $faclist[] = new factura_proveedor($f);
       }
+      
       return $faclist;
    }
    
-   public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT)
+   public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT, $order='fecha ASC, codigo ASC')
    {
       $faclist = array();
-      $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name.
-         " WHERE pagada = false ORDER BY fecha ASC, codigo ASC", $limit, $offset);
-      if($facturas)
+      $sql = "SELECT * FROM ".$this->table_name." WHERE pagada = false ORDER BY ".$order;
+      
+      $data = $this->db->select_limit($sql, $limit, $offset);
+      if($data)
       {
-         foreach($facturas as $f)
+         foreach($data as $f)
             $faclist[] = new factura_proveedor($f);
       }
+      
       return $faclist;
    }
    
    public function all_from_agente($codagente, $offset=0)
    {
       $faclist = array();
-      $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      
+      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
          " WHERE codagente = ".$this->var2str($codagente).
          " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
-      if($facturas)
+      if($data)
       {
-         foreach($facturas as $f)
+         foreach($data as $f)
             $faclist[] = new factura_proveedor($f);
       }
+      
       return $faclist;
    }
    
    public function all_from_proveedor($codproveedor, $offset=0)
    {
       $faclist = array();
-      $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      
+      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
          " WHERE codproveedor = ".$this->var2str($codproveedor).
          " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
-      if($facturas)
+      if($data)
       {
-         foreach($facturas as $f)
+         foreach($data as $f)
             $faclist[] = new factura_proveedor($f);
       }
+      
       return $faclist;
    }
    
-   public function all_desde($desde, $hasta, $serie=FALSE)
+   public function all_desde($desde, $hasta, $codserie=FALSE, $codagente=FALSE, $codproveedor=FALSE, $estado=FALSE)
    {
       $faclist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE fecha >= ".$this->var2str($desde)." AND fecha <= ".$this->var2str($hasta);
-      if($serie)
+      if($codserie)
       {
-         $sql .= " AND codserie = ".$this->var2str($serie);
+         $sql .= " AND codserie = ".$this->var2str($codserie);
       }
-      $sql .= " ORDER BY fecha asc, codigo ASC;";
-      
-      $facturas = $this->db->select($sql);
-      if($facturas)
+      if($codagente)
       {
-         foreach($facturas as $f)
+         $sql .= " AND codagente = ".$this->var2str($codagente);
+      }
+      if($codproveedor)
+      {
+         $sql .= " AND codproveedor = ".$this->var2str($codproveedor);
+      }
+      if($estado)
+      {
+         if($estado == 'pagada')
+         {
+            $sql .= " AND pagada";
+         }
+         else
+         {
+            $sql .= " AND pagada = false";
+         }
+      }
+      $sql .= " ORDER BY fecha ASC, codigo ASC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $f)
             $faclist[] = new factura_proveedor($f);
       }
+      
       return $faclist;
    }
    
@@ -756,12 +916,8 @@ class factura_proveedor extends fs_model
       $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )
       {
-         $consulta .= "codigo LIKE '%".$query."%' OR numproveedor LIKE '%".$query."%' OR observaciones LIKE '%".
-            $query."%' OR total BETWEEN ".($query-.01)." AND ".($query+.01);
-      }
-      else if( preg_match('/^([0-9]{1,2})-([0-9]{1,2})-([0-9]{4})$/i', $query) )
-      {
-         $consulta .= "fecha = ".$this->var2str($query)." OR observaciones LIKE '%".$query."%'";
+         $consulta .= "codigo LIKE '%".$query."%' OR numproveedor LIKE '%".$query
+                 ."%' OR observaciones LIKE '%".$query."%'";
       }
       else
       {
@@ -770,12 +926,13 @@ class factura_proveedor extends fs_model
       }
       $consulta .= " ORDER BY fecha DESC, codigo DESC";
       
-      $facturas = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-      if($facturas)
+      $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($facturas as $f)
+         foreach($data as $f)
             $faclist[] = new factura_proveedor($f);
       }
+      
       return $faclist;
    }
 }

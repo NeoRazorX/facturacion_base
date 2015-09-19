@@ -5,12 +5,12 @@
       $("#b_nuevo_ejercicio").click(function(event) {
          event.preventDefault();
          $("#modal_nuevo_ejercicio").modal('show');
-         document.f_nuevo_ejercicio.nombre.focus();
+         document.f_nuevo_ejercicio.codejercicio.focus();
       });
    });
 </script>
 
-<div class="container-fluid" style="margin-top: 10px;">
+<div class="container" style="margin-top: 15px;">
    <div class="row">
       <div class="col-sm-6">
          <div class="btn-group hidden-xs">
@@ -42,31 +42,39 @@
          <h2 style="margin-top: 0px;">Ejercicios</h2>
       </div>
    </div>
-</div>
-
-<div class="table-responsive">
-   <table class="table table-hover">
-      <thead>
-         <tr>
-            <th class="text-left">Código + Nombre</th>
-            <th class="text-center">Fecha de inicio</th>
-            <th class="text-center">Fecha fin</th>
-            <th class="text-right">Estado</th>
-         </tr>
-      </thead>
-      {loop="$fsc->ejercicio->all()"}
-      <tr class="clickableRow{if="!$value->abierto()"} bg-warning{/if}" href="{$value->url()}">
-         <td><a href="{$value->url()}">{$value->codejercicio}</a> {$value->nombre}</td>
-         <td class="text-center">{$value->fechainicio}</td>
-         <td class="text-center">{$value->fechafin}</td>
-         <td class="text-right">{$value->estado}</td>
-      </tr>
-      {else}
-      <tr class="bg-warning">
-         <td colspan="4">Sin resultados.</td>
-      </tr>
-      {/loop}
-   </table>
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th class="text-left">Código + Nombre</th>
+                     <th class="text-center">Fecha de inicio</th>
+                     <th class="text-center">Fecha fin</th>
+                     <th class="text-right">Estado</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->ejercicio->all()"}
+               <tr class="clickableRow{if="!$value->abierto()"} warning{/if}" href="{$value->url()}">
+                  <td>
+                     <a href="{$value->url()}">{$value->codejercicio}</a> {$value->nombre}
+                     {if="$value->is_default()"}
+                     &nbsp; <span class="label label-info">Predeterminado</span>
+                     {/if}
+                  </td>
+                  <td class="text-center">{$value->fechainicio}</td>
+                  <td class="text-center">{$value->fechafin}</td>
+                  <td class="text-right">{$value->estado}</td>
+               </tr>
+               {else}
+               <tr class="bg-warning">
+                  <td colspan="4">Sin resultados.</td>
+               </tr>
+               {/loop}
+            </table>
+         </div>
+      </div>
+   </div>
 </div>
 
 <form class="form-horizontal" role="form" name="f_nuevo_ejercicio" action="{$fsc->url()}" method="POST">
@@ -79,32 +87,32 @@
             </div>
             <div class="modal-body">
                <div class="form-group">
-                  <label for="codejercicio" class="col-lg-2 col-md-2 col-sm-2 control-label">Código</label>
-                  <div class="col-lg-10 col-md-10 col-sm-10">
-                     <input class="form-control" type="text" name="codejercicio" value="{$fsc->ejercicio->get_new_codigo()}" autocomplete="off"/>
+                  <label class="col-sm-2 control-label">Código</label>
+                  <div class="col-sm-10">
+                     <input class="form-control" type="text" name="codejercicio" value="{$fsc->ejercicio->get_new_codigo()}" maxlength="4" autocomplete="off"/>
                   </div>
                </div>
                <div class="form-group">
-                  <label for="nombre" class="col-lg-2 col-md-2 col-sm-2 control-label">Nombre</label>
-                  <div class="col-lg-10 col-md-10 col-sm-10">
+                  <label class="col-sm-2 control-label">Nombre</label>
+                  <div class="col-sm-10">
                      <input class="form-control" type="text" name="nombre" autocomplete="off"/>
                   </div>
                </div>
                <div class="form-group">
-                  <label for="fechainicio" class="col-lg-2 col-md-2 col-sm-2 control-label">Fecha de inicio</label>
-                  <div class="col-lg-10 col-md-10 col-sm-10">
+                  <label class="col-sm-2 control-label">Fecha de inicio</label>
+                  <div class="col-sm-10">
                      <input class="form-control datepicker" type="text" name="fechainicio" value="{$fsc->ejercicio->fechainicio}" autocomplete="off"/>
                   </div>
                </div>
                <div class="form-group">
-                  <label for="fechafin" class="col-lg-2 col-md-2 col-sm-2 control-label">Fecha fin</label>
-                  <div class="col-lg-10 col-md-10 col-sm-10">
+                  <label class="col-sm-2 control-label">Fecha fin</label>
+                  <div class="col-sm-10">
                      <input class="form-control datepicker" type="text" name="fechafin" value="{$fsc->ejercicio->fechafin}" autocomplete="off"/>
                   </div>
                </div>
                <div class="form-group">
-                  <label for="estado" class="col-lg-2 col-md-2 col-sm-2 control-label">Estado</label>
-                  <div class="col-lg-10 col-md-10 col-sm-10">
+                  <label class="col-sm-2 control-label">Estado</label>
+                  <div class="col-sm-10">
                      <select name="estado" class="form-control">
                         <option value="ABIERTO">ABIERTO</option>
                         <option value="CERRADO">CERRADO</option>
