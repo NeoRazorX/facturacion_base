@@ -174,4 +174,18 @@ class direccion_cliente extends fs_model
       
       return $dirlist;
    }
+
+   public function all_from_cliente_facturacion($cod)
+   {
+      $dirlist = array();
+      
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($cod)." AND domfacturacion=true ORDER BY id ASC;");
+      if($data)
+      {
+         foreach($data as $d)
+            $dirlist[] = new direccion_cliente($d);
+      }
+      
+      return $dirlist;
+   }
 }
