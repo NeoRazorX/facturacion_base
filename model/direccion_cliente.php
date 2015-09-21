@@ -175,7 +175,7 @@ class direccion_cliente extends fs_model
       return $dirlist;
    }
 
-   public function all_from_cliente_direccion($cod)
+   public function all_from_cliente_facturacion($cod)
    {
       $dirlist = array();
       

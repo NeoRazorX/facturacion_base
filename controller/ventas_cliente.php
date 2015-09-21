@@ -69,6 +69,10 @@ class ventas_cliente extends fs_controller
       else if( isset($_GET['cod']) )
       {
          $this->cliente = $cliente->get($_GET['cod']);
+
+         $dir = new direccion_cliente();
+      	 $codcli = $_GET['cod'];
+      	 $this->direccion_cliente = $dir->all_from_cliente_facturacion($codcli);
       }
       
       /// ¿Hay que hacer algo más?
@@ -200,10 +204,6 @@ class ventas_cliente extends fs_controller
       }
       else
          $this->new_error_msg("¡Cliente no encontrado!");
-
-      $direc = new direccion_cliente();
-      $clien = $this->cliente->codcliente;
-      $this->direccion_cliente = $direc->all_from_cliente_direccion($clien);
    }
    
    public function url()
