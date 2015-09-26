@@ -168,17 +168,17 @@ class nueva_compra extends fs_controller
       
       if( $this->user->have_access_to('compras_pedido') AND class_exists('pedido_proveedor') )
       {
-         $tipos[] = array('tipo' => 'pedido', 'nombre' => 'Pedido a proveedor');
+         $tipos[] = array('tipo' => 'pedido', 'nombre' => ucfirst(FS_PEDIDO).' de compra');
       }
       
       if( $this->user->have_access_to('compras_albaran') )
       {
-         $tipos[] = array('tipo' => 'albaran', 'nombre' => ucfirst(FS_ALBARAN).' de proveedor');
+         $tipos[] = array('tipo' => 'albaran', 'nombre' => ucfirst(FS_ALBARAN).' de compra');
       }
       
       if( $this->user->have_access_to('compras_factura') )
       {
-         $tipos[] = array('tipo' => 'factura', 'nombre' => 'Factura de proveedor');
+         $tipos[] = array('tipo' => 'factura', 'nombre' => 'Factura de compra');
       }
       
       return $tipos;

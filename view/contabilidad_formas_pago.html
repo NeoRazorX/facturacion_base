@@ -8,33 +8,37 @@
    }
 </script>
 
-<div class="container-fluid" style="margin-top: 10px;">
+<div class="container-fluid">
    <div class="row">
-      <div class="col-xs-4">
-         <div class="btn-group hidden-xs">
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
-               <span class="glyphicon glyphicon-refresh"></span>
-            </a>
-            {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
-            </a>
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               Formas de pago
+               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+               <span class="btn-group">
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='button'"}
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                  {/if}
+               {/loop}
+               </span>
+            </h1>
+            {if="$fsc->button_plazos"}
+            <p class="help-block">
+               Usa el botón &nbsp;
+               <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> &nbsp;
+               para definir los plazos de pago de cada forma de pago.
+            </p>
             {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
-            </a>
+            <p class="help-block">
+               Puedes configurar plazos de pago con el
+               <a href="https://www.facturascripts.com/store/producto/plugin-facturacion_premium/" target="_blank">plugin tesorería</a>,
+               que se vende junto con facturación premium.
+            </p>
             {/if}
          </div>
-         <div class="btn-group">
-            {loop="$fsc->extensions"}
-               {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
-               {/if}
-            {/loop}
-         </div>
-      </div>
-      <div class="col-xs-8 text-right">
-         <h2 style="margin-top: 0px;">Formas de pago</h2>
       </div>
    </div>
 </div>

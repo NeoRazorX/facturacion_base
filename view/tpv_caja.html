@@ -212,8 +212,8 @@
                {/loop}
                <form action="{$fsc->url()}#terminales" method="post" class="form">
                   <input type="hidden" name="nuevot" value="TRUE"/>
-                  <tr class="bg-info">
-                     <td><input type="text" name="idt" class="form-control" autocomplete="off" disabled="disabled"/></td>
+                  <tr class="info">
+                     <td><input type="text" name="idt" class="form-control" autocomplete="off" placeholder="Nuevo" disabled="disabled"/></td>
                      <td>
                         <select name="codalmacen" class="form-control">
                            {loop="$fsc->almacen->all()"}

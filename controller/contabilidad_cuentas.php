@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -40,7 +40,9 @@ class contabilidad_cuentas extends fs_controller
       
       $this->offset = 0;
       if( isset($_GET['offset']) )
+      {
          $this->offset = intval($_GET['offset']);
+      }
       
       if( isset($_GET['delete']) )
       {
@@ -48,7 +50,9 @@ class contabilidad_cuentas extends fs_controller
          if($cuenta2)
          {
             if( $cuenta2->delete() )
+            {
                $this->new_message('Cuenta eliminada correctamente.');
+            }
             else
                $this->new_error_msg('Error al eliminar la cuenta.');
          }
@@ -84,9 +88,13 @@ class contabilidad_cuentas extends fs_controller
    {
       $url = '';
       if($this->query!='' AND $this->offset>0)
+      {
          $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT);
+      }
       else if($this->query=='' AND $this->offset>0)
+      {
          $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT);
+      }
       return $url;
    }
    
@@ -94,9 +102,13 @@ class contabilidad_cuentas extends fs_controller
    {
       $url = '';
       if($this->query!='' AND count($this->resultados)==FS_ITEM_LIMIT)
+      {
          $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT);
+      }
       else if($this->query=='' AND count($this->resultados)==FS_ITEM_LIMIT)
+      {
          $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT);
+      }
       return $url;
    }
 }

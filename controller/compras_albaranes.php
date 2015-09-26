@@ -45,7 +45,7 @@ class compras_albaranes extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, ucfirst(FS_ALBARANES).' de proveedor', 'compras', FALSE, TRUE, TRUE);
+      parent::__construct(__CLASS__, ucfirst(FS_ALBARANES).' de compra', 'compras', FALSE, TRUE, TRUE);
    }
    
    protected function private_core()

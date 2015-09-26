@@ -237,8 +237,8 @@
                         <th class="text-right" width="90">Dto. %</th>
                         <th class="text-right" width="130">Neto</th>
                         <th class="text-right" width="115">{#FS_IVA#}</th>
-                        <th class="text-right recargo">RE %</th>
-                        <th class="text-right irpf">{#FS_IRPF#} %</th>
+                        <th class="text-right recargo" width="115">RE %</th>
+                        <th class="text-right irpf" width="115">{#FS_IRPF#} %</th>
                         <th class="text-right" width="140">Total</th>
                      </tr>
                   </thead>
@@ -463,7 +463,7 @@
       <div class="modal-content">
          <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3 class="modal-title">Buscar artículos</h3>
+            <h4 class="modal-title">Buscar artículos</h4>
          </div>
          <div class="modal-body">
             <form id="f_buscar_articulos" name="f_buscar_articulos" action="{$fsc->url()}" method="post" class="form">
@@ -687,11 +687,11 @@
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h3 class="modal-title">¿Realmente desea eliminar este {#FS_ALBARAN#}?</h3>
+               <h4 class="modal-title">¿Realmente desea eliminar este {#FS_ALBARAN#}?</h4>
             </div>
             {if="$fsc->albaran->idfactura"}
-            <div class="alert alert-warning">
-               Hay una <b>factura</b> asociada que <b>será eliminada</b> junto con este {#FS_ALBARAN#}.
+            <div class="modal-body bg-warning">
+               Hay una factura asociada que será eliminada junto con este {#FS_ALBARAN#}.
             </div>
             {/if}
             <div class="modal-footer">

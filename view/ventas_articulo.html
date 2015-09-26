@@ -615,8 +615,8 @@
                   <td class="text-right">{$value->stockfis}</td>
                </tr>
                {else}
-               <tr>
-                  <td colspan="3" class="bg-warning">Sin resultados.</td>
+               <tr class="warning">
+                  <td colspan="3">Sin resultados.</td>
                </tr>
                {/loop}
             </table>
@@ -642,7 +642,9 @@
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Imagen</h4>
+               <h4 class="modal-title">
+                  <span class="glyphicon glyphicon-picture"></span> &nbsp; Imagen
+               </h4>
             </div>
             <div class="modal-body">
                {if="$fsc->articulo->imagen_url()"}
@@ -650,9 +652,11 @@
                   <img src="{$fsc->articulo->imagen_url()}" alt="{$fsc->articulo->referencia}"/>
                </div>
                {else}
+               <p class="help-block">
+                  Selecciona una imagen en formato PNG de tamaño inferior a 1MB.
+               </p>
                <div class="form-group">
-                  Selecciona una imagen en formato PNG de tamaño inferior a 1MB.<br/>
-                  <input type="file" name="fimagen" accept="image/gif, image/jpeg, image/png"/>
+                  <input type="file" name="fimagen" accept="image/png"/>
                </div>
                {/if}
             </div>

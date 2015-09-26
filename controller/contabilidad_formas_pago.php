@@ -59,11 +59,15 @@ class contabilidad_formas_pago extends fs_controller
       
       if( isset($_POST['codpago']) )
       {
+         /// crear/modificar forma de pago
+         $nueva = FALSE;
+         
          $fp0 = $this->forma_pago->get($_POST['codpago']);
          if(!$fp0)
          {
             $fp0 = new forma_pago();
             $fp0->codpago = $_POST['codpago'];
+            $nueva = TRUE;
          }
          $fp0->descripcion = $_POST['descripcion'];
          $fp0->genrecibos = $_POST['genrecibos'];
@@ -82,7 +86,12 @@ class contabilidad_formas_pago extends fs_controller
          }
          else if( $fp0->save() )
          {
-            $this->new_message('Forma pago '.$fp0->codpago.' guardada correctamente.');
+            $this->new_message('Forma de pago '.$fp0->codpago.' guardada correctamente.');
+            
+            if($nueva AND $this->button_plazos AND $fp0->genrecibos == 'Emitidos')
+            {
+               header('Location: index.php?page='.$this->button_plazos.'&cod='.$fp0->codpago);
+            }
          }
          else
             $this->new_error_msg('Error al guardar la forma pago.');

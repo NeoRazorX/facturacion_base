@@ -440,4 +440,15 @@ $(document).ready(function() {
       $("#modal_guardar").modal('show');
       document.f_tpv.tpv_efectivo.focus();
    });
+   
+   $("#tpv_efectivo").keypress(function(e) {
+      if(e.which == 13)
+      {
+         e.preventDefault();
+         document.f_tpv.submit();
+      }
+   });
+   $("#tpv_efectivo").keyup(function (e) {
+      $("#tpv_cambio").val(number_format(parseFloat($(this).val()) - parseFloat($("#tpv_total2").val()), 2, '.', ''));
+   });
 });
