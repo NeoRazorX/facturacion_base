@@ -336,24 +336,35 @@ class balance_cuenta_a extends fs_model
       return '';
    }
    
-   /*
-    * Devuelve el saldo del balance de un ejercicio
+   /**
+    * Devuelve el saldo del balance de un ejercicio.
+    * @param ejercicio $ejercicio
+    * @param type $desde
+    * @param type $hasta
+    * @return int
     */
-   public function saldo(&$ejercicio)
+   public function saldo(&$ejercicio, $desde=FALSE, $hasta=FALSE)
    {
       $extra = '';
       if( isset($ejercicio->idasientopyg) )
       {
          if( isset($ejercicio->idasientocierre) )
          {
-            $extra = " AND idasiento NOT IN (".$this->var2str($ejercicio->idasientocierre).",".$this->var2str($ejercicio->idasientopyg).");";
+            $extra = " AND idasiento NOT IN (".$this->var2str($ejercicio->idasientocierre).",".$this->var2str($ejercicio->idasientopyg);
          }
          else
-            $extra = " AND idasiento != ".$this->var2str($ejercicio->idasientopyg).";";
+            $extra = " AND idasiento != ".$this->var2str($ejercicio->idasientopyg);
       }
       else if( isset($ejercicio->idasientocierre) )
       {
-         $extra = " AND idasiento != ".$this->var2str($ejercicio->idasientocierre).";";
+         $extra = " AND idasiento != ".$this->var2str($ejercicio->idasientocierre);
+      }
+      
+      if($desde AND $hasta)
+      {
+         $extra .= " AND idasiento IN (SELECT idasiento FROM co_asientos WHERE "
+                 . "fecha >= ".$this->var2str($desde)." AND "
+                 . "fecha <= ".$this->var2str($hasta).")";
       }
       
       if($this->codcuenta == '129')

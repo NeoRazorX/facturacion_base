@@ -47,7 +47,8 @@
                               {else}
                               <a href="#"><s>Libro diario</s></a>
                               {/if}
-                              <br/>
+                           </div>
+                           <div class="col-sm-3">
                               <a href="{$fsc->url()}&diario={$value->codejercicio}" target="_blank">
                                  <span class="glyphicon glyphicon-file" aria-hidden="true"></span> Libro diario (CSV)
                               </a>
@@ -66,11 +67,6 @@
                                  <span class="glyphicon glyphicon-book" aria-hidden="true"></span> Balance de pérdidas y ganancias
                               </a>
                            </div>
-                           <div class="col-sm-3">
-                              <a href="{$fsc->url()}&balance=sit&eje={$value->codejercicio}" target="_blank">
-                                 <span class="glyphicon glyphicon-book" aria-hidden="true"></span> Balance de situación
-                              </a>
-                           </div>
                         </div>
                         <div class="row">
                            <div class="col-sm-12">
@@ -80,6 +76,7 @@
                         <div class="row">
                            <form action="{$fsc->url()}" method="post" target="_blank" class="form">
                               <input type="hidden" name="codejercicio" value="{$value->codejercicio}"/>
+                              <input type="hidden" name="informe" value="sumasysaldos"/>
                               <div class="col-sm-2">
                                  <div class="form-group">
                                     Desde:
@@ -99,6 +96,40 @@
                                        <option value="3">3 dígitos</option>
                                        <option value="normal">Normal</option>
                                     </select>
+                                 </div>
+                              </div>
+                              <div class="col-sm-2">
+                                 <br/>
+                                 <button type="submit" class="btn btn-sm btn-primary">
+                                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> &nbsp; Mostrar
+                                 </button>
+                              </div>
+                           </form>
+                        </div>
+                        <div class="row">
+                           <div class="col-sm-12">
+                              <h3>Balance de situación:</h3>
+                              <p class="help-block">
+                                 Puedes filtrar por fecha o bien visualizar el
+                                 <a href="{$fsc->url()}&balance=sit&eje={$value->codejercicio}" target="_blank">balance completo</a>
+                                 comparado con el año anterior.
+                              </p>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <form action="{$fsc->url()}" method="post" target="_blank" class="form">
+                              <input type="hidden" name="codejercicio" value="{$value->codejercicio}"/>
+                              <input type="hidden" name="informe" value="situacion"/>
+                              <div class="col-sm-2">
+                                 <div class="form-group">
+                                    Desde:
+                                    <input type="text" name="desde" value="{$value->fechainicio}" class="form-control datepicker" autocomplete="off"/>
+                                 </div>
+                              </div>
+                              <div class="col-sm-2">
+                                 <div class="form-group">
+                                    Hasta:
+                                    <input type="text" name="hasta" value="{$value->fechafin}" class="form-control datepicker" autocomplete="off"/>
                                  </div>
                               </div>
                               <div class="col-sm-2">
