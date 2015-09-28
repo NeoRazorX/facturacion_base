@@ -240,6 +240,31 @@ class ventas_articulo extends fs_controller
          {
             $this->new_message("Datos del articulo modificados correctamente");
             $this->articulo->set_referencia($_POST['nreferencia']);
+            
+            if( $this->db->table_exists('lineasalbaranescli') )
+            {
+                $this->db->exec("UPDATE lineasalbaranescli SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+            }
+            
+            if( $this->db->table_exists('lineasalbaranesprov') )
+            {
+                $this->db->exec("UPDATE lineasalbaranesprov SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+            }
+            
+            if( $this->db->table_exists('lineasfacturascli') )
+            {
+                $this->db->exec("UPDATE lineasfacturascli SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+            }
+            
+            if( $this->db->table_exists('lineasfacturasprov') )
+            {
+                $this->db->exec("UPDATE lineasfacturasprov SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+            }
+            
+            if( $this->db->table_exists('lineasfabricados') )
+            {
+                $this->db->exec("UPDATE lineasfabricados SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+            }
          }
          else
             $this->new_error_msg("¡Error al guardar el articulo!");
