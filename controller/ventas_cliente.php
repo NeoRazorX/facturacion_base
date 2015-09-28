@@ -38,6 +38,7 @@ class ventas_cliente extends fs_controller
    public $grupo;
    public $pais;
    public $serie;
+   public $direccion_cliente;
    
    public function __construct()
    {
@@ -68,6 +69,10 @@ class ventas_cliente extends fs_controller
       else if( isset($_GET['cod']) )
       {
          $this->cliente = $cliente->get($_GET['cod']);
+
+         $dir = new direccion_cliente();
+      	 $codcli = $_GET['cod'];
+      	 $this->direccion_cliente = $dir->all_from_cliente_facturacion($codcli);
       }
       
       /// ¿Hay que hacer algo más?
