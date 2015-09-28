@@ -241,6 +241,9 @@ class ventas_articulo extends fs_controller
             $this->new_message("Datos del articulo modificados correctamente");
             $this->articulo->set_referencia($_POST['nreferencia']);
             
+            /**
+             * Renombramos la referencia en el resto de tablas: lineasalbaranes, lineasfacturas...
+             */
             if( $this->db->table_exists('lineasalbaranescli') )
             {
                 $this->db->exec("UPDATE lineasalbaranescli SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
@@ -261,6 +264,7 @@ class ventas_articulo extends fs_controller
                 $this->db->exec("UPDATE lineasfacturasprov SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
             }
             
+            /// esto es una personalización del plugin producción, será eliminado este código en futuras versiones.
             if( $this->db->table_exists('lineasfabricados') )
             {
                 $this->db->exec("UPDATE lineasfabricados SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");

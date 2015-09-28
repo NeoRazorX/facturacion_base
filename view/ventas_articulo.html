@@ -650,6 +650,9 @@
                {if="$fsc->articulo->imagen_url()"}
                <div class="thumbnail">
                   <img src="{$fsc->articulo->imagen_url()}" alt="{$fsc->articulo->referencia}"/>
+                  <div class="caption">
+                     <p>Esta imagen está guardada en {$fsc->articulo->imagen_url()}</p>
+                  </div>
                </div>
                {else}
                <p class="help-block">

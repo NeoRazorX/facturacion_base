@@ -615,9 +615,16 @@ class articulo extends fs_model
       }
       else if( $ref != $this->referencia AND !is_null($this->referencia) )
       {
-         $sql = "UPDATE ".$this->table_name." SET referencia = ".$this->var2str($ref)." WHERE referencia = ".$this->var2str($this->referencia).";";
+         $sql = "UPDATE ".$this->table_name." SET referencia = ".$this->var2str($ref)
+                 ." WHERE referencia = ".$this->var2str($this->referencia).";";
          if( $this->db->exec($sql) )
          {
+            /// renombramos la imagen, si la hay
+            if( file_exists('images/articulos/'.$this->referencia.'-1.png') )
+            {
+               rename('images/articulos/'.$this->referencia.'-1.png', 'images/articulos/'.$ref.'-1.png');
+            }
+            
             $this->referencia = $ref;
          }
          else
