@@ -24,16 +24,30 @@ require_model('articulo.php');
  */
 class stock extends fs_model
 {
+   /**
+    * Clave primaria.
+    * @var type 
+    */
    public $idstock;
+   
    public $codalmacen;
+   
    public $referencia;
+   
    public $nombre;
+   
    public $cantidad;
+   
    public $reservada;
+   
    public $disponible;
+   
    public $pterecibir;
+   
    public $stockmin;
+   
    public $stockmax;
+   
    public $cantidadultreg;
    
    public function __construct($s=FALSE)
@@ -71,7 +85,14 @@ class stock extends fs_model
    
    protected function install()
    {
+      /**
+       * La tabla stocks tiene claves ajenas a artículos y almacenes,
+       * por eso creamos un objeto de cada uno, para forzar la comprobación
+       * de las tablas.
+       */
+      new almacen();
       new articulo();
+      
       return '';
    }
    
@@ -135,24 +156,33 @@ class stock extends fs_model
    {
       if( $this->exists() )
       {
-         $sql = "UPDATE ".$this->table_name." SET codalmacen = ".$this->var2str($this->codalmacen).",
-            referencia = ".$this->var2str($this->referencia).", nombre = ".$this->var2str($this->nombre).",
-            cantidad = ".$this->var2str($this->cantidad).", reservada = ".$this->var2str($this->reservada).",
-            disponible = ".$this->var2str($this->disponible).", pterecibir = ".$this->var2str($this->pterecibir).",
-            stockmin = ".$this->var2str($this->stockmin).", stockmax = ".$this->var2str($this->stockmax).",
-            cantidadultreg = ".$this->var2str($this->cantidadultreg)."
-            WHERE idstock = ".$this->var2str($this->idstock).";";
+         $sql = "UPDATE ".$this->table_name." SET codalmacen = ".$this->var2str($this->codalmacen)
+                 .", referencia = ".$this->var2str($this->referencia)
+                 .", nombre = ".$this->var2str($this->nombre)
+                 .", cantidad = ".$this->var2str($this->cantidad)
+                 .", reservada = ".$this->var2str($this->reservada)
+                 .", disponible = ".$this->var2str($this->disponible)
+                 .", pterecibir = ".$this->var2str($this->pterecibir)
+                 .", stockmin = ".$this->var2str($this->stockmin)
+                 .", stockmax = ".$this->var2str($this->stockmax)
+                 .", cantidadultreg = ".$this->var2str($this->cantidadultreg)
+                 ."  WHERE idstock = ".$this->var2str($this->idstock).";";
          
          return $this->db->exec($sql);
       }
       else
       {
          $sql = "INSERT INTO ".$this->table_name." (codalmacen,referencia,nombre,cantidad,reservada,
-            disponible,pterecibir,stockmin,stockmax,cantidadultreg) VALUES (".$this->var2str($this->codalmacen).",
-            ".$this->var2str($this->referencia).",".$this->var2str($this->nombre).",".$this->var2str($this->cantidad).",
-            ".$this->var2str($this->reservada).",".$this->var2str($this->disponible).",
-            ".$this->var2str($this->pterecibir).",".$this->var2str($this->stockmin).",
-            ".$this->var2str($this->stockmax).",".$this->var2str($this->cantidadultreg).");";
+            disponible,pterecibir,stockmin,stockmax,cantidadultreg) VALUES (".$this->var2str($this->codalmacen)
+                 .",".$this->var2str($this->referencia)
+                 .",".$this->var2str($this->nombre)
+                 .",".$this->var2str($this->cantidad)
+                 .",".$this->var2str($this->reservada)
+                 .",".$this->var2str($this->disponible)
+                 .",".$this->var2str($this->pterecibir)
+                 .",".$this->var2str($this->stockmin)
+                 .",".$this->var2str($this->stockmax)
+                 .",".$this->var2str($this->cantidadultreg).");";
          
          if( $this->db->exec($sql) )
          {

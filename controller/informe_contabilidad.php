@@ -251,6 +251,8 @@ class informe_contabilidad extends fs_controller
                               
                               $desc3 = $bal->descripcion3;
                            }
+                           
+                           break;
                         }
                      }
                   }
