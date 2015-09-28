@@ -1,0 +1,121 @@
+{include="header"}
+
+<script type="text/javascript">
+   function delete_agencia(cod)
+   {
+      if( confirm("¿Realmente desea eliminar la agencia "+cod+"?") )
+         window.location.href = '{$fsc->url()}&delete='+cod;
+   }
+</script>
+
+<div class="container">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               <span class="glyphicon glyphicon-plane"></span>
+               Agencias de transporte
+               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+               <span class="btn-group">
+                  {loop="$fsc->extensions"}
+                     {if="$value->type=='button'"}
+                     <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                     {/if}
+                  {/loop}
+               </span>
+            </h1>
+         </div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th class="text-left">Código</th>
+                     <th class="text-left">Nombre</th>
+                     <th class="text-left">Teléfono</th>
+                     <th class="text-left">Web</th>
+                     <th class="text-center">Activo</th>
+                     <th width="120"></th>
+                  </tr>
+               </thead>
+               {loop="$fsc->listado"}
+               <form action="{$fsc->url()}" method="post" class="form">
+                  <tr{if="!$value->activo"} class="danger"{/if}>
+                     <td>
+                        <input type="text" name="codtrans" value="{$value->codtrans}" class="form-control" readonly=""/>
+                     </td>
+                     <td>
+                        <input type="text" name="nombre" value="{$value->nombre}" class="form-control" maxlength="100" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input type="text" name="telefono" value="{$value->telefono}" class="form-control" maxlength="20" autocomplete="off"/>
+                     </td>
+                     <td>
+                        <input type="text" name="web" value="{$value->web}" class="form-control" maxlength="100" autocomplete="off"/>
+                     </td>
+                     <td class="text-center">
+                        <div class="checkbox">
+                           <label>
+                              {if="$value->activo"}
+                              <input type="checkbox" name="activo" value="TRUE" checked=""/>
+                              {else}
+                              <input type="checkbox" name="activo" value="TRUE"/>
+                              {/if}
+                           </label>
+                        </div>
+                     </td>
+                     <td class="text-right">
+                        <div class="btn-group">
+                           {if="$fsc->allow_delete"}
+                           <button class="btn btn-sm btn-danger" type="button" title="Eliminar" onclick="delete_agencia('{$value->codtrans}')">
+                              <span class="glyphicon glyphicon-trash"></span>
+                           </button>
+                           {/if}
+                           <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                              <span class="glyphicon glyphicon-floppy-disk"></span>
+                           </button>
+                        </div>
+                     </td>
+                  </tr>
+               </form>
+               {/loop}
+               <form action="{$fsc->url()}" method="post" class="form">
+                  <tr class="info">
+                     <td>
+                        <input type="text" name="codtrans" class="form-control" maxlength="8" autocomplete="off" placeholder="Nuevo"/>
+                     </td>
+                     <td>
+                        <input type="text" name="nombre" class="form-control" maxlength="100" autocomplete="off" placeholder="Nuevo"/>
+                     </td>
+                     <td>
+                        <input type="text" name="telefono" class="form-control" maxlength="20" autocomplete="off" placeholder="Teléfono"/>
+                     </td>
+                     <td>
+                        <input type="text" name="web" class="form-control" maxlength="100" autocomplete="off" placeholder="Web"/>
+                     </td>
+                     <td class="text-center">
+                        <div class="checkbox">
+                           <label>
+                              <input type="checkbox" name="activo" value="TRUE" checked=""/>
+                           </label>
+                        </div>
+                     </td>
+                     <td class="text-right">
+                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                           <span class="glyphicon glyphicon-floppy-disk"></span>
+                        </button>
+                     </td>
+                  </tr>
+               </form>
+            </table>
+         </div>
+      </div>
+   </div>
+</div>
+
+{include="footer"}
