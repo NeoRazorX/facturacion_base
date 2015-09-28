@@ -50,6 +50,8 @@ class stock extends fs_model
    
    public $cantidadultreg;
    
+   public $ubicacion;
+   
    public function __construct($s=FALSE)
    {
       parent::__construct('stocks', 'plugins/facturacion_base/');
@@ -66,6 +68,7 @@ class stock extends fs_model
          $this->stockmin = floatval($s['stockmin']);
          $this->stockmax = floatval($s['stockmax']);
          $this->cantidadultreg = floatval($s['cantidadultreg']);
+         $this->ubicacion = $s['ubicacion'];
       }
       else
       {
@@ -80,6 +83,7 @@ class stock extends fs_model
          $this->stockmin = 0;
          $this->stockmax = 0;
          $this->cantidadultreg = 0;
+         $this->ubicacion = NULL;
       }
    }
    
@@ -166,6 +170,7 @@ class stock extends fs_model
                  .", stockmin = ".$this->var2str($this->stockmin)
                  .", stockmax = ".$this->var2str($this->stockmax)
                  .", cantidadultreg = ".$this->var2str($this->cantidadultreg)
+                 .", ubicacion = ".$this->var2str($this->ubicacion)
                  ."  WHERE idstock = ".$this->var2str($this->idstock).";";
          
          return $this->db->exec($sql);
@@ -173,7 +178,8 @@ class stock extends fs_model
       else
       {
          $sql = "INSERT INTO ".$this->table_name." (codalmacen,referencia,nombre,cantidad,reservada,
-            disponible,pterecibir,stockmin,stockmax,cantidadultreg) VALUES (".$this->var2str($this->codalmacen)
+            disponible,pterecibir,stockmin,stockmax,cantidadultreg,ubicacion) VALUES 
+                   (".$this->var2str($this->codalmacen)
                  .",".$this->var2str($this->referencia)
                  .",".$this->var2str($this->nombre)
                  .",".$this->var2str($this->cantidad)
@@ -182,7 +188,8 @@ class stock extends fs_model
                  .",".$this->var2str($this->pterecibir)
                  .",".$this->var2str($this->stockmin)
                  .",".$this->var2str($this->stockmax)
-                 .",".$this->var2str($this->cantidadultreg).");";
+                 .",".$this->var2str($this->cantidadultreg)
+                 .",".$this->var2str($this->ubicacion).");";
          
          if( $this->db->exec($sql) )
          {
