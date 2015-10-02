@@ -38,6 +38,7 @@ class ventas_articulos extends fs_controller
    public $offset;
    public $resultados;
    public $tarifa;
+   public $refauto;
    
    public function __construct()
    {
@@ -54,6 +55,29 @@ class ventas_articulos extends fs_controller
       $this->fabricante = new fabricante();
       $this->impuesto = new impuesto();
       $this->tarifa = new tarifa();
+      
+      
+      
+      //cargamos la configuración del estado de referencia.
+       $fsvar = new fs_var();
+       $this->refauto = $fsvar->array_get(
+         array(
+            'refauto' => 0,
+         ),
+         FALSE
+      );
+       
+       //modificamos la referencia auto en función del último valor.
+       if( isset($_POST['ref_auto']))
+       {
+           $this->refauto['refauto'] = 1;
+       }
+       if(isset($_POST['referencia']))
+       {
+           $this->refauto['refauto'] = 0;
+       }
+       $fsvar->array_save($this->refauto);
+       
       
       /**
        * Si hay alguna extensión de tipo config y texto no_tab_tarifas,
@@ -108,20 +132,31 @@ class ventas_articulos extends fs_controller
          else
             $this->new_error_msg("¡La tarifa no existe!");
       }
-      else if( isset($_POST['referencia']) AND isset($_POST['codfamilia']) AND isset($_POST['codimpuesto']) )
+      else if( isset($_POST['referencia']) OR isset($_POST['ref_auto'])  AND isset($_POST['codfamilia']) AND isset($_POST['codimpuesto']) )
       {
          /// nuevo artículo
          $this->save_codimpuesto( $_POST['codimpuesto'] );
          
-         $art0 = $articulo->get($_POST['referencia']);
+         $art0 = '';
+         if(isset($_POST['referencia']))
+         {
+             $art0 = $articulo->get($_POST['referencia']);
+         }
          if($art0)
          {
             $this->new_error_msg('Ya existe el artículo <a href="'.$art0->url().'">'.$art0->referencia.'</a>');
          }
          else
          {
-            $articulo->referencia = $_POST['referencia'];
-            $articulo->descripcion = $_POST['referencia'];
+            if( isset($_POST['ref_auto']))
+            {
+                 $articulo->referencia = $articulo->get_new_ref();
+            }
+            else
+            {
+                 $articulo->referencia = $_POST['referencia'];
+            }
+            $articulo->descripcion = $_POST['descripcion'];
             $articulo->nostock = isset($_POST['nostock']);
             
             if($_POST['codfamilia'] != '')

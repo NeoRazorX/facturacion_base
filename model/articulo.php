@@ -46,7 +46,7 @@ class articulo extends fs_model
     * Código de la familia a la que pertenece. En la clase familia.
     * @var type 
     */
-   public $codfamilia;
+   public $reffamilia;
    
    /**
     * Descripción del artículo. Tipo text, sin límite de caracteres.
@@ -58,7 +58,7 @@ class articulo extends fs_model
     * Código del fabricante al que pertenece. En la clase fabricante.
     * @var type 
     */
-   public $codfabricante;
+   public $reffabricante;
    
    /**
     * Precio del artículo, sin impuestos.
@@ -98,7 +98,7 @@ class articulo extends fs_model
     * Impuesto asignado. Clase impuesto.
     * @var type 
     */
-   public $codimpuesto;
+   public $refimpuesto;
    
    /**
     * TRUE => el artículos está bloqueado / obsoleto.
@@ -150,20 +150,20 @@ class articulo extends fs_model
     * Código de barras.
     * @var type 
     */
-   public $codbarras;
+   public $refbarras;
    public $observaciones;
    
    /**
     * Código de la subcuenta para compras.
     * @var type 
     */
-   public $codsubcuentacom;
+   public $refsubcuentacom;
    
    /**
     * Código para la subcuenta de compras, pero con IRPF.
     * @var type 
     */
-   public $codsubcuentairpfcom;
+   public $refsubcuentairpfcom;
    
    /**
     * % IVA del impuesto asignado.
@@ -636,13 +636,13 @@ class articulo extends fs_model
    
    /**
     * Cambia el impuesto asociado al artículo.
-    * @param type $codimpuesto
+    * @param type $refimpuesto
     */
-   public function set_impuesto($codimpuesto)
+   public function set_impuesto($refimpuesto)
    {
-      if($codimpuesto != $this->codimpuesto)
+      if($refimpuesto != $this->codimpuesto)
       {
-         $this->codimpuesto = $codimpuesto;
+         $this->codimpuesto = $refimpuesto;
          
          $encontrado = FALSE;
          foreach(self::$impuestos as $i)
@@ -1063,12 +1063,12 @@ class articulo extends fs_model
       }
    }
    
-   public function search($query='', $offset=0, $codfamilia='', $con_stock=FALSE, $codfabricante='', $bloqueados=FALSE)
+   public function search($query='', $offset=0, $reffamilia='', $con_stock=FALSE, $reffabricante='', $bloqueados=FALSE)
    {
       $artilist = array();
       $query = $this->no_html( strtolower($query) );
       
-      if($query != '' AND $offset == 0 AND $codfamilia == '' AND $codfabricante == '' AND !$con_stock AND !$bloqueados)
+      if($query != '' AND $offset == 0 AND $reffamilia == '' AND $reffabricante == '' AND !$con_stock AND !$bloqueados)
       {
          /// intentamos obtener los datos de memcache
          if( $this->new_search_tag($query) )
@@ -1082,15 +1082,15 @@ class articulo extends fs_model
          $sql = "SELECT ".self::$column_list." FROM ".$this->table_name;
          $separador = ' WHERE';
          
-         if($codfamilia != '')
+         if($reffamilia != '')
          {
-            $sql .= $separador." codfamilia = ".$this->var2str($codfamilia);
+            $sql .= $separador." codfamilia = ".$this->var2str($reffamilia);
             $separador = ' AND';
          }
          
-         if($codfabricante != '')
+         if($reffabricante != '')
          {
-            $sql .= $separador." codfabricante = ".$this->var2str($codfabricante);
+            $sql .= $separador." codfabricante = ".$this->var2str($reffabricante);
             $separador = ' AND';
          }
          
@@ -1151,11 +1151,11 @@ class articulo extends fs_model
       return $artilist;
    }
    
-   public function search_by_codbar($cod, $offset=0, $limit=FS_ITEM_LIMIT)
+   public function search_by_codbar($ref, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
       $sql = "SELECT ".self::$column_list." FROM ".$this->table_name
-              ." WHERE codbarras = ".$this->var2str($cod)
+              ." WHERE codbarras = ".$this->var2str($ref)
               ." ORDER BY lower(referencia) ASC";
       
       $data = $this->db->select_limit($sql, $limit, $offset);
@@ -1214,16 +1214,16 @@ class articulo extends fs_model
    
    /**
     * Devuelve los artículos de una familia.
-    * @param type $cod
+    * @param type $ref
     * @param type $offset
     * @param type $limit
     * @return \articulo
     */
-   public function all_from_familia($cod, $offset=0, $limit=FS_ITEM_LIMIT)
+   public function all_from_familia($ref, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
       $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = "
-              .$this->var2str($cod)." ORDER BY lower(referencia) ASC";
+              .$this->var2str($ref)." ORDER BY lower(referencia) ASC";
       
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
@@ -1237,16 +1237,16 @@ class articulo extends fs_model
    
    /**
     * Devuelve los artículos de un fabricante.
-    * @param type $cod
+    * @param type $ref
     * @param type $offset
     * @param type $limit
     * @return \articulo
     */
-   public function all_from_fabricante($cod, $offset=0, $limit=FS_ITEM_LIMIT)
+   public function all_from_fabricante($ref, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codfabricante = "
-              .$this->var2str($cod)." ORDER BY lower(referencia) ASC";
+              .$this->var2str($ref)." ORDER BY lower(referencia) ASC";
       
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
@@ -1257,4 +1257,30 @@ class articulo extends fs_model
       
       return $artilist;
    }
+   
+   /**
+    * Devuelve una nueva referencia-->la última +1.
+    * @return \referencia
+    */   
+    public function get_new_ref()
+   {
+      $ref ='';
+      if(strtolower(FS_DB_TYPE) == 'postgresql')
+      {
+          $sql = "SELECT referencia from articulos where referencia ~ '^\d+$' ORDER BY referencia DESC;";
+      }
+      else
+      {
+          $sql = "SELECT referencia from articulos where referencia REGEXP '^[0-9]+$' ORDER BY referencia DESC;";
+      }
+      
+      
+      $result = $this->db->select($sql);
+        if($result)
+         {
+            $ref = sprintf(1 + $result[0]['referencia']);
+         }
+         return $ref;
+   } 
+   
 }
