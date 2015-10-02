@@ -56,7 +56,7 @@ class compras_agrupar_albaranes extends fs_controller
       $this->serie = new serie();
       $this->neto = 0;
       $this->total = 0;
-      $this->desde = Date('01-m-Y');
+      $this->desde = Date('01-01-Y');
       $this->hasta = Date('t-m-Y');
       
       if( isset($_REQUEST['buscar_proveedor']) )
@@ -68,17 +68,34 @@ class compras_agrupar_albaranes extends fs_controller
          $this->proveedor = new proveedor();
          $this->agrupar();
       }
-      else if( isset($_POST['codproveedor']) )
+      else if( isset($_REQUEST['codproveedor']) )
       {
          $pr0 = new proveedor();
          $this->proveedor = $pr0->get($_REQUEST['codproveedor']);
-         $this->codserie = $_POST['serie'];
-         $this->desde = $_POST['desde'];
-         $this->hasta = $_POST['hasta'];
+         
+         if( isset($_REQUEST['codserie']) )
+         {
+            $this->codserie = $_REQUEST['codserie'];
+         }
+         
+         if( isset($_REQUEST['desde']) )
+         {
+            $this->desde = $_REQUEST['desde'];
+         }
+         
+         if( isset($_REQUEST['hasta']) )
+         {
+            $this->hasta = $_REQUEST['hasta'];
+         }
          
          if($this->proveedor)
          {
-            $this->resultados = $this->albaran->search_from_proveedor($_POST['codproveedor'], $_POST['desde'], $_POST['hasta'], $_POST['serie']);
+            $this->resultados = $this->albaran->search_from_proveedor(
+                    $this->proveedor->codproveedor,
+                    $this->desde,
+                    $this->hasta,
+                    $this->codserie
+            );
             if($this->resultados)
             {
                foreach($this->resultados as $alb)
@@ -359,5 +376,34 @@ class compras_agrupar_albaranes extends fs_controller
       );
       $fsext = new fs_extension($extension);
       $fsext->save();
+   }
+   
+   public function pendientes()
+   {
+      $pendientes = array();
+      
+      foreach($this->albaran->all_ptefactura() as $alb)
+      {
+         $encontrado = FALSE;
+         foreach($pendientes as $pe)
+         {
+            if($alb->codproveedor == $pe['codproveedor'])
+            {
+               $encontrado = TRUE;
+               break;
+            }
+         }
+         
+         if(!$encontrado)
+         {
+            $pendientes[] = array(
+                'codproveedor' => $alb->codproveedor,
+                'nombre' => $alb->nombre,
+                'codserie' => $alb->codserie
+            );
+         }
+      }
+      
+      return $pendientes;
    }
 }
