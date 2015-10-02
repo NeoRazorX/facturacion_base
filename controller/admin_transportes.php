@@ -27,7 +27,7 @@ class admin_transportes extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Agencias de transportes', 'admin');
+      parent::__construct(__CLASS__, 'Agencias de transporte', 'admin');
    }
    
    protected function private_core()

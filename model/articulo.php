@@ -386,6 +386,30 @@ class articulo extends fs_model
    }
    
    /**
+    * Devuelve una nueva referencia, la siguiente a la última de la base de datos.
+    */
+   public function get_new_referencia()
+   {
+      if( strtolower(FS_DB_TYPE) == 'postgresql' )
+      {
+         $sql = "SELECT referencia from articulos where referencia ~ '^\d+$' ORDER BY referencia DESC";
+      }
+      else
+      {
+         $sql = "SELECT referencia from articulos where referencia REGEXP '^[0-9]+$' ORDER BY referencia DESC";
+      }
+      
+      $ref = 1;
+      $data = $this->db->select_limit($sql, 1, 0);
+      if($data)
+      {
+         $ref = sprintf(1 + intval($data[0]['referencia']));
+      }
+      
+      return $ref;
+   }
+   
+   /**
     * Devuelve un artículo a partir de su referencia
     * @param type $ref
     * @return boolean|\articulo

@@ -255,7 +255,7 @@
             <div class="modal-body">
                <div class="radio">
                   <label>
-                     <input type="radio" name="fuente" value="plugins/facturacion_base/extras/espanya.xml" checked="checked"/>
+                     <input type="radio" name="fuente" value="plugins/facturacion_base/extras/espanya.xml" checked=""/>
                      Plan General Contable de <b>España</b>
                   </label>
                </div>
@@ -263,7 +263,7 @@
                   {if="$value->type=='fuente'"}
                   <div class="radio">
                      <label>
-                        <input type="radio" name="fuente" value="{$value->params}" checked="checked"/>
+                        <input type="radio" name="fuente" value="{$value->params}" checked=""/>
                         {$value->text}
                      </label>
                   </div>
@@ -295,7 +295,7 @@
                   </label>
                </div>
                <div id="div_externo" class="form-group" style="display: none;">
-                  <input class="form-control" name='farchivo' type='file' onclick="$('#rb_archivo').prop('checked', true);"/>
+                  <input name='farchivo' type='file' onclick="$('#rb_archivo').prop('checked', true);"/>
                </div>
             </div>
             <div class="modal-footer">
