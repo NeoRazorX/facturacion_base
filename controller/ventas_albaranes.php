@@ -226,7 +226,7 @@ class ventas_albaranes extends fs_controller
    public function paginas()
    {
       $paginas = array();
-      $i = 1;
+      $i = 0;
       $num = 0;
       $actual = 1;
       $total = $this->num_registros;
@@ -247,8 +247,8 @@ class ventas_albaranes extends fs_controller
                                     ."&codcliente=".$codcliente
                                     ."&desde=".$this->desde
                                     ."&hasta=".$this->hasta
-                                    ."&offset=".($i),
-             'num' => $i,
+                                    ."&offset=".($i*FS_ITEM_LIMIT),
+             'num' => $i+1,
              'actual' => ($num == $this->offset)
          );
          if( $num == $this->offset )
@@ -264,30 +264,6 @@ class ventas_albaranes extends fs_controller
       }
       
       return $paginas;
-   }
-   
-   public function pagina_url()
-   {
-      $url = [];
-      $codcliente = '';
-      if($this->cliente)
-      {
-         $codcliente = $this->cliente->codcliente;
-      }
-      
-      for ($x = 0 ; $x <= $this->num_registros; $x += FS_ITEM_LIMIT)
-      {
-         $url[] = $this->url()."&mostrar=".$this->mostrar
-                 ."&query=".$this->query
-                 ."&codserie=".$this->codserie
-                 ."&codagente=".$this->codagente
-                 ."&codcliente=".$codcliente
-                 ."&desde=".$this->desde
-                 ."&hasta=".$this->hasta
-                 ."&offset=".($x);
-      }
-      
-      return $url;
    }
    
    public function anterior_url()
