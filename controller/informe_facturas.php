@@ -862,7 +862,7 @@ class informe_facturas extends fs_controller
       return $stats;
    }
    
-   public function stats_last_days_aux($table_name='facturascli', $numdays = 25)
+   private function stats_last_days_aux($table_name='facturascli', $numdays = 25)
    {
       $stats = array();
       $desde = Date('d-m-Y', strtotime( Date('d-m-Y').'-'.$numdays.' day'));
@@ -940,10 +940,27 @@ class informe_facturas extends fs_controller
          $stats[$i]['beneficios'] = round($value['total'] - $stats[$i]['total_pro'] - $stats[$i]['impuestos_cli'], 2);
       }
       
+      /// leemos para completar $this->stats
+      $num = 0;
+      foreach($stats as $st)
+      {
+         $this->stats['media_ventas'] += $st['total_cli'];
+         $this->stats['media_compras'] += $st['total_pro'];
+         $this->stats['media_beneficios'] += $st['beneficios'];
+         $num++;
+      }
+      
+      if($num > 0)
+      {
+         $this->stats['media_ventas'] = $this->stats['media_ventas'] / $num;
+         $this->stats['media_compras'] = $this->stats['media_compras'] / $num;
+         $this->stats['media_beneficios'] = $this->stats['media_beneficios'] / $num;
+      }
+      
       return $stats;
    }
    
-   public function stats_last_months_aux($table_name='facturascli', $num = 11)
+   private function stats_last_months_aux($table_name='facturascli', $num = 11)
    {
       $stats = array();
       $desde = Date('d-m-Y', strtotime( Date('01-m-Y').'-'.$num.' month'));
@@ -978,7 +995,7 @@ class informe_facturas extends fs_controller
       return $stats;
    }
    
-   public function stats_last_months_pagadas($table_name='facturascli', $num = 11)
+   private function stats_last_months_pagadas($table_name='facturascli', $num = 11)
    {
       $stats = array();
       $desde = Date('d-m-Y', strtotime( Date('01-m-Y').'-'.$num.' month'));
@@ -1047,7 +1064,7 @@ class informe_facturas extends fs_controller
       return $stats;
    }
    
-   public function stats_last_years_aux($table_name='facturascli', $num = 4)
+   private function stats_last_years_aux($table_name='facturascli', $num = 4)
    {
       $stats = array();
       $desde = Date('d-m-Y', strtotime( Date('d-m-Y').'-'.$num.' year'));
@@ -1082,7 +1099,7 @@ class informe_facturas extends fs_controller
       return $stats;
    }
    
-   public function stats_last_years_pagadas($table_name='facturascli', $num = 4)
+   private function stats_last_years_pagadas($table_name='facturascli', $num = 4)
    {
       $stats = array();
       $desde = Date('d-m-Y', strtotime( Date('d-m-Y').'-'.$num.' year'));
@@ -1143,7 +1160,10 @@ class informe_facturas extends fs_controller
           'facturas_compra_importe' => 0,
           'facturas_venta' => 0,
           'facturas_venta_importe' => 0,
-          'total' => 0
+          'total' => 0,
+          'media_ventas' => 0,
+          'media_compras' => 0,
+          'media_beneficios' => 0
       );
       
       $sql = "SELECT COUNT(idalbaran) as num, SUM(total) as total FROM albaranesprov WHERE ptefactura;";

@@ -385,11 +385,12 @@ class compras_agrupar_albaranes extends fs_controller
       foreach($this->albaran->all_ptefactura() as $alb)
       {
          $encontrado = FALSE;
-         foreach($pendientes as $pe)
+         foreach($pendientes as $i => $pe)
          {
             if($alb->codproveedor == $pe['codproveedor'])
             {
                $encontrado = TRUE;
+               $pendientes[$i]['num']++;
                break;
             }
          }
@@ -399,7 +400,8 @@ class compras_agrupar_albaranes extends fs_controller
             $pendientes[] = array(
                 'codproveedor' => $alb->codproveedor,
                 'nombre' => $alb->nombre,
-                'codserie' => $alb->codserie
+                'codserie' => $alb->codserie,
+                'num' => 1
             );
          }
       }

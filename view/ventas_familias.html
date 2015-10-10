@@ -23,14 +23,20 @@
       <div class="col-sm-12">
          <div class="page-header">
             <h1>
+               <a class="btn btn-xs btn-default" href="index.php?page=ventas_articulos">
+                  <span class="glyphicon glyphicon-arrow-left"></span>
+               </a> &nbsp;
                {if="$fsc->query==''"}
                <span class="glyphicon glyphicon-folder-open"></span>
                &nbsp; Familias de artículos
-               <span class="hidden-xs badge">{$fsc->total_familias()}</span>
+               <small>{$fsc->total_familias()}</small>
                {else}
                <span class="glyphicon glyphicon-search"></span>
                &nbsp; Resultados de '{$fsc->query}'
                {/if}
+               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
             </h1>
             <p class="help-block">
                Las familias son una forma sencilla de agrupar artículos. Además
@@ -41,16 +47,10 @@
    </div>
    <div class="row">
       <div class="col-sm-9">
-         <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
-            <span class="glyphicon glyphicon-refresh"></span>
-         </a>
-         <a class="btn btn-sm btn-default" href="index.php?page=ventas_articulos">
-            <span class="glyphicon glyphicon-chevron-left"></span>
-            <span class="hidden-xs">&nbsp; Artículos</span>
-         </a>
          <div class="btn-group">
             <a id="b_nueva_familia" class="btn btn-sm btn-success" href="#">
-               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nueva
+               <span class="glyphicon glyphicon-plus"></span>
+               <span class="hidden-xs">&nbsp; Nueva</span>
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -60,6 +60,9 @@
          </div>
       </div>
       <div class="col-sm-3">
+         <div class="visible-xs">
+            <br/>
+         </div>
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
@@ -82,7 +85,7 @@
       <div class="col-sm-3" style="margin-bottom: 5px;">
          <a class="btn btn-block btn-default" href="{$value->url()}">
             <span class="glyphicon glyphicon-folder-open"></span>
-            &nbsp; {$value->descripcion}
+            &nbsp; {$value->descripcion()}
          </a>
       </div>
       {else}

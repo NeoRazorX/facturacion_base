@@ -304,23 +304,39 @@
    <div class="row">
       <div class="col-sm-12">
          <div class="page-header">
-            <h1>Fin.</h1>
+            <h1>
+               Fin
+               <a href="{$fsc->url()}&restart=TRUE" class="btn btn-xs btn-warning" title="Volver a empezar">
+                  <span class="glyphicon glyphicon-lock"></span>
+               </a>
+            </h1>
+            <p class="help-block">
+               Ya has terminado la configuración del plugin. Si quieres hacer cambios
+               en la configuración de la empresa, puedes ir a <b>Admin &gt; Empresa</b>.
+            </p>
+         </div>
+         {if="$fsc->empresa->contintegrada"}
+            <a href="index.php?page=contabilidad_ejercicio&cod={$fsc->empresa->codejercicio}" target="_blank" class="btn btn-sm btn-block btn-info">
+               <span class="glyphicon glyphicon-import"></span> &nbsp;
+               importar los datos contables
+            </a>
             <p class="help-block">
                Ahora es el momento de importar el plan contable, si todavía no lo
                has hecho.
             </p>
-         </div>
-         <a href="index.php?page=contabilidad_ejercicio&cod={$fsc->empresa->codejercicio}" target="_blank" class="btn btn-sm btn-block btn-info">
-            <span class="glyphicon glyphicon-import"></span> &nbsp;
-            importar los datos contables
-         </a>
+         {/if}
       </div>
    </div>
    {else}
    <div class="row">
       <div class="col-sm-12">
          <div class="page-header">
-            <h1>Fin.</h1>
+            <h1>
+               Fin
+               <a href="{$fsc->url()}&restart=TRUE" class="btn btn-xs btn-warning" title="Volver a empezar">
+                  <span class="glyphicon glyphicon-lock"></span>
+               </a>
+            </h1>
             <p class="help-block">
                Ahora es el momento de instalar el plugin específico para tu pais.
             </p>
@@ -366,11 +382,6 @@
    </div>
    {/if}
    <div class="row">
-      <div class="col-sm-12">
-         <br/>
-      </div>
-   </div>
-   <div class="row">
       <div class="col-sm-6">
          <h3>El menú ventas</h3>
          <div class="embed-responsive embed-responsive-16by9">
@@ -411,6 +422,15 @@
             </a>
             para copiar esos datos a FacturaScripts.
          </p>
+         <hr/>
+         <h3>
+            <span class="glyphicon glyphicon-envelope"></span>
+            ¿Quieres enviar emails desde FacturaScripts?
+         </h3>
+         <a href="index.php?page=admin_empresa#email" target="_blank" class="btn btn-xs btn-default">
+            <span class="glyphicon glyphicon-envelope"></span> &nbsp;
+            Configuración de email
+         </a>
       </div>
    </div>
 </div>

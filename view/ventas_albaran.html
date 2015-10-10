@@ -396,6 +396,16 @@
                </table>
                {/if}
             </div>
+            <div class="container-fluid">
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="form-group">
+                        Observaciones:
+                        <textarea class="form-control" name="observaciones" rows="3">{$fsc->albaran->observaciones}</textarea>
+                     </div>
+                  </div>
+               </div>
+            </div>
          </div>
          {if="$fsc->albaran->ptefactura"}
          <div role="tabpanel" class="tab-pane" id="direccion_p">
@@ -496,17 +506,6 @@
             </div>
             {/if}
          {/loop}
-      </div>
-   </div>
-   
-   <div class="container-fluid">
-      <div class="row">
-         <div class="col-md-12">
-            <div class="form-group">
-               Observaciones:
-               <textarea class="form-control" name="observaciones" rows="3">{$fsc->albaran->observaciones}</textarea>
-            </div>
-         </div>
       </div>
    </div>
 </form>

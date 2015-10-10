@@ -219,9 +219,10 @@
    <div class="row">
       {loop="$fsc->pendientes()"}
       <div class="col-sm-4">
-         <a href="{$fsc->url()}&codproveedor={$value['codproveedor']}&codserie={$value['codserie']}" class="btn btn-sm btn-block btn-default">
+         <a href="{$fsc->url()}&codproveedor={$value['codproveedor']}&codserie={$value['codserie']}" class="btn btn-sm btn-block {if="$value['num']>1"}btn-info{else}btn-default{/if}">
             <span class="glyphicon glyphicon-user"></span>
             &nbsp; {$value['nombre']}
+            {if="$value['num']>1"}&nbsp; ({$value['num']}){/if}
          </a>
          <br/>
       </div>

@@ -177,9 +177,9 @@
                   <td>
                      <a href="{$value->url()}">{$value->codcliente}</a> {$value->nombre}
                      {if="$value->debaja"}
-                     &nbsp; <span class="label label-danger" title="cliente dado de baja">Baja</span>
+                     &nbsp; <span class="label label-danger hidden-sm" title="cliente dado de baja">Baja</span>
                      {elseif="$value->fechaalta==$fsc->today()"}
-                     &nbsp; <span class="label label-success" title="Nuevo cliente">Nuevo</span>
+                     &nbsp; <span class="label label-success hidden-sm" title="Nuevo cliente">Nuevo</span>
                      {/if}
                   </td>
                   <td>{$value->cifnif}</td>

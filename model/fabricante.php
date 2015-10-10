@@ -56,6 +56,18 @@ class fabricante extends fs_model
          return "index.php?page=ventas_fabricante&cod=".$this->codfabricante;
    }
    
+   public function nombre($len = 12)
+   {
+      if( mb_strlen($this->nombre) > $len )
+      {
+         return substr($this->nombre, 0, $len).'...';
+      }
+      else
+      {
+         return $this->nombre;
+      }
+   }
+   
    public function get($cod)
    {
       $f = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codfabricante = ".$this->var2str($cod).";");

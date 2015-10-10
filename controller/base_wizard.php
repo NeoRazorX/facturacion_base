@@ -58,7 +58,7 @@ class base_wizard extends fs_controller
       
       $fsvar = new fs_var();
       $this->step = $fsvar->simple_get('install_step');
-      if($this->step < 2)
+      if( $this->step < 2 OR isset($_GET['restart']) )
       {
          $this->step = 2;
       }
