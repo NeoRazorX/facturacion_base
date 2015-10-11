@@ -28,7 +28,7 @@
          <td class="text-right">{$value->show_fecha()}</td>
       </tr>
       {else}
-      <tr class="bg-warning">
+      <tr class="warning">
          <td colspan="5">Sin resultados.</td>
       </tr>
       {/loop}
@@ -36,17 +36,16 @@
 </div>
 
 <ul class="pager">
-   {if="$fsc->anterior_url()!=''"}
+   {if="$fsc->offset>0"}
    <li class="previous">
-      <a href="{$fsc->anterior_url()}">
+      <a href="{$fsc->url()}&ref={$fsc->articulo->referencia}&offset={$fsc->offset-FS_ITEM_LIMIT}">
          <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
       </a>
    </li>
    {/if}
-   
-   {if="$fsc->siguiente_url()!=''"}
+   {if="count($fsc->resultados)==FS_ITEM_LIMIT"}
    <li class="next">
-      <a href="{$fsc->siguiente_url()}">
+      <a href="{$fsc->url()}&ref={$fsc->articulo->referencia}&offset={$fsc->offset+FS_ITEM_LIMIT}">
          Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
       </a>
    </li>

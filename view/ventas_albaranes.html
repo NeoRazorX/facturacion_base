@@ -288,7 +288,7 @@
          <td class="text-right hidden-sm">{$value->hora}</td>
       </tr>
       {else}
-      <tr class="bg-warning">
+      <tr class="warning">
          <td></td>
          <td colspan="6">Ningún {#FS_ALBARAN#} encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</td>
       </tr>
@@ -303,33 +303,19 @@
       {/if}
    </table>
 </div>
+
 <div class="container-fluid">
-      <div class="row">
-         <div class="col-lg-12 col-md-12 col-sm-12 text-center">
-            <ul class="pagination">
-                {if="$fsc->anterior_url()!=''"}
-               <li>
-                  <a href="{$fsc->anterior_url()}">
-                     <span class="glyphicon glyphicon-chevron-left"></span> &nbsp;
-                  </a>
-               </li>
-               {/if}
-                {loop="$fsc->paginas()"}
-                <li {if="$value.actual"}class="active"{/if}>
-                    <a href="{$value.url}">{$value.num} 
-                        </a>
-                    </li>
-                {/loop}
-                {if="$fsc->siguiente_url()!=''"}
-               <li>
-                  <a href="{$fsc->siguiente_url()}">
-                     &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
-                  </a>
-               </li>
-               {/if}
-            </ul>
-         </div>
+   <div class="row">
+      <div class="col-sm-12 text-center">
+         <ul class="pagination">
+            {loop="$fsc->paginas()"}
+            <li{if="$value['actual']"} class="active"{/if}>
+               <a href="{$value['url']}">{$value['num']}</a>
+            </li>
+            {/loop}
+         </ul>
       </div>
+   </div>
 </div>
 
 <form class="form" role="form" id="f_buscar_lineas" name="f_buscar_lineas" action ="{$fsc->url()}" method="post">

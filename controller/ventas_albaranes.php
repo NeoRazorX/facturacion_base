@@ -43,8 +43,6 @@ class ventas_albaranes extends fs_controller
    public $total_resultados;
    public $total_resultados_txt;
    
-   public $num_registros;
-   
    public function __construct()
    {
       parent::__construct(__CLASS__, ucfirst(FS_ALBARANES).' de cliente', 'ventas', FALSE, TRUE, TRUE);
@@ -117,7 +115,6 @@ class ventas_albaranes extends fs_controller
          
          $linea = new linea_albaran_cliente();
          $this->resultados = $linea->all_from_articulo($_GET['ref'], $this->offset);
-         $this->total_registros("SELECT COUNT(idlinea) AS total FROM lineasalbaranescli WHERE referencia = '".$_GET['ref']."'");
       }
       else
       {
@@ -183,7 +180,6 @@ class ventas_albaranes extends fs_controller
          if($this->mostrar == 'pendientes')
          {
             $this->resultados = $albaran->all_ptefactura($this->offset, $this->order.$order2);
-            $this->total_registros("SELECT COUNT(idalbaran) AS total FROM albaranescli WHERE ptefactura = true");
             
             if($this->offset == 0)
             {
@@ -202,7 +198,6 @@ class ventas_albaranes extends fs_controller
          else
          {
             $this->resultados = $albaran->all($this->offset, $this->order.$order2);
-            $this->total_registros("SELECT COUNT(idalbaran) AS total FROM albaranescli");
          }
       }
    }
@@ -225,93 +220,72 @@ class ventas_albaranes extends fs_controller
    
    public function paginas()
    {
+      $codcliente = '';
+      if($this->cliente)
+      {
+         $codcliente = $this->cliente->codcliente;
+      }
+      
+      $url = $this->url()."&mostrar=".$this->mostrar
+              ."&query=".$this->query
+              ."&codserie=".$this->codserie
+              ."&codagente=".$this->codagente
+              ."&codcliente=".$codcliente
+              ."&desde=".$this->desde
+              ."&hasta=".$this->hasta;
+      
       $paginas = array();
       $i = 0;
       $num = 0;
       $actual = 1;
-      $total = $this->num_registros;
       
-      $codcliente = '';
-      if($this->cliente)
+      if($this->mostrar == 'pendientes')
       {
-         $codcliente = $this->cliente->codcliente;
+         $total = $this->total_pendientes();
       }
+      else if($this->mostrar == 'buscar')
+      {
+         $total = $this->num_resultados;
+      }
+      else
+      {
+         $total = $this->total_registros();
+      }
+      
       /// añadimos todas la página
       while($num < $total)
       {
          $paginas[$i] = array(
-             'url' => $this->url()."&mostrar=".$this->mostrar
-                                    ."&query=".$this->query
-                                    ."&codserie=".$this->codserie
-                                    ."&codagente=".$this->codagente
-                                    ."&codcliente=".$codcliente
-                                    ."&desde=".$this->desde
-                                    ."&hasta=".$this->hasta
-                                    ."&offset=".($i*FS_ITEM_LIMIT),
-             'num' => $i+1,
+             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
+             'num' => $i + 1,
              'actual' => ($num == $this->offset)
          );
-         if( $num == $this->offset )
+         
+         if($num == $this->offset)
+         {
             $actual = $i;
+         }
+         
          $i++;
          $num += FS_ITEM_LIMIT;
       }
+      
       /// ahora descartamos
       foreach($paginas as $j => $value)
       {
-         if( ($j>1 AND $j<$actual-3 AND $j%FS_ITEM_LIMIT) OR ($j>$actual+3 AND $j<$i-1 AND $j%FS_ITEM_LIMIT) )
+         $enmedio = intval($i/2);
+         
+         /**
+          * descartamos todo excepto la primera, la última, la de enmedio,
+          * la actual, las 5 anteriores y las 5 siguientes
+          */
+         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
+         {
             unset($paginas[$j]);
+         }
       }
       
       return $paginas;
-   }
-   
-   public function anterior_url()
-   {
-      $url = '';
-      $codcliente = '';
-      if($this->cliente)
-      {
-         $codcliente = $this->cliente->codcliente;
-      }
-      
-      if($this->offset > 0)
-      {
-         $url = $this->url()."&mostrar=".$this->mostrar
-                 ."&query=".$this->query
-                 ."&codserie=".$this->codserie
-                 ."&codagente=".$this->codagente
-                 ."&codcliente=".$codcliente
-                 ."&desde=".$this->desde
-                 ."&hasta=".$this->hasta
-                 ."&offset=".($this->offset-FS_ITEM_LIMIT);
-      }
-      
-      return $url;
-   }
-   
-   public function siguiente_url()
-   {
-      $url = '';
-      $codcliente = '';
-      if($this->cliente)
-      {
-         $codcliente = $this->cliente->codcliente;
-      }
-      
-      if( count($this->resultados) == FS_ITEM_LIMIT )
-      {
-         $url = $this->url()."&mostrar=".$this->mostrar
-                 ."&query=".$this->query
-                 ."&codserie=".$this->codserie
-                 ."&codagente=".$this->codagente
-                 ."&codcliente=".$codcliente
-                 ."&desde=".$this->desde
-                 ."&hasta=".$this->hasta
-                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
-      }
-      
-      return $url;
    }
    
    public function buscar_lineas()
@@ -415,15 +389,15 @@ class ventas_albaranes extends fs_controller
          return 0;
    }
    
-   public function total_registros($sql)
+   private function total_registros()
    {
-      $data = $this->db->select($sql);
+      $data = $this->db->select("SELECT COUNT(idalbaran) as total FROM albaranescli;");
       if($data)
       {
-         $this->num_registros = intval($data[0]['total']);
+         return intval($data[0]['total']);
       }
       else
-         $this->num_registros = 0;
+         return 0;
    }
    
    private function buscar($order2)
@@ -483,7 +457,6 @@ class ventas_albaranes extends fs_controller
       if($data)
       {
          $this->num_resultados = intval($data[0]['total']);
-         $this->num_registros = intval($data[0]['total']);
          
          $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$this->order.$order2, FS_ITEM_LIMIT, $this->offset);
          if($data2)
