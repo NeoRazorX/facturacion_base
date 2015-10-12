@@ -218,11 +218,17 @@ class stock extends fs_model
       return $stocklist;
    }
    
-   public function total_from_articulo($ref)
+   public function total_from_articulo($ref, $codalmacen = FALSE)
    {
       $num = 0;
+      $sql = "SELECT SUM(cantidad) as total FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref);
       
-      $stocks = $this->db->select("SELECT SUM(cantidad) as total FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref).";");
+      if($codalmacen)
+      {
+          $sql .= " AND codalmacen = ".$this->var2str($codalmacen);
+      }
+      
+      $stocks = $this->db->select($sql);
       if($stocks)
       {
          $num = floatval($stocks[0]['total']);

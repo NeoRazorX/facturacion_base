@@ -279,7 +279,7 @@
                   Contabilidad integrada: conforme haces facturas se generan los asientos contables.
                </label>
             </div>
-            {if="$fsc->empresa->codpais=='ESP'"}
+            {if="$fsc->empresa->codpais=='ESP' or $fsc->empresa->codpais=='ES'"}
             <div class="checkbox">
                <label>
                   <input type="checkbox" name="recequivalencia" value="TRUE"{if="$fsc->empresa->recequivalencia"} checked="checked"{/if}/>
@@ -300,7 +300,7 @@
 </form>
 {elseif="$fsc->step==5"}
 <div class="container">
-   {if="$fsc->empresa->codpais=='ESP'"}
+   {if="$fsc->empresa->codpais=='ESP' or $fsc->empresa->codpais=='ES'"}
    <div class="row">
       <div class="col-sm-12">
          <div class="page-header">

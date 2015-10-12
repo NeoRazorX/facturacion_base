@@ -25,6 +25,7 @@ require_model('caja.php');
 require_model('cliente.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
+require_model('fabricante.php');
 require_model('factura_cliente.php');
 require_model('familia.php');
 require_model('forma_pago.php');
@@ -46,6 +47,7 @@ class tpv_recambios extends fs_controller
    public $divisa;
    public $ejercicio;
    public $equivalentes;
+   public $fabricante;
    public $familia;
    public $forma_pago;
    public $imprimir_descripciones;
@@ -72,6 +74,7 @@ class tpv_recambios extends fs_controller
       $this->articulo = new articulo();
       $this->cliente = new cliente();
       $this->cliente_s = FALSE;
+      $this->fabricante = new fabricante();
       $this->familia = new familia();
       $this->impuesto = new impuesto();
       $this->results = array();
@@ -241,14 +244,22 @@ class tpv_recambios extends fs_controller
       /// desactivamos la plantilla HTML
       $this->template = FALSE;
       
+      $fsvar = new fs_var();
+      $multi_almacen = $fsvar->simple_get('multi_almacen');
+      $stock = new stock();
+      
       $codfamilia = '';
       if( isset($_REQUEST['codfamilia']) )
       {
          $codfamilia = $_REQUEST['codfamilia'];
       }
-      
+      $codfabricante = '';
+      if( isset($_REQUEST['codfabricante']) )
+      {
+         $codfabricante = $_REQUEST['codfabricante'];
+      }
       $con_stock = isset($_REQUEST['con_stock']);
-      $this->results = $this->articulo->search($this->query, 0, $codfamilia, $con_stock);
+      $this->results = $this->articulo->search($this->query, 0, $codfamilia, $con_stock, $codfabricante);
       
       /// añadimos el descuento y la cantidad
       foreach($this->results as $i => $value)
@@ -256,6 +267,12 @@ class tpv_recambios extends fs_controller
          $this->results[$i]->query = $this->query;
          $this->results[$i]->dtopor = 0;
          $this->results[$i]->cantidad = 1;
+         
+         $this->results[$i]->stockalm = $this->results[$i]->stockfis;
+         if( $multi_almacen AND isset($_REQUEST['codalmacen']) )
+         {
+             $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
+         }
       }
       
       /// ejecutamos las funciones de las extensiones

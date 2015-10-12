@@ -86,7 +86,7 @@ class base_wizard extends fs_controller
             /// avanzamos el asistente
             $this->step = 3;
             
-            if($this->empresa->codpais == 'ESP')
+            if($this->empresa->codpais == 'ESP' OR $this->empresa->codpais == 'ES')
             {
                /// si es España nos podemos ahorrar un paso
                $this->empresa->coddivisa = 'EUR';
