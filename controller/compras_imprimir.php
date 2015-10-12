@@ -319,7 +319,7 @@ class compras_imprimir extends fs_controller
             if($this->albaran->totalirpf != 0)
             {
                $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->albaran->irpf.'%</b>';
-               $fila['irpf'] = $this->show_precio(0 - $this->albaran->totalirpf);
+               $fila['irpf'] = $this->show_precio($this->albaran->totalirpf);
                $opciones['cols']['irpf'] = array('justification' => 'right');
             }
             
@@ -552,7 +552,7 @@ class compras_imprimir extends fs_controller
             if($this->factura->totalirpf != 0)
             {
                $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->factura->irpf.'%</b>';
-               $fila['irpf'] = $this->show_precio(0 - $this->factura->totalirpf);
+               $fila['irpf'] = $this->show_precio($this->factura->totalirpf);
                $opciones['cols']['irpf'] = array('justification' => 'right');
             }
             

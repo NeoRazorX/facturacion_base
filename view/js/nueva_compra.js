@@ -139,7 +139,7 @@ function recalcular()
    $("#aneto").html( show_numero(neto) );
    $("#aiva").html( show_numero(total_iva) );
    $("#are").html( show_numero(total_recargo) );
-   $("#airpf").html( '-'+show_numero(total_irpf) );
+   $("#airpf").html( show_numero(total_irpf) );
    $("#atotal").val( neto + total_iva - total_irpf + total_recargo );
    
    if(total_recargo == 0 && !tiene_recargo)
@@ -489,15 +489,15 @@ function buscar_articulos()
                var tr_aux = '<tr>';
                if(val.bloqueado)
                {
-                  tr_aux = "<tr class=\"bg-danger\">";
+                  tr_aux = "<tr class=\"danger\">";
                }
                else if(val.stockfis < val.stockmin)
                {
-                  tr_aux = "<tr class=\"bg-warning\">";
+                  tr_aux = "<tr class=\"warning\">";
                }
                else if(val.stockfis > val.stockmax)
                {
-                  tr_aux = "<tr class=\"bg-success\">";
+                  tr_aux = "<tr class=\"success\">";
                }
                
                if(val.secompra)
