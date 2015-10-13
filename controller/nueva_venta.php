@@ -411,7 +411,7 @@ class nueva_venta extends fs_controller
          $this->results[$i]->stockalm = $this->results[$i]->stockfis;
          if( $multi_almacen AND isset($_REQUEST['codalmacen']) )
          {
-             $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
+            $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
          }
       }
       

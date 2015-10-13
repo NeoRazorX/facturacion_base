@@ -500,7 +500,7 @@ function buscar_articulos()
                      <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
                      <td class=\"text-right\">"+stock+"</td></tr>");
                }
-               else if(val.sevende && val.stockfis <= 0)
+               else if(val.sevende)
                {
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
                      <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\

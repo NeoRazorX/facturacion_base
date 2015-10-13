@@ -319,7 +319,7 @@ function buscar_articulos()
             {
                codbarras = true;
                
-               if( val.sevende && (val.stockfis > 0 || val.controlstock) )
+               if( val.sevende && (val.stockalm > 0 || val.controlstock) )
                {
                   var funcion = "add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"
                           +val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
@@ -332,12 +332,12 @@ function buscar_articulos()
                   
                   eval(funcion);
                }
-               else if(val.sevende && val.stockfis <= 0)
+               else if(val.sevende)
                {
                   alert('Sin stock.');
                }
             }
-            else if( val.sevende && (val.stockfis > 0 || val.controlstock) )
+            else if( val.sevende && (val.stockalm > 0 || val.controlstock) )
             {
                var funcion = "add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"
                        +val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
@@ -355,7 +355,7 @@ function buscar_articulos()
                   <td class=\"text-right\"><a href=\"#\" onclick=\""+funcion+"\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
                   <td class=\"text-right\">"+stock+"</td></tr>");
             }
-            else if(val.sevende && val.stockfis <= 0)
+            else if(val.sevende)
             {
                items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
                   <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
