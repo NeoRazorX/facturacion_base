@@ -23,6 +23,10 @@
          $("#modal_enviar").modal('show');
          document.enviar_email.email.focus();
       });
+      $("#b_anular").click(function(event) {
+         event.preventDefault();
+         $("#modal_anular").modal('show');
+      });
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
          $("#modal_eliminar").modal('show');
@@ -107,6 +111,10 @@
          <div class="col-xs-4 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
+               <a id="b_anular" class="btn btn-sm btn-warning" href="#">
+                  <span class="glyphicon glyphicon-minus-sign"></span>
+                  <span class="hidden-sm hidden-xs">&nbsp; Anular</span>
+               </a>
                <a id="b_eliminar" class="btn btn-sm btn-danger" href="#">
                   <span class="glyphicon glyphicon-trash"></span>
                   <span class="hidden-sm hidden-xs">&nbsp; Eliminar</span>
@@ -366,6 +374,35 @@
    </div>
 </form>
 
+<div class="modal fade" id="modal_anular">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">¿Realmente desea anular esta {#FS_FACTURA#}?</h4>
+            <p class="help-block">
+               Puedes editar facturas usando el plugin
+               <a href="https://www.facturascripts.com/store/producto/plugin-editar-facturas/" target="_blank">editar facturas</a>.
+            </p>
+         </div>
+         {if="$fsc->factura->idasiento"}
+         <div class="modal-body bg-warning">
+            Al anular la {#FS_FACTURA#} se creará una nota de crédito para compensar el cambio
+            <br/>
+            Además el {#FS_ALBARAN#} o {#FS_ALBARANES#} asociados se anularán,
+            se restaurará el stock de los artículos.
+            <br/>
+            Si necesita hacer una nota de crédito financiera, utilice el módulo de contabilidad.
+         </div>
+         {/if}
+         <div class="modal-footer">
+            <a class="btn btn-sm btn-warning" href="{$fsc->ppage->url()}&anular={$fsc->factura->idfactura}">
+               <span class="glyphicon glyphicon-minus-sign"></span> &nbsp; Anular
+            </a>
+         </div>
+      </div>
+   </div>
+</div>
 <div class="modal fade" id="modal_eliminar">
    <div class="modal-dialog">
       <div class="modal-content">

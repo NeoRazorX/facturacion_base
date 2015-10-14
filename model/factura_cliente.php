@@ -42,10 +42,10 @@ class factura_cliente extends fs_model
    public $idasiento;
    
    /**
-    * Todavía sin uso.
+    * ID de la factura a la que rectifica
     * @var type 
     */
-   private $idfacturarect;
+   public $idfacturarect;
    
    /**
     * Código único de la factura. Para humanos.
@@ -67,10 +67,16 @@ class factura_cliente extends fs_model
    public $numero2;
    
    /**
-    * Todavía sin uso.
+    * Codigo de la factura que rectifica
     * @var type 
     */
-   private $codigorect;
+   public $codigorect;
+   
+    /**
+    * Variable booleana si es true es una factura rectificatoria
+    * @var type 
+    */
+   public $deabono;
    
    /**
     * Ejercicio relacionado. El que corresponde a la fecha.
@@ -247,6 +253,7 @@ class factura_cliente extends fs_model
          $this->totalrecargo = floatval($f['totalrecargo']);
          $this->observaciones = $this->no_html($f['observaciones']);
          $this->pagada = $this->str2bool($f['pagada']);
+         $this->deabono = $this->str2bool($f['deabono']);
          
          $this->vencimiento = Date('d-m-Y', strtotime($f['fecha'].' +1month'));
          if( !is_null($f['vencimiento']) )
@@ -292,6 +299,7 @@ class factura_cliente extends fs_model
          $this->totalrecargo = 0;
          $this->observaciones = NULL;
          $this->pagada = FALSE;
+         $this->deabono = FALSE;
          $this->vencimiento = Date('d-m-Y', strtotime('+1month'));
       }
    }
@@ -738,7 +746,7 @@ class factura_cliente extends fs_model
          $asiento = $this->get_asiento();
          if($asiento)
          {
-            if($asiento->tipodocumento != 'Factura de cliente' OR $asiento->documento != $this->codigo)
+            if(($asiento->tipodocumento != 'Factura de venta cliente' AND $asiento->tipodocumento != 'Nota de Crédito cliente') OR $asiento->documento != $this->codigo)
             {
                $this->new_error_msg("Esta factura apunta a un <a href='".$this->asiento_url()."'>asiento incorrecto</a>.");
                $status = FALSE;
@@ -821,6 +829,7 @@ class factura_cliente extends fs_model
                     ", totalrecargo = ".$this->var2str($this->totalrecargo).
                     ", observaciones = ".$this->var2str($this->observaciones).
                     ", pagada = ".$this->var2str($this->pagada).
+                    ", deabono = ".$this->var2str($this->deabono).
                     ", hora = ".$this->var2str($this->hora).
                     ", vencimiento = ".$this->var2str($this->vencimiento).
                     "  WHERE idfactura = ".$this->var2str($this->idfactura).";";
@@ -832,7 +841,7 @@ class factura_cliente extends fs_model
             $this->new_codigo();
             $sql = "INSERT INTO ".$this->table_name." (idasiento,idfacturarect,codigo,numero,
                codigorect,codejercicio,codserie,codalmacen,codpago,coddivisa,fecha,codcliente,nombrecliente,
-               cifnif,direccion,ciudad,provincia,apartado,coddir,codpostal,codpais,codagente,neto,totaliva,total,totaleuros,
+               cifnif,deabono,direccion,ciudad,provincia,apartado,coddir,codpostal,codpais,codagente,neto,totaliva,total,totaleuros,
                irpf,totalirpf,porcomision,tasaconv,totalrecargo,pagada,observaciones,
                hora,numero2,vencimiento) VALUES (".$this->var2str($this->idasiento).
                     ",".$this->var2str($this->idfacturarect).
@@ -848,6 +857,7 @@ class factura_cliente extends fs_model
                     ",".$this->var2str($this->codcliente).
                     ",".$this->var2str($this->nombrecliente).
                     ",".$this->var2str($this->cifnif).
+                    ",".$this->var2str($this->deabono).
                     ",".$this->var2str($this->direccion).
                     ",".$this->var2str($this->ciudad).
                     ",".$this->var2str($this->provincia).
