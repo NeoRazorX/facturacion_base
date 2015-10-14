@@ -159,7 +159,15 @@ class ventas_facturas extends fs_controller {
                     $this->total_resultados = 0;
                     $this->total_resultados_txt = 'Suma total de esta página:';
                     foreach ($this->resultados as $fac) {
-                        $this->total_resultados += $fac->total;
+                        if($fac->deabono)
+                        {
+                            $this->total_resultados -= $fac->total;
+                        }
+                        else
+                        {
+                            $this->total_resultados += $fac->total;
+                        }
+                        
                     }
                 }
             } else if ($this->mostrar == 'buscar') {
