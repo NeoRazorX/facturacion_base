@@ -242,9 +242,9 @@ class ventas_facturas extends fs_controller
       $num = 0;
       $actual = 1;
       
-      if($this->mostrar == 'pendientes')
+      if($this->mostrar == 'sinpagar')
       {
-         $total = $this->total_pendientes();
+         $total = $this->total_sinpagar();
       }
       else if($this->mostrar == 'buscar')
       {

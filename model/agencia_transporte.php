@@ -69,7 +69,7 @@ class agencia_transporte extends fs_model
 
    public function url()
    {
-      return "index.php?page=admin_agenciastrans&cod=".$this->codtrans;
+      return "index.php?page=admin_transportes&cod=".$this->codtrans;
    }
    
    public function get($cod)

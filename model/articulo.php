@@ -578,29 +578,43 @@ class articulo extends fs_model
       {
          return 'images/articulos/'.$this->referencia.'-1.png';
       }
+      else if( file_exists('images/articulos/'.$this->referencia.'-1.jpg') )
+      {
+         return 'images/articulos/'.$this->referencia.'-1.jpg';
+      }
       else
          return FALSE;
    }
    
-   public function set_imagen($img)
+   public function set_imagen($img, $png = TRUE)
    {
       $this->imagen = NULL;
       
-      if( is_null($img) )
+      if( file_exists('images/articulos/'.$this->referencia.'-1.png') )
       {
-         if( file_exists('images/articulos/'.$this->referencia.'-1.png') )
-         {
-            unlink('images/articulos/'.$this->referencia.'-1.png');
-         }
+         unlink('images/articulos/'.$this->referencia.'-1.png');
       }
-      else
+      else if( file_exists('images/articulos/'.$this->referencia.'-1.jpg') )
+      {
+         unlink('images/articulos/'.$this->referencia.'-1.jpg');
+      }
+      
+      if($img)
       {
          if( !file_exists('images/articulos') )
          {
             @mkdir('images/articulos', 0777, TRUE);
          }
          
-         $f = @fopen('images/articulos/'.$this->referencia.'-1.png', 'a');
+         if($png)
+         {
+            $f = @fopen('images/articulos/'.$this->referencia.'-1.png', 'a');
+         }
+         else
+         {
+            $f = @fopen('images/articulos/'.$this->referencia.'-1.jpg', 'a');
+         }
+         
          if($f)
          {
             fwrite($f, $img);

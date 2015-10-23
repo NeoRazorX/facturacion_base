@@ -179,9 +179,11 @@ class ventas_articulo extends fs_controller
       else if( isset($_POST['imagen']) )
       {
          $this->articulo = $articulo->get($_POST['referencia']);
-         if(is_uploaded_file($_FILES['fimagen']['tmp_name']) AND $_FILES['fimagen']['size'] <= 1024000)
+         
+         if( is_uploaded_file($_FILES['fimagen']['tmp_name']) )
          {
-            $this->articulo->set_imagen( file_get_contents($_FILES['fimagen']['tmp_name']) );
+            $png = ( substr( strtolower($_FILES['fimagen']['name']), -3) == 'png' );
+            $this->articulo->set_imagen( file_get_contents($_FILES['fimagen']['tmp_name']), $png );
             if( $this->articulo->save() )
             {
                $this->new_message("Imagen del articulo modificada correctamente");

@@ -36,6 +36,8 @@ class ventas_imprimir extends fs_controller
    public $impresion;
    public $impuesto;
    
+   private $logo;
+   
    public function __construct()
    {
       parent::__construct(__CLASS__, 'imprimir', 'ventas', FALSE, FALSE);
@@ -56,6 +58,16 @@ class ventas_imprimir extends fs_controller
       );
       $fsvar = new fs_var();
       $this->impresion = $fsvar->array_get($this->impresion, FALSE);
+      
+      $this->logo = FALSE;
+      if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
+      {
+         $this->logo = 'tmp/'.FS_TMP_NAME.'logo.png';
+      }
+      else if( file_exists('tmp/'.FS_TMP_NAME.'logo.jpg') )
+      {
+         $this->logo = 'tmp/'.FS_TMP_NAME.'logo.jpg';
+      }
       
       if( isset($_REQUEST['albaran']) AND isset($_REQUEST['id']) )
       {
@@ -177,6 +189,21 @@ class ventas_imprimir extends fs_controller
          $linea_actual = 0;
          $pagina = 1;
          
+         if($this->impresion['print_dto'])
+         {
+            $this->impresion['print_dto'] = FALSE;
+            
+            /// leemos las líneas para ver si de verdad mostramos los descuentos
+            foreach($lineas as $lin)
+            {
+               if($lin->dtopor != 0)
+               {
+                  $this->impresion['print_dto'] = TRUE;
+                  break;
+               }
+            }
+         }
+         
          /// imprimimos las páginas necesarias
          while( $linea_actual < count($lineas) )
          {
@@ -189,11 +216,11 @@ class ventas_imprimir extends fs_controller
             }
             
             /// ¿Añadimos el logo?
-            if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
+            if($this->logo)
             {
                if( function_exists('imagecreatefromstring') )
                {
-                  $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
+                  $pdf_doc->pdf->ezImage($this->logo, 0, 150, 'none');
                   $lppag -= 2; /// si metemos el logo, caben menos líneas
                }
                else
@@ -436,6 +463,21 @@ class ventas_imprimir extends fs_controller
          $linea_actual = 0;
          $pagina = 1;
          
+         if($this->impresion['print_dto'])
+         {
+            $this->impresion['print_dto'] = FALSE;
+            
+            /// leemos las líneas para ver si de verdad mostramos los descuentos
+            foreach($lineas as $lin)
+            {
+               if($lin->dtopor != 0)
+               {
+                  $this->impresion['print_dto'] = TRUE;
+                  break;
+               }
+            }
+         }
+         
          // Imprimimos las páginas necesarias
          while($linea_actual < $lineasfact)
          {
@@ -486,11 +528,11 @@ class ventas_imprimir extends fs_controller
             else /// esta es la cabecera de la página para los modelos 'simple' y 'firma'
             {
                /// ¿Añadimos el logo?
-               if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
+               if($this->logo)
                {
                   if( function_exists('imagecreatefromstring') )
                   {
-                     $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
+                     $pdf_doc->pdf->ezImage($this->logo, 0, 150, 'none');
                      $lppag -= 2; /// si metemos el logo, caben menos líneas
                   }
                   else

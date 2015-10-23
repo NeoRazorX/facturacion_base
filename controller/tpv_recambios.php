@@ -268,10 +268,10 @@ class tpv_recambios extends fs_controller
          $this->results[$i]->dtopor = 0;
          $this->results[$i]->cantidad = 1;
          
-         $this->results[$i]->stockalm = $this->results[$i]->stockfis;
+         $this->results[$i]->stockalm = $value->stockfis;
          if( $multi_almacen AND isset($_REQUEST['codalmacen']) )
          {
-             $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
+            $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
          }
       }
       
@@ -290,12 +290,6 @@ class tpv_recambios extends fs_controller
          $cliente = $this->cliente->get($_REQUEST['codcliente']);
          if($cliente)
          {
-            if($cliente->regimeniva == 'Exento')
-            {
-               foreach($this->results as $i => $value)
-                  $this->results[$i]->iva = 0;
-            }
-            
             if($cliente->codgrupo)
             {
                $grupo0 = new grupo_clientes();

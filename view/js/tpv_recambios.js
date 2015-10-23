@@ -55,7 +55,7 @@ function usar_serie()
 {
    for(var i=0; i<all_series.length; i++)
    {
-      if(all_series[i].codserie == $("#codserie").val())
+      if(all_series[i].codserie == document.f_tpv.serie.value)
       {
          siniva = all_series[i].siniva;
          irpf = all_series[i].irpf;
@@ -374,7 +374,7 @@ function buscar_articulos()
          
          if(items.length == 0 && !fin_busqueda1)
          {
-            items.push("<tr><td colspan=\"4\" class=\"bg-warning\">Sin resultados.</td></tr>");
+            items.push("<tr><td colspan=\"4\" class=\"warning\">Sin resultados.</td></tr>");
             insertar = true;
          }
          

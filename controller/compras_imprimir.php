@@ -32,7 +32,10 @@ class compras_imprimir extends fs_controller
    public $articulo_proveedor;
    public $proveedor;
    public $factura;
+   public $impresion;
    public $impuesto;
+   
+   private $logo;
    
    public function __construct()
    {
@@ -46,6 +49,25 @@ class compras_imprimir extends fs_controller
       $this->proveedor = FALSE;
       $this->factura = FALSE;
       $this->impuesto = new impuesto();
+      
+      /// obtenemos los datos de configuración de impresión
+      $this->impresion = array(
+          'print_ref' => '1',
+          'print_dto' => '1',
+          'print_alb' => '0'
+      );
+      $fsvar = new fs_var();
+      $this->impresion = $fsvar->array_get($this->impresion, FALSE);
+      
+      $this->logo = FALSE;
+      if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
+      {
+         $this->logo = 'tmp/'.FS_TMP_NAME.'logo.png';
+      }
+      else if( file_exists('tmp/'.FS_TMP_NAME.'logo.jpg') )
+      {
+         $this->logo = 'tmp/'.FS_TMP_NAME.'logo.jpg';
+      }
       
       if( isset($_REQUEST['albaran']) AND isset($_REQUEST['id']) )
       {
@@ -138,6 +160,21 @@ class compras_imprimir extends fs_controller
          $linea_actual = 0;
          $pagina = 1;
          
+         if($this->impresion['print_dto'])
+         {
+            $this->impresion['print_dto'] = FALSE;
+            
+            /// leemos las líneas para ver si de verdad mostramos los descuentos
+            foreach($lineas as $lin)
+            {
+               if($lin->dtopor != 0)
+               {
+                  $this->impresion['print_dto'] = TRUE;
+                  break;
+               }
+            }
+         }
+         
          /// imprimimos las páginas necesarias
          while( $linea_actual < count($lineas) )
          {
@@ -150,11 +187,11 @@ class compras_imprimir extends fs_controller
             }
             
             /// ¿Añadimos el logo?
-            if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
+            if($this->logo)
             {
                if( function_exists('imagecreatefromstring') )
                {
-                  $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
+                  $pdf_doc->pdf->ezImage($this->logo, 0, 150, 'none');
                   $lppag -= 2; /// si metemos el logo, caben menos líneas
                }
                else
@@ -225,15 +262,31 @@ class compras_imprimir extends fs_controller
              * Cantidad    Ref. Prov. + Descripción    PVP   DTO   Importe
              */
             $pdf_doc->new_table();
-            $pdf_doc->add_table_header(
-               array(
-                  'cantidad' => '<b>Cant.</b>',
-                  'descripcion' => '<b>Ref. Prov. + Descripción</b>',
-                  'pvp' => '<b>PVP</b>',
-                  'dto' => '<b>Dto.</b>',
-                  'importe' => '<b>Importe</b>'
-               )
-            );
+            
+            if($this->impresion['print_dto'])
+            {
+               $pdf_doc->add_table_header(
+                  array(
+                     'cantidad' => '<b>Cant.</b>',
+                     'descripcion' => '<b>Ref. Prov. + Descripción</b>',
+                     'pvp' => '<b>PVP</b>',
+                     'dto' => '<b>Dto.</b>',
+                     'importe' => '<b>Importe</b>'
+                  )
+               );
+            }
+            else
+            {
+               $pdf_doc->add_table_header(
+                  array(
+                     'cantidad' => '<b>Cant.</b>',
+                     'descripcion' => '<b>Ref. Prov. + Descripción</b>',
+                     'pvp' => '<b>PVP</b>',
+                     'importe' => '<b>Importe</b>'
+                  )
+               );
+            }
+            
             for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < count($lineas)));)
             {
                $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
@@ -371,6 +424,21 @@ class compras_imprimir extends fs_controller
          $linea_actual = 0;
          $pagina = 1;
          
+         if($this->impresion['print_dto'])
+         {
+            $this->impresion['print_dto'] = FALSE;
+            
+            /// leemos las líneas para ver si de verdad mostramos los descuentos
+            foreach($lineas as $lin)
+            {
+               if($lin->dtopor != 0)
+               {
+                  $this->impresion['print_dto'] = TRUE;
+                  break;
+               }
+            }
+         }
+         
          // Imprimimos las páginas necesarias
          while($linea_actual < $lineasfact)
          {
@@ -383,11 +451,11 @@ class compras_imprimir extends fs_controller
             }
             
             /// ¿Añadimos el logo?
-            if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
+            if($this->logo)
             {
                if( function_exists('imagecreatefromstring') )
                {
-                  $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
+                  $pdf_doc->pdf->ezImage($this->logo, 0, 150, 'none');
                   $lppag -= 2; /// si metemos el logo, caben menos líneas
                }
                else
@@ -458,15 +526,31 @@ class compras_imprimir extends fs_controller
              * Cantidad    Ref. Prov. + Descripción    PVP   DTO    Importe
              */
             $pdf_doc->new_table();
-            $pdf_doc->add_table_header(
-               array(
-                  'cantidad' => '<b>Cant.</b>',
-                  'descripcion' => '<b>Ref. Prov. + Descripción</b>',
-                  'pvp' => '<b>PVP</b>',
-                  'dto' => '<b>Dto.</b>',
-                  'importe' => '<b>Importe</b>'
-               )
-            );
+            
+            if($this->impresion['print_dto'])
+            {
+               $pdf_doc->add_table_header(
+                  array(
+                     'cantidad' => '<b>Cant.</b>',
+                     'descripcion' => '<b>Ref. Prov. + Descripción</b>',
+                     'pvp' => '<b>PVP</b>',
+                     'dto' => '<b>Dto.</b>',
+                     'importe' => '<b>Importe</b>'
+                  )
+               );
+            }
+            else
+            {
+               $pdf_doc->add_table_header(
+                  array(
+                     'cantidad' => '<b>Cant.</b>',
+                     'descripcion' => '<b>Ref. Prov. + Descripción</b>',
+                     'pvp' => '<b>PVP</b>',
+                     'importe' => '<b>Importe</b>'
+                  )
+               );
+            }
+            
             for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < $lineasfact));)
             {
                $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);

@@ -429,18 +429,21 @@ class nueva_venta extends fs_controller
       if( isset($_REQUEST['codcliente']) )
       {
          $cliente = $this->cliente->get($_REQUEST['codcliente']);
-         if($cliente->codgrupo)
+         if($cliente)
          {
-            $grupo0 = new grupo_clientes();
-            $tarifa0 = new tarifa();
-            
-            $grupo = $grupo0->get($cliente->codgrupo);
-            if($grupo)
+            if($cliente->codgrupo)
             {
-               $tarifa = $tarifa0->get($grupo->codtarifa);
-               if($tarifa)
+               $grupo0 = new grupo_clientes();
+               $tarifa0 = new tarifa();
+               
+               $grupo = $grupo0->get($cliente->codgrupo);
+               if($grupo)
                {
-                  $tarifa->set_precios($this->results);
+                  $tarifa = $tarifa0->get($grupo->codtarifa);
+                  if($tarifa)
+                  {
+                     $tarifa->set_precios($this->results);
+                  }
                }
             }
          }

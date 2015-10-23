@@ -525,7 +525,7 @@ function buscar_articulos()
             
             if(items.length == 0 && !fin_busqueda1)
             {
-               items.push("<tr><td colspan=\"4\" class=\"bg-warning\">Sin resultados. Usa la pestaña\n\
+               items.push("<tr><td colspan=\"4\" class=\"warning\">Sin resultados. Usa la pestaña\n\
                               <b>Nuevo</b> para crear uno.</td></tr>");
                document.f_nuevo_articulo.referencia.value = document.f_buscar_articulos.query.value;
                insertar = true;
@@ -565,7 +565,7 @@ function buscar_articulos()
             
             if(items.length == 0 && !fin_busqueda2)
             {
-               items.push("<tr><td colspan=\"3\" class=\"bg-warning\">Sin resultados.</td></tr>");
+               items.push("<tr><td colspan=\"3\" class=\"warning\">Sin resultados.</td></tr>");
                insertar = true;
             }
             

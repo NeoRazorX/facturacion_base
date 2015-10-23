@@ -290,6 +290,56 @@ class ventas_clientes extends fs_controller
       return $url;
    }
    
+   public function paginas()
+   {
+      $url = $this->url()."&query=".$this->query
+                 ."&ciudad=".$this->ciudad
+                 ."&provincia=".$this->provincia
+                 ."&codpais=".$this->codpais
+                 ."&codgrupo=".$this->codgrupo
+                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
+      
+      $paginas = array();
+      $i = 0;
+      $num = 0;
+      $actual = 1;
+      
+      /// añadimos todas la página
+      while($num < $this->total_resultados)
+      {
+         $paginas[$i] = array(
+             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
+             'num' => $i + 1,
+             'actual' => ($num == $this->offset)
+         );
+         
+         if($num == $this->offset)
+         {
+            $actual = $i;
+         }
+         
+         $i++;
+         $num += FS_ITEM_LIMIT;
+      }
+      
+      /// ahora descartamos
+      foreach($paginas as $j => $value)
+      {
+         $enmedio = intval($i/2);
+         
+         /**
+          * descartamos todo excepto la primera, la última, la de enmedio,
+          * la actual, las 5 anteriores y las 5 siguientes
+          */
+         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
+         {
+            unset($paginas[$j]);
+         }
+      }
+      
+      return $paginas;
+   }
+   
    public function nombre_grupo($cod)
    {
       $nombre = '-';

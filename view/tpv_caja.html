@@ -190,7 +190,7 @@
                      <td><input type="number" name="num_tickets" value="{$value->num_tickets}" class="form-control" autocomplete="off"/></td>
                      <td class="text-center">
                         {if="!$value->disponible()"}
-                        <a href="#terminales" class="btn btn-sm btn-warning" title="Terminal en uso">
+                        <a href="#terminales" class="btn btn-sm btn-warning" onclick="alert('Terminal en uso. Puedes cerrarlo desde la pestaña historial.')">
                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                         </a>
                         {/if}
