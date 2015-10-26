@@ -18,6 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * Agencia de transporte de mercancías.
+ */
 class agencia_transporte extends fs_model
 {
    /**
