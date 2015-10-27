@@ -356,7 +356,7 @@ class compras_imprimir extends fs_controller
       /// Creamos el PDF y escribimos sus metadatos
       $pdf_doc = new fs_pdf();
       $pdf_doc->pdf->addInfo('Title', 'Factura ' . $this->factura->codigo);
-      $pdf_doc->pdf->addInfo('Subject', 'Factura de proveedor ' . $this->factura->codigo);
+      $pdf_doc->pdf->addInfo('Subject', 'Ingreso proveedor' . $this->factura->codigo);
       $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
       
       $lineas = $this->factura->get_lineas();

@@ -85,6 +85,7 @@ class factura_cliente extends fs_model
    public $hora;
    public $codcliente;
    public $nombrecliente;
+   public $nombre;
    public $cifnif;
    public $direccion;
    public $ciudad;
@@ -706,7 +707,7 @@ class factura_cliente extends fs_model
          $asiento = $this->get_asiento();
          if($asiento)
          {
-            if($asiento->tipodocumento != 'Factura de cliente' OR $asiento->documento != $this->codigo)
+            if($asiento->tipodocumento != 'Ingreso cliente' )
             {
                $this->new_error_msg("Esta factura apunta a un <a href='".$this->asiento_url()."'>asiento incorrecto</a>.");
                $status = FALSE;
@@ -755,7 +756,16 @@ class factura_cliente extends fs_model
          $this->clean_cache();
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET idasiento = ".$this->var2str($this->idasiento).
+		 
+		 
+		 /// toma el asiento de la factura para que no cambie cuando hay devolución al asiento de egreso
+		  	$varfactura = new factura_cliente();
+	  		$factura=$varfactura->get($this->idfactura);	
+		 	if($factura AND $factura->idasiento==NULL) $valor_asiento=$this->idasiento;
+		 	else $valor_asiento=$factura->idasiento;
+			////////
+		 
+            $sql = "UPDATE ".$this->table_name." SET idasiento = ".$this->var2str($valor_asiento).
                     ", idpagodevol = ".$this->var2str($this->idpagodevol).
                     ", idfacturarect = ".$this->var2str($this->idfacturarect).
                     ", codigo = ".$this->var2str($this->codigo).
@@ -909,6 +919,19 @@ class factura_cliente extends fs_model
       return $faclist;
    }
    
+         public function facturas_cliente($offset=0, $limit=FS_ITEM_LIMIT)
+   {
+   
+      $faclist = array();
+      $facturas = $this->db->select_limit("SELECT *,nombrecliente as nombre FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento)." AND codejercicio = ".$this->var2str($this->codejercicio)." ORDER BY fecha DESC, codigo DESC", $limit, $offset);
+      if($facturas)
+      {
+         foreach($facturas as $f)
+            $faclist[] = new factura_cliente($f);
+      }
+      return $faclist;
+   }
+   
    public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT)
    {
       $faclist = array();
@@ -1019,6 +1042,18 @@ class factura_cliente extends fs_model
             $faclist[] = new factura_cliente($f);
       }
       return $faclist;
+   }
+   
+      public function boton_anular($idfactura)
+   {
+    $sql = "UPDATE ".$this->table_name." SET idpagodevol = '1'   WHERE idfactura = ".$this->var2str($idfactura).";";
+           if( $this->db->exec($sql) )
+            {
+               $this->idfactura = $this->db->lastval();
+               return TRUE;
+            }
+            else
+               return FALSE;  
    }
    
    public function huecos()

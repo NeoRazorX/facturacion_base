@@ -213,7 +213,7 @@ class nueva_venta extends fs_controller
       
       if( $this->user->have_access_to('ventas_factura') )
       {
-         $tipos[] = array('tipo' => 'factura', 'nombre' => 'Factura de cliente');
+         $tipos[] = array('tipo' => 'factura', 'nombre' => 'Ingreso cliente');
       }
       
       return $tipos;

@@ -23,6 +23,7 @@ require_model('ejercicio.php');
 require_model('impuesto.php');
 require_model('partida.php');
 require_model('subcuenta.php');
+require_model('factura_proveedor.php');
 
 class contabilidad_asiento extends fs_controller
 {
@@ -32,8 +33,10 @@ class contabilidad_asiento extends fs_controller
    public $ejercicio;
    public $impuesto;
    public $lineas;
-   public $resultados;
+   public $resultados;   
    public $subcuenta;
+   public $resultados1;
+   public $factura_prov;
    
    public function __construct()
    {
@@ -56,7 +59,28 @@ class contabilidad_asiento extends fs_controller
       {
          $asiento = new asiento();
          $this->asiento = $asiento->get($_GET['id']);
+		 
       }
+	  
+/*	 			 print '<script language="JavaScript">'; 
+				print 'alert(" id partida : '.$this->asiento->codejercicio.'  id asiento '.$this->asiento->idasiento.' ");'; 
+				print '</script>'; 
+*/				
+	  if($this->asiento->tipodocumento=='Ingreso proveedor')
+	  {
+	  $this->factura_prov = new factura_proveedor();
+	  $this->factura_prov->codejercicio=$this->asiento->codejercicio;
+	  $this->factura_prov->idasiento=$this->asiento->idasiento;
+	  $this->resultados1 = $this->factura_prov->facturas_proveedor();
+	  }
+	  else if($this->asiento->tipodocumento=='Ingreso cliente')
+	  {
+	  $this->factura_cli = new factura_cliente();
+	  $this->factura_cli->codejercicio=$this->asiento->codejercicio;
+	  $this->factura_cli->idasiento=$this->asiento->idasiento;
+	  $this->resultados1 = $this->factura_cli->facturas_cliente();
+	  
+	  }
       
       if( isset($_POST['fecha']) AND isset($_POST['query']) )
       {
@@ -96,6 +120,7 @@ class contabilidad_asiento extends fs_controller
          $this->asiento->full_test();
          
          $this->lineas = $this->get_lineas_asiento();
+		 
       }
       else
          $this->new_error_msg("Asiento no encontrado.");
@@ -124,10 +149,12 @@ class contabilidad_asiento extends fs_controller
       if($eje0)
       {
          $this->resultados = $this->subcuenta->search_by_ejercicio($eje0->codejercicio, $this->query);
+		 
       }
       else
       {
          $this->resultados = array();
+		 
       }
    }
    

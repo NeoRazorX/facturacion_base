@@ -35,6 +35,7 @@ class ventas_factura extends fs_controller
    public $factura;
    public $forma_pago;
    public $mostrar_boton_pagada;
+   public $factura_anulada;
    
    public function __construct()
    {
@@ -50,6 +51,10 @@ class ventas_factura extends fs_controller
       $factura = new factura_cliente();
       $this->factura = FALSE;
       $this->forma_pago = new forma_pago();
+	  
+	  	  ///   tecla anular factura
+	  $var_idpagodevol=$factura->get($_GET['id']);
+	  $this->factura_anulada=$var_idpagodevol->idpagodevol;
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -156,6 +161,14 @@ class ventas_factura extends fs_controller
             else
                $this->new_error_msg("¡Imposible modificar la factura!");
          }
+		 
+		  else if( isset($_REQUEST['gen_devolucion']) )
+		 {
+		 
+				
+		 $this->nuevo_asiento_devolucion(); // Ventas_factura
+		 }
+		 
          
          /// comprobamos la factura
          $this->factura->full_test();
@@ -206,6 +219,31 @@ class ventas_factura extends fs_controller
          }
       }
    }
+   
+    /////////////////////////////////////////////////////////
+ /////////  DEVOLUCIÓN
+ //////////////////////////////////////////////////////
+ 
+   private function nuevo_asiento_devolucion()
+   {
+   		$anular= new factura_cliente();
+
+	  	$facturadev = new asiento_factura();
+		
+	  	if($facturadev->nuevo_asiento_devolucion_cli($_REQUEST['idfaccli']))
+		$anular->boton_anular($_REQUEST['idfaccli']);
+
+		$factura = new factura_cliente();
+	  	$var_idpagodevol=$factura->get($_GET['id']);
+		/// da el valor al botón
+	  	$this->factura_anulada=$var_idpagodevol->idpagodevol;
+
+	}  	
+ 
+ /////////////////////////////////////
+ /////////////////////////////////////
+   
+ 
    
    private function generar_asiento()
    {

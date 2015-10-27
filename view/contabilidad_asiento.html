@@ -420,35 +420,7 @@
    </div>
 </div>
 
-<div class="table-responsive">
-   <table class="table table-hover">
-      <thead>
-            <tr>
-               <th class="text-left">Asiento</th>
-               <th>Ejercicio</th>
-               <th>Fecha</th>
-               <th>Concepto</th>
-               <th>Documento</th>
-               <th class="text-right">Importe</th>
-            </tr>
-      </thead>
-      <tr>
-         <td>{$fsc->asiento->numero}</td>
-         <td><a href="{$fsc->asiento->ejercicio_url()}">{$fsc->asiento->codejercicio}</a></td>
-         <td>{$fsc->asiento->fecha}</td>
-         <td>{$fsc->asiento->concepto}</td>
-         <td>
-            {if="$fsc->asiento->tipodocumento"}{$fsc->asiento->tipodocumento}:{/if}
-            {if="$fsc->asiento->documento"}
-            <a href='{$fsc->asiento->factura_url()}'>{$fsc->asiento->documento}</a>
-            {else}
-            -
-            {/if}
-         </td>
-         <td class="text-right">{$fsc->show_precio($fsc->asiento->importe)}</td>
-      </tr>
-   </table>
-</div>
+
 
 <div class="table-responsive">
    <table class="table table-hover">
@@ -460,13 +432,13 @@
             <th></th>
             <th class="text-right">Base imponible</th>
             <th class="text-center">Contrapartida</th>
-            <th class="text-right">{#FS_CIFNIF#}</th>
+           
          </tr>
       </thead>
       <tbody>
          {loop="$fsc->lineas"}
          <tr>
-            <td><a href="{$value->subcuenta_url()}">{$value->codsubcuenta}</a> {$value->desc_subcuenta}</td>
+            <td>{$value->codsubcuenta}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {$value->desc_subcuenta}</td>
             <td class="text-right"><span title="{$value->debe}">{$fsc->show_precio($value->debe, $value->coddivisa)}</span></td>
             <td class="text-right"><span title="{$value->haber}">{$fsc->show_precio($value->haber, $value->coddivisa)}</span></td>
             <td class="text-right">
@@ -483,12 +455,12 @@
             </td>
             <td class="text-center">
                {if="$value->codcontrapartida"}
-               <a href="{$value->contrapartida_url()}">{$value->codcontrapartida}</a>
+               {$value->codcontrapartida}
                {else}
                -
                {/if}
             </td>
-            <td class="text-right">{if="$value->cifnif"}{$value->cifnif}{else}-{/if}</td>
+           
          </tr>
          {else}
          <tr class="bg-warning">
@@ -530,6 +502,36 @@
 {else}
 <div class="thumbnail">
    <img src="view/img/fuuu_face.png" alt="fuuuuu"/>
+</div>
+{/if}
+
+{if="$fsc->asiento->tipodocumento=='Ingreso proveedor' or $fsc->asiento->tipodocumento=='Ingreso cliente'"}
+<div class="table-responsive">
+   <table class="table table-hover">
+      <thead>
+            <tr>
+			 <th>Ejercicio</th>
+               <th>Fecha</th>
+               <th>Nombre</th>
+               <th>Documento</th>
+               <th class="text-right">Importe</th>
+            </tr>
+      </thead>
+	   {loop="$fsc->resultados1"}
+      <tr>
+	   <td><a href="{$fsc->asiento->ejercicio_url()}">{$value->codejercicio}</a></td>
+         <td>{$value->fecha}</td>
+         <td>{if="$value->nombre!=NULL"}
+		 		{$value->nombre}
+			 {else}
+			 	{$value->nombrecliente}
+			{/if}	
+		 </td>
+         <td>{$value->codigo} </td>
+         <td class="text-right">{$value->total}</td>
+      </tr>
+	  {/loop}
+   </table>
 </div>
 {/if}
 

@@ -74,7 +74,7 @@ class asiento extends fs_model
          $this->codplanasiento = NULL;
          $this->editable = TRUE;
          $this->documento = NULL;
-         $this->tipodocumento = NULL;
+         $this->tipodocumento = 'Egreso proveedor';
          $this->importe = 0;
       }
    }
@@ -94,12 +94,12 @@ class asiento extends fs_model
    
    public function get_factura()
    {
-      if($this->tipodocumento == 'Factura de cliente')
+      if($this->tipodocumento == 'Ingreso cliente')
       {
          $fac = new factura_cliente();
          return $fac->get_by_codigo($this->documento);
       }
-      else if($this->tipodocumento == 'Factura de proveedor')
+      else if($this->tipodocumento == 'Ingreso proveedor')
       {
          $fac = new factura_proveedor();
          return $fac->get_by_codigo($this->documento);
@@ -173,14 +173,19 @@ class asiento extends fs_model
    
    public function exists()
    {
-      if( is_null($this->idasiento) )
-      {
-         return FALSE;
-      }
-      else
-      {
-         return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento).";");
-      }
+   
+		$asiento_existe= $this->db->select("SELECT numero FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio)." AND fecha=".$this->var2str($this->fecha)." AND tipodocumento=".$this->var2str($this->tipodocumento)." ;");
+	
+		
+		  if( $asiento_existe==NULL or $asiento_existe[0]['numero']==0 )
+		  { 
+			 return FALSE;
+		  }
+		  else
+		  {
+				return $asiento_existe[0]['numero'];
+		  } 
+		  
    }
    
    public function new_numero()
@@ -416,11 +421,17 @@ class asiento extends fs_model
    
    public function save()
    {
+   
       if( $this->test() )
       {
          if( $this->exists() )
-         {
-            $sql = "UPDATE ".$this->table_name." SET numero = ".$this->var2str($this->numero).",
+         {				
+				$array_sum_importe= $this->db->select("SELECT importe,idasiento,editable FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio)." AND fecha=".$this->var2str($this->fecha)." AND tipodocumento=".$this->var2str($this->tipodocumento)." ;");
+				if($array_sum_importe[0]['editable']==0 and $this->idasiento==NULL )	
+				$sum_importe=$array_sum_importe[0]['importe']+$this->importe;	
+				else	$sum_importe=$this->importe;			
+		 
+           $sql = "UPDATE ".$this->table_name." SET numero = ".$this->exists().",
                idconcepto = ".$this->var2str($this->idconcepto).",
                concepto = ".$this->var2str($this->concepto).", fecha = ".$this->var2str($this->fecha).",
                codejercicio = ".$this->var2str($this->codejercicio).",
@@ -428,12 +439,25 @@ class asiento extends fs_model
                editable = ".$this->var2str($this->editable).",
                documento = ".$this->var2str($this->documento).",
                tipodocumento = ".$this->var2str($this->tipodocumento).",
-               importe = ".$this->var2str($this->importe)."
-               WHERE idasiento = ".$this->var2str($this->idasiento).";";
-            return $this->db->exec($sql);
+               importe = ".$this->var2str($sum_importe)."
+               WHERE codejercicio = ".$this->var2str($this->codejercicio)." AND fecha=".$this->var2str($this->fecha)." AND tipodocumento=".$this->var2str($this->tipodocumento).";";
+ 
+ 			////  De acá sale el idasiento para partida
+			
+			 if( $this->db->exec($sql) )
+            {
+               $this->idasiento = $array_sum_importe[0]['idasiento'];
+               return TRUE;
+            }
+            else
+               return FALSE;
+         
+			
+			
          }
          else
          {
+			 
             $this->new_numero();
             $sql = "INSERT INTO ".$this->table_name." (numero,idconcepto,concepto,
                fecha,codejercicio,codplanasiento,editable,documento,tipodocumento,importe)
@@ -518,6 +542,7 @@ class asiento extends fs_model
       return $alist;
    }
    
+
    public function descuadrados()
    {
       /// iniciamos partidas para asegurarnos que existe la tabla
@@ -541,9 +566,15 @@ class asiento extends fs_model
    /// renumera todos los asientos. Devuelve FALSE en caso de error
    public function renumerar()
    {
+   		$secc = new secuencia_contabilidad();
+      	
+   
       $ejercicio = new ejercicio();
+	 
       foreach($ejercicio->all_abiertos() as $eje)
       {
+	  
+	  $secc0 = $secc->get_by_params2($eje->codejercicio, 'nasiento');
          $posicion = 0;
          $numero = 1;
          $sql = '';
@@ -565,6 +596,7 @@ class asiento extends fs_model
                
                $numero++;
             }
+			
             $posicion += 1000;
             
             if($sql != '')
@@ -580,6 +612,8 @@ class asiento extends fs_model
             
             $asientos = $this->db->select_limit($consulta, 1000, $posicion);
          }
+		   $secc0->valorout = $numero;
+           $secc0->save();
       }
       
       return $continuar;

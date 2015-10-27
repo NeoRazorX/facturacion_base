@@ -29,7 +29,7 @@
             <div class="btn-group">
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
             </div>
@@ -54,7 +54,9 @@
             <tr>
                <th class="text-left">Cuenta</th>
                <th class="text-left">Descripción</th>
-               <th class="text-left">Cuenta especial</th>
+               <th class="text-left">
+                  <a href="index.php?page=cuentas_especiales">Cuenta especial</a>
+               </th>
                <th class="text-left">Ejercicio</th>
             </tr>
          </thead>
@@ -108,6 +110,10 @@
    </table>
 </div>
 
+
+
+
+
 <form class="form-horizontal" role="form" name="f_nueva_subcuenta" action ="{$fsc->url()}" method="POST">
    <input type="hidden" name="ejercicio" value="{$fsc->cuenta->codejercicio}"/>
    <input type="hidden" name="idcuenta" value="{$fsc->cuenta->idcuenta}"/>
@@ -117,7 +123,7 @@
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Nueva subcuenta</h4>
+               <h4 class="modal-title">Nueva subcuenta </h4>
             </div>
             <div class="modal-body">
                <div class="form-group">
@@ -129,7 +135,13 @@
                <div class="form-group">
                   <label for="nsubcuenta" class="col-lg-2 col-md-2 col-sm-2 control-label">Código</label>
                   <div class="col-lg-10 col-md-10 col-sm-10">
-                     <input class="form-control" type="text" name="nsubcuenta" value="{$fsc->nuevo_codsubcuenta}" autocomplete="off" autofocus />
+                     <input class="form-control" type="text" name="nsubcuenta" onClick="this.setSelectionRange(6, this.value.length)" maxlength="9" value="{$fsc->nuevo_codsubcuenta}" autocomplete="off" autofocus />
+                  </div>
+               </div>
+			   <div class="form-group">
+                  <label for="nsubcuenta" class="col-lg-2 col-md-2 col-sm-2 control-label">Alias</label>
+                  <div class="col-lg-10 col-md-10 col-sm-10">
+                     <input class="form-control" type="text" name="alias" onClick="this.setSelectionRange(0, this.value.length)" value="{$fsc->nuevo_codsubcuenta}" autocomplete="off" autofocus />
                   </div>
                </div>
                <div class="form-group">
@@ -148,6 +160,10 @@
       </div>
    </div>
 </form>
+
+
+
+
 {else}
 <div class="thumbnail">
    <img src="view/img/fuuu_face.png" alt="fuuuuu"/>

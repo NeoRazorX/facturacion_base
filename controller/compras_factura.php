@@ -34,6 +34,8 @@ class compras_factura extends fs_controller
    public $factura;
    public $forma_pago;
    public $mostrar_boton_pagada;
+   private $subcuenta_pro;
+   public $factura_anulada;
    
    public function __construct()
    {
@@ -48,7 +50,11 @@ class compras_factura extends fs_controller
       $factura = new factura_proveedor();
       $this->factura = FALSE;
       $this->forma_pago = new forma_pago();
-      
+	  
+	  ///   tecla anular factura
+	  $var_idpagodevol=$factura->get($_GET['id']);
+	  $this->factura_anulada=$var_idpagodevol->idpagodevol;
+   
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
@@ -126,6 +132,19 @@ class compras_factura extends fs_controller
             else
                $this->new_error_msg("¡Imposible modificar la factura!");
          }
+		 else if( isset($_REQUEST['gen_devolucion']) )
+		 {
+		 
+
+				
+		 $this->nuevo_asiento_devolucion(); // Compras_factura
+		 
+		 
+
+		 }
+		 
+		 
+		 
          
          /// comprobamos la factura
          $this->factura->full_test();
@@ -154,6 +173,34 @@ class compras_factura extends fs_controller
       else
          return $this->page->url();
    }
+ /////////////////////////////////////////////////////////
+ /////////  DEVOLUCIÓN
+ //////////////////////////////////////////////////////
+ 
+   private function nuevo_asiento_devolucion()
+   {
+   		$anular= new factura_proveedor();
+
+	  	$facturadev = new asiento_factura();
+	  	if($facturadev->nuevo_asiento_devolucion_prov($_REQUEST['idfacpro']))
+		$anular->boton_anular($_REQUEST['idfacpro']);
+
+		$factura = new factura_proveedor();
+	  	$var_idpagodevol=$factura->get($_GET['id']);
+	  	$this->factura_anulada=$var_idpagodevol->idpagodevol;
+      
+
+		
+		
+
+	}  	
+ 
+ /////////////////////////////////////
+ /////////////////////////////////////
+   
+   
+   
+   
    
    private function generar_asiento()
    {

@@ -172,7 +172,7 @@ class nueva_compra extends fs_controller
       }
       
       if( $this->user->have_access_to('compras_factura') )
-         $tipos[] = array('tipo' => 'factura', 'nombre' => 'Factura de proveedor');
+         $tipos[] = array('tipo' => 'factura', 'nombre' => 'Ingreso proveedor');
       
       return $tipos;
    }

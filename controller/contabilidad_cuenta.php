@@ -33,7 +33,7 @@ class contabilidad_cuenta extends fs_controller
       parent::__construct(__CLASS__, 'Cuenta', 'contabilidad', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -47,7 +47,7 @@ class contabilidad_cuenta extends fs_controller
          $subc0->codsubcuenta = $_POST['nsubcuenta'];
          $subc0->descripcion = $_POST['descripcion'];
          $subc0->idcuenta = $_POST['idcuenta'];
-         
+         $subc0->alias = $_POST['alias'];
          if( $subc0->save() )
             header( 'Location: '.$subc0->url() );
          else
@@ -96,7 +96,7 @@ class contabilidad_cuenta extends fs_controller
          $this->ppage = $this->page->get('contabilidad_epigrafes');
          if($this->ppage)
          {
-            $this->ppage->title = 'Epígrafe: '.$this->cuenta->codepigrafe;
+            $this->ppage->title = 'Rubro: '.$this->cuenta->codepigrafe;
             $this->ppage->extra_url = '&epi='.$this->cuenta->idepigrafe;
          }
          

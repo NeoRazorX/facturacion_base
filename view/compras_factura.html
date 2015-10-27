@@ -11,6 +11,13 @@
          event.preventDefault();
          $("#modal_eliminar").modal('show');
       });
+	   $("#b_anular").click(function(event) {
+         event.preventDefault();
+         $("#modal_anular").modal('show');
+      });
+	  
+	  
+	  
       {if="$fsc->factura->totalrecargo==0"}
       $(".recargo").hide();
       {/if}
@@ -72,7 +79,25 @@
                <span class="hidden-xs">&nbsp; Pagada</span>
             </a>
             {/if}
+			
+			
+			
+			{if="$fsc->factura_anulada==1 or $fsc->factura_anulada!=NULL"}
+			<div class="btn-group">
+				<a class="btn btn-sm btn-danger" href="{$fsc->url()}&gen_devolucion=TRUE&petid={$fsc->random_string()}&idfacpro={$fsc->factura->idfactura}">
+                <span class="glyphicon glyphicon-remove-circle"></span> <span class="hidden-xs">&nbsp;Factura anulada</span>
+               </a>
+			 </div>
+			 {else}
+			 <div class="btn-group">
+				<a id="b_anular" class="btn btn-sm btn-warning" href="#">
+                <span class="glyphicon glyphicon-paperclip"></span> <span class="hidden-xs">&nbsp; Nota de crédito</span>
+               </a>
+			 </div>
+			 {/if}
             
+			
+			
             <div class="btn-group">
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -285,6 +310,22 @@
          <div class="modal-footer">
             <a class="btn btn-sm btn-danger" href="{$fsc->ppage->url()}&delete={$fsc->factura->idfactura}">
                <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+            </a>
+         </div>
+      </div>
+   </div>
+</div>
+
+<div class="modal fade" id="modal_anular">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3 class="modal-title">¿Realmente desea anular esta factura?</h3>
+         </div>
+         <div class="modal-footer">
+            <a class="btn btn-sm btn-danger" href="{$fsc->url()}&gen_devolucion=TRUE&petid={$fsc->random_string()}&idfacpro={$fsc->factura->idfactura}">
+               <span class="glyphicon glyphicon-remove-circle"></span> &nbsp; Anular factura
             </a>
          </div>
       </div>

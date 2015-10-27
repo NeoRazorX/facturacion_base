@@ -105,7 +105,7 @@ class partida extends fs_model
          $this->baseimponible = 0;
          $this->factura = NULL;
          $this->codserie = NULL;
-         $this->tipodocumento = NULL;
+         $this->tipodocumento = 'Egreso proveedor';
          $this->documento = NULL;
          $this->cifnif = NULL;
          $this->debe = 0;
@@ -188,12 +188,16 @@ class partida extends fs_model
    
    public function exists()
    {
-      if( is_null($this->idpartida) )
+   	$existe_id=$this->db->select("SELECT idasiento FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento)." AND idsubcuenta = ".$this->var2str($this->idsubcuenta).";");
+   
+      if( $existe_id==NULL or $existe_id[0]['idasiento']==0 )
       {
          return FALSE;
       }
       else
-         return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idpartida = ".$this->var2str($this->idpartida).";");
+	  {
+         return $existe_id[0]['idasiento'];
+		 }
    }
    
    public function save()
@@ -202,8 +206,36 @@ class partida extends fs_model
       $this->documento = $this->no_html($this->documento);
       $this->cifnif = $this->no_html($this->cifnif);
       
+
+	  
+/*   				print '<script language="JavaScript">'; 
+				print 'alert(" id partida : '.$this->var2str($this->idpartida).' id asiento :'.$this->var2str($this->idasiento).' id subcuenta :'.$this->var2str($this->idsubcuenta).'");'; 
+				print '</script>'; 
+*/   
+
+			$array_editable=$this->db->select("SELECT editable FROM co_asientos WHERE idasiento = ".$this->var2str($this->idasiento).";");
+	  
       if( $this->exists() )
-      {
+      {	
+	  		$array_partida=$this->db->select("SELECT idpartida,idasiento,baseimponible,debe,debeme,haber,haberme FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento)." AND idsubcuenta = ".$this->var2str($this->idsubcuenta).";");
+			
+			if($array_editable[0]['editable']==0)
+			{
+			$sum_debe=$array_partida[0]['debe']+$this->debe;
+			$sum_haber=$array_partida[0]['haber']+$this->haber;
+			$sum_baseimponible=$array_partida[0]['baseimponible']+$this->baseimponible;
+			$sum_debeme=$array_partida[0]['debeme']+$this->debeme;
+			$sum_haberme=$array_partida[0]['haberme']+$this->haberme;
+			}
+			else
+			{ 
+			$sum_debe=$this->debe;
+			$sum_haber=$this->haber;
+			$sum_baseimponible=$this->baseimponible;
+			$sum_debeme=$this->debeme;
+			$sum_haberme=$this->haberme;
+			}
+			
          $sql = "UPDATE ".$this->table_name." SET idasiento = ".$this->var2str($this->idasiento).",
             idsubcuenta = ".$this->var2str($this->idsubcuenta).", codsubcuenta = ".$this->var2str($this->codsubcuenta).",
             idconcepto = ".$this->var2str($this->idconcepto).", concepto = ".$this->var2str($this->concepto).",
@@ -214,11 +246,12 @@ class partida extends fs_model
             iva = ".$this->var2str($this->iva).", baseimponible = ".$this->var2str($this->baseimponible).",
             factura = ".$this->var2str($this->factura).", codserie = ".$this->var2str($this->codserie).",
             tipodocumento = ".$this->var2str($this->tipodocumento).", documento = ".$this->var2str($this->documento).",
-            cifnif = ".$this->var2str($this->cifnif).", debe = ".$this->var2str($this->debe).",
-            haber = ".$this->var2str($this->haber)." WHERE idpartida = ".$this->var2str($this->idpartida).";";
+            cifnif = ".$this->var2str($this->cifnif).", debe = ".$this->var2str($sum_debe).",
+            haber = ".$this->var2str($sum_haber)." WHERE idpartida = ".$array_partida[0]['idpartida'].";";
          
          if( $this->db->exec($sql) )
          {
+		 	$this->idpartida = $array_partida[0]['idpartida'];
             $subc = $this->get_subcuenta();
             if($subc)
             {
@@ -231,6 +264,7 @@ class partida extends fs_model
       }
       else
       {
+	  
          $sql = "INSERT INTO ".$this->table_name." (idasiento,idsubcuenta,codsubcuenta,idconcepto,
             concepto,idcontrapartida,codcontrapartida,punteada,tasaconv,coddivisa,haberme,debeme,recargo,iva,
             baseimponible,factura,codserie,tipodocumento,documento,cifnif,debe,haber) VALUES

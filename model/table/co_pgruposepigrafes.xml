@@ -11,7 +11,7 @@
       <nulo>NO</nulo>
    </columna>
    <columna>
-      <nombre>codgrupo</nombre>
+      <nombre>codpgrupo</nombre>
       <tipo>character varying(6)</tipo>
       <nulo>NO</nulo>
    </columna>
@@ -21,27 +21,17 @@
       <nulo>YES</nulo>
    </columna>
    <columna>
-      <nombre>idgrupo</nombre>
+      <nombre>idpgrupo</nombre>
       <tipo>serial</tipo>
       <nulo>NO</nulo>
-      <defecto>nextval('co_gruposepigrafes_idgrupo_seq'::regclass)</defecto>
-   </columna>
-      <columna>
-      <nombre>idpgrupo</nombre>
-      <tipo>integer</tipo>
-      <nulo>YES</nulo>
-   </columna>
-      <columna>
-      <nombre>codpgrupo</nombre>
-      <tipo>integer</tipo>
-      <nulo>YES</nulo>
+      <defecto>nextval('co_pgruposepigrafes_idpgrupo_seq'::regclass)</defecto>
    </columna>
    <restriccion>
-      <nombre>co_gruposepigrafes_pkey</nombre>
-      <consulta>PRIMARY KEY (idgrupo)</consulta>
+      <nombre>co_pgruposepigrafes_pkey</nombre>
+      <consulta>PRIMARY KEY (idpgrupo)</consulta>
    </restriccion>
    <restriccion>
-      <nombre>ca_co_gruposepigrafes_ejercicios</nombre>
+      <nombre>ca_co_pgruposepigrafes_ejercicios</nombre>
       <consulta>FOREIGN KEY (codejercicio)
       REFERENCES ejercicios (codejercicio)
       ON DELETE CASCADE ON UPDATE CASCADE</consulta>

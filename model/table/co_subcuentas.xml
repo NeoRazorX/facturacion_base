@@ -71,6 +71,11 @@
       <tipo>double precision</tipo>
       <nulo>NO</nulo>
    </columna>
+   <columna>
+      <nombre>alias</nombre>
+      <tipo>character varying(6)</tipo>
+      <nulo>YES</nulo>
+   </columna>
    <restriccion>
       <nombre>co_subcuentas_pkey</nombre>
       <consulta>PRIMARY KEY (idsubcuenta)</consulta>

@@ -27,27 +27,89 @@ class contabilidad_epigrafes extends fs_controller
    public $codejercicio;
    public $ejercicio;
    public $epigrafe;
+   public $pgrupo;
+   public $codpgrupo;
    public $grupo;
    public $resultados;
    public $super_epigrafes;
 
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Grupos y epígrafes', 'contabilidad', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Tít. Cap. Rub.', 'contabilidad', FALSE, TRUE);
+	  
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->codejercicio = $this->empresa->codejercicio;
       $this->ejercicio = new ejercicio();
+	  $pgrupo0= new pgrupo_epigrafes(); 
       $grupo0 = new grupo_epigrafes();
       $epi0 = new epigrafe();
       $this->super_epigrafes = array();;
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
-      
-      if( isset($_POST['ngrupo']) ) /// nuevo grupo
+	  
+	  
+	  
+	    /* PGrupo    Título  */    
+      if( isset($_POST['npgrupo']) ) /// nuevo grupo
+      {
+         $this->epigrafe = FALSE;
+         $this->pgrupo = $pgrupo0->get_by_codigo($_GET['ngrupo'], $_POST['ejercicio']);
+         if( !$this->pgrupo )
+         {
+            $this->pgrupo = new pgrupo_epigrafes();
+            $this->pgrupo->codejercicio = $_POST['ejercicio'];
+            $this->pgrupo->codpgrupo = $_POST['npgrupo'];
+            $this->pgrupo->descripcion = $_POST['descripcion'];
+			
+            
+            if( $this->pgrupo->save() )
+               header( 'Location: '.$this->pgrupo->url() );
+            else
+            {
+               $this->new_error_msg('Error al guardar el Título.');
+               $this->pgrupo = FALSE;
+            }
+         }
+      }
+      else if( isset($_GET['pgrupo']) ) /// ver grupo
+      {
+         $this->epigrafe = FALSE;
+         $this->pgrupo = $pgrupo0->get($_GET['pgrupo']);
+         if($this->pgrupo AND isset($_POST['descripcion']) )
+         {
+            $this->pgrupo->descripcion = $_POST['descripcion'];
+            if( $this->pgrupo->save() )
+               $this->new_message('Título modificado correctamente.');
+            else
+               $this->new_error_msg('Error al modificar el Título.');
+         }
+      }
+      else if( isset($_GET['deletepg']) ) /// eliminar ´título
+      {
+         $pgrupo1 = $pgrupo0->get($_GET['deletepg']);
+         if($pgrupo1)
+         {
+            if( $pgrupo1->delete() )
+               $this->new_message('Título eliminado correctamente.');
+            else
+               $this->new_error_msg('Error al eliminar el Título.');
+         }
+         else
+            $this->new_error_msg('Título no encontrado.');
+         
+     //    $this->pgrupo = FALSE;
+    //     $this->epigrafe = FALSE;
+      }
+	  
+	  
+	  
+	  
+  /*  Capítulo  */    
+      if( isset($_POST['ngrupo']) ) /// nuevo Capítulo
       {
          $this->epigrafe = FALSE;
          $this->grupo = $grupo0->get_by_codigo($_GET['ngrupo'], $_POST['ejercicio']);
@@ -56,18 +118,21 @@ class contabilidad_epigrafes extends fs_controller
             $this->grupo = new grupo_epigrafes();
             $this->grupo->codejercicio = $_POST['ejercicio'];
             $this->grupo->codgrupo = $_POST['ngrupo'];
+			$this->grupo->idpgrupo = $_POST['idpgrupo'];
+			$this->grupo->codpgrupo = $_POST['codpgrupo'];
             $this->grupo->descripcion = $_POST['descripcion'];
+			
             
             if( $this->grupo->save() )
                header( 'Location: '.$this->grupo->url() );
             else
             {
-               $this->new_error_msg('Error al guardar el grupo.');
+               $this->new_error_msg('Error al guardar el Capítulo.');
                $this->grupo = FALSE;
             }
          }
       }
-      else if( isset($_GET['grupo']) ) /// ver grupo
+      else if( isset($_GET['grupo']) ) /// ver Capítulo
       {
          $this->epigrafe = FALSE;
          $this->grupo = $grupo0->get($_GET['grupo']);
@@ -75,28 +140,31 @@ class contabilidad_epigrafes extends fs_controller
          {
             $this->grupo->descripcion = $_POST['descripcion'];
             if( $this->grupo->save() )
-               $this->new_message('Grupo modificado correctamente.');
+               $this->new_message('Capítulo modificado correctamente.');
             else
-               $this->new_error_msg('Error al modificar el grupo.');
+               $this->new_error_msg('Error al modificar el Capítulo.');
          }
       }
-      else if( isset($_GET['deleteg']) ) /// eliminar grupo
+      else if( isset($_GET['deleteg']) ) /// eliminar Capítulo
       {
          $grupo1 = $grupo0->get($_GET['deleteg']);
          if($grupo1)
          {
             if( $grupo1->delete() )
-               $this->new_message('Grupo eliminado correctamente.');
+               $this->new_message('Capítulo eliminado correctamente.');
             else
-               $this->new_error_msg('Error al eliminar el grupo.');
+               $this->new_error_msg('Error al eliminar el Capítulo.');
          }
          else
-            $this->new_error_msg('Grupo no encontrado.');
+            $this->new_error_msg('Capítulo no encontrado.');
          
          $this->grupo = FALSE;
          $this->epigrafe = FALSE;
       }
-      else if( isset($_POST['nepigrafe']) ) /// nuevo epígrafe
+	  
+	  
+/*     Rubro  */	  
+      else if( isset($_POST['nepigrafe']) ) /// nuevo Rubro
       {
          $this->epigrafe = $epi0->get_by_codigo($_POST['nepigrafe'], $_POST['ejercicio']);
          if( !$this->epigrafe )
@@ -124,10 +192,10 @@ class contabilidad_epigrafes extends fs_controller
                header( 'Location: '.$this->epigrafe->url() );
             }
             else
-               $this->new_error_msg('Error al guardar el epígrafe.');
+               $this->new_error_msg('Error al guardar el Rubro.');
          }
       }
-      else if( isset($_GET['epi']) ) /// ver epígrafe
+      else if( isset($_GET['epi']) ) /// ver Rubro
       {
          $this->grupo = FALSE;
          $this->epigrafe = $epi0->get($_GET['epi']);
@@ -135,12 +203,12 @@ class contabilidad_epigrafes extends fs_controller
          {
             $this->epigrafe->descripcion = $_POST['descripcion'];
             if( $this->epigrafe->save() )
-               $this->new_message('Epígrafe modificado correctamente.');
+               $this->new_message('Rubro modificado correctamente.');
             else
-               $this->new_error_msg('Error al modificar el epígrafe.');
+               $this->new_error_msg('Error al modificar el Rubro.');
          }
       }
-      else if( isset($_GET['deletee']) ) /// eliminar epígrafe
+      else if( isset($_GET['deletee']) ) /// eliminar Rubro
       {
          $epi1 = $epi0->get($_GET['deletee']);
          if($epi1)
@@ -148,16 +216,19 @@ class contabilidad_epigrafes extends fs_controller
             $this->grupo = $grupo0->get($epi1->idgrupo);
             
             if( $epi1->delete() )
-               $this->new_message('Epígrafe eliminado correctamente.');
+               $this->new_message('Rubro eliminado correctamente.');
             else
-               $this->new_error_msg('Error al eliminar el epígrafe.');
+               $this->new_error_msg('Error al eliminar el Rubro.');
          }
          else
          {
-            $this->new_error_msg('Epígrafe no encontrado.');
+            $this->new_error_msg('Rubro no encontrado.');
             $this->grupo = FALSE;
          }
       }
+	  
+	  
+	/*    Cuenta   */  
       else if( isset($_POST['ncuenta']) ) /// nueva cuenta
       {
          $this->grupo = FALSE;
@@ -201,13 +272,45 @@ class contabilidad_epigrafes extends fs_controller
          else
             $this->new_error_msg('Cuenta no encontrada.');
       }
+	  
+	  
+	  
+/* /////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+  */	  
+	  
+	  
       
-      if($this->grupo)
+      if($this->pgrupo)
       {
          $this->ppage = $this->page->get($this->page->name);
-         $this->page->title = 'Grupo: '.$this->grupo->codgrupo;
-         $this->resultados = $this->grupo->get_epigrafes();
+         $this->page->title = 'Título: '.$this->pgrupo->idpgrupo;
+         $this->resultados = $this->pgrupo->get_grupo();
+		 
       }
+///////////////////////////////////////////////////////////////////	  
+	 
+	  
+	     else if($this->grupo)
+      {
+         /// configuramos la página previa
+         $this->ppage = $this->page->get($this->page->name);
+  //       $this->grupo->codpgrupo='11';
+         if( !is_null($this->grupo->idgrupo) )
+         {
+		 
+            $this->ppage->title = 'Título: '.$this->grupo->codpgrupo;
+            $this->ppage->extra_url = '&pgrupo='.$this->grupo->idpgrupo;
+         }
+         else 
+         
+         $this->page->title = 'Capítulo: '.$this->grupo->codgrupo;
+         $this->resultados = $this->grupo->get_epigrafes();
+      }  
+	  
+	  
+////////////////////////////////////////////////////////////////////	  
       else if($this->epigrafe)
       {
          /// configuramos la página previa
@@ -215,7 +318,7 @@ class contabilidad_epigrafes extends fs_controller
          
          if( !is_null($this->epigrafe->idgrupo) )
          {
-            $this->ppage->title = 'Grupo: '.$this->epigrafe->codgrupo;
+            $this->ppage->title = 'Capítulo: '.$this->epigrafe->codgrupo;
             $this->ppage->extra_url = '&grupo='.$this->epigrafe->idgrupo;
          }
          else if( !is_null($this->epigrafe->idpadre) )
@@ -224,7 +327,7 @@ class contabilidad_epigrafes extends fs_controller
             $this->ppage->extra_url = '&epi='.$this->epigrafe->idpadre;
          }
          
-         $this->page->title = 'Epigrafe: '.$this->epigrafe->codepigrafe;
+         $this->page->title = 'Rubro: '.$this->epigrafe->codepigrafe;
          $this->resultados = $this->epigrafe->get_cuentas();
       }
       else if( isset($_POST['ejercicio']) ) /// mostrar grupos de este ejercicio
@@ -239,8 +342,9 @@ class contabilidad_epigrafes extends fs_controller
       {
          $this->grupo = FALSE;
          $this->epigrafe = FALSE;
-         $this->resultados = $grupo0->all_from_ejercicio($this->empresa->codejercicio);
+         $this->resultados = $pgrupo0->all_from_ejercicio($this->empresa->codejercicio);
          $this->super_epigrafes = $epi0->super_from_ejercicio($this->empresa->codejercicio);
+
       }
    }
 }

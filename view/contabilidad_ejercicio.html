@@ -68,7 +68,7 @@
                </a>
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
             </div>
@@ -124,11 +124,14 @@
 </form>
 
 <ul class="nav nav-tabs">
-   <li{if="$fsc->listar=='grupos'"} class="active"{/if}>
-      <a href="{$fsc->url()}&listar=grupos">Grupos</a>
+   <li{if="$fsc->listar=='pgrupo'"} class="active"{/if}>
+      <a href="{$fsc->url()}&listar=pgrupo">Titulos</a>
+   </li>
+     <li{if="$fsc->listar=='grupos'"} class="active"{/if}>
+      <a href="{$fsc->url()}&listar=grupos">Capítulos</a>
    </li>
    <li{if="$fsc->listar=='epigrafes'"} class="active"{/if}>
-      <a href="{$fsc->url()}&listar=epigrafes">Epígrafes</a>
+      <a href="{$fsc->url()}&listar=epigrafes">Rubros</a>
    </li>
    <li{if="$fsc->listar=='cuentas'"} class="active"{/if}>
       <a href="{$fsc->url()}&listar=cuentas">Cuentas</a>
@@ -138,17 +141,19 @@
    </li>
 </ul>
 
-{if="$fsc->listar=='grupos'"}
+{if="$fsc->listar=='pgrupo'"}
 <div class="table-responsive">
    <table class="table table-hover">
       <thead>
          <tr>
+		 	
             <th class="text-left">Código + Descripción</th>
          </tr>
       </thead>
       {loop="$fsc->listado"}
       <tr class="clickableRow" href="{$value->url()}">
-         <td><a href="{$value->url()}">{$value->codgrupo}</a> {$value->descripcion}</td>
+	 
+         <td><a href="{$value->url()}">{$value->codpgrupo}</a> {$value->descripcion}</td>
       </tr>
       {else}
       <tr class="bg-warning">
@@ -157,12 +162,49 @@
       {/loop}
    </table>
 </div>
+
+
+
+{elseif="$fsc->listar=='grupos'"}
+<div class="table-responsive">
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th class="text-left">Título</th>
+            <th class="text-left">Código + Descripción</th>
+         </tr>
+      </thead>
+      {loop="$fsc->listado"}
+      <tr class="clickableRow" href="{$value->url()}">
+         <td>{$value->codpgrupo}</td>
+         <td><a href="{$value->url()}">{$value->codgrupo}</a> {$value->descripcion}</td>
+      </tr>
+      {else}
+      <tr class="bg-warning">
+	     <td>Primer Grupo</td>	
+         <td colspan="2">
+            Sin resultados. Debes importar los datos del ejercicio, pulsa el botón <b>importar</b>
+         </td>
+      </tr>
+      {/loop}
+   </table>
+</div>
+
+
+
+
+
+
+
+
+
+
 {elseif="$fsc->listar=='epigrafes'"}
 <div class="table-responsive">
    <table class="table table-hover">
       <thead>
          <tr>
-            <th class="text-left">Grupo</th>
+            <th class="text-left">Capítulo</th>
             <th class="text-left">Código + Descripción</th>
          </tr>
       </thead>
@@ -185,7 +227,7 @@
    <table class="table table-hover">
       <thead>
          <tr>
-            <th class="text-left">Epígrafe</th>
+            <th class="text-left">Rubro</th>
             <th class="text-left">Código + Descripción</th>
             <th class="text-right">Cuenta Especial</th>
          </tr>
@@ -242,7 +284,12 @@
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">Importar datos del ejercicio</h4>
-               <p>Se importarán grupos, epígrafes, cuentas, subcuentas, etc.</p>
+               <p class="help-block">
+                  Se importarán grupos, epígrafes, cuentas, subcuentas, etc.
+                  <br/>
+                  ¿No está el plan contable de tu país?
+                  <a href="https://www.youtube.com/watch?v=LtnbPTLCiJY" target="_blank">Créalo</a>.
+               </p>
             </div>
             <div class="modal-body">
                <div class="radio">

@@ -2,6 +2,11 @@
 
 <script type="text/javascript">
    $(document).ready(function() {
+      $("#b_nuevo_pgrupo").click(function(event) {
+         event.preventDefault();
+         $("#modal_nuevo_pgrupo").modal('show');
+         document.f_nuevo_pgrupo.npgrupo.focus();
+      });
       $("#b_nuevo_grupo").click(function(event) {
          event.preventDefault();
          $("#modal_nuevo_grupo").modal('show');
@@ -17,43 +22,58 @@
          $("#modal_nueva_cuenta").modal('show');
          document.f_nueva_cuenta.ncuenta.focus();
       });
+	  
+	  
+	   {if="$fsc->pgrupo"}
+      $("#b_eliminar").click(function(event) {
+         event.preventDefault();
+         if( confirm("¿Realmente desea eliminar este Título?") )
+            window.location.href = '{$fsc->page->url()}&deletepg={$fsc->pgrupo->idpgrupo}';
+      });
+      {/if}
+	  
+	  
       {if="$fsc->grupo"}
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Realmente desea eliminar este grupo?") )
-            window.location.href = '{$fsc->page->url()}&deleteg={$fsc->grupo->idgrupo}';
+         if( confirm("¿Realmente desea eliminar este Capítulo?") )
+            window.location.href = '{$fsc->page->url()}&pgrupo={$fsc->grupo->idpgrupo}&deleteg={$fsc->grupo->idgrupo}';
       });
       {/if}
       {if="$fsc->epigrafe"}
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Realmente desea eliminar este epígrafe?") )
+         if( confirm("¿Realmente desea eliminar este Rubro?") )
             window.location.href = '{$fsc->page->url()}&deletee={$fsc->epigrafe->idepigrafe}';
       });
       {/if}
    });
 </script>
 
-{if="$fsc->grupo"}
-<form action="{$fsc->grupo->url()}" method="post" class="form" role="form">
+{if="$fsc->pgrupo"}
+<form action="{$fsc->pgrupo->url()}" method="post" class="form" role="form">
    <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
       <div class="row">
+	  
+	  
          <div class="col-md-8">
-            <a href="{$fsc->grupo->url()}" class="btn btn-sm btn-default" title="Recargar la página">
+            <a href="{$fsc->pgrupo->url()}" class="btn btn-sm btn-default" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
+           <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
                <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; {$fsc->ppage->title}
             </a>
             
             <div class="btn-group">
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
-            </div>
-         </div>
+            </div>		
+         </div>  
+		 
+		 
          <div class="col-md-4 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
@@ -68,11 +88,103 @@
          </div>
       </div>
    </div>
+  
+   
+   
    <div class="table-responsive">
       <table class="table table-hover">
          <thead>
             <tr>
-               <th class="text-left">Grupo</th>
+               <th class="text-left">Título</th>
+               <th class="text-left">Descripción</th>
+               <th class="text-left">Ejercicio</th>
+            </tr>
+         </thead>
+         <tr>
+            <td><div class="form-control">{$fsc->pgrupo->codpgrupo}</div></td>
+            <td><input class="form-control" type="text" name="descripcion" value="{$fsc->pgrupo->descripcion}" autocomplete="off"/></td>
+            <td>
+               <div class="form-control">
+                  <a href="index.php?page=contabilidad_ejercicio&cod={$fsc->pgrupo->codejercicio}">{$fsc->pgrupo->codejercicio}</a>
+               </div>
+            </td>
+         </tr>
+      </table>
+   </div>
+</form>
+
+
+
+<!--  Ventana  Principal para Agregar Grupo  -->
+
+
+
+
+
+
+<div class="table-responsive">
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th class="text-left">Código</td>
+            <th class="text-left">Descripción</th>
+         </tr>
+      </thead>
+      {loop="$fsc->resultados"}
+      <tr class="clickableRow" href="{$value->url()}">
+         <td><a href="{$value->url()}">{$value->codgrupo}</a></td>
+         <td>{$value->descripcion}</td>
+      </tr>
+      {/loop}
+      <tr>
+         <td colspan="2" class="text-center">
+            <a id="b_nuevo_grupo" class="btn btn-sm btn-block btn-success" href="#nuevo_grupo">Nuevo  Capítulo...</a>
+         </td>
+      </tr>
+   </table>
+</div>
+
+
+{elseif="$fsc->grupo"}
+<form action="{$fsc->grupo->url()}" method="post" class="form" role="form">
+   <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
+      <div class="row">
+         <div class="col-md-8">
+            <a href="{$fsc->grupo->url()}" class="btn btn-sm btn-default" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+            <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; {$fsc->ppage->title}
+            </a>
+            
+            <div class="btn-group">
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='button'"}
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+                  {/if}
+               {/loop}
+
+            </div>
+         </div>
+         <div class="col-md-4 text-right">
+            <div class="btn-group">
+               {if="$fsc->allow_delete"}
+               <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
+                  <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar 
+               </a>
+               {/if}
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+               </button>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="table-responsive">
+      <table class="table table-hover">
+         <thead>
+            <tr>
+               <th class="text-left">Capítulo</th>
                <th class="text-left">Descripción</th>
                <th class="text-left">Ejercicio</th>
             </tr>
@@ -106,11 +218,23 @@
       {/loop}
       <tr>
          <td colspan="2" class="text-center">
-            <a id="b_nuevo_epigrafe" class="btn btn-sm btn-block btn-success" href="#nuevo_epigrafe">Nuevo epigrafe...</a>
+            <a id="b_nuevo_epigrafe" class="btn btn-sm btn-block btn-success" href="#nuevo_epigrafe">Nuevo Rubro...</a>
          </td>
       </tr>
    </table>
 </div>
+
+
+<!--   Fin de Ventana Principal Rubro  -->
+
+
+
+
+
+<!--    Ventana Principal  Cuentas  -->
+
+
+
 {elseif="$fsc->epigrafe"}
 <form action="{$fsc->epigrafe->url()}" method="post" class="form">
    <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
@@ -126,7 +250,7 @@
             <div class="btn-group">
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
             </div>
@@ -149,7 +273,7 @@
       <table class="table table-hover">
          <thead>
             <tr>
-               <th class="text-left">Epígrafe</th>
+               <th class="text-left">Rubro</th>
                <th class="text-left">Descripción</th>
                <th class="text-left">Ejercicio</th>
             </tr>
@@ -196,14 +320,34 @@
 <div class="container">
    <div class="row">
       <div class="col-lg-6">
-         <a id="b_nuevo_epigrafe" class="btn btn-sm btn-block btn-success" href="#">Nuevo Epígrafe...</a>
+         <a id="b_nuevo_epigrafe" class="btn btn-sm btn-block btn-success" href="#">Nuevo Rubro...</a>
       </div>
       <div class="col-lg-6">
          <a id="b_nueva_cuenta" class="btn btn-sm btn-block btn-success" href="#">Nueva Cuenta...</a>
       </div>
    </div>
 </div>
+
+
+
+<!--   Fin de Ventana Principal Cuentas  -->
+
+
+
+
+
+
 {else}
+
+
+
+
+
+<!-- Pagina Principal de Agregar Capítulo   parte superior -->
+
+
+
+
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
       <div class="col-sm-2">
@@ -222,8 +366,8 @@
             {/if}
          </div>
       </div>
-      <div class="col-sm-2">
-         <form name="f_filtro_cuentas" action="{$fsc->url()}" method="post" class="post">
+      <div class="col-sm-3">
+        <form name="f_filtro_cuentas" action="{$fsc->url()}" method="post" class="post">
             <select name="ejercicio" class="form-control" onchange="document.f_filtro_cuentas.submit()">
             {loop="$fsc->ejercicio->all()"}
                {if="$value->codejercicio==$fsc->codejercicio"}
@@ -235,13 +379,24 @@
             </select>
          </form>
       </div>
-      <div class="col-sm-8 text-right">
-         <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_cuentas">
+
+ 
+      <div ><div class="col-sm-7 text-right">
+	  	  	 
+	  <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_cuentas">
             Cuentas &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
          </a>
-      </div>
+</div></div>
    </div>
 </div>
+
+
+
+
+<!--  Ventana  Principal para Agregar Capítulo  -->
+
+
+
 
 <div class="table-responsive">
    <table class="table table-hover">
@@ -259,26 +414,38 @@
       {/loop}
       {loop="$fsc->resultados"}
       <tr class="clickableRow" href="{$value->url()}">
-         <td><a href="{$value->url()}">{$value->codgrupo}</a></td>
+         <td><a href="{$value->url()}">{$value->codpgrupo}</a></td>
          <td>{$value->descripcion}</td>
       </tr>
       {/loop}
       <tr>
          <td colspan="2" class="text-center">
-            <a id="b_nuevo_grupo" class="btn btn-sm btn-block btn-success" href="#nuevo_grupo">Nuevo grupo...</a>
+            <a id="b_nuevo_pgrupo" class="btn btn-sm btn-block btn-success" href="#nuevo_pgrupo">Nuevo Título...</a>
          </td>
       </tr>
    </table>
 </div>
 {/if}
 
-<div class="modal" id="modal_nuevo_grupo">
+<!--  Fin de Ventana Principal de Capítulo   -->
+
+
+
+
+
+<!--    VENTANAS EMERGENTES   -->
+
+
+<!-- Ventana Emergente para Agregar Título  -->
+<div class="modal" id="modal_nuevo_pgrupo">
    <div class="modal-dialog">
       <div class="modal-content">
-         <form class="form" role="form" name="f_nuevo_grupo" action="{$fsc->url()}" method="post">
+	 
+         <form class="form" role="form" name="f_nuevo_pgrupo" action="{$fsc->url()}" method="post">
+		 
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Nuevo grupo</h4>
+               <h4 class="modal-title">Nuevo Título</h4>
             </div>
             <div class="modal-body">
                <div class="form-group">
@@ -295,7 +462,7 @@
                </div>
                <div class="form-group">
                   Código:
-                  <input class="form-control" type="text" name="ngrupo" autocomplete="off" maxlength="6"/>
+                  <input class="form-control" type="text" name="npgrupo" autocomplete="off" maxlength="1"/>
                </div>
                <div class="form-group">
                   Descripción:
@@ -312,30 +479,41 @@
    </div>
 </div>
 
-<div class="modal" id="modal_nuevo_epigrafe">
+<!--  Fin de ventana Emergente  -->
+
+
+
+
+
+
+
+<!-- Ventana Emergente para Agregar  Capítulo  -->
+<div class="modal" id="modal_nuevo_grupo">
    <div class="modal-dialog">
       <div class="modal-content">
-         <form class="form" role="form" name="f_nuevo_epigrafe" action="{$fsc->url()}" method="post">
+	 
+         <form class="form" role="form" name="f_nuevo_grupo" action="{$fsc->url()}" method="post">
+            <input type="hidden" name="ejercicio" value="{$fsc->pgrupo->codejercicio}"/>
+            {if="$fsc->grupo"}
             <input type="hidden" name="ejercicio" value="{$fsc->grupo->codejercicio}"/>
-            {if="$fsc->epigrafe"}
-            <input type="hidden" name="ejercicio" value="{$fsc->epigrafe->codejercicio}"/>
-            <input type="hidden" name="idpadre" value="{$fsc->epigrafe->idepigrafe}"/>
+           
             {else}
-            <input type="hidden" name="ejercicio" value="{$fsc->grupo->codejercicio}"/>
-            <input type="hidden" name="idgrupo" value="{$fsc->grupo->idgrupo}"/>
-            <input type="hidden" name="codgrupo" value="{$fsc->grupo->codgrupo}"/>
+            <input type="hidden" name="ejercicio" value="{$fsc->pgrupo->codejercicio}"/>
+            <input type="hidden" name="idpgrupo" value="{$fsc->pgrupo->idpgrupo}"/>
+            <input type="hidden" name="codpgrupo" value="{$fsc->pgrupo->codpgrupo}"/>
             {/if}
+			
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Nuevo epigrafe</h4>
+               <h4 class="modal-title">Nuevo Capítulo</h4>
             </div>
             <div class="modal-body">
                <div class="form-group">
                   Código:
-                  {if="$fsc->epigrafe"}
-                  <input class="form-control" type="text" name="nepigrafe" autocomplete="off" maxlength="6"/>
+                  {if="$fsc->grupo"}
+                  <input class="form-control" type="text" name="ngrupo" onClick="this.setSelectionRange(1, this.value.length)"  autocomplete="off" maxlength="1"/>
                   {else}
-                  <input class="form-control" type="text" name="nepigrafe" value="{$fsc->grupo->codgrupo}0" autocomplete="off" maxlength="6"/>
+                  <input class="form-control" type="text" name="ngrupo" onClick="this.setSelectionRange(1, this.value.length)"  value="{$fsc->pgrupo->codpgrupo}0" autocomplete="off" maxlength="2"/>
                   {/if}
                </div>
                <div class="form-group">
@@ -353,20 +531,48 @@
    </div>
 </div>
 
-<div class="modal" id="modal_nueva_cuenta">
+<!--  Fin de ventana Emergente  -->
+
+
+
+
+
+
+<!-- Ventana Emergente para Agregar Capítulo  -->
+
+
+
+<!--  Fin de ventana Emergente  -->
+
+
+
+<!-- Ventana Emergenta para Agregar Rubros  -->
+<div class="modal" id="modal_nuevo_epigrafe">
    <div class="modal-dialog">
       <div class="modal-content">
-         <form class="form" role="form" name="f_nueva_cuenta" action="{$fsc->url()}" method="post">
+	  
+         <form class="form" role="form" name="f_nuevo_epigrafe" action="{$fsc->url()}" method="post">
+            <input type="hidden" name="ejercicio" value="{$fsc->grupo->codejercicio}"/>
+            {if="$fsc->epigrafe"}
             <input type="hidden" name="ejercicio" value="{$fsc->epigrafe->codejercicio}"/>
-            <input type="hidden" name="idepigrafe" value="{$fsc->epigrafe->idepigrafe}"/>
-            <input type="hidden" name="codepigrafe" value="{$fsc->epigrafe->codepigrafe}"/>
+            <input type="hidden" name="idpadre" value="{$fsc->epigrafe->idepigrafe}"/>
+            {else}
+            <input type="hidden" name="ejercicio" value="{$fsc->grupo->codejercicio}"/>
+            <input type="hidden" name="idgrupo" value="{$fsc->grupo->idgrupo}"/>
+            <input type="hidden" name="codgrupo" value="{$fsc->grupo->codgrupo}"/>
+            {/if}
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Nueva cuenta</h4>
+               <h4 class="modal-title">Nuevo Rubro</h4>
             </div>
             <div class="modal-body">
                <div class="form-group">
-                  Código:<input class="form-control" type="text" name="ncuenta" value="{$fsc->epigrafe->codepigrafe}0" autocomplete="off"/>
+                  Código:
+                  {if="$fsc->epigrafe"}
+                  <input class="form-control" type="text" name="nepigrafe" onClick="this.setSelectionRange(2, this.value.length)"  autocomplete="off" maxlength="4"/>
+                  {else}
+                  <input class="form-control" type="text" name="nepigrafe" onClick="this.setSelectionRange(2, this.value.length)"  value="{$fsc->grupo->codgrupo}00" autocomplete="off" maxlength="4"/>
+                  {/if}
                </div>
                <div class="form-group">
                   Descripción:
@@ -383,4 +589,42 @@
    </div>
 </div>
 
+<!--  Fin de Ventana Emergente  -->
+
+
+
+<!--  Ventana Emergente para agregar Cuentas  -->
+
+
+<div class="modal" id="modal_nueva_cuenta">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <form class="form" role="form" name="f_nueva_cuenta" action="{$fsc->url()}" method="post">
+            <input type="hidden" name="ejercicio" value="{$fsc->epigrafe->codejercicio}"/>
+            <input type="hidden" name="idepigrafe" value="{$fsc->epigrafe->idepigrafe}"/>
+            <input type="hidden" name="codepigrafe" value="{$fsc->epigrafe->codepigrafe}"/>
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">Nueva cuenta</h4>
+            </div>
+            <div class="modal-body">
+               <div class="form-group">
+                  Código:<input class="form-control" type="text" name="ncuenta" onClick="this.setSelectionRange(4, this.value.length)"  maxlength="6" value="{$fsc->epigrafe->codepigrafe}00" autocomplete="off"/>
+               </div>
+               <div class="form-group">
+                  Descripción:
+                  <input class="form-control" type="text" name="descripcion" autocomplete="off"/>
+               </div>
+            </div>
+            <div class="modal-footer">
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+              </button>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+
+<!--  Fin de Ventana Emergente -->
 {include="footer"}

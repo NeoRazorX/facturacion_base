@@ -63,6 +63,7 @@ class factura_proveedor extends fs_model
    public $totalirpf;
    public $totaliva;
    public $totalrecargo;
+//   public $idasientofac;
    
    public function __construct($f=FALSE)
    {
@@ -87,7 +88,7 @@ class factura_proveedor extends fs_model
          $this->hora = '00:00:00';
          if( !is_null($f['hora']) )
             $this->hora = $f['hora'];
-         
+//         $this->idasientofac = $this->intval($f['idasiento']);
          $this->idasiento = $this->intval($f['idasiento']);
          $this->idfactura = $this->intval($f['idfactura']);
          $this->idfacturarect = $this->intval($f['idfacturarect']);
@@ -371,6 +372,7 @@ class factura_proveedor extends fs_model
          return FALSE;
    }
    
+   
    public function get_by_codigo($cod)
    {
       $fact = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codigo = ".$this->var2str($cod).";");
@@ -538,6 +540,7 @@ class factura_proveedor extends fs_model
       $this->get_lineas_iva();
       $linea_iva = new linea_iva_factura_proveedor();
       $status = $linea_iva->factura_test($this->idfactura, $neto, $iva, $recargo);
+	  
       
       /// comprobamos el asiento
       if( isset($this->idasiento) )
@@ -545,7 +548,7 @@ class factura_proveedor extends fs_model
          $asiento = $this->get_asiento();
          if($asiento)
          {
-            if($asiento->tipodocumento != 'Factura de proveedor' OR $asiento->documento != $this->codigo)
+            if($asiento->tipodocumento != 'Ingreso proveedor' )
             {
                $this->new_error_msg("Esta factura apunta a un <a href='".$this->asiento_url()."'>asiento incorrecto</a>.");
                $status = FALSE;
@@ -589,22 +592,31 @@ class factura_proveedor extends fs_model
    
    public function save()
    {
+
       if( $this->test() )
       {
          if( $this->exists() )
-         {
+         {	
+		 
+		 /// toma el asiento de la factura para que no cambie cuando hay devolución al asiento de egreso
+		  	$varfactura = new factura_proveedor();
+	  		$factura=$varfactura->get($this->idfactura);	
+		 	if($factura AND $factura->idasiento==NULL) $valor_asiento=$this->idasiento;
+		 	else $valor_asiento=$factura->idasiento;
+			////////
+			
             $sql = "UPDATE ".$this->table_name." SET deabono = ".$this->var2str($this->deabono).",
                codigo = ".$this->var2str($this->codigo).", automatica = ".$this->var2str($this->automatica).",
                total = ".$this->var2str($this->total).", neto = ".$this->var2str($this->neto).",
                cifnif = ".$this->var2str($this->cifnif).", pagada = ".$this->var2str($this->pagada).",
                observaciones = ".$this->var2str($this->observaciones).",
                idpagodevol = ".$this->var2str($this->idpagodevol).", codagente = ".$this->var2str($this->codagente).",
-               codalmacen = ".$this->var2str($this->codalmacen).",
+               codalmacen = ".$this->var2str($this->codalmacen).",idasiento = ".$this->var2str($valor_asiento).",
                irpf = ".$this->var2str($this->irpf).", totaleuros = ".$this->var2str($this->totaleuros).",
                nombre = ".$this->var2str($this->nombre).", codpago = ".$this->var2str($this->codpago).",
                codproveedor = ".$this->var2str($this->codproveedor).", idfacturarect = ".$this->var2str($this->idfacturarect).",
                numproveedor = ".$this->var2str($this->numproveedor).", codigorect = ".$this->var2str($this->codigorect).",
-               codserie = ".$this->var2str($this->codserie).", idasiento = ".$this->var2str($this->idasiento).",
+               codserie = ".$this->var2str($this->codserie).", 
                totalirpf = ".$this->var2str($this->totalirpf).", totaliva = ".$this->var2str($this->totaliva).",
                coddivisa = ".$this->var2str($this->coddivisa).", numero = ".$this->var2str($this->numero).",
                codejercicio = ".$this->var2str($this->codejercicio).", tasaconv = ".$this->var2str($this->tasaconv).",
@@ -680,6 +692,47 @@ class factura_proveedor extends fs_model
    {
       $faclist = array();
       $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY fecha DESC, codigo DESC", $limit, $offset);
+      if($facturas)
+      {
+         foreach($facturas as $f)
+            $faclist[] = new factura_proveedor($f);
+      }
+      return $faclist;
+   }
+   
+   public function boton_anular($idfactura)
+   {
+    $sql = "UPDATE ".$this->table_name." SET idpagodevol = '1'   WHERE idfactura = ".$this->var2str($idfactura).";";
+           if( $this->db->exec($sql) )
+            {
+               $this->idfactura = $this->db->lastval();
+               return TRUE;
+            }
+            else
+               return FALSE;  
+   }
+   
+   
+   
+      public function factura_by_idfactura($idfac,$offset=0, $limit=FS_ITEM_LIMIT)
+   {
+      $faclist = array();
+      $facturas = $this->db->select("SELECT * FROM facturasprov where idfactura = ".$this->var2str($idfac), $limit, $offset );
+      if($facturas)
+      {
+         foreach($facturas as $f)
+            $faclist[] = new factura_proveedor($f);
+      }
+	  
+      return $faclist;
+   }
+   
+   
+      public function facturas_proveedor($offset=0, $limit=FS_ITEM_LIMIT)
+   {
+   
+      $faclist = array();
+      $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento)." AND codejercicio = ".$this->var2str($this->codejercicio)." ORDER BY fecha DESC, codigo DESC", $limit, $offset);
       if($facturas)
       {
          foreach($facturas as $f)

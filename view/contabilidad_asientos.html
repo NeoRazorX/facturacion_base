@@ -88,7 +88,7 @@
          <tr>
             <th></th>
             <th class="text-left">Ejercicio + Número</th>
-            <th class="text-left">Concepto</th>
+            <th class="text-left">Tipo de documento</th>
             <th class="text-right">Importe</th>
             <th class="text-right">Fecha</th>
          </tr>
@@ -100,8 +100,8 @@
             <span class="glyphicon glyphicon-pencil" title="editable"></span>
             {/if}
          </td>
-         <td>{$value->codejercicio} <a href="{$value->url()}">{$value->numero}</a></td>
-         <td>{$value->concepto}</td>
+         <td>{$value->codejercicio}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="{$value->url()}">{$value->numero}</a></td>
+         <td>{$value->tipodocumento}</td>
          <td class="text-right">{$fsc->show_precio($value->importe)}</td>
          <td class="text-right">{$value->fecha}</td>
       </tr>
