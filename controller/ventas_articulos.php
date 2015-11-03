@@ -19,15 +19,20 @@
 
 require_model('articulo.php');
 require_model('familia.php');
+require_model('fabricante.php');
 require_model('impuesto.php');
 require_model('tarifa.php');
 
 class ventas_articulos extends fs_controller
 {
    public $allow_delete;
+   public $bloqueados;
+   public $buscar;
    public $codfamilia;
    public $con_stock;
    public $familia;
+   public $fabricante; 
+   public $codfabricante;   
    public $impuesto;
    public $mostrar_tab_tarifas;
    public $offset;
@@ -39,15 +44,16 @@ class ventas_articulos extends fs_controller
       parent::__construct(__CLASS__, 'Artículos', 'ventas', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
-      $articulo = new articulo();
-      $this->familia = new familia();
-      $this->impuesto = new impuesto();
-      $this->tarifa = new tarifa();
-      
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
+      $articulo = new articulo();
+      $this->familia = new familia();
+      $this->fabricante = new fabricante();
+      $this->impuesto = new impuesto();
+      $this->tarifa = new tarifa();
       
       /**
        * Si hay alguna extensión de tipo config y texto no_tab_tarifas,
@@ -63,14 +69,6 @@ class ventas_articulos extends fs_controller
          }
       }
       
-      $this->codfamilia = '';
-      if( isset($_REQUEST['codfamilia']) )
-      {
-         $this->codfamilia = $_REQUEST['codfamilia'];
-      }
-      
-      $this->con_stock = isset($_REQUEST['con_stock']);
-      
       if( isset($_POST['codtarifa']) )
       {
          /// crear/editar tarifa
@@ -81,7 +79,10 @@ class ventas_articulos extends fs_controller
             $tar0->codtarifa = $_POST['codtarifa'];
          }
          $tar0->nombre = $_POST['nombre'];
-         $tar0->incporcentual = 0-floatval($_POST['dtopor']);
+         $tar0->aplicar_a = $_POST['aplicar_a'];
+         $tar0->set_x( floatval($_POST['dtopor']) );
+         $tar0->set_y( floatval($_POST['inclineal']) );
+         
          if( $tar0->save() )
          {
             $this->new_message("Tarifa guardada correctamente.");
@@ -120,7 +121,18 @@ class ventas_articulos extends fs_controller
          {
             $articulo->referencia = $_POST['referencia'];
             $articulo->descripcion = $_POST['referencia'];
-            $articulo->codfamilia = $_POST['codfamilia'];
+            $articulo->nostock = isset($_POST['nostock']);
+            
+            if($_POST['codfamilia'] != '')
+            {
+               $articulo->codfamilia = $_POST['codfamilia'];
+            }
+            
+            if($_POST['codfabricante'] != '')
+            {
+               $articulo->codfabricante = $_POST['codfabricante'];
+            }
+            
             $articulo->set_pvp( floatval($_POST['pvp']) );
             $articulo->set_impuesto($_POST['codimpuesto']);
             if( $articulo->save() )
@@ -146,17 +158,37 @@ class ventas_articulos extends fs_controller
          }
       }
       
+      /// recogemos los datos necesarios para la búsqueda
+      $this->buscar = FALSE;
+      $this->codfamilia = '';
+      if( isset($_REQUEST['codfamilia']) )
+      {
+         $this->codfamilia = $_REQUEST['codfamilia'];
+         $this->buscar = TRUE;
+      }
+      
+      $this->codfabricante = '';
+      if( isset($_REQUEST['codfabricante']) )
+      {
+         $this->codfabricante = $_REQUEST['codfabricante'];
+         $this->buscar = TRUE;
+      }
+      
+      $this->con_stock = isset($_REQUEST['con_stock']);
+      $this->bloqueados = isset($_REQUEST['bloqueados']);
+      
+      if( isset($_REQUEST['query']) OR $this->con_stock OR $this->bloqueados )
+      {
+         $this->buscar = TRUE;
+      }
+      
       $this->offset = 0;
       if( isset($_GET['offset']) )
       {
          $this->offset = intval($_GET['offset']);
       }
       
-      if($this->query != '')
-      {
-         $this->resultados = $articulo->search($this->query, $this->offset, $this->codfamilia, $this->con_stock);
-      }
-      else if( isset($_GET['solo_stock']) )
+      if( isset($_GET['solo_stock']) )
       {
          $this->resultados = $articulo->search('', $this->offset, '', TRUE);
       }
@@ -166,7 +198,14 @@ class ventas_articulos extends fs_controller
       }
       else
       {
-         $this->resultados = $articulo->all($this->offset);
+         $this->resultados = $articulo->search(
+                 $this->query,
+                 $this->offset,
+                 $this->codfamilia,
+                 $this->con_stock,
+                 $this->codfabricante,
+                 $this->bloqueados
+         );
       }
    }
    
@@ -177,23 +216,41 @@ class ventas_articulos extends fs_controller
       
       if( isset($_GET['public']) )
       {
-         $extra = '&public=TRUE';
+         $extra .= '&public=TRUE';
       }
       else if( isset($_GET['solo_stock']) )
       {
-         $extra = '&solo_stock=TRUE';
+         $extra .= '&solo_stock=TRUE';
       }
-      
-      if($this->query != '' AND $this->offset > 0)
+      else if($this->buscar)
       {
+         if($this->query != '')
+         {
+            $extra .= '&query='.$this->query;
+         }
+         
+         if($this->codfamilia != '')
+         {
+            $extra .= '&codfamilia='.$this->codfamilia;
+         }
+         
+         if($this->codfabricante != '')
+         {
+            $extra .= '&codfabricante='.$this->codfabricante;
+         }
+         
          if($this->con_stock)
          {
-            $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&con_stock=TRUE&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
+            $extra .= '&con_stock=TRUE';
          }
-         else
-            $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
+         
+         if($this->bloqueados)
+         {
+            $extra .= '&bloqueados=TRUE';
+         }
       }
-      else if($this->query == '' AND $this->offset > 0)
+      
+      if($this->offset > 0)
       {
          $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
       }
@@ -208,27 +265,56 @@ class ventas_articulos extends fs_controller
       
       if( isset($_GET['public']) )
       {
-         $extra = '&public=TRUE';
+         $extra .= '&public=TRUE';
       }
       else if( isset($_GET['solo_stock']) )
       {
-         $extra = '&solo_stock=TRUE';
+         $extra .= '&solo_stock=TRUE';
       }
-      
-      if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
+      else if($this->buscar)
       {
+         if($this->query != '')
+         {
+            $extra .= '&query='.$this->query;
+         }
+         
+         if($this->codfamilia != '')
+         {
+            $extra .= '&codfamilia='.$this->codfamilia;
+         }
+         
+         if($this->codfabricante != '')
+         {
+            $extra .= '&codfabricante='.$this->codfabricante;
+         }
+         
          if($this->con_stock)
          {
-            $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&con_stock=TRUE&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+            $extra .= '&con_stock=TRUE';
          }
-         else
-            $url = $this->url()."&query=".$this->query."&codfamilia=".$this->codfamilia."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+         
+         if($this->bloqueados)
+         {
+            $extra .= '&bloqueados=TRUE';
+         }
       }
-      else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
+      
+      if( count($this->resultados) == FS_ITEM_LIMIT )
       {
          $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
       }
       
       return $url;
+   }
+   
+   public function total_articulos()
+   {
+      $data = $this->db->select("SELECT COUNT(referencia) as total FROM articulos;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
    }
 }

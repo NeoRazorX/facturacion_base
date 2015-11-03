@@ -29,6 +29,7 @@ class ventas_clientes extends fs_controller
    public $cliente;
    public $grupo;
    public $grupos;
+   public $nuevocli_setup;
    public $offset;
    public $pais;
    public $resultados;
@@ -40,16 +41,39 @@ class ventas_clientes extends fs_controller
       parent::__construct(__CLASS__, 'Clientes', 'ventas', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
       $this->cliente = new cliente();
       $this->grupo = new grupo_clientes();
       $this->pais = new pais();
       $this->serie = new serie();
       $this->tarifa = new tarifa();
       
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      /// cargamos la configuración
+      $fsvar = new fs_var();
+      $this->nuevocli_setup = $fsvar->array_get(
+         array(
+            'nuevocli_cifnif_req' => 0,
+            'nuevocli_direccion' => 1,
+            'nuevocli_direccion_req' => 0,
+            'nuevocli_codpostal' => 1,
+            'nuevocli_codpostal_req' => 0,
+            'nuevocli_pais' => 0,
+            'nuevocli_pais_req' => 0,
+            'nuevocli_provincia' => 1,
+            'nuevocli_provincia_req' => 0,
+            'nuevocli_ciudad' => 1,
+            'nuevocli_ciudad_req' => 0,
+            'nuevocli_telefono1' => 0,
+            'nuevocli_telefono1_req' => 0,
+            'nuevocli_telefono2' => 0,
+            'nuevocli_telefono2_req' => 0,
+         ),
+         FALSE
+      );
       
       if( isset($_GET['delete_grupo']) ) /// eliminar un grupo
       {
@@ -131,25 +155,52 @@ class ventas_clientes extends fs_controller
             $cliente->razonsocial = $_POST['nombre'];
             $cliente->cifnif = $_POST['cifnif'];
             $cliente->codserie = $this->empresa->codserie;
+            $cliente->codgrupo = $_POST['scodgrupo'];
             
-            if( isset($_POST['scodgrupo']) )
+            if( isset($_POST['telefono1']) )
             {
-               if($_POST['scodgrupo'] != '')
-               {
-                  $cliente->codgrupo = $_POST['scodgrupo'];
-               }
+               $cliente->telefono1 = $_POST['telefono1'];
+            }
+            
+            if( isset($_POST['telefono2']) )
+            {
+               $cliente->telefono2 = $_POST['telefono2'];
             }
             
             if( $cliente->save() )
             {
                $dircliente = new direccion_cliente();
                $dircliente->codcliente = $cliente->codcliente;
-               $dircliente->codpais = $_POST['pais'];
-               $dircliente->provincia = $_POST['provincia'];
-               $dircliente->ciudad = $_POST['ciudad'];
-               $dircliente->codpostal = $_POST['codpostal'];
-               $dircliente->direccion = $_POST['direccion'];
+               $dircliente->codpais = $this->empresa->codpais;
+               $dircliente->provincia = $this->empresa->provincia;
+               $dircliente->ciudad = $this->empresa->ciudad;
                $dircliente->descripcion = 'Principal';
+               
+               if( isset($_POST['pais']) )
+               {
+                  $dircliente->codpais = $_POST['pais'];
+               }
+               
+               if( isset($_POST['provincia']) )
+               {
+                  $dircliente->provincia = $_POST['provincia'];
+               }
+               
+               if( isset($_POST['ciudad']) )
+               {
+                  $dircliente->ciudad = $_POST['ciudad'];
+               }
+               
+               if( isset($_POST['codpostal']) )
+               {
+                  $dircliente->codpostal = $_POST['codpostal'];
+               }
+               
+               if( isset($_POST['direccion']) )
+               {
+                  $dircliente->direccion = $_POST['direccion'];
+               }
+               
                if( $dircliente->save() )
                {
                   header('location: '.$cliente->url());

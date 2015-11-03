@@ -110,8 +110,8 @@ class asiento_factura
             $partida0->concepto = $asiento->concepto;
             $partida0->idsubcuenta = $subcuenta_prov->idsubcuenta;
             $partida0->codsubcuenta = $subcuenta_prov->codsubcuenta;
-///////////  Proveedor  haber			/////////
-            $partida0->haber = $factura->total;
+///////////  Proveedor  debe			/////////
+            $partida0->debe = $factura->total;
             $partida0->coddivisa = $factura->coddivisa;
             $partida0->tasaconv = $factura->tasaconv;
             $partida0->codserie = $factura->codserie;
@@ -132,8 +132,8 @@ class asiento_factura
                $partida2->concepto = $asiento->concepto;
                $partida2->idsubcuenta = $subcuenta_compras->idsubcuenta;
                $partida2->codsubcuenta = $subcuenta_compras->codsubcuenta;
-///////// Proveedor compra debe  ////////////////////////			   
-               $partida2->debe = $factura->neto;
+///////// Proveedor compra haber  ////////////////////////			   
+               $partida2->haber = $factura->neto;
                $partida2->coddivisa = $factura->coddivisa;
                $partida2->tasaconv = $factura->tasaconv;
                $partida2->codserie = $factura->codserie;
@@ -220,10 +220,12 @@ class asiento_factura
             $asiento_correcto = TRUE;
             $subcuenta = new subcuenta();
             $partida0 = new partida();
+        	$subcuenta_ventas = $subcuenta->get_cuentaesp('VENTAS', $asiento->codejercicio);			
+			
             $partida0->idasiento = $asiento->idasiento;
             $partida0->concepto = $asiento->concepto;
-            $partida0->idsubcuenta = $subcuenta_cli->idsubcuenta;
-            $partida0->codsubcuenta = $subcuenta_cli->codsubcuenta;
+            $partida0->idsubcuenta = $subcuenta_ventas->idsubcuenta;
+            $partida0->codsubcuenta = $subcuenta_ventas->codsubcuenta;
             $partida0->debe = $factura->total;
             $partida0->coddivisa = $factura->coddivisa;
             $partida0->tasaconv = $factura->tasaconv;
@@ -235,14 +237,14 @@ class asiento_factura
             }
             
             
-            $subcuenta_ventas = $subcuenta->get_cuentaesp('VENTAS', $asiento->codejercicio);
+    
             if($subcuenta_ventas AND $asiento_correcto)
             {
                $partida2 = new partida();
                $partida2->idasiento = $asiento->idasiento;
                $partida2->concepto = $asiento->concepto;
-               $partida2->idsubcuenta = $subcuenta_ventas->idsubcuenta;
-               $partida2->codsubcuenta = $subcuenta_ventas->codsubcuenta;
+			   $partida2->idsubcuenta = $subcuenta_cli->idsubcuenta;
+               $partida2->codsubcuenta = $subcuenta_cli->codsubcuenta;
                $partida2->haber = $factura->neto;
                $partida2->coddivisa = $factura->coddivisa;
                $partida2->tasaconv = $factura->tasaconv;
@@ -346,12 +348,14 @@ class asiento_factura
             $asiento_correcto = TRUE;
             $subcuenta = new subcuenta();
             $partida0 = new partida();
+			$subcuenta_compras = $subcuenta->get_cuentaesp('COMPRA', $asiento->codejercicio);
+			
             $partida0->idasiento = $asiento->idasiento;
             $partida0->concepto = $asiento->concepto;
-            $partida0->idsubcuenta = $subcuenta_prov->idsubcuenta;
-            $partida0->codsubcuenta = $subcuenta_prov->codsubcuenta;
-///////////  Proveedor  haber			/////////
-            $partida0->haber = $factura->total;
+            $partida0->idsubcuenta = $subcuenta_compras->idsubcuenta;
+            $partida0->codsubcuenta = $subcuenta_compras->codsubcuenta;
+///////////  Proveedor  debe			/////////
+            $partida0->debe = $factura->total;
             $partida0->coddivisa = $factura->coddivisa;
             $partida0->tasaconv = $factura->tasaconv;
             $partida0->codserie = $factura->codserie;
@@ -418,16 +422,16 @@ class asiento_factura
                }
             }
             
-            $subcuenta_compras = $subcuenta->get_cuentaesp('COMPRA', $asiento->codejercicio);
+  
             if($subcuenta_compras AND $asiento_correcto)
             {
                $partida2 = new partida();
                $partida2->idasiento = $asiento->idasiento;
                $partida2->concepto = $asiento->concepto;
-               $partida2->idsubcuenta = $subcuenta_compras->idsubcuenta;
-               $partida2->codsubcuenta = $subcuenta_compras->codsubcuenta;
-///////// Proveedor compra debe  ////////////////////////			   
-               $partida2->debe = $factura->neto;
+			   $partida2->idsubcuenta = $subcuenta_prov->idsubcuenta;
+               $partida2->codsubcuenta = $subcuenta_prov->codsubcuenta;
+///////// Proveedor compra haber  ////////////////////////			   
+               $partida2->haber = $factura->neto;
                $partida2->coddivisa = $factura->coddivisa;
                $partida2->tasaconv = $factura->tasaconv;
                $partida2->codserie = $factura->codserie;

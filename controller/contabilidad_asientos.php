@@ -30,7 +30,7 @@ class contabilidad_asientos extends fs_controller
       parent::__construct(__CLASS__, 'Asientos', 'contabilidad', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->asiento = new asiento();
       

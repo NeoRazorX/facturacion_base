@@ -33,7 +33,7 @@ class compras_proveedores extends fs_controller
       parent::__construct(__CLASS__, 'Proveedores / Acreedores', 'compras', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->pais = new pais();
       $this->proveedor = new proveedor();

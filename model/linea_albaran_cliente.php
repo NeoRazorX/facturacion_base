@@ -25,20 +25,84 @@ require_model('albaran_cliente.php');
  */
 class linea_albaran_cliente extends fs_model
 {
-   public $idlinea; /// pkey
+   /**
+    * Clave primaria.
+    * @var type 
+    */
+   public $idlinea;
+   
+   /**
+    * ID de la línea del pedido relacionado, si es que lo hay.
+    * @var type 
+    */
    public $idlineapedido;
+   
+   /**
+    * ID del albaran de esta línea.
+    * @var type 
+    */
    public $idalbaran;
+   
+   /**
+    * ID del pedido relacionado con el albarán relacionado.
+    * @var type 
+    */
    public $idpedido;
+   
+   /**
+    * Referencia del artículo.
+    * @var type 
+    */
    public $referencia;
    public $descripcion;
    public $cantidad;
+   
+   /**
+    * % de descuento.
+    * @var type 
+    */
    public $dtopor;
+   
+   /**
+    * Impuesto del artículo.
+    * @var type 
+    */
    public $codimpuesto;
+   
+   /**
+    * % de IVA del artículo (el que corresponde al impuesto.
+    * @var type 
+    */
    public $iva;
+   
+   /**
+    * Importe neto de la línea, sin impuestos.
+    * @var type 
+    */
    public $pvptotal;
+   
+   /**
+    * Importe neto sin descuento, es decir, pvpunitario * cantidad.
+    * @var type 
+    */
    public $pvpsindto;
+   
+   /**
+    * Precio del artículo, una sola unidad.
+    * @var type 
+    */
    public $pvpunitario;
+   
+   /**
+    * % de IRPF de la línea.
+    * @var type 
+    */
    public $irpf;
+   
+   /**
+    * % de recargo de equivalencia de la línea.
+    * @var type 
+    */
    public $recargo;
    
    private $codigo;
@@ -226,17 +290,21 @@ class linea_albaran_cliente extends fs_model
          
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET idalbaran = ".$this->var2str($this->idalbaran).",
-               idpedido = ".$this->var2str($this->idpedido).", idlineapedido = ".$this->var2str($this->idlineapedido).",
-               referencia = ".$this->var2str($this->referencia).",
-               descripcion = ".$this->var2str($this->descripcion).",
-               cantidad = ".$this->var2str($this->cantidad).", dtopor = ".$this->var2str($this->dtopor).",
-               codimpuesto = ".$this->var2str($this->codimpuesto).",
-               iva = ".$this->var2str($this->iva).", pvptotal = ".$this->var2str($this->pvptotal).",
-               pvpsindto = ".$this->var2str($this->pvpsindto).",
-               pvpunitario = ".$this->var2str($this->pvpunitario).",
-               irpf = ".$this->var2str($this->irpf).", recargo = ".$this->var2str($this->recargo)."
-               WHERE idlinea = ".$this->var2str($this->idlinea).";";
+            $sql = "UPDATE ".$this->table_name." SET idalbaran = ".$this->var2str($this->idalbaran)
+                    .", idpedido = ".$this->var2str($this->idpedido)
+                    .", idlineapedido = ".$this->var2str($this->idlineapedido)
+                    .", referencia = ".$this->var2str($this->referencia)
+                    .", descripcion = ".$this->var2str($this->descripcion)
+                    .", cantidad = ".$this->var2str($this->cantidad)
+                    .", dtopor = ".$this->var2str($this->dtopor)
+                    .", codimpuesto = ".$this->var2str($this->codimpuesto)
+                    .", iva = ".$this->var2str($this->iva)
+                    .", pvptotal = ".$this->var2str($this->pvptotal)
+                    .", pvpsindto = ".$this->var2str($this->pvpsindto)
+                    .", pvpunitario = ".$this->var2str($this->pvpunitario)
+                    .", irpf = ".$this->var2str($this->irpf)
+                    .", recargo = ".$this->var2str($this->recargo)
+                    ."  WHERE idlinea = ".$this->var2str($this->idlinea).";";
             
             return $this->db->exec($sql);
          }
@@ -244,12 +312,20 @@ class linea_albaran_cliente extends fs_model
          {
             $sql = "INSERT INTO ".$this->table_name." (idlineapedido,idalbaran,idpedido,referencia,descripcion,
                cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo) VALUES
-               (".$this->var2str($this->idlineapedido).",".$this->var2str($this->idalbaran).",".$this->var2str($this->idpedido).",
-               ".$this->var2str($this->referencia).",".$this->var2str($this->descripcion).",
-               ".$this->var2str($this->cantidad).",".$this->var2str($this->dtopor).",
-               ".$this->var2str($this->codimpuesto).",".$this->var2str($this->iva).",".$this->var2str($this->pvptotal).",
-               ".$this->var2str($this->pvpsindto).",".$this->var2str($this->pvpunitario).",
-               ".$this->var2str($this->irpf).",".$this->var2str($this->recargo).");";
+                     (".$this->var2str($this->idlineapedido).
+                    ",".$this->var2str($this->idalbaran).
+                    ",".$this->var2str($this->idpedido).
+                    ",".$this->var2str($this->referencia).
+                    ",".$this->var2str($this->descripcion).
+                    ",".$this->var2str($this->cantidad).
+                    ",".$this->var2str($this->dtopor).
+                    ",".$this->var2str($this->codimpuesto).
+                    ",".$this->var2str($this->iva).
+                    ",".$this->var2str($this->pvptotal).
+                    ",".$this->var2str($this->pvpsindto).
+                    ",".$this->var2str($this->pvpunitario).
+                    ",".$this->var2str($this->irpf).
+                    ",".$this->var2str($this->recargo).");";
             
             if( $this->db->exec($sql) )
             {

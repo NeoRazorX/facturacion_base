@@ -8,91 +8,85 @@
    }
 </script>
 
-<div class="container-fluid" style="margin-top: 10px;">
+<div class="container" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-xs-6">
-         <div class="btn-group hidden-xs">
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
-               <span class="glyphicon glyphicon-refresh"></span>
-            </a>
-            {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
-            </a>
-            {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
-            </a>
-            {/if}
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               Series
+               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+               <div class="btn-group">
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='button'"}
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                  {/if}
+               {/loop}
+               </div>
+            </h1>
+            <p class="help-block">
+               El <b>% {#FS_IRPF#}</b> es una retención que se aplica tanto en las compras
+               como en las ventas.
+            </p>
          </div>
-         <div class="btn-group">
-            {loop="$fsc->extensions"}
-               {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
-               {/if}
-            {/loop}
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th class="text-left" width="150">Código</th>
+                     <th class="text-left">Descripción</th>
+                     <th class="text-center">Sin {#FS_IVA#}</th>
+                     <th class="text-right" width="100">% {#FS_IRPF#}</th>
+                     <th class="text-right" width="120">Acciones</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->serie->all()"}
+               <form action ="{$fsc->url()}" method="post">
+                  <input type="hidden" name="codserie" value="{$value->codserie}"/>
+                  <tr>
+                     <td><div class="form-control">{$value->codserie}</div></td>
+                     <td><input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/></td>
+                     <td class="text-center"><input type="checkbox" name="siniva" value="TRUE"{if="$value->siniva"} checked="checked"{/if}/></td>
+                     <td><input class="form-control text-right" type="text" name="irpf" value="{$value->irpf}" autocomplete="off"/></td>
+                     <td class="text-right">
+                        <div class="btn-group">
+                           {if="$fsc->allow_delete"}
+                              {if="$value->codserie==$fsc->empresa->codserie"}
+                              <a href="#" class="btn btn-sm btn-warning" title="Bloqueado" onclick="alert('No puedes eliminar la serie predeterminada.')">
+                                 <span class="glyphicon glyphicon-lock"></span>
+                              </a>
+                              {else}
+                              <a class="btn btn-sm btn-danger" title="Eliminar" onclick="delete_serie('{$value->codserie}')">
+                                 <span class="glyphicon glyphicon-trash"></span>
+                              </a>
+                              {/if}
+                           {/if}
+                           <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">
+                              <span class="glyphicon glyphicon-floppy-disk"></span>
+                           </button>
+                        </div>
+                     </td>
+                  </tr>
+               </form>
+               {/loop}
+               <form class="form" name="f_nueva_serie" action ="{$fsc->url()}" method="post">
+                  <tr class="bg-info">
+                     <td><input class="form-control" type="text" name="codserie" maxlength="2" placeholder="Nuevo código..." autocomplete="off"/></td>
+                     <td><input class="form-control" type="text" name="descripcion" placeholder="Descripción" autocomplete="off"/></td>
+                     <td class="text-center"><input type="checkbox" name="siniva" value="TRUE"/></td>
+                     <td><input class="form-control text-right" type="text" name="irpf" value="0" autocomplete="off"/></td>
+                     <td class="text-right">
+                        <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">
+                           <span class="glyphicon glyphicon-floppy-disk"></span>
+                        </button>
+                     </td>
+                  </tr>
+               </form>
+            </table>
          </div>
-      </div>
-      <div class="col-xs-6 text-right">
-         <h2 style="margin-top: 0px;">Series</h2>
       </div>
    </div>
-</div>
-
-<div class="table-responsive">
-   <table class="table table-hover">
-      <thead>
-         <tr>
-            <th class="text-left" width="150">Código</th>
-            <th class="text-left">Descripción</th>
-            <th class="text-center">Sin {#FS_IVA#}</th>
-            <th class="text-right">% {#FS_IRPF#}</th>
-            <th class="text-right" width="120">Acciones</th>
-         </tr>
-      </thead>
-      {loop="$fsc->serie->all()"}
-      <form action ="{$fsc->url()}" method="post">
-         <input type="hidden" name="codserie" value="{$value->codserie}"/>
-         <tr>
-            <td><div class="form-control">{$value->codserie}</div></td>
-            <td><input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/></td>
-            <td class="text-center"><input type="checkbox" name="siniva" value="TRUE"{if="$value->siniva"} checked="checked"{/if}/></td>
-            <td><input class="form-control text-right" type="text" name="irpf" value="{$value->irpf}" autocomplete="off"/></td>
-            <td class="text-right">
-               <div class="btn-group">
-                  {if="$fsc->allow_delete"}
-                     {if="$value->codserie==$fsc->empresa->codserie"}
-                     <a href="#" class="btn btn-sm btn-warning" title="Bloqueado" onclick="alert('No puedes eliminar la serie predeterminada.')">
-                        <span class="glyphicon glyphicon-lock"></span>
-                     </a>
-                     {else}
-                     <a class="btn btn-sm btn-danger" title="Eliminar" onclick="delete_serie('{$value->codserie}')">
-                        <span class="glyphicon glyphicon-trash"></span>
-                     </a>
-                     {/if}
-                  {/if}
-                  <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">
-                     <span class="glyphicon glyphicon-floppy-disk"></span>
-                  </button>
-               </div>
-            </td>
-         </tr>
-      </form>
-      {/loop}
-      <form class="form" name="f_nueva_serie" action ="{$fsc->url()}" method="post">
-         <tr class="bg-info">
-            <td><input class="form-control" type="text" name="codserie" maxlength="2" placeholder="Nuevo código..." autocomplete="off"/></td>
-            <td><input class="form-control" type="text" name="descripcion" autocomplete="off"/></td>
-            <td class="text-center"><input type="checkbox" name="siniva" value="TRUE"/></td>
-            <td><input class="form-control text-right" type="text" name="irpf" value="0" autocomplete="off"/></td>
-            <td class="text-right">
-               <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span>
-               </button>
-            </td>
-         </tr>
-      </form>
-   </table>
 </div>
 
 {include="footer"}

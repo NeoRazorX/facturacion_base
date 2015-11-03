@@ -29,7 +29,7 @@ class admin_divisas extends fs_controller
       parent::__construct(__CLASS__, 'Divisas', 'admin', TRUE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->divisa = new divisa();
       

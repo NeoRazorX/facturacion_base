@@ -16,7 +16,6 @@
       <thead>
          <tr>
             <th></th>
-			<th class="text-left">Alias</th>
             <th class="text-left">Código</th>
             <th class="text-left">Descripción</th>
             <th class="text-right">Debe</th>
@@ -29,11 +28,6 @@
          <td>
             <a href="{$value->url()}" target="_blank" title="ver el detalle de la subcuenta">
                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-            </a>
-         </td>
-		   <td>
-            <a href="#" onclick="select_subcuenta('{$value->codsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}')">
-               {$value->alias}
             </a>
          </td>
          <td>

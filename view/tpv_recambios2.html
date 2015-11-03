@@ -72,6 +72,8 @@
    <input type="hidden" id="tpv_total2" name="tpv_total2" value="0"/>
    <input type="hidden" name="cliente" value="{$fsc->cliente_s->codcliente}"/>
    <input type="hidden" name="regalo" value="FALSE"/>
+   <input type="hidden" name="almacen" value="{$fsc->terminal->codalmacen}"/>
+   <input type="hidden" name="serie" value="{$fsc->terminal->codserie}"/>
    <div class="container-fluid">
       <div class="row">
          <div class="col-sm-6">
@@ -110,14 +112,8 @@
    <ul class="nav nav-tabs" role="tablist">
       <li class="active">
          <a href="#tab_lineas" role="tab" data-toggle="tab">
-            <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Líneas</span>
-         </a>
-      </li>
-      <li>
-         <a href="#tab_opciones" role="tab" data-toggle="tab">
-            <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Opciones</span>
+            <span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span>
+            <span class="hidden-xs">&nbsp; Carrito</span>
          </a>
       </li>
    </ul>
@@ -159,60 +155,6 @@
             </table>
          </div>
       </div>
-      <div class="tab-pane" id="tab_opciones">
-         <input type="hidden" name="almacen" value="{$fsc->terminal->codalmacen}"/>
-         <input type="hidden" name="serie" value="{$fsc->terminal->codserie}"/>
-         <div class="container" style="margin-top: 10px; margin-bottom: 20px;">
-            <div class="row">
-               <div class="col-sm-6">
-                  <div class="form-group">
-                     <span class='text-capitalize'>{#FS_NUMERO2#}:</span>
-                     <input class="form-control" type="text" name="numero2" autocomplete="off"/>
-                  </div>
-                  <div class="form-group">
-                     <a href="{$fsc->divisa->url()}">Divisa</a>:
-                     <select name="divisa" class="form-control">
-                        {loop="$fsc->divisa->all()"}
-                           {if="$value->is_default()"}
-                           <option value="{$value->coddivisa}" selected="selected">{$value->descripcion}</option>
-                           {else}
-                           <option value="{$value->coddivisa}">{$value->descripcion}</option>
-                           {/if}
-                        {/loop}
-                     </select>
-                  </div>
-                  <div class="form-group">
-                     Tasa de conversión a €
-                     <input type="text" name="tasaconv" class="form-control" placeholder="(predeterminada)" autocomplete="off"/>
-                  </div>
-               </div>
-               <div class="col-sm-6">
-                  <div class="form-group">
-                     Nº de tickets:
-                     <input class="form-control" type="number" name="num_tickets" value="{$fsc->terminal->num_tickets}"/>
-                  </div>
-                  <div class="checkbox">
-                     <label>
-                        <input type="checkbox" name="imprimir_desc" value="TRUE"{if="$fsc->imprimir_descripciones"} checked="checked"{/if}/>
-                        Imprimir descripciones
-                     </label>
-                  </div>
-                  <div class="checkbox">
-                     <label>
-                        <input type="checkbox" name="imprimir_obs" value="TRUE"{if="$fsc->imprimir_observaciones"} checked="checked"{/if}/>
-                        Imprimir observaciones
-                     </label>
-                  </div>
-                  <p>
-                     <b>Recuerda</b> que para poder imprimir tickets necesitas estar ejecutando la aplicación Remote printer.
-                  </p>
-                  <a target="_blank" href="//www.facturascripts.com/comm3/index.php?page=community_item&id=170" class="btn btn-sm btn-default">
-                     <span class="glyphicon glyphicon-download"></span> &nbsp; Remote printer
-                  </a>
-               </div>
-            </div>
-         </div>
-      </div>
    </div>
    
    <div class="container-fluid">
@@ -228,14 +170,6 @@
             </button>
          </div>
       </div>
-      <div class="row">
-         <div class="col-xs-12">
-            <div class="form-group">
-               Observaciones:
-               <textarea class="form-control" name="observaciones" rows="4"></textarea>
-            </div>
-         </div>
-      </div>
    </div>
    
    <div class="modal" id="modal_guardar" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -246,31 +180,93 @@
                   <span aria-hidden="true">&times;</span>
                </button>
                <h4 class="modal-title" id="myModalLabel">Guardar ticket</h4>
+               <p class="help-block">
+                  <b>Recuerda</b> que para poder imprimir tickets necesitas estar ejecutando la aplicación
+                  <a target="_blank" href="http://www.facturascripts.com/community/item/imprimir-tickets-desde-windows-llevo-toda-la-tarde-programando-para-poder-618.html">Remote printer</a>.
+               </p>
             </div>
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+               <li role="presentation" class="active">
+                  <a href="#pago" aria-controls="pago" role="tab" data-toggle="tab">
+                     <span class="glyphicon glyphicon-usd"></span>
+                     <span class="hidden-xs">&nbsp; Pago</span>
+                  </a>
+               </li>
+               <li role="presentation">
+                  <a href="#opciones" aria-controls="opciones" role="tab" data-toggle="tab">
+                     <span class="glyphicon glyphicon-cog"></span>
+                     <span class="hidden-xs">&nbsp; Opciones</span>
+                  </a>
+               </li>
+            </ul>
             <div class="modal-body">
-               <div class="form-group">
-                  Total:
-                  <input type="text" name="tpv_total" id="tpv_total" class="form-control" disabled="disabled"/>
-               </div>
-               <div class="form-group">
-                  Efectivo:
-                  <input type="text" name="tpv_efectivo" id="tpv_efectivo" class="form-control" onkeyup="recalcular()" autocomplete="off"/>
-               </div>
-               <div class="form-group">
-                  Cambio:
-                  <input type="text" name="tpv_cambio" id="tpv_cambio" class="form-control" disabled="disabled"/>
-               </div>
-               <div class="form-group">
-                  <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
-                  <select name="forma_pago" class="form-control">
-                  {loop="$fsc->forma_pago->all()"}
-                     {if="$value->is_default()"}
-                     <option value="{$value->codpago}" selected="selected">{$value->descripcion}</option>
-                     {else}
-                     <option value="{$value->codpago}">{$value->descripcion}</option>
-                     {/if}
-                  {/loop}
-                  </select>
+               <div class="tab-content">
+                  <div role="tabpanel" class="tab-pane active" id="pago">
+                     <div class="form-group">
+                        Total:
+                        <input type="text" name="tpv_total" id="tpv_total" class="form-control" disabled="disabled"/>
+                     </div>
+                     <div class="form-group">
+                        Efectivo:
+                        <input type="text" name="tpv_efectivo" id="tpv_efectivo" class="form-control" onkeyup="recalcular()" autocomplete="off"/>
+                     </div>
+                     <div class="form-group">
+                        Cambio:
+                        <input type="text" name="tpv_cambio" id="tpv_cambio" class="form-control" disabled="disabled"/>
+                     </div>
+                     <div class="form-group">
+                        <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
+                        <select name="forma_pago" class="form-control">
+                        {loop="$fsc->forma_pago->all()"}
+                           {if="$value->is_default()"}
+                           <option value="{$value->codpago}" selected="selected">{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->codpago}">{$value->descripcion}</option>
+                           {/if}
+                        {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div role="tabpanel" class="tab-pane" id="opciones">
+                     <div class="form-group">
+                        <input class="form-control" type="text" name="numero2" placeholder="{#FS_NUMERO2#}" autocomplete="off"/>
+                     </div>
+                     <div class="form-group">
+                        <a href="{$fsc->divisa->url()}">Divisa</a>:
+                        <select name="divisa" class="form-control">
+                        {loop="$fsc->divisa->all()"}
+                           {if="$value->is_default()"}
+                           <option value="{$value->coddivisa}" selected="selected">{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->coddivisa}">{$value->descripcion}</option>
+                           {/if}
+                        {/loop}
+                        </select>
+                     </div>
+                     <div class="form-group">
+                        Tasa de conversión a €
+                        <input type="text" name="tasaconv" class="form-control" placeholder="(predeterminada)" autocomplete="off"/>
+                     </div>
+                     <div class="form-group">
+                        Nº de tickets:
+                        <input class="form-control" type="number" name="num_tickets" value="{$fsc->terminal->num_tickets}"/>
+                     </div>
+                     <div class="checkbox">
+                        <label>
+                           <input type="checkbox" name="imprimir_desc" value="TRUE"{if="$fsc->imprimir_descripciones"} checked="checked"{/if}/>
+                           Imprimir descripciones
+                        </label>
+                     </div>
+                     <div class="checkbox">
+                        <label>
+                           <input type="checkbox" name="imprimir_obs" value="TRUE"{if="$fsc->imprimir_observaciones"} checked="checked"{/if}/>
+                           Imprimir observaciones
+                        </label>
+                     </div>
+                     <div class="form-group">
+                        <textarea class="form-control" name="observaciones" placeholder="Observaciones"></textarea>
+                     </div>
+                  </div>
                </div>
             </div>
             <div class="modal-footer">

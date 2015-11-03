@@ -48,7 +48,7 @@ class ventas_agrupar_albaranes extends fs_controller
       parent::__construct(__CLASS__, 'Agrupar '.FS_ALBARANES, 'ventas', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->albaran = new albaran_cliente();
       $this->cliente = FALSE;
@@ -181,7 +181,6 @@ class ventas_agrupar_albaranes extends fs_controller
       $continuar = TRUE;
       
       $factura = new factura_cliente();
-      $factura->automatica = TRUE;
       $factura->codagente = $this->user->codagente;
       $factura->codalmacen = $albaranes[0]->codalmacen;
       $factura->coddivisa = $albaranes[0]->coddivisa;
@@ -189,11 +188,9 @@ class ventas_agrupar_albaranes extends fs_controller
       $factura->codejercicio = $albaranes[0]->codejercicio;
       $factura->codpago = $albaranes[0]->codpago;
       $factura->codserie = $albaranes[0]->codserie;
-      $factura->editable = FALSE;
       $factura->irpf = $albaranes[0]->irpf;
       $factura->numero2 = $albaranes[0]->numero2;
       $factura->observaciones = $albaranes[0]->observaciones;
-      $factura->recfinanciero = $albaranes[0]->recfinanciero;
       $factura->apartado = $albaranes[0]->apartado;
       $factura->cifnif = $albaranes[0]->cifnif;
       $factura->ciudad = $albaranes[0]->ciudad;
@@ -383,7 +380,7 @@ class ventas_agrupar_albaranes extends fs_controller
           'page_from' => __CLASS__,
           'page_to' => 'ventas_albaranes',
           'type' => 'button',
-          'text' => '<span class="glyphicon glyphicon-duplicate"></span> &nbsp; Agrupar',
+          'text' => '<span class="glyphicon glyphicon-duplicate"></span><span class="hidden-xs">&nbsp; Agrupar</span>',
           'params' => ''
       );
       $fsext = new fs_extension($extension);

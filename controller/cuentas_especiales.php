@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -17,10 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('cuenta.php');
 require_model('cuenta_especial.php');
 
 class cuentas_especiales extends fs_controller
 {
+   private $cuenta;
    public $cuenta_especial;
    
    public function __construct()
@@ -28,19 +30,15 @@ class cuentas_especiales extends fs_controller
       parent::__construct(__CLASS__, 'Cuentas Especiales', 'contabilidad', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
-      $this->ppage = $this->page->get('contabilidad_cuentas');
+      $this->cuenta = new cuenta();
       $this->cuenta_especial = new cuenta_especial();
       
-      if( isset($_POST['descripcion']) )
+      if( isset($_POST['idcuentaesp']) )
       {
-         /// si tenemos el id, buscamos el cuenta_especial y así lo modificamos
-         if( isset($_POST['idcuentaesp']) )
-         {
-            $cesp0 = $this->cuenta_especial->get($_POST['idcuentaesp']);
-         }
-         
+         /// crear/editar una cuentaesp
+         $cesp0 = $this->cuenta_especial->get($_POST['idcuentaesp']);
          if(!$cesp0)
          {
             $cesp0 = new cuenta_especial();
@@ -73,5 +71,24 @@ class cuentas_especiales extends fs_controller
             }
          }
       }
+   }
+   
+   public function get_codcuenta_cuentaesp($idcuentaesp)
+   {
+      $codcuenta = '';
+      
+      foreach( $this->cuenta->all_from_cuentaesp($idcuentaesp, $this->empresa->codejercicio) as $cuen )
+      {
+         if($codcuenta == '')
+         {
+            $codcuenta = $cuen->codcuenta;
+         }
+         else
+         {
+            $codcuenta .= ', '.$cuen->codcuenta;
+         }
+      }
+      
+      return $codcuenta;
    }
 }

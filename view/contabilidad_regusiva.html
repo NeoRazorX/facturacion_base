@@ -41,7 +41,7 @@
    });
 </script>
 
-<div class="container-fluid" style="margin-top: 10px;">
+<div class="container" style="margin-top: 15px;">
    <div class="row">
       <div class="col-sm-6">
          <div class="btn-group hidden-xs">
@@ -58,14 +58,13 @@
             </a>
             {/if}
          </div>
-         
          <div class="btn-group">
             <a id="b_nueva_regiva" class="btn btn-sm btn-success" href="#">
                <span class="glyphicon glyphicon-plus"></span> &nbsp; Nueva
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}" class="btn btn-sm btn-default">{$value->text}</a>
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
          </div>
@@ -74,35 +73,38 @@
          <h2 style="margin-top: 0px;">Regularización de {#FS_IVA#}</h2>
       </div>
    </div>
-</div>
-
-<div class="table-responsive">
-   <table class="table table-hover">
-      <thead>
-         <tr>
-            <th class="text-left">Periodo@Ejercicio</th>
-            <th class="text-left">Fecha del asiento</th>
-            <th class="text-left">Fecha de inicio</th>
-            <th class="text-right">Fecha de fin</th>
-         </tr>
-      </thead>
-      {loop="$fsc->regiva->all()"}
-      <tr>
-         <td>
-            <a href="#" onclick="full_regiva('{$value->idregiva}')">
-               {$value->periodo}@{$value->codejercicio}
-            </a>
-         </td>
-         <td>{$value->fechaasiento}</td>
-         <td>{$value->fechainicio}</td>
-         <td class="text-right">{$value->fechafin}</td>
-      </tr>
-      {else}
-      <tr class="bg-warning">
-         <td colspan="4">Sin resultados. Pulsa el botón <b>Nueva</b> para hacer una regularización de {#FS_IVA#}.</td>
-      </tr>
-      {/loop}
-   </table>
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th class="text-left">Periodo@Ejercicio</th>
+                     <th class="text-left">Fecha del asiento</th>
+                     <th class="text-left">Fecha de inicio</th>
+                     <th class="text-right">Fecha de fin</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->regiva->all()"}
+               <tr>
+                  <td>
+                     <a href="#" onclick="full_regiva('{$value->idregiva}')">
+                        {$value->periodo}@{$value->codejercicio}
+                     </a>
+                  </td>
+                  <td>{$value->fechaasiento}</td>
+                  <td>{$value->fechainicio}</td>
+                  <td class="text-right">{$value->fechafin}</td>
+               </tr>
+               {else}
+               <tr class="bg-warning">
+                  <td colspan="4">Sin resultados. Pulsa el botón <b>Nueva</b> para hacer una regularización de {#FS_IVA#}.</td>
+               </tr>
+               {/loop}
+            </table>
+         </div>
+      </div>
+   </div>
 </div>
 
 <form class="form-horizontal" role="form" name="f_nueva_regiva" action="{$fsc->url()}" method="post">

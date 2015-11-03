@@ -44,7 +44,7 @@ class informe_errores extends fs_controller
       parent::__construct(__CLASS__, 'Errores', 'informes', FALSE, TRUE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->ajax = FALSE;
       $this->ejercicio = new ejercicio();
@@ -101,7 +101,7 @@ class informe_errores extends fs_controller
                $this->informe['ejercicio'] = $linea[7];
             }
             
-            if( isset($_POST['ajax']) )
+            if( isset($_REQUEST['ajax']) )
             {
                $this->ajax = TRUE;
                
@@ -497,21 +497,46 @@ class informe_errores extends fs_controller
          if( $this->db->table_exists('articulosprov') )
          {
             $this->db->exec("DELETE FROM articulosprov WHERE codproveedor NOT IN (SELECT codproveedor FROM proveedores);");
+         }
+         
+         $recargar = TRUE;
+         $this->informe['offset'] += 1;
+      }
+      else if($this->informe['offset'] == 1)
+      {
+         /// comprobamos la tabla de articulos de proveedor
+         if( $this->db->table_exists('articulosprov') )
+         {
             $this->db->exec("UPDATE articulosprov SET refproveedor = referencia WHERE refproveedor IS NULL;");
          }
          
+         $recargar = TRUE;
+         $this->informe['offset'] += 1;
+      }
+      else if($this->informe['offset'] == 2)
+      {
          /// comprobamos la tabla de stock
          if( $this->db->table_exists('stocks') )
          {
-            $this->db->exec("DELETE FROM stocks WHERE referencia NOT IN (SELECT referencia FROM articulos);");
+            $this->db->exec("DELETE FROM stocks s WHERE NOT EXISTS (SELECT referencia FROM articulos a WHERE a.referencia = s.referencia);");
          }
          
+         $recargar = TRUE;
+         $this->informe['offset'] += 1;
+      }
+      else if($this->informe['offset'] == 3)
+      {
          /// comprobamos la tabla de regulaciones de stock
          if( $this->db->table_exists('lineasregstocks') )
          {
             $this->db->exec("DELETE FROM lineasregstocks WHERE idstock NOT IN (SELECT idstock FROM stocks);");
          }
          
+         $recargar = TRUE;
+         $this->informe['offset'] += 1;
+      }
+      else if($this->informe['offset'] == 4)
+      {
          /// comprobamos la tabla de subcuentas de proveedores
          if( $this->db->table_exists('co_subcuentasprov') )
          {
@@ -539,7 +564,7 @@ class informe_errores extends fs_controller
          $recargar = TRUE;
          $this->informe['offset'] += 1;
       }
-      else if($this->informe['offset'] == 1)
+      else if($this->informe['offset'] == 5)
       {
          $almacen = new almacen();
          if( !$almacen->all() )

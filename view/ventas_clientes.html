@@ -1,5 +1,6 @@
 {include="header"}
 
+<script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript">
    function show_nuevo_cliente()
    {
@@ -115,6 +116,8 @@
                   <tr>
                      <th class="text-left">Código + Nombre</th>
                      <th class="text-left">{#FS_CIFNIF#}</th>
+                     <th class="text-left">email</th>
+                     <th class="text-left">Teléfono</th>
                      <th class="text-left">Observaciones</th>
                      <th class="text-right">Grupo</th>
                   </tr>
@@ -123,12 +126,14 @@
                <tr class="clickableRow" href="{$value->url()}">
                   <td><a href="{$value->url()}">{$value->codcliente}</a> {$value->nombre}</td>
                   <td>{$value->cifnif}</td>
+                  <td>{$value->email}</td>
+                  <td>{$value->telefono1}</td>
                   <td>{$value->observaciones_resume()}</td>
                   <td class="text-right">{$fsc->nombre_grupo($value->codgrupo)}</td>
                </tr>
                {else}
                <tr class="bg-warning">
-                  <td colspan="4">Ningún cliente encontrado. Pulse el botón <b>Nuevo</b> para crear uno.</td>
+                  <td colspan="6">Ningún cliente encontrado. Pulse el botón <b>Nuevo</b> para crear uno.</td>
                </tr>
                {/loop}
             </table>
@@ -159,7 +164,9 @@
                   <th width="70"></th>
                   <th class="text-left">Código</th>
                   <th class="text-left">Nombre</th>
-                  <th class="text-left">Tarifa</th>
+                  <th class="text-left">
+                     <a href="{$fsc->tarifa->url()}">Tarifa</a>
+                  </th>
                   <th class="text-right" width="120">Acción</th>
                </tr>
             </thead>
@@ -242,24 +249,28 @@
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">Nuevo cliente</h4>
+               <p class="help-block">
+                  Si quieres, puedes cambiar las
+                  <a href="index.php?page=ventas_clientes_opciones">opciones para nuevos clientes</a>.
+               </p>
             </div>
             <div class="modal-body">
                <div class="form-group">
-                  <label class="col-lg-2 col-md-2 col-sm-2 control-label">Nombre</label>
-                  <div class="col-lg-10 col-md-10 col-sm-10">
-                     <input class="form-control" type="text" name="nombre" autocomplete="off"/>
+                  <label class="col-sm-2 control-label">Nombre</label>
+                  <div class="col-sm-10">
+                     <input type="text" name="nombre" class="form-control" autocomplete="off" required=""/>
                   </div>
                </div>
-               <div class="form-group">
-                  <label class="col-lg-2 col-md-2 col-sm-2 control-label">{#FS_CIFNIF#}</label>
-                  <div class="col-lg-10 col-md-10 col-sm-10">
-                     <input class="form-control" type="text" name="cifnif" autocomplete="off"/>
+               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_cifnif_req']"} has-warning{/if}">
+                  <label class="col-sm-2 control-label">{#FS_CIFNIF#}</label>
+                  <div class="col-sm-10">
+                     <input type="text" name="cifnif" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_cifnif_req']"} required=""{/if}/>
                   </div>
                </div>
                {if="$fsc->grupos"}
                <div class="form-group">
-                  <label class="col-lg-2 col-md-2 col-sm-2 control-label">Grupo</label>
-                  <div class="col-lg-10 col-md-10 col-sm-10">
+                  <label class="col-sm-2 control-label">Grupo</label>
+                  <div class="col-sm-10">
                      <select name="scodgrupo" class="form-control">
                         <option value="">Ninguno</option>
                         <option value="">------</option>
@@ -270,9 +281,28 @@
                   </div>
                </div>
                {/if}
-               <div class="form-group">
-                  <label class="col-lg-2 col-md-2 col-sm-2 control-label"><a href="{$fsc->pais->url()}">País</a></label>
-                  <div class="col-lg-10 col-md-10 col-sm-10">
+               {if="$fsc->nuevocli_setup['nuevocli_telefono1']"}
+               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_telefono1_req']"} has-warning{/if}">
+                  <label class="col-sm-2 control-label">Teléfono 1</label>
+                  <div class="col-sm-10">
+                     <input type="text" name="telefono1" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_telefono1_req']"} required=""{/if}/>
+                  </div>
+               </div>
+               {/if}
+               {if="$fsc->nuevocli_setup['nuevocli_telefono2']"}
+               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_telefono2_req']"} has-warning{/if}">
+                  <label class="col-sm-2 control-label">Teléfono 2</label>
+                  <div class="col-sm-10">
+                     <input type="text" name="telefono2" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_telefono2_req']"} required=""{/if}/>
+                  </div>
+               </div>
+               {/if}
+               {if="$fsc->nuevocli_setup['nuevocli_pais']"}
+               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_pais_req']"} has-warning{/if}">
+                  <label class="col-sm-2 control-label">
+                     <a href="{$fsc->pais->url()}">País</a>
+                  </label>
+                  <div class="col-sm-10">
                      <select class="form-control" name="pais">
                      {loop="$fsc->pais->all()"}
                         <option value="{$value->codpais}"{if="$value->is_default()"} selected="selected"{/if}>{$value->nombre}</option>
@@ -280,33 +310,58 @@
                      </select>
                   </div>
                </div>
-               <div class="form-group">
-                  <label class="col-lg-2 col-md-2 col-sm-2 control-label text-capitalize">{#FS_PROVINCIA#}</label>
-                  <div class="col-lg-10 col-md-10 col-sm-10">
-                     <input class="form-control" type="text" name="provincia" autocomplete="off" value="{$fsc->empresa->provincia}"/>
+               {/if}
+               {if="$fsc->nuevocli_setup['nuevocli_provincia']"}
+               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_provincia_req']"} has-warning{/if}">
+                  <label class="col-sm-2 control-label text-capitalize">{#FS_PROVINCIA#}</label>
+                  <div class="col-sm-10">
+                     {if="$fsc->nuevocli_setup['nuevocli_provincia_req']"}
+                     <input type="text" name="provincia" id="ac_provincia" class="form-control" autocomplete="off" required=""/>
+                     {else}
+                     <input type="text" name="provincia" value="{$fsc->empresa->provincia}" id="ac_provincia" class="form-control" autocomplete="off"/>
+                     {/if}
                   </div>
                </div>
-               <div class="form-group">
-                  <label class="col-lg-2 col-md-2 col-sm-2 control-label">Ciudad</label>
-                  <div class="col-lg-10 col-md-10 col-sm-10">
-                     <input class="form-control" type="text" name="ciudad" autocomplete="off" value="{$fsc->empresa->ciudad}"/>
+               {/if}
+               {if="$fsc->nuevocli_setup['nuevocli_ciudad']"}
+               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_ciudad_req']"} has-warning{/if}">
+                  <label class="col-sm-2 control-label">Ciudad</label>
+                  <div class="col-sm-10">
+                     {if="$fsc->nuevocli_setup['nuevocli_ciudad_req']"}
+                     <input type="text" name="ciudad" class="form-control" required=""/>
+                     {else}
+                     <input type="text" name="ciudad" value="{$fsc->empresa->ciudad}" class="form-control"/>
+                     {/if}
                   </div>
                </div>
-               <div class="form-group">
-                  <label class="col-lg-2 col-md-2 col-sm-2 control-label">Código Postal</label>
-                  <div class="col-lg-10 col-md-10 col-sm-10">
-                     <input class="form-control" type="text" name="codpostal" autocomplete="off" value="{$fsc->empresa->codpostal}"/>
+               {/if}
+               {if="$fsc->nuevocli_setup['nuevocli_codpostal']"}
+               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_codpostal_req']"} has-warning{/if}">
+                  <label class="col-sm-2 control-label">Código Postal</label>
+                  <div class="col-sm-10">
+                     {if="$fsc->nuevocli_setup['nuevocli_codpostal_req']"}
+                     <input type="text" name="codpostal" class="form-control" required=""/>
+                     {else}
+                     <input type="text" name="codpostal" value="{$fsc->empresa->codpostal}" class="form-control"/>
+                     {/if}
                   </div>
                </div>
-               <div class="form-group">
-                  <label class="col-lg-2 col-md-2 col-sm-2 control-label">Dirección</label>
-                  <div class="col-lg-10 col-md-10 col-sm-10">
-                     <input class="form-control" type="text" name="direccion" value="C/ " autocomplete="off"/>
+               {/if}
+               {if="$fsc->nuevocli_setup['nuevocli_direccion']"}
+               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_direccion_req']"} has-warning{/if}">
+                  <label class="col-sm-2 control-label">Dirección</label>
+                  <div class="col-sm-10">
+                     {if="$fsc->nuevocli_setup['nuevocli_direccion_req']"}
+                     <input type="text" name="direccion" class="form-control" autocomplete="off" required=""/>
+                     {else}
+                     <input type="text" name="direccion" value="C/ " class="form-control" autocomplete="off"/>
+                     {/if}
                   </div>
                </div>
+               {/if}
             </div>
             <div class="modal-footer">
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <button class="btn btn-sm btn-primary" type="submit">
                   <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                </button>
             </div>

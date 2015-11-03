@@ -23,6 +23,7 @@ require_model('asiento.php');
 require_model('asiento_factura.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
+require_model('fabricante.php');
 require_model('factura_proveedor.php');
 require_model('familia.php');
 require_model('forma_pago.php');
@@ -40,6 +41,7 @@ class compras_albaran extends fs_controller
    public $allow_delete;
    public $divisa;
    public $ejercicio;
+   public $fabricante;
    public $familia;
    public $forma_pago;
    public $impuesto;
@@ -53,7 +55,7 @@ class compras_albaran extends fs_controller
       parent::__construct(__CLASS__, FS_ALBARAN.' de proveedor', 'compras', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->ppage = $this->page->get('compras_albaranes');
       $this->agente = FALSE;
@@ -62,6 +64,7 @@ class compras_albaran extends fs_controller
       $this->albaran = FALSE;
       $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
+      $this->fabricante = new fabricante();
       $this->familia = new familia();
       $this->forma_pago = new forma_pago();
       $this->impuesto = new impuesto();
@@ -406,8 +409,6 @@ class compras_albaran extends fs_controller
    private function generar_factura()
    {
       $factura = new factura_proveedor();
-      $factura->automatica = TRUE;
-      $factura->editable = FALSE;
       $factura->cifnif = $this->albaran->cifnif;
       $factura->codalmacen = $this->albaran->codalmacen;
       $factura->coddivisa = $this->albaran->coddivisa;
@@ -421,7 +422,6 @@ class compras_albaran extends fs_controller
       $factura->nombre = $this->albaran->nombre;
       $factura->numproveedor = $this->albaran->numproveedor;
       $factura->observaciones = $this->albaran->observaciones;
-      $factura->recfinanciero = $this->albaran->recfinanciero;
       $factura->total = $this->albaran->total;
       $factura->totalirpf = $this->albaran->totalirpf;
       $factura->totaliva = $this->albaran->totaliva;

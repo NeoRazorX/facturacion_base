@@ -81,6 +81,9 @@
          <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_epigrafes">
             <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Grupos y epígrafes
          </a>
+         <a class="btn btn-sm btn-default" href="index.php?page=cuentas_especiales">
+            <span class="glyphicon glyphicon-cog"></span> &nbsp; Cuentas especiales
+         </a>
       </div>
       <div class="col-sm-2 text-right">
          <form name="f_filtro_cuentas" action="{$fsc->url()}" method="post" class="form">
@@ -114,7 +117,7 @@
          <td class="text-right">{$value->idcuentaesp}</td>
       </tr>
       {else}
-      <tr class="bg-warning"><td colspan="3" class="text-center">Sin resultados.</td></tr>
+      <tr class="bg-warning"><td colspan="3">Sin resultados.</td></tr>
       {/loop}
    </table>
 </div>

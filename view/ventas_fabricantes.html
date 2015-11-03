@@ -1,19 +1,13 @@
 {include="header"}
 
 <script type="text/javascript">
-   $(document).ready(function() {
-      
-      {if="$fsc->madre"}
-      $("#modal_nueva_familia").modal('show');
-      document.f_nueva_familia.ncodfamilia.focus();
-      {else}
+   $(document).ready(function() {   
       document.f_custom_search.query.focus();
-      {/if}
       
-      $("#b_nueva_familia").click(function(event) {
+      $("#b_nuevo_fabricante").click(function(event) {
          event.preventDefault();
-         $("#modal_nueva_familia").modal('show');
-         document.f_nueva_familia.ncodfamilia.focus();
+         $("#modal_nuevo_fabricante").modal('show');
+         document.f_nuevo_fabricante.ncodfabricante.focus();
       });
    });
 </script>
@@ -36,8 +30,8 @@
             {/if}
          </div>
          <div class="btn-group">
-            <a id="b_nueva_familia" class="btn btn-sm btn-success" href="#">
-               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nueva
+            <a id="b_nuevo_fabricante" class="btn btn-sm btn-success" href="#">
+               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -49,8 +43,8 @@
       <div class="col-sm-5 text-right">
          <h2 style="margin-top: 0px;">
             {if="$fsc->query==''"}
-            Familias de artículos
-            <span class="hidden-xs badge">{$fsc->total_familias()}</span>
+            Fabricantes
+            <span class="hidden-xs badge">{$fsc->total_fabricantes()}</span>
             {else}
             Resultados de '{$fsc->query}'
             {/if}
@@ -75,41 +69,32 @@
    <div class="row">
       {loop="$fsc->resultados"}
       <div class="col-md-3 col-sm-3" style="margin-bottom: 5px;">
-         <a class="btn btn-block btn-default" href="{$value->url()}">{$value->descripcion}</a>
+         <a class="btn btn-block btn-default" href="{$value->url()}">{$value->nombre}</a>
       </div>
       {else}
       <div class="col-md-12 col-sm-12">
-         <div class="alert alert-warning">Ninguna familia encontrada. Pulsa el botón <b>Nueva</b> para crear una.</div>
+         <div class="alert alert-warning">Ningún fabricante encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</div>
       </div>
       {/loop}
    </div>
 </div>
 
-<form class="form" name="f_nueva_familia" action="{$fsc->url()}" method="post">
-   {if="$fsc->madre"}
-   <input type="hidden" name="madre" value="{$fsc->madre}"/>
-   {/if}
-   <div class="modal" id="modal_nueva_familia">
+<form class="form" name="f_nuevo_fabricante" action="{$fsc->url()}" method="post">
+   <div class="modal" id="modal_nuevo_fabricante">
       <div class="modal-dialog">
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Nueva familia</h4>
+               <h4 class="modal-title">Nuevo fabricante</h4>
             </div>
             <div class="modal-body">
-               {if="$fsc->madre"}
-               <div class="form-group">
-                  Madre:
-                  <input class="form-control" type="text" value="{$fsc->madre}" disabled="disabled"/>
-               </div>
-               {/if}
                <div class="form-group">
                   Código:
-                  <input class="form-control" type="text" name="ncodfamilia" maxlength="8" autocomplete="off"/>
+                  <input class="form-control" type="text" name="ncodfabricante" maxlength="8" autocomplete="off"/>
                </div>
                <div class="form-group">
                   Descripción:
-                  <input class="form-control" type="text" name="ndescripcion" autocomplete="off"/>
+                  <input class="form-control" type="text" name="nnombre" autocomplete="off"/>
                </div>
             </div>
             <div class="modal-footer">

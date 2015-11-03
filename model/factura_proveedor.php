@@ -781,23 +781,43 @@ class factura_proveedor extends fs_model
       }
       return $faclist;
    }
-   
-   public function all_desde($desde, $hasta, $serie=FALSE)
+      
+   public function all_desde($desde, $hasta, $codserie=FALSE, $codagente=FALSE, $codproveedor=FALSE, $estado=FALSE)
    {
       $faclist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE fecha >= ".$this->var2str($desde)." AND fecha <= ".$this->var2str($hasta);
-      if($serie)
+      if($codserie)
       {
-         $sql .= " AND codserie = ".$this->var2str($serie);
+         $sql .= " AND codserie = ".$this->var2str($codserie);
       }
-      $sql .= " ORDER BY fecha asc, codigo ASC;";
-      
-      $facturas = $this->db->select($sql);
-      if($facturas)
+      if($codagente)
       {
-         foreach($facturas as $f)
+         $sql .= " AND codagente = ".$this->var2str($codagente);
+      }
+      if($codproveedor)
+      {
+         $sql .= " AND codproveedor = ".$this->var2str($codproveedor);
+      }
+      if($estado)
+      {
+         if($estado == 'pagada')
+         {
+            $sql .= " AND pagada";
+         }
+         else
+         {
+            $sql .= " AND pagada = false";
+         }
+      }
+      $sql .= " ORDER BY fecha ASC, codigo ASC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $f)
             $faclist[] = new factura_proveedor($f);
       }
+      
       return $faclist;
    }
    

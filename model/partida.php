@@ -105,7 +105,7 @@ class partida extends fs_model
          $this->baseimponible = 0;
          $this->factura = NULL;
          $this->codserie = NULL;
-         $this->tipodocumento = 'Egreso proveedor';
+         $this->tipodocumento = NULL;
          $this->documento = NULL;
          $this->cifnif = NULL;
          $this->debe = 0;
@@ -351,7 +351,7 @@ class partida extends fs_model
    {
       $plist = array();
       
-      $partidas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($id)." ORDER BY codsubcuenta ASC;");
+      $partidas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($id)." ;");
       if($partidas)
       {
          foreach($partidas as $p)

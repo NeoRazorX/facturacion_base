@@ -112,9 +112,9 @@ class familia extends fs_model
       $this->codfamilia = trim($this->codfamilia);
       $this->descripcion = $this->no_html($this->descripcion);
       
-      if( !preg_match("/^[A-Z0-9_]{1,4}$/i", $this->codfamilia) )
+      if( strlen($this->codfamilia) < 1 OR strlen($this->codfamilia) > 8 )
       {
-         $this->new_error_msg("Código de familia no válido. Deben ser entre 1 y 4 caracteres alfanuméricos.");
+         $this->new_error_msg("Código de familia no válido. Deben ser entre 1 y 8 caracteres.");
       }
       else if( strlen($this->descripcion) < 1 OR strlen($this->descripcion) > 100 )
       {
@@ -172,7 +172,7 @@ class familia extends fs_model
       $famlist = $this->cache->get_array('m_familia_all');
       if(!$famlist)
       {
-         $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY descripcion ASC;");
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY lower(descripcion) ASC;");
          if($data)
          {
             foreach($data as $d)
@@ -218,7 +218,7 @@ class familia extends fs_model
    {
       $famlist = array();
       
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE madre IS NULL ORDER BY descripcion ASC;");
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE madre IS NULL ORDER BY lower(descripcion) ASC;");
       if($data)
       {
          foreach($data as $d)

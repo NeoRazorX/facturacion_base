@@ -38,7 +38,7 @@ class contabilidad_subcuenta extends fs_controller
       parent::__construct(__CLASS__, 'Subcuenta', 'contabilidad', FALSE, FALSE);
    }
    
-   protected function process()
+   protected function private_core()
    {
       $this->divisa = new divisa();
       

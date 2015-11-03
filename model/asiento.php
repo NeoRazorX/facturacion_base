@@ -74,7 +74,7 @@ class asiento extends fs_model
          $this->codplanasiento = NULL;
          $this->editable = TRUE;
          $this->documento = NULL;
-         $this->tipodocumento = 'Egreso proveedor';
+         $this->tipodocumento = NULL;
          $this->importe = 0;
       }
    }

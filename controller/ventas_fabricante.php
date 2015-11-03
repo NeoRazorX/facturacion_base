@@ -18,14 +18,13 @@
  */
 
 require_model('articulo.php');
-require_model('familia.php');
+require_model('fabricante.php');
 
-class ventas_familia extends fs_controller
+class ventas_fabricante extends fs_controller
 {
    public $allow_delete;
    public $articulos;
-   public $familia;
-   public $madre;
+   public $fabricante;
    public $offset;
 
    public function __construct()
@@ -37,33 +36,25 @@ class ventas_familia extends fs_controller
    {
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+     
       
-      $this->familia = FALSE;
+      $this->fabricante = FALSE;
       if( isset($_REQUEST['cod']) )
       {
-         $fam = new familia();
-         $this->familia = $fam->get($_REQUEST['cod']);
+         $fab = new fabricante();
+         $this->fabricante = $fab->get($_REQUEST['cod']);
       }
-      $this->madre = FALSE;
+     
       
-      if($this->familia)
+      if($this->fabricante)
       {
-         $this->page->title = $this->familia->codfamilia;
+         $this->page->title = $this->fabricante->codfabricante;
          
          if( isset($_POST['cod']) )
          {
-            $this->familia->descripcion = $_POST['descripcion'];
-            
-            $this->familia->madre = NULL;
-            if( isset($_POST['madre']) )
-            {
-               if($_POST['madre'] != '---')
-               {
-                  $this->familia->madre = $_POST['madre'];
-               }
-            }
-            
-            if( $this->familia->save() )
+            $this->fabricante->nombre = $_POST['nombre'];
+
+            if( $this->fabricante->save() )
             {
                $this->new_message("Datos modificados correctamente");
             }
@@ -77,22 +68,21 @@ class ventas_familia extends fs_controller
             $this->offset = intval($_GET['offset']);
          }
          
-         $this->madre = $this->familia->get($this->familia->madre);
-         $this->articulos = $this->familia->get_articulos($this->offset);
+         $this->articulos = $this->fabricante->get_articulos($this->offset);
       }
       else
-         $this->new_error_msg("Familia no encontrada.");
+         $this->new_error_msg("Fabricante no encontrado.");
    }
    
    public function url()
    {
-      if( !isset($this->familia) )
+      if( !isset($this->fabricante) )
       {
          return parent::url();
       }
-      else if($this->familia)
+      else if($this->fabricante)
       {
-         return $this->familia->url();
+         return $this->fabricante->url();
       }
       else
          return $this->page->url();
@@ -122,10 +112,10 @@ class ventas_familia extends fs_controller
       return $url;
    }
    
-   public function total_familia()
+   public function total_fabricante()
    {
-      $data = $this->db->select("SELECT COUNT(referencia) as total FROM articulos WHERE codfamilia = ".
-              $this->empresa->var2str($this->familia->codfamilia).";");
+      $data = $this->db->select("SELECT COUNT(referencia) as total FROM articulos WHERE codfabricante = ".
+              $this->empresa->var2str($this->fabricante->codfabricante).";");
       if($data)
       {
          return intval($data[0]['total']);

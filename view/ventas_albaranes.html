@@ -36,8 +36,18 @@
       
       buscar_lineas();
    }
+   function clean_cliente()
+   {
+      document.f_custom_search.ac_cliente.value='';
+      document.f_custom_search.codcliente.value='';
+      document.f_custom_search.ac_cliente.focus();
+   }
    $(document).ready(function() {
+      
+      {if="$fsc->mostrar=='buscar'"}
       document.f_custom_search.query.focus();
+      {/if}
+      
       $('#b_buscar_lineas').click(function(event) {
          event.preventDefault();
          $('#modal_buscar_lineas').modal('show');
@@ -50,12 +60,26 @@
          event.preventDefault();
          buscar_lineas();
       });
+      $("#ac_cliente").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_cliente',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if(document.f_custom_search.codcliente.value != suggestion.data && suggestion.data != '')
+               {
+                  document.f_custom_search.codcliente.value = suggestion.data;
+                  document.f_custom_search.submit();
+               }
+            }
+         }
+      });
    });
 </script>
 
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
-      <div class="col-md-8 col-sm-7 col-xs-8">
+      <div class="col-sm-8 col-xs-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -70,10 +94,10 @@
             </a>
             {/if}
          </div>
-         
          <div class="btn-group">
             <a class="btn btn-sm btn-success" href="index.php?page=nueva_venta&tipo=albaran">
-               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
+               <span class="glyphicon glyphicon-plus"></span>
+               <span class="hidden-xs">&nbsp; Nuevo</span>
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -82,49 +106,156 @@
             {/loop}
          </div>
       </div>
-      <div class="col-md-2 col-sm-2 col-xs-4 text-right">
+      <div class="col-sm-4 col-xs-6 text-right">
          <a id="b_buscar_lineas" class="btn btn-sm btn-info" title="Buscar en las líneas">
             <span class="glyphicon glyphicon-search"></span> &nbsp; Líneas
          </a>
-      </div>
-      <div class="col-md-2 col-sm-3 col-xs-12">
-         <div class="visible-xs"><br/></div>
-         <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
-            <div class="input-group">
-               <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
-               <span class="input-group-btn">
-                  <button class="btn btn-primary hidden-sm" type="submit">
-                     <span class="glyphicon glyphicon-search"></span>
-                  </button>
-               </span>
-            </div>
-         </form>
+         <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+               <li>
+                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=fecha_desc">
+                     <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                     &nbsp; Fecha &nbsp;
+                     {if="$fsc->order=='fecha DESC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                  </a>
+               </li>
+               <li>
+                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=fecha_asc">
+                     <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                     &nbsp; Fecha &nbsp;
+                     {if="$fsc->order=='fecha ASC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                  </a>
+               </li>
+               <li>
+                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=codigo_desc">
+                     <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                     &nbsp; Código &nbsp;
+                     {if="$fsc->order=='codigo DESC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                  </a>
+               </li>
+               <li>
+                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=codigo_asc">
+                     <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                     &nbsp; Código &nbsp;
+                     {if="$fsc->order=='codigo ASC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                  </a>
+               </li>
+            </ul>
+         </div>
       </div>
    </div>
 </div>
 
 <ul class="nav nav-tabs" role="tablist">
-   <li{if="!$fsc->pendientes"} class="active"{/if}>
-      <a href="{$fsc->url()}&ptefactura=FALSE">
-         {if="$fsc->query==''"}
+   <li{if="$fsc->mostrar=='todo'"} class="active"{/if}>
+      <a href="{$fsc->url()}&mostrar=todo">
          Todos los {#FS_ALBARANES#}
-         {else}
-         <span class="glyphicon glyphicon-search"></span>
-         <span class="hidden-xs">&nbsp; Resultados de "{$fsc->query}"</span>
-         {/if}
       </a>
    </li>
-   <li{if="$fsc->pendientes"} class="active"{/if}>
-      <a href="{$fsc->url()}&ptefactura=TRUE">
+   <li{if="$fsc->mostrar=='pendientes'"} class="active"{/if}>
+      <a href="{$fsc->url()}&mostrar=pendientes">
          <span class="glyphicon glyphicon-time"></span>
          <span class="hidden-xs">&nbsp; Pendientes</span>
          <span class="hidden-xs badge">{$fsc->total_pendientes()}</span>
       </a>
    </li>
+   <li{if="$fsc->mostrar=='buscar'"} class="active"{/if}>
+      <a href="{$fsc->url()}&mostrar=buscar" title="Buscar">
+         <span class="glyphicon glyphicon-search"></span>
+         {if="$fsc->num_resultados!==''"}
+         <span class="hidden-xs badge">{$fsc->num_resultados}</span>
+         {/if}
+      </a>
+   </li>
 </ul>
 
+{if="$fsc->mostrar=='buscar'"}
+<br/>
+<form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
+   {if="$fsc->cliente"}
+   <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
+   {else}
+   <input type="hidden" name="codcliente"/>
+   {/if}
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-sm-2">
+            <div class="form-group">
+               <div class="input-group">
+                  <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
+                  <span class="input-group-btn">
+                     <button class="btn btn-primary hidden-sm" type="submit">
+                        <span class="glyphicon glyphicon-search"></span>
+                     </button>
+                  </span>
+               </div>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               <select class="form-control" name="codserie" onchange="this.form.submit()">
+                  <option value="">Cualquier serie</option>
+                  <option value="">-----</option>
+                  {loop="$fsc->serie->all()"}
+                     {if="$value->codserie==$fsc->codserie"}
+                     <option value="{$value->codserie}" selected="selected">{$value->descripcion}</option>
+                     {else}
+                     <option value="{$value->codserie}">{$value->descripcion}</option>
+                     {/if}
+                  {/loop}
+               </select>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               <select name="codagente" class="form-control" onchange="this.form.submit()">
+                  <option value="">Cualquier empleado</option>
+                  <option value="">------</option>
+                  {loop="$fsc->agente->all()"}
+                     {if="$value->codagente==$fsc->codagente"}
+                     <option value="{$value->codagente}" selected="selected">{$value->get_fullname()}</option>
+                     {else}
+                     <option value="{$value->codagente}">{$value->get_fullname()}</option>
+                     {/if}
+                  {/loop}
+               </select>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               <div class="input-group">
+                  {if="$fsc->cliente"}
+                  <input class="form-control" type="text" name="ac_cliente" value="{$fsc->cliente->nombre}" id="ac_cliente" placeholder="Cualquier cliente" autocomplete="off"/>
+                  {else}
+                  <input class="form-control" type="text" name="ac_cliente" id="ac_cliente" placeholder="Cualquier cliente" autocomplete="off"/>
+                  {/if}
+                  <span class="input-group-btn">
+                     <button class="btn btn-default" type="button" onclick="clean_cliente()">
+                        <span class="glyphicon glyphicon-remove"></span>
+                     </button>
+                  </span>
+               </div>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               <input type="text" name="desde" value="{$fsc->desde}" class="form-control datepicker" placeholder="Desde" autocomplete="off" onchange="this.form.submit()"/>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               <input type="text" name="hasta" value="{$fsc->hasta}" class="form-control datepicker" placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
+            </div>
+         </div>
+      </div>
+   </div>
+</form>
+{/if}
+
 <div class="table-responsive">
-   <!--{$total=0}-->
    <table class="table table-hover">
       <thead>
          <tr>
@@ -138,11 +269,9 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr class='clickableRow{if="$value->total<=0"} bg-warning{/if}' href="{$value->url()}">
+      <tr class='clickableRow{if="!$value->ptefactura"} success{elseif="$value->total<=0"} warning{/if}' href="{$value->url()}">
          <td class="text-center">
-            {if="$value->ptefactura"}
-            <!--{$total+=$value->total}-->
-            {else}
+            {if="!$value->ptefactura"}
             <span class="glyphicon glyphicon-paperclip" title="El {#FS_ALBARAN#} tiene vinculado una factura"></span>
             {/if}
          </td>
@@ -164,10 +293,11 @@
          <td colspan="6">Ningún {#FS_ALBARAN#} encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</td>
       </tr>
       {/loop}
-      {if="$fsc->resultados AND $fsc->pendientes AND $fsc->offset==0"}
+      {if="$fsc->total_resultados!==''"}
       <tr>
-         <td colspan="4"></td>
-         <td class="text-right"><b>{$fsc->show_precio($total)}</b></td>
+         <td colspan="5" class="text-right">
+            {$fsc->total_resultados_txt} &nbsp; <b>{$fsc->show_precio($fsc->total_resultados)}</b>
+         </td>
          <td colspan="2"></td>
       </tr>
       {/if}
@@ -182,7 +312,6 @@
       </a>
    </li>
    {/if}
-   
    {if="$fsc->siguiente_url()!=''"}
    <li class="next">
       <a href="{$fsc->siguiente_url()}">
@@ -200,8 +329,37 @@
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">Buscar en las líneas</h4>
+               {if="$fsc->cliente"}
+               <p class="help-block">
+                  Estas buscando en las líneas de los {#FS_ALBARANES#} de {$fsc->cliente->nombre}.
+               </p>
+               {else}
+               <p class="help-block">Si quieres, puede <a href="{$fsc->url()}&mostrar=buscar">filtrar por cliente</a>.</p>
+               {/if}
             </div>
             <div class="modal-body">
+               {if="$fsc->cliente"}
+               <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
+               <div class="container-fluid">
+                  <div class="row">
+                     <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="input-group">
+                           <input class="form-control" type="text" name="buscar_lineas" placeholder="Referencia" autocomplete="off"/>
+                           <span class="input-group-btn">
+                              <button class="btn btn-primary" type="submit">
+                                 <span class="glyphicon glyphicon-search"></span>
+                              </button>
+                           </span>
+                        </div>
+                     </div>
+                     <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="form-group">
+                           <input class="form-control" type="text" name="buscar_lineas_o" placeholder="Observaciones" autocomplete="off"/>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               {else}
                <div class="input-group">
                   <input class="form-control" type="text" name="buscar_lineas" placeholder="Referencia" autocomplete="off"/>
                   <span class="input-group-btn">
@@ -210,6 +368,7 @@
                      </button>
                   </span>
                </div>
+               {/if}
             </div>
             <div id="search_results" class="table-responsive"></div>
          </div>

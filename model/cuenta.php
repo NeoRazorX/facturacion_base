@@ -123,7 +123,7 @@ class cuenta extends fs_model
    public function get_cuentaesp($id, $ejercicio)
    {
       $cuenta = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idcuentaesp = ".$this->var2str($id).
-              " AND codejercicio = ".$this->var2str($ejercicio).";");
+              " AND codejercicio = ".$this->var2str($ejercicio)." ORDER BY codcuenta ASC;");
       if($cuenta)
       {
          return new cuenta($cuenta[0]);
@@ -262,6 +262,21 @@ class cuenta extends fs_model
       {
          foreach($cuentas as $c)
             $cuenlist[] = new cuenta($c);
+      }
+      
+      return $cuenlist;
+   }
+   
+   public function all_from_cuentaesp($id, $ejercicio)
+   {
+      $cuenlist = array();
+      
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idcuentaesp = ".$this->var2str($id).
+              " AND codejercicio = ".$this->var2str($ejercicio)." ORDER BY codcuenta ASC;");
+      if($data)
+      {
+         foreach($data as $d)
+            $cuenlist[] = new cuenta($d);
       }
       
       return $cuenlist;
