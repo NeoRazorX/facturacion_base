@@ -396,7 +396,8 @@ class articulo extends fs_model
       }
       else
       {
-         $sql = "SELECT referencia from articulos where referencia REGEXP '^[0-9]+$' ORDER BY referencia DESC";
+         $sql = "SELECT referencia from articulos where referencia REGEXP '^[0-9]+$'"
+                 . " ORDER BY CAST(`referencia` AS decimal) DESC";
       }
       
       $ref = 1;

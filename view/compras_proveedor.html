@@ -5,25 +5,48 @@
 <script type="text/javascript">
    function comprobar_url()
    {
+      if(window.location.hash.substring(1) == 'cuentasb')
+      {
+         mostrar_seccion('cuentasb');
+      }
+      else if(window.location.hash.substring(1) == 'direcciones')
+      {
+         mostrar_seccion('direcciones');
+      }
+      else if(window.location.hash.substring(1) == 'subcuentas')
+      {
+         mostrar_seccion('subcuentas');
+      }
+      else if(window.location.hash.substring(1) == 'stats')
+      {
+         mostrar_seccion('stats');
+      }
+      else
+      {
+         mostrar_seccion('');
+      }
+   }
+   function mostrar_seccion(id)
+   {
       $(".pseudotab_prov").hide();
       $("#lista_botones_prov a").removeClass('active');
       
-      if(window.location.hash.substring(1) == 'cuentasb')
+      if(id == 'cuentasb')
       {
          $("#panel_cuentasb").show();
          $("#b_cuentasb").addClass('active');
       }
-      else if(window.location.hash.substring(1) == 'direcciones')
+      else if(id == 'direcciones')
       {
          $("#panel_direcciones").show();
          $("#b_direcciones").addClass('active');
       }
-      else if(window.location.hash.substring(1) == 'subcuentas')
+      else if(id == 'subcuentas')
       {
          $("#div_subcuentas").show();
          $("#b_subcuentas").addClass('active');
       }
-      else if(window.location.hash.substring(1) == 'stats')
+      else if(id == 'stats')
       {
          $("#chart_albaranes_month").show();
          $("#b_stats").addClass('active');
@@ -148,16 +171,16 @@
    <div class="row">
       <div class="col-lg-2 col-md-2 col-sm-3">
          <div id="lista_botones_prov" class="list-group">
-            <a id="b_generales" href="#" class="list-group-item active">
+            <a id="b_generales" href="#" class="list-group-item active" onclick="mostrar_seccion('')">
                <span class="glyphicon glyphicon-dashboard"></span> &nbsp; Datos generales
             </a>
-            <a id="b_cuentasb" href="#cuentasb" class="list-group-item">
+            <a id="b_cuentasb" href="#cuentasb" class="list-group-item" onclick="mostrar_seccion('cuentasb')">
                <span class="glyphicon glyphicon-credit-card"></span> &nbsp; Cuentas bancarias
             </a>
-            <a id="b_direcciones" href="#direcciones" class="list-group-item">
+            <a id="b_direcciones" href="#direcciones" class="list-group-item" onclick="mostrar_seccion('direcciones')">
                <span class="glyphicon glyphicon-road"></span> &nbsp; Direcciones
             </a>
-            <a id="b_subcuentas" href="#subcuentas" class="list-group-item">
+            <a id="b_subcuentas" href="#subcuentas" class="list-group-item" onclick="mostrar_seccion('subcuentas')">
                <span class="glyphicon glyphicon-credit-card"></span> &nbsp; Subcuentas
             </a>
             {loop="$fsc->extensions"}
