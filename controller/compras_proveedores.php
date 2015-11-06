@@ -129,43 +129,76 @@ class compras_proveedores extends fs_controller
       }
    }
    
-   public function anterior_url()
+   public function paginas()
    {
-      $url = '';
-      $extra = '&mostrar='.$this->mostrar;
+      $url = $this->url()."&query=".$this->query
+                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
       
-      if($this->query != '' AND $this->offset > 0)
-      {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
-      }
-      else if($this->query == '' AND $this->offset > 0)
-      {
-         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
-      }
+      $paginas = array();
+      $i = 0;
+      $num = 0;
+      $actual = 1;
       
-      return $url;
-   }
-   
-   public function siguiente_url()
-   {
-      $url = '';
-      $extra = '&mostrar='.$this->mostrar;
-      
-      if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
+      $total = 0;
+      if($this->mostrar == 'acreedores')
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+         $total = $this->total_acreedores();
       }
-      else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
+      else
       {
-         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+         $total = $this->total_proveedores();
       }
       
-      return $url;
+      /// añadimos todas la página
+      while($num < $total)
+      {
+         $paginas[$i] = array(
+             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
+             'num' => $i + 1,
+             'actual' => ($num == $this->offset)
+         );
+         
+         if($num == $this->offset)
+         {
+            $actual = $i;
+         }
+         
+         $i++;
+         $num += FS_ITEM_LIMIT;
+      }
+      
+      /// ahora descartamos
+      foreach($paginas as $j => $value)
+      {
+         $enmedio = intval($i/2);
+         
+         /**
+          * descartamos todo excepto la primera, la última, la de enmedio,
+          * la actual, las 5 anteriores y las 5 siguientes
+          */
+         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
+         {
+            unset($paginas[$j]);
+         }
+      }
+      
+      return $paginas;
    }
    
    public function total_proveedores()
    {
       $data = $this->db->select("SELECT COUNT(codproveedor) as total FROM proveedores;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
+   }
+   
+   public function total_acreedores()
+   {
+      $data = $this->db->select("SELECT COUNT(codproveedor) as total FROM proveedores WHERE acreedor;");
       if($data)
       {
          return intval($data[0]['total']);

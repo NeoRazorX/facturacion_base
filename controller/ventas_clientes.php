@@ -256,40 +256,6 @@ class ventas_clientes extends fs_controller
       $this->grupos = $this->grupo->all();
    }
    
-   public function anterior_url()
-   {
-      $url = '';
-      
-      if($this->offset > 0)
-      {
-         $url = $this->url()."&query=".$this->query
-                 ."&ciudad=".$this->ciudad
-                 ."&provincia=".$this->provincia
-                 ."&codpais=".$this->codpais
-                 ."&codgrupo=".$this->codgrupo
-                 ."&offset=".($this->offset-FS_ITEM_LIMIT);
-      }
-      
-      return $url;
-   }
-   
-   public function siguiente_url()
-   {
-      $url = '';
-      
-      if( count($this->resultados) == FS_ITEM_LIMIT )
-      {
-         $url = $this->url()."&query=".$this->query
-                 ."&ciudad=".$this->ciudad
-                 ."&provincia=".$this->provincia
-                 ."&codpais=".$this->codpais
-                 ."&codgrupo=".$this->codgrupo
-                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
-      }
-      
-      return $url;
-   }
-   
    public function paginas()
    {
       $url = $this->url()."&query=".$this->query
