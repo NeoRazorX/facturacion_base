@@ -512,14 +512,38 @@ class compras_imprimir extends fs_controller
              * Dirección:           Teléfonos:
              */
             $pdf_doc->new_table();
-            $pdf_doc->add_table_row(
-               array(
-                  'campo1' => "<b>Factura:</b>",
-                  'dato1' => $this->factura->codigo,
-                  'campo2' => "<b>Fecha:</b>",
-                  'dato2' => $this->factura->fecha
-               )
-            );
+            
+            if($this->factura->idfacturarect)
+            {
+               $pdf_doc->add_table_row(
+                       array(
+                           'campo1' => "<b>".ucfirst(FS_FACTURA_RECTIFICATIVA).":</b>",
+                           'dato1' => $this->factura->codigo,
+                           'campo2' => "<b>Fecha:</b>",
+                           'dato2' => $this->factura->fecha
+                       )
+               );
+               $pdf_doc->add_table_row(
+                       array(
+                           'campo1' => "<b>Original:</b>",
+                           'dato1' => $this->factura->codigorect,
+                           'campo2' => '',
+                           'dato2' => ''
+                       )
+               );
+            }
+            else
+            {
+               $pdf_doc->add_table_row(
+                     array(
+                        'campo1' => "<b>".ucfirst(FS_FACTURA).":</b>",
+                        'dato1' => $this->factura->codigo,
+                        'campo2' => "<b>Fecha:</b>",
+                        'dato2' => $this->factura->fecha
+                     )
+               );
+            }
+            
             $pdf_doc->add_table_row(
                array(
                   'campo1' => "<b>Proveedor:</b>",

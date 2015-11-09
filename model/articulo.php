@@ -392,7 +392,8 @@ class articulo extends fs_model
    {
       if( strtolower(FS_DB_TYPE) == 'postgresql' )
       {
-         $sql = "SELECT referencia from articulos where referencia ~ '^\d+$' ORDER BY referencia DESC";
+         $sql = "SELECT referencia from articulos where referencia ~ '^\d+$'"
+                 . " ORDER BY referencia::integer DESC";
       }
       else
       {

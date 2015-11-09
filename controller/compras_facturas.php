@@ -134,10 +134,10 @@ class compras_facturas extends fs_controller
          }
          else
          {
-            if( !isset($_GET['mostrar']) AND (isset($_REQUEST['codagente']) OR isset($_REQUEST['codproveedor'])) )
+            if( !isset($_GET['mostrar']) AND (isset($_REQUEST['codagente']) OR isset($_REQUEST['codproveedor']) OR isset($_REQUEST['codserie'])) )
             {
                /**
-                * si obtenermos un codagente o un codproveedor pasamos direcatemente
+                * si obtenermos un codagente, un codproveedor o un codserie pasamos direcatemente
                 * a la pestaña de búsqueda, a menos que tengamos un mostrar, que
                 * entonces nos indica donde tenemos que estar.
                 */
@@ -161,6 +161,10 @@ class compras_facturas extends fs_controller
             if( isset($_REQUEST['codserie']) )
             {
                $this->codserie = $_REQUEST['codserie'];
+            }
+            
+            if( isset($_REQUEST['desde']) )
+            {
                $this->desde = $_REQUEST['desde'];
                $this->hasta = $_REQUEST['hasta'];
             }
@@ -283,7 +287,14 @@ class compras_facturas extends fs_controller
          }
       }
       
-      return $paginas;
+      if( count($paginas) > 1 )
+      {
+         return $paginas;
+      }
+      else
+      {
+         return array();
+      }
    }
    
    public function buscar_lineas()

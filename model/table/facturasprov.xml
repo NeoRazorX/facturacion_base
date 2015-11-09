@@ -62,6 +62,7 @@
    <columna>
       <nombre>deabono</nombre>
       <tipo>boolean</tipo>
+      <defecto>false</defecto>
    </columna>
    <columna>
       <nombre>editable</nombre>

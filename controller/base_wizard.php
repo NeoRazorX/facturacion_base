@@ -151,6 +151,32 @@ class base_wizard extends fs_controller
          
          if( $this->empresa->save() )
          {
+            foreach($GLOBALS['config2'] as $i => $value)
+            {
+               if( isset($_POST[$i]) )
+               {
+                  $GLOBALS['config2'][$i] = $_POST[$i];
+               }
+            }
+            
+            $file = fopen('tmp/'.FS_TMP_NAME.'config2.ini', 'w');
+            if($file)
+            {
+               foreach($GLOBALS['config2'] as $i => $value)
+               {
+                  if( is_numeric($value) )
+                  {
+                     fwrite($file, $i." = ".$value.";\n");
+                  }
+                  else
+                  {
+                     fwrite($file, $i." = '".$value."';\n");
+                  }
+               }
+               
+               fclose($file);
+            }
+            
             $this->new_message('Datos guardados correctamente.');
             
             /// avanzamos el asistente
@@ -246,9 +272,9 @@ class base_wizard extends fs_controller
    {
       $clist = array();
       $include = array(
-          'factura','facturas', 'factura_simplificada','albaran','albaranes','pedido','pedidos',
-          'presupuesto','presupuestos','provincia','apartado','cifnif',
-          'iva','irpf','numero2'
+          'factura','facturas','factura_simplificada','factura rectificativa',
+          'albaran','albaranes','pedido','pedidos','presupuesto','presupuestos',
+          'provincia','apartado','cifnif','iva','irpf','numero2'
       );
       
       foreach($GLOBALS['config2'] as $i => $value)

@@ -250,6 +250,17 @@
          </div>
          <div class="col-sm-4">
             <div class="form-group">
+               Algoritmo de nuevo código:
+               <select name="new_codigo" class="form-control">
+                  <option value="eneboo"{if="$GLOBALS['config2']['new_codigo']=='eneboo'"} selected=''{/if}>Compatible con Eneboo</option>
+                  <option value="new"{if="$GLOBALS['config2']['new_codigo']=='new'"} selected=''{/if}>TIPO + EJERCICIO + SERIE + NÚMERO</option>
+               </select>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-4">
+            <div class="form-group">
                <a href="{$fsc->forma_pago->url()}">Forma de pago predeterminada</a>:
                <select name="codpago" class="form-control">
                   {loop="$fsc->forma_pago->all()"}
@@ -258,8 +269,6 @@
                </select>
             </div>
          </div>
-      </div>
-      <div class="row">
          <div class="col-sm-4">
             <div class="form-group">
                <a href="{$fsc->almacen->url()}">Almacén principal</a>:

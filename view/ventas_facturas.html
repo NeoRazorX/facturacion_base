@@ -282,7 +282,14 @@
             <span class="glyphicon glyphicon-paperclip" title="La {#FS_FACTURA#} tiene vinculado un asiento contable"></span>
             {/if}
          </td>
-         <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}</td>
+         <td>
+            <a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}
+            {if="$value->idfacturarect"}
+            <span class="label label-danger" title="{#FS_FACTURA_RECTIFICATIVA#} de {$value->codigorect}">
+               <span class="glyphicon glyphicon-flag"></span>
+            </span>
+            {/if}
+         </td>
          <td>
             {$value->nombrecliente}
             <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más {#FS_FACTURAS#} de {$value->nombrecliente}">[+]</a>

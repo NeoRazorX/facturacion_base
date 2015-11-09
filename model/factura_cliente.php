@@ -42,10 +42,10 @@ class factura_cliente extends fs_model
    public $idasiento;
    
    /**
-    * Todavía sin uso.
+    * ID de la factura que rectifica.
     * @var type 
     */
-   private $idfacturarect;
+   public $idfacturarect;
    
    /**
     * Código único de la factura. Para humanos.
@@ -67,10 +67,10 @@ class factura_cliente extends fs_model
    public $numero2;
    
    /**
-    * Todavía sin uso.
+    * Código de la factura que rectifica.
     * @var type 
     */
-   private $codigorect;
+   public $codigorect;
    
    /**
     * Ejercicio relacionado. El que corresponde a la fecha.
@@ -814,6 +814,7 @@ class factura_cliente extends fs_model
       if( $this->test() )
       {
          $this->clean_cache();
+         
          if( $this->exists() )
          {
             $sql = "UPDATE ".$this->table_name." SET idasiento = ".$this->var2str($this->idasiento).
@@ -860,10 +861,11 @@ class factura_cliente extends fs_model
          {
             $this->new_codigo();
             $sql = "INSERT INTO ".$this->table_name." (idasiento,idfacturarect,codigo,numero,
-               codigorect,codejercicio,codserie,codalmacen,codpago,coddivisa,fecha,codcliente,nombrecliente,
-               cifnif,direccion,ciudad,provincia,apartado,coddir,codpostal,codpais,codagente,neto,totaliva,total,totaleuros,
-               irpf,totalirpf,porcomision,tasaconv,totalrecargo,pagada,observaciones,
-               hora,numero2,vencimiento) VALUES (".$this->var2str($this->idasiento).
+               codigorect,codejercicio,codserie,codalmacen,codpago,coddivisa,fecha,codcliente,
+               nombrecliente,cifnif,direccion,ciudad,provincia,apartado,coddir,codpostal,codpais,
+               codagente,neto,totaliva,total,totaleuros,irpf,totalirpf,porcomision,tasaconv,
+               totalrecargo,pagada,observaciones,hora,numero2,vencimiento) VALUES 
+                     (".$this->var2str($this->idasiento).
                     ",".$this->var2str($this->idfacturarect).
                     ",".$this->var2str($this->codigo).
                     ",".$this->var2str($this->numero).

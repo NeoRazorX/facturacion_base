@@ -303,7 +303,14 @@ class ventas_clientes extends fs_controller
          }
       }
       
-      return $paginas;
+      if( count($paginas) > 1 )
+      {
+         return $paginas;
+      }
+      else
+      {
+         return array();
+      }
    }
    
    public function nombre_grupo($cod)

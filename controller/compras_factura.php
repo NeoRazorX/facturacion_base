@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('articulo.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
 require_model('ejercicio.php');
@@ -24,6 +25,7 @@ require_model('factura_proveedor.php');
 require_model('forma_pago.php');
 require_model('partida.php');
 require_model('proveedor.php');
+require_model('serie.php');
 require_model('subcuenta.php');
 
 class compras_factura extends fs_controller
@@ -35,6 +37,9 @@ class compras_factura extends fs_controller
    public $forma_pago;
    public $mostrar_boton_pagada;
    public $proveedor;
+   public $rectificada;
+   public $rectificativa;
+   public $serie;
    
    public function __construct()
    {
@@ -50,6 +55,9 @@ class compras_factura extends fs_controller
       $this->factura = FALSE;
       $this->forma_pago = new forma_pago();
       $this->proveedor = FALSE;
+      $this->rectificada = FALSE;
+      $this->rectificativa = FALSE;
+      $this->serie = new serie();
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -127,7 +135,9 @@ class compras_factura extends fs_controller
                $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
             }
             else
-               $this->generar_asiento();
+            {
+               $this->generar_asiento($this->factura);
+            }
          }
          else if( isset($_REQUEST['pagada']) )
          {
@@ -138,6 +148,19 @@ class compras_factura extends fs_controller
             }
             else
                $this->new_error_msg("¡Imposible modificar la factura!");
+         }
+         else if( isset($_POST['anular']) )
+         {
+            $this->anular_factura();
+         }
+         
+         if($this->factura->idfacturarect)
+         {
+            $this->rectificada = $factura->get($this->factura->idfacturarect);
+         }
+         else
+         {
+            $this->get_factura_rectificativa();
          }
          
          /// comprobamos la factura
@@ -161,9 +184,9 @@ class compras_factura extends fs_controller
          return $this->page->url();
    }
    
-   private function generar_asiento()
+   private function generar_asiento(&$factura)
    {
-      if( $this->factura->get_asiento() )
+      if( $factura->get_asiento() )
       {
          $this->new_error_msg('Ya hay un asiento asociado a esta factura.');
       }
@@ -171,10 +194,9 @@ class compras_factura extends fs_controller
       {
          $asiento_factura = new asiento_factura();
          $asiento_factura->soloasiento = TRUE;
-         if( $asiento_factura->generar_asiento_compra($this->factura) )
+         if( $asiento_factura->generar_asiento_compra($factura) )
          {
             $this->new_message("<a href='".$asiento_factura->asiento->url()."'>Asiento</a> generado correctamente.");
-            $this->new_change('Factura Proveedor '.$this->factura->codigo, $this->factura->url());
          }
          
          foreach($asiento_factura->errors as $err)
@@ -186,6 +208,84 @@ class compras_factura extends fs_controller
          {
             $this->new_message($msg);
          }
+      }
+   }
+   
+   private function anular_factura()
+   {
+      /// generamos una factura rectificativa a partir de la actual
+      $factura = clone $this->factura;
+      $factura->idfactura = NULL;
+      $factura->numero = NULL;
+      $factura->numero2 = NULL;
+      $factura->codigo = NULL;
+      $factura->idasiento = NULL;
+      
+      $factura->idfacturarect = $this->factura->idfactura;
+      $factura->codigorect = $this->factura->codigo;
+      $factura->codserie = $_POST['codserie'];
+      $factura->fecha = $this->today();
+      $factura->hora = $this->hour();
+      $factura->observaciones = $_POST['motivo'];
+      $factura->neto = 0 - $factura->neto;
+      $factura->totalirpf = 0 - $factura->totalirpf;
+      $factura->totaliva = 0 - $factura->totaliva;
+      $factura->totalrecargo = 0 - $factura->totalrecargo;
+      $factura->total = $factura->neto + $factura->totaliva + $factura->totalrecargo - $factura->totalirpf;
+      
+      if( $factura->save() )
+      {
+         $articulo = new articulo();
+         $error = FALSE;
+         
+         /// copiamos las líneas en negativo
+         foreach($this->factura->get_lineas() as $lin)
+         {
+            /// actualizamos el stock
+            $art = $articulo->get($lin->referencia);
+            if($art)
+            {
+               $art->sum_stock($factura->codalmacen, $lin->cantidad);
+            }
+            
+            $lin->idlinea = NULL;
+            $lin->idalbaran = NULL;
+            $lin->idfactura = $factura->idfactura;
+            $lin->cantidad = 0 - $lin->cantidad;
+            $lin->pvpsindto = $lin->pvpunitario * $lin->cantidad;
+            $lin->pvptotal = $lin->pvpunitario * (100 - $lin->dtopor)/100 * $lin->cantidad;
+            
+            if( !$lin->save() )
+            {
+               $error = TRUE;
+            }
+         }
+         
+         if($error)
+         {
+            $factura->delete();
+            $this->new_error_msg('Se han producido errores al crear la '.FS_FACTURA_RECTIFICATIVA);
+         }
+         else
+         {
+            $this->new_message( '<a href="'.$factura->url().'">'.ucfirst(FS_FACTURA_RECTIFICATIVA).'</a> creada correctamenmte.' );
+            $this->generar_asiento($factura);
+         }
+      }
+      else
+      {
+         $this->new_error_msg('Error al anular la factura.');
+      }
+   }
+   
+   private function get_factura_rectificativa()
+   {
+      $sql = "SELECT * FROM facturasprov WHERE idfacturarect = ".$this->factura->var2str($this->factura->idfactura);
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $this->rectificativa = new factura_proveedor($data[0]);
       }
    }
 }

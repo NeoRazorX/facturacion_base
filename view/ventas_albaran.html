@@ -137,27 +137,40 @@
          </div>
       </div>
       <div class="row">
-         <div class="col-md-12">
-            <h3 class="text-capitalize" style="margin-bottom: 0px;">
-               <a href="{$fsc->ppage->url()}">{#FS_ALBARANES#}</a> /
-               <a href="{$fsc->albaran->cliente_url()}">{$fsc->albaran->nombrecliente}</a>
+         <div class="col-sm-12">
+            <br/>
+            <ol class="breadcrumb" style="margin-bottom: 5px;">
+               <li><a href="{$fsc->ppage->url()}">Ventas</a></li>
+               <li><a href="{$fsc->ppage->url()}">{#FS_ALBARANES#}</a></li>
+               <li>
+                  {loop="$fsc->serie->all()"}
+                     {if="$value->codserie==$fsc->albaran->codserie"}
+                     <a href="{$fsc->ppage->url()}&codserie={$value->codserie}" class="text-capitalize">{$value->descripcion}</a>
+                     {/if}
+                  {/loop}
+               </li>
+               <li>
+                  <a href="{$fsc->albaran->cliente_url()}">{$fsc->albaran->nombrecliente}</a>
+               </li>
                {if="$fsc->cliente_s"}
                   {if="$fsc->cliente_s->nombre!=$fsc->albaran->nombrecliente"}
-                  <a href="#" class="btn btn-xs btn-default" onclick="alert('Cliente conocido como: {$fsc->cliente_s->nombre}')">
-                     <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-                  </a>
+                  <li>
+                     <a href="#" onclick="alert('Cliente conocido como: {$fsc->cliente_s->nombre}')">
+                        <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                     </a>
+                  </li>
                   {/if}
                {/if}
-               / {$fsc->albaran->codigo}
-            </h3>
-            {if="$fsc->agente"}
-            <p>
+               <li class="active"><b>{$fsc->albaran->codigo}</b></li>
+            </ol>
+            <p class="help-block">
+               {if="$fsc->agente"}
                <span class="text-capitalize">{#FS_ALBARAN#}</span> creado por
                <a href="{$fsc->agente->url()}">{$fsc->agente->get_fullname()}</a>.
+               {else}
+               Sin datos de qué empleado ha creado este {#FS_ALBARAN#}.
+               {/if}
             </p>
-            {else}
-            <p>Sin datos de qué empleado ha creado este {#FS_ALBARAN#}.</p>
-            {/if}
          </div>
       </div>
       <div class="row">
