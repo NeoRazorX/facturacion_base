@@ -700,18 +700,43 @@ class factura_proveedor extends fs_model
       return $faclist;
    }
    
-   public function boton_anular($idfactura)
+    public function boton_anular($idfactura)
    {
-    $sql = "UPDATE ".$this->table_name." SET idpagodevol = '1'   WHERE idfactura = ".$this->var2str($idfactura).";";
+   
+   $factura = new factura_proveedor();
+         $fact = $factura->get($idfactura);
+      if($fact)
+      {
+
+         /// ¿Descontamos stock?
+         $art0 = new articulo();
+         foreach($fact->get_lineas() as $linea)
+         {
+            if( is_null($linea->idalbaran) )
+            {
+               $articulo = $art0->get($linea->referencia);
+               if($articulo)
+               {
+                  $articulo->sum_stock($fact->codalmacen, 0 - $linea->cantidad, TRUE);
+               }
+            }
+         }
+		 
+   
+    $sql = "UPDATE facturasprov SET idpagodevol = '1'   WHERE idfactura = ".$_GET['idfacpro'].";";
            if( $this->db->exec($sql) )
             {
                $this->idfactura = $this->db->lastval();
                return TRUE;
             }
             else
-               return FALSE;  
-   }
+               return FALSE; 
+	}
+	      else
+         $this->new_error_msg("Factura no encontrada.");
+ }
    
+     
    
    
       public function factura_by_idfactura($idfac,$offset=0, $limit=FS_ITEM_LIMIT)

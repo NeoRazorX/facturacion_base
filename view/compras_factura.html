@@ -81,7 +81,7 @@
             {/if}
 			
 			
-			
+		{if="!$fsc->factura->pagada"}
 			{if="$fsc->factura_anulada==1 or $fsc->factura_anulada!=NULL"}
 			<div class="btn-group">
 				<a class="btn btn-sm btn-danger" href="{$fsc->url()}&gen_devolucion=TRUE&petid={$fsc->random_string()}&idfacpro={$fsc->factura->idfactura}">
@@ -95,7 +95,7 @@
                </a>
 			 </div>
 			 {/if}
-            
+           {/if}
 			
 			
             <div class="btn-group">

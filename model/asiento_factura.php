@@ -122,7 +122,7 @@ class asiento_factura
             }
 
 		   
-		     $subcuenta_compras = $subcuenta->get_cuentaesp('COMPRA', $asiento->codejercicio);
+		     $subcuenta_compras = $subcuenta->get_cuentaesp('DEVCOM', $asiento->codejercicio);
 			 
             if($subcuenta_compras AND $asiento_correcto)
             {
@@ -220,7 +220,7 @@ class asiento_factura
             $asiento_correcto = TRUE;
             $subcuenta = new subcuenta();
             $partida0 = new partida();
-        	$subcuenta_ventas = $subcuenta->get_cuentaesp('VENTAS', $asiento->codejercicio);			
+        	$subcuenta_ventas = $subcuenta->get_cuentaesp('DEVVEN', $asiento->codejercicio);			
 			
             $partida0->idasiento = $asiento->idasiento;
             $partida0->concepto = $asiento->concepto;

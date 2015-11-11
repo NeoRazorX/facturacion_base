@@ -187,6 +187,7 @@ class compras_factura extends fs_controller
 
 		$factura = new factura_proveedor();
 	  	$var_idpagodevol=$factura->get($_GET['id']);
+		// Dá el valor al botón
 	  	$this->factura_anulada=$var_idpagodevol->idpagodevol;
       
 

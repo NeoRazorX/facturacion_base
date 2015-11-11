@@ -1046,6 +1046,26 @@ class factura_cliente extends fs_model
    
       public function boton_anular($idfactura)
    {
+   
+      $factura = new factura_cliente();
+         $fact = $factura->get($idfactura);
+      if($fact)
+      {
+         /// ¿Sumamos stock?
+         $art0 = new articulo();
+         foreach($fact->get_lineas() as $linea)
+         {
+            if( is_null($linea->idalbaran) )
+            {
+               $articulo = $art0->get($linea->referencia);
+               if($articulo)
+               {
+                  $articulo->sum_stock($fact->codalmacen, $linea->cantidad);
+               }
+            }
+         }
+         
+   
     $sql = "UPDATE ".$this->table_name." SET idpagodevol = '1'   WHERE idfactura = ".$this->var2str($idfactura).";";
            if( $this->db->exec($sql) )
             {
@@ -1054,6 +1074,9 @@ class factura_cliente extends fs_model
             }
             else
                return FALSE;  
+		}
+		else
+         $this->new_error_msg("Factura no encontrada.");	   
    }
    
    public function huecos()
