@@ -515,7 +515,7 @@ class contabilidad_ejercicio extends fs_controller
                         $pgrupo_epigrafes->codpgrupo = $ge->codpgrupo;
                         $pgrupo_epigrafes->descripcion = base64_decode($ge->descripcion);
                         
-                        if( !$grupo_epigrafes->save() )
+                        if( !$pgrupo_epigrafes->save() )
                            $this->importar_url = FALSE;
                      }
                   }
