@@ -23,7 +23,7 @@ require_model('pais.php');
 class admin_almacenes extends fs_controller
 {
    public $allow_delete;
-   public $almacen;
+   public $almacenes;
    public $pais;
    
    public function __construct()
@@ -33,7 +33,7 @@ class admin_almacenes extends fs_controller
    
    protected function private_core()
    {
-      $this->almacen = new almacen();
+      $almacen = new almacen();
       $this->pais = new pais();
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
@@ -41,7 +41,7 @@ class admin_almacenes extends fs_controller
       
       if( isset($_POST['scodalmacen']) )
       {
-         $al0 = $this->almacen->get($_POST['scodalmacen']);
+         $al0 = $almacen->get($_POST['scodalmacen']);
          if( !$al0 )
          {
             $al0 = new almacen();
@@ -65,7 +65,7 @@ class admin_almacenes extends fs_controller
       }
       else if( isset($_GET['delete']) )
       {
-         $al0 = $this->almacen->get($_GET['delete']);
+         $al0 = $almacen->get($_GET['delete']);
          if($al0)
          {
             if( !$this->user->admin )
@@ -81,6 +81,55 @@ class admin_almacenes extends fs_controller
          }
          else
             $this->new_error_msg("¡Almacén no encontrado!");
+      }
+      else
+      {
+         /// ¿Guardamos las opciones avanzadas?
+         $guardar = FALSE;
+         foreach($GLOBALS['config2'] as $i => $value)
+         {
+            if( isset($_POST[$i]) )
+            {
+               $GLOBALS['config2'][$i] = $_POST[$i];
+               $guardar = TRUE;
+            }
+         }
+         
+         if($guardar)
+         {
+            $file = fopen('tmp/'.FS_TMP_NAME.'config2.ini', 'w');
+            if($file)
+            {
+               foreach($GLOBALS['config2'] as $i => $value)
+               {
+                  if( is_numeric($value) )
+                  {
+                     fwrite($file, $i." = ".$value.";\n");
+                  }
+                  else
+                  {
+                     fwrite($file, $i." = '".$value."';\n");
+                  }
+               }
+               
+               fclose($file);
+            }
+            
+            $this->new_message('Datos guardados correctamente.');
+         }
+      }
+      
+      $this->almacenes = $almacen->all();
+      
+      /// si hay más de un almacén activamos el soporte multi-almacén en los listados
+      $fsvar = new fs_var();
+      if( count($this->almacenes) > 1 )
+      {
+         $fsvar->simple_save('multi_almacen', TRUE);
+      }
+      else
+      {
+         $fsvar->simple_delete('multi_almacen');
       }
    }
 }

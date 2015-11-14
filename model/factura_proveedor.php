@@ -508,21 +508,33 @@ class factura_proveedor extends fs_model
       $encontrado = FALSE;
       $num = 1;
       $fecha = $this->fecha;
-      $numeros = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha
+      $data = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha
          FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).
          " AND codserie = ".$this->var2str($this->codserie)." ORDER BY numero ASC;");
-      if($numeros)
+      if($data)
       {
-         foreach($numeros as $n)
+         foreach($data as $d)
          {
-            if( intval($n['numero']) > $num )
+            if( intval($d['numero']) < $num )
             {
-               $encontrado = TRUE;
-               $fecha = Date('d-m-Y', strtotime($n['fecha']));
-               break;
+               /**
+                * El número de la factura es menor que el inicial.
+                * El usuario ha cambiado el número inicial después de hacer
+                * facturas.
+                */
+            }
+            else if( intval($d['numero']) == $num )
+            {
+               /// el número es correcto, avanzamos
+               $num++;
             }
             else
-               $num++;
+            {
+               /// Hemos encontrado un hueco y debemos usar el número y la fecha.
+               $encontrado = TRUE;
+               $fecha = Date('d-m-Y', strtotime($d['fecha']));
+               break;
+            }
          }
       }
       

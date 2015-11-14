@@ -132,7 +132,18 @@ class ventas_articulo extends fs_controller
          {
             if($_POST['cantidadini'] == $_POST['cantidad'])
             {
-               $this->new_message('Sin cambios.');
+               /// sin cambios de stock
+               foreach($this->articulo->get_stock() as $stock)
+               {
+                  if($stock->codalmacen == $_POST['almacen'])
+                  {
+                     $stock->ubicacion = $_POST['ubicacion'];
+                     if( $stock->save() )
+                     {
+                        $this->new_message('Cambios guardados correctamente.');
+                     }
+                  }
+               }
             }
             else if( $this->articulo->set_stock($_POST['almacen'], $_POST['cantidad']) )
             {
@@ -143,6 +154,9 @@ class ventas_articulo extends fs_controller
                {
                   if($stock->codalmacen == $_POST['almacen'])
                   {
+                     $stock->ubicacion = $_POST['ubicacion'];
+                     $stock->save();
+                     
                      $regularizacion = new regularizacion_stock();
                      $regularizacion->idstock = $stock->idstock;
                      $regularizacion->cantidadini = floatval($_POST['cantidadini']);
@@ -150,7 +164,10 @@ class ventas_articulo extends fs_controller
                      $regularizacion->codalmacendest = $_POST['almacen'];
                      $regularizacion->motivo = $_POST['motivo'];
                      $regularizacion->nick = $this->user->nick;
-                     $regularizacion->save();
+                     if( $regularizacion->save() )
+                     {
+                        $this->new_message('Cambios guardados correctamente.');
+                     }
                      break;
                   }
                }
@@ -162,9 +179,11 @@ class ventas_articulo extends fs_controller
       else if( isset($_POST['imagen']) )
       {
          $this->articulo = $articulo->get($_POST['referencia']);
-         if(is_uploaded_file($_FILES['fimagen']['tmp_name']) AND $_FILES['fimagen']['size'] <= 1024000)
+         
+         if( is_uploaded_file($_FILES['fimagen']['tmp_name']) )
          {
-            $this->articulo->set_imagen( file_get_contents($_FILES['fimagen']['tmp_name']) );
+            $png = ( substr( strtolower($_FILES['fimagen']['name']), -3) == 'png' );
+            $this->articulo->set_imagen( file_get_contents($_FILES['fimagen']['tmp_name']), $png );
             if( $this->articulo->save() )
             {
                $this->new_message("Imagen del articulo modificada correctamente");

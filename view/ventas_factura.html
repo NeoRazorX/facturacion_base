@@ -209,14 +209,14 @@
                      <tr>
                         <th class="text-left"><span class="text-capitalize">{#FS_ALBARAN#}</span></th>
                         <th class="text-left">Artículo</th>
-                        <th class="text-right">Cantidad</th>
-                        <th class="text-right">Precio</th>
-                        <th class="text-right">Dto</th>
-                        <th class="text-right">Neto</th>
-                        <th class="text-right">{#FS_IVA#}</th>
-                        <th class="recargo text-right">RE</th>
-                        <th class="irpf text-right">{#FS_IRPF#}</th>
-                        <th class="text-right">Total</th>
+                        <th class="text-right" width="70">Cantidad</th>
+                        <th class="text-right" width="80">Precio</th>
+                        <th class="text-right" width="70">Dto</th>
+                        <th class="text-right" width="80">Neto</th>
+                        <th class="text-right" width="70">{#FS_IVA#}</th>
+                        <th class="text-right recargo" width="70">RE</th>
+                        <th class="text-right irpf" width="70">{#FS_IRPF#}</th>
+                        <th class="text-right" width="90">Total</th>
                      </tr>
                   </thead>
                   {loop="$fsc->factura->get_lineas()"}
@@ -229,7 +229,7 @@
                         -
                         {/if}
                      </td>
-                     <td><a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion}</td>
+                     <td><a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion()}</td>
                      <td class="text-right">{$value->cantidad}</td>
                      <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->factura->coddivisa)}</td>
                      <td class="text-right">{$fsc->show_numero($value->dtopor, 2)} %</td>
@@ -249,6 +249,16 @@
                      <td class="text-right"><b>{$fsc->show_precio($fsc->factura->total, $fsc->factura->coddivisa)}</b></td>
                   </tr>
                </table>
+            </div>
+            <div class="container-fluid">
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="form-group">
+                        Observaciones:
+                        <textarea class="form-control" name="observaciones" rows="3">{$fsc->factura->observaciones}</textarea>
+                     </div>
+                  </div>
+               </div>
             </div>
          </div>
          <div role="tabpanel" class="tab-pane" id="lineas_iva">
@@ -286,17 +296,6 @@
             </div>
             {/if}
          {/loop}
-      </div>
-   </div>
-   
-   <div class="container-fluid">
-      <div class="row">
-         <div class="col-lg-12 col-md-12 col-sm-12">
-            <div class="form-group">
-               Observaciones:
-               <textarea class="form-control" name="observaciones" rows="3">{$fsc->factura->observaciones}</textarea>
-            </div>
-         </div>
       </div>
    </div>
 </form>

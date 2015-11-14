@@ -226,6 +226,16 @@
                   </tr>
                </table>
             </div>
+            <div class="container-fluid">
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="form-group">
+                        Observaciones:
+                        <textarea class="form-control" name="observaciones" rows="3">{$fsc->factura->observaciones}</textarea>
+                     </div>
+                  </div>
+               </div>
+            </div>
          </div>
          <div role="tabpanel" class="tab-pane" id="lineas_iva">
             <div class="table-responsive">
@@ -262,17 +272,6 @@
             </div>
             {/if}
          {/loop}
-      </div>
-   </div>
-   
-   <div class="container-fluid">
-      <div class="row">
-         <div class="col-lg-12 col-md-12 col-sm-12">
-            <div class="form-group">
-               Observaciones:
-               <textarea class="form-control" name="observaciones" rows="3">{$fsc->factura->observaciones}</textarea>
-            </div>
-         </div>
       </div>
    </div>
 </form>

@@ -560,25 +560,54 @@ class factura_cliente extends fs_model
    
    public function new_codigo()
    {
+      /// buscamos el número inicial para la serie
+      $num = 1;
+      if( defined('FS_NFACTURA_CLI') )
+      {
+         /// mantenemos compatibilidad con versiones anteriores
+         $num = intval(FS_NFACTURA_CLI);
+      }
+      $serie0 = new serie();
+      $serie = $serie0->get($this->codserie);
+      if($serie)
+      {
+         /// ¿Se ha definido un nº de factura inicial para esta serie y ejercicio?
+         if($this->codejercicio == $serie->codejercicio)
+         {
+            $num = $serie->numfactura;
+         }
+      }
+      
       /// buscamos un hueco
       $encontrado = FALSE;
-      $num = intval(FS_NFACTURA_CLI); /// definido en el config2
       $fecha = $this->fecha;
-      $numeros = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha
+      $data = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha
          FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).
          " AND codserie = ".$this->var2str($this->codserie)." ORDER BY numero ASC;");
-      if($numeros)
+      if($data)
       {
-         foreach($numeros as $n)
+         foreach($data as $d)
          {
-            if( intval($n['numero']) > $num )
+            if( intval($d['numero']) < $num )
             {
-               $encontrado = TRUE;
-               $fecha = Date('d-m-Y', strtotime($n['fecha']));
-               break;
+               /**
+                * El número de la factura es menor que el inicial.
+                * El usuario ha cambiado el número inicial después de hacer
+                * facturas.
+                */
+            }
+            else if( intval($d['numero']) == $num )
+            {
+               /// el número es correcto, avanzamos
+               $num++;
             }
             else
-               $num++;
+            {
+               /// Hemos encontrado un hueco y debemos usar el número y la fecha.
+               $encontrado = TRUE;
+               $fecha = Date('d-m-Y', strtotime($d['fecha']));
+               break;
+            }
          }
       }
       
@@ -1081,45 +1110,78 @@ class factura_cliente extends fs_model
    {
       $error = TRUE;
       $huecolist = $this->cache->get_array2('factura_cliente_huecos', $error, TRUE);
-      if( $error )
+      if($error)
       {
          $ejercicio = new ejercicio();
+         $serie = new serie();
          foreach($ejercicio->all_abiertos() as $eje)
          {
             $codserie = '';
-            $num = intval(FS_NFACTURA_CLI); /// definido en el config2
-            $numeros = $this->db->select("SELECT codserie,".$this->db->sql_to_int('numero')." as numero,fecha,hora
+            $num = 1;
+            $data = $this->db->select("SELECT codserie,".$this->db->sql_to_int('numero')." as numero,fecha,hora
                FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($eje->codejercicio).
                " ORDER BY codserie ASC, numero ASC;");
-            if( $numeros )
+            if($data)
             {
-               foreach($numeros as $n)
+               foreach($data as $d)
                {
-                  if( $n['codserie'] != $codserie )
+                  if($d['codserie'] != $codserie)
                   {
-                     $codserie = $n['codserie'];
-                     $num = intval(FS_NFACTURA_CLI); /// definido en el config2
-                  }
-                  
-                  if( intval($n['numero']) != $num )
-                  {
-                     while($num < intval($n['numero']))
+                     $codserie = $d['codserie'];
+                     $num = 1;
+                     if( defined('FS_NFACTURA_CLI') )
                      {
-                        $huecolist[] = array(
-                            'codigo' => $eje->codejercicio . sprintf('%02s', $codserie) . sprintf('%06s', $num),
-                            'fecha' => Date('d-m-Y', strtotime($n['fecha'])),
-                            'hora' => $n['hora']
-                        );
-                        $num++;
+                        /// mantenemos compatibilidad con versiones anteriores
+                        $num = intval(FS_NFACTURA_CLI);
+                     }
+                     
+                     $se = $serie->get($codserie);
+                     if($se)
+                     {
+                        /// ¿Se ha definido un nº inicial de factura para esta serie y ejercicio?
+                        if($eje->codejercicio == $se->codejercicio)
+                        {
+                           $num = $se->numfactura;
+                        }
                      }
                   }
                   
-                  $num++;
+                  if( intval($d['numero']) < $num )
+                  {
+                     /**
+                      * El número de la factura es menor que el inicial.
+                      * El usuario ha cambiado el número inicial después de hacer
+                      * facturas.
+                      */
+                  }
+                  else if( intval($d['numero']) == $num )
+                  {
+                     /// el número es correcto, avanzamos
+                     $num++;
+                  }
+                  else
+                  {
+                     /// Hemos encontrado un hueco y debemos usar el número y la fecha.
+                     while($num < intval($d['numero']))
+                     {
+                        $huecolist[] = array(
+                            'codigo' => $eje->codejercicio . sprintf('%02s', $codserie) . sprintf('%06s', $num),
+                            'fecha' => Date('d-m-Y', strtotime($d['fecha'])),
+                            'hora' => $d['hora']
+                        );
+                        $num++;
+                     }
+                     
+                     /// avanzamos uno más
+                     $num++;
+                  }
                }
             }
          }
+         
          $this->cache->set('factura_cliente_huecos', $huecolist, 3600, TRUE);
       }
+      
       return $huecolist;
    }
 }

@@ -13,6 +13,7 @@
    
    $(document).ready(function() {
       usar_serie();
+      usar_almacen();
       recalcular();
    });
 </script>
@@ -88,12 +89,14 @@
                   <tbody>
                      <tr class="bg-info">
                         <td><input id="i_new_line" class="form-control" type="text" placeholder="Buscar para añadir..." autocomplete="off"/></td>
-                        <td>
+                        <td colspan="3">
                            <a href="#" class="btn btn-sm btn-default" title="Añadir sin buscar" onclick="return add_linea_libre()">
                               <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                            </a>
                         </td>
-                        <td colspan="4" class="text-right">Totales:</td>
+                        <td colspan="2">
+                           <div class="form-control text-right">Totales</div>
+                        </td>
                         <td>  
                            <div id="aneto" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div>
                         </td>
@@ -197,7 +200,7 @@
                   <div class="col-sm-2">
                      <div class="form-group">
                         <a href="{$fsc->almacen->url()}">Almacén</a>:
-                        <select name="almacen" class="form-control">
+                        <select name="almacen" class="form-control" onchange="usar_almacen()">
                            {loop="$fsc->almacen->all()"}
                            <option value="{$value->codalmacen}"{if="$value->is_default()"} selected=""{/if}>{$value->nombre}</option>
                            {/loop}
@@ -337,6 +340,7 @@
          <div class="modal-body">
             <form id="f_buscar_articulos" name="f_buscar_articulos" action="{$fsc->url()}" method="post" class="form">
                <input type="hidden" name="codcliente" value="{$fsc->cliente_s->codcliente}"/>
+               <input type="hidden" name="codalmacen"/>
                <div class="container-fluid">
                   <div class="row">
                      <div class="col-sm-4">
@@ -530,7 +534,7 @@
             <form action="{$fsc->url()}" method="post" class="form-horizontal">
                <input type="hidden" name="cliente"/>
                <div class="form-group">
-                  <label class="col-sm-2 control-label">Nuevo</label>
+                  <label class="col-sm-2 control-label">Nombre</label>
                   <div class="col-sm-10">
                      <input type="text" name="nuevo_cliente" class="form-control" placeholder="Nuevo cliente" autocomplete="off" required=""/>
                   </div>

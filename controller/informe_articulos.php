@@ -48,6 +48,8 @@ class informe_articulos extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extension();
+      
       $this->pestanya = 'stats';
       if( isset($_GET['tab']) )
       {
@@ -188,9 +190,23 @@ class informe_articulos extends fs_controller
             $this->documento = $_POST['documento'];
             
             $this->resultados = $this->resultados_articulo($this->referencia, $this->desde, $this->hasta, $this->documento);
+            if(!$this->resultados)
+            {
+               $this->new_message('Sin resultados.');
+            }
+         }
+         else if( isset($_GET['ref']) )
+         {
+            $this->referencia = $_GET['ref'];
+            
+            $this->resultados = $this->resultados_articulo($this->referencia, $this->desde, $this->hasta, $this->documento);
+            if(!$this->resultados)
+            {
+               $this->new_message('Sin resultados.');
+            }
          }
          else
-            $this->resultados = FALSE;
+            $this->resultados = array();
       }
    }
    
@@ -227,15 +243,28 @@ class informe_articulos extends fs_controller
       if( !$toplist )
       {
          $articulo = new articulo();
-         $lineas = $this->db->select_limit("SELECT referencia, SUM(cantidad) as ventas
-            FROM lineasfacturascli GROUP BY referencia ORDER BY ventas DESC", FS_ITEM_LIMIT, 0);
+         $desde = date('d-m-Y', strtotime('-1month'));
+         $sql = "SELECT referencia, SUM(cantidad) as unidades, SUM(pvptotal) as total "
+                 . "FROM lineasfacturascli WHERE idfactura IN (SELECT idfactura FROM facturascli WHERE fecha >= "
+                 . $articulo->var2str($desde).") GROUP BY referencia ORDER BY total DESC";
+         
+         $lineas = $this->db->select_limit($sql, FS_ITEM_LIMIT, 0);
          if($lineas)
          {
             foreach($lineas as $l)
             {
                $art0 = $articulo->get($l['referencia']);
                if($art0)
-                  $toplist[] = array($art0, intval($l['ventas']));
+               {
+                  if( floatval($l['unidades']) > 1 )
+                  {
+                     $toplist[] = array(
+                         'articulo' => $art0,
+                         'unidades' => floatval($l['unidades']),
+                         'total' => floatval($l['total'])
+                     );
+                  }
+               }
             }
          }
          $this->cache->set('faccli_top_articulos', $toplist);
@@ -385,7 +414,7 @@ class informe_articulos extends fs_controller
          $nombre = 'nombrecliente';
       }
       
-      $data = $this->db->select("SELECT f.idfactura,fecha,codigo,".$nombre.",codagente,cantidad,pvpunitario,dtopor,pvptotal,iva "
+      $data = $this->db->select("SELECT f.idfactura,fecha,codigo,pagada,".$nombre.",codagente,cantidad,pvpunitario,dtopor,pvptotal,iva "
               . "FROM ".$tabla." f, lineas".$tabla." l WHERE f.idfactura = l.idfactura "
               . "AND l.referencia = ".$this->empresa->var2str($ref)." AND fecha >= ".$this->empresa->var2str($desde)
               ." AND fecha <= ".$this->empresa->var2str($hasta)." ORDER BY fecha DESC;");
@@ -398,6 +427,7 @@ class informe_articulos extends fs_controller
                 'url' => '',
                 'fecha' => date('d-m-Y', strtotime($d['fecha'])),
                 'codigo' => $d['codigo'],
+                'pagada' => ($d['pagada'] == 't' OR $d['pagada'] == '1'),
                 'nombre' => $d[$nombre],
                 'agente' => $d['codagente'],
                 'cantidad' => floatval($d['cantidad']),
@@ -438,5 +468,28 @@ class informe_articulos extends fs_controller
       }
       
       return $rlist;
+   }
+   
+   private function share_extension()
+   {
+      /// añadimos la extensión a artículos
+      $extensiones = array(
+          array(
+              'name' => 'informe_articulo',
+              'page_from' => __CLASS__,
+              'page_to' => 'ventas_articulo',
+              'type' => 'tab_button',
+              'text' => '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> &nbsp; Informe',
+              'params' => '&tab=search'
+          ),
+      );
+      foreach($extensiones as $ext)
+      {
+         $fsext0 = new fs_extension($ext);
+         if( !$fsext0->save() )
+         {
+            $this->new_error_msg('Imposible guardar los datos de la extensión '.$ext['name'].'.');
+         }
+      }
    }
 }

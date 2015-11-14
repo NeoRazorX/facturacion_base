@@ -50,7 +50,7 @@
          <br/>
       </div>
    </div>
-   {loop="$fsc->almacen->all()"}
+   {loop="$fsc->almacenes"}
    <div class="row">
       <div class="col-sm-12">
          <form class="form" role="form" action="{$fsc->url()}" method="post">
@@ -154,6 +154,67 @@
       </div>
    </div>
    {/loop}
+   <div class="row">
+      <div class="col-sm-12">
+         <form class="form" role="form" action="{$fsc->url()}" method="post">
+            <div class="panel panel-info">
+               <div class="panel-heading">
+                  <h3 class="panel-title">
+                     <span class="glyphicon glyphicon-cog"></span>
+                     &nbsp; Configuración avanzada
+                  </h3>
+               </div>
+               <div class="panel-body">
+                  <div class="container-fluid">
+                     <div class="row">
+                        <div class="col-sm-3">
+                           <div class="form-group">
+                              Permitir stock negativo:
+                              <select name="stock_negativo" class="form-control">
+                                 <option value="1"{if="$GLOBALS['config2']['stock_negativo']==1"} selected=''{/if}>Si</option>
+                                 <option value="0"{if="$GLOBALS['config2']['stock_negativo']==0"} selected=''{/if}>No</option>
+                              </select>
+                           </div>
+                        </div>
+                        <div class="col-sm-3">
+                           <div class="form-group">
+                              Permitir ventas sin stock:
+                              <select name="ventas_sin_stock" class="form-control">
+                                 <option value="1"{if="$GLOBALS['config2']['ventas_sin_stock']==1"} selected=''{/if}>Si</option>
+                                 <option value="0"{if="$GLOBALS['config2']['ventas_sin_stock']==0"} selected=''{/if}>No</option>
+                              </select>
+                           </div>
+                        </div>
+                        <div class="col-sm-3">
+                           <div class="form-group">
+                              Precio de coste:
+                              <select name="cost_is_average" class="form-control">
+                                 <option value="1"{if="$GLOBALS['config2']['cost_is_average']==1"} selected=''{/if}>Calculado</option>
+                                 <option value="0"{if="$GLOBALS['config2']['cost_is_average']==0"} selected=''{/if}>Editable</option>
+                              </select>
+                           </div>
+                        </div>
+                        <div class="col-sm-3">
+                           <div class="form-group">
+                              Al comprar, añadir con:
+                              <select name="precio_compra" class="form-control">
+                                 <option value="coste"{if="$GLOBALS['config2']['precio_compra']=='coste'"} selected=''{/if}>Precio de coste</option>
+                                 <option value="pvp"{if="$GLOBALS['config2']['precio_compra']=='pvp'"} selected=''{/if}>PVP</option>
+                              </select>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="panel-footer text-right">
+                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                     <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                  </button>
+               </div>
+            </div>
+         </form>
+      </div>
+   </div>
 </div>
 
 <div class="modal" id="modal_nuevo_almacen">

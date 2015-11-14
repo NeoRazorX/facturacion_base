@@ -32,7 +32,10 @@ class compras_imprimir extends fs_controller
    public $articulo_proveedor;
    public $proveedor;
    public $factura;
+   public $impresion;
    public $impuesto;
+   
+   private $logo;
    
    public function __construct()
    {
@@ -46,6 +49,25 @@ class compras_imprimir extends fs_controller
       $this->proveedor = FALSE;
       $this->factura = FALSE;
       $this->impuesto = new impuesto();
+      
+      /// obtenemos los datos de configuración de impresión
+      $this->impresion = array(
+          'print_ref' => '1',
+          'print_dto' => '1',
+          'print_alb' => '0'
+      );
+      $fsvar = new fs_var();
+      $this->impresion = $fsvar->array_get($this->impresion, FALSE);
+      
+      $this->logo = FALSE;
+      if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
+      {
+         $this->logo = 'tmp/'.FS_TMP_NAME.'logo.png';
+      }
+      else if( file_exists('tmp/'.FS_TMP_NAME.'logo.jpg') )
+      {
+         $this->logo = 'tmp/'.FS_TMP_NAME.'logo.jpg';
+      }
       
       if( isset($_REQUEST['albaran']) AND isset($_REQUEST['id']) )
       {
@@ -118,6 +140,189 @@ class compras_imprimir extends fs_controller
       }
    }
    
+   private function generar_pdf_cabecera(&$pdf_doc, &$lppag)
+   {
+      /// ¿Añadimos el logo?
+      if($this->logo)
+      {
+         if( function_exists('imagecreatefromstring') )
+         {
+            $pdf_doc->pdf->ezImage($this->logo, 0, 150, 'none');
+            $lppag -= 2; /// si metemos el logo, caben menos líneas
+         }
+         else
+         {
+            die('ERROR: no se encuentra la función imagecreatefromstring(). '
+                    . 'Y por tanto no se puede usar el logotipo en los documentos.');
+         }
+      }
+      else
+      {
+         $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 16, array('justification' => 'center'));
+         $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'center'));
+         
+         $direccion = $this->empresa->direccion;
+         if($this->empresa->codpostal)
+         {
+            $direccion .= ' - ' . $this->empresa->codpostal;
+         }
+         
+         if($this->empresa->ciudad)
+         {
+            $direccion .= ' - ' . $this->empresa->ciudad;
+         }
+         
+         if($this->empresa->provincia)
+         {
+            $direccion .= ' (' . $this->empresa->provincia . ')';
+         }
+         
+         if($this->empresa->telefono)
+         {
+            $direccion .= ' - Teléfono: ' . $this->empresa->telefono;
+         }
+         
+         $pdf_doc->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
+      }
+   }
+   
+   private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag, &$documento)
+   {
+      if($this->impresion['print_dto'])
+      {
+         $this->impresion['print_dto'] = FALSE;
+         
+         /// leemos las líneas para ver si de verdad mostramos los descuentos
+         foreach($lineas as $lin)
+         {
+            if($lin->dtopor != 0)
+            {
+               $this->impresion['print_dto'] = TRUE;
+               break;
+            }
+         }
+      }
+      
+      $multi_iva = FALSE;
+      $multi_re = FALSE;
+      $multi_irpf = FALSE;
+      $iva = FALSE;
+      $re = FALSE;
+      $irpf = FALSE;
+      /// leemos las líneas para ver si hay que mostrar los tipos de iva, re o irpf
+      foreach($lineas as $lin)
+      {
+         if($iva === FALSE)
+         {
+            $iva = $lin->iva;
+         }
+         else if($lin->iva != $iva)
+         {
+            $multi_iva = TRUE;
+         }
+         
+         if($re === FALSE)
+         {
+            $re = $lin->recargo;
+         }
+         else if($lin->recargo != $re)
+         {
+            $multi_re = TRUE;
+         }
+         
+         if($irpf === FALSE)
+         {
+            $irpf = $lin->irpf;
+         }
+         else if($lin->irpf != $irpf)
+         {
+            $multi_irpf = TRUE;
+         }
+      }
+      
+      /*
+       * Creamos la tabla con las lineas del documento
+       */
+      $pdf_doc->new_table();
+      $table_header = array(
+          'cantidad' => '<b>Cant.</b>',
+          'descripcion' => '<b>Ref. Prov. + Descripción</b>',
+          'pvp' => '<b>PVP</b>',
+      );
+      
+      if($this->impresion['print_dto'])
+      {
+         $table_header['dto'] = '<b>Dto.</b>';
+      }
+      
+      if($multi_iva)
+      {
+         $table_header['iva'] = '<b>'.FS_IVA.'</b>';
+      }
+      
+      if($multi_re)
+      {
+         $table_header['re'] = '<b>R.E.</b>';
+      }
+      
+      if($multi_irpf)
+      {
+         $table_header['irpf'] = '<b>'.FS_IRPF.'</b>';
+      }
+      
+      $table_header['importe'] = '<b>Importe</b>';
+      $pdf_doc->add_table_header($table_header);
+      
+      for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < count($lineas)));)
+      {
+         $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
+         if( !is_null($lineas[$linea_actual]->referencia) )
+         {
+            $descripcion = '<b>'.$this->get_referencia_proveedor($lineas[$linea_actual]->referencia, $documento->codproveedor)
+                    .'</b> '.$descripcion;
+         }
+         
+         $fila = array(
+             'cantidad' => $lineas[$linea_actual]->cantidad,
+             'descripcion' => $descripcion,
+             'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $documento->coddivisa),
+             'dto' => $this->show_numero($lineas[$linea_actual]->dtopor) . " %",
+             'iva' => $this->show_numero($lineas[$linea_actual]->iva) . " %",
+             're' => $this->show_numero($lineas[$linea_actual]->recargo) . " %",
+             'irpf' => $this->show_numero($lineas[$linea_actual]->irpf) . " %",
+             'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $documento->coddivisa)
+         );
+         
+         $pdf_doc->add_table_row($fila);
+         $linea_actual++;
+      }
+      
+      $pdf_doc->save_table(
+              array(
+                  'fontSize' => 8,
+                  'cols' => array(
+                      'cantidad' => array('justification' => 'right'),
+                      'pvp' => array('justification' => 'right'),
+                      'dto' => array('justification' => 'right'),
+                      'iva' => array('justification' => 'right'),
+                      're' => array('justification' => 'right'),
+                      'irpf' => array('justification' => 'right'),
+                      'importe' => array('justification' => 'right')
+                  ),
+                  'width' => 520,
+                  'shaded' => 0
+              )
+      );
+      
+      if( $linea_actual == count($lineas) )
+      {
+         if($documento->observaciones != '')
+         {
+            $pdf_doc->pdf->ezText("\n".$this->fix_html($documento->observaciones), 9);
+         }
+      }
+   }
+   
    private function generar_pdf_albaran($archivo = FALSE)
    {
       if(!$archivo)
@@ -149,36 +354,7 @@ class compras_imprimir extends fs_controller
                $pdf_doc->pdf->ezNewPage();
             }
             
-            /// ¿Añadimos el logo?
-            if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
-            {
-               if( function_exists('imagecreatefromstring') )
-               {
-                  $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
-                  $lppag -= 2; /// si metemos el logo, caben menos líneas
-               }
-               else
-               {
-                  die('ERROR: no se encuentra la función imagecreatefromstring(). '
-                  . 'Y por tanto no se puede usar el logotipo en los documentos.');
-               }
-            }
-            else
-            {
-               $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 16, array('justification' => 'center'));
-               $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'center'));
-               
-               $direccion = $this->empresa->direccion;
-               if($this->empresa->codpostal)
-                  $direccion .= ' - ' . $this->empresa->codpostal;
-               if($this->empresa->ciudad)
-                  $direccion .= ' - ' . $this->empresa->ciudad;
-               if($this->empresa->provincia)
-                  $direccion .= ' (' . $this->empresa->provincia . ')';
-               if($this->empresa->telefono)
-                  $direccion .= ' - Teléfono: ' . $this->empresa->telefono;
-               $pdf_doc->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
-            }
+            $this->generar_pdf_cabecera($pdf_doc, $lppag);
             
             /*
              * Esta es la tabla con los datos del proveedor:
@@ -218,63 +394,8 @@ class compras_imprimir extends fs_controller
             );
             $pdf_doc->pdf->ezText("\n", 10);
             
-            
-            /*
-             * Creamos la tabla con las lineas del albarán:
-             * 
-             * Cantidad    Ref. Prov. + Descripción    PVP   DTO   Importe
-             */
-            $pdf_doc->new_table();
-            $pdf_doc->add_table_header(
-               array(
-                  'cantidad' => '<b>Cant.</b>',
-                  'descripcion' => '<b>Ref. Prov. + Descripción</b>',
-                  'pvp' => '<b>PVP</b>',
-                  'dto' => '<b>Dto.</b>',
-                  'importe' => '<b>Importe</b>'
-               )
-            );
-            for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < count($lineas)));)
-            {
-               $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
-               if( !is_null($lineas[$linea_actual]->referencia) )
-               {
-                  $descripcion = '<b>'.  $this->get_referencia_proveedor($lineas[$linea_actual]->referencia, $this->albaran->codproveedor).
-                          '</b> '.$this->fix_html($lineas[$linea_actual]->descripcion);
-               }
-               
-               $fila = array(
-                  'cantidad' => $lineas[$linea_actual]->cantidad,
-                  'descripcion' => $descripcion,
-                  'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $this->albaran->coddivisa),
-                  'dto' => $this->show_numero($lineas[$linea_actual]->dtopor, 0) . " %",
-                  'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $this->albaran->coddivisa)
-               );
-               
-               $pdf_doc->add_table_row($fila);
-               $linea_actual++;
-            }
-            $pdf_doc->save_table(
-               array(
-                   'fontSize' => 8,
-                   'cols' => array(
-                       'cantidad' => array('justification' => 'right'),
-                       'pvp' => array('justification' => 'right'),
-                       'dto' => array('justification' => 'right'),
-                       'importe' => array('justification' => 'right')
-                   ),
-                   'width' => 520,
-                   'shaded' => 0
-               )
-            );
-            
-            if( $linea_actual == count($lineas) )
-            {
-               if($this->albaran->observaciones != '')
-               {
-                  $pdf_doc->pdf->ezText("\n".$this->fix_html($this->albaran->observaciones), 9);
-               }
-            }
+            /// lineas + observaciones
+            $this->generar_pdf_lineas($pdf_doc, $lineas, $linea_actual, $lppag, $this->albaran);
             
             $pdf_doc->set_y(80);
             
@@ -319,7 +440,7 @@ class compras_imprimir extends fs_controller
             if($this->albaran->totalirpf != 0)
             {
                $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->albaran->irpf.'%</b>';
-               $fila['irpf'] = $this->show_precio(0 - $this->albaran->totalirpf);
+               $fila['irpf'] = $this->show_precio($this->albaran->totalirpf);
                $opciones['cols']['irpf'] = array('justification' => 'right');
             }
             
@@ -382,36 +503,7 @@ class compras_imprimir extends fs_controller
                $pdf_doc->pdf->ezNewPage();
             }
             
-            /// ¿Añadimos el logo?
-            if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
-            {
-               if( function_exists('imagecreatefromstring') )
-               {
-                  $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
-                  $lppag -= 2; /// si metemos el logo, caben menos líneas
-               }
-               else
-               {
-                  die('ERROR: no se encuentra la función imagecreatefromstring(). '
-                  . 'Y por tanto no se puede usar el logotipo en los documentos.');
-               }
-            }
-            else
-            {
-               $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 16, array('justification' => 'center'));
-               $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'center'));
-               
-               $direccion = $this->empresa->direccion;
-               if($this->empresa->codpostal)
-                  $direccion .= ' - ' . $this->empresa->codpostal;
-               if($this->empresa->ciudad)
-                  $direccion .= ' - ' . $this->empresa->ciudad;
-               if($this->empresa->provincia)
-                  $direccion .= ' (' . $this->empresa->provincia . ')';
-               if($this->empresa->telefono)
-                  $direccion .= ' - Teléfono: ' . $this->empresa->telefono;
-               $pdf_doc->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
-            }
+            $this->generar_pdf_cabecera($pdf_doc, $lppag);
             
             /*
              * Esta es la tabla con los datos del proveedor:
@@ -451,63 +543,8 @@ class compras_imprimir extends fs_controller
             );
             $pdf_doc->pdf->ezText("\n", 10);
             
-            
-            /*
-             * Creamos la tabla con las lineas de la factura:
-             * 
-             * Cantidad    Ref. Prov. + Descripción    PVP   DTO    Importe
-             */
-            $pdf_doc->new_table();
-            $pdf_doc->add_table_header(
-               array(
-                  'cantidad' => '<b>Cant.</b>',
-                  'descripcion' => '<b>Ref. Prov. + Descripción</b>',
-                  'pvp' => '<b>PVP</b>',
-                  'dto' => '<b>Dto.</b>',
-                  'importe' => '<b>Importe</b>'
-               )
-            );
-            for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < $lineasfact));)
-            {
-               $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
-               if( !is_null($lineas[$linea_actual]->referencia) )
-               {
-                  $descripcion = '<b>'.  $this->get_referencia_proveedor($lineas[$linea_actual]->referencia, $this->factura->codproveedor).
-                          '</b> '.$this->fix_html($lineas[$linea_actual]->descripcion);
-               }
-               
-               $fila = array(
-                  'cantidad' => $lineas[$linea_actual]->cantidad,
-                  'descripcion' => $descripcion,
-                  'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $this->factura->coddivisa),
-                  'dto' => $this->show_numero($lineas[$linea_actual]->dtopor, 0) . " %",
-                  'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $this->factura->coddivisa)
-               );
-               
-               $pdf_doc->add_table_row($fila);
-               $linea_actual++;
-            }
-            $pdf_doc->save_table(
-               array(
-                   'fontSize' => 8,
-                   'cols' => array(
-                       'cantidad' => array('justification' => 'right'),
-                       'pvp' => array('justification' => 'right'),
-                       'dto' => array('justification' => 'right'),
-                       'importe' => array('justification' => 'right')
-                   ),
-                   'width' => 520,
-                   'shaded' => 0
-               )
-            );
-            
-            if( $linea_actual == count($lineas) )
-            {
-               if($this->factura->observaciones != '')
-               {
-                  $pdf_doc->pdf->ezText("\n".$this->fix_html($this->factura->observaciones), 9);
-               }
-            }
+            /// lineas + observaciones
+            $this->generar_pdf_lineas($pdf_doc, $lineas, $linea_actual, $lppag, $this->factura);
             
             $pdf_doc->set_y(80);
             
@@ -552,7 +589,7 @@ class compras_imprimir extends fs_controller
             if($this->factura->totalirpf != 0)
             {
                $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->factura->irpf.'%</b>';
-               $fila['irpf'] = $this->show_precio(0 - $this->factura->totalirpf);
+               $fila['irpf'] = $this->show_precio($this->factura->totalirpf);
                $opciones['cols']['irpf'] = array('justification' => 'right');
             }
             
@@ -680,8 +717,8 @@ class compras_imprimir extends fs_controller
             $lineasiva[$lin->codimpuesto]['neto'] += $lin->pvptotal;
             $lineasiva[$lin->codimpuesto]['totaliva'] += ($lin->pvptotal*$lin->iva)/100;
             $lineasiva[$lin->codimpuesto]['totalrecargo'] += ($lin->pvptotal*$lin->recargo)/100;
-            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto'] + $lineasiva[$lin->codimpuesto]['totaliva']
-                    + $lineasiva[$lin->codimpuesto]['totalrecargo'];
+            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto']
+                    + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
          }
          else
          {
@@ -694,8 +731,8 @@ class compras_imprimir extends fs_controller
                 'totalrecargo' => ($lin->pvptotal*$lin->recargo)/100,
                 'totallinea' => 0
             );
-            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto'] + $lineasiva[$lin->codimpuesto]['totaliva']
-                    + $lineasiva[$lin->codimpuesto]['totalrecargo'];
+            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto']
+                    + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
          }
       }
       

@@ -117,6 +117,7 @@ class contabilidad_subcuenta extends fs_controller
       $num = 0;
       $actual = 1;
       $total = $this->subcuenta->count_partidas();
+      
       /// añadimos todas la página
       while($num < $total)
       {
@@ -125,17 +126,25 @@ class contabilidad_subcuenta extends fs_controller
              'num' => $i,
              'actual' => ($num == $this->offset)
          );
-         if( $num == $this->offset )
+         
+         if($num == $this->offset)
+         {
             $actual = $i;
+         }
+         
          $i++;
          $num += FS_ITEM_LIMIT;
       }
+      
       /// ahora descartamos
       foreach($paginas as $j => $value)
       {
          if( ($j>1 AND $j<$actual-3 AND $j%10) OR ($j>$actual+3 AND $j<$i-1 AND $j%10) )
+         {
             unset($paginas[$j]);
+         }
       }
+      
       return $paginas;
    }
    
@@ -148,12 +157,12 @@ class contabilidad_subcuenta extends fs_controller
          $this->subcuenta->save();
       }
       
-      $partida = new partida();
-      
       foreach($this->resultados as $pa)
       {
          if( isset($_POST['punteada']) )
+         {
             $valor = in_array($pa->idpartida, $_POST['punteada']);
+         }
          else
             $valor = FALSE;
          

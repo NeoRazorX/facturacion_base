@@ -43,22 +43,32 @@
       <div class="col-md-12">
          <div class="panel panel-info">
             <div class="panel-heading">
-               <h3 class="panel-title">Top ventas (unidades)</h3>
+               <h3 class="panel-title">Top ventas (desde hace un mes)</h3>
             </div>
-            <div class="panel-body">
-               <div class="container-fluid">
-                  <div class="row">
-                     {loop="$fsc->top_ventas"}
-                     <div class="col-sm-4">
-                        <a href="{$value.0->url()}">{$value.0->referencia}</a>
-                        {$value.0->descripcion}
-                        <span class="badge">{$value.1}</span>
-                     </div>
-                     {else}
-                     <div class="col-sm-12">Sin resultados.</div>
-                     {/loop}
-                  </div>
-               </div>
+            <div class="table-responsive">
+               <table class="table table-hover">
+                  <thead>
+                     <tr>
+                        <th>Referencia + Descripción</th>
+                        <th class="text-right">Vendido</th>
+                        <th class="text-right">Total</th>
+                     </tr>
+                  </thead>
+                  {loop="$fsc->top_ventas"}
+                  <tr>
+                     <td>
+                        <a href="{$value['articulo']->url()}">{$value['articulo']->referencia}</a>
+                        {$value['articulo']->descripcion}
+                     </td>
+                     <td class="text-right">{$value['unidades']}</td>
+                     <td class="text-right">{$fsc->show_precio($value['total'])}</td>
+                  </tr>
+                  {else}
+                  <tr class="warning">
+                     <td colspan="3">Sin resultados.</td>
+                  </tr>
+                  {/loop}
+               </table>
             </div>
          </div>
       </div>
@@ -181,7 +191,7 @@
          <td class="text-right">{$value['hora']}</td>
       </tr>
       {else}
-      <tr class="bg-warning">
+      <tr class="warning">
          <td colspan="8">Sin resultados.</td>
       </tr>
       {/loop}
@@ -198,7 +208,7 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr class="clickableRow{if="intval($value['cantidad'])<intval($value['stockmin'])"} bg-danger{/if}" href="index.php?page=ventas_articulo&ref={$value['referencia']}">
+      <tr class="clickableRow{if="intval($value['cantidad'])<intval($value['stockmin'])"} danger{/if}" href="index.php?page=ventas_articulo&ref={$value['referencia']}">
          <td>{$value['codalmacen']}</td>
          <td><a href="index.php?page=ventas_articulo&ref={$value['referencia']}">{$value['referencia']}</a> {$value['descripcion']}</td>
          <td class="text-right">{$value['cantidad']}</td>
@@ -206,7 +216,7 @@
          <td class="text-right">{$value['stockmax']}</td>
       </tr>
       {else}
-      <tr class="bg-warning">
+      <tr class="warning">
          <td colspan="5">Sin resultados.</td>
       </tr>
       {/loop}
@@ -325,7 +335,7 @@
          </td>
       </tr>
       {else}
-      <tr class="bg-warning">
+      <tr class="warning">
          <td colspan="8">Ningun artículo encontrado.</td>
       </tr>
       {/loop}
@@ -410,7 +420,7 @@
          <!--{$total=0}-->
          <!--{$cantidad=0}-->
          {loop="$fsc->resultados"}
-         <tr>
+         <tr{if="$value['pagada']"} class='success'{/if}>
             <td>{$value['fecha']}</td>
             <td><a href="{$value['url']}">{$value['codigo']}</a></td>
             <td>{$value['nombre']}</td>

@@ -17,11 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('ejercicio.php');
 require_model('serie.php');
 
 class contabilidad_series extends fs_controller
 {
    public $allow_delete;
+   public $ejercicios;
+   public $num_personalizada;
    public $serie;
    
    public function __construct()
@@ -31,10 +34,23 @@ class contabilidad_series extends fs_controller
    
    protected function private_core()
    {
-      $this->serie = new serie();
-      
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
+      $eje = new ejercicio();
+      $this->ejercicios = $eje->all();
+      $this->serie = new serie();
+      
+      $fsvar = new fs_var();
+      if( isset($_GET['num_personalizada']) )
+      {
+         $this->num_personalizada = TRUE;
+         $fsvar->simple_save('numeracion_personalizada', $this->num_personalizada);
+      }
+      else
+      {
+         $this->num_personalizada = $fsvar->simple_get('numeracion_personalizada');
+      }
       
       if( isset($_POST['codserie']) )
       {
@@ -47,6 +63,19 @@ class contabilidad_series extends fs_controller
          $serie->descripcion = $_POST['descripcion'];
          $serie->siniva = isset($_POST['siniva']);
          $serie->irpf = floatval($_POST['irpf']);
+         
+         if($this->num_personalizada)
+         {
+            $serie->codejercicio = NULL;
+            $serie->numfactura = 1;
+            
+            if($_POST['codejercicio'] != '')
+            {
+               $serie->codejercicio = $_POST['codejercicio'];
+               $serie->numfactura = intval($_POST['numfactura']);
+            }
+         }
+         
          if( $serie->save() )
          {
             $this->new_message("Serie ".$serie->codserie." guardada correctamente");

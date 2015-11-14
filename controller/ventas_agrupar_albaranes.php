@@ -57,7 +57,7 @@ class ventas_agrupar_albaranes extends fs_controller
       $this->serie = new serie();
       $this->neto = 0;
       $this->total = 0;
-      $this->desde = Date('01-m-Y');
+      $this->desde = Date('01-01-Y');
       $this->hasta = Date('t-m-Y');
       $this->observaciones = '';
       
@@ -70,18 +70,40 @@ class ventas_agrupar_albaranes extends fs_controller
          $this->cliente = new cliente();
          $this->agrupar();
       }
-      else if( isset($_POST['codcliente']) )
+      else if( isset($_REQUEST['codcliente']) )
       {
          $cli0 = new cliente();
-         $this->cliente = $cli0->get($_POST['codcliente']);
+         $this->cliente = $cli0->get($_REQUEST['codcliente']);
          
-         $this->desde = $_POST['desde'];
-         $this->hasta = $_POST['hasta'];
-         $this->observaciones = $_POST['observaciones'];
+         if( isset($_REQUEST['codserie']) )
+         {
+            $this->codserie = $_REQUEST['codserie'];
+         }
+         
+         if( isset($_REQUEST['desde']) )
+         {
+            $this->desde = $_REQUEST['desde'];
+         }
+         
+         if( isset($_REQUEST['hasta']) )
+         {
+            $this->hasta = $_REQUEST['hasta'];
+         }
+         
+         if( isset($_REQUEST['observaciones']) )
+         {
+            $this->observaciones = $_REQUEST['observaciones'];
+         }
          
          if($this->cliente)
          {
-            $this->resultados = $this->albaran->search_from_cliente($_POST['codcliente'], $_POST['desde'], $_POST['hasta'], $_POST['serie'], $_POST['observaciones']);
+            $this->resultados = $this->albaran->search_from_cliente(
+                    $this->cliente->codcliente,
+                    $this->desde,
+                    $this->hasta,
+                    $this->codserie,
+                    $this->observaciones
+            );
             if($this->resultados)
             {
                foreach($this->resultados as $alb)
@@ -385,5 +407,36 @@ class ventas_agrupar_albaranes extends fs_controller
       );
       $fsext = new fs_extension($extension);
       $fsext->save();
+   }
+   
+   public function pendientes()
+   {
+      $pendientes = array();
+      
+      foreach($this->albaran->all_ptefactura() as $alb)
+      {
+         $encontrado = FALSE;
+         foreach($pendientes as $i => $pe)
+         {
+            if($alb->codcliente == $pe['codcliente'])
+            {
+               $encontrado = TRUE;
+               $pendientes[$i]['num']++;
+               break;
+            }
+         }
+         
+         if(!$encontrado)
+         {
+            $pendientes[] = array(
+                'codcliente' => $alb->codcliente,
+                'nombre' => $alb->nombrecliente,
+                'codserie' => $alb->codserie,
+                'num' => 1
+            );
+         }
+      }
+      
+      return $pendientes;
    }
 }

@@ -79,6 +79,11 @@ function usar_serie()
    }
 }
 
+function usar_almacen()
+{
+   document.f_buscar_articulos.codalmacen.value = document.f_new_albaran.almacen.value;
+}
+
 function recalcular()
 {
    var l_uds = 0;
@@ -138,7 +143,7 @@ function recalcular()
    $("#aneto").html( show_numero(neto) );
    $("#aiva").html( show_numero(total_iva) );
    $("#are").html( show_numero(total_recargo) );
-   $("#airpf").html( '-'+show_numero(total_irpf) );
+   $("#airpf").html( show_numero(total_irpf) );
    $("#atotal").val( neto + total_iva - total_irpf + total_recargo );
    
    if(total_recargo == 0 && !cliente.recargo)
@@ -457,22 +462,27 @@ function buscar_articulos()
             var insertar = false;
             $.each(json, function(key, val) {
                var descripcion = Base64.encode(val.descripcion);
+               var stock = val.stockalm;
+               if(val.stockalm != val.stockfis)
+               {
+                  stock += ' ('+val.stockfis+')';
+               }
                
                var tr_aux = '<tr>';
                if(val.bloqueado)
                {
-                  tr_aux = "<tr class=\"bg-danger\">";
+                  tr_aux = "<tr class=\"danger\">";
                }
                else if(val.stockfis < val.stockmin)
                {
-                  tr_aux = "<tr class=\"bg-warning\">";
+                  tr_aux = "<tr class=\"warning\">";
                }
-               else if(val.stockfis > 0)
+               else if(val.stockalm > 0)
                {
-                  tr_aux = "<tr class=\"bg-success\">";
+                  tr_aux = "<tr class=\"success\">";
                }
                
-               if( val.sevende && (val.stockfis > 0 || val.controlstock) )
+               if( val.sevende && (val.stockalm > 0 || val.controlstock) )
                {
                   var funcion = "add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"
                           +val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
@@ -488,16 +498,16 @@ function buscar_articulos()
                      &nbsp; <a href=\"#\" onclick=\"return "+funcion+"\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
-                     <td class=\"text-right\">"+val.stockfis+"</td></tr>");
+                     <td class=\"text-right\">"+stock+"</td></tr>");
                }
-               else if(val.sevende && val.stockfis <= 0)
+               else if(val.sevende)
                {
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
                      <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
                      &nbsp; <a href=\"#\" onclick=\"alert('Sin stock.')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"alert('Sin stock.')\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"alert('Sin stock.')\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
-                     <td class=\"text-right\">"+val.stockfis+"</td></tr>");
+                     <td class=\"text-right\">"+stock+"</td></tr>");
                }
                
                if(val.query == document.f_buscar_articulos.query.value)
@@ -509,7 +519,7 @@ function buscar_articulos()
             
             if(items.length == 0 && !fin_busqueda1)
             {
-               items.push("<tr><td colspan=\"4\" class=\"bg-warning\">Sin resultados. Usa la pestaña\n\
+               items.push("<tr><td colspan=\"4\" class=\"warning\">Sin resultados. Usa la pestaña\n\
                               <b>Nuevo</b> para crear uno.</td></tr>");
                document.f_nuevo_articulo.referencia.value = document.f_buscar_articulos.query.value;
                insertar = true;
@@ -549,7 +559,7 @@ function buscar_articulos()
             
             if(items.length == 0 && !fin_busqueda2)
             {
-               items.push("<tr><td colspan=\"3\" class=\"bg-warning\">Sin resultados.</td></tr>");
+               items.push("<tr><td colspan=\"3\" class=\"warning\">Sin resultados.</td></tr>");
                insertar = true;
             }
             
