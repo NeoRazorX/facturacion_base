@@ -24,6 +24,7 @@ require_model('cliente.php');
 require_model('ejercicio.php');
 require_model('factura_cliente.php');
 require_model('forma_pago.php');
+require_model('pais.php');
 require_model('partida.php');
 require_model('serie.php');
 require_model('subcuenta.php');
@@ -37,6 +38,7 @@ class ventas_factura extends fs_controller
    public $factura;
    public $forma_pago;
    public $mostrar_boton_pagada;
+   public $pais;
    public $rectificada;
    public $rectificativa;
    public $serie;
@@ -55,6 +57,7 @@ class ventas_factura extends fs_controller
       $factura = new factura_cliente();
       $this->factura = FALSE;
       $this->forma_pago = new forma_pago();
+      $this->pais = new pais();
       $this->rectificada = FALSE;
       $this->rectificativa = FALSE;
       $this->serie = new serie();
@@ -82,44 +85,7 @@ class ventas_factura extends fs_controller
       if( isset($_POST['idfactura']) )
       {
          $this->factura = $factura->get($_POST['idfactura']);
-         $this->factura->observaciones = $_POST['observaciones'];
-         $this->factura->numero2 = $_POST['numero2'];
-         
-         /// obtenemos el ejercicio para poder acotar la fecha
-         $eje0 = $this->ejercicio->get( $this->factura->codejercicio );
-         if( $eje0 )
-         {
-            $this->factura->fecha = $eje0->get_best_fecha($_POST['fecha'], TRUE);
-            $this->factura->hora = $_POST['hora'];
-         }
-         else
-            $this->new_error_msg('No se encuentra el ejercicio asociado a la factura.');
-         
-         /// ¿cambiamos la forma de pago?
-         if($this->factura->codpago != $_POST['forma_pago'])
-         {
-            $this->factura->codpago = $_POST['forma_pago'];
-            $this->factura->vencimiento = $this->nuevo_vencimiento($this->factura->fecha, $this->factura->codpago);
-         }
-         else
-         {
-            $this->factura->vencimiento = $_POST['vencimiento'];
-         }
-         
-         if( $this->factura->save() )
-         {
-            $asiento = $this->factura->get_asiento();
-            if($asiento)
-            {
-               $asiento->fecha = $this->factura->fecha;
-               if( !$asiento->save() )
-                  $this->new_error_msg("Imposible modificar la fecha del asiento.");
-            }
-            $this->new_message("Factura modificada correctamente.");
-            $this->new_change('Factura Cliente '.$this->factura->codigo, $this->factura->url());
-         }
-         else
-            $this->new_error_msg("¡Imposible modificar la factura!");
+         $this->modificar();
       }
       else if( isset($_GET['id']) )
       {
@@ -199,6 +165,57 @@ class ventas_factura extends fs_controller
       }
       else
          return $this->ppage->url();
+   }
+   
+   private function modificar()
+   {
+      $this->factura->observaciones = $_POST['observaciones'];
+      $this->factura->numero2 = $_POST['numero2'];
+      $this->factura->nombrecliente = $_POST['nombrecliente'];
+      $this->factura->cifnif = $_POST['cifnif'];
+      $this->factura->codpais = $_POST['codpais'];
+      $this->factura->provincia = $_POST['provincia'];
+      $this->factura->ciudad = $_POST['ciudad'];
+      $this->factura->codpostal = $_POST['codpostal'];
+      $this->factura->direccion = $_POST['direccion'];
+      
+      /// obtenemos el ejercicio para poder acotar la fecha
+      $eje0 = $this->ejercicio->get( $this->factura->codejercicio );
+      if($eje0)
+      {
+         $this->factura->fecha = $eje0->get_best_fecha($_POST['fecha'], TRUE);
+         $this->factura->hora = $_POST['hora'];
+      }
+      else
+         $this->new_error_msg('No se encuentra el ejercicio asociado a la factura.');
+      
+      /// ¿cambiamos la forma de pago?
+      if($this->factura->codpago != $_POST['forma_pago'])
+      {
+         $this->factura->codpago = $_POST['forma_pago'];
+         $this->factura->vencimiento = $this->nuevo_vencimiento($this->factura->fecha, $this->factura->codpago);
+      }
+      else
+      {
+         $this->factura->vencimiento = $_POST['vencimiento'];
+      }
+      
+      if( $this->factura->save() )
+      {
+         $asiento = $this->factura->get_asiento();
+         if($asiento)
+         {
+            $asiento->fecha = $this->factura->fecha;
+            if( !$asiento->save() )
+            {
+               $this->new_error_msg("Imposible modificar la fecha del asiento.");
+            }
+         }
+         $this->new_message("Factura modificada correctamente.");
+         $this->new_change('Factura Cliente '.$this->factura->codigo, $this->factura->url());
+      }
+      else
+         $this->new_error_msg("¡Imposible modificar la factura!");
    }
    
    private function actualizar_direccion()

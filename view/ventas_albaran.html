@@ -175,7 +175,7 @@
       </div>
       <div class="row">
          {if="$fsc->albaran->ptefactura"}
-         <div class="col-md-4 col-sm-12">
+         <div class="col-md-3 col-sm-12">
             <div class="form-group">
                Cliente actual:
                <div class="input-group">
@@ -189,12 +189,28 @@
             </div>
          </div>
          {/if}
-         <div class="col-md-4 col-sm-6">
+         <div class="col-md-3 col-sm-4">
             <div class="form-group">
                <span class='text-capitalize'>{#FS_NUMERO2#}:</span>
                <input class="form-control" type="text" name="numero2" value="{$fsc->albaran->numero2}"/>
             </div>
          </div>
+         {if="$fsc->albaran->ptefactura"}
+         <div class="col-md-2 col-sm-2">
+            <div class="form-group">
+               <a href="{$fsc->serie->url()}">Serie</a>:
+               <select class="form-control" name="serie" id="codserie" onchange="usar_serie();recalcular();">
+               {loop="$fsc->serie->all()"}
+                  {if="$value->codserie==$fsc->albaran->codserie"}
+                  <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
+                  {else}
+                  <option value="{$value->codserie}">{$value->descripcion}</option>
+                  {/if}
+               {/loop}
+               </select>
+            </div>
+         </div>
+         {/if}
          <div class="col-md-2 col-sm-3">
             <div class="form-group">
                Fecha:
@@ -226,20 +242,12 @@
                <span class="hidden-xs">&nbsp; Líneas</span>
             </a>
          </li>
-         {if="$fsc->albaran->ptefactura"}
          <li role="presentation">
-            <a href="#direccion_p" aria-controls="direccion_p" role="tab" data-toggle="tab">
-               <span class="glyphicon glyphicon-road" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Dirección</span>
+            <a href="#detalles" aria-controls="detalles" role="tab" data-toggle="tab">
+               <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Detalles</span>
             </a>
          </li>
-         <li role="presentation">
-            <a href="#opciones" aria-controls="opciones" role="tab" data-toggle="tab">
-               <span class="glyphicon glyphicon-option-vertical" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Opciones</span>
-            </a>
-         </li>
-         {/if}
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <li role="presentation">
@@ -257,8 +265,8 @@
                      <tr>
                         <th class="text-left" width="180">Referencia</th>
                         <th class="text-left">Descripción</th>
-                        <th class="text-right" width="90">Cantidad</th>
-                        <th width="60"></th>
+                        <th class="text-right" width="80">Cantidad</th>
+                        <th width="50"></th>
                         <th class="text-right" width="110">Precio</th>
                         <th class="text-right" width="90">Dto. %</th>
                         <th class="text-right" width="130">Neto</th>
@@ -308,7 +316,7 @@
                         <td>
                            <select class="form-control" id="iva_{$counter}" name="iva_{$counter}" onchange="ajustar_iva('{$counter}')">
                            {loop="$fsc->impuesto->all()"}
-                              {if="$value1->codimpuesto==$value2->codimpuesto"}
+                              {if="$value1->codimpuesto==$value2->codimpuesto OR $value1->iva==$value2->iva"}
                               <option value="{$value2->iva}" selected="">{$value2->descripcion}</option>
                               {else}
                               <option value="{$value2->iva}">{$value2->descripcion}</option>
@@ -427,9 +435,60 @@
                </div>
             </div>
          </div>
-         {if="$fsc->albaran->ptefactura"}
-         <div role="tabpanel" class="tab-pane" id="direccion_p">
+         <div role="tabpanel" class="tab-pane" id="detalles">
             <div class="container-fluid" style="margin-top: 10px;">
+               <div class="row">
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        Nombre del cliente:
+                        <input class="form-control" type="text" name="nombrecliente" value="{$fsc->albaran->nombrecliente}" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        {#FS_CIFNIF#}:
+                        <input class="form-control" type="text" name="cifnif" value="{$fsc->albaran->cifnif}" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
+                        <select name="forma_pago" class="form-control">
+                           {loop="$fsc->forma_pago->all()"}
+                           <option value="{$value->codpago}"{if="$value->codpago==$fsc->albaran->codpago"} selected=""{/if}>{$value->descripcion}</option>
+                           {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        <a href="{$fsc->divisa->url()}">Divisa</a>:
+                        <select name="divisa" class="form-control">
+                        {loop="$fsc->divisa->all()"}
+                           {if="$value->coddivisa==$fsc->albaran->coddivisa"}
+                           <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->coddivisa}">{$value->descripcion}</option>
+                           {/if}
+                        {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        Tasa de conversión a €
+                        <input type="text" name="tasaconv" class="form-control" placeholder="{$fsc->albaran->tasaconv}" autocomplete="off"/>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-sm-12">
+                     <h3>
+                        <span class="glyphicon glyphicon-road" aria-hidden="true"></span>
+                        &nbsp; Dirección de facturación:
+                     </h3>
+                  </div>
+               </div>
                <div class="row">
                   <div class="col-sm-3">
                      <div class="form-group">
@@ -468,57 +527,6 @@
                </div>
             </div>
          </div>
-         <div role="tabpanel" class="tab-pane" id="opciones">
-            <div class="container-fluid" style="margin-top: 10px;">
-               <div class="row">
-                  <div class="col-sm-2">
-                     <div class="form-group">
-                        <a href="{$fsc->serie->url()}">Serie</a>:
-                        <select class="form-control" name="serie" id="codserie" onchange="usar_serie();recalcular();">
-                        {loop="$fsc->serie->all()"}
-                           {if="$value->codserie==$fsc->albaran->codserie"}
-                           <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
-                           {else}
-                           <option value="{$value->codserie}">{$value->descripcion}</option>
-                           {/if}
-                        {/loop}
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-sm-3">
-                     <div class="form-group">
-                        <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
-                        <select name="forma_pago" class="form-control">
-                           {loop="$fsc->forma_pago->all()"}
-                           <option value="{$value->codpago}"{if="$value->codpago==$fsc->albaran->codpago"} selected=""{/if}>{$value->descripcion}</option>
-                           {/loop}
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-sm-2">
-                     <div class="form-group">
-                        <a href="{$fsc->divisa->url()}">Divisa</a>:
-                        <select name="divisa" class="form-control">
-                        {loop="$fsc->divisa->all()"}
-                           {if="$value->coddivisa==$fsc->albaran->coddivisa"}
-                           <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
-                           {else}
-                           <option value="{$value->coddivisa}">{$value->descripcion}</option>
-                           {/if}
-                        {/loop}
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-sm-3">
-                     <div class="form-group">
-                        Tasa de conversión a €
-                        <input type="text" name="tasaconv" class="form-control" placeholder="{$fsc->albaran->tasaconv}" autocomplete="off"/>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-         {/if}
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">

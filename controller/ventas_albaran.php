@@ -204,6 +204,8 @@ class ventas_albaran extends fs_controller
          }
          else
          {
+            $this->albaran->nombrecliente = $_POST['nombrecliente'];
+            $this->albaran->cifnif = $_POST['cifnif'];
             $this->albaran->codpais = $_POST['codpais'];
             $this->albaran->provincia = $_POST['provincia'];
             $this->albaran->ciudad = $_POST['ciudad'];

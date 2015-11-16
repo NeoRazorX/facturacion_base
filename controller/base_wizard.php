@@ -63,7 +63,13 @@ class base_wizard extends fs_controller
          $this->step = 2;
       }
       
-      if( isset($_POST['nombrecorto']) )
+      if(FS_DEMO)
+      {
+         $this->new_advice('En el modo demo no se pueden hacer cambios en esta página.');
+         $this->new_advice('Si te gusta FacturaScripts y quieres saber más, consulta la '
+                 . '<a href="https://www.facturascripts.com/comm3/index.php?page=community_questions">sección preguntas</a>.');
+      }
+      else if( isset($_POST['nombrecorto']) )
       {
          /// guardamos los datos de la empresa
          $this->empresa->nombre = $_POST['nombre'];
@@ -272,7 +278,7 @@ class base_wizard extends fs_controller
    {
       $clist = array();
       $include = array(
-          'factura','facturas','factura_simplificada','factura rectificativa',
+          'factura','facturas','factura_simplificada','factura_rectificativa',
           'albaran','albaranes','pedido','pedidos','presupuesto','presupuestos',
           'provincia','apartado','cifnif','iva','irpf','numero2'
       );

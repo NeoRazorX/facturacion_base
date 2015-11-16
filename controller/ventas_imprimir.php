@@ -275,12 +275,34 @@ class ventas_imprimir extends fs_controller
       $pdf_doc->new_table();
       $table_header = array(
           'alb' => '<b>'.ucfirst(FS_ALBARAN).'</b>',
+          'descripcion' => '<b>Ref. + Descripción</b>',
           'cantidad' => '<b>Cant.</b>',
-          'descripcion' => '<b>Ref. Prov. + Descripción</b>',
           'pvp' => '<b>PVP</b>',
       );
       
-      if( !$this->impresion['print_alb'] OR get_class($documento) != 'factura_cliente' )
+      /// ¿Desactivamos la columna de albaran?
+      if( get_class($documento) == 'factura_cliente' )
+      {
+         if($this->impresion['print_alb'])
+         {
+            /// aunque esté activada, si la factura no viene de un albaran, la desactivamos
+            $this->impresion['print_alb'] = FALSE;
+            foreach($lineas as $lin)
+            {
+               if($lin->idalbaran)
+               {
+                  $this->impresion['print_alb'] = TRUE;
+                  break;
+               }
+            }
+         }
+         
+         if( !$this->impresion['print_alb'] )
+         {
+            unset($table_header['alb']);
+         }
+      }
+      else
       {
          unset($table_header['alb']);
       }

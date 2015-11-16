@@ -148,6 +148,8 @@ class compras_albaran extends fs_controller
       $error = FALSE;
       $this->albaran->numproveedor = $_POST['numproveedor'];
       $this->albaran->observaciones = $_POST['observaciones'];
+      $this->albaran->nombre = $_POST['nombre'];
+      $this->albaran->cifnif = $_POST['cifnif'];
       
       if($this->albaran->ptefactura)
       {

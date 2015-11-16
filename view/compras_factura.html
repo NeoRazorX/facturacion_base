@@ -186,9 +186,9 @@
             </a>
          </li>
          <li role="presentation">
-            <a href="#lineas_iva" aria-controls="lineas_iva" role="tab" data-toggle="tab">
-               <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Impuestos</span>
+            <a href="#detalles" aria-controls="detalles" role="tab" data-toggle="tab">
+               <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Detalles</span>
             </a>
          </li>
          {loop="$fsc->extensions"}
@@ -218,7 +218,7 @@
                      </tr>
                   </thead>
                   {loop="$fsc->factura->get_lineas()"}
-                  <tr{if="$value->cantidad<=0"} class="bg-warning"{/if}>
+                  <tr{if="$value->cantidad<=0"} class="warning"{/if}>
                      <td>
                         {if="$value->idalbaran"}
                         <a href="{$value->albaran_url()}">{$value->albaran_codigo()}</a>
@@ -262,32 +262,56 @@
                </div>
             </div>
          </div>
-         <div role="tabpanel" class="tab-pane" id="lineas_iva">
-            <div class="table-responsive">
-               <table class="table table-hover">
-                  <thead>
-                     <tr>
-                        <th class="text-left">Impuesto</th>
-                        <th class="text-right">Neto</th>
-                        <th class="text-right">{#FS_IVA#}</th>
-                        <th class="text-right">Total {#FS_IVA#}</th>
-                        <th class="text-right">RE</th>
-                        <th class="text-right">Total RE</th>
-                        <th class="text-right">Total</th>
-                     </tr>
-                  </thead>
-                  {loop="$fsc->factura->get_lineas_iva()"}
-                  <tr>
-                     <td>{$value->codimpuesto}</td>
-                     <td class="text-right">{$fsc->show_precio($value->neto, $fsc->factura->coddivisa)}</td>
-                     <td class="text-right">{$fsc->show_numero($value->iva, 2)} %</td>
-                     <td class="text-right">{$fsc->show_precio($value->totaliva, $fsc->factura->coddivisa)}</td>
-                     <td class="text-right">{$fsc->show_numero($value->recargo, 2)} %</td>
-                     <td class="text-right">{$fsc->show_precio($value->totalrecargo, $fsc->factura->coddivisa)}</td>
-                     <td class="text-right">{$fsc->show_precio($value->totallinea, $fsc->factura->coddivisa)}</td>
-                  </tr>
-                  {/loop}
-               </table>
+         <div role="tabpanel" class="tab-pane" id="detalles">
+            <div class="container-fluid" style="margin-top: 10px;">
+               <div class="row">
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        Nombre del proveedor:
+                        <input class="form-control" type="text" name="nombre" value="{$fsc->factura->nombre}" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        {#FS_CIFNIF#}:
+                        <input class="form-control" type="text" name="cifnif" value="{$fsc->factura->cifnif}" autocomplete="off"/>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-sm-12">
+                     <h3>
+                        <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+                        &nbsp; Desglose de impuestos:
+                     </h3>
+                     <div class="table-responsive">
+                        <table class="table table-hover">
+                           <thead>
+                              <tr>
+                                 <th class="text-left">Impuesto</th>
+                                 <th class="text-right">Neto</th>
+                                 <th class="text-right">{#FS_IVA#}</th>
+                                 <th class="text-right">Total {#FS_IVA#}</th>
+                                 <th class="text-right">RE</th>
+                                 <th class="text-right">Total RE</th>
+                                 <th class="text-right">Total</th>
+                              </tr>
+                           </thead>
+                           {loop="$fsc->factura->get_lineas_iva()"}
+                           <tr>
+                              <td>{$value->codimpuesto}</td>
+                              <td class="text-right">{$fsc->show_precio($value->neto, $fsc->factura->coddivisa)}</td>
+                              <td class="text-right">{$fsc->show_numero($value->iva, 2)} %</td>
+                              <td class="text-right">{$fsc->show_precio($value->totaliva, $fsc->factura->coddivisa)}</td>
+                              <td class="text-right">{$fsc->show_numero($value->recargo, 2)} %</td>
+                              <td class="text-right">{$fsc->show_precio($value->totalrecargo, $fsc->factura->coddivisa)}</td>
+                              <td class="text-right">{$fsc->show_precio($value->totallinea, $fsc->factura->coddivisa)}</td>
+                           </tr>
+                           {/loop}
+                        </table>
+                     </div>
+                  </div>
+               </div>
             </div>
          </div>
          {loop="$fsc->extensions"}

@@ -79,34 +79,7 @@ class compras_factura extends fs_controller
       if( isset($_POST['idfactura']) )
       {
          $this->factura = $factura->get($_POST['idfactura']);
-         $this->factura->numproveedor = $_POST['numproveedor'];
-         $this->factura->observaciones = $_POST['observaciones'];
-         $this->factura->codpago = $_POST['forma_pago'];
-         
-         /// obtenemos el ejercicio para poder acotar la fecha
-         $eje0 = $this->ejercicio->get( $this->factura->codejercicio );
-         if( $eje0 )
-         {
-            $this->factura->fecha = $eje0->get_best_fecha($_POST['fecha'], TRUE);
-            $this->factura->hora = $_POST['hora'];
-         }
-         else
-            $this->new_error_msg('No se encuentra el ejercicio asociado a la factura.');
-         
-         if( $this->factura->save() )
-         {
-            $asiento = $this->factura->get_asiento();
-            if($asiento)
-            {
-               $asiento->fecha = $this->factura->fecha;
-               if( !$asiento->save() )
-                  $this->new_error_msg("Imposible modificar la fecha del asiento.");
-            }
-            $this->new_message("Factura modificada correctamente.");
-            $this->new_change('Factura Proveedor '.$this->factura->codigo, $this->factura->url());
-         }
-         else
-            $this->new_error_msg("¡Imposible modificar la factura!");
+         $this->modificar();
       }
       else if( isset($_GET['id']) )
       {
@@ -182,6 +155,42 @@ class compras_factura extends fs_controller
       }
       else
          return $this->page->url();
+   }
+   
+   private function modificar()
+   {
+      $this->factura->numproveedor = $_POST['numproveedor'];
+      $this->factura->observaciones = $_POST['observaciones'];
+      $this->factura->codpago = $_POST['forma_pago'];
+      $this->factura->nombre = $_POST['nombre'];
+      $this->factura->cifnif = $_POST['cifnif'];
+      
+      /// obtenemos el ejercicio para poder acotar la fecha
+      $eje0 = $this->ejercicio->get( $this->factura->codejercicio );
+      if($eje0)
+      {
+         $this->factura->fecha = $eje0->get_best_fecha($_POST['fecha'], TRUE);
+         $this->factura->hora = $_POST['hora'];
+      }
+      else
+         $this->new_error_msg('No se encuentra el ejercicio asociado a la factura.');
+      
+      if( $this->factura->save() )
+      {
+         $asiento = $this->factura->get_asiento();
+         if($asiento)
+         {
+            $asiento->fecha = $this->factura->fecha;
+            if( !$asiento->save() )
+            {
+               $this->new_error_msg("Imposible modificar la fecha del asiento.");
+            }
+         }
+         $this->new_message("Factura modificada correctamente.");
+         $this->new_change('Factura Proveedor '.$this->factura->codigo, $this->factura->url());
+      }
+      else
+         $this->new_error_msg("¡Imposible modificar la factura!");
    }
    
    private function generar_asiento(&$factura)

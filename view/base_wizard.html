@@ -144,7 +144,7 @@
                Decimales:
                <select name="nf0" class="form-control">
                {loop="$fsc->nf0()"}
-                  <option value="{$value}"{if="$value==$GLOBALS['config2']['nf0']"} selected="selected"{/if}>{$value}</option>
+                  <option value="{$value}"{if="$value==$GLOBALS['config2']['nf0']"} selected=""{/if}>{$value}</option>
                {/loop}
                </select>
             </div>
@@ -154,7 +154,7 @@
                Separador para los Decimales:
                <select name="nf1" class="form-control">
                {loop="$fsc->nf1()"}
-                  <option value="{$key}"{if="$key==$GLOBALS['config2']['nf1']"} selected="selected"{/if}>{$value}</option>
+                  <option value="{$key}"{if="$key==$GLOBALS['config2']['nf1']"} selected=""{/if}>{$value}</option>
                {/loop}
                </select>
             </div>
@@ -165,7 +165,7 @@
                <select name="nf2" class="form-control">
                   <option value="">(Ninguno)</option>
                   {loop="$fsc->nf1()"}
-                  <option value="{$key}"{if="$key==$GLOBALS['config2']['nf2']"} selected="selected"{/if}>{$value}</option>
+                  <option value="{$key}"{if="$key==$GLOBALS['config2']['nf2']"} selected=""{/if}>{$value}</option>
                   {/loop}
                </select>
             </div>
@@ -176,8 +176,8 @@
             <div class="form-group">
                Posición del símbolo divisa:
                <select name="pos_divisa" class="form-control">
-                  <option value="right"{if="$GLOBALS['config2']['pos_divisa']=='right'"} selected="selected"{/if}>123 {$fsc->simbolo_divisa()}</option>
-                  <option value="left"{if="$GLOBALS['config2']['pos_divisa']=='left'"} selected="selected"{/if}>{$fsc->simbolo_divisa()}123</option>
+                  <option value="right"{if="$GLOBALS['config2']['pos_divisa']=='right'"} selected=""{/if}>123 {$fsc->simbolo_divisa()}</option>
+                  <option value="left"{if="$GLOBALS['config2']['pos_divisa']=='left'"} selected=""{/if}>{$fsc->simbolo_divisa()}123</option>
                </select>
             </div>
          </div>
@@ -201,7 +201,7 @@
          <div class="col-sm-3">
             <div class="form-group">
                <span class="text-uppercase">{$value['nombre']}:</span>
-               <input class="form-control" type="text" name="{$value['nombre']}" value="{$value['valor']}"/>
+               <input class="form-control" type="text" name="{$value['nombre']}" value="{$value['valor']}" autocomplete="off"/>
             </div>
          </div>
          {/loop}
