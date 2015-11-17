@@ -21,6 +21,7 @@ require_model('articulo.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
 require_model('cliente.php');
+require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('factura_cliente.php');
 require_model('forma_pago.php');
@@ -34,6 +35,7 @@ class ventas_factura extends fs_controller
    public $agente;
    public $allow_delete;
    public $cliente;
+   public $divisa;
    public $ejercicio;
    public $factura;
    public $forma_pago;
@@ -50,10 +52,14 @@ class ventas_factura extends fs_controller
    
    protected function private_core()
    {
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
       $this->ppage = $this->page->get('ventas_facturas');
       $this->ejercicio = new ejercicio();
       $this->agente = FALSE;
       $this->cliente = FALSE;
+      $this->divisa = new divisa();
       $factura = new factura_cliente();
       $this->factura = FALSE;
       $this->forma_pago = new forma_pago();
@@ -61,9 +67,6 @@ class ventas_factura extends fs_controller
       $this->rectificada = FALSE;
       $this->rectificativa = FALSE;
       $this->serie = new serie();
-      
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       /**
        * Si hay alguna extensión de tipo config y texto no_button_pagada,
