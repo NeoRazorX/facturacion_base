@@ -46,7 +46,7 @@ class articulo extends fs_model
     * Código de la familia a la que pertenece. En la clase familia.
     * @var type 
     */
-   public $reffamilia;
+   public $codfamilia;
    
    /**
     * Descripción del artículo. Tipo text, sin límite de caracteres.
@@ -58,7 +58,7 @@ class articulo extends fs_model
     * Código del fabricante al que pertenece. En la clase fabricante.
     * @var type 
     */
-   public $reffabricante;
+   public $codfabricante;
    
    /**
     * Precio del artículo, sin impuestos.
@@ -98,7 +98,7 @@ class articulo extends fs_model
     * Impuesto asignado. Clase impuesto.
     * @var type 
     */
-   public $refimpuesto;
+   public $codimpuesto;
    
    /**
     * TRUE => el artículos está bloqueado / obsoleto.
@@ -150,20 +150,20 @@ class articulo extends fs_model
     * Código de barras.
     * @var type 
     */
-   public $refbarras;
+   public $codbarras;
    public $observaciones;
    
    /**
     * Código de la subcuenta para compras.
     * @var type 
     */
-   public $refsubcuentacom;
+   public $codsubcuentacom;
    
    /**
     * Código para la subcuenta de compras, pero con IRPF.
     * @var type 
     */
-   public $refsubcuentairpfcom;
+   public $codsubcuentairpfcom;
    
    /**
     * % IVA del impuesto asignado.
@@ -392,11 +392,11 @@ class articulo extends fs_model
    {
       if( strtolower(FS_DB_TYPE) == 'postgresql' )
       {
-         $sql = "SELECT referencia from articulos where referencia ~ '^\d+$' ORDER BY referencia::integer DESC";
+         $sql = "SELECT referencia from articulos where referencia ~ '^\d+$' ORDER BY referencia DESC";
       }
       else
       {
-         $sql = "SELECT referencia from articulos where referencia REGEXP '^[0-9]+$' ORDER BY  cast(referencia as decimal(38,10)) DESC;";
+         $sql = "SELECT referencia from articulos where referencia REGEXP '^[0-9]+$' ORDER BY referencia DESC";
       }
       
       $ref = 1;
@@ -408,7 +408,6 @@ class articulo extends fs_model
       
       return $ref;
    }
-   
    
    /**
     * Devuelve un artículo a partir de su referencia
@@ -675,13 +674,13 @@ class articulo extends fs_model
    
    /**
     * Cambia el impuesto asociado al artículo.
-    * @param type $refimpuesto
+    * @param type $codimpuesto
     */
-   public function set_impuesto($refimpuesto)
+   public function set_impuesto($codimpuesto)
    {
-      if($refimpuesto != $this->codimpuesto)
+      if($codimpuesto != $this->codimpuesto)
       {
-         $this->codimpuesto = $refimpuesto;
+         $this->codimpuesto = $codimpuesto;
          
          $encontrado = FALSE;
          foreach(self::$impuestos as $i)
@@ -1102,12 +1101,12 @@ class articulo extends fs_model
       }
    }
    
-   public function search($query='', $offset=0, $reffamilia='', $con_stock=FALSE, $reffabricante='', $bloqueados=FALSE)
+   public function search($query='', $offset=0, $codfamilia='', $con_stock=FALSE, $codfabricante='', $bloqueados=FALSE)
    {
       $artilist = array();
       $query = $this->no_html( strtolower($query) );
       
-      if($query != '' AND $offset == 0 AND $reffamilia == '' AND $reffabricante == '' AND !$con_stock AND !$bloqueados)
+      if($query != '' AND $offset == 0 AND $codfamilia == '' AND $codfabricante == '' AND !$con_stock AND !$bloqueados)
       {
          /// intentamos obtener los datos de memcache
          if( $this->new_search_tag($query) )
@@ -1121,15 +1120,15 @@ class articulo extends fs_model
          $sql = "SELECT ".self::$column_list." FROM ".$this->table_name;
          $separador = ' WHERE';
          
-         if($reffamilia != '')
+         if($codfamilia != '')
          {
-            $sql .= $separador." codfamilia = ".$this->var2str($reffamilia);
+            $sql .= $separador." codfamilia = ".$this->var2str($codfamilia);
             $separador = ' AND';
          }
          
-         if($reffabricante != '')
+         if($codfabricante != '')
          {
-            $sql .= $separador." codfabricante = ".$this->var2str($reffabricante);
+            $sql .= $separador." codfabricante = ".$this->var2str($codfabricante);
             $separador = ' AND';
          }
          
@@ -1190,11 +1189,11 @@ class articulo extends fs_model
       return $artilist;
    }
    
-   public function search_by_codbar($ref, $offset=0, $limit=FS_ITEM_LIMIT)
+   public function search_by_codbar($cod, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
       $sql = "SELECT ".self::$column_list." FROM ".$this->table_name
-              ." WHERE codbarras = ".$this->var2str($ref)
+              ." WHERE codbarras = ".$this->var2str($cod)
               ." ORDER BY lower(referencia) ASC";
       
       $data = $this->db->select_limit($sql, $limit, $offset);
@@ -1253,16 +1252,16 @@ class articulo extends fs_model
    
    /**
     * Devuelve los artículos de una familia.
-    * @param type $ref
+    * @param type $cod
     * @param type $offset
     * @param type $limit
     * @return \articulo
     */
-   public function all_from_familia($ref, $offset=0, $limit=FS_ITEM_LIMIT)
+   public function all_from_familia($cod, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
       $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = "
-              .$this->var2str($ref)." ORDER BY lower(referencia) ASC";
+              .$this->var2str($cod)." ORDER BY lower(referencia) ASC";
       
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
@@ -1276,16 +1275,16 @@ class articulo extends fs_model
    
    /**
     * Devuelve los artículos de un fabricante.
-    * @param type $ref
+    * @param type $cod
     * @param type $offset
     * @param type $limit
     * @return \articulo
     */
-   public function all_from_fabricante($ref, $offset=0, $limit=FS_ITEM_LIMIT)
+   public function all_from_fabricante($cod, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codfabricante = "
-              .$this->var2str($ref)." ORDER BY lower(referencia) ASC";
+              .$this->var2str($cod)." ORDER BY lower(referencia) ASC";
       
       $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
@@ -1296,5 +1295,4 @@ class articulo extends fs_model
       
       return $artilist;
    }
-   
 }
