@@ -73,6 +73,18 @@ class familia extends fs_model
          return "index.php?page=ventas_familia&cod=".$this->codfamilia;
    }
    
+   public function descripcion($len = 12)
+   {
+      if( mb_strlen($this->descripcion) > $len )
+      {
+         return substr($this->descripcion, 0, $len).'...';
+      }
+      else
+      {
+         return $this->descripcion;
+      }
+   }
+   
    /**
     * @deprecated since version 50
     * @return type

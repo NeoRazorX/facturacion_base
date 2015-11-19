@@ -447,7 +447,7 @@
                               </td>
                            </tr>
                            {else}
-                           <tr class="bg-warning">
+                           <tr class="warning">
                               <td colspan="5">No hay tarifas definidas.</td>
                            </tr>
                            {/loop}
@@ -505,6 +505,7 @@
                <thead>
                   <tr>
                      <th class="text-left">Almacén</th>
+                     <th class="text-left">Ubicación</th>
                      <th class="text-right">Cantidad actual</th>
                      <th class="text-right">Nueva cantidad</th>
                      <th class="text-left">Motivo</th>
@@ -519,6 +520,9 @@
                      <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
                      <input type="hidden" name="cantidadini" value="{$value->cantidad}"/>
                      <td><div class="form-control">{$value->codalmacen}</div></td>
+                     <td>
+                        <input type="text" class="form-control" name="ubicacion" value="{$value->ubicacion}" placeholder="dentro del almacén..." autocomplete="off"/>
+                     </td>
                      <td><div class="form-control text-right">{$value->cantidad}</div></td>
                      <td><input type="number" step="any" class="form-control text-right" name="cantidad" value="{$value->cantidad}" autocomplete="off"/></td>
                      <td><input type="text" class="form-control" name="motivo" placeholder="Escribe el motivo del cambio"/></td>
@@ -541,6 +545,9 @@
                            <option value="{$value->codalmacen}">{$value->nombre}</option>
                            {/loop}
                         </select>
+                     </td>
+                     <td>
+                        <input type="text" class="form-control" name="ubicacion" placeholder="dentro del almacén..." autocomplete="off"/>
                      </td>
                      <td><div class="form-control text-right">0</div></td>
                      <td><input class="form-control text-right" type="number" step="any" name="cantidad" value="0" autocomplete="off"/></td>
@@ -584,7 +591,7 @@
                   <td class="text-right">{$value->hora}</td>
                </tr>
                {else}
-               <tr class="bg-warning">
+               <tr class="warning">
                   <td colspan="6">Sin resultados.</td>
                </tr>
                {/loop}
@@ -615,8 +622,8 @@
                   <td class="text-right">{$value->stockfis}</td>
                </tr>
                {else}
-               <tr>
-                  <td colspan="3" class="bg-warning">Sin resultados.</td>
+               <tr class="warning">
+                  <td colspan="3">Sin resultados.</td>
                </tr>
                {/loop}
             </table>
@@ -642,17 +649,21 @@
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Imagen</h4>
+               <h4 class="modal-title">
+                  <span class="glyphicon glyphicon-picture"></span> &nbsp; Imagen
+               </h4>
             </div>
             <div class="modal-body">
                {if="$fsc->articulo->imagen_url()"}
                <div class="thumbnail">
                   <img src="{$fsc->articulo->imagen_url()}" alt="{$fsc->articulo->referencia}"/>
+                  <div class="caption">
+                     <p>Esta imagen está guardada en {$fsc->articulo->imagen_url()}</p>
+                  </div>
                </div>
                {else}
                <div class="form-group">
-                  Selecciona una imagen en formato PNG de tamaño inferior a 1MB.<br/>
-                  <input type="file" name="fimagen" accept="image/gif, image/jpeg, image/png"/>
+                  <input type="file" name="fimagen" accept="image/jpeg, image/png"/>
                </div>
                {/if}
             </div>

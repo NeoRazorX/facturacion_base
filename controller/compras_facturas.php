@@ -45,7 +45,7 @@ class compras_facturas extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Facturas de proveedor', 'compras', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Facturas de compra', 'compras', FALSE, TRUE);
    }
    
    protected function private_core()
@@ -216,52 +216,74 @@ class compras_facturas extends fs_controller
       echo json_encode( array('query' => $_REQUEST['buscar_proveedor'], 'suggestions' => $json) );
    }
    
-   public function anterior_url()
+   public function paginas()
    {
-      $url = '';
       $codproveedor = '';
       if($this->proveedor)
       {
          $codproveedor = $this->proveedor->codproveedor;
       }
       
-      if($this->offset > 0)
+      $url = $this->url()."&mostrar=".$this->mostrar
+              ."&query=".$this->query
+              ."&codserie=".$this->codserie
+              ."&codagente=".$this->codagente
+              ."&codproveedor=".$codproveedor
+              ."&desde=".$this->desde
+              ."&hasta=".$this->hasta;
+      
+      $paginas = array();
+      $i = 0;
+      $num = 0;
+      $actual = 1;
+      
+      if($this->mostrar == 'sinpagar')
       {
-         $url = $this->url()."&mostrar=".$this->mostrar
-                 ."&query=".$this->query
-                 ."&codserie=".$this->codserie
-                 ."&codagente=".$this->codagente
-                 ."&codproveedor=".$codproveedor
-                 ."&desde=".$this->desde
-                 ."&hasta=".$this->hasta
-                 ."&offset=".($this->offset-FS_ITEM_LIMIT);
+         $total = $this->total_sinpagar();
+      }
+      else if($this->mostrar == 'buscar')
+      {
+         $total = $this->num_resultados;
+      }
+      else
+      {
+         $total = $this->total_registros();
       }
       
-      return $url;
-   }
-   
-   public function siguiente_url()
-   {
-      $url = '';
-      $codproveedor = '';
-      if($this->proveedor)
+      /// añadimos todas la página
+      while($num < $total)
       {
-         $codproveedor = $this->proveedor->codproveedor;
+         $paginas[$i] = array(
+             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
+             'num' => $i + 1,
+             'actual' => ($num == $this->offset)
+         );
+         
+         if($num == $this->offset)
+         {
+            $actual = $i;
+         }
+         
+         $i++;
+         $num += FS_ITEM_LIMIT;
       }
       
-      if( count($this->resultados) == FS_ITEM_LIMIT )
+      /// ahora descartamos
+      foreach($paginas as $j => $value)
       {
-         $url = $this->url()."&mostrar=".$this->mostrar
-                 ."&query=".$this->query
-                 ."&codserie=".$this->codserie
-                 ."&codagente=".$this->codagente
-                 ."&codproveedor=".$codproveedor
-                 ."&desde=".$this->desde
-                 ."&hasta=".$this->hasta
-                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
+         $enmedio = intval($i/2);
+         
+         /**
+          * descartamos todo excepto la primera, la última, la de enmedio,
+          * la actual, las 5 anteriores y las 5 siguientes
+          */
+         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
+         {
+            unset($paginas[$j]);
+         }
       }
       
-      return $url;
+      return $paginas;
    }
    
    public function buscar_lineas()
@@ -317,6 +339,17 @@ class compras_facturas extends fs_controller
    public function total_sinpagar()
    {
       $data = $this->db->select("SELECT COUNT(idfactura) as total FROM facturasprov WHERE pagada = false;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
+   }
+   
+   private function total_registros()
+   {
+      $data = $this->db->select("SELECT COUNT(idfactura) as total FROM facturasprov;");
       if($data)
       {
          return intval($data[0]['total']);

@@ -92,10 +92,10 @@
          </div>
          <div class="col-sm-2">
             Serie:
-            <select name="serie" class="form-control">
+            <select name="codserie" class="form-control">
             {loop="$fsc->serie->all()"}
-				   {if="$value->codserie==$_POST.serie"}
-				   <option value="{$value->codserie}" selected='selected'>{$value->descripcion}</option>
+				   {if="$value->codserie==$fsc->codserie"}
+				   <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
 				   {else}
 				   <option value="{$value->codserie}">{$value->descripcion}</option>
 				   {/if}
@@ -117,7 +117,7 @@
          <div class="col-sm-2">
             <div class="form-group">
                Observaciones:
-               <input type="text" name="observaciones" class="form-control"/>
+               <input type="text" name="observaciones" class="form-control" value="{$fsc->observaciones}"/>
             </div>
          </div>
       </div>
@@ -215,11 +215,24 @@
             </div>
             <div class="panel-body">
                Con esta herramienta puedes buscar y agrupar varios {#FS_ALBARANES#}
-               de un mismo cliente y generar una {#FS_FACTURA#} (o una para cada uno).
-               Eso si, solamente puedes agrupar {#FS_ALBARANES#} pendientes.
+               pendientes de un mismo cliente y generar una {#FS_FACTURA#} (o una para cada uno).
+               Si hay {#FS_ALBARANES#} pendientes aparecerán los clientes aquí debajo
+               para ahorrarte clics ;-)
             </div>
          </div>
       </div>
+   </div>
+   <div class="row">
+      {loop="$fsc->pendientes()"}
+      <div class="col-sm-4">
+         <a href="{$fsc->url()}&codcliente={$value['codcliente']}&codserie={$value['codserie']}" class="btn btn-sm btn-block {if="$value['num']>1"}btn-info{else}btn-default{/if}">
+            <span class="glyphicon glyphicon-user"></span>
+            &nbsp; {$value['nombre']}
+            {if="$value['num']>1"}&nbsp; ({$value['num']}){/if}
+         </a>
+         <br/>
+      </div>
+      {/loop}
    </div>
 </div>
 {/if}

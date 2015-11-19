@@ -77,8 +77,8 @@
                         <th class="text-right" width="90">Dto. %</th>
                         <th class="text-right" width="130">Neto</th>
                         <th class="text-right" width="115">{#FS_IVA#}</th>
-                        <th class="text-right recargo">RE %</th>
-                        <th class="text-right irpf">{#FS_IRPF#} %</th>
+                        <th class="text-right recargo" width="115">RE %</th>
+                        <th class="text-right irpf" width="115">{#FS_IRPF#} %</th>
                         <th class="text-right" width="140">Total</th>
                      </tr>
                   </thead>
@@ -86,12 +86,14 @@
                   <tbody>
                      <tr class="bg-info">
                         <td><input id="i_new_line" class="form-control" type="text" placeholder="Buscar para añadir..." autocomplete="off"/></td>
-                        <td>
+                        <td colspan="3">
                            <a href="#" class="btn btn-sm btn-default" title="Añadir sin buscar" onclick="return add_linea_libre()">
                               <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                            </a>
                         </td>
-                        <td colspan="4" class="text-right">Totales:</td>
+                        <td colspan="2">
+                           <div class="form-control text-right">Totales</div>
+                        </td>
                         <td><div id="aneto" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div></td>
                         <td><div id="aiva" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div></td>
                         <td class="recargo">
@@ -201,6 +203,10 @@
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">Guardar como...</h4>
+               <p class="help-block">
+                  Puedes programar compras usando el plugin
+                  <a href="https://www.facturascripts.com/store/producto/plugin-para-programar-albaranes/" target="_blank">albaranes programados</a>.
+               </p>
             </div>
             <div class="modal-body">
                {loop="$fsc->tipos_a_guardar()"}
@@ -474,11 +480,10 @@
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">
                   <span class="glyphicon glyphicon-search"></span>
-                  &nbsp; Selecciona el proveedor
+                  &nbsp; Selecciona el proveedor o acreedor
                </h4>
                <p class="help-block">
-                  Busca y selecciona el proveedor o bien puedes crear uno nuevo usando
-                  el recuadro en azul.
+                  Busca y selecciona el proveedor o acrredor. Si lo deseas puedes crear uno nuevo usando el recuadro en azul.
                </p>
             </div>
             <div class="modal-body">
@@ -521,8 +526,8 @@
    <div class="row">
       <div class="col-lg-12">
          <h1>Paso 1:</h1>
-         <p>Selecciona el proveedor al que quieres realizar la compra.</p>
-         <a href="#" class="btn btn-block btn-default" data-toggle="modal" data-target="#modal_proveedor">Selecciona el proveedor</a>
+         <p>Selecciona el proveedor o acreedor al que quieres realizar la compra.</p>
+         <a href="#" class="btn btn-block btn-default" data-toggle="modal" data-target="#modal_proveedor">Selecciona el proveedor o acreedor</a>
          <h2>Paso 2:</h2>
          <p>Introduce línea a línea todos los artículos de la compra.</p>
          <h2>Paso 3:</h2>

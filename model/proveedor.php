@@ -47,17 +47,6 @@ class proveedor extends fs_model
    public $razonsocial;
    
    /**
-    * El nombre oficial del proveedor se ha cambiado a razonsocial. Por motivos
-    * de compatibilidad se seguirá ofreciando la propiedad nombrecomercial,
-    * pero se eliminará muy pronto.
-    * Los cambios en esta propiedad ya no se guardan en la base de datos.
-    * Usa razonsocial.
-    * @var type 
-    * @deprecated since version 2015.038
-    */
-   public $nombrecomercial;
-   
-   /**
     * Identificador fiscal del proveedor.
     * @var type
     */
@@ -159,8 +148,6 @@ class proveedor extends fs_model
          $this->regimeniva = 'General';
          $this->acreedor = FALSE;
       }
-      
-      $this->nombrecomercial = $this->razonsocial;
    }
    
    protected function install()

@@ -25,6 +25,7 @@ require_model('caja.php');
 require_model('cliente.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
+require_model('fabricante.php');
 require_model('factura_cliente.php');
 require_model('familia.php');
 require_model('forma_pago.php');
@@ -46,6 +47,7 @@ class tpv_recambios extends fs_controller
    public $divisa;
    public $ejercicio;
    public $equivalentes;
+   public $fabricante;
    public $familia;
    public $forma_pago;
    public $imprimir_descripciones;
@@ -72,6 +74,7 @@ class tpv_recambios extends fs_controller
       $this->articulo = new articulo();
       $this->cliente = new cliente();
       $this->cliente_s = FALSE;
+      $this->fabricante = new fabricante();
       $this->familia = new familia();
       $this->impuesto = new impuesto();
       $this->results = array();
@@ -241,14 +244,22 @@ class tpv_recambios extends fs_controller
       /// desactivamos la plantilla HTML
       $this->template = FALSE;
       
+      $fsvar = new fs_var();
+      $multi_almacen = $fsvar->simple_get('multi_almacen');
+      $stock = new stock();
+      
       $codfamilia = '';
       if( isset($_REQUEST['codfamilia']) )
       {
          $codfamilia = $_REQUEST['codfamilia'];
       }
-      
+      $codfabricante = '';
+      if( isset($_REQUEST['codfabricante']) )
+      {
+         $codfabricante = $_REQUEST['codfabricante'];
+      }
       $con_stock = isset($_REQUEST['con_stock']);
-      $this->results = $this->articulo->search($this->query, 0, $codfamilia, $con_stock);
+      $this->results = $this->articulo->search($this->query, 0, $codfamilia, $con_stock, $codfabricante);
       
       /// añadimos el descuento y la cantidad
       foreach($this->results as $i => $value)
@@ -256,6 +267,12 @@ class tpv_recambios extends fs_controller
          $this->results[$i]->query = $this->query;
          $this->results[$i]->dtopor = 0;
          $this->results[$i]->cantidad = 1;
+         
+         $this->results[$i]->stockalm = $value->stockfis;
+         if( $multi_almacen AND isset($_REQUEST['codalmacen']) )
+         {
+            $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
+         }
       }
       
       /// ejecutamos las funciones de las extensiones
@@ -273,12 +290,6 @@ class tpv_recambios extends fs_controller
          $cliente = $this->cliente->get($_REQUEST['codcliente']);
          if($cliente)
          {
-            if($cliente->regimeniva == 'Exento')
-            {
-               foreach($this->results as $i => $value)
-                  $this->results[$i]->iva = 0;
-            }
-            
             if($cliente->codgrupo)
             {
                $grupo0 = new grupo_clientes();
@@ -575,7 +586,7 @@ class tpv_recambios extends fs_controller
       {
          if( $this->terminal )
          {
-            $this->terminal->add_linea_big("\nCIERRE DE CAJA:\n");
+            $this->terminal->add_linea_big("\nCIERRE DE CAJA:\n\n");
             $this->terminal->add_linea("Empleado: ".$this->user->codagente." ".$this->agente->get_fullname()."\n");
             $this->terminal->add_linea("Caja: ".$this->caja->fs_id."\n");
             $this->terminal->add_linea("Fecha inicial: ".$this->caja->fecha_inicial."\n");
@@ -586,17 +597,8 @@ class tpv_recambios extends fs_controller
             $this->terminal->add_linea("Tickets: ".$this->caja->tickets."\n\n");
             $this->terminal->add_linea("Dinero pesado:\n\n\n");
             $this->terminal->add_linea("Observaciones:\n\n\n\n");
-            $this->terminal->add_linea("Firma:\n\n\n\n\n\n\n");
-            
-            /// encabezado común para los tickets
-            $this->terminal->add_linea_big( $this->terminal->center_text($this->empresa->nombre, 16)."\n");
-            $this->terminal->add_linea( $this->terminal->center_text($this->empresa->lema) . "\n\n");
-            $this->terminal->add_linea( $this->terminal->center_text($this->empresa->direccion . " - " . $this->empresa->ciudad) . "\n");
-            $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif) );
+            $this->terminal->add_linea("Firma:\n\n\n\n\n\n\n\n\n\n");
             $this->terminal->cortar_papel();
-            $this->terminal->add_linea("\n\n");
-            $this->terminal->add_linea( $this->terminal->center_text($this->empresa->horario) . "\n");
-            
             $this->terminal->abrir_cajon();
             $this->terminal->save();
             
@@ -646,8 +648,27 @@ class tpv_recambios extends fs_controller
             $this->terminal->abrir_cajon();
          }
          
+         $medio = $this->terminal->anchopapel / 2.5;
          while($num_tickets > 0)
          {
+            $this->terminal->add_linea_big( $this->terminal->center_text($this->empresa->nombre, $medio)."\n");
+            
+            if($this->empresa->lema != '')
+            {
+               $this->terminal->add_linea( $this->terminal->center_text($this->empresa->lema) . "\n\n");
+            }
+            else
+               $this->terminal->add_linea("\n");
+            
+            $this->terminal->add_linea( $this->terminal->center_text($this->empresa->direccion . " - " . $this->empresa->ciudad) . "\n");
+            $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif));
+            $this->terminal->add_linea("\n\n");
+            
+            if($this->empresa->horario != '')
+            {
+               $this->terminal->add_linea( $this->terminal->center_text($this->empresa->horario) . "\n\n");
+            }
+            
             $linea = "\n".ucfirst(FS_FACTURA_SIMPLIFICADA).": " . $factura->codigo . "\n";
             $linea .= $factura->fecha. " " . Date('H:i', strtotime($factura->hora)) . "\n";
             $this->terminal->add_linea($linea);
@@ -659,49 +680,45 @@ class tpv_recambios extends fs_controller
                $this->terminal->add_linea('Observaciones: '.$factura->observaciones."\n\n");
             }
             
-            $this->terminal->add_linea(sprintf("%3s", "Ud.")." ".sprintf("%-25s", "Articulo")." ".sprintf("%10s", "TOTAL")."\n");
-            $this->terminal->add_linea(sprintf("%3s", "---")." ".sprintf("%-25s", "-------------------------")." ".sprintf("%10s", "----------")."\n");
+            $width = $this->terminal->anchopapel - 15;
+            $this->terminal->add_linea(
+                    sprintf("%3s", "Ud.")." ".
+                    sprintf("%-".$width."s", "Articulo")." ".
+                    sprintf("%10s", "TOTAL")."\n"
+            );
+            $this->terminal->add_linea(
+                    sprintf("%3s", "---")." ".
+                    sprintf("%-".$width."s", substr("--------------------------------------------------------", 0, $width-1))." ".
+                    sprintf("%10s", "----------")."\n"
+            );
             foreach($factura->get_lineas() as $col)
             {
                if($this->imprimir_descripciones)
                {
-                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-25s", substr($col->descripcion, 0, 24))." "
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", substr($col->descripcion, 0, $width-1))." "
                      .sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
                }
                else
                {
-                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-25s", $col->referencia)." "
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", $col->referencia)." "
                      .sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
                }
                
                $this->terminal->add_linea($linea);
             }
             
-            $linea = "----------------------------------------\n"
-               .$this->terminal->center_text(
+            $linea = '';
+            for($i = 0; $i < $this->terminal->anchopapel; $i++)
+            {
+               $linea .= '-';
+            }
+            
+            $linea .= "\n".$this->terminal->center_text(
                   FS_IVA.": ".$this->show_precio($factura->totaliva, $factura->coddivisa, FALSE).'   '.
                   "Total: ".$this->show_precio($factura->total, $factura->coddivisa, FALSE)
-               )."\n\n\n\n";
+               )."\n\n\n\n\n\n\n\n";
             $this->terminal->add_linea($linea);
-            
-            $this->terminal->add_linea_big( $this->terminal->center_text($this->empresa->nombre, 16)."\n");
-            
-            if($this->empresa->lema != '')
-            {
-               $this->terminal->add_linea( $this->terminal->center_text($this->empresa->lema) . "\n\n");
-            }
-            else
-               $this->terminal->add_linea("\n");
-            
-            $this->terminal->add_linea( $this->terminal->center_text($this->empresa->direccion . " - " . $this->empresa->ciudad) . "\n");
-            $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif));
             $this->terminal->cortar_papel();
-            $this->terminal->add_linea("\n\n");
-            
-            if($this->empresa->horario != '')
-            {
-               $this->terminal->add_linea( $this->terminal->center_text($this->empresa->horario) . "\n");
-            }
             
             $num_tickets--;
          }
@@ -719,40 +736,10 @@ class tpv_recambios extends fs_controller
             $this->terminal->abrir_cajon();
          }
          
+         $medio = $this->terminal->anchopapel / 2.5;
          while($num_tickets > 0)
          {
-            $linea = "\nFactura simplificada: " . $factura->codigo . "\n";
-            $linea .= $factura->fecha. " " . Date('H:i', strtotime($factura->hora)) . "\n";
-            $this->terminal->add_linea($linea);
-            $this->terminal->add_linea("Cliente: " . $factura->nombrecliente . "\n");
-            $this->terminal->add_linea("Empleado: " . $factura->codagente . "\n\n");
-            
-            if($this->imprimir_observaciones)
-            {
-               $this->terminal->add_linea('Observaciones: '.$factura->observaciones."\n\n");
-            }
-            
-            $this->terminal->add_linea(sprintf("%3s", "Ud.")." ".sprintf("%-25s", "Articulo")." ".sprintf("%10s", "TOTAL")."\n");
-            $this->terminal->add_linea(sprintf("%3s", "---")." ".sprintf("%-25s", "-------------------------")." ".sprintf("%10s", "----------")."\n");
-            foreach($factura->get_lineas() as $col)
-            {
-               if($this->imprimir_descripciones)
-               {
-                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-25s", substr($col->descripcion, 0, 24))." "
-                     .sprintf("%10s", '-')."\n";
-               }
-               else
-               {
-                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-25s", $col->referencia)." "
-                     .sprintf("%10s", '-')."\n";
-               }
-               
-               $this->terminal->add_linea($linea);
-            }
-            
-            $this->terminal->add_linea("\n\n\n\n");
-            
-            $this->terminal->add_linea_big( $this->terminal->center_text($this->empresa->nombre, 16)."\n");
+            $this->terminal->add_linea_big( $this->terminal->center_text($this->empresa->nombre, $medio)."\n");
             
             if($this->empresa->lema != '')
             {
@@ -763,11 +750,60 @@ class tpv_recambios extends fs_controller
             
             $this->terminal->add_linea( $this->terminal->center_text($this->empresa->direccion . " - " . $this->empresa->ciudad) . "\n");
             $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif));
-            $this->terminal->cortar_papel();
             $this->terminal->add_linea("\n\n");
             
             if($this->empresa->horario != '')
-               $this->terminal->add_linea( $this->terminal->center_text($this->empresa->horario) . "\n");
+            {
+               $this->terminal->add_linea( $this->terminal->center_text($this->empresa->horario) . "\n\n");
+            }
+            
+            $linea = "\n".ucfirst(FS_FACTURA_SIMPLIFICADA).": " . $factura->codigo . "\n";
+            $linea .= $factura->fecha. " " . Date('H:i', strtotime($factura->hora)) . "\n";
+            $this->terminal->add_linea($linea);
+            $this->terminal->add_linea("Cliente: " . $factura->nombrecliente . "\n");
+            $this->terminal->add_linea("Empleado: " . $factura->codagente . "\n\n");
+            
+            if($this->imprimir_observaciones)
+            {
+               $this->terminal->add_linea('Observaciones: '.$factura->observaciones."\n\n");
+            }
+            
+            $width = $this->terminal->anchopapel - 15;
+            $this->terminal->add_linea(
+                    sprintf("%3s", "Ud.")." ".
+                    sprintf("%-".$width."s", "Articulo")." ".
+                    sprintf("%10s", "TOTAL")."\n"
+            );
+            $this->terminal->add_linea(
+                    sprintf("%3s", "---")." ".
+                    sprintf("%-".$width."s", substr("--------------------------------------------------------", 0, $width-1))." ".
+                    sprintf("%10s", "----------")."\n"
+            );
+            foreach($factura->get_lineas() as $col)
+            {
+               if($this->imprimir_descripciones)
+               {
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", substr($col->descripcion, 0, $width-1))." "
+                     .sprintf("%10s", '-')."\n";
+               }
+               else
+               {
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", $col->referencia)." "
+                     .sprintf("%10s", '-')."\n";
+               }
+               
+               $this->terminal->add_linea($linea);
+            }
+            
+            $linea = '';
+            for($i = 0; $i < $this->terminal->anchopapel; $i++)
+            {
+               $linea .= '-';
+            }
+            
+            $linea .= "\n\n\n\n\n\n\n\n";
+            $this->terminal->add_linea($linea);
+            $this->terminal->cortar_papel();
             
             $num_tickets--;
          }

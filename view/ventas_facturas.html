@@ -301,7 +301,7 @@
          <td class="text-right">{$value->vencimiento}</td>
       </tr>
       {else}
-      <tr class="bg-warning">
+      <tr class="warning">
          <td></td>
          <td></td>
          <td colspan="6">Ninguna {#FS_FACTURA#} encontrada. Pulsa <b>Nueva</b> para crear una.</td>
@@ -326,45 +326,48 @@
    </table>
 </div>
 
-<ul class="pager">
-   {if="$fsc->anterior_url()!=''"}
-   <li class="previous">
-      <a href="{$fsc->anterior_url()}">
-         <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
-      </a>
-   </li>
-   {/if}
-   {if="$fsc->siguiente_url()!=''"}
-   <li class="next">
-      <a href="{$fsc->siguiente_url()}">
-         Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
-      </a>
-   </li>
-   {/if}
-</ul>
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12 text-center">
+         <ul class="pagination">
+            {loop="$fsc->paginas()"}
+            <li{if="$value['actual']"} class="active"{/if}>
+               <a href="{$value['url']}">{$value['num']}</a>
+            </li>
+            {/loop}
+         </ul>
+      </div>
+   </div>
+</div>
 
 <div class="modal fade" id="modal_huecos">
    <div class="modal-dialog">
       <div class="modal-content">
          <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Huecos</h4>
+            <h4 class="modal-title">
+               <span class="glyphicon glyphicon-exclamation-sign"></span>
+               &nbsp; Huecos en la facturación
+            </h4>
+            <p class="help-block">
+               Si hay huecos en la facturación es debido a que faltan facturas.
+            </p>
          </div>
          <div class="table-responsive">
             <table class="table table-hover">
                <thead>
                   <tr>
-                     <th>Código</th>
-                     <th>Fecha y hora</th>
+                     <th class="text-center">Código</th>
+                     <th class="text-center">Fecha y hora</th>
                   </tr>
                </thead>
                {loop="$fsc->huecos"}
-               <tr>
+               <tr class="warning">
                   <td class="text-center">{$value.codigo}</td>
                   <td class="text-center">{$value.fecha} {$value.hora}</td>
                </tr>
                {else}
-               <tr class="bg-success">
+               <tr class="success">
                   <td colspan="2">No hay huecos en la numeración de {#FS_FACTURAS#}. Eso es bueno ;-)</td>
                </tr>
                {/loop}

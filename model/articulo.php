@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2012-2015  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -172,7 +172,6 @@ class articulo extends fs_model
    private $iva;
    
    private $imagen;
-   private $has_imagen;
    private $exists;
    
    private static $impuestos;
@@ -231,9 +230,54 @@ class articulo extends fs_model
          $this->codsubcuentacom = $a['codsubcuentacom'];
          $this->codsubcuentairpfcom = $a['codsubcuentairpfcom'];
          
-         /// no cargamos la imagen directamente por cuestión de rendimiento
          $this->imagen = NULL;
-         $this->has_imagen = isset($a['imagen']);
+         if( isset($a['imagen']) )
+         {
+            /**
+             * En versiones anteriores se guardaba la imagen en la tabla y en
+             * tmp/articulos, ahora se guarda en images/articulos, así que hay
+             * que moverlas.
+             * 
+             * Pero eneboo las guarda de otra forma, así que hay que discriminar.
+             * RK@ => Eneboo
+             */
+            if( !file_exists('images/articulos') )
+            {
+               if( !mkdir('images/articulos', 0777, TRUE) )
+               {
+                  $this->new_error_msg('Error al crear la carpeta images/articulos.');
+               }
+            }
+            
+            if( substr($a['imagen'], 0, 3) == 'RK@' OR $a['imagen'] == '' )
+            {
+               /// eneboo, no hacemos nada
+               $this->imagen = $a['imagen'];
+            }
+            else if( file_exists('tmp/articulos/'.$this->referencia.'.png') )
+            {
+               /// si está el archivo, lo movemos
+               if( !rename('tmp/articulos/'.$this->referencia.'.png', 'images/articulos/'.$this->referencia.'-1.png') )
+               {
+                  $this->new_error_msg('Error al mover la imagen del artículo.');
+               }
+            }
+            else
+            {
+               /// sino está el archivo, intentamos extraer los datos de la base de datos
+               $f = @fopen('images/articulos/'.$this->referencia.'-1.png', 'a');
+               if($f)
+               {
+                  fwrite( $f, $this->str2bin($a['imagen']) );
+                  fclose($f);
+               }
+               else
+               {
+                  $this->new_error_msg('Error al extraer la imagen del artículo.');
+               }
+            }
+         }
+         
          $this->exists = TRUE;
       }
       else
@@ -264,7 +308,6 @@ class articulo extends fs_model
          $this->codsubcuentairpfcom = NULL;
          
          $this->imagen = NULL;
-         $this->has_imagen = FALSE;
          $this->exists = FALSE;
       }
       
@@ -274,22 +317,17 @@ class articulo extends fs_model
    
    protected function install()
    {
-      /// la tabla articulos tiene claves ajeas a familias,fabricantes impuestos y stocks
-      new familia();
+      /**
+       * La tabla articulos tiene una clave ajea a impuestos, por eso creamos
+       * un objeto impuesto, para forzar la comprobación de esa tabla.
+       */
       new impuesto();
-      new fabricante();
       
+      /**
+       * Limpiamos la caché por si el usuario ha borrado la tabla, pero ya tenía
+       * búsquedas.
+       */
       $this->clean_cache();
-      
-      /// borramos todas las imágenes de artículos
-      if( file_exists('tmp/articulos') )
-      {
-         foreach(glob('tmp/articulos/*') as $file)
-         {
-            if( is_file($file) )
-               unlink($file);
-         }
-      }
       
       return '';
    }
@@ -345,6 +383,30 @@ class articulo extends fs_model
       }
       else
          return "index.php?page=ventas_articulo&ref=".urlencode($this->referencia);
+   }
+   
+   /**
+    * Devuelve una nueva referencia, la siguiente a la última de la base de datos.
+    */
+   public function get_new_referencia()
+   {
+      if( strtolower(FS_DB_TYPE) == 'postgresql' )
+      {
+         $sql = "SELECT referencia from articulos where referencia ~ '^\d+$' ORDER BY referencia DESC";
+      }
+      else
+      {
+         $sql = "SELECT referencia from articulos where referencia REGEXP '^[0-9]+$' ORDER BY referencia DESC";
+      }
+      
+      $ref = 1;
+      $data = $this->db->select_limit($sql, 1, 0);
+      if($data)
+      {
+         $ref = sprintf(1 + intval($data[0]['referencia']));
+      }
+      
+      return $ref;
    }
    
    /**
@@ -512,62 +574,52 @@ class articulo extends fs_model
    
    public function imagen_url()
    {
-      if( $this->has_imagen )
+      if( file_exists('images/articulos/'.$this->referencia.'-1.png') )
       {
-         if( file_exists('tmp/articulos/'.$this->referencia.'.png') )
-         {
-            return 'tmp/articulos/'.$this->referencia.'.png';
-         }
-         else
-         {
-            if( is_null($this->imagen) )
-            {
-               $imagen = $this->db->select("SELECT imagen FROM ".$this->table_name." WHERE referencia = ".$this->var2str($this->referencia).";");
-               if($imagen)
-               {
-                  $this->imagen = $this->str2bin($imagen[0]['imagen']);
-               }
-               else
-                  $this->has_imagen = FALSE;
-            }
-            
-            if( isset($this->imagen) )
-            {
-               if( !file_exists('tmp/articulos') )
-               {
-                  @mkdir('tmp/articulos');
-               }
-               
-               $f = @fopen('tmp/articulos/'.$this->referencia.'.png', 'a');
-               if($f)
-               {
-                  fwrite($f, $this->imagen);
-                  fclose($f);
-                  return 'tmp/articulos/'.$this->referencia.'.png';
-               }
-               else
-                  return FALSE;
-            }
-            else
-               return FALSE;
-         }
+         return 'images/articulos/'.$this->referencia.'-1.png';
+      }
+      else if( file_exists('images/articulos/'.$this->referencia.'-1.jpg') )
+      {
+         return 'images/articulos/'.$this->referencia.'-1.jpg';
       }
       else
          return FALSE;
    }
    
-   public function set_imagen($img)
+   public function set_imagen($img, $png = TRUE)
    {
-      if( is_null($img) )
+      $this->imagen = NULL;
+      
+      if( file_exists('images/articulos/'.$this->referencia.'-1.png') )
       {
-         $this->imagen = NULL;
-         $this->has_imagen = FALSE;
-         $this->clean_image_cache();
+         unlink('images/articulos/'.$this->referencia.'-1.png');
       }
-      else
+      else if( file_exists('images/articulos/'.$this->referencia.'-1.jpg') )
       {
-         $this->imagen = $img;
-         $this->has_imagen = TRUE;
+         unlink('images/articulos/'.$this->referencia.'-1.jpg');
+      }
+      
+      if($img)
+      {
+         if( !file_exists('images/articulos') )
+         {
+            @mkdir('images/articulos', 0777, TRUE);
+         }
+         
+         if($png)
+         {
+            $f = @fopen('images/articulos/'.$this->referencia.'-1.png', 'a');
+         }
+         else
+         {
+            $f = @fopen('images/articulos/'.$this->referencia.'-1.jpg', 'a');
+         }
+         
+         if($f)
+         {
+            fwrite($f, $img);
+            fclose($f);
+         }
       }
    }
    
@@ -601,9 +653,16 @@ class articulo extends fs_model
       }
       else if( $ref != $this->referencia AND !is_null($this->referencia) )
       {
-         $sql = "UPDATE ".$this->table_name." SET referencia = ".$this->var2str($ref)." WHERE referencia = ".$this->var2str($this->referencia).";";
+         $sql = "UPDATE ".$this->table_name." SET referencia = ".$this->var2str($ref)
+                 ." WHERE referencia = ".$this->var2str($this->referencia).";";
          if( $this->db->exec($sql) )
          {
+            /// renombramos la imagen, si la hay
+            if( file_exists('images/articulos/'.$this->referencia.'-1.png') )
+            {
+               rename('images/articulos/'.$this->referencia.'-1.png', 'images/articulos/'.$ref.'-1.png');
+            }
+            
             $this->referencia = $ref;
          }
          else
@@ -806,24 +865,6 @@ class articulo extends fs_model
    {
       $status = FALSE;
       
-      /// cargamos la imágen si todavía no lo habíamos hecho
-      if( $this->has_imagen )
-      {
-         if( is_null($this->imagen) )
-         {
-            $imagen = $this->db->select("SELECT imagen FROM ".$this->table_name." WHERE referencia = ".$this->var2str($this->referencia).";");
-            if($imagen)
-            {
-               $this->imagen = $this->str2bin($imagen[0]['imagen']);
-            }
-            else
-            {
-               $this->imagen = NULL;
-               $this->has_imagen = FALSE;
-            }
-         }
-      }
-      
       $this->descripcion = $this->no_html($this->descripcion);
       $this->codbarras = $this->no_html($this->codbarras);
       $this->observaciones = $this->no_html($this->observaciones);
@@ -862,7 +903,6 @@ class articulo extends fs_model
       if( $this->test() )
       {
          $this->clean_cache();
-         $this->clean_image_cache();
          
          if( $this->exists() )
          {
@@ -887,7 +927,7 @@ class articulo extends fs_model
                     ", codbarras = ".$this->var2str($this->codbarras).
                     ", observaciones = ".$this->var2str($this->observaciones).
                     ", tipo = ".$this->var2str($this->tipo).
-                    ", imagen = ".$this->bin2str($this->imagen).
+                    ", imagen = ".$this->var2str($this->imagen).
                     ", codsubcuentacom = ".$this->var2str($this->codsubcuentacom).
                     ", codsubcuentairpfcom = ".$this->var2str($this->codsubcuentairpfcom).
                     " WHERE referencia = ".$this->var2str($this->referencia).";";
@@ -923,7 +963,7 @@ class articulo extends fs_model
                     $this->var2str($this->equivalencia).",".
                     $this->var2str($this->codbarras).",".
                     $this->var2str($this->observaciones).",".
-                    $this->bin2str($this->imagen).",".
+                    $this->var2str($this->imagen).",".
                     $this->var2str($this->publico).",".
                     $this->var2str($this->tipo).",".
                     $this->var2str($this->codsubcuentacom).",".
@@ -949,9 +989,8 @@ class articulo extends fs_model
    public function delete()
    {
       $this->clean_cache();
-      $this->clean_image_cache();
       
-      $sql = "DELETE FROM articulosprov WHERE referencia = ".$this->var2str($this->referencia).";";
+      $sql  = "DELETE FROM articulosprov WHERE referencia = ".$this->var2str($this->referencia).";";
       $sql .= "DELETE FROM ".$this->table_name." WHERE referencia = ".$this->var2str($this->referencia).";";
       if( $this->db->exec($sql) )
       {
@@ -1038,17 +1077,6 @@ class articulo extends fs_model
          
          /// guardamos en memcache la lista de búsquedas
          $this->cache->set('articulos_searches', self::$search_tags, 5400);
-      }
-   }
-   
-   private function clean_image_cache()
-   {
-      if( file_exists('tmp/articulos/'.$this->referencia.'.png') )
-      {
-         if( !@unlink('tmp/articulos/'.$this->referencia.'.png') )
-         {
-            $this->new_error_msg('Error al borrar tmp/articulos/'.$this->referencia.'.png');
-         }
       }
    }
    

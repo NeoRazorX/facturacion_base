@@ -2,6 +2,17 @@
 
 {if="$fsc->factura"}
 <script type="text/javascript">
+   function check_enviar_copia()
+   {
+      if($("#copia").is(":checked"))
+      {
+         $("#checked_copia").prop("disabled",false);
+      }
+      else
+      {
+         $("#checked_copia").prop("disabled",true);
+      }
+   }
    $(document).ready(function() {
       $("#b_imprimir").click(function(event) {
          event.preventDefault();
@@ -198,14 +209,14 @@
                      <tr>
                         <th class="text-left"><span class="text-capitalize">{#FS_ALBARAN#}</span></th>
                         <th class="text-left">Artículo</th>
-                        <th class="text-right">Cantidad</th>
-                        <th class="text-right">Precio</th>
-                        <th class="text-right">Dto</th>
-                        <th class="text-right">Neto</th>
-                        <th class="text-right">{#FS_IVA#}</th>
-                        <th class="recargo text-right">RE</th>
-                        <th class="irpf text-right">{#FS_IRPF#}</th>
-                        <th class="text-right">Total</th>
+                        <th class="text-right" width="70">Cantidad</th>
+                        <th class="text-right" width="80">Precio</th>
+                        <th class="text-right" width="70">Dto</th>
+                        <th class="text-right" width="80">Neto</th>
+                        <th class="text-right" width="70">{#FS_IVA#}</th>
+                        <th class="text-right recargo" width="70">RE</th>
+                        <th class="text-right irpf" width="70">{#FS_IRPF#}</th>
+                        <th class="text-right" width="90">Total</th>
                      </tr>
                   </thead>
                   {loop="$fsc->factura->get_lineas()"}
@@ -218,7 +229,7 @@
                         -
                         {/if}
                      </td>
-                     <td><a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion}</td>
+                     <td><a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion()}</td>
                      <td class="text-right">{$value->cantidad}</td>
                      <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->factura->coddivisa)}</td>
                      <td class="text-right">{$fsc->show_numero($value->dtopor, 2)} %</td>
@@ -238,6 +249,16 @@
                      <td class="text-right"><b>{$fsc->show_precio($fsc->factura->total, $fsc->factura->coddivisa)}</b></td>
                   </tr>
                </table>
+            </div>
+            <div class="container-fluid">
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="form-group">
+                        Observaciones:
+                        <textarea class="form-control" name="observaciones" rows="3">{$fsc->factura->observaciones}</textarea>
+                     </div>
+                  </div>
+               </div>
             </div>
          </div>
          <div role="tabpanel" class="tab-pane" id="lineas_iva">
@@ -277,17 +298,6 @@
          {/loop}
       </div>
    </div>
-   
-   <div class="container-fluid">
-      <div class="row">
-         <div class="col-lg-12 col-md-12 col-sm-12">
-            <div class="form-group">
-               Observaciones:
-               <textarea class="form-control" name="observaciones" rows="3">{$fsc->factura->observaciones}</textarea>
-            </div>
-         </div>
-      </div>
-   </div>
 </form>
 
 <div class="modal fade" id="modal_imprimir">
@@ -296,6 +306,9 @@
          <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title">Imprimir {#FS_FACTURA#}</h4>
+            <p class="help-block">
+               Más formatos en la <a href="https://www.facturascripts.com/store" target="_blank">tienda de plugins</a>.
+            </p>
          </div>
          <div class="modal-body">
          {loop="$fsc->extensions"}
@@ -328,6 +341,13 @@
                   <input class="form-control" type="text" name="email" value="{$fsc->cliente->email}" autocomplete="off"/>
                </div>
                <div class="form-group">
+                  <label>
+                     <input id="copia" onclick="check_enviar_copia()" type="checkbox" name="concopia" value="TRUE"/>
+                     Enviar copia:
+                  </label>
+                  <input id="checked_copia" class="form-control" type="text" name="email_copia" autocomplete="off" disabled=""/>
+               </div>
+               <div class="form-group">
                   Mensaje:
                   <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto su {#FS_FACTURA#} {$fsc->factura->codigo}.
 {$fsc->empresa->email_firma}</textarea>
@@ -351,9 +371,13 @@
          <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title">¿Realmente desea eliminar esta {#FS_FACTURA#}?</h4>
+            <p class="help-block">
+               Puedes editar facturas usando el plugin
+               <a href="https://www.facturascripts.com/store/producto/plugin-editar-facturas/" target="_blank">editar facturas</a>.
+            </p>
          </div>
          {if="$fsc->factura->idasiento"}
-         <div class="modal-body">
+         <div class="modal-body bg-warning">
             Hay asociado un asiento contable que será eliminado junto con la {#FS_FACTURA#}.
             <br/>
             Además, si no hay asociado un {#FS_ALBARAN#} o {#FS_ALBARANES#},

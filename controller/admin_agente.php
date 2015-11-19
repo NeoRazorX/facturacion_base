@@ -104,20 +104,14 @@ class admin_agente extends fs_controller
    
    private function user_can_edit()
    {
-      if( FS_DEMO AND $this->user->codagente == $this->agente->codagente )
+      if(FS_DEMO)
       {
-         return TRUE;
-      }
-      else if( $this->user->admin )
-      {
-         return TRUE;
-      }
-      else if($this->user->codagente == $this->agente->codagente)
-      {
-         return TRUE;
+         return ($this->user->codagente == $this->agente->codagente);
       }
       else
-         FALSE;
+      {
+         return TRUE;
+      }
    }
    
    public function url()

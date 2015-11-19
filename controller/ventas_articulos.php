@@ -120,8 +120,15 @@ class ventas_articulos extends fs_controller
          }
          else
          {
-            $articulo->referencia = $_POST['referencia'];
-            $articulo->descripcion = $_POST['referencia'];
+            if($_POST['referencia'] == '')
+            {
+               $articulo->referencia = $articulo->get_new_referencia();
+            }
+            else
+            {
+               $articulo->referencia = $_POST['referencia'];
+            }
+            $articulo->descripcion = $_POST['descripcion'];
             $articulo->nostock = isset($_POST['nostock']);
             
             if($_POST['codfamilia'] != '')

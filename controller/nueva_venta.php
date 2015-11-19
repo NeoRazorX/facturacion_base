@@ -383,6 +383,10 @@ class nueva_venta extends fs_controller
       /// desactivamos la plantilla HTML
       $this->template = FALSE;
       
+      $fsvar = new fs_var();
+      $multi_almacen = $fsvar->simple_get('multi_almacen');
+      $stock = new stock();
+      
       $articulo = new articulo();
       $codfamilia = '';
       if( isset($_REQUEST['codfamilia']) )
@@ -397,12 +401,18 @@ class nueva_venta extends fs_controller
       $con_stock = isset($_REQUEST['con_stock']);
       $this->results = $articulo->search($this->query, 0, $codfamilia, $con_stock, $codfabricante);
       
-      /// añadimos la busqueda, el descuento y la cantidad
+      /// añadimos la busqueda, el descuento, la cantidad, etc...
       foreach($this->results as $i => $value)
       {
          $this->results[$i]->query = $this->query;
          $this->results[$i]->dtopor = 0;
          $this->results[$i]->cantidad = 1;
+         
+         $this->results[$i]->stockalm = $this->results[$i]->stockfis;
+         if( $multi_almacen AND isset($_REQUEST['codalmacen']) )
+         {
+            $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
+         }
       }
       
       /// ejecutamos las funciones de las extensiones
@@ -419,18 +429,21 @@ class nueva_venta extends fs_controller
       if( isset($_REQUEST['codcliente']) )
       {
          $cliente = $this->cliente->get($_REQUEST['codcliente']);
-         if($cliente->codgrupo)
+         if($cliente)
          {
-            $grupo0 = new grupo_clientes();
-            $tarifa0 = new tarifa();
-            
-            $grupo = $grupo0->get($cliente->codgrupo);
-            if($grupo)
+            if($cliente->codgrupo)
             {
-               $tarifa = $tarifa0->get($grupo->codtarifa);
-               if($tarifa)
+               $grupo0 = new grupo_clientes();
+               $tarifa0 = new tarifa();
+               
+               $grupo = $grupo0->get($cliente->codgrupo);
+               if($grupo)
                {
-                  $tarifa->set_precios($this->results);
+                  $tarifa = $tarifa0->get($grupo->codtarifa);
+                  if($tarifa)
+                  {
+                     $tarifa->set_precios($this->results);
+                  }
                }
             }
          }

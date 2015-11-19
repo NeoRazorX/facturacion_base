@@ -311,19 +311,19 @@ class subcuenta extends fs_model
       $limpiar_cache = FALSE;
       $totales = $this->get_totales();
       
-      if( abs($this->debe - $totales['debe']) > .01 )
+      if( abs($this->debe - $totales['debe']) > .001 )
       {
          $this->debe = $totales['debe'];
          $limpiar_cache = TRUE;
       }
       
-      if( abs($this->haber - $totales['haber']) > .01 )
+      if( abs($this->haber - $totales['haber']) > .001 )
       {
          $this->haber = $totales['haber'];
          $limpiar_cache = TRUE;
       }
       
-      if( abs($this->saldo - $totales['saldo']) > .01 )
+      if( abs($this->saldo - $totales['saldo']) > .001 )
       {
          $this->saldo = $totales['saldo'];
          $limpiar_cache = TRUE;

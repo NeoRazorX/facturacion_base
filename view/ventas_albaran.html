@@ -35,6 +35,18 @@
 </script>
 {else}
 <script type="text/javascript">
+   function check_enviar_copia()
+   {
+      if($("#copia").is(":checked"))
+      {
+         $("#checked_copia").prop("disabled",false);
+      }
+      else
+      {
+         $("#checked_copia").prop("disabled",true);
+      }
+   }
+   
    $(document).ready(function() {
       {if="$fsc->albaran->totalrecargo==0"}
       $(".recargo").hide();
@@ -238,8 +250,8 @@
                         <th class="text-right" width="90">Dto. %</th>
                         <th class="text-right" width="130">Neto</th>
                         <th class="text-right" width="115">{#FS_IVA#}</th>
-                        <th class="text-right recargo">RE %</th>
-                        <th class="text-right irpf">{#FS_IRPF#} %</th>
+                        <th class="text-right recargo" width="115">RE %</th>
+                        <th class="text-right irpf" width="115">{#FS_IRPF#} %</th>
                         <th class="text-right" width="140">Total</th>
                      </tr>
                   </thead>
@@ -309,12 +321,14 @@
                   <tbody>
                      <tr class="bg-info">
                         <td><input id="i_new_line" class="form-control" type="text" placeholder="Buscar para añadir..." autocomplete="off"/></td>
-                        <td>
+                        <td colspan="3">
                            <a href="#" class="btn btn-sm btn-default" title="Añadir sin buscar" onclick="return add_linea_libre()">
                               <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                            </a>
                         </td>
-                        <td colspan="4" class="text-right">Totales:</td>
+                        <td colspan="2">
+                           <div class="form-control text-right">Totales</div>
+                        </td>
                         <td><div id="aneto" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div></td>
                         <td><div id="aiva" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div></td>
                         <td class="recargo">
@@ -328,6 +342,7 @@
                                   value="0" onchange="recalcular()" autocomplete="off"/>
                         </td>
                      </tr>
+                     {if="$fsc->user->admin"}
                      <tr>
                         <td colspan="6"></td>
                         <td class="text-right">{$fsc->show_precio($fsc->albaran->neto)}</td>
@@ -336,32 +351,36 @@
                         <td class="irpf text-right">{$fsc->show_precio($fsc->albaran->totalirpf)}</td>
                         <td class="text-right">{$fsc->show_precio($fsc->albaran->total)}</td>
                      </tr>
+                     {/if}
                   </tbody>
                </table>
                {else}
                <table class="table table-hover">
                   <thead>
                      <tr>
+                        <th width="40"></th>
                         <th class="text-left">Artículo</th>
-                        <th class="text-right">Cantidad</th>
-                        <th class="text-right">Precio</th>
-                        <th class="text-right">Dto</th>
-                        <th class="text-right">Neto</th>
-                        <th class="text-right">{#FS_IVA#}</th>
-                        <th class="text-right recargo">RE</th>
-                        <th class="text-right irpf">{#FS_IRPF#}</th>
-                        <th class="text-right">Total</th>
+                        <th class="text-right" width="70">Cantidad</th>
+                        <th class="text-right" width="80">Precio</th>
+                        <th class="text-right" width="70">Dto</th>
+                        <th class="text-right" width="80">Neto</th>
+                        <th class="text-right" width="70">{#FS_IVA#}</th>
+                        <th class="text-right recargo" width="70">RE</th>
+                        <th class="text-right irpf" width="70">{#FS_IRPF#}</th>
+                        <th class="text-right" width="90">Total</th>
                      </tr>
                   </thead>
                   {loop="$fsc->albaran->get_lineas()"}
                   <tr{if="$value->cantidad<=0"} class="bg-warning"{/if}>
                      <td>
                         {if="$value->idlineapedido"}
-                        <a target="_blank" href="index.php?page=ventas_pedido&id={$value->idpedido}" title="ver {#FS_PEDIDO#}">
-                           <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
-                        </a> &nbsp;
+                        <a target="_blank" href="index.php?page=ventas_pedido&id={$value->idpedido}" class="btn btn-xs btn-default">
+                           <span class="glyphicon glyphicon-paperclip" aria-hidden="true" title="ver {#FS_PEDIDO#}"></span>
+                        </a>
                         {/if}
-                        <a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion}
+                     </td>
+                     <td>
+                        <a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion()}
                      </td>
                      <td class="text-right">{$value->cantidad}</td>
                      <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->albaran->coddivisa)}</td>
@@ -374,7 +393,7 @@
                   </tr>
                   {/loop}
                   <tr>
-                     <td colspan="4"></td>
+                     <td colspan="5"></td>
                      <td class="text-right"><b>{$fsc->show_precio($fsc->albaran->neto, $fsc->albaran->coddivisa)}</b></td>
                      <td class="text-right"><b>{$fsc->show_precio($fsc->albaran->totaliva, $fsc->albaran->coddivisa)}</b></td>
                      <td class="text-right recargo"><b>{$fsc->show_precio($fsc->albaran->totalrecargo, $fsc->albaran->coddivisa)}</b></td>
@@ -383,6 +402,16 @@
                   </tr>
                </table>
                {/if}
+            </div>
+            <div class="container-fluid">
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="form-group">
+                        Observaciones:
+                        <textarea class="form-control" name="observaciones" rows="3">{$fsc->albaran->observaciones}</textarea>
+                     </div>
+                  </div>
+               </div>
             </div>
          </div>
          {if="$fsc->albaran->ptefactura"}
@@ -486,17 +515,6 @@
          {/loop}
       </div>
    </div>
-   
-   <div class="container-fluid">
-      <div class="row">
-         <div class="col-md-12">
-            <div class="form-group">
-               Observaciones:
-               <textarea class="form-control" name="observaciones" rows="3">{$fsc->albaran->observaciones}</textarea>
-            </div>
-         </div>
-      </div>
-   </div>
 </form>
 
 <div class="modal" id="modal_articulos">
@@ -509,6 +527,7 @@
          <div class="modal-body">
             <form id="f_buscar_articulos" name="f_buscar_articulos" action="{$fsc->url()}" method="post" class="form">
                <input type="hidden" name="codcliente" value="{$fsc->albaran->codcliente}"/>
+               <input type="hidden" name="codalmacen" value="{$fsc->albaran->codalmacen}"/>
                <div class="container-fluid">
                   <div class="row">
                      <div class="col-sm-4">
@@ -643,6 +662,9 @@
          <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title">Imprimir {#FS_ALBARAN#}</h4>
+            <p class="help-block">
+               Más formatos en la <a href="https://www.facturascripts.com/store" target="_blank">tienda de plugins</a>.
+            </p>
          </div>
          <div class="modal-body">
          {loop="$fsc->extensions"}
@@ -674,6 +696,13 @@
                   <input class="form-control" type="text" name="email" value="{$fsc->cliente_s->email}" autocomplete="off"/>
                </div>
                <div class="form-group">
+                  <label>
+                     <input id="copia" onclick="check_enviar_copia()" type="checkbox" name="concopia" value="TRUE"/>
+                     Enviar copia:
+                  </label>
+                  <input id="checked_copia" class="form-control" type="text" name="email_copia" autocomplete="off" disabled=""/>
+               </div>
+               <div class="form-group">
                   Mensaje:
                   <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto su {#FS_ALBARAN#} {$fsc->albaran->codigo}.
 {$fsc->empresa->email_firma}</textarea>
@@ -700,6 +729,11 @@
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">¿Realmente desea eliminar este {#FS_ALBARAN#}?</h4>
             </div>
+            {if="$fsc->albaran->idfactura"}
+            <div class="modal-body bg-warning">
+               Hay una {#FS_FACTURA#} asociada que será eliminada junto con este {#FS_ALBARAN#}.
+            </div>
+            {/if}
             <div class="modal-footer">
                <div class="pull-left">
                   <label>
@@ -711,11 +745,6 @@
                   <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
                </button>
             </div>
-            {if="$fsc->albaran->idfactura"}
-            <div class="alert alert-info">
-               Hay una {#FS_FACTURA#} asociada que será eliminada junto con este {#FS_ALBARAN#}.
-            </div>
-            {/if}
          </div>
       </div>
    </div>

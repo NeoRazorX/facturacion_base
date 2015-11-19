@@ -95,6 +95,11 @@
                {/loop}
             </table>
          </div>
+         {if="$fsc->articulo->imagen_url()"}
+         <div class="thumbnail">
+            <img src="{$fsc->articulo->imagen_url()}" alt="{$fsc->articulo->referencia}"/>
+         </div>
+         {/if}
       </div>
       {if="$equivalentes"}
       <div role="tabpanel" class="tab-pane" id="detalle_equivalentes">
@@ -125,7 +130,7 @@
                   <td class="text-right">{$value->stockfis}</td>
                </tr>
                {else}
-               <tr class="bg-warning">
+               <tr class="warning">
                   <td colspan="4" class="text-center">No hay artículos equivalentes.</td>
                </tr>
                {/loop}

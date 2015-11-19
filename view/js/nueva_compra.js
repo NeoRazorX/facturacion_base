@@ -139,7 +139,7 @@ function recalcular()
    $("#aneto").html( show_numero(neto) );
    $("#aiva").html( show_numero(total_iva) );
    $("#are").html( show_numero(total_recargo) );
-   $("#airpf").html( '-'+show_numero(total_irpf) );
+   $("#airpf").html( show_numero(total_irpf) );
    $("#atotal").val( neto + total_iva - total_irpf + total_recargo );
    
    if(total_recargo == 0 && !tiene_recargo)
@@ -416,23 +416,37 @@ function new_articulo()
          dataType: 'json',
          data: $("form[name=f_nuevo_articulo]").serialize(),
          success: function(datos) {
-            document.f_buscar_articulos.query.value = document.f_nuevo_articulo.referencia.value;
-            $("#nav_articulos li").each(function() {
-               $(this).removeClass("active");
-            });
-            $("#li_mis_articulos").addClass('active');
-            $("#search_results").html('');
-            $("#search_results").show('');
-            $("#kiwimaru_results").hide();
-            $("#nuevo_articulo").hide();
-            
-            if(precio_compra == 'coste')
+            if(typeof datos[0] == 'undefined')
             {
-               add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].coste, 0, datos[0].codimpuesto);
+               if(document.f_nuevo_articulo.referencia.value == '')
+               {
+                  alert('Debes escribir una referencia.');
+               }
+               else
+               {
+                  alert('Se ha producido un error al crear el artículo.');
+               }
             }
             else
             {
-               add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].pvp, 0, datos[0].codimpuesto);
+               document.f_buscar_articulos.query.value = document.f_nuevo_articulo.referencia.value;
+               $("#nav_articulos li").each(function() {
+                  $(this).removeClass("active");
+               });
+               $("#li_mis_articulos").addClass('active');
+               $("#search_results").html('');
+               $("#search_results").show('');
+               $("#kiwimaru_results").hide();
+               $("#nuevo_articulo").hide();
+               
+               if(precio_compra == 'coste')
+               {
+                  add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].coste, 0, datos[0].codimpuesto);
+               }
+               else
+               {
+                  add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].pvp, 0, datos[0].codimpuesto);
+               }
             }
          }
       });
@@ -475,15 +489,15 @@ function buscar_articulos()
                var tr_aux = '<tr>';
                if(val.bloqueado)
                {
-                  tr_aux = "<tr class=\"bg-danger\">";
+                  tr_aux = "<tr class=\"danger\">";
                }
                else if(val.stockfis < val.stockmin)
                {
-                  tr_aux = "<tr class=\"bg-warning\">";
+                  tr_aux = "<tr class=\"warning\">";
                }
                else if(val.stockfis > val.stockmax)
                {
-                  tr_aux = "<tr class=\"bg-success\">";
+                  tr_aux = "<tr class=\"success\">";
                }
                
                if(val.secompra)
@@ -511,7 +525,7 @@ function buscar_articulos()
             
             if(items.length == 0 && !fin_busqueda1)
             {
-               items.push("<tr><td colspan=\"4\" class=\"bg-warning\">Sin resultados. Usa la pestaña\n\
+               items.push("<tr><td colspan=\"4\" class=\"warning\">Sin resultados. Usa la pestaña\n\
                               <b>Nuevo</b> para crear uno.</td></tr>");
                document.f_nuevo_articulo.referencia.value = document.f_buscar_articulos.query.value;
                insertar = true;
@@ -551,7 +565,7 @@ function buscar_articulos()
             
             if(items.length == 0 && !fin_busqueda2)
             {
-               items.push("<tr><td colspan=\"3\" class=\"bg-warning\">Sin resultados.</td></tr>");
+               items.push("<tr><td colspan=\"3\" class=\"warning\">Sin resultados.</td></tr>");
                insertar = true;
             }
             
