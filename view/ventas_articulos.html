@@ -210,24 +210,20 @@
                               </select>
                            </div>
                         </div>
-                        <div class='col-sm-1{if="$fsc->b_constock"} has-success{/if}'>
-                           <div class="checkbox">
+                        <div class='col-sm-3'>
+                           <div class="checkbox-inline">
                               <label>
                                  <input type="checkbox" name="b_constock"{if="$fsc->b_constock"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
                                  Con stock
                               </label>
                            </div>
-                        </div>
-                        <div class='col-sm-1{if="$fsc->b_bloqueados"} has-success{/if}'>
-                           <div class="checkbox">
+                           <div class="checkbox-inline">
                               <label>
                                  <input type="checkbox" name="b_bloqueados"{if="$fsc->b_bloqueados"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
                                  Bloqueados
                               </label>
                            </div>
-                        </div>
-                        <div class='col-sm-1{if="$fsc->b_publicos"} has-success{/if}'>
-                           <div class="checkbox">
+                           <div class="checkbox-inline">
                               <label>
                                  <input type="checkbox" name="b_publicos"{if="$fsc->b_publicos"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
                                  Públicos
@@ -252,6 +248,7 @@
                         <div class="col-sm-1">
                            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Quitar filtros">
                               <span class="glyphicon glyphicon-erase"></span>
+                              <span class="visible-xs">&nbsp; Quitar filtros</span>
                            </a>
                         </div>
                      </div>
@@ -259,6 +256,9 @@
                </div>
             </div>
          </form>
+         <div class="visible-xs">
+            <br/>
+         </div>
          <div class="table-responsive">
             <table class="table table-hover">
                <thead>
@@ -334,7 +334,7 @@
                   </tr>
                </thead>
                {loop="$fsc->tarifa->all()"}
-               <form action="{$fsc->url()}&mostrar=tarifas" method="post" class="form">
+               <form action="{$fsc->url()}#tarifas" method="post" class="form">
                   <input type="hidden" name="codtarifa" value="{$value->codtarifa}"/>
                   <tr>
                      <td><div class="form-control">{$value->codtarifa}</div></td>
@@ -389,7 +389,7 @@
                   </tr>
                </form>
                {/loop}
-               <form name="f_nueva_tarifa" action="{$fsc->url()}&mostrar=tarifas" method="post" class="form">
+               <form name="f_nueva_tarifa" action="{$fsc->url()}#tarifas" method="post" class="form">
                   <tr class="info">
                      <td>
                         <input class="form-control" type="text" name="codtarifa" value="{$fsc->tarifa->get_new_codigo()}" maxlength="6" autocomplete="off"/>
