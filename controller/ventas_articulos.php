@@ -23,21 +23,21 @@ require_model('fabricante.php');
 require_model('impuesto.php');
 require_model('tarifa.php');
 
+
 class ventas_articulos extends fs_controller
 {
    public $allow_delete;
-   public $bloqueados;
-   public $buscar;
    public $codfamilia;
-   public $con_stock;
    public $familia;
    public $fabricante; 
    public $codfabricante;   
    public $impuesto;
-   public $mostrar_tab_tarifas;
+   public $mostrar;
    public $offset;
    public $resultados;
+   public $total_resultados;
    public $tarifa;
+   public $refauto;
    
    public function __construct()
    {
@@ -55,20 +55,29 @@ class ventas_articulos extends fs_controller
       $this->impuesto = new impuesto();
       $this->tarifa = new tarifa();
       
-      /**
-       * Si hay alguna extensión de tipo config y texto no_tab_tarifas,
-       * desactivamos la pestaña tarifas.
-       */
-      $this->mostrar_tab_tarifas = TRUE;
-      foreach($this->extensions as $ext)
-      {
-         if($ext->type == 'config' AND $ext->text == 'no_tab_tarifas')
-         {
-            $this->mostrar_tab_tarifas = FALSE;
-            break;
-         }
-      }
       
+      
+      //cargamos la configuración del estado de referencia.
+       $fsvar = new fs_var();
+       $this->refauto = $fsvar->array_get(
+         array(
+            'refauto' => 0,
+         ),
+         FALSE
+      );
+       
+       //modificamos la referencia auto en función del último valor.
+       if( isset($_POST['ref_auto']))
+       {
+           $this->refauto['refauto'] = 1;
+       }
+       if(isset($_POST['referencia']))
+       {
+           $this->refauto['refauto'] = 0;
+       }
+       $fsvar->array_save($this->refauto);
+       
+      $this->mostrar = '';
       if( isset($_POST['codtarifa']) )
       {
          /// crear/editar tarifa
@@ -84,7 +93,7 @@ class ventas_articulos extends fs_controller
          $tar0->set_y( floatval($_POST['inclineal']) );
          $tar0->mincoste = isset($_POST['mincoste']);
          $tar0->maxpvp = isset($_POST['maxpvp']);
-         
+         $this->mostrar = '';
          if( $tar0->save() )
          {
             $this->new_message("Tarifa guardada correctamente.");
@@ -108,9 +117,9 @@ class ventas_articulos extends fs_controller
          else
             $this->new_error_msg("¡La tarifa no existe!");
       }
-      else if( isset($_POST['referencia']) AND isset($_POST['codfamilia']) AND isset($_POST['codimpuesto']) )
+      /// nuevo artículo
+            else if( isset($_POST['referencia']) AND isset($_POST['codfamilia']) AND isset($_POST['codimpuesto']) )
       {
-         /// nuevo artículo
          $this->save_codimpuesto( $_POST['codimpuesto'] );
          
          $art0 = $articulo->get($_POST['referencia']);
@@ -166,163 +175,308 @@ class ventas_articulos extends fs_controller
          }
       }
       
-      /// recogemos los datos necesarios para la búsqueda
-      $this->buscar = FALSE;
-      $this->codfamilia = '';
-      if( isset($_REQUEST['codfamilia']) )
+      //datos para búsquedas:
+      $this->offset = 0;
+      if( isset($_REQUEST['offset']) )
       {
-         $this->codfamilia = $_REQUEST['codfamilia'];
-         $this->buscar = TRUE;
+         $this->offset = ($_REQUEST['offset']);
       }
       
       $this->codfabricante = '';
       if( isset($_REQUEST['codfabricante']) )
       {
          $this->codfabricante = $_REQUEST['codfabricante'];
-         $this->buscar = TRUE;
       }
       
-      $this->con_stock = isset($_REQUEST['con_stock']);
-      $this->bloqueados = isset($_REQUEST['bloqueados']);
-      
-      if( isset($_REQUEST['query']) OR $this->con_stock OR $this->bloqueados )
+      $this->codfamilia = '';
+      if( isset($_REQUEST['codfamilia']) )
       {
-         $this->buscar = TRUE;
+         $this->codfamilia = $_REQUEST['codfamilia'];
       }
       
-      $this->offset = 0;
-      if( isset($_GET['offset']) )
+      //Tarifa a usar:
+      $this->cod_tarifa = '';
+      if( isset($_REQUEST['cod_tarifa']) )
       {
-         $this->offset = intval($_GET['offset']);
+         $this->cod_tarifa = ($_REQUEST['cod_tarifa']);
+         setcookie('cod_tarifa', $this->cod_tarifa, time()+FS_COOKIES_EXPIRE);
       }
+      else if( isset($_COOKIE['cod_tarifa']) )
+         $this->cod_tarifa = $_COOKIE['cod_tarifa']; 
       
-      if( isset($_GET['solo_stock']) )
+      //obtenemos el orden
+      $this->orden = '';
+      $this->order =' referencia ASC';
+      if( isset($_GET['orden']))
       {
-         $this->resultados = $articulo->search('', $this->offset, '', TRUE);
+        $this->orden = $_GET['orden'];
       }
-      else if( isset($_GET['public']) )
-      {
-         $this->resultados = $articulo->all_publico($this->offset);
+      else if( isset($_COOKIE['ventas_articulos_orden']))
+      { 
+        $this->orden = $_COOKIE['ventas_articulos_orden'];
       }
       else
       {
-         $this->resultados = $articulo->search(
-                 $this->query,
-                 $this->offset,
-                 $this->codfamilia,
-                 $this->con_stock,
-                 $this->codfabricante,
-                 $this->bloqueados
-         );
+          $this->orden = 'descmin';
       }
+      
+      //aplicamos el orden 
+      if($this->orden == 'stockmin')
+        {
+           $this->order = ' stockfis ASC';  
+        }
+      else if($this->orden == 'stockmax')
+        {
+           $this->order = ' stockfis DESC'; 
+        }
+      else if($this->orden == 'refmin')
+        {
+           if( strtolower(FS_DB_TYPE) == 'postgresql')
+            {
+               $this->order =" case
+                                   when substring(referencia from '^\d+$') is null then 9999
+                                   else cast(referencia as integer)
+                                 end ASC,
+                                 referencia";
+            }
+            else
+            {
+                $this->order = ' cast(referencia as decimal(38,10)) ASC';
+            } 
+        }
+      else if($this->orden == 'refmax')
+        {
+           if( strtolower(FS_DB_TYPE) == 'postgresql')
+            {
+               $this->order =" case
+                                   when substring(referencia from '^\d+$') is null then 9999
+                                   else cast(referencia as integer)
+                                 end DESC,
+                                 referencia ";
+            }
+            else
+            {
+                $this->order = ' cast(referencia as decimal(38,10)) DESC';
+            }           
+        }
+        else if($this->orden == 'descmin')
+            {
+               $this->order = ' descripcion ASC';  
+            }
+        else if($this->orden == 'descmax')
+            {
+               $this->order = ' descripcion DESC'; 
+            }
+        else if($this->orden == 'preciomin')
+            {
+               //cogemos datos de la tarifa para ordenar: 
+                $tarifa = $this->tarifa->get($this->cod_tarifa);
+                if($tarifa)
+                {
+                   if ($tarifa->aplicar_a == 'coste')
+                   {
+                       $this->order = ' preciocoste ASC';
+                   }
+                   else
+                   {
+                       $this->order = ' pvp ASC';
+                   }
+                }
+                else
+                   {
+                       $this->order = ' pvp ASC';
+                   }
+               
+            }
+        else if($this->orden == 'preciomax')
+            {
+               //cogemos datos de la tarifa para ordenar: 
+                $tarifa = $this->tarifa->get($this->cod_tarifa);
+                if($tarifa)
+                {
+                   if ($tarifa->aplicar_a == 'coste')
+                   {
+                       $this->order = ' preciocoste DESC';
+                   }
+                   else
+                   {
+                       $this->order = ' pvp DESC';
+                   }
+                }
+                else
+                   {
+                       $this->order = ' pvp DESC';
+                   }
+               
+            }
+        setcookie('ventas_articulos_orden', $this->orden, time()+FS_COOKIES_EXPIRE);
+      
+      //cogemos valor de stock:
+      $this->stock = '';
+      if( isset($_REQUEST['stock']))
+      {
+          $this->stock = $_REQUEST['stock']; 
+      }
+      
+      //Publicos
+      $this->publico = '';
+      if( isset($_REQUEST['publico']))
+      {
+          $this->publico = $_REQUEST['publico']; 
+      }
+      
+      //bloqueados / obsoletos
+      $this->bloqueados = '';
+      if( isset($_REQUEST['bloqueados']))
+      {
+          $this->bloqueados = $_REQUEST['bloqueados']; 
+      }
+      
+      //que mostrar
+      if( isset($_REQUEST['mostrar']) )
+      {
+         $this->mostrar = ($_REQUEST['mostrar']);
+      }
+ 
+      $this->search_articulos();   
    }
-   
-   public function anterior_url()
+
+   private function search_articulos()
    {
-      $url = '';
-      $extra = '';
+      $this->resultados = array();
+      $this->num_resultados = 0;
+      $query = $this->empresa->no_html( strtolower($this->query) );
+      $sql = " FROM articulos ";
+      $where = 'WHERE ';
       
-      if( isset($_GET['public']) )
+      if($this->query != '')
       {
-         $extra .= '&public=TRUE';
-      }
-      else if( isset($_GET['solo_stock']) )
-      {
-         $extra .= '&solo_stock=TRUE';
-      }
-      else if($this->buscar)
-      {
-         if($this->query != '')
+         $sql .= $where;
+         if( is_numeric($query) )
          {
-            $extra .= '&query='.$this->query;
+            $sql .= "(referencia LIKE '%".$query."%'"
+                    . "OR descripcion LIKE '%".$query."%'"
+                    . ")";
          }
-         
-         if($this->codfamilia != '')
+         else
          {
-            $extra .= '&codfamilia='.$this->codfamilia;
+            $sql .= "(lower(referencia) LIKE '%".str_replace(' ', '%', $query)."%'"
+                    . "OR lower(descripcion) LIKE '%".$query."%'"
+                    . ")";
          }
-         
-         if($this->codfabricante != '')
-         {
-            $extra .= '&codfabricante='.$this->codfabricante;
-         }
-         
-         if($this->con_stock)
-         {
-            $extra .= '&con_stock=TRUE';
-         }
-         
-         if($this->bloqueados)
-         {
-            $extra .= '&bloqueados=TRUE';
-         }
+         $where = ' AND ';
       }
       
-      if($this->offset > 0)
+      if($this->codfamilia != '')
       {
-         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
+         $sql .= $where."codfamilia = ".$this->empresa->var2str($this->codfamilia);
+         $where = ' AND ';
       }
       
-      return $url;
-   }
-   
-   public function siguiente_url()
-   {
-      $url = '';
-      $extra = '';
-      
-      if( isset($_GET['public']) )
+      if($this->codfabricante != '')
       {
-         $extra .= '&public=TRUE';
-      }
-      else if( isset($_GET['solo_stock']) )
-      {
-         $extra .= '&solo_stock=TRUE';
-      }
-      else if($this->buscar)
-      {
-         if($this->query != '')
-         {
-            $extra .= '&query='.$this->query;
-         }
-         
-         if($this->codfamilia != '')
-         {
-            $extra .= '&codfamilia='.$this->codfamilia;
-         }
-         
-         if($this->codfabricante != '')
-         {
-            $extra .= '&codfabricante='.$this->codfabricante;
-         }
-         
-         if($this->con_stock)
-         {
-            $extra .= '&con_stock=TRUE';
-         }
-         
-         if($this->bloqueados)
-         {
-            $extra .= '&bloqueados=TRUE';
-         }
+         $sql .= $where."codfabricante = ".$this->empresa->var2str($this->codfabricante);
+         $where = ' AND ';
       }
       
-      if( count($this->resultados) == FS_ITEM_LIMIT )
+      if($this->stock != '')
       {
-         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+         $sql .= $where."stockfis > 0";
+         $where = ' AND ';
       }
       
-      return $url;
-   }
-   
-   public function total_articulos()
-   {
-      $data = $this->db->select("SELECT COUNT(referencia) as total FROM articulos;");
+      if($this->publico != '')
+      {
+         $sql .= $where."publico = TRUE";
+         $where = ' AND ';
+      }
+      
+      if($this->bloqueados != '')
+      {
+         $sql .= $where."bloqueado = TRUE";
+         $where = ' AND ';
+      }
+      else
+      {
+         $sql .= $where."bloqueado = FALSE";
+         $where = ' AND ';
+      }
+      
+      $data = $this->db->select("SELECT COUNT(referencia) as total".$sql);
       if($data)
       {
-         return intval($data[0]['total']);
+         $this->total_resultados = intval($data[0]['total']);
+         
+         $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$this->order, FS_ITEM_LIMIT, $this->offset);
+         if($data2)
+         {
+            foreach($data2 as $i)
+            {
+               $this->resultados[] = new articulo($i);
+            }
+            //aplicar tarifa
+            $tarifa = $this->tarifa->get($this->cod_tarifa);
+            if($tarifa)
+            {
+                $tarifa->set_precios($this->resultados);
+            }
+         }
+       
       }
-      else
-         return 0;
+   }
+   
+   public function paginas()
+   {
+
+      $url = $this->url()."&query=".$this->query
+              ."&stock=".$this->stock
+              ."&publico=".$this->publico
+              ."&bloqueados=".$this->bloqueados
+              ."&codfabricante=".$this->codfabricante
+              ."&codfamilia=".$this->codfamilia;
+      
+      $paginas = array();
+      $i = 0;
+      $num = 0;
+      $actual = 1;
+      
+      
+      $total = $this->total_resultados;
+   
+      
+      /// añadimos todas la página
+      while($num < $total)
+      {
+         $paginas[$i] = array(
+             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
+             'num' => $i + 1,
+             'actual' => ($num == $this->offset)
+         );
+         
+         if($num == $this->offset)
+         {
+            $actual = $i;
+         }
+         
+         $i++;
+         $num += FS_ITEM_LIMIT;
+      }
+      
+      /// ahora descartamos
+      foreach($paginas as $j => $value)
+      {
+         $enmedio = intval($i/2);
+         
+         /**
+          * descartamos todo excepto la primera, la última, la de enmedio,
+          * la actual, las 5 anteriores y las 5 siguientes
+          */
+         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
+         {
+            unset($paginas[$j]);
+         }
+      }
+      
+      return $paginas;
    }
 }
