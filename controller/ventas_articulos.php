@@ -206,12 +206,12 @@ class ventas_articulos extends fs_controller
       }
       
       $this->b_orden = 'refmin';
-      if( isset($_REQUEST['b_orden']))
+      if( isset($_REQUEST['b_orden']) )
       {
          $this->b_orden = $_REQUEST['b_orden'];
          setcookie('ventas_articulos_orden', $this->b_orden, time()+FS_COOKIES_EXPIRE);
       }
-      else if( isset($_COOKIE['ventas_articulos_orden']))
+      else if( isset($_COOKIE['ventas_articulos_orden']) )
       {
          $this->b_orden = $_COOKIE['ventas_articulos_orden'];
       }
@@ -253,14 +253,17 @@ class ventas_articulos extends fs_controller
          if( is_numeric($query) )
          {
             $sql .= "(referencia = ".$this->empresa->var2str($query)
-                    . " OR referencia LIKE '%".$query."%' OR equivalencia LIKE '%".$query."%'"
-                    . " OR descripcion LIKE '%".$query."%' OR codbarras = '".$query."')";
+                    . " OR referencia LIKE '%".$query."%'"
+                    . " OR equivalencia LIKE '%".$query."%'"
+                    . " OR descripcion LIKE '%".$query."%'"
+                    . " OR codbarras = '".$query."')";
          }
          else
          {
             $buscar = str_replace(' ', '%', $query);
             $sql .= "(lower(referencia) = ".$this->empresa->var2str($query)
-                    . " OR lower(referencia) LIKE '%".$buscar."%' OR lower(equivalencia) LIKE '%".$buscar."%'"
+                    . " OR lower(referencia) LIKE '%".$buscar."%'"
+                    . " OR lower(equivalencia) LIKE '%".$buscar."%'"
                     . " OR lower(descripcion) LIKE '%".$buscar."%')";
          }
          $where = ' AND ';
@@ -313,7 +316,7 @@ class ventas_articulos extends fs_controller
             break;
          
          case 'refmax':
-            if( strtolower(FS_DB_TYPE) == 'postgresql')
+            if( strtolower(FS_DB_TYPE) == 'postgresql' )
             {
                $order = 'referencia DESC';
             }
@@ -372,7 +375,8 @@ class ventas_articulos extends fs_controller
             break;
          
          default:
-            if( strtolower(FS_DB_TYPE) == 'postgresql')
+         case 'refmin':
+            if( strtolower(FS_DB_TYPE) == 'postgresql' )
             {
                $order ="referencia ASC";
             }

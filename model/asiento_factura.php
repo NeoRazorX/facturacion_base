@@ -223,6 +223,11 @@ class asiento_factura
                      }
                   }
                }
+               else if(!$subcuenta_iva)
+               {
+                  $asiento_correcto = FALSE;
+                  $this->new_error_msg('No se encuentra la subcuenta de '.FS_IVA);
+               }
             }
             
             $subcuenta_compras = $subcuenta->get_cuentaesp('COMPRA', $asiento->codejercicio);
@@ -242,6 +247,11 @@ class asiento_factura
                   $asiento_correcto = FALSE;
                   $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida2->codsubcuenta."!");
                }
+            }
+            else if(!$subcuenta_compras)
+            {
+               $asiento_correcto = FALSE;
+               $this->new_error_msg('No se encuentra la subcuenta de compras.');
             }
             
             /// ¿IRPF?
@@ -264,6 +274,11 @@ class asiento_factura
                      $asiento_correcto = FALSE;
                      $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida3->codsubcuenta."!");
                   }
+               }
+               else if(!$subcuenta_irpf)
+               {
+                  $asiento_correcto = FALSE;
+                  $this->new_error_msg('No se encuentra la subcuenta de '.FS_IRPF);
                }
             }
             
@@ -366,7 +381,12 @@ class asiento_factura
                $factura->idasiento = $asiento->idasiento;
                if( $factura->save() )
                {
-                  $ok = TRUE;
+                  $ok = $this->check_asiento($asiento);
+                  if(!$ok)
+                  {
+                     $this->new_error_msg('El asiento está descuadrado.');
+                  }
+                  
                   $this->asiento = $asiento;
                }
                else
@@ -541,6 +561,11 @@ class asiento_factura
                      }
                   }
                }
+               else if(!$subcuenta_iva)
+               {
+                  $asiento_correcto = FALSE;
+                  $this->new_error_msg('No se encuentra la subcuenta de '.FS_IVA);
+               }
             }
             
             $subcuenta_ventas = $subcuenta->get_cuentaesp('VENTAS', $asiento->codejercicio);
@@ -560,6 +585,11 @@ class asiento_factura
                   $asiento_correcto = FALSE;
                   $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida2->codsubcuenta."!");
                }
+            }
+            else if(!$subcuenta_ventas)
+            {
+               $asiento_correcto = FALSE;
+               $this->new_error_msg('No se encuentra la subcuenta de ventas');
             }
             
             /// ¿IRPF?
@@ -588,6 +618,11 @@ class asiento_factura
                      $asiento_correcto = FALSE;
                      $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida3->codsubcuenta."!");
                   }
+               }
+               else if(!$subcuenta_irpf)
+               {
+                  $asiento_correcto = FALSE;
+                  $this->new_error_msg('No se encuentra la subcuenta de '.FS_IRPF);
                }
             }
             
@@ -685,7 +720,12 @@ class asiento_factura
                $factura->idasiento = $asiento->idasiento;
                if( $factura->save() )
                {
-                  $ok = TRUE;
+                  $ok = $this->check_asiento($asiento);
+                  if(!$ok)
+                  {
+                     $this->new_error_msg('El asiento está descuadrado.');
+                  }
+                  
                   $this->asiento = $asiento;
                }
                else
@@ -726,5 +766,30 @@ class asiento_factura
          $part->baseimponible = abs($part->baseimponible);
          $part->save();
       }
+   }
+   
+   /**
+    * Comprueba la validez de un asiento contable
+    * @param asiento $asiento
+    * @return boolean
+    */
+   private function check_asiento($asiento)
+   {
+      $ok = FALSE;
+      
+      $debe = 0;
+      $haber = 0;
+      foreach($asiento->get_partidas() as $lin)
+      {
+         $debe += $lin->debe;
+         $haber += $lin->haber;
+      }
+      
+      if( abs($debe - $haber) < .01 )
+      {
+         $ok = TRUE;
+      }
+      
+      return $ok;
    }
 }
