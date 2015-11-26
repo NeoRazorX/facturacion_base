@@ -378,7 +378,7 @@ class ventas_articulos extends fs_controller
          case 'refmin':
             if( strtolower(FS_DB_TYPE) == 'postgresql' )
             {
-               $order ="referencia ASC";
+               $order = 'referencia ASC';
             }
             else
             {
