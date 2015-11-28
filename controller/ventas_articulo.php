@@ -50,14 +50,14 @@ class ventas_articulo extends fs_controller
    
    protected function private_core()
    {
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
       $articulo = new articulo();
       $this->almacen = new almacen();
       $this->articulo = FALSE;
       $this->impuesto = new impuesto();
       $this->fabricante= new fabricante();
-      
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       /**
        * Si hay alguna extensión de tipo config y texto no_tab_recios,
@@ -101,85 +101,178 @@ class ventas_articulo extends fs_controller
          }
       }
       
-      if( isset($_POST['pvpiva']) )
+      if( isset($_POST['referencia']) )
       {
          $this->articulo = $articulo->get($_POST['referencia']);
-         if($this->articulo)
+      }
+      else if( isset($_GET['ref']) )
+      {
+         $this->articulo = $articulo->get($_GET['ref']);
+      }
+      
+      if($this->articulo)
+      {
+         $this->modificar();
+         $this->page->title = $this->articulo->referencia;
+         
+         if($this->articulo->bloqueado)
          {
-            $continuar = TRUE;
-            $this->articulo->set_impuesto( $_POST['codimpuesto'] );
-            $this->articulo->set_pvp_iva( floatval($_POST['pvpiva']) );
-            
-            if( isset($_POST['preciocoste']) )
+            $this->new_advice("Este artículo está bloqueado / obsoleto.");
+         }
+         
+         /**
+          * Si está desactivado el control de stok en el artículo, no muestro la pestaña.
+          */
+         if($this->articulo->nostock)
+         {
+            $this->mostrar_tab_stock = FALSE;
+         }
+         
+         $this->familia = $this->articulo->get_familia();
+         if(!$this->familia)
+         {
+            $this->familia = new familia();
+         }
+         
+         $this->fabricante = $this->articulo->get_fabricante();
+         if(!$this->fabricante)
+         {
+            $this->fabricante = new fabricante();
+         }
+         
+         $this->stocks = $this->articulo->get_stock();
+         /// metemos en un array los almacenes que no tengan stock de este producto
+         $this->nuevos_almacenes = array();
+         foreach($this->almacen->all() as $a)
+         {
+            $encontrado = FALSE;
+            foreach($this->stocks as $s)
             {
-               $this->articulo->costemedio = $this->articulo->preciocoste = floatval($_POST['preciocoste']);
+               if( $a->codalmacen == $s->codalmacen )
+               {
+                  $encontrado = TRUE;
+               }
             }
-            
-            if( $this->articulo->save() )
+            if( !$encontrado )
             {
-               $this->new_message("Precio modificado correctamente.");
+               $this->nuevos_almacenes[] = $a;
             }
-            else
-            {
-               $this->new_error_msg("Error al modificar el precio.");
-            }
+         }
+         
+         $reg = new regularizacion_stock();
+         $this->regularizaciones = $reg->all_from_articulo($this->articulo->referencia);
+         
+         $this->equivalentes = $this->articulo->get_equivalentes();
+      }
+      else
+      {
+         $this->new_error_msg("Artículo no encontrado.");
+      }
+   }
+   
+   public function url()
+   {
+      if($this->articulo)
+      {
+         return $this->articulo->url();
+      }
+      else
+         return $this->page->url();
+   }
+   
+   private function modificar()
+   {
+      if( isset($_POST['pvpiva']) )
+      {
+         $continuar = TRUE;
+         $this->articulo->set_impuesto( $_POST['codimpuesto'] );
+         $this->articulo->set_pvp_iva( floatval($_POST['pvpiva']) );
+         
+         if( isset($_POST['preciocoste']) )
+         {
+            $this->articulo->costemedio = $this->articulo->preciocoste = floatval($_POST['preciocoste']);
+         }
+         
+         if( $this->articulo->save() )
+         {
+            $this->new_message("Precio modificado correctamente.");
+         }
+         else
+         {
+            $this->new_error_msg("Error al modificar el precio.");
          }
       }
       else if( isset($_POST['almacen']) )
       {
-         $this->articulo = $articulo->get($_POST['referencia']);
-         if($this->articulo)
+         if($_POST['cantidadini'] == $_POST['cantidad'])
          {
-            if($_POST['cantidadini'] == $_POST['cantidad'])
+            /// sin cambios de stock, pero aún así guardamos la ubicación
+            foreach($this->articulo->get_stock() as $stock)
             {
-               /// sin cambios de stock
-               foreach($this->articulo->get_stock() as $stock)
+               if($stock->codalmacen == $_POST['almacen'])
                {
-                  if($stock->codalmacen == $_POST['almacen'])
+                  $stock->ubicacion = $_POST['ubicacion'];
+                  if( $stock->save() )
                   {
-                     $stock->ubicacion = $_POST['ubicacion'];
-                     if( $stock->save() )
-                     {
-                        $this->new_message('Cambios guardados correctamente.');
-                     }
+                     $this->new_message('Cambios guardados correctamente.');
                   }
                }
             }
-            else if( $this->articulo->set_stock($_POST['almacen'], $_POST['cantidad']) )
+         }
+         else if( $this->articulo->set_stock($_POST['almacen'], $_POST['cantidad']) )
+         {
+            $this->new_message("Stock guardado correctamente.");
+            
+            /// añadimos la regularización
+            foreach($this->articulo->get_stock() as $stock)
             {
-               $this->new_message("Stock guardado correctamente.");
-               
-               /// añadimos la regularización
-               foreach($this->articulo->get_stock() as $stock)
+               if($stock->codalmacen == $_POST['almacen'])
                {
-                  if($stock->codalmacen == $_POST['almacen'])
+                  $stock->ubicacion = $_POST['ubicacion'];
+                  $stock->save();
+                  
+                  $regularizacion = new regularizacion_stock();
+                  $regularizacion->idstock = $stock->idstock;
+                  $regularizacion->cantidadini = floatval($_POST['cantidadini']);
+                  $regularizacion->cantidadfin = floatval($_POST['cantidad']);
+                  $regularizacion->codalmacendest = $_POST['almacen'];
+                  $regularizacion->motivo = $_POST['motivo'];
+                  $regularizacion->nick = $this->user->nick;
+                  if( $regularizacion->save() )
                   {
-                     $stock->ubicacion = $_POST['ubicacion'];
-                     $stock->save();
-                     
-                     $regularizacion = new regularizacion_stock();
-                     $regularizacion->idstock = $stock->idstock;
-                     $regularizacion->cantidadini = floatval($_POST['cantidadini']);
-                     $regularizacion->cantidadfin = floatval($_POST['cantidad']);
-                     $regularizacion->codalmacendest = $_POST['almacen'];
-                     $regularizacion->motivo = $_POST['motivo'];
-                     $regularizacion->nick = $this->user->nick;
-                     if( $regularizacion->save() )
-                     {
-                        $this->new_message('Cambios guardados correctamente.');
-                     }
-                     break;
+                     $this->new_message('Cambios guardados correctamente.');
                   }
+                  break;
                }
+            }
+         }
+         else
+         {
+            $this->new_error_msg("Error al guardar el stock.");
+         }
+      }
+      else if( isset($_GET['deletereg']) )
+      {
+         $reg = new regularizacion_stock();
+         $regularizacion = $reg->get($_GET['deletereg']);
+         if($regularizacion)
+         {
+            if( $regularizacion->delete() )
+            {
+               $this->new_message('Regularización eliminada correctamente.');
             }
             else
-               $this->new_error_msg("Error al guardar el stock.");
+            {
+               $this->new_error_msg('Error al eliminar la regularización.');
+            }
+         }
+         else
+         {
+            $this->new_error_msg('Regularización no encontrada.');
          }
       }
       else if( isset($_POST['imagen']) )
       {
-         $this->articulo = $articulo->get($_POST['referencia']);
-         
          if( is_uploaded_file($_FILES['fimagen']['tmp_name']) )
          {
             $png = ( substr( strtolower($_FILES['fimagen']['name']), -3) == 'png' );
@@ -194,7 +287,6 @@ class ventas_articulo extends fs_controller
       }
       else if( isset($_GET['delete_img']) )
       {
-         $this->articulo = $articulo->get($_GET['ref']);
          $this->articulo->set_imagen(NULL);
          if( $this->articulo->save() )
          {
@@ -205,7 +297,6 @@ class ventas_articulo extends fs_controller
       }
       else if( isset($_POST['referencia']) )
       {
-         $this->articulo = $articulo->get($_POST['referencia']);
          $this->articulo->descripcion = $_POST['descripcion'];
          
          $this->articulo->tipo = NULL;
@@ -292,72 +383,10 @@ class ventas_articulo extends fs_controller
          else
             $this->new_error_msg("¡Error al guardar el articulo!");
       }
-      else if( isset($_GET['ref']) )
+      else if( isset($_GET['recalcular_stock']) )
       {
-         $this->articulo = $articulo->get($_GET['ref']);
+         $this->calcular_stock_real();
       }
-      
-      if($this->articulo)
-      {
-         $this->page->title = $this->articulo->referencia;
-         
-         if($this->articulo->bloqueado)
-         {
-            $this->new_advice("Este artículo está bloqueado / obsoleto.");
-         }
-         
-         /**
-          * Si está desactivado el control de stok en el artículo, no muestro la pestaña.
-          */
-         if($this->articulo->nostock)
-         {
-            $this->mostrar_tab_stock = FALSE;
-         }
-         
-         $this->familia = $this->articulo->get_familia();
-         if(!$this->familia)
-         {
-            $this->familia = new familia();
-         }
-         
-         $this->fabricante = $this->articulo->get_fabricante();
-         if(!$this->fabricante)
-         {
-            $this->fabricante = new fabricante();
-         }
-         
-         $this->stocks = $this->articulo->get_stock();
-         /// metemos en un array los almacenes que no tengan stock de este producto
-         $this->nuevos_almacenes = array();
-         foreach($this->almacen->all() as $a)
-         {
-            $encontrado = FALSE;
-            foreach($this->stocks as $s)
-            {
-               if( $a->codalmacen == $s->codalmacen )
-                  $encontrado = TRUE;
-            }
-            if( !$encontrado )
-               $this->nuevos_almacenes[] = $a;
-         }
-         
-         $reg = new regularizacion_stock();
-         $this->regularizaciones = $reg->all_from_articulo($this->articulo->referencia);
-         
-         $this->equivalentes = $this->articulo->get_equivalentes();
-      }
-      else
-         $this->new_error_msg("Artículo no encontrado.");
-   }
-   
-   public function url()
-   {
-      if($this->articulo)
-      {
-         return $this->articulo->url();
-      }
-      else
-         return $this->page->url();
    }
    
    public function get_tarifas()
@@ -408,5 +437,211 @@ class ventas_articulo extends fs_controller
       }
       
       return $alist;
+   }
+   
+   /**
+    * Devuelve un array con los movimientos de stock del artículo.
+    * @return type
+    */
+   public function get_movimientos()
+   {
+      $mlist = array();
+      
+      if( !isset($this->regularizaciones) )
+      {
+         $reg = new regularizacion_stock();
+         $this->regularizaciones = $reg->all_from_articulo($this->articulo->referencia);
+      }
+      
+      foreach($this->regularizaciones as $reg)
+      {
+         $mlist[] = array(
+             'codalmacen' => $reg->codalmacendest,
+             'origen' => 'Regularización',
+             'url' => '#stock',
+             'movimiento' => '-',
+             'final' => $reg->cantidadfin,
+             'fecha' => $reg->fecha,
+             'hora' => $reg->hora
+         );
+      }
+      
+      if( $this->db->table_exists('albaranesprov') AND $this->db->table_exists('lineasalbaranesprov') )
+      {
+         /// buscamos el artículo en albaranes de compra
+         $sql = "SELECT a.idalbaran,a.codigo,l.cantidad,a.fecha,a.hora,a.codalmacen
+            FROM albaranesprov a, lineasalbaranesprov l
+            WHERE a.idalbaran = l.idalbaran
+            AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
+         
+         $data = $this->db->select_limit($sql, 1000, 0);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $mlist[] = array(
+                   'codalmacen' => $d['codalmacen'],
+                   'origen' => ucfirst(FS_ALBARAN).' compra '.$d['codigo'],
+                   'url' => 'index.php?page=compras_albaran&id='.intval($d['idalbaran']),
+                   'movimiento' => floatval($d['cantidad']),
+                   'final' => 0,
+                   'fecha' => date('d-m-Y', strtotime($d['fecha'])),
+                   'hora' => $d['hora']
+               );
+            }
+         }
+      }
+      
+      if( $this->db->table_exists('facturasprov') AND $this->db->table_exists('lineasfacturasprov') )
+      {
+         /// buscamos el artículo en facturas de compra
+         $sql = "SELECT f.idfactura,f.codigo,l.cantidad,f.fecha,f.hora,f.codalmacen
+            FROM facturasprov f, lineasfacturasprov l
+            WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL
+            AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
+         
+         $data = $this->db->select_limit($sql, 1000, 0);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $mlist[] = array(
+                   'codalmacen' => $d['codalmacen'],
+                   'origen' => 'Factura compra '.$d['codigo'],
+                   'url' => 'index.php?page=compras_factura&id='.intval($d['idfactura']),
+                   'movimiento' => floatval($d['cantidad']),
+                   'final' => 0,
+                   'fecha' => date('d-m-Y', strtotime($d['fecha'])),
+                   'hora' => $d['hora']
+               );
+            }
+         }
+      }
+      
+      if( $this->db->table_exists('albaranescli') AND $this->db->table_exists('lineasalbaranescli') )
+      {
+         /// buscamos el artículo en albaranes de venta
+         $sql = "SELECT a.idalbaran,a.codigo,l.cantidad,a.fecha,a.hora,a.codalmacen
+            FROM albaranescli a, lineasalbaranescli l
+            WHERE a.idalbaran = l.idalbaran
+            AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
+         
+         $data = $this->db->select_limit($sql, 1000, 0);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $mlist[] = array(
+                   'codalmacen' => $d['codalmacen'],
+                   'origen' => ucfirst(FS_ALBARAN).' venta '.$d['codigo'],
+                   'url' => 'index.php?page=ventas_albaran&id='.intval($d['idalbaran']),
+                   'movimiento' => 0-floatval($d['cantidad']),
+                   'final' => 0,
+                   'fecha' => date('d-m-Y', strtotime($d['fecha'])),
+                   'hora' => $d['hora']
+               );
+            }
+         }
+      }
+      
+      if( $this->db->table_exists('facturascli') AND $this->db->table_exists('lineasfacturascli') )
+      {
+         /// buscamos el artículo en facturas de venta
+         $sql = "SELECT f.idfactura,f.codigo,l.cantidad,f.fecha,f.hora,f.codalmacen
+            FROM facturascli f, lineasfacturascli l
+            WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL
+            AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
+         
+         $data = $this->db->select_limit($sql, 1000, 0);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $mlist[] = array(
+                   'codalmacen' => $d['codalmacen'],
+                   'origen' => 'Factura venta '.$d['codigo'],
+                   'url' => 'index.php?page=ventas_factura&id='.intval($d['idfactura']),
+                   'movimiento' => 0-floatval($d['cantidad']),
+                   'final' => 0,
+                   'fecha' => date('d-m-Y', strtotime($d['fecha'])),
+                   'hora' => $d['hora']
+               );
+            }
+         }
+      }
+      
+      /// ordenamos por fecha y hora
+      usort($mlist, function($a,$b) {
+         if( strtotime($a['fecha'].' '.$a['hora']) == strtotime($b['fecha'].' '.$b['hora']) )
+         {
+            return 0;
+         }
+         else if( strtotime($a['fecha'].' '.$a['hora']) < strtotime($b['fecha'].' '.$b['hora']) )
+         {
+            return -1;
+         }
+         else
+            return 1;
+      });
+      
+      /// recalculamos
+      $inicial = 0;
+      foreach( array_reverse($mlist) as $i => $value)
+      {
+         if($value['movimiento'] == '-')
+         {
+            $inicial = $value['final'];
+         }
+         else
+         {
+            $inicial -= $value['movimiento'];
+         }
+      }
+      
+      $total = max( array($inicial, 0) );
+      foreach($mlist as $i => $value)
+      {
+         if($value['movimiento'] == '-')
+         {
+            $total = $value['final'];
+         }
+         else
+            $total += $value['movimiento'];
+         
+         $mlist[$i]['final'] = $total;
+      }
+      
+      return $mlist;
+   }
+   
+   /**
+    * Calcula el stock real del artículo en función de los movimientos y regularizaciones
+    */
+   private function calcular_stock_real()
+   {
+      $movimientos = $this->get_movimientos();
+      
+      foreach($this->almacen->all() as $alm)
+      {
+         $total = 0;
+         foreach($movimientos as $mov)
+         {
+            if($mov['codalmacen'] == $alm->codalmacen)
+            {
+               $total = $mov['final'];
+            }
+         }
+         
+         if( $this->articulo->set_stock($alm->codalmacen, $total) )
+         {
+            $this->new_message('Recarculado el stock del almacén '.$alm->codalmacen.'.');
+         }
+         else
+         {
+            $this->new_error_msg('Error al recarcular el stock del almacén '.$alm->codalmacen.'.');
+         }
+      }
+      
+      $this->new_message("Stock actualizado.");
    }
 }

@@ -43,15 +43,31 @@
 </script>
 
 <form name="f_subcuentas" action="{$fsc->url()}" method="post" class="form">
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-sm-12">
+            <div class="page-header">
+               <h1>Contabilidad</h1>
+               <p class="help-block">
+                  <b>Si lo deseas</b>, puedes especificar las subcuentas contables
+                  en las que quieres que se desglosen las compras o ventas de este
+                  artículo. Al generar los asientos de las facturas donde se
+                  compre o venda este artículo, su importe se desglosará en la
+                  subcuenta que definas aquí.
+               </p>
+            </div>
+         </div>
+      </div>
+   </div>
    <div class="table-responsive">
       <table class="table">
          <thead>
             <tr>
-               <th>Subcuenta</th>
-               <th>Código</th>
-               <th></th>
+               <th width="190">Subcuenta</th>
+               <th width="220">Código</th>
+               <th width="50"></th>
                <th>Descripción</th>
-               <th class="text-right">Saldo</th>
+               <th class="text-right" width="140">Saldo</th>
             </tr>
          </thead>
          <tr>
@@ -114,7 +130,5 @@
    </div>
 </form>
 {/if}
-
-<br/>
 
 {include="footer2"}

@@ -85,6 +85,20 @@
          event.preventDefault();
          $("#modal_articulo_imagen").modal('show');
       });
+      $('#b_regularizaciones').click(function(event) {
+         event.preventDefault();
+         $("#b_movimientos").removeClass('active');
+         $("#b_regularizaciones").addClass('active');
+         $("#table_movimientos").hide();
+         $("#table_regularizaciones").show();
+      });
+      $('#b_movimientos').click(function(event) {
+         event.preventDefault();
+         $("#b_movimientos").addClass('active');
+         $("#b_regularizaciones").removeClass('active');
+         $("#table_movimientos").show();
+         $("#table_regularizaciones").hide();
+      });
    });
 </script>
 
@@ -536,7 +550,7 @@
                </tr>
                {/loop}
                {if="$fsc->nuevos_almacenes"}
-               <tr class="bg-info">
+               <tr class="info">
                   <form action="{$fsc->url()}#stock" method="post" class="form">
                      <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
                      <input type="hidden" name="cantidadini" value="0"/>
@@ -565,13 +579,22 @@
          </div>
          <div class="container-fluid">
             <div class="row">
-               <div class="col-sm-12">
-                  <h2>Regularizaciones de stock:</h2>
+               <div class="col-sm-6">
+                  <div class="btn-group">
+                     <button type="button" id="b_regularizaciones" class="btn btn-sm btn-default active">Regularizaciones</button>
+                     <button type="button" id="b_movimientos" class="btn btn-sm btn-default">Movimientos</button>
+                  </div>
+               </div>
+               <div class="col-sm-6 text-right">
+                  <a href="{$fsc->url()}&recalcular_stock=TRUE#stock" class="btn btn-sm btn-warning">
+                     <span class="glyphicon glyphicon-wrench"></span>
+                     &nbsp; Recalcular stock
+                  </a>
                </div>
             </div>
          </div>
          <div class="table-responsive">
-            <table class="table table-hover">
+            <table id="table_regularizaciones" class="table table-hover">
                <thead>
                   <tr>
                      <th class="text-left">Usuario</th>
@@ -580,22 +603,66 @@
                      <th class="text-right">Cantidad final</th>
                      <th class="text-right">Fecha</th>
                      <th class="text-right">Hora</th>
+                     <th></th>
                   </tr>
                </thead>
                {loop="$fsc->regularizaciones"}
-               <tr{if="$value->cantidadfin<$value->cantidadini"} class="bg-danger"{/if}>
+               <tr{if="$value->cantidadfin<$value->cantidadini"} class="danger"{/if}>
                   <td>{$value->nick}</td>
                   <td>{$value->motivo}</td>
                   <td class="text-right">{$value->cantidadini}</td>
                   <td class="text-right">{$value->cantidadfin}</td>
                   <td class="text-right">{$value->fecha}</td>
                   <td class="text-right">{$value->hora}</td>
+                  <td>
+                     {if="$fsc->allow_delete"}
+                     <a href="{$fsc->url()}&deletereg={$value->id}#stock" title="Eliminar la regularización">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                     </a>
+                     {/if}
+                  </td>
                </tr>
                {else}
                <tr class="warning">
-                  <td colspan="6">Sin resultados.</td>
+                  <td colspan="7">Sin resultados.</td>
                </tr>
                {/loop}
+            </table>
+            <table id="table_movimientos" class="table table-hover" style="display: none;">
+               <thead>
+                  <tr>
+                     <th>Orígen</th>
+                     <th class="text-right">Movimiento</th>
+                     <th class="text-right">Cantidad final</th>
+                     <th class="text-right">
+                        Fecha
+                        <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                     </th>
+                     <th class="text-right">Hora</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->get_movimientos()"}
+               <tr class='clickableRow{if="$value['movimiento']=='-'"} warning{elseif="$value['movimiento']>0"} success{else} danger{/if}' href='{$value['url']}'>
+                  <td>
+                     {$value['codalmacen']} - <a href="{$value['url']}">{$value['origen']}</a>
+                  </td>
+                  <td class="text-right">
+                     {if="$value['movimiento']>0"}+{/if}{$value['movimiento']}
+                  </td>
+                  <td class="text-right">{$value['final']}</td>
+                  <td class="text-right">{$value['fecha']}</td>
+                  <td class="text-right">{$value['hora']}</td>
+               </tr>
+               {else}
+               <tr>
+                  <td colspan="5" class="warning">Sin resultados.</td>
+               </tr>
+               {/loop}
+               <tr>
+                  <td colspan="2"></td>
+                  <td class="text-right"><b>{$fsc->articulo->stockfis}</b></td>
+                  <td colspan="2"></td>
+               </tr>
             </table>
          </div>
       </div>

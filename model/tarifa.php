@@ -152,6 +152,10 @@ class tarifa extends fs_model
       }
    }
    
+   /**
+    * Devuelve un texto explicativo de lo que hace la tarifa
+    * @return type
+    */
    public function diff()
    {
       $texto = '';

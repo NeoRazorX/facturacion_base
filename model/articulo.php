@@ -1191,6 +1191,13 @@ class articulo extends fs_model
       return $artilist;
    }
    
+   /**
+    * Devuelve un array con los artículos que tengan $cod como código de barras.
+    * @param type $cod
+    * @param type $offset
+    * @param type $limit
+    * @return \articulo
+    */
    public function search_by_codbar($cod, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();

@@ -201,7 +201,7 @@ class factura_proveedor extends fs_model
          $this->hora = '00:00:00';
          if( !is_null($f['hora']) )
          {
-            $this->hora = date('h:i:s', strtotime($f['hora']));
+            $this->hora = date('H:i:s', strtotime($f['hora']));
          }
          
          $this->idasiento = $this->intval($f['idasiento']);

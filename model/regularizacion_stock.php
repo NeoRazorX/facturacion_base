@@ -112,21 +112,30 @@ class regularizacion_stock extends fs_model
    {
       if( $this->exists() )
       {
-         $sql = "UPDATE lineasregstocks SET idstock = ".$this->var2str($this->idstock).",
-            cantidadini = ".$this->var2str($this->cantidadini).", cantidadfin = ".$this->var2str($this->cantidadfin).",
-            codalmacendest = ".$this->var2str($this->codalmacendest).",
-            fecha = ".$this->var2str($this->fecha).", hora = ".$this->var2str($this->hora).",
-            motivo = ".$this->var2str($this->motivo).", nick = ".$this->var2str($this->nick)."
-            WHERE id = ".$this->var2str($this->id).";";
+         $sql = "UPDATE lineasregstocks SET idstock = ".$this->var2str($this->idstock)
+                 .", cantidadini = ".$this->var2str($this->cantidadini)
+                 .", cantidadfin = ".$this->var2str($this->cantidadfin)
+                 .", codalmacendest = ".$this->var2str($this->codalmacendest)
+                 .", fecha = ".$this->var2str($this->fecha)
+                 .", hora = ".$this->var2str($this->hora)
+                 .", motivo = ".$this->var2str($this->motivo)
+                 .", nick = ".$this->var2str($this->nick)
+                 ."  WHERE id = ".$this->var2str($this->id).";";
          
          return $this->db->exec($sql);
       }
       else
       {
-         $sql = "INSERT INTO lineasregstocks (idstock,cantidadini,cantidadfin,codalmacendest,fecha,hora,motivo,nick)
-            VALUES (".$this->var2str($this->idstock).",".$this->var2str($this->cantidadini).",".$this->var2str($this->cantidadfin).",
-             ".$this->var2str($this->codalmacendest).",".$this->var2str($this->fecha).",
-             ".$this->var2str($this->hora).",".$this->var2str($this->motivo).",".$this->var2str($this->nick).");";
+         $sql = "INSERT INTO lineasregstocks (idstock,cantidadini,cantidadfin,
+            codalmacendest,fecha,hora,motivo,nick)
+            VALUES (".$this->var2str($this->idstock)
+                 .",".$this->var2str($this->cantidadini)
+                 .",".$this->var2str($this->cantidadfin)
+                 .",".$this->var2str($this->codalmacendest)
+                 .",".$this->var2str($this->fecha)
+                 .",".$this->var2str($this->hora)
+                 .",".$this->var2str($this->motivo)
+                 .",".$this->var2str($this->nick).");";
          
          if( $this->db->exec($sql) )
          {
@@ -143,12 +152,19 @@ class regularizacion_stock extends fs_model
       return $this->db->exec("DELETE FROM lineasregstocks WHERE id = ".$this->var2str($this->id).";");
    }
    
+   /**
+    * Devuelve un array con todas las regularizaciones de un artículo.
+    * @param type $ref
+    * @return \regularizacion_stock
+    */
    public function all_from_articulo($ref)
    {
       $rlist = array();
+      $sql = "SELECT * FROM lineasregstocks WHERE idstock IN"
+              . " (SELECT idstock FROM stocks WHERE referencia = ".$this->var2str($ref).")"
+              . " ORDER BY fecha DESC, hora DESC";
       
-      $data = $this->db->select("SELECT * FROM lineasregstocks WHERE idstock IN
-         (SELECT idstock FROM stocks WHERE referencia = ".$this->var2str($ref).") ORDER BY fecha DESC, hora DESC;");
+      $data = $this->db->select_limit($sql, 1000, 0);
       if($data)
       {
          foreach($data as $d)
