@@ -389,6 +389,39 @@
                <div class="row">
                   <div class="col-sm-12">
                      <h3>
+                        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                        &nbsp; Empleado:
+                     </h3>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        <select name="codagente" class="form-control">
+                           <option value="">Ninguno</option>
+                           <option value="">---</option>
+                           {loop="$fsc->agente->all()"}
+                              {if="$value->codagente==$fsc->factura->codagente"}
+                              <option value="{$value->codagente}" selected="">{$value->get_fullname()}</option>
+                              {else}
+                              <option value="{$value->codagente}">{$value->get_fullname()}</option>
+                              {/if}
+                           {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        <div class="input-group">
+                           <input type="number" name="porcomision" value="{$fsc->factura->porcomision}" class="form-control"/>
+                           <span class="input-group-addon">% comisión</span>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-sm-12">
+                     <h3>
                         <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
                         &nbsp; Desglose de impuestos:
                      </h3>

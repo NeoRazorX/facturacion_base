@@ -182,6 +182,14 @@ class ventas_factura extends fs_controller
       $this->factura->codpostal = $_POST['codpostal'];
       $this->factura->direccion = $_POST['direccion'];
       
+      $this->factura->codagente = NULL;
+      $this->factura->porcomision = 0;
+      if($_POST['codagente'] != '')
+      {
+         $this->factura->codagente = $_POST['codagente'];
+         $this->factura->porcomision = floatval($_POST['porcomision']);
+      }
+      
       /// obtenemos el ejercicio para poder acotar la fecha
       $eje0 = $this->ejercicio->get( $this->factura->codejercicio );
       if($eje0)
