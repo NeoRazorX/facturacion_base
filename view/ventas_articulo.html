@@ -581,8 +581,11 @@
             <div class="row">
                <div class="col-sm-6">
                   <div class="btn-group">
-                     <button type="button" id="b_regularizaciones" class="btn btn-sm btn-default active">Regularizaciones</button>
-                     <button type="button" id="b_movimientos" class="btn btn-sm btn-default">Movimientos</button>
+                     <button type="button" id="b_movimientos" class="btn btn-sm btn-default active">
+                        <span class="glyphicon glyphicon-transfer"></span>
+                        &nbsp; Movimientos
+                     </button>
+                     <button type="button" id="b_regularizaciones" class="btn btn-sm btn-default">Regularizaciones</button>
                   </div>
                </div>
                <div class="col-sm-6 text-right">
@@ -593,42 +596,8 @@
                </div>
             </div>
          </div>
-         <div class="table-responsive">
-            <table id="table_regularizaciones" class="table table-hover">
-               <thead>
-                  <tr>
-                     <th class="text-left">Usuario</th>
-                     <th class="text-left">Motivo</th>
-                     <th class="text-right">Cantidad inicial</th>
-                     <th class="text-right">Cantidad final</th>
-                     <th class="text-right">Fecha</th>
-                     <th class="text-right">Hora</th>
-                     <th></th>
-                  </tr>
-               </thead>
-               {loop="$fsc->regularizaciones"}
-               <tr{if="$value->cantidadfin<$value->cantidadini"} class="danger"{/if}>
-                  <td>{$value->nick}</td>
-                  <td>{$value->motivo}</td>
-                  <td class="text-right">{$value->cantidadini}</td>
-                  <td class="text-right">{$value->cantidadfin}</td>
-                  <td class="text-right">{$value->fecha}</td>
-                  <td class="text-right">{$value->hora}</td>
-                  <td>
-                     {if="$fsc->allow_delete"}
-                     <a href="{$fsc->url()}&deletereg={$value->id}#stock" title="Eliminar la regularización">
-                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                     </a>
-                     {/if}
-                  </td>
-               </tr>
-               {else}
-               <tr class="warning">
-                  <td colspan="7">Sin resultados.</td>
-               </tr>
-               {/loop}
-            </table>
-            <table id="table_movimientos" class="table table-hover" style="display: none;">
+         <div class="table-responsive" style="margin-top: 10px;">
+            <table id="table_movimientos" class="table table-hover">
                <thead>
                   <tr>
                      <th>Orígen</th>
@@ -663,6 +632,40 @@
                   <td class="text-right"><b>{$fsc->articulo->stockfis}</b></td>
                   <td colspan="2"></td>
                </tr>
+            </table>
+            <table id="table_regularizaciones" class="table table-hover" style="display: none;">
+               <thead>
+                  <tr>
+                     <th class="text-left">Usuario</th>
+                     <th class="text-left">Motivo</th>
+                     <th class="text-right">Cantidad inicial</th>
+                     <th class="text-right">Cantidad final</th>
+                     <th class="text-right">Fecha</th>
+                     <th class="text-right">Hora</th>
+                     <th></th>
+                  </tr>
+               </thead>
+               {loop="$fsc->regularizaciones"}
+               <tr{if="$value->cantidadfin<$value->cantidadini"} class="danger"{/if}>
+                  <td>{$value->nick}</td>
+                  <td>{$value->motivo}</td>
+                  <td class="text-right">{$value->cantidadini}</td>
+                  <td class="text-right">{$value->cantidadfin}</td>
+                  <td class="text-right">{$value->fecha}</td>
+                  <td class="text-right">{$value->hora}</td>
+                  <td>
+                     {if="$fsc->allow_delete"}
+                     <a href="{$fsc->url()}&deletereg={$value->id}#stock" title="Eliminar la regularización">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                     </a>
+                     {/if}
+                  </td>
+               </tr>
+               {else}
+               <tr class="warning">
+                  <td colspan="7">Sin resultados.</td>
+               </tr>
+               {/loop}
             </table>
          </div>
       </div>

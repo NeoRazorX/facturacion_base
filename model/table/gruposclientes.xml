@@ -24,10 +24,4 @@
       <nombre>gruposclientes_pkey</nombre>
       <consulta>PRIMARY KEY (codgrupo)</consulta>
    </restriccion>
-   <restriccion>
-      <nombre>ca_gruposclientes_tarifas</nombre>
-      <consulta>FOREIGN KEY (codtarifa)
-      REFERENCES tarifas (codtarifa)
-      ON DELETE SET NULL ON UPDATE CASCADE</consulta>
-   </restriccion>
 </tabla>

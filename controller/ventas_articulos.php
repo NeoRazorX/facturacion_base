@@ -88,7 +88,6 @@ class ventas_articulos extends fs_controller
          $tar0->set_y( floatval($_POST['inclineal']) );
          $tar0->mincoste = isset($_POST['mincoste']);
          $tar0->maxpvp = isset($_POST['maxpvp']);
-         $this->mostrar = '';
          if( $tar0->save() )
          {
             $this->new_message("Tarifa guardada correctamente.");
@@ -392,21 +391,85 @@ class ventas_articulos extends fs_controller
       {
          $this->total_resultados = intval($data[0]['total']);
          
-         $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$order, FS_ITEM_LIMIT, $this->offset);
-         if($data2)
+         /// ¿Descargar o mostrar en pantalla?
+         if( isset($_GET['download']) )
          {
-            foreach($data2 as $i)
-            {
-               $this->resultados[] = new articulo($i);
-            }
+            /// desactivamos el motor de plantillas
+            $this->template = FALSE;
             
-            if($this->b_codtarifa != '')
+            header("content-type:application/csv;charset=UTF-8");
+            header("Content-Disposition: attachment; filename=\"articulos.csv\"");
+            echo "referencia;codfamilia;codfabricante;descripcion;pvp;iva;codbarras;stock;coste\n";
+            
+            $offset2 = 0;
+            $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$order, 1000, $offset2);
+            while($data2)
             {
-               /// aplicamos la tarifa
-               $tarifa = $this->tarifa->get($this->b_codtarifa);
-               if($tarifa)
+               $resultados = array();
+               foreach($data2 as $i)
                {
-                   $tarifa->set_precios($this->resultados);
+                  $resultados[] = new articulo($i);
+               }
+               
+               if($this->b_codtarifa != '')
+               {
+                  /// aplicamos la tarifa
+                  $tarifa = $this->tarifa->get($this->b_codtarifa);
+                  if($tarifa)
+                  {
+                     $tarifa->set_precios($resultados);
+                     
+                     /// si la tarifa añade descuento, lo aplicamos al precio
+                     foreach($resultados as $i => $value)
+                     {
+                        $resultados[$i]->pvp -= $value->pvp*$value->dtopor/100;
+                     }
+                  }
+               }
+               
+               /// escribimos los datos de los artículos
+               foreach($resultados as $art)
+               {
+                  echo $art->referencia.';';
+                  echo $art->codfamilia.';';
+                  echo $art->codfabricante.';';
+                  echo $this->fix_html($art->descripcion).';';
+                  echo $art->pvp.';';
+                  echo $art->get_iva().';';
+                  echo trim($art->codbarras).';';
+                  echo $art->stockfis.';';
+                  echo $art->preciocoste()."\n";
+                  
+                  $offset2++;
+               }
+               
+               $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$order, 1000, $offset2);
+            }
+         }
+         else
+         {
+            $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$order, FS_ITEM_LIMIT, $this->offset);
+            if($data2)
+            {
+               foreach($data2 as $i)
+               {
+                  $this->resultados[] = new articulo($i);
+               }
+               
+               if($this->b_codtarifa != '')
+               {
+                  /// aplicamos la tarifa
+                  $tarifa = $this->tarifa->get($this->b_codtarifa);
+                  if($tarifa)
+                  {
+                     $tarifa->set_precios($this->resultados);
+                     
+                     /// si la tarifa añade descuento, lo aplicamos al precio
+                     foreach($this->resultados as $i => $value)
+                     {
+                        $this->resultados[$i]->pvp -= $value->pvp*$value->dtopor/100;
+                     }
+                  }
                }
             }
          }
@@ -464,5 +527,15 @@ class ventas_articulos extends fs_controller
       {
          return array();
       }
+   }
+   
+   private function fix_html($txt)
+   {
+      $newt = str_replace('&lt;', '<', $txt);
+      $newt = str_replace('&gt;', '>', $newt);
+      $newt = str_replace('&quot;', "'", $newt);
+      $newt = str_replace('&#39;', "'", $newt);
+      $newt = str_replace(';', '.', $newt);
+      return trim($newt);
    }
 }

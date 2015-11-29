@@ -146,7 +146,7 @@
                            </div>
                         </div>
                         <div class="col-sm-2">
-                           <div class="form-group">
+                           <div class="form-group{if="$fsc->b_codtarifa"} has-success{/if}">
                               <select name="b_codtarifa" class="form-control" onchange="this.form.submit()">
                                  <option value="">Ninguna tarifa</option>
                                  <option value="">---</option>
@@ -243,9 +243,9 @@
                                  </li>
                               </ul>
                            </div>
-                           <a class="btn btn-sm btn-warning" href="{$fsc->url()}" title="Quitar filtros">
-                              <span class="glyphicon glyphicon-erase"></span>
-                              <span class="visible-xs">&nbsp; Quitar filtros</span>
+                           <a class="btn btn-sm btn-info" href="{$fsc->b_url}&download=csv" title="Descargar en formato CSV">
+                              <span class="glyphicon glyphicon-download-alt"></span>
+                              <span class="visible-xs">&nbsp; Descargar</span>
                            </a>
                         </div>
                      </div>
@@ -416,6 +416,11 @@
                      </div>
                   </form>
                   {/loop}
+                  <p class="help-block">
+                     ¿Necesitas un sistema de tarifas más <b>avanzado</b>? el plugin
+                     <a href="https://www.facturascripts.com/store/producto/plugin-facturacion_premium/" target="_blank">facturación premium</a>
+                     permite definir tarifas específicas por familia y precios fijos para artículos.
+                  </p>
                   <form name="f_nueva_tarifa" action="{$fsc->url()}#tarifas" method="post" class="form">
                      <div class="panel panel-info">
                         <div class="panel-heading">

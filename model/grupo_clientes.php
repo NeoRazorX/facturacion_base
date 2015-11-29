@@ -150,6 +150,11 @@ class grupo_clientes extends fs_model
       return $glist;
    }
    
+   /**
+    * Devuelve todos los grupos con la tarifa $cod
+    * @param type $cod
+    * @return \grupo_clientes
+    */
    public function all_with_tarifa($cod)
    {
       $glist = array();
