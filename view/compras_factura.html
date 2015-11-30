@@ -240,6 +240,13 @@
                      <td class="irpf text-right">{$fsc->show_numero($value->irpf, 2)} %</td>
                      <td class="text-right">{$fsc->show_precio($value->total_iva(), $fsc->factura->coddivisa)}</td>
                   </tr>
+                  {else}
+                  <tr class="warning">
+                     <td colspan="10">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        &nbsp; No hay líneas.
+                     </td>
+                  </tr>
                   {/loop}
                   <tr>
                      {if="$fsc->factura->coddivisa!=$fsc->empresa->coddivisa"}
