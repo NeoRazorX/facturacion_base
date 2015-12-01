@@ -22,11 +22,7 @@ require_model('albaran_proveedor.php');
 
 class informe_albaranes extends fs_controller
 {
-   public $desde;
-   public $hasta;
-   public $mostrar;
-   public $resultados;
-   public $tipo;
+   public $stats;
    
    public function __construct()
    {
@@ -39,37 +35,44 @@ class informe_albaranes extends fs_controller
       $albaran_cli = new albaran_cliente();
       $albaran_pro = new albaran_proveedor();
       
-      $this->mostrar = 'stats';
-      if( isset($_REQUEST['mostrar']) )
+      $this->stats = array(
+          'alb_pendientes' => 0,
+          'alb_pendientes_total' => 0,
+          'ped_pendientes' => 0,
+          'ped_pendientes_total' => 0,
+          'pre_pendientes' => 0,
+          'pre_pendientes_total' => 0,
+          'media_ventas_dia' => 0,
+          'media_compras_dia' => 0,
+          'media_ventas_mes' => 0,
+          'media_compras_mes' => 0,
+      );
+      
+      /// comprobamos los albaranes pendientes
+      $sql = "SELECT COUNT(idalbaran) as num, SUM(total) as total FROM albaranescli WHERE idfactura IS NULL;";
+      $data = $this->db->select($sql);
+      if($data)
       {
-         $this->mostrar = $_REQUEST['mostrar'];
+         $this->stats['alb_pendientes'] = intval($data[0]['num']);
+         $this->stats['alb_pendientes_total'] = floatval($data[0]['total']);
       }
       
-      $this->tipo = 'ventas';
-      if( isset($_REQUEST['tipo']) )
+      /// comprobamos los pedidos pendientes
+      $sql = "SELECT COUNT(idpedido) as num, SUM(total) as total FROM pedidoscli WHERE status = '0';";
+      $data = $this->db->select($sql);
+      if($data)
       {
-         $this->tipo = $_REQUEST['tipo'];
+         $this->stats['ped_pendientes'] = intval($data[0]['num']);
+         $this->stats['ped_pendientes_total'] = floatval($data[0]['total']);
       }
       
-      if($this->mostrar == 'listado')
+      /// comprobamos los presupuestos pendientes
+      $sql = "SELECT COUNT(idpresupuesto) as num, SUM(total) as total FROM presupuestoscli WHERE status = '0';";
+      $data = $this->db->select($sql);
+      if($data)
       {
-         $this->desde = Date('1-m-Y');
-         $this->hasta = Date('d-m-Y', mktime(0, 0, 0, date("m")+1, date("1")-1, date("Y")));
-         
-         if( isset($_POST['desde']) )
-         {
-            $this->desde = $_POST['desde'];
-            $this->hasta = $_POST['hasta'];
-         }
-         
-         if($this->tipo == 'ventas')
-         {
-            $this->resultados = $albaran_cli->all_desde($this->desde, $this->hasta);
-         }
-         else
-         {
-            $this->resultados = $albaran_pro->all_desde($this->desde, $this->hasta);
-         }
+         $this->stats['pre_pendientes'] = intval($data[0]['num']);
+         $this->stats['pre_pendientes_total'] = floatval($data[0]['total']);
       }
    }
    
@@ -89,7 +92,24 @@ class informe_albaranes extends fs_controller
       }
       
       foreach($stats_pro as $i => $value)
+      {
          $stats[$i]['total_pro'] = $value['total'];
+      }
+      
+      /// leemos para completar $this->stats
+      $num = 0;
+      foreach($stats as $st)
+      {
+         $this->stats['media_ventas_dia'] += $st['total_cli'];
+         $this->stats['media_compras_dia'] += $st['total_pro'];
+         $num++;
+      }
+      
+      if($num > 0)
+      {
+         $this->stats['media_ventas_dia'] = $this->stats['media_ventas_dia'] / $num;
+         $this->stats['media_compras_dia'] = $this->stats['media_compras_dia'] / $num;
+      }
       
       return $stats;
    }
@@ -106,7 +126,9 @@ class informe_albaranes extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMDD')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%d')";
       
@@ -158,7 +180,24 @@ class informe_albaranes extends fs_controller
       }
       
       foreach($stats_pro as $i => $value)
+      {
          $stats[$i]['total_pro'] = round($value['total'], 2);
+      }
+      
+      /// leemos para completar $this->stats
+      $num = 0;
+      foreach($stats as $st)
+      {
+         $this->stats['media_ventas_mes'] += $st['total_cli'];
+         $this->stats['media_compras_mes'] += $st['total_pro'];
+         $num++;
+      }
+      
+      if($num > 0)
+      {
+         $this->stats['media_ventas_mes'] = $this->stats['media_ventas_mes'] / $num;
+         $this->stats['media_compras_mes'] = $this->stats['media_compras_mes'] / $num;
+      }
       
       return $stats;
    }
@@ -175,7 +214,9 @@ class informe_albaranes extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMMM')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%m')";
       
@@ -213,7 +254,9 @@ class informe_albaranes extends fs_controller
       }
       
       foreach($stats_pro as $i => $value)
+      {
          $stats[$i]['total_pro'] = round($value['total'], 2);
+      }
       
       return $stats;
    }
@@ -230,7 +273,9 @@ class informe_albaranes extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMYYYY')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%Y')";
       

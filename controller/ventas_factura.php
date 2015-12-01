@@ -33,6 +33,7 @@ require_model('subcuenta.php');
 class ventas_factura extends fs_controller
 {
    public $agente;
+   public $agentes;
    public $allow_delete;
    public $cliente;
    public $divisa;
@@ -58,6 +59,7 @@ class ventas_factura extends fs_controller
       $this->ppage = $this->page->get('ventas_facturas');
       $this->ejercicio = new ejercicio();
       $this->agente = FALSE;
+      $this->agentes = array();
       $this->cliente = FALSE;
       $this->divisa = new divisa();
       $factura = new factura_cliente();
@@ -100,11 +102,12 @@ class ventas_factura extends fs_controller
          $this->page->title = $this->factura->codigo;
          
          /// cargamos el agente
+         $agente = new agente();
          if( !is_null($this->factura->codagente) )
          {
-            $agente = new agente();
             $this->agente = $agente->get($this->factura->codagente);
          }
+         $this->agentes = $agente->all();
          
          /// cargamos el cliente
          $cliente = new cliente();

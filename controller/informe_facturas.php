@@ -51,6 +51,7 @@ class informe_facturas extends fs_controller
       $this->factura_pro = new factura_proveedor();
       $this->hasta = Date('d-m-Y', mktime(0, 0, 0, date("m")+1, date("1")-1, date("Y")));
       $this->serie = new serie();
+      $this->stats = array();
       
       if( isset($_REQUEST['buscar_cliente']) )
       {
@@ -857,7 +858,9 @@ class informe_facturas extends fs_controller
       }
       
       foreach($stats_pro as $i => $value)
+      {
          $stats[$i]['total_pro'] = $value['total'];
+      }
       
       return $stats;
    }
@@ -874,7 +877,9 @@ class informe_facturas extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMDD')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%d')";
       
@@ -972,7 +977,9 @@ class informe_facturas extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMMM')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%m')";
       
@@ -1007,7 +1014,9 @@ class informe_facturas extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMMM')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%m')";
       
@@ -1076,7 +1085,9 @@ class informe_facturas extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMYYYY')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%Y')";
       
@@ -1111,7 +1122,9 @@ class informe_facturas extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMYYYY')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%Y')";
       
