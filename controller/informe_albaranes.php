@@ -49,7 +49,7 @@ class informe_albaranes extends fs_controller
       );
       
       /// comprobamos los albaranes pendientes
-      $sql = "SELECT COUNT(idalbaran) as num, SUM(total) as total FROM albaranescli WHERE idfactura IS NULL;";
+      $sql = "SELECT COUNT(idalbaran) as num, SUM(total) as total FROM albaranescli WHERE ptefactura = true;";
       $data = $this->db->select($sql);
       if($data)
       {
@@ -57,22 +57,28 @@ class informe_albaranes extends fs_controller
          $this->stats['alb_pendientes_total'] = floatval($data[0]['total']);
       }
       
-      /// comprobamos los pedidos pendientes
-      $sql = "SELECT COUNT(idpedido) as num, SUM(total) as total FROM pedidoscli WHERE status = '0';";
-      $data = $this->db->select($sql);
-      if($data)
+      if( $this->db->table_exists('pedidoscli') )
       {
-         $this->stats['ped_pendientes'] = intval($data[0]['num']);
-         $this->stats['ped_pendientes_total'] = floatval($data[0]['total']);
+         /// comprobamos los pedidos pendientes
+         $sql = "SELECT COUNT(idpedido) as num, SUM(total) as total FROM pedidoscli WHERE idalbaran IS NULL AND status=0;";
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            $this->stats['ped_pendientes'] = intval($data[0]['num']);
+            $this->stats['ped_pendientes_total'] = floatval($data[0]['total']);
+         }
       }
       
-      /// comprobamos los presupuestos pendientes
-      $sql = "SELECT COUNT(idpresupuesto) as num, SUM(total) as total FROM presupuestoscli WHERE status = '0';";
-      $data = $this->db->select($sql);
-      if($data)
+      if( $this->db->table_exists('presupuestoscli') )
       {
-         $this->stats['pre_pendientes'] = intval($data[0]['num']);
-         $this->stats['pre_pendientes_total'] = floatval($data[0]['total']);
+         /// comprobamos los presupuestos pendientes
+         $sql = "SELECT COUNT(idpresupuesto) as num, SUM(total) as total FROM presupuestoscli WHERE idpedido IS NULL AND status=0;";
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            $this->stats['pre_pendientes'] = intval($data[0]['num']);
+            $this->stats['pre_pendientes_total'] = floatval($data[0]['total']);
+         }
       }
    }
    

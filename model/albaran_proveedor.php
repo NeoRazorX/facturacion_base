@@ -198,7 +198,9 @@ class albaran_proveedor extends fs_model
          
          $this->hora = '00:00:00';
          if( !is_null($a['hora']) )
-            $this->hora = $a['hora'];
+         {
+            $this->hora = date('H:i:s', strtotime($a['hora']));
+         }
          
          $this->codproveedor = $a['codproveedor'];
          $this->nombre = $a['nombre'];

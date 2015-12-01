@@ -79,7 +79,7 @@
          {if="$fsc->stats['alb_pendientes']>0"}
          <a href="index.php?page=ventas_albaranes&mostrar=pendientes" class="btn btn-sm btn-block btn-info">
             {$fsc->stats['alb_pendientes']} {#FS_ALBARANES#} pendientes
-            / {$fsc->show_precio($fsc->stats['alb_pendientes_total'])}
+            ({$fsc->show_precio($fsc->stats['alb_pendientes_total'])})
          </a>
          {else}
          <a href="index.php?page=ventas_albaranes&mostrar=pendientes" class="btn btn-sm btn-block btn-default">
@@ -91,7 +91,7 @@
          {if="$fsc->stats['ped_pendientes']>0"}
          <a href="index.php?page=ventas_pedidos&mostrar=pendientes" class="btn btn-sm btn-block btn-info">
             {$fsc->stats['ped_pendientes']} {#FS_PEDIDOS#} pendientes
-            / {$fsc->show_precio($fsc->stats['ped_pendientes_total'])}
+            ({$fsc->show_precio($fsc->stats['ped_pendientes_total'])})
          </a>
          {else}
          <a href="index.php?page=ventas_pedidos&mostrar=pendientes" class="btn btn-sm btn-block btn-default">
@@ -103,7 +103,7 @@
          {if="$fsc->stats['pre_pendientes']>0"}
          <a href="index.php?page=ventas_presupuestos&mostrar=pendientes" class="btn btn-sm btn-block btn-info">
             {$fsc->stats['pre_pendientes']} {#FS_PRESUPUESTOS#} pendientes
-            / {$fsc->show_precio($fsc->stats['pre_pendientes_total'])}
+            ({$fsc->show_precio($fsc->stats['pre_pendientes_total'])})
          </a>
          {else}
          <a href="index.php?page=ventas_presupuestos&mostrar=pendientes" class="btn btn-sm btn-block btn-default">
