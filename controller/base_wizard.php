@@ -56,6 +56,14 @@ class base_wizard extends fs_controller
       $this->pais = new pais();
       $this->serie = new serie();
       
+      /// ¿Hay errores? Usa informes > Errores
+      if( $this->get_errors() )
+      {
+         $this->new_message('Puedes solucionar la mayoría de errores en la base de datos ejecutando el '
+                 . '<a href="index.php?page=informe_errores" target="_blank">informe de errores</a> '
+                 . 'sobre las tablas.');
+      }
+      
       $fsvar = new fs_var();
       $this->step = $fsvar->simple_get('install_step');
       if( $this->step < 2 OR isset($_GET['restart']) )

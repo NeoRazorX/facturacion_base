@@ -590,6 +590,17 @@ class informe_errores extends fs_controller
       }
       else if($this->informe['offset'] == 5)
       {
+         /// comprobamos la tabla de epigrafes
+         if( $this->db->table_exists('co_epigrafes') )
+         {
+            $this->db->exec("UPDATE co_epigrafes SET idgrupo = NULL WHERE idgrupo NOT IN (SELECT idgrupo FROM co_gruposepigrafes);");
+         }
+         
+         $recargar = TRUE;
+         $this->informe['offset'] += 1;
+      }
+      else if($this->informe['offset'] == 6)
+      {
          $almacen = new almacen();
          if( !$almacen->all() )
          {

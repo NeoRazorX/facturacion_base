@@ -222,6 +222,11 @@ class contabilidad_asiento extends fs_controller
                      $partida->documento = $this->asiento->documento;
                      $partida->tipodocumento = $this->asiento->tipodocumento;
                      
+                     $partida->idcontrapartida = NULL;
+                     $partida->codcontrapartida = NULL;
+                     $partida->cifnif = NULL;
+                     $partida->iva = 0;
+                     $partida->baseimponible = 0;
                      if( isset($_POST['codcontrapartida_'.$i]) )
                      {
                         if( $_POST['codcontrapartida_'.$i] != '')
@@ -282,6 +287,11 @@ class contabilidad_asiento extends fs_controller
          {
             $lineas[$i]->desc_subcuenta = $subcuenta->descripcion;
             $lineas[$i]->saldo = $subcuenta->saldo;
+         }
+         else
+         {
+            $lineas[$i]->desc_subcuenta = '';
+            $lineas[$i]->saldo = 0;
          }
       }
       

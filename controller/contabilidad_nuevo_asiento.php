@@ -30,8 +30,9 @@ class contabilidad_nuevo_asiento extends fs_controller
    public $asiento;
    public $concepto;
    public $divisa;
-   public $impuesto;
    public $ejercicio;
+   public $impuesto;
+   public $lineas;
    public $resultados;
    public $subcuenta;
 
@@ -47,8 +48,9 @@ class contabilidad_nuevo_asiento extends fs_controller
       $this->asiento = new asiento();
       $this->concepto = new concepto_partida();
       $this->divisa = new divisa();
-      $this->impuesto = new impuesto();
       $this->ejercicio = new ejercicio();
+      $this->impuesto = new impuesto();
+      $this->lineas = array();
       $this->subcuenta = new subcuenta();
       
       if( isset($_POST['fecha']) AND isset($_POST['query']) )
@@ -151,6 +153,8 @@ class contabilidad_nuevo_asiento extends fs_controller
                
                if( $continuar )
                {
+                  $this->asiento->concepto = '';
+                  
                   $this->new_message("<a href='".$this->asiento->url()."'>Asiento</a> guardado correctamente!");
                   $this->new_change('Asiento '.$this->asiento->numero, $this->asiento->url(), TRUE);
                   
@@ -171,6 +175,35 @@ class contabilidad_nuevo_asiento extends fs_controller
             }
             else
                $this->new_error_msg("¡Imposible guardar el asiento!");
+         }
+      }
+      else if( isset($_GET['copy']) )
+      {
+         $copia = $this->asiento->get($_GET['copy']);
+         if($copia)
+         {
+            $this->asiento->concepto = $copia->concepto;
+            
+            foreach($copia->get_partidas() as $part)
+            {
+               $subc = $this->subcuenta->get($part->idsubcuenta);
+               if($subc)
+               {
+                  $part->desc_subcuenta = $subc->descripcion;
+                  $part->saldo = $subc->saldo;
+               }
+               else
+               {
+                  $part->desc_subcuenta = '';
+                  $part->saldo = 0;
+               }
+               
+               $this->lineas[] = $part;
+            }
+         }
+         else
+         {
+            $this->new_error_msg('Asiento no encontrado.');
          }
       }
    }

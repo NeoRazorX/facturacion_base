@@ -236,9 +236,14 @@
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
             </div>
+            <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
+               <span class="glyphicon glyphicon-arrow-left"></span>
+               <span class="hidden-xs">&nbsp; Asientos</span>
+            </a>
             <div class="btn-group">
-               <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
-                  <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Asientos
+               <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_nuevo_asiento&copy={$fsc->asiento->idasiento}">
+                  <span class="glyphicon glyphicon-duplicate"></span>
+                  <span class="hidden-xs">&nbsp; Copiar</span>
                </a>
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
@@ -312,18 +317,18 @@
       <table class="table table-hover">
          <thead>
             <tr>
-               <th class="text-left">Subcuenta</th>
-               <th></th>
+               <th class="text-left" width="135">Subcuenta</th>
+               <th width="50"></th>
                <th class="text-left">Descripción</th>
-               <th class="text-right">Saldo</th>
-               <th class="text-right">Debe</th>
-               <th class="text-right">Haber</th>
-               <th class="text-left">Contrapartida</th>
-               <th class="text-right contrapartida">Saldo</th>
+               <th class="text-right" width="110">Saldo</th>
+               <th class="text-right" width="110">Debe</th>
+               <th class="text-right" width="110">Haber</th>
+               <th class="text-left" width="135">Contrapartida</th>
+               <th class="text-right contrapartida" width="110">Saldo</th>
                <th class="text-right contrapartida">{#FS_IVA#}</th>
-               <th class="text-right contrapartida">Base Imp.</th>
+               <th class="text-right contrapartida" width="110">Base Imp.</th>
                <th class="text-left contrapartida">{#FS_CIFNIF#}</th>
-               <th></th>
+               <th width="50"></th>
             </tr>
          </thead>
          <tbody id="partidas">
@@ -412,16 +417,20 @@
 {else}
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
-      <div class="col-lg-6 col-md-6 col-sm-6">
+      <div class="col-xs-8">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
          </div>
-         
+         <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
+            <span class="glyphicon glyphicon-arrow-left"></span>
+            <span class="hidden-xs">&nbsp; Asientos</span>
+         </a>
          <div class="btn-group">
-            <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
-               <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Asientos
+            <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_nuevo_asiento&copy={$fsc->asiento->idasiento}">
+               <span class="glyphicon glyphicon-duplicate"></span>
+               <span class="hidden-xs">&nbsp; Copiar</span>
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -430,14 +439,16 @@
             {/loop}
          </div>
       </div>
-      <div class="col-lg-6 col-md-6 col-sm-6 text-right">
+      <div class="col-xs-4 text-right">
          <div class="btn-group">
             <a href="{$fsc->url()}&desbloquear=TRUE" class="btn btn-sm btn-default">
-               <span class="glyphicon glyphicon-lock"></span> &nbsp; Desbloquear
+               <span class="glyphicon glyphicon-lock"></span>
+               <span class="hidden-xs">&nbsp; Desbloquear</span>
             </a>
             {if="$fsc->allow_delete"}
             <a href="#" id="b_eliminar_asiento" class="btn btn-sm btn-danger">
-               <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+               <span class="glyphicon glyphicon-trash"></span>
+               <span class="hidden-xs">&nbsp; Eliminar</span>
             </a>
             {/if}
          </div>
@@ -448,14 +459,14 @@
 <div class="table-responsive">
    <table class="table table-hover">
       <thead>
-            <tr>
-               <th class="text-left">Asiento</th>
-               <th>Ejercicio</th>
-               <th>Fecha</th>
-               <th>Concepto</th>
-               <th>Documento</th>
-               <th class="text-right">Importe</th>
-            </tr>
+         <tr>
+            <th class="text-left">Asiento</th>
+            <th>Ejercicio</th>
+            <th>Fecha</th>
+            <th>Concepto</th>
+            <th>Documento</th>
+            <th class="text-right">Importe</th>
+         </tr>
       </thead>
       <tr>
          <td>{$fsc->asiento->numero}</td>
@@ -537,13 +548,25 @@
                <h4 class="modal-title">Buscar subcuenta</h4>
             </div>
             <div class="modal-body">
-               <div class="input-group">
-                  <input class="form-control" type="text" name="query" onkeyup="buscar_subcuentas();" autocomplete="off" autofocus />
-                  <span class="input-group-btn">
-                     <button class="btn btn-primary" type="submit">
-                        <span class="glyphicon glyphicon-search"></span>
-                     </button>
-                  </span>
+               <div class="container-fluid">
+                  <div class="row">
+                     <div class="col-xs-8">
+                        <div class="input-group">
+                           <input class="form-control" type="text" name="query" onkeyup="buscar_subcuentas();" autocomplete="off" autofocus />
+                           <span class="input-group-btn">
+                              <button class="btn btn-primary" type="submit">
+                                 <span class="glyphicon glyphicon-search"></span>
+                              </button>
+                           </span>
+                        </div>
+                     </div>
+                     <div class="col-xs-4">
+                        <a href="#" class="btn btn-sm btn-block btn-danger" onclick="select_subcuenta('','','')">
+                           <span class="glyphicon glyphicon-remove"></span>
+                           <span class="hidden-xs">&nbsp; ninguna</span>
+                        </a>
+                     </div>
+                  </div>
                </div>
             </div>
             <div id="subcuentas"></div>

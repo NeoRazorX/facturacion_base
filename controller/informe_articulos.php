@@ -222,8 +222,8 @@ class informe_articulos extends fs_controller
       
       $aux = $this->db->select("SELECT GREATEST( COUNT(referencia), 0) as art,
          GREATEST( SUM(case when stockfis > 0 then 1 else 0 end), 0) as stock,
-         GREATEST( SUM(".$this->db->sql_to_int('bloqueado')."), 0) as bloq,
-         GREATEST( SUM(".$this->db->sql_to_int('publico')."), 0) as publi,
+         GREATEST( SUM(case when bloqueado then 1 else 0 end), 0) as bloq,
+         GREATEST( SUM(case when publico then 1 else 0 end), 0) as publi,
          MAX(factualizado) as factualizado FROM articulos;");
       if($aux)
       {
