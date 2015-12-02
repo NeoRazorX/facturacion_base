@@ -316,7 +316,7 @@ class compras_facturas extends fs_controller
    
    public function total_sinpagar()
    {
-      $data = $this->db->select("SELECT COUNT(idfactura) as total FROM facturasprov WHERE pagada = false;");
+      $data = $this->db->select("SELECT COUNT(idfactura) as total FROM facturasprov WHERE pagada = false AND idpagodevol ='0';");
       if($data)
       {
          return intval($data[0]['total']);

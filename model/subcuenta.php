@@ -64,6 +64,7 @@ class subcuenta extends fs_model
    
    public function __construct($s=FALSE)
    {
+
       parent::__construct('co_subcuentas', 'plugins/facturacion_base/');
       if($s)
       {
@@ -80,7 +81,8 @@ class subcuenta extends fs_model
          $this->saldo = floatval($s['saldo']);
          $this->recargo = floatval($s['recargo']);
          $this->iva = floatval($s['iva']);
-		 $this->alias = floatval($s['alias']);
+		 $this->alias = $s['alias'];
+ 
       }
       else
       {
@@ -521,7 +523,7 @@ class subcuenta extends fs_model
          $subcuentas = $this->db->select("SELECT * FROM ".$this->table_name.
               " WHERE codejercicio = ".$this->var2str($ejercicio).
               " AND (codsubcuenta LIKE '".$query."%' OR codsubcuenta LIKE '%".$query."'
-               OR lower(descripcion) LIKE '%".$query."%' OR alias LIKE '".$query."%' )
+               OR lower(descripcion) LIKE '%".$query."%' OR alias LIKE '%".$query."%' )
                ORDER BY codcuenta ASC;");
          
          if($subcuentas)

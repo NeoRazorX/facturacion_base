@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : ordenpago.xml
+    Description:
+        Estructura de la tabla ordenpago.
+-->
+<tabla>
+   <columna>
+      <nombre>idorden</nombre>
+      <tipo>serial</tipo>
+      <nulo>NO</nulo>
+      <defecto>nextval('recibosprov_idorden_seq'::regclass)</defecto>
+   </columna>
+   <columna>
+      <nombre>fechav</nombre>
+      <tipo>date</tipo>
+      <nulo>NO</nulo>
+   </columna>
+   <columna>
+      <nombre>idprovorden</nombre>
+      <tipo>integer</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>aliasorden</nombre>
+      <tipo>character varying(100)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>provorden</nombre>
+      <tipo>character varying(100)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>importe</nombre>
+      <tipo>double precision</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>importepagar</nombre>
+      <tipo>double precision</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>conceptoorden</nombre>
+      <tipo>character varying(100)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>estado</nombre>
+      <tipo>character varying(20)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>historial</nombre>
+      <tipo>character varying(20)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>idcuentaespecial</nombre>
+      <tipo>integer</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>idsubcuenta</nombre>
+      <tipo>integer</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>subcuentaorden</nombre>
+      <tipo>character varying(20)</tipo>
+      <nulo>YES</nulo>
+   </columna>   
+   <restriccion>
+      <nombre>ordenpago_pkey</nombre>
+      <consulta>PRIMARY KEY (idorden)</consulta>
+   </restriccion>
+</tabla>

@@ -32,6 +32,7 @@ class contabilidad_subcuenta extends fs_controller
    public $resultados;
    public $subcuenta;
    public $offset;
+   public $alias;
    
    public function __construct()
    {
@@ -141,10 +142,11 @@ class contabilidad_subcuenta extends fs_controller
    
    private function puntear()
    {
-      if($_POST['descripcion'] != $this->subcuenta->descripcion)
+      if($_POST['descripcion'] != $this->subcuenta->descripcion OR $_POST['alias'] != $this->subcuenta->alias)
       {
          $this->subcuenta->descripcion = $_POST['descripcion'];
          $this->subcuenta->coddivisa = $_POST['coddivisa'];
+		 $this->subcuenta->alias = $_POST['alias'];
          $this->subcuenta->save();
       }
       

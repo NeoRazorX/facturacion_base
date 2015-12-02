@@ -49,6 +49,8 @@ class partida extends fs_model
    public $cifnif;
    public $haber;
    public $debe;
+   public $comprobante;
+   public $referencia;
    
    public $numero;
    public $fecha;
@@ -84,6 +86,8 @@ class partida extends fs_model
          $this->cifnif = $p['cifnif'];
          $this->debe = floatval($p['debe']);
          $this->haber = floatval($p['haber']);
+		 $this->comprobante = $p['comprobante'];
+		 $this->referencia = $p['referencia'];
       }
       else
       {
@@ -110,6 +114,8 @@ class partida extends fs_model
          $this->cifnif = NULL;
          $this->debe = 0;
          $this->haber = 0;
+		 $this->comprobante = NULL;
+		 $this->referencia = NULL;
       }
       
       $this->numero = 0;
@@ -132,6 +138,12 @@ class partida extends fs_model
       }
       else
          return 'index.php?page=contabilidad_asiento&id='.$this->idasiento;
+   }
+   
+   public function actualiza_importe($idasiento)
+   {
+   $asiento = new asiento();
+   $asiento->actualiza_importe($idasiento);
    }
    
    public function get_subcuenta()
@@ -186,9 +198,22 @@ class partida extends fs_model
          return FALSE;
    }
    
+   public function get_idasiento($id)
+   {
+      $partida = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idasiento = ".$id.";");
+      if( $partida )
+      {
+         return $partida;
+      }
+      else
+         return FALSE;
+   }
+   
+   
+   
    public function exists()
    {
-   	$existe_id=$this->db->select("SELECT idasiento FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento)." AND idsubcuenta = ".$this->var2str($this->idsubcuenta).";");
+   	$existe_id=$this->db->select("SELECT idasiento FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento)." AND (idpartida = ".$this->var2str($this->idpartida)." OR idsubcuenta = ".$this->var2str($this->idsubcuenta).");");
    
       if( $existe_id==NULL or $existe_id[0]['idasiento']==0 )
       {
@@ -196,8 +221,10 @@ class partida extends fs_model
       }
       else
 	  {
-         return $existe_id[0]['idasiento'];
-		 }
+	
+					  return $existe_id[0]['idasiento'];
+					
+		}
    }
    
    public function save()
@@ -205,37 +232,21 @@ class partida extends fs_model
       $this->concepto = $this->no_html($this->concepto);
       $this->documento = $this->no_html($this->documento);
       $this->cifnif = $this->no_html($this->cifnif);
-      
 
-	  
-/*   				print '<script language="JavaScript">'; 
-				print 'alert(" id partida : '.$this->var2str($this->idpartida).' id asiento :'.$this->var2str($this->idasiento).' id subcuenta :'.$this->var2str($this->idsubcuenta).'");'; 
-				print '</script>'; 
-*/   
 
 			$array_editable=$this->db->select("SELECT editable FROM co_asientos WHERE idasiento = ".$this->var2str($this->idasiento).";");
 	  
       if( $this->exists() )
       {	
 	  		$array_partida=$this->db->select("SELECT idpartida,idasiento,baseimponible,debe,debeme,haber,haberme FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento)." AND idsubcuenta = ".$this->var2str($this->idsubcuenta).";");
-			
-			if($array_editable[0]['editable']==0)
-			{
+
 			$sum_debe=$array_partida[0]['debe']+$this->debe;
 			$sum_haber=$array_partida[0]['haber']+$this->haber;
 			$sum_baseimponible=$array_partida[0]['baseimponible']+$this->baseimponible;
 			$sum_debeme=$array_partida[0]['debeme']+$this->debeme;
 			$sum_haberme=$array_partida[0]['haberme']+$this->haberme;
-			}
-			else
-			{ 
-			$sum_debe=$this->debe;
-			$sum_haber=$this->haber;
-			$sum_baseimponible=$this->baseimponible;
-			$sum_debeme=$this->debeme;
-			$sum_haberme=$this->haberme;
-			}
-			
+			$this->idpartida = $array_partida[0]['idpartida'];
+
          $sql = "UPDATE ".$this->table_name." SET idasiento = ".$this->var2str($this->idasiento).",
             idsubcuenta = ".$this->var2str($this->idsubcuenta).", codsubcuenta = ".$this->var2str($this->codsubcuenta).",
             idconcepto = ".$this->var2str($this->idconcepto).", concepto = ".$this->var2str($this->concepto).",
@@ -247,11 +258,11 @@ class partida extends fs_model
             factura = ".$this->var2str($this->factura).", codserie = ".$this->var2str($this->codserie).",
             tipodocumento = ".$this->var2str($this->tipodocumento).", documento = ".$this->var2str($this->documento).",
             cifnif = ".$this->var2str($this->cifnif).", debe = ".$this->var2str($sum_debe).",
-            haber = ".$this->var2str($sum_haber)." WHERE idpartida = ".$array_partida[0]['idpartida'].";";
+            haber = ".$this->var2str($sum_haber)." WHERE idpartida = ".$this->idpartida.";";
          
          if( $this->db->exec($sql) )
          {
-		 	$this->idpartida = $array_partida[0]['idpartida'];
+		 	$this->actualiza_importe($this->idasiento);
             $subc = $this->get_subcuenta();
             if($subc)
             {
@@ -263,11 +274,10 @@ class partida extends fs_model
             return FALSE;
       }
       else
-      {
-	  
+      { 
          $sql = "INSERT INTO ".$this->table_name." (idasiento,idsubcuenta,codsubcuenta,idconcepto,
             concepto,idcontrapartida,codcontrapartida,punteada,tasaconv,coddivisa,haberme,debeme,recargo,iva,
-            baseimponible,factura,codserie,tipodocumento,documento,cifnif,debe,haber) VALUES
+            baseimponible,factura,codserie,tipodocumento,documento,cifnif,debe,haber,comprobante,referencia) VALUES
             (".$this->var2str($this->idasiento).",".$this->var2str($this->idsubcuenta).",
              ".$this->var2str($this->codsubcuenta).",".$this->var2str($this->idconcepto).",".$this->var2str($this->concepto).",
              ".$this->var2str($this->idcontrapartida).",".$this->var2str($this->codcontrapartida).",".$this->var2str($this->punteada).",
@@ -275,10 +285,11 @@ class partida extends fs_model
              ".$this->var2str($this->debeme).",".$this->var2str($this->recargo).",".$this->var2str($this->iva).",
              ".$this->var2str($this->baseimponible).",".$this->var2str($this->factura).",".$this->var2str($this->codserie).",
              ".$this->var2str($this->tipodocumento).",".$this->var2str($this->documento).",".$this->var2str($this->cifnif).",
-             ".$this->var2str($this->debe).",".$this->var2str($this->haber).");";
+             ".$this->var2str($this->debe).",".$this->var2str($this->haber).",".$this->var2str($this->comprobante).",".$this->var2str($this->referencia).");";
          
          if( $this->db->exec($sql) )
          {
+		 $this->actualiza_importe($this->idasiento);
             $this->idpartida = $this->db->lastval();
             
             $subc = $this->get_subcuenta();
@@ -291,6 +302,85 @@ class partida extends fs_model
          else
             return FALSE;
       }
+   }
+      
+   public function modificar()
+   {
+ 	
+      $this->concepto = $this->no_html($this->concepto);
+      $this->documento = $this->no_html($this->documento);
+      $this->cifnif = $this->no_html($this->cifnif);
+  
+
+			$array_editable=$this->db->select("SELECT editable FROM co_asientos WHERE idasiento = ".$this->var2str($this->idasiento).";");
+	  
+      if( $this->exists() )
+      {	
+
+			$sum_debe = $this->debe;
+			$sum_haber = $this->haber;
+			$sum_baseimponible = $this->baseimponible;
+			$sum_debeme = $this->debeme;
+			$sum_haberme = $this->haberme;
+
+         $sql = "UPDATE ".$this->table_name." SET idasiento = ".$this->var2str($this->idasiento).",
+            idsubcuenta = ".$this->var2str($this->idsubcuenta).", codsubcuenta = ".$this->var2str($this->codsubcuenta).",
+            idconcepto = ".$this->var2str($this->idconcepto).", concepto = ".$this->var2str($this->concepto).",
+            idcontrapartida = ".$this->var2str($this->idcontrapartida).", codcontrapartida = ".$this->var2str($this->codcontrapartida).",
+            punteada = ".$this->var2str($this->punteada).", tasaconv = ".$this->var2str($this->tasaconv).",
+            coddivisa = ".$this->var2str($this->coddivisa).", haberme = ".$this->var2str($this->haberme).",
+            debeme = ".$this->var2str($this->debeme).", recargo = ".$this->var2str($this->recargo).",
+            iva = ".$this->var2str($this->iva).", baseimponible = ".$this->var2str($this->baseimponible).",
+            factura = ".$this->var2str($this->factura).", codserie = ".$this->var2str($this->codserie).",
+            tipodocumento = ".$this->var2str($this->tipodocumento).", documento = ".$this->var2str($this->documento).",
+            cifnif = ".$this->var2str($this->cifnif).", debe = ".$this->var2str($sum_debe).",
+            haber = ".$this->var2str($sum_haber).",
+            comprobante = ".$this->var2str($this->comprobante).",
+            referencia = ".$this->var2str($this->referencia)." WHERE idpartida = ".$this->var2str($this->idpartida).";";
+         
+         if( $this->db->exec($sql) )
+         {	$this->actualiza_importe($this->idasiento);
+		 	$this->idpartida = $this->var2str($this->idpartida);
+            $subc = $this->get_subcuenta();
+            if($subc)
+            {
+               $subc->save(); /// guardamos la subcuenta para actualizar su saldo
+            }
+            return TRUE;
+         }
+         else
+            return FALSE;
+      }
+	   else
+      {
+         $sql = "INSERT INTO ".$this->table_name." (idasiento,idsubcuenta,codsubcuenta,idconcepto,
+            concepto,idcontrapartida,codcontrapartida,punteada,tasaconv,coddivisa,haberme,debeme,recargo,iva,
+            baseimponible,factura,codserie,tipodocumento,documento,cifnif,debe,haber,comprobante,referencia) VALUES
+            (".$this->var2str($this->idasiento).",".$this->var2str($this->idsubcuenta).",
+             ".$this->var2str($this->codsubcuenta).",".$this->var2str($this->idconcepto).",".$this->var2str($this->concepto).",
+             ".$this->var2str($this->idcontrapartida).",".$this->var2str($this->codcontrapartida).",".$this->var2str($this->punteada).",
+             ".$this->var2str($this->tasaconv).",".$this->var2str($this->coddivisa).",".$this->var2str($this->haberme).",
+             ".$this->var2str($this->debeme).",".$this->var2str($this->recargo).",".$this->var2str($this->iva).",
+             ".$this->var2str($this->baseimponible).",".$this->var2str($this->factura).",".$this->var2str($this->codserie).",
+             ".$this->var2str($this->tipodocumento).",".$this->var2str($this->documento).",".$this->var2str($this->cifnif).",
+             ".$this->var2str($this->debe).",".$this->var2str($this->haber).",".$this->var2str($this->comprobante).",".$this->var2str($this->referencia).");";
+         
+         if( $this->db->exec($sql) )
+         {
+		 	$this->actualiza_importe($this->idasiento);
+            $this->idpartida = $this->db->lastval();
+            
+            $subc = $this->get_subcuenta();
+            if($subc)
+            {
+               $subc->save(); /// guardamos la subcuenta para actualizar su saldo
+            }
+            return TRUE;
+         }
+         else
+            return FALSE;
+      }
+
    }
    
    public function delete()
@@ -426,6 +516,22 @@ class partida extends fs_model
       $resultados = $this->db->select("SELECT COALESCE(SUM(debe), 0) as debe,
          COALESCE(SUM(haber), 0) as haber
          FROM ".$this->table_name." WHERE idsubcuenta = ".$this->var2str($id).";");
+      if( $resultados )
+      {
+         $totales['debe'] = floatval($resultados[0]['debe']);
+         $totales['haber'] = floatval($resultados[0]['haber']);
+         $totales['saldo'] = floatval($resultados[0]['debe']) - floatval($resultados[0]['haber']);
+      }
+      
+      return $totales;
+   }
+   
+         public function totales_from_asiento($idasiento)
+   {
+      $totales = array( 'debe' => 0, 'haber' => 0, 'saldo' => 0 );
+      $resultados = $this->db->select("SELECT COALESCE(SUM(debe), 0) as debe,
+         COALESCE(SUM(haber), 0) as haber
+         FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($idasiento).";");
       if( $resultados )
       {
          $totales['debe'] = floatval($resultados[0]['debe']);

@@ -276,6 +276,7 @@
 <h1>Algo has tocado o_O</h1>
 {/if}
 
+
 <form enctype='multipart/form-data' action="{$fsc->url()}" method="post" class="form">
    <input name='archivo' type='hidden' value='TRUE'/>
    <div class="modal fade" id="modal_importar">
@@ -285,58 +286,20 @@
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">Importar datos del ejercicio</h4>
                <p class="help-block">
-                  Se importarán grupos, epígrafes, cuentas, subcuentas, etc.
-                  <br/>
-                  ¿No está el plan contable de tu país?
-                  <a href="https://www.youtube.com/watch?v=LtnbPTLCiJY" target="_blank">Créalo</a>.
+                  Se importarán Títulos, Capítulos, Rubros, Cuentas, Subcuentas, etc.
                </p>
             </div>
-            <div class="modal-body">
+ 
                <div class="radio">
                   <label>
-                     <input type="radio" name="fuente" value="plugins/facturacion_base/extras/espanya.xml" checked="checked"/>
-                     Plan General Contable de <b>España</b>
+                     <input type="hidden" id="rb_archivo" name="fuente" value="archivo" onclick="$('#div_externo').show();"/>
+                    Archivo externo
                   </label>
                </div>
-               {loop="$fsc->extensions"}
-                  {if="$value->type=='fuente'"}
-                  <div class="radio">
-                     <label>
-                        <input type="radio" name="fuente" value="{$value->params}" checked="checked"/>
-                        {$value->text}
-                     </label>
-                  </div>
-                  {/if}
-               {else}
-               <div class="radio">
-                  <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
-                     <input type="radio" name="fuente" value="" disabled="disabled"/>
-                     PUC de <b>Colombia</b> (Requiere instalar plugin colombia)
-                  </label>
-               </div>
-               <div class="radio">
-                  <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
-                     <input type="radio" name="fuente" value="" disabled="disabled"/>
-                     Plan contable de <b>Panamá</b> (Requiere instalar plugin panama)
-                  </label>
-               </div>
-               <div class="radio">
-                  <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
-                     <input type="radio" name="fuente" value="" disabled="disabled"/>
-                     PCGE de <b>Perú</b> (Requiere instalar plugin peru)
-                  </label>
-               </div>
-               {/loop}
-               <div class="radio">
-                  <label>
-                     <input type="radio" id="rb_archivo" name="fuente" value="archivo" onclick="$('#div_externo').show();"/>
-                     Un archivo externo
-                  </label>
-               </div>
-               <div id="div_externo" class="form-group" style="display: none;">
+               <div id="div_externo" class="form-group" >
                   <input class="form-control" name='farchivo' type='file' onclick="$('#rb_archivo').prop('checked', true);"/>
                </div>
-            </div>
+            
             <div class="modal-footer">
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Importar">
                    <span class="glyphicon glyphicon-import"></span> &nbsp; Importar

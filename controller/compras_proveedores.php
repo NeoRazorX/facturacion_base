@@ -78,6 +78,7 @@ class compras_proveedores extends fs_controller
             $proveedor = new proveedor();
             $proveedor->codproveedor = $proveedor->get_new_codigo();
             $proveedor->nombre = $_POST['nombre'];
+			$proveedor->alias = $_POST['nombre'];
             $proveedor->razonsocial = $_POST['nombre'];
             $proveedor->cifnif = $_POST['cifnif'];
             $proveedor->codserie = $this->empresa->codserie;

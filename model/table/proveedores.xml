@@ -80,6 +80,11 @@
       <tipo>character varying(100)</tipo>
       <nulo>NO</nulo>
    </columna>
+    <columna>
+      <nombre>alias</nombre>
+      <tipo>character varying(100)</tipo>
+      <nulo>YES</nulo>
+   </columna>
    <columna>
       <nombre>razonsocial</nombre>
       <tipo>character varying(100)</tipo>

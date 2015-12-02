@@ -68,6 +68,7 @@
          <thead>
             <tr>
                <th class="text-left">Subcuenta</th>
+			   <th class="text-left">Alias</th>
                <th class="text-left">Descripción</th>
                <th>Ejercicio</th>
                <th>Divisa</th>
@@ -79,6 +80,9 @@
          <tr>
             <td>
                <div class="form-control">{$fsc->subcuenta->codsubcuenta}</div>
+            </td>
+			<td>
+               <input class="form-control" type="text" name="alias" value="{$fsc->subcuenta->alias}" autocomplete="off"/>
             </td>
             <td>
                <input class="form-control" type="text" name="descripcion" value="{$fsc->subcuenta->descripcion}" autocomplete="off"/>

@@ -17,6 +17,7 @@
          <tr>
             <th></th>
             <th class="text-left">Código</th>
+			<th class="text-left">Alias</th>
             <th class="text-left">Descripción</th>
             <th class="text-right">Debe</th>
             <th class="text-right">Haber</th>
@@ -31,12 +32,13 @@
             </a>
          </td>
          <td>
-            <a href="#" onclick="select_subcuenta('{$value->codsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}')">
+            <a href="#" onclick="select_subcuenta('{$value->codsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}','{function="base64_encode($value->alias)"}')">
                {$value->codsubcuenta}
             </a>
          </td>
+		 <td class="text-left">{$value->alias}</td>
          <td>
-            <a href="#" onclick="select_subcuenta('{$value->codsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}')">
+            <a href="#" onclick="select_subcuenta('{$value->codsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}','{function="base64_encode($value->alias)"}')">
                {$value->descripcion}
             </a>
          </td>

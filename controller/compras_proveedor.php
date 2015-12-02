@@ -148,6 +148,7 @@ class compras_proveedor extends fs_controller
       {
          $this->proveedor->nombre = $_POST['nombre'];
          $this->proveedor->razonsocial = $_POST['razonsocial'];
+		 $this->proveedor->alias = $_POST['alias'];
          $this->proveedor->cifnif = $_POST['cifnif'];
          $this->proveedor->telefono1 = $_POST['telefono1'];
          $this->proveedor->telefono2 = $_POST['telefono2'];

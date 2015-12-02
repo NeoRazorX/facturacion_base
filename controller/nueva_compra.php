@@ -42,6 +42,7 @@ class nueva_compra extends fs_controller
    public $results;
    public $serie;
    public $tipo;
+  
    
    public function __construct()
    {
@@ -390,7 +391,7 @@ class nueva_compra extends fs_controller
          $pedido->fecha = $_POST['fecha'];
          $pedido->hora = $_POST['hora'];
          $pedido->codproveedor = $proveedor->codproveedor;
-         $pedido->nombre = $proveedor->razonsocial;
+         $pedido->nombre = $proveedor->nombre;
          $pedido->cifnif = $proveedor->cifnif;
          $pedido->codalmacen = $almacen->codalmacen;
          $pedido->codejercicio = $ejercicio->codejercicio;
@@ -599,7 +600,7 @@ class nueva_compra extends fs_controller
          $albaran->fecha = $_POST['fecha'];
          $albaran->hora = $_POST['hora'];
          $albaran->codproveedor = $proveedor->codproveedor;
-         $albaran->nombre = $proveedor->razonsocial;
+         $albaran->nombre = $proveedor->nombre;
          $albaran->cifnif = $proveedor->cifnif;
          $albaran->codalmacen = $almacen->codalmacen;
          $albaran->codejercicio = $ejercicio->codejercicio;
@@ -806,7 +807,8 @@ class nueva_compra extends fs_controller
          $factura->fecha = $_POST['fecha'];
          $factura->hora = $_POST['hora'];
          $factura->codproveedor = $proveedor->codproveedor;
-         $factura->nombre = $proveedor->razonsocial;
+         $factura->nombre = $proveedor->nombre;
+		 $factura->idpagodevol=0;
          $factura->cifnif = $proveedor->cifnif;
          $factura->codalmacen = $almacen->codalmacen;
          $factura->codejercicio = $ejercicio->codejercicio;
@@ -827,7 +829,7 @@ class nueva_compra extends fs_controller
          
          if($forma_pago->genrecibos == 'Pagados')
          {
-            $factura->pagada = TRUE;
+//            $factura->pagada = TRUE;
          }
          
          if( $factura->save() )

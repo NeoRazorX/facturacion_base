@@ -418,6 +418,14 @@ class asiento extends fs_model
       else
          return FALSE;
    }
+   public function bloquear_on_off()
+   { 
+   $sql = "UPDATE ".$this->table_name." SET 
+               editable = ".$this->var2str($this->editable)."
+               WHERE codejercicio = ".$this->var2str($this->codejercicio)." AND fecha=".$this->var2str($this->fecha)." AND tipodocumento=".$this->var2str($this->tipodocumento).";";
+			 $this->db->exec($sql); 
+			 return TRUE;		 
+   }
    
    public function save()
    {
@@ -426,17 +434,29 @@ class asiento extends fs_model
       {
          if( $this->exists() )
          {				
+
 				$array_sum_importe= $this->db->select("SELECT importe,idasiento,editable FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio)." AND fecha=".$this->var2str($this->fecha)." AND tipodocumento=".$this->var2str($this->tipodocumento)." ;");
-				if($array_sum_importe[0]['editable']==0 and $this->idasiento==NULL )	
-				$sum_importe=$array_sum_importe[0]['importe']+$this->importe;	
-				else	$sum_importe=$this->importe;			
+
+				$sum_importe=0;
+				$importe_partida = new partida();
+				$importe = $importe_partida->get_idasiento($array_sum_importe[0]['idasiento']);
+
+				
+				foreach($importe as $ext)
+      			{
+					$sum_importe = $sum_importe + $ext['debe'];
+      			}
+				
+/*				print '<script language="JavaScript">'; 
+				print 'alert(" id partida : '.$sum_importe.' id  '.$array_sum_importe[0]['idasiento'].'  importe '.$this->importe.' ");'; 
+				print '</script>'; 
+*/
 		 
            $sql = "UPDATE ".$this->table_name." SET numero = ".$this->exists().",
                idconcepto = ".$this->var2str($this->idconcepto).",
                concepto = ".$this->var2str($this->concepto).", fecha = ".$this->var2str($this->fecha).",
                codejercicio = ".$this->var2str($this->codejercicio).",
                codplanasiento = ".$this->var2str($this->codplanasiento).",
-               editable = ".$this->var2str($this->editable).",
                documento = ".$this->var2str($this->documento).",
                tipodocumento = ".$this->var2str($this->tipodocumento).",
                importe = ".$this->var2str($sum_importe)."
@@ -478,6 +498,24 @@ class asiento extends fs_model
       }
       else
          return FALSE;
+   }
+   
+      public function actualiza_importe($idasiento)
+   {
+					
+				$sum_importe=0;
+				$importe_partida = new partida();
+				$importe = $importe_partida->get_idasiento($idasiento);
+
+				
+				foreach($importe as $ext)
+      			{
+					$sum_importe = $sum_importe + $ext['debe'];
+      			}
+   
+			   $sql = "UPDATE ".$this->table_name." SET importe = ".$this->var2str($sum_importe)." WHERE idasiento = ".$this->var2str($idasiento).";";
+			   $this->db->exec($sql);
+			   return TRUE;
    }
    
    public function delete()

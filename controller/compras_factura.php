@@ -25,6 +25,7 @@ require_model('forma_pago.php');
 require_model('partida.php');
 require_model('proveedor.php');
 require_model('subcuenta.php');
+require_model('recibo_proveedor.php');
 
 class compras_factura extends fs_controller
 {
@@ -180,7 +181,7 @@ class compras_factura extends fs_controller
    private function nuevo_asiento_devolucion()
    {
    		$anular= new factura_proveedor();
-
+		$orden = new orden_prov();
 	  	$facturadev = new asiento_factura();
 	  	if($facturadev->nuevo_asiento_devolucion_prov($_REQUEST['idfacpro']))
 		$anular->boton_anular($_REQUEST['idfacpro']);
@@ -189,10 +190,11 @@ class compras_factura extends fs_controller
 	  	$var_idpagodevol=$factura->get($_GET['id']);
 		// Dá el valor al botón
 	  	$this->factura_anulada=$var_idpagodevol->idpagodevol;
-      
+		
+		      foreach($orden->ultimovalor_orden_prov($var_idpagodevol->codproveedor) as $f){}
 
-		
-		
+		$dif_importe = $f->importe - $var_idpagodevol->total;
+		$orden->nuevoimporte_orden($f->idorden,$dif_importe);
 
 	}  	
  
@@ -205,7 +207,8 @@ class compras_factura extends fs_controller
    
    private function generar_asiento()
    {
-      if( $this->factura->get_asiento() )
+   		// toma un asiento existente con su id
+      if( $this->factura->get_asiento() ) //factura_proveedor
       {
          $this->new_error_msg('Ya hay un asiento asociado a esta factura.');
       }
@@ -213,6 +216,7 @@ class compras_factura extends fs_controller
       {
          $asiento_factura = new asiento_factura();
          $asiento_factura->soloasiento = TRUE;
+		 // Genera la partida que está en asiento_factura
          if( $asiento_factura->generar_asiento_compra($this->factura) )
          {
             $this->new_message("<a href='".$asiento_factura->asiento->url()."'>Asiento</a> generado correctamente.");

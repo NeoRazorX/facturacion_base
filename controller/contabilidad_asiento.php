@@ -37,6 +37,10 @@ class contabilidad_asiento extends fs_controller
    public $subcuenta;
    public $resultados1;
    public $factura_prov;
+   public $suma_debe;
+   public $suma_haber;
+   public $saldo;
+   public $alias;
    
    public function __construct()
    {
@@ -93,7 +97,7 @@ class contabilidad_asiento extends fs_controller
          if( isset($_GET['bloquear']) )
          {
             $this->asiento->editable = FALSE;
-            if( $this->asiento->save() )
+            if( $this->asiento->bloquear_on_off() )
             {
                $this->new_message('Asiento bloqueado correctamente.');
             }
@@ -103,7 +107,7 @@ class contabilidad_asiento extends fs_controller
          else if( isset($_GET['desbloquear']) )
          {
             $this->asiento->editable = TRUE;
-            if( $this->asiento->save() )
+            if( $this->asiento->bloquear_on_off() )
             {
                $this->new_message('Asiento desbloqueado correctamente.');
             }
@@ -120,6 +124,13 @@ class contabilidad_asiento extends fs_controller
          $this->asiento->full_test();
          
          $this->lineas = $this->get_lineas_asiento();
+		 $partida = new partida();
+		 $valores=$partida->totales_from_asiento($this->asiento->idasiento);
+		 $this->suma_debe = $valores['debe'];
+		 $this->suma_haber = $valores['haber'];
+		 $this->saldo = $valores['saldo'];
+//		 $this->comprobante = $valores['comprobante'];
+//		 $this->referencia = $valores['referencia'];
 		 
       }
       else
@@ -252,6 +263,8 @@ class contabilidad_asiento extends fs_controller
                      $partida->concepto = $this->asiento->concepto;
                      $partida->documento = $this->asiento->documento;
                      $partida->tipodocumento = $this->asiento->tipodocumento;
+					 $partida->comprobante = $_POST['comp_'.$i];
+					 $partida->referencia = $_POST['ref_'.$i];
                      
                      if( isset($_POST['codcontrapartida_'.$i]) )
                      {
@@ -274,7 +287,7 @@ class contabilidad_asiento extends fs_controller
                         }
                      }
                      
-                     if( !$partida->save() )
+                     if( !$partida->modificar() )
                      {
                         $this->new_error_msg('Imposible guardar la partida de la subcuenta '.$_POST['codsubcuenta_'.$i].'.');
                         $continuar = FALSE;
@@ -311,6 +324,7 @@ class contabilidad_asiento extends fs_controller
          $subcuenta = $subc->get($lin->idsubcuenta);
          if($subcuenta)
          {
+		 	$lineas[$i]->alias = $subcuenta->alias;
             $lineas[$i]->desc_subcuenta = $subcuenta->descripcion;
             $lineas[$i]->saldo = $subcuenta->saldo;
          }

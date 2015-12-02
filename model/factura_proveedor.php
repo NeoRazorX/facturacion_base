@@ -63,89 +63,93 @@ class factura_proveedor extends fs_model
    public $totalirpf;
    public $totaliva;
    public $totalrecargo;
+
 //   public $idasientofac;
    
    public function __construct($f=FALSE)
    {
       parent::__construct('facturasprov', 'plugins/facturacion_base/');
-      if($f)
-      {
-         $this->editable = $this->str2bool($f['editable']);
-         $this->automatica = $this->str2bool($f['automatica']);
-         $this->cifnif = $f['cifnif'];
-         $this->codagente = $f['codagente'];
-         $this->codalmacen = $f['codalmacen'];
-         $this->coddivisa = $f['coddivisa'];
-         $this->codejercicio = $f['codejercicio'];
-         $this->codigo = $f['codigo'];
-         $this->codigorect = $f['codigorect'];
-         $this->codpago = $f['codpago'];
-         $this->codproveedor = $f['codproveedor'];
-         $this->codserie = $f['codserie'];
-         $this->deabono = $this->str2bool($f['deabono']);
-         $this->fecha = Date('d-m-Y', strtotime($f['fecha']));
-         
-         $this->hora = '00:00:00';
-         if( !is_null($f['hora']) )
-            $this->hora = $f['hora'];
-//         $this->idasientofac = $this->intval($f['idasiento']);
-         $this->idasiento = $this->intval($f['idasiento']);
-         $this->idfactura = $this->intval($f['idfactura']);
-         $this->idfacturarect = $this->intval($f['idfacturarect']);
-         $this->idpagodevol = $this->intval($f['idpagodevol']);
-         $this->irpf = floatval($f['irpf']);
-         $this->neto = floatval($f['neto']);
-         $this->nogenerarasiento = $this->str2bool($f['nogenerarasiento']);
-         $this->nombre = $f['nombre'];
-         $this->numero = $f['numero'];
-         $this->numproveedor = $f['numproveedor'];
-         $this->observaciones = $this->no_html($f['observaciones']);
-         $this->pagada = $this->str2bool($f['pagada']);
-         $this->recfinanciero = floatval($f['recfinanciero']);
-         $this->tasaconv = floatval($f['tasaconv']);
-         $this->total = floatval($f['total']);
-         $this->totaleuros = floatval($f['totaleuros']);
-         $this->totalirpf = floatval($f['totalirpf']);
-         $this->totaliva = floatval($f['totaliva']);
-         $this->totalrecargo = floatval($f['totalrecargo']);
-      }
-      else
-      {
-         $this->editable = TRUE;
-         $this->automatica = FALSE;
-         $this->cifnif = NULL;
-         $this->codagente = NULL;
-         $this->codalmacen = NULL;
-         $this->coddivisa = NULL;
-         $this->codejercicio = NULL;
-         $this->codigo = NULL;
-         $this->codigorect = NULL;
-         $this->codpago = NULL;
-         $this->codproveedor = NULL;
-         $this->codserie = NULL;
-         $this->deabono = FALSE;
-         $this->fecha = Date('d-m-Y');
-         $this->hora = Date('H:i:s');
-         $this->idasiento = NULL;
-         $this->idfactura = NULL;
-         $this->idfacturarect = NULL;
-         $this->idpagodevol = NULL;
-         $this->irpf = 0;
-         $this->neto = 0;
-         $this->nogenerarasiento = FALSE;
-         $this->nombre = NULL;
-         $this->numero = NULL;
-         $this->numproveedor = NULL;
-         $this->observaciones = NULL;
-         $this->pagada = FALSE;
-         $this->recfinanciero = 0;
-         $this->tasaconv = 1;
-         $this->total = 0;
-         $this->totaleuros = 0;
-         $this->totalirpf = 0;
-         $this->totaliva = 0;
-         $this->totalrecargo = 0;
-      }
+	 
+		  if($f)
+		  {
+			 $this->editable = $this->str2bool($f['editable']);
+			 $this->automatica = $this->str2bool($f['automatica']);
+			 $this->cifnif = $f['cifnif'];
+			 $this->codagente = $f['codagente'];
+			 $this->codalmacen = $f['codalmacen'];
+			 $this->coddivisa = $f['coddivisa'];
+			 $this->codejercicio = $f['codejercicio'];
+			 $this->codigo = $f['codigo'];
+			 $this->codigorect = $f['codigorect'];
+			 $this->codpago = $f['codpago'];
+			 $this->codproveedor = $f['codproveedor'];
+			 $this->codserie = $f['codserie'];
+			 $this->deabono = $this->str2bool($f['deabono']);
+			 $this->fecha = Date('d-m-Y', strtotime($f['fecha']));
+			 
+			 $this->hora = '00:00:00';
+			 if( !is_null($f['hora']) )
+				$this->hora = $f['hora'];
+	//         $this->idasientofac = $this->intval($f['idasiento']);
+			 $this->idasiento = $this->intval($f['idasiento']);
+			 $this->idfactura = $this->intval($f['idfactura']);
+			 $this->idfacturarect = $this->intval($f['idfacturarect']);
+			 $this->idpagodevol = $this->intval($f['idpagodevol']);
+			 $this->irpf = floatval($f['irpf']);
+			 $this->neto = floatval($f['neto']);
+			 $this->nogenerarasiento = $this->str2bool($f['nogenerarasiento']);
+			 $this->nombre = $f['nombre'];
+			 $this->numero = $f['numero'];
+			 $this->numproveedor = $f['numproveedor'];
+			 $this->observaciones = $this->no_html($f['observaciones']);
+			 $this->pagada = $this->str2bool($f['pagada']);
+			 $this->recfinanciero = floatval($f['recfinanciero']);
+			 $this->tasaconv = floatval($f['tasaconv']);
+			 $this->total = floatval($f['total']);
+			 $this->totaleuros = floatval($f['totaleuros']);
+			 $this->totalirpf = floatval($f['totalirpf']);
+			 $this->totaliva = floatval($f['totaliva']);
+			 $this->totalrecargo = floatval($f['totalrecargo']);
+
+		  }
+      	else
+		  {
+			 $this->editable = TRUE;
+			 $this->automatica = FALSE;
+			 $this->cifnif = NULL;
+			 $this->codagente = NULL;
+			 $this->codalmacen = NULL;
+			 $this->coddivisa = NULL;
+			 $this->codejercicio = NULL;
+			 $this->codigo = NULL;
+			 $this->codigorect = NULL;
+			 $this->codpago = NULL;
+			 $this->codproveedor = NULL;
+			 $this->codserie = NULL;
+			 $this->deabono = FALSE;
+			 $this->fecha = Date('d-m-Y');
+			 $this->hora = Date('H:i:s');
+			 $this->idasiento = NULL;
+			 $this->idfactura = NULL;
+			 $this->idfacturarect = NULL;
+			 $this->idpagodevol = NULL;
+			 $this->irpf = 0;
+			 $this->neto = 0;
+			 $this->nogenerarasiento = FALSE;
+			 $this->nombre = NULL;
+			 $this->numero = NULL;
+			 $this->numproveedor = NULL;
+			 $this->observaciones = NULL;
+			 $this->pagada = FALSE;
+			 $this->recfinanciero = 0;
+			 $this->tasaconv = 1;
+			 $this->total = 0;
+			 $this->totaleuros = 0;
+			 $this->totalirpf = 0;
+			 $this->totaliva = 0;
+			 $this->totalrecargo = 0;
+		  }
+
    }
 
    protected function install()
@@ -700,6 +704,7 @@ class factura_proveedor extends fs_model
       return $faclist;
    }
    
+
     public function boton_anular($idfactura)
    {
    
@@ -770,7 +775,7 @@ class factura_proveedor extends fs_model
    {
       $faclist = array();
       $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name.
-         " WHERE pagada = false ORDER BY fecha ASC, codigo ASC", $limit, $offset);
+         " WHERE pagada = false AND idpagodevol = '0' ORDER BY fecha ASC, codigo ASC", $limit, $offset);
       if($facturas)
       {
          foreach($facturas as $f)
@@ -805,6 +810,59 @@ class factura_proveedor extends fs_model
             $faclist[] = new factura_proveedor($f);
       }
       return $faclist;
+   }
+   
+      public function sumafactura_prov($codproveedor)
+   {
+  //    $faclist = array();
+      $facturas = $this->db->select("SELECT *,sum(total) as totalsuma FROM ".$this->table_name.
+         " WHERE codproveedor = ".$this->var2str($codproveedor).
+         "  AND pagada = '0' AND idpagodevol = '0'  ");
+      if($facturas)
+      {
+         foreach($facturas as $f)
+            $faclist = $f['totalsuma'];
+      }
+      return $faclist;
+   }
+   
+         public function sumafactura_prov_pagadas($codproveedor)
+   {
+  //    $faclist = array();
+      $facturas = $this->db->select("SELECT *,sum(total) as totalsuma FROM ".$this->table_name.
+         " WHERE codproveedor = ".$this->var2str($codproveedor).
+         "  AND pagada = '1' AND idpagodevol = '0'  ");
+      if($facturas)
+      {
+         foreach($facturas as $f)
+            $faclist = $f['totalsuma'];
+      }
+      return $faclist;
+   }
+   
+        public function factura_prov_sin_pagar($codproveedor)
+   {
+      $faclist = array();
+      $facturas = $this->db->select("SELECT * FROM ".$this->table_name.
+         " WHERE codproveedor = ".$this->var2str($codproveedor).
+         "  AND pagada = '0'  and idpagodevol = '0' ORDER BY idfactura ASC   ");
+      if($facturas)
+      {
+         foreach($facturas as $f)
+           $faclist[] = new factura_proveedor($f);
+      }
+      return $faclist;
+   }
+   
+   public function pagada_true($idfactura)
+   {
+       $sql = "UPDATE facturasprov SET pagada = '1' WHERE idfactura = ".$this->var2str($idfactura).";";
+           if( $this->db->exec($sql) )
+            {
+               return TRUE;
+            }
+            else
+               return FALSE; 
    }
       
    public function all_desde($desde, $hasta, $codserie=FALSE, $codagente=FALSE, $codproveedor=FALSE, $estado=FALSE)

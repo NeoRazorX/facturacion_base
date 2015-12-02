@@ -19,7 +19,7 @@
 
 require_model('cliente.php');
 require_model('proveedor.php');
-
+require_model('orden_prov');
 /**
  * Esta clase permite genera un asiento a partir de una factura.
  *
@@ -66,12 +66,12 @@ class asiento_factura
    
    
 	  $varfactura = new factura_proveedor();
-	  $factura=$varfactura->get($_REQUEST['idfacpro']);	
+	  $factura=$varfactura->get($_REQUEST['idfacpro']);	// con id toma de factura codproveedor,codejercicio, url(),codigo factura, nombreproveeedor fecha total
 
       $ok = FALSE;
       $this->asiento = FALSE;
       $proveedor0 = new proveedor();
-      $subcuenta_prov = FALSE;
+      $subcuenta_prov = FALSE; // toma de proveedor subcuenta con el codejercicio
       
       $proveedor = $proveedor0->get($factura->codproveedor);
       if($proveedor)
@@ -96,7 +96,7 @@ class asiento_factura
          $asiento->codejercicio = $factura->codejercicio;
          $asiento->concepto = "Nota de crédito ".$factura->codigo." - ".$factura->nombre;
          $asiento->documento = $factura->codigo;
-         $asiento->editable = FALSE;
+         $asiento->editable = TRUE;
          $asiento->fecha = $factura->fecha;
          $asiento->importe = $factura->total;
          $asiento->tipodocumento = "Egreso proveedor";
@@ -211,7 +211,7 @@ class asiento_factura
          $asiento->codejercicio = $factura->codejercicio;
          $asiento->concepto = "Nota de crédito ".$factura->codigo." - ".$factura->nombrecliente;
          $asiento->documento = $factura->codigo;
-         $asiento->editable = FALSE;
+         $asiento->editable = TRUE;
          $asiento->fecha = $factura->fecha;
          $asiento->importe = $factura->total;
          $asiento->tipodocumento = 'Egreso cliente';
@@ -294,7 +294,115 @@ class asiento_factura
  /////////////////////////////////////
    
 
-  
+ public function asiento_pago_compra($id)
+   {
+
+   
+	  $varorden = new orden_prov();
+	  $orden =  $varorden->get($id);
+
+      $ok = FALSE;
+      $this->asiento = FALSE;
+      $proveedor0 = new proveedor();
+      $subcuenta_prov = FALSE;
+
+      $proveedor = $proveedor0->get($orden->codprovorden);
+      if($proveedor)
+      {
+         $subcuenta_prov = $proveedor->get_subcuenta($orden->codejercicio);
+      }
+      if( !$subcuenta_prov )
+      {
+         $eje0 = $this->ejercicio->get($orden->codejercicio);
+         $this->new_message("No se ha podido generar una subcuenta para el proveedor ");
+         if(!$this->soloasiento)
+         {
+           $this->new_message("Aun así la <a href='".$orden->url()."'>factura</a> se ha generado correctamente,
+          pero sin asiento contable.");
+         }
+      }
+      else
+      {
+	     $asiento = new asiento();
+         $asiento->codejercicio = $orden->codejercicio;
+//         $asiento->concepto = "Orden de pago ".$orden->codigo." - ".$orden->nombre;
+//         $asiento->documento = $orden->codigo;
+		 $asiento->concepto = "Orden de pago ".$orden->fecha." - ".$orden->provorden;
+         $asiento->documento = $orden->fecha;
+		 $asiento->concepto = "Orden de pago  - ".$orden->provorden;
+         $asiento->editable = TRUE;
+         $asiento->fecha = $orden->fecha;
+         $asiento->importe = $orden->importepagar;
+         $asiento->tipodocumento = "Egreso proveedor";
+	 
+         if( $asiento->save() )
+         {
+            $asiento_correcto = TRUE;
+            $subcuenta = new subcuenta();
+            $partida0 = new partida();
+            $partida0->idasiento = $asiento->idasiento;
+            $partida0->concepto = $asiento->concepto;
+            $partida0->idsubcuenta = $subcuenta_prov->idsubcuenta;
+            $partida0->codsubcuenta = $subcuenta_prov->codsubcuenta;
+///////////  Proveedor  debe			/////////
+            $partida0->debe = $orden->importepagar;
+            $partida0->coddivisa = 0;
+            $partida0->tasaconv = 0;
+            $partida0->codserie = 0;
+            if( !$partida0->save() )
+            {
+               $asiento_correcto = FALSE;
+               $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida0->codsubcuenta."!");
+            }
+
+		   
+		     $subcuenta_compras = $subcuenta->get_cuentaesp('COMPRA',$asiento->codejercicio);
+ 
+            if($subcuenta_compras AND $asiento_correcto)
+            {
+               $partida2 = new partida();
+               $partida2->idasiento = $asiento->idasiento;
+               $partida2->concepto = $asiento->concepto;
+               $partida2->idsubcuenta = $subcuenta_compras->idsubcuenta;
+               $partida2->codsubcuenta = $subcuenta_compras->codsubcuenta;
+///////// Proveedor compra haber  ////////////////////////			   
+               $partida2->haber = $orden->importepagar;
+               $partida2->coddivisa = 0;
+               $partida2->tasaconv = 0;
+               $partida2->codserie = 0;
+               if( !$partida2->save() )
+               {
+                  $asiento_correcto = FALSE;
+                  $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida2->codsubcuenta."!");
+               }
+            }
+             
+            if($asiento_correcto)
+            {
+               $orden->idasiento = $asiento->idasiento;
+               if( $orden->save() )
+               {
+                  $ok = TRUE;
+                  $this->asiento = $asiento;
+               }
+               else
+                  $this->new_error_msg("¡Imposible añadir el asiento a la factura!");
+            }
+            else
+            {
+               if( $asiento->delete() )
+               {
+                  $this->new_message("El asiento se ha borrado.");
+               }
+               else
+                  $this->new_error_msg("¡Imposible borrar el asiento!");
+            }
+         }
+      }
+      
+      return $ok;
+   }			
+				 
   
   
   
@@ -339,11 +447,11 @@ class asiento_factura
          $asiento->codejercicio = $factura->codejercicio;
          $asiento->concepto = "Factura de compra ".$factura->codigo." - ".$factura->nombre;
          $asiento->documento = $factura->codigo;
-         $asiento->editable = FALSE;
+         $asiento->editable = TRUE;
          $asiento->fecha = $factura->fecha;
          $asiento->importe = $factura->total;
          $asiento->tipodocumento = "Ingreso proveedor";
-         if( $asiento->save() )
+         if( $asiento->save() ) // Genera el asiento
          {
             $asiento_correcto = TRUE;
             $subcuenta = new subcuenta();
@@ -528,7 +636,7 @@ class asiento_factura
          $asiento->codejercicio = $factura->codejercicio;
          $asiento->concepto = "Factura de venta ".$factura->codigo." - ".$factura->nombrecliente;
          $asiento->documento = $factura->codigo;
-         $asiento->editable = FALSE;
+         $asiento->editable = TRUE;
          $asiento->fecha = $factura->fecha;
          $asiento->importe = $factura->total;
          $asiento->tipodocumento = 'Ingreso cliente';

@@ -38,7 +38,7 @@ class proveedor extends fs_model
     * @var type 
     */
    public $nombre;
-   
+   public $alias;
    /**
     * Razón social del proveedor, es decir, el nombre oficial, el que se usa en
     * las facturas.
@@ -125,7 +125,7 @@ class proveedor extends fs_model
          {
             $this->razonsocial = $p['razonsocial'];
          }
-         
+         $this->alias = $p['alias'];
          $this->cifnif = $p['cifnif'];
          $this->telefono1 = $p['telefono1'];
          $this->telefono2 = $p['telefono2'];
@@ -144,6 +144,7 @@ class proveedor extends fs_model
       {
          $this->codproveedor = NULL;
          $this->nombre = '';
+		 $this->alias = '';
          $this->razonsocial = '';
          $this->cifnif = '';
          $this->telefono1 = '';
@@ -432,6 +433,7 @@ class proveedor extends fs_model
          if( $this->exists() )
          {
             $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre).
+					", alias = ".$this->var2str($this->alias).
                     ", razonsocial = ".$this->var2str($this->razonsocial).
                     ", cifnif = ".$this->var2str($this->cifnif).
                     ", telefono1 = ".$this->var2str($this->telefono1).
@@ -450,10 +452,11 @@ class proveedor extends fs_model
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (codproveedor,nombre,razonsocial,cifnif,telefono1,telefono2,
+            $sql = "INSERT INTO ".$this->table_name." (codproveedor,nombre,alias,razonsocial,cifnif,telefono1,telefono2,
                     fax,email,web,codserie,coddivisa,codpago,observaciones,tipoidfiscal,regimeniva,acreedor)
                     VALUES (".$this->var2str($this->codproveedor).
                     ",".$this->var2str($this->nombre).
+					",".$this->var2str($this->alias).
                     ",".$this->var2str($this->razonsocial).
                     ",".$this->var2str($this->cifnif).
                     ",".$this->var2str($this->telefono1).
