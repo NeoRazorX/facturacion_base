@@ -29,6 +29,7 @@ class contabilidad_nuevo_asiento extends fs_controller
 {
    public $asiento;
    public $concepto;
+   public $tipodocumento;
    public $divisa;
    public $impuesto;
    public $ejercicio;
@@ -90,6 +91,7 @@ class contabilidad_nuevo_asiento extends fs_controller
             $this->asiento->codejercicio = $eje0->codejercicio;
             $this->asiento->idconcepto = $_POST['idconceptopar'];
             $this->asiento->concepto = $_POST['concepto'];
+			$this->asiento->tipodocumento = $_POST['concepto'];
             $this->asiento->fecha = $_POST['fecha'];
             $this->asiento->importe = floatval($_POST['importe']);
             if( $this->asiento->save() )

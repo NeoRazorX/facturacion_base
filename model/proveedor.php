@@ -537,7 +537,7 @@ class proveedor extends fs_model
       {
          $buscar = str_replace(' ', '%', $query);
          $consulta .= "lower(nombre) LIKE '%".$buscar."%' OR lower(cifnif) LIKE '%".$buscar."%'
-            OR lower(observaciones) LIKE '%".$buscar."%'";
+            OR lower(observaciones) LIKE '%".$buscar."%' OR lower(alias) LIKE '%".$buscar."%' OR lower(razonsocial) LIKE '%".$buscar."%'";
       }
       $consulta .= " ORDER BY nombre ASC";
       
