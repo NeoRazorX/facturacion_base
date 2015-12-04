@@ -70,7 +70,9 @@ class contabilidad_subcuenta extends fs_controller
          $this->resultados = $this->subcuenta->get_partidas($this->offset);
          
          if( isset($_POST['puntear']) )
+         {
             $this->puntear();
+         }
          
          if( isset($_GET['genlm']) )
          {
