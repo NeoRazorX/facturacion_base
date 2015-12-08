@@ -165,6 +165,10 @@ class base_wizard extends fs_controller
          
          if( $this->empresa->save() )
          {
+            /// guardamos las opciones por defecto de almacén y forma de pago
+            $this->save_codalmacen($_POST['codalmacen']);
+            $this->save_codpago($_POST['codpago']);
+            
             foreach($GLOBALS['config2'] as $i => $value)
             {
                if( isset($_POST[$i]) )

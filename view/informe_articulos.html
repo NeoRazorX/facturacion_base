@@ -1,5 +1,17 @@
 {include="header"}
 
+{if="$fsc->url_recarga"}
+<script type="text/javascript">
+   function recargar()
+   {
+      window.location.href = '{$fsc->url_recarga}';
+   }
+   $(document).ready(function() {
+      setTimeout(recargar, 1000);
+   });
+</script>
+{/if}
+
 <ul class="nav nav-tabs">
    <li role="presentation"{if="$fsc->pestanya=='stats'"} class="active"{/if}>
       <a href="{$fsc->url()}">
@@ -145,22 +157,48 @@
 {elseif="$fsc->pestanya=='stock'"}
 <div class="container-fluid" style="margin-top: 15px; margin-bottom: 10px;">
    <div class="row">
-      <div class="col-sm-9">
-         <div class="btn-group" role="group" aria-label="...">
-            <a href="{$fsc->url()}&tab=stock" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='todo'"} active{/if}">Todo</a>
-            <a href="{$fsc->url()}&tab=stock&tipo=min" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='min'"} active{/if}">Bajo mínimos</a>
-            <a href="{$fsc->url()}&tab=stock&tipo=max" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='max'"} active{/if}">Excesos</a>
-            <a href="{$fsc->url()}&tab=stock&tipo=reg" class="btn btn-sm btn-default{if="$fsc->tipo_stock=='reg'"} active{/if}">
-               Regularizaciones
-            </a>
+      <div class="col-sm-6">
+         <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               {if="$fsc->tipo_stock=='todo'"}
+               Todo <span class="caret"></span>
+               {elseif="$fsc->tipo_stock=='min'"}
+               Bajo mínimos <span class="caret"></span>
+               {elseif="$fsc->tipo_stock=='max'"}
+               Excesos <span class="caret"></span>
+               {else}
+               Regularizaciones <span class="caret"></span>
+               {/if}
+            </button>
+            <ul class="dropdown-menu">
+               {if="$fsc->tipo_stock!='todo'"}
+               <li><a href="{$fsc->url()}&tab=stock">Todo</a></li>
+               {/if}
+               {if="$fsc->tipo_stock!='min'"}
+               <li><a href="{$fsc->url()}&tab=stock&tipo=min">Bajo mínimos</a></li>
+               {/if}
+               {if="$fsc->tipo_stock!='max'"}
+               <li><a href="{$fsc->url()}&tab=stock&tipo=max">Excesos</a></li>
+               {/if}
+               {if="$fsc->tipo_stock!='reg'"}
+               <li><a href="{$fsc->url()}&tab=stock&tipo=reg">Regularizaciones</a></li>
+               {/if}
+            </ul>
          </div>
       </div>
-      <div class="col-sm-3 text-right">
-         {if="$fsc->tipo_stock!='reg'"}
-         <a href="{$fsc->url()}&tab=stock&tipo={$fsc->tipo_stock}&download=TRUE" class="btn btn-sm btn-default">
-            <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> &nbsp; Descargar
-         </a>
-         {/if}
+      <div class="col-sm-6 text-right">
+         <div class="btn-group">
+            <a href="{$fsc->url()}&tab=stock&recalcular=TRUE&offset=0" class="btn btn-sm btn-warning">
+               <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Recalcular stock</span>
+            </a>
+            {if="$fsc->tipo_stock!='reg'"}
+            <a href="{$fsc->url()}&tab=stock&tipo={$fsc->tipo_stock}&download=TRUE" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Descargar</span>
+            </a>
+            {/if}
+         </div>
       </div>
    </div>
 </div>

@@ -643,5 +643,7 @@ class ventas_articulo extends fs_controller
       }
       
       $this->new_message("Stock actualizado.");
+      $this->new_message("Puedes recalcular el stock de todos los artículos desde"
+              . " <b>Informes &gt; Artículos &gt; Stock</b>");
    }
 }

@@ -879,7 +879,8 @@ class ventas_imprimir extends fs_controller
              'mail_host' => 'smtp.gmail.com',
              'mail_port' => '465',
              'mail_user' => '',
-             'mail_enc' => 'ssl'
+             'mail_enc' => 'ssl',
+             'mail_low_security' => FALSE
          );
          $fsvar = new fs_var();
          $mailop = $fsvar->array_get($mailop, FALSE);
@@ -936,9 +937,26 @@ class ventas_imprimir extends fs_controller
             }
             $mail->IsHTML(TRUE);
             
-            if( $mail->Send() )
+            $SMTPOptions = array();
+            if($mailop['mail_low_security'])
             {
-               $this->new_message('Mensaje enviado correctamente.');
+               $SMTPOptions = array(
+                   'ssl' => array(
+                       'verify_peer' => false,
+                       'verify_peer_name' => false,
+                       'allow_self_signed' => true
+                   )
+               );
+            }
+            
+            if( $mail->smtpConnect($SMTPOptions) )
+            {
+               if( $mail->Send() )
+               {
+                  $this->new_message('Mensaje enviado correctamente.');
+               }
+               else
+                  $this->new_error_msg("Error al enviar el email: " . $mail->ErrorInfo);
             }
             else
                $this->new_error_msg("Error al enviar el email: " . $mail->ErrorInfo);

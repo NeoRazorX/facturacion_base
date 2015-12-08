@@ -517,7 +517,6 @@
                   </a>
                </p>
             </div>
-            {if="$fsc->familia->all()"}
             <div class="modal-body">
                <div class="form-group">
                   <label class="col-sm-2 control-label">Referencia</label>
@@ -589,11 +588,6 @@
                   <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                </button>
             </div>
-            {else}
-            <div class="alert alert-danger">
-               No hay <a target="_blank" href="{$fsc->familia->url()}">familias</a> creadas. Debes crear al menos una.
-            </div>
-            {/if}
          </div>
       </div>
    </div>
