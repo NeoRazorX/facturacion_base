@@ -934,4 +934,8 @@ class factura_proveedor extends fs_model
       }
       return $faclist;
    }
+   
+
+   
+   
 }

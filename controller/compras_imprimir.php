@@ -22,6 +22,7 @@ require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
 require_model('articulo_proveedor.php');
 require_model('proveedor.php');
+require_model('recibo_proveedor.php');
 
 /**
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes e imprimir facturas.
@@ -33,6 +34,8 @@ class compras_imprimir extends fs_controller
    public $proveedor;
    public $factura;
    public $impuesto;
+   public $fecha_hoy;
+
    
    public function __construct()
    {
@@ -46,7 +49,7 @@ class compras_imprimir extends fs_controller
       $this->proveedor = FALSE;
       $this->factura = FALSE;
       $this->impuesto = new impuesto();
-      
+  	  $this->fecha_hoy = Date('d-m-Y');     
       if( isset($_REQUEST['albaran']) AND isset($_REQUEST['id']) )
       {
          $alb = new albaran_proveedor();
@@ -75,6 +78,15 @@ class compras_imprimir extends fs_controller
          }
          
          $this->generar_pdf_factura();
+      }
+	  else if( isset($_REQUEST['ordenes']))
+      {
+	    $desde = $_GET['desde'];
+		$hasta = $_GET['hasta']; 	
+		$proveedor = $_GET['proveedor'];
+		$codproveedor = $_GET['codproveedor'];
+	  $this->imprimir_ordenes($desde,$hasta,$proveedor,$codproveedor);
+
       }
       
       $this->share_extensions();
@@ -116,6 +128,155 @@ class compras_imprimir extends fs_controller
             $this->new_error_msg('Error al guardar la extensión '.$ext['name']);
          }
       }
+   }
+   
+   private function imprimir_ordenes($desde,$hasta,$proveedor,$codproveedor)
+   {
+   		$orden_prov = new orden_prov();
+   		if(!$codproveedor ) $codproveedor = '%';		
+		if(!$desde) $desde = '01-01-2000';
+		$desdeD = Date('Y-m-d', strtotime($desde));
+    	if(!$hasta) $hasta = $this->fecha_hoy;
+		$hastaD = Date('Y-m-d', strtotime($hasta));
+
+		$orden = $orden_prov->all_desde($desdeD, $hastaD,$codproveedor);
+	   	$pdf_doc = new fs_pdf();
+		
+		$cant_lineas_orden = count($orden);
+		$lineas_total = 0;
+		 $cant_lineas = 25;
+         $linea_actual = 0;
+         $pagina = 1;	
+		 $importe_total = 0;
+/////  Primer encabezado
+		$pdf_doc->pdf->ezText("Página ".$pagina, 9, array('justification' => 'right'));
+		$pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 10, array('justification' => 'left'));
+		$pdf_doc->pdf->ezText("Fecha impresión: ".$this->fecha_hoy, 9, array('justification' => 'right'));
+		
+		$pdf_doc->pdf->ezText($this->empresa->direccion, 10, array('justification' => 'left'));
+		$pdf_doc->pdf->ezText("\n", 10);
+ 		$pdf_doc->pdf->ezText("<b>Órdenes de pago</b>", 16, array('justification' => 'left'));
+		$pdf_doc->pdf->ezText("\n", 10);
+		$pdf_doc->pdf->ezText("Periodo : ".$desde.'  a  '.$hasta, 9, array('justification' => 'center'));
+		$pdf_doc->pdf->ezText("\n", 10);	
+            $pdf_doc->new_table();
+			$pdf_doc->add_table_header(
+               array(
+                  'fecha' => '<b>Fecha</b>',
+                  'aliasorden' => '<b>Alias</b>',
+                  'provorden' => '<b>Proveedor</b>',
+                  'importe' => '<b>Importe</b>',
+                  'conceptoorden' => '<b>Concepto</b>'
+               )
+            );
+			
+///////   Generar lineas			
+			foreach($orden as $li)
+            {
+			$linea_actual++;
+			$lineas_total++;
+			
+							
+					$pdf_doc->add_table_row(
+					   array(
+						 'fecha' => $li->fecha,
+						  'aliasorden' => $li->aliasorden,
+						  'provorden' => $li->provorden,
+						  'importe' => $li->importepagar,
+						  'conceptoorden' => $li->conceptoorden
+					   )
+					);
+			//// Calcular total por página
+			$importe_total += $li->importepagar;		
+///////  Últimas página para cuando la cantidad de lineas no supera la cantidad máxima	por páginas (últimas lineas)		
+				if($lineas_total == $cant_lineas_orden )
+				{
+				
+				$pdf_doc->save_table(
+						   array(
+							   'cols' => array(
+								   'campo1' => array('justification' => 'right'),
+								   'dato1' => array('justification' => 'left'),
+								   'campo2' => array('justification' => 'right'),
+								   'dato2' => array('justification' => 'left')
+							   ),
+							   'showLines' => 3,
+							   'width' => 520,
+							   'shaded' =>1
+							   
+							   )
+							);
+				$pdf_doc->pdf->ezText("\n", 10);		
+				$pdf_doc->pdf->ezText('<b>TOTAL : '.$importe_total.'</b>', 14, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("\n", 18);
+				$pdf_doc->pdf->ezText('Firma :  _________________________________________________', 8, array('justification' => 'right'));
+				
+				} ////////////////////////// fin última página
+				else
+				{ //////////////////////////   Lineas para cantidad máxima de lineas por páginas
+					if($linea_actual/$cant_lineas == 1)
+					{
+						$pdf_doc->save_table(
+						   array(
+							   'cols' => array(
+								   'campo1' => array('justification' => 'right'),
+								   'dato1' => array('justification' => 'left'),
+								   'campo2' => array('justification' => 'right'),
+								   'dato2' => array('justification' => 'left')
+							   ),
+							   'showLines' => 3,
+							   'width' => 520,
+							   'shaded' =>1
+							   
+							   )
+							);
+					////////   Nueva pagina con encabezado		
+							$pagina++;
+							$pdf_doc->pdf->ezNewPage();
+							$linea_actual = 0;
+							$pdf_doc->pdf->ezText("Página ".$pagina, 9, array('justification' => 'right'));
+							$pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 10, array('justification' => 'left'));
+							$pdf_doc->pdf->ezText("Fecha impresión: ".$this->fecha_hoy, 9, array('justification' => 'right'));
+							
+							$pdf_doc->pdf->ezText($this->empresa->direccion, 10, array('justification' => 'left'));
+							$pdf_doc->pdf->ezText("\n", 10);
+							$pdf_doc->pdf->ezText("<b>Órdenes de pago</b>", 16, array('justification' => 'left'));
+							$pdf_doc->pdf->ezText("\n", 10);
+							$pdf_doc->pdf->ezText("Periodo : ".$desde.'  a  '.$hasta, 9, array('justification' => 'center'));
+							$pdf_doc->pdf->ezText("\n", 10);	
+							$pdf_doc->new_table();
+							$pdf_doc->add_table_header(
+							   array(
+								  'fecha' => '<b>Fecha</b>',
+								  'aliasorden' => '<b>Alias</b>',
+								  'provorden' => '<b>Proveedor</b>',
+								  'importe' => '<b>Importe</b>',
+								  'conceptoorden' => '<b>Concepto</b>'
+								   )
+								);
+						
+						}
+					}
+					
+
+				
+			}
+
+
+			
+//			$pdf_doc->set_y(80);
+			
+			
+
+            $pdf_doc->pdf->ezText("\n", 10);	
+   	  
+
+
+
+ $pdf_doc->show();
+ 
+ 
+ 
    }
    
    private function generar_pdf_albaran($archivo = FALSE)

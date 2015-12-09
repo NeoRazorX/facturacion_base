@@ -635,7 +635,7 @@
             {loop="$fsc->extensions"}
                {if="$value->type=='pdf'"}
                <a href="index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}" target="_blank" class="btn btn-block btn-default">
-                  <span class="glyphicon glyphicon-print"></span> &nbsp; {$value->text}
+                  <span class="glyphicon glyphicon-print"></span> &nbsp; {$value->from}{$value->params}&id={$fsc->albaran->idalbaran}
                </a>
                {/if}
             {/loop}
