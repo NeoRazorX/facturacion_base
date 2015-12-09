@@ -486,7 +486,7 @@ class ventas_articulo extends fs_controller
                    'movimiento' => floatval($d['cantidad']),
                    'final' => 0,
                    'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                   'hora' => $d['hora']
+                   'hora' => date('H:i:s', strtotime($d['hora']))
                );
             }
          }
@@ -512,7 +512,7 @@ class ventas_articulo extends fs_controller
                    'movimiento' => floatval($d['cantidad']),
                    'final' => 0,
                    'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                   'hora' => $d['hora']
+                   'hora' => date('H:i:s', strtotime($d['hora']))
                );
             }
          }
@@ -538,7 +538,7 @@ class ventas_articulo extends fs_controller
                    'movimiento' => 0-floatval($d['cantidad']),
                    'final' => 0,
                    'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                   'hora' => $d['hora']
+                   'hora' => date('H:i:s', strtotime($d['hora']))
                );
             }
          }
@@ -564,7 +564,7 @@ class ventas_articulo extends fs_controller
                    'movimiento' => 0-floatval($d['cantidad']),
                    'final' => 0,
                    'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                   'hora' => $d['hora']
+                   'hora' => date('H:i:s', strtotime($d['hora']))
                );
             }
          }

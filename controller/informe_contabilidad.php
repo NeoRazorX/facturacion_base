@@ -67,14 +67,7 @@ class informe_contabilidad extends fs_controller
       {
          if($_POST['informe'] == 'sumasysaldos')
          {
-            if($_POST['tipo'] == 'normal' AND $_POST['formato'] == 'csv')
-            {
-               $this->new_error_msg('El tipo normal no está disponible en CSV.');
-            }
-            else
-            {
-               $this->balance_sumas_y_saldos();
-            }
+            $this->balance_sumas_y_saldos();
          }
          else if($_POST['informe'] == 'situacion')
          {
@@ -295,7 +288,14 @@ class informe_contabilidad extends fs_controller
                echo "cuenta;descripcion;debe;haber;saldo\n";
                
                $pdf_doc = FALSE;
-               $this->sumas_y_saldos3($pdf_doc, $eje, 'de '.$_POST['desde'].' a '.$_POST['hasta'], $_POST['desde'], $_POST['hasta'], $excluir);
+               if($_POST['tipo'] == '3')
+               {
+                  $this->sumas_y_saldos($pdf_doc, $eje, 3, 'de '.$_POST['desde'].' a '.$_POST['hasta'], $_POST['desde'], $_POST['hasta'], $excluir);
+               }
+               else
+               {
+                  $this->sumas_y_saldos($pdf_doc, $eje, 10, 'de '.$_POST['desde'].' a '.$_POST['hasta'], $_POST['desde'], $_POST['hasta'], $excluir);
+               }
             }
             else
             {
@@ -307,12 +307,11 @@ class informe_contabilidad extends fs_controller
                
                if($_POST['tipo'] == '3')
                {
-                  $this->sumas_y_saldos3($pdf_doc, $eje, 'de '.$_POST['desde'].' a '.$_POST['hasta'], $_POST['desde'], $_POST['hasta'], $excluir);
+                  $this->sumas_y_saldos($pdf_doc, $eje, 3, 'de '.$_POST['desde'].' a '.$_POST['hasta'], $_POST['desde'], $_POST['hasta'], $excluir);
                }
                else
                {
-                  $iba = new inventarios_balances();
-                  $iba->sumas_y_saldos($pdf_doc, $eje, 'de '.$_POST['desde'].' a '.$_POST['hasta'], $_POST['desde'], $_POST['hasta'], $excluir, FALSE);
+                  $this->sumas_y_saldos($pdf_doc, $eje, 10, 'de '.$_POST['desde'].' a '.$_POST['hasta'], $_POST['desde'], $_POST['hasta'], $excluir);
                }
                
                $pdf_doc->show();
@@ -324,11 +323,12 @@ class informe_contabilidad extends fs_controller
    /**
     * Función auxiliar para generar el balance de sumas y saldos, en su versión de 3 dígitos.
     */
-   public function sumas_y_saldos3(&$pdf_doc, &$eje, $titulo, $fechaini, $fechafin, $excluir=FALSE)
+   public function sumas_y_saldos(&$pdf_doc, &$eje, $tipo=3, $titulo, $fechaini, $fechafin, $excluir=FALSE)
    {
       $ge0 = new grupo_epigrafes();
       $epi0 = new epigrafe();
       $cuenta0 = new cuenta();
+      $subcuenta0 = new subcuenta();
       
       $lineas = array();
       
@@ -437,6 +437,30 @@ class informe_contabilidad extends fs_controller
                         );
                      }
                   }
+                  
+                  if($tipo == 10)
+                  {
+                     /// añadimos las subcuentas
+                     foreach($data as $d)
+                     {
+                        if( substr($d['codsubcuenta'], 0, 3) == (string)$i.$j.$k )
+                        {
+                           $desc = '';
+                           $subc = $subcuenta0->get_by_codigo($d['codsubcuenta'], $eje->codejercicio);
+                           if($subc)
+                           {
+                              $desc = $subc->descripcion;
+                           }
+                           
+                           $lineas[] = array(
+                               'cuenta' => $d['codsubcuenta'],
+                               'descripcion' => $desc,
+                               'debe' => floatval($d['debe']),
+                               'haber' => floatval($d['haber'])
+                           );
+                        }
+                     }
+                  }
                }
             }
          }
@@ -501,10 +525,15 @@ class informe_contabilidad extends fs_controller
             $linea += 48;
             
             /// añadimos las sumas de la línea actual
+            $desc = 'Suma y sigue';
+            if( $linea >= count($lineas) )
+            {
+               $desc = 'Totales';
+            }
             $pdf_doc->add_table_row(
                array(
                    'cuenta' => '',
-                   'descripcion' => '<b>Suma y sigue</b>',
+                   'descripcion' => '<b>'.$desc.'</b>',
                    'debe' => '<b>'.$this->show_numero($tdebe).'</b>',
                    'haber' => '<b>'.$this->show_numero($thaber).'</b>',
                    'saldo' => '<b>'.$this->show_numero($tdebe-$thaber).'</b>'

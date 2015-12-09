@@ -64,7 +64,13 @@ class regularizacion_stock extends fs_model
          $this->cantidadfin = floatval($r['cantidadfin']);
          $this->codalmacendest = $r['codalmacendest'];
          $this->fecha = date('d-m-Y', strtotime($r['fecha']));
-         $this->hora = $r['hora'];
+         
+         $this->hora = '00:00:00';
+         if( !is_null($r['hora']) )
+         {
+            $this->hora = date('H:i:s', strtotime($r['hora']));
+         }
+         
          $this->motivo = $r['motivo'];
          $this->nick = $r['nick'];
       }

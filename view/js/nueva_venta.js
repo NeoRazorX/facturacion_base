@@ -260,7 +260,14 @@ function ajustar_iva(num)
 {
    if($("#linea_"+num).length > 0)
    {
-      if(siniva && $("#iva_"+num).val() != 0)
+      if(cliente.regimeniva == 'Exento')
+      {
+         $("#iva_"+num).val(0);
+         $("#recargo_"+num).val(0);
+         
+         alert('El cliente tiene regimen de IVA: '+cliente.regimeniva);
+      }
+      else if(siniva && $("#iva_"+num).val() != 0)
       {
          $("#iva_"+num).val(0);
          $("#recargo_"+num).val(0);
