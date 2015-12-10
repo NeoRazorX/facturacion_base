@@ -211,8 +211,54 @@ class informe_contabilidad extends fs_controller
          header("Content-Disposition: attachment; filename=\"diario.csv\"");
       }
       
-      echo "asiento;fecha;subcuenta;concepto;debe;haber\n";
+      echo "asiento;fecha;subcuenta;concepto;debe;haber;saldo\n";
       
+      
+      /// obtenemos el saldo inicial
+      $saldo = 0;
+      if($desde)
+      {
+         $sql = "SELECT SUM(p.debe) as debe, SUM(p.haber) as haber"
+                 . " FROM co_asientos a, co_partidas p"
+                 . " WHERE a.codejercicio = ".$this->empresa->var2str($codeje)
+                 . " AND p.idasiento = a.idasiento"
+                 . " AND a.fecha < ".$this->empresa->var2str($desde);
+         
+         if($codgrupo)
+         {
+            $sql .= " AND p.codsubcuenta LIKE '".$codgrupo."%'";
+         }
+         else if($codepi)
+         {
+            $sql .= " AND p.codsubcuenta LIKE '".$codepi."%'";
+         }
+         else if($codcuenta)
+         {
+            $sql .= " AND p.codsubcuenta LIKE '".$codcuenta."%'";
+         }
+         else if($codsubc)
+         {
+            $sql .= " AND p.codsubcuenta IN ('".join("','", $codsubc)."')";
+         }
+         
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            $saldo = floatval($data[0]['debe']) - floatval($data[0]['haber']);
+         }
+         
+         /// en el caso de más de una subcuenta, el saldo es absurdo
+         if($codsubc)
+         {
+            if( count($codsubc) > 1 )
+            {
+               $saldo = 0;
+            }
+         }
+      }
+      echo ';'.date('d-m-Y', strtotime($desde)).';;;0;0;'.number_format($saldo, FS_NF0, ',', '')."\n";
+      
+      /// ahora las líneas
       $sql = "SELECT a.numero,a.fecha,p.codsubcuenta,p.concepto,p.debe,p.haber"
               . " FROM co_asientos a, co_partidas p"
               . " WHERE a.codejercicio = ".$this->empresa->var2str($codeje)
@@ -238,7 +284,7 @@ class informe_contabilidad extends fs_controller
       }
       else if($codsubc)
       {
-         $sql .= " AND p.codsubcuenta = ".$this->empresa->var2str($codsubc);
+         $sql .= " AND p.codsubcuenta IN ('".join("','", $codsubc)."')";
       }
       
       $sql .= " ORDER BY a.numero ASC";
@@ -249,12 +295,15 @@ class informe_contabilidad extends fs_controller
       {
          foreach($data as $par)
          {
+            $saldo += floatval($par['debe']) - floatval($par['haber']);
+            
             echo $par['numero'].';'
                     .date('d-m-Y', strtotime($par['fecha'])).';'
                     .$par['codsubcuenta'].';'
                     .$par['concepto'].';'
-                    .$par['debe'].';'
-                    .$par['haber']."\n";
+                    .number_format($par['debe'], FS_NF0, ',', '').';'
+                    .number_format($par['haber'], FS_NF0, ',', '').';'
+                    .number_format($saldo, FS_NF0, ',', '')."\n";
             $offset++;
          }
          
@@ -564,9 +613,9 @@ class informe_contabilidad extends fs_controller
                
                echo $lineas[$i]['cuenta'].';'.
                        substr($lineas[$i]['descripcion'], 0, 50).';'.
-                       round($lineas[$i]['debe'], FS_NF0).';'.
-                       round($lineas[$i]['haber'], FS_NF0).';'.
-                       round( floatval($lineas[$i]['debe']) - floatval($lineas[$i]['haber']) , FS_NF0)."\n";
+                       number_format($lineas[$i]['debe'], FS_NF0, ',', '').';'.
+                       number_format($lineas[$i]['haber'], FS_NF0, ',', '').';'.
+                       number_format( floatval($lineas[$i]['debe']) - floatval($lineas[$i]['haber']) , FS_NF0, ',', '')."\n";
             }
             $linea += 48;
          }

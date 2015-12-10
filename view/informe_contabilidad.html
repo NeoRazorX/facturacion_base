@@ -1,6 +1,7 @@
 {include="header"}
 
 <script type="text/javascript">
+   var codsubcuenta = '';
    function check_librom(cod)
    {
       $("#div_librom_"+cod).html('');
@@ -19,12 +20,34 @@
                $("#div_librom_"+cod).html(datos);
                $("#ac_subcuenta_"+cod).autocomplete({
                   serviceUrl: '{$fsc->url()}&codejercicio='+cod,
-                  paramName: 'buscar_subcuenta'
+                  paramName: 'buscar_subcuenta',
+                  onSelect: function (suggestion) {
+                     if(suggestion)
+                     {
+                        if(suggestion.value != codsubcuenta)
+                        {
+                           add_check_subcuenta(cod, suggestion);
+                           codsubcuenta = suggestion.value;
+                        }
+                     }
+                  }
                });
                $("#modal_librom_"+cod).modal('show');
+               $("#modal_librom_"+cod).on('hidden.bs.modal', function () {
+                  $("#div2_librom_"+cod).html('');
+                  codsubcuenta = '';
+               })
             }
          });
       }
+   }
+   function add_check_subcuenta(cod, data)
+   {
+      $("#div2_librom_"+cod).html( "<div class='checkbox'>\n\
+<label>\n\
+<input type='checkbox' name='codsubcuenta[]' value='"+data.value+"' checked=''/> <b>"+
+              data.value+"</b> "+data.data+"</label></div>"+
+              $("#div2_librom_"+cod).html());
    }
 </script>
 
@@ -154,11 +177,12 @@
                                           <span class="glyphicon glyphicon-book" aria-hidden="true"></span> &nbsp; Libro mayor...
                                        </h4>
                                     </div>
-                                    <div id="div_librom_{$value->codejercicio}" class="modal-body">
-                                       ...
+                                    <div class="modal-body">
+                                       <div id="div_librom_{$value->codejercicio}">...</div>
+                                       <div id="div2_librom_{$value->codejercicio}"></div>
                                     </div>
                                     <div class="modal-footer">
-                                       <button type="submit" class="btn btn-sm btn-primary">
+                                       <button type="button" class="btn btn-sm btn-primary" onclick="this.form.submit();">
                                           <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> &nbsp; Mostrar
                                        </button>
                                     </div>
