@@ -753,7 +753,8 @@ class ventas_imprimir extends fs_controller
                            {
                               $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->iban;
                            }
-                           else
+                           
+                           if($cbc->swift)
                            {
                               $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->swift;
                            }
@@ -775,7 +776,8 @@ class ventas_imprimir extends fs_controller
                            {
                               $texto_pago .= "\n<b>IBAN</b>: ".$cuenta_banco->iban;
                            }
-                           else
+                           
+                           if($cuenta_banco->swift)
                            {
                               $texto_pago .= "\n<b>SWIFT o BIC</b>: ".$cuenta_banco->swift;
                            }
