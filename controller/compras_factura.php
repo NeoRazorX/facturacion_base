@@ -20,6 +20,7 @@
 require_model('articulo.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
+require_model('cuenta_banco_proveedor.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('factura_proveedor.php');
@@ -299,5 +300,18 @@ class compras_factura extends fs_controller
       {
          $this->rectificativa = new factura_proveedor($data[0]);
       }
+   }
+   
+   public function get_cuentas_bancarias()
+   {
+      $cuentas = array();
+      
+      $cbp0 = new cuenta_banco_proveedor();
+      foreach($cbp0->all_from_proveedor($this->factura->codproveedor) as $cuenta)
+      {
+         $cuentas[] = $cuenta;
+      }
+      
+      return $cuentas;
    }
 }

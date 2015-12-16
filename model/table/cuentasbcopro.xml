@@ -47,6 +47,11 @@
       <nombre>swift</nombre>
       <tipo>character varying(11)</tipo>
    </columna>
+   <columna>
+      <nombre>principal</nombre>
+      <tipo>boolean</tipo>
+      <nulo>YES</nulo>
+   </columna>
    <restriccion>
       <nombre>cuentasbcopro_pkey</nombre>
       <consulta>PRIMARY KEY (codcuenta)</consulta>

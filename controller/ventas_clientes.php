@@ -352,7 +352,7 @@ class ventas_clientes extends fs_controller
       {
          if($ciu != '')
          {
-            $final[ mb_strtolower($ciu) ] = $ciu;
+            $final[ mb_strtolower($ciu, 'UTF8') ] = $ciu;
          }
       }
       
@@ -381,7 +381,7 @@ class ventas_clientes extends fs_controller
       {
          if($pro != '')
          {
-            $final[ mb_strtolower($pro) ] = $pro;
+            $final[ mb_strtolower($pro, 'UTF8') ] = $pro;
          }
       }
       
@@ -391,7 +391,7 @@ class ventas_clientes extends fs_controller
    private function buscar()
    {
       $this->total_resultados = 0;
-      $query = mb_strtolower( $this->cliente->no_html($this->query) );
+      $query = mb_strtolower( $this->cliente->no_html($this->query), 'UTF8' );
       $sql = " FROM clientes";
       $and = ' WHERE ';
       
@@ -418,13 +418,13 @@ class ventas_clientes extends fs_controller
          
          if($this->ciudad != '')
          {
-            $sql .= "lower(ciudad) = '".mb_strtolower($this->ciudad)."'";
+            $sql .= "lower(ciudad) = '".mb_strtolower($this->ciudad, 'UTF8')."'";
             $and2 = ' AND ';
          }
          
          if($this->provincia != '')
          {
-            $sql .= $and2."lower(provincia) = '".mb_strtolower($this->provincia)."'";
+            $sql .= $and2."lower(provincia) = '".mb_strtolower($this->provincia, 'UTF8')."'";
             $and2 = ' AND ';
          }
          

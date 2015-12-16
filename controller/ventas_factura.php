@@ -21,6 +21,7 @@ require_model('articulo.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
 require_model('cliente.php');
+require_model('cuenta_banco_cliente.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('factura_cliente.php');
@@ -377,5 +378,18 @@ class ventas_factura extends fs_controller
       {
          $this->rectificativa = new factura_cliente($data[0]);
       }
+   }
+   
+   public function get_cuentas_bancarias()
+   {
+      $cuentas = array();
+      
+      $cbc0 = new cuenta_banco_cliente();
+      foreach($cbc0->all_from_cliente($this->factura->codcliente) as $cuenta)
+      {
+         $cuentas[] = $cuenta;
+      }
+      
+      return $cuentas;
    }
 }

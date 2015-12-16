@@ -137,16 +137,11 @@ class ventas_cliente extends fs_controller
             $cuentab = new cuenta_banco_cliente();
             $cuentab->codcliente = $_POST['codcliente'];
          }
+         
          $cuentab->descripcion = $_POST['descripcion'];
-         
-         if($_POST['ciban'] != '')
-         {
-            $cuentab->iban = $this->calcular_iban($_POST['ciban']);
-         }
-         else
-            $cuentab->iban = $_POST['iban'];
-         
+         $cuentab->iban = $_POST['iban'];
          $cuentab->swift = $_POST['swift'];
+         $cuentab->principal = isset($_POST['principal']);
          
          if( $cuentab->save() )
          {
@@ -218,34 +213,6 @@ class ventas_cliente extends fs_controller
    public function this_year($previous = 0)
    {
       return intval(Date('Y')) - $previous;
-   }
-   
-   private function calcular_iban($ccc)
-   {
-      $codpais = substr($this->empresa->codpais, 0, 2);
-      
-      foreach($this->cliente->get_direcciones() as $dir)
-      {
-         if($dir->domfacturacion)
-         {
-            $codpais = substr($dir->codpais, 0, 2);
-            break;
-         }
-      }
-      
-      $pesos = array('A' => '10', 'B' => '11', 'C' => '12', 'D' => '13', 'E' => '14', 'F' => '15',
-          'G' => '16', 'H' => '17', 'I' => '18', 'J' => '19', 'K' => '20', 'L' => '21', 'M' => '22',
-          'N' => '23', 'O' => '24', 'P' => '25', 'Q' => '26', 'R' => '27', 'S' => '28', 'T' => '29',
-          'U' => '30', 'V' => '31', 'W' => '32', 'X' => '33', 'Y' => '34', 'Z' => '35'
-      );
-      
-      $dividendo = $ccc.$pesos[substr($codpais, 0 , 1)].$pesos[substr($codpais, 1 , 1)].'00';	
-      $digitoControl =  98 - bcmod($dividendo, '97');
-      
-      if( strlen($digitoControl) == 1 )
-         $digitoControl = '0'.$digitoControl;
-      
-      return $codpais.$digitoControl.$ccc;
    }
    
    /*
