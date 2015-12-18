@@ -974,13 +974,21 @@ class nueva_venta extends fs_controller
       if($continuar)
       {
          $presupuesto->fecha = $_POST['fecha'];
-         $presupuesto->finoferta = date("Y-m-d", strtotime($_POST['fecha']." +1 month"));
          $presupuesto->codalmacen = $almacen->codalmacen;
          $presupuesto->codejercicio = $ejercicio->codejercicio;
          $presupuesto->codserie = $serie->codserie;
          $presupuesto->codpago = $forma_pago->codpago;
          $presupuesto->coddivisa = $divisa->coddivisa;
          $presupuesto->tasaconv = $divisa->tasaconv;
+         
+         /// establecemos la fecha de finoferta
+         $presupuesto->finoferta = date("Y-m-d", strtotime($_POST['fecha']." +1 month"));
+         $fsvar = new fs_var();
+         $dias = $fsvar->simple_get('presu_validez');
+         if($dias)
+         {
+            $presupuesto->finoferta = date("Y-m-d", strtotime($_POST['fecha']." +".intval($dias)." days"));
+         }
          
          if($_POST['tasaconv'] != '')
          {

@@ -4,6 +4,34 @@
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">
    <div class="container">
+      {if="$fsc->bad_password"}
+      <div class="row">
+         <div class="col-sm-12">
+            <div class="page-header">
+               <h1>
+                  <span class="glyphicon glyphicon-warning-sign"></span>
+                  Contraseña no segura
+               </h1>
+               <p class="help-block">
+                  Si esta instalación está disponible públicamente, es recomendable
+                  que cambies la contraseña.
+               </p>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-3">
+            <div class="form-group">
+               <input class="form-control" type="password" name="npassword" maxlength="12" placeholder="nueva contraseña" autofocus />
+            </div>
+         </div>
+         <div class="col-sm-3">
+            <div class="form-group">
+               <input class="form-control" type="password" name="npassword2" maxlength="12" placeholder="repite la contraseña"/>
+            </div>
+         </div>
+      </div>
+      {/if}
       <div class="row">
          <div class="col-sm-12">
             <div class="page-header">
@@ -454,6 +482,10 @@
             <b>Contabilidad &gt; Series</b>. Activa la <b>numeración personalizada</b>
             y elige el número inicial.
          </p>
+         <a href="index.php?page=contabilidad_series&num_personalizada=TRUE" target="_blank" class="btn btn-xs btn-default">
+            <span class="glyphicon glyphicon-cog"></span>
+            &nbsp; Numeración personalizada
+         </a>
       </div>
    </div>
 </div>

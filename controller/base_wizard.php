@@ -33,6 +33,7 @@ require_model('serie.php');
 class base_wizard extends fs_controller
 {
    public $almacen;
+   public $bad_password;
    public $divisa;
    public $ejercicio;
    public $forma_pago;
@@ -50,6 +51,7 @@ class base_wizard extends fs_controller
       $this->check_menu();
       
       $this->almacen = new almacen();
+      $this->bad_password = FALSE;
       $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
       $this->forma_pago = new forma_pago();
@@ -62,6 +64,11 @@ class base_wizard extends fs_controller
          $this->new_message('Puedes solucionar la mayoría de errores en la base de datos ejecutando el '
                  . '<a href="index.php?page=informe_errores" target="_blank">informe de errores</a> '
                  . 'sobre las tablas.');
+      }
+      
+      if( $this->user->password == sha1('admin') )
+      {
+         $this->bad_password = TRUE;
       }
       
       $fsvar = new fs_var();
@@ -93,7 +100,29 @@ class base_wizard extends fs_controller
          $this->empresa->fax = $_POST['fax'];
          $this->empresa->web = $_POST['web'];
          
-         if( $this->empresa->save() )
+         $continuar = TRUE;
+         if( isset($_POST['npassword']) )
+         {
+            if($_POST['npassword'] != '')
+            {
+               if($_POST['npassword'] == $_POST['npassword2'])
+               {
+                  $this->user->set_password($_POST['npassword']);
+                  $this->user->save();
+               }
+               else
+               {
+                  $this->new_error_msg('Las contraseñas no coinciden.');
+                  $continuar = FALSE;
+               }
+            }
+         }
+         
+         if(!$continuar)
+         {
+            /// no hacemos nada
+         }
+         else if( $this->empresa->save() )
          {
             $this->new_message('Datos guardados correctamente.');
             
