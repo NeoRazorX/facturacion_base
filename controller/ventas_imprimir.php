@@ -749,14 +749,15 @@ class ventas_imprimir extends fs_controller
                         $encontrada = FALSE;
                         foreach($cbc0->all_from_cliente($this->factura->codcliente) as $cbc)
                         {
+                           $texto_pago .= "\n<b>Domiciliado en</b>: ";
                            if($cbc->iban)
                            {
-                              $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->iban;
+                              $texto_pago .= $cbc->iban;
                            }
                            
                            if($cbc->swift)
                            {
-                              $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->swift;
+                              $texto_pago .= "  <b>SWIFT/BIC</b>: ".$cbc->swift;
                            }
                            $encontrada = TRUE;
                            break;
