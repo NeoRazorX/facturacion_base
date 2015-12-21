@@ -485,6 +485,15 @@ class informe_contabilidad extends fs_controller
                             'haber' => $haber
                         );
                      }
+                     else
+                     {
+                        $lineas[] = array(
+                            'cuenta' => $i.$j.$k,
+                            'descripcion' => '-',
+                            'debe' => $debe,
+                            'haber' => $haber
+                        );
+                     }
                   }
                   
                   if($tipo == 10)

@@ -2,15 +2,84 @@
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
-   // Load the Visualization API and the piechart package.
    google.load('visualization', '1.0', {'packages':['corechart']});
    
-   // Set a callback to run when the Google Visualization API is loaded.
+   $(document).ready(function() {
+      $("#ac_cliente").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_cliente',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if(document.listado_facturas.codcliente.value != suggestion.data && suggestion.data != '')
+               {
+                  document.listado_facturas.codcliente.value = suggestion.data;
+               }
+            }
+         }
+      });
+      $("#ac_proveedor").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_proveedor',
+         onSelect: function(suggestion) {
+            if(suggestion)
+            {
+               if(document.listado_proveedor.codproveedor.value != suggestion.data && suggestion.data != '')
+               {
+                  document.listado_proveedor.codproveedor.value = suggestion.data;
+               }
+            }
+         }
+      });
+   });
+</script>
+
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+               Informe de facturas
+               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+            </h1>
+         </div>
+         <ul class="nav nav-pills">
+            <li role="presentation"{if="$fsc->mostrar=='general'"} class="active"{/if}>
+               <a href="{$fsc->url()}">
+                  <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+                  <span class="hidden-xs">&nbsp; General</span>
+               </a>
+            </li>
+            <li role="presentation"{if="$fsc->mostrar=='agrupaciones'"} class="active"{/if}>
+               <a href="{$fsc->url()}&mostrar=agrupaciones">
+                  <span class="glyphicon glyphicon-compressed" aria-hidden="true"></span>
+                  <span class="hidden-xs">&nbsp; Agrupaciones</span>
+               </a>
+            </li>
+            <li role="presentation">
+               <a href="#" data-toggle="modal" data-target="#modal_compras">
+                  <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                  <span class="hidden-xs">&nbsp; Facturas de compra</span>
+               </a>
+            </li>
+            <li role="presentation">
+               <a href="#" data-toggle="modal" data-target="#modal_ventas">
+                  <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                  <span class="hidden-xs">&nbsp; Facturas de venta</span>
+               </a>
+            </li>
+         </ul>
+      </div>
+   </div>
+</div>
+
+{if="$fsc->mostrar=='general'"}
+<script type="text/javascript">
    google.setOnLoadCallback(drawChart);
    
-   // Callback that creates and populates a data table,
-   // instantiates the pie chart, passes in the data and
-   // draws it.
    function drawChart()
    {
       // Create the data table.
@@ -60,72 +129,7 @@
       var chart3 = new google.visualization.AreaChart(document.getElementById('chart_facturas_year'));
       chart3.draw(data3);
    }
-   
-   $(document).ready(function() {
-      $("#ac_cliente").autocomplete({
-         serviceUrl: '{$fsc->url()}',
-         paramName: 'buscar_cliente',
-         onSelect: function (suggestion) {
-            if(suggestion)
-            {
-               if(document.listado_facturas.codcliente.value != suggestion.data && suggestion.data != '')
-               {
-                  document.listado_facturas.codcliente.value = suggestion.data;
-               }
-            }
-         }
-      });
-      $("#ac_proveedor").autocomplete({
-         serviceUrl: '{$fsc->url()}',
-         paramName: 'buscar_proveedor',
-         onSelect: function(suggestion) {
-            if(suggestion)
-            {
-               if(document.listado_proveedor.codproveedor.value != suggestion.data && suggestion.data != '')
-               {
-                  document.listado_proveedor.codproveedor.value = suggestion.data;
-               }
-            }
-         }
-      });
-   });
 </script>
-
-<div class="container-fluid">
-   <div class="row">
-      <div class="col-sm-12">
-         <div class="page-header">
-            <h1>
-               <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-               Informe de facturas
-               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
-                  <span class="glyphicon glyphicon-refresh"></span>
-               </a>
-            </h1>
-         </div>
-         <ul class="nav nav-pills">
-            <li role="presentation" class="active">
-               <a href="#">
-                  <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-                  <span class="hidden-xs">&nbsp; Estadísticas</span>
-               </a>
-            </li>
-            <li role="presentation">
-               <a href="#" data-toggle="modal" data-target="#modal_compras">
-                  <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                  <span class="hidden-xs">&nbsp; Facturas de compra</span>
-               </a>
-            </li>
-            <li role="presentation">
-               <a href="#" data-toggle="modal" data-target="#modal_ventas">
-                  <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                  <span class="hidden-xs">&nbsp; Facturas de venta</span>
-               </a>
-            </li>
-         </ul>
-      </div>
-   </div>
-</div>
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
@@ -185,6 +189,247 @@
       </div>
    </div>
 </div>
+{else}
+<script type="text/javascript">
+   google.setOnLoadCallback(drawChart);
+   
+   function drawChart()
+   {
+      var options = {
+         is3D: true,
+      };
+      
+      var options2 = {
+         pieHole: 0.4,
+      };
+      
+      var data = google.visualization.arrayToDataTable([
+         ['TXT', 'Total'],
+         {loop="$fsc->stats_impagos()"}
+         ['{$value['txt']}', {$value['total']}],
+         {/loop}
+        ]);
+      
+      var chart = new google.visualization.PieChart(document.getElementById('chart_compras_impagos'));
+      chart.draw(data, options);
+      
+      var data2 = google.visualization.arrayToDataTable([
+         ['TXT', 'Total'],
+         {loop="$fsc->stats_impagos('facturascli')"}
+         ['{$value['txt']}', {$value['total']}],
+         {/loop}
+        ]);
+      
+      var chart2 = new google.visualization.PieChart(document.getElementById('chart_ventas_impagos'));
+      chart2.draw(data2, options);
+      
+      var data3 = google.visualization.arrayToDataTable([
+         ['TXT', 'Total'],
+         {loop="$fsc->stats_series()"}
+         ['{$value['txt']}', {$value['total']}],
+         {/loop}
+        ]);
+      
+      var chart3 = new google.visualization.PieChart(document.getElementById('chart_compras_series'));
+      chart3.draw(data3, options2);
+      
+      var data4 = google.visualization.arrayToDataTable([
+         ['TXT', 'Total'],
+         {loop="$fsc->stats_series('facturascli')"}
+         ['{$value['txt']}', {$value['total']}],
+         {/loop}
+        ]);
+      
+      var chart4 = new google.visualization.PieChart(document.getElementById('chart_ventas_series'));
+      chart4.draw(data4, options2);
+      
+      var data5 = google.visualization.arrayToDataTable([
+         ['TXT', 'Total'],
+         {loop="$fsc->stats_formas_pago()"}
+         ['{$value['txt']}', {$value['total']}],
+         {/loop}
+        ]);
+      
+      var chart5 = new google.visualization.PieChart(document.getElementById('chart_compras_formas_pago'));
+      chart5.draw(data5, options);
+      
+      var data6 = google.visualization.arrayToDataTable([
+         ['TXT', 'Total'],
+         {loop="$fsc->stats_formas_pago('facturascli')"}
+         ['{$value['txt']}', {$value['total']}],
+         {/loop}
+        ]);
+      
+      var chart6 = new google.visualization.PieChart(document.getElementById('chart_ventas_formas_pago'));
+      chart6.draw(data6, options);
+   }
+</script>
+
+<div class="container-fluid" style="margin-top: 10px;">
+   <div class="row">
+      <div class="col-sm-6">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Impagos en compras</h3>
+            </div>
+            <div class="panel-body">
+               <div id="chart_compras_impagos"></div>
+            </div>
+            <div class="table-responsive">
+               <table class="table table-hover">
+                  <thead>
+                     <tr>
+                        <th>Campo</th>
+                        <th class="text-right">Total</th>
+                     </tr>
+                  </thead>
+                  {loop="$fsc->stats_impagos()"}
+                  <tr>
+                     <td>{$value['txt']}</td>
+                     <td class="text-right">{$value['total']}</td>
+                  </tr>
+                  {/loop}
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-6">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Impagos en ventas</h3>
+            </div>
+            <div class="panel-body">
+               <div id="chart_ventas_impagos"></div>
+            </div>
+            <div class="table-responsive">
+               <table class="table table-hover">
+                  <thead>
+                     <tr>
+                        <th>Campo</th>
+                        <th class="text-right">Total</th>
+                     </tr>
+                  </thead>
+                  {loop="$fsc->stats_impagos('facturascli')"}
+                  <tr>
+                     <td>{$value['txt']}</td>
+                     <td class="text-right">{$value['total']}</td>
+                  </tr>
+                  {/loop}
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-sm-6">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Compras por serie</h3>
+            </div>
+            <div class="panel-body">
+               <div id="chart_compras_series"></div>
+            </div>
+            <div class="table-responsive">
+               <table class="table table-hover">
+                  <thead>
+                     <tr>
+                        <th>Campo</th>
+                        <th class="text-right">Total</th>
+                     </tr>
+                  </thead>
+                  {loop="$fsc->stats_series()"}
+                  <tr>
+                     <td>{$value['txt']}</td>
+                     <td class="text-right">{$value['total']}</td>
+                  </tr>
+                  {/loop}
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-6">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Ventas por serie</h3>
+            </div>
+            <div class="panel-body">
+               <div id="chart_ventas_series"></div>
+            </div>
+            <div class="table-responsive">
+               <table class="table table-hover">
+                  <thead>
+                     <tr>
+                        <th>Campo</th>
+                        <th class="text-right">Total</th>
+                     </tr>
+                  </thead>
+                  {loop="$fsc->stats_series('facturascli')"}
+                  <tr>
+                     <td>{$value['txt']}</td>
+                     <td class="text-right">{$value['total']}</td>
+                  </tr>
+                  {/loop}
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-sm-6">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Compras por forma de pago</h3>
+            </div>
+            <div class="panel-body">
+               <div id="chart_compras_formas_pago"></div>
+            </div>
+            <div class="table-responsive">
+               <table class="table table-hover">
+                  <thead>
+                     <tr>
+                        <th>Campo</th>
+                        <th class="text-right">Total</th>
+                     </tr>
+                  </thead>
+                  {loop="$fsc->stats_formas_pago()"}
+                  <tr>
+                     <td>{$value['txt']}</td>
+                     <td class="text-right">{$value['total']}</td>
+                  </tr>
+                  {/loop}
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-6">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Ventas por forma de pago</h3>
+            </div>
+            <div class="panel-body">
+               <div id="chart_ventas_formas_pago"></div>
+            </div>
+            <div class="table-responsive">
+               <table class="table table-hover">
+                  <thead>
+                     <tr>
+                        <th>Campo</th>
+                        <th class="text-right">Total</th>
+                     </tr>
+                  </thead>
+                  {loop="$fsc->stats_formas_pago('facturascli')"}
+                  <tr>
+                     <td>{$value['txt']}</td>
+                     <td class="text-right">{$value['total']}</td>
+                  </tr>
+                  {/loop}
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{/if}
 
 <form name="listado_proveedor" action="{$fsc->url()}" method="post" target="_blank" class="form">
    <input type="hidden" name="listado" value="facturasprov"/>

@@ -470,6 +470,10 @@ class ventas_albaran extends fs_controller
       $factura->totalrecargo = $this->albaran->totalrecargo;
       $factura->porcomision = $this->albaran->porcomision;
       
+      /// asignamos la mejor fecha posible, pero dentro del ejercicio
+      $eje0 = $this->ejercicio->get($factura->codejercicio);
+      $factura->fecha = $eje0->get_best_fecha($factura->fecha);
+      
       /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
       $forma0 = new forma_pago();
       $formapago = $forma0->get($factura->codpago);
@@ -483,12 +487,7 @@ class ventas_albaran extends fs_controller
          $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$formapago->vencimiento));
       }
       
-      /// asignamos la mejor fecha posible, pero dentro del ejercicio
-      $eje0 = $this->ejercicio->get($factura->codejercicio);
-      $factura->fecha = $eje0->get_best_fecha($factura->fecha);
-      
       $regularizacion = new regularizacion_iva();
-      
       if( !$eje0->abierto() )
       {
          $this->new_error_msg("El ejercicio está cerrado.");

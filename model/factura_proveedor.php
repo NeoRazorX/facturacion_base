@@ -612,7 +612,9 @@ class factura_proveedor extends fs_model
       foreach($this->get_lineas() as $l)
       {
          if( !$l->test() )
+         {
             $status = FALSE;
+         }
          
          $neto += $l->pvptotal;
          $iva += $l->pvptotal * $l->iva / 100;
@@ -661,7 +663,10 @@ class factura_proveedor extends fs_model
       /// comprobamos las líneas de IVA
       $this->get_lineas_iva();
       $linea_iva = new linea_iva_factura_proveedor();
-      $status = $linea_iva->factura_test($this->idfactura, $neto, $iva, $recargo);
+      if( !$linea_iva->factura_test($this->idfactura, $neto, $iva, $recargo) )
+      {
+         $status = FALSE;
+      }
       
       /// comprobamos el asiento
       if( isset($this->idasiento) )

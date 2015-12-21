@@ -32,6 +32,7 @@ class informe_facturas extends fs_controller
    public $factura_cli;
    public $factura_pro;
    public $hasta;
+   public $mostrar;
    public $pagada;
    public $proveedor;
    public $serie;
@@ -50,6 +51,7 @@ class informe_facturas extends fs_controller
       $this->factura_cli = new factura_cliente();
       $this->factura_pro = new factura_proveedor();
       $this->hasta = Date('d-m-Y', mktime(0, 0, 0, date("m")+1, date("1")-1, date("Y")));
+      $this->mostrar = 'general';
       $this->serie = new serie();
       $this->stats = array();
       
@@ -84,7 +86,15 @@ class informe_facturas extends fs_controller
       }
       else
       {
-         $this->albaranes_pendientes();
+         if( isset($_GET['mostrar']) )
+         {
+            $this->mostrar = $_GET['mostrar'];
+         }
+         
+         if($this->mostrar == 'general')
+         {
+            $this->albaranes_pendientes();
+         }
       }
    }
    
@@ -1215,5 +1225,65 @@ class informe_facturas extends fs_controller
       
       $this->stats['total'] = $this->stats['facturas_venta_importe'] + $this->stats['alb_ptes_venta_importe'];
       $this->stats['total'] -= $this->stats['facturas_compra_importe'] + $this->stats['alb_ptes_compra_importe'];
+   }
+   
+   public function stats_impagos($tabla = 'facturasprov')
+   {
+      $stats = array();
+      
+      $sql = "select pagada,sum(totaleuros) as total from ".$tabla." group by pagada order by total desc;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $stats[] = array(
+                'txt' => $this->empresa->str2bool($d['pagada']) ? 'Pagadas':'Impagadas',
+                'total' => round( abs( floatval($d['total']) ), FS_NF0)
+            );
+         }
+      }
+      
+      return $stats;
+   }
+   
+   public function stats_series($tabla = 'facturasprov')
+   {
+      $stats = array();
+      
+      $sql = "select codserie,sum(totaleuros) as total from ".$tabla." group by codserie order by total desc;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $stats[] = array(
+                'txt' => $d['codserie'],
+                'total' => round( abs( floatval($d['total']) ), FS_NF0)
+            );
+         }
+      }
+      
+      return $stats;
+   }
+   
+   public function stats_formas_pago($tabla = 'facturasprov')
+   {
+      $stats = array();
+      
+      $sql = "select codpago,sum(totaleuros) as total from ".$tabla." group by codpago order by total desc;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $stats[] = array(
+                'txt' => $d['codpago'],
+                'total' => round( abs( floatval($d['total']) ), FS_NF0)
+            );
+         }
+      }
+      
+      return $stats;
    }
 }

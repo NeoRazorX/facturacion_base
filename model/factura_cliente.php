@@ -548,6 +548,21 @@ class factura_cliente extends fs_model
          return FALSE;
    }
    
+   public function get_by_num_serie($num, $serie, $eje)
+   {
+      $sql = "SELECT * FROM ".$this->table_name." WHERE numero = ".$this->var2str($num)
+              ." AND codserie = ".$this->var2str($serie)
+              ." AND codejercicio = ".$this->var2str($eje).";";
+      
+      $fact = $this->db->select($sql);
+      if($fact)
+      {
+         return new factura_cliente($fact[0]);
+      }
+      else
+         return FALSE;
+   }
+   
    public function exists()
    {
       if( is_null($this->idfactura) )
@@ -677,8 +692,7 @@ class factura_cliente extends fs_model
       $numero0 = intval($this->numero)-1;
       if( $numero0 > 0 )
       {
-         $codigo0 = $this->codejercicio . sprintf('%02s', $this->codserie) . sprintf('%06s', $numero0);
-         $fac0 = $this->get_by_codigo($codigo0);
+         $fac0 = $this->get_by_num_serie($numero0, $this->codserie, $this->codejercicio);
          if($fac0)
          {
             if( strtotime($fac0->fecha) > strtotime($this->fecha) )
@@ -690,8 +704,7 @@ class factura_cliente extends fs_model
          }
       }
       $numero2 = intval($this->numero)+1;
-      $codigo2 = $this->codejercicio . sprintf('%02s', $this->codserie) . sprintf('%06s', $numero2);
-      $fac2 = $this->get_by_codigo($codigo2);
+      $fac2 = $this->get_by_num_serie($numero2, $this->codserie, $this->codejercicio);
       if($fac2)
       {
          if( strtotime($fac2->fecha) < strtotime($this->fecha) )
@@ -710,7 +723,9 @@ class factura_cliente extends fs_model
       foreach($this->get_lineas() as $l)
       {
          if( !$l->test() )
+         {
             $status = FALSE;
+         }
          
          $neto += $l->pvptotal;
          $iva += $l->pvptotal * $l->iva / 100;
@@ -759,7 +774,10 @@ class factura_cliente extends fs_model
       /// comprobamos las líneas de IVA
       $this->get_lineas_iva();
       $linea_iva = new linea_iva_factura_cliente();
-      $status = $linea_iva->factura_test($this->idfactura, $neto, $iva, $recargo);
+      if( !$linea_iva->factura_test($this->idfactura, $neto, $iva, $recargo) )
+      {
+         $status = FALSE;
+      }
       
       /// comprobamos el asiento
       if( isset($this->idasiento) )
