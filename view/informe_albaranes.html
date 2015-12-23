@@ -2,18 +2,37 @@
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
-   // Load the Visualization API and the piechart package.
    google.load('visualization', '1.0', {'packages':['corechart']});
    
-   // Set a callback to run when the Google Visualization API is loaded.
    google.setOnLoadCallback(drawChart);
    
-   // Callback that creates and populates a data table,
-   // instantiates the pie chart, passes in the data and
-   // draws it.
    function drawChart()
    {
-      // Create the data table.
+      {if="$fsc->mostrar=='operaciones'"}
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'día');
+      data.addColumn('number', 'operaciones');
+      data.addRows([
+      {loop="$fsc->stats_last_operations()"}
+         ['{$key}', {$value}],
+      {/loop}
+      ]);
+      
+      var chart = new google.visualization.AreaChart(document.getElementById('chart_operaciones_compra'));
+      chart.draw(data);
+      
+      var data2 = new google.visualization.DataTable();
+      data2.addColumn('string', 'día');
+      data2.addColumn('number', 'operaciones');
+      data2.addRows([
+      {loop="$fsc->stats_last_operations('albaranescli')"}
+         ['{$key}', {$value}],
+      {/loop}
+      ]);
+      
+      var chart2 = new google.visualization.AreaChart(document.getElementById('chart_operaciones_venta'));
+      chart2.draw(data2);
+      {else}
       var data = new google.visualization.DataTable();
       data.addColumn('string', 'día');
       data.addColumn('number', 'ventas {$fsc->simbolo_divisa()}');
@@ -24,11 +43,9 @@
       {/loop}
       ]);
       
-      // Instantiate and draw our chart, passing in some options.
       var chart = new google.visualization.ColumnChart(document.getElementById('chart_facturas_day'));
       chart.draw(data);
       
-      // Create the data table.
       var data2 = new google.visualization.DataTable();
       data2.addColumn('string', 'mes');
       data2.addColumn('number', 'ventas {$fsc->simbolo_divisa()}');
@@ -39,11 +56,9 @@
       {/loop}
       ]);
       
-      // Instantiate and draw our chart, passing in some options.
       var chart2 = new google.visualization.AreaChart(document.getElementById('chart_facturas_month'));
       chart2.draw(data2);
       
-      // Create the data table.
       var data3 = new google.visualization.DataTable();
       data3.addColumn('string', 'año');
       data3.addColumn('number', 'ventas {$fsc->simbolo_divisa()}');
@@ -54,9 +69,9 @@
       {/loop}
       ]);
       
-      // Instantiate and draw our chart, passing in some options.
       var chart3 = new google.visualization.AreaChart(document.getElementById('chart_facturas_year'));
       chart3.draw(data3);
+      {/if}
    }
 </script>
 
@@ -71,6 +86,71 @@
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
             </h1>
+         </div>
+         <ul class="nav nav-tabs">
+            <li role="presentation"{if="$fsc->mostrar=='general'"} class="active"{/if}>
+               <a href="{$fsc->url()}">
+                  <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+                  <span class="hidden-xs">&nbsp; General</span>
+               </a>
+            </li>
+            <li role="presentation"{if="$fsc->mostrar=='operaciones'"} class="active"{/if}>
+               <a href="{$fsc->url()}&mostrar=operaciones">
+                  <span class="glyphicon glyphicon-fire" aria-hidden="true"></span>
+                  <span class="hidden-xs">&nbsp; Operaciones</span>
+               </a>
+            </li>
+         </ul>
+         <br/>
+      </div>
+   </div>
+   {if="$fsc->mostrar=='operaciones'"}
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Operaciones de compra</h3>
+            </div>
+            <div class="panel-body">
+               <div id="chart_operaciones_compra" style="width: 95%; margin-left: auto; margin-right: auto; height: 300px;"></div>
+            </div>
+            <div class="panel-footer">
+               <p class="help-block">
+                  Nº de {#FS_ALBARANES#} de compra diarios. Útil para medir la actividad.
+               </p>
+            </div>
+         </div>
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Operaciones de venta</h3>
+            </div>
+            <div class="panel-body">
+               <div id="chart_operaciones_venta" style="width: 95%; margin-left: auto; margin-right: auto; height: 300px;"></div>
+            </div>
+            <div class="panel-footer">
+               <p class="help-block">
+                  Nº de {#FS_ALBARANES#} de venta diarios. Útil para medir la actividad.
+               </p>
+            </div>
+         </div>
+      </div>
+   </div>
+   {else}
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title"><span class="text-capitalize">{#FS_ALBARANES#}</span> de los últimos días</h3>
+            </div>
+            <div class="panel-body">
+               <div id="chart_facturas_day" style="width: 95%; margin-left: auto; margin-right: auto;"></div>
+            </div>
+            <div class="panel-footer">
+               <p class="help-block">
+                  La media de ventas es de <b>{$fsc->show_precio($fsc->stats['media_ventas_dia'])}</b>/día,
+                  la media de compras es de <b>{$fsc->show_precio($fsc->stats['media_compras_dia'])}</b>/día.
+               </p>
+            </div>
          </div>
       </div>
    </div>
@@ -117,24 +197,6 @@
          <br/>
          <div class="panel panel-default">
             <div class="panel-heading">
-               <h3 class="panel-title"><span class="text-capitalize">{#FS_ALBARANES#}</span> de los últimos días</h3>
-            </div>
-            <div class="panel-body">
-               <div id="chart_facturas_day" style="width: 95%; margin-left: auto; margin-right: auto;"></div>
-            </div>
-            <div class="panel-footer">
-               <p class="help-block">
-                  La media de ventas es de <b>{$fsc->show_precio($fsc->stats['media_ventas_dia'])}</b>/día,
-                  la media de compras es de <b>{$fsc->show_precio($fsc->stats['media_compras_dia'])}</b>/día.
-               </p>
-            </div>
-         </div>
-      </div>
-   </div>
-   <div class="row">
-      <div class="col-sm-12">
-         <div class="panel panel-default">
-            <div class="panel-heading">
                <h3 class="panel-title"><span class="text-capitalize">{#FS_ALBARANES#}</span> de los últimos meses</h3>
             </div>
             <div class="panel-body">
@@ -161,6 +223,7 @@
          </div>
       </div>
    </div>
+   {/if}
 </div>
 
 {include="footer"}

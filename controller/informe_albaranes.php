@@ -22,6 +22,7 @@ require_model('albaran_proveedor.php');
 
 class informe_albaranes extends fs_controller
 {
+   public $mostrar;
    public $stats;
    
    public function __construct()
@@ -35,49 +36,62 @@ class informe_albaranes extends fs_controller
       $albaran_cli = new albaran_cliente();
       $albaran_pro = new albaran_proveedor();
       
-      $this->stats = array(
-          'alb_pendientes' => 0,
-          'alb_pendientes_total' => 0,
-          'ped_pendientes' => 0,
-          'ped_pendientes_total' => 0,
-          'pre_pendientes' => 0,
-          'pre_pendientes_total' => 0,
-          'media_ventas_dia' => 0,
-          'media_compras_dia' => 0,
-          'media_ventas_mes' => 0,
-          'media_compras_mes' => 0,
-      );
-      
-      /// comprobamos los albaranes pendientes
-      $sql = "SELECT COUNT(idalbaran) as num, SUM(total) as total FROM albaranescli WHERE ptefactura = true;";
-      $data = $this->db->select($sql);
-      if($data)
+      $this->mostrar = 'general';
+      if( isset($_GET['mostrar']) )
       {
-         $this->stats['alb_pendientes'] = intval($data[0]['num']);
-         $this->stats['alb_pendientes_total'] = floatval($data[0]['total']);
+         $this->mostrar = $_GET['mostrar'];
       }
       
-      if( $this->db->table_exists('pedidoscli') )
+      if($this->mostrar == 'operaciones')
       {
-         /// comprobamos los pedidos pendientes
-         $sql = "SELECT COUNT(idpedido) as num, SUM(total) as total FROM pedidoscli WHERE idalbaran IS NULL AND status=0;";
+         
+      }
+      else
+      {
+         $this->stats = array(
+             'alb_pendientes' => 0,
+             'alb_pendientes_total' => 0,
+             'ped_pendientes' => 0,
+             'ped_pendientes_total' => 0,
+             'pre_pendientes' => 0,
+             'pre_pendientes_total' => 0,
+             'media_ventas_dia' => 0,
+             'media_compras_dia' => 0,
+             'media_ventas_mes' => 0,
+             'media_compras_mes' => 0,
+         );
+         
+         /// comprobamos los albaranes pendientes
+         $sql = "SELECT COUNT(idalbaran) as num, SUM(total) as total FROM albaranescli WHERE ptefactura = true;";
          $data = $this->db->select($sql);
          if($data)
          {
-            $this->stats['ped_pendientes'] = intval($data[0]['num']);
-            $this->stats['ped_pendientes_total'] = floatval($data[0]['total']);
+            $this->stats['alb_pendientes'] = intval($data[0]['num']);
+            $this->stats['alb_pendientes_total'] = floatval($data[0]['total']);
          }
-      }
-      
-      if( $this->db->table_exists('presupuestoscli') )
-      {
-         /// comprobamos los presupuestos pendientes
-         $sql = "SELECT COUNT(idpresupuesto) as num, SUM(total) as total FROM presupuestoscli WHERE idpedido IS NULL AND status=0;";
-         $data = $this->db->select($sql);
-         if($data)
+         
+         if( $this->db->table_exists('pedidoscli') )
          {
-            $this->stats['pre_pendientes'] = intval($data[0]['num']);
-            $this->stats['pre_pendientes_total'] = floatval($data[0]['total']);
+            /// comprobamos los pedidos pendientes
+            $sql = "SELECT COUNT(idpedido) as num, SUM(total) as total FROM pedidoscli WHERE idalbaran IS NULL AND status=0;";
+            $data = $this->db->select($sql);
+            if($data)
+            {
+               $this->stats['ped_pendientes'] = intval($data[0]['num']);
+               $this->stats['ped_pendientes_total'] = floatval($data[0]['total']);
+            }
+         }
+         
+         if( $this->db->table_exists('presupuestoscli') )
+         {
+            /// comprobamos los presupuestos pendientes
+            $sql = "SELECT COUNT(idpresupuesto) as num, SUM(total) as total FROM presupuestoscli WHERE idpedido IS NULL AND status=0;";
+            $data = $this->db->select($sql);
+            if($data)
+            {
+               $this->stats['pre_pendientes'] = intval($data[0]['num']);
+               $this->stats['pre_pendientes_total'] = floatval($data[0]['total']);
+            }
          }
       }
    }
@@ -316,5 +330,32 @@ class informe_albaranes extends fs_controller
       }
       
       return $dates;
+   }
+   
+   public function stats_last_operations($tabla = 'albaranesprov', $ndias = 180)
+   {
+      $stats = array();
+      
+      /// rellenamos $nidas de datos
+      for($i = $ndias; $i > 0; $i--)
+      {
+         $stats[date('d-m-Y', strtotime('-'.$i.'days'))] = 0;
+      }
+      
+      $sql = "select fecha,count(*) as total from ".$tabla." group by fecha order by fecha desc";
+      $data = $this->db->select_limit($sql, $ndias, 0);
+      if($data)
+      {
+         foreach( array_reverse($data) as $d )
+         {
+            $fecha = date('d-m-Y', strtotime($d['fecha']));
+            if( isset($stats[$fecha]) )
+            {
+               $stats[$fecha] = intval($d['total']);
+            }
+         }
+      }
+      
+      return $stats;
    }
 }

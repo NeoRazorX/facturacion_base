@@ -63,6 +63,12 @@
                   <span class="hidden-xs">&nbsp; Agrupaciones</span>
                </a>
             </li>
+            <li role="presentation"{if="$fsc->mostrar=='operaciones'"} class="active"{/if}>
+               <a href="{$fsc->url()}&mostrar=operaciones">
+                  <span class="glyphicon glyphicon-fire" aria-hidden="true"></span>
+                  <span class="hidden-xs">&nbsp; Operaciones</span>
+               </a>
+            </li>
             <li role="presentation">
                <a href="#" data-toggle="modal" data-target="#modal_compras">
                   <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
@@ -193,7 +199,7 @@
       </div>
    </div>
 </div>
-{else}
+{elseif="$fsc->mostrar=='agrupaciones'"}
 <script type="text/javascript">
    google.setOnLoadCallback(drawChart);
    
@@ -292,6 +298,10 @@
                      <td>{$value['txt']}</td>
                      <td class="text-right">{$value['total']}</td>
                   </tr>
+                  {else}
+                  <tr class="warning">
+                     <td colspan="2">Sin resultados.</td>
+                  </tr>
                   {/loop}
                </table>
             </div>
@@ -317,6 +327,10 @@
                   <tr>
                      <td>{$value['txt']}</td>
                      <td class="text-right">{$value['total']}</td>
+                  </tr>
+                  {else}
+                  <tr class="warning">
+                     <td colspan="2">Sin resultados.</td>
                   </tr>
                   {/loop}
                </table>
@@ -346,6 +360,10 @@
                      <td>{$value['txt']}</td>
                      <td class="text-right">{$value['total']}</td>
                   </tr>
+                  {else}
+                  <tr class="warning">
+                     <td colspan="2">Sin resultados.</td>
+                  </tr>
                   {/loop}
                </table>
             </div>
@@ -371,6 +389,10 @@
                   <tr>
                      <td>{$value['txt']}</td>
                      <td class="text-right">{$value['total']}</td>
+                  </tr>
+                  {else}
+                  <tr class="warning">
+                     <td colspan="2">Sin resultados.</td>
                   </tr>
                   {/loop}
                </table>
@@ -400,6 +422,10 @@
                      <td>{$value['txt']}</td>
                      <td class="text-right">{$value['total']}</td>
                   </tr>
+                  {else}
+                  <tr class="warning">
+                     <td colspan="2">Sin resultados.</td>
+                  </tr>
                   {/loop}
                </table>
             </div>
@@ -426,8 +452,77 @@
                      <td>{$value['txt']}</td>
                      <td class="text-right">{$value['total']}</td>
                   </tr>
+                  {else}
+                  <tr class="warning">
+                     <td colspan="2">Sin resultados.</td>
+                  </tr>
                   {/loop}
                </table>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{else}
+<script type="text/javascript">
+   google.setOnLoadCallback(drawChart);
+   
+   function drawChart()
+   {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'día');
+      data.addColumn('number', 'operaciones');
+      data.addRows([
+      {loop="$fsc->stats_last_operations()"}
+         ['{$key}', {$value}],
+      {/loop}
+      ]);
+      
+      var chart = new google.visualization.AreaChart(document.getElementById('chart_operaciones_compra'));
+      chart.draw(data);
+      
+      var data2 = new google.visualization.DataTable();
+      data2.addColumn('string', 'día');
+      data2.addColumn('number', 'operaciones');
+      data2.addRows([
+      {loop="$fsc->stats_last_operations('facturascli')"}
+         ['{$key}', {$value}],
+      {/loop}
+      ]);
+      
+      var chart2 = new google.visualization.AreaChart(document.getElementById('chart_operaciones_venta'));
+      chart2.draw(data2);
+   }
+</script>
+
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12">
+         <br/>
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Operaciones de compra</h3>
+            </div>
+            <div class="panel-body">
+               <div id="chart_operaciones_compra" style="width: 95%; margin-left: auto; margin-right: auto; height: 300px;"></div>
+            </div>
+            <div class="panel-footer">
+               <p class="help-block">
+                  Nº de facturas de compra diarias. Útil para medir la actividad.
+               </p>
+            </div>
+         </div>
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Operaciones de venta</h3>
+            </div>
+            <div class="panel-body">
+               <div id="chart_operaciones_venta" style="width: 95%; margin-left: auto; margin-right: auto; height: 300px;"></div>
+            </div>
+            <div class="panel-footer">
+               <p class="help-block">
+                  Nº de facturas de venta diarias. Útil para medir la actividad.
+               </p>
             </div>
          </div>
       </div>

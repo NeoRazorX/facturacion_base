@@ -18,11 +18,12 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
+require_model('cliente.php');
 require_model('factura_cliente.php');
 require_model('factura_proveedor.php');
-require_model('serie.php');
-require_model('cliente.php');
+require_model('forma_pago.php');
 require_model('proveedor.php');
+require_model('serie.php');
 
 class informe_facturas extends fs_controller
 {
@@ -1250,6 +1251,7 @@ class informe_facturas extends fs_controller
    public function stats_series($tabla = 'facturasprov')
    {
       $stats = array();
+      $serie0 = new serie();
       
       $sql = "select codserie,sum(totaleuros) as total from ".$tabla." group by codserie order by total desc;";
       $data = $this->db->select($sql);
@@ -1257,10 +1259,21 @@ class informe_facturas extends fs_controller
       {
          foreach($data as $d)
          {
-            $stats[] = array(
-                'txt' => $d['codserie'],
-                'total' => round( abs( floatval($d['total']) ), FS_NF0)
-            );
+            $serie = $serie0->get($d['codserie']);
+            if($serie)
+            {
+               $stats[] = array(
+                   'txt' => $serie->descripcion,
+                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+               );
+            }
+            else
+            {
+               $stats[] = array(
+                   'txt' => $d['codserie'],
+                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+               );
+            }
          }
       }
       
@@ -1270,6 +1283,7 @@ class informe_facturas extends fs_controller
    public function stats_formas_pago($tabla = 'facturasprov')
    {
       $stats = array();
+      $fp0 = new forma_pago();
       
       $sql = "select codpago,sum(totaleuros) as total from ".$tabla." group by codpago order by total desc;";
       $data = $this->db->select($sql);
@@ -1277,10 +1291,48 @@ class informe_facturas extends fs_controller
       {
          foreach($data as $d)
          {
-            $stats[] = array(
-                'txt' => $d['codpago'],
-                'total' => round( abs( floatval($d['total']) ), FS_NF0)
-            );
+            $formap = $fp0->get($d['codpago']);
+            if($formap)
+            {
+               $stats[] = array(
+                   'txt' => $formap->descripcion,
+                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+               );
+            }
+            else
+            {
+               $stats[] = array(
+                   'txt' => $d['codpago'],
+                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+               );
+            }
+         }
+      }
+      
+      return $stats;
+   }
+   
+   public function stats_last_operations($tabla = 'facturasprov', $ndias = 180)
+   {
+      $stats = array();
+      
+      /// rellenamos $nidas de datos
+      for($i = $ndias; $i > 0; $i--)
+      {
+         $stats[date('d-m-Y', strtotime('-'.$i.'days'))] = 0;
+      }
+      
+      $sql = "select fecha,count(*) as total from ".$tabla." group by fecha order by fecha desc";
+      $data = $this->db->select_limit($sql, $ndias, 0);
+      if($data)
+      {
+         foreach( array_reverse($data) as $d )
+         {
+            $fecha = date('d-m-Y', strtotime($d['fecha']));
+            if( isset($stats[$fecha]) )
+            {
+               $stats[$fecha] = intval($d['total']);
+            }
          }
       }
       
