@@ -36,12 +36,14 @@
       <a href="{$fsc->grupo->url()}">
          <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
          <span class="hidden-xs">&nbsp; Clientes</span>
+         <span class="badge">{$fsc->total_clientes}</span>
       </a>
    </li>
    <li role="presentation"{if="$fsc->mostrar=='facturas'"} class="active"{/if}>
       <a href="{$fsc->grupo->url()}&mostrar=facturas">
          <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
          <span class="hidden-xs">&nbsp; Facturas</span>
+         <span class="badge">{$fsc->total_facturas}</span>
       </a>
    </li>
 </ul>
