@@ -376,7 +376,7 @@ class asiento_factura
                   $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida2->codsubcuenta."!");
                }
             }
-             
+            
             if($asiento_correcto)
             {
                $orden->idasiento = $asiento->idasiento;

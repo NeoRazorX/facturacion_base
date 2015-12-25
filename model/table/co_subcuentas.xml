@@ -73,7 +73,7 @@
    </columna>
    <columna>
       <nombre>alias</nombre>
-      <tipo>character varying(6)</tipo>
+      <tipo>character varying(25)</tipo>
       <nulo>YES</nulo>
    </columna>
    <restriccion>

@@ -188,6 +188,38 @@
             alert('¡Asiento descuadrado!');
       });
    });
+   
+   function guardar()
+   {
+	   if(document.getElementById('concepto').value == '')
+	   {
+	   alert('Debe seleccionar o crear un nuevo concepto');
+	   document.getElementById('guardar_asiento').disabled=false;
+	   }
+	   else
+	   {
+	   document.f_asiento.submit();
+	   }
+   }
+   
+   function cambiar_concepto()
+   {
+	 if(document.getElementById('sel_concepto').value == 'Nuevo Concepto')
+	   {
+	   document.getElementById('concepto').style.visibility = "visible";
+	   document.getElementById('concepto').value = '';
+	   document.getElementById('concepto').readOnly = false;
+	   document.getElementById('concepto').focus();
+	   }
+	 else
+	   {
+	   document.getElementById('concepto').style.visibility = "hidden";
+	   document.getElementById('concepto').readOnly = true;
+	   document.getElementById('concepto').value = document.getElementById('sel_concepto').value;
+	   }
+   }
+   
+   
 </script>
 
 <form id="f_asiento" name="f_asiento" action="{$fsc->url()}" method="post" class="form">
@@ -236,12 +268,20 @@
          <div class="col-lg-3 col-md-2 col-sm-2">
             <div class="form-group">
                Concepto:
-			   <select id="concepto" name="concepto"  class="form-control">
+			   <select id="sel_concepto" name="sel_concepto"  class="form-control" onchange="cambiar_concepto()">
+			   <option value="">---</option>
+			    <option value="Nuevo Concepto">Nuevo Concepto</option>
                  <option value="Egreso proveedor">Egreso proveedor</option>
                  <option value="Ingreso proveedor">Ingreso proveedor</option>
 				 <option value="Egreso cliente">Egreso cliente</option>
 				 <option value="Ingreso cliente">Ingreso cliente</option>
                </select>
+			   			   			 
+               
+				<input type="text" id="concepto" name="concepto" placeholder="Agregar nuevo" style="visibility:hidden"  readonly="true" />
+             
+        	
+           
               
             </div>
          </div>
@@ -301,7 +341,7 @@
          </div>
          <div class="col-xs-6 text-right">
             <div class="btn-group">
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar y volver a empezar">
+               <button class="btn btn-sm btn-primary" type="button" id="guardar_asiento" onclick="this.disabled=true;guardar();" title="Guardar y volver a empezar">
                   <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                </button>
                <button class="btn btn-sm btn-info" type="submit" onclick="this.disabled=true;document.f_asiento.redir.value='TRUE';this.form.submit();" title="Guardar y ver asiento">

@@ -58,18 +58,17 @@ class contabilidad_asiento extends fs_controller
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
-      
+      $asiento = new asiento();
       if( isset($_GET['id']) )
-      {
-         $asiento = new asiento();
-         $this->asiento = $asiento->get($_GET['id']);
-		 
+      {         
+         $this->asiento = $asiento->get($_GET['id']);		 
       }
 	  
 /*	 			 print '<script language="JavaScript">'; 
 				print 'alert(" id partida : '.$this->asiento->codejercicio.'  id asiento '.$this->asiento->idasiento.' ");'; 
 				print '</script>'; 
-*/				
+*/	if( isset($this->asiento->tipodocumento))
+	{			
 	  if($this->asiento->tipodocumento=='Ingreso proveedor')
 	  {
 	  $this->factura_prov = new factura_proveedor();
@@ -85,7 +84,7 @@ class contabilidad_asiento extends fs_controller
 	  $this->resultados1 = $this->factura_cli->facturas_cliente();
 	  
 	  }
-      
+    }  
       if( isset($_POST['fecha']) AND isset($_POST['query']) )
       {
          $this->new_search();

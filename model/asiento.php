@@ -22,7 +22,7 @@ require_model('factura_cliente.php');
 require_model('factura_proveedor.php');
 require_model('partida.php');
 require_model('secuencia.php');
-
+require_model('recibo_proveedor.php');
 /**
  * El asiento contable. Se relaciona con un ejercicio y se compone de partidas.
  */
@@ -500,6 +500,11 @@ class asiento extends fs_model
          return FALSE;
    }
    
+   	public function ultimo_asiento()
+	{
+	$idasiento = $this->db->select("SELECT * FROM ".$this->table_name." order by idasiento desc;");
+	return $idasiento[0]['idasiento'];
+	}
       public function actualiza_importe($idasiento)
    {
 					
@@ -530,6 +535,23 @@ class asiento extends fs_model
             $fac->save();
          }
       }
+	  
+/////////  pone en "0" pagada en factura
+		$fact_prov = new factura_proveedor();		
+	  	$recibo = new recibo_proveedor();
+		$data = $recibo->get_por_idasiento($this->idasiento);		
+		foreach($data as $d)
+            {
+				$fact_data = $fact_prov->get($d->idfactura);
+				$fact_data->pagada = 0;
+				$fact_data->save();
+			}
+///////////////////////////////////////////
+/////////elimina los recibos según el idasiento			
+		if(!$recibo->delete_recibo_idasiento($this->idasiento))  $this->new_error_msg("Error - No se borraron los recibos");
+//////// elimina la orden según el idasiento		
+		$orden = new orden_prov();
+		if(!$orden->delete_orden_idasiento($this->idasiento)) $this->new_error_msg("Error - No se borraron las ordenes");
       
       /// eliminamos las partidas una a una para forzar la actualización de las subcuentas asociadas
       foreach($this->get_partidas() as $p)

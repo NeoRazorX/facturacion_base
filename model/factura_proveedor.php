@@ -854,9 +854,21 @@ class factura_proveedor extends fs_model
       return $faclist;
    }
    
-   public function pagada_true($idfactura)
+   public function pagada_true($codigo,$pagado)
    {
-       $sql = "UPDATE facturasprov SET pagada = '1' WHERE idfactura = ".$this->var2str($idfactura).";";
+   			
+       $sql = "UPDATE facturasprov SET pagada = ".$this->var2str($pagado)." WHERE codigo = ".$this->var2str($codigo).";";
+           if( $this->db->exec($sql) )
+            {
+               return TRUE;
+            }
+            else
+               return FALSE; 
+   }
+   
+      public function para_pagada($codigo)
+   {
+       $sql = "UPDATE facturasprov SET pagada = '2' WHERE codigo = ".$this->var2str($codigo).";";
            if( $this->db->exec($sql) )
             {
                return TRUE;

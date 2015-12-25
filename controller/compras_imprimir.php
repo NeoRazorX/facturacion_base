@@ -23,6 +23,7 @@ require_once 'extras/phpmailer/class.smtp.php';
 require_model('articulo_proveedor.php');
 require_model('proveedor.php');
 require_model('recibo_proveedor.php');
+require_model('factura_proveedor.php');
 
 /**
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes e imprimir facturas.
@@ -81,13 +82,23 @@ class compras_imprimir extends fs_controller
       }
 	  else if( isset($_REQUEST['ordenes']))
       {
-	    $desde = $_GET['desde'];
-		$hasta = $_GET['hasta']; 	
-		$proveedor = $_GET['proveedor'];
-		$codproveedor = $_GET['codproveedor'];
-	  $this->imprimir_ordenes($desde,$hasta,$proveedor,$codproveedor);
-
+		if( $_GET['forma'] == '1' )	
+		{  
+			$desde = $_GET['desde'];
+			$hasta = $_GET['hasta']; 	
+			$proveedor = $_GET['proveedor'];
+			$codproveedor = $_GET['codproveedor'];
+		  $this->imprimir_ordenes($desde,$hasta,$proveedor,$codproveedor);
+		}
+		else if( isset($_GET['forma']) == 2)	
+		{
+			$idorden = $_GET['idorden'];
+			$this->imprimir_ordenes_indiv($idorden);
+			
+		}
+		
       }
+	  	 
       
       $this->share_extensions();
    }
@@ -277,6 +288,93 @@ class compras_imprimir extends fs_controller
  
  
  
+   }
+   
+   public function imprimir_ordenes_indiv($idorden)
+   {
+      	$orden_prov = new orden_prov();
+		$orden = $orden_prov->get($idorden);
+		$recibo_prov = new recibo_proveedor();
+		$recibo = $recibo_prov->get_por_idorden($idorden);
+		$factura_prov = new factura_proveedor();
+			
+
+	   	$pdf_doc = new fs_pdf();
+		
+		$cant_lineas_orden = count($orden);
+		$lineas_total = 0;
+		 $cant_lineas = 25;
+         $linea_actual = 0;
+         $pagina = 1;	
+		 $total_facturado = 0;
+/////  Primer encabezado
+		$pdf_doc->pdf->ezText("Página ".$pagina, 9, array('justification' => 'right'));
+		$pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 10, array('justification' => 'left'));
+		$pdf_doc->pdf->ezText("Fecha: ".$orden->fecha."                ", 9, array('justification' => 'right'));
+		$pdf_doc->pdf->ezText("Orden de Pago Nº: ".$orden->idorden."          ",12, array('justification' => 'right'));
+		$pdf_doc->pdf->ezText($this->empresa->direccion, 10, array('justification' => 'left'));
+		$pdf_doc->pdf->ezText("\n", 10);
+ 		$pdf_doc->pdf->ezText("<b>Órdenes de pago</b>", 16, array('justification' => 'left'));
+		$pdf_doc->pdf->ezText("\n", 10);
+		$pdf_doc->pdf->ezText("\n", 10);
+		$pdf_doc->pdf->ezText("<b>Proveedor:  ".$orden->provorden."</b>", 10, array('justification' => 'left'));
+		$pdf_doc->pdf->ezText("<b> Concepto:  ".$orden->conceptoorden."</b>", 10, array('justification' => 'left'));	
+
+			$pdf_doc->pdf->ezText("\n", 10);	
+            $pdf_doc->new_table();
+			$pdf_doc->add_table_header(
+               array(
+                  'fecha' => '<b>Fecha Fact.</b>',
+                  'factnum' => '<b>Factura</b>',
+                  'factimp' => '<b>Importe Fact.</b>',
+                  'valor' => '<b>Valores Entregados</b>',
+                  'importe' => '<b>Importe</b>'
+               )
+            );
+			foreach($recibo as $p)
+			{		
+			$factura = $factura_prov->get_by_codigo($p->codigo);
+			$pdf_doc->add_table_row(
+				   array(
+				  'fecha' => $p->fecha,
+                  'factnum' => $p->factprov,
+                  'factimp' => $p->importe,
+                  'valor' => $factura->observaciones,
+                  'importe' => $p->importe
+					   )
+					);   
+			$total_facturado +=	$p->importe;		
+							
+			}					
+					
+			
+			$pdf_doc->save_table(
+						   array(
+							   'cols' => array(
+								   'campo1' => array('justification' => 'left'),
+								   'dato1' => array('justification' => 'left'),
+								   'campo2' => array('justification' => 'left'),
+								   'dato2' => array('justification' => 'left')
+							   ),
+							   'showLines' => 3,
+							   'width' => 520,
+							   'shaded' =>1
+							   
+							   )
+							);
+							$pdf_doc->pdf->ezText("\n", 14);
+		$pdf_doc->pdf->ezText("<b>Total Facturado:   ".$total_facturado."</b>", 11, array('justification' => 'left'));
+		$pdf_doc->pdf->ezText("\n", 6);					
+		$pdf_doc->pdf->ezText("<b>Total Entregado:  ".$total_facturado."</b>", 11, array('justification' => 'left'));	
+		
+				$pdf_doc->set_y(140);		
+				$pdf_doc->pdf->ezText('FIRMA :  _________________________________________________  DNI: _________________________', 8, array('justification' => 'left'));	
+				$pdf_doc->pdf->ezText("\n", 10);
+				$pdf_doc->pdf->ezText('ACLARACIÓN :  _________________________________________________ ', 8, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("\n", 10);			
+				$pdf_doc->pdf->ezText('DOMICILIO :  ___________________________________________________ ', 8, array('justification' => 'left'));
+	 $pdf_doc->show();		
+	 
    }
    
    private function generar_pdf_albaran($archivo = FALSE)

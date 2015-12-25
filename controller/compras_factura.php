@@ -53,9 +53,11 @@ class compras_factura extends fs_controller
       $this->forma_pago = new forma_pago();
 	  
 	  ///   tecla anular factura
+	  if( isset($_POST['id']))
+	  {
 	  $var_idpagodevol=$factura->get($_GET['id']);
 	  $this->factura_anulada=$var_idpagodevol->idpagodevol;
-   
+   	  }
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       

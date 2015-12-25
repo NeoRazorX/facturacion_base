@@ -763,7 +763,7 @@ class nueva_compra extends fs_controller
          $this->save_codejercicio( $ejercicio->codejercicio );
       else
       {
-         $this->new_error_msg('Ejercicio no encontrado.');
+         $this->new_error_msg('Ejercicio no encontrado1.');
          $continuar = FALSE;
       }
       
