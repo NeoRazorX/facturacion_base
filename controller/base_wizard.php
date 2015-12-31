@@ -295,7 +295,7 @@ class base_wizard extends fs_controller
     */
    public function nf0()
    {
-      return array(0, 1, 2, 3, 4);
+      return array(0, 1, 2, 3, 4, 5);
    }
    
    /**

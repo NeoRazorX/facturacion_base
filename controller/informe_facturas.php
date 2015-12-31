@@ -1319,7 +1319,11 @@ class informe_facturas extends fs_controller
       /// rellenamos $nidas de datos
       for($i = $ndias; $i > 0; $i--)
       {
-         $stats[date('d-m-Y', strtotime('-'.$i.'days'))] = 0;
+         $stats[date('d-m-Y', strtotime('-'.$i.'days'))] = array(
+             'diario' => 0,
+             'semanal' => 0,
+             'semana' => date('Y#W', strtotime('-'.$i.'days'))
+         );
       }
       
       $sql = "select fecha,count(*) as total from ".$tabla." group by fecha order by fecha desc";
@@ -1331,7 +1335,17 @@ class informe_facturas extends fs_controller
             $fecha = date('d-m-Y', strtotime($d['fecha']));
             if( isset($stats[$fecha]) )
             {
-               $stats[$fecha] = intval($d['total']);
+               $stats[$fecha]['diario'] = intval($d['total']);
+               
+               /// añadimos el cálculo para la semana
+               $semana = date('Y#W', strtotime($d['fecha']));
+               foreach($stats as $i => $value)
+               {
+                  if($value['semana'] == $semana)
+                  {
+                     $stats[$i]['semanal'] += intval($d['total']);
+                  }
+               }
             }
          }
       }

@@ -60,6 +60,13 @@
       
       $("#margen").val(margen);
    }
+   function delete_combinacion(cod)
+   {
+      if( confirm("¿Realmente desea eliminar la combinacion "+cod+"?") )
+      {
+         window.location.href = '{$fsc->url()}&delete_combi='+cod+'#atributos';
+      }
+   }
    $(document).ready(function() {
       calcular_margen();
       
@@ -70,6 +77,10 @@
       else if(window.location.hash.substring(1) == 'stock')
       {
          $('#tab_articulo a[href="#stock"]').tab('show');
+      }
+      else if(window.location.hash.substring(1) == 'atributos')
+      {
+         $('#tab_articulo a[href="#atributos"]').tab('show');
       }
       
       $("#b_eliminar_articulo").click(function(event) {
@@ -146,6 +157,14 @@
             <span class="hidden-xs">&nbsp; {$fsc->articulo->referencia}</span>
          </a>
       </li>
+      {if="$fsc->mostrar_tab_atributos"}
+      <li role="presentation">
+         <a href="#atributos" aria-controls="atributos" role="tab" data-toggle="tab">
+            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+            <span class="hidden-xs">&nbsp; Atributos</span>
+         </a>
+      </li>
+      {/if}
       {if="$fsc->mostrar_tab_precios"}
       <li role="presentation">
          <a href="#precios" aria-controls="precios" role="tab" data-toggle="tab">
@@ -211,6 +230,9 @@
                         Tipo:
                         <select name="tipo" class="form-control" onchange="this.form.submit()">
                            <option value="">Producto simple</option>
+                           {if="$fsc->hay_atributos"}
+                           <option value="atributos"{if="$fsc->articulo->tipo=='atributos'"} selected=""{/if}>Producto con atributos</option>
+                           {/if}
                            {loop="$fsc->extensions"}
                               {if="$value->type=='tipo_art'"}
                               <option value="{$value->params}"{if="$fsc->articulo->tipo==$value->params"} selected=""{/if}>{$value->text}</option>
@@ -356,6 +378,99 @@
             </div>
          </form>
       </div>
+      {if="$fsc->mostrar_tab_atributos"}
+      <div role="tabpanel" class="tab-pane" id="atributos">
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th>Código</th>
+                     <th>Combinación</th>
+                     <th class="text-right">Impacto en el precio</th>
+                     <th></th>
+                  </tr>
+               </thead>
+               {loop="$fsc->combinaciones()"}
+               <form action="{$fsc->url()}#atributos" method="post" class="form">
+                  <input type="hidden" name="editar_combi" value="{$value->codigo}"/>
+                  <tr>
+                     <td><div class="form-control">{$value->codigo}</div></td>
+                     <td><div class="form-control">{$value->txt}</div></td>
+                     <td>
+                        <input type="text" name="impactoprecio" value="{$value->impactoprecio}" class="form-control text-right" autocomplete="off" required=""/>
+                     </td>
+                     <td class="text-right">
+                        <div class="btn-group">
+                           {if="$fsc->allow_delete"}
+                           <a href="#" class="btn btn-sm btn-danger" onclick="delete_combinacion('{$value->codigo}')">
+                              <span class="glyphicon glyphicon-trash"></span>
+                           </a>
+                           {/if}
+                           <button class="btn btn-sm btn-primary" type="submit" title="Guardar">
+                              <span class="glyphicon glyphicon-floppy-disk"></span>
+                           </button>
+                        </div>
+                     </td>
+                  </tr>
+               </form>
+               {else}
+               <tr class="warning">
+                  <td colspan="4">Sin resultados.</td>
+               </tr>
+               {/loop}
+            </table>
+         </div>
+         <form action="{$fsc->url()}#atributos" method="post" class="form">
+            <input type="hidden" name="nueva_combi" value="TRUE"/>
+            <div class="container-fluid">
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="panel panel-info">
+                        <div class="panel-heading">
+                           <h3 class="panel-title">Nueva combinación</h3>
+                        </div>
+                        <div class="panel-body">
+                           <div class="container-fluid">
+                              <div class="row">
+                                 {loop="$fsc->atributos()"}
+                                 <div class="col-sm-3">
+                                    <div class="form-group">
+                                       <a href="{$value->url()}">{$value->nombre}</a>
+                                       <select name="idvalor_{$counter}" class="form-control">
+                                          <option value="">Ninguno</option>
+                                          <option value="">------</option>
+                                          {loop="$value->valores()"}
+                                          <option value="{$value2->id}">{$value2->valor}</option>
+                                          {/loop}
+                                       </select>
+                                    </div>
+                                 </div>
+                                 {/loop}
+                              </div>
+                              <div class="row">
+                                 <div class="col-sm-5">
+                                    Impacto en el precio:
+                                    <div class="input-group">
+                                       <span class="input-group-addon">{$fsc->simbolo_divisa()}</span>
+                                       <input type="text" class="form-control" name="impactoprecio" value="0" autocomplete="off" required=""/>
+                                    </div>
+                                 </div>
+                                 <div class="col-sm-7 text-right">
+                                    <br/>
+                                    <button class="btn btn-sm btn-primary" type="submit">
+                                       <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                                    </button>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </form>
+      </div>
+      {/if}
       {if="$fsc->mostrar_tab_precios"}
       <div role="tabpanel" class="tab-pane" id="precios">
          <form action="{$fsc->url()}#precios" method="post" class="form">
@@ -370,7 +485,10 @@
                            <span class="input-group-addon">{$fsc->simbolo_divisa()}</span>
                            <input type="text" class="form-control" id="pvp" name="pvp" value="{$fsc->articulo->pvp}" autocomplete="off" onkeyup="cambiar_pvp()" onclick="this.select()"/>
                         </div>
-                        <p class="help-block">Último cambio de precio: {$fsc->articulo->factualizado}</p>
+                        <p class="help-block">
+                           El precio se guarda con <b>{#FS_NF0_ART#} decimales</b>.
+                           Puedes cambiarlo desde el <a href="index.php?page=admin_home#avanzado">panel de control</a>.
+                        </p>
                      </div>
                   </div>
                   <div class="col-sm-4">
@@ -394,6 +512,7 @@
                            <span class="input-group-addon">{$fsc->simbolo_divisa()}</span>
                            <input type="text" class="form-control" id="pvpi" name="pvpiva" value="{$fsc->articulo->pvp_iva()}" autocomplete="off" onkeyup="cambiar_pvpi()" onclick="this.select()"/>
                         </div>
+                        <p class="help-block">Último cambio de precio: {$fsc->articulo->factualizado}</p>
                      </div>
                   </div>
                </div>

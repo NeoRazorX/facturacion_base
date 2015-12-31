@@ -471,10 +471,11 @@
    {
       var data = new google.visualization.DataTable();
       data.addColumn('string', 'día');
-      data.addColumn('number', 'operaciones');
+      data.addColumn('number', 'diario');
+      data.addColumn('number', 'semanal');
       data.addRows([
       {loop="$fsc->stats_last_operations()"}
-         ['{$key}', {$value}],
+         ['{$key}', {$value['diario']}, {$value['semanal']}],
       {/loop}
       ]);
       
@@ -483,10 +484,11 @@
       
       var data2 = new google.visualization.DataTable();
       data2.addColumn('string', 'día');
-      data2.addColumn('number', 'operaciones');
+      data2.addColumn('number', 'diario');
+      data2.addColumn('number', 'semanal');
       data2.addRows([
-      {loop="$fsc->stats_last_operations('facturascli')"}
-         ['{$key}', {$value}],
+      {loop="$fsc->stats_last_operations('albaranescli')"}
+         ['{$key}', {$value['diario']}, {$value['semanal']}],
       {/loop}
       ]);
       
@@ -508,7 +510,7 @@
             </div>
             <div class="panel-footer">
                <p class="help-block">
-                  Nº de facturas de compra diarias. Útil para medir la actividad.
+                  Nº de facturas de compra diarias y semanales. Útil para medir la actividad.
                </p>
             </div>
          </div>
@@ -521,7 +523,7 @@
             </div>
             <div class="panel-footer">
                <p class="help-block">
-                  Nº de facturas de venta diarias. Útil para medir la actividad.
+                  Nº de facturas de venta diarias y semanales. Útil para medir la actividad.
                </p>
             </div>
          </div>

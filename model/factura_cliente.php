@@ -1129,7 +1129,7 @@ class factura_cliente extends fs_model
    public function huecos()
    {
       $error = TRUE;
-      $huecolist = $this->cache->get_array2('factura_cliente_huecos', $error, TRUE);
+      $huecolist = $this->cache->get_array2('factura_cliente_huecos', $error);
       if($error)
       {
          $ejercicio = new ejercicio();
@@ -1199,7 +1199,7 @@ class factura_cliente extends fs_model
             }
          }
          
-         $this->cache->set('factura_cliente_huecos', $huecolist, 3600, TRUE);
+         $this->cache->set('factura_cliente_huecos', $huecolist, 3600);
       }
       
       return $huecolist;

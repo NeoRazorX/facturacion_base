@@ -4,7 +4,9 @@
    function delete_serie(cod)
    {
       if( confirm("¿Realmente desea eliminar la serie "+cod+"?") )
+      {
          window.location.href = '{$fsc->url()}&delete='+cod;
+      }
    }
 </script>
 

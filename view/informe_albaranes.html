@@ -11,10 +11,11 @@
       {if="$fsc->mostrar=='operaciones'"}
       var data = new google.visualization.DataTable();
       data.addColumn('string', 'día');
-      data.addColumn('number', 'operaciones');
+      data.addColumn('number', 'diario');
+      data.addColumn('number', 'semanal');
       data.addRows([
       {loop="$fsc->stats_last_operations()"}
-         ['{$key}', {$value}],
+         ['{$key}', {$value['diario']}, {$value['semanal']}],
       {/loop}
       ]);
       
@@ -23,10 +24,11 @@
       
       var data2 = new google.visualization.DataTable();
       data2.addColumn('string', 'día');
-      data2.addColumn('number', 'operaciones');
+      data2.addColumn('number', 'diario');
+      data2.addColumn('number', 'semanal');
       data2.addRows([
       {loop="$fsc->stats_last_operations('albaranescli')"}
-         ['{$key}', {$value}],
+         ['{$key}', {$value['diario']}, {$value['semanal']}],
       {/loop}
       ]);
       
@@ -116,7 +118,7 @@
             </div>
             <div class="panel-footer">
                <p class="help-block">
-                  Nº de {#FS_ALBARANES#} de compra diarios. Útil para medir la actividad.
+                  Nº de {#FS_ALBARANES#} de compra diarios y semanales. Útil para medir la actividad.
                </p>
             </div>
          </div>
@@ -129,7 +131,7 @@
             </div>
             <div class="panel-footer">
                <p class="help-block">
-                  Nº de {#FS_ALBARANES#} de venta diarios. Útil para medir la actividad.
+                  Nº de {#FS_ALBARANES#} de venta diarios y semanales. Útil para medir la actividad.
                </p>
             </div>
          </div>

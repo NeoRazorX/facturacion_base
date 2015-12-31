@@ -332,14 +332,16 @@ class articulo extends fs_model
       return '';
    }
    
-   /**
-    * Devuelve la descripción en base64.
-    * @deprecated since version 50
-    * @return type
-    */
-   public function get_descripcion_64()
+   public function descripcion($len = 120)
    {
-      return base64_encode($this->descripcion);
+      if( mb_strlen($this->descripcion, 'UTF8') > $len )
+      {
+         return mb_substr( nl2br($this->descripcion), 0, $len).'...';
+      }
+      else
+      {
+         return nl2br($this->descripcion);
+      }
    }
    
    public function pvp_iva()
@@ -627,18 +629,19 @@ class articulo extends fs_model
    
    public function set_pvp($p)
    {
-      if( !$this->floatcmp($this->pvp, $p, FS_NF0+2) )
+      $p = bround($p, FS_NF0_ART);
+      
+      if( !$this->floatcmp($this->pvp, $p, FS_NF0_ART+2) )
       {
          $this->pvp_ant = $this->pvp;
          $this->factualizado = Date('d-m-Y');
-         $this->pvp = round($p, FS_NF0+2);
+         $this->pvp = $p;
       }
    }
    
    public function set_pvp_iva($p)
    {
-      $pvp = round((100*$p)/(100+$this->get_iva()), FS_NF0+2);
-      $this->set_pvp($pvp);
+      $this->set_pvp( (100*$p)/(100+$this->get_iva()) );
    }
    
    /**

@@ -172,10 +172,20 @@
          </div>
          <div class="col-sm-3">
             <div class="form-group">
-               Decimales:
+               Decimales de los totales:
                <select name="nf0" class="form-control">
                {loop="$fsc->nf0()"}
                   <option value="{$value}"{if="$value==$GLOBALS['config2']['nf0']"} selected=""{/if}>{$value}</option>
+               {/loop}
+               </select>
+            </div>
+         </div>
+         <div class="col-sm-3">
+            <div class="form-group">
+               Decimales de los precios:
+               <select name="nf0_art" class="form-control">
+               {loop="$fsc->nf0()"}
+                  <option value="{$value}"{if="$value==$GLOBALS['config2']['nf0_art']"} selected=""{/if}>{$value}</option>
                {/loop}
                </select>
             </div>
@@ -190,7 +200,9 @@
                </select>
             </div>
          </div>
-         <div class="col-sm-3">
+      </div>
+      <div class="row">
+         <div class="col-sm-4">
             <div class="form-group">
                Separador para los Millares:
                <select name="nf2" class="form-control">
@@ -201,8 +213,6 @@
                </select>
             </div>
          </div>
-      </div>
-      <div class="row">
          <div class="col-sm-4">
             <div class="form-group">
                Posición del símbolo divisa:

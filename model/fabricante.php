@@ -43,7 +43,7 @@ class fabricante extends fs_model
    protected function install()
    {
       $this->clean_cache();
-      return "INSERT INTO ".$this->table_name." (codfabricante,nombre) VALUES ('oem','OEM');";
+      return "INSERT INTO ".$this->table_name." (codfabricante,nombre) VALUES ('OEM','OEM');";
    }
    
    public function url()

@@ -14,7 +14,9 @@
    function eliminar_tarifa(cod)
    {
       if( confirm("¿Realmente desea eliminar la tarifa "+cod+"?") )
+      {
          window.location.href = '{$fsc->url()}&delete_tarifa='+cod+'#tarifas';
+      }
    }
    $(document).ready(function() {
       document.f_custom_search.query.focus();
@@ -271,13 +273,13 @@
                </thead>
                {loop="$fsc->resultados"}
                <tr class='clickableRow{if="$value->bloqueado"} danger{elseif="$value->stockfis<=$value->stockmin"} warning{/if}' href='{$value->url()}'>
-                  <td><a href="{$value->url()}">{$value->referencia}</a> {$value->descripcion}</td>
+                  <td><a href="{$value->url()}">{$value->referencia}</a> {$value->descripcion()}</td>
                   <td>
                      {if="is_null($value->codfamilia)"}
                         <span>-</span>
                      {else}
                         {$value->codfamilia}
-                        <a href="index.php?page=ventas_familia&cod={$value->codfamilia}" class="cancel_clickable" title="Ver más artículos de esta familia">[+]</a>
+                        <a href="{$fsc->url()}&b_codfamilia={$value->codfamilia}" class="cancel_clickable" title="Ver más artículos de esta familia">[+]</a>
                      {/if}
                   </td>
                   <td>
@@ -285,15 +287,22 @@
                         <span>-</span>
                      {else}
                         {$value->codfabricante}
-                        <a href="index.php?page=ventas_fabricante&cod={$value->codfabricante}" class="cancel_clickable" title="Ver más artículos de este fabricante">[+]</a>
+                        <a href="{$fsc->url()}&b_codfabricante={$value->codfabricante}" class="cancel_clickable" title="Ver más artículos de este fabricante">[+]</a>
                      {/if}
                   </td>
-                  <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp)}</span></td>
-                  <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp_iva())}</span></td>
+                  <td class="text-right">
+                     <span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp, FALSE, TRUE, FS_NF0_ART)}</span>
+                  </td>
+                  <td class="text-right">
+                     <span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp_iva(), FALSE, TRUE, FS_NF0_ART)}</span>
+                  </td>
                   <td class="text-right">
                      {if="$value->nostock"}-{else}{$value->stockfis}{/if}
                   </td>
                   <td class="text-right">
+                     {if="$value->tipo"}
+                     <span class="glyphicon glyphicon-list-alt" aria-hidden="true" title="Artículo tipo: {$value->tipo}"></span>
+                     {/if}
                      {if="$value->publico"}
                      <span class="glyphicon glyphicon-globe" aria-hidden="true" title="Artículo público"></span>
                      {/if}

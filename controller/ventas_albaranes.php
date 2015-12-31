@@ -45,7 +45,7 @@ class ventas_albaranes extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, ucfirst(FS_ALBARANES).' de cliente', 'ventas', FALSE, TRUE, TRUE);
+      parent::__construct(__CLASS__, ucfirst(FS_ALBARANES).' de cliente', 'ventas');
    }
    
    protected function private_core()

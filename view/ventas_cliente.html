@@ -113,6 +113,9 @@
          <h2 style="margin-top: 0px;">Editar cliente {$fsc->cliente->codcliente}</h2>
       </div>
       <div class="col-sm-2 col-xs-2 text-right">
+         <a class="btn btn-sm btn-success" href="index.php?page=ventas_clientes#nuevo" title="Nuevo cliente">
+            <span class="glyphicon glyphicon-plus"></span>
+         </a>
          {if="$fsc->allow_delete"}
             {if="$fsc->cliente->debaja"}
             <a href="#" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modal_debaja">

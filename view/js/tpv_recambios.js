@@ -278,6 +278,21 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
    $("#cantidad_"+(numlineas)).focus();
 }
 
+function add_articulo_atributos(ref,desc,pvp,dto,codimpuesto,cantidad)
+{
+   $.ajax({
+      type: 'POST',
+      url: 'index.php?page=tpv_recambios',
+      ataType: 'html',
+      data: "referencia4combi="+ref+"&desc="+desc+"&pvp="+pvp+"&dto="+dto
+              +"&codimpuesto="+codimpuesto+"&cantidad="+cantidad,
+      success: function(datos) {
+         $("#nav_articulos").hide();
+         $("#search_results").html(datos);
+      }
+   });
+}
+
 function buscar_articulos()
 {
    if(document.f_buscar_articulos.query.value == '')

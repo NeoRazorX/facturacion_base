@@ -31,7 +31,7 @@ class articulo_propiedad extends fs_model
    
    public function __construct($a = FALSE)
    {
-      parent::__construct('articulo_propiedades', 'plugins/facturacion_base/');
+      parent::__construct('articulo_propiedades');
       if($a)
       {
          $this->name = $a['name'];
@@ -68,13 +68,16 @@ class articulo_propiedad extends fs_model
    {
       if( $this->exists() )
       {
-         $sql = "UPDATE articulo_propiedades SET text = ".$this->var2str($this->text)." WHERE name = ".
-                 $this->var2str($this->name)." AND referencia = ".$this->var2str($this->referencia).";";
+         $sql = "UPDATE articulo_propiedades SET text = ".$this->var2str($this->text)
+                 ." WHERE name = ".$this->var2str($this->name)
+                 ." AND referencia = ".$this->var2str($this->referencia).";";
       }
       else
       {
          $sql = "INSERT INTO articulo_propiedades (name,referencia,text) VALUES
-            (".$this->var2str($this->name).",".$this->var2str($this->referencia).",".$this->var2str($this->text).");";
+                   (".$this->var2str($this->name)
+                 .",".$this->var2str($this->referencia)
+                 .",".$this->var2str($this->text).");";
       }
       
       return $this->db->exec($sql);
@@ -127,7 +130,9 @@ class articulo_propiedad extends fs_model
    
    public function simple_get($ref, $name)
    {
-      $data = $this->db->select("SELECT * FROM articulo_propiedades WHERE referencia = ".$this->var2str($ref)." AND name = ".$this->var2str($name).";");
+      $sql = "SELECT * FROM articulo_propiedades WHERE referencia = ".$this->var2str($ref)
+              ." AND name = ".$this->var2str($name).";";
+      $data = $this->db->select($sql);
       if($data)
       {
          return $data[0]['text'];
@@ -136,8 +141,22 @@ class articulo_propiedad extends fs_model
          return FALSE;
    }
    
+   public function simple_get_ref($name, $text)
+   {
+      $sql = "SELECT * FROM articulo_propiedades WHERE text = ".$this->var2str($text)
+              ." AND name = ".$this->var2str($name).";";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         return $data[0]['referencia'];
+      }
+      else
+         return FALSE;
+   }
+   
    public function simple_delete($ref, $name)
    {
-      return $this->db->exec("DELETE FROM articulo_propiedades WHERE referencia = ".$this->var2str($ref)." AND name = ".$this->var2str($name).";");
+      return $this->db->exec("DELETE FROM articulo_propiedades WHERE referencia = ".$this->var2str($ref)
+              ." AND name = ".$this->var2str($name).";");
    }
 }

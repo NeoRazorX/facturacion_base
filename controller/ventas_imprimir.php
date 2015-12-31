@@ -342,7 +342,7 @@ class ventas_imprimir extends fs_controller
              'alb' => '-',
              'cantidad' => $lineas[$linea_actual]->cantidad,
              'descripcion' => $descripcion,
-             'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $documento->coddivisa),
+             'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $documento->coddivisa, TRUE, FS_NF0_ART),
              'dto' => $this->show_numero($lineas[$linea_actual]->dtopor) . " %",
              'iva' => $this->show_numero($lineas[$linea_actual]->iva) . " %",
              're' => $this->show_numero($lineas[$linea_actual]->recargo) . " %",

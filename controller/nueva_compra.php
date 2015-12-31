@@ -45,7 +45,7 @@ class nueva_compra extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'nueva compra', 'compras', FALSE, FALSE);
+      parent::__construct(__CLASS__, 'Nueva compra...', 'compras', FALSE, FALSE, TRUE);
    }
    
    protected function private_core()

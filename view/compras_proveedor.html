@@ -118,6 +118,9 @@
          <h2 style="margin-top: 0px;">Editar proveedor {$fsc->proveedor->codproveedor}</h2>
       </div>
       <div class="col-sm-2 col-xs-2 text-right">
+         <a class="btn btn-sm btn-success" href="index.php?page=compras_proveedores#nuevo" title="Nuevo proveedor">
+            <span class="glyphicon glyphicon-plus"></span>
+         </a>
          {if="$fsc->allow_delete"}
             {if="$fsc->tiene_facturas()"}
             <a href="#" class="btn btn-sm btn-warning" onclick="alert('Este proveedor ya tiene facturas. No puedes eliminarlo.')">

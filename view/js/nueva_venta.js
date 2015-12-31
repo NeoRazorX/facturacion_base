@@ -365,6 +365,21 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
    return false;
 }
 
+function add_articulo_atributos(ref,desc,pvp,dto,codimpuesto,cantidad)
+{
+   $.ajax({
+      type: 'POST',
+      url: 'index.php?page=nueva_venta',
+      ataType: 'html',
+      data: "referencia4combi="+ref+"&desc="+desc+"&pvp="+pvp+"&dto="+dto
+              +"&codimpuesto="+codimpuesto+"&cantidad="+cantidad,
+      success: function(datos) {
+         $("#nav_articulos").hide();
+         $("#search_results").html(datos);
+      }
+   });
+}
+
 function add_linea_libre()
 {
    codimpuesto = false;

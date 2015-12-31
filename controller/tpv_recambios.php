@@ -20,6 +20,7 @@
 require_model('agente.php');
 require_model('almacen.php');
 require_model('articulo.php');
+require_model('articulo_combinacion.php');
 require_model('asiento_factura.php');
 require_model('caja.php');
 require_model('cliente.php');
@@ -94,6 +95,10 @@ class tpv_recambios extends fs_controller
       else if( isset($_REQUEST['referencia4precios']) )
       {
          $this->get_precios_articulo();
+      }
+      else if( isset($_POST['referencia4combi']) )
+      {
+         $this->get_combinaciones_articulo();
       }
       else
       {
@@ -316,7 +321,37 @@ class tpv_recambios extends fs_controller
    {
       /// cambiamos la plantilla HTML
       $this->template = 'ajax/tpv_recambios_precios';
+      
       $this->articulo = $this->articulo->get($_REQUEST['referencia4precios']);
+   }
+   
+   private function get_combinaciones_articulo()
+   {
+      /// cambiamos la plantilla HTML
+      $this->template = 'ajax/tpv_recambios_combinaciones';
+      
+      $this->results = array();
+      $comb1 = new articulo_combinacion();
+      foreach($comb1->all_from_ref($_POST['referencia4combi']) as $com)
+      {
+         if( isset($this->results[$com->codigo]) )
+         {
+            $this->results[$com->codigo]['desc'] .= ', '.$com->nombreatributo.' - '.$com->valor;
+            $this->results[$com->codigo]['txt'] .= ', '.$com->nombreatributo.' - '.$com->valor;
+         }
+         else
+         {
+            $this->results[$com->codigo] = array(
+                'ref' => $_POST['referencia4combi'],
+                'desc' => base64_decode($_POST['desc'])."\n".$com->nombreatributo.' - '.$com->valor,
+                'pvp' => floatval($_POST['pvp']) + $com->impactoprecio,
+                'dto' => floatval($_POST['dto']),
+                'codimpuesto' => $_POST['codimpuesto'],
+                'cantidad' => floatval($_POST['cantidad']),
+                'txt' => $com->nombreatributo.' - '.$com->valor
+            );
+         }
+      }
    }
    
    public function get_tarifas_articulo($ref)

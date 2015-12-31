@@ -19,7 +19,10 @@
 
 require_model('almacen.php');
 require_model('articulo.php');
+require_model('articulo_combinacion.php');
 require_model('articulo_proveedor.php');
+require_model('atributo.php');
+require_model('atributo_valor.php');
 require_model('familia.php');
 require_model('fabricante.php');
 require_model('impuesto.php');
@@ -34,8 +37,10 @@ class ventas_articulo extends fs_controller
    public $articulo;
    public $fabricante;
    public $familia;
+   public $hay_atributos;
    public $impuesto;
    public $mostrar_boton_publicar;
+   public $mostrar_tab_atributos;
    public $mostrar_tab_precios;
    public $mostrar_tab_stock;
    public $nuevos_almacenes;
@@ -56,8 +61,35 @@ class ventas_articulo extends fs_controller
       $articulo = new articulo();
       $this->almacen = new almacen();
       $this->articulo = FALSE;
+      $this->fabricante = new fabricante();
       $this->impuesto = new impuesto();
-      $this->fabricante= new fabricante();
+      
+      /**
+       * Si hay alguna extensión de tipo config y texto no_button_publicar,
+       * desactivamos el botón publicar.
+       */
+      $this->mostrar_boton_publicar = TRUE;
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'config' AND $ext->text == 'no_button_publicar')
+         {
+            $this->mostrar_boton_publicar = FALSE;
+            break;
+         }
+      }
+      
+      /**
+       * Si hay atributos, mostramos el tab atributos.
+       */
+      $this->hay_atributos = FALSE;
+      $this->mostrar_tab_atributos = FALSE;
+      $atri0 = new atributo();
+      foreach($atri0->all() as $atributo)
+      {
+         $this->mostrar_tab_atributos = TRUE;
+         $this->hay_atributos = TRUE;
+         break;
+      }
       
       /**
        * Si hay alguna extensión de tipo config y texto no_tab_recios,
@@ -87,20 +119,6 @@ class ventas_articulo extends fs_controller
          }
       }
       
-      /**
-       * Si hay alguna extensión de tipo config y texto no_button_publicar,
-       * desactivamos el botón publicar.
-       */
-      $this->mostrar_boton_publicar = TRUE;
-      foreach($this->extensions as $ext)
-      {
-         if($ext->type == 'config' AND $ext->text == 'no_button_publicar')
-         {
-            $this->mostrar_boton_publicar = FALSE;
-            break;
-         }
-      }
-      
       if( isset($_POST['referencia']) )
       {
          $this->articulo = $articulo->get($_POST['referencia']);
@@ -121,7 +139,15 @@ class ventas_articulo extends fs_controller
          }
          
          /**
-          * Si está desactivado el control de stok en el artículo, no muestro la pestaña.
+          * Si no es un artículo con atributos, ocultamos la pestaña
+          */
+         if($this->articulo->tipo != 'atributos')
+         {
+            $this->mostrar_tab_atributos = FALSE;
+         }
+         
+         /**
+          * Si está desactivado el control de stok en el artículo, ocultamos la pestaña
           */
          if($this->articulo->nostock)
          {
@@ -356,28 +382,28 @@ class ventas_articulo extends fs_controller
              */
             if( $this->db->table_exists('lineasalbaranescli') )
             {
-                $this->db->exec("UPDATE lineasalbaranescli SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+               $this->db->exec("UPDATE lineasalbaranescli SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
             }
             
             if( $this->db->table_exists('lineasalbaranesprov') )
             {
-                $this->db->exec("UPDATE lineasalbaranesprov SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+               $this->db->exec("UPDATE lineasalbaranesprov SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
             }
             
             if( $this->db->table_exists('lineasfacturascli') )
             {
-                $this->db->exec("UPDATE lineasfacturascli SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+               $this->db->exec("UPDATE lineasfacturascli SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
             }
             
             if( $this->db->table_exists('lineasfacturasprov') )
             {
-                $this->db->exec("UPDATE lineasfacturasprov SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+               $this->db->exec("UPDATE lineasfacturasprov SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
             }
             
             /// esto es una personalización del plugin producción, será eliminado este código en futuras versiones.
             if( $this->db->table_exists('lineasfabricados') )
             {
-                $this->db->exec("UPDATE lineasfabricados SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+               $this->db->exec("UPDATE lineasfabricados SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
             }
          }
          else
@@ -386,6 +412,72 @@ class ventas_articulo extends fs_controller
       else if( isset($_GET['recalcular_stock']) )
       {
          $this->calcular_stock_real();
+      }
+      else if( isset($_POST['nueva_combi']) )
+      {
+         $comb1 = new articulo_combinacion();
+         $comb1->referencia = $this->articulo->referencia;
+         $comb1->impactoprecio = floatval($_POST['impactoprecio']);
+         
+         $error = TRUE;
+         $valor0 = new atributo_valor();
+         for($i = 0; $i < 10; $i++)
+         {
+            if( isset($_POST['idvalor_'.$i]) )
+            {
+               if($i == 0)
+               {
+                  $error = FALSE;
+               }
+               
+               $valor = $valor0->get($_POST['idvalor_'.$i]);
+               if($valor)
+               {
+                  $comb1->id = NULL;
+                  $comb1->idvalor = $valor->id;
+                  $comb1->nombreatributo = $valor->nombre();
+                  $comb1->valor = $valor->valor;
+                  if( !$comb1->save() )
+                  {
+                     $error = TRUE;
+                  }
+               }
+            }
+            else
+            {
+               break;
+            }
+         }
+         
+         if($error)
+         {
+            $this->new_error_msg('Error al guardar la combinación.');
+         }
+         else
+         {
+            $this->new_message('Combinación guardada correctamente.');
+         }
+      }
+      else if( isset($_POST['editar_combi']) )
+      {
+         $comb1 = new articulo_combinacion();
+         foreach($comb1->all_from_codigo($_POST['editar_combi']) as $com)
+         {
+            $com->impactoprecio = floatval($_POST['impactoprecio']);
+            $com->save();
+         }
+         
+         $this->new_message('Combinación modificada.');
+      }
+      else if( isset($_GET['delete_combi']) )
+      {
+         $comb1 = new articulo_combinacion();
+         foreach($comb1->all_from_codigo($_GET['delete_combi']) as $com)
+         {
+            $com->delete();
+         }
+         
+         $this->new_message('Combinación eliminada.');
       }
    }
    
@@ -645,5 +737,32 @@ class ventas_articulo extends fs_controller
       $this->new_message("Stock actualizado.");
       $this->new_message("Puedes recalcular el stock de todos los artículos desde"
               . " <b>Informes &gt; Artículos &gt; Stock</b>");
+   }
+   
+   public function combinaciones()
+   {
+      $lista = array();
+      
+      $comb1 = new articulo_combinacion();
+      foreach($comb1->all_from_ref($this->articulo->referencia) as $com)
+      {
+         if( isset($lista[$com->codigo]) )
+         {
+            $lista[$com->codigo]->txt .= ', '.$com->nombreatributo.' - '.$com->valor;
+         }
+         else
+         {
+            $com->txt = $com->nombreatributo.' - '.$com->valor;
+            $lista[$com->codigo] = $com;
+         }
+      }
+      
+      return $lista;
+   }
+   
+   public function atributos()
+   {
+      $atri0 = new atributo();
+      return $atri0->all();
    }
 }
