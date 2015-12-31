@@ -113,7 +113,7 @@ class atributo_valor extends fs_model
             $data = $this->db->select("SELECT MAX(id) as max FROM atributos_valores;");
             if($data)
             {
-               $this->id = intval($data[0]['max']);
+               $this->id = 1 + intval($data[0]['max']);
             }
          }
          
