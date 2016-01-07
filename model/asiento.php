@@ -23,6 +23,7 @@ require_model('factura_proveedor.php');
 require_model('partida.php');
 require_model('secuencia.php');
 require_model('recibo_proveedor.php');
+require_model('valores.php');
 /**
  * El asiento contable. Se relaciona con un ejercicio y se compone de partidas.
  */
@@ -539,19 +540,35 @@ class asiento extends fs_model
 /////////  pone en "0" pagada en factura
 		$fact_prov = new factura_proveedor();		
 	  	$recibo = new recibo_proveedor();
-		$data = $recibo->get_por_idasiento($this->idasiento);		
+		$orden = new orden_prov();
+		$valor = new valores();
+		$data = $recibo->get_por_idasiento($this->idasiento);	
+ 
+		/////  pone en proceso la orden		
+				
 		foreach($data as $d)
             {
-				$fact_data = $fact_prov->get($d->idfactura);
-				$fact_data->pagada = 0;
-				$fact_data->save();
+//				$fact_data = $fact_prov->get($d->idfactura);
+//				$fact_data->pagada = 0;
+//				$fact_data->save();
+			$idorden = $d->idorden; 
+			$orden->cambio_estado($idorden,'Proceso');
+			/// pone idasiento en recibos 
+			$recibo->guardar_asiento_idorden($idorden,NULL);
+			/// pone idasiento en valores
+			$valor->guardar_asiento_idorden($idorden,NULL);
 			}
+			
+			
+			
+			
 ///////////////////////////////////////////
 /////////elimina los recibos según el idasiento			
-		if(!$recibo->delete_recibo_idasiento($this->idasiento))  $this->new_error_msg("Error - No se borraron los recibos");
+//		if(!$recibo->delete_recibo_idasiento($this->idasiento))  $this->new_error_msg("Error - No se borraron los recibos");
 //////// elimina la orden según el idasiento		
-		$orden = new orden_prov();
-		if(!$orden->delete_orden_idasiento($this->idasiento)) $this->new_error_msg("Error - No se borraron las ordenes");
+		
+//		$orden->cambio_estado($orden->idorden,'Proceso');
+//		if(!$orden->delete_orden_idasiento($this->idasiento)) $this->new_error_msg("Error - No se borraron las ordenes");
       
       /// eliminamos las partidas una a una para forzar la actualización de las subcuentas asociadas
       foreach($this->get_partidas() as $p)

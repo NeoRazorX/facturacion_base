@@ -21,10 +21,11 @@ require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
 require_model('cliente.php');
+require_model('direccion_cliente.php');
 require_model('cuenta_banco.php');
 require_model('cuenta_banco_cliente.php');
 require_model('forma_pago.php');
-
+require_model('divisa.php');
 /**
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes y facturas.
  */
@@ -35,6 +36,8 @@ class ventas_imprimir extends fs_controller
    public $factura;
    public $impresion;
    public $impuesto;
+   public $direccioncli;
+   public $simbdivisa;
    
    public function __construct()
    {
@@ -78,6 +81,8 @@ class ventas_imprimir extends fs_controller
       {
          $fac = new factura_cliente();
          $this->factura = $fac->get($_REQUEST['id']);
+		 $dirCli = new direccion_cliente();
+		 $this->direccioncli = $dirCli->get_codcli($this->factura->codcliente);
          if($this->factura)
          {
             $cliente = new cliente();
@@ -127,7 +132,7 @@ class ventas_imprimir extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'ventas_factura',
               'type' => 'pdf',
-              'text' => ucfirst(FS_FACTURA).' con firma',
+              'text' => ucfirst(FS_FACTURA).' preimpresas',
               'params' => '&factura=TRUE&tipo=firma'
           ),
           array(
@@ -414,8 +419,15 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->show(FS_ALBARAN.'_'.$this->albaran->codigo.'.pdf');
    }
    
+   
+ //////////////////////////////////////////////////////////////////////////////////////////////  
+ /////////////////////////////////////////////////////////////////////////////////////////////  
+   
    private function generar_pdf_factura($tipo='simple', $archivo=FALSE)
    {
+   
+  		 $divi = new divisa();
+		 
       if(!$archivo)
       {
          /// desactivamos la plantilla HTML
@@ -436,6 +448,167 @@ class ventas_imprimir extends fs_controller
          $linea_actual = 0;
          $pagina = 1;
          
+	            
+///////////////////////////////////////////////////////////////////////////////////
+////////////////////   PARA FACTURA PREIMPRESA
+////////////////////////////////////////////////////////////////////////////////////
+		if($tipo == 'firma')
+		{	
+				$numFactura=$this->factura->codigo;
+				$fecha=$this->factura->fecha;
+				$nomCliente=$this->factura->nombrecliente;
+				$dirCliente=$this->direccioncli->direccion;
+				$cpCliente=$this->factura->codpostal;
+				$locCliente=$this->direccioncli->ciudad;
+				$provincia=$this->direccioncli->provincia;
+				$telCliente1=$this->cliente->telefono1;
+				$telCliente2=$this->cliente->telefono2;
+				
+				$catIVA=$this->cliente->regimeniva;
+				$numCuit='88-88888888-888 ';
+				$ingBrutos='1234-567890-1234-5678-90';
+				
+				$this->simbdivisa = $divi->get($this->factura->coddivisa);
+				$uMoneda=$this->simbdivisa->simbolo; //Unidad de Moneda
+				
+				
+	
+		
+			  $cheqNum='8888-8888-8888-8888 ';
+			  $cheqBanco='Banco Internacional y Nacional';
+			  $cheqImporte='7789.99';
+			  $anticipo='3854.88';
+			  $anticipoDetalle='Detalle por si hay algo anotar del anticipo';
+			  $efectivo='38888.88';
+			  $efectivoDetalle='Detalle por si hay algo anotar del efectivo';
+			  $tarjDebito='48888.88';
+			  $debitoDetalle='Visa Nº 8888-8888-8888-8888-8888';
+			  $tarjCredito='48888.88';
+			  $creditoDetalle='Master Card Nº 9888-8888-8888-8888-8888';
+  
+			
+			$linea_arranque=-10;
+			$linea_fin=0;
+			$cant_pag=intval($lineasfact/10);
+			if(($lineasfact/10)-intval($lineasfact/10)>0) $cant_pag=$cant_pag+1; 
+			
+
+				for ($j=0;$j<$cant_pag;$j++)
+        	 {
+			 
+			 
+			 		if($lineasfact-$linea_fin<10)
+					{
+					 $linea_menor=($lineasfact/10-intval($lineasfact/10))*10;
+					 $linea_fin=$linea_fin+$linea_menor;
+					 }
+					else $linea_fin=$linea_fin+10;
+					$linea_arranque=$linea_arranque+10;
+
+ 			if($j!=0)	$pdf_doc->pdf->ezNewPage();
+			
+
+//			$pdf_doc->pdf->addTextWrap(373,797, 400, 18,$numFactura);////// Nº  FACTURA
+			$pdf_doc->pdf->addTextWrap(390,698, 200, 14,$fecha);
+			$pdf_doc->pdf->addTextWrap(111,648, 470, 14,$nomCliente);
+			$pdf_doc->pdf->addTextWrap(111,633, 470, 10,$dirCliente.' CP: '.$cpCliente);
+			$pdf_doc->pdf->addTextWrap(111,619, 280, 10,$locCliente.' - '.$provincia);
+			$pdf_doc->pdf->addTextWrap(444,619, 200, 9,$telCliente1." / ".$telCliente2);
+			$pdf_doc->pdf->addTextWrap(132,589, 200, 9,$catIVA);
+//			$pdf_doc->pdf->addTextWrap		CUIT
+//			$pdf_doc->pdf->addTextWrap		ING BRUTOS
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+//////////////   CONTENIDO  DESCRIPCIÓN
+//////////////////////////////////////////////////////////////////////////////////////
+
+			 //Variable X p encolumnar importe
+	        $varImporte='465';
+			$Sub_Total=0;
+
+			for ($i=$linea_arranque;$i<$linea_fin;$i++)
+			{
+				$pdf_doc->pdf->addTextWrap(55,518-(22*($i-$linea_arranque)), 25, 12,number_format($lineas[$i]->cantidad, 0, ',', ' '),'right');
+				$pdf_doc->pdf->addTextWrap(85,518-(22*($i-$linea_arranque)), 300, 12,$this->fix_html($lineas[$i]->descripcion),'left');
+//				$pdf_doc->pdf->addTextWrap(390,518-(22*($i-$linea_arranque)), 410, 12,$uMoneda.'  '.number_format($lineas[$i]->pvpunitario, 2, ',', 'right'));
+				$pdf_doc->pdf->addTextWrap(370,518-(22*($i-$linea_arranque)), 90, 12,$uMoneda.'  '.number_format($lineas[$i]->pvpunitario, 2, ',', ' '),'right');
+//				$pdf_doc->pdf->addTextWrap(390,518-(22*($i-$linea_arranque)), 410, 12,$uMoneda.'  '.number_format($lineas[$i]->pvpunitario, 2, ',', 'right'));
+				$pdf_doc->pdf->addTextWrap($varImporte,518-(22*($i-$linea_arranque)), 90, 12, $uMoneda.'  '.number_format($lineas[$i]->pvptotal, 2, ',', ' '),'right');
+				
+				$Sub_Total=$Sub_Total+$lineas[$i]->pvptotal;
+
+			}
+
+
+			 $pdf_doc->pdf->addTextWrap($varImporte-10,270, 90, 12,$uMoneda.'   '.number_format($Sub_Total, 2, ',', ' '),'right'); 
+			 
+////////////////////////////////////////////////////////////////////////////
+////////////    Pie
+//			 
+/*			$pdf_doc->new_table();
+            $pdf_doc->add_table_row(
+               array(
+                   'campo1' => "Cheque",
+                   'dato1' => $cheqNum,
+                   'campo2' => "Importe",
+                   'dato2' => $cheqImporte
+               )
+            );
+            $pdf_doc->add_table_row(
+               array(
+                   'campo1' => "Anticipo",
+                   'dato1' => $anticipoDetalle,
+                   'campo2' => "Efectivo",
+                   'dato2' => $efectivo
+               )
+            );
+*/			
+			     $pdf_doc->save_table(
+               array(
+                   'cols' => array(
+                       'campo1' => array('justification' => 'right'),
+                       'dato1' => array('justification' => 'left'),
+                       'campo2' => array('justification' => 'right'),
+                       'dato2' => array('justification' => 'left')
+                   ),
+                   'showLines' => 0,
+                   'width' => 520,
+                   'shaded' => 0
+               )
+            );
+            $pdf_doc->pdf->ezText("\n", 10);
+
+
+			$valores = $cheqImporte + $anticipo + $efectivo + $tarjDebito + $tarjCredito;
+/*		
+			$pdf_doc->pdf->addTextWrap(111,195, 150, 12,$cheqNum);
+			$pdf_doc->pdf->addTextWrap(283,195, 200, 12,$cheqBanco);
+			$pdf_doc->pdf->addTextWrap($varImporte,190, 90, 12,$cheqImporte,'right');
+			$pdf_doc->pdf->addTextWrap(111,166, 370, 12,$anticipoDetalle);
+			$pdf_doc->pdf->addTextWrap($varImporte,161, 90, 12,$anticipo,'right');
+			$pdf_doc->pdf->addTextWrap($varImporte,132, 90, 12,$efectivo,'right');
+			$pdf_doc->pdf->addTextWrap(111,137, 370, 12,$efectivoDetalle);       
+			$pdf_doc->pdf->addTextWrap($varImporte,104, 90, 12,$tarjDebito,'right');
+			$pdf_doc->pdf->addTextWrap(140,109, 350, 12,$debitoDetalle);       
+			$pdf_doc->pdf->addTextWrap($varImporte,76, 90, 12,$tarjCredito,'right');
+			$pdf_doc->pdf->addTextWrap(140,81,350, 12,$creditoDetalle);
+			$pdf_doc->pdf->addTextWrap($varImporte,48, 35, 12,$valores,'right');
+	
+*/
+			 $linea_actual++;
+			}			
+		}
+////////////////////////////////////////////////////////////////////////////////////			
+////////////////////////////////////////////////////////////////////////////////////			
+			else
+			{		 
+		 
+		 
+		 
+		 
          // Imprimimos las páginas necesarias
          while($linea_actual < $lineasfact)
          {
@@ -446,351 +619,368 @@ class ventas_imprimir extends fs_controller
             {
                $pdf_doc->pdf->ezNewPage();
             }
-            
-            /*
-             * Creamos la cabecera de la página, en este caso para el modelo carta
-             */
-            if($tipo == 'carta')
-            {
-               $direccion = $this->factura->nombrecliente."\n".$this->factura->direccion;
-               if($this->factura->codpostal AND $this->factura->ciudad)
-                  $direccion .= "\n CP: " . $this->factura->codpostal . ' ' . $this->factura->ciudad;
-               else if($this->factura->ciudad)
-                  $direccion .= "\n" . $this->factura->ciudad;
-               
-               if($this->factura->provincia)
-                  $direccion .= "\n(" . $this->factura->provincia . ")";
-               
-               $pdf_doc->pdf->ezText("\n\n", 10);
-               $pdf_doc->new_table();
-               $pdf_doc->add_table_row(
-                  array(
-                      'campos' => "<b>".ucfirst(FS_FACTURA).":</b>\n<b>Fecha:</b>\n<b>".FS_CIFNIF.":</b>",
-                      'factura' => $this->factura->codigo."\n".$this->factura->fecha."\n".$this->factura->cifnif,
-                      'cliente' => $this->fix_html($direccion)
-                  )
-               );
-               $pdf_doc->save_table(
-                  array(
-                      'cols' => array(
-                          'campos' => array('justification' => 'right', 'width' => 100),
-                          'factura' => array('justification' => 'left'),
-                          'cliente' => array('justification' => 'right')
-                      ),
-                      'showLines' => 0,
-                      'width' => 520
-                  )
-               );
-               $pdf_doc->pdf->ezText("\n\n\n", 14);
-            }
-            else /// esta es la cabecera de la página para los modelos 'simple' y 'firma'
-            {
-               /// ¿Añadimos el logo?
-               if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
-               {
-                  if( function_exists('imagecreatefromstring') )
-                  {
-                     $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
-                     $lppag -= 2; /// si metemos el logo, caben menos líneas
-                  }
-                  else
-                  {
-                     die('ERROR: no se encuentra la función imagecreatefromstring(). '
-                     . 'Y por tanto no se puede usar el logotipo en los documentos.');
-                  }
-               }
-               else
-               {
-                  $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 16, array('justification' => 'center'));
-                  $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'center'));
-                  
-                  $direccion = $this->empresa->direccion;
-                  if($this->empresa->codpostal)
-                     $direccion .= ' - ' . $this->empresa->codpostal;
-                  if($this->empresa->ciudad)
-                     $direccion .= ' - ' . $this->empresa->ciudad;
-                  if($this->empresa->provincia)
-                     $direccion .= ' (' . $this->empresa->provincia . ')';
-                  if($this->empresa->telefono)
-                     $direccion .= ' - Teléfono: ' . $this->empresa->telefono;
-                  $pdf_doc->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
-               }
-               
-               /*
-                * Esta es la tabla con los datos del cliente:
-                * Factura:             Fecha:
-                * Cliente:             CIF/NIF:
-                * Dirección:           Teléfonos:
-                */
-               $pdf_doc->new_table();
-               $pdf_doc->add_table_row(
-                  array(
-                     'campo1' => "<b>".ucfirst(FS_FACTURA).":</b>",
-                     'dato1' => $this->factura->codigo,
-                     'campo2' => "<b>Fecha:</b>",
-                     'dato2' => $this->factura->fecha
-                  )
-               );
-               $pdf_doc->add_table_row(
-                  array(
-                     'campo1' => "<b>Cliente:</b>",
-                     'dato1' => $this->fix_html($this->factura->nombrecliente),
-                     'campo2' => "<b>".FS_CIFNIF.":</b>",
-                     'dato2' => $this->factura->cifnif
-                  )
-               );
-               $pdf_doc->add_table_row(
-                  array(
-                     'campo1' => "<b>Dirección:</b>",
-                     'dato1' => $this->factura->direccion.' CP: '.$this->factura->codpostal.' - '.$this->factura->ciudad.
-                                 ' ('.$this->factura->provincia.')',
-                     'campo2' => "<b>Teléfonos:</b>",
-                     'dato2' => $this->cliente->telefono1.'  '.$this->cliente->telefono2
-                  )
-               );
-               $pdf_doc->save_table(
-                  array(
-                     'cols' => array(
-                        'campo1' => array('justification' => 'right'),
-                        'dato1' => array('justification' => 'left'),
-                        'campo2' => array('justification' => 'right'),
-                        'dato2' => array('justification' => 'left')
-                     ),
-                     'showLines' => 0,
-                     'width' => 520,
-                     'shaded' => 0
-                  )
-               );
-               $pdf_doc->pdf->ezText("\n", 10);
-               
-               /// en el tipo 'firma' caben menos líneas
-               if($tipo == 'firma')
-               {
-                  $lppag -= 3;
-               }
-            }
-            
-            
-            /*
-             * Creamos la tabla con las lineas de la factura:
-             * 
-             * Descripción    Cantidad  PVP   DTO    Importe
-             */
-            $columnas = array(
-                  'alb' => '<b>'.ucfirst(FS_ALBARAN).'</b>',
-                  'descripcion' => '<b>Descripción</b>',
-                  'cantidad' => '<b>Cantidad</b>',
-                  'pvp' => '<b>PVP</b>',
-                  'dto' => '<b>DTO</b>',
-                  'importe' => '<b>Importe</b>'
-            );
-            
-            if(!$this->impresion['print_alb'])
-            {
-               unset($columnas['alb']);
-            }
-            
-            if(!$this->impresion['print_dto'])
-            {
-               unset($columnas['dto']);
-            }
-            
-            $pdf_doc->new_table();
-            $pdf_doc->add_table_header($columnas);
-            for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < $lineasfact));)
-            {
-               $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
-               if( $this->impresion['print_ref'] AND !is_null($lineas[$linea_actual]->referencia) )
-               {
-                  $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
-               }
-               
-               $fila = array(
-                  'alb' => $lineas[$linea_actual]->albaran_numero(),
-                  'descripcion' => $descripcion,
-                  'cantidad' => $lineas[$linea_actual]->cantidad,
-                  'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $this->factura->coddivisa),
-                  'dto' => $this->show_numero($lineas[$linea_actual]->dtopor, 0) . " %",
-                  'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $this->factura->coddivisa)
-               );
-               
-               $pdf_doc->add_table_row($fila);
-               $linea_actual++;
-            }
-            $pdf_doc->save_table(
-               array(
-                   'fontSize' => 8,
-                   'cols' => array(
-                       'cantidad' => array('justification' => 'right'),
-                       'pvp' => array('justification' => 'right'),
-                       'dto' => array('justification' => 'right'),
-                       'importe' => array('justification' => 'right')
-                   ),
-                   'width' => 520,
-                   'shaded' => 0
-               )
-            );
-            
-            if( $linea_actual == count($lineas) )
-            {
-               /*
-                * Añadimos la parte de la firma y las observaciones,
-                * para el tipo 'firma'
-                */
-               if($tipo == 'firma')
-               {
-                  $pdf_doc->pdf->ezText("\n", 9);
-                  
-                  $pdf_doc->new_table();
-                  $pdf_doc->add_table_header(
-                     array(
-                        'campo1' => "<b>Observaciones</b>",
-                        'campo2' => "<b>Firma</b>"
-                     )
-                  );
-                  $pdf_doc->add_table_row(
-                     array(
-                        'campo1' => $this->fix_html($this->factura->observaciones),
-                        'campo2' => ""
-                     )
-                  );
-                  $pdf_doc->save_table(
-                     array(
-                        'cols' => array(
-                           'campo1' => array('justification' => 'left'),
-                           'campo2' => array('justification' => 'right', 'width' => 100)
-                        ),
-                        'showLines' => 4,
-                        'width' => 530,
-                        'shaded' => 0
-                     )
-                  );
-               }
-               else if($this->factura->observaciones != '')
-               {
-                  $pdf_doc->pdf->ezText("\n".$this->fix_html($this->factura->observaciones), 9);
-               }
-               
-               if(!$this->factura->pagada)
-               {
-                  $fp0 = new forma_pago();
-                  $forma_pago = $fp0->get($this->factura->codpago);
-                  if($forma_pago)
-                  {
-                     if( is_null($forma_pago->codcuenta) )
-                     {
-                        $pdf_doc->pdf->ezText("\n<b>Forma de pago</b>: ".$forma_pago->descripcion.
-                                "\n<b>Vencimiento</b>: ".$this->factura->vencimiento, 9);
-                     }
-                     else
-                     {
-                        $texto_pago = "\n<b>Forma de pago</b>: ".$forma_pago->descripcion;
-                        
-                        if($forma_pago->domiciliado)
-                        {
-                           $cbc0 = new cuenta_banco_cliente();
-                           $encontrada = FALSE;
-                           foreach($cbc0->all_from_cliente($this->factura->codcliente) as $cbc)
-                           {
-                              if($cbc->iban)
-                              {
-                                 $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->iban;
-                              }
-                              else
-                              {
-                                 $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->swift;
-                              }
-                              $encontrada = TRUE;
-                              break;
-                           }
-                           if(!$encontrada)
-                           {
-                              $texto_pago .= "\n<b>El cliente no tiene cuenta bancaria asignada.</b>";
-                           }
-                        }
-                        else
-                        {
-                           $cb0 = new cuenta_banco();
-                           $cuenta_banco = $cb0->get($forma_pago->codcuenta);
-                           if($cuenta_banco)
-                           {
-                              if($cuenta_banco->iban)
-                              {
-                                 $texto_pago .= "\n<b>IBAN</b>: ".$cuenta_banco->iban;
-                              }
-                              else
-                              {
-                                 $texto_pago .= "\n<b>SWIFT o BIC</b>: ".$cuenta_banco->swift;
-                              }
-                           }
-                        }
-                        
-                        $texto_pago .= "\n<b>Vencimiento</b>: ".$this->factura->vencimiento;
-                        $pdf_doc->pdf->ezText($texto_pago, 9);
-                     }
-                  }
-               }
-            }
-            
-            $pdf_doc->set_y(80);
-            
-            /*
-             * Rellenamos la última tabla de la página:
-             * 
-             * Página            Neto    IVA   Total
-             */
-            $pdf_doc->new_table();
-            $titulo = array('pagina' => '<b>Página</b>', 'neto' => '<b>Neto</b>',);
-            $fila = array(
-                'pagina' => $pagina . '/' . ceil(count($lineas) / $lppag),
-                'neto' => $this->show_precio($this->factura->neto, $this->factura->coddivisa),
-            );
-            $opciones = array(
-                'cols' => array(
-                    'neto' => array('justification' => 'right'),
-                ),
-                'showLines' => 4,
-                'width' => 520
-            );
-            foreach($lineas_iva as $li)
-            {
-               $imp = $this->impuesto->get($li->codimpuesto);
-               if($imp)
-               {
-                  $titulo['iva'.$li->iva] = '<b>'.$imp->descripcion.'</b>';
-               }
-               else
-                  $titulo['iva'.$li->iva] = '<b>'.FS_IVA.' '.$li->iva.'%</b>';
-               
-               $fila['iva'.$li->iva] = $this->show_precio($li->totaliva, $this->factura->coddivisa);
-               
-               if($li->totalrecargo != 0)
-               {
-                  $fila['iva'.$li->iva] .= ' (RE: '.$this->show_precio($li->totalrecargo, $this->factura->coddivisa).')';
-               }
-               
-               $opciones['cols']['iva'.$li->iva] = array('justification' => 'right');
-            }
-            
-            if($this->factura->totalirpf != 0)
-            {
-               $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->factura->irpf.'%</b>';
-               $fila['irpf'] = $this->show_precio(0 - $this->factura->totalirpf);
-               $opciones['cols']['irpf'] = array('justification' => 'right');
-            }
-            
-            $titulo['liquido'] = '<b>Total</b>';
-            $fila['liquido'] = $this->show_precio($this->factura->total, $this->factura->coddivisa);
-            $opciones['cols']['liquido'] = array('justification' => 'right');
-            $pdf_doc->add_table_header($titulo);
-            $pdf_doc->add_table_row($fila);
-            $pdf_doc->save_table($opciones);
-            
-            /// pié de página para la factura
-            $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text($this->fix_html($this->empresa->pie_factura), 153), 0, 1.5);
-            
-            $pagina++;
-         }
+	
+					
+					/*
+					 * Creamos la cabecera de la página, en este caso para el modelo carta
+					 */
+					if($tipo == 'carta')
+					{
+					   $direccion = $this->factura->nombrecliente."\n".$this->factura->direccion;
+					   if($this->factura->codpostal AND $this->factura->ciudad)
+						  $direccion .= "\n CP: " . $this->factura->codpostal . ' ' . $this->factura->ciudad;
+					   else if($this->factura->ciudad)
+						  $direccion .= "\n" . $this->factura->ciudad;
+					   
+					   if($this->factura->provincia)
+						  $direccion .= "\n(" . $this->factura->provincia . ")";
+					   
+					   $pdf_doc->pdf->ezText("\n\n", 10);
+					   $pdf_doc->new_table();
+					   $pdf_doc->add_table_row(
+						  array(
+							  'campos' => "<b>".ucfirst(FS_FACTURA).":</b>\n<b>Fecha:</b>\n<b>".FS_CIFNIF.":</b>",
+							  'factura' => $this->factura->codigo."\n".$this->factura->fecha."\n".$this->factura->cifnif,
+							  'cliente' => $this->fix_html($direccion)
+						  )
+					   );
+					   $pdf_doc->save_table(
+						  array(
+							  'cols' => array(
+								  'campos' => array('justification' => 'right', 'width' => 100),
+								  'factura' => array('justification' => 'left'),
+								  'cliente' => array('justification' => 'right')
+							  ),
+							  'showLines' => 0,
+							  'width' => 520
+						  )
+					   );
+					   $pdf_doc->pdf->ezText("\n\n\n", 14);
+					}
+					else /// esta es la cabecera de la página para los modelos 'simple' y 'firma'
+					{
+					   /// ¿Añadimos el logo?
+					   if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
+					   {
+						  if( function_exists('imagecreatefromstring') )
+						  {
+							 $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
+							 $lppag -= 2; /// si metemos el logo, caben menos líneas
+						  }
+						  else
+						  {
+							 die('ERROR: no se encuentra la función imagecreatefromstring(). '
+							 . 'Y por tanto no se puede usar el logotipo en los documentos.');
+						  }
+					   }
+					   else
+					   {
+						  $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 16, array('justification' => 'center'));
+						  $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'center'));
+						  
+						  $direccion = $this->empresa->direccion;
+						  if($this->empresa->codpostal)
+							 $direccion .= ' - ' . $this->empresa->codpostal;
+						  if($this->empresa->ciudad)
+							 $direccion .= ' - ' . $this->empresa->ciudad;
+						  if($this->empresa->provincia)
+							 $direccion .= ' (' . $this->empresa->provincia . ')';
+						  if($this->empresa->telefono)
+							 $direccion .= ' - Teléfono: ' . $this->empresa->telefono;
+						  $pdf_doc->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
+					   }
+					   
+					   
+		////////////////////			   
+		//// CLIENTES  /////			   
+					   /*
+						* Esta es la tabla con los datos del cliente:
+						* Factura:             Fecha:
+						* Cliente:             CIF/NIF:
+						* Dirección:           Teléfonos:
+						*/
+					   $pdf_doc->new_table();
+					   $pdf_doc->add_table_row(
+						  array(
+							 'campo1' => "<b>".ucfirst(FS_FACTURA).":</b>",
+							 'dato1' => $this->factura->codigo,
+							 'campo2' => "<b>Fecha:</b>",
+							 'dato2' => $this->factura->fecha
+						  )
+					   );
+					   $pdf_doc->add_table_row(
+						  array(
+							 'campo1' => "<b>Cliente:</b>",
+							 'dato1' => $this->fix_html($this->factura->nombrecliente),
+							 'campo2' => "<b>".FS_CIFNIF.":</b>",
+							 'dato2' => $this->factura->cifnif
+						  )
+					   );
+					   $pdf_doc->add_table_row(
+						  array(
+							 'campo1' => "<b>Dirección:</b>",
+							 'dato1' => $this->factura->direccion.' CP: '.$this->factura->codpostal.' - '.$this->factura->ciudad.
+										 ' ('.$this->factura->provincia.')',
+							 'campo2' => "<b>Teléfonos:</b>",
+							 'dato2' => $this->cliente->telefono1.'  '.$this->cliente->telefono2
+						  )
+					   );
+					   $pdf_doc->save_table(
+						  array(
+							 'cols' => array(
+								'campo1' => array('justification' => 'right'),
+								'dato1' => array('justification' => 'left'),
+								'campo2' => array('justification' => 'right'),
+								'dato2' => array('justification' => 'left')
+							 ),
+							 'showLines' => 0,
+							 'width' => 520,
+							 'shaded' => 0
+						  )
+					   );
+					   $pdf_doc->pdf->ezText("\n", 10);
+					   
+					   /// en el tipo 'firma' caben menos líneas
+					   if($tipo == 'firma')
+					   {
+						  $lppag -= 3;
+					   }
+					}
+					
+					
+					/*
+					 * Creamos la tabla con las lineas de la factura:
+					 * 
+					 * Descripción    Cantidad  PVP   DTO    Importe
+					 */
+					$columnas = array(
+						  'alb' => '<b>'.ucfirst(FS_ALBARAN).'</b>',
+						  'descripcion' => '<b>Descripción</b>',
+						  'cantidad' => '<b>Cantidad</b>',
+						  'pvp' => '<b>PVP</b>',
+						  'dto' => '<b>DTO</b>',
+						  'importe' => '<b>Importe</b>'
+					);
+					
+					if(!$this->impresion['print_alb'])
+					{
+					   unset($columnas['alb']);
+					}
+					
+					if(!$this->impresion['print_dto'])
+					{
+					   unset($columnas['dto']);
+					}
+					
+					$pdf_doc->new_table();
+					$pdf_doc->add_table_header($columnas);
+					for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < $lineasfact));)
+					{
+					   $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
+					   if( $this->impresion['print_ref'] AND !is_null($lineas[$linea_actual]->referencia) )
+					   {
+						  $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
+					   }
+					   
+					   
+		//////////////////			   
+		//////// CONTENIDO 
+		//////////////////               
+					   $fila = array(
+						  'alb' => $lineas[$linea_actual]->albaran_numero(),
+						  'descripcion' => $descripcion,
+						  'cantidad' => $lineas[$linea_actual]->cantidad,
+						  'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $this->factura->coddivisa),
+						  'dto' => $this->show_numero($lineas[$linea_actual]->dtopor, 0) . " %",
+						  'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $this->factura->coddivisa)
+					   );
+					   
+					   $pdf_doc->add_table_row($fila);
+					   $linea_actual++;
+					}
+					
+					
+					
+					$pdf_doc->save_table(
+					   array(
+						   'fontSize' => 8,
+						   'cols' => array(
+							   'cantidad' => array('justification' => 'right'),
+							   'pvp' => array('justification' => 'right'),
+							   'dto' => array('justification' => 'right'),
+							   'importe' => array('justification' => 'right')
+						   ),
+						   'width' => 520,
+						   'shaded' => 0
+					   )
+					);
+					
+					if( $linea_actual == count($lineas) )
+					{
+					
+					
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////			
+					   /*
+						* Añadimos la parte de la firma y las observaciones,
+						* para el tipo 'firma'
+						*/
+					   if($tipo == 'firma')
+					   {
+						  $pdf_doc->pdf->ezText("\n", 9);
+						  
+						  $pdf_doc->new_table();
+						  $pdf_doc->add_table_header(
+							 array(
+								'campo1' => "<b>Observaciones</b>",
+								'campo2' => "<b>Firma</b>"
+							 )
+						  );
+						  $pdf_doc->add_table_row(
+							 array(
+								'campo1' => $this->fix_html($this->factura->observaciones),
+								'campo2' => ""
+							 )
+						  );
+						  $pdf_doc->save_table(
+							 array(
+								'cols' => array(
+								   'campo1' => array('justification' => 'left'),
+								   'campo2' => array('justification' => 'right', 'width' => 100)
+								),
+								'showLines' => 4,
+								'width' => 530,
+								'shaded' => 0
+							 )
+						  );
+					   }
+					   else if($this->factura->observaciones != '')
+					   {
+						  $pdf_doc->pdf->ezText("\n".$this->fix_html($this->factura->observaciones), 9);
+					   }
+					   
+					   if(!$this->factura->pagada)
+					   {
+						  $fp0 = new forma_pago();
+						  $forma_pago = $fp0->get($this->factura->codpago);
+						  if($forma_pago)
+						  {
+							 if( is_null($forma_pago->codcuenta) )
+							 {
+								$pdf_doc->pdf->ezText("\n<b>Forma de pago</b>: ".$forma_pago->descripcion.
+										"\n<b>Vencimiento</b>: ".$this->factura->vencimiento, 9);
+							 }
+							 else
+							 {
+								$texto_pago = "\n<b>Forma de pago</b>: ".$forma_pago->descripcion;
+								
+								if($forma_pago->domiciliado)
+								{
+								   $cbc0 = new cuenta_banco_cliente();
+								   $encontrada = FALSE;
+								   foreach($cbc0->all_from_cliente($this->factura->codcliente) as $cbc)
+								   {
+									  if($cbc->iban)
+									  {
+										 $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->iban;
+									  }
+									  else
+									  {
+										 $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->swift;
+									  }
+									  $encontrada = TRUE;
+									  break;
+								   }
+								   if(!$encontrada)
+								   {
+									  $texto_pago .= "\n<b>El cliente no tiene cuenta bancaria asignada.</b>";
+								   }
+								}
+								else
+								{
+								   $cb0 = new cuenta_banco();
+								   $cuenta_banco = $cb0->get($forma_pago->codcuenta);
+								   if($cuenta_banco)
+								   {
+									  if($cuenta_banco->iban)
+									  {
+										 $texto_pago .= "\n<b>IBAN</b>: ".$cuenta_banco->iban;
+									  }
+									  else
+									  {
+										 $texto_pago .= "\n<b>SWIFT o BIC</b>: ".$cuenta_banco->swift;
+									  }
+								   }
+								}
+								
+								$texto_pago .= "\n<b>Vencimiento</b>: ".$this->factura->vencimiento;
+								$pdf_doc->pdf->ezText($texto_pago, 9);
+							 }
+						  }
+					   }
+					}
+					
+					$pdf_doc->set_y(80);
+					
+					/*
+					 * Rellenamos la última tabla de la página:
+					 * 
+					 * Página            Neto    IVA   Total
+					 */
+					$pdf_doc->new_table();
+					$titulo = array('pagina' => '<b>Página</b>', 'neto' => '<b>Neto</b>',);
+					$fila = array(
+						'pagina' => $pagina . '/' . ceil(count($lineas) / $lppag),
+						'neto' => $this->show_precio($this->factura->neto, $this->factura->coddivisa),
+					);
+					$opciones = array(
+						'cols' => array(
+							'neto' => array('justification' => 'right'),
+						),
+						'showLines' => 4,
+						'width' => 520
+					);
+					foreach($lineas_iva as $li)
+					{
+					   $imp = $this->impuesto->get($li->codimpuesto);
+					   if($imp)
+					   {
+						  $titulo['iva'.$li->iva] = '<b>'.$imp->descripcion.'</b>';
+					   }
+					   else
+						  $titulo['iva'.$li->iva] = '<b>'.FS_IVA.' '.$li->iva.'%</b>';
+					   
+					   $fila['iva'.$li->iva] = $this->show_precio($li->totaliva, $this->factura->coddivisa);
+					   
+					   if($li->totalrecargo != 0)
+					   {
+						  $fila['iva'.$li->iva] .= ' (RE: '.$this->show_precio($li->totalrecargo, $this->factura->coddivisa).')';
+					   }
+					   
+					   $opciones['cols']['iva'.$li->iva] = array('justification' => 'right');
+					}
+					
+					if($this->factura->totalirpf != 0)
+					{
+					   $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->factura->irpf.'%</b>';
+					   $fila['irpf'] = $this->show_precio(0 - $this->factura->totalirpf);
+					   $opciones['cols']['irpf'] = array('justification' => 'right');
+					}
+					
+					$titulo['liquido'] = '<b>Total</b>';
+					$fila['liquido'] = $this->show_precio($this->factura->total, $this->factura->coddivisa);
+					$opciones['cols']['liquido'] = array('justification' => 'right');
+					$pdf_doc->add_table_header($titulo);
+					$pdf_doc->add_table_row($fila);
+					$pdf_doc->save_table($opciones);
+					
+					/// pié de página para la factura
+					$pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text($this->fix_html($this->empresa->pie_factura), 153), 0, 1.5);
+					
+					$pagina++;
+///////////////////////////////////////////////////					
+				}	////////// FIN DE IF DE FIRMA
+          }
       }
       else
       {

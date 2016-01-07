@@ -427,6 +427,7 @@ class compras_albaran extends fs_controller
       $factura->totaliva = $this->albaran->totaliva;
       $factura->totalrecargo = $this->albaran->totalrecargo;
       $factura->codagente = $this->albaran->codagente;
+	  $factura->idpagodevol = 0;
       
       /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
       $forma0 = new forma_pago();
@@ -435,7 +436,7 @@ class compras_albaran extends fs_controller
       {
          if($formapago->genrecibos == 'Pagados')
          {
-            $factura->pagada = TRUE;
+            $factura->pagada = FALSE;
          }
       }
       

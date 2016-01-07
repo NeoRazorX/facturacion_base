@@ -80,6 +80,15 @@ class direccion_cliente extends fs_model
       else
          return FALSE;
    }
+   
+    public function get_codcli($id)
+   {
+      $dir = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($id).";");
+      if($dir)
+         return new direccion_cliente($dir[0]);
+      else
+         return FALSE;
+   }
 
    public function exists()
    {

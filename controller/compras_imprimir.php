@@ -24,6 +24,7 @@ require_model('articulo_proveedor.php');
 require_model('proveedor.php');
 require_model('recibo_proveedor.php');
 require_model('factura_proveedor.php');
+require_model('valores.php');
 
 /**
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes e imprimir facturas.
@@ -296,6 +297,8 @@ class compras_imprimir extends fs_controller
 		$orden = $orden_prov->get($idorden);
 		$recibo_prov = new recibo_proveedor();
 		$recibo = $recibo_prov->get_por_idorden($idorden);
+		$valor = new valores();
+		$valores = $valor->get_por_idorden($idorden);
 		$factura_prov = new factura_proveedor();
 			
 
@@ -307,6 +310,7 @@ class compras_imprimir extends fs_controller
          $linea_actual = 0;
          $pagina = 1;	
 		 $total_facturado = 0;
+		 $total_valor = 0;
 /////  Primer encabezado
 		$pdf_doc->pdf->ezText("Página ".$pagina, 9, array('justification' => 'right'));
 		$pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 10, array('justification' => 'left'));
@@ -320,15 +324,14 @@ class compras_imprimir extends fs_controller
 		$pdf_doc->pdf->ezText("<b>Proveedor:  ".$orden->provorden."</b>", 10, array('justification' => 'left'));
 		$pdf_doc->pdf->ezText("<b> Concepto:  ".$orden->conceptoorden."</b>", 10, array('justification' => 'left'));	
 
-			$pdf_doc->pdf->ezText("\n", 10);	
+			$pdf_doc->pdf->ezText("\n", 10);
+			$pdf_doc->pdf->ezText("<b>Facturas</b>", 12, array('justification' => 'left'));	
             $pdf_doc->new_table();
 			$pdf_doc->add_table_header(
                array(
                   'fecha' => '<b>Fecha Fact.</b>',
                   'factnum' => '<b>Factura</b>',
-                  'factimp' => '<b>Importe Fact.</b>',
-                  'valor' => '<b>Valores Entregados</b>',
-                  'importe' => '<b>Importe</b>'
+                  'factimp' => '<b>Importe Fact.</b>'
                )
             );
 			foreach($recibo as $p)
@@ -344,6 +347,48 @@ class compras_imprimir extends fs_controller
 					   )
 					);   
 			$total_facturado +=	$p->importe;		
+							
+			}	
+			
+						$pdf_doc->save_table(
+						   array(
+							   'cols' => array(
+								   'campo1' => array('justification' => 'left'),
+								   'dato1' => array('justification' => 'left'),
+								   'campo2' => array('justification' => 'left'),
+								   'dato2' => array('justification' => 'left')
+							   ),
+							   'showLines' => 3,
+							   'width' => 520,
+							   'shaded' =>1
+							   
+							   )
+							);
+			
+			
+			$pdf_doc->pdf->ezText("\n", 10);
+			$pdf_doc->pdf->ezText("<b>Valores Entregados</b>", 12, array('justification' => 'left'));	
+            $pdf_doc->new_table();
+			$pdf_doc->add_table_header(
+               array(
+                  'fecha' => '<b>Fecha </b>',
+                  'banco' => '<b>Banco</b>',
+                  'numero' => '<b>Número</b>',
+                  'importe' => '<b>Importe</b>'
+               )
+            );
+			
+			foreach($valores as $p)
+			{		
+			$pdf_doc->add_table_row(
+				   array(
+				  'fecha' => $p->fecha,
+                  'banco' => $p->banco,
+                  'numero' => $p->numero,
+                  'importe' => $p->importe
+					   )
+					);   
+			$total_valor +=	$p->importe;		
 							
 			}					
 					
@@ -365,7 +410,7 @@ class compras_imprimir extends fs_controller
 							$pdf_doc->pdf->ezText("\n", 14);
 		$pdf_doc->pdf->ezText("<b>Total Facturado:   ".$total_facturado."</b>", 11, array('justification' => 'left'));
 		$pdf_doc->pdf->ezText("\n", 6);					
-		$pdf_doc->pdf->ezText("<b>Total Entregado:  ".$total_facturado."</b>", 11, array('justification' => 'left'));	
+		$pdf_doc->pdf->ezText("<b>Total Entregado:  ".$total_valor."</b>", 11, array('justification' => 'left'));	
 		
 				$pdf_doc->set_y(140);		
 				$pdf_doc->pdf->ezText('FIRMA :  _________________________________________________  DNI: _________________________', 8, array('justification' => 'left'));	
