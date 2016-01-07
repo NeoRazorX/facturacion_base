@@ -133,6 +133,10 @@ class subcuenta extends fs_model
       return '';
    }
    
+   /**
+    * Devuelve la descripción en base64.
+    * @return type
+    */
    public function get_descripcion_64()
    {
       return base64_encode($this->descripcion);

@@ -93,7 +93,11 @@
                {if="$fsc->empresa->can_send_mail()"}
                <a id="b_enviar" class="btn btn-sm btn-default" href="#">
                   <span class="glyphicon glyphicon-envelope"></span>
-                  <span class="hidden-xs">&nbsp; Enviar</span>
+                  {if="$fsc->albaran->femail"}
+                  <span class="hidden-xs"> &nbsp; Reenviar</span>
+                  {else}
+                  <span class="hidden-xs"> &nbsp; Enviar</span>
+                  {/if}
                </a>
                {/if}
                {loop="$fsc->extensions"}
@@ -144,7 +148,7 @@
             <br/>
             <ol class="breadcrumb" style="margin-bottom: 5px;">
                <li><a href="{$fsc->ppage->url()}">Ventas</a></li>
-               <li><a href="{$fsc->ppage->url()}">{#FS_ALBARANES#}</a></li>
+               <li><a href="{$fsc->ppage->url()}" class="text-capitalize">{#FS_ALBARANES#}</a></li>
                <li>
                   {loop="$fsc->serie->all()"}
                      {if="$value->codserie==$fsc->albaran->codserie"}
@@ -730,6 +734,12 @@
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">Enviar {#FS_ALBARAN#}</h4>
+               {if="$fsc->albaran->femail"}
+               <p class="help-block">
+                  <span class="glyphicon glyphicon-send"></span> &nbsp;
+                  Este {#FS_ALBARAN#} fue enviado el {$fsc->albaran->femail}.
+               </p>
+               {/if}
             </div>
             <div class="modal-body">
                <div class="form-group">

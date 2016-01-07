@@ -1,27 +1,33 @@
-{if="$fsc->grupos"}
+{if="is_array($fsc->grupos)"}
 <p class="help-block">Selecciona el <b>grupo de epígrafes</b> que quieras.</p>
 <div class="form-group">
    <select name="codgrupo" class="form-control">
       {loop="$fsc->grupos"}
       <option value="{$value->codgrupo}">{$value->codgrupo} - {$value->descripcion}</option>
+      {else}
+      <option value="">Ningún grupo encontrado</option>
       {/loop}
    </select>
 </div>
-{elseif="$fsc->epigrafes"}
+{elseif="is_array($fsc->epigrafes)"}
 <p class="help-block">Selecciona el <b>epígrafe</b> que quieras.</p>
 <div class="form-group">
    <select name="codepigrafe" class="form-control">
       {loop="$fsc->epigrafes"}
       <option value="{$value->codepigrafe}">{$value->codepigrafe} - {$value->descripcion}</option>
+      {else}
+      <option value="">Ningún epígrafe encontrado</option>
       {/loop}
    </select>
 </div>
-{elseif="$fsc->cuentas"}
+{elseif="is_array($fsc->cuentas)"}
 <p class="help-block">Selecciona la cuenta que quieras.</p>
 <div class="form-group">
    <select name="codcuenta" class="form-control">
       {loop="$fsc->cuentas"}
       <option value="{$value->codcuenta}">{$value->codcuenta} - {$value->descripcion}</option>
+      {else}
+      <option value="">Ninguna cuenta encontrads</option>
       {/loop}
    </select>
 </div>

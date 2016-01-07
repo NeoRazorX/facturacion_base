@@ -271,10 +271,19 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr class="clickableRow{if="$value->vencida()"} danger{elseif="$value->pagada"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}">
+      <tr class="clickableRow{if="$value->vencida() OR $value->anulada"} danger{elseif="$value->pagada"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}">
          <td class="text-center">
             {if="$value->pagada"}
             <span class="glyphicon glyphicon-ok" title="La {#FS_FACTURA#} está pagada"></span>
+            {/if}
+            {if="$value->anulada"}
+            <span class="glyphicon glyphicon-remove" title="La {#FS_FACTURA#} está anulada"></span>
+            {/if}
+            {if="$value->idfacturarect"}
+            <span class="glyphicon glyphicon-flag" title="{#FS_FACTURA_RECTIFICATIVA#} de {$value->codigorect}"></span>
+            {/if}
+            {if="$value->femail"}
+            <span class="glyphicon glyphicon-send" title="La {#FS_FACTURA#} fue enviada por email el {$value->femail}"></span>
             {/if}
          </td>
          <td class="text-center">
@@ -282,14 +291,7 @@
             <span class="glyphicon glyphicon-paperclip" title="La {#FS_FACTURA#} tiene vinculado un asiento contable"></span>
             {/if}
          </td>
-         <td>
-            <a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}
-            {if="$value->idfacturarect"}
-            <span class="label label-danger" title="{#FS_FACTURA_RECTIFICATIVA#} de {$value->codigorect}">
-               <span class="glyphicon glyphicon-flag"></span>
-            </span>
-            {/if}
-         </td>
+         <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}</td>
          <td>
             {$value->nombrecliente}
             <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más {#FS_FACTURAS#} de {$value->nombrecliente}">[+]</a>
@@ -302,7 +304,7 @@
          </td>
          <td class="text-left">{$fsc->show_numero($value->porcomision)}</td>
          {/if}
-         <td class="text-right">
+         <td class="text-right" title="{$value->hora}">
             {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
          </td>
          <td class="text-right">{$value->vencimiento}</td>

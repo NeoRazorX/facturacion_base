@@ -957,6 +957,18 @@ class ventas_imprimir extends fs_controller
                if( $mail->Send() )
                {
                   $this->new_message('Mensaje enviado correctamente.');
+                  
+                  /// nos guardamos la fecha de envío
+                  if($doc == 'factura')
+                  {
+                     $this->factura->femail = $this->today();
+                     $this->factura->save();
+                  }
+                  else
+                  {
+                     $this->albaran->femail = $this->today();
+                     $this->albaran->save();
+                  }
                }
                else
                   $this->new_error_msg("Error al enviar el email: " . $mail->ErrorInfo);

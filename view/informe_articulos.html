@@ -6,7 +6,8 @@
    {
       window.location.href = '{$fsc->url_recarga}';
    }
-   $(document).ready(function() {
+   $(document).ready(function()
+   {
       setTimeout(recargar, 1000);
    });
 </script>
@@ -31,9 +32,10 @@
          <span class="hidden-xs">&nbsp; Impuestos</span>
       </a>
    </li>
-   <li role="presentation"{if="$fsc->pestanya=='search'"} class="active"{/if}>
-      <a href="{$fsc->url()}&tab=search">
-         <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+   <li role="presentation"{if="$fsc->pestanya=='varios'"} class="active"{/if}>
+      <a href="{$fsc->url()}&tab=varios">
+         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Varios</span>
       </a>
    </li>
 </ul>
@@ -41,7 +43,7 @@
 {if="$fsc->pestanya=='stats'"}
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 20px;">
    <div class="row">
-      <div class="col-md-12">
+      <div class="col-sm-12">
          <p>
             Hay un total de <b>{$fsc->show_numero($fsc->stats['total'], 0)}</b> artículos,
             <b>{$fsc->show_numero($fsc->stats['con_stock'], 0)}</b> de ellos tienen stock,
@@ -52,7 +54,7 @@
       </div>
    </div>
    <div class="row">
-      <div class="col-md-12">
+      <div class="col-sm-12">
          <div class="panel panel-info">
             <div class="panel-heading">
                <h3 class="panel-title">Top ventas (desde hace un mes)</h3>
@@ -70,7 +72,7 @@
                   <tr>
                      <td>
                         <a href="{$value['articulo']->url()}">{$value['articulo']->referencia}</a>
-                        {$value['articulo']->descripcion}
+                        {$value['articulo']->descripcion()}
                      </td>
                      <td class="text-right">{$value['unidades']}</td>
                      <td class="text-right">{$fsc->show_precio($value['total'])}</td>
@@ -86,7 +88,7 @@
       </div>
    </div>
    <div class="row">
-      <div class="col-md-12">
+      <div class="col-sm-12">
          <div class="panel panel-warning">
             <div class="panel-heading">
                <h3 class="panel-title">Top artículos con stock aun no vendidos este año</h3>
@@ -97,7 +99,7 @@
                      {loop="$fsc->sin_vender"}
                      <div class="col-sm-4">
                         <a href="{$value->url()}">{$value->referencia}</a>
-                        {$value->descripcion}
+                        {$value->descripcion()}
                         <span class="badge">{$value->stockfis}</span>
                      </div>
                      {else}
@@ -110,7 +112,7 @@
       </div>
    </div>
    <div class="row">
-      <div class="col-md-12">
+      <div class="col-sm-12">
          <div class="panel panel-default">
             <div class="panel-heading">
                <h3 class="panel-title">Top compras (Unidades)</h3>
@@ -121,7 +123,7 @@
                      {loop="$fsc->top_compras"}
                      <div class="col-sm-4">
                         <a href="{$value.0->url()}">{$value.0->referencia}</a>
-                        {$value.0->descripcion}
+                        {$value.0->descripcion()}
                         <span class="badge">{$value.1}</span>
                      </div>
                      {else}
@@ -134,7 +136,7 @@
       </div>
    </div>
    <div class="row">
-      <div class="col-md-12">
+      <div class="col-sm-12">
          <div class="panel panel-default">
             <div class="panel-heading">
                <h3 class="panel-title">Búsquedas de artículos</h3>
@@ -143,9 +145,9 @@
                <div class="container-fluid">
                   <div class="row">
                      {loop="$fsc->articulo->get_search_tags()"}
-                     <div class="col-lg-3 col-md-3 col-sm-3">{$value.tag} ({$value.count})</div>
+                     <div class="col-sm-3">{$value.tag} ({$value.count})</div>
                      {else}
-                     <div class="col-lg-12 col-md-12 col-sm-12">Ninguna búsqueda realizada.</div>
+                     <div class="col-sm-12">Ninguna búsqueda realizada.</div>
                      {/loop}
                   </div>
                </div>
@@ -218,9 +220,12 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr class="clickableRow{if="intval($value['cantidadfin'])<intval($value['cantidadini'])"} bg-danger{/if}" href="index.php?page=ventas_articulo&ref={$value['referencia']}">
+      <tr class="clickableRow{if="intval($value['cantidadfin'])<intval($value['cantidadini'])"} danger{/if}" href="index.php?page=ventas_articulo&ref={$value['referencia']}">
          <td>{$value['codalmacen']}</td>
-         <td><a href="index.php?page=ventas_articulo&ref={$value['referencia']}">{$value['referencia']}</a> {$value['descripcion']}</td>
+         <td>
+            <a href="index.php?page=ventas_articulo&ref={$value['referencia']}">{$value['referencia']}</a>
+            {function="mb_substr($value['descripcion'], 0, 100)"}
+         </td>
          <td class="text-right">{$value['cantidadini']}</td>
          <td class="text-right">{$value['cantidadfin']}</td>
          <td>{$value['nick']}</td>
@@ -248,7 +253,10 @@
       {loop="$fsc->resultados"}
       <tr class="clickableRow{if="intval($value['cantidad'])<intval($value['stockmin'])"} danger{/if}" href="index.php?page=ventas_articulo&ref={$value['referencia']}">
          <td>{$value['codalmacen']}</td>
-         <td><a href="index.php?page=ventas_articulo&ref={$value['referencia']}">{$value['referencia']}</a> {$value['descripcion']}</td>
+         <td>
+            <a href="index.php?page=ventas_articulo&ref={$value['referencia']}">{$value['referencia']}</a>
+            {function="mb_substr($value['descripcion'], 0, 100)"}
+         </td>
          <td class="text-right">{$value['cantidad']}</td>
          <td class="text-right">{$value['stockmin']}</td>
          <td class="text-right">{$value['stockmax']}</td>
@@ -379,109 +387,244 @@
       {/loop}
    </table>
 </div>
-{elseif="$fsc->pestanya=='search'"}
+{elseif="$fsc->pestanya=='varios'"}
 <script type="text/javascript">
    $(document).ready(function() {
       $("#ac_referencia").autocomplete({
          serviceUrl: '{$fsc->url()}',
          paramName: 'buscar_referencia',
-         onSelect: function (suggestion) {
-            if(suggestion)
-            {
-               if(document.f_informe_articulo.referencia.value != suggestion.data)
-               {
-                  document.f_informe_articulo.referencia.value = suggestion.data;
-               }
-            }
-         }
+      });
+      $("#ac_referencia2").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_referencia',
       });
    });
 </script>
 
-<form name="f_informe_articulo" action="{$fsc->url()}&tab=search" method="post" class="form">
-   <input type="hidden" name="referencia" value="{$fsc->referencia}"/>
-   <div class="container-fluid" style="margin-top: 15px;">
-      <div class="row">
-         <div class="col-sm-3">
-            <div class="form-group">
-               Referencia:
-               <input class="form-control" type="text" name="ac_referencia" value="{$fsc->referencia}" id="ac_referencia" maxlength="18" placeholder="referencia" autocomplete="off"/>
-            </div>
-         </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               Desde:
-               <input class="form-control datepicker" type="text" name="desde" value="{$fsc->desde}"/>
-            </div>
-         </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               Hasta:
-               <input class="form-control datepicker" type="text" name="hasta" value="{$fsc->hasta}"/>
-            </div>
-         </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               Explorar:
-               <select name="documento" class="form-control" onchange="this.form.submit();">
-                  <option value="facturascli"{if="$fsc->documento=='facturascli'"} selected=""{/if}>Facturas de venta</option>
-                  <option value="facturasprov"{if="$fsc->documento=='facturasprov'"} selected=""{/if}>Facturas de compra</option>
-               </select>
-            </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-12">
-            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-               <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Mostrar
-            </button>
-         </div>
+<div class="container-fluid" style="margin-top: 15px;">
+   <div class="row">
+      <div class="col-sm-12">
+         <p class="help-block">
+            Aquí dispones de varios informes para consultar el listado de movimientos
+            de un artículo, las compras o ventas de artículos en un determinado periodo
+            o el desglose de ventas a clientes por artículo. Elige el que necesites
+            y ajusta los filtros a tus necesidades.
+         </p>
       </div>
    </div>
-   {if="$fsc->resultados"}
-   <br/>
-   <div class="table-responsive">
-      <table class="table table-hover">
-         <thead>
-            <tr>
-               <th>Fecha</th>
-               <th>Factura</th>
-               <th>Nombre</th>
-               <th>Empleado</th>
-               <th class="text-right">Cantidad</th>
-               <th class="text-right">Precio</th>
-               <th class="text-right">Dto.</th>
-               <th class="text-right">Neto</th>
-               <th class="text-right">Total</th>
-            </tr>
-         </thead>
-         <!--{$total=0}-->
-         <!--{$cantidad=0}-->
-         {loop="$fsc->resultados"}
-         <tr{if="$value['pagada']"} class='success'{/if}>
-            <td>{$value['fecha']}</td>
-            <td><a href="{$value['url']}">{$value['codigo']}</a></td>
-            <td>{$value['nombre']}</td>
-            <td>{$value['agente']}</td>
-            <td class="text-right">{$value['cantidad']}</td>
-            <td class="text-right">{$fsc->show_precio($value['pvpunitario'])}</td>
-            <td class="text-right">{$fsc->show_numero($value['dtopor'])} %</td>
-            <td class="text-right">{$fsc->show_precio($value['pvptotal'])}</td>
-            <td class="text-right">
-               {$fsc->show_precio($value['total'])}
-               <!--{$total=$total+$value['total']}-->
-               <!--{$cantidad=$cantidad+$value['cantidad']}-->
-            </td>
-         </tr>
-         {/loop}
+   <div class="row">
+      <div class="col-sm-4">
+         <form name="f_listado_mov" action="{$fsc->url()}&tab=varios" method="post" class="form">
+            <input type="hidden" name="informe" value="listadomov"/>
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  <h3 class="panel-title">Listado de movimientos</h3>
+               </div>
+               <div class="panel-body">
+                  <p class="help-block">
+                     Genera un listado de movimientos de stock del artículo seleccionado
+                     a partir de las regularizaciones de stock, los {#FS_ALBARANES#}
+                     y las facturas de compra y de venta.
+                  </p>
+                  <div class="form-group">
+                     Referencia:
+                     <input class="form-control" type="text" name="referencia" value="{$fsc->referencia}" id="ac_referencia" maxlength="18" placeholder="referencia" autocomplete="off"/>
+                  </div>
+                  <div class="form-group">
+                     Desde:
+                     <input class="form-control datepicker" type="text" name="desde" value="{$fsc->desde}"/>
+                  </div>
+                  <div class="form-group">
+                     Hasta:
+                     <input class="form-control datepicker" type="text" name="hasta" value="{$fsc->hasta}"/>
+                  </div>
+                  <div class="form-group">
+                     <a href="{$fsc->agente->url()}">Empleado</a>:
+                     <select name="codagente" class="form-control" onchange="this.form.submit();">
+                        <option value="">Todos</option>
+                        <option value="">---</option>
+                        {loop="$fsc->agente->all()"}
+                           {if="$value->codagente==$fsc->codagente"}
+                           <option value="{$value->codagente}" selected="">{$value->get_fullname()}</option>
+                           {else}
+                           <option value="{$value->codagente}">{$value->get_fullname()}</option>
+                           {/if}
+                        {/loop}
+                     </select>
+                  </div>
+                  <div class="form-group">
+                     Salida:
+                     <select name="generar" class="form-control">
+                        <option value="">Pantalla</option>
+                        <option value="csv">CSV</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="panel-footer">
+                  <button class="btn btn-sm btn-primary" type="submit">
+                     <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Mostrar
+                  </button>
+               </div>
+            </div>
+         </form>
+      </div>
+      <div class="col-sm-4">
+         <form action="{$fsc->url()}&tab=varios" method="post" class="form">
+            <input type="hidden" name="informe" value="facturacion"/>
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  <h3 class="panel-title">Informe de facturación</h3>
+               </div>
+               <div class="panel-body">
+                  <p class="help-block">
+                     Genera un informe de compras o ventas desglosado por artículo, año y mes.
+                  </p>
+                  <div class="form-group">
+                     Analizar:
+                     <select name="documento" class="form-control" onchange="this.form.submit();">
+                        <option value="facturasprov"{if="$fsc->documento=='facturasprov'"} selected=""{/if}>Compras</option>
+                        <option value="facturascli"{if="$fsc->documento=='facturascli'"} selected=""{/if}>Ventas</option>
+                     </select>
+                  </div>
+                  <div class="radio">
+                     <label>
+                        <input type="radio" name="cantidades" value="FALSE"{if="!$fsc->cantidades"} checked=""{/if}/>
+                        Importes
+                     </label>
+                  </div>
+                  <div class="radio">
+                     <label>
+                        <input type="radio" name="cantidades" value="TRUE"{if="$fsc->cantidades"} checked=""{/if}/>
+                        Unidades
+                     </label>
+                  </div>
+                  <div class="form-group">
+                     Desde:
+                     <input class="form-control datepicker" type="text" name="desde" value="{$fsc->desde}"/>
+                  </div>
+                  <div class="form-group">
+                     Hasta:
+                     <input class="form-control datepicker" type="text" name="hasta" value="{$fsc->hasta}"/>
+                  </div>
+                  <div class="form-group">
+                     Familia:
+                     <select class="form-control" name="codfamilia">
+                        <option value="">Todas las familias</option>
+                        <option value="">-----</option>
+                        {loop="$fsc->familia->all()"}
+                           {if="$value->codfamilia==$fsc->codfamilia"}
+                           <option value="{$value->codfamilia}" selected="">{$value->nivel}{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
+                           {/if}
+                        {/loop}
+                     </select>
+                  </div>
+                  <div class="form-group">
+                     Mínimo:
+                     <input class="form-control" type="text" name="minimo" value="{$fsc->minimo}" autocomplete="off" placeholder="importe o unidades (opcional)"/>
+                  </div>
+               </div>
+               <div class="panel-footer">
+                  <button class="btn btn-sm btn-primary" type="submit">
+                     <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Mostrar
+                  </button>
+               </div>
+            </div>
+         </form>
+      </div>
+      <div class="col-sm-4">
+         <form name="f_informe_ventas" action="{$fsc->url()}&tab=varios" method="post" class="form">
+            <input type="hidden" name="informe" value="ventascli"/>
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  <h3 class="panel-title">Desglose de ventas por artículo</h3>
+               </div>
+               <div class="panel-body">
+                  <p class="help-block">
+                     Genera un listado con los clientes que han comprado un determinado
+                     artículo en un periodo y lo desglosa por cliente, año y mes.
+                  </p>
+                  <div class="form-group">
+                     Referencia:
+                     <input class="form-control" type="text" name="referencia" value="{$fsc->referencia}" id="ac_referencia2" maxlength="18" placeholder="referencia" autocomplete="off"/>
+                     <p class="help-block">
+                        Dejar en blanco para filtrar por familia.
+                     </p>
+                  </div>
+                  <div class="form-group">
+                     Familia:
+                     <select class="form-control" name="codfamilia">
+                        <option value="">Todas las familias</option>
+                        <option value="">-----</option>
+                        {loop="$fsc->familia->all()"}
+                           {if="$value->codfamilia==$fsc->codfamilia"}
+                           <option value="{$value->codfamilia}" selected="">{$value->nivel}{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
+                           {/if}
+                        {/loop}
+                     </select>
+                  </div>
+                  <div class="form-group">
+                     Desde:
+                     <input class="form-control datepicker" type="text" name="desde" value="{$fsc->desde}"/>
+                  </div>
+                  <div class="form-group">
+                     Hasta:
+                     <input class="form-control datepicker" type="text" name="hasta" value="{$fsc->hasta}"/>
+                  </div>
+                  <div class="form-group">
+                     Mínimo:
+                     <input class="form-control" type="text" name="minimo" value="{$fsc->minimo}" autocomplete="off" placeholder="unidades (opcional)"/>
+                  </div>
+               </div>
+               <div class="panel-footer">
+                  <button class="btn btn-sm btn-primary" type="submit">
+                     <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Mostrar
+                  </button>
+               </div>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+
+{if="$fsc->resultados"}
+<div class="table-responsive">
+   <table class="table table-hover">
+      <thead>
          <tr>
-            <td colspan="5" class="text-right"><b>{$cantidad}</b></td>
-            <td colspan="4" class="text-right"><b>{$fsc->show_precio($total)}</b></td>
+            <th>Almacén</th>
+            <th>Documento</th>
+            <th>Cliente/Proveedor</th>
+            <th class="text-right">Movimiento</th>
+            <th class="text-right">Precio</th>
+            <th class="text-right">%Dto.</th>
+            <th class="text-right">Cantidad final</th>
+            <th class="text-right">Fecha</th>
          </tr>
-      </table>
-   </div>
-   {/if}
-</form>
+      </thead>
+      {loop="$fsc->resultados"}
+      <tr class="clickableRow" href="{$value['url']}">
+         <td>{$value['codalmacen']}</td>
+         <td><a href="{$value['url']}">{$value['origen']}</a></td>
+         <td>{$value['clipro']}</td>
+         <td class="text-right">{$value['movimiento']}</td>
+         <td class="text-right">{$fsc->show_precio($value['precio'])}</td>
+         <td class="text-right">{$fsc->show_numero($value['dto'])}</td>
+         <td class='text-right{if="$value['final']<0"} danger{/if}'>{$value['final']}</td>
+         <td class="text-right">{$value['fecha']}</td>
+      </tr>
+      {else}
+      <tr class="warning">
+         <td colspan="8">Sin resultados.</td>
+      </tr>
+      {/loop}
+   </table>
+</div>
+{/if}
+
 {/if}
 
 {include="footer"}

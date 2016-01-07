@@ -103,6 +103,9 @@
             {if="$value->pagada"}
             <span class="glyphicon glyphicon-ok" title="La {#FS_FACTURA#} está pagada"></span>
             {/if}
+            {if="$value->femail"}
+            <span class="glyphicon glyphicon-send" title="La {#FS_FACTURA#} fue enviada por email el {$value->femail}"></span>
+            {/if}
          </td>
          <td class="text-center">
             {if="$value->idasiento"}

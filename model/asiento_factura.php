@@ -379,6 +379,11 @@ class asiento_factura
                }
                
                $factura->idasiento = $asiento->idasiento;
+               if($factura->pagada)
+               {
+                  $factura->idasientop = $this->generar_asiento_pago($asiento);
+               }
+               
                if( $factura->save() )
                {
                   $ok = $this->check_asiento($asiento);
@@ -718,6 +723,11 @@ class asiento_factura
                }
                
                $factura->idasiento = $asiento->idasiento;
+               if($factura->pagada)
+               {
+                  $factura->idasientop = $this->generar_asiento_pago($asiento);
+               }
+               
                if( $factura->save() )
                {
                   $ok = $this->check_asiento($asiento);
@@ -748,6 +758,96 @@ class asiento_factura
       }
       
       return $ok;
+   }
+   
+   /**
+    * Generamos un asiento de pago del asiento seleccionado.
+    * @param asiento $asiento
+    */
+   public function generar_asiento_pago(&$asiento)
+   {
+      $nasientop = new asiento();
+      $nasientop->codejercicio = $asiento->codejercicio;
+      $nasientop->concepto = 'Pago '.$asiento->concepto;
+      $nasientop->editable = FALSE;
+      $nasientop->importe = $asiento->importe;
+      
+      /// asignamos la mejor fecha
+      $eje = $this->ejercicio->get($nasientop->codejercicio);
+      if($eje)
+      {
+         $nasientop->fecha = $eje->get_best_fecha($nasientop->fecha);
+      }
+      
+      /// necesitamos la subcuenta de caja
+      $subc = new subcuenta();
+      $subcaja = $subc->get_cuentaesp('CAJA', $nasientop->codejercicio);
+      
+      if(!$subcaja)
+      {
+         $this->new_error_msg('No se ha encontrado ninguna subcuenta de caja.');
+      }
+      else if( $nasientop->save() )
+      {
+         /// buscamos la partida que coincida con el importe
+         foreach($asiento->get_partidas() as $par)
+         {
+            if( abs($par->debe) == abs($nasientop->importe) )
+            {
+               $partida1 = new partida();
+               $partida1->idasiento = $nasientop->idasiento;
+               $partida1->concepto = $nasientop->concepto;
+               $partida1->idsubcuenta = $par->idsubcuenta;
+               $partida1->codsubcuenta = $par->codsubcuenta;
+               $partida1->haber = $par->debe;
+               $partida1->coddivisa = $par->coddivisa;
+               $partida1->tasaconv = $par->tasaconv;
+               $partida1->codserie = $par->codserie;
+               $partida1->save();
+               
+               $partida2 = new partida();
+               $partida2->idasiento = $nasientop->idasiento;
+               $partida2->concepto = $nasientop->concepto;
+               $partida2->idsubcuenta = $subcaja->idsubcuenta;
+               $partida2->codsubcuenta = $subcaja->codsubcuenta;
+               $partida2->debe = $par->debe;
+               $partida2->coddivisa = $par->coddivisa;
+               $partida2->tasaconv = $par->tasaconv;
+               $partida2->codserie = $par->codserie;
+               $partida2->save();
+               break;
+            }
+            else if( abs($par->haber) == abs($nasientop->importe) )
+            {
+               $partida1 = new partida();
+               $partida1->idasiento = $nasientop->idasiento;
+               $partida1->concepto = $nasientop->concepto;
+               $partida1->idsubcuenta = $par->idsubcuenta;
+               $partida1->codsubcuenta = $par->codsubcuenta;
+               $partida1->debe = $par->haber;
+               $partida1->coddivisa = $par->coddivisa;
+               $partida1->tasaconv = $par->tasaconv;
+               $partida1->codserie = $par->codserie;
+               $partida1->save();
+               
+               $partida2 = new partida();
+               $partida2->idasiento = $nasientop->idasiento;
+               $partida2->concepto = $nasientop->concepto;
+               $partida2->idsubcuenta = $subcaja->idsubcuenta;
+               $partida2->codsubcuenta = $subcaja->codsubcuenta;
+               $partida2->haber = $par->haber;
+               $partida2->coddivisa = $par->coddivisa;
+               $partida2->tasaconv = $par->tasaconv;
+               $partida2->codserie = $par->codserie;
+               $partida2->save();
+               break;
+            }
+         }
+      }
+      else
+         $this->new_error_msg('Error al guardar el asiento de pago.');
+      
+      return $nasientop->idasiento;
    }
    
    /**

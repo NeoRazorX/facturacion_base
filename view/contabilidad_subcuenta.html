@@ -14,7 +14,9 @@
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
          if( confirm("¿Realmente desea eliminar esta subcuenta?") )
+         {
             window.location.href = '{$fsc->ppage->url()}&deletes={$fsc->subcuenta->idsubcuenta}';
+         }
       });
    });
 </script>
@@ -32,15 +34,9 @@
                <span class="hidden-xs">&nbsp; {$fsc->ppage->title}</span>
             </a>
             <div class="btn-group">
-               {if="$fsc->pdf_libromayor"}
-               <a href="{$fsc->pdf_libromayor}" target="_blank" class="btn btn-sm btn-default">
+               <a href="#" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_librom">
                   <span class="glyphicon glyphicon-book"></span> &nbsp; Libro mayor
                </a>
-               {else}
-               <a href="{$fsc->url()}&genlm=TRUE" target="_blank" class="btn btn-sm btn-default">
-                  <span class="glyphicon glyphicon-book"></span> &nbsp; Libro mayor
-               </a>
-               {/if}
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
@@ -160,7 +156,7 @@
             <td><a href="{$value->url()}">{$value->concepto}</a></td>
             <td class="text-right">{$fsc->show_precio($value->debe, $fsc->subcuenta->coddivisa)}</td>
             <td class="text-right">{$fsc->show_precio($value->haber, $fsc->subcuenta->coddivisa)}</td>
-            <td class="text-right">{$fsc->show_precio($value->saldo, $fsc->subcuenta->coddivisa)}</td>
+            <td class='text-right{if="$value->saldo<0"} danger{/if}'>{$fsc->show_precio($value->saldo, $fsc->subcuenta->coddivisa)}</td>
             <td class="text-right">
                {if="$value->iva!=0"}{$value->iva} %{else}-{/if}
             </td>
@@ -215,6 +211,38 @@
    </div>
    {/if}
 </form>
+
+<div class="modal fade" id="modal_librom" tabindex="-1" role="dialog">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title">Libro mayor</h4>
+         </div>
+         <div class="modal-body">
+            <p class='help-block'>
+               Puedes descargar el libro mayor de esta subcuenta en formato PDF
+               pulsando el botón. Pero si lo que buscas es filtrar por fecha
+               o incluso sacar el libro mayor de varias subcuentas a la vez,
+               entonces debes ir a <b>Informes &gt; Contabilidad</b>.
+            </p>
+         </div>
+         <div class="modal-footer">
+            {if="$fsc->pdf_libromayor"}
+            <a href="{$fsc->pdf_libromayor}" target="_blank" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-book"></span> &nbsp; Libro mayor
+            </a>
+            {else}
+            <a href="{$fsc->url()}&genlm=TRUE" target="_blank" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-book"></span> &nbsp; Libro mayor
+            </a>
+            {/if}
+         </div>
+      </div>
+   </div>
+</div>
 {else}
 <div class="thumbnail">
    <img src="view/img/fuuu_face.png" alt="fuuuuu"/>

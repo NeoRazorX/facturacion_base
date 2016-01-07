@@ -53,7 +53,11 @@
                {if="$fsc->empresa->can_send_mail()"}
                <a id="b_enviar" class="btn btn-sm btn-default" href="#">
                   <span class="glyphicon glyphicon-envelope"></span>
+                  {if="$fsc->factura->femail"}
+                  <span class="hidden-xs">&nbsp; Reenviar</span>
+                  {else}
                   <span class="hidden-xs">&nbsp; Enviar</span>
+                  {/if}
                </a>
                {/if}
                {if="$fsc->factura->idasiento"}
@@ -128,7 +132,7 @@
             <br/>
             <ol class="breadcrumb" style="margin-bottom: 5px;">
                <li><a href="{$fsc->ppage->url()}">Ventas</a></li>
-               <li><a href="{$fsc->ppage->url()}">{#FS_FACTURAS#}</a></li>
+               <li><a href="{$fsc->ppage->url()}" class="text-capitalize">{#FS_FACTURAS#}</a></li>
                <li>
                   {loop="$fsc->serie->all()"}
                      {if="$value->codserie==$fsc->factura->codserie"}
@@ -554,6 +558,12 @@
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">Enviar {#FS_FACTURA#}</h4>
+               {if="$fsc->factura->femail"}
+               <p class="help-block">
+                  <span class="glyphicon glyphicon-send"></span> &nbsp;
+                  Esta {#FS_FACTURA#} fue enviada el {$fsc->factura->femail}.
+               </p>
+               {/if}
             </div>
             <div class="modal-body">
                <div class="form-group">

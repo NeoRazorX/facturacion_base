@@ -84,38 +84,34 @@ class informe_contabilidad extends fs_controller
                $this->libro_diario_csv(
                        $_POST['codejercicio'],
                        $_POST['desde'],
-                       $_POST['hasta'],
-                       $_POST['formato']
+                       $_POST['hasta']
                );
             }
             else if( isset($_POST['codgrupo']) )
             {
-               $this->libro_diario_csv(
+               $this->libro_mayor_csv(
                        $_POST['codejercicio'],
                        $_POST['desde'],
                        $_POST['hasta'],
-                       $_POST['formato'],
                        $_POST['codgrupo']
                );
             }
             else if( isset($_POST['codepigrafe']) )
             {
-               $this->libro_diario_csv(
+               $this->libro_mayor_csv(
                        $_POST['codejercicio'],
                        $_POST['desde'],
                        $_POST['hasta'],
-                       $_POST['formato'],
                        FALSE,
                        $_POST['codepigrafe']
                );
             }
             else if( isset($_POST['codcuenta']) )
             {
-               $this->libro_diario_csv(
+               $this->libro_mayor_csv(
                        $_POST['codejercicio'],
                        $_POST['desde'],
                        $_POST['hasta'],
-                       $_POST['formato'],
                        FALSE,
                        FALSE,
                        $_POST['codcuenta']
@@ -123,11 +119,10 @@ class informe_contabilidad extends fs_controller
             }
             else if( isset($_POST['codsubcuenta']) )
             {
-               $this->libro_diario_csv(
+               $this->libro_mayor_csv(
                        $_POST['codejercicio'],
                        $_POST['desde'],
                        $_POST['hasta'],
-                       $_POST['formato'],
                        FALSE,
                        FALSE,
                        FALSE,
@@ -147,14 +142,12 @@ class informe_contabilidad extends fs_controller
                   $ge = new grupo_epigrafes();
                   $this->grupos = $ge->all_from_ejercicio($_POST['codejercicio']);
                }
-               
-               if($_POST['filtro'] == 'epigrafe')
+               else if($_POST['filtro'] == 'epigrafe')
                {
                   $ep = new epigrafe();
                   $this->epigrafes = $ep->all_from_ejercicio($_POST['codejercicio']);
                }
-               
-               if($_POST['filtro'] == 'cuenta')
+               else if($_POST['filtro'] == 'cuenta')
                {
                   $cuenta = new cuenta();
                   $this->cuentas = $cuenta->full_from_ejercicio($_POST['codejercicio']);
@@ -171,7 +164,7 @@ class informe_contabilidad extends fs_controller
       
       $subcuenta = new subcuenta();
       $eje0 = new ejercicio();
-      $ejercicio = $eje0->get_by_fecha( $this->today() );
+      $ejercicio = $eje0->get($_REQUEST['codejercicio']);
       $json = array();
       foreach($subcuenta->search_by_ejercicio($ejercicio->codejercicio, $_REQUEST['buscar_subcuenta']) as $subc)
       {
@@ -197,22 +190,12 @@ class informe_contabilidad extends fs_controller
       return file_exists('tmp/'.FS_TMP_NAME.'inventarios_balances/'.$codeje.'.pdf');
    }
    
-   private function libro_diario_csv($codeje, $desde=FALSE, $hasta=FALSE, $formato='csv', $codgrupo=FALSE, $codepi=FALSE, $codcuenta=FALSE, $codsubc=FALSE)
+   private function libro_diario_csv($codeje, $desde=FALSE, $hasta=FALSE)
    {
       $this->template = FALSE;
       header("content-type:application/csv;charset=UTF-8");
-      
-      if($desde AND $hasta)
-      {
-         header("Content-Disposition: attachment; filename=\"mayor.csv\"");
-      }
-      else
-      {
-         header("Content-Disposition: attachment; filename=\"diario.csv\"");
-      }
-      
+      header("Content-Disposition: attachment; filename=\"diario.csv\"");
       echo "asiento;fecha;subcuenta;concepto;debe;haber;saldo\n";
-      
       
       /// obtenemos el saldo inicial
       $saldo = 0;
@@ -224,39 +207,13 @@ class informe_contabilidad extends fs_controller
                  . " AND p.idasiento = a.idasiento"
                  . " AND a.fecha < ".$this->empresa->var2str($desde);
          
-         if($codgrupo)
-         {
-            $sql .= " AND p.codsubcuenta LIKE '".$codgrupo."%'";
-         }
-         else if($codepi)
-         {
-            $sql .= " AND p.codsubcuenta LIKE '".$codepi."%'";
-         }
-         else if($codcuenta)
-         {
-            $sql .= " AND p.codsubcuenta LIKE '".$codcuenta."%'";
-         }
-         else if($codsubc)
-         {
-            $sql .= " AND p.codsubcuenta IN ('".join("','", $codsubc)."')";
-         }
-         
          $data = $this->db->select($sql);
          if($data)
          {
             $saldo = floatval($data[0]['debe']) - floatval($data[0]['haber']);
-         }
-         
-         /// en el caso de más de una subcuenta, el saldo es absurdo
-         if($codsubc)
-         {
-            if( count($codsubc) > 1 )
-            {
-               $saldo = 0;
-            }
+            echo '-;'.date('d-m-Y', strtotime($desde)).';-;Saldo inicial;0;0;'.number_format($saldo, FS_NF0, ',', '')."\n";
          }
       }
-      echo ';'.date('d-m-Y', strtotime($desde)).';;;0;0;'.number_format($saldo, FS_NF0, ',', '')."\n";
       
       /// ahora las líneas
       $sql = "SELECT a.numero,a.fecha,p.codsubcuenta,p.concepto,p.debe,p.haber"
@@ -269,6 +226,46 @@ class informe_contabilidad extends fs_controller
          $sql .= " AND a.fecha >= ".$this->empresa->var2str($desde);
          $sql .= " AND a.fecha <= ".$this->empresa->var2str($hasta);
       }
+      
+      $sql .= " ORDER BY a.numero ASC";
+      
+      $offset = 0;
+      $data = $this->db->select_limit($sql, 1000, $offset);
+      while($data)
+      {
+         foreach($data as $par)
+         {
+            $saldo += floatval($par['debe']) - floatval($par['haber']);
+            
+            echo $par['numero'].';'
+                    .date('d-m-Y', strtotime($par['fecha'])).';'
+                    .$par['codsubcuenta'].';'
+                    .$par['concepto'].';'
+                    .number_format($par['debe'], FS_NF0, ',', '').';'
+                    .number_format($par['haber'], FS_NF0, ',', '').';'
+                    .number_format($saldo, FS_NF0, ',', '')."\n";
+            $offset++;
+         }
+         
+         $data = $this->db->select_limit($sql, 1000, $offset);
+      }
+   }
+   
+   private function libro_mayor_csv($codeje, $desde, $hasta, $codgrupo=FALSE, $codepi=FALSE, $codcuenta=FALSE, $codsubc=FALSE)
+   {
+      $this->template = FALSE;
+      
+      header("content-type:application/csv;charset=UTF-8");
+      header("Content-Disposition: attachment; filename=\"mayor.csv\"");
+      echo "asiento;fecha;subcuenta;concepto;debe;haber;saldo\n";
+      
+      /// ahora las líneas
+      $sql = "SELECT a.numero,a.fecha,p.codsubcuenta,p.concepto,p.debe,p.haber"
+              . " FROM co_asientos a, co_partidas p"
+              . " WHERE a.codejercicio = ".$this->empresa->var2str($codeje)
+              . " AND p.idasiento = a.idasiento"
+              . " AND a.fecha >= ".$this->empresa->var2str($desde)
+              . " AND a.fecha <= ".$this->empresa->var2str($hasta);
       
       if($codgrupo)
       {
@@ -287,14 +284,40 @@ class informe_contabilidad extends fs_controller
          $sql .= " AND p.codsubcuenta IN ('".join("','", $codsubc)."')";
       }
       
-      $sql .= " ORDER BY a.numero ASC";
+      $sql .= " ORDER BY p.codsubcuenta ASC, a.numero ASC";
       
+      $codsubcuenta = FALSE;
       $offset = 0;
       $data = $this->db->select_limit($sql, 1000, $offset);
       while($data)
       {
          foreach($data as $par)
          {
+            if($codsubcuenta != $par['codsubcuenta'])
+            {
+               if($codsubcuenta)
+               {
+                  echo ";;;;;;\n";
+               }
+               
+               /// obtenemos el saldo inicial
+               $codsubcuenta = $par['codsubcuenta'];
+               $saldo = 0;
+               $sql = "SELECT SUM(p.debe) as debe, SUM(p.haber) as haber"
+                       . " FROM co_asientos a, co_partidas p"
+                       . " WHERE a.codejercicio = ".$this->empresa->var2str($codeje)
+                       . " AND p.idasiento = a.idasiento"
+                       . " AND a.fecha < ".$this->empresa->var2str($desde)
+                       . " AND p.codsubcuenta = ".$this->empresa->var2str($codsubcuenta);
+               
+               $data = $this->db->select($sql);
+               if($data)
+               {
+                  $saldo = floatval($data[0]['debe']) - floatval($data[0]['haber']);
+                  echo '-;'.date('d-m-Y', strtotime($desde)).';'.$codsubcuenta.';Saldo inicial;0;0;'.number_format($saldo, FS_NF0, ',', '')."\n";
+               }
+            }
+            
             $saldo += floatval($par['debe']) - floatval($par['haber']);
             
             echo $par['numero'].';'

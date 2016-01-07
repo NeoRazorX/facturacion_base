@@ -224,7 +224,9 @@ class ventas_cliente extends fs_controller
       $stats = array();
       $years = array();
       for($i=4; $i>=0; $i--)
+      {
          $years[] = intval(Date('Y')) - $i;
+      }
       
       $meses = array('Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic');
       
@@ -238,28 +240,39 @@ class ventas_cliente extends fs_controller
          }
          
          if( strtolower(FS_DB_TYPE) == 'postgresql')
+         {
             $sql_aux = "to_char(fecha,'FMMM')";
+         }
          else
             $sql_aux = "DATE_FORMAT(fecha, '%m')";
          
-         $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(total) as total
-            FROM albaranescli WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))."
-            AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))." AND codcliente = ".$this->empresa->var2str($this->cliente->codcliente)."
-            GROUP BY ".$sql_aux." ORDER BY mes ASC;");
+         $sql = "SELECT ".$sql_aux." as mes, sum(neto) as total FROM albaranescli"
+                 ." WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))
+                 ." AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))
+                 ." AND codcliente = ".$this->empresa->var2str($this->cliente->codcliente)
+                 ." GROUP BY ".$sql_aux." ORDER BY mes ASC;";
+         
+         $data = $this->db->select($sql);
          if($data)
          {
             foreach($data as $d)
+            {
                $stats[$year.'-'.intval($d['mes'])]['albaranes'] = number_format($d['total'], FS_NF0, '.', '');
+            }
          }
          
-         $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(total) as total
-            FROM facturascli WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))."
-            AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))." AND codcliente = ".$this->empresa->var2str($this->cliente->codcliente)."
-            GROUP BY ".$sql_aux." ORDER BY mes ASC;");
+         $sql = "SELECT ".$sql_aux." as mes, sum(neto) as total FROM facturascli"
+                 ." WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))
+                 ." AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))
+                 ." AND codcliente = ".$this->empresa->var2str($this->cliente->codcliente)
+                 ." GROUP BY ".$sql_aux." ORDER BY mes ASC;";
+         $data = $this->db->select($sql);
          if($data)
          {
             foreach($data as $d)
+            {
                $stats[$year.'-'.intval($d['mes'])]['facturas'] = number_format($d['total'], FS_NF0, '.', '');
+            }
          }
       }
       

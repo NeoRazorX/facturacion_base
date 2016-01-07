@@ -191,6 +191,12 @@ class albaran_cliente extends fs_model
     */
    public $ptefactura;
    
+   /**
+    * Fecha en la que se envió el albarán por email.
+    * @var type 
+    */
+   public $femail;
+   
    public function __construct($a=FALSE)
    {
       parent::__construct('albaranescli', 'plugins/facturacion_base/');
@@ -248,6 +254,12 @@ class albaran_cliente extends fs_model
          $this->tasaconv = floatval($a['tasaconv']);
          $this->totalrecargo = floatval($a['totalrecargo']);
          $this->observaciones = $this->no_html($a['observaciones']);
+         
+         $this->femail = NULL;
+         if( !is_null($a['femail']) )
+         {
+            $this->femail = Date('d-m-Y', strtotime($a['femail']));
+         }
       }
       else
       {
@@ -285,6 +297,7 @@ class albaran_cliente extends fs_model
          $this->totalrecargo = 0;
          $this->observaciones = NULL;
          $this->ptefactura = TRUE;
+         $this->femail = NULL;
       }
    }
    
@@ -616,6 +629,7 @@ class albaran_cliente extends fs_model
                     .", totalrecargo = ".$this->var2str($this->totalrecargo)
                     .", observaciones = ".$this->var2str($this->observaciones)
                     .", ptefactura = ".$this->var2str($this->ptefactura)
+                    .", femail = ".$this->var2str($this->femail)
                     ."  WHERE idalbaran = ".$this->var2str($this->idalbaran).";";
             
             return $this->db->exec($sql);
@@ -627,7 +641,8 @@ class albaran_cliente extends fs_model
                codserie,codejercicio,codcliente,codpago,coddivisa,codalmacen,codpais,coddir,
                codpostal,numero,numero2,nombrecliente,cifnif,direccion,ciudad,provincia,apartado,
                fecha,hora,neto,total,totaliva,totaleuros,irpf,totalirpf,porcomision,tasaconv,
-               totalrecargo,observaciones,ptefactura) VALUES (".$this->var2str($this->idfactura)
+               totalrecargo,observaciones,ptefactura,femail) VALUES "
+                    ."(".$this->var2str($this->idfactura)
                     .",".$this->var2str($this->codigo)
                     .",".$this->var2str($this->codagente)
                     .",".$this->var2str($this->codserie)
@@ -659,7 +674,8 @@ class albaran_cliente extends fs_model
                     .",".$this->var2str($this->tasaconv)
                     .",".$this->var2str($this->totalrecargo)
                     .",".$this->var2str($this->observaciones)
-                    .",".$this->var2str($this->ptefactura).");";
+                    .",".$this->var2str($this->ptefactura)
+                    .",".$this->var2str($this->femail).");";
             
             if( $this->db->exec($sql) )
             {

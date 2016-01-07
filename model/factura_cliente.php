@@ -42,6 +42,12 @@ class factura_cliente extends fs_model
    public $idasiento;
    
    /**
+    * ID del asiento de pago relacionado, si lo hay.
+    * @var type 
+    */
+   public $idasientop;
+   
+   /**
     * ID de la factura que rectifica.
     * @var type 
     */
@@ -193,12 +199,19 @@ class factura_cliente extends fs_model
    
    public $observaciones;
    public $pagada;
+   public $anulada;
    
    /**
     * Fecha de vencimiento de la factura.
     * @var type 
     */
    public $vencimiento;
+   
+   /**
+    * Fecha en la que se envió la factura por email.
+    * @var type 
+    */
+   public $femail;
    
    public function __construct($f=FALSE)
    {
@@ -207,6 +220,7 @@ class factura_cliente extends fs_model
       {
          $this->idfactura = $this->intval($f['idfactura']);
          $this->idasiento = $this->intval($f['idasiento']);
+         $this->idasientop = $this->intval($f['idasientop']);
          $this->idfacturarect = $this->intval($f['idfacturarect']);
          $this->codigo = $f['codigo'];
          $this->numero = $f['numero'];
@@ -247,17 +261,25 @@ class factura_cliente extends fs_model
          $this->totalrecargo = floatval($f['totalrecargo']);
          $this->observaciones = $this->no_html($f['observaciones']);
          $this->pagada = $this->str2bool($f['pagada']);
+         $this->anulada = $this->str2bool($f['anulada']);
          
          $this->vencimiento = Date('d-m-Y', strtotime($f['fecha'].' +1month'));
          if( !is_null($f['vencimiento']) )
          {
             $this->vencimiento = Date('d-m-Y', strtotime($f['vencimiento']));
          }
+         
+         $this->femail = NULL;
+         if( !is_null($f['femail']) )
+         {
+            $this->femail = Date('d-m-Y', strtotime($f['femail']));
+         }
       }
       else
       {
          $this->idfactura = NULL;
          $this->idasiento = NULL;
+         $this->idasientop = NULL;
          $this->idfacturarect = NULL;
          $this->codigo = NULL;
          $this->numero = NULL;
@@ -292,7 +314,9 @@ class factura_cliente extends fs_model
          $this->totalrecargo = 0;
          $this->observaciones = NULL;
          $this->pagada = FALSE;
+         $this->anulada = FALSE;
          $this->vencimiento = Date('d-m-Y', strtotime('+1month'));
+         $this->femail = NULL;
       }
    }
    
@@ -350,6 +374,16 @@ class factura_cliente extends fs_model
          return 'index.php?page=contabilidad_asiento&id='.$this->idasiento;
    }
    
+   public function asiento_pago_url()
+   {
+      if( is_null($this->idasientop) )
+      {
+         return 'index.php?page=contabilidad_asientos';
+      }
+      else
+         return 'index.php?page=contabilidad_asiento&id='.$this->idasientop;
+   }
+   
    public function agente_url()
    {
       if( is_null($this->codagente) )
@@ -374,6 +408,12 @@ class factura_cliente extends fs_model
    {
       $asiento = new asiento();
       return $asiento->get($this->idasiento);
+   }
+   
+   public function get_asiento_pago()
+   {
+      $asiento = new asiento();
+      return $asiento->get($this->idasientop);
    }
    
    public function get_lineas()
@@ -836,6 +876,7 @@ class factura_cliente extends fs_model
          if( $this->exists() )
          {
             $sql = "UPDATE ".$this->table_name." SET idasiento = ".$this->var2str($this->idasiento).
+                    ", idasientop = ".$this->var2str($this->idasientop).
                     ", idfacturarect = ".$this->var2str($this->idfacturarect).
                     ", codigo = ".$this->var2str($this->codigo).
                     ", numero = ".$this->var2str($this->numero).
@@ -869,8 +910,10 @@ class factura_cliente extends fs_model
                     ", totalrecargo = ".$this->var2str($this->totalrecargo).
                     ", observaciones = ".$this->var2str($this->observaciones).
                     ", pagada = ".$this->var2str($this->pagada).
+                    ", anulada = ".$this->var2str($this->anulada).
                     ", hora = ".$this->var2str($this->hora).
                     ", vencimiento = ".$this->var2str($this->vencimiento).
+                    ", femail = ".$this->var2str($this->femail).
                     "  WHERE idfactura = ".$this->var2str($this->idfactura).";";
             
             return $this->db->exec($sql);
@@ -878,12 +921,13 @@ class factura_cliente extends fs_model
          else
          {
             $this->new_codigo();
-            $sql = "INSERT INTO ".$this->table_name." (idasiento,idfacturarect,codigo,numero,
+            $sql = "INSERT INTO ".$this->table_name." (idasiento,idasientop,idfacturarect,codigo,numero,
                codigorect,codejercicio,codserie,codalmacen,codpago,coddivisa,fecha,codcliente,
                nombrecliente,cifnif,direccion,ciudad,provincia,apartado,coddir,codpostal,codpais,
                codagente,neto,totaliva,total,totaleuros,irpf,totalirpf,porcomision,tasaconv,
-               totalrecargo,pagada,observaciones,hora,numero2,vencimiento) VALUES 
+               totalrecargo,pagada,anulada,observaciones,hora,numero2,vencimiento,femail) VALUES 
                      (".$this->var2str($this->idasiento).
+                    ",".$this->var2str($this->idasientop).
                     ",".$this->var2str($this->idfacturarect).
                     ",".$this->var2str($this->codigo).
                     ",".$this->var2str($this->numero).
@@ -915,10 +959,12 @@ class factura_cliente extends fs_model
                     ",".$this->var2str($this->tasaconv).
                     ",".$this->var2str($this->totalrecargo).
                     ",".$this->var2str($this->pagada).
+                    ",".$this->var2str($this->anulada).
                     ",".$this->var2str($this->observaciones).
                     ",".$this->var2str($this->hora).
                     ",".$this->var2str($this->numero2).
-                    ",".$this->var2str($this->vencimiento).");";
+                    ",".$this->var2str($this->vencimiento).
+                    ",".$this->var2str($this->femail).");";
             
             if( $this->db->exec($sql) )
             {
@@ -942,13 +988,19 @@ class factura_cliente extends fs_model
          if($this->idasiento)
          {
             /**
-             * Delegamos la eliminación del asiento en la clase correspondiente.
+             * Delegamos la eliminación de los asientos en la clase correspondiente.
              */
             $asiento = new asiento();
             $asi0 = $asiento->get($this->idasiento);
             if($asi0)
             {
                $asi0->delete();
+            }
+            
+            $asi1 = $asiento->get($this->idasientop);
+            if($asi1)
+            {
+               $asi1->delete();
             }
          }
          

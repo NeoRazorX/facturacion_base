@@ -92,6 +92,10 @@
       <defecto>now()</defecto>
    </columna>
    <columna>
+      <nombre>femail</nombre>
+      <tipo>date</tipo>
+   </columna>
+   <columna>
       <nombre>idalbaran</nombre>
       <tipo>serial</tipo>
       <nulo>NO</nulo>

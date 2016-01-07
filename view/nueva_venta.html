@@ -481,13 +481,25 @@
    </div>
 </div>
 {elseif="!$fsc->user->get_agente()"}
-<div class="well well-lg">
-   <h1>No puedes entrar aquí</h1>
-   <p>
-      No tienes un emleado asociado a tu <a href="{$fsc->user->url()}">usuario</a>.
-      Habla con el administrador para que te asigne un empleado.
-   </p>
-   <p>Si crees que es un error de FacturaScripts, haz clic en el botón de ayuda, arriba a la derecha, e infórmanos del error.</p>
+<div class="container">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               <span class="glyphicon glyphicon-exclamation-sign"></span>
+               No tienes un empleado asociado
+            </h1>
+         </div>
+      </div>
+      <p class="help-block">
+         No tienes un emleado asociado a tu <a href="{$fsc->user->url()}">usuario</a>.
+         Habla con el administrador para que te asigne un empleado.
+      </p>
+      <p class="help-block">
+         Si crees que es un error de FacturaScripts, haz clic en el botón de ayuda,
+         arriba a la derecha, e infórmanos del error.
+      </p>
+   </div>
 </div>
 {else}
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>

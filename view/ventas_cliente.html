@@ -48,7 +48,7 @@
       }
       else if(id == 'stats')
       {
-         $("#chart_albaranes_month").show();
+         $("#panel_stats").show();
          $("#b_stats").addClass('active');
       }
       else
@@ -617,7 +617,25 @@
             {/if}
          {/loop}
          
-         <div id="chart_albaranes_month" class="pseudotab_cli" style="height: 400px;"></div>
+         <div id="panel_stats" class="pseudotab_cli">
+            <div class="panel panel-primary">
+               <div class="panel-heading">
+                  <h3 class="panel-title">Estadísticas</h3>
+               </div>
+               <div class="panel-body">
+                  <div id="chart_albaranes_month" style="height: 400px;"></div>
+               </div>
+               <div class="panel-footer">
+                  <p class="help-block">
+                     Estas son las estadísticas de {#FS_ALBARANES#} y facturas del cliente
+                     de los últimos años. Los valores son netos.
+                  </p>
+                  <p class="help-block">
+                     Puedes consultar informes de ventas más detallados en <b>Informes &gt; Facturas</b>.
+                  </p>
+               </div>
+            </div>
+         </div>
       </div>
    </div>
 </div>

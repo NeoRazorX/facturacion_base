@@ -217,7 +217,7 @@
       </div>
    </div>
    <div class="row">
-      <div class="col-sm-3">
+      <div class="col-sm-3 col-xs-12">
          <form name="f_filtro_cuentas" action="{$fsc->url()}" method="post" class="post">
             <select name="ejercicio" class="form-control" onchange="document.f_filtro_cuentas.submit()">
             {loop="$fsc->ejercicio->all()"}
@@ -230,13 +230,13 @@
             </select>
          </form>
       </div>
-      <div class="col-sm-4">
+      <div class="col-sm-4 col-xs-6">
          <a id="b_nuevo_grupo" class="btn btn-sm btn-success" href="#nuevo_grupo">
             <span class="glyphicon glyphicon-plus"></span>
             <span class="hidden-xs">Nuevo grupo</span>
          </a>
       </div>
-      <div class="col-sm-5 text-right">
+      <div class="col-sm-5 col-xs-6 text-right">
          <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_cuentas">
             Cuentas &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
          </a>
@@ -244,6 +244,9 @@
    </div>
    <div class="row">
       <div class="col-sm-12">
+         <div class="visible-xs">
+            <br/>
+         </div>
          <div class="table-responsive">
             <table class="table table-hover">
                <thead>

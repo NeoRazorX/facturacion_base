@@ -47,6 +47,12 @@ class factura_proveedor extends fs_model
     */
    public $idasiento;
    
+   /**
+    * ID del asiento de pago relacionado, si lo hay.
+    * @var type 
+    */
+   public $idasientop;
+   
    public $cifnif;
    
    /**
@@ -181,11 +187,14 @@ class factura_proveedor extends fs_model
     */
    public $totalrecargo;
    
+   public $anulada;
+   
    public function __construct($f=FALSE)
    {
       parent::__construct('facturasprov', 'plugins/facturacion_base/');
       if($f)
       {
+         $this->anulada = $this->str2bool($f['anulada']);
          $this->cifnif = $f['cifnif'];
          $this->codagente = $f['codagente'];
          $this->codalmacen = $f['codalmacen'];
@@ -205,6 +214,7 @@ class factura_proveedor extends fs_model
          }
          
          $this->idasiento = $this->intval($f['idasiento']);
+         $this->idasientop = $this->intval($f['idasientop']);
          $this->idfactura = $this->intval($f['idfactura']);
          $this->idfacturarect = $this->intval($f['idfacturarect']);
          $this->irpf = floatval($f['irpf']);
@@ -223,6 +233,7 @@ class factura_proveedor extends fs_model
       }
       else
       {
+         $this->anulada = FALSE;
          $this->cifnif = NULL;
          $this->codagente = NULL;
          $this->codalmacen = NULL;
@@ -236,6 +247,7 @@ class factura_proveedor extends fs_model
          $this->fecha = Date('d-m-Y');
          $this->hora = Date('H:i:s');
          $this->idasiento = NULL;
+         $this->idasientop = NULL;
          $this->idfactura = NULL;
          $this->idfacturarect = NULL;
          $this->irpf = 0;
@@ -294,6 +306,16 @@ class factura_proveedor extends fs_model
       }
       else
          return 'index.php?page=contabilidad_asiento&id='.$this->idasiento;
+   }
+   
+   public function asiento_pago_url()
+   {
+      if( is_null($this->idasientop) )
+      {
+         return 'index.php?page=contabilidad_asientos';
+      }
+      else
+         return 'index.php?page=contabilidad_asiento&id='.$this->idasientop;
    }
    
    public function agente_url()
@@ -470,6 +492,12 @@ class factura_proveedor extends fs_model
    {
       $asiento = new asiento();
       return $asiento->get($this->idasiento);
+   }
+   
+   public function get_asiento_pago()
+   {
+      $asiento = new asiento();
+      return $asiento->get($this->idasientop);
    }
    
    public function get($id)
@@ -727,6 +755,7 @@ class factura_proveedor extends fs_model
                     .", neto = ".$this->var2str($this->neto)
                     .", cifnif = ".$this->var2str($this->cifnif)
                     .", pagada = ".$this->var2str($this->pagada)
+                    .", anulada = ".$this->var2str($this->anulada)
                     .", observaciones = ".$this->var2str($this->observaciones)
                     .", codagente = ".$this->var2str($this->codagente)
                     .", codalmacen = ".$this->var2str($this->codalmacen)
@@ -740,6 +769,7 @@ class factura_proveedor extends fs_model
                     .", codigorect = ".$this->var2str($this->codigorect)
                     .", codserie = ".$this->var2str($this->codserie)
                     .", idasiento = ".$this->var2str($this->idasiento)
+                    .", idasientop = ".$this->var2str($this->idasientop)
                     .", totalirpf = ".$this->var2str($this->totalirpf)
                     .", totaliva = ".$this->var2str($this->totaliva)
                     .", coddivisa = ".$this->var2str($this->coddivisa)
@@ -756,14 +786,15 @@ class factura_proveedor extends fs_model
          else
          {
             $this->new_codigo();
-            $sql = "INSERT INTO ".$this->table_name." (codigo,total,neto,cifnif,pagada,observaciones,
+            $sql = "INSERT INTO ".$this->table_name." (codigo,total,neto,cifnif,pagada,anulada,observaciones,
                codagente,codalmacen,irpf,totaleuros,nombre,codpago,codproveedor,idfacturarect,numproveedor,
-               codigorect,codserie,idasiento,totalirpf,totaliva,coddivisa,numero,codejercicio,tasaconv,
+               codigorect,codserie,idasiento,idasientop,totalirpf,totaliva,coddivisa,numero,codejercicio,tasaconv,
                totalrecargo,fecha,hora) VALUES (".$this->var2str($this->codigo)
                     .",".$this->var2str($this->total)
                     .",".$this->var2str($this->neto)
                     .",".$this->var2str($this->cifnif)
                     .",".$this->var2str($this->pagada)
+                    .",".$this->var2str($this->anulada)
                     .",".$this->var2str($this->observaciones)
                     .",".$this->var2str($this->codagente)
                     .",".$this->var2str($this->codalmacen)
@@ -777,6 +808,7 @@ class factura_proveedor extends fs_model
                     .",".$this->var2str($this->codigorect)
                     .",".$this->var2str($this->codserie)
                     .",".$this->var2str($this->idasiento)
+                    .",".$this->var2str($this->idasientop)
                     .",".$this->var2str($this->totalirpf)
                     .",".$this->var2str($this->totaliva)
                     .",".$this->var2str($this->coddivisa)
@@ -814,6 +846,12 @@ class factura_proveedor extends fs_model
             if($asi0)
             {
                $asi0->delete();
+            }
+            
+            $asi1 = $asiento->get($this->idasientop);
+            if($asi1)
+            {
+               $asi1->delete();
             }
          }
          

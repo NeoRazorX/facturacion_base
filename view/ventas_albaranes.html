@@ -274,6 +274,9 @@
             {if="!$value->ptefactura"}
             <span class="glyphicon glyphicon-paperclip" title="El {#FS_ALBARAN#} tiene vinculado una factura"></span>
             {/if}
+            {if="$value->femail"}
+            <span class="glyphicon glyphicon-send" title="El {#FS_ALBARAN#} fue enviado por email el {$value->femail}"></span>
+            {/if}
          </td>
          <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}</td>
          <td>

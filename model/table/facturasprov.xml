@@ -86,6 +86,11 @@
       <nulo>YES</nulo>
    </columna>
    <columna>
+      <nombre>idasientop</nombre>
+      <tipo>integer</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
       <nombre>idfactura</nombre>
       <tipo>serial</tipo>
       <nulo>NO</nulo>
@@ -142,6 +147,12 @@
       <defecto>false</defecto>
    </columna>
    <columna>
+      <nombre>anulada</nombre>
+      <tipo>boolean</tipo>
+      <nulo>NO</nulo>
+      <defecto>false</defecto>
+   </columna>
+   <columna>
       <nombre>recfinanciero</nombre>
       <tipo>double precision</tipo>
    </columna>
@@ -188,6 +199,12 @@
    <restriccion>
       <nombre>ca_facturasprov_asiento2</nombre>
       <consulta>FOREIGN KEY (idasiento)
+      REFERENCES co_asientos (idasiento)
+      ON DELETE SET NULL ON UPDATE CASCADE</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>ca_facturasprov_asientop</nombre>
+      <consulta>FOREIGN KEY (idasientop)
       REFERENCES co_asientos (idasiento)
       ON DELETE SET NULL ON UPDATE CASCADE</consulta>
    </restriccion>

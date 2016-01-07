@@ -188,20 +188,6 @@
                               </button>
                               <ul class="dropdown-menu dropdown-menu-right">
                                  <li>
-                                    <a href="{$fsc->b_url}&b_orden=preciomin&offset={$fsc->offset}">
-                                       <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-                                       &nbsp; Precio &nbsp;
-                                       {if="$fsc->b_orden=='preciomin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                    </a>
-                                 </li>
-                                 <li>
-                                    <a href="{$fsc->b_url}&b_orden=preciomax&offset={$fsc->offset}">
-                                       <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-                                       &nbsp; Precio &nbsp;
-                                       {if="$fsc->b_orden=='preciomax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                    </a>
-                                 </li>
-                                 <li>
                                     <a href="{$fsc->b_url}&b_orden=refmin&offset={$fsc->offset}">
                                        <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
                                        &nbsp; Referencia &nbsp;
@@ -227,6 +213,20 @@
                                        <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
                                        &nbsp; Descripción &nbsp;
                                        {if="$fsc->b_orden=='descmax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                    </a>
+                                 </li>
+                                 <li>
+                                    <a href="{$fsc->b_url}&b_orden=preciomin&offset={$fsc->offset}">
+                                       <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                                       &nbsp; Precio &nbsp;
+                                       {if="$fsc->b_orden=='preciomin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                    </a>
+                                 </li>
+                                 <li>
+                                    <a href="{$fsc->b_url}&b_orden=preciomax&offset={$fsc->offset}">
+                                       <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                                       &nbsp; Precio &nbsp;
+                                       {if="$fsc->b_orden=='preciomax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
                                     </a>
                                  </li>
                                  <li>

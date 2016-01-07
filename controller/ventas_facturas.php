@@ -179,11 +179,11 @@ class ventas_facturas extends fs_controller
          $order2 = '';
          if( substr($this->order, -4) == 'DESC' )
          {
-            $order2 = ', codigo DESC';
+            $order2 = ', hora DESC';
          }
          else
          {
-            $order2 = ', codigo ASC';
+            $order2 = ', hora ASC';
          }
          
          if($this->mostrar == 'sinpagar')

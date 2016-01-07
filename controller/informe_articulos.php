@@ -19,6 +19,8 @@
 
 require_model('almacen.php');
 require_model('articulo.php');
+require_model('cliente.php');
+require_model('familia.php');
 require_model('impuesto.php');
 require_model('linea_factura_cliente.php');
 require_model('linea_factura_proveedor.php');
@@ -26,13 +28,19 @@ require_model('regularizacion_stock.php');
 
 class informe_articulos extends fs_controller
 {
+   public $agente;
    private $almacen;
    public $articulo;
+   public $cantidades;
+   public $codagente;
+   public $codfamilia;
    public $codimpuesto;
    public $desde;
    public $documento;
+   public $familia;
    public $hasta;
    public $impuesto;
+   public $minimo;
    private $offset;
    public $pestanya;
    public $referencia;
@@ -51,8 +59,12 @@ class informe_articulos extends fs_controller
    
    protected function private_core()
    {
-      $this->share_extension();
+      $this->agente = new agente();
       $this->almacen = new almacen();
+      $this->desde = Date('1-m-Y');
+      $this->documento = 'facturascli';
+      $this->familia = new familia();
+      $this->hasta = Date('d-m-Y', mktime(0, 0, 0, date("m")+1, date("1")-1, date("Y")));
       $this->url_recarga = FALSE;
       
       $this->pestanya = 'stats';
@@ -73,6 +85,8 @@ class informe_articulos extends fs_controller
       }
       else if($this->pestanya == 'stats')
       {
+         $this->share_extension();
+         
          $this->articulo = new articulo();
          $this->stats = $this->stats();
          
@@ -101,7 +115,7 @@ class informe_articulos extends fs_controller
             
             $this->new_message('Recalculando stock de artículos... '.$offset);
             
-            foreach($articulo->all($offset, 15) as $art)
+            foreach($articulo->all($offset, 30) as $art)
             {
                $this->calcular_stock_real($art);
                
@@ -112,6 +126,10 @@ class informe_articulos extends fs_controller
             if($continuar)
             {
                $this->url_recarga = $this->url().'&tab=stock&recalcular=TRUE&offset='.$offset;
+            }
+            else
+            {
+               $this->new_advice('Finalizado &nbsp; <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
             }
          }
          
@@ -124,25 +142,7 @@ class informe_articulos extends fs_controller
          }
          else if( isset($_GET['download']) )
          {
-            $this->template = FALSE;
-            
-            header("content-type:application/csv;charset=UTF-8");
-            header("Content-Disposition: attachment; filename=\"stock.csv\"");
-            echo "almacen,referencia,descripcion,stock,stockmin,stockmax\n";
-            
-            $offset = 0;
-            $resultados = $this->stock($offset, $this->tipo_stock);
-            while( count($resultados) > 0 )
-            {
-               foreach($resultados as $res)
-               {
-                  echo '"'.$res['codalmacen'].'","'.$res['referencia'].'","'.$res['descripcion'].'","'.
-                          $res['cantidad'].'","'.$res['stockmin'].'","'.$res['stockmax']."\"\n";
-                  $offset++;
-               }
-               
-               $resultados = $this->stock($offset, $this->tipo_stock);
-            }
+            $this->download_stock();
          }
          else
             $this->resultados = $this->stock($this->offset, $this->tipo_stock);
@@ -158,81 +158,125 @@ class informe_articulos extends fs_controller
          }
          
          /// ¿Hacemos cambio?
-         if( isset($_POST['new_codimpuesto']) )
-         {
-            if($_POST['new_codimpuesto'] != '')
-            {
-               $sql = "UPDATE articulos SET codimpuesto = ".$this->impuesto->var2str($_POST['new_codimpuesto']);
-               if($this->codimpuesto == '')
-               {
-                  $sql .= " WHERE codimpuesto IS NULL";
-               }
-               else
-               {
-                  $sql .= " WHERE codimpuesto = ".$this->impuesto->var2str($this->codimpuesto);
-               }
-               
-               if( $this->db->exec($sql) )
-               {
-                  $this->new_message('cambios aplicados correctamente.');
-               }
-               else
-               {
-                  $this->new_error_msg('Error al aplicar los cambios.');
-               }
-            }
-         }
-         
-         /// buscamos en la tabla
-         $sql = "SELECT * FROM articulos";
-         if($this->codimpuesto == '')
-         {
-            $sql .= " WHERE codimpuesto IS NULL";
-         }
-         else
-         {
-            $sql .= " WHERE codimpuesto = ".$this->impuesto->var2str($this->codimpuesto);
-         }
-         $this->resultados = array();
-         $data = $this->db->select_limit($sql.' ORDER BY referencia ASC', 1000, 0);
-         if($data)
-         {
-            foreach($data as $d)
-               $this->resultados[] = new articulo($d);
-         }
+         $this->cambia_impuesto();
       }
-      else if($this->pestanya == 'search')
+      else if($this->pestanya == 'varios')
       {
-         $this->referencia = '';
-         $this->desde = Date('1-m-Y');
-         $this->hasta = Date('d-m-Y', mktime(0, 0, 0, date("m")+1, date("1")-1, date("Y")));
-         $this->documento = 'facturascli';
+         $this->cantidades = FALSE;
+         $this->codfamilia = '';
+         $this->minimo = '';
          
-         if( isset($_POST['referencia']) )
-         {
-            $this->referencia = $_POST['referencia'];
-            $this->desde = $_POST['desde'];
-            $this->hasta = $_POST['hasta'];
-            $this->documento = $_POST['documento'];
-            
-            $this->resultados = $this->resultados_articulo($this->referencia, $this->desde, $this->hasta, $this->documento);
-            if(!$this->resultados)
-            {
-               $this->new_message('Sin resultados.');
-            }
-         }
-         else if( isset($_GET['ref']) )
+         $this->referencia = '';
+         if( isset($_GET['ref']) )
          {
             $this->referencia = $_GET['ref'];
-            
-            $this->resultados = $this->resultados_articulo($this->referencia, $this->desde, $this->hasta, $this->documento);
-            if(!$this->resultados)
+         }
+         
+         if( isset($_POST['informe']) )
+         {
+            if($_POST['informe'] == 'listadomov')
             {
-               $this->new_message('Sin resultados.');
+               $this->referencia = $_POST['referencia'];
+               $this->desde = $_POST['desde'];
+               $this->hasta = $_POST['hasta'];
+               $this->codagente = $_POST['codagente'];
+               
+               $this->informe_movimientos();
+            }
+            else if($_POST['informe'] == 'facturacion')
+            {
+               $this->documento = $_POST['documento'];
+               $this->desde = $_POST['desde'];
+               $this->hasta = $_POST['hasta'];
+               $this->codfamilia = $_POST['codfamilia'];
+               $this->cantidades = ($_POST['cantidades'] == 'TRUE');
+               $this->minimo = $_POST['minimo'];
+               
+               $this->informe_facturacion();
+            }
+            else if($_POST['informe'] == 'ventascli')
+            {
+               $this->referencia = $_POST['referencia'];
+               $this->desde = $_POST['desde'];
+               $this->hasta = $_POST['hasta'];
+               $this->codfamilia = $_POST['codfamilia'];
+               $this->minimo = $_POST['minimo'];
+               
+               $this->informe_ventascli();
             }
          }
-         else
-            $this->resultados = array();
+      }
+   }
+   
+   private function download_stock()
+   {
+      $this->template = FALSE;
+      
+      header("content-type:application/csv;charset=UTF-8");
+      header("Content-Disposition: attachment; filename=\"stock.csv\"");
+      echo "almacen,referencia,descripcion,stock,stockmin,stockmax\n";
+      
+      $offset = 0;
+      $resultados = $this->stock($offset, $this->tipo_stock);
+      while( count($resultados) > 0 )
+      {
+         foreach($resultados as $res)
+         {
+            echo '"'.$res['codalmacen'].'","'.$res['referencia'].'","'.$res['descripcion'].'","'.
+                    $res['cantidad'].'","'.$res['stockmin'].'","'.$res['stockmax']."\"\n";
+            $offset++;
+         }
+         
+         $resultados = $this->stock($offset, $this->tipo_stock);
+      }
+   }
+   
+   private function cambia_impuesto()
+   {
+      if( isset($_POST['new_codimpuesto']) )
+      {
+         if($_POST['new_codimpuesto'] != '')
+         {
+            $sql = "UPDATE articulos SET codimpuesto = ".$this->impuesto->var2str($_POST['new_codimpuesto']);
+            if($this->codimpuesto == '')
+            {
+               $sql .= " WHERE codimpuesto IS NULL";
+            }
+            else
+            {
+               $sql .= " WHERE codimpuesto = ".$this->impuesto->var2str($this->codimpuesto);
+            }
+            
+            if( $this->db->exec($sql) )
+            {
+               $this->new_message('cambios aplicados correctamente.');
+            }
+            else
+            {
+               $this->new_error_msg('Error al aplicar los cambios.');
+            }
+         }
+      }
+      
+      /// buscamos en la tabla
+      $sql = "SELECT * FROM articulos";
+      if($this->codimpuesto == '')
+      {
+         $sql .= " WHERE codimpuesto IS NULL";
+      }
+      else
+      {
+         $sql .= " WHERE codimpuesto = ".$this->impuesto->var2str($this->codimpuesto);
+      }
+      
+      $this->resultados = array();
+      $data = $this->db->select_limit($sql.' ORDER BY referencia ASC', 1000, 0);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $this->resultados[] = new articulo($d);
+         }
       }
    }
    
@@ -428,72 +472,129 @@ class informe_articulos extends fs_controller
       echo json_encode( array('query' => $_REQUEST['buscar_referencia'], 'suggestions' => $json) );
    }
    
-   private function resultados_articulo($ref, $desde, $hasta, $tabla)
+   private function informe_facturacion()
    {
-      $rlist = array();
-      $agente = new agente();
-      $agentes = $agente->all();
-      
-      $nombre = 'nombre';
-      if($tabla == 'facturascli')
+      $sumar = 'pvptotal';
+      if($this->cantidades)
       {
-         $nombre = 'nombrecliente';
+         $sumar = 'cantidad';
       }
       
-      $data = $this->db->select("SELECT f.idfactura,fecha,codigo,pagada,".$nombre.",codagente,cantidad,pvpunitario,dtopor,pvptotal,iva "
-              . "FROM ".$tabla." f, lineas".$tabla." l WHERE f.idfactura = l.idfactura "
-              . "AND l.referencia = ".$this->empresa->var2str($ref)." AND fecha >= ".$this->empresa->var2str($desde)
-              ." AND fecha <= ".$this->empresa->var2str($hasta)." ORDER BY fecha DESC;");
+      $sql = "SELECT l.referencia,f.fecha,SUM(".$sumar.") as total"
+              . " FROM ".$this->documento." f, lineas".$this->documento." l"
+              . " WHERE f.idfactura = l.idfactura AND referencia IS NOT NULL"
+              . " AND fecha >= ".$this->empresa->var2str($this->desde)
+              . " AND fecha <= ".$this->empresa->var2str($this->hasta);
+      
+      if( is_numeric($this->minimo) )
+      {
+         $sql .= " AND ".$sumar." >= ".$this->empresa->var2str($this->minimo);
+      }
+      
+      if($this->codfamilia != '')
+      {
+         $sql .= " AND referencia IN (SELECT referencia FROM articulos"
+                 . " WHERE codfamilia IN (";
+         $coma = '';
+         foreach($this->get_subfamilias($this->codfamilia) as $fam)
+         {
+            $sql .= $coma.$this->empresa->var2str($fam);
+            $coma = ',';
+         }
+         $sql .= "))";
+      }
+      
+      $sql .= " GROUP BY referencia,fecha ORDER BY fecha DESC";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $this->template = FALSE;
+         
+         header("content-type:application/csv;charset=UTF-8");
+         header("Content-Disposition: attachment; filename=\"informe_facturacion.csv\"");
+         echo "referencia;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
+         
+         $stats = array();
+         foreach($data as $d)
+         {
+            $anyo = date('Y', strtotime($d['fecha']));
+            $mes = date('n', strtotime($d['fecha']));
+            if( !isset($stats[ $d['referencia'] ][ $anyo ]) )
+            {
+               $stats[ $d['referencia'] ][ $anyo ] = array(
+                   1 => 0,
+                   2 => 0,
+                   3 => 0,
+                   4 => 0,
+                   5 => 0,
+                   6 => 0,
+                   7 => 0,
+                   8 => 0,
+                   9 => 0,
+                   10 => 0,
+                   11 => 0,
+                   12 => 0,
+                   13 => 0,
+                   14 => 0
+               );
+            }
+            
+            $stats[ $d['referencia'] ][ $anyo ][ $mes ] += floatval($d['total']);
+            $stats[ $d['referencia'] ][ $anyo ][13] += floatval($d['total']);
+         }
+         
+         foreach($stats as $i => $value)
+         {
+            /// calculamos la variación
+            $anterior = 0;
+            foreach( array_reverse($value, TRUE) as $j => $value2 )
+            {
+               if($anterior > 0)
+               {
+                  $value[$j][14] = ($value2[13]*100/$anterior) - 100;
+               }
+               
+               $anterior = $value2[13];
+            }
+            
+            foreach($value as $j => $value2)
+            {
+               echo '"'.$i.'";'.$j;
+               
+               foreach($value2 as $value3)
+               {
+                  echo ';'.number_format($value3, FS_NF0, ',', '');
+               }
+               
+               echo "\n";
+            }
+            echo ";;;;;;;;;;;;;;;\n";
+         }
+      }
+      else
+      {
+         $this->new_message('Sin resultados.');
+      }
+   }
+   
+   private function get_subfamilias($cod)
+   {
+      $familias = array($cod);
+      
+      $data = $this->db->select("SELECT codfamilia,madre FROM familias WHERE madre = ".$this->empresa->var2str($cod).";");
       if($data)
       {
          foreach($data as $d)
          {
-            $linea = array(
-                'idfactura' => intval($d['idfactura']),
-                'url' => '',
-                'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                'codigo' => $d['codigo'],
-                'pagada' => ($d['pagada'] == 't' OR $d['pagada'] == '1'),
-                'nombre' => $d[$nombre],
-                'agente' => $d['codagente'],
-                'cantidad' => floatval($d['cantidad']),
-                'pvpunitario' => floatval($d['pvpunitario']),
-                'dtopor' => floatval($d['dtopor']),
-                'pvptotal' => floatval($d['pvptotal']),
-                'total' => floatval($d['pvptotal']) * (100 + floatval($d['iva'])) / 100
-            );
-            
-            if($tabla == 'facturascli')
+            foreach($this->get_subfamilias($d['codfamilia']) as $subf)
             {
-               $linea['url'] = 'index.php?page=ventas_factura&id='.$linea['idfactura'];
+               $familias[] = $subf;
             }
-            else if($tabla == 'facturasprov')
-            {
-               $linea['url'] = 'index.php?page=compras_factura&id='.$linea['idfactura'];
-            }
-            
-            /// rellenamos el nombre del agente
-            if( is_null($linea['agente']) )
-            {
-               $linea['agente'] = '-';
-            }
-            else
-            {
-               foreach($agentes as $ag)
-               {
-                  if($ag->codagente == $linea['agente'])
-                  {
-                     $linea['agente'] = $ag->get_fullname();
-                     break;
-                  }
-               }
-            }
-            
-            $rlist[] = $linea;
          }
       }
       
-      return $rlist;
+      return $familias;
    }
    
    private function share_extension()
@@ -506,7 +607,7 @@ class informe_articulos extends fs_controller
               'page_to' => 'ventas_articulo',
               'type' => 'tab_button',
               'text' => '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> &nbsp; Informe',
-              'params' => '&tab=search'
+              'params' => '&tab=varios'
           ),
       );
       foreach($extensiones as $ext)
@@ -539,21 +640,45 @@ class informe_articulos extends fs_controller
       }
    }
    
-   private function get_movimientos($ref)
+   private function get_movimientos($ref, $desde='', $hasta='', $codagente='')
    {
       $mlist = array();
       $regularizacion = new regularizacion_stock();
       
       foreach($regularizacion->all_from_articulo($ref) as $reg)
       {
-         $mlist[] = array(
-             'codalmacen' => $reg->codalmacendest,
-             'origen' => 'Regularización',
-             'movimiento' => '-',
-             'final' => $reg->cantidadfin,
-             'fecha' => $reg->fecha,
-             'hora' => $reg->hora
-         );
+         $anyadir = TRUE;
+         if($desde != '')
+         {
+            if( strtotime($desde) > strtotime($reg->fecha) )
+            {
+               $anyadir = FALSE;
+            }
+         }
+         
+         if($hasta != '')
+         {
+            if( strtotime($hasta) < strtotime($reg->fecha) )
+            {
+               $anyadir = FALSE;
+            }
+         }
+         
+         if($anyadir)
+         {
+            $mlist[] = array(
+                'codalmacen' => $reg->codalmacendest,
+                'origen' => 'Regularización',
+                'url' => 'index.php?page=ventas_articulo&ref='.$ref,
+                'clipro' => '-',
+                'movimiento' => '-',
+                'precio' => 0,
+                'dto' => 0,
+                'final' => $reg->cantidadfin,
+                'fecha' => $reg->fecha,
+                'hora' => $reg->hora
+            );
+         }
       }
       
       /// forzamos la comprobación de las tablas de albaranes
@@ -562,9 +687,29 @@ class informe_articulos extends fs_controller
       $albp = new albaran_proveedor();
       $lin2 = new linea_albaran_proveedor();
       
+      $sql_extra = '';
+      if($desde != '')
+      {
+         $sql_extra .= " AND fecha >= ".$this->empresa->var2str($desde);
+      }
+      
+      if($hasta != '')
+      {
+         $sql_extra .= " AND fecha <= ".$this->empresa->var2str($hasta);
+      }
+      
+      if($codagente != '')
+      {
+         $sql_extra .= " AND codagente = ".$this->empresa->var2str($codagente);
+      }
+      
       /// buscamos el artículo en albaranes de compra
-      $data = $this->db->select("SELECT a.codigo,l.cantidad,a.fecha,a.hora,a.codalmacen FROM albaranesprov a, lineasalbaranesprov l
-         WHERE a.idalbaran = l.idalbaran AND l.referencia = ".$albc->var2str($ref).';');
+      $sql = "SELECT a.codigo,l.cantidad,l.pvpunitario,l.dtopor,a.fecha,a.hora"
+              .",a.codalmacen,a.idalbaran,a.codproveedor,a.nombre"
+              ." FROM albaranesprov a, lineasalbaranesprov l"
+              ." WHERE a.idalbaran = l.idalbaran AND l.referencia = ".$albc->var2str($ref).$sql_extra;
+      
+      $data = $this->db->select_limit($sql, 1000, 0);
       if($data)
       {
          foreach($data as $d)
@@ -572,7 +717,11 @@ class informe_articulos extends fs_controller
             $mlist[] = array(
                 'codalmacen' => $d['codalmacen'],
                 'origen' => 'Albaran compra '.$d['codigo'],
+                'url' => 'index.php?page=compras_albaran&id='.$d['idalbaran'],
+                'clipro' => $d['codproveedor'].' - '.$d['nombre'],
                 'movimiento' => floatval($d['cantidad']),
+                'precio' => floatval($d['pvpunitario']),
+                'dto' => floatval($d['dtopor']),
                 'final' => 0,
                 'fecha' => date('d-m-Y', strtotime($d['fecha'])),
                 'hora' => $d['hora']
@@ -581,8 +730,13 @@ class informe_articulos extends fs_controller
       }
       
       /// buscamos el artículo en facturas de compra
-      $data = $this->db->select("SELECT f.codigo,l.cantidad,f.fecha,f.hora,f.codalmacen FROM facturasprov f, lineasfacturasprov l
-         WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL AND l.referencia = ".$albc->var2str($ref).';');
+      $sql = "SELECT f.codigo,l.cantidad,l.pvpunitario,l.dtopor,f.fecha,f.hora"
+              .",f.codalmacen,f.idfactura,f.codproveedor,f.nombre"
+              ." FROM facturasprov f, lineasfacturasprov l"
+              ." WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL"
+              ." AND l.referencia = ".$albc->var2str($ref).$sql_extra;
+      
+      $data = $this->db->select_limit($sql, 1000, 0);
       if($data)
       {
          foreach($data as $d)
@@ -590,7 +744,11 @@ class informe_articulos extends fs_controller
             $mlist[] = array(
                 'codalmacen' => $d['codalmacen'],
                 'origen' => 'Factura compra '.$d['codigo'],
+                'url' => 'index.php?page=compras_factura&id='.$d['idfactura'],
+                'clipro' => $d['codproveedor'].' - '.$d['nombre'],
                 'movimiento' => floatval($d['cantidad']),
+                'precio' => floatval($d['pvpunitario']),
+                'dto' => floatval($d['dtopor']),
                 'final' => 0,
                 'fecha' => date('d-m-Y', strtotime($d['fecha'])),
                 'hora' => $d['hora']
@@ -599,8 +757,12 @@ class informe_articulos extends fs_controller
       }
       
       /// buscamos el artículo en albaranes de venta
-      $data = $this->db->select_limit("SELECT a.codigo,l.cantidad,a.fecha,a.hora,a.codalmacen FROM albaranescli a, lineasalbaranescli l
-         WHERE a.idalbaran = l.idalbaran AND l.referencia = ".$albc->var2str($ref), 1000, 0);
+      $sql = "SELECT a.codigo,l.cantidad,l.pvpunitario,l.dtopor,a.fecha,a.hora"
+              .",a.codalmacen,a.idalbaran,a.codcliente,a.nombrecliente"
+              ." FROM albaranescli a, lineasalbaranescli l"
+              ." WHERE a.idalbaran = l.idalbaran AND l.referencia = ".$albc->var2str($ref).$sql_extra;
+      
+      $data = $this->db->select_limit($sql, 1000, 0);
       if($data)
       {
          foreach($data as $d)
@@ -608,7 +770,11 @@ class informe_articulos extends fs_controller
             $mlist[] = array(
                 'codalmacen' => $d['codalmacen'],
                 'origen' => 'Albaran venta '.$d['codigo'],
+                'url' => 'index.php?page=ventas_albaran&id='.$d['idalbaran'],
+                'clipro' => $d['codcliente'].' - '.$d['nombrecliente'],
                 'movimiento' => 0-floatval($d['cantidad']),
+                'precio' => floatval($d['pvpunitario']),
+                'dto' => floatval($d['dtopor']),
                 'final' => 0,
                 'fecha' => date('d-m-Y', strtotime($d['fecha'])),
                 'hora' => $d['hora']
@@ -617,8 +783,13 @@ class informe_articulos extends fs_controller
       }
       
       /// buscamos el artículo en facturas de venta
-      $data = $this->db->select("SELECT f.codigo,l.cantidad,f.fecha,f.hora,f.codalmacen FROM facturascli f, lineasfacturascli l
-         WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL AND l.referencia = ".$albc->var2str($ref).';');
+      $sql = "SELECT f.codigo,l.cantidad,l.pvpunitario,l.dtopor,f.fecha,f.hora"
+              .",f.codalmacen,f.idfactura,f.codcliente,f.nombrecliente"
+              ." FROM facturascli f, lineasfacturascli l"
+              ." WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL"
+              ." AND l.referencia = ".$albc->var2str($ref).$sql_extra;
+      
+      $data = $this->db->select_limit($sql, 1000, 0);
       if($data)
       {
          foreach($data as $d)
@@ -626,7 +797,11 @@ class informe_articulos extends fs_controller
             $mlist[] = array(
                 'codalmacen' => $d['codalmacen'],
                 'origen' => 'Factura venta '.$d['codigo'],
+                'url' => 'index.php?page=ventas_factura&id='.$d['idfactura'],
+                'clipro' => $d['codcliente'].' - '.$d['nombrecliente'],
                 'movimiento' => 0-floatval($d['cantidad']),
+                'precio' => floatval($d['pvpunitario']),
+                'dto' => floatval($d['dtopor']),
                 'final' => 0,
                 'fecha' => date('d-m-Y', strtotime($d['fecha'])),
                 'hora' => $d['hora']
@@ -676,5 +851,158 @@ class informe_articulos extends fs_controller
       }
       
       return $mlist;
+   }
+   
+   private function informe_movimientos()
+   {
+      if($this->referencia == '')
+      {
+         $this->new_advice('Selecciona una referencia.');
+      }
+      else
+      {
+         $this->resultados = $this->get_movimientos($this->referencia, $this->desde, $this->hasta, $this->codagente);
+         
+         if( isset($_POST['generar']) )
+         {
+            if($_POST['generar'] == 'csv')
+            {
+               $this->template = FALSE;
+               
+               header("content-type:application/csv;charset=UTF-8");
+               header("Content-Disposition: attachment; filename=\"listado_movimientos.csv\"");
+               echo "almacen;documento;cliente/proveedor;movimiento;precio;%dto;cantidad final;fecha\n";
+               
+               foreach($this->resultados as $value)
+               {
+                  echo $value['codalmacen'].';'
+                          .$value['origen'].';'
+                          .$value['clipro'].';'
+                          .number_format($value['movimiento'], FS_NF0, ',', '').';'
+                          .number_format($value['precio'], FS_NF0_ART, ',', '').';'
+                          .number_format($value['dto'], FS_NF0, ',', '').';'
+                          .number_format($value['final'], FS_NF0, ',', '').';'
+                          .$value['fecha']."\n";
+               }
+            }
+         }
+      }
+   }
+   
+   private function informe_ventascli()
+   {
+      $sql = "SELECT l.referencia,f.codcliente,f.fecha,SUM(l.cantidad) as total"
+              . " FROM facturascli f, lineasfacturascli l"
+              . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
+              . " AND f.fecha >= ".$this->empresa->var2str($_POST['desde'])
+              . " AND f.fecha <= ".$this->empresa->var2str($_POST['hasta']);
+      
+      if($this->referencia != '')
+      {
+         $sql .= " AND l.referencia = ".$this->empresa->var2str($this->referencia);
+      }
+      else if($this->codfamilia != '')
+      {
+         $sql .= " AND l.referencia IN (SELECT referencia FROM articulos"
+                 . " WHERE codfamilia IN (";
+         $coma = '';
+         foreach($this->get_subfamilias($this->codfamilia) as $fam)
+         {
+            $sql .= $coma.$this->empresa->var2str($fam);
+            $coma = ',';
+         }
+         $sql .= "))";
+      }
+      
+      if($_POST['minimo'] != '')
+      {
+         $sql .= " AND l.cantidad > ".$this->empresa->var2str($_POST['minimo']);
+      }
+      
+      $sql .= " GROUP BY l.referencia,f.codcliente,f.fecha ORDER BY l.referencia ASC, f.codcliente ASC, f.fecha DESC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $this->template = FALSE;
+         
+         header("content-type:application/csv;charset=UTF-8");
+         header("Content-Disposition: attachment; filename=\"informe_ventas_unidades.csv\"");
+         echo "referencia;codcliente;nombre;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
+         
+         $cliente = new cliente();
+         $stats = array();
+         foreach($data as $d)
+         {
+            $anyo = date('Y', strtotime($d['fecha']));
+            $mes = date('n', strtotime($d['fecha']));
+            if( !isset($stats[ $d['referencia'] ][ $d['codcliente'] ][ $anyo ]) )
+            {
+               $stats[ $d['referencia'] ][ $d['codcliente'] ][ $anyo ] = array(
+                   1 => 0,
+                   2 => 0,
+                   3 => 0,
+                   4 => 0,
+                   5 => 0,
+                   6 => 0,
+                   7 => 0,
+                   8 => 0,
+                   9 => 0,
+                   10 => 0,
+                   11 => 0,
+                   12 => 0,
+                   13 => 0,
+                   14 => 0
+               );
+            }
+            
+            $stats[ $d['referencia'] ][ $d['codcliente'] ][ $anyo ][ $mes ] += floatval($d['total']);
+            $stats[ $d['referencia'] ][ $d['codcliente'] ][ $anyo ][13] += floatval($d['total']);
+         }
+         
+         foreach($stats as $i => $value)
+         {
+            foreach($value as $j => $value2)
+            {
+               /// calculamos la variación
+               $anterior = 0;
+               foreach( array_reverse($value2, TRUE) as $k => $value3 )
+               {
+                  if($anterior > 0)
+                  {
+                     $value2[$k][14] = ($value3[13]*100/$anterior) - 100;
+                  }
+                  
+                  $anterior = $value3[13];
+               }
+               
+               $cli = $cliente->get($j);
+               foreach($value2 as $k => $value3)
+               {
+                  if($cli)
+                  {
+                     echo '"'.$i.'";"'.$j.'";'.$cli->nombre.';'.$k;
+                  }
+                  else
+                  {
+                     echo '"'.$i.'";"'.$j.'";-;'.$k;
+                  }
+                  
+                  foreach($value3 as $value4)
+                  {
+                     echo ';'.number_format($value4, FS_NF0, ',', '');
+                  }
+                  
+                  echo "\n";
+               }
+               echo ";;;;;;;;;;;;;;;\n";
+            }
+            echo ";;;;;;;;;;;;;;;\n";
+         }
+      }
+      else
+      {
+         $this->new_error_msg('Sin resultados.');
+      }
    }
 }

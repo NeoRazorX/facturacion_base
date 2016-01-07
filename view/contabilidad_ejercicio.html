@@ -219,7 +219,7 @@
       <tr class="clickableRow" href="{$value->url()}">
          <td>{$value->codcuenta}</td>
          <td><a href="{$value->url()}">{$value->codsubcuenta}</a> {$value->descripcion}</td>
-         <td class="text-right">{$fsc->show_precio($value->saldo, $value->coddivisa)}</td>
+         <td class='text-right{if="$value->saldo<0"} danger{/if}'>{$fsc->show_precio($value->saldo, $value->coddivisa)}</td>
       </tr>
       {else}
       <tr class="warning">

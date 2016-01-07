@@ -270,7 +270,14 @@ class ventas_articulos extends fs_controller
       
       if($this->b_codfamilia != '')
       {
-         $sql .= $where."codfamilia = ".$this->empresa->var2str($this->b_codfamilia);
+         $sql .= " WHERE codfamilia IN (";
+         $coma = '';
+         foreach($this->get_subfamilias($this->b_codfamilia) as $fam)
+         {
+            $sql .= $coma.$this->empresa->var2str($fam);
+            $coma = ',';
+         }
+         $sql .= ")";
          $where = ' AND ';
       }
       
@@ -334,43 +341,11 @@ class ventas_articulos extends fs_controller
             break;
          
          case 'preciomin':
-            /// cogemos datos de la tarifa para ordenar:
-            $tarifa = $this->tarifa->get($this->b_codtarifa);
-            if($tarifa)
-            {
-               if($tarifa->aplicar_a == 'coste')
-               {
-                  $order = 'preciocoste ASC';
-               }
-               else
-               {
-                  $order = 'pvp ASC';
-               }
-            }
-            else
-            {
-               $order = 'pvp ASC';
-            }
+            $order = 'pvp ASC';
             break;
          
          case 'preciomax':
-            /// cogemos datos de la tarifa para ordenar:
-            $tarifa = $this->tarifa->get($this->b_codtarifa);
-            if($tarifa)
-            {
-               if($tarifa->aplicar_a == 'coste')
-               {
-                  $order = 'preciocoste DESC';
-               }
-               else
-               {
-                  $order = 'pvp DESC';
-               }
-            }
-            else
-            {
-               $order = 'pvp DESC';
-            }
+            $order = 'pvp DESC';
             break;
          
          default:
@@ -537,5 +512,24 @@ class ventas_articulos extends fs_controller
       $newt = str_replace('&#39;', "'", $newt);
       $newt = str_replace(';', '.', $newt);
       return trim($newt);
+   }
+   
+   private function get_subfamilias($cod)
+   {
+      $familias = array($cod);
+      
+      $data = $this->db->select("SELECT codfamilia,madre FROM familias WHERE madre = ".$this->empresa->var2str($cod).";");
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            foreach($this->get_subfamilias($d['codfamilia']) as $subf)
+            {
+               $familias[] = $subf;
+            }
+         }
+      }
+      
+      return $familias;
    }
 }
