@@ -51,10 +51,11 @@ class ventas_factura extends fs_controller
       $factura = new factura_cliente();
       $this->factura = FALSE;
       $this->forma_pago = new forma_pago();
-	  
+
 	  	  ///   tecla anular factura
-	   if( isset($_POST['id']))
+	   if( isset($_POST['id']) or isset($_GET['id']))
 	  {	  
+ 
 	  $var_idpagodevol=$factura->get($_GET['id']);
 	  $this->factura_anulada=$var_idpagodevol->idpagodevol;
       }
@@ -65,7 +66,7 @@ class ventas_factura extends fs_controller
        * Si hay alguna extensión de tipo config y texto no_button_pagada,
        * desactivamos el botón de pagada/sin pagar.
        */
-      $this->mostrar_boton_pagada = TRUE;
+ //     $this->mostrar_boton_pagada = TRUE;
       foreach($this->extensions as $ext)
       {
          if($ext->type == 'config' AND $ext->text == 'no_button_pagada')

@@ -61,36 +61,12 @@
                {/if}
             </div>
             
-            {if="$fsc->mostrar_boton_pagada"}
-            <div class="btn-group">
-               {if="$fsc->factura->pagada"}
-               <button type="button" class="btn btn-sm btn-info dropdown-toggle" data-toggle="dropdown">
-                  <span class="glyphicon glyphicon-ok"></span> &nbsp; Pagada <span class="caret"></span>
-               </button>
-               {else}
-               <button type="button" class="btn btn-sm btn-warning dropdown-toggle" data-toggle="dropdown">
-                  <span class="glyphicon glyphicon-remove"></span> &nbsp; Sin pagar <span class="caret"></span>
-               </button>
-               {/if}
-               <ul class="dropdown-menu" role="menu">
-                  {if="!$fsc->factura->pagada"}
-                  <li><a href="{$fsc->url()}&pagada=TRUE"><span class="glyphicon glyphicon-ok"></span> &nbsp; Pagada</a></li>
-                  {else}
-                  <li><a href="{$fsc->url()}&pagada=FALSE"><span class="glyphicon glyphicon-remove"></span> &nbsp; Sin pagar</a></li>
-                  {/if}
-               </ul>
-            </div>
-            {elseif="$fsc->factura->pagada"}
-            <a class="btn btn-sm btn-info" href="#">
-               <span class="glyphicon glyphicon-ok"></span>
-               <span class="hidden-xs">&nbsp; Pagada</span>
-            </a>
-            {/if}
+ 
 			
-	{if="!$fsc->factura->pagada"}		
+	{if="$fsc->factura->pagada"}		
 			{if="$fsc->factura_anulada==1 or $fsc->factura_anulada!=NULL"}
 			<div class="btn-group">
-				<a class="btn btn-sm btn-danger" href="{$fsc->url()}&gen_devolucion=TRUE&petid={$fsc->random_string()}&idfaccli={$fsc->factura->idfactura}">
+				<a class="btn btn-sm btn-danger">
                 <span class="glyphicon glyphicon-remove-circle"></span> <span class="hidden-xs">&nbsp;Factura anulada</span>
                </a>
 			 </div>

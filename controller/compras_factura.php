@@ -194,9 +194,11 @@ class compras_factura extends fs_controller
 	  	$this->factura_anulada=$var_idpagodevol->idpagodevol;
 		
 		      foreach($orden->ultimovalor_orden_prov($var_idpagodevol->codproveedor) as $f){}
+			  
+ 
 
-		$dif_importe = $f->importe - $var_idpagodevol->total;
-		$orden->nuevoimporte_orden($f->idorden,$dif_importe);
+//		$dif_importe = $f->importe - $var_idpagodevol->total;
+//		$orden->nuevoimporte_orden($f->idorden,$dif_importe);
 
 	}  	
  

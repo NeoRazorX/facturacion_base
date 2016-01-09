@@ -454,7 +454,7 @@ class ventas_imprimir extends fs_controller
 ////////////////////////////////////////////////////////////////////////////////////
 		if($tipo == 'firma')
 		{	
-				$numFactura=$this->factura->codigo;
+				$numFactura=$this->factura->numero2;
 				$fecha=$this->factura->fecha;
 				$nomCliente=$this->factura->nombrecliente;
 				$dirCliente=$this->direccioncli->direccion;
@@ -508,7 +508,7 @@ class ventas_imprimir extends fs_controller
  			if($j!=0)	$pdf_doc->pdf->ezNewPage();
 			
 
-//			$pdf_doc->pdf->addTextWrap(373,797, 400, 18,$numFactura);////// Nº  FACTURA
+			$pdf_doc->pdf->addTextWrap(430,773, 400, 16,$numFactura,'left');////// Nº  FACTURA
 			$pdf_doc->pdf->addTextWrap(390,698, 200, 14,$fecha);
 			$pdf_doc->pdf->addTextWrap(111,648, 470, 14,$nomCliente);
 			$pdf_doc->pdf->addTextWrap(111,633, 470, 10,$dirCliente.' CP: '.$cpCliente);
@@ -531,19 +531,19 @@ class ventas_imprimir extends fs_controller
 
 			for ($i=$linea_arranque;$i<$linea_fin;$i++)
 			{
-				$pdf_doc->pdf->addTextWrap(55,518-(22*($i-$linea_arranque)), 25, 12,number_format($lineas[$i]->cantidad, 0, ',', ' '),'right');
+//				$pdf_doc->pdf->addTextWrap(55,518-(22*($i-$linea_arranque)), 25, 12,number_format($lineas[$i]->cantidad, 0, ',', ' '),'right');
 				$pdf_doc->pdf->addTextWrap(85,518-(22*($i-$linea_arranque)), 300, 12,$this->fix_html($lineas[$i]->descripcion),'left');
 //				$pdf_doc->pdf->addTextWrap(390,518-(22*($i-$linea_arranque)), 410, 12,$uMoneda.'  '.number_format($lineas[$i]->pvpunitario, 2, ',', 'right'));
-				$pdf_doc->pdf->addTextWrap(370,518-(22*($i-$linea_arranque)), 90, 12,$uMoneda.'  '.number_format($lineas[$i]->pvpunitario, 2, ',', ' '),'right');
+//				$pdf_doc->pdf->addTextWrap(370,518-(22*($i-$linea_arranque)), 90, 12,$uMoneda.'  '.number_format($lineas[$i]->pvpunitario, 2, ',', ' '),'right');
 //				$pdf_doc->pdf->addTextWrap(390,518-(22*($i-$linea_arranque)), 410, 12,$uMoneda.'  '.number_format($lineas[$i]->pvpunitario, 2, ',', 'right'));
-				$pdf_doc->pdf->addTextWrap($varImporte,518-(22*($i-$linea_arranque)), 90, 12, $uMoneda.'  '.number_format($lineas[$i]->pvptotal, 2, ',', ' '),'right');
+				$pdf_doc->pdf->addTextWrap($varImporte,518-(22*($i-$linea_arranque)), 90, 12,number_format($lineas[$i]->pvptotal, 2, ',', ' '),'right');
 				
 				$Sub_Total=$Sub_Total+$lineas[$i]->pvptotal;
 
 			}
 
 
-			 $pdf_doc->pdf->addTextWrap($varImporte-10,270, 90, 12,$uMoneda.'   '.number_format($Sub_Total, 2, ',', ' '),'right'); 
+			 $pdf_doc->pdf->addTextWrap($varImporte-10,270, 90, 12,number_format($Sub_Total, 2, ',', ' '),'right'); 
 			 
 ////////////////////////////////////////////////////////////////////////////
 ////////////    Pie

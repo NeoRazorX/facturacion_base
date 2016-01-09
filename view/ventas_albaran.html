@@ -96,7 +96,7 @@
             <div class="btn-group">
                {if="$fsc->albaran->ptefactura"}
                <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
-                  <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
+                  <span class="glyphicon glyphicon-ok"></span> &nbsp; Pagar
                </a>
                {else}
                <a class="btn btn-sm btn-info text-capitalize" href="{$fsc->albaran->factura_url()}">
