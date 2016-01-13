@@ -232,11 +232,25 @@ class ventas_cliente extends fs_controller
       
       foreach($years as $year)
       {
-         for($i = 1; $i <= 12; $i++)
+         if( $year == intval(Date('Y')) )
          {
-            $stats[$year.'-'.$i]['mes'] = $meses[$i-1].' '.$year;
-            $stats[$year.'-'.$i]['albaranes'] = 0;
-            $stats[$year.'-'.$i]['facturas'] = 0;
+            /// año actual
+            for($i = 1; $i <= intval(Date('m')); $i++)
+            {
+               $stats[$year.'-'.$i]['mes'] = $meses[$i-1].' '.$year;
+               $stats[$year.'-'.$i]['albaranes'] = 0;
+               $stats[$year.'-'.$i]['facturas'] = 0;
+            }
+         }
+         else
+         {
+            /// años anteriores
+            for($i = 1; $i <= 12; $i++)
+            {
+               $stats[$year.'-'.$i]['mes'] = $meses[$i-1].' '.$year;
+               $stats[$year.'-'.$i]['albaranes'] = 0;
+               $stats[$year.'-'.$i]['facturas'] = 0;
+            }
          }
          
          if( strtolower(FS_DB_TYPE) == 'postgresql')
@@ -257,7 +271,10 @@ class ventas_cliente extends fs_controller
          {
             foreach($data as $d)
             {
-               $stats[$year.'-'.intval($d['mes'])]['albaranes'] = number_format($d['total'], FS_NF0, '.', '');
+               if( isset($stats[$year.'-'.intval($d['mes'])]['albaranes']) )
+               {
+                  $stats[$year.'-'.intval($d['mes'])]['albaranes'] = number_format($d['total'], FS_NF0, '.', '');
+               }
             }
          }
          
@@ -271,7 +288,10 @@ class ventas_cliente extends fs_controller
          {
             foreach($data as $d)
             {
-               $stats[$year.'-'.intval($d['mes'])]['facturas'] = number_format($d['total'], FS_NF0, '.', '');
+               if( isset($stats[$year.'-'.intval($d['mes'])]['facturas']) )
+               {
+                  $stats[$year.'-'.intval($d['mes'])]['facturas'] = number_format($d['total'], FS_NF0, '.', '');
+               }
             }
          }
       }

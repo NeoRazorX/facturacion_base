@@ -137,7 +137,11 @@ class contabilidad_asiento extends fs_controller
       $eje0 = $this->ejercicio->get($this->asiento->codejercicio);
       if($eje0)
       {
-         $this->asiento->fecha = $eje0->get_best_fecha($_POST['fecha']);
+         if( strtotime($this->asiento->fecha) != strtotime($_POST['fecha']) )
+         {
+            $this->new_error_msg('La fecha '.$_POST['fecha'].' está fuera del'
+                    . ' rango del ejercicio '.$eje0->codejercicio.'.');
+         }
       }
       else
          $this->new_error_msg('No se encuentra el ejercicio asociado al asiento.');

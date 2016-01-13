@@ -256,8 +256,15 @@ class compras_factura extends fs_controller
          $asiento = $this->factura->get_asiento();
          if($asiento)
          {
+            /// nos aseguramos que el proveedor tenga subcuenta en el ejercicio actual
+            $eje = $this->ejercicio->get_by_fecha( $this->today() );
+            if($eje)
+            {
+               $this->proveedor->get_subcuenta($eje->codejercicio);
+            }
+            
             $asiento_factura = new asiento_factura();
-            $this->factura->idasientop = $asiento_factura->generar_asiento_pago($asiento);
+            $this->factura->idasientop = $asiento_factura->generar_asiento_pago($asiento, $this->factura->codpago);
             $this->factura->pagada = TRUE;
             if( $this->factura->save() )
             {
@@ -266,6 +273,11 @@ class compras_factura extends fs_controller
             else
             {
                $this->new_error_msg('Error al marcar la factura como pagada.');
+            }
+            
+            foreach($asiento_factura->errors as $err)
+            {
+               $this->new_error_msg($err);
             }
          }
          else

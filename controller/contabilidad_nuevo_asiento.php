@@ -38,7 +38,7 @@ class contabilidad_nuevo_asiento extends fs_controller
 
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'nuevo asiento', 'contabilidad', FALSE, FALSE);
+      parent::__construct(__CLASS__, 'Nuevo asiento', 'contabilidad', FALSE, FALSE, TRUE);
    }
    
    protected function private_core()

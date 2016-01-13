@@ -61,6 +61,13 @@
                <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
+               <span class="btn-group">
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='button'"}
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                  {/if}
+               {/loop}
+               </span>
             </h1>
             <p class="help-block">
                Estos son los informes contables básicos para España. Algunos se generan

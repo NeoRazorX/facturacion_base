@@ -72,12 +72,25 @@ class contabilidad_formas_pago extends fs_controller
          $fp0->descripcion = $_POST['descripcion'];
          $fp0->genrecibos = $_POST['genrecibos'];
          $fp0->vencimiento = $_POST['vencimiento'];
-         $fp0->domiciliado = isset($_POST['domiciliado']);
          
          $fp0->codcuenta = NULL;
          if($_POST['codcuenta'] != '')
          {
             $fp0->codcuenta = $_POST['codcuenta'];
+         }
+         
+         $fp0->domiciliado = FALSE;
+         if( isset($_POST['domiciliado']) )
+         {
+            if( is_null($fp0->codcuenta) )
+            {
+               $this->new_error_msg('Para marcar una forma de pago como domiciliada,'
+                       . ' también tienes que seleccionar una cuenta bancaria.');
+            }
+            else
+            {
+               $fp0->domiciliado = TRUE;
+            }
          }
          
          if($fp0->codpago == '' OR $fp0->descripcion == '')
@@ -90,7 +103,7 @@ class contabilidad_formas_pago extends fs_controller
             
             if($nueva AND $this->button_plazos AND $fp0->genrecibos == 'Emitidos')
             {
-               header('Location: index.php?page='.$this->button_plazos.'&cod='.$fp0->codpago);
+               header('Location: index.php?page='.$this->button_plazos.'&cod='.$fp0->codpago.'&nueva=TRUE');
             }
          }
          else

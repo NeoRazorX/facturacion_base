@@ -216,11 +216,12 @@ class subcuenta extends fs_model
          return FALSE;
    }
    
-   public function get_by_codigo($cod, $ejercicio, $crear=FALSE)
+   public function get_by_codigo($cod, $codejercicio, $crear=FALSE)
    {
-      $subc = $this->db->select("SELECT * FROM ".$this->table_name.
-              " WHERE codsubcuenta = ".$this->var2str($cod).
-              " AND codejercicio = ".$this->var2str($ejercicio).";");
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codsubcuenta = ".$this->var2str($cod)
+              ." AND codejercicio = ".$this->var2str($codejercicio).";";
+      
+      $subc = $this->db->select($sql);
       if($subc)
       {
          return new subcuenta($subc[0]);
@@ -235,13 +236,13 @@ class subcuenta extends fs_model
             
             /// buscamos la cuenta equivalente es ESTE ejercicio
             $cuenta = new cuenta();
-            $new_c = $cuenta->get_by_codigo($old_sc->codcuenta, $ejercicio);
+            $new_c = $cuenta->get_by_codigo($old_sc->codcuenta, $codejercicio);
             if($new_c)
             {
                $new_sc = new subcuenta();
                $new_sc->codcuenta = $new_c->codcuenta;
                $new_sc->coddivisa = $old_sc->coddivisa;
-               $new_sc->codejercicio = $ejercicio;
+               $new_sc->codejercicio = $codejercicio;
                $new_sc->codimpuesto = $old_sc->codimpuesto;
                $new_sc->codsubcuenta = $old_sc->codsubcuenta;
                $new_sc->descripcion = $old_sc->descripcion;
@@ -257,7 +258,8 @@ class subcuenta extends fs_model
             }
             else
             {
-               $this->new_error_msg('No se ha encontrado la cuenta equivalente a '.$old_sc->codcuenta.' en el ejercicio '.$ejercicio.'.');
+               $this->new_error_msg('No se ha encontrado la cuenta equivalente a '.$old_sc->codcuenta.' en el ejercicio '.$codejercicio
+                       .' <a href="index.php?page=contabilidad_ejercicio&cod='.$codejercicio.'">¿Has importado el plan contable?</a>');
                return FALSE;
             }
          }
@@ -275,14 +277,14 @@ class subcuenta extends fs_model
     * Devuelve la primera subcuenta del ejercicio $eje cuya cuenta madre
     * está marcada como cuenta especial $id.
     * @param type $id
-    * @param type $eje
+    * @param type $codeje
     * @return \subcuenta|boolean
     */
-   public function get_cuentaesp($id, $eje)
+   public function get_cuentaesp($id, $codeje)
    {
       $sql = "SELECT * FROM co_subcuentas WHERE idcuenta IN "
               ."(SELECT idcuenta FROM co_cuentas WHERE idcuentaesp = ".$this->var2str($id)
-              ." AND codejercicio = ".$this->var2str($eje).") ORDER BY codsubcuenta ASC;";
+              ." AND codejercicio = ".$this->var2str($codeje).") ORDER BY codsubcuenta ASC;";
       
       $data = $this->db->select($sql);
       if($data)
@@ -305,7 +307,10 @@ class subcuenta extends fs_model
          return FALSE;
       }
       else
-         return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idsubcuenta = ".$this->var2str($this->idsubcuenta).";");
+      {
+         return $this->db->select("SELECT * FROM ".$this->table_name
+                 ." WHERE idsubcuenta = ".$this->var2str($this->idsubcuenta).";");
+      }
    }
    
    public function test()
@@ -437,39 +442,52 @@ class subcuenta extends fs_model
    public function all()
    {
       $sublist = array();
+      
       $subcuentas = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY idsubcuenta DESC;");
       if($subcuentas)
       {
          foreach($subcuentas as $s)
+         {
             $sublist[] = new subcuenta($s);
+         }
       }
+      
       return $sublist;
    }
    
    public function all_from_cuenta($idcuenta)
    {
       $sublist = array();
-      $subcuentas = $this->db->select("SELECT * FROM ".$this->table_name.
-              " WHERE idcuenta = ".$this->var2str($idcuenta)." ORDER BY codsubcuenta ASC;");
+      $sql = "SELECT * FROM ".$this->table_name." WHERE idcuenta = ".$this->var2str($idcuenta)
+              ." ORDER BY codsubcuenta ASC;";
+      
+      $subcuentas = $this->db->select($sql);
       if($subcuentas)
       {
          foreach($subcuentas as $s)
+         {
             $sublist[] = new subcuenta($s);
+         }
       }
+      
       return $sublist;
    }
    
    public function all_from_ejercicio($codejercicio)
    {
       $sublist = array();
-      $subcuentas = $this->db->select("SELECT * FROM ".$this->table_name.
-              " WHERE codejercicio = ".$this->var2str($codejercicio).
-              " ORDER BY codsubcuenta ASC;");
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($codejercicio)
+              ." ORDER BY codsubcuenta ASC;";
+      
+      $subcuentas = $this->db->select($sql);
       if($subcuentas)
       {
          foreach($subcuentas as $s)
+         {
             $sublist[] = new subcuenta($s);
+         }
       }
+      
       return $sublist;
    }
    
@@ -477,15 +495,20 @@ class subcuenta extends fs_model
    {
       $sublist = array();
       $query = strtolower( $this->no_html($query) );
-      $subcuentas = $this->db->select("SELECT * FROM ".$this->table_name.
-              " WHERE codsubcuenta LIKE '".$query."%' OR codsubcuenta LIKE '%".$query."'
-               OR lower(descripcion) LIKE '%".$query."%'
-               ORDER BY codejercicio DESC, codcuenta ASC;");
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codsubcuenta LIKE '".$query."%'"
+              ." OR codsubcuenta LIKE '%".$query."'"
+              ." OR lower(descripcion) LIKE '%".$query."%'"
+              ." ORDER BY codejercicio DESC, codcuenta ASC;";
+      
+      $subcuentas = $this->db->select($sql);
       if($subcuentas)
       {
          foreach($subcuentas as $s)
+         {
             $sublist[] = new subcuenta($s);
+         }
       }
+      
       return $sublist;
    }
    
@@ -496,16 +519,17 @@ class subcuenta extends fs_model
       $sublist = $this->cache->get_array('search_subcuenta_ejercicio_'.$ejercicio.'_'.$query);
       if( count($sublist) < 1 )
       {
-         $subcuentas = $this->db->select("SELECT * FROM ".$this->table_name.
-              " WHERE codejercicio = ".$this->var2str($ejercicio).
-              " AND (codsubcuenta LIKE '".$query."%' OR codsubcuenta LIKE '%".$query."'
-               OR lower(descripcion) LIKE '%".$query."%')
-               ORDER BY codcuenta ASC;");
+         $sql = "SELECT * FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($ejercicio)
+                 ." AND (codsubcuenta LIKE '".$query."%' OR codsubcuenta LIKE '%".$query."'"
+                 ." OR lower(descripcion) LIKE '%".$query."%') ORDER BY codcuenta ASC;";
          
+         $subcuentas = $this->db->select();
          if($subcuentas)
          {
             foreach($subcuentas as $s)
+            {
                $sublist[] = new subcuenta($s);
+            }
          }
          
          $this->cache->set('search_subcuenta_ejercicio_'.$ejercicio.'_'.$query, $sublist, 300);

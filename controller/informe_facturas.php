@@ -1555,7 +1555,7 @@ class informe_facturas extends fs_controller
       
       if($_POST['provincia'] != '')
       {
-         $sql .= " AND provincia = ".$this->empresa->var2str($_POST['provincia']);
+         $sql .= " AND lower(provincia) = lower(".$this->empresa->var2str($_POST['provincia']).")";
       }
       
       if($_POST['codcliente'] != '')
@@ -1791,7 +1791,7 @@ class informe_facturas extends fs_controller
       
       if($_POST['provincia'] != '')
       {
-         $sql .= " AND f.provincia = ".$this->empresa->var2str($_POST['provincia']);
+         $sql .= " AND lower(f.provincia) = lower(".$this->empresa->var2str($_POST['provincia']).")";
       }
       
       if($_POST['codcliente'] != '')

@@ -38,6 +38,13 @@
                Desde aquí puedes crear atributos como talla, color, etc... para
                usar en los artículos.
             </p>
+            <div class="btn-group">
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='button'"}
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                  {/if}
+               {/loop}
+            </div>
          </div>
       </div>
    </div>

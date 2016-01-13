@@ -303,16 +303,16 @@ class proveedor extends fs_model
    /**
     * Devuelve la subcuenta asignada al proveedor para el ejercicio $eje,
     * si no hay una subcuenta asignada, intenta crearla.  Si falla devuelve FALSE.
-    * @param type $eje
+    * @param type $codeje
     * @return subcuenta
     */
-   public function get_subcuenta($eje)
+   public function get_subcuenta($codeje)
    {
       $subcuenta = FALSE;
       
       foreach($this->get_subcuentas() as $s)
       {
-         if($s->codejercicio == $eje)
+         if($s->codejercicio == $codeje)
          {
             $subcuenta = $s;
             break;
@@ -327,14 +327,14 @@ class proveedor extends fs_model
          
          if($this->acreedor)
          {
-            $cpro = $cuenta->get_cuentaesp('ACREED', $eje);
+            $cpro = $cuenta->get_cuentaesp('ACREED', $codeje);
             if(!$cpro)
             {
-               $cpro = $cuenta->get_by_codigo('410', $eje);
+               $cpro = $cuenta->get_by_codigo('410', $codeje);
             }
          }
          else
-            $cpro = $cuenta->get_cuentaesp('PROVEE', $eje);
+            $cpro = $cuenta->get_cuentaesp('PROVEE', $codeje);
          
          if($cpro)
          {
@@ -349,7 +349,7 @@ class proveedor extends fs_model
             if($continuar)
             {
                $scpro = new subcuenta_proveedor();
-               $scpro->codejercicio = $eje;
+               $scpro->codejercicio = $codeje;
                $scpro->codproveedor = $this->codproveedor;
                $scpro->codsubcuenta = $subc0->codsubcuenta;
                $scpro->idsubcuenta = $subc0->idsubcuenta;

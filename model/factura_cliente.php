@@ -617,11 +617,6 @@ class factura_cliente extends fs_model
    {
       /// buscamos el número inicial para la serie
       $num = 1;
-      if( defined('FS_NFACTURA_CLI') )
-      {
-         /// mantenemos compatibilidad con versiones anteriores
-         $num = intval(FS_NFACTURA_CLI);
-      }
       $serie0 = new serie();
       $serie = $serie0->get($this->codserie);
       if($serie)

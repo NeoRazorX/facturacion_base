@@ -68,6 +68,10 @@
          $("#modal_enviar").modal('show');
          document.enviar_email.email.select();
       });
+      $("#b_aprobar").click(function(event) {
+         event.preventDefault();
+         $("#modal_aprobar").modal('show');
+      });
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
          $("#modal_eliminar").modal('show');
@@ -115,8 +119,9 @@
                <span class="hidden-xs">&nbsp; Ver Factura</span>
             </a>
             {elseif="$fsc->albaran->ptefactura"}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
-               <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
+            <a id="b_aprobar" class="btn btn-sm btn-default" href="#">
+               <span class="glyphicon glyphicon-paperclip"></span>
+               <span class="hidden-xs">&nbsp; Aprobar</span>
             </a>
             {else}
             <a class="btn btn-sm btn-warning" href="#">
@@ -765,6 +770,32 @@
                   </button>
                   {/if}
                {/loop}
+            </div>
+         </div>
+      </div>
+   </div>
+</form>
+
+<form class="form" role="form" action="{$fsc->url()}" method="post">
+   <input type="hidden" name="petid" value="{$fsc->random_string()}"/>
+   <div class="modal" id="modal_aprobar">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">Aprobar {#FS_ALBARAN#}</h4>
+            </div>
+            <div class="modal-body">
+               <div class="form-group">
+                  Fecha de la {#FS_FACTURA#}:
+                  <input class="form-control datepicker" type="text" name="facturar" value="{$fsc->today()}" autocomplete="off"/>
+                  <p class="help-block">Se generará una {#FS_FACTURA#}.</p>
+               </div>
+               <div class="text-right">
+                  <button class="btn btn-sm btn-primary" onclick="this.disabled=true;this.form.submit();">
+                     <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
+                  </button>
+               </div>
             </div>
          </div>
       </div>

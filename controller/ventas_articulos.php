@@ -270,7 +270,7 @@ class ventas_articulos extends fs_controller
       
       if($this->b_codfamilia != '')
       {
-         $sql .= " WHERE codfamilia IN (";
+         $sql .= $where."codfamilia IN (";
          $coma = '';
          foreach($this->get_subfamilias($this->b_codfamilia) as $fam)
          {
