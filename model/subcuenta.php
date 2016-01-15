@@ -523,7 +523,7 @@ class subcuenta extends fs_model
                  ." AND (codsubcuenta LIKE '".$query."%' OR codsubcuenta LIKE '%".$query."'"
                  ." OR lower(descripcion) LIKE '%".$query."%') ORDER BY codcuenta ASC;";
          
-         $subcuentas = $this->db->select();
+         $subcuentas = $this->db->select($sql);
          if($subcuentas)
          {
             foreach($subcuentas as $s)
