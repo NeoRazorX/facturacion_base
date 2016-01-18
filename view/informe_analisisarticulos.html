@@ -71,12 +71,12 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
                 <div role="tabpanel" class="tab-pane {if="$fsc->reporte=='valorizado-articulo'"}active{/if}" id="valorizado-articulo">
                     <table id="grid_articulo"></table>
                     <div id="grid_articulo_pager"></div>
+                    </div>
+                    </div>
+                </div>
+                </div>
                 </div>
             </div>
-          </div>
-      </div>
-    </div>
-</div>
 <script>
     $.jgrid.defaults.width = '100%';
     $.jgrid.defaults.responsive = true;
@@ -105,29 +105,29 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
                         { label: 'Documento', name: 'tipo_documento', width: 70 },
                         { label: 'Número', name: 'documento', width: 70 },
                         { label: 'Artículo', name: 'descripcion', width: 150 },
-                        { 
-                            label: 'Salida', 
-                            name: 'salida_cantidad', 
+                        {
+                            label: 'Salida',
+                            name: 'salida_cantidad',
                             width: 70,
                             summaryTpl : "<b>{0}</b>",
                             formatter: 'number', align: 'right', summaryType: 'sum',
                             formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }
                         },
-                        { 
-                            label: 'Ingreso', 
-                            name: 'ingreso_cantidad', 
+                        {
+                            label: 'Ingreso',
+                            name: 'ingreso_cantidad',
                             width: 70,
                             summaryTpl : "<b>{0}</b>",
                             formatter: 'number', align: 'right', summaryType: 'sum',
-                            formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }                        
+                            formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }
                         },
-                        { 
-                            label: 'Saldo', 
-                            name: 'saldo_cantidad', 
+                        {
+                            label: 'Saldo',
+                            name: 'saldo_cantidad',
                             width: 70,
                             summaryTpl : "<b>{0}</b>",
                             formatter: 'number', align: 'right', summaryType: last_stock,
-                            formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }                        
+                            formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }
                         }
                     ],
                     loadonce:true,
@@ -159,20 +159,20 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
                         data: datos.rows
                     })
                     .trigger("reloadGrid");
-            
+
                 $('#grid_almacen').navGrid('#grid_almacen_pager',
-                    { edit: false, add: false, del: false, search: true, refresh: false, view: false, position: "left", cloneToTop: true 
+                    { edit: false, add: false, del: false, search: true, refresh: false, view: false, position: "left", cloneToTop: true
                 });
                 $('#b_descargar_reporte').attr('href',datos.filename);
                 $('#b_descargar_reporte').show();
-                
+
             }
         });
     }
     function customButtonClicked(){
         console.log('click');
     }
-    
+
     function runningFormatter(value, row, index) {
         return index;
     }
@@ -212,7 +212,7 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
     $('#inicio').datepicker('update', '{$fsc->fecha_inicio}');
     $('#fin').datepicker('option', 'dateFormat','Y-m-d');
     $('#fin').datepicker('update', '{$fsc->fecha_fin}');
-    
+
     $(document).ready(function () {
         $('#f_generar_reporte').submit(function (event) {
             event.preventDefault();

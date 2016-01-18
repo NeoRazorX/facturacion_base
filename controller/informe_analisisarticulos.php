@@ -48,7 +48,7 @@ class informe_analisisarticulos extends fs_controller {
     public $lista_almacenes;
     public $fileName;
     public $writer;
-    
+
     public function __construct() {
         parent::__construct(__CLASS__, "Análisis de Stock", 'informes', FALSE, TRUE);
     }
@@ -102,7 +102,7 @@ class informe_analisisarticulos extends fs_controller {
             'Ingreso'=>'#,###,###.##',
             'Saldo'=>'#,###,###.##',
             'Salida Valorizada'=>'#,###,###.##',
-            'Ingreso Valorizado'=>'#,###,###.##',            
+            'Ingreso Valorizado'=>'#,###,###.##',
             'Saldo Valorizado'=>'#,###,###.##');
         $this->writer = new XLSXWriter();
         foreach($almacenes->all() as $almacen){
@@ -149,7 +149,7 @@ class informe_analisisarticulos extends fs_controller {
                 $this->total_resultados++;
             }
         }
-        
+
         /*
          * Generamos la informacion de las facturas de proveedor ingresadas
          * que no esten asociadas a un albaran de proveedor
@@ -157,7 +157,7 @@ class informe_analisisarticulos extends fs_controller {
         $sql_facturasprov = "select codalmacen,fc.fecha,fc.idfactura,referencia,descripcion,sum(cantidad) as cantidad, sum(pvptotal) as monto
                 from facturasprov as fc
                 join lineasfacturasprov as l ON (fc.idfactura=l.idfactura)
-                where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."' 
+                where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
                 and anulada=FALSE and idalbaran is null  and referencia in (select referencia from articulos where controlstock = true)
                 group by codalmacen,fc.fecha,fc.idfactura,referencia,descripcion
                 order by codalmacen,referencia,fecha;";
@@ -179,7 +179,7 @@ class informe_analisisarticulos extends fs_controller {
                 $this->total_resultados++;
             }
         }
-        
+
         /*
          * Generamos la informacion de los albaranes asociados a facturas no anuladas
          */
@@ -208,14 +208,14 @@ class informe_analisisarticulos extends fs_controller {
                 $this->total_resultados++;
             }
         }
-        
+
         /*
          * Generamos la informacion de las facturas que se han generado sin albaran
          */
         $sql_facturas = "select codalmacen,fc.fecha,fc.idfactura,referencia,descripcion,sum(cantidad) as cantidad, sum(pvptotal) as monto
                 from facturascli as fc
                 join lineasfacturascli as l ON (fc.idfactura=l.idfactura)
-                where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."' 
+                where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
                 and anulada=FALSE and idalbaran is null  and referencia in (select referencia from articulos where controlstock = true)
                 group by codalmacen,fc.fecha,fc.idfactura,referencia,descripcion
                 order by codalmacen,referencia,fecha;";
@@ -239,7 +239,7 @@ class informe_analisisarticulos extends fs_controller {
         }
         return $this->generar_resultados($lista,$almacen);
     }
-    
+
     public function generar_resultados($lista,$almacen){
         $linea_resultado = array();
         $lista_resultado = array();
@@ -289,7 +289,7 @@ class informe_analisisarticulos extends fs_controller {
                 $lista_export[$value['referencia']][$value['fecha']][$value['tipo_documento']][$value['documento']]['saldo_monto'] = $linea_resultado['saldo_monto'];
             }
         }
-       
+
         //echo count($lista_export);
         foreach($lista_export as $referencia=>$listafecha){
             //echo count($listafecha);
@@ -302,22 +302,22 @@ class informe_analisisarticulos extends fs_controller {
                 foreach($tipo_documentos as $tipo_documento=>$documentos){
                     foreach($documentos as $documento=>$movimiento){
                         if($lineas == 0){
-                            $this->writer->writeSheetRow($almacen->nombre, 
+                            $this->writer->writeSheetRow($almacen->nombre,
                                 array('', '', '', '', $cabecera_export[$referencia], '', '', '', '', '', '')
                             );
                         }
-                        $this->writer->writeSheetRow($almacen->nombre, 
+                        $this->writer->writeSheetRow($almacen->nombre,
                             array(
                                 $fecha,
-                                $tipo_documento, 
-                                $documento, 
-                                $referencia, 
-                                $cabecera_export[$referencia], 
-                                $movimiento['salida_cantidad'], 
-                                $movimiento['ingreso_cantidad'], 
+                                $tipo_documento,
+                                $documento,
+                                $referencia,
+                                $cabecera_export[$referencia],
+                                $movimiento['salida_cantidad'],
+                                $movimiento['ingreso_cantidad'],
                                 $movimiento['saldo_cantidad'],
-                                $movimiento['salida_monto'], 
-                                $movimiento['ingreso_monto'], 
+                                $movimiento['salida_monto'],
+                                $movimiento['ingreso_monto'],
                                 $movimiento['saldo_monto']
                             )
                         );
@@ -329,16 +329,16 @@ class informe_analisisarticulos extends fs_controller {
                     }
                 }
             }
-            $this->writer->writeSheetRow($almacen->nombre, 
+            $this->writer->writeSheetRow($almacen->nombre,
                 array('', '', '', '', 'Saldo Final', $sumaSalidasQda[$referencia], $sumaIngresosQda[$referencia], ($sumaIngresosQda[$referencia]-$sumaSalidasQda[$referencia]), $sumaSalidasMonto[$referencia], $sumaIngresosMonto[$referencia], ($sumaIngresosMonto[$referencia]-$sumaSalidasMonto[$referencia]))
             );
-            $this->writer->writeSheetRow($almacen->nombre, 
+            $this->writer->writeSheetRow($almacen->nombre,
                 array('', '', '', '', '', '', '', '', '', '', '')
             );
         }
-        
-        
-        
+
+
+
         return $lista_resultado;
     }
 
@@ -369,7 +369,7 @@ class informe_analisisarticulos extends fs_controller {
                 'params' => ''
             )
         );
-        
+
         foreach ($extensiones as $ext) {
             $fsext0 = new fs_extension($ext);
             if (!$fsext0->save()) {
