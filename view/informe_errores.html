@@ -34,7 +34,7 @@
                            <option value="{$value->codejercicio}">{$value->nombre}</option>
                            {/loop}
                            <option value="">---</option>
-                           <option value="">Comprobar todos</option>
+                           <option value="" selected="">Comprobar todos</option>
                         </select>
                      </div>
                      <div class="checkbox">
@@ -164,7 +164,7 @@
             <td class="text-right">{$value['fecha']}</td>
          </tr>
          {else}
-         <tr class="bg-warning">
+         <tr class="warning">
             <td colspan="6">Nada que mostrar.</td>
          </tr>
          {/loop}

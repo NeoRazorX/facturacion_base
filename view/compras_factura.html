@@ -28,7 +28,6 @@
             <a class="btn btn-sm btn-default hidden-xs" href="{$fsc->url()}" title="recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-            
             <div class="btn-group">
                <a id="b_imprimir" class="btn btn-sm btn-default" href="#">
                   <span class="glyphicon glyphicon-print"></span>
@@ -84,6 +83,9 @@
             </div>
          </div>
          <div class="col-xs-4 text-right">
+            <a class="btn btn-sm btn-success" href="index.php?page=nueva_compra&tipo=factura" title="Nueva factura">
+               <span class="glyphicon glyphicon-plus"></span>
+            </a>
             <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a id="b_eliminar" class="btn btn-sm btn-danger" href="#">
@@ -100,23 +102,49 @@
       </div>
       <div class="row">
          <div class="col-md-12">
-            <h3 style="margin-bottom: 0px;">
-               <a href="{$fsc->ppage->url()}">Facturas</a> /
-               <a href="{$fsc->factura->proveedor_url()}">{$fsc->factura->nombre}</a>
+            <br/>
+            <ol class="breadcrumb" style="margin-bottom: 5px;">
+               <li><a href="{$fsc->ppage->url()}">Compras</a></li>
+               <li><a href="{$fsc->ppage->url()}">Factura</a></li>
+               <li>
+                  {loop="$fsc->serie->all()"}
+                     {if="$value->codserie==$fsc->factura->codserie"}
+                     <a href="{$fsc->ppage->url()}&codserie={$value->codserie}" class="text-capitalize">{$value->descripcion}</a>
+                     {/if}
+                  {/loop}
+               </li>
+               <li>
+                  <a href="{$fsc->factura->proveedor_url()}">{$fsc->factura->nombre}</a>
+               </li>
                {if="$fsc->proveedor"}
                   {if="$fsc->proveedor->nombre!=$fsc->factura->nombre"}
-                  <a href="#" class="btn btn-xs btn-default" onclick="alert('Proveedor conocido como: {$fsc->proveedor->nombre}')">
-                     <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-                  </a>
+                  <li>
+                     <a href="#" onclick="alert('Proveedor conocido como: {$fsc->proveedor->nombre}')">
+                        <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                     </a>
+                  </li>
                   {/if}
                {/if}
-               / {$fsc->factura->codigo}
-            </h3>
-            {if="$fsc->agente"}
-            <p>Factura creada por <a href="{$fsc->agente->url()}">{$fsc->agente->get_fullname()}</a>.</p>
-            {else}
-            <p>Sin datos de qué empleado ha creado esta factura.</p>
-            {/if}
+               <li class="active"><b>{$fsc->factura->codigo}</b></li>
+            </ol>
+            <p>
+               {if="$fsc->agente"}
+               Factura creada por <a href="{$fsc->agente->url()}">{$fsc->agente->get_fullname()}</a>.
+               {else}
+               Sin datos de qué empleado ha creado esta factura.
+               {/if}
+               &nbsp;
+               {if="$fsc->rectificada"}
+               <a href="{$fsc->rectificada->url()}" class="label label-danger">
+                  <span class="glyphicon glyphicon-flag" aria-hidden="true"></span>
+                  &nbsp; {#FS_FACTURA_RECTIFICATIVA#} de {$fsc->factura->codigorect}
+               </a>
+               {elseif="$fsc->rectificativa"}
+               <a href="{$fsc->rectificativa->url()}" class="label label-warning">
+                  Hay una {#FS_FACTURA_RECTIFICATIVA#} asociada
+               </a>
+               {/if}
+            </p>
          </div>
       </div>
       
@@ -161,9 +189,9 @@
             </a>
          </li>
          <li role="presentation">
-            <a href="#lineas_iva" aria-controls="lineas_iva" role="tab" data-toggle="tab">
-               <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Impuestos</span>
+            <a href="#detalles" aria-controls="detalles" role="tab" data-toggle="tab">
+               <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Detalles</span>
             </a>
          </li>
          {loop="$fsc->extensions"}
@@ -193,7 +221,7 @@
                      </tr>
                   </thead>
                   {loop="$fsc->factura->get_lineas()"}
-                  <tr{if="$value->cantidad<=0"} class="bg-warning"{/if}>
+                  <tr{if="$value->cantidad<=0"} class="warning"{/if}>
                      <td>
                         {if="$value->idalbaran"}
                         <a href="{$value->albaran_url()}">{$value->albaran_codigo()}</a>
@@ -215,9 +243,20 @@
                      <td class="irpf text-right">{$fsc->show_numero($value->irpf, 2)} %</td>
                      <td class="text-right">{$fsc->show_precio($value->total_iva(), $fsc->factura->coddivisa)}</td>
                   </tr>
+                  {else}
+                  <tr class="warning">
+                     <td colspan="10">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        &nbsp; No hay líneas.
+                     </td>
+                  </tr>
                   {/loop}
                   <tr>
+                     {if="$fsc->factura->coddivisa!=$fsc->empresa->coddivisa"}
+                     <td colspan="5" class="text-right warning"><b>{$fsc->factura->coddivisa}:</b></td>
+                     {else}
                      <td colspan="5"></td>
+                     {/if}
                      <td class="text-right"><b>{$fsc->show_precio($fsc->factura->neto, $fsc->factura->coddivisa)}</b></td>
                      <td class="text-right"><b>{$fsc->show_precio($fsc->factura->totaliva, $fsc->factura->coddivisa)}</b></td>
                      <td class="recargo text-right"><b>{$fsc->show_precio($fsc->factura->totalrecargo, $fsc->factura->coddivisa)}</b></td>
@@ -226,84 +265,153 @@
                   </tr>
                </table>
             </div>
+            
+            <div class="container-fluid">
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="form-group">
+                        Observaciones:
+                        <textarea class="form-control" name="observaciones" rows="3">{$fsc->factura->observaciones}</textarea>
+                     </div>
+                  </div>
+               </div>
+            </div>
          </div>
-         <div role="tabpanel" class="tab-pane" id="lineas_iva">
-            <div class="table-responsive">
-               <table class="table table-hover">
-                  <thead>
-                     <tr>
-                        <th class="text-left">Impuesto</th>
-                        <th class="text-right">Neto</th>
-                        <th class="text-right">{#FS_IVA#}</th>
-                        <th class="text-right">Total {#FS_IVA#}</th>
-                        <th class="text-right">RE</th>
-                        <th class="text-right">Total RE</th>
-                        <th class="text-right">Total</th>
-                     </tr>
-                  </thead>
-                  {loop="$fsc->factura->get_lineas_iva()"}
-                  <tr>
-                     <td>{$value->codimpuesto}</td>
-                     <td class="text-right">{$fsc->show_precio($value->neto, $fsc->factura->coddivisa)}</td>
-                     <td class="text-right">{$fsc->show_numero($value->iva, 2)} %</td>
-                     <td class="text-right">{$fsc->show_precio($value->totaliva, $fsc->factura->coddivisa)}</td>
-                     <td class="text-right">{$fsc->show_numero($value->recargo, 2)} %</td>
-                     <td class="text-right">{$fsc->show_precio($value->totalrecargo, $fsc->factura->coddivisa)}</td>
-                     <td class="text-right">{$fsc->show_precio($value->totallinea, $fsc->factura->coddivisa)}</td>
-                  </tr>
-                  {/loop}
-               </table>
+         <div role="tabpanel" class="tab-pane" id="detalles">
+            <div class="container-fluid" style="margin-top: 10px;">
+               <div class="row">
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        Nombre del proveedor:
+                        <input class="form-control" type="text" name="nombre" value="{$fsc->factura->nombre}" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        {#FS_CIFNIF#}:
+                        <input class="form-control" type="text" name="cifnif" value="{$fsc->factura->cifnif}" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        <a href="{$fsc->divisa->url()}">Divisa</a>:
+                        <select name="divisa" class="form-control" disabled="">
+                        {loop="$fsc->divisa->all()"}
+                           {if="$value->coddivisa==$fsc->factura->coddivisa"}
+                           <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->coddivisa}">{$value->descripcion}</option>
+                           {/if}
+                        {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        Tasa de conversión (1€ = X)
+                        <input type="text" name="tasaconv" value="{$fsc->factura->tasaconv}" class="form-control" readonly=""/>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-sm-12">
+                     <p class="help-block">
+                        Puedes editar más detalles de las facturas usando el plugin
+                        <a href="https://www.facturascripts.com/store/producto/plugin-editar-facturas/" target="_blank">editar facturas</a>.
+                     </p>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-sm-12">
+                     <h3>
+                        <span class="glyphicon glyphicon-credit-card" aria-hidden="true"></span>
+                        &nbsp; Cuentas bancarias del proveedor:
+                     </h3>
+                     <div class="table-responsive">
+                        <table class="table table-hover">
+                           <thead>
+                              <tr>
+                                 <th width="30"></th>
+                                 <th>Codcuenta + Descripción</th>
+                                 <th>IBAN</th>
+                                 <th>SWIFT/BIC</th>
+                              </tr>
+                           </thead>
+                           {loop="$fsc->get_cuentas_bancarias()"}
+                           <tr class="clickableRow" href="{$value->url()}">
+                              <td class="text-right">
+                                 {if="$value->principal"}
+                                 <span class="glyphicon glyphicon-flag" aria-hidden="true" title="Cuenta principal"></span>
+                                 {/if}
+                              </td>
+                              <td>
+                                 <a href="{$value->url()}">{$value->codcuenta}</a>
+                                 {$value->descripcion}
+                              </td>
+                              <td>{$value->iban}</td>
+                              <td>{$value->swift}</td>
+                           </tr>
+                           {else}
+                           <tr class="warning">
+                              <td></td>
+                              <td colspan="3">
+                                 Este proveedor no tiene ninguna cuenta bancaria asignada.
+                                 {if="$fsc->proveedor"}
+                                 <a href="{$fsc->proveedor->url()}#cuentasb">Nueva cuenta bancaria</a>.
+                                 {/if}
+                              </td>
+                           </tr>
+                           {/loop}
+                        </table>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-sm-12">
+                     <h3>
+                        <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+                        &nbsp; Desglose de impuestos:
+                     </h3>
+                     <div class="table-responsive">
+                        <table class="table table-hover">
+                           <thead>
+                              <tr>
+                                 <th class="text-left">Impuesto</th>
+                                 <th class="text-right">Neto</th>
+                                 <th class="text-right">{#FS_IVA#}</th>
+                                 <th class="text-right">Total {#FS_IVA#}</th>
+                                 <th class="text-right">RE</th>
+                                 <th class="text-right">Total RE</th>
+                                 <th class="text-right">Total</th>
+                              </tr>
+                           </thead>
+                           {loop="$fsc->factura->get_lineas_iva()"}
+                           <tr>
+                              <td>{$value->codimpuesto}</td>
+                              <td class="text-right">{$fsc->show_precio($value->neto, $fsc->factura->coddivisa)}</td>
+                              <td class="text-right">{$fsc->show_numero($value->iva, 2)} %</td>
+                              <td class="text-right">{$fsc->show_precio($value->totaliva, $fsc->factura->coddivisa)}</td>
+                              <td class="text-right">{$fsc->show_numero($value->recargo, 2)} %</td>
+                              <td class="text-right">{$fsc->show_precio($value->totalrecargo, $fsc->factura->coddivisa)}</td>
+                              <td class="text-right">{$fsc->show_precio($value->totallinea, $fsc->factura->coddivisa)}</td>
+                           </tr>
+                           {/loop}
+                        </table>
+                     </div>
+                  </div>
+               </div>
             </div>
          </div>
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
-               <iframe src="index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}" width="100%" height="600" frameborder="0"></iframe>
+               <iframe src="index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}" width="100%" height="2000" frameborder="0"></iframe>
             </div>
             {/if}
          {/loop}
       </div>
    </div>
-   
-   <div class="container-fluid">
-      <div class="row">
-         <div class="col-lg-12 col-md-12 col-sm-12">
-            <div class="form-group">
-               Observaciones:
-               <textarea class="form-control" name="observaciones" rows="3">{$fsc->factura->observaciones}</textarea>
-            </div>
-         </div>
-      </div>
-   </div>
 </form>
-
-<div class="modal fade" id="modal_eliminar">
-   <div class="modal-dialog">
-      <div class="modal-content">
-         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">¿Realmente desea eliminar esta factura?</h4>
-            <p class="help-block">
-               Puedes editar facturas usando el plugin
-               <a href="https://www.facturascripts.com/store/producto/plugin-editar-facturas/" target="_blank">editar facturas</a>.
-            </p>
-         </div>
-         {if="$fsc->factura->idasiento"}
-         <div class="modal-body bg-warning">
-            Hay asociado un asiento contable que será eliminado junto con la factura.
-            <br/>
-            Además, si no hay asociado un {#FS_ALBARAN#} o {#FS_ALBARANES#},
-            se restaurará el stock de los artículos.
-         </div>
-         {/if}
-         <div class="modal-footer">
-            <a class="btn btn-sm btn-danger" href="{$fsc->ppage->url()}&delete={$fsc->factura->idfactura}">
-               <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
-            </a>
-         </div>
-      </div>
-   </div>
-</div>
 
 <div class="modal fade" id="modal_imprimir">
    <div class="modal-dialog">
@@ -324,6 +432,60 @@
       </div>
    </div>
 </div>
+
+<form action="{$fsc->url()}" method="post" class="form">
+   <input type="hidden" name="anular" value="TRUE"/>
+   <div class="modal fade" id="modal_eliminar">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">¿Quiere eliminar o anular esta {#FS_FACTURA#}?</h4>
+               <p class="help-block">
+                  Puedes editar facturas usando el plugin
+                  <a href="https://www.facturascripts.com/store/producto/plugin-editar-facturas/" target="_blank">editar facturas</a>.
+               </p>
+            </div>
+            <div class="modal-body bg-warning">
+               {if="$fsc->factura->idasiento"}
+               Si decide <b>eliminar</b>, hay asociado un asiento contable que será eliminado
+               junto con la {#FS_FACTURA#}. Además, si no hay asociado un {#FS_ALBARAN#} o {#FS_ALBARANES#},
+               se restaurará el stock de los artículos.
+               {else}
+               Si decide <b>eliminar</b>, se restaurará el stock de los artículos si no hay asociado un
+               {#FS_ALBARAN#} o {#FS_ALBARANES#}.
+               {/if}
+               <br/><br/>
+               Si decide <b>anular</b>, se generará una <b>{#FS_FACTURA_RECTIFICATIVA#}</b>
+               y se restaurará el stock de los artículos, aunque primero debe elegir
+               la serie para la {#FS_FACTURA_RECTIFICATIVA#}:
+               <div class="form-group">
+                  <select name="codserie" class="form-control">
+                  {loop="$fsc->serie->all()"}
+                     {if="$value->codserie==$fsc->factura->codserie"}
+                     <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
+                     {else}
+                     <option value="{$value->codserie}">{$value->descripcion}</option>
+                     {/if}
+                  {/loop}
+                  </select>
+               </div>
+               <div class="form-group">
+                  <textarea name="motivo" class="form-control" placeholder="Motivo de la anulación"></textarea>
+               </div>
+            </div>
+            <div class="modal-footer">
+               <a class="btn btn-sm btn-danger pull-left" href="{$fsc->ppage->url()}&delete={$fsc->factura->idfactura}">
+                  <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+               </a>
+               <button type="submit" class="btn btn-sm btn-warning">
+                  <span class="glyphicon glyphicon-flag"></span> &nbsp; Anular
+               </button>
+            </div>
+         </div>
+      </div>
+   </div>
+</form>
 {else}
 <div class="thumbnail">
    <img src="view/img/fuuu_face.png" alt="fuuuuu"/>

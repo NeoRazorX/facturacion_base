@@ -30,23 +30,20 @@
       </div>
    </div>
 </div>
-{else}
-<div class="thumbnail">
-   <img src="view/img/fuuu_face.png" alt="fuuuuu"/>
-</div>
-{/if}
 
 <ul class="nav nav-tabs">
    <li role="presentation"{if="$fsc->mostrar=='clientes'"} class="active"{/if}>
       <a href="{$fsc->grupo->url()}">
          <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
          <span class="hidden-xs">&nbsp; Clientes</span>
+         <span class="badge">{$fsc->total_clientes}</span>
       </a>
    </li>
    <li role="presentation"{if="$fsc->mostrar=='facturas'"} class="active"{/if}>
       <a href="{$fsc->grupo->url()}&mostrar=facturas">
          <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
          <span class="hidden-xs">&nbsp; Facturas</span>
+         <span class="badge">{$fsc->total_facturas}</span>
       </a>
    </li>
 </ul>
@@ -97,30 +94,40 @@
             <th class="text-left">Observaciones</th>
             <th class="text-right">Total</th>
             <th class="text-right">Fecha</th>
-            <th class="text-right">Hora</th>
+            <th class="text-right visible-lg">Hora</th>
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr class="clickableRow{if="$value->total<=0"} bg-warning{/if}" href="{$value->url()}">
+      <tr class="clickableRow{if="$value->vencida()"} danger{elseif="$value->pagada"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}">
          <td class="text-center">
             {if="$value->pagada"}
-            <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
+            <span class="glyphicon glyphicon-ok" title="La {#FS_FACTURA#} está pagada"></span>
+            {/if}
+            {if="$value->femail"}
+            <span class="glyphicon glyphicon-send" title="La {#FS_FACTURA#} fue enviada por email el {$value->femail}"></span>
             {/if}
          </td>
          <td class="text-center">
             {if="$value->idasiento"}
-            <span class="glyphicon glyphicon-paperclip" title="La factura tiene vinculado un asiento contable"></span>
+            <span class="glyphicon glyphicon-paperclip" title="La {#FS_FACTURA#} tiene vinculado un asiento contable"></span>
             {/if}
          </td>
-         <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}</td>
+         <td>
+            <a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}
+            {if="$value->idfacturarect"}
+            <span class="label label-danger" title="{#FS_FACTURA_RECTIFICATIVA#} de {$value->codigorect}">
+               <span class="glyphicon glyphicon-flag"></span>
+            </span>
+            {/if}
+         </td>
          <td>{$value->nombrecliente}</td>
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
          <td class="text-right">{$value->fecha}</td>
-         <td class="text-right">{$value->hora}</td>
+         <td class="text-right visible-lg">{$value->hora}</td>
       </tr>
       {else}
-      <tr class="bg-warning">
+      <tr class="warning">
          <td></td>
          <td></td>
          <td colspan="6">Ninguna factura encontrada. Pulsa <b>Nueva</b> para crear una.</td>
@@ -130,22 +137,23 @@
 </div>
 {/if}
 
-<ul class="pager">
-   {if="$fsc->offset > 0"}
-   <li class="previous">
-      <a href="{$fsc->grupo->url()}&mostrar={$fsc->mostrar}&offset={$fsc->offset-FS_ITEM_LIMIT}">
-         <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
-      </a>
-   </li>
-   {/if}
-   
-   {if="count($fsc->resultados) == FS_ITEM_LIMIT"}
-   <li class="next">
-      <a href="{$fsc->grupo->url()}&mostrar={$fsc->mostrar}&offset={$fsc->offset+FS_ITEM_LIMIT}">
-         Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
-      </a>
-   </li>
-   {/if}
-</ul>
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12 text-center">
+         <ul class="pagination">
+            {loop="$fsc->paginas()"}
+            <li{if="$value['actual']"} class="active"{/if}>
+               <a href="{$value['url']}">{$value['num']}</a>
+            </li>
+            {/loop}
+         </ul>
+      </div>
+   </div>
+</div>
+{else}
+<div class="thumbnail">
+   <img src="view/img/fuuu_face.png" alt="fuuuuu"/>
+</div>
+{/if}
 
 {include="footer"}

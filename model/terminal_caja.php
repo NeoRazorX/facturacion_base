@@ -118,7 +118,7 @@ class terminal_caja extends fs_model
             $this->tickets .= chr($a);
       }
       
-      $this->tickets .= ' ';
+      $this->tickets .= "\n";
    }
    
    public function cortar_papel()
@@ -130,7 +130,7 @@ class terminal_caja extends fs_model
             $this->tickets .= chr($a);
       }
       
-      $this->tickets .= ' ';
+      $this->tickets .= "\n";
    }
    
    public function center_text($word = '', $ancho = FALSE)

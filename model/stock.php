@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('almacen.php');
 require_model('articulo.php');
 
 /**
@@ -50,6 +51,8 @@ class stock extends fs_model
    
    public $cantidadultreg;
    
+   public $ubicacion;
+   
    public function __construct($s=FALSE)
    {
       parent::__construct('stocks', 'plugins/facturacion_base/');
@@ -66,6 +69,7 @@ class stock extends fs_model
          $this->stockmin = floatval($s['stockmin']);
          $this->stockmax = floatval($s['stockmax']);
          $this->cantidadultreg = floatval($s['cantidadultreg']);
+         $this->ubicacion = $s['ubicacion'];
       }
       else
       {
@@ -80,6 +84,7 @@ class stock extends fs_model
          $this->stockmin = 0;
          $this->stockmax = 0;
          $this->cantidadultreg = 0;
+         $this->ubicacion = NULL;
       }
    }
    
@@ -122,10 +127,10 @@ class stock extends fs_model
    
    public function get($id)
    {
-      $stock = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idstock = ".$this->var2str($id).";");
-      if($stock)
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idstock = ".$this->var2str($id).";");
+      if($data)
       {
-         return new stock($stock[0]);
+         return new stock($data[0]);
       }
       else
          return FALSE;
@@ -133,10 +138,10 @@ class stock extends fs_model
    
    public function get_by_referencia($ref)
    {
-      $stock = $this->db->select("SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref).";");
-      if($stock)
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref).";");
+      if($data)
       {
-         return new stock($stock[0]);
+         return new stock($data[0]);
       }
       else
          return FALSE;
@@ -166,6 +171,7 @@ class stock extends fs_model
                  .", stockmin = ".$this->var2str($this->stockmin)
                  .", stockmax = ".$this->var2str($this->stockmax)
                  .", cantidadultreg = ".$this->var2str($this->cantidadultreg)
+                 .", ubicacion = ".$this->var2str($this->ubicacion)
                  ."  WHERE idstock = ".$this->var2str($this->idstock).";";
          
          return $this->db->exec($sql);
@@ -173,7 +179,8 @@ class stock extends fs_model
       else
       {
          $sql = "INSERT INTO ".$this->table_name." (codalmacen,referencia,nombre,cantidad,reservada,
-            disponible,pterecibir,stockmin,stockmax,cantidadultreg) VALUES (".$this->var2str($this->codalmacen)
+            disponible,pterecibir,stockmin,stockmax,cantidadultreg,ubicacion) VALUES 
+                   (".$this->var2str($this->codalmacen)
                  .",".$this->var2str($this->referencia)
                  .",".$this->var2str($this->nombre)
                  .",".$this->var2str($this->cantidad)
@@ -182,7 +189,8 @@ class stock extends fs_model
                  .",".$this->var2str($this->pterecibir)
                  .",".$this->var2str($this->stockmin)
                  .",".$this->var2str($this->stockmax)
-                 .",".$this->var2str($this->cantidadultreg).");";
+                 .",".$this->var2str($this->cantidadultreg)
+                 .",".$this->var2str($this->ubicacion).");";
          
          if( $this->db->exec($sql) )
          {
@@ -202,23 +210,33 @@ class stock extends fs_model
    public function all_from_articulo($ref)
    {
       $stocklist = array();
-      $stocks = $this->db->select("SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref)." ORDER BY codalmacen ASC;");
-      if($stocks)
+      
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref)." ORDER BY codalmacen ASC;");
+      if($data)
       {
-         foreach($stocks as $s)
+         foreach($data as $s)
+         {
             $stocklist[] = new stock($s);
+         }
       }
+      
       return $stocklist;
    }
    
-   public function total_from_articulo($ref)
+   public function total_from_articulo($ref, $codalmacen = FALSE)
    {
       $num = 0;
+      $sql = "SELECT SUM(cantidad) as total FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref);
       
-      $stocks = $this->db->select("SELECT SUM(cantidad) as total FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref).";");
-      if($stocks)
+      if($codalmacen)
       {
-         $num = floatval($stocks[0]['total']);
+         $sql .= " AND codalmacen = ".$this->var2str($codalmacen);
+      }
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $num = floatval($data[0]['total']);
       }
       
       return $num;
@@ -228,10 +246,10 @@ class stock extends fs_model
    {
       $num = 0;
       
-      $stocks = $this->db->select("SELECT COUNT(idstock) as total FROM ".$this->table_name.";");
-      if($stocks)
+      $data = $this->db->select("SELECT COUNT(idstock) as total FROM ".$this->table_name.";");
+      if($data)
       {
-         $num = intval($stocks[0]['total']);
+         $num = intval($data[0]['total']);
       }
       
       return $num;
@@ -241,10 +259,10 @@ class stock extends fs_model
    {
       $num = 0;
       
-      $stocks = $this->db->select("SELECT COUNT(DISTINCT referencia) as total FROM ".$this->table_name.";");
-      if($stocks)
+      $data = $this->db->select("SELECT COUNT(DISTINCT referencia) as total FROM ".$this->table_name.";");
+      if($data)
       {
-         $num = intval($stocks[0]['total']);
+         $num = intval($data[0]['total']);
       }
       
       return $num;

@@ -276,10 +276,23 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
+<<<<<<< HEAD
       <tr class="clickableRow{if="$value->vencida()"} danger{elseif="$value->pagada"} success{elseif="$value->total<=0"} warning{/if} {if="$value->deabono"}factura-abono{/if}" href="{$value->url()}">
+=======
+      <tr class="clickableRow{if="$value->vencida() OR $value->anulada"} danger{elseif="$value->pagada"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}">
+>>>>>>> upstream/master
          <td class="text-center">
             {if="$value->pagada"}
             <span class="glyphicon glyphicon-ok" title="La {#FS_FACTURA#} está pagada"></span>
+            {/if}
+            {if="$value->anulada"}
+            <span class="glyphicon glyphicon-remove" title="La {#FS_FACTURA#} está anulada"></span>
+            {/if}
+            {if="$value->idfacturarect"}
+            <span class="glyphicon glyphicon-flag" title="{#FS_FACTURA_RECTIFICATIVA#} de {$value->codigorect}"></span>
+            {/if}
+            {if="$value->femail"}
+            <span class="glyphicon glyphicon-send" title="La {#FS_FACTURA#} fue enviada por email el {$value->femail}"></span>
             {/if}
          </td>
          <td class="text-center">
@@ -300,13 +313,13 @@
          </td>
          <td class="text-left">{$fsc->show_numero($value->porcomision)}</td>
          {/if}
-         <td class="text-right">
+         <td class="text-right" title="{$value->hora}">
             {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
          </td>
          <td class="text-right">{$value->vencimiento}</td>
       </tr>
       {else}
-      <tr class="bg-warning">
+      <tr class="warning">
          <td></td>
          <td></td>
          <td colspan="6">Ninguna {#FS_FACTURA#} encontrada. Pulsa <b>Nueva</b> para crear una.</td>
@@ -331,22 +344,19 @@
    </table>
 </div>
 
-<ul class="pager">
-   {if="$fsc->anterior_url()!=''"}
-   <li class="previous">
-      <a href="{$fsc->anterior_url()}">
-         <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
-      </a>
-   </li>
-   {/if}
-   {if="$fsc->siguiente_url()!=''"}
-   <li class="next">
-      <a href="{$fsc->siguiente_url()}">
-         Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
-      </a>
-   </li>
-   {/if}
-</ul>
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12 text-center">
+         <ul class="pagination">
+            {loop="$fsc->paginas()"}
+            <li{if="$value['actual']"} class="active"{/if}>
+               <a href="{$value['url']}">{$value['num']}</a>
+            </li>
+            {/loop}
+         </ul>
+      </div>
+   </div>
+</div>
 
 <div class="modal fade" id="modal_huecos">
    <div class="modal-dialog">
@@ -358,9 +368,7 @@
                &nbsp; Huecos en la facturación
             </h4>
             <p class="help-block">
-               Si hay huecos en la facturación es debido a que faltan facturas o bien a una
-               incorrecta configuración del <b>nº de la primera factura de venta</b>,
-               en la pestaña avanzado del panel de control.
+               Si hay huecos en la facturación es debido a que faltan facturas.
             </p>
          </div>
          <div class="table-responsive">

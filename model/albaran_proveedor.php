@@ -198,7 +198,9 @@ class albaran_proveedor extends fs_model
          
          $this->hora = '00:00:00';
          if( !is_null($a['hora']) )
-            $this->hora = $a['hora'];
+         {
+            $this->hora = date('H:i:s', strtotime($a['hora']));
+         }
          
          $this->codproveedor = $a['codproveedor'];
          $this->nombre = $a['nombre'];
@@ -745,20 +747,6 @@ class albaran_proveedor extends fs_model
    
    public function cron_job()
    {
-      /*
-       * Marcamos como ptefactura = TRUE todos los albaranes de ejercicios
-       * ya cerrados. Así no se podrán modificar ni facturar.
-       */
-      $ejercicio = new ejercicio();
-      foreach($ejercicio->all() as $eje)
-      {
-         if( !$eje->abierto() )
-         {
-            $this->db->exec("UPDATE ".$this->table_name." SET ptefactura = FALSE
-               WHERE codejercicio = ".$this->var2str($eje->codejercicio).";");
-         }
-      }
-      
       /**
        * Ponemos a NULL todos los idfactura = 0
        */

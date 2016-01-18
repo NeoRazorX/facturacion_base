@@ -87,6 +87,7 @@
    <columna>
       <nombre>deabono</nombre>
       <tipo>boolean</tipo>
+      <defecto>false</defecto>
    </columna>
    <columna>
       <nombre>direccion</nombre>
@@ -108,6 +109,10 @@
       <tipo>date</tipo>
    </columna>
    <columna>
+      <nombre>femail</nombre>
+      <tipo>date</tipo>
+   </columna>
+   <columna>
       <nombre>hora</nombre>
       <tipo>time without time zone</tipo>
       <nulo>NO</nulo>
@@ -115,6 +120,11 @@
    </columna>
    <columna>
       <nombre>idasiento</nombre>
+      <tipo>integer</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>idasientop</nombre>
       <tipo>integer</tipo>
       <nulo>YES</nulo>
    </columna>
@@ -175,6 +185,12 @@
    </columna>
    <columna>
       <nombre>pagada</nombre>
+      <tipo>boolean</tipo>
+      <nulo>NO</nulo>
+      <defecto>false</defecto>
+   </columna>
+   <columna>
+      <nombre>anulada</nombre>
       <tipo>boolean</tipo>
       <nulo>NO</nulo>
       <defecto>false</defecto>
@@ -243,6 +259,12 @@
    <restriccion>
       <nombre>ca_facturascli_asiento2</nombre>
       <consulta>FOREIGN KEY (idasiento)
+      REFERENCES co_asientos (idasiento)
+      ON DELETE SET NULL ON UPDATE CASCADE</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>ca_facturascli_asientop</nombre>
+      <consulta>FOREIGN KEY (idasientop)
       REFERENCES co_asientos (idasiento)
       ON DELETE SET NULL ON UPDATE CASCADE</consulta>
    </restriccion>

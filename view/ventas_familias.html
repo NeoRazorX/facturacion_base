@@ -10,6 +10,12 @@
       document.f_custom_search.query.focus();
       {/if}
       
+      if(window.location.hash.substring(1) == 'nueva')
+      {
+         $("#modal_nueva_familia").modal('show');
+         document.f_nueva_familia.ncodfamilia.focus();
+      }
+      
       $("#b_nueva_familia").click(function(event) {
          event.preventDefault();
          $("#modal_nueva_familia").modal('show');
@@ -18,40 +24,10 @@
    });
 </script>
 
-<div class="container">
+<div class="container-fluid">
    <div class="row">
-      <div class="col-sm-12">
-         <div class="page-header">
-            <h1>
-               {if="$fsc->query==''"}
-               <span class="glyphicon glyphicon-folder-open"></span>
-               &nbsp; Familias de artículos
-               <span class="hidden-xs badge">{$fsc->total_familias()}</span>
-               {else}
-               <span class="glyphicon glyphicon-search"></span>
-               &nbsp; Resultados de '{$fsc->query}'
-               {/if}
-            </h1>
-            <p class="help-block">
-               Las familias son una forma sencilla de agrupar artículos. Además
-               puedes meter familias dentro de otras, es decir, subfamilias.
-            </p>
-         </div>
-      </div>
-   </div>
-   <div class="row">
-      <div class="col-sm-9">
-         <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
-            <span class="glyphicon glyphicon-refresh"></span>
-         </a>
-         <a class="btn btn-sm btn-default" href="index.php?page=ventas_articulos">
-            <span class="glyphicon glyphicon-chevron-left"></span>
-            <span class="hidden-xs">&nbsp; Artículos</span>
-         </a>
+      <div class="col-md-10 col-sm-9">
          <div class="btn-group">
-            <a id="b_nueva_familia" class="btn btn-sm btn-success" href="#">
-               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nueva
-            </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
@@ -59,7 +35,10 @@
             {/loop}
          </div>
       </div>
-      <div class="col-sm-3">
+      <div class="col-md-2 col-sm-3">
+         <div class="visible-xs">
+            <br/>
+         </div>
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
@@ -72,9 +51,37 @@
          </form>
       </div>
    </div>
+</div>
+
+<div class="container">
    <div class="row">
       <div class="col-sm-12">
-         <br/>
+         <div class="page-header">
+            <h1>
+               <a class="btn btn-xs btn-default" href="index.php?page=ventas_articulos">
+                  <span class="glyphicon glyphicon-arrow-left"></span>
+               </a> &nbsp;
+               {if="$fsc->query==''"}
+               <span class="glyphicon glyphicon-folder-open"></span>
+               &nbsp; Familias de artículos
+               <small>{$fsc->total_familias()}</small>
+               {else}
+               <span class="glyphicon glyphicon-search"></span>
+               &nbsp; Resultados de '{$fsc->query}'
+               {/if}
+               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+               <a id="b_nueva_familia" class="btn btn-xs btn-success" href="#">
+                  <span class="glyphicon glyphicon-plus"></span>
+                  <span class="hidden-xs">&nbsp; Nueva</span>
+               </a>
+            </h1>
+            <p class="help-block">
+               Las familias son una forma sencilla de agrupar artículos. Además
+               puedes meter familias dentro de otras, es decir, subfamilias.
+            </p>
+         </div>
       </div>
    </div>
    <div class="row">
@@ -82,7 +89,7 @@
       <div class="col-sm-3" style="margin-bottom: 5px;">
          <a class="btn btn-block btn-default" href="{$value->url()}">
             <span class="glyphicon glyphicon-folder-open"></span>
-            &nbsp; {$value->descripcion}
+            &nbsp; {$value->descripcion()}
          </a>
       </div>
       {else}
@@ -118,15 +125,15 @@
                {/if}
                <div class="form-group">
                   Código:
-                  <input class="form-control" type="text" name="ncodfamilia" maxlength="8" autocomplete="off"/>
+                  <input class="form-control" type="text" name="ncodfamilia" maxlength="8" autocomplete="off" required=""/>
                </div>
                <div class="form-group">
                   Descripción:
-                  <input class="form-control" type="text" name="ndescripcion" autocomplete="off"/>
+                  <input class="form-control" type="text" name="ndescripcion" autocomplete="off" required=""/>
                </div>
             </div>
             <div class="modal-footer">
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <button class="btn btn-sm btn-primary" type="submit">
                   <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                </button>
             </div>

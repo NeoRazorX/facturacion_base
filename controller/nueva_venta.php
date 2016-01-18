@@ -20,6 +20,7 @@
 
 require_model('almacen.php');
 require_model('articulo.php');
+require_model('articulo_combinacion.php');
 require_model('asiento_factura.php');
 require_model('cliente.php');
 require_model('divisa.php');
@@ -56,7 +57,7 @@ class nueva_venta extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'nueva venta', 'ventas', FALSE, FALSE);
+      parent::__construct(__CLASS__, 'Nueva venta...', 'ventas', FALSE, FALSE, TRUE);
    }
    
    protected function private_core()
@@ -127,6 +128,10 @@ class nueva_venta extends fs_controller
       else if( isset($_POST['referencia4precios']) )
       {
          $this->get_precios_articulo();
+      }
+      else if( isset($_POST['referencia4combi']) )
+      {
+         $this->get_combinaciones_articulo();
       }
       else if( isset($_POST['cliente']) )
       {
@@ -383,6 +388,10 @@ class nueva_venta extends fs_controller
       /// desactivamos la plantilla HTML
       $this->template = FALSE;
       
+      $fsvar = new fs_var();
+      $multi_almacen = $fsvar->simple_get('multi_almacen');
+      $stock = new stock();
+      
       $articulo = new articulo();
       $codfamilia = '';
       if( isset($_REQUEST['codfamilia']) )
@@ -397,12 +406,18 @@ class nueva_venta extends fs_controller
       $con_stock = isset($_REQUEST['con_stock']);
       $this->results = $articulo->search($this->query, 0, $codfamilia, $con_stock, $codfabricante);
       
-      /// añadimos la busqueda, el descuento y la cantidad
+      /// añadimos la busqueda, el descuento, la cantidad, etc...
       foreach($this->results as $i => $value)
       {
          $this->results[$i]->query = $this->query;
          $this->results[$i]->dtopor = 0;
          $this->results[$i]->cantidad = 1;
+         
+         $this->results[$i]->stockalm = $this->results[$i]->stockfis;
+         if( $multi_almacen AND isset($_REQUEST['codalmacen']) )
+         {
+            $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
+         }
       }
       
       /// ejecutamos las funciones de las extensiones
@@ -419,18 +434,21 @@ class nueva_venta extends fs_controller
       if( isset($_REQUEST['codcliente']) )
       {
          $cliente = $this->cliente->get($_REQUEST['codcliente']);
-         if($cliente->codgrupo)
+         if($cliente)
          {
-            $grupo0 = new grupo_clientes();
-            $tarifa0 = new tarifa();
-            
-            $grupo = $grupo0->get($cliente->codgrupo);
-            if($grupo)
+            if($cliente->codgrupo)
             {
-               $tarifa = $tarifa0->get($grupo->codtarifa);
-               if($tarifa)
+               $grupo0 = new grupo_clientes();
+               $tarifa0 = new tarifa();
+               
+               $grupo = $grupo0->get($cliente->codgrupo);
+               if($grupo)
                {
-                  $tarifa->set_precios($this->results);
+                  $tarifa = $tarifa0->get($grupo->codtarifa);
+                  if($tarifa)
+                  {
+                     $tarifa->set_precios($this->results);
+                  }
                }
             }
          }
@@ -447,6 +465,35 @@ class nueva_venta extends fs_controller
       
       $articulo = new articulo();
       $this->articulo = $articulo->get($_POST['referencia4precios']);
+   }
+   
+   private function get_combinaciones_articulo()
+   {
+      /// cambiamos la plantilla HTML
+      $this->template = 'ajax/nueva_venta_combinaciones';
+      
+      $this->results = array();
+      $comb1 = new articulo_combinacion();
+      foreach($comb1->all_from_ref($_POST['referencia4combi']) as $com)
+      {
+         if( isset($this->results[$com->codigo]) )
+         {
+            $this->results[$com->codigo]['desc'] .= ', '.$com->nombreatributo.' - '.$com->valor;
+            $this->results[$com->codigo]['txt'] .= ', '.$com->nombreatributo.' - '.$com->valor;
+         }
+         else
+         {
+            $this->results[$com->codigo] = array(
+                'ref' => $_POST['referencia4combi'],
+                'desc' => base64_decode($_POST['desc'])."\n".$com->nombreatributo.' - '.$com->valor,
+                'pvp' => floatval($_POST['pvp']) + $com->impactoprecio,
+                'dto' => floatval($_POST['dto']),
+                'codimpuesto' => $_POST['codimpuesto'],
+                'cantidad' => floatval($_POST['cantidad']),
+                'txt' => $com->nombreatributo.' - '.$com->valor
+            );
+         }
+      }
    }
    
    public function get_tarifas_articulo($ref)
@@ -558,8 +605,8 @@ class nueva_venta extends fs_controller
          $albaran->porcomision = $this->agente->porcomision;
          
          $albaran->codcliente = $cliente->codcliente;
-         $albaran->cifnif = $cliente->cifnif;
-         $albaran->nombrecliente = $cliente->razonsocial;
+         $albaran->cifnif = $_POST['cifnif'];
+         $albaran->nombrecliente = $_POST['nombrecliente'];
          $albaran->ciudad = $_POST['ciudad'];
          $albaran->codpais = $_POST['codpais'];
          $albaran->codpostal = $_POST['codpostal'];
@@ -763,8 +810,8 @@ class nueva_venta extends fs_controller
          $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$forma_pago->vencimiento));
          
          $factura->codcliente = $cliente->codcliente;
-         $factura->cifnif = $cliente->cifnif;
-         $factura->nombrecliente = $cliente->razonsocial;
+         $factura->cifnif = $_POST['cifnif'];
+         $factura->nombrecliente = $_POST['nombrecliente'];
          $factura->ciudad = $_POST['ciudad'];
          $factura->codpais = $_POST['codpais'];
          $factura->codpostal = $_POST['codpostal'];
@@ -961,13 +1008,21 @@ class nueva_venta extends fs_controller
       if($continuar)
       {
          $presupuesto->fecha = $_POST['fecha'];
-         $presupuesto->finoferta = date("Y-m-d", strtotime($_POST['fecha']." +1 month"));
          $presupuesto->codalmacen = $almacen->codalmacen;
          $presupuesto->codejercicio = $ejercicio->codejercicio;
          $presupuesto->codserie = $serie->codserie;
          $presupuesto->codpago = $forma_pago->codpago;
          $presupuesto->coddivisa = $divisa->coddivisa;
          $presupuesto->tasaconv = $divisa->tasaconv;
+         
+         /// establecemos la fecha de finoferta
+         $presupuesto->finoferta = date("Y-m-d", strtotime($_POST['fecha']." +1 month"));
+         $fsvar = new fs_var();
+         $dias = $fsvar->simple_get('presu_validez');
+         if($dias)
+         {
+            $presupuesto->finoferta = date("Y-m-d", strtotime($_POST['fecha']." +".intval($dias)." days"));
+         }
          
          if($_POST['tasaconv'] != '')
          {
@@ -981,8 +1036,8 @@ class nueva_venta extends fs_controller
          $presupuesto->porcomision = $this->agente->porcomision;
          
          $presupuesto->codcliente = $cliente->codcliente;
-         $presupuesto->cifnif = $cliente->cifnif;
-         $presupuesto->nombrecliente = $cliente->razonsocial;
+         $presupuesto->cifnif = $_POST['cifnif'];
+         $presupuesto->nombrecliente = $_POST['nombrecliente'];
          $presupuesto->ciudad = $_POST['ciudad'];
          $presupuesto->codpais = $_POST['codpais'];
          $presupuesto->codpostal = $_POST['codpostal'];
@@ -1172,8 +1227,8 @@ class nueva_venta extends fs_controller
          $pedido->porcomision = $this->agente->porcomision;
          
          $pedido->codcliente = $cliente->codcliente;
-         $pedido->cifnif = $cliente->cifnif;
-         $pedido->nombrecliente = $cliente->razonsocial;
+         $pedido->cifnif = $_POST['cifnif'];
+         $pedido->nombrecliente = $_POST['nombrecliente'];
          $pedido->ciudad = $_POST['ciudad'];
          $pedido->codpais = $_POST['codpais'];
          $pedido->codpostal = $_POST['codpostal'];

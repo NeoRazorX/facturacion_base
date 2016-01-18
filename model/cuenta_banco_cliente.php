@@ -22,11 +22,21 @@
  */
 class cuenta_banco_cliente extends fs_model
 {
-   public $codcuenta; /// pkey
+   /**
+    * Clave primaria. Varchar(6).
+    * @var type 
+    */
+   public $codcuenta;
+   
+   /**
+    * Código del cliente.
+    * @var type 
+    */
    public $codcliente;
    public $descripcion;
    public $iban;
    public $swift;
+   public $principal;
    
    public function __construct($c = FALSE)
    {
@@ -38,6 +48,7 @@ class cuenta_banco_cliente extends fs_model
          $this->descripcion = $c['descripcion'];
          $this->iban = $c['iban'];
          $this->swift = $c['swift'];
+         $this->principal = $this->str2bool($c['principal']);
       }
       else
       {
@@ -46,12 +57,25 @@ class cuenta_banco_cliente extends fs_model
          $this->descripcion = NULL;
          $this->iban = NULL;
          $this->swift = NULL;
+         $this->principal = TRUE;
       }
    }
    
    protected function install()
    {
       return '';
+   }
+   
+   public function url()
+   {
+      if( is_null($this->codcliente) )
+      {
+         return '#';
+      }
+      else
+      {
+         return 'index.php?page=ventas_cliente&cod='.$this->codcliente.'#cuentasb';
+      }
    }
    
    public function get($cod)
@@ -84,7 +108,10 @@ class cuenta_banco_cliente extends fs_model
          return FALSE;
       }
       else
-         return $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcuenta = ".$this->var2str($this->codcuenta).";");
+      {
+         return $this->db->select("SELECT * FROM ".$this->table_name
+                 ." WHERE codcuenta = ".$this->var2str($this->codcuenta).";");
+      }
    }
    
    public function save()
@@ -97,17 +124,19 @@ class cuenta_banco_cliente extends fs_model
                  ", codcliente = ".$this->var2str($this->codcliente).
                  ", iban = ".$this->var2str($this->iban).
                  ", swift = ".$this->var2str($this->swift).
+                 ", principal = ".$this->var2str($this->principal).
                  " WHERE codcuenta = ".$this->var2str($this->codcuenta).";";
       }
       else
       {
          $this->codcuenta = $this->get_new_codigo();
-         $sql = "INSERT INTO ".$this->table_name." (codcliente,codcuenta,descripcion,iban,swift)".
+         $sql = "INSERT INTO ".$this->table_name." (codcliente,codcuenta,descripcion,iban,swift,principal)".
                  " VALUES (".$this->var2str($this->codcliente).
                  ",".$this->var2str($this->codcuenta).
                  ",".$this->var2str($this->descripcion).
                  ",".$this->var2str($this->iban).
-                 ",".$this->var2str($this->swift).");";
+                 ",".$this->var2str($this->swift).
+                 ",".$this->var2str($this->principal).");";
       }
       
       return $this->db->exec($sql);
@@ -121,12 +150,16 @@ class cuenta_banco_cliente extends fs_model
    public function all_from_cliente($codcli)
    {
       $clist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($codcli)
+              ." ORDER BY descripcion ASC;";
       
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($codcli)." ORDER BY descripcion ASC;");
+      $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $d)
+         {
             $clist[] = new cuenta_banco_cliente($d);
+         }
       }
       
       return $clist;

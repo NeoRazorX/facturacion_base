@@ -6,7 +6,9 @@
       $("#b_eliminar_familia").click(function(event) {
          event.preventDefault();
          if( confirm("¿Estas seguro de que deseas eliminar esta familia?") )
+         {
             window.location.href = "index.php?page=ventas_familias&delete={$fsc->familia->codfamilia}";
+         }
       });
    });
 </script>
@@ -54,10 +56,14 @@
             </div>
          </div>
          <div class="col-sm-4 text-right">
+            <a class="btn btn-sm btn-success" href="index.php?page=ventas_familias#nueva" title="Nueva familia">
+               <span class="glyphicon glyphicon-plus"></span>
+            </a>
             <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar_familia" class="btn btn-sm btn-danger">
-                  <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+                  <span class="glyphicon glyphicon-trash"></span>
+                  <span class="hidden-xs hidden-sm">&nbsp; Eliminar</span>
                </a>
                {/if}
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
@@ -123,14 +129,16 @@
                   </tr>
                </thead>
                {loop="$fsc->articulos"}
-               <tr class="clickableRow{if="$value->bloqueado"} bg-danger{elseif="$value->stockfis<$value->stockmin"} bg-warning{/if}" href="{$value->url()}">
-                  <td><a href="{$value->url()}">{$value->referencia}</a> {$value->descripcion}</td>
-                  <td class="text-right">{$fsc->show_precio($value->preciocoste())}</td>
-                  <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp)}</span></td>
+               <tr class="clickableRow{if="$value->bloqueado"} danger{elseif="$value->stockfis<$value->stockmin"} warning{/if}" href="{$value->url()}">
+                  <td><a href="{$value->url()}">{$value->referencia}</a> {$value->descripcion()}</td>
+                  <td class="text-right">{$fsc->show_precio($value->preciocoste(), FALSE, TRUE, FS_NF0_ART)}</td>
+                  <td class="text-right">
+                     <span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp, FALSE, TRUE, FS_NF0_ART)}</span>
+                  </td>
                   <td class="text-right">{$value->stockfis}</td>
                </tr>
                {else}
-               <tr class="bg-warning">
+               <tr class="warning">
                   <td colspan="5">Ningún artículo encontrado.</td>
                </tr>
                {/loop}

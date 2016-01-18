@@ -2,6 +2,11 @@
 
 <script type="text/javascript">
    $(document).ready(function() {
+      if(window.location.hash.substring(1) == 'nuevo')
+      {
+         $("#modal_nuevo_agente").modal('show');
+         document.f_nuevo_agente.snombre.focus();
+      }
       $("#b_nuevo_agente").click(function(event) {
          event.preventDefault();
          $("#modal_nuevo_agente").modal('show');
@@ -75,7 +80,7 @@
          <td class="text-right">{$value->f_alta}</td>
       </tr>
       {else}
-      <tr class="bg-warning">
+      <tr class="warning">
          <td colspan="6">Sin resultados.</td>
       </tr>
       {/loop}

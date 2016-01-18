@@ -68,6 +68,10 @@
          $("#modal_enviar").modal('show');
          document.enviar_email.email.select();
       });
+      $("#b_aprobar").click(function(event) {
+         event.preventDefault();
+         $("#modal_aprobar").modal('show');
+      });
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
          $("#modal_eliminar").modal('show');
@@ -93,7 +97,11 @@
                {if="$fsc->empresa->can_send_mail()"}
                <a id="b_enviar" class="btn btn-sm btn-default" href="#">
                   <span class="glyphicon glyphicon-envelope"></span>
-                  <span class="hidden-xs">&nbsp; Enviar</span>
+                  {if="$fsc->albaran->femail"}
+                  <span class="hidden-xs"> &nbsp; Reenviar</span>
+                  {else}
+                  <span class="hidden-xs"> &nbsp; Enviar</span>
+                  {/if}
                </a>
                {/if}
                {loop="$fsc->extensions"}
@@ -111,8 +119,9 @@
                <span class="hidden-xs">&nbsp; Ver Factura</span>
             </a>
             {elseif="$fsc->albaran->ptefactura"}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}">
-               <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
+            <a id="b_aprobar" class="btn btn-sm btn-default" href="#">
+               <span class="glyphicon glyphicon-paperclip"></span>
+               <span class="hidden-xs">&nbsp; Aprobar</span>
             </a>
             {else}
             <a class="btn btn-sm btn-warning" href="#">
@@ -122,6 +131,9 @@
             {/if}
          </div>
          <div class="col-xs-4 text-right">
+            <a class="btn btn-sm btn-success" href="index.php?page=nueva_venta&tipo=albaran" title="Nuevo {#FS_ALBARAN#}">
+               <span class="glyphicon glyphicon-plus"></span>
+            </a>
             <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a id="b_eliminar" class="btn btn-sm btn-danger" href="#">
@@ -137,32 +149,45 @@
          </div>
       </div>
       <div class="row">
-         <div class="col-md-12">
-            <h3 class="text-capitalize" style="margin-bottom: 0px;">
-               <a href="{$fsc->ppage->url()}">{#FS_ALBARANES#}</a> /
-               <a href="{$fsc->albaran->cliente_url()}">{$fsc->albaran->nombrecliente}</a>
+         <div class="col-sm-12">
+            <br/>
+            <ol class="breadcrumb" style="margin-bottom: 5px;">
+               <li><a href="{$fsc->ppage->url()}">Ventas</a></li>
+               <li><a href="{$fsc->ppage->url()}" class="text-capitalize">{#FS_ALBARANES#}</a></li>
+               <li>
+                  {loop="$fsc->serie->all()"}
+                     {if="$value->codserie==$fsc->albaran->codserie"}
+                     <a href="{$fsc->ppage->url()}&codserie={$value->codserie}" class="text-capitalize">{$value->descripcion}</a>
+                     {/if}
+                  {/loop}
+               </li>
+               <li>
+                  <a href="{$fsc->albaran->cliente_url()}">{$fsc->albaran->nombrecliente}</a>
+               </li>
                {if="$fsc->cliente_s"}
                   {if="$fsc->cliente_s->nombre!=$fsc->albaran->nombrecliente"}
-                  <a href="#" class="btn btn-xs btn-default" onclick="alert('Cliente conocido como: {$fsc->cliente_s->nombre}')">
-                     <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-                  </a>
+                  <li>
+                     <a href="#" onclick="alert('Cliente conocido como: {$fsc->cliente_s->nombre}')">
+                        <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                     </a>
+                  </li>
                   {/if}
                {/if}
-               / {$fsc->albaran->codigo}
-            </h3>
-            {if="$fsc->agente"}
-            <p>
+               <li class="active"><b>{$fsc->albaran->codigo}</b></li>
+            </ol>
+            <p class="help-block">
+               {if="$fsc->agente"}
                <span class="text-capitalize">{#FS_ALBARAN#}</span> creado por
                <a href="{$fsc->agente->url()}">{$fsc->agente->get_fullname()}</a>.
+               {else}
+               Sin datos de qué empleado ha creado este {#FS_ALBARAN#}.
+               {/if}
             </p>
-            {else}
-            <p>Sin datos de qué empleado ha creado este {#FS_ALBARAN#}.</p>
-            {/if}
          </div>
       </div>
       <div class="row">
          {if="$fsc->albaran->ptefactura"}
-         <div class="col-md-4 col-sm-12">
+         <div class="col-md-3 col-sm-12">
             <div class="form-group">
                Cliente actual:
                <div class="input-group">
@@ -176,12 +201,28 @@
             </div>
          </div>
          {/if}
-         <div class="col-md-4 col-sm-6">
+         <div class="col-md-3 col-sm-4">
             <div class="form-group">
                <span class='text-capitalize'>{#FS_NUMERO2#}:</span>
                <input class="form-control" type="text" name="numero2" value="{$fsc->albaran->numero2}"/>
             </div>
          </div>
+         {if="$fsc->albaran->ptefactura"}
+         <div class="col-md-2 col-sm-2">
+            <div class="form-group">
+               <a href="{$fsc->serie->url()}">Serie</a>:
+               <select class="form-control" name="serie" id="codserie" onchange="usar_serie();recalcular();">
+               {loop="$fsc->serie->all()"}
+                  {if="$value->codserie==$fsc->albaran->codserie"}
+                  <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
+                  {else}
+                  <option value="{$value->codserie}">{$value->descripcion}</option>
+                  {/if}
+               {/loop}
+               </select>
+            </div>
+         </div>
+         {/if}
          <div class="col-md-2 col-sm-3">
             <div class="form-group">
                Fecha:
@@ -213,20 +254,12 @@
                <span class="hidden-xs">&nbsp; Líneas</span>
             </a>
          </li>
-         {if="$fsc->albaran->ptefactura"}
          <li role="presentation">
-            <a href="#direccion_p" aria-controls="direccion_p" role="tab" data-toggle="tab">
-               <span class="glyphicon glyphicon-road" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Dirección</span>
+            <a href="#detalles" aria-controls="detalles" role="tab" data-toggle="tab">
+               <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Detalles</span>
             </a>
          </li>
-         <li role="presentation">
-            <a href="#opciones" aria-controls="opciones" role="tab" data-toggle="tab">
-               <span class="glyphicon glyphicon-option-vertical" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Opciones</span>
-            </a>
-         </li>
-         {/if}
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <li role="presentation">
@@ -244,8 +277,8 @@
                      <tr>
                         <th class="text-left" width="180">Referencia</th>
                         <th class="text-left">Descripción</th>
-                        <th class="text-right" width="90">Cantidad</th>
-                        <th width="60"></th>
+                        <th class="text-right" width="80">Cantidad</th>
+                        <th width="50"></th>
                         <th class="text-right" width="110">Precio</th>
                         <th class="text-right" width="90">Dto. %</th>
                         <th class="text-right" width="130">Neto</th>
@@ -295,7 +328,7 @@
                         <td>
                            <select class="form-control" id="iva_{$counter}" name="iva_{$counter}" onchange="ajustar_iva('{$counter}')">
                            {loop="$fsc->impuesto->all()"}
-                              {if="$value1->codimpuesto==$value2->codimpuesto"}
+                              {if="$value1->codimpuesto==$value2->codimpuesto OR $value1->iva==$value2->iva"}
                               <option value="{$value2->iva}" selected="">{$value2->descripcion}</option>
                               {else}
                               <option value="{$value2->iva}">{$value2->descripcion}</option>
@@ -319,14 +352,21 @@
                      {/loop}
                   </tbody>
                   <tbody>
-                     <tr class="bg-info">
+                     <tr class="info">
                         <td><input id="i_new_line" class="form-control" type="text" placeholder="Buscar para añadir..." autocomplete="off"/></td>
-                        <td>
+                        <td colspan="3">
                            <a href="#" class="btn btn-sm btn-default" title="Añadir sin buscar" onclick="return add_linea_libre()">
                               <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                            </a>
                         </td>
-                        <td colspan="4" class="text-right">Totales:</td>
+                        <td colspan="2">
+                           <div class="form-control text-right">
+                              Totales
+                              {if="$fsc->albaran->coddivisa!=$fsc->empresa->coddivisa"}
+                              ({$fsc->albaran->coddivisa})
+                              {/if}
+                           </div>
+                        </td>
                         <td><div id="aneto" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div></td>
                         <td><div id="aiva" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div></td>
                         <td class="recargo">
@@ -340,40 +380,45 @@
                                   value="0" onchange="recalcular()" autocomplete="off"/>
                         </td>
                      </tr>
+                     {if="$fsc->user->admin"}
                      <tr>
                         <td colspan="6"></td>
-                        <td class="text-right">{$fsc->show_precio($fsc->albaran->neto)}</td>
-                        <td class="text-right">{$fsc->show_precio($fsc->albaran->totaliva)}</td>
-                        <td class="recargo text-right">{$fsc->show_precio($fsc->albaran->totalrecargo)}</td>
-                        <td class="irpf text-right">{$fsc->show_precio($fsc->albaran->totalirpf)}</td>
-                        <td class="text-right">{$fsc->show_precio($fsc->albaran->total)}</td>
+                        <td class="text-right">{$fsc->show_precio($fsc->albaran->neto, $fsc->albaran->coddivisa)}</td>
+                        <td class="text-right">{$fsc->show_precio($fsc->albaran->totaliva, $fsc->albaran->coddivisa)}</td>
+                        <td class="recargo text-right">{$fsc->show_precio($fsc->albaran->totalrecargo, $fsc->albaran->coddivisa)}</td>
+                        <td class="irpf text-right">{$fsc->show_precio($fsc->albaran->totalirpf, $fsc->albaran->coddivisa)}</td>
+                        <td class="text-right">{$fsc->show_precio($fsc->albaran->total, $fsc->albaran->coddivisa)}</td>
                      </tr>
+                     {/if}
                   </tbody>
                </table>
                {else}
                <table class="table table-hover">
                   <thead>
                      <tr>
+                        <th width="40"></th>
                         <th class="text-left">Artículo</th>
-                        <th class="text-right">Cantidad</th>
-                        <th class="text-right">Precio</th>
-                        <th class="text-right">Dto</th>
-                        <th class="text-right">Neto</th>
-                        <th class="text-right">{#FS_IVA#}</th>
-                        <th class="text-right recargo">RE</th>
-                        <th class="text-right irpf">{#FS_IRPF#}</th>
-                        <th class="text-right">Total</th>
+                        <th class="text-right" width="70">Cantidad</th>
+                        <th class="text-right" width="80">Precio</th>
+                        <th class="text-right" width="70">Dto</th>
+                        <th class="text-right" width="80">Neto</th>
+                        <th class="text-right" width="70">{#FS_IVA#}</th>
+                        <th class="text-right recargo" width="70">RE</th>
+                        <th class="text-right irpf" width="70">{#FS_IRPF#}</th>
+                        <th class="text-right" width="90">Total</th>
                      </tr>
                   </thead>
                   {loop="$fsc->albaran->get_lineas()"}
-                  <tr{if="$value->cantidad<=0"} class="bg-warning"{/if}>
+                  <tr{if="$value->cantidad<=0"} class="warning"{/if}>
                      <td>
                         {if="$value->idlineapedido"}
-                        <a target="_blank" href="index.php?page=ventas_pedido&id={$value->idpedido}" title="ver {#FS_PEDIDO#}">
-                           <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
-                        </a> &nbsp;
+                        <a target="_blank" href="index.php?page=ventas_pedido&id={$value->idpedido}" class="btn btn-xs btn-default">
+                           <span class="glyphicon glyphicon-paperclip" aria-hidden="true" title="ver {#FS_PEDIDO#}"></span>
+                        </a>
                         {/if}
-                        <a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion}
+                     </td>
+                     <td>
+                        <a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion()}
                      </td>
                      <td class="text-right">{$value->cantidad}</td>
                      <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->albaran->coddivisa)}</td>
@@ -384,9 +429,20 @@
                      <td class="text-right irpf">{$fsc->show_numero($value->irpf, 2)} %</td>
                      <td class="text-right">{$fsc->show_precio($value->total_iva(), $fsc->albaran->coddivisa)}</td>
                   </tr>
+                  {else}
+                  <tr class="warning">
+                     <td colspan="10">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        &nbsp; No hay líneas.
+                     </td>
+                  </tr>
                   {/loop}
                   <tr>
-                     <td colspan="4"></td>
+                     {if="$fsc->albaran->coddivisa!=$fsc->empresa->coddivisa"}
+                     <td colspan="5" class="text-right warning"><b>{$fsc->albaran->coddivisa}:</b></td>
+                     {else}
+                     <td colspan="5"></td>
+                     {/if}
                      <td class="text-right"><b>{$fsc->show_precio($fsc->albaran->neto, $fsc->albaran->coddivisa)}</b></td>
                      <td class="text-right"><b>{$fsc->show_precio($fsc->albaran->totaliva, $fsc->albaran->coddivisa)}</b></td>
                      <td class="text-right recargo"><b>{$fsc->show_precio($fsc->albaran->totalrecargo, $fsc->albaran->coddivisa)}</b></td>
@@ -396,10 +452,72 @@
                </table>
                {/if}
             </div>
+            
+            <div class="container-fluid">
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="form-group">
+                        Observaciones:
+                        <textarea class="form-control" name="observaciones" rows="3">{$fsc->albaran->observaciones}</textarea>
+                     </div>
+                  </div>
+               </div>
+            </div>
          </div>
-         {if="$fsc->albaran->ptefactura"}
-         <div role="tabpanel" class="tab-pane" id="direccion_p">
+         <div role="tabpanel" class="tab-pane" id="detalles">
             <div class="container-fluid" style="margin-top: 10px;">
+               <div class="row">
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        Nombre del cliente:
+                        <input class="form-control" type="text" name="nombrecliente" value="{$fsc->albaran->nombrecliente}" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        {#FS_CIFNIF#}:
+                        <input class="form-control" type="text" name="cifnif" value="{$fsc->albaran->cifnif}" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
+                        <select name="forma_pago" class="form-control">
+                           {loop="$fsc->forma_pago->all()"}
+                           <option value="{$value->codpago}"{if="$value->codpago==$fsc->albaran->codpago"} selected=""{/if}>{$value->descripcion}</option>
+                           {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        <a href="{$fsc->divisa->url()}">Divisa</a>:
+                        <select name="divisa" class="form-control">
+                        {loop="$fsc->divisa->all()"}
+                           {if="$value->coddivisa==$fsc->albaran->coddivisa"}
+                           <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->coddivisa}">{$value->descripcion}</option>
+                           {/if}
+                        {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        Tasa de conversión (1€ = X)
+                        <input type="text" name="tasaconv" class="form-control" placeholder="{$fsc->albaran->tasaconv}" autocomplete="off"/>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-sm-12">
+                     <h3>
+                        <span class="glyphicon glyphicon-road" aria-hidden="true"></span>
+                        &nbsp; Dirección de facturación:
+                     </h3>
+                  </div>
+               </div>
                <div class="row">
                   <div class="col-sm-3">
                      <div class="form-group">
@@ -438,57 +556,6 @@
                </div>
             </div>
          </div>
-         <div role="tabpanel" class="tab-pane" id="opciones">
-            <div class="container-fluid" style="margin-top: 10px;">
-               <div class="row">
-                  <div class="col-sm-2">
-                     <div class="form-group">
-                        <a href="{$fsc->serie->url()}">Serie</a>:
-                        <select class="form-control" name="serie" id="codserie" onchange="usar_serie();recalcular();">
-                        {loop="$fsc->serie->all()"}
-                           {if="$value->codserie==$fsc->albaran->codserie"}
-                           <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
-                           {else}
-                           <option value="{$value->codserie}">{$value->descripcion}</option>
-                           {/if}
-                        {/loop}
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-sm-3">
-                     <div class="form-group">
-                        <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
-                        <select name="forma_pago" class="form-control">
-                           {loop="$fsc->forma_pago->all()"}
-                           <option value="{$value->codpago}"{if="$value->codpago==$fsc->albaran->codpago"} selected=""{/if}>{$value->descripcion}</option>
-                           {/loop}
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-sm-2">
-                     <div class="form-group">
-                        <a href="{$fsc->divisa->url()}">Divisa</a>:
-                        <select name="divisa" class="form-control">
-                        {loop="$fsc->divisa->all()"}
-                           {if="$value->coddivisa==$fsc->albaran->coddivisa"}
-                           <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
-                           {else}
-                           <option value="{$value->coddivisa}">{$value->descripcion}</option>
-                           {/if}
-                        {/loop}
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-sm-3">
-                     <div class="form-group">
-                        Tasa de conversión a €
-                        <input type="text" name="tasaconv" class="form-control" placeholder="{$fsc->albaran->tasaconv}" autocomplete="off"/>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-         {/if}
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
@@ -496,17 +563,6 @@
             </div>
             {/if}
          {/loop}
-      </div>
-   </div>
-   
-   <div class="container-fluid">
-      <div class="row">
-         <div class="col-md-12">
-            <div class="form-group">
-               Observaciones:
-               <textarea class="form-control" name="observaciones" rows="3">{$fsc->albaran->observaciones}</textarea>
-            </div>
-         </div>
       </div>
    </div>
 </form>
@@ -521,6 +577,7 @@
          <div class="modal-body">
             <form id="f_buscar_articulos" name="f_buscar_articulos" action="{$fsc->url()}" method="post" class="form">
                <input type="hidden" name="codcliente" value="{$fsc->albaran->codcliente}"/>
+               <input type="hidden" name="codalmacen" value="{$fsc->albaran->codalmacen}"/>
                <div class="container-fluid">
                   <div class="row">
                      <div class="col-sm-4">
@@ -682,6 +739,12 @@
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">Enviar {#FS_ALBARAN#}</h4>
+               {if="$fsc->albaran->femail"}
+               <p class="help-block">
+                  <span class="glyphicon glyphicon-send"></span> &nbsp;
+                  Este {#FS_ALBARAN#} fue enviado el {$fsc->albaran->femail}.
+               </p>
+               {/if}
             </div>
             <div class="modal-body">
                <div class="form-group">
@@ -707,6 +770,32 @@
                   </button>
                   {/if}
                {/loop}
+            </div>
+         </div>
+      </div>
+   </div>
+</form>
+
+<form class="form" role="form" action="{$fsc->url()}" method="post">
+   <input type="hidden" name="petid" value="{$fsc->random_string()}"/>
+   <div class="modal" id="modal_aprobar">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">Aprobar {#FS_ALBARAN#}</h4>
+            </div>
+            <div class="modal-body">
+               <div class="form-group">
+                  Fecha de la {#FS_FACTURA#}:
+                  <input class="form-control datepicker" type="text" name="facturar" value="{$fsc->today()}" autocomplete="off"/>
+                  <p class="help-block">Se generará una {#FS_FACTURA#}.</p>
+               </div>
+               <div class="text-right">
+                  <button class="btn btn-sm btn-primary" onclick="this.disabled=true;this.form.submit();">
+                     <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Aprobar
+                  </button>
+               </div>
             </div>
          </div>
       </div>

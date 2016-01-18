@@ -1,7 +1,7 @@
 {include="header"}
 
 <script type="text/javascript">
-   var numlineas = 0;
+   var numlineas = {function="count($fsc->lineas)"};
    function add_partida()
    {
       numlineas++;
@@ -272,7 +272,7 @@
          <div class="col-lg-3 col-md-2 col-sm-2">
             <div class="form-group">
                Concepto:
-               <input class="form-control" name="concepto" type="text" autocomplete="off"/>
+               <input class="form-control" name="concepto" type="text" value="{$fsc->asiento->concepto}" autocomplete="off"/>
             </div>
          </div>
          <div class="col-lg-2 col-md-2 col-sm-2">
@@ -304,20 +304,77 @@
       <table class="table table-hover">
          <thead>
             <tr>
-               <th class="text-left">Subcuenta</th>
+               <th class="text-left" width="135">Subcuenta</th>
                <th class="text-left">Descripción</th>
-               <th class="text-right">Saldo</th>
-               <th class="text-right">Debe</th>
-               <th class="text-right">Haber</th>
-               <th class="text-left">Contrapartida</th>
-               <th class="text-right contrapartida">Saldo</th>
+               <th class="text-right" width="110">Saldo</th>
+               <th class="text-right" width="110">Debe</th>
+               <th class="text-right" width="110">Haber</th>
+               <th class="text-left" width="135">Contrapartida</th>
+               <th class="text-right contrapartida" width="110">Saldo</th>
                <th class="text-right contrapartida">{#FS_IVA#}</th>
-               <th class="text-right contrapartida">Base Imp.</th>
+               <th class="text-right contrapartida" width="110">Base Imp.</th>
                <th class="text-left contrapartida">{#FS_CIFNIF#}</th>
-               <th></th>
+               <th width="50"></th>
             </tr>
          </thead>
-         <tbody id="partidas"></tbody>
+         <tbody id="partidas">
+            {loop="$fsc->lineas"}
+            <tr id="partida_{$counter+1}">
+               <td>
+                  <input class="form-control" id='codsubcuenta_{$counter+1}' name='codsubcuenta_{$counter+1}' type='text'
+                         value="{$value->codsubcuenta}" onclick="show_buscar_subcuentas('{$counter+1}','subcuenta')"
+                         onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'
+                         autocomplete='off' placeholder='Seleccionar'/>
+               </td>
+               <td><input class='form-control' type='text' id='desc_{$counter+1}' name='desc_{$counter+1}' value='{$value->desc_subcuenta}' disabled='disabled'/></td>
+               <td>
+                  <input class='form-control text-right' type='text' id='saldo_{$counter+1}' name='saldo_{$counter+1}'
+                         value='{function="round($value->saldo, FS_NF0)"}' disabled='disabled'/>
+               </td>
+               <td>
+                  <input class='form-control text-right' type='text' id='debe_{$counter+1}' name='debe_{$counter+1}' value='{$value->debe}'
+                         onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>
+               </td>
+               <td>
+                  <input class='form-control text-right' type='text' id='haber_{$counter+1}' name='haber_{$counter+1}' value='{$value->haber}'
+                         onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>
+               </td>
+               <td>
+                  <input class='form-control' id='codcontrapartida_{$counter+1}' name='codcontrapartida_{$counter+1}' type='text'
+                         value='{$value->codcontrapartida}' onclick="show_buscar_subcuentas('{$counter+1}','contrapartida')"
+                         onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'
+                         autocomplete='off' placeholder='Seleccionar'/>
+               </td>
+               <td class="contrapartida">
+                  <input class='form-control text-right' type='text' id='saldoc_{$counter+1}' name='saldoc_{$counter+1}' value='0' disabled='disabled'/>
+               </td>
+               <td class="contrapartida">
+                  <select class='form-control' id='iva_{$counter+1}' name='iva_{$counter+1}' onchange='recalcular()'{if="!$value->codcontrapartida"} disabled='disabled'{/if}>
+                     <option value='0'>---</option>
+                     {loop="$fsc->impuesto->all()"}
+                        {if="$value1->iva==$value2->iva"}
+                        <option value='{$value->iva}' selected="">{$value->descripcion}</option>
+                        {else}
+                        <option value='{$value->iva}'>{$value->descripcion}</option>
+                        {/if}
+                     {/loop}
+                  </select>
+               </td>
+               <td class="contrapartida">
+                  <input class='form-control text-right' type='text' id='baseimp_{$counter+1}' name='baseimp_{$counter+1}'
+                         value='{$value->baseimponible}' autocomplete='off'{if="!$value->codcontrapartida"} disabled='disabled'{/if}/>
+               </td>
+               <td class="contrapartida">
+                  <input class='form-control' type='text' id='cifnif_{$counter+1}' name='cifnif_{$counter+1}' value='{$value->cifnif}'{if="!$value->codcontrapartida"} disabled='disabled'{/if}/>
+               </td>
+               <td class="text-right">
+                  <button class="btn btn-sm btn-danger" type="button" onclick="clean_partida('{$counter+1}')">
+                     <span class="glyphicon glyphicon-trash"></span>
+                  </button>
+               </td>
+            </tr>
+            {/loop}
+         </tbody>
       </table>
    </div>
       
@@ -355,13 +412,25 @@
                <h4 class="modal-title">Buscar subcuentas</h4>
             </div>
             <div class="modal-body">
-               <div class="input-group">
-                  <input class="form-control" type="text" name="query" onkeyup="buscar_subcuentas();" autocomplete="off"/>
-                  <span class="input-group-btn">
-                     <button class="btn btn-primary" type="submit">
-                        <span class="glyphicon glyphicon-search"></span>
-                     </button>
-                  </span>
+               <div class="container-fluid">
+                  <div class="row">
+                     <div class="col-xs-8">
+                        <div class="input-group">
+                           <input class="form-control" type="text" name="query" onkeyup="buscar_subcuentas();" autocomplete="off" autofocus />
+                           <span class="input-group-btn">
+                              <button class="btn btn-primary" type="submit">
+                                 <span class="glyphicon glyphicon-search"></span>
+                              </button>
+                           </span>
+                        </div>
+                     </div>
+                     <div class="col-xs-4">
+                        <a href="#" class="btn btn-sm btn-block btn-danger" onclick="select_subcuenta('','','')">
+                           <span class="glyphicon glyphicon-remove"></span>
+                           <span class="hidden-xs">&nbsp; ninguna</span>
+                        </a>
+                     </div>
+                  </div>
                </div>
             </div>
             <div id="subcuentas"></div>

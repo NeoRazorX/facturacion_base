@@ -36,6 +36,8 @@ class ventas_imprimir extends fs_controller
    public $impresion;
    public $impuesto;
    
+   private $logo;
+   
    public function __construct()
    {
       parent::__construct(__CLASS__, 'imprimir', 'ventas', FALSE, FALSE);
@@ -56,6 +58,16 @@ class ventas_imprimir extends fs_controller
       );
       $fsvar = new fs_var();
       $this->impresion = $fsvar->array_get($this->impresion, FALSE);
+      
+      $this->logo = FALSE;
+      if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
+      {
+         $this->logo = 'tmp/'.FS_TMP_NAME.'logo.png';
+      }
+      else if( file_exists('tmp/'.FS_TMP_NAME.'logo.jpg') )
+      {
+         $this->logo = 'tmp/'.FS_TMP_NAME.'logo.jpg';
+      }
       
       if( isset($_REQUEST['albaran']) AND isset($_REQUEST['id']) )
       {
@@ -157,6 +169,214 @@ class ventas_imprimir extends fs_controller
       }
    }
    
+   private function generar_pdf_cabecera(&$pdf_doc, &$lppag)
+   {
+      /// ¿Añadimos el logo?
+      if($this->logo)
+      {
+         if( function_exists('imagecreatefromstring') )
+         {
+            $pdf_doc->pdf->ezImage($this->logo, 0, 150, 'none');
+            $lppag -= 2; /// si metemos el logo, caben menos líneas
+         }
+         else
+         {
+            die('ERROR: no se encuentra la función imagecreatefromstring(). '
+                    . 'Y por tanto no se puede usar el logotipo en los documentos.');
+         }
+      }
+      else
+      {
+         $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 16, array('justification' => 'center'));
+         $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'center'));
+         
+         $direccion = $this->empresa->direccion;
+         if($this->empresa->codpostal)
+         {
+            $direccion .= ' - ' . $this->empresa->codpostal;
+         }
+         
+         if($this->empresa->ciudad)
+         {
+            $direccion .= ' - ' . $this->empresa->ciudad;
+         }
+         
+         if($this->empresa->provincia)
+         {
+            $direccion .= ' (' . $this->empresa->provincia . ')';
+         }
+         
+         if($this->empresa->telefono)
+         {
+            $direccion .= ' - Teléfono: ' . $this->empresa->telefono;
+         }
+         
+         $pdf_doc->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
+      }
+   }
+   
+   private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag, &$documento)
+   {
+      if($this->impresion['print_dto'])
+      {
+         $this->impresion['print_dto'] = FALSE;
+         
+         /// leemos las líneas para ver si de verdad mostramos los descuentos
+         foreach($lineas as $lin)
+         {
+            if($lin->dtopor != 0)
+            {
+               $this->impresion['print_dto'] = TRUE;
+               break;
+            }
+         }
+      }
+      
+      $multi_iva = FALSE;
+      $multi_re = FALSE;
+      $multi_irpf = FALSE;
+      $iva = FALSE;
+      $re = FALSE;
+      $irpf = FALSE;
+      /// leemos las líneas para ver si hay que mostrar los tipos de iva, re o irpf
+      foreach($lineas as $lin)
+      {
+         if($iva === FALSE)
+         {
+            $iva = $lin->iva;
+         }
+         else if($lin->iva != $iva)
+         {
+            $multi_iva = TRUE;
+         }
+         
+         if($re === FALSE)
+         {
+            $re = $lin->recargo;
+         }
+         else if($lin->recargo != $re)
+         {
+            $multi_re = TRUE;
+         }
+         
+         if($irpf === FALSE)
+         {
+            $irpf = $lin->irpf;
+         }
+         else if($lin->irpf != $irpf)
+         {
+            $multi_irpf = TRUE;
+         }
+      }
+      
+      /*
+       * Creamos la tabla con las lineas del documento
+       */
+      $pdf_doc->new_table();
+      $table_header = array(
+          'alb' => '<b>'.ucfirst(FS_ALBARAN).'</b>',
+          'descripcion' => '<b>Ref. + Descripción</b>',
+          'cantidad' => '<b>Cant.</b>',
+          'pvp' => '<b>PVP</b>',
+      );
+      
+      /// ¿Desactivamos la columna de albaran?
+      if( get_class($documento) == 'factura_cliente' )
+      {
+         if($this->impresion['print_alb'])
+         {
+            /// aunque esté activada, si la factura no viene de un albaran, la desactivamos
+            $this->impresion['print_alb'] = FALSE;
+            foreach($lineas as $lin)
+            {
+               if($lin->idalbaran)
+               {
+                  $this->impresion['print_alb'] = TRUE;
+                  break;
+               }
+            }
+         }
+         
+         if( !$this->impresion['print_alb'] )
+         {
+            unset($table_header['alb']);
+         }
+      }
+      else
+      {
+         unset($table_header['alb']);
+      }
+      
+      if($this->impresion['print_dto'])
+      {
+         $table_header['dto'] = '<b>Dto.</b>';
+      }
+      
+      if($multi_iva)
+      {
+         $table_header['iva'] = '<b>'.FS_IVA.'</b>';
+      }
+      
+      if($multi_re)
+      {
+         $table_header['re'] = '<b>R.E.</b>';
+      }
+      
+      if($multi_irpf)
+      {
+         $table_header['irpf'] = '<b>'.FS_IRPF.'</b>';
+      }
+      
+      $table_header['importe'] = '<b>Importe</b>';
+      $pdf_doc->add_table_header($table_header);
+      
+      for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < count($lineas)));)
+      {
+         $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
+         if( !is_null($lineas[$linea_actual]->referencia) )
+         {
+            $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
+         }
+         
+         $fila = array(
+             'alb' => '-',
+             'cantidad' => $lineas[$linea_actual]->cantidad,
+             'descripcion' => $descripcion,
+             'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $documento->coddivisa, TRUE, FS_NF0_ART),
+             'dto' => $this->show_numero($lineas[$linea_actual]->dtopor) . " %",
+             'iva' => $this->show_numero($lineas[$linea_actual]->iva) . " %",
+             're' => $this->show_numero($lineas[$linea_actual]->recargo) . " %",
+             'irpf' => $this->show_numero($lineas[$linea_actual]->irpf) . " %",
+             'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $documento->coddivisa)
+         );
+         
+         if( get_class($lineas[$linea_actual]) == 'linea_factura_cliente' )
+         {
+            $fila['alb'] = $lineas[$linea_actual]->albaran_numero();
+         }
+         
+         $pdf_doc->add_table_row($fila);
+         $linea_actual++;
+      }
+      
+      $pdf_doc->save_table(
+              array(
+                  'fontSize' => 8,
+                  'cols' => array(
+                      'cantidad' => array('justification' => 'right'),
+                      'pvp' => array('justification' => 'right'),
+                      'dto' => array('justification' => 'right'),
+                      'iva' => array('justification' => 'right'),
+                      're' => array('justification' => 'right'),
+                      'irpf' => array('justification' => 'right'),
+                      'importe' => array('justification' => 'right')
+                  ),
+                  'width' => 520,
+                  'shaded' => 0
+              )
+      );
+   }
+   
    private function generar_pdf_albaran($archivo = FALSE)
    {
       if(!$archivo)
@@ -188,36 +408,7 @@ class ventas_imprimir extends fs_controller
                $pdf_doc->pdf->ezNewPage();
             }
             
-            /// ¿Añadimos el logo?
-            if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
-            {
-               if( function_exists('imagecreatefromstring') )
-               {
-                  $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
-                  $lppag -= 2; /// si metemos el logo, caben menos líneas
-               }
-               else
-               {
-                  die('ERROR: no se encuentra la función imagecreatefromstring(). '
-                  . 'Y por tanto no se puede usar el logotipo en los documentos.');
-               }
-            }
-            else
-            {
-               $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 16, array('justification' => 'center'));
-               $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'center'));
-               
-               $direccion = $this->empresa->direccion;
-               if($this->empresa->codpostal)
-                  $direccion .= ' - ' . $this->empresa->codpostal;
-               if($this->empresa->ciudad)
-                  $direccion .= ' - ' . $this->empresa->ciudad;
-               if($this->empresa->provincia)
-                  $direccion .= ' (' . $this->empresa->provincia . ')';
-               if($this->empresa->telefono)
-                  $direccion .= ' - Teléfono: ' . $this->empresa->telefono;
-               $pdf_doc->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
-            }
+            $this->generar_pdf_cabecera($pdf_doc, $lppag);
             
             /*
              * Esta es la tabla con los datos del cliente:
@@ -266,70 +457,7 @@ class ventas_imprimir extends fs_controller
             );
             $pdf_doc->pdf->ezText("\n", 10);
             
-            
-            /*
-             * Creamos la tabla con las lineas del albarán:
-             * 
-             * Descripción    PVP   DTO   Cantidad    Importe
-             */
-            $pdf_doc->new_table();
-            
-            if($this->impresion['print_dto'])
-            {
-               $pdf_doc->add_table_header(
-                  array(
-                     'descripcion' => '<b>Descripción</b>',
-                     'cantidad' => '<b>Cantidad</b>',
-                     'pvp' => '<b>PVP</b>',
-                     'dto' => '<b>DTO</b>',
-                     'importe' => '<b>Importe</b>'
-                  )
-               );
-            }
-            else
-            {
-               $pdf_doc->add_table_header(
-                  array(
-                     'descripcion' => '<b>Descripción</b>',
-                     'cantidad' => '<b>Cantidad</b>',
-                     'pvp' => '<b>PVP</b>',
-                     'importe' => '<b>Importe</b>'
-                  )
-               );
-            }
-            
-            for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < count($lineas)));)
-            {
-               $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
-               if( $this->impresion['print_ref'] AND !is_null($lineas[$linea_actual]->referencia) )
-               {
-                  $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
-               }
-               
-               $fila = array(
-                  'descripcion' => $descripcion,
-                  'cantidad' => $lineas[$linea_actual]->cantidad,
-                  'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $this->albaran->coddivisa),
-                  'dto' => $this->show_numero($lineas[$linea_actual]->dtopor, 0) . " %",
-                  'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $this->albaran->coddivisa)
-               );
-               
-               $pdf_doc->add_table_row($fila);
-               $linea_actual++;
-            }
-            $pdf_doc->save_table(
-               array(
-                   'fontSize' => 8,
-                   'cols' => array(
-                       'cantidad' => array('justification' => 'right'),
-                       'pvp' => array('justification' => 'right'),
-                       'dto' => array('justification' => 'right'),
-                       'importe' => array('justification' => 'right')
-                   ),
-                   'width' => 520,
-                   'shaded' => 0
-               )
-            );
+            $this->generar_pdf_lineas($pdf_doc, $lineas, $linea_actual, $lppag, $this->albaran);
             
             if( $linea_actual == count($lineas) )
             {
@@ -382,7 +510,7 @@ class ventas_imprimir extends fs_controller
             if($this->albaran->totalirpf != 0)
             {
                $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->albaran->irpf.'%</b>';
-               $fila['irpf'] = $this->show_precio(0 - $this->albaran->totalirpf);
+               $fila['irpf'] = $this->show_precio($this->albaran->totalirpf);
                $opciones['cols']['irpf'] = array('justification' => 'right');
             }
             
@@ -485,36 +613,7 @@ class ventas_imprimir extends fs_controller
             }
             else /// esta es la cabecera de la página para los modelos 'simple' y 'firma'
             {
-               /// ¿Añadimos el logo?
-               if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
-               {
-                  if( function_exists('imagecreatefromstring') )
-                  {
-                     $pdf_doc->pdf->ezImage('tmp/'.FS_TMP_NAME.'logo.png', 0, 200, 'none');
-                     $lppag -= 2; /// si metemos el logo, caben menos líneas
-                  }
-                  else
-                  {
-                     die('ERROR: no se encuentra la función imagecreatefromstring(). '
-                     . 'Y por tanto no se puede usar el logotipo en los documentos.');
-                  }
-               }
-               else
-               {
-                  $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 16, array('justification' => 'center'));
-                  $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'center'));
-                  
-                  $direccion = $this->empresa->direccion;
-                  if($this->empresa->codpostal)
-                     $direccion .= ' - ' . $this->empresa->codpostal;
-                  if($this->empresa->ciudad)
-                     $direccion .= ' - ' . $this->empresa->ciudad;
-                  if($this->empresa->provincia)
-                     $direccion .= ' (' . $this->empresa->provincia . ')';
-                  if($this->empresa->telefono)
-                     $direccion .= ' - Teléfono: ' . $this->empresa->telefono;
-                  $pdf_doc->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
-               }
+               $this->generar_pdf_cabecera($pdf_doc, $lppag);
                
                /*
                 * Esta es la tabla con los datos del cliente:
@@ -523,14 +622,38 @@ class ventas_imprimir extends fs_controller
                 * Dirección:           Teléfonos:
                 */
                $pdf_doc->new_table();
-               $pdf_doc->add_table_row(
-                  array(
-                     'campo1' => "<b>".ucfirst(FS_FACTURA).":</b>",
-                     'dato1' => $this->factura->codigo,
-                     'campo2' => "<b>Fecha:</b>",
-                     'dato2' => $this->factura->fecha
-                  )
-               );
+               
+               if($this->factura->idfacturarect)
+               {
+                  $pdf_doc->add_table_row(
+                     array(
+                        'campo1' => "<b>".ucfirst(FS_FACTURA_RECTIFICATIVA).":</b>",
+                        'dato1' => $this->factura->codigo,
+                        'campo2' => "<b>Fecha:</b>",
+                        'dato2' => $this->factura->fecha
+                     )
+                  );
+                  $pdf_doc->add_table_row(
+                     array(
+                        'campo1' => "<b>Original:</b>",
+                        'dato1' => $this->factura->codigorect,
+                        'campo2' => '',
+                        'dato2' => ''
+                     )
+                  );
+               }
+               else
+               {
+                  $pdf_doc->add_table_row(
+                     array(
+                        'campo1' => "<b>".ucfirst(FS_FACTURA).":</b>",
+                        'dato1' => $this->factura->codigo,
+                        'campo2' => "<b>Fecha:</b>",
+                        'dato2' => $this->factura->fecha
+                     )
+                  );
+               }
+               
                $pdf_doc->add_table_row(
                   array(
                      'campo1' => "<b>Cliente:</b>",
@@ -570,66 +693,7 @@ class ventas_imprimir extends fs_controller
                }
             }
             
-            
-            /*
-             * Creamos la tabla con las lineas de la factura:
-             * 
-             * Descripción    Cantidad  PVP   DTO    Importe
-             */
-            $columnas = array(
-                  'alb' => '<b>'.ucfirst(FS_ALBARAN).'</b>',
-                  'descripcion' => '<b>Descripción</b>',
-                  'cantidad' => '<b>Cantidad</b>',
-                  'pvp' => '<b>PVP</b>',
-                  'dto' => '<b>DTO</b>',
-                  'importe' => '<b>Importe</b>'
-            );
-            
-            if(!$this->impresion['print_alb'])
-            {
-               unset($columnas['alb']);
-            }
-            
-            if(!$this->impresion['print_dto'])
-            {
-               unset($columnas['dto']);
-            }
-            
-            $pdf_doc->new_table();
-            $pdf_doc->add_table_header($columnas);
-            for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < $lineasfact));)
-            {
-               $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
-               if( $this->impresion['print_ref'] AND !is_null($lineas[$linea_actual]->referencia) )
-               {
-                  $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
-               }
-               
-               $fila = array(
-                  'alb' => $lineas[$linea_actual]->albaran_numero(),
-                  'descripcion' => $descripcion,
-                  'cantidad' => $lineas[$linea_actual]->cantidad,
-                  'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $this->factura->coddivisa),
-                  'dto' => $this->show_numero($lineas[$linea_actual]->dtopor, 0) . " %",
-                  'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $this->factura->coddivisa)
-               );
-               
-               $pdf_doc->add_table_row($fila);
-               $linea_actual++;
-            }
-            $pdf_doc->save_table(
-               array(
-                   'fontSize' => 8,
-                   'cols' => array(
-                       'cantidad' => array('justification' => 'right'),
-                       'pvp' => array('justification' => 'right'),
-                       'dto' => array('justification' => 'right'),
-                       'importe' => array('justification' => 'right')
-                   ),
-                   'width' => 520,
-                   'shaded' => 0
-               )
-            );
+            $this->generar_pdf_lineas($pdf_doc, $lineas, $linea_actual, $lppag, $this->factura);
             
             if( $linea_actual == count($lineas) )
             {
@@ -685,13 +749,15 @@ class ventas_imprimir extends fs_controller
                         $encontrada = FALSE;
                         foreach($cbc0->all_from_cliente($this->factura->codcliente) as $cbc)
                         {
+                           $texto_pago .= "\n<b>Domiciliado en</b>: ";
                            if($cbc->iban)
                            {
-                              $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->iban;
+                              $texto_pago .= $cbc->iban;
                            }
-                           else
+                           
+                           if($cbc->swift)
                            {
-                              $texto_pago .= "\n<b>Domiciliado en</b>: ".$cbc->swift;
+                              $texto_pago .= "  <b>SWIFT/BIC</b>: ".$cbc->swift;
                            }
                            $encontrada = TRUE;
                            break;
@@ -711,7 +777,8 @@ class ventas_imprimir extends fs_controller
                            {
                               $texto_pago .= "\n<b>IBAN</b>: ".$cuenta_banco->iban;
                            }
-                           else
+                           
+                           if($cuenta_banco->swift)
                            {
                               $texto_pago .= "\n<b>SWIFT o BIC</b>: ".$cuenta_banco->swift;
                            }
@@ -767,7 +834,7 @@ class ventas_imprimir extends fs_controller
             if($this->factura->totalirpf != 0)
             {
                $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->factura->irpf.'%</b>';
-               $fila['irpf'] = $this->show_precio(0 - $this->factura->totalirpf);
+               $fila['irpf'] = $this->show_precio($this->factura->totalirpf);
                $opciones['cols']['irpf'] = array('justification' => 'right');
             }
             
@@ -815,7 +882,8 @@ class ventas_imprimir extends fs_controller
              'mail_host' => 'smtp.gmail.com',
              'mail_port' => '465',
              'mail_user' => '',
-             'mail_enc' => 'ssl'
+             'mail_enc' => 'ssl',
+             'mail_low_security' => FALSE
          );
          $fsvar = new fs_var();
          $mailop = $fsvar->array_get($mailop, FALSE);
@@ -872,9 +940,38 @@ class ventas_imprimir extends fs_controller
             }
             $mail->IsHTML(TRUE);
             
-            if( $mail->Send() )
+            $SMTPOptions = array();
+            if($mailop['mail_low_security'])
             {
-               $this->new_message('Mensaje enviado correctamente.');
+               $SMTPOptions = array(
+                   'ssl' => array(
+                       'verify_peer' => false,
+                       'verify_peer_name' => false,
+                       'allow_self_signed' => true
+                   )
+               );
+            }
+            
+            if( $mail->smtpConnect($SMTPOptions) )
+            {
+               if( $mail->Send() )
+               {
+                  $this->new_message('Mensaje enviado correctamente.');
+                  
+                  /// nos guardamos la fecha de envío
+                  if($doc == 'factura')
+                  {
+                     $this->factura->femail = $this->today();
+                     $this->factura->save();
+                  }
+                  else
+                  {
+                     $this->albaran->femail = $this->today();
+                     $this->albaran->save();
+                  }
+               }
+               else
+                  $this->new_error_msg("Error al enviar el email: " . $mail->ErrorInfo);
             }
             else
                $this->new_error_msg("Error al enviar el email: " . $mail->ErrorInfo);

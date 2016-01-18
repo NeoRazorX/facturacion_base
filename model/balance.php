@@ -350,7 +350,8 @@ class balance_cuenta_a extends fs_model
       {
          if( isset($ejercicio->idasientocierre) )
          {
-            $extra = " AND idasiento NOT IN (".$this->var2str($ejercicio->idasientocierre).",".$this->var2str($ejercicio->idasientopyg);
+            $extra = " AND idasiento NOT IN (".$this->var2str($ejercicio->idasientocierre)
+                    .",".$this->var2str($ejercicio->idasientopyg).')';
          }
          else
             $extra = " AND idasiento != ".$this->var2str($ejercicio->idasientopyg);

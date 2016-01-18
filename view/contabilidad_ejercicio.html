@@ -151,7 +151,7 @@
          <td><a href="{$value->url()}">{$value->codgrupo}</a> {$value->descripcion}</td>
       </tr>
       {else}
-      <tr class="bg-warning">
+      <tr class="warning">
          <td>Sin resultados. Debes importar los datos del ejercicio, pulsa el botón <b>importar</b></td>
       </tr>
       {/loop}
@@ -172,7 +172,7 @@
          <td><a href="{$value->url()}">{$value->codepigrafe}</a> {$value->descripcion}</td>
       </tr>
       {else}
-      <tr class="bg-warning">
+      <tr class="warning">
          <td colspan="2">
             Sin resultados. Debes importar los datos del ejercicio, pulsa el botón <b>importar</b>
          </td>
@@ -197,7 +197,7 @@
          <td class="text-right">{$value->idcuentaesp}</td>
       </tr>
       {else}
-      <tr class="bg-warning">
+      <tr class="warning">
          <td colspan="3">
             Sin resultados. Debes importar los datos del ejercicio, pulsa el botón <b>importar</b>
          </td>
@@ -219,10 +219,10 @@
       <tr class="clickableRow" href="{$value->url()}">
          <td>{$value->codcuenta}</td>
          <td><a href="{$value->url()}">{$value->codsubcuenta}</a> {$value->descripcion}</td>
-         <td class="text-right">{$fsc->show_precio($value->saldo, $value->coddivisa)}</td>
+         <td class='text-right{if="$value->saldo<0"} danger{/if}'>{$fsc->show_precio($value->saldo, $value->coddivisa)}</td>
       </tr>
       {else}
-      <tr class="bg-warning">
+      <tr class="warning">
          <td colspan="3">
             Sin resultados. Debes importar los datos del ejercicio, pulsa el botón <b>importar</b>
          </td>
@@ -255,7 +255,7 @@
             <div class="modal-body">
                <div class="radio">
                   <label>
-                     <input type="radio" name="fuente" value="plugins/facturacion_base/extras/espanya.xml" checked="checked"/>
+                     <input type="radio" name="fuente" value="plugins/facturacion_base/extras/espanya.xml" checked=""/>
                      Plan General Contable de <b>España</b>
                   </label>
                </div>
@@ -263,7 +263,7 @@
                   {if="$value->type=='fuente'"}
                   <div class="radio">
                      <label>
-                        <input type="radio" name="fuente" value="{$value->params}" checked="checked"/>
+                        <input type="radio" name="fuente" value="{$value->params}" checked=""/>
                         {$value->text}
                      </label>
                   </div>
@@ -295,7 +295,7 @@
                   </label>
                </div>
                <div id="div_externo" class="form-group" style="display: none;">
-                  <input class="form-control" name='farchivo' type='file' onclick="$('#rb_archivo').prop('checked', true);"/>
+                  <input name='farchivo' type='file' onclick="$('#rb_archivo').prop('checked', true);"/>
                </div>
             </div>
             <div class="modal-footer">

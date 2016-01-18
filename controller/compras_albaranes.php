@@ -45,7 +45,7 @@ class compras_albaranes extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, ucfirst(FS_ALBARANES).' de compra', 'compras', FALSE, TRUE, TRUE);
+      parent::__construct(__CLASS__, ucfirst(FS_ALBARANES).' de compra', 'compras');
    }
    
    protected function private_core()
@@ -134,10 +134,10 @@ class compras_albaranes extends fs_controller
          }
          else
          {
-            if( !isset($_GET['mostrar']) AND (isset($_REQUEST['codagente']) OR isset($_REQUEST['codproveedor'])) )
+            if( !isset($_GET['mostrar']) AND (isset($_REQUEST['codagente']) OR isset($_REQUEST['codproveedor']) OR isset($_REQUEST['codserie'])) )
             {
                /**
-                * si obtenermos un codagente o un codproveedor pasamos direcatemente
+                * si obtenermos un codagente, un codproveedor o un codserie pasamos direcatemente
                 * a la pestaña de búsqueda, a menos que tengamos un mostrar, que
                 * entonces nos indica donde tenemos que estar.
                 */
@@ -161,6 +161,10 @@ class compras_albaranes extends fs_controller
             if( isset($_REQUEST['codserie']) )
             {
                $this->codserie = $_REQUEST['codserie'];
+            }
+            
+            if( isset($_REQUEST['desde']) )
+            {
                $this->desde = $_REQUEST['desde'];
                $this->hasta = $_REQUEST['hasta'];
             }
@@ -170,11 +174,11 @@ class compras_albaranes extends fs_controller
          $order2 = '';
          if($this->order == 'fecha DESC')
          {
-            $order2 = ', codigo DESC';
+            $order2 = ', hora DESC';
          }
          else if($this->order == 'fecha ASC')
          {
-            $order2 = ', codigo ASC';
+            $order2 = ', hora ASC';
          }
          
          if($this->mostrar == 'pendientes')
@@ -216,52 +220,81 @@ class compras_albaranes extends fs_controller
       echo json_encode( array('query' => $_REQUEST['buscar_proveedor'], 'suggestions' => $json) );
    }
    
-   public function anterior_url()
+   public function paginas()
    {
-      $url = '';
       $codproveedor = '';
       if($this->proveedor)
       {
          $codproveedor = $this->proveedor->codproveedor;
       }
       
-      if($this->offset > 0)
+      $url = $this->url()."&mostrar=".$this->mostrar
+              ."&query=".$this->query
+              ."&codserie=".$this->codserie
+              ."&codagente=".$this->codagente
+              ."&codproveedor=".$codproveedor
+              ."&desde=".$this->desde
+              ."&hasta=".$this->hasta;
+      
+      $paginas = array();
+      $i = 0;
+      $num = 0;
+      $actual = 1;
+      
+      if($this->mostrar == 'pendientes')
       {
-         $url = $this->url()."&mostrar=".$this->mostrar
-                 ."&query=".$this->query
-                 ."&codserie=".$this->codserie
-                 ."&codagente=".$this->codagente
-                 ."&codproveedor=".$codproveedor
-                 ."&desde=".$this->desde
-                 ."&hasta=".$this->hasta
-                 ."&offset=".($this->offset-FS_ITEM_LIMIT);
+         $total = $this->total_pendientes();
+      }
+      else if($this->mostrar == 'buscar')
+      {
+         $total = $this->num_resultados;
+      }
+      else
+      {
+         $total = $this->total_registros();
       }
       
-      return $url;
-   }
-   
-   public function siguiente_url()
-   {
-      $url = '';
-      $codproveedor = '';
-      if($this->proveedor)
+      /// añadimos todas la página
+      while($num < $total)
       {
-         $codproveedor = $this->proveedor->codproveedor;
+         $paginas[$i] = array(
+             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
+             'num' => $i + 1,
+             'actual' => ($num == $this->offset)
+         );
+         
+         if($num == $this->offset)
+         {
+            $actual = $i;
+         }
+         
+         $i++;
+         $num += FS_ITEM_LIMIT;
       }
       
-      if( count($this->resultados) == FS_ITEM_LIMIT )
+      /// ahora descartamos
+      foreach($paginas as $j => $value)
       {
-         $url = $this->url()."&mostrar=".$this->mostrar
-                 ."&query=".$this->query
-                 ."&codserie=".$this->codserie
-                 ."&codagente=".$this->codagente
-                 ."&codproveedor=".$codproveedor
-                 ."&desde=".$this->desde
-                 ."&hasta=".$this->hasta
-                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
+         $enmedio = intval($i/2);
+         
+         /**
+          * descartamos todo excepto la primera, la última, la de enmedio,
+          * la actual, las 5 anteriores y las 5 siguientes
+          */
+         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
+         {
+            unset($paginas[$j]);
+         }
       }
       
-      return $url;
+      if( count($paginas) > 1 )
+      {
+         return $paginas;
+      }
+      else
+      {
+         return array();
+      }
    }
    
    public function buscar_lineas()
@@ -357,6 +390,17 @@ class compras_albaranes extends fs_controller
    public function total_pendientes()
    {
       $data = $this->db->select("SELECT COUNT(idalbaran) as total FROM albaranesprov WHERE ptefactura;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
+   }
+   
+   private function total_registros()
+   {
+      $data = $this->db->select("SELECT COUNT(idalbaran) as total FROM albaranesprov;");
       if($data)
       {
          return intval($data[0]['total']);

@@ -332,14 +332,16 @@ class articulo extends fs_model
       return '';
    }
    
-   /**
-    * Devuelve la descripción en base64.
-    * @deprecated since version 50
-    * @return type
-    */
-   public function get_descripcion_64()
+   public function descripcion($len = 120)
    {
-      return base64_encode($this->descripcion);
+      if( mb_strlen($this->descripcion, 'UTF8') > $len )
+      {
+         return mb_substr( nl2br($this->descripcion), 0, $len).'...';
+      }
+      else
+      {
+         return nl2br($this->descripcion);
+      }
    }
    
    public function pvp_iva()
@@ -383,6 +385,32 @@ class articulo extends fs_model
       }
       else
          return "index.php?page=ventas_articulo&ref=".urlencode($this->referencia);
+   }
+   
+   /**
+    * Devuelve una nueva referencia, la siguiente a la última de la base de datos.
+    */
+   public function get_new_referencia()
+   {
+      if( strtolower(FS_DB_TYPE) == 'postgresql' )
+      {
+         $sql = "SELECT referencia from articulos where referencia ~ '^\d+$'"
+                 . " ORDER BY referencia::integer DESC";
+      }
+      else
+      {
+         $sql = "SELECT referencia from articulos where referencia REGEXP '^[0-9]+$'"
+                 . " ORDER BY CAST(`referencia` AS decimal) DESC";
+      }
+      
+      $ref = 1;
+      $data = $this->db->select_limit($sql, 1, 0);
+      if($data)
+      {
+         $ref = sprintf(1 + intval($data[0]['referencia']));
+      }
+      
+      return $ref;
    }
    
    /**
@@ -554,29 +582,43 @@ class articulo extends fs_model
       {
          return 'images/articulos/'.$this->referencia.'-1.png';
       }
+      else if( file_exists('images/articulos/'.$this->referencia.'-1.jpg') )
+      {
+         return 'images/articulos/'.$this->referencia.'-1.jpg';
+      }
       else
          return FALSE;
    }
    
-   public function set_imagen($img)
+   public function set_imagen($img, $png = TRUE)
    {
       $this->imagen = NULL;
       
-      if( is_null($img) )
+      if( file_exists('images/articulos/'.$this->referencia.'-1.png') )
       {
-         if( file_exists('images/articulos/'.$this->referencia.'-1.png') )
-         {
-            unlink('images/articulos/'.$this->referencia.'-1.png');
-         }
+         unlink('images/articulos/'.$this->referencia.'-1.png');
       }
-      else
+      else if( file_exists('images/articulos/'.$this->referencia.'-1.jpg') )
+      {
+         unlink('images/articulos/'.$this->referencia.'-1.jpg');
+      }
+      
+      if($img)
       {
          if( !file_exists('images/articulos') )
          {
             @mkdir('images/articulos', 0777, TRUE);
          }
          
-         $f = @fopen('images/articulos/'.$this->referencia.'-1.png', 'a');
+         if($png)
+         {
+            $f = @fopen('images/articulos/'.$this->referencia.'-1.png', 'a');
+         }
+         else
+         {
+            $f = @fopen('images/articulos/'.$this->referencia.'-1.jpg', 'a');
+         }
+         
          if($f)
          {
             fwrite($f, $img);
@@ -587,18 +629,19 @@ class articulo extends fs_model
    
    public function set_pvp($p)
    {
-      if( !$this->floatcmp($this->pvp, $p, FS_NF0+2) )
+      $p = bround($p, FS_NF0_ART);
+      
+      if( !$this->floatcmp($this->pvp, $p, FS_NF0_ART+2) )
       {
          $this->pvp_ant = $this->pvp;
          $this->factualizado = Date('d-m-Y');
-         $this->pvp = round($p, FS_NF0+2);
+         $this->pvp = $p;
       }
    }
    
    public function set_pvp_iva($p)
    {
-      $pvp = round((100*$p)/(100+$this->get_iva()), FS_NF0+2);
-      $this->set_pvp($pvp);
+      $this->set_pvp( (100*$p)/(100+$this->get_iva()) );
    }
    
    /**
@@ -1151,6 +1194,13 @@ class articulo extends fs_model
       return $artilist;
    }
    
+   /**
+    * Devuelve un array con los artículos que tengan $cod como código de barras.
+    * @param type $cod
+    * @param type $offset
+    * @param type $limit
+    * @return \articulo
+    */
    public function search_by_codbar($cod, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();

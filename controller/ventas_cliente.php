@@ -137,16 +137,11 @@ class ventas_cliente extends fs_controller
             $cuentab = new cuenta_banco_cliente();
             $cuentab->codcliente = $_POST['codcliente'];
          }
+         
          $cuentab->descripcion = $_POST['descripcion'];
-         
-         if($_POST['ciban'] != '')
-         {
-            $cuentab->iban = $this->calcular_iban($_POST['ciban']);
-         }
-         else
-            $cuentab->iban = $_POST['iban'];
-         
+         $cuentab->iban = $_POST['iban'];
          $cuentab->swift = $_POST['swift'];
+         $cuentab->principal = isset($_POST['principal']);
          
          if( $cuentab->save() )
          {
@@ -220,34 +215,6 @@ class ventas_cliente extends fs_controller
       return intval(Date('Y')) - $previous;
    }
    
-   private function calcular_iban($ccc)
-   {
-      $codpais = substr($this->empresa->codpais, 0, 2);
-      
-      foreach($this->cliente->get_direcciones() as $dir)
-      {
-         if($dir->domfacturacion)
-         {
-            $codpais = substr($dir->codpais, 0, 2);
-            break;
-         }
-      }
-      
-      $pesos = array('A' => '10', 'B' => '11', 'C' => '12', 'D' => '13', 'E' => '14', 'F' => '15',
-          'G' => '16', 'H' => '17', 'I' => '18', 'J' => '19', 'K' => '20', 'L' => '21', 'M' => '22',
-          'N' => '23', 'O' => '24', 'P' => '25', 'Q' => '26', 'R' => '27', 'S' => '28', 'T' => '29',
-          'U' => '30', 'V' => '31', 'W' => '32', 'X' => '33', 'Y' => '34', 'Z' => '35'
-      );
-      
-      $dividendo = $ccc.$pesos[substr($codpais, 0 , 1)].$pesos[substr($codpais, 1 , 1)].'00';	
-      $digitoControl =  98 - bcmod($dividendo, '97');
-      
-      if( strlen($digitoControl) == 1 )
-         $digitoControl = '0'.$digitoControl;
-      
-      return $codpais.$digitoControl.$ccc;
-   }
-   
    /*
     * Devuelve un array con los datos estadísticos de las compras del cliente
     * en los cinco últimos años.
@@ -257,42 +224,75 @@ class ventas_cliente extends fs_controller
       $stats = array();
       $years = array();
       for($i=4; $i>=0; $i--)
+      {
          $years[] = intval(Date('Y')) - $i;
+      }
       
       $meses = array('Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic');
       
       foreach($years as $year)
       {
-         for($i = 1; $i <= 12; $i++)
+         if( $year == intval(Date('Y')) )
          {
-            $stats[$year.'-'.$i]['mes'] = $meses[$i-1].' '.$year;
-            $stats[$year.'-'.$i]['albaranes'] = 0;
-            $stats[$year.'-'.$i]['facturas'] = 0;
+            /// año actual
+            for($i = 1; $i <= intval(Date('m')); $i++)
+            {
+               $stats[$year.'-'.$i]['mes'] = $meses[$i-1].' '.$year;
+               $stats[$year.'-'.$i]['albaranes'] = 0;
+               $stats[$year.'-'.$i]['facturas'] = 0;
+            }
+         }
+         else
+         {
+            /// años anteriores
+            for($i = 1; $i <= 12; $i++)
+            {
+               $stats[$year.'-'.$i]['mes'] = $meses[$i-1].' '.$year;
+               $stats[$year.'-'.$i]['albaranes'] = 0;
+               $stats[$year.'-'.$i]['facturas'] = 0;
+            }
          }
          
          if( strtolower(FS_DB_TYPE) == 'postgresql')
+         {
             $sql_aux = "to_char(fecha,'FMMM')";
+         }
          else
             $sql_aux = "DATE_FORMAT(fecha, '%m')";
          
-         $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(total) as total
-            FROM albaranescli WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))."
-            AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))." AND codcliente = ".$this->empresa->var2str($this->cliente->codcliente)."
-            GROUP BY ".$sql_aux." ORDER BY mes ASC;");
+         $sql = "SELECT ".$sql_aux." as mes, sum(neto) as total FROM albaranescli"
+                 ." WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))
+                 ." AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))
+                 ." AND codcliente = ".$this->empresa->var2str($this->cliente->codcliente)
+                 ." GROUP BY ".$sql_aux." ORDER BY mes ASC;";
+         
+         $data = $this->db->select($sql);
          if($data)
          {
             foreach($data as $d)
-               $stats[$year.'-'.intval($d['mes'])]['albaranes'] = number_format($d['total'], FS_NF0, '.', '');
+            {
+               if( isset($stats[$year.'-'.intval($d['mes'])]['albaranes']) )
+               {
+                  $stats[$year.'-'.intval($d['mes'])]['albaranes'] = number_format($d['total'], FS_NF0, '.', '');
+               }
+            }
          }
          
-         $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(total) as total
-            FROM facturascli WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))."
-            AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))." AND codcliente = ".$this->empresa->var2str($this->cliente->codcliente)."
-            GROUP BY ".$sql_aux." ORDER BY mes ASC;");
+         $sql = "SELECT ".$sql_aux." as mes, sum(neto) as total FROM facturascli"
+                 ." WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))
+                 ." AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))
+                 ." AND codcliente = ".$this->empresa->var2str($this->cliente->codcliente)
+                 ." GROUP BY ".$sql_aux." ORDER BY mes ASC;";
+         $data = $this->db->select($sql);
          if($data)
          {
             foreach($data as $d)
-               $stats[$year.'-'.intval($d['mes'])]['facturas'] = number_format($d['total'], FS_NF0, '.', '');
+            {
+               if( isset($stats[$year.'-'.intval($d['mes'])]['facturas']) )
+               {
+                  $stats[$year.'-'.intval($d['mes'])]['facturas'] = number_format($d['total'], FS_NF0, '.', '');
+               }
+            }
          }
       }
       

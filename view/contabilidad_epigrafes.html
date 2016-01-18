@@ -38,14 +38,13 @@
 <form action="{$fsc->grupo->url()}" method="post" class="form" role="form">
    <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
       <div class="row">
-         <div class="col-md-8">
+         <div class="col-sm-8">
             <a href="{$fsc->grupo->url()}" class="btn btn-sm btn-default" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
                <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; {$fsc->ppage->title}
             </a>
-            
             <div class="btn-group">
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
@@ -54,7 +53,7 @@
                {/loop}
             </div>
          </div>
-         <div class="col-md-4 text-right">
+         <div class="col-sm-4 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
@@ -115,7 +114,7 @@
 <form action="{$fsc->epigrafe->url()}" method="post" class="form">
    <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
       <div class="row">
-         <div class="col-md-8">
+         <div class="col-sm-8">
             <a href="{$fsc->epigrafe->url()}" class="btn btn-sm btn-default" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
@@ -131,7 +130,7 @@
                {/loop}
             </div>
          </div>
-         <div class="col-md-4 text-right">
+         <div class="col-sm-4 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
@@ -204,25 +203,21 @@
    </div>
 </div>
 {else}
-<div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
+<div class="container">
    <div class="row">
-      <div class="col-sm-2">
-         <div class="btn-group hidden-xs">
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
-               <span class="glyphicon glyphicon-refresh"></span>
-            </a>
-            {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
-            </a>
-            {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
-            </a>
-            {/if}
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               Grupos de epígrafes
+               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+            </h1>
          </div>
       </div>
-      <div class="col-sm-2">
+   </div>
+   <div class="row">
+      <div class="col-sm-3 col-xs-12">
          <form name="f_filtro_cuentas" action="{$fsc->url()}" method="post" class="post">
             <select name="ejercicio" class="form-control" onchange="document.f_filtro_cuentas.submit()">
             {loop="$fsc->ejercicio->all()"}
@@ -235,40 +230,47 @@
             </select>
          </form>
       </div>
-      <div class="col-sm-8 text-right">
+      <div class="col-sm-4 col-xs-6">
+         <a id="b_nuevo_grupo" class="btn btn-sm btn-success" href="#nuevo_grupo">
+            <span class="glyphicon glyphicon-plus"></span>
+            <span class="hidden-xs">Nuevo grupo</span>
+         </a>
+      </div>
+      <div class="col-sm-5 col-xs-6 text-right">
          <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_cuentas">
             Cuentas &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
          </a>
       </div>
    </div>
-</div>
-
-<div class="table-responsive">
-   <table class="table table-hover">
-      <thead>
-         <tr>
-            <th class="text-left">Código</td>
-            <th class="text-left">Descripción</th>
-         </tr>
-      </thead>
-      {loop="$fsc->super_epigrafes"}
-      <tr class="clickableRow" href="{$value->url()}">
-         <td><a href="{$value->url()}">{$value->codepigrafe}</a></td>
-         <td>{$value->descripcion}</td>
-      </tr>
-      {/loop}
-      {loop="$fsc->resultados"}
-      <tr class="clickableRow" href="{$value->url()}">
-         <td><a href="{$value->url()}">{$value->codgrupo}</a></td>
-         <td>{$value->descripcion}</td>
-      </tr>
-      {/loop}
-      <tr>
-         <td colspan="2" class="text-center">
-            <a id="b_nuevo_grupo" class="btn btn-sm btn-block btn-success" href="#nuevo_grupo">Nuevo grupo...</a>
-         </td>
-      </tr>
-   </table>
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="visible-xs">
+            <br/>
+         </div>
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th class="text-left">Código</td>
+                     <th class="text-left">Descripción</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->super_epigrafes"}
+               <tr class="clickableRow" href="{$value->url()}">
+                  <td><a href="{$value->url()}">{$value->codepigrafe}</a></td>
+                  <td>{$value->descripcion}</td>
+               </tr>
+               {/loop}
+               {loop="$fsc->resultados"}
+               <tr class="clickableRow" href="{$value->url()}">
+                  <td><a href="{$value->url()}">{$value->codgrupo}</a></td>
+                  <td>{$value->descripcion}</td>
+               </tr>
+               {/loop}
+            </table>
+         </div>
+      </div>
+   </div>
 </div>
 {/if}
 

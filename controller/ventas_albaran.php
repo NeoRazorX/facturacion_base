@@ -87,7 +87,9 @@ class ventas_albaran extends fs_controller
       {
          $nuevoalbp = $this->page->get('nueva_venta');
          if($nuevoalbp)
+         {
             $this->nuevo_albaran_url = $nuevoalbp->url();
+         }
       }
       
       if( isset($_POST['idalbaran']) )
@@ -117,9 +119,9 @@ class ventas_albaran extends fs_controller
          /// comprobamos el albarán
          $this->albaran->full_test();
          
-         if( isset($_GET['facturar']) AND isset($_GET['petid']) )
+         if( isset($_POST['facturar']) AND isset($_POST['petid']) )
          {
-            if( $this->duplicated_petition($_GET['petid']) )
+            if( $this->duplicated_petition($_POST['petid']) )
             {
                $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
             }
@@ -204,6 +206,8 @@ class ventas_albaran extends fs_controller
          }
          else
          {
+            $this->albaran->nombrecliente = $_POST['nombrecliente'];
+            $this->albaran->cifnif = $_POST['cifnif'];
             $this->albaran->codpais = $_POST['codpais'];
             $this->albaran->provincia = $_POST['provincia'];
             $this->albaran->ciudad = $_POST['ciudad'];
@@ -441,6 +445,7 @@ class ventas_albaran extends fs_controller
    private function generar_factura()
    {
       $factura = new factura_cliente();
+      $factura->fecha = $_POST['facturar'];
       $factura->apartado = $this->albaran->apartado;
       $factura->cifnif = $this->albaran->cifnif;
       $factura->ciudad = $this->albaran->ciudad;
@@ -450,7 +455,6 @@ class ventas_albaran extends fs_controller
       $factura->coddir = $this->albaran->coddir;
       $factura->coddivisa = $this->albaran->coddivisa;
       $factura->tasaconv = $this->albaran->tasaconv;
-      $factura->codejercicio = $this->albaran->codejercicio;
       $factura->codpago = $this->albaran->codpago;
       $factura->codpais = $this->albaran->codpais;
       $factura->codpostal = $this->albaran->codpostal;
@@ -468,6 +472,13 @@ class ventas_albaran extends fs_controller
       $factura->totalrecargo = $this->albaran->totalrecargo;
       $factura->porcomision = $this->albaran->porcomision;
       
+      /// asignamos el ejercicio que corresponde a la fecha elegida
+      $eje0 = $this->ejercicio->get_by_fecha($factura->fecha);
+      if($eje0)
+      {
+         $factura->codejercicio = $eje0->codejercicio;
+      }
+      
       /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
       $forma0 = new forma_pago();
       $formapago = $forma0->get($factura->codpago);
@@ -481,13 +492,13 @@ class ventas_albaran extends fs_controller
          $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$formapago->vencimiento));
       }
       
-      /// asignamos la mejor fecha posible, pero dentro del ejercicio
-      $eje0 = $this->ejercicio->get($factura->codejercicio);
-      $factura->fecha = $eje0->get_best_fecha($factura->fecha);
-      
       $regularizacion = new regularizacion_iva();
       
-      if( !$eje0->abierto() )
+      if( !$eje0 )
+      {
+         $this->new_error_msg("Ningún ejercicio encontrado.");
+      }
+      else if( !$eje0->abierto() )
       {
          $this->new_error_msg("El ejercicio está cerrado.");
       }

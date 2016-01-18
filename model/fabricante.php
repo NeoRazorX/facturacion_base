@@ -43,7 +43,7 @@ class fabricante extends fs_model
    protected function install()
    {
       $this->clean_cache();
-      return "INSERT INTO ".$this->table_name." (codfabricante,nombre) VALUES ('oem','OEM');";
+      return "INSERT INTO ".$this->table_name." (codfabricante,nombre) VALUES ('OEM','OEM');";
    }
    
    public function url()
@@ -54,6 +54,18 @@ class fabricante extends fs_model
       }
       else
          return "index.php?page=ventas_fabricante&cod=".$this->codfabricante;
+   }
+   
+   public function nombre($len = 12)
+   {
+      if( mb_strlen($this->nombre) > $len )
+      {
+         return substr($this->nombre, 0, $len).'...';
+      }
+      else
+      {
+         return $this->nombre;
+      }
    }
    
    public function get($cod)

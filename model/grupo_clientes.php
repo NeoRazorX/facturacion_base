@@ -83,10 +83,10 @@ class grupo_clientes extends fs_model
       $cod = $this->db->select($sql);
       if($cod)
       {
-         return 1 + intval($cod[0]['cod']);
+         return sprintf('%06s', (1 + intval($cod[0]['cod'])));
       }
       else
-         return 1;
+         return '000001';
    }
    
    public function get($cod)
@@ -150,6 +150,11 @@ class grupo_clientes extends fs_model
       return $glist;
    }
    
+   /**
+    * Devuelve todos los grupos con la tarifa $cod
+    * @param type $cod
+    * @return \grupo_clientes
+    */
    public function all_with_tarifa($cod)
    {
       $glist = array();

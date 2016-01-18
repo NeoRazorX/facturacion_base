@@ -336,16 +336,16 @@ class cliente extends fs_model
    /**
     * Devuelve la subcuenta asociada al cliente para el ejercicio $eje.
     * Si no existe intenta crearla. Si falla devuelve FALSE.
-    * @param type $ejercicio
+    * @param type $codejercicio
     * @return subcuenta
     */
-   public function get_subcuenta($ejercicio)
+   public function get_subcuenta($codejercicio)
    {
       $subcuenta = FALSE;
       
       foreach($this->get_subcuentas() as $s)
       {
-         if($s->codejercicio == $ejercicio)
+         if($s->codejercicio == $codejercicio)
          {
             $subcuenta = $s;
             break;
@@ -358,7 +358,7 @@ class cliente extends fs_model
          $continuar = TRUE;
          
          $cuenta = new cuenta();
-         $ccli = $cuenta->get_cuentaesp('CLIENT', $ejercicio);
+         $ccli = $cuenta->get_cuentaesp('CLIENT', $codejercicio);
          if($ccli)
          {
             $subc0 = $ccli->new_subcuenta($this->codcliente);
@@ -373,7 +373,7 @@ class cliente extends fs_model
             {
                $sccli = new subcuenta_cliente();
                $sccli->codcliente = $this->codcliente;
-               $sccli->codejercicio = $ejercicio;
+               $sccli->codejercicio = $codejercicio;
                $sccli->codsubcuenta = $subc0->codsubcuenta;
                $sccli->idsubcuenta = $subc0->idsubcuenta;
                if( $sccli->save() )
@@ -561,7 +561,7 @@ class cliente extends fs_model
    public function search($query, $offset=0)
    {
       $clilist = array();
-      $query = mb_strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query), 'UTF8' );
       
       $consulta = "SELECT * FROM ".$this->table_name." WHERE debaja = FALSE AND ";
       if( is_numeric($query) )

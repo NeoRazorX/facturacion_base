@@ -4,7 +4,9 @@
    function delete_serie(cod)
    {
       if( confirm("¿Realmente desea eliminar la serie "+cod+"?") )
+      {
          window.location.href = '{$fsc->url()}&delete='+cod;
+      }
    }
 </script>
 
@@ -17,18 +19,28 @@
                <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
-               <div class="btn-group">
+               <span class="btn-group">
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
                   {/if}
                {/loop}
-               </div>
+               </span>
             </h1>
             <p class="help-block">
-               El <b>% {#FS_IRPF#}</b> es una retención que se aplica tanto en las compras
-               como en las ventas.
+               El <b>% {#FS_IRPF#}</b> es una retención que se aplica tanto en las compras como en las ventas.
             </p>
+            {if="$fsc->num_personalizada"}
+            <p class="help-block">
+               <mark>Numeración personalizada</mark>: selecciona un ejercicio y el número
+               de factura inicial, las facturas de venta de ese ejercicio empezarán en ese número.
+            </p>
+            {else}
+            <p class="help-block">
+               ¿Quieres modificar el <b>nº de factura inicial</b> de un serie? Activa la
+               <a href="{$fsc->url()}&num_personalizada=TRUE">numeración personalizada</a>.
+            </p>
+            {/if}
          </div>
          <div class="table-responsive">
             <table class="table table-hover">
@@ -36,9 +48,12 @@
                   <tr>
                      <th class="text-left" width="150">Código</th>
                      <th class="text-left">Descripción</th>
+                     {if="$fsc->num_personalizada"}
+                     <th colspan="2" class="warning">Numeración personalizada</th>
+                     {/if}
                      <th class="text-center">Sin {#FS_IVA#}</th>
                      <th class="text-right" width="100">% {#FS_IRPF#}</th>
-                     <th class="text-right" width="120">Acciones</th>
+                     <th class="text-right" width="110">Acciones</th>
                   </tr>
                </thead>
                {loop="$fsc->serie->all()"}
@@ -47,7 +62,33 @@
                   <tr>
                      <td><div class="form-control">{$value->codserie}</div></td>
                      <td><input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/></td>
-                     <td class="text-center"><input type="checkbox" name="siniva" value="TRUE"{if="$value->siniva"} checked="checked"{/if}/></td>
+                     {if="$fsc->num_personalizada"}
+                     <td class="warning">
+                        <select name="codejercicio" class="form-control">
+                           <option value="">Desactivado</option>
+                           <option value="">---</option>
+                           {loop="$fsc->ejercicios"}
+                              {if="$value1->codejercicio==$value2->codejercicio"}
+                              <option value="{$value->codejercicio}" selected="">{$value->nombre}</option>
+                              {else}
+                              <option value="{$value->codejercicio}">{$value->nombre}</option>
+                              {/if}
+                           {/loop}
+                        </select>
+                     </td>
+                     <td width="110" class="warning">
+                        <input class="form-control" type="number" name="numfactura" value="{$value->numfactura}" autocomplete="off"/>
+                     </td>
+                     {/if}
+                     <td class="text-center">
+                        <div class="checkbox-inline">
+                           {if="$value->siniva"}
+                           <input type="checkbox" name="siniva" value="TRUE" checked=""/>
+                           {else}
+                           <input type="checkbox" name="siniva" value="TRUE"/>
+                           {/if}
+                        </div>
+                     </td>
                      <td><input class="form-control text-right" type="text" name="irpf" value="{$value->irpf}" autocomplete="off"/></td>
                      <td class="text-right">
                         <div class="btn-group">
@@ -71,10 +112,28 @@
                </form>
                {/loop}
                <form class="form" name="f_nueva_serie" action ="{$fsc->url()}" method="post">
-                  <tr class="bg-info">
+                  <tr class="info">
                      <td><input class="form-control" type="text" name="codserie" maxlength="2" placeholder="Nuevo código..." autocomplete="off"/></td>
                      <td><input class="form-control" type="text" name="descripcion" placeholder="Descripción" autocomplete="off"/></td>
-                     <td class="text-center"><input type="checkbox" name="siniva" value="TRUE"/></td>
+                     {if="$fsc->num_personalizada"}
+                     <td>
+                        <select name="codejercicio" class="form-control">
+                           <option value="">Desactivado</option>
+                           <option value="">---</option>
+                           {loop="$fsc->ejercicios"}
+                           <option value="{$value->codejercicio}">{$value->nombre}</option>
+                           {/loop}
+                        </select>
+                     </td>
+                     <td width="90">
+                        <input class="form-control" type="number" name="numfactura" value="1" autocomplete="off"/>
+                     </td>
+                     {/if}
+                     <td class="text-center">
+                        <div class="checkbox-inline">
+                           <input type="checkbox" name="siniva" value="TRUE"/>
+                        </div>
+                     </td>
                      <td><input class="form-control text-right" type="text" name="irpf" value="0" autocomplete="off"/></td>
                      <td class="text-right">
                         <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">

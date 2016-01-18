@@ -114,7 +114,7 @@
                   </td>
                </tr>
                {else}
-               <tr class="bg-warning">
+               <tr class="warning">
                   <td colspan="9">Sin resultados.</td>
                </tr>
                {/loop}
@@ -190,7 +190,7 @@
                      <td><input type="number" name="num_tickets" value="{$value->num_tickets}" class="form-control" autocomplete="off"/></td>
                      <td class="text-center">
                         {if="!$value->disponible()"}
-                        <a href="#terminales" class="btn btn-sm btn-warning" title="Terminal en uso">
+                        <a href="#terminales" class="btn btn-sm btn-warning" onclick="alert('Terminal en uso. Puedes cerrarlo desde la pestaña historial.')">
                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                         </a>
                         {/if}
@@ -244,6 +244,41 @@
                   </tr>
                </form>
             </table>
+         </div>
+         <div class="container-fluid">
+            <div class="row">
+               <div class="col-sm-12">
+                  <div class="page-header">
+                     <h2>Ayuda</h2>
+                  </div>
+                  <div class="table-responsive">
+                     <table class="table table-hover">
+                        <thead>
+                           <tr>
+                              <th>Impresora</th>
+                              <th>Comando de corte</th>
+                              <th>Comando de apertura</th>
+                           </tr>
+                        </thead>
+                        <tr>
+                           <td>Samsung Bixolon</td>
+                           <td>27.105</td>
+                           <td>27.112.48</td>
+                        </tr>
+                        <tr>
+                           <td>Epson TM-T20II</td>
+                           <td>27.109</td>
+                           <td>27.112.48.55.121</td>
+                        </tr>
+                        <tr>
+                           <td>Okipos</td>
+                           <td>29.86.66.100</td>
+                           <td>27.112.48</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
          </div>
       </div>
    </div>

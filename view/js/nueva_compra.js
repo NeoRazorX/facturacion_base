@@ -139,7 +139,7 @@ function recalcular()
    $("#aneto").html( show_numero(neto) );
    $("#aiva").html( show_numero(total_iva) );
    $("#are").html( show_numero(total_recargo) );
-   $("#airpf").html( '-'+show_numero(total_irpf) );
+   $("#airpf").html( show_numero(total_irpf) );
    $("#atotal").val( neto + total_iva - total_irpf + total_recargo );
    
    if(total_recargo == 0 && !tiene_recargo)
@@ -256,7 +256,14 @@ function ajustar_iva(num)
 {
    if($("#linea_"+num).length > 0)
    {
-      if(siniva && $("#iva_"+num).val() != 0)
+      if(proveedor.regimeniva == 'Exento')
+      {
+         $("#iva_"+num).val(0);
+         $("#recargo_"+num).val(0);
+         
+         alert('El proveedor tiene regimen de IVA: '+proveedor.regimeniva);
+      }
+      else if(siniva && $("#iva_"+num).val() != 0)
       {
          $("#iva_"+num).val(0);
          $("#recargo_"+num).val(0);
@@ -334,7 +341,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto)
       <td><input type=\"text\" class=\"form-control text-right\" id=\"pvp_"+numlineas+"\" name=\"pvp_"+numlineas+"\" value=\""+pvp+
          "\" onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       <td><input type=\"text\" id=\"dto_"+numlineas+"\" name=\"dto_"+numlineas+"\" value=\""+dto+
-         "\" class=\"form-control text-right\" onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+         "\" class=\"form-control text-right\" onkeyup=\"recalcular()\" onchange=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"neto_"+numlineas+"\" name=\"neto_"+numlineas+
          "\" onchange=\"ajustar_neto()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
@@ -489,15 +496,15 @@ function buscar_articulos()
                var tr_aux = '<tr>';
                if(val.bloqueado)
                {
-                  tr_aux = "<tr class=\"bg-danger\">";
+                  tr_aux = "<tr class=\"danger\">";
                }
                else if(val.stockfis < val.stockmin)
                {
-                  tr_aux = "<tr class=\"bg-warning\">";
+                  tr_aux = "<tr class=\"warning\">";
                }
                else if(val.stockfis > val.stockmax)
                {
-                  tr_aux = "<tr class=\"bg-success\">";
+                  tr_aux = "<tr class=\"success\">";
                }
                
                if(val.secompra)
@@ -525,7 +532,7 @@ function buscar_articulos()
             
             if(items.length == 0 && !fin_busqueda1)
             {
-               items.push("<tr><td colspan=\"4\" class=\"bg-warning\">Sin resultados. Usa la pestaña\n\
+               items.push("<tr><td colspan=\"4\" class=\"warning\">Sin resultados. Usa la pestaña\n\
                               <b>Nuevo</b> para crear uno.</td></tr>");
                document.f_nuevo_articulo.referencia.value = document.f_buscar_articulos.query.value;
                insertar = true;
@@ -565,7 +572,7 @@ function buscar_articulos()
             
             if(items.length == 0 && !fin_busqueda2)
             {
-               items.push("<tr><td colspan=\"3\" class=\"bg-warning\">Sin resultados.</td></tr>");
+               items.push("<tr><td colspan=\"3\" class=\"warning\">Sin resultados.</td></tr>");
                insertar = true;
             }
             

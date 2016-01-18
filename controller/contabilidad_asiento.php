@@ -137,7 +137,11 @@ class contabilidad_asiento extends fs_controller
       $eje0 = $this->ejercicio->get($this->asiento->codejercicio);
       if($eje0)
       {
-         $this->asiento->fecha = $eje0->get_best_fecha($_POST['fecha']);
+         if( strtotime($this->asiento->fecha) != strtotime($_POST['fecha']) )
+         {
+            $this->new_error_msg('La fecha '.$_POST['fecha'].' está fuera del'
+                    . ' rango del ejercicio '.$eje0->codejercicio.'.');
+         }
       }
       else
          $this->new_error_msg('No se encuentra el ejercicio asociado al asiento.');
@@ -222,6 +226,11 @@ class contabilidad_asiento extends fs_controller
                      $partida->documento = $this->asiento->documento;
                      $partida->tipodocumento = $this->asiento->tipodocumento;
                      
+                     $partida->idcontrapartida = NULL;
+                     $partida->codcontrapartida = NULL;
+                     $partida->cifnif = NULL;
+                     $partida->iva = 0;
+                     $partida->baseimponible = 0;
                      if( isset($_POST['codcontrapartida_'.$i]) )
                      {
                         if( $_POST['codcontrapartida_'.$i] != '')
@@ -282,6 +291,11 @@ class contabilidad_asiento extends fs_controller
          {
             $lineas[$i]->desc_subcuenta = $subcuenta->descripcion;
             $lineas[$i]->saldo = $subcuenta->saldo;
+         }
+         else
+         {
+            $lineas[$i]->desc_subcuenta = '';
+            $lineas[$i]->saldo = 0;
          }
       }
       

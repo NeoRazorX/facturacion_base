@@ -36,7 +36,7 @@ class factura_proveedor extends fs_model
    public $idfactura;
    
    /**
-    * Todavía sin uso.
+    * ID de la factura a la que rectifica.
     * @var type 
     */
    public $idfacturarect;
@@ -46,6 +46,12 @@ class factura_proveedor extends fs_model
     * @var type 
     */
    public $idasiento;
+   
+   /**
+    * ID del asiento de pago relacionado, si lo hay.
+    * @var type 
+    */
+   public $idasientop;
    
    public $cifnif;
    
@@ -81,7 +87,7 @@ class factura_proveedor extends fs_model
    public $codigo;
    
    /**
-    * Todavía sin uso.
+    * Código de la factura a la que rectifica.
     * @var type 
     */
    public $codigorect;
@@ -181,11 +187,14 @@ class factura_proveedor extends fs_model
     */
    public $totalrecargo;
    
+   public $anulada;
+   
    public function __construct($f=FALSE)
    {
       parent::__construct('facturasprov', 'plugins/facturacion_base/');
       if($f)
       {
+         $this->anulada = $this->str2bool($f['anulada']);
          $this->cifnif = $f['cifnif'];
          $this->codagente = $f['codagente'];
          $this->codalmacen = $f['codalmacen'];
@@ -200,9 +209,12 @@ class factura_proveedor extends fs_model
          
          $this->hora = '00:00:00';
          if( !is_null($f['hora']) )
-            $this->hora = $f['hora'];
+         {
+            $this->hora = date('H:i:s', strtotime($f['hora']));
+         }
          
          $this->idasiento = $this->intval($f['idasiento']);
+         $this->idasientop = $this->intval($f['idasientop']);
          $this->idfactura = $this->intval($f['idfactura']);
          $this->idfacturarect = $this->intval($f['idfacturarect']);
          $this->irpf = floatval($f['irpf']);
@@ -221,6 +233,7 @@ class factura_proveedor extends fs_model
       }
       else
       {
+         $this->anulada = FALSE;
          $this->cifnif = NULL;
          $this->codagente = NULL;
          $this->codalmacen = NULL;
@@ -234,6 +247,7 @@ class factura_proveedor extends fs_model
          $this->fecha = Date('d-m-Y');
          $this->hora = Date('H:i:s');
          $this->idasiento = NULL;
+         $this->idasientop = NULL;
          $this->idfactura = NULL;
          $this->idfacturarect = NULL;
          $this->irpf = 0;
@@ -292,6 +306,16 @@ class factura_proveedor extends fs_model
       }
       else
          return 'index.php?page=contabilidad_asiento&id='.$this->idasiento;
+   }
+   
+   public function asiento_pago_url()
+   {
+      if( is_null($this->idasientop) )
+      {
+         return 'index.php?page=contabilidad_asientos';
+      }
+      else
+         return 'index.php?page=contabilidad_asiento&id='.$this->idasientop;
    }
    
    public function agente_url()
@@ -470,6 +494,12 @@ class factura_proveedor extends fs_model
       return $asiento->get($this->idasiento);
    }
    
+   public function get_asiento_pago()
+   {
+      $asiento = new asiento();
+      return $asiento->get($this->idasientop);
+   }
+   
    public function get($id)
    {
       $fact = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id).";");
@@ -508,21 +538,33 @@ class factura_proveedor extends fs_model
       $encontrado = FALSE;
       $num = 1;
       $fecha = $this->fecha;
-      $numeros = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha
+      $data = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha
          FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).
          " AND codserie = ".$this->var2str($this->codserie)." ORDER BY numero ASC;");
-      if($numeros)
+      if($data)
       {
-         foreach($numeros as $n)
+         foreach($data as $d)
          {
-            if( intval($n['numero']) > $num )
+            if( intval($d['numero']) < $num )
             {
-               $encontrado = TRUE;
-               $fecha = Date('d-m-Y', strtotime($n['fecha']));
-               break;
+               /**
+                * El número de la factura es menor que el inicial.
+                * El usuario ha cambiado el número inicial después de hacer
+                * facturas.
+                */
+            }
+            else if( intval($d['numero']) == $num )
+            {
+               /// el número es correcto, avanzamos
+               $num++;
             }
             else
-               $num++;
+            {
+               /// Hemos encontrado un hueco y debemos usar el número y la fecha.
+               $encontrado = TRUE;
+               $fecha = Date('d-m-Y', strtotime($d['fecha']));
+               break;
+            }
          }
       }
       
@@ -598,7 +640,9 @@ class factura_proveedor extends fs_model
       foreach($this->get_lineas() as $l)
       {
          if( !$l->test() )
+         {
             $status = FALSE;
+         }
          
          $neto += $l->pvptotal;
          $iva += $l->pvptotal * $l->iva / 100;
@@ -647,7 +691,10 @@ class factura_proveedor extends fs_model
       /// comprobamos las líneas de IVA
       $this->get_lineas_iva();
       $linea_iva = new linea_iva_factura_proveedor();
-      $status = $linea_iva->factura_test($this->idfactura, $neto, $iva, $recargo);
+      if( !$linea_iva->factura_test($this->idfactura, $neto, $iva, $recargo) )
+      {
+         $status = FALSE;
+      }
       
       /// comprobamos el asiento
       if( isset($this->idasiento) )
@@ -708,6 +755,7 @@ class factura_proveedor extends fs_model
                     .", neto = ".$this->var2str($this->neto)
                     .", cifnif = ".$this->var2str($this->cifnif)
                     .", pagada = ".$this->var2str($this->pagada)
+                    .", anulada = ".$this->var2str($this->anulada)
                     .", observaciones = ".$this->var2str($this->observaciones)
                     .", codagente = ".$this->var2str($this->codagente)
                     .", codalmacen = ".$this->var2str($this->codalmacen)
@@ -721,6 +769,7 @@ class factura_proveedor extends fs_model
                     .", codigorect = ".$this->var2str($this->codigorect)
                     .", codserie = ".$this->var2str($this->codserie)
                     .", idasiento = ".$this->var2str($this->idasiento)
+                    .", idasientop = ".$this->var2str($this->idasientop)
                     .", totalirpf = ".$this->var2str($this->totalirpf)
                     .", totaliva = ".$this->var2str($this->totaliva)
                     .", coddivisa = ".$this->var2str($this->coddivisa)
@@ -737,14 +786,15 @@ class factura_proveedor extends fs_model
          else
          {
             $this->new_codigo();
-            $sql = "INSERT INTO ".$this->table_name." (codigo,total,neto,cifnif,pagada,observaciones,
+            $sql = "INSERT INTO ".$this->table_name." (codigo,total,neto,cifnif,pagada,anulada,observaciones,
                codagente,codalmacen,irpf,totaleuros,nombre,codpago,codproveedor,idfacturarect,numproveedor,
-               codigorect,codserie,idasiento,totalirpf,totaliva,coddivisa,numero,codejercicio,tasaconv,
+               codigorect,codserie,idasiento,idasientop,totalirpf,totaliva,coddivisa,numero,codejercicio,tasaconv,
                totalrecargo,fecha,hora) VALUES (".$this->var2str($this->codigo)
                     .",".$this->var2str($this->total)
                     .",".$this->var2str($this->neto)
                     .",".$this->var2str($this->cifnif)
                     .",".$this->var2str($this->pagada)
+                    .",".$this->var2str($this->anulada)
                     .",".$this->var2str($this->observaciones)
                     .",".$this->var2str($this->codagente)
                     .",".$this->var2str($this->codalmacen)
@@ -758,6 +808,7 @@ class factura_proveedor extends fs_model
                     .",".$this->var2str($this->codigorect)
                     .",".$this->var2str($this->codserie)
                     .",".$this->var2str($this->idasiento)
+                    .",".$this->var2str($this->idasientop)
                     .",".$this->var2str($this->totalirpf)
                     .",".$this->var2str($this->totaliva)
                     .",".$this->var2str($this->coddivisa)
@@ -795,6 +846,12 @@ class factura_proveedor extends fs_model
             if($asi0)
             {
                $asi0->delete();
+            }
+            
+            $asi1 = $asiento->get($this->idasientop);
+            if($asi1)
+            {
+               $asi1->delete();
             }
          }
          

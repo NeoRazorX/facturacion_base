@@ -22,11 +22,22 @@
  */
 class cuenta_banco_proveedor extends fs_model
 {
-   public $codcuenta; /// pkey
+   /**
+    * Clave primaria. Varchar(6).
+    * @var type 
+    */
+   public $codcuenta;
+   
+   /**
+    * Código del proveedor.
+    * @var type 
+    */
    public $codproveedor;
+   
    public $descripcion;
    public $iban;
    public $swift;
+   public $principal;
    
    public function __construct($c = FALSE)
    {
@@ -38,6 +49,7 @@ class cuenta_banco_proveedor extends fs_model
          $this->descripcion = $c['descripcion'];
          $this->iban = $c['iban'];
          $this->swift = $c['swift'];
+         $this->principal = $this->str2bool($c['principal']);
       }
       else
       {
@@ -46,6 +58,7 @@ class cuenta_banco_proveedor extends fs_model
          $this->descripcion = NULL;
          $this->iban = NULL;
          $this->swift = NULL;
+         $this->principal = TRUE;
       }
    }
    
@@ -54,11 +67,25 @@ class cuenta_banco_proveedor extends fs_model
       return '';
    }
    
+   public function url()
+   {
+      if( is_null($this->codproveedor) )
+      {
+         return '#';
+      }
+      else
+      {
+         return 'index.php?page=compras_proveedor&cod='.$this->codproveedor.'#cuentasb';
+      }
+   }
+   
    public function get($cod)
    {
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcuenta = ".$this->var2str($cod).";");
       if($data)
+      {
          return new cuenta_banco_proveedor($data[0]);
+      }
       else
          return FALSE;
    }
@@ -82,7 +109,10 @@ class cuenta_banco_proveedor extends fs_model
          return FALSE;
       }
       else
-         return $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcuenta = ".$this->var2str($this->codcuenta).";");
+      {
+         return $this->db->select("SELECT * FROM ".$this->table_name
+                 ." WHERE codcuenta = ".$this->var2str($this->codcuenta).";");
+      }
    }
    
    public function save()
@@ -95,17 +125,19 @@ class cuenta_banco_proveedor extends fs_model
                  ", codproveedor = ".$this->var2str($this->codproveedor).
                  ", iban = ".$this->var2str($this->iban).
                  ", swift = ".$this->var2str($this->swift).
+                 ", principal = ".$this->var2str($this->principal).
                  " WHERE codcuenta = ".$this->var2str($this->codcuenta).";";
       }
       else
       {
          $this->codcuenta = $this->get_new_codigo();
-         $sql = "INSERT INTO ".$this->table_name." (codcuenta,codproveedor,descripcion,iban,swift)"
+         $sql = "INSERT INTO ".$this->table_name." (codcuenta,codproveedor,descripcion,iban,swift,principal)"
                  . " VALUES (".$this->var2str($this->codcuenta).
                  ",".$this->var2str($this->codproveedor).
                  ",".$this->var2str($this->descripcion).
                  ",".$this->var2str($this->iban).
-                 ",".$this->var2str($this->swift).");";
+                 ",".$this->var2str($this->swift).
+                 ",".$this->var2str($this->principal).");";
       }
       
       return $this->db->exec($sql);
@@ -119,12 +151,16 @@ class cuenta_banco_proveedor extends fs_model
    public function all_from_proveedor($codpro)
    {
       $clist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codproveedor = ".$this->var2str($codpro)
+              ." ORDER BY descripcion ASC;";
       
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codproveedor = ".$this->var2str($codpro)." ORDER BY descripcion ASC;");
+      $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $d)
+         {
             $clist[] = new cuenta_banco_proveedor($d);
+         }
       }
       
       return $clist;

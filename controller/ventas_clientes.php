@@ -256,38 +256,61 @@ class ventas_clientes extends fs_controller
       $this->grupos = $this->grupo->all();
    }
    
-   public function anterior_url()
+   public function paginas()
    {
-      $url = '';
-      
-      if($this->offset > 0)
-      {
-         $url = $this->url()."&query=".$this->query
-                 ."&ciudad=".$this->ciudad
-                 ."&provincia=".$this->provincia
-                 ."&codpais=".$this->codpais
-                 ."&codgrupo=".$this->codgrupo
-                 ."&offset=".($this->offset-FS_ITEM_LIMIT);
-      }
-      
-      return $url;
-   }
-   
-   public function siguiente_url()
-   {
-      $url = '';
-      
-      if( count($this->resultados) == FS_ITEM_LIMIT )
-      {
-         $url = $this->url()."&query=".$this->query
+      $url = $this->url()."&query=".$this->query
                  ."&ciudad=".$this->ciudad
                  ."&provincia=".$this->provincia
                  ."&codpais=".$this->codpais
                  ."&codgrupo=".$this->codgrupo
                  ."&offset=".($this->offset+FS_ITEM_LIMIT);
+      
+      $paginas = array();
+      $i = 0;
+      $num = 0;
+      $actual = 1;
+      
+      /// añadimos todas la página
+      while($num < $this->total_resultados)
+      {
+         $paginas[$i] = array(
+             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
+             'num' => $i + 1,
+             'actual' => ($num == $this->offset)
+         );
+         
+         if($num == $this->offset)
+         {
+            $actual = $i;
+         }
+         
+         $i++;
+         $num += FS_ITEM_LIMIT;
       }
       
-      return $url;
+      /// ahora descartamos
+      foreach($paginas as $j => $value)
+      {
+         $enmedio = intval($i/2);
+         
+         /**
+          * descartamos todo excepto la primera, la última, la de enmedio,
+          * la actual, las 5 anteriores y las 5 siguientes
+          */
+         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
+         {
+            unset($paginas[$j]);
+         }
+      }
+      
+      if( count($paginas) > 1 )
+      {
+         return $paginas;
+      }
+      else
+      {
+         return array();
+      }
    }
    
    public function nombre_grupo($cod)
@@ -329,7 +352,7 @@ class ventas_clientes extends fs_controller
       {
          if($ciu != '')
          {
-            $final[ mb_strtolower($ciu) ] = $ciu;
+            $final[ mb_strtolower($ciu, 'UTF8') ] = $ciu;
          }
       }
       
@@ -358,7 +381,7 @@ class ventas_clientes extends fs_controller
       {
          if($pro != '')
          {
-            $final[ mb_strtolower($pro) ] = $pro;
+            $final[ mb_strtolower($pro, 'UTF8') ] = $pro;
          }
       }
       
@@ -368,7 +391,7 @@ class ventas_clientes extends fs_controller
    private function buscar()
    {
       $this->total_resultados = 0;
-      $query = mb_strtolower( $this->cliente->no_html($this->query) );
+      $query = mb_strtolower( $this->cliente->no_html($this->query), 'UTF8' );
       $sql = " FROM clientes";
       $and = ' WHERE ';
       
@@ -395,13 +418,13 @@ class ventas_clientes extends fs_controller
          
          if($this->ciudad != '')
          {
-            $sql .= "lower(ciudad) = '".mb_strtolower($this->ciudad)."'";
+            $sql .= "lower(ciudad) = '".mb_strtolower($this->ciudad, 'UTF8')."'";
             $and2 = ' AND ';
          }
          
          if($this->provincia != '')
          {
-            $sql .= $and2."lower(provincia) = '".mb_strtolower($this->provincia)."'";
+            $sql .= $and2."lower(provincia) = '".mb_strtolower($this->provincia, 'UTF8')."'";
             $and2 = ' AND ';
          }
          

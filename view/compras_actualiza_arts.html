@@ -54,28 +54,30 @@
             </tr>
          </thead>
          {loop="$fsc->lineas"}
-         <tr>
-            <td class="text-right">
-               <div class="checkbox">
-                  <label>
-                     <input class="cb_update" type="checkbox" name="update_{$value->idlinea}" value="TRUE" checked="checked"/>
-                  </label>
-               </div>
-            </td>
-            <td><input type="text" name="refproveedor_{$value->idlinea}" value="{$value->refproveedor}" class="form-control" autocomplete="off"/></td>
-            <td><input type="text" name="referencia_{$value->idlinea}" value="{$value->referencia}" class="form-control" disabled="disabled"/></td>
-            <td><input type="text" name="descripcion_{$value->idlinea}" value="{$value->descripcion}" class="form-control" autocomplete="off"/></td>
-            <td><input type="text" name="codbarras_{$value->idlinea}" value="{$value->codbarras}" class="form-control" autocomplete="off"/></td>
-            <td>
-               <input type="text" name="coste_{$value->idlinea}" value="{$value->pvpunitario}" class="form-control text-right" title="Actual: {$fsc->show_precio($value->precio_compra)}" autocomplete="off"/>
-            </td>
-            <td>
-               <input type="text" name="dto_{$value->idlinea}" value="{$value->dtopor}" class="form-control text-right" title="Actual: {$fsc->show_numero($value->dto_compra)} %" autocomplete="off"/>
-            </td>
-            <td>
-               <input type="text" name="pvp_{$value->idlinea}" value="{$value->pvpunitario}" class="form-control text-right" title="Actual: {$fsc->show_precio($value->precio_venta)}" autocomplete="off"/>
-            </td>
-         </tr>
+            {if="$value->referencia"}
+            <tr>
+               <td class="text-right">
+                  <div class="checkbox">
+                     <label>
+                        <input class="cb_update" type="checkbox" name="update_{$value->idlinea}" value="TRUE" checked="checked"/>
+                     </label>
+                  </div>
+               </td>
+               <td><input type="text" name="refproveedor_{$value->idlinea}" value="{$value->refproveedor}" class="form-control" autocomplete="off"/></td>
+               <td><input type="text" name="referencia_{$value->idlinea}" value="{$value->referencia}" class="form-control" disabled="disabled"/></td>
+               <td><input type="text" name="descripcion_{$value->idlinea}" value="{$value->descripcion}" class="form-control" autocomplete="off"/></td>
+               <td><input type="text" name="codbarras_{$value->idlinea}" value="{$value->codbarras}" class="form-control" autocomplete="off"/></td>
+               <td>
+                  <input type="text" name="coste_{$value->idlinea}" value="{$value->pvpunitario}" class="form-control text-right" title="Actual: {$fsc->show_precio($value->precio_compra)}" autocomplete="off"/>
+               </td>
+               <td>
+                  <input type="text" name="dto_{$value->idlinea}" value="{$value->dtopor}" class="form-control text-right" title="Actual: {$fsc->show_numero($value->dto_compra)} %" autocomplete="off"/>
+               </td>
+               <td>
+                  <input type="text" name="pvp_{$value->idlinea}" value="{$value->pvpunitario}" class="form-control text-right" title="Actual: {$fsc->show_precio($value->precio_venta)}" autocomplete="off"/>
+               </td>
+            </tr>
+            {/if}
          {/loop}
          <tr>
             <td colspan="3"></td>
