@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 require_model('articulo.php');
 require_model('articulo_propiedad.php');
 require_model('cliente.php');
@@ -428,22 +427,14 @@ class asiento_factura
     * Genera el asiento contable para una factura de venta.
     * Devuelve TRUE si el asiento se ha generado correctamente, False en caso contrario.
     * Si genera el asiento, este es accesible desde $this->asiento.
-<<<<<<< HEAD
-    * @param type $factura
-    * @param type tipo para saber si es una Factura o una Rectificatoria
-=======
     * @param factura_cliente $factura
->>>>>>> upstream/master
     */
-   public function generar_asiento_venta(&$factura, $tipo = null)
+   public function generar_asiento_venta(&$factura)
    {
       $ok = FALSE;
       $this->asiento = FALSE;
       $cliente0 = new cliente();
       $subcuenta_cli = FALSE;
-<<<<<<< HEAD
-      $concepto = ($tipo == null) ? "Factura de venta " : "Nota de Crédito ";
-=======
       
       /// obtenemos las tasas de conversión, para las ocasiones en que la factura está en otra divisa
       $tasaconv = 1;
@@ -459,7 +450,6 @@ class asiento_factura
       }
       
       /// obtenemos el clientes y su subcuenta
->>>>>>> upstream/master
       $cliente = $cliente0->get($factura->codcliente);
       if($cliente)
       {
@@ -482,14 +472,6 @@ class asiento_factura
       {
          $asiento = new asiento();
          $asiento->codejercicio = $factura->codejercicio;
-<<<<<<< HEAD
-         $asiento->concepto = $concepto . $factura->codigo . " - " . $factura->nombrecliente;
-         $asiento->documento = $factura->codigo;
-         $asiento->editable = FALSE;
-         $asiento->fecha = $factura->fecha;
-         $asiento->importe = $factura->total;
-         $asiento->tipodocumento = $concepto. 'cliente';
-=======
          
          if($factura->idfacturarect)
          {
@@ -505,7 +487,6 @@ class asiento_factura
          $asiento->fecha = $factura->fecha;
          $asiento->importe = abs($factura->total*$tasaconv);
          $asiento->tipodocumento = 'Factura de cliente';
->>>>>>> upstream/master
          if( $asiento->save() )
          {
             $asiento_correcto = TRUE;
@@ -514,19 +495,9 @@ class asiento_factura
             $partida0->concepto = $asiento->concepto;
             $partida0->idsubcuenta = $subcuenta_cli->idsubcuenta;
             $partida0->codsubcuenta = $subcuenta_cli->codsubcuenta;
-<<<<<<< HEAD
-            if ($tipo == null) {
-                $partida0->debe = $factura->total;
-            } elseif ($tipo == 'inverso') {
-                $partida0->haber = $factura->total;
-            }
-            $partida0->coddivisa = $factura->coddivisa;
-            $partida0->tasaconv = $factura->tasaconv;
-=======
             $partida0->debe = $factura->total*$tasaconv;
             $partida0->coddivisa = $this->empresa->coddivisa;
             $partida0->tasaconv = $tasaconv2;
->>>>>>> upstream/master
             $partida0->codserie = $factura->codserie;
             if( !$partida0->save() )
             {
@@ -564,15 +535,7 @@ class asiento_factura
                   $partida1->concepto = $asiento->concepto;
                   $partida1->idsubcuenta = $subcuenta_iva->idsubcuenta;
                   $partida1->codsubcuenta = $subcuenta_iva->codsubcuenta;
-<<<<<<< HEAD
-                if ($tipo == null) {
-                    $partida1->haber = $li->totaliva;
-                } elseif ($tipo == 'inverso') {
-                    $partida1->debe = $li->totaliva;
-                }
-=======
                   $partida1->haber = $li->totaliva*$tasaconv;
->>>>>>> upstream/master
                   $partida1->idcontrapartida = $subcuenta_cli->idsubcuenta;
                   $partida1->codcontrapartida = $subcuenta_cli->codsubcuenta;
                   $partida1->cifnif = $cliente->cifnif;
@@ -597,15 +560,7 @@ class asiento_factura
                      $partida11->concepto = $asiento->concepto;
                      $partida11->idsubcuenta = $subcuenta_iva->idsubcuenta;
                      $partida11->codsubcuenta = $subcuenta_iva->codsubcuenta;
-<<<<<<< HEAD
-                    if ($tipo == null) {
-                        $partida11->haber = $li->totalrecargo;
-                    } elseif ($tipo == 'inverso') {
-                        $partida11->debe = $li->totalrecargo;
-                    }
-=======
                      $partida11->haber = $li->totalrecargo*$tasaconv;
->>>>>>> upstream/master
                      $partida11->idcontrapartida = $subcuenta_cli->idsubcuenta;
                      $partida11->codcontrapartida = $subcuenta_cli->codsubcuenta;
                      $partida11->cifnif = $cliente->cifnif;
@@ -639,19 +594,9 @@ class asiento_factura
                $partida2->concepto = $asiento->concepto;
                $partida2->idsubcuenta = $subcuenta_ventas->idsubcuenta;
                $partida2->codsubcuenta = $subcuenta_ventas->codsubcuenta;
-<<<<<<< HEAD
-                if($tipo == null){
-                    $partida2->haber = $factura->neto;
-                }elseif($tipo == 'inverso'){
-                    $partida2->debe = $factura->neto;
-                }
-               $partida2->coddivisa = $factura->coddivisa;
-               $partida2->tasaconv = $factura->tasaconv;
-=======
                $partida2->haber = $factura->neto*$tasaconv;
                $partida2->coddivisa = $this->empresa->coddivisa;
                $partida2->tasaconv = $tasaconv2;
->>>>>>> upstream/master
                $partida2->codserie = $factura->codserie;
                if( !$partida2->save() )
                {
@@ -682,19 +627,9 @@ class asiento_factura
                   $partida3->concepto = $asiento->concepto;
                   $partida3->idsubcuenta = $subcuenta_irpf->idsubcuenta;
                   $partida3->codsubcuenta = $subcuenta_irpf->codsubcuenta;
-<<<<<<< HEAD
-                    if($tipo == null){
-                        $partida3->debe = $factura->totalirpf;
-                    }elseif($tipo == 'inverso'){
-                        $partida3->haber = $factura->totalirpf;
-                    }
-                  $partida3->coddivisa = $factura->coddivisa;
-                  $partida3->tasaconv = $factura->tasaconv;
-=======
                   $partida3->debe = $factura->totalirpf*$tasaconv;
                   $partida3->coddivisa = $this->empresa->coddivisa;
                   $partida3->tasaconv = $tasaconv2;
->>>>>>> upstream/master
                   $partida3->codserie = $factura->codserie;
                   if( !$partida3->save() )
                   {

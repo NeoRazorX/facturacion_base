@@ -1,0 +1,287 @@
+{include="header"}
+<!--
+Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
+
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<div class="container-fluid" style="margin-top: -10px;">
+    <div class="row">
+        <div class="col-sm-12 text-left">
+            <h2>Análisis de Stock</h2>
+            <p align="left">Por favor, primero elija el reporte que desea procesar y luegue seleccione el rango de fechas y proceda a darle click al boton <b>Generar Informaci&oacute;n</b></p>
+            <hr />
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 col-md-2 col-sm-3">
+            <ul class="nav nav-pills nav-stacked" role="tablist">
+                <li role="presentation" {if="$fsc->reporte=='valorizado-almacen'"}class="active"{/if}>
+                    <a href="#reporte-consolidado" aria-controls="reporte-consolidado" role="tab" data-toggle="tab" onclick="seleccionar('valorizado-almacen');">
+                        <span class="glyphicon glyphicon-book"></span> &nbsp; Kardex Valorizado por Almacén
+                    </a>
+                </li>
+                <li role="presentation" {if="$fsc->reporte=='valorizado-familia'"}class="active"{/if}>
+                    <a href="#reporte-ventas" aria-controls="reporte-ventas" role="tab" data-toggle="tab" onclick="seleccionar('valorizado-familia');">
+                        <span class="glyphicon glyphicon-book"></span> &nbsp; Kardex Valorizado por Familia
+                    </a>
+                </li>
+                <li role="presentation" {if="$fsc->reporte=='valorizado-articulo'"}class="active"{/if}>
+                    <a href="#reporte-compras" aria-controls="reporte-compras" role="tab" data-toggle="tab" onclick="seleccionar('valorizado-articulo');">
+                        <span class="glyphicon glyphicon-book"></span> &nbsp; Kardex Valorizado por Art&oacute;culo
+                    </a>
+                </li>
+            </ul>
+      </div>
+        <div class="col-lg-10 col-md-10 col-sm-9">
+            <form class="form-inline" method="POST" action='{$fsc->url()}'>
+                <input type="hidden" name="tipo-reporte" id="tipo-reporte" value='{$fsc->reporte}'>
+                <label for='inicio'><b>Fecha Inicio</b></label>
+                <input type="text" class="form-control datepicker" name='inicio' id="inicio">
+                <label for='fin'><b>Fecha Fin</b></label>
+                <input type="text" class="form-control datepicker" name="fin" id="fin">
+                <button class="btn btn-default btn-sm" type="submit" name="buscar">Generar Informaci&oacute;n</button>
+            </form>
+        </div>
+      <div class="col-lg-10 col-md-10 col-sm-9">
+          <div class="row">
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane {if="$fsc->reporte=='valorizado-almacen'"}active{/if}" id="valorizado-almacen">
+                    <div class='col-sm-3'>
+                        <table class="table table-responsive" style="margin-top: 30px;">
+                            <thead>
+                                <tr>
+                                    <th colspan="2" class='text-center'>Resumen Kardex Valorizado por Almacén</th>
+                                </tr>
+                                <tr>
+                                    <th>Articulo</th>
+                                    <th>Cantidad</th>
+                                    <th>Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Ventas Realizadas</td>
+                                    <td class="text-right">{$fsc->show_numero($fsc->sumaVentas)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Compras Realizadas</td>
+                                    <td class="text-right">{$fsc->show_numero($fsc->sumaCompras)}</td>
+                                </tr>
+                                <tr style="font-weight: bold;">
+                                    <td>Saldo del Periodo</td>
+                                    <td class="text-right">{$fsc->show_numero($fsc->saldoConsolidado)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Ventas Cobradas</td>
+                                    <td class="text-right">{$fsc->show_numero($fsc->sumaVentasPagadas)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Compras Pagadas</td>
+                                    <td class="text-right">{$fsc->show_numero($fsc->sumaComprasPagadas)}</td>
+                                </tr>
+                                <tr style="font-weight: bold;">
+                                    <td>Saldo Neto del Periodo</td>
+                                    <td class="text-right">{$fsc->show_numero($fsc->saldoConsolidadoPagadas)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class='col-sm-9'>
+                        <table id="table-valorizado-almacen" data-toggle="table" data-height="450" data-show-footer="false" data-show-export="true">
+                            <thead>
+                              <tr>
+                                  <th colspan="9" class="text-center">Reporte Consolidado del {$fsc->fecha_inicio} al {$fsc->fecha_fin}</th>
+                              </tr>
+                              <tr class="text-center">
+                                  <th data-sortable="true">Tipo</th>
+                                  <th data-sortable="true">Fecha</th>
+                                  <th data-sortable="true">Entidad</th>
+                                  <th data-sortable="true">NCF</th>
+                                  <th data-falign="right" data-formatter="numberFormatter" class="text-center">Neto</th>
+                                  <th data-falign="right" data-formatter="numberFormatter" class="text-center">{#FS_IVA#}</th>
+                                  <th data-falign="right" data-formatter="numberFormatter" class="text-center">Total</th>
+                                  <th data-sortable="true">Pagada</th>
+                                  <th data-sortable="true">Estado</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {$lineas=1}
+                              {if="$fsc->total_resultados_consolidado!=0"}
+                                {loop="$fsc->resultados_consolidado"}
+                                <tr id="tr-id-{$lineas}" {if="$value->condicion=='Anulado'"}class="danger"{/if}>
+                                    <td id="td-id-{$lineas}">{$value->tipo}</td>
+                                    <td>{$value->fecha}</td>
+                                    <td>{$value->nombre}</td>
+                                    <td>{$value->ncf}</td>
+                                    <td class="text-right">{$value->neto}</td>
+                                    <td class="text-right">{$value->totaliva}</td>
+                                    <td class="text-right">{$value->total}</td>
+                                    <td class="text-center">{$value->pagada}</td>
+                                    <td class="text-left">{$value->condicion}</td>
+                                </tr>
+                                {$lineas=$lineas+1}
+                                {/loop}
+                              {else}
+                                <tr>
+                                    <td colspan="9" class="alert alert-danger text-center">
+                                        <span>No hay registros con las fechas seleccionadas</span>
+                                    </td>
+                                </tr>
+                               {/if}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane {if="$fsc->reporte=='reporte-ventas'"}active{/if}" id="reporte-ventas">
+                    <table id="table-valorizado-familia" data-toggle="table" data-height="300" data-show-footer="true" data-show-export="true">
+                        <thead>
+                            <tr>
+                                <th colspan="9" class="text-center">Reporte de Ventas del {$fsc->fecha_inicio} al {$fsc->fecha_fin}</th>
+                            </tr>
+                          <tr class="text-center">
+                              <th data-sortable="true" data-footer-formatter="totalTextFormatter">Fecha</th>
+                              <th data-sortable="true" data-footer-formatter="totalFormatter">Cliente</th>
+                              <th data-sortable="true">RNC</th>
+                              <th data-sortable="true">NCF</th>
+                              <th data-sortable="true">Tipo</th>
+                              <th data-falign="right" data-formatter="numberFormatter" data-footer-formatter="sumFormatter">Base Imponible</th>
+                              <th data-falign="right" data-formatter="numberFormatter" data-footer-formatter="sumFormatter">Itbis</th>
+                              <th data-falign="right" data-formatter="numberFormatter" data-footer-formatter="sumFormatter">Total</th>
+                              <th data-sortable="true">Estado</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {$lineas=1}
+                          {if="$fsc->total_resultados_ventas!=0"}
+                            {loop="$fsc->resultados_ventas"}
+                            <tr id="tr-id-{$lineas}" {if="$value->estado=='f'"}class="danger"{/if}>
+                                <td id="td-id-{$lineas}">{$value->fecha}</td>
+                                <td>{$value->nombrecliente}</td>
+                                <td>{$value->cifnif}</td>
+                                <td>{$value->ncf}</td>
+                                <td>{$value->tipo_comprobante}</td>
+                                <td class="text-right">{$value->neto}</td>
+                                <td class="text-right">{$value->totaliva}</td>
+                                <td class="text-right">{$value->total}</td>
+                                <td class="text-center">{$value->condicion}</td>
+                            </tr>
+                            {$lineas=$lineas+1}
+                            {/loop}
+                          {else}
+                            <tr>
+                                <td colspan="9" class="alert alert-danger text-center">
+                                    <span>No hay registros con las fechas seleccionadas</span>
+                                </td>
+                            </tr>
+                           {/if}
+                        </tbody>
+                      </table>
+                </div>
+                <div role="tabpanel" class="tab-pane {if="$fsc->reporte=='reporte-compras'"}active{/if}" id="reporte-compras">
+                    <table id="table-valorizado-articulo" data-toggle="table" data-height="300" data-show-footer="true" data-show-export="true">
+                        <thead>
+                            <tr>
+                                <th colspan="8" class="text-center">Reporte de Compras del {$fsc->fecha_inicio} al {$fsc->fecha_fin}</th>
+                            </tr>
+                            <tr class="text-center">
+                              <th data-sortable="true" data-footer-formatter="totalTextFormatter">Fecha</th>
+                              <th data-sortable="true" data-footer-formatter="totalFormatter">Proveedor</th>
+                              <th data-sortable="true">RNC</th>
+                              <th data-sortable="true">Factura - NCF</th>
+                              <th data-falign="right" data-formatter="numberFormatter" data-footer-formatter="sumFormatter">Base Imponible</th>
+                              <th data-falign="right" data-formatter="numberFormatter" data-footer-formatter="sumFormatter">Itbis</th>
+                              <th data-falign="right" data-formatter="numberFormatter" data-footer-formatter="sumFormatter">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {$lineas=1}
+                          {if="$fsc->total_resultados_compras!=0"}
+                            {loop="$fsc->resultados_compras"}
+                            <tr id="tr-id-{$lineas}">
+                                <td id="td-id-{$lineas}">{$value->fecha}</td>
+                                <td>{$value->nombre}</td>
+                                <td>{$value->cifnif}</td>
+                                <td>{$value->idfactura} - {$value->numproveedor}</td>
+                                <td class="text-right">{$value->neto}</td>
+                                <td class="text-right">{$value->totaliva}</td>
+                                <td class="text-right">{$value->total}</td>
+                            </tr>
+                            {$lineas=$lineas+1}
+                            {/loop}
+                          {else}
+                            <tr>
+                                <td colspan="9" class="alert alert-danger text-center">
+                                    <span>No hay registros con las fechas seleccionadas</span>
+                                </td>
+                            </tr>
+                           {/if}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+          </div>
+      </div>
+    </div>
+</div>
+<script>
+    function runningFormatter(value, row, index) {
+        return index;
+    }
+    
+    function totalFormatter(data) {
+        return data.length + ' Documentos';
+    }
+    
+    function totalTextFormatter(data) {
+        return 'Total';
+    }
+    
+    function numberFormatter(value, row, index) {
+        return parseFloat(value).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+    }
+    
+    function sumFormatter(data) {
+        field = this.field;
+        return parseFloat(data.reduce(function(sum, row) { 
+            return sum + (+row[field]);
+        }, 0)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+    }
+    
+    function sumNormalFormatter(data) {
+        field = this.field;
+        return parseFloat(data.reduce(function(sum, row) { 
+            return sum + (+row[field]);
+        }, 0)).toFixed(2);
+    }
+    
+    function seleccionar(reporte){
+        $('#tipo-reporte').val(reporte);
+    }
+    
+    $(window).resize(function() {
+        $('#table-{$fsc->reporte}').bootstrapTable('resetView');
+    });
+      
+    var $table = $('#table-{$fsc->reporte}');
+    $table.bootstrapTable('refreshOptions', {
+        exportDataType: 'all'
+    });
+
+    $('#inicio').datepicker('update', '{$fsc->fecha_inicio}');
+    $('#fin').datepicker('update', '{$fsc->fecha_fin}');
+</script>
+{include="footer"}
