@@ -202,7 +202,7 @@ class subcuenta extends fs_model
    public function get_totales()
    {
       $part = new partida();
-      return $part->totales_from_subcuenta( $this->idsubcuenta );
+      return $part->totales_from_subcuenta($this->idsubcuenta);
    }
    
    public function get($id)
@@ -473,13 +473,31 @@ class subcuenta extends fs_model
       return $sublist;
    }
    
-   public function all_from_ejercicio($codejercicio)
+   public function all_from_ejercicio($codejercicio, $random=FALSE, $limit=FALSE)
    {
       $sublist = array();
-      $sql = "SELECT * FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($codejercicio)
-              ." ORDER BY codsubcuenta ASC;";
       
-      $subcuentas = $this->db->select($sql);
+      if($random AND $limit)
+      {
+         if( strtolower(FS_DB_TYPE) == 'mysql' )
+         {
+            $sql = "SELECT * FROM ".$this->table_name." WHERE codejercicio = "
+                 .$this->var2str($codejercicio)." ORDER BY NEWID()";
+         }
+         else
+         {
+            $sql = "SELECT * FROM ".$this->table_name." WHERE codejercicio = "
+                 .$this->var2str($codejercicio)." ORDER BY random()";
+         }
+         $subcuentas = $this->db->select_limit($sql, $limit, 0);
+      }
+      else
+      {
+         $sql = "SELECT * FROM ".$this->table_name." WHERE codejercicio = "
+              .$this->var2str($codejercicio)." ORDER BY codsubcuenta ASC;";
+         $subcuentas = $this->db->select($sql);
+      }
+      
       if($subcuentas)
       {
          foreach($subcuentas as $s)

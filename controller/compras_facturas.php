@@ -174,11 +174,11 @@ class compras_facturas extends fs_controller
          $order2 = '';
          if($this->order == 'fecha DESC')
          {
-            $order2 = ', hora DESC';
+            $order2 = ', hora DESC, numero DESC';
          }
          else if($this->order == 'fecha ASC')
          {
-            $order2 = ', hora ASC';
+            $order2 = ', hora ASC, numero ASC';
          }
          
          if($this->mostrar == 'sinpagar')

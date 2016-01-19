@@ -50,7 +50,7 @@ class facturacion_base_cron
          echo "Generamos el libro mayor para cada subcuenta y el libro diario para cada ejercicio...";
          $libro->cron_job();
          
-         $inventarios_balances = new inventarios_balances();
+         $inventarios_balances = new inventarios_balances($db);
          echo "\nGeneramos el libro de inventarios y balances para cada ejercicio...";
          $inventarios_balances->cron_job();
       }

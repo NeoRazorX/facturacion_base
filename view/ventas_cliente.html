@@ -271,8 +271,8 @@
                            <div class="form-group">
                               <a href="index.php?page=ventas_clientes#grupos">Grupo de clientes</a>:
                               <select class="form-control" name="codgrupo">
-                                 <option value="---">Ninguno</option>
-                                 <option value="---">-----</option>
+                                 <option value="">Ninguno</option>
+                                 <option value="">-----</option>
                                  {loop="$fsc->grupo->all()"}
                                  <option value="{$value->codgrupo}"{if="$value->codgrupo==$fsc->cliente->codgrupo"} selected=""{/if}>{$value->nombre}</option>
                                  {/loop}
@@ -283,8 +283,14 @@
                            <div class="form-group">
                               <a href="{$fsc->serie->url()}">Serie</a>:
                               <select class="form-control" name="codserie">
+                                 <option value="">Predeterminada</option>
+                                 <option value="">------</option>
                                  {loop="$fsc->serie->all()"}
-                                 <option value="{$value->codserie}"{if="$value->codserie==$fsc->cliente->codserie"} selected=""{/if}>{$value->descripcion}</option>
+                                    {if="$value->codserie==$fsc->proveedor->codserie"}
+                                    <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
+                                    {else}
+                                    <option value="{$value->codserie}">{$value->descripcion}</option>
+                                    {/if}
                                  {/loop}
                               </select>
                            </div>
@@ -333,8 +339,8 @@
                            <div class="form-group">
                               <a href="{$fsc->agente->url()}">Empleado asignado</a>:
                               <select class="form-control" name="codagente">
-                                 <option value="---">Ninguno</option>
-                                 <option value="---">-----</option>
+                                 <option value="">Ninguno</option>
+                                 <option value="">-----</option>
                                  {loop="$fsc->agente->all()"}
                                  <option value="{$value->codagente}"{if="$value->codagente==$fsc->cliente->codagente"} selected=""{/if}>{$value->get_fullname()}</option>
                                  {/loop}

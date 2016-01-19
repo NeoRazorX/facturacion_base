@@ -20,7 +20,9 @@
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
          if( confirm("¿Realmente desea eliminar este ejercicio?") )
+         {
             window.location.href = 'index.php?page=contabilidad_ejercicios&delete={$fsc->ejercicio->codejercicio}';
+         }
       });
    });
 </script>

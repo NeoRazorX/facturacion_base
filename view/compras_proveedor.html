@@ -278,13 +278,15 @@
                            <div class="form-group">
                               <a href="{$fsc->serie->url()}">Serie</a>:
                               <select class="form-control" name="codserie">
-                              {loop="$fsc->serie->all()"}
-                                 {if="$value->codserie==$fsc->proveedor->codserie"}
-                                 <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
-                                 {else}
-                                 <option value="{$value->codserie}">{$value->descripcion}</option>
-                                 {/if}
-                              {/loop}
+                                 <option value="">Predeterminada</option>
+                                 <option value="">------</option>
+                                 {loop="$fsc->serie->all()"}
+                                    {if="$value->codserie==$fsc->proveedor->codserie"}
+                                    <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
+                                    {else}
+                                    <option value="{$value->codserie}">{$value->descripcion}</option>
+                                    {/if}
+                                 {/loop}
                               </select>
                            </div>
                         </div>

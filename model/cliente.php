@@ -173,7 +173,7 @@ class cliente extends fs_model
          $this->fax = '';
          $this->email = '';
          $this->web = '';
-         $this->codserie = $this->default_items->codserie();
+         $this->codserie = NULL;
          $this->coddivisa = $this->default_items->coddivisa();
          $this->codpago = $this->default_items->codpago();
          $this->codagente = NULL;
@@ -385,7 +385,8 @@ class cliente extends fs_model
             }
          }
          else
-            $this->new_error_msg('No se encuentra ninguna cuenta especial para clientes.');
+            $this->new_error_msg('No se encuentra ninguna cuenta especial para clientes'
+                    . ' en el ejercicio '.$codejercicio.' ¿Has importado los datos del ejercicio?');
       }
       
       return $subcuenta;

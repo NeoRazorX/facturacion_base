@@ -53,7 +53,9 @@ class asiento extends fs_model
          
          $this->concepto = '---';
          if($a['concepto'] != '')
+         {
             $this->concepto = $a['concepto'];
+         }
          
          $this->fecha = Date('d-m-Y', strtotime($a['fecha']));
          $this->codejercicio = $a['codejercicio'];
@@ -87,7 +89,9 @@ class asiento extends fs_model
    public function url()
    {
       if( is_null($this->idasiento) )
+      {
          return 'index.php?page=contabilidad_asientos';
+      }
       else
          return 'index.php?page=contabilidad_asiento&id='.$this->idasiento;
    }
@@ -112,7 +116,9 @@ class asiento extends fs_model
    {
       $fac = $this->get_factura();
       if($fac)
+      {
          return $fac->url();
+      }
       else
          return '#';
    }
@@ -122,7 +128,9 @@ class asiento extends fs_model
       $ejercicio = new ejercicio();
       $eje0 = $ejercicio->get($this->codejercicio);
       if($eje0)
+      {
          return $eje0->url();
+      }
       else
          return '#';
    }
@@ -196,12 +204,15 @@ class asiento extends fs_model
       
       if( !$secc0 OR $this->numero <= 1 )
       {
-         $num = $this->db->select("SELECT MAX(".$this->db->sql_to_int('numero').") as num
-            FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).";");
+         $this->numero = 1;
+         $sql = "SELECT MAX(".$this->db->sql_to_int('numero').") as num FROM ".$this->table_name
+                 ." WHERE codejercicio = ".$this->var2str($this->codejercicio).";";
+         
+         $num = $this->db->select($sql);
          if($num)
+         {
             $this->numero = 1 + intval($num[0]['num']);
-         else
-            $this->numero = 1;
+         }
          
          if($secc0)
          {
@@ -276,20 +287,6 @@ class asiento extends fs_model
          {
             $this->new_error_msg("La fecha de este asiento está fuera del rango del <a target='_blank' href='".$eje0->url()."'>ejercicio</a>.");
             $status = FALSE;
-         }
-      }
-      
-      if($partidas)
-      {
-         /// comprobamos la factura asociada
-         $fac = $this->get_factura();
-         if($fac)
-         {
-            if($fac->idasiento != $this->idasiento)
-            {
-               $status = FALSE;
-               $this->new_error_msg("Este asiento apunta a una <a href='".$fac->url()."'>factura incorrecta</a>.");
-            }
          }
       }
       

@@ -777,12 +777,22 @@ class asiento_factura
     * Generamos un asiento de pago del asiento seleccionado.
     * @param asiento $asiento
     */
-   public function generar_asiento_pago(&$asiento, $codpago=FALSE, $fecha=FALSE)
+   public function generar_asiento_pago(&$asiento, $codpago=FALSE, $fecha=FALSE, $subclipro=FALSE)
    {
       $nasientop = new asiento();
-      $nasientop->concepto = 'Pago '.$asiento->concepto;
       $nasientop->editable = FALSE;
       $nasientop->importe = $asiento->importe;
+      $nasientop->tipodocumento = $asiento->tipodocumento;
+      $nasientop->documento = $asiento->documento;
+      
+      if($asiento->tipodocumento == 'Factura de cliente')
+      {
+         $nasientop->concepto = 'Cobro '.$asiento->concepto;
+      }
+      else
+      {
+         $nasientop->concepto = 'Pago '.$asiento->concepto;
+      }
       
       if($fecha)
       {
@@ -823,11 +833,7 @@ class asiento_factura
          }
       }
       
-      if(!$subcaja)
-      {
-         $this->new_error_msg('No se ha encontrado ninguna subcuenta de caja.');
-      }
-      else if(!$eje)
+      if(!$eje)
       {
          $this->new_error_msg('Ningún ejercico encontrado.');
       }
@@ -835,15 +841,24 @@ class asiento_factura
       {
          $this->new_error_msg('El ejercicio '.$eje->codejercicio.' está cerrado.');
       }
+      else if(!$subcaja)
+      {
+         $this->new_error_msg('No se ha encontrado ninguna subcuenta de caja para el ejercicio '
+                 .$eje->codejercicio.'. <a href="'.$eje->url().'">¿Has importado los datos del ejercicio?</a>');
+      }
       else if( $nasientop->save() )
       {
          /// buscamos la partida que coincida con el importe
          $encontrada = FALSE;
          foreach($asiento->get_partidas() as $par)
          {
-            if( $nasientop->floatcmp($par->debe, $nasientop->importe, FS_NF0) )
+            if( $nasientop->floatcmp( abs($par->debe), $nasientop->importe, FS_NF0) )
             {
-               $subclipro = $this->subcuenta->get_by_codigo($par->codsubcuenta, $nasientop->codejercicio);
+               if(!$subclipro)
+               {
+                  $subclipro = $this->subcuenta->get_by_codigo($par->codsubcuenta, $nasientop->codejercicio);
+               }
+               
                if($subclipro)
                {
                   $partida1 = new partida();
@@ -877,9 +892,13 @@ class asiento_factura
                }
                break;
             }
-            else if( $nasientop->floatcmp($par->haber, $nasientop->importe, FS_NF0) )
+            else if( $nasientop->floatcmp( abs($par->haber), $nasientop->importe, FS_NF0) )
             {
-               $subclipro = $this->subcuenta->get_by_codigo($par->codsubcuenta, $nasientop->codejercicio);
+               if(!$subclipro)
+               {
+                  $subclipro = $this->subcuenta->get_by_codigo($par->codsubcuenta, $nasientop->codejercicio);
+               }
+               
                if($subclipro)
                {
                   $partida1 = new partida();
@@ -919,6 +938,7 @@ class asiento_factura
          {
             $this->new_error_msg('No se ha encontrado la partida necesaria para generar el asiento '.$nasientop->concepto);
             $nasientop->delete();
+            $nasientop->idasiento = NULL;
          }
       }
       else

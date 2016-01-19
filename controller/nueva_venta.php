@@ -32,6 +32,7 @@ require_model('impuesto.php');
 require_model('pais.php');
 require_model('pedido_cliente.php');
 require_model('presupuesto_cliente.php');
+require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('tarifa.php');
 
@@ -741,7 +742,7 @@ class nueva_venta extends fs_controller
       $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
       if(!$ejercicio)
       {
-         $this->new_error_msg('Ejercicio no encontrado.');
+         $this->new_error_msg('Ejercicio no encontrado o está cerrado.');
          $continuar = FALSE;
       }
       
@@ -782,11 +783,11 @@ class nueva_venta extends fs_controller
       
       if($continuar)
       {
-         $factura->fecha = $_POST['fecha'];
-         $factura->hora = $_POST['hora'];
-         $factura->codalmacen = $almacen->codalmacen;
          $factura->codejercicio = $ejercicio->codejercicio;
          $factura->codserie = $serie->codserie;
+         $factura->set_fecha_hora($_POST['fecha'], $_POST['hora']);
+         
+         $factura->codalmacen = $almacen->codalmacen;
          $factura->codpago = $forma_pago->codpago;
          $factura->coddivisa = $divisa->coddivisa;
          $factura->tasaconv = $divisa->tasaconv;
@@ -818,7 +819,12 @@ class nueva_venta extends fs_controller
          $factura->direccion = $_POST['direccion'];
          $factura->provincia = $_POST['provincia'];
          
-         if( $factura->save() )
+         $regularizacion = new regularizacion_iva();
+         if( $regularizacion->get_fecha_inside($factura->fecha) )
+         {
+            $this->new_error_msg("El IVA de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.");
+         }
+         else if( $factura->save() )
          {
             $art0 = new articulo();
             $n = floatval($_POST['numlineas']);

@@ -28,12 +28,14 @@ class inventarios_balances
 {
    private $balance;
    private $balance_cuenta_a;
+   private $db;
    private $empresa;
    
-   public function __construct()
+   public function __construct(&$db)
    {
       $this->balance = new balance();
       $this->balance_cuenta_a = new balance_cuenta_a();
+      $this->db = $db;
       $this->empresa = new empresa();
    }
    
@@ -60,7 +62,7 @@ class inventarios_balances
    
    /**
     * Genera el libro de inventarios y balances de un ejercicio.
-    * @param type $eje
+    * @param ejercicio $eje
     */
    private function generar_libro(&$eje)
    {
@@ -73,7 +75,7 @@ class inventarios_balances
          
          if( !file_exists('tmp/'.FS_TMP_NAME.'inventarios_balances/'.$eje->codejercicio.'.pdf') )
          {
-            echo '.';
+            echo '.'.$eje->codejercicio.'.';
             
             $pdf_doc = new fs_pdf();
             $pdf_doc->pdf->addInfo('Title', 'Libro de inventarios y balances de ' . $this->empresa->nombre);
@@ -154,70 +156,160 @@ class inventarios_balances
     */
    public function sumas_y_saldos(&$pdf_doc, &$eje, $titulo, $fechaini, $fechafin, $excluir=FALSE, $np=TRUE)
    {
-      $cuenta = new cuenta();
-      $partida = new partida();
+      $ge0 = new grupo_epigrafes();
+      $epi0 = new epigrafe();
+      $cuenta0 = new cuenta();
+      $subcuenta0 = new subcuenta();
       
-      /// metemos todo en una lista
-      $auxlist = array();
-      $offset = 0;
-      $cuentas = $cuenta->all_from_ejercicio($eje->codejercicio, $offset);
-      while( count($cuentas) > 0 )
+      $lineas = array();
+      
+      $sql = "SELECT p.codsubcuenta, SUM(p.debe) as debe, SUM(p.haber) as haber".
+              " FROM co_partidas p, co_asientos a WHERE p.idasiento = a.idasiento".
+              " AND a.codejercicio = ".$this->empresa->var2str($eje->codejercicio).
+              " AND a.fecha >= ".$this->empresa->var2str($fechaini).
+              " AND fecha <= ".$this->empresa->var2str($fechafin);
+      
+      if($excluir)
       {
-         foreach($cuentas as $c)
+         foreach($excluir as $exc)
          {
-            $subcuentas = $c->get_subcuentas();
+            $sql .= " AND p.idasiento != ".$this->empresa->var2str($exc);
+         }
+      }
+      
+      $sql .= " GROUP BY p.codsubcuenta ORDER BY codsubcuenta ASC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $grupos = $ge0->all_from_ejercicio($eje->codejercicio);
+         $epigrafes = $epi0->all_from_ejercicio($eje->codejercicio);
+         
+         for($i = 1; $i < 10; $i++)
+         {
             $debe = 0;
             $haber = 0;
-            
-            foreach($subcuentas as $sc)
+            foreach($data as $d)
             {
-               $auxt = $partida->totales_from_subcuenta_fechas($sc->idsubcuenta, $fechaini, $fechafin, $excluir);
-               $debe += $auxt['debe'];
-               $haber += $auxt['haber'];
-            }
-            
-            if( $debe!=0 OR $haber!=0)
-            {
-               $auxlist[] = array(
-                   'cuenta' => TRUE,
-                   'codigo' => $c->codcuenta,
-                   'descripcion' => $c->descripcion,
-                   'debe' => $debe,
-                   'haber' => $haber,
-                   'saldo' => $debe-$haber
-               );
-               
-               foreach($subcuentas as $sc)
+               if( substr($d['codsubcuenta'], 0, 1) == (string)$i )
                {
-                  $auxt = $partida->totales_from_subcuenta_fechas($sc->idsubcuenta, $fechaini, $fechafin, $excluir);
-                  if( $auxt['debe']!=0 OR $auxt['haber']!=0 )
-                  {
-                     $auxlist[] = array(
-                         'cuenta' => FALSE,
-                         'codigo' => $sc->codsubcuenta,
-                         'descripcion' => $sc->descripcion,
-                         'debe' => $auxt['debe'],
-                         'haber' => $auxt['haber'],
-                         'saldo' => $auxt['saldo']
-                     );
-                  }
+                  $debe += floatval($d['debe']);
+                  $haber += floatval($d['haber']);
                }
             }
             
-            $offset++;
+            /// añadimos el grupo
+            foreach($grupos as $ge)
+            {
+               if($ge->codgrupo == $i)
+               {
+                  $lineas[] = array(
+                      'cuenta' => $i,
+                      'descripcion' => $ge->descripcion,
+                      'debe' => $debe,
+                      'haber' => $haber
+                  );
+                  break;
+               }
+            }
+            
+            for($j = 0; $j < 10; $j++)
+            {
+               $debe = 0;
+               $haber = 0;
+               foreach($data as $d)
+               {
+                  if( substr($d['codsubcuenta'], 0, 2) == (string)$i.$j )
+                  {
+                     $debe += floatval($d['debe']);
+                     $haber += floatval($d['haber']);
+                  }
+               }
+               
+               /// añadimos el epígrafe
+               foreach($epigrafes as $ep)
+               {
+                  if($ep->codepigrafe == (string)$i.$j )
+                  {
+                     $lineas[] = array(
+                         'cuenta' => $i.$j,
+                         'descripcion' => $ep->descripcion,
+                         'debe' => $debe,
+                         'haber' => $haber
+                     );
+                     break;
+                  }
+               }
+               
+               for($k = 0; $k < 10; $k++)
+               {
+                  $debe = 0;
+                  $haber = 0;
+                  foreach($data as $d)
+                  {
+                     if( substr($d['codsubcuenta'], 0, 3) == (string)$i.$j.$k )
+                     {
+                        $debe += floatval($d['debe']);
+                        $haber += floatval($d['haber']);
+                     }
+                  }
+                  
+                  /// añadimos la cuenta
+                  if($debe != 0 OR $haber != 0)
+                  {
+                     $cuenta = $cuenta0->get_by_codigo($i.$j.$k, $eje->codejercicio);
+                     if($cuenta)
+                     {
+                        $lineas[] = array(
+                            'cuenta' => $i.$j.$k,
+                            'descripcion' => $cuenta->descripcion,
+                            'debe' => $debe,
+                            'haber' => $haber
+                        );
+                     }
+                     else
+                     {
+                        $lineas[] = array(
+                            'cuenta' => $i.$j.$k,
+                            'descripcion' => '-',
+                            'debe' => $debe,
+                            'haber' => $haber
+                        );
+                     }
+                  }
+                  
+                  /// añadimos las subcuentas
+                  foreach($data as $d)
+                  {
+                     if( substr($d['codsubcuenta'], 0, 3) == (string)$i.$j.$k )
+                     {
+                        $desc = '';
+                        $subc = $subcuenta0->get_by_codigo($d['codsubcuenta'], $eje->codejercicio);
+                        if($subc)
+                        {
+                           $desc = $subc->descripcion;
+                        }
+                        
+                        $lineas[] = array(
+                            'cuenta' => $d['codsubcuenta'],
+                            'descripcion' => $desc,
+                            'debe' => floatval($d['debe']),
+                            'haber' => floatval($d['haber'])
+                        );
+                     }
+                  }
+               }
+            }
          }
-         
-         $cuentas = $cuenta->all_from_ejercicio($eje->codejercicio, $offset);
       }
-      
       
       /// a partir de la lista generamos el documento
       $linea = 0;
       $tdebe = 0;
       $thaber = 0;
-      while( $linea < count($auxlist) )
+      while( $linea < count($lineas) )
       {
-         if($linea > 0 OR $np)
+         if($linea > 0)
          {
             $pdf_doc->pdf->ezNewPage();
          }
@@ -227,62 +319,72 @@ class inventarios_balances
          /// Creamos la tabla con las lineas
          $pdf_doc->new_table();
          $pdf_doc->add_table_header(
-            array(
-                'subcuenta' => '<b>Cuenta</b>',
-                'descripcion' => '<b>Descripción</b>',
-                'debe' => '<b>Debe</b>',
-                'haber' => '<b>Haber</b>',
-                'saldo' => '<b>Saldo</b>'
-            )
+               array(
+                   'cuenta' => '<b>Cuenta</b>',
+                   'descripcion' => '<b>Descripción</b>',
+                   'debe' => '<b>Debe</b>',
+                   'haber' => '<b>Haber</b>',
+                   'saldo' => '<b>Saldo</b>'
+               )
          );
          
-         for($i=$linea; $i<min( array($linea+48, count($auxlist)) ); $i++)
+         for($i=$linea; $i<min( array($linea+48, count($lineas)) ); $i++)
          {
-            if( $auxlist[$i]['cuenta'] )
+            if( strlen($lineas[$i]['cuenta']) == 1 )
             {
                $a = '<b>';
                $b = '</b>';
+               $tdebe += $lineas[$i]['debe'];
+               $thaber += $lineas[$i]['haber'];
+            }
+            else if( strlen($lineas[$i]['cuenta']) == 2 )
+            {
+               $a = $b = '';
             }
             else
             {
-               $a = $b = '';
-               $tdebe += $auxlist[$i]['debe'];
-               $thaber += $auxlist[$i]['haber'];
+               $a = '<i>';
+               $b = '</i>';
             }
             
             $pdf_doc->add_table_row(
-               array(
-                   'subcuenta' => $a.$auxlist[$i]['codigo'].$b,
-                   'descripcion' => $a.substr($auxlist[$i]['descripcion'], 0, 50).$b,
-                   'debe' => $a.$this->show_numero($auxlist[$i]['debe']).$b,
-                   'haber' => $a.$this->show_numero($auxlist[$i]['haber']).$b,
-                   'saldo' => $a.$this->show_numero($auxlist[$i]['saldo']).$b
-               )
+                  array(
+                      'cuenta' => $a.$lineas[$i]['cuenta'].$b,
+                      'descripcion' => $a.substr($lineas[$i]['descripcion'], 0, 50).$b,
+                      'debe' => $a.$this->show_numero($lineas[$i]['debe']).$b,
+                      'haber' => $a.$this->show_numero($lineas[$i]['haber']).$b,
+                      'saldo' => $a.$this->show_numero( floatval($lineas[$i]['debe']) - floatval($lineas[$i]['haber']) ).$b
+                  )
             );
          }
          $linea += 48;
          
          /// añadimos las sumas de la línea actual
+         $desc = 'Suma y sigue';
+         if( $linea >= count($lineas) )
+         {
+            $desc = 'Totales';
+         }
          $pdf_doc->add_table_row(
-            array(
-                'subcuenta' => '',
-                'descripcion' => '<b>Suma y sigue</b>',
-                'debe' => '<b>'.$this->show_numero($tdebe).'</b>',
-                'haber' => '<b>'.$this->show_numero($thaber).'</b>',
-                'saldo' => '<b>'.$this->show_numero($tdebe-$thaber).'</b>'
-            )
+               array(
+                   'cuenta' => '',
+                   'descripcion' => '<b>'.$desc.'</b>',
+                   'debe' => '<b>'.$this->show_numero($tdebe).'</b>',
+                   'haber' => '<b>'.$this->show_numero($thaber).'</b>',
+                   'saldo' => '<b>'.$this->show_numero($tdebe-$thaber).'</b>'
+               )
          );
          $pdf_doc->save_table(
-            array(
-                'fontSize' => 9,
-                'cols' => array(
-                    'debe' => array('justification' => 'right'),
-                    'haber' => array('justification' => 'right'),
-                    'saldo' => array('justification' => 'right')
-                ),
-                'width' => 540,
-                'shaded' => 0
-            )
+               array(
+                   'fontSize' => 9,
+                   'cols' => array(
+                       'debe' => array('justification' => 'right'),
+                       'haber' => array('justification' => 'right'),
+                       'saldo' => array('justification' => 'right')
+                   ),
+                   'width' => 540,
+                   'shaded' => 0
+               )
          );
       }
    }

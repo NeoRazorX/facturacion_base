@@ -61,10 +61,18 @@
                </a>
                {/if}
                {if="$fsc->factura->idasiento"}
-               <a class="btn btn-sm btn-default" href="{$fsc->factura->asiento_url()}">
-                  <span class="glyphicon glyphicon-eye-open"></span>
-                  <span class="hidden-xs">&nbsp; Asiento contable</span>
-               </a>
+               <div class="btn-group">
+                  <button class="btn btn-sm btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true">
+                     <span class="glyphicon glyphicon-eye-open"></span>
+                     <span class="hidden-xs">&nbsp; Asientos</span>
+                  </button>
+                  <ul class="dropdown-menu">
+                     <li><a href="{$fsc->factura->asiento_url()}">Asiento principal</a></li>
+                     {if="$fsc->factura->idasientop"}
+                     <li><a href="{$fsc->factura->asiento_pago_url()}">Asiento de pago</a></li>
+                     {/if}
+                  </ul>
+               </div>
                {else}
                <a class="btn btn-sm btn-default" href="{$fsc->url()}&gen_asiento=TRUE&petid={$fsc->random_string()}">
                   <span class="glyphicon glyphicon-paperclip"></span>
