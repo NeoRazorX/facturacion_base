@@ -47,159 +47,30 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
             </ul>
       </div>
         <div class="col-lg-10 col-md-10 col-sm-9">
-            <form class="form-inline" method="POST" action='{$fsc->url()}'>
+            <form class="form-inline" id="f_generar_reporte" method="POST" action='{$fsc->url()}'>
                 <input type="hidden" name="tipo-reporte" id="tipo-reporte" value='{$fsc->reporte}'>
                 <label for='inicio'><b>Fecha Inicio</b></label>
                 <input type="text" class="form-control datepicker" name='inicio' id="inicio">
                 <label for='fin'><b>Fecha Fin</b></label>
                 <input type="text" class="form-control datepicker" name="fin" id="fin">
-                <button class="btn btn-default btn-sm" type="submit" name="buscar">Generar Informaci&oacute;n</button>
+                <button class="btn btn-default btn-sm" type="submit" id="b_generar_reporte" disabled name="buscar">Generar Informaci&oacute;n</button>
+                <a id="b_descargar_reporte" class="btn btn-primary btn-sm" href="" style="display: none;">Descargar Reporte</a>
             </form>
         </div>
       <div class="col-lg-10 col-md-10 col-sm-9">
           <div class="row">
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane {if="$fsc->reporte=='valorizado-almacen'"}active{/if}" id="valorizado-almacen">
-                    <table class="table table-responsive" id="table-valorizado-almacen" data-toggle="table" data-height="450" data-show-footer="false" data-show-export="true">
-                        <thead>
-                          <tr>
-                              <th colspan="8" class="text-center">Reporte por Almac&eacute;n del {$fsc->fecha_inicio} al {$fsc->fecha_fin}</th>
-                          </tr>
-                          <tr class="text-center">
-                              <th></th>
-                              <th data-sortable="true">Fecha</th>
-                              <th data-sortable="true">Factura</th>
-                              <th data-sortable="true">Art&iacute;culo</th>
-                              <th data-sortable="true">Descripci&oacute;n</th>
-                              <th data-falign="right" data-formatter="numberFormatter" class="text-center">Salida</th>
-                              <th data-falign="right" data-formatter="numberFormatter" class="text-center">Ingreso</th>
-                              <th data-falign="right" data-formatter="numberFormatter" class="text-center">Saldo</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                        {if="$fsc->total_resultados!=0"}
-                          {loop="$fsc->resultados_almacen"}
-                            {$lineas=1}
-                              {loop="$value"}
-                                {$saldo=0}
-                                {loop="$value1"}
-                                   {loop="$value2"}
-                                    {$saldo=$saldo+$value4->salida_cantidad+$value4->ingreso_cantidad}
-                                    {if="$lineas==1"}
-                                        <tr>
-                                            <td colspan="8" class="text-center"><b>{$value4->nombre} {$fsc->total_resultados}</b></td>
-                                        </tr>
-                                    {/if}
-                                    <tr>
-                                        <td>{$lineas}</td>
-                                        <td>{$value4->fecha}</td>
-                                        <td>{$value->idfactura}</td>
-                                        <td>{$value->referencia}</td>
-                                        <td>{$value->descripcion}</td>
-                                        <td>{$value->salida_cantidad}</td>
-                                        <td>{$value->ingreso_cantidad}</td>
-                                        <td>{$saldo}</td>
-                                    </tr>
-                                    {$lineas=$lineas+1}
-                                {/loop}
-                              {/loop}
-                            {/loop}
-                          {/loop}
-                          {else}
-                            <tr>
-                                <td colspan="9" class="alert alert-danger text-center">
-                                    <span>No hay registros con las fechas seleccionadas</span>
-                                </td>
-                            </tr>
-                           {/if}
-                        </tbody>
-                    </table>
+                    <table id="grid_almacen"></table>
+                    <div id="grid_almacen_pager"></div>
                 </div>
                 <div role="tabpanel" class="tab-pane {if="$fsc->reporte=='valorizado-familia'"}active{/if}" id="valorizado-familia">
-                    <table class="table table-responsive" id="table-valorizado-familia" data-toggle="table" data-height="300" data-show-footer="true" data-show-export="true">
-                        <thead>
-                            <tr>
-                                <th colspan="9" class="text-center">Kardex Valorizado por Familia del {$fsc->fecha_inicio} al {$fsc->fecha_fin}</th>
-                            </tr>
-                          <tr class="text-center">
-                              <th data-sortable="true" data-footer-formatter="totalTextFormatter">Fecha</th>
-                              <th data-sortable="true" data-footer-formatter="totalFormatter">Cliente</th>
-                              <th data-sortable="true">RNC</th>
-                              <th data-sortable="true">NCF</th>
-                              <th data-sortable="true">Tipo</th>
-                              <th data-falign="right" data-formatter="numberFormatter" data-footer-formatter="sumFormatter">Base Imponible</th>
-                              <th data-falign="right" data-formatter="numberFormatter" data-footer-formatter="sumFormatter">Itbis</th>
-                              <th data-falign="right" data-formatter="numberFormatter" data-footer-formatter="sumFormatter">Total</th>
-                              <th data-sortable="true">Estado</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {$lineas=1}
-                          {if="$fsc->total_resultados_ventas!=0"}
-                            {loop="$fsc->resultados_ventas"}
-                            <tr id="tr-id-{$lineas}" {if="$value->estado=='f'"}class="danger"{/if}>
-                                <td id="td-id-{$lineas}">{$value->fecha}</td>
-                                <td>{$value->nombrecliente}</td>
-                                <td>{$value->cifnif}</td>
-                                <td>{$value->ncf}</td>
-                                <td>{$value->tipo_comprobante}</td>
-                                <td class="text-right">{$value->neto}</td>
-                                <td class="text-right">{$value->totaliva}</td>
-                                <td class="text-right">{$value->total}</td>
-                                <td class="text-center">{$value->condicion}</td>
-                            </tr>
-                            {$lineas=$lineas+1}
-                            {/loop}
-                          {else}
-                            <tr>
-                                <td colspan="9" class="alert alert-danger text-center">
-                                    <span>No hay registros con las fechas seleccionadas</span>
-                                </td>
-                            </tr>
-                           {/if}
-                        </tbody>
-                      </table>
+                    <table id="grid_familia"></table>
+                    <div id="grid_familia_pager"></div>
                 </div>
                 <div role="tabpanel" class="tab-pane {if="$fsc->reporte=='valorizado-articulo'"}active{/if}" id="valorizado-articulo">
-                    <table class="table table-responsive" id="table-valorizado-articulo" data-toggle="table" data-height="300" data-show-footer="true" data-show-export="true">
-                        <thead>
-                            <tr>
-                                <th colspan="8" class="text-center">Kardex Valorizado por Art&iacute;culo del {$fsc->fecha_inicio} al {$fsc->fecha_fin}</th>
-                            </tr>
-                            <tr class="text-center">
-                              <th data-sortable="true" data-footer-formatter="totalTextFormatter">Fecha</th>
-                              <th data-sortable="true" data-footer-formatter="totalFormatter">Proveedor</th>
-                              <th data-sortable="true">RNC</th>
-                              <th data-sortable="true">Factura - NCF</th>
-                              <th data-falign="right" data-formatter="numberFormatter" data-footer-formatter="sumFormatter">Base Imponible</th>
-                              <th data-falign="right" data-formatter="numberFormatter" data-footer-formatter="sumFormatter">Itbis</th>
-                              <th data-falign="right" data-formatter="numberFormatter" data-footer-formatter="sumFormatter">Total</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {$lineas=1}
-                          {if="$fsc->total_resultados_compras!=0"}
-                            {loop="$fsc->resultados_compras"}
-                            <tr id="tr-id-{$lineas}">
-                                <td id="td-id-{$lineas}">{$value->fecha}</td>
-                                <td>{$value->nombre}</td>
-                                <td>{$value->cifnif}</td>
-                                <td>{$value->idfactura} - {$value->numproveedor}</td>
-                                <td class="text-right">{$value->neto}</td>
-                                <td class="text-right">{$value->totaliva}</td>
-                                <td class="text-right">{$value->total}</td>
-                            </tr>
-                            {$lineas=$lineas+1}
-                            {/loop}
-                          {else}
-                            <tr>
-                                <td colspan="9" class="alert alert-danger text-center">
-                                    <span>No hay registros con las fechas seleccionadas</span>
-                                </td>
-                            </tr>
-                           {/if}
-                        </tbody>
-                    </table>
+                    <table id="grid_articulo"></table>
+                    <div id="grid_articulo_pager"></div>
                 </div>
             </div>
           </div>
@@ -207,6 +78,101 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
     </div>
 </div>
 <script>
+    $.jgrid.defaults.width = '100%';
+    $.jgrid.defaults.responsive = true;
+    $.jgrid.defaults.styleUI = 'Bootstrap';
+    function last_stock(val, name, record){
+        return parseFloat(record[name]||0);
+    }
+    function get_stock(reporte){
+        var reporte = reporte;
+        var inicio = $('#inicio').val();
+        var fin = $('#fin').val();
+        $.ajax({
+            type: 'POST',
+            url: '{$fsc->url()}',
+            async: false,
+            data: 'tipo-reporte='+reporte+'&inicio='+inicio+'&fin='+fin,
+            success: function(datos) {
+                $("#grid_almacen").jqGrid('clearGridData');
+                $("#grid_almacen").jqGrid({
+                    title: 'Reporte por Almacén',
+                    data: datos.rows,
+                    datatype: "local",
+                    colModel: [
+                        { label: 'Almacén', name: 'nombre', width: 150 },
+                        { label: 'Fecha', name: 'fecha', key: true, width: 150 },
+                        { label: 'Documento', name: 'tipo_documento', width: 70 },
+                        { label: 'Número', name: 'documento', width: 70 },
+                        { label: 'Artículo', name: 'descripcion', width: 150 },
+                        { 
+                            label: 'Salida', 
+                            name: 'salida_cantidad', 
+                            width: 70,
+                            summaryTpl : "<b>{0}</b>",
+                            formatter: 'number', align: 'right', summaryType: 'sum',
+                            formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }
+                        },
+                        { 
+                            label: 'Ingreso', 
+                            name: 'ingreso_cantidad', 
+                            width: 70,
+                            summaryTpl : "<b>{0}</b>",
+                            formatter: 'number', align: 'right', summaryType: 'sum',
+                            formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }                        
+                        },
+                        { 
+                            label: 'Saldo', 
+                            name: 'saldo_cantidad', 
+                            width: 70,
+                            summaryTpl : "<b>{0}</b>",
+                            formatter: 'number', align: 'right', summaryType: last_stock,
+                            formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }                        
+                        }
+                    ],
+                    loadonce:true,
+                    viewrecords: true,
+                    rowList: [100,150,200],
+                    headertitles: true,
+                    autowidth: true,
+                    height: 450,
+                    rowNum: 100,
+                    sortname: 'fecha',
+                    pager: "#grid_almacen_pager",
+                    grouping: true,
+                    hoverrows: true,
+                    groupingView: {
+                        groupField: ["nombre", "descripcion"],
+                        groupColumnShow: [true, true],
+                        groupText: [
+                            "<b>{0}</b>",
+                            "<b>{0}</b>"
+                        ],
+                        groupOrder: ["asc", "asc"],
+                        groupSummary: [true, false],
+                        groupSummaryPos: ['header', 'header'],
+                        groupCollapse: false
+                    }
+                });
+                $('#grid_almacen').jqGrid()
+                    .setGridParam({
+                        data: datos.rows
+                    })
+                    .trigger("reloadGrid");
+            
+                $('#grid_almacen').navGrid('#grid_almacen_pager',
+                    { edit: false, add: false, del: false, search: true, refresh: false, view: false, position: "left", cloneToTop: true 
+                });
+                $('#b_descargar_reporte').attr('href',datos.filename);
+                $('#b_descargar_reporte').show();
+                
+            }
+        });
+    }
+    function customButtonClicked(){
+        console.log('click');
+    }
+    
     function runningFormatter(value, row, index) {
         return index;
     }
@@ -239,18 +205,19 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
 
     function seleccionar(reporte){
         $('#tipo-reporte').val(reporte);
+        $('#b_generar_reporte').attr('disabled',false);
+        $('#b_descargar_reporte').hide();
     }
-    /*
-    $(window).resize(function() {
-        $('#table-{$fsc->reporte}').bootstrapTable('resetView');
-    });
-
-    var $table = $('#table-{$fsc->reporte}');
-    $table.bootstrapTable('refreshOptions', {
-        exportDataType: 'all'
-    });
-    */
+    $('#inicio').datepicker('option', 'dateFormat','Y-m-d');
     $('#inicio').datepicker('update', '{$fsc->fecha_inicio}');
+    $('#fin').datepicker('option', 'dateFormat','Y-m-d');
     $('#fin').datepicker('update', '{$fsc->fecha_fin}');
+    
+    $(document).ready(function () {
+        $('#f_generar_reporte').submit(function (event) {
+            event.preventDefault();
+            get_stock($('#tipo-reporte').val());
+        });
+    });
 </script>
 {include="footer"}
