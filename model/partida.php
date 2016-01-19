@@ -204,18 +204,29 @@ class partida extends fs_model
       
       if( $this->exists() )
       {
-         $sql = "UPDATE ".$this->table_name." SET idasiento = ".$this->var2str($this->idasiento).",
-            idsubcuenta = ".$this->var2str($this->idsubcuenta).", codsubcuenta = ".$this->var2str($this->codsubcuenta).",
-            idconcepto = ".$this->var2str($this->idconcepto).", concepto = ".$this->var2str($this->concepto).",
-            idcontrapartida = ".$this->var2str($this->idcontrapartida).", codcontrapartida = ".$this->var2str($this->codcontrapartida).",
-            punteada = ".$this->var2str($this->punteada).", tasaconv = ".$this->var2str($this->tasaconv).",
-            coddivisa = ".$this->var2str($this->coddivisa).", haberme = ".$this->var2str($this->haberme).",
-            debeme = ".$this->var2str($this->debeme).", recargo = ".$this->var2str($this->recargo).",
-            iva = ".$this->var2str($this->iva).", baseimponible = ".$this->var2str($this->baseimponible).",
-            factura = ".$this->var2str($this->factura).", codserie = ".$this->var2str($this->codserie).",
-            tipodocumento = ".$this->var2str($this->tipodocumento).", documento = ".$this->var2str($this->documento).",
-            cifnif = ".$this->var2str($this->cifnif).", debe = ".$this->var2str($this->debe).",
-            haber = ".$this->var2str($this->haber)." WHERE idpartida = ".$this->var2str($this->idpartida).";";
+         $sql = "UPDATE ".$this->table_name." SET idasiento = ".$this->var2str($this->idasiento)
+                 .", idsubcuenta = ".$this->var2str($this->idsubcuenta)
+                 .", codsubcuenta = ".$this->var2str($this->codsubcuenta)
+                 .", idconcepto = ".$this->var2str($this->idconcepto)
+                 .", concepto = ".$this->var2str($this->concepto)
+                 .", idcontrapartida = ".$this->var2str($this->idcontrapartida)
+                 .", codcontrapartida = ".$this->var2str($this->codcontrapartida)
+                 .", punteada = ".$this->var2str($this->punteada)
+                 .", tasaconv = ".$this->var2str($this->tasaconv)
+                 .", coddivisa = ".$this->var2str($this->coddivisa)
+                 .", haberme = ".$this->var2str($this->haberme)
+                 .", debeme = ".$this->var2str($this->debeme)
+                 .", recargo = ".$this->var2str($this->recargo)
+                 .", iva = ".$this->var2str($this->iva)
+                 .", baseimponible = ".$this->var2str($this->baseimponible)
+                 .", factura = ".$this->var2str($this->factura)
+                 .", codserie = ".$this->var2str($this->codserie)
+                 .", tipodocumento = ".$this->var2str($this->tipodocumento)
+                 .", documento = ".$this->var2str($this->documento)
+                 .", cifnif = ".$this->var2str($this->cifnif)
+                 .", debe = ".$this->var2str($this->debe)
+                 .", haber = ".$this->var2str($this->haber)
+                 ."  WHERE idpartida = ".$this->var2str($this->idpartida).";";
          
          if( $this->db->exec($sql) )
          {
@@ -234,14 +245,28 @@ class partida extends fs_model
          $sql = "INSERT INTO ".$this->table_name." (idasiento,idsubcuenta,codsubcuenta,idconcepto,
             concepto,idcontrapartida,codcontrapartida,punteada,tasaconv,coddivisa,haberme,debeme,recargo,iva,
             baseimponible,factura,codserie,tipodocumento,documento,cifnif,debe,haber) VALUES
-            (".$this->var2str($this->idasiento).",".$this->var2str($this->idsubcuenta).",
-             ".$this->var2str($this->codsubcuenta).",".$this->var2str($this->idconcepto).",".$this->var2str($this->concepto).",
-             ".$this->var2str($this->idcontrapartida).",".$this->var2str($this->codcontrapartida).",".$this->var2str($this->punteada).",
-             ".$this->var2str($this->tasaconv).",".$this->var2str($this->coddivisa).",".$this->var2str($this->haberme).",
-             ".$this->var2str($this->debeme).",".$this->var2str($this->recargo).",".$this->var2str($this->iva).",
-             ".$this->var2str($this->baseimponible).",".$this->var2str($this->factura).",".$this->var2str($this->codserie).",
-             ".$this->var2str($this->tipodocumento).",".$this->var2str($this->documento).",".$this->var2str($this->cifnif).",
-             ".$this->var2str($this->debe).",".$this->var2str($this->haber).");";
+                   (".$this->var2str($this->idasiento)
+                 .",".$this->var2str($this->idsubcuenta)
+                 .",".$this->var2str($this->codsubcuenta)
+                 .",".$this->var2str($this->idconcepto)
+                 .",".$this->var2str($this->concepto)
+                 .",".$this->var2str($this->idcontrapartida)
+                 .",".$this->var2str($this->codcontrapartida)
+                 .",".$this->var2str($this->punteada)
+                 .",".$this->var2str($this->tasaconv)
+                 .",".$this->var2str($this->coddivisa)
+                 .",".$this->var2str($this->haberme)
+                 .",".$this->var2str($this->debeme)
+                 .",".$this->var2str($this->recargo)
+                 .",".$this->var2str($this->iva)
+                 .",".$this->var2str($this->baseimponible)
+                 .",".$this->var2str($this->factura)
+                 .",".$this->var2str($this->codserie)
+                 .",".$this->var2str($this->tipodocumento)
+                 .",".$this->var2str($this->documento)
+                 .",".$this->var2str($this->cifnif)
+                 .",".$this->var2str($this->debe)
+                 .",".$this->var2str($this->haber).");";
          
          if( $this->db->exec($sql) )
          {
@@ -278,10 +303,11 @@ class partida extends fs_model
    public function all_from_subcuenta($id, $offset=0)
    {
       $plist = array();
-      $ordenadas = $this->db->select("SELECT a.numero,a.fecha,p.idpartida,p.debe,p.haber
-         FROM co_asientos a, co_partidas p
-         WHERE a.idasiento = p.idasiento AND p.idsubcuenta = ".$this->var2str($id).
-         " ORDER BY a.numero ASC, p.idpartida ASC;");
+      $sql = "SELECT a.numero,a.fecha,p.idpartida,p.debe,p.haber FROM co_asientos a, co_partidas p"
+              ." WHERE a.idasiento = p.idasiento AND p.idsubcuenta = ".$this->var2str($id)
+              ." ORDER BY a.numero ASC, p.idpartida ASC;";
+      
+      $ordenadas = $this->db->select($sql);
       if( $ordenadas )
       {
          $partida = new partida();
@@ -310,18 +336,23 @@ class partida extends fs_model
             $i++;
          }
       }
+      
       return $plist;
    }
    
    public function all_from_asiento($id)
    {
       $plist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE idasiento = "
+              .$this->var2str($id)." ORDER BY codsubcuenta ASC;";
       
-      $partidas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($id)." ORDER BY codsubcuenta ASC;");
+      $partidas = $this->db->select($sql);
       if($partidas)
       {
          foreach($partidas as $p)
+         {
             $plist[] = new partida($p);
+         }
       }
       
       return $plist;
@@ -330,16 +361,20 @@ class partida extends fs_model
    public function full_from_subcuenta($id)
    {
       $plist = array();
-      $ordenadas = $this->db->select("SELECT a.numero,a.fecha,p.idpartida FROM co_asientos a, co_partidas p
-         WHERE a.idasiento = p.idasiento AND p.idsubcuenta = ".$this->var2str($id).
-         " ORDER BY a.numero ASC, p.idpartida ASC;");
-      if($ordenadas)
+      $sql = "SELECT a.numero,a.fecha,p.idpartida FROM co_asientos a, co_partidas p"
+              ." WHERE a.idasiento = p.idasiento AND p.idsubcuenta = ".$this->var2str($id)
+              ." ORDER BY a.numero ASC, p.idpartida ASC";
+      
+      $saldo = 0;
+      $sum_debe = 0;
+      $sum_haber = 0;
+      
+      $partida = new partida();
+      $offset = 0;
+      $data = $this->db->select_limit($sql, 100, $offset);
+      while($data)
       {
-         $partida = new partida();
-         $saldo = 0;
-         $sum_debe = 0;
-         $sum_haber = 0;
-         foreach($ordenadas as $po)
+         foreach($data as $po)
          {
             $aux = $partida->get($po['idpartida']);
             if( $aux )
@@ -354,17 +389,25 @@ class partida extends fs_model
                $aux->sum_haber = $sum_haber;
                $plist[] = $aux;
             }
+            
+            $offset++;
          }
+         
+         $data = $this->db->select_limit($sql, 100, $offset);
       }
+      
       return $plist;
    }
    
    public function full_from_ejercicio($eje, $offset=0, $limit=FS_ITEM_LIMIT)
    {
-      $data = $this->db->select_limit("SELECT a.numero,a.fecha,s.codsubcuenta,s.descripcion,
-         p.concepto,p.debe,p.haber FROM co_asientos a, co_subcuentas s, co_partidas p
-         WHERE a.codejercicio = ".$this->var2str($eje)." AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta
-         ORDER BY a.numero ASC, p.codsubcuenta ASC", $limit, $offset);
+      $sql = "SELECT a.numero,a.fecha,s.codsubcuenta,s.descripcion,p.concepto,p.debe,p.haber"
+              ." FROM co_asientos a, co_subcuentas s, co_partidas p"
+              ." WHERE a.codejercicio = ".$this->var2str($eje)
+              ." AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta"
+              ." ORDER BY a.numero ASC, p.codsubcuenta ASC";
+      
+      $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
          return $data;
@@ -375,9 +418,11 @@ class partida extends fs_model
    
    public function count_from_subcuenta($id)
    {
-      $ordenadas = $this->db->select("SELECT a.numero,a.fecha,p.idpartida FROM co_asientos a, co_partidas p
-         WHERE a.idasiento = p.idasiento AND p.idsubcuenta = ".$this->var2str($id).
-         " ORDER BY a.numero ASC, p.idpartida ASC;");
+      $sql = "SELECT a.numero,a.fecha,p.idpartida FROM co_asientos a, co_partidas p"
+              ." WHERE a.idasiento = p.idasiento AND p.idsubcuenta = ".$this->var2str($id)
+              ." ORDER BY a.numero ASC, p.idpartida ASC;";
+      
+      $ordenadas = $this->db->select($sql);
       if($ordenadas)
       {
          return count($ordenadas);
@@ -389,9 +434,10 @@ class partida extends fs_model
    public function totales_from_subcuenta($id)
    {
       $totales = array( 'debe' => 0, 'haber' => 0, 'saldo' => 0 );
-      $resultados = $this->db->select("SELECT COALESCE(SUM(debe), 0) as debe,
-         COALESCE(SUM(haber), 0) as haber
-         FROM ".$this->table_name." WHERE idsubcuenta = ".$this->var2str($id).";");
+      $sql = "SELECT COALESCE(SUM(debe), 0) as debe,COALESCE(SUM(haber), 0) as haber"
+              ." FROM ".$this->table_name." WHERE idsubcuenta = ".$this->var2str($id).";";
+      
+      $resultados = $this->db->select($sql);
       if( $resultados )
       {
          $totales['debe'] = floatval($resultados[0]['debe']);
@@ -405,10 +451,11 @@ class partida extends fs_model
    public function totales_from_ejercicio($cod)
    {
       $totales = array( 'debe' => 0, 'haber' => 0, 'saldo' => 0 );
-      $resultados = $this->db->select("SELECT COALESCE(SUM(p.debe), 0) as debe,
-         COALESCE(SUM(p.haber), 0) as haber
-         FROM co_partidas p, co_asientos a
-         WHERE p.idasiento = a.idasiento AND a.codejercicio = ".$this->var2str($cod).";");
+      $sql = "SELECT COALESCE(SUM(p.debe), 0) as debe,COALESCE(SUM(p.haber), 0) as haber"
+              ." FROM co_partidas p, co_asientos a"
+              ." WHERE p.idasiento = a.idasiento AND a.codejercicio = ".$this->var2str($cod).";";
+      
+      $resultados = $this->db->select($sql);
       if( $resultados )
       {
          $totales['debe'] = floatval($resultados[0]['debe']);

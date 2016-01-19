@@ -54,7 +54,7 @@ class informe_contabilidad extends fs_controller
       else if( isset($_GET['balance']) AND isset($_GET['eje']) )
       {
          $this->template = FALSE;
-         $iba = new inventarios_balances();
+         $iba = new inventarios_balances($this->db);
          
          if($_GET['balance'] == 'pyg')
          {

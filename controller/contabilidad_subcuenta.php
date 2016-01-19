@@ -40,10 +40,10 @@ class contabilidad_subcuenta extends fs_controller
    
    protected function private_core()
    {
-      $this->divisa = new divisa();
-      
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
+      $this->divisa = new divisa();
       
       $subcuenta = new subcuenta();
       $this->subcuenta = FALSE;
@@ -65,7 +65,9 @@ class contabilidad_subcuenta extends fs_controller
          
          $this->offset = 0;
          if( isset($_GET['offset']) )
+         {
             $this->offset = intval($_GET['offset']);
+         }
          
          $this->resultados = $this->subcuenta->get_partidas($this->offset);
          
@@ -79,7 +81,14 @@ class contabilidad_subcuenta extends fs_controller
             /// generamos el PDF del libro mayor si no existe
             $libro_mayor = new libro_mayor();
             $libro_mayor->libro_mayor($this->subcuenta);
-            header('Location: tmp/'.FS_TMP_NAME.'libro_mayor/'.$this->subcuenta->idsubcuenta.'.pdf');
+            if( file_exists('tmp/'.FS_TMP_NAME.'libro_mayor/'.$this->subcuenta->idsubcuenta.'.pdf') )
+            {
+               header('Location: tmp/'.FS_TMP_NAME.'libro_mayor/'.$this->subcuenta->idsubcuenta.'.pdf');
+            }
+            else
+            {
+               $this->new_error_msg('Error al generar el libro mayor.');
+            }
          }
          
          $this->pdf_libromayor = FALSE;

@@ -63,7 +63,7 @@
    <columna>
       <nombre>codserie</nombre>
       <tipo>character varying(2)</tipo>
-      <nulo>NO</nulo>
+      <nulo>YES</nulo>
    </columna>
    <columna>
       <nombre>codsubcuenta</nombre>

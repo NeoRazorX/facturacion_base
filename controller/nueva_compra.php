@@ -25,6 +25,7 @@ require_model('familia.php');
 require_model('forma_pago.php');
 require_model('pedido_proveedor.php');
 require_model('proveedor.php');
+require_model('regularizacion_iva.php');
 
 class nueva_compra extends fs_controller
 {
@@ -761,7 +762,7 @@ class nueva_compra extends fs_controller
       $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
       if(!$ejercicio)
       {
-         $this->new_error_msg('Ejercicio no encontrado.');
+         $this->new_error_msg('Ejercicio no encontrado o está cerrado.');
          $continuar = FALSE;
       }
       
@@ -800,16 +801,16 @@ class nueva_compra extends fs_controller
          $continuar = FALSE;
       }
       
-      if( $continuar )
+      if($continuar)
       {
-         $factura->fecha = $_POST['fecha'];
-         $factura->hora = $_POST['hora'];
+         $factura->codejercicio = $ejercicio->codejercicio;
+         $factura->codserie = $serie->codserie;
+         $factura->set_fecha_hora($_POST['fecha'], $_POST['hora']);
+         
          $factura->codproveedor = $proveedor->codproveedor;
          $factura->nombre = $_POST['nombre'];
          $factura->cifnif = $_POST['cifnif'];
          $factura->codalmacen = $almacen->codalmacen;
-         $factura->codejercicio = $ejercicio->codejercicio;
-         $factura->codserie = $serie->codserie;
          $factura->codpago = $forma_pago->codpago;
          $factura->coddivisa = $divisa->coddivisa;
          $factura->tasaconv = $divisa->tasaconv_compra;
@@ -829,7 +830,12 @@ class nueva_compra extends fs_controller
             $factura->pagada = TRUE;
          }
          
-         if( $factura->save() )
+         $regularizacion = new regularizacion_iva();
+         if( $regularizacion->get_fecha_inside($factura->fecha) )
+         {
+            $this->new_error_msg("El IVA de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.");
+         }
+         else if( $factura->save() )
          {
             $art0 = new articulo();
             $n = floatval($_POST['numlineas']);

@@ -161,21 +161,26 @@ class ventas_cliente extends fs_controller
          $this->cliente->web = $_POST['web'];
          $this->cliente->email = $_POST['email'];
          $this->cliente->observaciones = $_POST['observaciones'];
-         $this->cliente->codserie = $_POST['codserie'];
          $this->cliente->codpago = $_POST['codpago'];
          $this->cliente->coddivisa = $_POST['coddivisa'];
          $this->cliente->regimeniva = $_POST['regimeniva'];
          $this->cliente->recargo = isset($_POST['recargo']);
          $this->cliente->debaja = isset($_POST['debaja']);
          
+         $this->cliente->codserie = NULL;
+         if($_POST['codserie'] != '')
+         {
+            $this->cliente->codserie = $_POST['codserie'];
+         }
+         
          $this->cliente->codagente = NULL;
-         if($_POST['codagente'] != '---')
+         if($_POST['codagente'] != '')
          {
             $this->cliente->codagente = $_POST['codagente'];
          }
          
          $this->cliente->codgrupo = NULL;
-         if($_POST['codgrupo'] != '---')
+         if($_POST['codgrupo'] != '')
          {
             $this->cliente->codgrupo = $_POST['codgrupo'];
          }

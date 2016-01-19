@@ -35,13 +35,15 @@ class ventas_agrupar_albaranes extends fs_controller
    public $cliente;
    public $codserie;
    public $desde;
-   private $forma_pago;
    public $hasta;
    public $neto;
    public $observaciones;
    public $resultados;
    public $serie;
    public $total;
+   
+   private $ejercicio;
+   private $forma_pago;
    
    public function __construct()
    {
@@ -53,6 +55,7 @@ class ventas_agrupar_albaranes extends fs_controller
       $this->albaran = new albaran_cliente();
       $this->cliente = FALSE;
       $this->codserie = NULL;
+      $this->ejercicio = new ejercicio();
       $this->forma_pago = new forma_pago();
       $this->serie = new serie();
       $this->neto = 0;
@@ -149,39 +152,17 @@ class ventas_agrupar_albaranes extends fs_controller
       else
       {
          foreach($_POST['idalbaran'] as $id)
+         {
             $albaranes[] = $this->albaran->get($id);
+         }
          
-         $codejercicio = NULL;
          foreach($albaranes as $alb)
          {
-            if( !isset($codejercicio) )
-               $codejercicio = $alb->codejercicio;
-            
             if( !$alb->ptefactura )
             {
                $this->new_error_msg("El ".FS_ALBARAN." <a href='".$alb->url()."'>".$alb->codigo."</a> ya está facturado.");
                $continuar = FALSE;
                break;
-            }
-            else if($alb->codejercicio != $codejercicio)
-            {
-               $this->new_error_msg("Los ejercicios de los ".FS_ALBARANES." no coinciden.");
-               $continuar = FALSE;
-               break;
-            }
-         }
-         
-         if( isset($codejercicio) )
-         {
-            $ejercicio = new ejercicio();
-            $eje0 = $ejercicio->get($codejercicio);
-            if($eje0)
-            {
-               if( !$eje0->abierto() )
-               {
-                  $this->new_error_msg("El ejercicio está cerrado.");
-                  $continuar = FALSE;
-               }
             }
          }
       }
@@ -191,7 +172,9 @@ class ventas_agrupar_albaranes extends fs_controller
          if( isset($_POST['individuales']) )
          {
             foreach($albaranes as $alb)
+            {
                $this->generar_factura( array($alb) );
+            }
          }
          else
             $this->generar_factura($albaranes);
@@ -207,7 +190,6 @@ class ventas_agrupar_albaranes extends fs_controller
       $factura->codalmacen = $albaranes[0]->codalmacen;
       $factura->coddivisa = $albaranes[0]->coddivisa;
       $factura->tasaconv = $albaranes[0]->tasaconv;
-      $factura->codejercicio = $albaranes[0]->codejercicio;
       $factura->codpago = $albaranes[0]->codpago;
       $factura->codserie = $albaranes[0]->codserie;
       $factura->irpf = $albaranes[0]->irpf;
@@ -223,18 +205,6 @@ class ventas_agrupar_albaranes extends fs_controller
       $factura->direccion = $albaranes[0]->direccion;
       $factura->nombrecliente = $albaranes[0]->nombrecliente;
       $factura->provincia = $albaranes[0]->provincia;
-      
-      /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
-      $formapago = $this->forma_pago->get($factura->codpago);
-      if($formapago)
-      {
-         if($formapago->genrecibos == 'Pagados')
-         {
-            $factura->pagada = TRUE;
-         }
-         
-         $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$formapago->vencimiento));
-      }
       
       /// obtenemos los datos actuales del cliente, por si ha habido cambios
       $cliente = $this->cliente->get($albaranes[0]->codcliente);
@@ -278,14 +248,33 @@ class ventas_agrupar_albaranes extends fs_controller
       $factura->totalrecargo = round($factura->totalrecargo, FS_NF0);
       $factura->total = $factura->neto + $factura->totaliva - $factura->totalirpf + $factura->totalrecargo;
       
-      /// asignamos la mejor fecha posible, pero dentro del ejercicio
-      $ejercicio = new ejercicio();
-      $eje0 = $ejercicio->get($factura->codejercicio);
-      $factura->fecha = $eje0->get_best_fecha($factura->fecha);
+      /// asignamos el ejercicio que corresponde a la fecha elegida
+      $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha']);
+      if($eje0)
+      {
+         $factura->codejercicio = $eje0->codejercicio;
+         $factura->set_fecha_hora($_POST['fecha'], $factura->hora);
+      }
+      
+      /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
+      $formapago = $this->forma_pago->get($factura->codpago);
+      if($formapago)
+      {
+         if($formapago->genrecibos == 'Pagados')
+         {
+            $factura->pagada = TRUE;
+         }
+         
+         $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$formapago->vencimiento));
+      }
       
       $regularizacion = new regularizacion_iva();
       
-      if( !$eje0->abierto() )
+      if( !$eje0 )
+      {
+         $this->new_error_msg("Ningún ejercicio encontrado.");
+      }
+      else if( !$eje0->abierto() )
       {
          $this->new_error_msg('El ejercicio '.$eje0->codejercicio.' está cerrado.');
       }
@@ -344,11 +333,15 @@ class ventas_agrupar_albaranes extends fs_controller
             }
             
             if( $continuar )
+            {
                $this->generar_asiento($factura);
+            }
             else
             {
                if( $factura->delete() )
+               {
                   $this->new_error_msg("La ".FS_FACTURA." se ha borrado.");
+               }
                else
                   $this->new_error_msg("¡Imposible borrar la ".FS_FACTURA."!");
             }
@@ -356,7 +349,9 @@ class ventas_agrupar_albaranes extends fs_controller
          else
          {
             if( $factura->delete() )
+            {
                $this->new_error_msg("La ".FS_FACTURA." se ha borrado.");
+            }
             else
                $this->new_error_msg("¡Imposible borrar la ".FS_FACTURA."!");
          }
@@ -432,6 +427,7 @@ class ventas_agrupar_albaranes extends fs_controller
                 'codcliente' => $alb->codcliente,
                 'nombre' => $alb->nombrecliente,
                 'codserie' => $alb->codserie,
+                'desde' => $alb->fecha,
                 'num' => 1
             );
          }

@@ -299,7 +299,7 @@
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
          {if="$fsc->codagente!==''"}
-         <td class="text-right bg-info">
+         <td class="text-right info">
             {$fsc->show_precio($value->neto*$value->porcomision/100, $value->coddivisa)}
          </td>
          <td class="text-left">{$fsc->show_numero($value->porcomision)}</td>

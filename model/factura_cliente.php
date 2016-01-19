@@ -354,6 +354,52 @@ class factura_cliente extends fs_model
       }
    }
    
+   /**
+    * Establece la fecha y la hora, pero respetando la numeración.
+    * @param type $fecha
+    * @param type $hora
+    */
+   public function set_fecha_hora($fecha, $hora)
+   {
+      if( is_null($this->numero) )
+      {
+         $cambio = FALSE;
+         
+         /// buscamos la última fecha usada en una factura en esta serie y ejercicio
+         $sql = "SELECT MAX(fecha) as fecha FROM ".$this->table_name
+                 . " WHERE codserie = ".$this->var2str($this->codserie)
+                 . " AND codejercicio = ".$this->var2str($this->codejercicio).";";
+         
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            if( strtotime($data[0]['fecha']) > strtotime($fecha) )
+            {
+               $fecha = date('d-m-Y', strtotime($data[0]['fecha']));
+               $cambio = TRUE;
+            }
+         }
+         
+         /// ahora buscamos la última hora usada para esa fecha, serie y ejercicio
+         $sql = "SELECT MAX(hora) as hora FROM ".$this->table_name
+                 . " WHERE codserie = ".$this->var2str($this->codserie)
+                 . " AND codejercicio = ".$this->var2str($this->codejercicio)
+                 . " AND fecha = ".$this->var2str($fecha).";";
+         
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            if( strtotime($data[0]['hora']) > strtotime($hora) OR $cambio )
+            {
+               $hora = date('H:i:s', strtotime($data[0]['hora']));
+            }
+         }
+      }
+      
+      $this->fecha = $fecha;
+      $this->hora = $hora;
+   }
+   
    public function url()
    {
       if( is_null($this->idfactura) )
@@ -631,7 +677,8 @@ class factura_cliente extends fs_model
       /// buscamos un hueco
       $encontrado = FALSE;
       $fecha = $this->fecha;
-      $data = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha
+      $hora = $this->hora;
+      $data = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha,hora
          FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).
          " AND codserie = ".$this->var2str($this->codserie)." ORDER BY numero ASC;");
       if($data)
@@ -656,6 +703,7 @@ class factura_cliente extends fs_model
                /// Hemos encontrado un hueco y debemos usar el número y la fecha.
                $encontrado = TRUE;
                $fecha = Date('d-m-Y', strtotime($d['fecha']));
+               $hora = Date('H:i:s', strtotime($d['hora']));
                break;
             }
          }
@@ -665,6 +713,7 @@ class factura_cliente extends fs_model
       {
          $this->numero = $num;
          $this->fecha = $fecha;
+         $this->hora = $hora;
       }
       else
       {

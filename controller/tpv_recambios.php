@@ -32,6 +32,7 @@ require_model('familia.php');
 require_model('forma_pago.php');
 require_model('grupo_clientes.php');
 require_model('impuesto.php');
+require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('tarifa.php');
 require_model('terminal_caja.php');
@@ -382,7 +383,7 @@ class tpv_recambios extends fs_controller
       $ejercicio = $this->ejercicio->get_by_fecha($_POST['fecha']);
       if(!$ejercicio)
       {
-         $this->new_error_msg('Ejercicio no encontrado.');
+         $this->new_error_msg('Ejercicio no encontrado o está cerrado.');
          $continuar = FALSE;
       }
       
@@ -445,10 +446,11 @@ class tpv_recambios extends fs_controller
       
       if($continuar)
       {
-         $factura->fecha = $_POST['fecha'];
-         $factura->codalmacen = $_POST['almacen'];
          $factura->codejercicio = $ejercicio->codejercicio;
          $factura->codserie = $serie->codserie;
+         $factura->set_fecha_hora($_POST['fecha'], $factura->hora);
+         
+         $factura->codalmacen = $_POST['almacen'];
          $factura->codpago = $forma_pago->codpago;
          $factura->coddivisa = $divisa->coddivisa;
          $factura->tasaconv = $divisa->tasaconv;
@@ -489,7 +491,12 @@ class tpv_recambios extends fs_controller
             }
          }
          
-         if( is_null($factura->codcliente) )
+         $regularizacion = new regularizacion_iva();
+         if( $regularizacion->get_fecha_inside($factura->fecha) )
+         {
+            $this->new_error_msg("El IVA de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.");
+         }
+         else if( is_null($factura->codcliente) )
          {
             $this->new_error_msg("No hay ninguna dirección asociada al cliente.");
          }

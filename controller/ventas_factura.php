@@ -322,22 +322,26 @@ class ventas_factura extends fs_controller
          if($asiento)
          {
             /// nos aseguramos que el cliente tenga subcuenta en el ejercicio actual
+            $subcli = FALSE;
             $eje = $this->ejercicio->get_by_fecha( $this->today() );
             if($eje)
             {
-               $this->cliente->get_subcuenta($eje->codejercicio);
+               $subcli = $this->cliente->get_subcuenta($eje->codejercicio);
             }
             
             $asiento_factura = new asiento_factura();
-            $this->factura->idasientop = $asiento_factura->generar_asiento_pago($asiento, $this->factura->codpago);
-            $this->factura->pagada = TRUE;
-            if( $this->factura->save() )
+            $this->factura->idasientop = $asiento_factura->generar_asiento_pago($asiento, $this->factura->codpago, $this->today(), $subcli);
+            if($this->factura->idasientop)
             {
-               $this->new_message('Asiento de pago generado.');
-            }
-            else
-            {
-               $this->new_error_msg('Error al marcar la factura como pagada.');
+               $this->factura->pagada = TRUE;
+               if( $this->factura->save() )
+               {
+                  $this->new_message('<a href="'.$this->factura->asiento_pago_url().'">Asiento de pago</a> generado.');
+               }
+               else
+               {
+                  $this->new_error_msg('Error al marcar la factura como pagada.');
+               }
             }
             
             foreach($asiento_factura->errors as $err)

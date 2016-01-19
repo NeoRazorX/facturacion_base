@@ -445,7 +445,6 @@ class ventas_albaran extends fs_controller
    private function generar_factura()
    {
       $factura = new factura_cliente();
-      $factura->fecha = $_POST['facturar'];
       $factura->apartado = $this->albaran->apartado;
       $factura->cifnif = $this->albaran->cifnif;
       $factura->ciudad = $this->albaran->ciudad;
@@ -473,10 +472,11 @@ class ventas_albaran extends fs_controller
       $factura->porcomision = $this->albaran->porcomision;
       
       /// asignamos el ejercicio que corresponde a la fecha elegida
-      $eje0 = $this->ejercicio->get_by_fecha($factura->fecha);
+      $eje0 = $this->ejercicio->get_by_fecha($_POST['facturar']);
       if($eje0)
       {
          $factura->codejercicio = $eje0->codejercicio;
+         $factura->set_fecha_hora($_POST['facturar'], $factura->hora);
       }
       
       /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
