@@ -1,0 +1,223 @@
+{include="header"}
+<!--
+Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
+
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<div class="container-fluid" style="margin-top: -10px;">
+    <div class="row">
+        <div class="col-sm-12 text-left">
+            <h2>Análisis de Stock</h2>
+            <p align="left">Por favor, primero elija el reporte que desea procesar y luego seleccione el rango de fechas y proceda a darle click al boton <b>Generar Informaci&oacute;n</b></p>
+            <hr />
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 col-md-2 col-sm-3">
+            <ul class="nav nav-pills nav-stacked" role="tablist">
+                <li role="presentation" {if="$fsc->reporte=='valorizado-almacen'"}class="active"{/if}>
+                    <a href="#valorizado-almacen" aria-controls="valorizado-almacen" role="tab" data-toggle="tab" onclick="seleccionar('valorizado-almacen');">
+                        <span class="glyphicon glyphicon-book"></span> &nbsp; Kardex por Almacén
+                    </a>
+                </li>
+                <li role="presentation" {if="$fsc->reporte=='valorizado-familia'"}class="active"{/if}>
+                    <a href="#valorizado-familia" aria-controls="valorizado-familia" role="tab" data-toggle="tab" onclick="seleccionar('valorizado-familia');">
+                        <span class="glyphicon glyphicon-book"></span> &nbsp; Kardex por Familia
+                    </a>
+                </li>
+                <li role="presentation" {if="$fsc->reporte=='valorizado-articulo'"}class="active"{/if}>
+                    <a href="#valorizado-articulo" aria-controls="valorizado-articulo" role="tab" data-toggle="tab" onclick="seleccionar('valorizado-articulo');">
+                        <span class="glyphicon glyphicon-book"></span> &nbsp; Kardex por Art&oacute;culo
+                    </a>
+                </li>
+            </ul>
+      </div>
+        <div class="col-lg-10 col-md-10 col-sm-9">
+            <form class="form-inline" id="f_generar_reporte" method="POST" action='{$fsc->url()}'>
+                <input type="hidden" name="tipo-reporte" id="tipo-reporte" value='{$fsc->reporte}'>
+                <label for='inicio'><b>Fecha Inicio</b></label>
+                <input type="text" class="form-control datepicker" name='inicio' id="inicio">
+                <label for='fin'><b>Fecha Fin</b></label>
+                <input type="text" class="form-control datepicker" name="fin" id="fin">
+                <button class="btn btn-default btn-sm" type="submit" id="b_generar_reporte" disabled name="buscar">Generar Informaci&oacute;n</button>
+                <a id="b_descargar_reporte" class="btn btn-primary btn-sm" href="" style="display: none;">Descargar Reporte</a>
+            </form>
+        </div>
+      <div class="col-lg-10 col-md-10 col-sm-9">
+          <div class="row">
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane {if="$fsc->reporte=='valorizado-almacen'"}active{/if}" id="valorizado-almacen">
+                    <table id="grid_almacen"></table>
+                    <div id="grid_almacen_pager"></div>
+                </div>
+                <div role="tabpanel" class="tab-pane {if="$fsc->reporte=='valorizado-familia'"}active{/if}" id="valorizado-familia">
+                    <table id="grid_familia"></table>
+                    <div id="grid_familia_pager"></div>
+                </div>
+                <div role="tabpanel" class="tab-pane {if="$fsc->reporte=='valorizado-articulo'"}active{/if}" id="valorizado-articulo">
+                    <table id="grid_articulo"></table>
+                    <div id="grid_articulo_pager"></div>
+                </div>
+            </div>
+          </div>
+      </div>
+    </div>
+</div>
+<script>
+    $.jgrid.defaults.width = '100%';
+    $.jgrid.defaults.responsive = true;
+    $.jgrid.defaults.styleUI = 'Bootstrap';
+    function last_stock(val, name, record){
+        return parseFloat(record[name]||0);
+    }
+    function get_stock(reporte){
+        var reporte = reporte;
+        var inicio = $('#inicio').val();
+        var fin = $('#fin').val();
+        $.ajax({
+            type: 'POST',
+            url: '{$fsc->url()}',
+            async: false,
+            data: 'tipo-reporte='+reporte+'&inicio='+inicio+'&fin='+fin,
+            success: function(datos) {
+                $("#grid_almacen").jqGrid('clearGridData');
+                $("#grid_almacen").jqGrid({
+                    title: 'Reporte por Almacén',
+                    data: datos.rows,
+                    datatype: "local",
+                    colModel: [
+                        { label: 'Almacén', name: 'nombre', width: 150 },
+                        { label: 'Fecha', name: 'fecha', key: true, width: 150 },
+                        { label: 'Documento', name: 'tipo_documento', width: 70 },
+                        { label: 'Número', name: 'documento', width: 70 },
+                        { label: 'Artículo', name: 'descripcion', width: 150 },
+                        { 
+                            label: 'Salida', 
+                            name: 'salida_cantidad', 
+                            width: 70,
+                            summaryTpl : "<b>{0}</b>",
+                            formatter: 'number', align: 'right', summaryType: 'sum',
+                            formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }
+                        },
+                        { 
+                            label: 'Ingreso', 
+                            name: 'ingreso_cantidad', 
+                            width: 70,
+                            summaryTpl : "<b>{0}</b>",
+                            formatter: 'number', align: 'right', summaryType: 'sum',
+                            formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }                        
+                        },
+                        { 
+                            label: 'Saldo', 
+                            name: 'saldo_cantidad', 
+                            width: 70,
+                            summaryTpl : "<b>{0}</b>",
+                            formatter: 'number', align: 'right', summaryType: last_stock,
+                            formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }                        
+                        }
+                    ],
+                    loadonce:true,
+                    viewrecords: true,
+                    rowList: [100,150,200],
+                    headertitles: true,
+                    autowidth: true,
+                    height: 450,
+                    rowNum: 100,
+                    sortname: 'fecha',
+                    pager: "#grid_almacen_pager",
+                    grouping: true,
+                    hoverrows: true,
+                    groupingView: {
+                        groupField: ["nombre", "descripcion"],
+                        groupColumnShow: [true, true],
+                        groupText: [
+                            "<b>{0}</b>",
+                            "<b>{0}</b>"
+                        ],
+                        groupOrder: ["asc", "asc"],
+                        groupSummary: [true, false],
+                        groupSummaryPos: ['header', 'header'],
+                        groupCollapse: false
+                    }
+                });
+                $('#grid_almacen').jqGrid()
+                    .setGridParam({
+                        data: datos.rows
+                    })
+                    .trigger("reloadGrid");
+            
+                $('#grid_almacen').navGrid('#grid_almacen_pager',
+                    { edit: false, add: false, del: false, search: true, refresh: false, view: false, position: "left", cloneToTop: true 
+                });
+                $('#b_descargar_reporte').attr('href',datos.filename);
+                $('#b_descargar_reporte').show();
+                
+            }
+        });
+    }
+    function customButtonClicked(){
+        console.log('click');
+    }
+    
+    function runningFormatter(value, row, index) {
+        return index;
+    }
+
+    function totalFormatter(data) {
+        return data.length + ' Documentos';
+    }
+
+    function totalTextFormatter(data) {
+        return 'Total';
+    }
+
+    function numberFormatter(value, row, index) {
+        return parseFloat(value).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+    }
+
+    function sumFormatter(data) {
+        field = this.field;
+        return parseFloat(data.reduce(function(sum, row) {
+            return sum + (+row[field]);
+        }, 0)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+    }
+
+    function sumNormalFormatter(data) {
+        field = this.field;
+        return parseFloat(data.reduce(function(sum, row) {
+            return sum + (+row[field]);
+        }, 0)).toFixed(2);
+    }
+
+    function seleccionar(reporte){
+        $('#tipo-reporte').val(reporte);
+        $('#b_generar_reporte').attr('disabled',false);
+        $('#b_descargar_reporte').hide();
+    }
+    $('#inicio').datepicker('option', 'dateFormat','Y-m-d');
+    $('#inicio').datepicker('update', '{$fsc->fecha_inicio}');
+    $('#fin').datepicker('option', 'dateFormat','Y-m-d');
+    $('#fin').datepicker('update', '{$fsc->fecha_fin}');
+    
+    $(document).ready(function () {
+        $('#f_generar_reporte').submit(function (event) {
+            event.preventDefault();
+            get_stock($('#tipo-reporte').val());
+        });
+    });
+</script>
+{include="footer"}
