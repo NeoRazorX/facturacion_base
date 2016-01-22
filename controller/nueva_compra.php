@@ -411,7 +411,6 @@ class nueva_compra extends fs_controller
          $pedido->codagente = $this->agente->codagente;
          $pedido->numproveedor = $_POST['numproveedor'];
          $pedido->observaciones = $_POST['observaciones'];
-         $pedido->irpf = $serie->irpf;
          
          if( $pedido->save() )
          {
@@ -482,6 +481,11 @@ class nueva_compra extends fs_controller
                      $pedido->totaliva += ($linea->pvptotal * $linea->iva/100);
                      $pedido->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                      $pedido->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                     
+                     if($linea->irpf > $pedido->irpf)
+                     {
+                        $pedido->irpf = $linea->irpf;
+                     }
                   }
                   else
                   {
@@ -618,7 +622,6 @@ class nueva_compra extends fs_controller
          $albaran->codagente = $this->agente->codagente;
          $albaran->numproveedor = $_POST['numproveedor'];
          $albaran->observaciones = $_POST['observaciones'];
-         $albaran->irpf = $serie->irpf;
          
          if( $albaran->save() )
          {
@@ -687,6 +690,11 @@ class nueva_compra extends fs_controller
                      $albaran->totaliva += ($linea->pvptotal * $linea->iva/100);
                      $albaran->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                      $albaran->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                     
+                     if($linea->irpf > $albaran->irpf)
+                     {
+                        $albaran->irpf = $linea->irpf;
+                     }
                   }
                   else
                   {
@@ -823,7 +831,6 @@ class nueva_compra extends fs_controller
          $factura->codagente = $this->agente->codagente;
          $factura->numproveedor = $_POST['numproveedor'];
          $factura->observaciones = $_POST['observaciones'];
-         $factura->irpf = $serie->irpf;
          
          if($forma_pago->genrecibos == 'Pagados')
          {
@@ -849,18 +856,18 @@ class nueva_compra extends fs_controller
                      
                   if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
                   {
-                        $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$i]);
-                        if($imp0)
-                        {
-                           $linea->codimpuesto = $imp0->codimpuesto;
-                           $linea->iva = floatval($_POST['iva_'.$i]);
-                           $linea->recargo = floatval($_POST['recargo_'.$i]);
-                        }
-                        else
-                        {
-                           $linea->iva = floatval($_POST['iva_'.$i]);
-                           $linea->recargo = floatval($_POST['recargo_'.$i]);
-                        }
+                     $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$i]);
+                     if($imp0)
+                     {
+                        $linea->codimpuesto = $imp0->codimpuesto;
+                        $linea->iva = floatval($_POST['iva_'.$i]);
+                        $linea->recargo = floatval($_POST['recargo_'.$i]);
+                     }
+                     else
+                     {
+                        $linea->iva = floatval($_POST['iva_'.$i]);
+                        $linea->recargo = floatval($_POST['recargo_'.$i]);
+                     }
                   }
                      
                   $linea->irpf = floatval($_POST['irpf_'.$i]);
@@ -912,6 +919,11 @@ class nueva_compra extends fs_controller
                      $factura->totaliva += ($linea->pvptotal * $linea->iva/100);
                      $factura->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                      $factura->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                     
+                     if($linea->irpf > $factura->irpf)
+                     {
+                        $factura->irpf = $linea->irpf;
+                     }
                   }
                   else
                   {

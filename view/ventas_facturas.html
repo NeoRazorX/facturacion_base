@@ -307,7 +307,9 @@
          <td class="text-right" title="{$value->hora}">
             {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
          </td>
-         <td class="text-right">{$value->vencimiento}</td>
+         <td class="text-right">
+            {if="$value->vencimiento==$fsc->today()"}<b>{$value->vencimiento}</b>{else}{$value->vencimiento}{/if}
+         </td>
       </tr>
       {else}
       <tr class="warning">

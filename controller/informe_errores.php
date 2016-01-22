@@ -561,6 +561,13 @@ class informe_errores extends fs_controller
       }
       else if($this->informe['offset'] == 4)
       {
+         /// eliminamos los elementos de contabilidad que apuntan a ejercicios que no existen
+         $tablas = array('co_gruposepigrafes', 'co_epigrafes', 'co_cuentas', 'co_subcuentas');
+         foreach($tablas as $tabla)
+         {
+            $this->db->exec("DELETE FROM ".$tabla." WHERE codejercicio NOT IN (SELECT codejercicio FROM ejercicios);");
+         }
+         
          /// comprobamos la tabla de subcuentas de proveedores
          if( $this->db->table_exists('co_subcuentasprov') )
          {

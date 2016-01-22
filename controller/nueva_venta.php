@@ -602,7 +602,6 @@ class nueva_venta extends fs_controller
          $albaran->codagente = $this->agente->codagente;
          $albaran->numero2 = $_POST['numero2'];
          $albaran->observaciones = $_POST['observaciones'];
-         $albaran->irpf = $serie->irpf;
          $albaran->porcomision = $this->agente->porcomision;
          
          $albaran->codcliente = $cliente->codcliente;
@@ -667,6 +666,11 @@ class nueva_venta extends fs_controller
                      $albaran->totaliva += ($linea->pvptotal * $linea->iva/100);
                      $albaran->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                      $albaran->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                     
+                     if($linea->irpf > $albaran->irpf)
+                     {
+                        $albaran->irpf = $linea->irpf;
+                     }
                   }
                   else
                   {
@@ -800,7 +804,6 @@ class nueva_venta extends fs_controller
          $factura->codagente = $this->agente->codagente;
          $factura->observaciones = $_POST['observaciones'];
          $factura->numero2 = $_POST['numero2'];
-         $factura->irpf = $serie->irpf;
          $factura->porcomision = $this->agente->porcomision;
          
          if($forma_pago->genrecibos == 'Pagados')
@@ -877,6 +880,11 @@ class nueva_venta extends fs_controller
                      $factura->totaliva += ($linea->pvptotal * $linea->iva/100);
                      $factura->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                      $factura->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                     
+                     if($linea->irpf > $factura->irpf)
+                     {
+                        $factura->irpf = $linea->irpf;
+                     }
                   }
                   else
                   {
@@ -1038,7 +1046,6 @@ class nueva_venta extends fs_controller
          $presupuesto->codagente = $this->agente->codagente;
          $presupuesto->observaciones = $_POST['observaciones'];
          $presupuesto->numero2 = $_POST['numero2'];
-         $presupuesto->irpf = $serie->irpf;
          $presupuesto->porcomision = $this->agente->porcomision;
          
          $presupuesto->codcliente = $cliente->codcliente;
@@ -1097,6 +1104,11 @@ class nueva_venta extends fs_controller
                      $presupuesto->totaliva += ($linea->pvptotal * $linea->iva/100);
                      $presupuesto->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                      $presupuesto->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                     
+                     if($linea->irpf > $presupuesto->irpf)
+                     {
+                        $presupuesto->irpf = $linea->irpf;
+                     }
                   }
                   else
                   {
@@ -1229,7 +1241,6 @@ class nueva_venta extends fs_controller
          $pedido->codagente = $this->agente->codagente;
          $pedido->observaciones = $_POST['observaciones'];
          $pedido->numero2 = $_POST['numero2'];
-         $pedido->irpf = $serie->irpf;
          $pedido->porcomision = $this->agente->porcomision;
          
          $pedido->codcliente = $cliente->codcliente;
@@ -1288,6 +1299,11 @@ class nueva_venta extends fs_controller
                      $pedido->totaliva += ($linea->pvptotal * $linea->iva/100);
                      $pedido->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                      $pedido->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                     
+                     if($linea->irpf > $pedido->irpf)
+                     {
+                        $pedido->irpf = $linea->irpf;
+                     }
                   }
                   else
                   {

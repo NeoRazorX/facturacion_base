@@ -462,6 +462,10 @@ class factura_cliente extends fs_model
       return $asiento->get($this->idasientop);
    }
    
+   /**
+    * Devulve las líneas de la factura.
+    * @return linea_factura_cliente
+    */
    public function get_lineas()
    {
       $linea = new linea_factura_cliente();

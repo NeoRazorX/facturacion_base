@@ -4,12 +4,16 @@
    function delete_caja(id)
    {
       if( confirm("¿Realmente desea eliminar la caja "+id+"?") )
+      {
          window.location.href = '{$fsc->url()}&delete='+id;
+      }
    }
    function delete_terminal(id)
    {
       if( confirm("¿Realmente desea eliminar el terminal "+id+"?") )
+      {
          window.location.href = '{$fsc->url()}&deletet='+id+'#terminales';
+      }
    }
    $(document).ready(function() {
       if(window.location.hash.substring(1) == 'terminales')

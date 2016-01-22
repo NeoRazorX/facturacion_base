@@ -463,7 +463,6 @@ class tpv_recambios extends fs_controller
          $factura->codagente = $this->agente->codagente;
          $factura->observaciones = $_POST['observaciones'];
          $factura->numero2 = $_POST['numero2'];
-         $factura->irpf = $serie->irpf;
          $factura->porcomision = $this->agente->porcomision;
          
          if($forma_pago->genrecibos == 'Pagados')
@@ -538,6 +537,11 @@ class tpv_recambios extends fs_controller
                         $factura->totaliva += ($linea->pvptotal * $linea->iva/100);
                         $factura->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                         $factura->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                        
+                        if($linea->irpf > $factura->irpf)
+                        {
+                           $factura->irpf = $linea->irpf;
+                        }
                      }
                      else
                      {

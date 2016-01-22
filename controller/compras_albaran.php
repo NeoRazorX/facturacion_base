@@ -155,8 +155,12 @@ class compras_albaran extends fs_controller
       
       if($this->albaran->ptefactura)
       {
-         $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha']);
-         if($eje0->codejercicio == $this->albaran->codejercicio)
+         $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha'], FALSE);
+         if(!$eje0)
+         {
+            $this->new_error_msg('Ningún ejercicio encontrado.');
+         }
+         else if($eje0->codejercicio == $this->albaran->codejercicio)
          {
             $this->albaran->fecha = $_POST['fecha'];
             $this->albaran->hora = $_POST['hora'];
@@ -194,7 +198,6 @@ class compras_albaran extends fs_controller
             if($serie2)
             {
                $this->albaran->codserie = $serie2->codserie;
-               $this->albaran->irpf = $serie2->irpf;
                $this->albaran->new_codigo();
                
                $serie = $serie2;
@@ -226,6 +229,8 @@ class compras_albaran extends fs_controller
             $this->albaran->totaliva = 0;
             $this->albaran->totalirpf = 0;
             $this->albaran->totalrecargo = 0;
+            $this->albaran->irpf = 0;
+            
             $lineas = $this->albaran->get_lineas();
             $articulo = new articulo();
             
@@ -251,7 +256,9 @@ class compras_albaran extends fs_controller
                      /// actualizamos el stock
                      $art0 = $articulo->get($l->referencia);
                      if($art0)
+                     {
                         $art0->sum_stock($this->albaran->codalmacen, 0 - $l->cantidad);
+                     }
                   }
                   else
                      $this->new_error_msg("¡Imposible eliminar la línea del artículo ".$l->referencia."!");
@@ -286,7 +293,9 @@ class compras_albaran extends fs_controller
                         {
                            $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$num]);
                            if($imp0)
+                           {
                               $lineas[$k]->codimpuesto = $imp0->codimpuesto;
+                           }
                            
                            $lineas[$k]->iva = floatval($_POST['iva_'.$num]);
                            $lineas[$k]->recargo = floatval($_POST['recargo_'.$num]);
@@ -299,12 +308,19 @@ class compras_albaran extends fs_controller
                            $this->albaran->totalirpf += $value->pvptotal * $value->irpf/100;
                            $this->albaran->totalrecargo += $value->pvptotal * $value->recargo/100;
                            
+                           if($value->irpf > $this->albaran->irpf)
+                           {
+                              $this->albaran->irpf = $value->irpf;
+                           }
+                           
                            if($lineas[$k]->cantidad != $cantidad_old)
                            {
                               /// actualizamos el stock
                               $art0 = $articulo->get($value->referencia);
                               if($art0)
+                              {
                                  $art0->sum_stock($this->albaran->codalmacen, $lineas[$k]->cantidad - $cantidad_old);
+                              }
                            }
                         }
                         else
@@ -324,7 +340,9 @@ class compras_albaran extends fs_controller
                      {
                         $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$num]);
                         if($imp0)
+                        {
                            $linea->codimpuesto = $imp0->codimpuesto;
+                        }
                         
                         $linea->iva = floatval($_POST['iva_'.$num]);
                         $linea->recargo = floatval($_POST['recargo_'.$num]);
@@ -355,6 +373,11 @@ class compras_albaran extends fs_controller
                         $this->albaran->totaliva += $linea->pvptotal * $linea->iva/100;
                         $this->albaran->totalirpf += $linea->pvptotal * $linea->irpf/100;
                         $this->albaran->totalrecargo += $linea->pvptotal * $linea->recargo/100;
+                        
+                        if($linea->irpf > $this->albaran->irpf)
+                        {
+                           $this->albaran->irpf = $linea->irpf;
+                        }
                      }
                      else
                         $this->new_error_msg("¡Imposible guardar la línea del artículo ".$linea->referencia."!");

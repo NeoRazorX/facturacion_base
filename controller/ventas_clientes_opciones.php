@@ -38,6 +38,8 @@ class ventas_clientes_opciones extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extension();
+      
       $this->grupo = new grupo_clientes();
       
       /// cargamos la configuración
@@ -90,5 +92,16 @@ class ventas_clientes_opciones extends fs_controller
          else
             $this->new_error_msg('Error al guardar los datos.');
       }
+   }
+   
+   private function share_extension()
+   {
+      $fsext = new fs_extension();
+      $fsext->name = 'opciones_clientes';
+      $fsext->from = __CLASS__;
+      $fsext->to = 'ventas_clientes';
+      $fsext->type = 'button';
+      $fsext->text = '<span class="glyphicon glyphicon-cog" aria-hidden="true" title="Opciones para nuevos clientes"></span>';
+      $fsext->save();
    }
 }
