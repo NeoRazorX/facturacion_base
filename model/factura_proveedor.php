@@ -384,6 +384,10 @@ class factura_proveedor extends fs_model
          return "index.php?page=compras_proveedor&cod=".$this->codproveedor;
    }
    
+   /**
+    * Devuelve las líneas de la factura.
+    * @return line_factura_proveedor
+    */
    public function get_lineas()
    {
       $linea = new linea_factura_proveedor();

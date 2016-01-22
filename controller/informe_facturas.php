@@ -1500,6 +1500,7 @@ class informe_facturas extends fs_controller
             $stats[ $d['codproveedor'] ][ $anyo ][13] += floatval($d['total']);
          }
          
+         $totales = array();
          foreach($stats as $i => $value)
          {
             /// calculamos la variación
@@ -1512,6 +1513,18 @@ class informe_facturas extends fs_controller
                }
                
                $anterior = $value2[13];
+               
+               if( isset($totales[$j]) )
+               {
+                  foreach($value2 as $k => $value3)
+                  {
+                     $totales[$j][$k] += $value3;
+                  }
+               }
+               else
+               {
+                  $totales[$j] = $value2;
+               }
             }
             
             $pro = $proveedor->get($i);
@@ -1534,6 +1547,21 @@ class informe_facturas extends fs_controller
                echo "\n";
             }
             echo ";;;;;;;;;;;;;;;\n";
+         }
+         
+         foreach( array_reverse($totales, TRUE) as $i => $value)
+         {
+            echo ";TOTALES;".$i;
+            $l_total = 0;
+            foreach($value as $j => $value3)
+            {
+               if($j < 13)
+               {
+                  echo ';'.number_format($value3, FS_NF0, ',', '');
+                  $l_total += $value3;
+               }
+            }
+            echo ";".number_format($l_total, FS_NF0, ',', '').";\n";
          }
       }
       else
@@ -1619,9 +1647,10 @@ class informe_facturas extends fs_controller
             $stats[ $d['codcliente'] ][ $anyo ][13] += floatval($d['total']);
          }
          
+         $totales = array();
          foreach($stats as $i => $value)
          {
-            /// calculamos la variación
+            /// calculamos la variación y los totales
             $anterior = 0;
             foreach( array_reverse($value, TRUE) as $j => $value2 )
             {
@@ -1631,6 +1660,18 @@ class informe_facturas extends fs_controller
                }
                
                $anterior = $value2[13];
+               
+               if( isset($totales[$j]) )
+               {
+                  foreach($value2 as $k => $value3)
+                  {
+                     $totales[$j][$k] += $value3;
+                  }
+               }
+               else
+               {
+                  $totales[$j] = $value2;
+               }
             }
             
             $cli = $cliente->get($i);
@@ -1653,6 +1694,21 @@ class informe_facturas extends fs_controller
                echo "\n";
             }
             echo ";;;;;;;;;;;;;;;\n";
+         }
+         
+         foreach( array_reverse($totales, TRUE) as $i => $value)
+         {
+            echo ";TOTALES;".$i;
+            $l_total = 0;
+            foreach($value as $j => $value3)
+            {
+               if($j < 13)
+               {
+                  echo ';'.number_format($value3, FS_NF0, ',', '');
+                  $l_total += $value3;
+               }
+            }
+            echo ";".number_format($l_total, FS_NF0, ',', '').";\n";
          }
       }
       else

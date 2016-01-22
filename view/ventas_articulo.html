@@ -89,7 +89,9 @@
          alert('Este artículo es público. Si estas seguro de que quieres eliminarlo, desmarcalo como público, guarda y pulsa eliminar.');
          {else}
          if( confirm("¿Estas seguro de que deseas eliminar este articulo?") )
+         {
             window.location.href = "index.php?page=ventas_articulos&delete={function="urlencode($fsc->articulo->referencia)"}";
+         }
          {/if}
       });
       $("#b_imagen").click(function(event) {
@@ -720,7 +722,7 @@
                   </div>
                </div>
                <div class="col-sm-6 text-right">
-                  <a href="{$fsc->url()}&recalcular_stock=TRUE#stock" class="btn btn-sm btn-warning">
+                  <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_recal_stock">
                      <span class="glyphicon glyphicon-wrench"></span>
                      &nbsp; Recalcular stock
                   </a>
@@ -798,6 +800,35 @@
                </tr>
                {/loop}
             </table>
+         </div>
+         <div class="modal fade" id="modal_recal_stock" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                     </button>
+                     <h4 class="modal-title">Recalcular stock</h4>
+                  </div>
+                  <div class="modal-body">
+                     <p class='help-block'>
+                        Se recalculará el stock del artículo a partir de las
+                        regularizaciones (de stock) y los albaranes y facturas de compra
+                        y venta.
+                     </p>
+                     <p class='help-block'>
+                        <b>Advertencia</b>: si el artículo no tiene ningún movimiento,
+                        ni regularización, el stock resultante <b>será 0</b>.
+                     </p>
+                  </div>
+                  <div class="modal-footer">
+                     <a href="{$fsc->url()}&recalcular_stock=TRUE#stock" class="btn btn-sm btn-warning">
+                        <span class="glyphicon glyphicon-wrench"></span>
+                        &nbsp; Recalcular stock
+                     </a>
+                  </div>
+               </div>
+            </div>
          </div>
       </div>
       {/if}

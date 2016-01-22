@@ -421,6 +421,11 @@ function show_pvp_iva(pvp,codimpuesto)
    return show_precio(pvp + pvp*iva/100);
 }
 
+function sin_stock()
+{
+   alert('No hay stock.');
+}
+
 $(document).ready(function() {
    $("#b_reticket").click(function() {
       window.location.href = tpv_url+"&reticket="+prompt('Introduce el código del ticket (o déjalo en blanco para re-imprimir el último):');

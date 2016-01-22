@@ -620,6 +620,11 @@ function show_pvp_iva(pvp,codimpuesto)
    return show_precio(pvp + pvp*iva/100);
 }
 
+function sin_stock()
+{
+   alert('No hay stock.');
+}
+
 function kiwi_import(ref,desc,pvp)
 {
    $("#nav_articulos li").each(function() {

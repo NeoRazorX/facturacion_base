@@ -177,6 +177,7 @@ class informe_articulos extends fs_controller
             if($_POST['informe'] == 'listadomov')
             {
                $this->referencia = $_POST['referencia'];
+               $this->codfamilia = $_POST['codfamilia'];
                $this->desde = $_POST['desde'];
                $this->hasta = $_POST['hasta'];
                $this->codagente = $_POST['codagente'];
@@ -482,7 +483,8 @@ class informe_articulos extends fs_controller
       
       $sql = "SELECT l.referencia,f.fecha,SUM(".$sumar.") as total"
               . " FROM ".$this->documento." f, lineas".$this->documento." l"
-              . " WHERE f.idfactura = l.idfactura AND referencia IS NOT NULL"
+              . " WHERE f.idfactura = l.idfactura"
+              . " AND referencia IS NOT NULL AND referencia != ''"
               . " AND fecha >= ".$this->empresa->var2str($this->desde)
               . " AND fecha <= ".$this->empresa->var2str($this->hasta);
       
@@ -513,7 +515,7 @@ class informe_articulos extends fs_controller
          
          header("content-type:application/csv;charset=UTF-8");
          header("Content-Disposition: attachment; filename=\"informe_facturacion.csv\"");
-         echo "referencia;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
+         echo "referencia;descripcion;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
          
          $stats = array();
          foreach($data as $d)
@@ -544,6 +546,7 @@ class informe_articulos extends fs_controller
             $stats[ $d['referencia'] ][ $anyo ][13] += floatval($d['total']);
          }
          
+         $art0 = new articulo();
          foreach($stats as $i => $value)
          {
             /// calculamos la variación
@@ -560,7 +563,15 @@ class informe_articulos extends fs_controller
             
             foreach($value as $j => $value2)
             {
-               echo '"'.$i.'";'.$j;
+               $articulo = $art0->get($i);
+               if($articulo)
+               {
+                  echo '"'.$i.'";"'.$this->fix_html($articulo->descripcion()).'";'.$j;
+               }
+               else
+               {
+                  echo '"'.$i.'";"";'.$j;
+               }
                
                foreach($value2 as $value3)
                {
@@ -569,13 +580,22 @@ class informe_articulos extends fs_controller
                
                echo "\n";
             }
-            echo ";;;;;;;;;;;;;;;\n";
+            echo ";;;;;;;;;;;;;;;;\n";
          }
       }
       else
       {
          $this->new_message('Sin resultados.');
       }
+   }
+   
+   private function fix_html($txt)
+   {
+      $newt = str_replace('&lt;', '<', $txt);
+      $newt = str_replace('&gt;', '>', $newt);
+      $newt = str_replace('&quot;', '"', $newt);
+      $newt = str_replace('&#39;', "'", $newt);
+      return $newt;
    }
    
    private function get_subfamilias($cod)
@@ -667,6 +687,7 @@ class informe_articulos extends fs_controller
          if($anyadir)
          {
             $mlist[] = array(
+                'referencia' => $ref,
                 'codalmacen' => $reg->codalmacendest,
                 'origen' => 'Regularización',
                 'url' => 'index.php?page=ventas_articulo&ref='.$ref,
@@ -715,6 +736,7 @@ class informe_articulos extends fs_controller
          foreach($data as $d)
          {
             $mlist[] = array(
+                'referencia' => $ref,
                 'codalmacen' => $d['codalmacen'],
                 'origen' => 'Albaran compra '.$d['codigo'],
                 'url' => 'index.php?page=compras_albaran&id='.$d['idalbaran'],
@@ -742,6 +764,7 @@ class informe_articulos extends fs_controller
          foreach($data as $d)
          {
             $mlist[] = array(
+                'referencia' => $ref,
                 'codalmacen' => $d['codalmacen'],
                 'origen' => 'Factura compra '.$d['codigo'],
                 'url' => 'index.php?page=compras_factura&id='.$d['idfactura'],
@@ -768,6 +791,7 @@ class informe_articulos extends fs_controller
          foreach($data as $d)
          {
             $mlist[] = array(
+                'referencia' => $ref,
                 'codalmacen' => $d['codalmacen'],
                 'origen' => 'Albaran venta '.$d['codigo'],
                 'url' => 'index.php?page=ventas_albaran&id='.$d['idalbaran'],
@@ -795,6 +819,7 @@ class informe_articulos extends fs_controller
          foreach($data as $d)
          {
             $mlist[] = array(
+                'referencia' => $ref,
                 'codalmacen' => $d['codalmacen'],
                 'origen' => 'Factura venta '.$d['codigo'],
                 'url' => 'index.php?page=ventas_factura&id='.$d['idfactura'],
@@ -855,35 +880,66 @@ class informe_articulos extends fs_controller
    
    private function informe_movimientos()
    {
-      if($this->referencia == '')
+      if($this->codfamilia)
       {
-         $this->new_advice('Selecciona una referencia.');
+         $familia = $this->familia->get($this->codfamilia);
+         if($familia)
+         {
+            foreach($familia->get_articulos() as $art)
+            {
+               foreach( $this->get_movimientos($art->referencia, $this->desde, $this->hasta, $this->codagente) as $mov )
+               {
+                  $this->resultados[] = $mov;
+               }
+            }
+         }
+         else
+         {
+            $this->new_advice('Familia no encontrada.');
+         }
+      }
+      else if($this->referencia == '')
+      {
+         $this->new_advice('Selecciona una referencia o una familia.');
       }
       else
       {
          $this->resultados = $this->get_movimientos($this->referencia, $this->desde, $this->hasta, $this->codagente);
-         
-         if( isset($_POST['generar']) )
+      }
+      
+      if( isset($_POST['generar']) )
+      {
+         if($_POST['generar'] == 'csv')
          {
-            if($_POST['generar'] == 'csv')
+            $this->template = FALSE;
+            
+            header("content-type:application/csv;charset=UTF-8");
+            header("Content-Disposition: attachment; filename=\"listado_movimientos.csv\"");
+            echo "referencia;almacen;documento;cliente/proveedor;movimiento;precio;%dto;cantidad final;fecha\n";
+            
+            $ref = FALSE;
+            foreach($this->resultados as $value)
             {
-               $this->template = FALSE;
-               
-               header("content-type:application/csv;charset=UTF-8");
-               header("Content-Disposition: attachment; filename=\"listado_movimientos.csv\"");
-               echo "almacen;documento;cliente/proveedor;movimiento;precio;%dto;cantidad final;fecha\n";
-               
-               foreach($this->resultados as $value)
+               if(!$ref)
                {
-                  echo $value['codalmacen'].';'
-                          .$value['origen'].';'
-                          .$value['clipro'].';'
-                          .number_format($value['movimiento'], FS_NF0, ',', '').';'
-                          .number_format($value['precio'], FS_NF0_ART, ',', '').';'
-                          .number_format($value['dto'], FS_NF0, ',', '').';'
-                          .number_format($value['final'], FS_NF0, ',', '').';'
-                          .$value['fecha']."\n";
+                  $ref = $value['referencia'];
                }
+               else if($ref != $value['referencia'])
+               {
+                  $ref = $value['referencia'];
+                  
+                  echo ";;;;;;;;\n";
+               }
+               
+               echo $value['referencia'].';'
+                       .$value['codalmacen'].';'
+                       .$value['origen'].';'
+                       .$value['clipro'].';'
+                       .number_format($value['movimiento'], FS_NF0, ',', '').';'
+                       .number_format($value['precio'], FS_NF0_ART, ',', '').';'
+                       .number_format($value['dto'], FS_NF0, ',', '').';'
+                       .number_format($value['final'], FS_NF0, ',', '').';'
+                       .$value['fecha']."\n";
             }
          }
       }
