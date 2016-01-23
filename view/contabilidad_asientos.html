@@ -104,7 +104,9 @@
          <td>{$value->codejercicio} <a href="{$value->url()}">{$value->numero}</a></td>
          <td>{$value->concepto}</td>
          <td class="text-right">{$fsc->show_precio($value->importe)}</td>
-         <td class="text-right">{$value->fecha}</td>
+         <td class="text-right">
+            {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
+         </td>
       </tr>
       {else}
       <tr class="warning">

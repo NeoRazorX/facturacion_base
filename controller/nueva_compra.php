@@ -347,7 +347,7 @@ class nueva_compra extends fs_controller
       }
       
       $eje0 = new ejercicio();
-      $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
+      $ejercicio = $eje0->get_by_fecha($_POST['fecha'], FALSE);
       if(!$ejercicio)
       {
          $this->new_error_msg('Ejercicio no encontrado.');
@@ -558,7 +558,7 @@ class nueva_compra extends fs_controller
       }
       
       $eje0 = new ejercicio();
-      $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
+      $ejercicio = $eje0->get_by_fecha($_POST['fecha'], FALSE);
       if(!$ejercicio)
       {
          $this->new_error_msg('Ejercicio no encontrado.');
@@ -840,7 +840,7 @@ class nueva_compra extends fs_controller
          $regularizacion = new regularizacion_iva();
          if( $regularizacion->get_fecha_inside($factura->fecha) )
          {
-            $this->new_error_msg("El IVA de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.");
+            $this->new_error_msg("El ".FS_IVA." de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.");
          }
          else if( $factura->save() )
          {
