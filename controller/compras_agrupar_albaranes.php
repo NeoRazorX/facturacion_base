@@ -236,7 +236,7 @@ class compras_agrupar_albaranes extends fs_controller
       
       if( !$eje0 )
       {
-         $this->new_error_msg("Ningún ejercicio encontrado.");
+         $this->new_error_msg("Ejercicio no encontrado o está cerrado.");
       }
       else if( !$eje0->abierto() )
       {
@@ -248,7 +248,7 @@ class compras_agrupar_albaranes extends fs_controller
           * comprobamos que la fecha de la factura no esté dentro de un periodo de
           * IVA regularizado.
           */
-         $this->new_error_msg('El IVA de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.');
+         $this->new_error_msg('El '.FS_IVA.' de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.');
       }
       else if( $factura->save() )
       {

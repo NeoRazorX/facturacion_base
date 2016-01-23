@@ -132,10 +132,6 @@ class ventas_albaran extends fs_controller
             else
                $this->generar_factura();
          }
-         else if( isset($_GET['forze_fecha']) )
-         {
-            $this->forzar_fecha();
-         }
       }
       else
          $this->new_error_msg("¡".FS_ALBARAN." de cliente no encontrado!");
@@ -168,17 +164,10 @@ class ventas_albaran extends fs_controller
          {
             $this->new_error_msg('Ningún ejercicio encontrado.');
          }
-         else if($eje0->codejercicio == $this->albaran->codejercicio)
+         else
          {
             $this->albaran->fecha = $_POST['fecha'];
             $this->albaran->hora = $_POST['hora'];
-         }
-         else
-         {
-            $error = TRUE;
-            $this->new_error_msg('La fecha seleccionada está fuere del rando del ejercicio '.$this->albaran->codejercicio
-                    .'. Si deseas asignar la fecha '.$_POST['fecha'].' pulsa <a href="'.$this->url().'&forze_fecha='.$_POST['fecha'].'">aquí</a>'
-                    . ' y se asignará un nuevo código y un nuevo número al '.FS_ALBARAN.'.');
          }
          
          /// ¿cambiamos el cliente?
@@ -445,26 +434,6 @@ class ventas_albaran extends fs_controller
          $this->new_error_msg("¡Imposible modificar el ".FS_ALBARAN."!");
    }
    
-   private function forzar_fecha()
-   {
-      $eje0 = $this->ejercicio->get_by_fecha($_GET['forze_fecha']);
-      if($eje0)
-      {
-         $this->albaran->fecha = $_GET['forze_fecha'];
-         $this->albaran->codejercicio = $eje0->codejercicio;
-         $this->albaran->new_codigo();
-         
-         if( $this->albaran->save() )
-         {
-            $this->new_message(ucfirst(FS_ALBARAN)." modificado correctamente.");
-         }
-         else
-            $this->new_error_msg("¡Imposible modificar el ".FS_ALBARAN."!");
-      }
-      else
-         $this->new_error_msg('No se ha posido asignar un ejercicio a esta fecha.');
-   }
-   
    private function generar_factura()
    {
       $factura = new factura_cliente();
@@ -519,7 +488,7 @@ class ventas_albaran extends fs_controller
       
       if( !$eje0 )
       {
-         $this->new_error_msg("Ningún ejercicio encontrado.");
+         $this->new_error_msg("Ejercicio no encontrado o está cerrado.");
       }
       else if( !$eje0->abierto() )
       {
@@ -527,8 +496,7 @@ class ventas_albaran extends fs_controller
       }
       else if( $regularizacion->get_fecha_inside($factura->fecha) )
       {
-         $this->new_error_msg("El IVA de ese periodo ya ha sido regularizado. No se pueden añadir más "
-                 .FS_FACTURAS." en esa fecha.");
+         $this->new_error_msg("El ".FS_IVA." de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.");
       }
       else if( $factura->save() )
       {
