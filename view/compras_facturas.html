@@ -240,6 +240,40 @@
             </div>
          </div>
       </div>
+      <div class="row">
+         <div class="col-sm-4">
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->estado==''"}
+                  <input type="radio" name="estado" value="" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="estado" value="" onchange="this.form.submit()"/>
+                  {/if}
+                  Todas
+               </label>
+            </div>
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->estado=='pagadas'"}
+                  <input type="radio" name="estado" value="pagadas" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="estado" value="pagadas" onchange="this.form.submit()"/>
+                  {/if}
+                  Pagadas
+               </label>
+            </div>
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->estado=='impagadas'"}
+                  <input type="radio" name="estado" value="impagadas" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="estado" value="impagadas" onchange="this.form.submit()"/>
+                  {/if}
+                  Impagadas
+               </label>
+            </div>
+         </div>
+      </div>
    </div>
 </form>
 {/if}

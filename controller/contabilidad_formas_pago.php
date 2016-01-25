@@ -1,8 +1,8 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015    Carlos Garcia Gomez  neorazorx@gmail.com
- *                            GISBEL JOSE          gpg841@gmail.com
+ * Copyright (C) 2014-2016    Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014         GISBEL JOSE          gpg841@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as

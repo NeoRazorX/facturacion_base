@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -30,6 +30,7 @@ class compras_facturas extends fs_controller
    public $codagente;
    public $codserie;
    public $desde;
+   public $estado;
    public $factura;
    public $hasta;
    public $lineas;
@@ -123,6 +124,7 @@ class compras_facturas extends fs_controller
          $this->codagente = '';
          $this->codserie = '';
          $this->desde = '';
+         $this->estado = '';
          $this->hasta = '';
          $this->num_resultados = '';
          $this->total_resultados = '';
@@ -167,6 +169,7 @@ class compras_facturas extends fs_controller
             {
                $this->desde = $_REQUEST['desde'];
                $this->hasta = $_REQUEST['hasta'];
+               $this->estado = $_REQUEST['estado'];
             }
          }
          
@@ -234,6 +237,7 @@ class compras_facturas extends fs_controller
               ."&codagente=".$this->codagente
               ."&codproveedor=".$codproveedor
               ."&desde=".$this->desde
+              ."&estado=".$this->estado
               ."&hasta=".$this->hasta;
       
       $paginas = array();
@@ -419,6 +423,17 @@ class compras_facturas extends fs_controller
       if($this->hasta != '')
       {
          $sql .= $where."fecha <= ".$this->agente->var2str($this->hasta);
+         $where = ' AND ';
+      }
+      
+      if($this->estado == 'pagadas')
+      {
+         $sql .= $where."pagada";
+         $where = ' AND ';
+      }
+      else if($this->estado == 'impagadas')
+      {
+         $sql .= $where."pagada = false";
          $where = ' AND ';
       }
       

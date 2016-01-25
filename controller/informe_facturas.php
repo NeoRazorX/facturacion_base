@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -1532,7 +1532,7 @@ class informe_facturas extends fs_controller
             {
                if($pro)
                {
-                  echo '"'.$i.'";'.$pro->nombre.';'.$j;
+                  echo '"'.$i.'";'.$this->fix_html($pro->nombre).';'.$j;
                }
                else
                {
@@ -1679,7 +1679,7 @@ class informe_facturas extends fs_controller
             {
                if($cli)
                {
-                  echo '"'.$i.'";'.$cli->nombre.';'.$j;
+                  echo '"'.$i.'";'.$this->fix_html($cli->nombre).';'.$j;
                }
                else
                {
@@ -1807,7 +1807,7 @@ class informe_facturas extends fs_controller
                {
                   if($pro)
                   {
-                     echo '"'.$i.'";'.$pro->nombre.';"'.$j.'";'.$k;
+                     echo '"'.$i.'";'.$this->fix_html($pro->nombre).';"'.$j.'";'.$k;
                   }
                   else
                   {
@@ -1932,7 +1932,7 @@ class informe_facturas extends fs_controller
                {
                   if($cli)
                   {
-                     echo '"'.$i.'";'.$cli->nombre.';"'.$j.'";'.$k;
+                     echo '"'.$i.'";'.$this->fix_html($cli->nombre).';"'.$j.'";'.$k;
                   }
                   else
                   {
@@ -1955,5 +1955,14 @@ class informe_facturas extends fs_controller
       {
          $this->new_error_msg('Sin resultados.');
       }
+   }
+   
+   private function fix_html($txt)
+   {
+      $newt = str_replace('&lt;', '<', $txt);
+      $newt = str_replace('&gt;', '>', $newt);
+      $newt = str_replace('&quot;', '"', $newt);
+      $newt = str_replace('&#39;', "'", $newt);
+      return $newt;
    }
 }
