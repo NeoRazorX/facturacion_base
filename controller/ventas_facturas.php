@@ -94,6 +94,10 @@ class ventas_facturas extends fs_controller
          {
             $this->order = 'vencimiento ASC';
          }
+         else if($_GET['order'] == 'total_desc')
+         {
+            $this->order = 'total DESC';
+         }
          
          setcookie('ventas_fac_order', $this->order, time()+FS_COOKIES_EXPIRE);
       }
@@ -212,6 +216,33 @@ class ventas_facturas extends fs_controller
       }
    }
    
+   public function url($busqueda = FALSE)
+   {
+      if($busqueda)
+      {
+         $codcliente = '';
+         if($this->cliente)
+         {
+            $codcliente = $this->cliente->codcliente;
+         }
+         
+         $url = $this->url()."&mostrar=".$this->mostrar
+                 ."&query=".$this->query
+                 ."&codserie=".$this->codserie
+                 ."&codagente=".$this->codagente
+                 ."&codcliente=".$codcliente
+                 ."&desde=".$this->desde
+                 ."&estado=".$this->estado
+                 ."&hasta=".$this->hasta;
+         
+         return $url;
+      }
+      else
+      {
+         return parent::url();
+      }
+   }
+   
    private function buscar_cliente()
    {
       /// desactivamos la plantilla HTML
@@ -230,21 +261,7 @@ class ventas_facturas extends fs_controller
    
    public function paginas()
    {
-      $codcliente = '';
-      if($this->cliente)
-      {
-         $codcliente = $this->cliente->codcliente;
-      }
-      
-      $url = $this->url()."&mostrar=".$this->mostrar
-              ."&query=".$this->query
-              ."&codserie=".$this->codserie
-              ."&codagente=".$this->codagente
-              ."&codcliente=".$codcliente
-              ."&desde=".$this->desde
-              ."&estado=".$this->estado
-              ."&hasta=".$this->hasta;
-      
+      $url = $this->url(TRUE);
       $paginas = array();
       $i = 0;
       $num = 0;

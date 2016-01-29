@@ -67,6 +67,23 @@ class cuenta_banco_proveedor extends fs_model
       return '';
    }
    
+   /**
+    * Devuelve el IBAN con o sin espacios.
+    * @param type $espacios
+    * @return type
+    */
+   public function iban($espacios = FALSE)
+   {
+      if($espacios)
+      {
+         return $this->iban;
+      }
+      else
+      {
+         return str_replace(' ', '', $this->iban);
+      }
+   }
+   
    public function url()
    {
       if( is_null($this->codproveedor) )

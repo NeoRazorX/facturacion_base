@@ -295,10 +295,10 @@ class factura_proveedor extends fs_model
     */
    public function set_fecha_hora($fecha, $hora)
    {
+      $cambio = FALSE;
+      
       if( is_null($this->numero) )
       {
-         $cambio = FALSE;
-         
          /// buscamos la última fecha usada en una factura en esta serie y ejercicio
          $sql = "SELECT MAX(fecha) as fecha FROM ".$this->table_name
                  . " WHERE codserie = ".$this->var2str($this->codserie)
@@ -332,6 +332,8 @@ class factura_proveedor extends fs_model
       
       $this->fecha = $fecha;
       $this->hora = $hora;
+      
+      return $cambio;
    }
    
    public function url()

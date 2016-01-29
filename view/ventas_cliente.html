@@ -427,12 +427,41 @@
                   </div>
                   <div class="panel-body">
                      <div class="row">
-                        <div class="col-sm-5">
+                        <div class="col-sm-3">
                            <div class="form-group">
+                              Descripción:
                               <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" placeholder="Cuenta principal" autocomplete="off"/>
                            </div>
                         </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <a target="_blank" href="http://es.wikipedia.org/wiki/International_Bank_Account_Number">IBAN</a>:
+                              <input class="form-control" type="text" name="iban" value="{$value->iban}" maxlength="34" placeholder="ES12345678901234567890123456" autocomplete="off"/>
+                           </div>
+                        </div>
                         <div class="col-sm-3">
+                           <div class="form-group">
+                              <a target="_blank" href="http://es.wikipedia.org/wiki/Society_for_Worldwide_Interbank_Financial_Telecommunication">SWIFT</a> o BIC:
+                              <input class="form-control" type="text" name="swift" value="{$value->swift}" maxlength="11" autocomplete="off"/>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="row">
+                        <div class="col-sm-2">
+                           <div class="form-group">
+                              Fecha del mandato:
+                              <input type="text" name="fmandato" value="{$value->fmandato}" class="form-control datepicker" autocomplete="off"/>
+                           </div>
+                        </div>
+                        <div class="col-sm-4">
+                           <br/>
+                           <p class="help-block">
+                              Si el cliente ha autorizado la <b>domiciliación</b> de recibos, debes especificar
+                              la fecha del mandato: la fecha en la que autorizó.
+                           </p>
+                        </div>
+                        <div class="col-sm-2">
+                           <br/>
                            <div class="checkbox">
                               <label>
                                  {if="$value->principal"}
@@ -440,11 +469,12 @@
                                  {else}
                                  <input type="checkbox" name="principal" value="TRUE"/>
                                  {/if}
-                                 Cuenta principal
+                                 Esta es la cuenta principal del cliente
                               </label>
                            </div>
                         </div>
                         <div class="col-sm-4 text-right">
+                           <br/>
                            <div class="btn-group">
                               <a class="btn btn-sm btn-danger" onclick="delete_cuenta('{$value->codcuenta}');">
                                  <span class="glyphicon glyphicon-trash"></span>
@@ -454,20 +484,6 @@
                                  <span class="glyphicon glyphicon-floppy-disk"></span>
                                  <span class="hidden-xs">&nbsp; Guardar</span>
                               </button>
-                           </div>
-                        </div>
-                     </div>
-                     <div class="row">
-                        <div class="col-sm-6">
-                           <div class="form-group">
-                              <a target="_blank" href="http://es.wikipedia.org/wiki/International_Bank_Account_Number">IBAN</a>:
-                              <input class="form-control" type="text" name="iban" value="{$value->iban}" maxlength="34" placeholder="ES12345678901234567890123456" autocomplete="off"/>
-                           </div>
-                        </div>
-                        <div class="col-sm-6">
-                           <div class="form-group">
-                              <a target="_blank" href="http://es.wikipedia.org/wiki/Society_for_Worldwide_Interbank_Financial_Telecommunication">SWIFT</a> o BIC:
-                              <input class="form-control" type="text" name="swift" value="{$value->swift}" maxlength="11" autocomplete="off"/>
                            </div>
                         </div>
                      </div>

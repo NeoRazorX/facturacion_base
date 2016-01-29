@@ -142,6 +142,15 @@ class ventas_cliente extends fs_controller
          $cuentab->iban = $_POST['iban'];
          $cuentab->swift = $_POST['swift'];
          $cuentab->principal = isset($_POST['principal']);
+         $cuentab->fmandato = NULL;
+         
+         if( isset($_POST['fmandato']) )
+         {
+            if($_POST['fmandato'] != '')
+            {
+               $cuentab->fmandato = $_POST['fmandato'];
+            }
+         }
          
          if( $cuentab->save() )
          {

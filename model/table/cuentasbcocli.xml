@@ -52,6 +52,10 @@
       <tipo>boolean</tipo>
       <nulo>YES</nulo>
    </columna>
+   <columna>
+      <nombre>fmandato</nombre>
+      <tipo>date</tipo>
+   </columna>
    <restriccion>
       <nombre>cuentasbcocli_pkey</nombre>
       <consulta>PRIMARY KEY (codcuenta)</consulta>

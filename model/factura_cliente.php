@@ -356,15 +356,17 @@ class factura_cliente extends fs_model
    
    /**
     * Establece la fecha y la hora, pero respetando la numeración.
+    * Devuelve TRUE si se asigna una fecha distinta.
     * @param type $fecha
     * @param type $hora
+    * @return boolean
     */
    public function set_fecha_hora($fecha, $hora)
    {
+      $cambio = FALSE;
+      
       if( is_null($this->numero) )
       {
-         $cambio = FALSE;
-         
          /// buscamos la última fecha usada en una factura en esta serie y ejercicio
          $sql = "SELECT MAX(fecha) as fecha FROM ".$this->table_name
                  . " WHERE codserie = ".$this->var2str($this->codserie)
@@ -398,6 +400,8 @@ class factura_cliente extends fs_model
       
       $this->fecha = $fecha;
       $this->hora = $hora;
+      
+      return $cambio;
    }
    
    public function url()
@@ -1226,6 +1230,10 @@ class factura_cliente extends fs_model
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con los huecos en la numeración.
+    * @return type
+    */
    public function huecos()
    {
       $error = TRUE;
@@ -1249,11 +1257,6 @@ class factura_cliente extends fs_model
                   {
                      $codserie = $d['codserie'];
                      $num = 1;
-                     if( defined('FS_NFACTURA_CLI') )
-                     {
-                        /// mantenemos compatibilidad con versiones anteriores
-                        $num = intval(FS_NFACTURA_CLI);
-                     }
                      
                      $se = $serie->get($codserie);
                      if($se)
@@ -1281,8 +1284,13 @@ class factura_cliente extends fs_model
                   }
                   else
                   {
-                     /// Hemos encontrado un hueco y debemos usar el número y la fecha.
-                     while($num < intval($d['numero']))
+                     /**
+                      * Hemos encontrado un hueco y debemos usar el número y la fecha.
+                      * La variable pasos permite dejar de añadir huecos al llegar a 100,
+                      * así evitamos agotar la memoria en caso de error grave.
+                      */
+                     $pasos = 0;
+                     while($num < intval($d['numero']) AND $pasos < 100)
                      {
                         $huecolist[] = array(
                             'codigo' => $eje->codejercicio . sprintf('%02s', $codserie) . sprintf('%06s', $num),
@@ -1290,6 +1298,7 @@ class factura_cliente extends fs_model
                             'hora' => $d['hora']
                         );
                         $num++;
+                        $pasos++;
                      }
                      
                      /// avanzamos uno más

@@ -459,7 +459,7 @@ class asiento_factura
       
       if( !$subcuenta_cli )
       {
-         $eje0 = $this->ejercicio->get( $factura->codejercicio );
+         $eje0 = $this->ejercicio->get($factura->codejercicio);
          $this->new_message("No se ha podido generar una subcuenta para el cliente
             <a href='".$eje0->url()."'>¿Has importado los datos del ejercicio?</a>");
          
