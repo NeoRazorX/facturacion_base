@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -934,7 +934,7 @@ class informe_articulos extends fs_controller
                echo $value['referencia'].';'
                        .$value['codalmacen'].';'
                        .$value['origen'].';'
-                       .$value['clipro'].';'
+                       .$this->fix_html($value['clipro']).';'
                        .number_format($value['movimiento'], FS_NF0, ',', '').';'
                        .number_format($value['precio'], FS_NF0_ART, ',', '').';'
                        .number_format($value['dto'], FS_NF0, ',', '').';'
@@ -1037,7 +1037,7 @@ class informe_articulos extends fs_controller
                {
                   if($cli)
                   {
-                     echo '"'.$i.'";"'.$j.'";'.$cli->nombre.';'.$k;
+                     echo '"'.$i.'";"'.$j.'";'.$this->fix_html($cli->nombre).';'.$k;
                   }
                   else
                   {

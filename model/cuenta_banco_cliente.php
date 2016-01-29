@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -36,7 +36,18 @@ class cuenta_banco_cliente extends fs_model
    public $descripcion;
    public $iban;
    public $swift;
+   
+   /**
+    * ¿Es la cuenta principal del cliente?
+    * @var type 
+    */
    public $principal;
+   
+   /**
+    * Fecha en la que se firmó el mandato para autorizar la domiciliación de recibos.
+    * @var type 
+    */
+   public $fmandato;
    
    public function __construct($c = FALSE)
    {
@@ -49,6 +60,12 @@ class cuenta_banco_cliente extends fs_model
          $this->iban = $c['iban'];
          $this->swift = $c['swift'];
          $this->principal = $this->str2bool($c['principal']);
+         
+         $this->fmandato = NULL;
+         if($c['fmandato'])
+         {
+            $this->fmandato = date('d-m-Y', strtotime($c['fmandato']));
+         }
       }
       else
       {
@@ -58,12 +75,30 @@ class cuenta_banco_cliente extends fs_model
          $this->iban = NULL;
          $this->swift = NULL;
          $this->principal = TRUE;
+         $this->fmandato = NULL;
       }
    }
    
    protected function install()
    {
       return '';
+   }
+   
+   /**
+    * Devuelve el IBAN con o sin espacios.
+    * @param type $espacios
+    * @return type
+    */
+   public function iban($espacios = FALSE)
+   {
+      if($espacios)
+      {
+         return $this->iban;
+      }
+      else
+      {
+         return str_replace(' ', '', $this->iban);
+      }
    }
    
    public function url()
@@ -125,18 +160,20 @@ class cuenta_banco_cliente extends fs_model
                  ", iban = ".$this->var2str($this->iban).
                  ", swift = ".$this->var2str($this->swift).
                  ", principal = ".$this->var2str($this->principal).
+                 ", fmandato = ".$this->var2str($this->fmandato).
                  " WHERE codcuenta = ".$this->var2str($this->codcuenta).";";
       }
       else
       {
          $this->codcuenta = $this->get_new_codigo();
-         $sql = "INSERT INTO ".$this->table_name." (codcliente,codcuenta,descripcion,iban,swift,principal)".
+         $sql = "INSERT INTO ".$this->table_name." (codcliente,codcuenta,descripcion,iban,swift,principal,fmandato)".
                  " VALUES (".$this->var2str($this->codcliente).
                  ",".$this->var2str($this->codcuenta).
                  ",".$this->var2str($this->descripcion).
                  ",".$this->var2str($this->iban).
                  ",".$this->var2str($this->swift).
-                 ",".$this->var2str($this->principal).");";
+                 ",".$this->var2str($this->principal).
+                 ",".$this->var2str($this->fmandato).");";
       }
       
       return $this->db->exec($sql);

@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -239,8 +239,8 @@ class informe_contabilidad extends fs_controller
             
             echo $par['numero'].';'
                     .date('d-m-Y', strtotime($par['fecha'])).';'
-                    .$par['codsubcuenta'].';'
-                    .$par['concepto'].';'
+                    .$this->fix_html($par['codsubcuenta']).';'
+                    .$this->fix_html($par['concepto']).';'
                     .number_format($par['debe'], FS_NF0, ',', '').';'
                     .number_format($par['haber'], FS_NF0, ',', '').';'
                     .number_format($saldo, FS_NF0, ',', '')."\n";
@@ -249,6 +249,15 @@ class informe_contabilidad extends fs_controller
          
          $data = $this->db->select_limit($sql, 1000, $offset);
       }
+   }
+   
+   private function fix_html($txt)
+   {
+      $newt = str_replace('&lt;', '<', $txt);
+      $newt = str_replace('&gt;', '>', $newt);
+      $newt = str_replace('&quot;', '"', $newt);
+      $newt = str_replace('&#39;', "'", $newt);
+      return $newt;
    }
    
    private function libro_mayor_csv($codeje, $desde, $hasta, $codgrupo=FALSE, $codepi=FALSE, $codcuenta=FALSE, $codsubc=FALSE)
@@ -322,8 +331,8 @@ class informe_contabilidad extends fs_controller
             
             echo $par['numero'].';'
                     .date('d-m-Y', strtotime($par['fecha'])).';'
-                    .$par['codsubcuenta'].';'
-                    .$par['concepto'].';'
+                    .$this->fix_html($par['codsubcuenta']).';'
+                    .$this->fix_html($par['concepto']).';'
                     .number_format($par['debe'], FS_NF0, ',', '').';'
                     .number_format($par['haber'], FS_NF0, ',', '').';'
                     .number_format($saldo, FS_NF0, ',', '')."\n";
@@ -644,7 +653,7 @@ class informe_contabilidad extends fs_controller
                }
                
                echo $lineas[$i]['cuenta'].';'.
-                       substr($lineas[$i]['descripcion'], 0, 50).';'.
+                       substr( $this->fix_html($lineas[$i]['descripcion']), 0, 50).';'.
                        number_format($lineas[$i]['debe'], FS_NF0, ',', '').';'.
                        number_format($lineas[$i]['haber'], FS_NF0, ',', '').';'.
                        number_format( floatval($lineas[$i]['debe']) - floatval($lineas[$i]['haber']) , FS_NF0, ',', '')."\n";
