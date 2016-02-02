@@ -46,6 +46,8 @@
                <thead>
                   <tr>
                      <th class="text-left">Referencia</th>
+                     <th class="text-left">Familia</th>
+                     <th class="text-left">Fabricante</th>
                      <th class="text-right">Coste</th>
                      <th class="text-right">Precio</th>
                      <th class="text-right">Stock</th>
@@ -55,17 +57,39 @@
                </thead>
                <tr>
                   <td><a target="_blank" href="{$fsc->articulo->url()}">{$fsc->articulo->referencia}</a></td>
+                  <td>
+                     {loop="$fsc->familia->all()"}
+                        {if="$value->codfamilia==$fsc->articulo->codfamilia"}
+                        <a href="{$value->url()}" target="_blank">{$value->descripcion}</a>
+                        {/if}
+                     {else}
+                     -
+                     {/loop}
+                  </td>
+                  <td>
+                     {loop="$fsc->fabricante->all()"}
+                        {if="$value->codfabricante==$fsc->articulo->codfabricante"}
+                        <a href="{$value->url()}" target="_blank">{$value->nombre}</a>
+                        {/if}
+                     {else}
+                     -
+                     {/loop}
+                  </td>
                   <td class="text-right">
                      <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{function="base64_encode($fsc->articulo->descripcion)"}','{$fsc->articulo->preciocoste()}','0','{$fsc->articulo->codimpuesto}')">
                         {$fsc->show_precio($fsc->articulo->preciocoste())}
                      </a>
                   </td>
                   <td class="text-right">
-                     <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{function="base64_encode($fsc->articulo->descripcion)"}','{$fsc->articulo->pvp}','0','{$fsc->articulo->codimpuesto}')">
+                     <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{function="base64_encode($fsc->articulo->descripcion)"}','{$fsc->articulo->pvp}','0','{$fsc->articulo->codimpuesto}')" title="actualizado el {$fsc->articulo->factualizado}">
                         {$fsc->show_precio($fsc->articulo->pvp)}
                      </a>
                   </td>
+                  {if="$fsc->articulo->stockfis<$fsc->articulo->stockmin"}
+                  <td class="text-right danger">{$fsc->articulo->stockfis}</td>
+                  {else}
                   <td class="text-right">{$fsc->articulo->stockfis}</td>
+                  {/if}
                   <td class="text-right">{$fsc->articulo->stockmin}</td>
                   <td class="text-right">{$fsc->articulo->stockmax}</td>
                </tr>
@@ -92,16 +116,18 @@
                   </tr>
                </thead>
                {loop="$equivalentes"}
-               <tr>
+               <tr{if="$value->bloqueado"} class="danger"{elseif="$value->stockfis<=$value->stockmin"} class="warning"{/if}>
                   <td>
-                     <a href="#" onclick="add_articulo('{$value->referencia}','{$value->get_descripcion_64()}','{$value->pvp}','0','{$value->get_iva()}')">
+                     <a href="#" onclick="get_precios('{$value->referencia}')" title="más detalles"><span class="glyphicon glyphicon-eye-open"></span></a>
+                     &nbsp;
+                     <a href="#" onclick="add_articulo('{$value->referencia}','{function="base64_encode($fsc->articulo->descripcion)"}','{$value->pvp}','0','{$value->get_iva()}')">
                         {$value->referencia}
                      </a>
                      {$value->descripcion}
                   </td>
                   <td class="text-right">{$fsc->show_precio($value->pvp)}</td>
                   <td class="text-right">
-                     <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{function="base64_encode($fsc->articulo->descripcion)"}','{$value->pvp}','0','{$fsc->articulo->codimpuesto}')">
+                     <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{function="base64_encode($fsc->articulo->descripcion)"}','{$value->pvp}','0','{$fsc->articulo->codimpuesto}')" title="actualizado el {$value->factualizado}">
                         {$fsc->show_precio($value->pvp_iva())}
                      </a>
                   </td>
@@ -109,7 +135,7 @@
                </tr>
                {else}
                <tr class="warning">
-                  <td colspan="4" class="text-center">No hay artículos equivalentes.</td>
+                  <td colspan="4">No hay artículos equivalentes.</td>
                </tr>
                {/loop}
             </table>
@@ -152,7 +178,7 @@
                </tr>
                {else}
                <tr class="warning">
-                  <td colspan="5" class="text-center">Nunca se ha comprado este artículo.</td>
+                  <td colspan="6">Nunca se ha comprado este artículo.</td>
                </tr>
                {/loop}
             </table>

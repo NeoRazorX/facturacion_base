@@ -487,6 +487,18 @@ function buscar_articulos()
             var insertar = false;
             $.each(json, function(key, val) {
                var descripcion = Base64.encode(val.descripcion);
+               var descripcion_visible = val.descripcion;
+               if(val.codfamilia)
+               {
+                  descripcion_visible += ' <span class="label label-default" title="Familia: '+val.codfamilia+'">'
+                          +val.codfamilia+'</span>';
+               }
+               if(val.codfabricante)
+               {
+                  descripcion_visible += ' <span class="label label-default" title="Fabricante: '+val.codfabricante+'">'
+                          +val.codfabricante+'</span>';
+               }
+               
                var precio = val.coste;
                if(precio_compra == 'pvp')
                {
@@ -513,13 +525,13 @@ function buscar_articulos()
                      <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
                      &nbsp; <a href=\"#\" onclick=\"return add_articulo('"
                           +val.referencia+"','"+descripcion+"','"+precio+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"
-                          +val.referencia+'</a> '+val.descripcion+"</td>\n\
+                          +val.referencia+'</a> '+descripcion_visible+"</td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"
                           +val.referencia+"','"+descripcion+"','"+val.coste+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"
                           +show_precio(val.coste)+"</a></td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"
-                          +val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\">"
-                          +show_precio(val.pvp)+"</a></td>\n\
+                          +val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\" title=\"actualizado el "
+                          +val.factualizado+"\">"+show_precio(val.pvp)+"</a></td>\n\
                      <td class=\"text-right\">"+val.stockfis+"</td></tr>");
                }
                
