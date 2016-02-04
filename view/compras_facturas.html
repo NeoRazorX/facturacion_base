@@ -248,7 +248,7 @@
          </div>
       </div>
       <div class="row">
-         <div class="col-sm-4">
+         <div class="col-sm-12">
             <div class="radio-inline">
                <label>
                   {if="$fsc->estado==''"}
@@ -277,6 +277,16 @@
                   <input type="radio" name="estado" value="impagadas" onchange="this.form.submit()"/>
                   {/if}
                   Impagadas
+               </label>
+            </div>
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->estado=='anuladas'"}
+                  <input type="radio" name="estado" value="anuladas" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="estado" value="anuladas" onchange="this.form.submit()"/>
+                  {/if}
+                  Anuladas
                </label>
             </div>
          </div>

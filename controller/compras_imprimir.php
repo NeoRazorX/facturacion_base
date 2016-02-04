@@ -658,22 +658,11 @@ class compras_imprimir extends fs_controller
    {
       if( $this->empresa->can_send_mail() )
       {
-         if( $_POST['email'] != $this->proveedor->email )
+         if( $_POST['email'] != $this->proveedor->email AND isset($_POST['guardar']) )
          {
             $this->proveedor->email = $_POST['email'];
             $this->proveedor->save();
          }
-         
-         /// obtenemos la configuración extra del email
-         $mailop = array(
-             'mail_host' => 'smtp.gmail.com',
-             'mail_port' => '465',
-             'mail_user' => '',
-             'mail_enc' => 'ssl',
-             'mail_low_security' => FALSE
-         );
-         $fsvar = new fs_var();
-         $mailop = $fsvar->array_get($mailop, FALSE);
          
          $filename = 'albaran_'.$this->albaran->codigo.'.pdf';
          $this->generar_pdf_albaran($filename);
@@ -681,34 +670,55 @@ class compras_imprimir extends fs_controller
          if( file_exists('tmp/'.FS_TMP_NAME.'enviar/'.$filename) )
          {
             $mail = new PHPMailer();
-            $mail->IsSMTP();
+            $mail->CharSet = 'UTF-8';
+            $mail->WordWrap = 50;
+            $mail->isSMTP();
             $mail->SMTPAuth = TRUE;
-            $mail->SMTPSecure = $mailop['mail_enc'];
-            $mail->Host = $mailop['mail_host'];
-            $mail->Port = intval($mailop['mail_port']);
+            $mail->SMTPSecure = $this->empresa->email_config['mail_enc'];
+            $mail->Host = $this->empresa->email_config['mail_host'];
+            $mail->Port = intval($this->empresa->email_config['mail_port']);
             
             $mail->Username = $this->empresa->email;
-            if($mailop['mail_user'] != '')
+            if($this->empresa->email_config['mail_user'] != '')
             {
-               $mail->Username = $mailop['mail_user'];
+               $mail->Username = $this->empresa->email_config['mail_user'];
             }
             
-            $mail->Password = $this->empresa->email_password;
+            $mail->Password = $this->empresa->email_config['mail_password'];
             $mail->From = $this->empresa->email;
-            $mail->FromName = $this->user->nick;
-            $mail->CharSet = 'UTF-8';
+            $mail->FromName = $this->user->get_agente_fullname();
+            $mail->addReplyTo($_POST['de'], $mail->FromName);
+            
+            $mail->addAddress($_POST['email'], $this->proveedor->razonsocial);
+            if($_POST['email_copia'])
+            {
+               if( isset($_POST['cco']) )
+               {
+                  $mail->addBCC($_POST['email_copia'], $this->proveedor->razonsocial);
+               }
+               else
+               {
+                  $mail->addCC($_POST['email_copia'], $this->proveedor->razonsocial);
+               }
+            }
+            if($this->empresa->email_config['mail_bcc'])
+            {
+               $mail->addBCC($this->empresa->email_config['mail_bcc']);
+            }
             
             $mail->Subject = $this->empresa->nombre . ': Mi '.FS_ALBARAN.' '.$this->albaran->codigo;
-            $mail->AltBody = 'Buenos días, le adjunto mi '.FS_ALBARAN.' '.$this->albaran->codigo.".\n".$this->empresa->email_firma;
+            $mail->AltBody = $_POST['mensaje'];
+            $mail->msgHTML( nl2br($_POST['mensaje']) );
+            $mail->isHTML(TRUE);
             
-            $mail->WordWrap = 50;
-            $mail->MsgHTML( nl2br($_POST['mensaje']) );
-            $mail->AddAttachment('tmp/'.FS_TMP_NAME.'enviar/'.$filename);
-            $mail->AddAddress($_POST['email'], $this->proveedor->razonsocial);
-            $mail->IsHTML(TRUE);
+            $mail->addAttachment('tmp/'.FS_TMP_NAME.'enviar/'.$filename);
+            if( is_uploaded_file($_FILES['adjunto']['tmp_name']) )
+            {
+               $mail->addAttachment($_FILES['adjunto']['tmp_name'], $_FILES['adjunto']['name']);
+            }
             
             $SMTPOptions = array();
-            if($mailop['mail_low_security'])
+            if($this->empresa->email_config['mail_low_security'])
             {
                $SMTPOptions = array(
                    'ssl' => array(
@@ -721,7 +731,7 @@ class compras_imprimir extends fs_controller
             
             if( $mail->smtpConnect($SMTPOptions) )
             {
-               if( $mail->Send() )
+               if( $mail->send() )
                {
                   $this->new_message('Mensaje enviado correctamente.');
                }
