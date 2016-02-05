@@ -168,16 +168,16 @@ class compras_actualiza_arts extends fs_controller
               'name' => 'btn_pedido',
               'page_from' => __CLASS__,
               'page_to' => 'compras_pedido',
-              'type' => 'button',
-              'text' => '<span class="glyphicon glyphicon-euro" aria-hidden="true"></span><span class="hidden-xs">&nbsp; Precios</span>',
+              'type' => 'tab',
+              'text' => '<span class="glyphicon glyphicon-share" aria-hidden="true"></span><span class="hidden-xs">&nbsp; Actualizar</span>',
               'params' => '&doc=pedido'
           ),
           array(
               'name' => 'btn_albaran',
               'page_from' => __CLASS__,
               'page_to' => 'compras_albaran',
-              'type' => 'button',
-              'text' => '<span class="glyphicon glyphicon-euro" aria-hidden="true"></span><span class="hidden-xs">&nbsp; Precios</span>',
+              'type' => 'tab',
+              'text' => '<span class="glyphicon glyphicon-share" aria-hidden="true"></span><span class="hidden-xs">&nbsp; Actualizar</span>',
               'params' => '&doc=albaran'
           )
       );
