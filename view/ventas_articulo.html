@@ -170,7 +170,7 @@
       {if="$fsc->mostrar_tab_precios"}
       <li role="presentation">
          <a href="#precios" aria-controls="precios" role="tab" data-toggle="tab">
-            <span class="glyphicon glyphicon-eur" aria-hidden="true"></span>
+            <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
             <span class="hidden-xs">&nbsp; Precios</span>
          </a>
       </li>
@@ -222,80 +222,34 @@
          <form action="{$fsc->url()}" method="post" class="post">
             <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
             <div class="container-fluid">
-                 <div class="row" style="padding-top: 10px;">
-                    <div class="col-sm-10">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <div class="form-group">
-                                    Referencia:
-                                    <input class="form-control" type="text" name="nreferencia" value="{$fsc->articulo->referencia}" maxlength="18" autocomplete="off"/>
-                                </div>
-                                <div class="form-group">
-                                    Tipo:
-                                    <select name="tipo" class="form-control" onchange="this.form.submit()">
-                                        <option value="">Producto simple</option>
-                                        {if="$fsc->hay_atributos"}
-                                        <option value="atributos"{if="$fsc->articulo->tipo=='atributos'"} selected=""{/if}>Producto con atributos</option>
-                                        {/if}
-                                        {loop="$fsc->extensions"}
-                                        {if="$value->type=='tipo_art'"}
-                                        <option value="{$value->params}"{if="$fsc->articulo->tipo==$value->params"} selected=""{/if}>{$value->text}</option>
-                                        {/if}
-                                        {/loop}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="col-sm-8">
-                                <div class="form-group">
-                                    Descripción:
-                                    <textarea name="descripcion" class="form-control" rows="5">{$fsc->articulo->descripcion}</textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-
-                            <div class="col-sm-4">
-                                <div class="form-group">
-                                    PART NUMBER: 
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
-                                        </span>
-                                        <input class="form-control" type="text" name="partnumber" value="{$fsc->articulo->partnumber}" autocomplete="off"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-4">
-                                <div class="form-group">
-                                    Código de barras:
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            <span class="glyphicon glyphicon-barcode" aria-hidden="true"></span>
-                                        </span>
-                                        <input class="form-control" type="text" name="codbarras" value="{$fsc->articulo->codbarras}" autocomplete="off"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-4">
-                                <div class="form-group">
-                                    Código de equivalencia:
-                                    <input class="form-control" type="text" name="equivalencia" value="{$fsc->articulo->equivalencia}" autocomplete="off"/>
-                                    <p class="help-block">Dos o más artículos son equivalentes si tienen el mismo código de equivalencia.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {if="$fsc->articulo->imagen_url()"}
-                    <div class="col-sm-2">
-                        <div class="thumbnail">
-                            <a href="#" data-toggle="modal" data-target="#modal_articulo_imagen">
-                                <img src="{$fsc->articulo->imagen_url()}" alt="{$fsc->articulo->referencia}"/>
-                            </a>
-                        </div>
-                    </div>
-                    {/if}
-                </div>
+               <div class="row" style="padding-top: 10px;">
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        Referencia:
+                        <input class="form-control" type="text" name="nreferencia" value="{$fsc->articulo->referencia}" maxlength="18" autocomplete="off"/>
+                     </div>
+                     <div class="form-group">
+                        Tipo:
+                        <select name="tipo" class="form-control" onchange="this.form.submit()">
+                           <option value="">Producto simple</option>
+                           {if="$fsc->hay_atributos"}
+                           <option value="atributos"{if="$fsc->articulo->tipo=='atributos'"} selected=""{/if}>Producto con atributos</option>
+                           {/if}
+                           {loop="$fsc->extensions"}
+                              {if="$value->type=='tipo_art'"}
+                              <option value="{$value->params}"{if="$fsc->articulo->tipo==$value->params"} selected=""{/if}>{$value->text}</option>
+                              {/if}
+                           {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-9">
+                     <div class="form-group">
+                        Descripción:
+                        <textarea name="descripcion" class="form-control" rows="4">{$fsc->articulo->descripcion}</textarea>
+                     </div>
+                  </div>
+               </div>
                <div class="row">
                   <div class="col-sm-3">
                      <div class="form-group">
@@ -313,7 +267,7 @@
                         </select>
                      </div>
                   </div>
-                   <div class="col-sm-3">
+                   <div class="col-sm-2">
                      <div class="form-group">
                         <a href="{$fsc->fabricante->url()}">Fabricante</a>:
                         <select class="form-control" name="codfabricante">
@@ -329,7 +283,24 @@
                         </select>
                      </div>
                   </div>
-                 
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        Código de barras:
+                        <div class="input-group">
+                           <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-barcode" aria-hidden="true"></span>
+                           </span>
+                           <input class="form-control" type="text" name="codbarras" value="{$fsc->articulo->codbarras}" autocomplete="off"/>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-sm-4">
+                     <div class="form-group">
+                        Código de equivalencia:
+                        <input class="form-control" type="text" name="equivalencia" value="{$fsc->articulo->equivalencia}" autocomplete="off"/>
+                        <p class="help-block">Dos o más artículos son equivalentes si tienen el mismo código de equivalencia.</p>
+                     </div>
+                  </div>
                </div>
                <div class="row">
                   <div class="col-sm-3">

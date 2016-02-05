@@ -86,6 +86,17 @@ class articulo_proveedor extends fs_model
     * @var type 
     */
    private $iva;
+   /**
+    *Codigo de barras del articulo proveedor
+    * @var type varchar
+    */
+   public $codbarras;
+   
+   /**
+    *Partnumber del artículo proveedor
+    * @var type varchar
+    */
+   public $partnumber;
    
    private static $impuestos;
    private static $nombres;
@@ -124,6 +135,8 @@ class articulo_proveedor extends fs_model
          $this->codimpuesto = $a['codimpuesto'];
          $this->stock = floatval($a['stock']);
          $this->nostock = $this->str2bool($a['nostock']);
+         $this->codbarras = $a['codbarras'];
+         $this->partnumber = $a['partnumber'];
       }
       else
       {
@@ -137,6 +150,8 @@ class articulo_proveedor extends fs_model
          $this->codimpuesto = NULL;
          $this->stock = 0;
          $this->nostock = TRUE;
+         $this->codbarras = NULL;
+         $this->partnumber = NULL;
       }
       
       $this->iva = NULL;
@@ -303,6 +318,8 @@ class articulo_proveedor extends fs_model
                  ", codimpuesto = ".$this->var2str($this->codimpuesto).
                  ", stock = ".$this->var2str($this->stock).
                  ", nostock = ".$this->var2str($this->nostock).
+                 ", codbarras = ".$this->var2str($this->codbarras).
+                 ", partnumber = ".$this->var2str($this->partnumber).
                  " WHERE id = ".$this->var2str($this->id).";";
          
          return $this->db->exec($sql);
@@ -310,7 +327,7 @@ class articulo_proveedor extends fs_model
       else
       {
          $sql = "INSERT INTO articulosprov (referencia,codproveedor,refproveedor,descripcion,".
-                 "precio,dto,codimpuesto,stock,nostock) VALUES ".
+                 "precio,dto,codimpuesto,stock,nostock,codbarras,partnumber) VALUES ".
                  "(".$this->var2str($this->referencia).
                  ",".$this->var2str($this->codproveedor).
                  ",".$this->var2str($this->refproveedor).
@@ -319,7 +336,9 @@ class articulo_proveedor extends fs_model
                  ",".$this->var2str($this->dto).
                  ",".$this->var2str($this->codimpuesto).
                  ",".$this->var2str($this->stock).
-                 ",".$this->var2str($this->nostock).");";
+                 ",".$this->var2str($this->nostock).
+                 ",".$this->var2str($this->codbarras).
+                 ",".$this->var2str($this->partnumber).");";
          
          if( $this->db->exec($sql) )
          {
