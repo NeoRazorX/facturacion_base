@@ -127,6 +127,11 @@
       <nulo>YES</nulo>
    </columna>
    <columna>
+      <nombre>caivence</nombre>
+      <tipo>date</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
       <nombre>acreedor</nombre>
       <tipo>boolean</tipo>
       <defecto>false</defecto>

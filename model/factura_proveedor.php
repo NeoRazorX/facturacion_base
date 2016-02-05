@@ -63,6 +63,9 @@ class factura_proveedor extends fs_model
    public $totalirpf;
    public $totaliva;
    public $totalrecargo;
+   public $tipo;
+   public $cai;
+   public $caivence;
 
 //   public $idasientofac;
    
@@ -86,6 +89,9 @@ class factura_proveedor extends fs_model
 			 $this->codserie = $f['codserie'];
 			 $this->deabono = $this->str2bool($f['deabono']);
 			 $this->fecha = Date('d-m-Y', strtotime($f['fecha']));
+			 $this->tipo = $f['tipo'];
+   			 $this->cai = $f['cai'];
+   			 $this->caivence = Date('d-m-Y', strtotime($f['fecha']));
 			 
 			 $this->hora = '00:00:00';
 			 if( !is_null($f['hora']) )
@@ -148,6 +154,9 @@ class factura_proveedor extends fs_model
 			 $this->totalirpf = 0;
 			 $this->totaliva = 0;
 			 $this->totalrecargo = 0;
+			 $this->tipo = '';
+   			 $this->cai = '';
+   			 $this->caivence = Date('d-m-Y');
 		  }
 
    }
@@ -626,9 +635,11 @@ class factura_proveedor extends fs_model
                codejercicio = ".$this->var2str($this->codejercicio).", tasaconv = ".$this->var2str($this->tasaconv).",
                recfinanciero = ".$this->var2str($this->recfinanciero).", nogenerarasiento = ".$this->var2str($this->nogenerarasiento).",
                totalrecargo = ".$this->var2str($this->totalrecargo).", fecha = ".$this->var2str($this->fecha).",
+			   tipo = ".$this->var2str($this->tipo).", caivence = ".$this->var2str($this->caivence).", cai = ".$this->var2str($this->cai).",
                hora = ".$this->var2str($this->hora).", editable = ".$this->var2str($this->editable)."
                WHERE idfactura = ".$this->var2str($this->idfactura).";";
-            
+			   
+			    
             return $this->db->exec($sql);
          }
          else

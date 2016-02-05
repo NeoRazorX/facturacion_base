@@ -106,6 +106,8 @@ class proveedor extends fs_model
     * @var type
     */
    public $acreedor;
+   public $cai;
+   public $caivence;
    
    private static $regimenes_iva;
    
@@ -139,6 +141,8 @@ class proveedor extends fs_model
          $this->tipoidfiscal = $p['tipoidfiscal'];
          $this->regimeniva = $p['regimeniva'];
          $this->acreedor = $this->str2bool($p['acreedor']);
+		 $this->cai = $p['cai'];
+		 $this->caivence = Date('d-m-Y', strtotime($p['caivence']));
       }
       else
       {
@@ -159,6 +163,8 @@ class proveedor extends fs_model
          $this->tipoidfiscal = 'NIF';
          $this->regimeniva = 'General';
          $this->acreedor = FALSE;
+		 $this->cai = '';
+		 $this->caivence = NULL;
       }
       
       $this->nombrecomercial = $this->razonsocial;
@@ -448,12 +454,14 @@ class proveedor extends fs_model
                     ", tipoidfiscal = ".$this->var2str($this->tipoidfiscal).
                     ", regimeniva = ".$this->var2str($this->regimeniva).
                     ", acreedor = ".$this->var2str($this->acreedor).
+					", cai = ".$this->var2str($this->cai).
+					", caivence = ".$this->var2str($this->caivence).
                     " WHERE codproveedor = ".$this->var2str($this->codproveedor).";";
          }
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (codproveedor,nombre,alias,razonsocial,cifnif,telefono1,telefono2,
-                    fax,email,web,codserie,coddivisa,codpago,observaciones,tipoidfiscal,regimeniva,acreedor)
+                    fax,email,web,codserie,coddivisa,codpago,observaciones,tipoidfiscal,regimeniva,cai,caivence,acreedor)
                     VALUES (".$this->var2str($this->codproveedor).
                     ",".$this->var2str($this->nombre).
 					",".$this->var2str($this->alias).
@@ -470,6 +478,8 @@ class proveedor extends fs_model
                     ",".$this->var2str($this->observaciones).
                     ",".$this->var2str($this->tipoidfiscal).
                     ",".$this->var2str($this->regimeniva).
+					",''".
+					",".$this->var2str($this->caivence).
                     ",".$this->var2str($this->acreedor).");";
          }
          

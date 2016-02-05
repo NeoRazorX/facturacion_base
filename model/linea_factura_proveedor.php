@@ -104,6 +104,9 @@ class linea_factura_proveedor extends fs_model
    private $fecha;
    private $albaran_codigo;
    private $albaran_numero;
+   public $idsubcuenta;
+   public $codsubcuenta;
+   public $subcuentadesc;
    
    private static $facturas;
    private static $albaranes;
@@ -134,6 +137,10 @@ class linea_factura_proveedor extends fs_model
          $this->iva = floatval($l['iva']);
          $this->recargo = floatval($l['recargo']);
          $this->irpf = floatval($l['irpf']);
+		 $this->idsubcuenta = $l['idsubcuenta'];
+		 $this->codsubcuenta = $l['codsubcuenta'];
+		 $this->subcuentadesc = $l['subcuentadesc'];
+		 
       }
       else
       {
@@ -151,6 +158,9 @@ class linea_factura_proveedor extends fs_model
          $this->iva = 0;
          $this->recargo = 0;
          $this->irpf = 0;
+		 $this->idsubcuenta = 0;
+		 $this->codsubcuenta = '';
+		 $this->subcuentadesc = '';
       }
    }
    
@@ -337,20 +347,25 @@ class linea_factura_proveedor extends fs_model
                idalbaran = ".$this->var2str($this->idalbaran).",
                descripcion = ".$this->var2str($this->descripcion).",
                referencia = ".$this->var2str($this->referencia).",
+			   idsubcuenta = ".$this->var2str($this->idsubcuenta).",
+			   codsubcuenta = ".$this->var2str($this->codsubcuenta).",
+			   subcuentadesc = ".$this->var2str($this->subcuentadesc).",
                iva = ".$this->var2str($this->iva)." WHERE idlinea = ".$this->var2str($this->idlinea).";";
-            
+     
             return $this->db->exec($sql);
          }
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (pvptotal,dtopor,recargo,irpf,pvpsindto,cantidad,
-               codimpuesto,pvpunitario,idfactura,idalbaran,descripcion,referencia,iva)
+               codimpuesto,pvpunitario,idfactura,idalbaran,descripcion,idsubcuenta,codsubcuenta,subcuentadesc,referencia,iva)
                VALUES (".$this->var2str($this->pvptotal).",".$this->var2str($this->dtopor).",
                ".$this->var2str($this->recargo).",".$this->var2str($this->irpf).",
                ".$this->var2str($this->pvpsindto).",".$this->var2str($this->cantidad).",
                ".$this->var2str($this->codimpuesto).",".$this->var2str($this->pvpunitario).",
                ".$this->var2str($this->idfactura).",
                ".$this->var2str($this->idalbaran).",".$this->var2str($this->descripcion).",
+			   ".$this->var2str($this->idsubcuenta).",
+			   ".$this->var2str($this->codsubcuenta).",".$this->var2str($this->subcuentadesc).",
                ".$this->var2str($this->referencia).",".$this->var2str($this->iva).");";
             
             if( $this->db->exec($sql) )

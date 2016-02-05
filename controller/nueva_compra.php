@@ -37,11 +37,17 @@ class nueva_compra extends fs_controller
    public $familia;
    public $forma_pago;
    public $impuesto;
+   public $subcuentas;
    public $proveedor;
    public $proveedor_s;
    public $results;
    public $serie;
    public $tipo;
+   public $verif_factura;
+   public $numproveedor;
+   public $cai;
+   public $caivence;
+   public $artsubcuentas;
   
    
    public function __construct()
@@ -58,6 +64,11 @@ class nueva_compra extends fs_controller
       $this->proveedor = new proveedor();
       $this->proveedor_s = FALSE;
       $this->results = array();
+	  $factura= new factura_proveedor();
+	  $this->verif_factura = $factura->all();
+	  $this->subcuentas = new subcuenta();
+	  $this->artsubcuentas = new articulo();
+	  
       
       if( isset($_REQUEST['tipo']) )
       {
@@ -94,8 +105,10 @@ class nueva_compra extends fs_controller
       }
       else if( isset($_POST['proveedor']) )
       {
+		if( isset($_POST['numfactproveedor']) )$this->numproveedor = $_POST['numfactproveedor'];		
          $this->proveedor_s = $this->proveedor->get($_POST['proveedor']);
-         
+        $this->cai = $this->proveedor_s->cai;
+		$this->caivence = $this->proveedor_s->caivence;
          if( isset($_POST['nuevo_proveedor']) )
          {
             if($_POST['nuevo_proveedor'] != '')
@@ -146,13 +159,27 @@ class nueva_compra extends fs_controller
                else
                   $this->new_error_msg('Clase pedido_proveedor no encontrada.');
             }
-            else if($_POST['tipo'] == 'albaran')
+            else if($_POST['tipo'] == 'R')
             {
-               $this->nuevo_albaran_proveedor();
+				
+       //        $this->nuevo_albaran_proveedor();
             }
-            else if($_POST['tipo'] == 'factura')
+            else if($_POST['tipo'] == 'F')
             {
-               $this->nueva_factura_proveedor();
+			
+			 $this->nueva_factura_proveedor();
+			header('Location: '.$this->url_list());
+			 
+            }
+			 else if($_POST['tipo'] == 'C')
+            {
+			  $this->nueva_factura_proveedor();
+			  header('Location: '.$this->url_list());
+            }
+			 else if($_POST['tipo'] == 'D')
+            {
+			  $this->nueva_factura_proveedor();
+			  header('Location: '.$this->url_list());
             }
          }
       }
@@ -188,6 +215,11 @@ class nueva_compra extends fs_controller
    public function url()
    {
       return 'index.php?page='.__CLASS__.'&tipo='.$this->tipo;
+   }
+   
+    public function url_list()
+   {
+      return 'index.php?page=compras_facturas';
    }
    
    private function buscar_proveedor()
@@ -816,14 +848,17 @@ class nueva_compra extends fs_controller
          $factura->codpago = $forma_pago->codpago;
          $factura->coddivisa = $divisa->coddivisa;
          $factura->tasaconv = $divisa->tasaconv_compra;
-         
+		 $factura->tipo = $_POST['tipo'];
+		 $factura->cai = $_POST['cai'];
+         $factura->caivence = $_POST['caivence'];
+		 
          if($_POST['tasaconv'] != '')
          {
             $factura->tasaconv = floatval($_POST['tasaconv']);
          }
          
          $factura->codagente = $this->agente->codagente;
-         $factura->numproveedor = $_POST['numproveedor'];
+         $factura->numproveedor = $_POST['tipo'].'/'.$_POST['numproveedor'];
          $factura->observaciones = $_POST['observaciones'];
          $factura->irpf = $serie->irpf;
          
@@ -842,32 +877,37 @@ class nueva_compra extends fs_controller
                {
                   $linea = new linea_factura_proveedor();
                   $linea->idfactura = $factura->idfactura;
-                  $linea->descripcion = $_POST['desc_'.$i];
-                     
-                  if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
-                  {
-                        $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$i]);
-                        if($imp0)
-                        {
-                           $linea->codimpuesto = $imp0->codimpuesto;
-                           $linea->iva = floatval($_POST['iva_'.$i]);
-                           $linea->recargo = floatval($_POST['recargo_'.$i]);
-                        }
-                        else
-                        {
-                           $linea->iva = floatval($_POST['iva_'.$i]);
-                           $linea->recargo = floatval($_POST['recargo_'.$i]);
-                        }
-                  }
-                     
+                  $linea->descripcion = $_POST['desc_'.$i];                     
                   $linea->irpf = floatval($_POST['irpf_'.$i]);
                   $linea->pvpunitario = floatval($_POST['pvp_'.$i]);
                   $linea->cantidad = floatval($_POST['cantidad_'.$i]);
                   $linea->dtopor = floatval($_POST['dto_'.$i]);
                   $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
                   $linea->pvptotal = floatval($_POST['neto_'.$i]);
-                  
+
+				  $postot = strlen($_POST['subcuenta_'.$i]);				  
+				  $poscad = strpos($_POST['subcuenta_'.$i], '/');
+				  $posid = strpos($_POST['subcuenta_'.$i], '%');				  				  
+				  $subcuencod = substr($_POST['subcuenta_'.$i], 0, $poscad);
+				  $subcuendes = substr($_POST['subcuenta_'.$i],$poscad+1,$posid-$postot);
+				  $idsubcuen = substr($_POST['subcuenta_'.$i],$posid+1);	  
+				  $linea->codsubcuenta = $subcuencod;				  				  
+                  $linea->subcuentadesc = $subcuendes;
+				  $linea->idsubcuenta = $idsubcuen;
                   $articulo = $art0->get($_POST['referencia_'.$i]);
+				  
+				  ////////////////////////////////////////////////////////////////////////
+				  ////  GUARDA subcuenta en articulo cuando se carga la factura
+				  ////////////////////////////////////////////////////
+				  $artval = $this->artsubcuentas->get_ref($_POST['referencia_'.$i]);
+
+				  if($artval != $subcuencod || $subcuencod==NULL )
+				  {
+					$this->artsubcuentas->guarda_subcuenta($_POST['referencia_'.$i],$subcuencod,$subcuendes);
+				  }
+				//////////////////////////////////////////////////////////////////
+				////////////////////////////////////////////////////////////////
+				
                   if($articulo)
                   {
                      $linea->referencia = $articulo->referencia;
@@ -935,7 +975,8 @@ class nueva_compra extends fs_controller
                }
                else if( $factura->save() )
                {
-                  $this->generar_asiento($factura);
+///////// GENERA  ASIENTO			   
+ //                 $this->generar_asiento($factura);
                   $this->new_message("<a href='".$factura->url()."'>Factura</a> guardada correctamente.");
                   $this->new_change('Factura Proveedor '.$factura->codigo, $factura->url(), TRUE);
                   
@@ -957,6 +998,7 @@ class nueva_compra extends fs_controller
          else
             $this->new_error_msg("¡Imposible guardar la factura!");
       }
+	  
    }
    
    private function generar_asiento($factura)

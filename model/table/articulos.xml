@@ -151,6 +151,41 @@
       <nulo>YES</nulo>
       <defecto>false</defecto>
    </columna>
+   <columna>
+      <nombre>subcuentadesccom</nombre>
+      <tipo>character varying(255)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>codsubcuentadevcom</nombre>
+      <tipo>character varying(255)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>subcuentadescdevcom</nombre>
+      <tipo>character varying(255)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>codsubcuentaven</nombre>
+      <tipo>character varying(15)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>subcuentadescven</nombre>
+      <tipo>character varying(255)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>codsubcuentadevven</nombre>
+      <tipo>character varying(15)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>subcuentadescdevven</nombre>
+      <tipo>character varying(255)</tipo>
+      <nulo>YES</nulo>
+   </columna>
    <restriccion>
       <nombre>ca_articulos_impuestos2</nombre>
       <consulta>FOREIGN KEY (codimpuesto)

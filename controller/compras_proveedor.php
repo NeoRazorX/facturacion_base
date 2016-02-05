@@ -161,6 +161,8 @@ class compras_proveedor extends fs_controller
          $this->proveedor->coddivisa = $_POST['coddivisa'];
          $this->proveedor->regimeniva = $_POST['regimeniva'];
          $this->proveedor->acreedor = isset($_POST['acreedor']);
+		 $this->proveedor->cai = $_POST['cai'];
+		 $this->proveedor->caivence = $_POST['caivence'];
          if( $this->proveedor->save() )
          {
             $this->new_message('Datos del proveedor modificados correctamente.');

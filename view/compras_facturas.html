@@ -251,7 +251,9 @@
             <th class="text-left">Pagado</th>
             <th class="text-left">Anulada</th>
 			<th class="text-left">Asiento</th>
-            <th class="text-left">Código + Num. Proveedor</th>
+            <th class="text-left">Código int.</th>
+			<th class="text-left">Tipo</th>
+			<th class="text-left">Num. Proveedor</th>
             <th class="text-left">Proveedor</th>
             <th class="text-left">Observaciones</th>
             <th class="text-right">Total</th>
@@ -275,7 +277,10 @@
             <span class="glyphicon glyphicon-paperclip" title="La factura tiene vinculado un asiento contable"></span>
             {/if}
          </td>
-         <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numproveedor}</td>
+		 <td><a href="{$value->url()}">{$value->codigo}</a></td>
+		 {if="$value->tipo=='F'"}<td>Factura</td>{elseif="$value->tipo=='C'"}<td>Crédito.</td>{elseif="$value->tipo=='D'"}<td>Débito.</td>{else}<td></td>{/if}
+		 
+         <td>{$value->numproveedor}</td>
          <td>
             {$value->nombre}
             <a href="{$fsc->url()}&codproveedor={$value->codproveedor}" class="cancel_clickable" title="Ver más facturas de {$value->nombre}">[+]</a>

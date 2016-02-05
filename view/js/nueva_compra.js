@@ -21,6 +21,7 @@ var fs_nf0 = 2;
 var all_impuestos = [];
 var all_series = [];
 var proveedor = false;
+var subcuentas = [];
 var nueva_compra_url = '';
 var kiwimaru_url = '';
 var precio_compra = 'coste';
@@ -102,7 +103,8 @@ function recalcular()
          l_pvp = parseFloat( $("#pvp_"+i).val() );
          l_dto = parseFloat( $("#dto_"+i).val() );
          l_neto = l_uds*l_pvp*(100-l_dto)/100;
-         l_iva = parseFloat( $("#iva_"+i).val() );
+ //        l_iva = parseFloat( $("#iva_"+i).val() );
+		 l_iva = parseFloat(0);
          l_irpf = parseFloat( $("#irpf_"+i).val() );
          
          if(tiene_recargo)
@@ -298,36 +300,36 @@ function aux_all_impuestos(num,codimpuesto)
       }
    }
    
-   var html = "<td><select id=\"iva_"+num+"\" class=\"form-control\" name=\"iva_"+num+"\" onchange=\"ajustar_iva('"+num+"')\">";
-   for(var i=0; i<all_impuestos.length; i++)
-   {
-      if(iva == all_impuestos[i].iva)
-      {
-         html += "<option value=\""+all_impuestos[i].iva+"\" selected=\"selected\">"+all_impuestos[i].descripcion+"</option>";
-      }
-      else
-         html += "<option value=\""+all_impuestos[i].iva+"\">"+all_impuestos[i].descripcion+"</option>";
-   }
-   html += "</select></td>";
    
-   html += "<td class=\"recargo\"><input type=\"text\" class=\"form-control text-right\" id=\"recargo_"+num+"\" name=\"recargo_"+num+
-         "\" value=\""+recargo+"\" onclick=\"this.select()\" onkeyup=\"recalcular()\" autocomplete=\"off\"/></td>";
-   
-   html += "<td class=\"irpf\"><input type=\"text\" class=\"form-control text-right\" id=\"irpf_"+num+"\" name=\"irpf_"+num+
-         "\" value=\""+irpf+"\" onclick=\"this.select()\" onkeyup=\"recalcular()\" autocomplete=\"off\"/></td>";
+
+ var  html = "<td class=\"irpf\"><input type=\"text\" class=\"form-control text-right\" id=\"irpf_"+num+"\" name=\"irpf_"+num+
+         "\" value=\""+irpf+"\"  autocomplete=\"off\"/></td>";
    
    return html;
 }
 
-function add_articulo(ref,desc,pvp,dto,codimpuesto)
+function add_articulo(ref,desc,pvp,dto,codimpuesto,codsub,subdesc)
 {
+	var subdesc1='';
+for(var i=0; i<subcuentas.length; i++)
+   {
+	   if(codsub==subcuentas[i].codsubcuenta)  
+	   {
+		   subdesc1=subcuentas[i].descripcion;
+		   idsub=subcuentas[i].idsubcuenta;
+	   }
+   }
+
    desc = Base64.decode(desc);
+   
    $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\" value=\""+ref+"\"/>\n\
          <div class=\"form-control\"><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></div></td>\n\
       <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\">"+desc+"</textarea></td>\n\
-      <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
+	  <td><select name=\"subcuenta_"+numlineas+"\" id=\"subcuenta_"+numlineas+"\" class=\"form-control text-right\" style='width:200px; font-size:12px'>\n\
+	  <option value='"+codsub+"/"+subdesc1+"%"+idsub+"' selected=\"selected\">"+subdesc1+"</option>"+sel()+"</select></td>\n\
+	  <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
          "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
       <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
          <span class=\"glyphicon glyphicon-trash\"></span></button></td>\n\
@@ -339,7 +341,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto)
          "\" onchange=\"ajustar_neto()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
-         "\" onchange=\"ajustar_total()\" onclick=\"this.select()\" autocomplete=\"off\"/></td></tr>");
+         "\" readonly=\"true\" style=\"font-weight: bold; background-color:#FFFFFF\" autocomplete=\"off\"/></td></tr>");
    numlineas += 1;
    $("#numlineas").val(numlineas);
    recalcular();
@@ -353,6 +355,17 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto)
    $("#desc_"+(numlineas-1)).select();
    return false;
 }
+function sel()
+{
+var html='';
+   for(var i=0; i<subcuentas.length; i++)
+   {
+      
+         html += "<option value='"+subcuentas[i].codsubcuenta+"/"+subcuentas[i].descripcion+"%"+subcuentas[i].idsubcuenta+"' >"+subcuentas[i].descripcion+"</option>";
+      }
+  return html; 
+}
+
 
 function add_linea_libre()
 {
@@ -367,6 +380,8 @@ function add_linea_libre()
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\"/>\n\
          <div class=\"form-control\"></div></td>\n\
       <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\"></textarea></td>\n\
+	  <td><select name=\"subcuenta_"+numlineas+"\" id=\"subcuenta_"+numlineas+"\" class=\"form-control text-right\" style='width:200px; font-size:12px'>\n\
+	   <option selected=\"selected\"></option>"+sel()+"</select></td>\n\
       <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
          "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
       <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
@@ -379,7 +394,7 @@ function add_linea_libre()
          "\" onchange=\"ajustar_neto()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
-         "\" onchange=\"ajustar_total()\" onclick=\"this.select()\" autocomplete=\"off\"/></td></tr>");
+         "\" readonly=\"true\" style=\"font-weight: bold; background-color:#FFFFFF\" autocomplete=\"off\"/></td></tr>");
    numlineas += 1;
    $("#numlineas").val(numlineas);
    recalcular();
@@ -404,6 +419,10 @@ function get_precios(ref)
       });
    }
 }
+
+
+  
+
 
 function new_articulo()
 {
@@ -437,6 +456,13 @@ function new_articulo()
       });
    }
 }
+
+	function prueba()
+	{
+		
+		
+	alert('llego'+subcuentas[1].descripcion);
+	}
 
 function buscar_articulos()
 {
@@ -490,13 +516,13 @@ function buscar_articulos()
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
                      <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
                      &nbsp; <a href=\"#\" onclick=\"return add_articulo('"
-                          +val.referencia+"','"+descripcion+"','"+precio+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"
+                          +val.referencia+"','"+descripcion+"','"+precio+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.codsubcuentacom+"','"+val.subcuentadesccom+"')\">"
                           +val.referencia+'</a> '+val.descripcion+"</td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"
-                          +val.referencia+"','"+descripcion+"','"+val.coste+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"
+                          +val.referencia+"','"+descripcion+"','"+val.coste+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.codsubcuentacom+"','"+val.subcuentadesccom+"')\">"
                           +show_precio(val.coste)+"</a></td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"
-                          +val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\">"
+                          +val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"','"+val.codsubcuentacom+"','"+val.subcuentadesccom+"')\">"
                           +show_precio(val.pvp)+"</a></td>\n\
                      <td class=\"text-right\">"+val.stockfis+"</td></tr>");
                }

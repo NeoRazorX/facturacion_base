@@ -451,27 +451,74 @@ class asiento_factura
          $asiento->fecha = $factura->fecha;
          $asiento->importe = $factura->total;
          $asiento->tipodocumento = "Ingreso proveedor";
+
+		 
          if( $asiento->save() ) // Genera el asiento
          {
             $asiento_correcto = TRUE;
             $subcuenta = new subcuenta();
             $partida0 = new partida();
-			$subcuenta_compras = $subcuenta->get_cuentaesp('COMPRA', $asiento->codejercicio);
+			$lineas_f = new linea_factura_proveedor();
+			$lineas_fact = $lineas_f->all_from_factura($factura->idfactura);
+	//////////////////////////////////////////////////////////
+	///  Separa las subcuentas de las facturas y crea los asientos
+	//////////////////////////////////////////////////////////
 			
-            $partida0->idasiento = $asiento->idasiento;
-            $partida0->concepto = $asiento->concepto;
-            $partida0->idsubcuenta = $subcuenta_compras->idsubcuenta;
-            $partida0->codsubcuenta = $subcuenta_compras->codsubcuenta;
-///////////  Proveedor  debe			/////////
-            $partida0->debe = $factura->total;
-            $partida0->coddivisa = $factura->coddivisa;
-            $partida0->tasaconv = $factura->tasaconv;
-            $partida0->codserie = $factura->codserie;
-            if( !$partida0->save() )
-            {
-               $asiento_correcto = FALSE;
-               $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida0->codsubcuenta."!");
-            }
+			for ($i=0;$i<count($lineas_fact);$i++)   ///Barre la Factura
+			{
+			$total_sub = 0;
+			$finaliza = 0;
+				$subcuenta1 = $lineas_fact[$i]->codsubcuenta; 
+				
+				for ($j=0;$j<$i;$j++)    /// Compara para atrás si ya fue comparada la subcuenta
+				{
+					if($subcuenta1 == $lineas_fact[$j]->codsubcuenta) $finaliza = 1;
+				}				
+					if( $finaliza == 0 )
+					{
+						for ($k=0;$k<count($lineas_fact);$k++)  /// Barre hacia delante para comparar las subcuentas
+						{
+							if($subcuenta1 == $lineas_fact[$k]->codsubcuenta)
+							{
+							$total_sub = $total_sub + $lineas_fact[$k]->pvptotal;								
+							}				
+						}
+						
+					/////// Acá se genera la partida con cada subcuenta	
+						$subcuenta_compras = $subcuenta->get_cuentaesp('COMPRA', $asiento->codejercicio);
+		
+									
+							$partida0->idasiento = $asiento->idasiento;
+							$partida0->concepto = $asiento->concepto;
+							$partida0->idsubcuenta = '270';
+							$partida0->codsubcuenta = $subcuenta1;
+				///////////  Proveedor  debe			/////////
+							$partida0->debe = $factura->total;
+							$partida0->coddivisa = $factura->coddivisa;
+							$partida0->tasaconv = $factura->tasaconv;
+							$partida0->codserie = $factura->codserie;
+							if( !$partida0->save() )
+							{
+							   $asiento_correcto = FALSE;
+							   $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida0->codsubcuenta."!");
+							}
+			
+					}																
+			}
+/////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////				
+
+			
+			
+			
+			
+			
+			
+			
+			
+	
+
             
             /// generamos una partida por cada impuesto
             $subcuenta_iva = $subcuenta->get_cuentaesp('IVASOP', $asiento->codejercicio);

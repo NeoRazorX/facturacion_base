@@ -165,6 +165,7 @@ class articulo extends fs_model
     */
    public $codsubcuentairpfcom;
    
+   
    /**
     * % IVA del impuesto asignado.
     * @var type 
@@ -367,6 +368,23 @@ class articulo extends fs_model
       }
       else
          return FALSE;
+   }
+   
+    public function get_ref($ref)
+   {
+   		$offset=0; 
+		$limit=FS_ITEM_LIMIT;
+		$artilist = '';
+      $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref);
+      
+      $data = $this->db->select_limit($sql, $limit, $offset);
+      if($data)
+      {
+         foreach($data as $d)
+            $artilist = $d['codsubcuentacom'];
+      }
+      
+      return $artilist;
    }
    
    /**
@@ -967,6 +985,22 @@ class articulo extends fs_model
       else
          return FALSE;
    }
+   
+   
+      public function guarda_subcuenta($ref,$cod,$desc)
+   {
+      
+      $sql = "UPDATE ".$this->table_name." SET codsubcuentacom = ".$this->var2str($cod).",subcuentadesccom = ".$this->var2str($desc)." WHERE referencia = ".$this->var2str($ref).";";
+      if( $this->db->exec($sql) )
+      {
+        
+         return TRUE;
+      }
+      else
+         return FALSE;
+   }
+   
+   
    
    /**
     * Comprueba y añade una cadena a la lista de búsquedas precargadas

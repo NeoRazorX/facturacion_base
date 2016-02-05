@@ -448,10 +448,8 @@ class asiento extends fs_model
 					$sum_importe = $sum_importe + $ext['debe'];
       			}
 				
-/*				print '<script language="JavaScript">'; 
-				print 'alert(" id partida : '.$sum_importe.' id  '.$array_sum_importe[0]['idasiento'].'  importe '.$this->importe.' ");'; 
-				print '</script>'; 
-*/
+			
+
 		 
            $sql = "UPDATE ".$this->table_name." SET numero = ".$this->exists().",
                idconcepto = ".$this->var2str($this->idconcepto).",
@@ -478,8 +476,9 @@ class asiento extends fs_model
          }
          else
          {
-			 
+
             $this->new_numero();
+						 	 
             $sql = "INSERT INTO ".$this->table_name." (numero,idconcepto,concepto,
                fecha,codejercicio,codplanasiento,editable,documento,tipodocumento,importe)
                VALUES (".$this->var2str($this->numero).",".$this->var2str($this->idconcepto).",".$this->var2str($this->concepto).",
@@ -514,14 +513,14 @@ class asiento extends fs_model
 				$importe = $importe_partida->get_idasiento($idasiento);
 
 				
-				foreach($importe as $ext)
+	/*			foreach($importe as $ext)
       			{
 					$sum_importe = $sum_importe + $ext['debe'];
       			}
    
 			   $sql = "UPDATE ".$this->table_name." SET importe = ".$this->var2str($sum_importe)." WHERE idasiento = ".$this->var2str($idasiento).";";
 			   $this->db->exec($sql);
-			   return TRUE;
+	*/		   return TRUE;
    }
    
    public function delete()

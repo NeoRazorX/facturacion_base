@@ -8,7 +8,7 @@
    all_impuestos = {function="json_encode($fsc->impuesto->all())"};
    all_series = {function="json_encode($fsc->serie->all())"};
    proveedor = {function="json_encode($fsc->proveedor_s)"};
-   subcuentas = {function="json_encode($fsc->subcuentas->subcoenta_compras())"};
+   subcuentas = {function="json_encode($fsc->subcuentas->all())"};
    nueva_compra_url = '{$fsc->url()}';
    kiwimaru_url = '{#FS_COMMUNITY_URL#}/index.php?page=kiwimaru';
    precio_compra = '{#FS_PRECIO_COMPRA#}';
@@ -21,34 +21,6 @@
       usar_serie();
       recalcular();
    });
-   
-   	function guarfact()
-	{
-	var ban = 0;
-	numsub = document.getElementById('numlineas').value;
-	$caival = document.getElementById('cai').value;
-	$caivenceval = document.getElementById('caivence').value;
-	if( $caival.trim() == '' || $caivenceval == '' )
-	{
-		 alert('Debe completar el campo CAI y la fecha de vencimiento');
-	}
-	else
-	{	 
-		for(i=0;i<(numsub);i++)
-	   {
-	   if( document.getElementById('subcuenta_'+i).value == 'null/' || document.getElementById('total_'+i).value == 0 ){ ban = 1;}
-	   }
-		
-		if(ban == 1 ) alert('Falta completar el campo de SubCuenta o el Total de un Ítem es "0.00"');
-		else
-		{
-		if( document.getElementById('atotal').value == '0') alert('El Total de la Factura no puede ser "0.00"');
-		else $('#modal_guardar').modal('show');
-		
-		 }
-	}
-	return;
-	}
 </script>
 
 <form id="f_new_albaran" class="form" name="f_new_albaran" action="{$fsc->url()}" method="post">
@@ -65,22 +37,17 @@
 
          </div>
 		 	<div class="col-sm-2">
-			
-				  {$compr=substr($fsc->numproveedor, 2)}
-				  {if="substr($fsc->numproveedor, 0,1)=='F'"}<label style="font:bold;font-size:18px">FACTURA :</label>{/if}
-				  {if="substr($fsc->numproveedor, 0,1)=='R'"}<label style="font:bold;font-size:18px">REMITO :</label>{/if}
-				  {if="substr($fsc->numproveedor, 0,1)=='C'"}<label style="font:bold; font-size:18px">NOTA DE CRÉDITO :</label>{/if}
-				  {if="substr($fsc->numproveedor, 0,1)=='D'"}<label style="font:bold;font-size:18px">NOTA DE DÉBITO :</label>{/if}		
+			Comprobante :			
 			<input type="text" name="comprobantenum" id="comprobantenum" class="form-control" readonly="true" value="{$fsc->numproveedor}" />
 			</div>
          <div class="col-sm-2">
-            <div class="form-group" style="font:bold;font-size:18px">
+            <div class="form-group">
                Fecha:
                <input type="text" name="fecha" class="form-control datepicker" value="{$fsc->today()}" autocomplete="off"/>
             </div>
          </div>
          <div class="col-sm-2">
-            <div class="form-group" style="font:bold;font-size:18px">
+            <div class="form-group">
                Hora:
                <input type="text" name="hora" class="form-control" value="{$fsc->hour()}" autocomplete="off"/>
             </div>
@@ -98,21 +65,13 @@
                <table class="table table-condensed">
                   <thead>
                      <tr>
-					 <div class="col-sm-2">
-					  <div class="form-group" style="font:bold;font-size:18px">
-					&nbsp;&nbsp;&nbsp;&nbsp;CAI :&nbsp;&nbsp;<input type="text" id="cai" name="cai" value="{$fsc->cai}" />
-					</div></div>
-					<div class="col-sm-2">
-					  <div class="form-group" style="font:bold;font-size:12px">
-					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control datepicker" style="width:100px" {if="$fsc->caivence!='01-01-1970'"}  value="{$fsc->caivence}" {/if}   />
-					</div></div>
+					 CAI :&nbsp;&nbsp;<input type="text" id="cai" name="cai" />
 					 <br /><br />
 					 </tr></thead>
 					<thead>
                      <tr>
                         <th class="text-left" width="180">Referencia</th>
                         <th class="text-left">Descripción</th>
-						<th class="text-left">SubCuenta</th>
                         <th class="text-right" width="90">Cantidad</th>
                         <th width="60"></th>
                         <th class="text-right" width="110">Precio</th>
@@ -131,7 +90,6 @@
                               <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                            </a>
                         </td>
-						<td></td>
                         <td colspan="4" class="text-right">Totales:</td>
                         <td><div id="aneto" class="form-control text-right" style="font-weight: bold;">{$fsc->show_numero(0)}</div></td>
                         
@@ -216,7 +174,7 @@
             </button>
          </div>
          <div class="col-sm-6 text-right">
-            <button class="btn btn-sm btn-primary" type="button" onclick="guarfact()">
+            <button class="btn btn-sm btn-primary" type="button" onclick="$('#modal_guardar').modal('show');">
                <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar...
             </button>
          </div>
@@ -239,16 +197,17 @@
                <h4 class="modal-title">Guardar como...</h4>
             </div>
             <div class="modal-body">
-			   
-			   <div class="form-group">
-			   	  {$a=substr($fsc->numproveedor, 0,1)}
-			   	  {$compr=substr($fsc->numproveedor, 2)}
-				  {if="substr($fsc->numproveedor, 0,1)=='F'"}<label style="font:bold;font-size:18px">FACTURA :</label>{/if}
-				  {if="substr($fsc->numproveedor, 0,1)=='R'"}<label style="font:bold;font-size:18px">REMITO :</label>{/if}
-				  {if="substr($fsc->numproveedor, 0,1)=='C'"}<label style="font:bold; font-size:18px">NOTA DE CRÉDITO :</label>{/if}
-				  {if="substr($fsc->numproveedor, 0,1)=='D'"}<label style="font:bold;font-size:18px">NOTA DE DÉBITO :</label>{/if}
-				   <input type="hidden" name="tipo" value="{$a}"/>
-                  <input class="form-control" type="text" name="numproveedor" autocomplete="off" style="font-size:20px" value="{$compr}" readonly="ture"/>
+               {loop="$fsc->tipos_a_guardar()"}
+               <div class="radio">
+                  <label>
+                     <input type="radio" name="tipo" value="{$value['tipo']}"{if="$value['tipo']==$fsc->tipo"} checked="checked"{/if}/>
+                     {$value['nombre']}
+                  </label>
+               </div>
+               {/loop}
+               <div class="form-group">
+                  Núm. proveedor:
+                  <input class="form-control" type="text" name="numproveedor" autocomplete="off"/>
                </div>
                <div class="form-group">
                   <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
@@ -510,7 +469,7 @@
  {loop="$fsc->verif_factura"};
  if( document.getElementById('ac_proveedor').value == '{$value->nombre}')
  {
- 	if( document.getElementById('numcorto').value+'-'+document.getElementById('numlargo').value == '{$value->numproveedor}')
+ 	if( document.getElementById('comprobante').value+'/'+document.getElementById('numcorto').value+'-'+document.getElementById('numlargo').value == '{$value->numproveedor}')
 	 {
 	  	
 	  var existefact = 1;  	 
@@ -573,7 +532,7 @@
                   </div>
 				  
 				<div class="form-group">
-				 <table class="table table-condensed">
+				               <table class="table table-condensed">
                   <thead>
                      <tr>
                         <th class="text-left">Tipo Comprobante</th>
