@@ -59,6 +59,16 @@
       <nombre>coddivisa</nombre>
       <tipo>character varying(3)</tipo>
    </columna>
+   <columna>
+      <nombre>codbarras</nombre>
+      <tipo>character varying(18)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>partnumber</nombre>
+      <tipo>character varying(38)</tipo>
+      <nulo>YES</nulo>
+   </columna>
    <restriccion>
       <nombre>articulosprov_pkey</nombre>
       <consulta>PRIMARY KEY (id)</consulta>

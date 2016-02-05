@@ -255,6 +255,7 @@ class ventas_articulos extends fs_controller
                     . " OR referencia LIKE '%".$query."%'"
                     . " OR equivalencia LIKE '%".$query."%'"
                     . " OR descripcion LIKE '%".$query."%'"
+                    . " OR partnumber LIKE '%".$query."%'"
                     . " OR codbarras = '".$query."')";
          }
          else
@@ -263,6 +264,7 @@ class ventas_articulos extends fs_controller
             $sql .= "(lower(referencia) = ".$this->empresa->var2str($query)
                     . " OR lower(referencia) LIKE '%".$buscar."%'"
                     . " OR lower(equivalencia) LIKE '%".$buscar."%'"
+                    . " OR lower(partnumber) LIKE '%".$buscar."%'"
                     . " OR lower(descripcion) LIKE '%".$buscar."%')";
          }
          $where = ' AND ';

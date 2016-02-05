@@ -361,6 +361,8 @@ class ventas_articulo extends fs_controller
             }
          }
          
+         
+         
          $this->articulo->codbarras = $_POST['codbarras'];
          $this->articulo->equivalencia = $_POST['equivalencia'];
          $this->articulo->bloqueado = isset($_POST['bloqueado']);
@@ -372,6 +374,7 @@ class ventas_articulo extends fs_controller
          $this->articulo->observaciones = $_POST['observaciones'];
          $this->articulo->stockmin = floatval($_POST['stockmin']);
          $this->articulo->stockmax = floatval($_POST['stockmax']);
+         $this->articulo->partnumber = $_POST['partnumber'];
          if( $this->articulo->save() )
          {
             $this->new_message("Datos del articulo modificados correctamente");

@@ -174,6 +174,12 @@ class articulo extends fs_model
    private $imagen;
    private $exists;
    
+   /**
+    * Part Number del producto
+    * @var type varchar 38
+    */
+   public $partnumber;
+   
    private static $impuestos;
    private static $search_tags;
    private static $cleaned_cache;
@@ -194,7 +200,7 @@ class articulo extends fs_model
          self::$column_list = 'referencia,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,'.
                  'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,'.
                  'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,'.
-                 'codsubcuentacom,codsubcuentairpfcom';
+                 'codsubcuentacom,codsubcuentairpfcom,partnumber';
       }
       
       if($a)
@@ -229,6 +235,7 @@ class articulo extends fs_model
          $this->observaciones = $this->no_html($a['observaciones']);
          $this->codsubcuentacom = $a['codsubcuentacom'];
          $this->codsubcuentairpfcom = $a['codsubcuentairpfcom'];
+         $this->partnumber = $a['partnumber'];
          
          $this->imagen = NULL;
          if( isset($a['imagen']) )
@@ -306,6 +313,7 @@ class articulo extends fs_model
          $this->observaciones = '';
          $this->codsubcuentacom = NULL;
          $this->codsubcuentairpfcom = NULL;
+         $this->partnumber = NULL;
          
          $this->imagen = NULL;
          $this->exists = FALSE;
@@ -935,6 +943,7 @@ class articulo extends fs_model
                     ", imagen = ".$this->var2str($this->imagen).
                     ", codsubcuentacom = ".$this->var2str($this->codsubcuentacom).
                     ", codsubcuentairpfcom = ".$this->var2str($this->codsubcuentairpfcom).
+                    ", partnumber = ".$this->var2str($this->partnumber).
                     " WHERE referencia = ".$this->var2str($this->referencia).";";
             
             if($this->nostock AND $this->stockfis != 0)
@@ -972,7 +981,8 @@ class articulo extends fs_model
                     $this->var2str($this->publico).",".
                     $this->var2str($this->tipo).",".
                     $this->var2str($this->codsubcuentacom).",".
-                    $this->var2str($this->codsubcuentairpfcom).");";
+                    $this->var2str($this->codsubcuentairpfcom).",".
+                    $this->var2str($this->partnumber).");";
          }
          
          if( $this->db->exec($sql) )
