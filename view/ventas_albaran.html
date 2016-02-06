@@ -2,6 +2,7 @@
 
 {if="$fsc->albaran"}
 {if="$fsc->albaran->ptefactura"}
+<script type="text/javascript" src="{$fsc->get_js_location('ac_email_cliente.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('nueva_venta.js')}"></script>
 <script type="text/javascript">
@@ -54,7 +55,7 @@
       $("#b_enviar").click(function(event) {
          event.preventDefault();
          $("#modal_enviar").modal('show');
-         document.enviar_email.email.select();
+         document.f_enviar_email.email.select();
       });
       $("#b_aprobar").click(function(event) {
          event.preventDefault();
@@ -720,7 +721,8 @@
    </div>
 </div>
 
-<form class="form" role="form" name="enviar_email" action="{$fsc->url()}" method="post" enctype="multipart/form-data">
+<form class="form" role="form" name="f_enviar_email" action="{$fsc->url()}" method="post" enctype="multipart/form-data">
+   <input type="hidden" name="codcliente" value="{$fsc->albaran->codcliente}"/>
    <div class="modal" id="modal_enviar">
       <div class="modal-dialog">
          <div class="modal-content">
@@ -734,6 +736,11 @@
                <p class="help-block">
                   <span class="glyphicon glyphicon-send"></span> &nbsp;
                   Este {#FS_ALBARAN#} fue enviado el {$fsc->albaran->femail}.
+               </p>
+               {else}
+               <p class="help-block">
+                  Gestiona los contactos del cliente y comunícate con ellos con el
+                  <a href="https://www.facturascripts.com/store/producto/plugin-crm/" target="_blank">plugin CRM</a>.
                </p>
                {/if}
             </div>
@@ -752,7 +759,7 @@
                <div class="form-group">
                   <div class="input-group">
                      <span class="input-group-addon">Para</span>
-                     <input class="form-control" type="text" name="email" value="{$fsc->cliente_s->email}" autocomplete="off"/>
+                     <input id="ac_email" class="form-control" type="text" name="email" value="{$fsc->cliente_s->email}" autocomplete="off"/>
                      <span class="input-group-addon" title="Asignar email al cliente">
                         <input type="checkbox" name="guardar" value="TRUE"/>
                         <span class="glyphicon glyphicon-floppy-disk"></span>
@@ -762,7 +769,7 @@
                <div class="form-group">
                   <div class="input-group">
                      <span class="input-group-addon">Copia</span>
-                     <input class="form-control" type="text" name="email_copia" autocomplete="off"/>
+                     <input id="ac_email2" class="form-control" type="text" name="email_copia" autocomplete="off"/>
                      <span class="input-group-addon" title="Copia de carbón oculta">
                         <input type="checkbox" name="cco" value="TRUE"/>
                         <span class="glyphicon glyphicon-eye-close"></span>
