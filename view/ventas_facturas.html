@@ -113,31 +113,38 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-right">
                <li>
-                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=fecha_desc">
+                  <a href="{$fsc->url(TRUE)}&order=fecha_desc">
                      <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
                      &nbsp; Fecha &nbsp;
                      {if="$fsc->order=='fecha DESC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
                   </a>
                </li>
                <li>
-                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=fecha_asc">
+                  <a href="{$fsc->url(TRUE)}&order=fecha_asc">
                      <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
                      &nbsp; Fecha &nbsp;
                      {if="$fsc->order=='fecha ASC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
                   </a>
                </li>
                <li>
-                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=vencimiento_desc">
+                  <a href="{$fsc->url(TRUE)}&order=vencimiento_desc">
                      <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
                      &nbsp; Vencimiento &nbsp;
                      {if="$fsc->order=='vencimiento DESC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
                   </a>
                </li>
                <li>
-                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=vencimiento_asc">
+                  <a href="{$fsc->url(TRUE)}&order=vencimiento_asc">
                      <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
                      &nbsp; Vencimiento &nbsp;
                      {if="$fsc->order=='vencimiento ASC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                  </a>
+               </li>
+               <li>
+                  <a href="{$fsc->url(TRUE)}&order=total_desc">
+                     <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                     &nbsp; Total &nbsp;
+                     {if="$fsc->order=='total DESC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
                   </a>
                </li>
             </ul>
@@ -245,6 +252,40 @@
          <div class="col-sm-2">
             <div class="form-group">
                <input type="text" name="hasta" value="{$fsc->hasta}" class="form-control datepicker" placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-4">
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->estado==''"}
+                  <input type="radio" name="estado" value="" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="estado" value="" onchange="this.form.submit()"/>
+                  {/if}
+                  Todas
+               </label>
+            </div>
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->estado=='pagadas'"}
+                  <input type="radio" name="estado" value="pagadas" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="estado" value="pagadas" onchange="this.form.submit()"/>
+                  {/if}
+                  Pagadas
+               </label>
+            </div>
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->estado=='impagadas'"}
+                  <input type="radio" name="estado" value="impagadas" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="estado" value="impagadas" onchange="this.form.submit()"/>
+                  {/if}
+                  Impagadas
+               </label>
             </div>
          </div>
       </div>

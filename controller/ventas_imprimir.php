@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -54,7 +54,8 @@ class ventas_imprimir extends fs_controller
       $this->impresion = array(
           'print_ref' => '1',
           'print_dto' => '1',
-          'print_alb' => '0'
+          'print_alb' => '0',
+          'print_formapago' => '1'
       );
       $fsvar = new fs_var();
       $this->impresion = $fsvar->array_get($this->impresion, FALSE);
@@ -534,7 +535,9 @@ class ventas_imprimir extends fs_controller
       if($archivo)
       {
          if( !file_exists('tmp/'.FS_TMP_NAME.'enviar') )
+         {
             mkdir('tmp/'.FS_TMP_NAME.'enviar');
+         }
          
          $pdf_doc->save('tmp/'.FS_TMP_NAME.'enviar/'.$archivo);
       }
@@ -582,12 +585,18 @@ class ventas_imprimir extends fs_controller
             {
                $direccion = $this->factura->nombrecliente."\n".$this->factura->direccion;
                if($this->factura->codpostal AND $this->factura->ciudad)
+               {
                   $direccion .= "\n CP: " . $this->factura->codpostal . ' ' . $this->factura->ciudad;
+               }
                else if($this->factura->ciudad)
+               {
                   $direccion .= "\n" . $this->factura->ciudad;
+               }
                
                if($this->factura->provincia)
+               {
                   $direccion .= "\n(" . $this->factura->provincia . ")";
+               }
                
                $pdf_doc->pdf->ezText("\n\n", 10);
                $pdf_doc->new_table();
@@ -735,7 +744,7 @@ class ventas_imprimir extends fs_controller
                   $pdf_doc->pdf->ezText("\n".$this->fix_html($this->factura->observaciones), 9);
                }
                
-               if(!$this->factura->pagada)
+               if( !$this->factura->pagada AND $this->impresion['print_formapago'] )
                {
                   $fp0 = new forma_pago();
                   $forma_pago = $fp0->get($this->factura->codpago);
@@ -859,7 +868,9 @@ class ventas_imprimir extends fs_controller
       if($archivo)
       {
          if( !file_exists('tmp/'.FS_TMP_NAME.'enviar') )
+         {
             mkdir('tmp/'.FS_TMP_NAME.'enviar');
+         }
          
          $pdf_doc->save('tmp/'.FS_TMP_NAME.'enviar/'.$archivo);
       }

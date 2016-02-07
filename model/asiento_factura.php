@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -458,7 +458,7 @@ class asiento_factura
       
       if( !$subcuenta_cli )
       {
-         $eje0 = $this->ejercicio->get( $factura->codejercicio );
+         $eje0 = $this->ejercicio->get($factura->codejercicio);
          $this->new_message("No se ha podido generar una subcuenta para el cliente
             <a href='".$eje0->url()."'>¿Has importado los datos del ejercicio?</a>");
          

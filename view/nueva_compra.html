@@ -230,6 +230,23 @@
                equivalencia en Admin &gt; Empresa &gt; Facturación.
             </p>
          </div>
+         <div class="col-sm-6">
+            <p class="help-block">
+               Ajusta los precios fácilmente introduciendo primero la cantidad
+               y luego el total, se calculará el precio automaticamente.
+               También puedes ajustar el total de cada línea en cualquier momento,
+               se recalcula el descuento para ajustarse al precio final de la línea.
+            </p>
+            <p class="help-block">
+               <b>{#FS_IRPF#}</b>: si quieres añadir {#FS_IRPF#} a un {#FS_PEDIDO#},
+               {#FS_ALBARAN#} o factura, usa una serie que tenga {#FS_IRPF#}.
+            </p>
+            <p class="help-block">
+               <b>RE</b>: si quieres añadir recargo de equivalencia a un {#FS_PEDIDO#},
+               {#FS_ALBARAN#} o factura de compra, debes activar el recargo de
+               equivalencia en Admin &gt; Empresa &gt; Facturación.
+            </p>
+         </div>
       </div>
    </div>
    
@@ -512,6 +529,8 @@
                if(document.f_nueva_compra.proveedor.value != suggestion.data)
                {
                   document.f_nueva_compra.proveedor.value = suggestion.data;
+                  document.f_nueva_compra.nuevo_proveedor.value = '';
+                  document.f_nueva_compra.nuevo_dni.value = '';
                }
             }
          }

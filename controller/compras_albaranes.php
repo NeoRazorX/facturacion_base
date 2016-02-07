@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -89,6 +89,10 @@ class compras_albaranes extends fs_controller
          else if($_GET['order'] == 'codigo_asc')
          {
             $this->order = 'codigo ASC';
+         }
+         else if($_GET['order'] == 'total_desc')
+         {
+            $this->order = 'total DESC';
          }
          
          setcookie('compras_alb_order', $this->order, time()+FS_COOKIES_EXPIRE);
@@ -204,6 +208,32 @@ class compras_albaranes extends fs_controller
       }
    }
    
+   public function url($busqueda = FALSE)
+   {
+      if($busqueda)
+      {
+         $codproveedor = '';
+         if($this->proveedor)
+         {
+            $codproveedor = $this->proveedor->codproveedor;
+         }
+         
+         $url = $this->url()."&mostrar=".$this->mostrar
+                 ."&query=".$this->query
+                 ."&codserie=".$this->codserie
+                 ."&codagente=".$this->codagente
+                 ."&codproveedor=".$codproveedor
+                 ."&desde=".$this->desde
+                 ."&hasta=".$this->hasta;
+         
+         return $url;
+      }
+      else
+      {
+         return parent::url();
+      }
+   }
+   
    private function buscar_proveedor()
    {
       /// desactivamos la plantilla HTML
@@ -222,20 +252,7 @@ class compras_albaranes extends fs_controller
    
    public function paginas()
    {
-      $codproveedor = '';
-      if($this->proveedor)
-      {
-         $codproveedor = $this->proveedor->codproveedor;
-      }
-      
-      $url = $this->url()."&mostrar=".$this->mostrar
-              ."&query=".$this->query
-              ."&codserie=".$this->codserie
-              ."&codagente=".$this->codagente
-              ."&codproveedor=".$codproveedor
-              ."&desde=".$this->desde
-              ."&hasta=".$this->hasta;
-      
+      $url = $this->url(TRUE);
       $paginas = array();
       $i = 0;
       $num = 0;

@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -119,9 +119,9 @@ class ventas_albaran extends fs_controller
          /// comprobamos el albarán
          $this->albaran->full_test();
          
-         if( isset($_POST['facturar']) AND isset($_POST['petid']) )
+         if( isset($_REQUEST['facturar']) AND isset($_REQUEST['petid']) )
          {
-            if( $this->duplicated_petition($_POST['petid']) )
+            if( $this->duplicated_petition($_REQUEST['petid']) )
             {
                $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
             }
@@ -464,11 +464,11 @@ class ventas_albaran extends fs_controller
       $factura->porcomision = $this->albaran->porcomision;
       
       /// asignamos el ejercicio que corresponde a la fecha elegida
-      $eje0 = $this->ejercicio->get_by_fecha($_POST['facturar']);
+      $eje0 = $this->ejercicio->get_by_fecha($_REQUEST['facturar']);
       if($eje0)
       {
          $factura->codejercicio = $eje0->codejercicio;
-         $factura->set_fecha_hora($_POST['facturar'], $factura->hora);
+         $factura->set_fecha_hora($_REQUEST['facturar'], $factura->hora);
       }
       
       /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada

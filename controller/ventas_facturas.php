@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -31,6 +31,7 @@ class ventas_facturas extends fs_controller
    public $codagente;
    public $codserie;
    public $desde;
+   public $estado;
    public $factura;
    public $hasta;
    public $huecos;
@@ -93,6 +94,10 @@ class ventas_facturas extends fs_controller
          {
             $this->order = 'vencimiento ASC';
          }
+         else if($_GET['order'] == 'total_desc')
+         {
+            $this->order = 'total DESC';
+         }
          
          setcookie('ventas_fac_order', $this->order, time()+FS_COOKIES_EXPIRE);
       }
@@ -127,6 +132,7 @@ class ventas_facturas extends fs_controller
          $this->codagente = '';
          $this->codserie = '';
          $this->desde = '';
+         $this->estado = '';
          $this->hasta = '';
          $this->num_resultados = '';
          $this->total_resultados = '';
@@ -172,6 +178,7 @@ class ventas_facturas extends fs_controller
             {
                $this->desde = $_REQUEST['desde'];
                $this->hasta = $_REQUEST['hasta'];
+               $this->estado = $_REQUEST['estado'];
             }
          }
          
@@ -209,6 +216,33 @@ class ventas_facturas extends fs_controller
       }
    }
    
+   public function url($busqueda = FALSE)
+   {
+      if($busqueda)
+      {
+         $codcliente = '';
+         if($this->cliente)
+         {
+            $codcliente = $this->cliente->codcliente;
+         }
+         
+         $url = $this->url()."&mostrar=".$this->mostrar
+                 ."&query=".$this->query
+                 ."&codserie=".$this->codserie
+                 ."&codagente=".$this->codagente
+                 ."&codcliente=".$codcliente
+                 ."&desde=".$this->desde
+                 ."&estado=".$this->estado
+                 ."&hasta=".$this->hasta;
+         
+         return $url;
+      }
+      else
+      {
+         return parent::url();
+      }
+   }
+   
    private function buscar_cliente()
    {
       /// desactivamos la plantilla HTML
@@ -227,20 +261,7 @@ class ventas_facturas extends fs_controller
    
    public function paginas()
    {
-      $codcliente = '';
-      if($this->cliente)
-      {
-         $codcliente = $this->cliente->codcliente;
-      }
-      
-      $url = $this->url()."&mostrar=".$this->mostrar
-              ."&query=".$this->query
-              ."&codserie=".$this->codserie
-              ."&codagente=".$this->codagente
-              ."&codcliente=".$codcliente
-              ."&desde=".$this->desde
-              ."&hasta=".$this->hasta;
-      
+      $url = $this->url(TRUE);
       $paginas = array();
       $i = 0;
       $num = 0;
@@ -431,6 +452,17 @@ class ventas_facturas extends fs_controller
       if($this->hasta != '')
       {
          $sql .= $where."fecha <= ".$this->agente->var2str($this->hasta);
+         $where = ' AND ';
+      }
+      
+      if($this->estado == 'pagadas')
+      {
+         $sql .= $where."pagada";
+         $where = ' AND ';
+      }
+      else if($this->estado == 'impagadas')
+      {
+         $sql .= $where."pagada = false";
          $where = ' AND ';
       }
       
