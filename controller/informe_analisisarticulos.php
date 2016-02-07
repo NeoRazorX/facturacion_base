@@ -128,7 +128,7 @@ class informe_analisisarticulos extends fs_controller {
                 from albaranesprov as ac
                 join lineasalbaranesprov as l ON (ac.idalbaran=l.idalbaran)
                 where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
-                and idfactura is not null and referencia in (select referencia from articulos where controlstock = true)
+                and idfactura is not null and referencia in (select referencia from articulos where controlstock = false)
                 group by codalmacen,ac.fecha,ac.idalbaran,referencia,descripcion
                 order by codalmacen,referencia,fecha;";
         $data = $this->db->select($sql_albaranes);
@@ -158,7 +158,7 @@ class informe_analisisarticulos extends fs_controller {
                 from facturasprov as fc
                 join lineasfacturasprov as l ON (fc.idfactura=l.idfactura)
                 where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
-                and anulada=FALSE and idalbaran is null  and referencia in (select referencia from articulos where controlstock = true)
+                and anulada=FALSE and idalbaran is null  and referencia in (select referencia from articulos where controlstock = false)
                 group by codalmacen,fc.fecha,fc.idfactura,referencia,descripcion
                 order by codalmacen,referencia,fecha;";
         $data = $this->db->select($sql_facturasprov);
@@ -187,7 +187,7 @@ class informe_analisisarticulos extends fs_controller {
                 from albaranescli as ac
                 join lineasalbaranescli as l ON (ac.idalbaran=l.idalbaran)
                 where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
-                and idfactura is not null and referencia in (select referencia from articulos where controlstock = true)
+                and idfactura is not null and referencia in (select referencia from articulos where controlstock = false)
                 group by codalmacen,ac.fecha,ac.idalbaran,referencia,descripcion
                 order by codalmacen,referencia,fecha;";
         $data = $this->db->select($sql_albaranes);
@@ -216,7 +216,7 @@ class informe_analisisarticulos extends fs_controller {
                 from facturascli as fc
                 join lineasfacturascli as l ON (fc.idfactura=l.idfactura)
                 where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
-                and anulada=FALSE and idalbaran is null  and referencia in (select referencia from articulos where controlstock = true)
+                and anulada=FALSE and idalbaran is null  and referencia in (select referencia from articulos where controlstock = false)
                 group by codalmacen,fc.fecha,fc.idfactura,referencia,descripcion
                 order by codalmacen,referencia,fecha;";
         $data = $this->db->select($sql_facturas);
@@ -290,9 +290,7 @@ class informe_analisisarticulos extends fs_controller {
             }
         }
 
-        //echo count($lista_export);
         foreach($lista_export as $referencia=>$listafecha){
-            //echo count($listafecha);
             $lineas = 0;
             $sumaSalidasQda[$referencia]=0;
             $sumaSalidasMonto[$referencia]=0;
