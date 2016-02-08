@@ -122,6 +122,35 @@ class informe_analisisarticulos extends fs_controller {
     public function stock_query($almacen){
         $lista = array();
         /*
+         * Generamos la informacion de las regularizaciones que se hayan hecho a los stocks
+         */
+        $sql_regstocks = "select codalmacen, fecha, s.idstock, s.referencia, motivo, sum(cantidadfin) as cantidad, descripcion, costemedio
+               from lineasregstocks AS ls
+               JOIN stocks as s ON(ls.idstock = s.idstock)
+               JOIN articulos as a ON(s.referencia = a.referencia)
+               where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
+               and s.referencia IN (select referencia from articulos where controlstock = false)
+               group by s.codalmacen,fecha,s.idstock,s.referencia,motivo, descripcion, costemedio
+               order by codalmacen,referencia,fecha;";
+        $data = $this->db->select($sql_regstocks);
+        if($data){
+            foreach($data as $linea){
+                $resultados['codalmacen'] = $linea['codalmacen'];
+                $resultados['nombre'] = $almacen->nombre;
+                $resultados['fecha'] = $linea['fecha'];
+                $resultados['tipo_documento'] = "Regularización";
+                $resultados['documento'] = $linea['idstock'];
+                $resultados['referencia'] = $linea['referencia'];
+                $resultados['descripcion'] = $linea['descripcion'];
+                $resultados['salida_cantidad'] = ($linea['cantidad']<=0)?$linea['cantidad']:0;
+                $resultados['ingreso_cantidad'] = ($linea['cantidad']>=0)?$linea['cantidad']:0;
+                $resultados['salida_monto'] = ($linea['cantidad']<=0)?($linea['costemedio']*$linea['cantidad']):0;
+                $resultados['ingreso_monto'] = ($linea['cantidad']>=0)?($linea['costemedio']*$linea['cantidad']):0;
+                $lista[$linea['fecha']][] = $resultados;
+                $this->total_resultados++;
+            }
+        }
+        /*
          * Generamos la informacion de los albaranes de proveedor asociados a facturas no anuladas
          */
         $sql_albaranes = "select codalmacen,ac.fecha,ac.idalbaran,referencia,descripcion,sum(cantidad) as cantidad, sum(pvptotal) as monto
