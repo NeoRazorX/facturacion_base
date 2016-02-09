@@ -283,7 +283,7 @@
                         </select>
                      </div>
                   </div>
-                  <div class="col-sm-3">
+                  <div class="col-sm-2">
                      <div class="form-group">
                         Código de barras:
                         <div class="input-group">
@@ -294,7 +294,18 @@
                         </div>
                      </div>
                   </div>
-                  <div class="col-sm-4">
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        PartNumber:
+                        <div class="input-group">
+                           <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
+                           </span>
+                           <input class="form-control" type="text" name="partnumber" value="{$fsc->articulo->partnumber}" autocomplete="off"/>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
                      <div class="form-group">
                         Código de equivalencia:
                         <input class="form-control" type="text" name="equivalencia" value="{$fsc->articulo->equivalencia}" autocomplete="off"/>

@@ -481,7 +481,9 @@ class albaran_cliente extends fs_model
       foreach($this->get_lineas() as $l)
       {
          if( !$l->test() )
+         {
             $status = FALSE;
+         }
          
          $neto += $l->pvptotal;
          $iva += $l->pvptotal * $l->iva / 100;
@@ -723,7 +725,9 @@ class albaran_cliente extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_cliente($a);
+         }
       }
       
       return $albalist;
@@ -738,7 +742,9 @@ class albaran_cliente extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_cliente($a);
+         }
       }
       
       return $albalist;
@@ -747,13 +753,16 @@ class albaran_cliente extends fs_model
    public function all_from_cliente($codcliente, $offset=0)
    {
       $albalist = array();
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
-              " WHERE codcliente = ".$this->var2str($codcliente).
-              " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($codcliente)
+              ." ORDER BY fecha DESC, codigo DESC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_cliente($a);
+         }
       }
       
       return $albalist;
@@ -762,13 +771,16 @@ class albaran_cliente extends fs_model
    public function all_from_agente($codagente, $offset=0)
    {
       $albalist = array();
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
-              " WHERE codagente = ".$this->var2str($codagente).
-              " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codagente = ".$this->var2str($codagente)
+              ." ORDER BY fecha DESC, codigo DESC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_cliente($a);
+         }
       }
       
       return $albalist;
@@ -777,13 +789,16 @@ class albaran_cliente extends fs_model
    public function all_desde($desde, $hasta)
    {
       $alblist = array();
-      $data = $this->db->select("SELECT * FROM ".$this->table_name.
-         " WHERE fecha >= ".$this->var2str($desde)." AND fecha <= ".$this->var2str($hasta).
-         " ORDER BY codigo ASC;");
+      $sql = "SELECT * FROM ".$this->table_name." WHERE fecha >= ".$this->var2str($desde)
+              ." AND fecha <= ".$this->var2str($hasta)." ORDER BY codigo ASC;";
+      
+      $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $a)
+         {
             $alblist[] = new albaran_cliente($a);
+         }
       }
       
       return $alblist;
@@ -810,7 +825,9 @@ class albaran_cliente extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $alblist[] = new albaran_cliente($a);
+         }
       }
       
       return $alblist;
@@ -834,7 +851,9 @@ class albaran_cliente extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_cliente($a);
+         }
       }
       
       return $albalist;
@@ -846,5 +865,11 @@ class albaran_cliente extends fs_model
        * Ponemos a NULL todos los idfactura = 0
        */
       $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura = '0';");
+      
+      /**
+       * Ponemos a NULL todos los idfactura que no están en facturascli
+       */
+      $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura NOT IN"
+              . " (SELECT idfactura FROM facturascli);");
    }
 }

@@ -87,6 +87,9 @@ class articulo_proveedor extends fs_model
     */
    private $iva;
    
+   public $codbarras;
+   public $partnumber;
+   
    private static $impuestos;
    private static $nombres;
    
@@ -124,6 +127,8 @@ class articulo_proveedor extends fs_model
          $this->codimpuesto = $a['codimpuesto'];
          $this->stock = floatval($a['stock']);
          $this->nostock = $this->str2bool($a['nostock']);
+         $this->codbarras = $a['codbarras'];
+         $this->partnumber = $a['partnumber'];
       }
       else
       {
@@ -137,6 +142,8 @@ class articulo_proveedor extends fs_model
          $this->codimpuesto = NULL;
          $this->stock = 0;
          $this->nostock = TRUE;
+         $this->codbarras = NULL;
+         $this->partnumber = NULL;
       }
       
       $this->iva = NULL;
@@ -303,6 +310,8 @@ class articulo_proveedor extends fs_model
                  ", codimpuesto = ".$this->var2str($this->codimpuesto).
                  ", stock = ".$this->var2str($this->stock).
                  ", nostock = ".$this->var2str($this->nostock).
+                 ", codbarras = ".$this->var2str($this->codbarras).
+                 ", partnumber = ".$this->var2str($this->partnumber).
                  " WHERE id = ".$this->var2str($this->id).";";
          
          return $this->db->exec($sql);
@@ -310,7 +319,7 @@ class articulo_proveedor extends fs_model
       else
       {
          $sql = "INSERT INTO articulosprov (referencia,codproveedor,refproveedor,descripcion,".
-                 "precio,dto,codimpuesto,stock,nostock) VALUES ".
+                 "precio,dto,codimpuesto,stock,nostock,codbarras,partnumber) VALUES ".
                  "(".$this->var2str($this->referencia).
                  ",".$this->var2str($this->codproveedor).
                  ",".$this->var2str($this->refproveedor).
@@ -319,7 +328,9 @@ class articulo_proveedor extends fs_model
                  ",".$this->var2str($this->dto).
                  ",".$this->var2str($this->codimpuesto).
                  ",".$this->var2str($this->stock).
-                 ",".$this->var2str($this->nostock).");";
+                 ",".$this->var2str($this->nostock).
+                 ",".$this->var2str($this->codbarras).
+                 ",".$this->var2str($this->partnumber).");";
          
          if( $this->db->exec($sql) )
          {
@@ -344,12 +355,15 @@ class articulo_proveedor extends fs_model
    public function all_from_ref($ref)
    {
       $alist = array();
+      $sql = "SELECT * FROM articulosprov WHERE referencia = ".$this->var2str($ref)." ORDER BY precio ASC;";
       
-      $data = $this->db->select("SELECT * FROM articulosprov WHERE referencia = ".$this->var2str($ref)." ORDER BY precio ASC;");
+      $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $d)
+         {
             $alist[] = new articulo_proveedor($d);
+         }
       }
       
       return $alist;
@@ -362,7 +376,10 @@ class articulo_proveedor extends fs_model
     */
    public function mejor_from_ref($ref)
    {
-      $data = $this->db->select("SELECT * FROM articulosprov WHERE referencia = ".$this->var2str($ref)." ORDER BY precio ASC;");
+      $sql = "SELECT * FROM articulosprov WHERE referencia = ".$this->var2str($ref)
+              ." ORDER BY precio ASC;";
+      
+      $data = $this->db->select($sql);
       if($data)
       {
          return new articulo_proveedor($data[0]);

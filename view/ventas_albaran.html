@@ -283,14 +283,18 @@
                         <td>
                            <input type="hidden" name="idlinea_{$counter}" value="{$value->idlinea}"/>
                            <input type="hidden" name="referencia_{$counter}" value="{$value->referencia}"/>
-                           <div class="form-control">
-                              {if="$value->idlineapedido"}
-                              <a target="_blank" href="index.php?page=ventas_pedido&id={$value->idpedido}" title="ver {#FS_PEDIDO#}">
-                                 <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
-                              </a> &nbsp;
-                              {/if}
-                              <a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a>
+                           {if="$value->idlineapedido"}
+                           <div class="input-group">
+                              <a target="_blank" href="index.php?page=ventas_pedido&id={$value->idpedido}" class="input-group-addon" title="ver {#FS_PEDIDO#}">P</a>
+                              <div class="form-control">
+                                 <small><a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a></small>
+                              </div>
                            </div>
+                           {else}
+                           <div class="form-control">
+                              <small><a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a></small>
+                           </div>
+                           {/if}
                         </td>
                         <td><textarea class="form-control" name="desc_{$counter}" rows="1" onclick="this.select()">{$value->descripcion}</textarea></td>
                         <td>

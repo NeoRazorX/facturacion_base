@@ -362,6 +362,7 @@ class ventas_articulo extends fs_controller
          }
          
          $this->articulo->codbarras = $_POST['codbarras'];
+         $this->articulo->partnumber = $_POST['partnumber'];
          $this->articulo->equivalencia = $_POST['equivalencia'];
          $this->articulo->bloqueado = isset($_POST['bloqueado']);
          $this->articulo->controlstock = isset($_POST['controlstock']);
