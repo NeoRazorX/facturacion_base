@@ -151,6 +151,8 @@
                <a href="{$fsc->rectificativa->url()}" class="label label-warning">
                   Hay una {#FS_FACTURA_RECTIFICATIVA#} asociada
                </a>
+               {elseif="$fsc->factura->anulada"}
+               <span class="label label-danger">Anulada</span>
                {/if}
             </p>
          </div>

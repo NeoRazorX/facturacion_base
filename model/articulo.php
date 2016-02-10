@@ -122,6 +122,12 @@ class articulo extends fs_model
    public $equivalencia;
    
    /**
+    * Partnumber del producto. Máximo 38 caracteres.
+    * @var type 
+    */
+   public $partnumber;
+   
+   /**
     * Stock físico. La suma de las cantidades de esta referencia que en la tabla stocks.
     * @var type 
     */
@@ -194,7 +200,7 @@ class articulo extends fs_model
          self::$column_list = 'referencia,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,'.
                  'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,'.
                  'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,'.
-                 'codsubcuentacom,codsubcuentairpfcom';
+                 'partnumber,codsubcuentacom,codsubcuentairpfcom';
       }
       
       if($a)
@@ -225,6 +231,7 @@ class articulo extends fs_model
          $this->sevende = $this->str2bool($a['sevende']);
          $this->publico = $this->str2bool($a['publico']);
          $this->equivalencia = $a['equivalencia'];
+         $this->partnumber = $a['partnumber'];
          $this->codbarras = $a['codbarras'];
          $this->observaciones = $this->no_html($a['observaciones']);
          $this->codsubcuentacom = $a['codsubcuentacom'];
@@ -302,6 +309,7 @@ class articulo extends fs_model
          $this->sevende = TRUE;
          $this->publico = FALSE;
          $this->equivalencia = NULL;
+         $this->partnumber = NULL;
          $this->codbarras = '';
          $this->observaciones = '';
          $this->codsubcuentacom = NULL;
@@ -929,6 +937,7 @@ class articulo extends fs_model
                     ", publico = ".$this->var2str($this->publico).
                     ", secompra = ".$this->var2str($this->secompra).
                     ", equivalencia = ".$this->var2str($this->equivalencia).
+                    ", partnumber = ".$this->var2str($this->partnumber).
                     ", codbarras = ".$this->var2str($this->codbarras).
                     ", observaciones = ".$this->var2str($this->observaciones).
                     ", tipo = ".$this->var2str($this->tipo).
@@ -971,6 +980,7 @@ class articulo extends fs_model
                     $this->var2str($this->imagen).",".
                     $this->var2str($this->publico).",".
                     $this->var2str($this->tipo).",".
+                    $this->var2str($this->partnumber).",".
                     $this->var2str($this->codsubcuentacom).",".
                     $this->var2str($this->codsubcuentairpfcom).");";
          }

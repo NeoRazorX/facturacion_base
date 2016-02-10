@@ -288,10 +288,8 @@
          </td>
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
-         <td class="text-right">
-            <span title="Hora: {$value->hora}">
-               {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
-            </span>
+         <td class="text-right" title="Hora {$value->hora}">
+            {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
          </td>
       </tr>
       {else}

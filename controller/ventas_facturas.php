@@ -465,6 +465,11 @@ class ventas_facturas extends fs_controller
          $sql .= $where."pagada = false";
          $where = ' AND ';
       }
+      else if($this->estado == 'anuladas')
+      {
+         $sql .= $where."anulada = true";
+         $where = ' AND ';
+      }
       
       $data = $this->db->select("SELECT COUNT(idfactura) as total".$sql);
       if($data)

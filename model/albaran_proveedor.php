@@ -629,7 +629,9 @@ class albaran_proveedor extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_proveedor($a);
+         }
       }
       
       return $albalist;
@@ -644,7 +646,9 @@ class albaran_proveedor extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_proveedor($a);
+         }
       }
       
       return $albalist;
@@ -660,7 +664,9 @@ class albaran_proveedor extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $alblist[] = new albaran_proveedor($a);
+         }
       }
       
       return $alblist;
@@ -676,7 +682,9 @@ class albaran_proveedor extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $alblist[] = new albaran_proveedor($a);
+         }
       }
       
       return $alblist;
@@ -693,7 +701,9 @@ class albaran_proveedor extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $alblist[] = new albaran_proveedor($a);
+         }
       }
       
       return $alblist;
@@ -720,7 +730,9 @@ class albaran_proveedor extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $alblist[] = new albaran_proveedor($a);
+         }
       }
       
       return $alblist;
@@ -739,7 +751,9 @@ class albaran_proveedor extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_proveedor($a);
+         }
       }
       
       return $albalist;
@@ -751,5 +765,11 @@ class albaran_proveedor extends fs_model
        * Ponemos a NULL todos los idfactura = 0
        */
       $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura = '0';");
+      
+      /**
+       * Ponemos a NULL todos los idfactura que no están en facturascli
+       */
+      $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura NOT IN"
+              . " (SELECT idfactura FROM facturasprov);");
    }
 }

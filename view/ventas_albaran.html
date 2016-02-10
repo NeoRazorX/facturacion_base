@@ -2,6 +2,7 @@
 
 {if="$fsc->albaran"}
 {if="$fsc->albaran->ptefactura"}
+<script type="text/javascript" src="{$fsc->get_js_location('ac_email_cliente.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('nueva_venta.js')}"></script>
 <script type="text/javascript">
@@ -35,18 +36,6 @@
 </script>
 {else}
 <script type="text/javascript">
-   function check_enviar_copia()
-   {
-      if($("#copia").is(":checked"))
-      {
-         $("#checked_copia").prop("disabled",false);
-      }
-      else
-      {
-         $("#checked_copia").prop("disabled",true);
-      }
-   }
-   
    $(document).ready(function() {
       {if="$fsc->albaran->totalrecargo==0"}
       $(".recargo").hide();
@@ -66,7 +55,7 @@
       $("#b_enviar").click(function(event) {
          event.preventDefault();
          $("#modal_enviar").modal('show');
-         document.enviar_email.email.select();
+         document.f_enviar_email.email.select();
       });
       $("#b_aprobar").click(function(event) {
          event.preventDefault();
@@ -294,14 +283,18 @@
                         <td>
                            <input type="hidden" name="idlinea_{$counter}" value="{$value->idlinea}"/>
                            <input type="hidden" name="referencia_{$counter}" value="{$value->referencia}"/>
-                           <div class="form-control">
-                              {if="$value->idlineapedido"}
-                              <a target="_blank" href="index.php?page=ventas_pedido&id={$value->idpedido}" title="ver {#FS_PEDIDO#}">
-                                 <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
-                              </a> &nbsp;
-                              {/if}
-                              <a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a>
+                           {if="$value->idlineapedido"}
+                           <div class="input-group">
+                              <a target="_blank" href="index.php?page=ventas_pedido&id={$value->idpedido}" class="input-group-addon" title="ver {#FS_PEDIDO#}">P</a>
+                              <div class="form-control">
+                                 <small><a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a></small>
+                              </div>
                            </div>
+                           {else}
+                           <div class="form-control">
+                              <small><a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a></small>
+                           </div>
+                           {/if}
                         </td>
                         <td><textarea class="form-control" name="desc_{$counter}" rows="1" onclick="this.select()">{$value->descripcion}</textarea></td>
                         <td>
@@ -732,36 +725,74 @@
    </div>
 </div>
 
-<form class="form" role="form" name="enviar_email" action="{$fsc->url()}" method="post">
+<form class="form" role="form" name="f_enviar_email" action="{$fsc->url()}" method="post" enctype="multipart/form-data">
+   <input type="hidden" name="codcliente" value="{$fsc->albaran->codcliente}"/>
    <div class="modal" id="modal_enviar">
       <div class="modal-dialog">
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Enviar {#FS_ALBARAN#}</h4>
+               <h4 class="modal-title">
+                  <span class="glyphicon glyphicon-envelope"></span>&nbsp;
+                  Enviar {#FS_ALBARAN#}
+               </h4>
                {if="$fsc->albaran->femail"}
                <p class="help-block">
                   <span class="glyphicon glyphicon-send"></span> &nbsp;
                   Este {#FS_ALBARAN#} fue enviado el {$fsc->albaran->femail}.
                </p>
+               {else}
+               <p class="help-block">
+                  Gestiona los contactos del cliente y comunícate con ellos con el
+                  <a href="https://www.facturascripts.com/store/producto/plugin-crm/" target="_blank">plugin CRM</a>.
+               </p>
                {/if}
             </div>
             <div class="modal-body">
                <div class="form-group">
-                  Email del cliente:
-                  <input class="form-control" type="text" name="email" value="{$fsc->cliente_s->email}" autocomplete="off"/>
+                  <div class="input-group">
+                     <span class="input-group-addon">De</span>
+                     <select name="de" class="form-control">
+                        {if="$fsc->user->email"}
+                        <option>{$fsc->user->email}</option>
+                        {/if}
+                        <option>{$fsc->empresa->email}</option>
+                     </select>
+                  </div>
                </div>
                <div class="form-group">
-                  <label>
-                     <input id="copia" onclick="check_enviar_copia()" type="checkbox" name="concopia" value="TRUE"/>
-                     Enviar copia:
-                  </label>
-                  <input id="checked_copia" class="form-control" type="text" name="email_copia" autocomplete="off" disabled=""/>
+                  <div class="input-group">
+                     <span class="input-group-addon">Para</span>
+                     <input id="ac_email" class="form-control" type="text" name="email" value="{$fsc->cliente_s->email}" autocomplete="off"/>
+                     <span class="input-group-addon" title="Asignar email al cliente">
+                        <input type="checkbox" name="guardar" value="TRUE"/>
+                        <span class="glyphicon glyphicon-floppy-disk"></span>
+                     </span>
+                  </div>
                </div>
                <div class="form-group">
-                  Mensaje:
+                  <div class="input-group">
+                     <span class="input-group-addon">Copia</span>
+                     <input id="ac_email2" class="form-control" type="text" name="email_copia" autocomplete="off"/>
+                     <span class="input-group-addon" title="Copia de carbón oculta">
+                        <input type="checkbox" name="cco" value="TRUE"/>
+                        <span class="glyphicon glyphicon-eye-close"></span>
+                     </span>
+                  </div>
+               </div>
+               <div class="form-group">
                   <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto su {#FS_ALBARAN#} {$fsc->albaran->codigo}.
-{$fsc->empresa->email_firma}</textarea>
+{$fsc->empresa->email_config['mail_firma']}</textarea>
+                  <p class="help-block">
+                     <a href="index.php?page=admin_empresa#email">Editar la firma</a>
+                  </p>
+               </div>
+               <div class="form-group">
+                  <input name="adjunto" type="file"/>
+                  <p class="help-block">
+                     Se va a adjuntar el {#FS_ALBARAN#}, pero si lo deseas
+                     puedes añadir otro archivo de hasta {$fsc->get_max_file_upload()} MB
+                  </p>
                </div>
                {loop="$fsc->extensions"}
                   {if="$value->type=='email'"}

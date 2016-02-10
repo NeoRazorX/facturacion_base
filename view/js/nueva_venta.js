@@ -336,7 +336,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
    $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\" value=\""+ref+"\"/>\n\
-         <div class=\"form-control\"><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></div></td>\n\
+         <div class=\"form-control\"><small><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></small></div></td>\n\
       <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\">"+desc+"</textarea></td>\n\
       <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
          "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\""+cantidad+"\"/></td>\n\
@@ -483,11 +483,23 @@ function buscar_articulos()
             var items = [];
             var insertar = false;
             $.each(json, function(key, val) {
-               var descripcion = Base64.encode(val.descripcion);
                var stock = val.stockalm;
                if(val.stockalm != val.stockfis)
                {
                   stock += ' ('+val.stockfis+')';
+               }
+               
+               var descripcion = Base64.encode(val.descripcion);
+               var descripcion_visible = val.descripcion;
+               if(val.codfamilia)
+               {
+                  descripcion_visible += ' <span class="label label-default" title="Familia: '+val.codfamilia+'">'
+                          +val.codfamilia+'</span>';
+               }
+               if(val.codfabricante)
+               {
+                  descripcion_visible += ' <span class="label label-default" title="Fabricante: '+val.codfabricante+'">'
+                          +val.codfabricante+'</span>';
                }
                
                var tr_aux = '<tr>';
@@ -517,18 +529,22 @@ function buscar_articulos()
                   
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
                      <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
-                     &nbsp; <a href=\"#\" onclick=\"return "+funcion+"\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
+                     &nbsp; <a href=\"#\" onclick=\"return "+funcion+"\">"+val.referencia+'</a> '+descripcion_visible+"</td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"\" title=\"actualizado el "+val.factualizado
+                       +"\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"\" title=\"actualizado el "+val.factualizado
+                       +"\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
                      <td class=\"text-right\">"+stock+"</td></tr>");
                }
                else if(val.sevende)
                {
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
                      <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
-                     &nbsp; <a href=\"#\" onclick=\"alert('Sin stock.')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"alert('Sin stock.')\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"alert('Sin stock.')\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
+                     &nbsp; <a href=\"#\" onclick=\"alert('Sin stock.')\">"+val.referencia+'</a> '+descripcion_visible+"</td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"alert('Sin stock.')\" title=\"actualizado el "+val.factualizado
+                       +"\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"alert('Sin stock.')\" title=\"actualizado el "+val.factualizado
+                       +"\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
                      <td class=\"text-right\">"+stock+"</td></tr>");
                }
                

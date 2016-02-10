@@ -332,7 +332,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto)
    $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\" value=\""+ref+"\"/>\n\
-         <div class=\"form-control\"><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></div></td>\n\
+         <div class=\"form-control\"><small><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></small></div></td>\n\
       <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\">"+desc+"</textarea></td>\n\
       <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
          "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
@@ -487,6 +487,18 @@ function buscar_articulos()
             var insertar = false;
             $.each(json, function(key, val) {
                var descripcion = Base64.encode(val.descripcion);
+               var descripcion_visible = val.descripcion;
+               if(val.codfamilia)
+               {
+                  descripcion_visible += ' <span class="label label-default" title="Familia: '+val.codfamilia+'">'
+                          +val.codfamilia+'</span>';
+               }
+               if(val.codfabricante)
+               {
+                  descripcion_visible += ' <span class="label label-default" title="Fabricante: '+val.codfabricante+'">'
+                          +val.codfabricante+'</span>';
+               }
+               
                var precio = val.coste;
                if(precio_compra == 'pvp')
                {
@@ -513,13 +525,13 @@ function buscar_articulos()
                      <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
                      &nbsp; <a href=\"#\" onclick=\"return add_articulo('"
                           +val.referencia+"','"+descripcion+"','"+precio+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"
-                          +val.referencia+'</a> '+val.descripcion+"</td>\n\
+                          +val.referencia+'</a> '+descripcion_visible+"</td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"
                           +val.referencia+"','"+descripcion+"','"+val.coste+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"
                           +show_precio(val.coste)+"</a></td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"
-                          +val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\">"
-                          +show_precio(val.pvp)+"</a></td>\n\
+                          +val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\" title=\"actualizado el "
+                          +val.factualizado+"\">"+show_precio(val.pvp)+"</a></td>\n\
                      <td class=\"text-right\">"+val.stockfis+"</td></tr>");
                }
                

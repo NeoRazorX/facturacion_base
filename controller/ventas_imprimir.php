@@ -136,14 +136,6 @@ class ventas_imprimir extends fs_controller
               'params' => '&factura=TRUE&tipo=simple'
           ),
           array(
-              'name' => 'imprimir_factura_firma',
-              'page_from' => __CLASS__,
-              'page_to' => 'ventas_factura',
-              'type' => 'pdf',
-              'text' => ucfirst(FS_FACTURA).' con firma',
-              'params' => '&factura=TRUE&tipo=firma'
-          ),
-          array(
               'name' => 'imprimir_factura_carta',
               'page_from' => __CLASS__,
               'page_to' => 'ventas_factura',
@@ -583,6 +575,8 @@ class ventas_imprimir extends fs_controller
              */
             if($tipo == 'carta')
             {
+               $this->generar_pdf_cabecera($pdf_doc, $lppag);
+               
                $direccion = $this->factura->nombrecliente."\n".$this->factura->direccion;
                if($this->factura->codpostal AND $this->factura->ciudad)
                {
@@ -598,7 +592,6 @@ class ventas_imprimir extends fs_controller
                   $direccion .= "\n(" . $this->factura->provincia . ")";
                }
                
-               $pdf_doc->pdf->ezText("\n\n", 10);
                $pdf_doc->new_table();
                $pdf_doc->add_table_row(
                   array(
@@ -620,7 +613,7 @@ class ventas_imprimir extends fs_controller
                );
                $pdf_doc->pdf->ezText("\n\n\n", 14);
             }
-            else /// esta es la cabecera de la página para los modelos 'simple' y 'firma'
+            else /// esta es la cabecera de la página para el modelo 'simple'
             {
                $this->generar_pdf_cabecera($pdf_doc, $lppag);
                
@@ -694,52 +687,13 @@ class ventas_imprimir extends fs_controller
                   )
                );
                $pdf_doc->pdf->ezText("\n", 10);
-               
-               /// en el tipo 'firma' caben menos líneas
-               if($tipo == 'firma')
-               {
-                  $lppag -= 3;
-               }
             }
             
             $this->generar_pdf_lineas($pdf_doc, $lineas, $linea_actual, $lppag, $this->factura);
             
             if( $linea_actual == count($lineas) )
             {
-               /*
-                * Añadimos la parte de la firma y las observaciones,
-                * para el tipo 'firma'
-                */
-               if($tipo == 'firma')
-               {
-                  $pdf_doc->pdf->ezText("\n", 9);
-                  
-                  $pdf_doc->new_table();
-                  $pdf_doc->add_table_header(
-                     array(
-                        'campo1' => "<b>Observaciones</b>",
-                        'campo2' => "<b>Firma</b>"
-                     )
-                  );
-                  $pdf_doc->add_table_row(
-                     array(
-                        'campo1' => $this->fix_html($this->factura->observaciones),
-                        'campo2' => ""
-                     )
-                  );
-                  $pdf_doc->save_table(
-                     array(
-                        'cols' => array(
-                           'campo1' => array('justification' => 'left'),
-                           'campo2' => array('justification' => 'right', 'width' => 100)
-                        ),
-                        'showLines' => 4,
-                        'width' => 530,
-                        'shaded' => 0
-                     )
-                  );
-               }
-               else if($this->factura->observaciones != '')
+               if($this->factura->observaciones != '')
                {
                   $pdf_doc->pdf->ezText("\n".$this->fix_html($this->factura->observaciones), 9);
                }
@@ -882,22 +836,11 @@ class ventas_imprimir extends fs_controller
    {
       if( $this->empresa->can_send_mail() )
       {
-         if( $_POST['email'] != $this->cliente->email )
+         if( $_POST['email'] != $this->cliente->email AND isset($_POST['guardar']) )
          {
             $this->cliente->email = $_POST['email'];
             $this->cliente->save();
          }
-         
-         /// obtenemos la configuración extra del email
-         $mailop = array(
-             'mail_host' => 'smtp.gmail.com',
-             'mail_port' => '465',
-             'mail_user' => '',
-             'mail_enc' => 'ssl',
-             'mail_low_security' => FALSE
-         );
-         $fsvar = new fs_var();
-         $mailop = $fsvar->array_get($mailop, FALSE);
          
          if($doc == 'factura')
          {
@@ -913,46 +856,63 @@ class ventas_imprimir extends fs_controller
          if( file_exists('tmp/'.FS_TMP_NAME.'enviar/'.$filename) )
          {
             $mail = new PHPMailer();
-            $mail->IsSMTP();
+            $mail->CharSet = 'UTF-8';
+            $mail->WordWrap = 50;
+            $mail->isSMTP();
             $mail->SMTPAuth = TRUE;
-            $mail->SMTPSecure = $mailop['mail_enc'];
-            $mail->Host = $mailop['mail_host'];
-            $mail->Port = intval($mailop['mail_port']);
+            $mail->SMTPSecure = $this->empresa->email_config['mail_enc'];
+            $mail->Host = $this->empresa->email_config['mail_host'];
+            $mail->Port = intval($this->empresa->email_config['mail_port']);
             
             $mail->Username = $this->empresa->email;
-            if($mailop['mail_user'] != '')
+            if($this->empresa->email_config['mail_user'] != '')
             {
-               $mail->Username = $mailop['mail_user'];
+               $mail->Username = $this->empresa->email_config['mail_user'];
             }
             
-            $mail->Password = $this->empresa->email_password;
+            $mail->Password = $this->empresa->email_config['mail_password'];
             $mail->From = $this->empresa->email;
-            $mail->FromName = $this->user->nick;
-            $mail->CharSet = 'UTF-8';
+            $mail->FromName = $this->user->get_agente_fullname();
+            $mail->addReplyTo($_POST['de'], $mail->FromName);
+            
+            $mail->addAddress($_POST['email'], $this->cliente->razonsocial);
+            if($_POST['email_copia'])
+            {
+               if( isset($_POST['cco']) )
+               {
+                  $mail->addBCC($_POST['email_copia'], $this->cliente->razonsocial);
+               }
+               else
+               {
+                  $mail->addCC($_POST['email_copia'], $this->cliente->razonsocial);
+               }
+            }
+            if($this->empresa->email_config['mail_bcc'])
+            {
+               $mail->addBCC($this->empresa->email_config['mail_bcc']);
+            }
             
             if($doc == 'factura')
             {
                $mail->Subject = $this->empresa->nombre . ': Su factura '.$this->factura->codigo;
-               $mail->AltBody = 'Buenos días, le adjunto su factura '.$this->factura->codigo.".\n".$this->empresa->email_firma;
             }
             else
             {
                $mail->Subject = $this->empresa->nombre . ': Su '.FS_ALBARAN.' '.$this->albaran->codigo;
-               $mail->AltBody = 'Buenos días, le adjunto su '.FS_ALBARAN.' '.$this->albaran->codigo.".\n".$this->empresa->email_firma;
             }
             
-            $mail->WordWrap = 50;
-            $mail->MsgHTML( nl2br($_POST['mensaje']) );
-            $mail->AddAttachment('tmp/'.FS_TMP_NAME.'enviar/'.$filename);
-            $mail->AddAddress($_POST['email'], $this->cliente->razonsocial);
-            if( isset($_POST['concopia']) )
+            $mail->AltBody = $_POST['mensaje'];
+            $mail->msgHTML( nl2br($_POST['mensaje']) );
+            $mail->isHTML(TRUE);
+            
+            $mail->addAttachment('tmp/'.FS_TMP_NAME.'enviar/'.$filename);
+            if( is_uploaded_file($_FILES['adjunto']['tmp_name']) )
             {
-               $mail->AddCC($_POST['email_copia'], $this->cliente->razonsocial);
+               $mail->addAttachment($_FILES['adjunto']['tmp_name'], $_FILES['adjunto']['name']);
             }
-            $mail->IsHTML(TRUE);
             
             $SMTPOptions = array();
-            if($mailop['mail_low_security'])
+            if($this->empresa->email_config['mail_low_security'])
             {
                $SMTPOptions = array(
                    'ssl' => array(
@@ -965,7 +925,7 @@ class ventas_imprimir extends fs_controller
             
             if( $mail->smtpConnect($SMTPOptions) )
             {
-               if( $mail->Send() )
+               if( $mail->send() )
                {
                   $this->new_message('Mensaje enviado correctamente.');
                   
