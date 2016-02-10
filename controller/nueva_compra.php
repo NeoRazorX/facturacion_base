@@ -767,6 +767,10 @@ class nueva_compra extends fs_controller
       }
    }
    
+   
+   
+ //////////////////////////////////////////////////////////////////  
+ ///////////////  Genera FACTURA  ORDEN DEBITO  ORDEN CREDITO
    private function nueva_factura_proveedor()
    {
       $continuar = TRUE;
@@ -900,10 +904,20 @@ class nueva_compra extends fs_controller
 				  ////  GUARDA subcuenta en articulo cuando se carga la factura
 				  ////////////////////////////////////////////////////
 				  $artval = $this->artsubcuentas->get_ref($_POST['referencia_'.$i]);
+				  
+				  print '<script language="JavaScript">'; 
+				print 'alert(" id  ");'; 
+				print '</script>'; 
 
 				  if($artval != $subcuencod || $subcuencod==NULL )
 				  {
-					$this->artsubcuentas->guarda_subcuenta($_POST['referencia_'.$i],$subcuencod,$subcuendes);
+				  if($_POST['tipo'] == 'F' || $_POST['tipo'] == 'D' )
+            		{				  
+					$this->artsubcuentas->guarda_subcuenta_comp($_POST['referencia_'.$i],$subcuencod,$subcuendes);
+					}
+				   else $this->artsubcuentas->guarda_subcuenta_dev($_POST['referencia_'.$i],$subcuencod,$subcuendes);
+					
+					
 				  }
 				//////////////////////////////////////////////////////////////////
 				////////////////////////////////////////////////////////////////

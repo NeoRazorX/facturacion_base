@@ -9,6 +9,7 @@
    all_series = {function="json_encode($fsc->serie->all())"};
    proveedor = {function="json_encode($fsc->proveedor_s)"};
    subcuentas = {function="json_encode($fsc->subcuentas->subcoenta_compras())"};
+   subcuentas_c = {function="json_encode($fsc->subcuentas->subcoenta_compras_credito())"};
    nueva_compra_url = '{$fsc->url()}';
    kiwimaru_url = '{#FS_COMMUNITY_URL#}/index.php?page=kiwimaru';
    precio_compra = '{#FS_PRECIO_COMPRA#}';
@@ -34,18 +35,21 @@
 	}
 	else
 	{	 
-		for(i=0;i<(numsub);i++)
-	   {
-	   if( document.getElementById('subcuenta_'+i).value == 'null/' || document.getElementById('total_'+i).value == 0 ){ ban = 1;}
-	   }
-		
-		if(ban == 1 ) alert('Falta completar el campo de SubCuenta o el Total de un Ítem es "0.00"');
-		else
-		{
-		if( document.getElementById('atotal').value == '0') alert('El Total de la Factura no puede ser "0.00"');
-		else $('#modal_guardar').modal('show');
-		
-		 }
+				for(i=0;i<(numsub);i++)
+					   {
+					    if( document.getElementById('subcuenta_'+i))
+							{
+					   			if( document.getElementById('subcuenta_'+i).value == 'null/' || document.getElementById('total_'+i).value == 0 ){ ban = 1;}
+							}							
+					   }
+				
+				if(ban == 1 ) alert('Falta completar el campo de SubCuenta o el Total de un Ítem es "0.00"');
+				else
+				{
+				if( document.getElementById('atotal').value == '0') alert('El Total de la Factura no puede ser "0.00"');
+				else $('#modal_guardar').modal('show');
+				
+				 }
 	}
 	return;
 	}
@@ -56,6 +60,7 @@
    <input type="hidden" id="numlineas" name="numlineas" value="0"/>
    <input type="hidden" name="proveedor" value="{$fsc->proveedor_s->codproveedor}"/>
    <input type="hidden" name="redir"/>
+  
    <div class="container-fluid">
       <div class="row">
          <div class="col-sm-4">
@@ -71,6 +76,8 @@
 				  {if="substr($fsc->numproveedor, 0,1)=='R'"}<label style="font:bold;font-size:18px">REMITO :</label>{/if}
 				  {if="substr($fsc->numproveedor, 0,1)=='C'"}<label style="font:bold; font-size:18px">NOTA DE CRÉDITO :</label>{/if}
 				  {if="substr($fsc->numproveedor, 0,1)=='D'"}<label style="font:bold;font-size:18px">NOTA DE DÉBITO :</label>{/if}		
+				  {$tipcompr=substr($fsc->numproveedor, 0,1)}
+			 <input type="hidden" name="tipo_com" value="{$tipcompr}"/>	  
 			<input type="text" name="comprobantenum" id="comprobantenum" class="form-control" readonly="true" value="{$fsc->numproveedor}" />
 			</div>
          <div class="col-sm-2">
@@ -510,7 +517,7 @@
  {loop="$fsc->verif_factura"};
  if( document.getElementById('ac_proveedor').value == '{$value->nombre}')
  {
- 	if( document.getElementById('numcorto').value+'-'+document.getElementById('numlargo').value == '{$value->numproveedor}')
+ 	if( document.getElementById('comprobante').value+'/'+document.getElementById('numcorto').value+'-'+document.getElementById('numlargo').value == '{$value->numproveedor}')
 	 {
 	  	
 	  var existefact = 1;  	 

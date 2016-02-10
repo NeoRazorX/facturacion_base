@@ -164,7 +164,8 @@ class articulo extends fs_model
     * @var type 
     */
    public $codsubcuentairpfcom;
-   
+   public $codsubcuentadevcom;
+   public $subcuentadescdevcom;
    
    /**
     * % IVA del impuesto asignado.
@@ -196,7 +197,7 @@ class articulo extends fs_model
          self::$column_list = 'referencia,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,'.
                  'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,'.
                  'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,'.
-                 'codsubcuentacom,codsubcuentairpfcom';
+                 'codsubcuentacom,codsubcuentairpfcom,codsubcuentadevcom';
       }
       
       if($a)
@@ -231,6 +232,7 @@ class articulo extends fs_model
          $this->observaciones = $this->no_html($a['observaciones']);
          $this->codsubcuentacom = $a['codsubcuentacom'];
          $this->codsubcuentairpfcom = $a['codsubcuentairpfcom'];
+		 $this->codsubcuentadevcom= $a['codsubcuentadevcom'];
          
          /// no cargamos la imagen directamente por cuestión de rendimiento
          $this->imagen = NULL;
@@ -987,7 +989,7 @@ class articulo extends fs_model
    }
    
    
-      public function guarda_subcuenta($ref,$cod,$desc)
+      public function guarda_subcuenta_comp($ref,$cod,$desc)
    {
       
       $sql = "UPDATE ".$this->table_name." SET codsubcuentacom = ".$this->var2str($cod).",subcuentadesccom = ".$this->var2str($desc)." WHERE referencia = ".$this->var2str($ref).";";
@@ -1000,7 +1002,18 @@ class articulo extends fs_model
          return FALSE;
    }
    
-   
+         public function guarda_subcuenta_dev($ref,$cod,$desc)
+   {
+      
+      $sql = "UPDATE ".$this->table_name." SET codsubcuentadevcom = ".$this->var2str($cod).",subcuentadescdevcom = ".$this->var2str($desc)." WHERE referencia = ".$this->var2str($ref).";";
+      if( $this->db->exec($sql) )
+      {
+        
+         return TRUE;
+      }
+      else
+         return FALSE;
+   }
    
    /**
     * Comprueba y añade una cadena a la lista de búsquedas precargadas

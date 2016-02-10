@@ -123,6 +123,7 @@ class compras_factura extends fs_controller
                $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
             }
             else
+			
                $this->generar_asiento();
          }
          else if( isset($_REQUEST['pagada']) )

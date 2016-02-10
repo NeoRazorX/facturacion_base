@@ -459,7 +459,20 @@ class subcuenta extends fs_model
       public function subcoenta_compras()
    {
       $sublist = array();
-      $subcuentas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcuenta = '110401' ORDER BY descripcion ASC;");
+      $subcuentas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcuenta IN  ( SELECT codcuenta FROM co_cuentas WHERE idcuentaesp = 'COMPRA' ) ORDER BY descripcion ASC;");
+      if($subcuentas)
+      {
+         foreach($subcuentas as $s)
+            $sublist[] = new subcuenta($s);
+      }
+      return $sublist;
+   }
+   
+   
+         public function subcoenta_compras_credito()
+   {
+      $sublist = array();
+      $subcuentas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcuenta IN  ( SELECT codcuenta FROM co_cuentas WHERE idcuentaesp = 'DEVCOM' ) ORDER BY descripcion ASC;");
       if($subcuentas)
       {
          foreach($subcuentas as $s)

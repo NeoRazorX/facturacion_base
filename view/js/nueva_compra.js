@@ -22,6 +22,7 @@ var all_impuestos = [];
 var all_series = [];
 var proveedor = false;
 var subcuentas = [];
+var subcuentas_c = [];
 var nueva_compra_url = '';
 var kiwimaru_url = '';
 var precio_compra = 'coste';
@@ -308,18 +309,10 @@ function aux_all_impuestos(num,codimpuesto)
    return html;
 }
 
-function add_articulo(ref,desc,pvp,dto,codimpuesto,codsub,subdesc)
+function add_articulo(ref,desc,pvp,dto,codimpuesto,codsub,subdesc,subdev,subdesdev)
 {
 	var subdesc1='';
-for(var i=0; i<subcuentas.length; i++)
-   {
-	   if(codsub==subcuentas[i].codsubcuenta)  
-	   {
-		   subdesc1=subcuentas[i].descripcion;
-		   idsub=subcuentas[i].idsubcuenta;
-	   }
-   }
-
+	var idsub='';
    desc = Base64.decode(desc);
    
    $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\
@@ -328,7 +321,7 @@ for(var i=0; i<subcuentas.length; i++)
          <div class=\"form-control\"><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></div></td>\n\
       <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\">"+desc+"</textarea></td>\n\
 	  <td><select name=\"subcuenta_"+numlineas+"\" id=\"subcuenta_"+numlineas+"\" class=\"form-control text-right\" style='width:200px; font-size:12px'>\n\
-	  <option value='"+codsub+"/"+subdesc1+"%"+idsub+"' selected=\"selected\">"+subdesc1+"</option>"+sel()+"</select></td>\n\
+	  "+sel(subdesc1,idsub,codsub,subdev)+"</select></td>\n\
 	  <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
          "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
       <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
@@ -355,14 +348,84 @@ for(var i=0; i<subcuentas.length; i++)
    $("#desc_"+(numlineas-1)).select();
    return false;
 }
-function sel()
+function sel(subdesc1,idsub,codsub,subdev)
 {
+	
 var html='';
-   for(var i=0; i<subcuentas.length; i++)
-   {
-      
-         html += "<option value='"+subcuentas[i].codsubcuenta+"/"+subcuentas[i].descripcion+"%"+subcuentas[i].idsubcuenta+"' >"+subcuentas[i].descripcion+"</option>";
-      }
+
+
+		if(document.f_new_albaran.tipo_com.value =='F' || document.f_new_albaran.tipo_com.value =='D')
+		{
+			
+				
+					for(var i=0; i<subcuentas.length; i++)
+					   {
+						   if(codsub==subcuentas[i].codsubcuenta)  
+						   {
+							   subdesc1=subcuentas[i].descripcion;
+							   idsub=subcuentas[i].idsubcuenta;
+						   }
+					   }
+			
+			
+				html = "<option value='"+codsub+"/"+subdesc1+"%"+idsub+"' selected=\"selected\">"+subdesc1+"</option>";
+			   for(var i=0; i<subcuentas.length; i++)
+			   {
+				  
+					 html += "<option value='"+subcuentas[i].codsubcuenta+"/"+subcuentas[i].descripcion+"%"+subcuentas[i].idsubcuenta+"' >"+subcuentas[i].descripcion+"</option>";
+				}
+		}
+		else
+		{
+			
+					for(var i=0; i<subcuentas_c.length; i++)
+					   {
+						   if(subdev==subcuentas_c[i].codsubcuenta)  
+						   {
+							   subdesc1=subcuentas_c[i].descripcion;
+							   idsub=subcuentas_c[i].idsubcuenta;
+						   }
+					   }
+			
+			
+				html = "<option value='"+codsub+"/"+subdesc1+"%"+idsub+"' selected=\"selected\">"+subdesc1+"</option>";
+			   for(var i=0; i<subcuentas_c.length; i++)
+			   {
+				  
+					 html += "<option value='"+subcuentas_c[i].codsubcuenta+"/"+subcuentas_c[i].descripcion+"%"+subcuentas_c[i].idsubcuenta+"' >"+subcuentas_c[i].descripcion+"</option>";
+				}
+	
+		}
+	
+  return html; 
+}
+
+function sel_1()
+{
+	
+var html='';
+
+
+		if(document.f_new_albaran.tipo_com.value =='F' || document.f_new_albaran.tipo_com.value =='D')
+		{
+			
+			   for(var i=0; i<subcuentas.length; i++)
+			   {
+				  
+					 html += "<option value='"+subcuentas[i].codsubcuenta+"/"+subcuentas[i].descripcion+"%"+subcuentas[i].idsubcuenta+"' >"+subcuentas[i].descripcion+"</option>";
+				}
+		}
+		else
+		{
+			
+			   for(var i=0; i<subcuentas_c.length; i++)
+			   {
+				  
+					 html += "<option value='"+subcuentas_c[i].codsubcuenta+"/"+subcuentas_c[i].descripcion+"%"+subcuentas_c[i].idsubcuenta+"' >"+subcuentas_c[i].descripcion+"</option>";
+				}
+	
+		}
+	
   return html; 
 }
 
@@ -381,7 +444,7 @@ function add_linea_libre()
          <div class=\"form-control\"></div></td>\n\
       <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\"></textarea></td>\n\
 	  <td><select name=\"subcuenta_"+numlineas+"\" id=\"subcuenta_"+numlineas+"\" class=\"form-control text-right\" style='width:200px; font-size:12px'>\n\
-	   <option selected=\"selected\"></option>"+sel()+"</select></td>\n\
+	   <option selected=\"selected\"></option>"+sel_1()+"</select></td>\n\
       <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
          "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
       <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
@@ -516,13 +579,13 @@ function buscar_articulos()
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
                      <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
                      &nbsp; <a href=\"#\" onclick=\"return add_articulo('"
-                          +val.referencia+"','"+descripcion+"','"+precio+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.codsubcuentacom+"','"+val.subcuentadesccom+"')\">"
+                          +val.referencia+"','"+descripcion+"','"+precio+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.codsubcuentacom+"','"+val.subcuentadesccom+"','"+val.codsubcuentadevcom+"','"+val.subcuentadescdevcom+"')\">"
                           +val.referencia+'</a> '+val.descripcion+"</td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"
-                          +val.referencia+"','"+descripcion+"','"+val.coste+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.codsubcuentacom+"','"+val.subcuentadesccom+"')\">"
+                          +val.referencia+"','"+descripcion+"','"+val.coste+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.codsubcuentacom+"','"+val.subcuentadesccom+"','"+val.codsubcuentadevcom+"','"+val.subcuentadescdevcom+"')\">"
                           +show_precio(val.coste)+"</a></td>\n\
                      <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"
-                          +val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"','"+val.codsubcuentacom+"','"+val.subcuentadesccom+"')\">"
+                          +val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"','"+val.codsubcuentacom+"','"+val.subcuentadesccom+"','"+val.codsubcuentadevcom+"','"+val.subcuentadescdevcom+"')\">"
                           +show_precio(val.pvp)+"</a></td>\n\
                      <td class=\"text-right\">"+val.stockfis+"</td></tr>");
                }

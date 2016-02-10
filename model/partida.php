@@ -213,7 +213,7 @@ class partida extends fs_model
    
    public function exists()
    {
-   	$existe_id=$this->db->select("SELECT idasiento FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento)." AND (idpartida = ".$this->var2str($this->idpartida)." OR idsubcuenta = ".$this->var2str($this->idsubcuenta).");");
+   	$existe_id=$this->db->select("SELECT idasiento FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento)." AND  idsubcuenta = ".$this->var2str($this->idsubcuenta).";");
    
       if( $existe_id==NULL or $existe_id[0]['idasiento']==0 )
       {
@@ -238,6 +238,8 @@ class partida extends fs_model
 	  
       if( $this->exists() )
       {	
+	
+	  
 	  		$array_partida=$this->db->select("SELECT idpartida,idasiento,baseimponible,debe,debeme,haber,haberme FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento)." AND idsubcuenta = ".$this->var2str($this->idsubcuenta).";");
 
 			$sum_debe=$array_partida[0]['debe']+$this->debe;
@@ -262,7 +264,7 @@ class partida extends fs_model
          
          if( $this->db->exec($sql) )
          {
-		 	$this->actualiza_importe($this->idasiento);
+		 	$this->actualiza_importe($this->idasiento); //No suma sinó actualiza el asiento sumando debe de las partidas
             $subc = $this->get_subcuenta();
             if($subc)
             {
@@ -275,6 +277,8 @@ class partida extends fs_model
       }
       else
       { 
+	  
+	
          $sql = "INSERT INTO ".$this->table_name." (idasiento,idsubcuenta,codsubcuenta,idconcepto,
             concepto,idcontrapartida,codcontrapartida,punteada,tasaconv,coddivisa,haberme,debeme,recargo,iva,
             baseimponible,factura,codserie,tipodocumento,documento,cifnif,debe,haber,comprobante,referencia) VALUES
@@ -289,7 +293,7 @@ class partida extends fs_model
          
          if( $this->db->exec($sql) )
          {
-		 $this->actualiza_importe($this->idasiento);
+		 $this->actualiza_importe($this->idasiento);   //No suma sinó actualiza el asiento sumando debe de las partidas
             $this->idpartida = $this->db->lastval();
             
             $subc = $this->get_subcuenta();

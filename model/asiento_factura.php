@@ -426,6 +426,7 @@ class asiento_factura
       $proveedor = $proveedor0->get($factura->codproveedor);
       if($proveedor)
       {
+	  /// Obtengo subcuenta proveedor
          $subcuenta_prov = $proveedor->get_subcuenta($factura->codejercicio);
       }
       
@@ -469,7 +470,7 @@ class asiento_factura
 			$total_sub = 0;
 			$finaliza = 0;
 				$subcuenta1 = $lineas_fact[$i]->codsubcuenta; 
-				
+				$idsubcuen = $lineas_fact[$i]->idsubcuenta; 
 				for ($j=0;$j<$i;$j++)    /// Compara para atrás si ya fue comparada la subcuenta
 				{
 					if($subcuenta1 == $lineas_fact[$j]->codsubcuenta) $finaliza = 1;
@@ -490,10 +491,10 @@ class asiento_factura
 									
 							$partida0->idasiento = $asiento->idasiento;
 							$partida0->concepto = $asiento->concepto;
-							$partida0->idsubcuenta = '270';
+							$partida0->idsubcuenta = $idsubcuen;
 							$partida0->codsubcuenta = $subcuenta1;
 				///////////  Proveedor  debe			/////////
-							$partida0->debe = $factura->total;
+							$partida0->debe = $total_sub;
 							$partida0->coddivisa = $factura->coddivisa;
 							$partida0->tasaconv = $factura->tasaconv;
 							$partida0->codserie = $factura->codserie;
@@ -640,6 +641,10 @@ class asiento_factura
                else
                   $this->new_error_msg("¡Imposible borrar el asiento!");
             }
+			
+			
+			
+			
          }
       }
       
