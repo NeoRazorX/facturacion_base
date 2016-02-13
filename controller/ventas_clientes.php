@@ -142,84 +142,74 @@ class ventas_clientes extends fs_controller
       }
       else if( isset($_POST['cifnif']) ) /// añadir un nuevo cliente
       {
-         $cliente = FALSE;
-         if($_POST['cifnif'] != '')
+         $cliente = new cliente();
+         $cliente->codcliente = $cliente->get_new_codigo();
+         $cliente->nombre = $_POST['nombre'];
+         $cliente->razonsocial = $_POST['nombre'];
+         $cliente->cifnif = $_POST['cifnif'];
+         
+         if($_POST['scodgrupo'] != '')
          {
-            $cliente = $this->cliente->get_by_cifnif($_POST['cifnif']);
-            if($cliente)
-            {
-               $this->new_advice('Ya existe un cliente con el '.FS_CIFNIF.' '.$_POST['cifnif']);
-               $this->query = $_POST['cifnif'];
-            }
+            $cliente->codgrupo = $_POST['scodgrupo'];
          }
          
-         if(!$cliente)
+         if( isset($_POST['telefono1']) )
          {
-            $cliente = new cliente();
-            $cliente->codcliente = $cliente->get_new_codigo();
-            $cliente->nombre = $_POST['nombre'];
-            $cliente->razonsocial = $_POST['nombre'];
-            $cliente->cifnif = $_POST['cifnif'];
+            $cliente->telefono1 = $_POST['telefono1'];
+         }
+         
+         if( isset($_POST['telefono2']) )
+         {
+            $cliente->telefono2 = $_POST['telefono2'];
+         }
+         
+         if( $cliente->save() )
+         {
+            $dircliente = new direccion_cliente();
+            $dircliente->codcliente = $cliente->codcliente;
+            $dircliente->codpais = $this->empresa->codpais;
+            $dircliente->provincia = $this->empresa->provincia;
+            $dircliente->ciudad = $this->empresa->ciudad;
+            $dircliente->descripcion = 'Principal';
             
-            if($_POST['scodgrupo'] != '')
+            if( isset($_POST['pais']) )
             {
-               $cliente->codgrupo = $_POST['scodgrupo'];
+               $dircliente->codpais = $_POST['pais'];
             }
             
-            if( isset($_POST['telefono1']) )
+            if( isset($_POST['provincia']) )
             {
-               $cliente->telefono1 = $_POST['telefono1'];
+               $dircliente->provincia = $_POST['provincia'];
             }
             
-            if( isset($_POST['telefono2']) )
+            if( isset($_POST['ciudad']) )
             {
-               $cliente->telefono2 = $_POST['telefono2'];
+               $dircliente->ciudad = $_POST['ciudad'];
             }
             
-            if( $cliente->save() )
+            if( isset($_POST['codpostal']) )
             {
-               $dircliente = new direccion_cliente();
-               $dircliente->codcliente = $cliente->codcliente;
-               $dircliente->codpais = $this->empresa->codpais;
-               $dircliente->provincia = $this->empresa->provincia;
-               $dircliente->ciudad = $this->empresa->ciudad;
-               $dircliente->descripcion = 'Principal';
+               $dircliente->codpostal = $_POST['codpostal'];
+            }
+            
+            if( isset($_POST['direccion']) )
+            {
+               $dircliente->direccion = $_POST['direccion'];
+            }
+            
+            if( $dircliente->save() )
+            {
+               /// forzamos la creación de la subcuenta
+               $cliente->get_subcuenta($this->empresa->codejercicio);
                
-               if( isset($_POST['pais']) )
-               {
-                  $dircliente->codpais = $_POST['pais'];
-               }
-               
-               if( isset($_POST['provincia']) )
-               {
-                  $dircliente->provincia = $_POST['provincia'];
-               }
-               
-               if( isset($_POST['ciudad']) )
-               {
-                  $dircliente->ciudad = $_POST['ciudad'];
-               }
-               
-               if( isset($_POST['codpostal']) )
-               {
-                  $dircliente->codpostal = $_POST['codpostal'];
-               }
-               
-               if( isset($_POST['direccion']) )
-               {
-                  $dircliente->direccion = $_POST['direccion'];
-               }
-               
-               if( $dircliente->save() )
-               {
-                  header('location: '.$cliente->url());
-               }
-               else
-                  $this->new_error_msg("¡Imposible guardar la dirección del cliente!");
+               /// redireccionamos a la página del cliente
+               header('location: '.$cliente->url());
             }
             else
-               $this->new_error_msg("¡Imposible guardar los datos del cliente!");
+               $this->new_error_msg("¡Imposible guardar la dirección del cliente!");
          }
+         else
+            $this->new_error_msg("¡Imposible guardar los datos del cliente!");
       }
       
       $this->offset = 0;

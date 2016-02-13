@@ -261,10 +261,10 @@ class articulo extends fs_model
                /// eneboo, no hacemos nada
                $this->imagen = $a['imagen'];
             }
-            else if( file_exists('tmp/articulos/'.$this->referencia.'.png') )
+            else if( file_exists('tmp/articulos/'.$this->image_ref().'.png') )
             {
                /// si está el archivo, lo movemos
-               if( !rename('tmp/articulos/'.$this->referencia.'.png', 'images/articulos/'.$this->referencia.'-1.png') )
+               if( !rename('tmp/articulos/'.$this->image_ref().'.png', 'images/articulos/'.$this->image_ref().'-1.png') )
                {
                   $this->new_error_msg('Error al mover la imagen del artículo.');
                }
@@ -272,7 +272,7 @@ class articulo extends fs_model
             else
             {
                /// sino está el archivo, intentamos extraer los datos de la base de datos
-               $f = @fopen('images/articulos/'.$this->referencia.'-1.png', 'a');
+               $f = @fopen('images/articulos/'.$this->image_ref().'-1.png', 'a');
                if($f)
                {
                   fwrite( $f, $this->str2bin($a['imagen']) );
@@ -586,13 +586,13 @@ class articulo extends fs_model
    
    public function imagen_url()
    {
-      if( file_exists('images/articulos/'.$this->referencia.'-1.png') )
+      if( file_exists('images/articulos/'.$this->image_ref().'-1.png') )
       {
-         return 'images/articulos/'.$this->referencia.'-1.png';
+         return 'images/articulos/'.$this->image_ref().'-1.png';
       }
-      else if( file_exists('images/articulos/'.$this->referencia.'-1.jpg') )
+      else if( file_exists('images/articulos/'.$this->image_ref().'-1.jpg') )
       {
-         return 'images/articulos/'.$this->referencia.'-1.jpg';
+         return 'images/articulos/'.$this->image_ref().'-1.jpg';
       }
       else
          return FALSE;
@@ -602,13 +602,13 @@ class articulo extends fs_model
    {
       $this->imagen = NULL;
       
-      if( file_exists('images/articulos/'.$this->referencia.'-1.png') )
+      if( file_exists('images/articulos/'.$this->image_ref().'-1.png') )
       {
-         unlink('images/articulos/'.$this->referencia.'-1.png');
+         unlink('images/articulos/'.$this->image_ref().'-1.png');
       }
-      else if( file_exists('images/articulos/'.$this->referencia.'-1.jpg') )
+      else if( file_exists('images/articulos/'.$this->image_ref().'-1.jpg') )
       {
-         unlink('images/articulos/'.$this->referencia.'-1.jpg');
+         unlink('images/articulos/'.$this->image_ref().'-1.jpg');
       }
       
       if($img)
@@ -620,11 +620,11 @@ class articulo extends fs_model
          
          if($png)
          {
-            $f = @fopen('images/articulos/'.$this->referencia.'-1.png', 'a');
+            $f = @fopen('images/articulos/'.$this->image_ref().'-1.png', 'a');
          }
          else
          {
-            $f = @fopen('images/articulos/'.$this->referencia.'-1.jpg', 'a');
+            $f = @fopen('images/articulos/'.$this->image_ref().'-1.jpg', 'a');
          }
          
          if($f)
@@ -671,9 +671,9 @@ class articulo extends fs_model
          if( $this->db->exec($sql) )
          {
             /// renombramos la imagen, si la hay
-            if( file_exists('images/articulos/'.$this->referencia.'-1.png') )
+            if( file_exists('images/articulos/'.$this->image_ref().'-1.png') )
             {
-               rename('images/articulos/'.$this->referencia.'-1.png', 'images/articulos/'.$ref.'-1.png');
+               rename('images/articulos/'.$this->image_ref().'-1.png', 'images/articulos/'.$this->image_ref($ref).'-1.png');
             }
             
             $this->referencia = $ref;
@@ -1316,5 +1316,24 @@ class articulo extends fs_model
       }
       
       return $artilist;
+   }
+   
+   /**
+    * Devuelve la referencia codificada para poder ser usada en imágenes.
+    * Evitamos así errores con caracteres especiales como / y \.
+    * @param type $ref
+    * @return type
+    */
+   public function image_ref($ref = FALSE)
+   {
+      if(!$ref)
+      {
+         $ref = $this->referencia;
+      }
+      
+      $ref = str_replace('/', '_', $ref);
+      $ref = str_replace('\\', '_', $ref);
+      
+      return rawurlencode($ref);
    }
 }

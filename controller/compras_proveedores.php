@@ -60,46 +60,36 @@ class compras_proveedores extends fs_controller
       }
       else if( isset($_POST['cifnif']) )
       {
-         $proveedor = FALSE;
-         if($_POST['cifnif'] != '')
-         {
-            $proveedor = $this->proveedor->get_by_cifnif($_POST['cifnif']);
-            if($proveedor)
-            {
-               $this->new_advice('Ya existe un proveedor con el '.FS_CIFNIF.' '.$_POST['cifnif']);
-               $this->query = $_POST['cifnif'];
-            }
-         }
+         $proveedor = new proveedor();
+         $proveedor->codproveedor = $proveedor->get_new_codigo();
+         $proveedor->nombre = $_POST['nombre'];
+         $proveedor->razonsocial = $_POST['nombre'];
+         $proveedor->cifnif = $_POST['cifnif'];
+         $proveedor->acreedor = isset($_POST['acreedor']);
          
-         if(!$proveedor)
+         if( $proveedor->save() )
          {
-            $proveedor = new proveedor();
-            $proveedor->codproveedor = $proveedor->get_new_codigo();
-            $proveedor->nombre = $_POST['nombre'];
-            $proveedor->razonsocial = $_POST['nombre'];
-            $proveedor->cifnif = $_POST['cifnif'];
-            $proveedor->acreedor = isset($_POST['acreedor']);
-            
-            if( $proveedor->save() )
+            $dirproveedor = new direccion_proveedor();
+            $dirproveedor->codproveedor = $proveedor->codproveedor;
+            $dirproveedor->descripcion = "Principal";
+            $dirproveedor->codpais = $_POST['pais'];
+            $dirproveedor->provincia = $_POST['provincia'];
+            $dirproveedor->ciudad = $_POST['ciudad'];
+            $dirproveedor->codpostal = $_POST['codpostal'];
+            $dirproveedor->direccion = $_POST['direccion'];
+            if( $dirproveedor->save() )
             {
-               $dirproveedor = new direccion_proveedor();
-               $dirproveedor->codproveedor = $proveedor->codproveedor;
-               $dirproveedor->descripcion = "Principal";
-               $dirproveedor->codpais = $_POST['pais'];
-               $dirproveedor->provincia = $_POST['provincia'];
-               $dirproveedor->ciudad = $_POST['ciudad'];
-               $dirproveedor->codpostal = $_POST['codpostal'];
-               $dirproveedor->direccion = $_POST['direccion'];
-               if( $dirproveedor->save() )
-               {
-                  header('location: '.$proveedor->url());
-               }
-               else
-                  $this->new_error_msg("¡Imposible guardar la dirección el proveedor!");
+               /// forzamos crear la subcuenta
+               $proveedor->get_subcuenta($this->empresa->codejercicio);
+               
+               /// redireccionamos a la página del proveedor
+               header('location: '.$proveedor->url());
             }
             else
-               $this->new_error_msg("¡Imposible guardar el proveedor!");
+               $this->new_error_msg("¡Imposible guardar la dirección el proveedor!");
          }
+         else
+            $this->new_error_msg("¡Imposible guardar el proveedor!");
       }
       
       $this->mostrar = 'todo';

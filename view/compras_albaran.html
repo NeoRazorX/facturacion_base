@@ -1,9 +1,9 @@
 {include="header"}
 
 {if="$fsc->albaran"}
-{if="$fsc->albaran->ptefactura"}
 <script type="text/javascript" src="{$fsc->get_js_location('ac_email_proveedor.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('nueva_compra.js')}"></script>
+{if="$fsc->albaran->ptefactura"}
 <script type="text/javascript">
    numlineas = {function="count($fsc->albaran->get_lineas())"};
    fs_nf0 = {#FS_NF0#};
