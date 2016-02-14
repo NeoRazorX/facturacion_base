@@ -387,4 +387,26 @@ class articulo_proveedor extends fs_model
       else
          return FALSE;
    }
+   
+   /**
+    * Devuelve todos los articulos que tienen asociada una referencia para actualizar.
+    * @param 
+    * @return \articulo_proveedor
+    */
+   public function all_con_ref()
+   {
+      $alist = array();
+      $sql = "SELECT * FROM articulosprov WHERE referencia !='' ORDER BY precio ASC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $alist[] = new articulo_proveedor($d);
+         }
+      }
+      
+      return $alist;
+   }
 }
