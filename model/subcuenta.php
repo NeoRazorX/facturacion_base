@@ -482,7 +482,7 @@ class subcuenta extends fs_model
          if( strtolower(FS_DB_TYPE) == 'mysql' )
          {
             $sql = "SELECT * FROM ".$this->table_name." WHERE codejercicio = "
-                 .$this->var2str($codejercicio)." ORDER BY NEWID()";
+                 .$this->var2str($codejercicio)." ORDER BY RAND()";
          }
          else
          {

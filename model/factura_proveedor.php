@@ -380,7 +380,7 @@ class factura_proveedor extends fs_model
                $encontrada = FALSE;
                while($i < count($lineasi))
                {
-                  if($l->codimpuesto == $lineasi[$i]->codimpuesto)
+                  if($l->iva == $lineasi[$i]->iva AND $l->recargo == $lineasi[$i]->recargo)
                   {
                      $encontrada = TRUE;
                      $lineasi[$i]->neto += $l->pvptotal;
