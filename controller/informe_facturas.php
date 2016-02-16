@@ -1710,6 +1710,21 @@ class informe_facturas extends fs_controller
             }
             echo ";".number_format($l_total, FS_NF0, ',', '').";\n";
          }
+         
+         foreach( array_reverse($totales, TRUE) as $i => $value)
+         {
+            echo ";TOTALES;".$i;
+            $l_total = 0;
+            foreach($value as $j => $value3)
+            {
+               if($j < 13)
+               {
+                  echo ';'.number_format($value3, FS_NF0, ',', '');
+                  $l_total += $value3;
+               }
+            }
+            echo ";".number_format($l_total, FS_NF0, ',', '').";\n";
+         }
       }
       else
       {
