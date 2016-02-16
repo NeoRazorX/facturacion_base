@@ -147,8 +147,8 @@ class ventas_parcial extends fs_controller
          if ($asiento_factura->generar_asiento_venta($fact))
          {
             $this->new_message("<a href='" . $asiento_factura->asiento->url() . "'>Asiento</a> generado correctamente.");
-            $this->new_change('Nota de Crédito ' . $fact->codigo, $fact->url());
-            $this->new_message("Devolución ingresada correctamente, se generó la nota de crédito: " . $fact->codigo);
+            $this->new_change(ucfirst(FS_FACTURA_RECTIFICATIVA).' ' . $fact->codigo, $fact->url());
+            $this->new_message("Devolución ingresada correctamente, se generó la ".ucfirst(FS_FACTURA_RECTIFICATIVA).": " . $fact->codigo);
          }
          $devolucion = new devolucion_parcial();
          $lineas_devolucion = $devolucion->get_devolucion($factura_original);
