@@ -58,7 +58,7 @@ class albaran_proveedor extends fs_model
     * @var type 
     */
    public $numproveedor;
-   
+   public $numremito;
    /**
     * Ejercicio relacionado. El que corresponde a la fecha.
     * @var type 
@@ -183,6 +183,7 @@ class albaran_proveedor extends fs_model
          $this->codigo = $a['codigo'];
          $this->numero = $a['numero'];
          $this->numproveedor = $a['numproveedor'];
+		 $this->numremito = $a['numremito'];
          $this->codejercicio = $a['codejercicio'];
          $this->codserie = $a['codserie'];
          $this->coddivisa = $a['coddivisa'];
@@ -215,6 +216,7 @@ class albaran_proveedor extends fs_model
          $this->codigo = '';
          $this->numero = '';
          $this->numproveedor = '';
+		 $this->numremito = '';
          $this->codejercicio = NULL;
          $this->codserie = NULL;
          $this->coddivisa = NULL;
@@ -522,6 +524,7 @@ class albaran_proveedor extends fs_model
                     .", codigo = ".$this->var2str($this->codigo)
                     .", numero = ".$this->var2str($this->numero)
                     .", numproveedor = ".$this->var2str($this->numproveedor)
+					.", numremito = ".$this->var2str($this->numremito)
                     .", codejercicio = ".$this->var2str($this->codejercicio)
                     .", codserie = ".$this->var2str($this->codserie)
                     .", coddivisa = ".$this->var2str($this->coddivisa)
@@ -550,13 +553,14 @@ class albaran_proveedor extends fs_model
          else
          {
             $this->new_codigo();
-            $sql = "INSERT INTO ".$this->table_name." (codigo,numero,numproveedor,
+            $sql = "INSERT INTO ".$this->table_name." (codigo,numero,numproveedor,numremito,
                codejercicio,codserie,coddivisa,codpago,codagente,codalmacen,fecha,codproveedor,
                nombre,cifnif,neto,total,totaliva,totaleuros,irpf,totalirpf,tasaconv,
                totalrecargo,observaciones,ptefactura,hora) VALUES
                       (".$this->var2str($this->codigo)
                     .",".$this->var2str($this->numero)
                     .",".$this->var2str($this->numproveedor)
+					.",".$this->var2str($this->numremito)
                     .",".$this->var2str($this->codejercicio)
                     .",".$this->var2str($this->codserie)
                     .",".$this->var2str($this->coddivisa)

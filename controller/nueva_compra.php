@@ -25,6 +25,7 @@ require_model('familia.php');
 require_model('forma_pago.php');
 require_model('pedido_proveedor.php');
 require_model('proveedor.php');
+require_model('albaran_proveedor.php');
 
 class nueva_compra extends fs_controller
 {
@@ -44,6 +45,7 @@ class nueva_compra extends fs_controller
    public $serie;
    public $tipo;
    public $verif_factura;
+   public $verif_remito;
    public $numproveedor;
    public $cai;
    public $caivence;
@@ -66,6 +68,8 @@ class nueva_compra extends fs_controller
       $this->results = array();
 	  $factura= new factura_proveedor();
 	  $this->verif_factura = $factura->all();
+	  $remito= new albaran_proveedor();
+	  $this->verif_remito = $remito->all();
 	  $this->subcuentas = new subcuenta();
 	  $this->artsubcuentas = new articulo();
 	  
@@ -73,6 +77,7 @@ class nueva_compra extends fs_controller
       if( isset($_REQUEST['tipo']) )
       {
          $this->tipo = $_REQUEST['tipo'];
+
       }
       else
       {
@@ -159,10 +164,10 @@ class nueva_compra extends fs_controller
                else
                   $this->new_error_msg('Clase pedido_proveedor no encontrada.');
             }
-            else if($_POST['tipo'] == 'R')
+            else if($_POST['pagina'] == 'albaran')
             {
 				
-       //        $this->nuevo_albaran_proveedor();
+               $this->nuevo_albaran_proveedor();
             }
             else if($_POST['tipo'] == 'F')
             {
@@ -559,7 +564,9 @@ class nueva_compra extends fs_controller
             $this->new_error_msg("¡Imposible guardar el ".FS_PEDIDO."!");
       }
    }
-   
+///////////////////////////////////////////////////
+/////////////////  ALBARAN
+//////////////////////////////////////////////////   
    private function nuevo_albaran_proveedor()
    {
       $continuar = TRUE;
@@ -645,9 +652,8 @@ class nueva_compra extends fs_controller
          {
             $albaran->tasaconv = floatval($_POST['tasaconv']);
          }
-         
          $albaran->codagente = $this->agente->codagente;
-         $albaran->numproveedor = $_POST['numproveedor'];
+         $albaran->numremito = $_POST['tipo'].'/'.$_POST['numproveedor'];
          $albaran->observaciones = $_POST['observaciones'];
          $albaran->irpf = $serie->irpf;
          
@@ -663,7 +669,7 @@ class nueva_compra extends fs_controller
                   $linea->idalbaran = $albaran->idalbaran;
                   $linea->descripcion = $_POST['desc_'.$i];
                   
-                  if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
+ /*                 if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
                   {
                      $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$i]);
                      if($imp0)
@@ -678,7 +684,7 @@ class nueva_compra extends fs_controller
                         $linea->recargo = floatval($_POST['recargo_'.$i]);
                      }
                   }
-                  
+ */                 
                   $linea->irpf = floatval($_POST['irpf_'.$i]);
                   $linea->pvpunitario = floatval($_POST['pvp_'.$i]);
                   $linea->cantidad = floatval($_POST['cantidad_'.$i]);

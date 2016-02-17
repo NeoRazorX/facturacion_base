@@ -49,6 +49,9 @@ class compras_albaran extends fs_controller
    public $proveedor;
    public $proveedor_s;
    public $serie;
+   public $verif_factura;
+   public $subcuentas;
+   public $autorizar_factura;
    
    public function __construct()
    {
@@ -71,6 +74,10 @@ class compras_albaran extends fs_controller
       $this->proveedor = new proveedor();
       $this->proveedor_s = FALSE;
       $this->serie = new serie();
+	  $factura= new factura_proveedor();
+	  $this->verif_factura = $factura->all();
+	  $this->subcuentas = new subcuenta();
+	  $this->autorizar_factura=0;
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -83,6 +90,11 @@ class compras_albaran extends fs_controller
          if($nuevoalbp)
             $this->nuevo_albaran_url = $nuevoalbp->url();
       }
+	  
+	  	  	if(isset($_GET['autorizar_factura']) )
+            {
+			$this->autorizar_factura=1;
+			}
       
       if( isset($_POST['idalbaran']) )
       {
@@ -141,6 +153,11 @@ class compras_albaran extends fs_controller
       }
       else
          return $this->page->url();
+   }
+   
+    public function url_nueva_compra()
+   {
+   return 'index.php?page=nueva_compra';
    }
    
    private function modificar()
@@ -316,7 +333,7 @@ class compras_albaran extends fs_controller
                      $linea->idalbaran = $this->albaran->idalbaran;
                      $linea->descripcion = $_POST['desc_'.$num];
                      
-                     if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
+/*                     if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
                      {
                         $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$num]);
                         if($imp0)
@@ -325,7 +342,7 @@ class compras_albaran extends fs_controller
                         $linea->iva = floatval($_POST['iva_'.$num]);
                         $linea->recargo = floatval($_POST['recargo_'.$num]);
                      }
-                     
+ */                    
                      $linea->irpf = floatval($_POST['irpf_'.$num]);
                      $linea->cantidad = floatval($_POST['cantidad_'.$num]);
                      $linea->pvpunitario = floatval($_POST['pvp_'.$num]);
@@ -408,6 +425,9 @@ class compras_albaran extends fs_controller
    
    private function generar_factura()
    {
+
+	  $this->albaran->numproveedor = $_POST['numfactproveedor'];		
+	  $this->albaran->save();			
       $factura = new factura_proveedor();
       $factura->cifnif = $this->albaran->cifnif;
       $factura->codalmacen = $this->albaran->codalmacen;
@@ -420,7 +440,9 @@ class compras_albaran extends fs_controller
       $factura->irpf = $this->albaran->irpf;
       $factura->neto = $this->albaran->neto;
       $factura->nombre = $this->albaran->nombre;
-      $factura->numproveedor = $this->albaran->numproveedor;
+      $factura->numproveedor = $_POST['numfactproveedor'];
+	  $factura->remito = $this->albaran->numremito;
+	  $factura->tipo = $_POST['comprobante'];
       $factura->observaciones = $this->albaran->observaciones;
       $factura->total = $this->albaran->total;
       $factura->totalirpf = $this->albaran->totalirpf;
@@ -428,7 +450,7 @@ class compras_albaran extends fs_controller
       $factura->totalrecargo = $this->albaran->totalrecargo;
       $factura->codagente = $this->albaran->codagente;
 	  $factura->idpagodevol = 0;
-      
+      $factura->numremito = $this->albaran->numremito;
       /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
       $forma0 = new forma_pago();
       $formapago = $forma0->get($factura->codpago);
@@ -487,7 +509,7 @@ class compras_albaran extends fs_controller
             $this->albaran->ptefactura = FALSE;
             if( $this->albaran->save() )
             {
-               $this->generar_asiento($factura);
+ //              $this->generar_asiento($factura);
             }
             else
             {
@@ -512,6 +534,7 @@ class compras_albaran extends fs_controller
       }
       else
          $this->new_error_msg("¡Imposible guardar la factura!");
+
    }
    
    private function generar_asiento(&$factura)

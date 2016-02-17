@@ -42,7 +42,7 @@
                </a>
             </div>
             <div class="btn-group">
-               <a class="btn btn-sm btn-default" href="index.php?page=compras_albaranes">
+               <a href="index.php?page=compras_facturas" class="btn btn-sm btn-default">
                   <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; <span class="text-capitalize">{#FS_ALBARANES#}</span>
                </a>
                {loop="$fsc->extensions"}
@@ -50,6 +50,7 @@
                   <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                   {/if}
                {/loop}
+			   
             </div>
          </div>
          <div class="col-xs-8 text-right">

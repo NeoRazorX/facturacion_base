@@ -335,6 +335,30 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,codsub,subdesc,subdev,subdesd
       "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
          "\" readonly=\"true\" style=\"font-weight: bold; background-color:#FFFFFF\" autocomplete=\"off\"/></td></tr>");
+   
+   
+      $("#lineas_albaran1").append("<tr id=\"linea_"+numlineas+"\">\n\
+      <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
+         <input type=\"hidden\" name=\"referencia_"+numlineas+"\" value=\""+ref+"\"/>\n\
+         <div class=\"form-control\"><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></div></td>\n\
+      <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\">"+desc+"</textarea></td>\n\
+	  <td></td>\n\
+	  <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
+         "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
+      <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
+         <span class=\"glyphicon glyphicon-trash\"></span></button></td>\n\
+      <td><input type=\"text\" class=\"form-control text-right\" id=\"pvp_"+numlineas+"\" name=\"pvp_"+numlineas+"\" value=\""+pvp+
+         "\" onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+      <td><input type=\"text\" id=\"dto_"+numlineas+"\" name=\"dto_"+numlineas+"\" value=\""+dto+
+         "\" class=\"form-control text-right\" onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+      <td><input type=\"text\" class=\"form-control text-right\" id=\"neto_"+numlineas+"\" name=\"neto_"+numlineas+
+         "\" onchange=\"ajustar_neto()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+      "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
+      <td><input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
+         "\" readonly=\"true\" style=\"font-weight: bold; background-color:#FFFFFF\" autocomplete=\"off\"/></td></tr>");
+   
+   
+   
    numlineas += 1;
    $("#numlineas").val(numlineas);
    recalcular();
@@ -353,7 +377,8 @@ function sel(subdesc1,idsub,codsub,subdev)
 	
 var html='';
 
-
+if(document.f_new_albaran)
+{
 		if(document.f_new_albaran.tipo_com.value =='F' || document.f_new_albaran.tipo_com.value =='D')
 		{
 			
@@ -388,7 +413,7 @@ var html='';
 					   }
 			
 			
-				html = "<option value='"+codsub+"/"+subdesc1+"%"+idsub+"' selected=\"selected\">"+subdesc1+"</option>";
+				html = "<option value='"+subdev+"/"+subdesc1+"%"+idsub+"' selected=\"selected\">"+subdesc1+"</option>";
 			   for(var i=0; i<subcuentas_c.length; i++)
 			   {
 				  
@@ -396,6 +421,7 @@ var html='';
 				}
 	
 		}
+}
 	
   return html; 
 }
@@ -404,7 +430,8 @@ function sel_1()
 {
 	
 var html='';
-
+if(document.f_new_albaran)
+{
 
 		if(document.f_new_albaran.tipo_com.value =='F' || document.f_new_albaran.tipo_com.value =='D')
 		{
@@ -425,6 +452,7 @@ var html='';
 				}
 	
 		}
+}
 	
   return html; 
 }
@@ -438,7 +466,29 @@ function add_linea_libre()
       codimpuesto = all_impuestos[i].codimpuesto;
    }
    
-   $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\
+   $("#lineas_albaran1").append("<tr id=\"linea_"+numlineas+"\">\n\
+      <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
+         <input type=\"hidden\" name=\"referencia_"+numlineas+"\"/>\n\
+         <div class=\"form-control\"></div></td>\n\
+      <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\"></textarea></td>\n\
+	  <td></td>\n\
+      <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
+         "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
+      <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
+         <span class=\"glyphicon glyphicon-trash\"></span></button></td>\n\
+      <td><input type=\"text\" class=\"form-control text-right\" id=\"pvp_"+numlineas+"\" name=\"pvp_"+numlineas+"\" value=\"0\"\n\
+          onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+      <td><input type=\"text\" id=\"dto_"+numlineas+"\" name=\"dto_"+numlineas+"\" value=\"0\" class=\"form-control text-right\"\n\
+          onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+      <td><input type=\"text\" class=\"form-control text-right\" id=\"neto_"+numlineas+"\" name=\"neto_"+numlineas+
+         "\" onchange=\"ajustar_neto()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+      "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
+      <td><input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
+         "\" readonly=\"true\" style=\"font-weight: bold; background-color:#FFFFFF\" autocomplete=\"off\"/></td></tr>");
+   
+   
+   
+      $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\"/>\n\
          <div class=\"form-control\"></div></td>\n\
@@ -458,6 +508,7 @@ function add_linea_libre()
       "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
          "\" readonly=\"true\" style=\"font-weight: bold; background-color:#FFFFFF\" autocomplete=\"off\"/></td></tr>");
+   
    numlineas += 1;
    $("#numlineas").val(numlineas);
    recalcular();
@@ -465,6 +516,13 @@ function add_linea_libre()
    $("#desc_"+(numlineas-1)).select();
    return false;
 }
+
+
+
+
+
+
+
 
 function get_precios(ref)
 {

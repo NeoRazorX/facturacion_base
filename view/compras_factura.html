@@ -31,7 +31,12 @@
    <input type="hidden" name="idfactura" value="{$fsc->factura->idfactura}"/>
    <div class="container-fluid">
       <div class="row" style="margin-top: 10px;">
+	  
+
          <div class="col-xs-8">
+		 	  		<a href="{$fsc->ppage->url()}">
+                  <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Facturas
+            </a>
             <a class="btn btn-sm btn-default hidden-xs" href="{$fsc->url()}" title="recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
@@ -84,7 +89,7 @@
 		{if="!$fsc->factura->pagada"}
 			{if="$fsc->factura_anulada==1 or $fsc->factura_anulada!=NULL"}
 			<div class="btn-group">
-				<a class="btn btn-sm btn-danger" href="{$fsc->url()}&gen_devolucion=TRUE&petid={$fsc->random_string()}&idfacpro={$fsc->factura->idfactura}">
+				<a class="btn btn-sm btn-danger" href="{$fsc->url()}&gen_devolucion=TRUE&petid={$fsc->random_string()}&id={$fsc->factura->idfactura}">
                 <span class="glyphicon glyphicon-remove-circle"></span> <span class="hidden-xs">&nbsp;Factura anulada</span>
                </a>
 			 </div>
@@ -110,7 +115,9 @@
          </div>
          <div class="col-xs-4 text-right">
             <div class="btn-group">
-               {if="$fsc->allow_delete"}
+              
+			   {if="$fsc->factura->idasiento==null "}
+			    {if="$fsc->allow_delete"}
                <a id="b_eliminar" class="btn btn-sm btn-danger" href="#">
                   <span class="glyphicon glyphicon-trash"></span>
                   <span class="hidden-sm hidden-xs">&nbsp; Eliminar</span>
@@ -120,15 +127,15 @@
                   <span class="glyphicon glyphicon-floppy-disk"></span>
                   <span class="hidden-xs">&nbsp; Guardar</span>
                </button>
+			   {/if}
             </div>
          </div>
       </div>
       <div class="row">
          <div class="col-md-12">
             <h3 style="margin-bottom: 0px;">
-               <a href="{$fsc->ppage->url()}">Facturas</a> /
-               <a href="{$fsc->factura->proveedor_url()}">{$fsc->factura->nombre}</a> /
-               {$fsc->factura->codigo}
+               &nbsp;&nbsp;{$fsc->factura->numproveedor}&nbsp;</strong>/&nbsp;<a href="{$fsc->factura->proveedor_url()}">{$fsc->factura->nombre}</a> 
+               
             </h3>
             {if="$fsc->agente"}
             <p>Factura creada por <a href="{$fsc->agente->url()}">{$fsc->agente->get_fullname()}</a>.</p>
@@ -137,28 +144,50 @@
             {/if}
          </div>
       </div>
-      
-      <div class="row">
-         <div class="col-sm-4">
+	  
+	     
+         <div class="col-md-3 col-sm-12">
             <div class="form-group">
-               Núm. Proveedor:
-               <input class="form-control" type="text" name="numproveedor" value="{$fsc->factura->numproveedor}"/>
+               
+               <div class="input-group">
+                  
+                  Núm. Interno:&nbsp;&nbsp;<strong>{$fsc->factura->codigo}</strong>
+				 
+               </div>
+			    Núm. Remito:&nbsp;&nbsp;
+			   {if="$fsc->factura->numremito!=null "}
+			   <strong>{$fsc->factura->numremito}</strong>
+			   {else} No tiene Remito Asociado
+				{/if}
             </div>
-         </div>
-         <div class="col-sm-2">
-            <div class="form-group">
+         </div>  
+	  
+	  
+	  				 <div class="col-sm-2">
+					 <div class="form-group" style="font:bold;font-size:12px; width:210px">
+					&nbsp;&nbsp;&nbsp;&nbsp;CAI :&nbsp;&nbsp;<input type="text" class="form-control"  id="cai" name="cai" value="{$fsc->factura->cai}" />
+					</div></div>
+					<div class="col-sm-3">
+					  <div class="form-group" style="font:bold;font-size:12px">
+					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control datepicker" style="width:100px" {if="$fsc->factura->caivence >'01-01-2000'"}  value="{$fsc->factura->caivence}" {/if}   />
+					</div></div>
+					 
+      <input type="hidden" name="numproveedor" value="{$fsc->factura->numproveedor}"/>
+ 
+         <div class="col-sm-1">
+            <div class="form-group" style="font:bold;font-size:12px; width:100px">
                Fecha:
                <input class="form-control datepicker" type="text" name="fecha" value="{$fsc->factura->fecha}" autocomplete="off"/>
             </div>
          </div>
-         <div class="col-sm-2">
-            <div class="form-group">
+         <div class="col-sm-1">
+            <div class="form-group" style="font:bold;font-size:12px; width:100px">
                Hora:
                <input class="form-control" type="text" name="hora" value="{$fsc->factura->hora}" autocomplete="off"/>
             </div>
          </div>
-         <div class="col-sm-4">
-            <div class="form-group">
+         <div class="col-sm-2">
+            <div class="form-group" style="font:bold;font-size:12px; width:200px">
                <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
                <select name="forma_pago" class="form-control">
                   {loop="$fsc->forma_pago->all()"}
@@ -167,8 +196,18 @@
                </select>
             </div>
          </div>
+		 
+		 
+		 
       </div>
    </div>
+   
+ 
+   
+                           
+                    
+                        
+                        
    
    <div role="tabpanel">
       <ul class="nav nav-tabs" role="tablist">
@@ -178,12 +217,7 @@
                <span class="hidden-xs">&nbsp; Líneas</span>
             </a>
          </li>
-         <li role="presentation">
-            <a href="#lineas_iva" aria-controls="lineas_iva" role="tab" data-toggle="tab">
-               <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Impuestos</span>
-            </a>
-         </li>
+
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <li role="presentation">
@@ -198,39 +232,37 @@
                <table class="table table-hover">
                   <thead>
                      <tr>
-                        <th class="text-left text-capitalize">{#FS_ALBARAN#}</th>
-                        <th class="text-left">Artículo</th>
+                        <th class="text-left text-capitalize">Referencia</th>
+                        <th class="text-left">Descripción</th>
+						<th class="text-left">SubCuenta</th>
                         <th class="text-right">Cantidad</th>
                         <th class="text-right">Precio</th>
                         <th class="text-right">Dto</th>
                         <th class="text-right">Neto</th>
-                        <th class="text-right">{#FS_IVA#}</th>
-                        <th class="recargo text-right">RE</th>
-                        <th class="irpf text-right">{#FS_IRPF#}</th>
                         <th class="text-right">Total</th>
                      </tr>
                   </thead>
                   {loop="$fsc->factura->get_lineas()"}
                   <tr{if="$value->cantidad<=0"} class="bg-warning"{/if}>
                      <td>
-                        {if="$value->idalbaran"}
-                        <a href="{$value->albaran_url()}">{$value->albaran_codigo()}</a>
-                        {$value->albaran_numero()}
-                        {else}
-                        -
-                        {/if}
-                     </td>
-                     <td>
+                        
                         <a href="{$value->articulo_url()}">{$value->referencia}</a>
+            
+                     </td>
+                     <th class="text-left text-capitalize" width="300px">
+                       
                         {$value->descripcion}
                      </td>
+					 <td class="text-right">
+					 <select name="subcuenta_" id="subcuenta_" class="form-control text-right" style='width:200px; font-size:12px'>
+					 <option value='{$value->codcuenta}' selected="selected" >{$value->subcuentadesc}</option>
+	 					</select>
+					</td>
                      <td class="text-right">{$value->cantidad}</td>
                      <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->factura->coddivisa)}</td>
                      <td class="text-right">{$fsc->show_numero($value->dtopor, 2)} %</td>
                      <td class="text-right">{$fsc->show_precio($value->pvptotal, $fsc->factura->coddivisa)}</td>
-                     <td class="text-right">{$fsc->show_numero($value->iva, 2)} %</td>
-                     <td class="recargo text-right">{$fsc->show_numero($value->recargo, 2)} %</td>
-                     <td class="irpf text-right">{$fsc->show_numero($value->irpf, 2)} %</td>
+
                      <td class="text-right">{$fsc->show_precio($value->total_iva(), $fsc->factura->coddivisa)}</td>
                   </tr>
                   {/loop}
@@ -324,7 +356,7 @@
             <h3 class="modal-title">¿Realmente desea anular esta factura?</h3>
          </div>
          <div class="modal-footer">
-            <a class="btn btn-sm btn-danger" href="{$fsc->url()}&gen_devolucion=TRUE&petid={$fsc->random_string()}&idfacpro={$fsc->factura->idfactura}">
+            <a class="btn btn-sm btn-danger" href="{$fsc->url()}&gen_devolucion=TRUE&petid={$fsc->random_string()}&id={$fsc->factura->idfactura}">
                <span class="glyphicon glyphicon-remove-circle"></span> &nbsp; Anular factura
             </a>
          </div>

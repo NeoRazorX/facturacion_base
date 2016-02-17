@@ -84,21 +84,22 @@
             {/if}
          </div>
          <div class="btn-group">
-            <a class="btn btn-sm btn-success" href="index.php?page=nueva_compra&tipo=factura">
+		 {if="$fsc->mostrar=='remitos'"}
+			 <a href="index.php?page=compras_agrupar_albaranes" class="btn btn-sm btn-default">Agrupar Remitos</a>
+		{else}             
+			 <a class="btn btn-sm btn-success" href="index.php?page=nueva_compra&tipo=factura">
                <span class="glyphicon glyphicon-plus"></span>
                <span class="hidden-xs">&nbsp; Nueva</span>
             </a>
-            {loop="$fsc->extensions"}
-               {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
-               {/if}
-            {/loop}
+		{/if}
          </div>
       </div>
       <div class="col-sm-4 col-xs-6 text-right">
+	  {if="$fsc->mostrar!='remitos'"}
          <a id="b_buscar_lineas" class="btn btn-sm btn-info" title="Buscar en las líneas">
             <span class="glyphicon glyphicon-search"></span> &nbsp; Líneas
          </a>
+		{/if}	 
          <div class="btn-group">
             <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
@@ -159,7 +160,76 @@
          {/if}
       </a>
    </li>
+      <li{if="$fsc->mostrar=='remitos'"} class="active"{/if}>
+      <a href="{$fsc->url()}&mostrar=remitos">
+         {#FS_ALBARANES#} pendientes
+      </a>
+   </li>
 </ul>
+
+
+{if="$fsc->mostrar=='remitos'"}
+
+<div class="table-responsive">
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th></th>
+            <th class="text-left">Cód. Int.</th> 
+			<th class="text-left">Remito</th>
+			<th class="text-left">Factura</th>
+            <th class="text-left">Proveedor</th>
+            <th class="text-left">Observaciones</th>
+            <th class="text-right">Total</th>
+            <th class="text-right">Fecha</th>
+         </tr>
+      </thead>
+      {loop="$fsc->resultados"}
+      <tr class="clickableRow{if="!$value->ptefactura"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}&autorizar_factura">
+         <td class="text-center">
+            {if="!$value->ptefactura"}
+            <span class="glyphicon glyphicon-paperclip" title="facturado"></span>
+            {/if}
+         </td>
+         <td><a href="{$value->url()}">{$value->codigo}</a></td>
+		 <td>{$value->numremito}</td>
+		 <td><a href="{$value->url()}"></a> {$value->numproveedor}</td>
+         <td>
+            {$value->nombre}
+            <a href="{$fsc->url()}&codproveedor={$value->codproveedor}" class="cancel_clickable" title="Ver más {#FS_ALBARANES#} de {$value->nombre}">[+]</a>
+         </td>
+         <td>{$value->observaciones_resume()}</td>
+         <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
+         <td class="text-right">
+            <span title="Hora: {$value->hora}">
+               {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
+            </span>
+         </td>
+      </tr>
+      {else}
+      <tr class="bg-warning">
+         <td></td>
+         <td colspan="5">Ningún {#FS_ALBARAN#} encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</td>
+      </tr>
+      {/loop}
+      {if="$fsc->total_resultados!==''"}
+      <tr>
+         <td colspan="5" class="text-right">
+            {$fsc->total_resultados_txt} &nbsp; <b>{$fsc->show_precio($fsc->total_resultados)}</b>
+         </td>
+         <td></td>
+      </tr>
+      {/if}
+   </table>
+</div>
+
+
+
+
+{else}
+
+
+
 
 {if="$fsc->mostrar=='buscar'"}
 <br/>
@@ -328,6 +398,13 @@
    </li>
    {/if}
 </ul>
+
+
+{/if}
+
+
+
+
 
 <form class="form" role="form" id="f_buscar_lineas" name="f_buscar_lineas" action="{$fsc->url()}" method="post">
    <div class="modal" id="modal_buscar_lineas">

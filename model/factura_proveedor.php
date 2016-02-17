@@ -66,6 +66,7 @@ class factura_proveedor extends fs_model
    public $tipo;
    public $cai;
    public $caivence;
+   public $numremito;
 
 //   public $idasientofac;
    
@@ -91,7 +92,7 @@ class factura_proveedor extends fs_model
 			 $this->fecha = Date('d-m-Y', strtotime($f['fecha']));
 			 $this->tipo = $f['tipo'];
    			 $this->cai = $f['cai'];
-   			 $this->caivence = Date('d-m-Y', strtotime($f['fecha']));
+   			 $this->caivence = Date('d-m-Y', strtotime($f['caivence']));
 			 
 			 $this->hora = '00:00:00';
 			 if( !is_null($f['hora']) )
@@ -116,6 +117,7 @@ class factura_proveedor extends fs_model
 			 $this->totalirpf = floatval($f['totalirpf']);
 			 $this->totaliva = floatval($f['totaliva']);
 			 $this->totalrecargo = floatval($f['totalrecargo']);
+			 $this->numremito = $f['numremito'];
 
 		  }
       	else
@@ -157,6 +159,7 @@ class factura_proveedor extends fs_model
 			 $this->tipo = '';
    			 $this->cai = '';
    			 $this->caivence = Date('d-m-Y');
+			 $this->numremito = '';
 		  }
 
    }
@@ -636,7 +639,7 @@ class factura_proveedor extends fs_model
                recfinanciero = ".$this->var2str($this->recfinanciero).", nogenerarasiento = ".$this->var2str($this->nogenerarasiento).",
                totalrecargo = ".$this->var2str($this->totalrecargo).", fecha = ".$this->var2str($this->fecha).",
 			   tipo = ".$this->var2str($this->tipo).", caivence = ".$this->var2str($this->caivence).", cai = ".$this->var2str($this->cai).",
-               hora = ".$this->var2str($this->hora).", editable = ".$this->var2str($this->editable)."
+               hora = ".$this->var2str($this->hora).", editable = ".$this->var2str($this->editable).", numremito = ".$this->var2str($this->numremito)."
                WHERE idfactura = ".$this->var2str($this->idfactura).";";
 			   
 			    
@@ -647,8 +650,8 @@ class factura_proveedor extends fs_model
             $this->new_codigo();
             $sql = "INSERT INTO ".$this->table_name." (deabono,codigo,automatica,total,neto,cifnif,pagada,observaciones,
                idpagodevol,codagente,codalmacen,irpf,totaleuros,nombre,codpago,codproveedor,idfacturarect,numproveedor,
-               codigorect,codserie,idasiento,totalirpf,totaliva,coddivisa,numero,codejercicio,tasaconv,
-               recfinanciero,nogenerarasiento,totalrecargo,fecha,hora,editable) VALUES (".$this->var2str($this->deabono).",
+               codigorect,codserie,idasiento,totalirpf,totaliva,coddivisa,numero,codejercicio,tasaconv,tipo,cai,caivence,
+               recfinanciero,nogenerarasiento,totalrecargo,fecha,hora,numremito,editable) VALUES (".$this->var2str($this->deabono).",
                ".$this->var2str($this->codigo).",".$this->var2str($this->automatica).",".$this->var2str($this->total).",
                ".$this->var2str($this->neto).",".$this->var2str($this->cifnif).",".$this->var2str($this->pagada).",
                ".$this->var2str($this->observaciones).",".$this->var2str($this->idpagodevol).",
@@ -660,9 +663,10 @@ class factura_proveedor extends fs_model
                ".$this->var2str($this->codserie).",".$this->var2str($this->idasiento).",
                ".$this->var2str($this->totalirpf).",".$this->var2str($this->totaliva).",".$this->var2str($this->coddivisa).",
                ".$this->var2str($this->numero).",".$this->var2str($this->codejercicio).",".$this->var2str($this->tasaconv).",
+			   ".$this->var2str($this->tipo).",".$this->var2str($this->cai).",".$this->var2str($this->caivence).",
                ".$this->var2str($this->recfinanciero).",".$this->var2str($this->nogenerarasiento).",
                ".$this->var2str($this->totalrecargo).",".$this->var2str($this->fecha).",
-               ".$this->var2str($this->hora).",".$this->var2str($this->editable).");";
+               ".$this->var2str($this->hora).",".$this->var2str($this->numremito).",".$this->var2str($this->editable).");";
             
             if( $this->db->exec($sql) )
             {
@@ -695,7 +699,7 @@ class factura_proveedor extends fs_model
          }
          
          /// desvinculamos el/los albaranes asociados
-         $this->db->exec("UPDATE albaranesprov SET idfactura = NULL, ptefactura = TRUE WHERE idfactura = ".$this->var2str($this->idfactura).";");
+         $this->db->exec("UPDATE albaranesprov SET idfactura = NULL, ptefactura = TRUE,numproveedor = '' WHERE idfactura = ".$this->var2str($this->idfactura).";");
          
          return TRUE;
       }
@@ -739,7 +743,7 @@ class factura_proveedor extends fs_model
          }
 		 
    
-    $sql = "UPDATE facturasprov SET idpagodevol = '1'   WHERE idfactura = ".$_GET['idfacpro'].";";
+    $sql = "UPDATE facturasprov SET idpagodevol = '1'   WHERE idfactura = ".$_GET['id'].";";
            if( $this->db->exec($sql) )
             {
                $this->idfactura = $this->db->lastval();

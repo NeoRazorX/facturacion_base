@@ -81,6 +81,8 @@ class compras_factura extends fs_controller
          $this->factura->numproveedor = $_POST['numproveedor'];
          $this->factura->observaciones = $_POST['observaciones'];
          $this->factura->codpago = $_POST['forma_pago'];
+		 $this->factura->cai = $_POST['cai'];
+		 $this->factura->caivence = $_POST['caivence'];
          
          /// obtenemos el ejercicio para poder acotar la fecha
          $eje0 = $this->ejercicio->get( $this->factura->codejercicio );
@@ -123,8 +125,13 @@ class compras_factura extends fs_controller
                $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
             }
             else
-			
-               $this->generar_asiento();
+ 
+			if( substr($this->factura->numproveedor, 0,1) == 'F' || substr($this->factura->numproveedor, 0,1) =='D' ) $this->generar_asiento();
+			else 
+			{
+				$asiento_credito = new asiento_factura();
+				$asiento_credito->nuevo_asiento_devolucion_prov($_REQUEST['id']);
+			}
          }
          else if( isset($_REQUEST['pagada']) )
          {
@@ -140,7 +147,7 @@ class compras_factura extends fs_controller
 		 {
 		 
 
-				
+ 
 		 $this->nuevo_asiento_devolucion(); // Compras_factura
 		 
 		 
@@ -186,8 +193,8 @@ class compras_factura extends fs_controller
    		$anular= new factura_proveedor();
 		$orden = new orden_prov();
 	  	$facturadev = new asiento_factura();
-	  	if($facturadev->nuevo_asiento_devolucion_prov($_REQUEST['idfacpro']))
-		$anular->boton_anular($_REQUEST['idfacpro']);
+	  	if($facturadev->nuevo_asiento_devolucion_prov($_REQUEST['id']))
+		$anular->boton_anular($_REQUEST['id']);
 
 		$factura = new factura_proveedor();
 	  	$var_idpagodevol=$factura->get($_GET['id']);

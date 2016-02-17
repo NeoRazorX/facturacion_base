@@ -54,6 +54,7 @@ class compras_albaranes extends fs_controller
       $this->agente = new agente();
       $this->serie = new serie();
       
+	  
       $this->mostrar = 'todo';
       if( isset($_GET['mostrar']) )
       {
