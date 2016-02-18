@@ -16,8 +16,8 @@
  *  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
  */
-
-require_model('articulos.php');
+require_model('familias.php');
+require_model('articulo.php');
 require_model('empresa.php');
 require_model('almacen.php');
 require_model('albaran_cliente.php');
@@ -40,10 +40,14 @@ class informe_analisisarticulos extends fs_controller {
     public $resultados;
     public $resultados_almacen;
     public $total_resultados;
+    public $familia;
+    public $familias;
+    public $articulo;
     public $articulos;
     public $fecha_inicio;
     public $fecha_fin;
     public $almacen;
+    public $almacenes;
     public $stock;
     public $lista_almacenes;
     public $fileName;
@@ -54,6 +58,9 @@ class informe_analisisarticulos extends fs_controller {
     }
 
     protected function private_core() {
+        $this->familias = new familia();
+        $this->articulos = new articulo();
+        $this->almacenes = new almacen();
         $this->share_extension();
         $this->fecha_inicio = \date('01-m-Y');
         $this->fecha_fin = \date('t-m-Y');
@@ -61,32 +68,25 @@ class informe_analisisarticulos extends fs_controller {
         $this->total_resultados = 0;
         $this->resultados_almacen = '';
         $this->fileName = '';
-        $tiporeporte = \filter_input(INPUT_POST, 'tipo-reporte');
+        $tiporeporte = \filter_input(INPUT_POST, 'procesar-reporte');
+        
         if(!empty($tiporeporte)){
-            $inicio = \date('Y-m-d',  strtotime(\filter_input(INPUT_POST, 'inicio')));
-            $fin = \date('Y-m-d',  strtotime(\filter_input(INPUT_POST, 'fin')));
+            $inicio = \date('Y-m-d', strtotime(\filter_input(INPUT_POST, 'inicio')));
+            $fin = \date('Y-m-d', strtotime(\filter_input(INPUT_POST, 'fin')));
+            $almacen = \filter_input(INPUT_POST, 'almacen');
+            $familia = \filter_input(INPUT_POST, 'familia');
+            $articulo = \filter_input(INPUT_POST, 'articulo');
             $this->fecha_inicio = $inicio;
             $this->fecha_fin = $fin;
             $this->reporte = $tiporeporte;
-            switch ($tiporeporte){
-                case 'valorizado-almacen':
-                    $this->valorizado_almacen();
-                    break;
-                case 'valorizado-familia':
-                    $this->valorizado_familia();
-                    break;
-                case 'valorizado-articulo':
-                    $this->valorizado_articulo();
-                    break;
-                default :
-                    break;
-            }
+            $this->almacen = ($almacen!='null')?$this->comma_separated_to_array($almacen):NULL;
+            $this->familia = ($familia!='null')?$this->comma_separated_to_array($familia):NULL;
+            $this->articulo = ($articulo!='null')?$this->comma_separated_to_array($articulo):NULL;
+            $this->kardex_almacen();
         }
     }
 
-    public function valorizado_almacen(){
-        $almacenes = new almacen();
-        $this->lista_almacenes = $almacenes->all();
+    public function kardex_almacen(){
         $resumen = array();
         $this->fileName = 'tmp/'.FS_TMP_NAME.'/'.$this->reporte."_".$this->user->nick.".xlsx";
         if(file_exists($this->fileName)){
@@ -105,9 +105,11 @@ class informe_analisisarticulos extends fs_controller {
             'Ingreso Valorizado'=>'#,###,###.##',
             'Saldo Valorizado'=>'#,###,###.##');
         $this->writer = new XLSXWriter();
-        foreach($almacenes->all() as $almacen){
-            $this->writer->writeSheetHeader($almacen->nombre, $header );
-            $resumen = array_merge($resumen, $this->stock_query($almacen));
+        foreach($this->almacen as $index=>$codigo)
+        {
+            $almacen0 = $this->almacenes->get($codigo);
+            $this->writer->writeSheetHeader($almacen0->nombre, $header );
+            $resumen = array_merge($resumen, $this->stock_query($almacen0));
         }
         $this->writer->writeToFile($this->fileName);
         gc_collect_cycles();
@@ -120,17 +122,25 @@ class informe_analisisarticulos extends fs_controller {
     }
 
     public function stock_query($almacen){
+        //Validamos el listado de Familias seleccionadas
+        $codfamilia = ($this->familia)?" and codfamilia IN ({$this->familia_data()})":" ";
+        
+        //Validamos el listado de Productos seleccionados
+        $referencia = ($this->articulo)?" and referencia IN ({$this->articulo_data()})":" ";
+        
+        //Generamos el select para la subconsulta
+        $productos = "SELECT referencia FROM articulos where bloqueado = false and controlstock = true $codfamilia $referencia";
         $lista = array();
         /*
          * Generamos la informacion de las regularizaciones que se hayan hecho a los stocks
          */
-        $sql_regstocks = "select codalmacen, fecha, s.idstock, s.referencia, motivo, sum(cantidadfin) as cantidad, descripcion, costemedio
+        $sql_regstocks = "select codalmacen, fecha, l.idstock, l.referencia, motivo, sum(cantidadfin) as cantidad, descripcion, costemedio
                from lineasregstocks AS ls
                JOIN stocks as s ON(ls.idstock = s.idstock)
-               JOIN articulos as a ON(s.referencia = a.referencia)
+               JOIN articulos as a ON(a.referencia = l.referencia)
                where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
-               and s.referencia IN (select referencia from articulos where controlstock = false)
-               group by s.codalmacen,fecha,s.idstock,s.referencia,motivo, descripcion, costemedio
+               and s.referencia IN ($productos) 
+               group by l.codalmacen, fecha, s.idstock, l.referencia, motivo, descripcion, costemedio
                order by codalmacen,referencia,fecha;";
         $data = $this->db->select($sql_regstocks);
         if($data){
@@ -156,8 +166,10 @@ class informe_analisisarticulos extends fs_controller {
         $sql_albaranes = "select codalmacen,ac.fecha,ac.idalbaran,referencia,descripcion,sum(cantidad) as cantidad, sum(pvptotal) as monto
                 from albaranesprov as ac
                 join lineasalbaranesprov as l ON (ac.idalbaran=l.idalbaran)
+                JOIN articulos as a ON(a.referencia = l.referencia) 
                 where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
-                and idfactura is not null and referencia in (select referencia from articulos where controlstock = false)
+                and idfactura is not null 
+                and l.referencia in ($productos)
                 group by codalmacen,ac.fecha,ac.idalbaran,referencia,descripcion
                 order by codalmacen,referencia,fecha;";
         $data = $this->db->select($sql_albaranes);
@@ -166,7 +178,7 @@ class informe_analisisarticulos extends fs_controller {
                 $resultados['codalmacen'] = $linea['codalmacen'];
                 $resultados['nombre'] = $almacen->nombre;
                 $resultados['fecha'] = $linea['fecha'];
-                $resultados['tipo_documento'] = ucfirst(FS_ALBARAN);
+                $resultados['tipo_documento'] = ucfirst(FS_ALBARAN)." compra";
                 $resultados['documento'] = $linea['idalbaran'];
                 $resultados['referencia'] = $linea['referencia'];
                 $resultados['descripcion'] = $linea['descripcion'];
@@ -187,7 +199,8 @@ class informe_analisisarticulos extends fs_controller {
                 from facturasprov as fc
                 join lineasfacturasprov as l ON (fc.idfactura=l.idfactura)
                 where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
-                and anulada=FALSE and idalbaran is null  and referencia in (select referencia from articulos where controlstock = false)
+                and anulada=FALSE and idalbaran is null  
+                and l.referencia in ($productos) 
                 group by codalmacen,fc.fecha,fc.idfactura,referencia,descripcion
                 order by codalmacen,referencia,fecha;";
         $data = $this->db->select($sql_facturasprov);
@@ -196,7 +209,7 @@ class informe_analisisarticulos extends fs_controller {
                 $resultados['codalmacen'] = $linea['codalmacen'];
                 $resultados['nombre'] = $almacen->nombre;
                 $resultados['fecha'] = $linea['fecha'];
-                $resultados['tipo_documento'] = ucfirst(FS_FACTURA);
+                $resultados['tipo_documento'] = ucfirst(FS_FACTURA)." compra";
                 $resultados['documento'] = $linea['idfactura'];
                 $resultados['referencia'] = $linea['referencia'];
                 $resultados['descripcion'] = $linea['descripcion'];
@@ -216,7 +229,8 @@ class informe_analisisarticulos extends fs_controller {
                 from albaranescli as ac
                 join lineasalbaranescli as l ON (ac.idalbaran=l.idalbaran)
                 where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
-                and idfactura is not null and referencia in (select referencia from articulos where controlstock = false)
+                and idfactura is not null 
+                and l.referencia in ($productos) 
                 group by codalmacen,ac.fecha,ac.idalbaran,referencia,descripcion
                 order by codalmacen,referencia,fecha;";
         $data = $this->db->select($sql_albaranes);
@@ -225,7 +239,7 @@ class informe_analisisarticulos extends fs_controller {
                 $resultados['codalmacen'] = $linea['codalmacen'];
                 $resultados['nombre'] = $almacen->nombre;
                 $resultados['fecha'] = $linea['fecha'];
-                $resultados['tipo_documento'] = ucfirst(FS_ALBARAN);
+                $resultados['tipo_documento'] = ucfirst(FS_ALBARAN)." venta";
                 $resultados['documento'] = $linea['idalbaran'];
                 $resultados['referencia'] = $linea['referencia'];
                 $resultados['descripcion'] = $linea['descripcion'];
@@ -245,7 +259,8 @@ class informe_analisisarticulos extends fs_controller {
                 from facturascli as fc
                 join lineasfacturascli as l ON (fc.idfactura=l.idfactura)
                 where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
-                and anulada=FALSE and idalbaran is null  and referencia in (select referencia from articulos where controlstock = false)
+                and anulada=FALSE and idalbaran is null  
+                and l.referencia in ($productos) 
                 group by codalmacen,fc.fecha,fc.idfactura,referencia,descripcion
                 order by codalmacen,referencia,fecha;";
         $data = $this->db->select($sql_facturas);
@@ -254,7 +269,7 @@ class informe_analisisarticulos extends fs_controller {
                 $resultados['codalmacen'] = $linea['codalmacen'];
                 $resultados['nombre'] = $almacen->nombre;
                 $resultados['fecha'] = $linea['fecha'];
-                $resultados['tipo_documento'] = ucfirst(FS_FACTURA);
+                $resultados['tipo_documento'] = ucfirst(FS_FACTURA)." venta";
                 $resultados['documento'] = $linea['idfactura'];
                 $resultados['referencia'] = $linea['referencia'];
                 $resultados['descripcion'] = $linea['descripcion'];
@@ -380,6 +395,14 @@ class informe_analisisarticulos extends fs_controller {
                 'params' => ''
             ),
             array(
+                'name' => 'analisisarticulos_css002',
+                'page_from' => __CLASS__,
+                'page_to' => 'informe_analisisarticulos',
+                'type' => 'head',
+                'text' => '<link rel="stylesheet" type="text/css" media="screen" href="plugins/facturacion_base/view/css/bootstrap-select.min.css"/>',
+                'params' => ''
+            ),
+            array(
                 'name' => 'analisisarticulos_js001',
                 'page_from' => __CLASS__,
                 'page_to' => 'informe_analisisarticulos',
@@ -394,6 +417,14 @@ class informe_analisisarticulos extends fs_controller {
                 'type' => 'head',
                 'text' => '<script src="plugins/facturacion_base/view/js/plugins/jquery.jqGrid.min.js" type="text/javascript"></script>',
                 'params' => ''
+            ),
+            array(
+                'name' => 'analisisarticulos_js003',
+                'page_from' => __CLASS__,
+                'page_to' => 'informe_analisisarticulos',
+                'type' => 'head',
+                'text' => '<script src="plugins/facturacion_base/view/js/bootstrap-select.min.js" type="text/javascript"></script>',
+                'params' => ''
             )
         );
 
@@ -404,5 +435,43 @@ class informe_analisisarticulos extends fs_controller {
             }
         }
     }
+    
+    private function familia_data()
+    {
+        $result = "'";
+        foreach($this->familia as $key=>$value){
+            $result .= $value."',";
+        }
+        return substr($result, 0, strlen($result)-1);
+    }
+    
+    private function articulo_data()
+    {
+        $result = "'";
+        foreach($this->articulo as $key=>$value){
+            $result .= $value."',";
+        }
+        return substr($result, 0, strlen($result)-1);
+    }
+    
+    /**
+    * @url http://snippets.khromov.se/convert-comma-separated-values-to-array-in-php/
+    * @param $string - Input string to convert to array
+    * @param string $separator - Separator to separate by (default: ,)
+    *
+    * @return array
+    */
+    private function comma_separated_to_array($string, $separator = ',')
+    {
+        //Explode on comma
+        $vals = explode($separator, $string);
 
+        //Trim whitespace
+        foreach($vals as $key => $val) {
+            $vals[$key] = trim($val);
+        }
+        //Return empty array if no items found
+        //http://php.net/manual/en/function.explode.php#114273
+        return array_diff($vals, array(""));
+    }
 }

@@ -20,83 +20,93 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
     <div class="row">
         <div class="col-sm-12 text-left">
             <h2>Análisis de Stock</h2>
-            <p align="left">Por favor, primero elija el reporte que desea procesar y luego seleccione el rango de fechas y proceda a darle click al boton <b>Generar Informaci&oacute;n</b></p>
+            <p align="left">Por favor seleccione el rango de fechas, el almacen involucrado y proceda a darle click al boton <b>Generar Informaci&oacute;n</b></p>
             <hr />
         </div>
     </div>
 </div>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-lg-2 col-md-2 col-sm-3">
-            <ul class="nav nav-pills nav-stacked" role="tablist">
-                <li role="presentation" {if="$fsc->reporte=='valorizado-almacen'"}class="active"{/if}>
-                    <a href="#valorizado-almacen" aria-controls="valorizado-almacen" role="tab" data-toggle="tab" onclick="seleccionar('valorizado-almacen');">
-                        <span class="glyphicon glyphicon-book"></span> &nbsp; Kardex por Almacén
-                    </a>
-                </li>
-                <li role="presentation" {if="$fsc->reporte=='valorizado-familia'"}class="active"{/if}>
-                    <a href="#valorizado-familia" aria-controls="valorizado-familia" role="tab" data-toggle="tab" onclick="seleccionar('valorizado-familia');">
-                        <span class="glyphicon glyphicon-book"></span> &nbsp; Kardex por Familia
-                    </a>
-                </li>
-                <li role="presentation" {if="$fsc->reporte=='valorizado-articulo'"}class="active"{/if}>
-                    <a href="#valorizado-articulo" aria-controls="valorizado-articulo" role="tab" data-toggle="tab" onclick="seleccionar('valorizado-articulo');">
-                        <span class="glyphicon glyphicon-book"></span> &nbsp; Kardex por Art&oacute;culo
-                    </a>
-                </li>
-            </ul>
-      </div>
-        <div class="col-lg-10 col-md-10 col-sm-9">
-            <form class="form-inline" id="f_generar_reporte" method="POST" action='{$fsc->url()}'>
-                <input type="hidden" name="tipo-reporte" id="tipo-reporte" value='{$fsc->reporte}'>
-                <label for='inicio'><b>Fecha Inicio</b></label>
+        <form id="f_generar_reporte" method="POST" action='{$fsc->url()}'>
+            <input type="hidden" name="tipo-reporte" id="tipo-reporte" value='{$fsc->reporte}'>
+            <div class="form-group col-xs-2 col-md-2">
+                <label for='inicio' class="control-label"><b>Fecha Inicio</b></label>
                 <input type="text" class="form-control datepicker" name='inicio' id="inicio">
+            </div>
+            <div class="form-group col-xs-2 col-md-2">
                 <label for='fin'><b>Fecha Fin</b></label>
                 <input type="text" class="form-control datepicker" name="fin" id="fin">
-                <button class="btn btn-default btn-sm" type="submit" id="b_generar_reporte" disabled name="buscar">Generar Informaci&oacute;n</button>
-                <a id="b_descargar_reporte" class="btn btn-primary btn-sm" href="" style="display: none;">Descargar Reporte</a>
-            </form>
-        </div>
-      <div class="col-lg-10 col-md-10 col-sm-9">
-          <div class="row">
-            <div class="tab-content">
-                <div role="tabpanel" class="tab-pane {if="$fsc->reporte=='valorizado-almacen'"}active{/if}" id="valorizado-almacen">
-                    <table id="grid_almacen"></table>
-                    <div id="grid_almacen_pager"></div>
-                </div>
-                <div role="tabpanel" class="tab-pane {if="$fsc->reporte=='valorizado-familia'"}active{/if}" id="valorizado-familia">
-                    <table id="grid_familia"></table>
-                    <div id="grid_familia_pager"></div>
-                </div>
-                <div role="tabpanel" class="tab-pane {if="$fsc->reporte=='valorizado-articulo'"}active{/if}" id="valorizado-articulo">
-                    <table id="grid_articulo"></table>
-                    <div id="grid_articulo_pager"></div>
-                </div>
             </div>
-          </div>
-      </div>
+            <div class="form-group col-xs-2 col-md-2">
+                <label for='codalmacen'><b>Almacen</b></label>
+                <select class="form-control selectpicker" multiple name="codalmacen" id="codalmacen" data-style="btn-default" data-actions-box="true" required>
+                    {loop="$fsc->almacenes->all()"}
+                        <option value="{$value->codalmacen}">{$value->nombre}</option>
+                    {/loop}
+                </select>
+            </div>
+            <div class="form-group col-xs-2 col-md-2">
+                <label class="control-label" for='codfamilia'><b>Familia</b></label>
+                <select class="form-control selectpicker" multiple name="codfamilia" id="codfamilia" data-style="btn-default" data-actions-box="true">
+                    {loop="$fsc->familias->all()"}
+                        <option value="{$value->codfamilia}">{$value->descripcion}</option>
+                    {/loop}
+                </select>
+            </div>
+            <div class="form-group-sm col-xs-2 col-md-2">
+                <label class="control-label" for='referencia'><b>Articulo</b></label>
+                <select class="form-control input-sm selectpicker" multiple name="referencia" id="referencia" data-style="btn-default" data-actions-box="true">
+                    {loop="$fsc->articulos->all()"}
+                        <option value="{$value->referencia}">{$value->descripcion}</option>
+                    {/loop}
+                </select>
+            </div>
+            <div class="form-group col-xs-2 col-md-2">
+                <br />
+                <button class="btn btn-default btn-sm" type="submit" id="b_generar_reporte" name="buscar">Generar Informaci&oacute;n</button>
+                <a id="b_descargar_reporte" class="btn btn-primary btn-sm" href="" style="display: none;">Descargar Reporte</a>
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        <div id="kardex-resultados">
+            <table id="grid_kardex"></table>
+            <div id="grid_kardex_pager"></div>
+        </div>
     </div>
 </div>
 <script>
+    $.fn.selectpicker.defaults = {
+        selectAllText: 'Marcar Todo',
+        deselectAllText: 'Desmarcar',
+        noneSelectedText: 'Nada seleccionado',
+        countSelectedText: "{0} de {1} selecionados",
+        selectedTextFormat: 'count'
+    };
+    
     $.jgrid.defaults.width = '100%';
     $.jgrid.defaults.responsive = true;
     $.jgrid.defaults.styleUI = 'Bootstrap';
+    
     function last_stock(val, name, record){
         return parseFloat(record[name]||0);
     }
-    function get_stock(reporte){
-        var reporte = reporte;
+    
+    function get_stock(){
         var inicio = $('#inicio').val();
         var fin = $('#fin').val();
+        var almacen = $('#codalmacen').val();
+        var familia = $('#codfamilia').val();
+        var articulo = $('#referencia').val();
         $.ajax({
             type: 'POST',
             url: '{$fsc->url()}',
             async: false,
-            data: 'tipo-reporte='+reporte+'&inicio='+inicio+'&fin='+fin,
+            data: 'procesar-reporte=true&inicio='+inicio+'&fin='+fin+'&almacen='+almacen+'&familia='+familia+'&articulo='+articulo,
             success: function(datos) {
-                $("#grid_almacen").jqGrid('clearGridData');
-                $("#grid_almacen").jqGrid({
-                    title: 'Reporte por Almacén',
+                $("#grid_kardex").jqGrid('clearGridData');
+                $("#grid_kardex").jqGrid({
+                    title: 'Kardex del '+inicio+' al '+fin,
                     data: datos.rows,
                     datatype: "local",
                     colModel: [
@@ -138,7 +148,7 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
                     height: 450,
                     rowNum: 100,
                     sortname: 'fecha',
-                    pager: "#grid_almacen_pager",
+                    pager: "#grid_kardex_pager",
                     grouping: true,
                     hoverrows: true,
                     groupingView: {
@@ -154,13 +164,13 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
                         groupCollapse: false
                     }
                 });
-                $('#grid_almacen').jqGrid()
+                $('#grid_kardex').jqGrid()
                     .setGridParam({
                         data: datos.rows
                     })
                     .trigger("reloadGrid");
 
-                $('#grid_almacen').navGrid('#grid_almacen_pager',
+                $('#grid_kardex').navGrid('#grid_kardex_pager',
                     { edit: false, add: false, del: false, search: true, refresh: false, view: false, position: "left", cloneToTop: true
                 });
                 $('#b_descargar_reporte').attr('href',datos.filename);
@@ -168,9 +178,6 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
 
             }
         });
-    }
-    function customButtonClicked(){
-        console.log('click');
     }
 
     function runningFormatter(value, row, index) {
@@ -203,11 +210,6 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
         }, 0)).toFixed(2);
     }
 
-    function seleccionar(reporte){
-        $('#tipo-reporte').val(reporte);
-        $('#b_generar_reporte').attr('disabled',false);
-        $('#b_descargar_reporte').hide();
-    }
     $('#inicio').datepicker('option', 'dateFormat','Y-m-d');
     $('#inicio').datepicker('update', '{$fsc->fecha_inicio}');
     $('#fin').datepicker('option', 'dateFormat','Y-m-d');
@@ -216,7 +218,7 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
     $(document).ready(function () {
         $('#f_generar_reporte').submit(function (event) {
             event.preventDefault();
-            get_stock($('#tipo-reporte').val());
+            get_stock();
         });
     });
 </script>
