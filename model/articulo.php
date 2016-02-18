@@ -916,6 +916,7 @@ class articulo extends fs_model
                     ", imagen = ".$this->bin2str($this->imagen).
                     ", codsubcuentacom = ".$this->var2str($this->codsubcuentacom).
                     ", codsubcuentairpfcom = ".$this->var2str($this->codsubcuentairpfcom).
+                    ", codsubcuentadevcom = ".$this->var2str($this->codsubcuentadevcom).
                     " WHERE referencia = ".$this->var2str($this->referencia).";";
             
             if($this->nostock AND $this->stockfis != 0)
@@ -953,7 +954,8 @@ class articulo extends fs_model
                     $this->var2str($this->publico).",".
                     $this->var2str($this->tipo).",".
                     $this->var2str($this->codsubcuentacom).",".
-                    $this->var2str($this->codsubcuentairpfcom).");";
+                    $this->var2str($this->codsubcuentairpfcom).",".
+                    $this->var2str($this->codsubcuentadevcom).");";
          }
          
          if( $this->db->exec($sql) )
