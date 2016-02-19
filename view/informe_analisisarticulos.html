@@ -19,7 +19,23 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
 <div class="container-fluid" style="margin-top: -10px;">
     <div class="row">
         <div class="col-sm-12 text-left">
-            <h2>Análisis de Stock</h2>
+            <h2>
+                <div class="btn-group">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+                <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+            {if="$fsc->page->is_default()"}
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+               <span class="glyphicon glyphicon-home"></span>
+            </a>
+            {else}
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+               <span class="glyphicon glyphicon-home"></span>
+            </a>
+            {/if}
+            </div>
+            Análisis de Stock
+            </h2>
             <p align="left">Por favor seleccione el rango de fechas, el almacen involucrado y proceda a darle click al boton <b>Generar Informaci&oacute;n</b></p>
             <hr />
         </div>
@@ -83,15 +99,15 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
         countSelectedText: "{0} de {1} selecionados",
         selectedTextFormat: 'count'
     };
-    
+
     $.jgrid.defaults.width = '100%';
     $.jgrid.defaults.responsive = true;
     $.jgrid.defaults.styleUI = 'Bootstrap';
-    
+
     function last_stock(val, name, record){
         return parseFloat(record[name]||0);
     }
-    
+
     function get_stock(){
         var inicio = $('#inicio').val();
         var fin = $('#fin').val();
@@ -175,7 +191,6 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
                 });
                 $('#b_descargar_reporte').attr('href',datos.filename);
                 $('#b_descargar_reporte').show();
-
             }
         });
     }

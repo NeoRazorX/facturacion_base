@@ -69,7 +69,7 @@ class informe_analisisarticulos extends fs_controller {
         $this->resultados_almacen = '';
         $this->fileName = '';
         $tiporeporte = \filter_input(INPUT_POST, 'procesar-reporte');
-        
+
         if(!empty($tiporeporte)){
             $inicio = \date('Y-m-d', strtotime(\filter_input(INPUT_POST, 'inicio')));
             $fin = \date('Y-m-d', strtotime(\filter_input(INPUT_POST, 'fin')));
@@ -88,7 +88,7 @@ class informe_analisisarticulos extends fs_controller {
 
     public function kardex_almacen(){
         $resumen = array();
-        $this->fileName = 'tmp/'.FS_TMP_NAME.'/'.$this->reporte."_".$this->user->nick.".xlsx";
+        $this->fileName = 'tmp/'.FS_TMP_NAME.'/Kardex'."_".$this->user->nick.".xlsx";
         if(file_exists($this->fileName)){
             unlink($this->fileName);
         }
@@ -124,12 +124,12 @@ class informe_analisisarticulos extends fs_controller {
     public function stock_query($almacen){
         //Validamos el listado de Familias seleccionadas
         $codfamilia = ($this->familia)?" and codfamilia IN ({$this->familia_data()})":" ";
-        
+
         //Validamos el listado de Productos seleccionados
         $referencia = ($this->articulo)?" and referencia IN ({$this->articulo_data()})":" ";
-        
+
         //Generamos el select para la subconsulta
-        $productos = "SELECT referencia FROM articulos where bloqueado = false and controlstock = true $codfamilia $referencia";
+        $productos = "SELECT referencia FROM articulos where bloqueado = false and controlstock = false $codfamilia $referencia";
         $lista = array();
         /*
          * Generamos la informacion de las regularizaciones que se hayan hecho a los stocks
@@ -139,7 +139,7 @@ class informe_analisisarticulos extends fs_controller {
                JOIN stocks as s ON(ls.idstock = s.idstock)
                JOIN articulos as a ON(a.referencia = l.referencia)
                where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
-               and s.referencia IN ($productos) 
+               and s.referencia IN ($productos)
                group by l.codalmacen, fecha, s.idstock, l.referencia, motivo, descripcion, costemedio
                order by codalmacen,referencia,fecha;";
         $data = $this->db->select($sql_regstocks);
@@ -166,9 +166,9 @@ class informe_analisisarticulos extends fs_controller {
         $sql_albaranes = "select codalmacen,ac.fecha,ac.idalbaran,referencia,descripcion,sum(cantidad) as cantidad, sum(pvptotal) as monto
                 from albaranesprov as ac
                 join lineasalbaranesprov as l ON (ac.idalbaran=l.idalbaran)
-                JOIN articulos as a ON(a.referencia = l.referencia) 
+                JOIN articulos as a ON(a.referencia = l.referencia)
                 where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
-                and idfactura is not null 
+                and idfactura is not null
                 and l.referencia in ($productos)
                 group by codalmacen,ac.fecha,ac.idalbaran,referencia,descripcion
                 order by codalmacen,referencia,fecha;";
@@ -199,8 +199,8 @@ class informe_analisisarticulos extends fs_controller {
                 from facturasprov as fc
                 join lineasfacturasprov as l ON (fc.idfactura=l.idfactura)
                 where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
-                and anulada=FALSE and idalbaran is null  
-                and l.referencia in ($productos) 
+                and anulada=FALSE and idalbaran is null
+                and l.referencia in ($productos)
                 group by codalmacen,fc.fecha,fc.idfactura,referencia,descripcion
                 order by codalmacen,referencia,fecha;";
         $data = $this->db->select($sql_facturasprov);
@@ -229,8 +229,8 @@ class informe_analisisarticulos extends fs_controller {
                 from albaranescli as ac
                 join lineasalbaranescli as l ON (ac.idalbaran=l.idalbaran)
                 where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
-                and idfactura is not null 
-                and l.referencia in ($productos) 
+                and idfactura is not null
+                and l.referencia in ($productos)
                 group by codalmacen,ac.fecha,ac.idalbaran,referencia,descripcion
                 order by codalmacen,referencia,fecha;";
         $data = $this->db->select($sql_albaranes);
@@ -259,8 +259,8 @@ class informe_analisisarticulos extends fs_controller {
                 from facturascli as fc
                 join lineasfacturascli as l ON (fc.idfactura=l.idfactura)
                 where codalmacen = '".stripcslashes(strip_tags(trim($almacen->codalmacen)))."' AND fecha between '".$this->fecha_inicio."' and '".$this->fecha_fin."'
-                and anulada=FALSE and idalbaran is null  
-                and l.referencia in ($productos) 
+                and anulada=FALSE and idalbaran is null
+                and l.referencia in ($productos)
                 group by codalmacen,fc.fecha,fc.idfactura,referencia,descripcion
                 order by codalmacen,referencia,fecha;";
         $data = $this->db->select($sql_facturas);
@@ -366,7 +366,7 @@ class informe_analisisarticulos extends fs_controller {
                         $sumaSalidasQda[$referencia] +=$movimiento['salida_cantidad'];
                         $sumaSalidasMonto[$referencia] +=$movimiento['salida_monto'];
                         $sumaIngresosQda[$referencia] +=$movimiento['ingreso_cantidad'];
-                        $sumaIngresosMonto[$referencia] +=$movimiento['ingreso_cantidad'];
+                        $sumaIngresosMonto[$referencia] +=$movimiento['ingreso_monto'];
                         $lineas++;
                     }
                 }
@@ -435,7 +435,7 @@ class informe_analisisarticulos extends fs_controller {
             }
         }
     }
-    
+
     private function familia_data()
     {
         $result = "'";
@@ -444,7 +444,7 @@ class informe_analisisarticulos extends fs_controller {
         }
         return substr($result, 0, strlen($result)-1);
     }
-    
+
     private function articulo_data()
     {
         $result = "'";
@@ -453,7 +453,7 @@ class informe_analisisarticulos extends fs_controller {
         }
         return substr($result, 0, strlen($result)-1);
     }
-    
+
     /**
     * @url http://snippets.khromov.se/convert-comma-separated-values-to-array-in-php/
     * @param $string - Input string to convert to array
