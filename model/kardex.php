@@ -95,12 +95,30 @@ class kardex extends fs_model
    */
    public function cron_job()
    {
+      $this->procesar_kardex();
+   }
+   
+   /*
+    * Actualizamos la información del Kardex con las fechas de inicio y fin
+    */
+   public function procesar_kardex(){
       $fechaHoy = \Date('Y-m-d');
       $diaHoy = \Date('d');
       $mesHoy = \Date('m');
       $anhoHoy = \Date('Y');
-      /// Buscamos el registro más antiguo en la tabla de kardex
-      $min_fecha = $this->db->select("SELECT min(fecha) as fecha FROM kardex;");
+      $min_fecha = $this->ultima_fecha();
+      $this->fecha_inicio = $min_fecha[0]['fecha'];
+      $interval = date_diff(date_create($this->fecha_inicio), date_create($this->fecha_fin));
+      //echo $interval->format('%a');
+      $intervalo = $this->rango_fechas();
+   }
+   
+   /*
+    * Buscamos la fecha del ultimo ingreso en el Kardex
+    */
+   public function ultima_fecha(){
+      // Buscamos el registro más antiguo en la tabla de kardex
+      $min_fecha = $this->db->select("SELECT max(fecha) as fecha FROM kardex;");
       // Si hay data, continuamos desde la siguiente fecha
       if($min_fecha[0]['fecha']){
          $this->fecha_inicio = $min_fecha[0]['fecha'];
@@ -120,11 +138,8 @@ class kardex extends fs_model
             END AS fecha
            FROM lineasregstocks as l, albaranesprov as ap, albaranescli as ac, facturasprov as fp, facturascli as fc;";
          $min_fecha = $this->db->select($select);
-         $this->fecha_inicio = $min_fecha[0]['fecha'];
-         $interval = date_diff(date_create($this->fecha_inicio), date_create($this->fecha_fin));
-         echo $interval->format('%a');
-         $intervalo = $this->rango_fechas();
       }
+      return $min_fecha;
    }
 
    /**
