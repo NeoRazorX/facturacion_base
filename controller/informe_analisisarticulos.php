@@ -129,7 +129,7 @@ class informe_analisisarticulos extends fs_controller {
         $referencia = ($this->articulo)?" and referencia IN ({$this->articulo_data()})":" ";
 
         //Generamos el select para la subconsulta
-        $productos = "SELECT referencia FROM articulos where bloqueado = false and controlstock = false $codfamilia $referencia";
+        $productos = "SELECT referencia FROM articulos where bloqueado = false and nostock = false $codfamilia $referencia";
         $lista = array();
         /*
          * Generamos la informacion de las regularizaciones que se hayan hecho a los stocks
