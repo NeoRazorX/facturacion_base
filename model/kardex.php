@@ -196,11 +196,13 @@ class kardex extends fs_model
          $p = ceil((($contador+1)*100)/$dias_proceso);
          $this->fecha_proceso = $fecha->format('Y-m-d');
          //Bloqueamos el intento de procesar el Kardex 2 veces
-         $fsvar->array_save(array(
-            'kardex_ultimo_proceso' => $this->fecha_proceso,
-            'kardex_procesandose' => 'TRUE',
-            'kardex_usuario_procesando' => ($usuario)?$usuario:'cron'
-         ));
+         $fsvar->array_save(
+            array(
+               'kardex_ultimo_proceso' => $this->fecha_proceso,
+               'kardex_procesandose' => 'TRUE',
+               'kardex_usuario_procesando' => ($usuario)?$usuario:'cron'
+            )
+         );
          //$this->kardex_almacen();
          $fin_paso = $inicio_paso->diff(new DateTime('NOW'));
          $tiempo_proceso = $inicio_total->diff(new DateTime('NOW'));
