@@ -157,6 +157,21 @@
       <tipo>character varying(17)</tipo>
       <nulo>YES</nulo>
    </columna>
+   <columna>
+      <nombre>cai</nombre>
+      <tipo>character varying(14)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>caivence</nombre>
+      <tipo>date</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>tipo</nombre>
+      <tipo>character varying(1)</tipo>
+      <nulo>YES</nulo>
+   </columna>
    <restriccion>
       <nombre>ca_albaranesprov_series2</nombre>
       <consulta>FOREIGN KEY (codserie)

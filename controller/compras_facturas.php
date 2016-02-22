@@ -21,6 +21,7 @@ require_model('agente.php');
 require_model('articulo.php');
 require_model('factura_proveedor.php');
 require_model('proveedor.php');
+require_model('albaran_proveedor.php');
 
 class compras_facturas extends fs_controller
 {
@@ -55,7 +56,8 @@ class compras_facturas extends fs_controller
       $this->factura = new factura_proveedor();
       $this->serie = new serie();
 	  $albaran = new albaran_proveedor();
-      
+      $this->autorizar_factura = 1;
+	  
       $this->mostrar = 'todo';
       if( isset($_GET['mostrar']) )
       {
@@ -129,6 +131,11 @@ class compras_facturas extends fs_controller
          $this->num_resultados = '';
          $this->total_resultados = '';
          $this->total_resultados_txt = '';
+		 
+		 if( isset($_POST['delete']) )
+         {
+            $this->delete_albaran();
+         }
          
          if( isset($_GET['delete']) )
          {
@@ -354,6 +361,17 @@ class compras_facturas extends fs_controller
          return 0;
    }
    
+  	public function total_remito_pend()
+	{
+      $data = $this->db->select("SELECT COUNT(idalbaran) as total FROM albaranesprov WHERE ptefactura = true ;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
+	}
+   
    private function buscar($order2)
    {
       $this->resultados = array();
@@ -459,4 +477,42 @@ class compras_facturas extends fs_controller
       else
          $this->new_error_msg("Factura no encontrada.");
    }
+   
+   
+      private function delete_albaran()
+   {
+      $alb = new albaran_proveedor();
+      $alb1 = $alb->get($_POST['delete']);
+      if($alb1)
+      {
+         /// ¿Actualizamos el stock de los artículos?
+         if( isset($_POST['stock']) )
+         {
+            $articulo = new articulo();
+            
+            foreach($alb1->get_lineas() as $linea)
+            {
+               $art0 = $articulo->get($linea->referencia);
+               if($art0)
+               {
+                  $art0->sum_stock($alb1->codalmacen, 0 - $linea->cantidad);
+                  $art0->save();
+               }
+            }
+         }
+         
+         if( $alb1->delete() )
+         {
+            $this->new_message(FS_ALBARAN." ".$alb1->codigo." borrado correctamente.");
+         }
+         else
+            $this->new_error_msg("¡Imposible borrar el ".FS_ALBARAN."!");
+      }
+      else
+         $this->new_error_msg("¡".FS_ALBARAN." no encontrado!");
+   }
+   
+   
+   
+   
 }

@@ -164,6 +164,8 @@ class albaran_proveedor extends fs_model
     * @var type 
     */
    public $ptefactura;
+   public $cai;
+   public $caivence;
 
    public function __construct($a=FALSE)
    {
@@ -191,6 +193,8 @@ class albaran_proveedor extends fs_model
          $this->codagente = $a['codagente'];
          $this->codalmacen = $a['codalmacen'];
          $this->fecha = Date('d-m-Y', strtotime($a['fecha']));
+		 $this->cai = $a['cai'];
+		 $this->caivence =  Date('d-m-Y', strtotime($a['caivence']));
          
          $this->hora = '00:00:00';
          if( !is_null($a['hora']) )
@@ -238,6 +242,8 @@ class albaran_proveedor extends fs_model
          $this->totalrecargo = 0;
          $this->observaciones = '';
          $this->ptefactura = TRUE;
+		 $this->cai = '';
+   		 $this->caivence = Date('d-m-Y');
       }
    }
    
@@ -546,6 +552,8 @@ class albaran_proveedor extends fs_model
                     .", observaciones = ".$this->var2str($this->observaciones)
                     .", hora = ".$this->var2str($this->hora)
                     .", ptefactura = ".$this->var2str($this->ptefactura)
+					.", caivence = ".$this->var2str($this->caivence)
+					.", cai = ".$this->var2str($this->cai)
                     ."  WHERE idalbaran = ".$this->var2str($this->idalbaran).";";
             
             return $this->db->exec($sql);
@@ -556,7 +564,7 @@ class albaran_proveedor extends fs_model
             $sql = "INSERT INTO ".$this->table_name." (codigo,numero,numproveedor,numremito,
                codejercicio,codserie,coddivisa,codpago,codagente,codalmacen,fecha,codproveedor,
                nombre,cifnif,neto,total,totaliva,totaleuros,irpf,totalirpf,tasaconv,
-               totalrecargo,observaciones,ptefactura,hora) VALUES
+               totalrecargo,observaciones,ptefactura,cai,caivence,hora) VALUES
                       (".$this->var2str($this->codigo)
                     .",".$this->var2str($this->numero)
                     .",".$this->var2str($this->numproveedor)
@@ -581,6 +589,8 @@ class albaran_proveedor extends fs_model
                     .",".$this->var2str($this->totalrecargo)
                     .",".$this->var2str($this->observaciones)
                     .",".$this->var2str($this->ptefactura)
+					.",".$this->var2str($this->cai)
+					.",".$this->var2str($this->caivence)
                     .",".$this->var2str($this->hora).");";
             
             if( $this->db->exec($sql) )

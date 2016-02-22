@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+ 
 
 require_model('almacen.php');
 require_model('articulo_proveedor.php');
@@ -50,6 +52,7 @@ class nueva_compra extends fs_controller
    public $cai;
    public $caivence;
    public $artsubcuentas;
+   public $autorizar_factura;
   
    
    public function __construct()
@@ -59,6 +62,8 @@ class nueva_compra extends fs_controller
    
    protected function private_core()
    {
+   $this->ppage = $this->page->get('compras_albaranes');
+   
       $this->articulo_prov = new articulo_proveedor();
       $this->fabricante = new fabricante();
       $this->familia = new familia();
@@ -69,13 +74,20 @@ class nueva_compra extends fs_controller
 	  $factura= new factura_proveedor();
 	  $this->verif_factura = $factura->all();
 	  $remito= new albaran_proveedor();
-	  $this->verif_remito = $remito->all();
+	  $this->verif_remito = $remito->all_ptefactura();
 	  $this->subcuentas = new subcuenta();
 	  $this->artsubcuentas = new articulo();
 	  
+	  
+	  	
       
       if( isset($_REQUEST['tipo']) )
       {
+ 
+	  	 	if(isset($_REQUEST['autorizar_factura']) )
+            {
+			$this->autorizar_factura= $_REQUEST['autorizar_factura'];
+			} 
          $this->tipo = $_REQUEST['tipo'];
 
       }
@@ -87,6 +99,8 @@ class nueva_compra extends fs_controller
             break;
          }
       }
+	  
+
       
       if( isset($_REQUEST['buscar_proveedor']) )
       {
@@ -168,14 +182,27 @@ class nueva_compra extends fs_controller
             {
 				
                $this->nuevo_albaran_proveedor();
+			   
+			   header('Location: '.$this->url_list1());
+			   
             }
-            else if($_POST['tipo'] == 'F')
+            else if($_POST['tipo'] == 'B')
             {
 			
 			 $this->nueva_factura_proveedor();
 			header('Location: '.$this->url_list());
 			 
             }
+            else if($_POST['tipo'] == 'F')
+            {			
+			 $this->nueva_factura_proveedor();
+			header('Location: '.$this->url_list());			 
+            }	
+            else if($_POST['tipo'] == 'T')
+            {			
+			 $this->nueva_factura_proveedor();
+			header('Location: '.$this->url_list());			 
+            }					
 			 else if($_POST['tipo'] == 'C')
             {
 			  $this->nueva_factura_proveedor();
@@ -219,12 +246,23 @@ class nueva_compra extends fs_controller
    
    public function url()
    {
-      return 'index.php?page='.__CLASS__.'&tipo='.$this->tipo;
+      return 'index.php?page='.__CLASS__.'&tipo='.$this->tipo.'&autorizar_factura';
    }
    
     public function url_list()
    {
       return 'index.php?page=compras_facturas';
+   }
+   
+    public function url_list1()
+   {
+      return 'index.php?page=compras_albaranes';
+   }   
+   
+   public function url_retorno()
+   {
+
+         return 'index.php?page=compras_facturas';
    }
    
    private function buscar_proveedor()
@@ -235,7 +273,7 @@ class nueva_compra extends fs_controller
       $json = array();
       foreach($this->proveedor->search($_REQUEST['buscar_proveedor']) as $pro)
       {
-         $json[] = array('value' => $pro->nombre, 'data' => $pro->codproveedor);
+         $json[] = array('value' => $pro->razonsocial, 'data' => $pro->codproveedor);
       }
       
       header('Content-Type: application/json');
@@ -369,14 +407,17 @@ class nueva_compra extends fs_controller
          $continuar = FALSE;
       }
       
-      $almacen = $this->almacen->get($_POST['almacen']);
-      if( $almacen )
-         $this->save_codalmacen( $almacen->codalmacen );
-      else
-      {
-         $this->new_error_msg('Almacén no encontrado.');
-         $continuar = FALSE;
-      }
+      if(isset($_POST['almacen']))
+	  {
+		  $almacen = $this->almacen->get($_POST['almacen']);
+		  if( $almacen )
+			 $this->save_codalmacen( $almacen->codalmacen );
+		  else
+		  {
+			 $this->new_error_msg('Almacén no encontrado.');
+			 $continuar = FALSE;
+		  }
+		}
       
       $eje0 = new ejercicio();
       $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
@@ -579,16 +620,18 @@ class nueva_compra extends fs_controller
          $this->new_error_msg('Proveedor no encontrado.');
          $continuar = FALSE;
       }
-      
-      $almacen = $this->almacen->get($_POST['almacen']);
-      if( $almacen )
-         $this->save_codalmacen( $almacen->codalmacen );
-      else
-      {
-         $this->new_error_msg('Almacén no encontrado.');
-         $continuar = FALSE;
+     
+	 if(isset($_POST['almacen']))
+	  { 
+		  $almacen = $this->almacen->get($_POST['almacen']);
+		  if( $almacen )
+			 $this->save_codalmacen( $almacen->codalmacen );
+		  else
+		  {
+			 $this->new_error_msg('Almacén no encontrado.');
+			 $continuar = FALSE;
+		  }
       }
-      
       $eje0 = new ejercicio();
       $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
       if( $ejercicio )
@@ -639,7 +682,7 @@ class nueva_compra extends fs_controller
          $albaran->fecha = $_POST['fecha'];
          $albaran->hora = $_POST['hora'];
          $albaran->codproveedor = $proveedor->codproveedor;
-         $albaran->nombre = $proveedor->nombre;
+         $albaran->nombre = $proveedor->razonsocial;
          $albaran->cifnif = $proveedor->cifnif;
          $albaran->codalmacen = $almacen->codalmacen;
          $albaran->codejercicio = $ejercicio->codejercicio;
@@ -656,6 +699,8 @@ class nueva_compra extends fs_controller
          $albaran->numremito = $_POST['tipo'].'/'.$_POST['numproveedor'];
          $albaran->observaciones = $_POST['observaciones'];
          $albaran->irpf = $serie->irpf;
+		 $albaran->cai = $_POST['cai'];
+         $albaran->caivence = $_POST['caivence'];
          
          if( $albaran->save() )
          {
@@ -687,6 +732,17 @@ class nueva_compra extends fs_controller
  */                 
                   $linea->irpf = floatval($_POST['irpf_'.$i]);
                   $linea->pvpunitario = floatval($_POST['pvp_'.$i]);
+		
+				  $postot = strlen($_POST['subcuenta_'.$i]);				  
+				  $poscad = strpos($_POST['subcuenta_'.$i], '/');
+				  $posid = strpos($_POST['subcuenta_'.$i], '%');				  				  
+				  $subcuencod = substr($_POST['subcuenta_'.$i], 0, $poscad);
+				  $subcuendes = substr($_POST['subcuenta_'.$i],$poscad+1,$posid-$postot);
+				  $idsubcuen = substr($_POST['subcuenta_'.$i],$posid+1);
+				  $linea->codsubcuenta = $subcuencod;
+				  $linea->idsubcuenta = $idsubcuen;
+				  $linea->subcuentadesc = $subcuendes;
+				  
                   $linea->cantidad = floatval($_POST['cantidad_'.$i]);
                   $linea->dtopor = floatval($_POST['dto_'.$i]);
                   $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
@@ -790,14 +846,17 @@ class nueva_compra extends fs_controller
          $continuar = FALSE;
       }
       
-      $almacen = $this->almacen->get($_POST['almacen']);
-      if( $almacen )
-         $this->save_codalmacen( $almacen->codalmacen );
-      else
-      {
-         $this->new_error_msg('Almacén no encontrado.');
-         $continuar = FALSE;
-      }
+	  if(isset($_POST['almacen']))
+	  {
+		  $almacen = $this->almacen->get($_POST['almacen']);
+		  if( $almacen )
+			 $this->save_codalmacen( $almacen->codalmacen );
+		  else
+		  {
+			 $this->new_error_msg('Almacén no encontrado.');
+			 $continuar = FALSE;
+		  }
+		 } 
       
       $eje0 = new ejercicio();
       $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
@@ -849,7 +908,7 @@ class nueva_compra extends fs_controller
          $factura->fecha = $_POST['fecha'];
          $factura->hora = $_POST['hora'];
          $factura->codproveedor = $proveedor->codproveedor;
-         $factura->nombre = $proveedor->nombre;
+         $factura->nombre = $proveedor->razonsocial;
 		 $factura->idpagodevol=0;
          $factura->cifnif = $proveedor->cifnif;
          $factura->codalmacen = $almacen->codalmacen;
@@ -910,14 +969,11 @@ class nueva_compra extends fs_controller
 				  ////  GUARDA subcuenta en articulo cuando se carga la factura
 				  ////////////////////////////////////////////////////
 				  $artval = $this->artsubcuentas->get_ref($_POST['referencia_'.$i]);
-				  
-				  print '<script language="JavaScript">'; 
-				print 'alert(" id  ");'; 
-				print '</script>'; 
+
 
 				  if($artval != $subcuencod || $subcuencod==NULL )
 				  {
-				  if($_POST['tipo'] == 'F' || $_POST['tipo'] == 'D' )
+				  if($_POST['tipo'] == 'B' || $_POST['tipo'] == 'F' || $_POST['tipo'] == 'T' || $_POST['tipo'] == 'C' || $_POST['tipo'] == 'D' )
             		{				  
 					$this->artsubcuentas->guarda_subcuenta_comp($_POST['referencia_'.$i],$subcuencod,$subcuendes);
 					}
@@ -996,7 +1052,7 @@ class nueva_compra extends fs_controller
                else if( $factura->save() )
                {
 ///////// GENERA  ASIENTO			   
- //                 $this->generar_asiento($factura);
+                  $this->generar_asiento($factura);
                   $this->new_message("<a href='".$factura->url()."'>Factura</a> guardada correctamente.");
                   $this->new_change('Factura Proveedor '.$factura->codigo, $factura->url(), TRUE);
                   

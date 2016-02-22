@@ -117,7 +117,9 @@
       <table class="table table-hover">
          <thead>
             <tr>
-               <th class="text-left">Código + Núm. Proveedor</th>
+				<th class="text-left"></th>
+               <th class="text-left">Comprobante</th>
+			   <th class="text-left">Número</th>
                <th class="text-left">Observaciones</th>
                <th class="text-right">Neto</th>
                <th class="text-right">Total</th>
@@ -125,21 +127,35 @@
             </tr>
          </thead>
          {loop="$fsc->resultados"}
+		 {if="substr($value->numremito, 0,1)=='R'"}
          <tr{if="$value->total<0"} class="bg-warning"{/if}>
             <td>
                <div>
-                  <input type="checkbox" name="idalbaran[]" value="{$value->idalbaran}" checked="checked"/>
-                  <a href="{$value->url()}">{$value->codigo}</a> {$value->numproveedor}
-               </div>
+                  <input type="checkbox" name="idalbaran[]" value="{$value->idalbaran}" checked="checked"/>&nbsp;&nbsp;
+				 </div>  
+			</td>	  
+			<td>
+				  <a href="{$value->url()}">
+                  		 {if="substr($value->numremito, 0,1)=='R'"}REMITO{/if}
+				  </a>
+				  
+              
             </td>
+			<td>
+			 <a href="{$value->url()}">
+			 {$numcompr=substr($value->numremito, 2)}
+			 {$numcompr}
+			 </td></a> 
             <td>{$value->observaciones_resume()}</td>
             <td class="text-right">{$fsc->show_precio($value->neto, $value->coddivisa)}</td>
             <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
             <td class="text-right">{$value->fecha}</td>
          </tr>
+		 {/if}
          {/loop}
          <tr>
             <td colspan="2"></td>
+			<td colspan="2"></td>
             <td class="text-right"><b>{$fsc->show_precio($fsc->neto)}</b></td>
             <td class="text-right"><b>{$fsc->show_precio($fsc->total)}</b></td>
             <td></td>

@@ -52,6 +52,9 @@ class compras_albaran extends fs_controller
    public $verif_factura;
    public $subcuentas;
    public $autorizar_factura;
+   public $list_subcuen;
+   public $cai;
+   public $caivence;
    
    public function __construct()
    {
@@ -60,7 +63,17 @@ class compras_albaran extends fs_controller
    
    protected function private_core()
    {
-      $this->ppage = $this->page->get('compras_albaranes');
+ //     
+//	  $this->ppage_r = $this->page->get('compras_albaranes');
+	  	  	if(isset($_REQUEST['autorizar_factura']) )
+            {
+			$this->autorizar_factura= $_REQUEST['autorizar_factura'];
+			}
+		 if($this->autorizar_factura == 1)
+		 $this->ppage = $this->page->get('compras_facturas');
+		 else $this->ppage = $this->page->get('compras_albaranes');
+		
+	  
       $this->agente = FALSE;
       
       $albaran = new albaran_proveedor();
@@ -77,7 +90,8 @@ class compras_albaran extends fs_controller
 	  $factura= new factura_proveedor();
 	  $this->verif_factura = $factura->all();
 	  $this->subcuentas = new subcuenta();
-	  $this->autorizar_factura=0;
+	  
+	  $this->list_subcuen = $this->subcuentas->subcoenta_compras();
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -91,15 +105,14 @@ class compras_albaran extends fs_controller
             $this->nuevo_albaran_url = $nuevoalbp->url();
       }
 	  
-	  	  	if(isset($_GET['autorizar_factura']) )
-            {
-			$this->autorizar_factura=1;
-			}
+
+			
       
       if( isset($_POST['idalbaran']) )
       {
          $this->albaran = $albaran->get($_POST['idalbaran']);
-         $this->modificar();
+         $this->modificar();		 
+	
       }
       else if( isset($_GET['id']) )
       {
@@ -119,7 +132,8 @@ class compras_albaran extends fs_controller
          
          /// cargamos el proveedor
          $this->proveedor_s = $this->proveedor->get($this->albaran->codproveedor);
-         
+        $this->cai = $this->proveedor_s->cai;
+		$this->caivence = $this->proveedor_s->caivence;
          /// comprobamos el albarán
          $this->albaran->full_test();
          
@@ -131,6 +145,10 @@ class compras_albaran extends fs_controller
             }
             else
                $this->generar_factura();
+		 if($this->autorizar_factura == 1)
+		 header('Location: '.$this->url_retorno());
+		 else
+		 header('Location: '.$this->url_albaran());
          }
          else if( isset($_GET['forze_fecha']) )
          {
@@ -155,6 +173,19 @@ class compras_albaran extends fs_controller
          return $this->page->url();
    }
    
+      public function url_retorno()
+   {
+
+         return 'index.php?page=compras_facturas';
+   }
+   
+        public function url_albaran()
+   {
+
+         return 'index.php?page=compras_albaranes';
+   }
+   
+   
     public function url_nueva_compra()
    {
    return 'index.php?page=nueva_compra';
@@ -165,6 +196,8 @@ class compras_albaran extends fs_controller
       $error = FALSE;
       $this->albaran->numproveedor = $_POST['numproveedor'];
       $this->albaran->observaciones = $_POST['observaciones'];
+	  $this->albaran->cai = $_POST['cai'];
+      $this->albaran->caivence = $_POST['caivence'];
       
       if($this->albaran->ptefactura)
       {
@@ -272,7 +305,7 @@ class compras_albaran extends fs_controller
             }
             
             /// modificamos y/o añadimos las demás líneas
-            for($num = 0; $num <= $numlineas; $num++)
+            for($num = 0; $num < $numlineas; $num++)
             {
                $encontrada = FALSE;
                if( isset($_POST['idlinea_'.$num]) )
@@ -290,7 +323,20 @@ class compras_albaran extends fs_controller
                         $lineas[$k]->pvpsindto = ($value->cantidad * $value->pvpunitario);
                         $lineas[$k]->pvptotal = ($value->cantidad * $value->pvpunitario * (100 - $value->dtopor)/100);
                         $lineas[$k]->descripcion = $_POST['desc_'.$num];
-                        
+						
+						
+						
+							  $postot = strlen($_POST['subcuenta_'.$num]);				  
+							  $poscad = strpos($_POST['subcuenta_'.$num], '/');
+							  $posid = strpos($_POST['subcuenta_'.$num], '%');				  				  
+							  $subcuencod = substr($_POST['subcuenta_'.$num], 0, $poscad);
+							  $subcuendes = substr($_POST['subcuenta_'.$num],$poscad+1,$posid-$postot);
+							  $idsubcuen = substr($_POST['subcuenta_'.$num],$posid+1);
+							  $lineas[$k]->codsubcuenta = $subcuencod;
+							  $lineas[$k]->idsubcuenta = $idsubcuen;
+							  $lineas[$k]->subcuentadesc = $subcuendes;
+					
+						
                         $lineas[$k]->codimpuesto = NULL;
                         $lineas[$k]->iva = 0;
                         $lineas[$k]->recargo = 0;
@@ -349,6 +395,27 @@ class compras_albaran extends fs_controller
                      $linea->dtopor = floatval($_POST['dto_'.$num]);
                      $linea->pvpsindto = ($linea->cantidad * $linea->pvpunitario);
                      $linea->pvptotal = ($linea->cantidad * $linea->pvpunitario * (100 - $linea->dtopor)/100);
+					 
+						if($_POST['subcuenta_'.$num] == '/%' )
+						{
+						 	  $linea->codsubcuenta = NULL;
+							  $linea->idsubcuenta = NULL;
+							  $linea->subcuentadesc = NULL;
+						}	  
+						else
+						{
+							  $postot = strlen($_POST['subcuenta_'.$num]);				  
+							  $poscad = strpos($_POST['subcuenta_'.$num], '/');
+							  $posid = strpos($_POST['subcuenta_'.$num], '%');				  				  
+							  $subcuencod = substr($_POST['subcuenta_'.$num], 0, $poscad);
+							  $subcuendes = substr($_POST['subcuenta_'.$num],$poscad+1,$posid-$postot);
+							  $idsubcuen = substr($_POST['subcuenta_'.$num],$posid+1);
+							  $linea->codsubcuenta = $subcuencod;
+							  $linea->idsubcuenta = $idsubcuen;
+							  $linea->subcuentadesc = $subcuendes;
+						}	
+					 
+					 
                      
                      $art0 = $articulo->get( $_POST['referencia_'.$num] );
                      if($art0)
@@ -451,6 +518,8 @@ class compras_albaran extends fs_controller
       $factura->codagente = $this->albaran->codagente;
 	  $factura->idpagodevol = 0;
       $factura->numremito = $this->albaran->numremito;
+	  $factura->cai = $this->albaran->cai;
+	  $factura->caivence = $this->albaran->caivence;
       /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
       $forma0 = new forma_pago();
       $formapago = $forma0->get($factura->codpago);
@@ -485,6 +554,10 @@ class compras_albaran extends fs_controller
             $linea->cantidad = $l->cantidad;
             $linea->codimpuesto = $l->codimpuesto;
             $linea->descripcion = $l->descripcion;
+			$linea->codsubcuenta = $l->codsubcuenta;
+			$linea->idsubcuenta = $l->idsubcuenta;
+			$linea->subcuentadesc = $l->subcuentadesc;
+			
             $linea->dtopor = $l->dtopor;
             $linea->idalbaran = $l->idalbaran;
             $linea->idfactura = $factura->idfactura;
@@ -509,7 +582,7 @@ class compras_albaran extends fs_controller
             $this->albaran->ptefactura = FALSE;
             if( $this->albaran->save() )
             {
- //              $this->generar_asiento($factura);
+               $this->generar_asiento($factura);
             }
             else
             {

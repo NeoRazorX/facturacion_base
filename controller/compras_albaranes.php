@@ -42,6 +42,7 @@ class compras_albaranes extends fs_controller
    public $serie;
    public $total_resultados;
    public $total_resultados_txt;
+   public $autorizar_factura;
    
    public function __construct()
    {
@@ -53,7 +54,9 @@ class compras_albaranes extends fs_controller
       $albaran = new albaran_proveedor();
       $this->agente = new agente();
       $this->serie = new serie();
-      
+      $this->autorizar_factura=0;
+	  
+
 	  
       $this->mostrar = 'todo';
       if( isset($_GET['mostrar']) )
@@ -197,7 +200,7 @@ class compras_albaranes extends fs_controller
             $this->buscar($order2);
          }
          else
-            $this->resultados = $albaran->all($this->offset, $this->order.$order2);
+            $this->resultados = $albaran->all_ptefactura($this->offset, $this->order.$order2);
       }
    }
    
