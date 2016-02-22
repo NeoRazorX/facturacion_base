@@ -49,7 +49,6 @@ class kardex extends fs_model
       parent::__construct('kardex', 'plugins/facturacion_base/');
       if($s)
       {
-         $this->idempresa = $s['idempresa'];
          $this->codalmacen = $s['codalmacen'];
          $this->fecha = $s['fecha'];
          $this->referencia = $s['referencia'];
@@ -63,7 +62,6 @@ class kardex extends fs_model
       }
       else
       {
-         $this->idempresa = 0;
          $this->codalmacen = NULL;
          $this->fecha = NULL;
          $this->referencia = NULL;
@@ -134,12 +132,12 @@ class kardex extends fs_model
                  .",".$this->var2str($this->fecha)
                  .",".$this->var2str($this->referencia)
                  .",".$this->var2str($this->descripcion)
-                 .",".$this->var2str($this->cantidad_ingreso)
-                 .",".$this->var2str($this->cantidad_salida)
-                 .",".$this->var2str($this->cantidad_saldo)
-                 .",".$this->var2str($this->monto_ingreso)
-                 .",".$this->var2str($this->monto_salida)
-                 .",".$this->var2str($this->monto_saldo).");";
+                 .",".$this->intval($this->cantidad_ingreso)
+                 .",".$this->intval($this->cantidad_salida)
+                 .",".$this->intval($this->cantidad_saldo)
+                 .",".$this->intval($this->monto_ingreso)
+                 .",".$this->intval($this->monto_salida)
+                 .",".$this->intval($this->monto_saldo).");";
 
          if( $this->db->exec($sql) )
          {
@@ -195,7 +193,7 @@ class kardex extends fs_model
          $plural = ($contador == 0)?"":"s";
          $p = ceil((($contador+1)*100)/$dias_proceso);
          $this->fecha_proceso = $fecha->format('Y-m-d');
-         //Bloqueamos el intento de procesar el Kardex 2 veces
+         //Bloqueamos el intento de procesar el Kardex por varios usuarios al mismo tiempo
          $fsvar->array_save(
             array(
                'kardex_ultimo_proceso' => $this->fecha_proceso,
@@ -203,7 +201,7 @@ class kardex extends fs_model
                'kardex_usuario_procesando' => ($usuario)?$usuario:'cron'
             )
          );
-         //$this->kardex_almacen();
+         $this->kardex_almacen();
          $fin_paso = $inicio_paso->diff(new DateTime('NOW'));
          $tiempo_proceso = $inicio_total->diff(new DateTime('NOW'));
          $time = $fin_paso->h.':'.$fin_paso->i.':'.$fin_paso->s;
@@ -231,141 +229,189 @@ class kardex extends fs_model
     */
    public function kardex_almacen(){
       if($this->fecha_proceso){
-         $resumen = array();
          foreach($this->almacen->all() as $almacen)
          {
-             $resumen = array_merge($resumen, $this->stock_query($almacen));
+             $this->stock_query($almacen);
          }
          gc_collect_cycles();
       }
    }
 
-    /*
-     * Esta es la consulta multiple que utilizamos para sacar la información
-     * de todos los articulos tanto ingresos como salidas
-     */
-    public function stock_query($almacen){
-        //Generamos el select para la subconsulta de productos activos y que se controla su stock
-        $productos = "SELECT referencia FROM articulos where bloqueado = false and nostock = false";
-        $resultados = array();
-        /*
-         * Generamos la informacion de las regularizaciones que se hayan hecho a los stocks
-         */
-        $sql_regstocks = "select codalmacen, fecha, l.idstock, l.referencia, motivo, sum(cantidadfin) as cantidad, descripcion, costemedio
-               from lineasregstocks AS ls
-               JOIN stocks as l ON(ls.idstock = l.idstock)
-               JOIN articulos as a ON(a.referencia = l.referencia)
-               where codalmacen = '".$almacen->codalmacen."' AND fecha = '".$this->fecha_proceso."'
-               and s.referencia IN ($productos)
-               group by l.codalmacen, fecha, l.idstock, l.referencia, motivo, descripcion, costemedio
-               order by codalmacen,referencia,fecha;";
-        $data = $this->db->select($sql_regstocks);
-        if($data){
-            foreach($data as $linea){
-                $resultados['referencia'] = $linea['referencia'];
-                $resultados['descripcion'] = $linea['descripcion'];
-                $resultados['salida_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
-                $resultados['ingreso_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
-                $resultados['salida_monto'] += ($linea['cantidad']<=0)?($linea['costemedio']*$linea['cantidad']):0;
-                $resultados['ingreso_monto'] += ($linea['cantidad']>=0)?($linea['costemedio']*$linea['cantidad']):0;
-            }
-        }
-        /*
-         * Generamos la informacion de los albaranes de proveedor asociados a facturas no anuladas
-         */
-        $sql_albaranes = "select codalmacen,ac.fecha,ac.idalbaran,l.referencia,a.descripcion,sum(cantidad) as cantidad, sum(pvptotal) as monto
-                from albaranesprov as ac
-                join lineasalbaranesprov as l ON (ac.idalbaran=l.idalbaran)
-                JOIN articulos as a ON(a.referencia = l.referencia)
-                where codalmacen = '".$almacen->codalmacen."' AND fecha = '".$this->fecha_proceso."'
-                and idfactura is not null
-                and l.referencia in ($productos)
-                group by codalmacen,ac.fecha,ac.idalbaran,l.referencia,a.descripcion
-                order by codalmacen,l.referencia,fecha;";
-        $data = $this->db->select($sql_albaranes);
-        if($data){
-            foreach($data as $linea){
-                $resultados['referencia'] = $linea['referencia'];
-                $resultados['descripcion'] = $linea['descripcion'];
-                $resultados['salida_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
-                $resultados['ingreso_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
-                $resultados['salida_monto'] += ($linea['monto']<=0)?$linea['monto']:0;
-                $resultados['ingreso_monto'] += ($linea['monto']>=0)?$linea['monto']:0;
-            }
-        }
+      /*
+       * Esta es la consulta multiple que utilizamos para sacar la información
+       * de todos los articulos tanto ingresos como salidas
+       */
+      public function stock_query($almacen){
+         //Generamos el select para la subconsulta de productos activos y que se controla su stock
+         $productos = "SELECT referencia, descripcion, costemedio FROM articulos where bloqueado = false and nostock = false;";
+         $lista_productos = $this->db->select($productos);
+         if($lista_productos){
+            foreach($lista_productos as $item){
+               $resultados['kardex']['referencia'] = $item['referencia'];
+               $resultados['kardex']['descripcion'] = $item['descripcion'];
+               $resultados['kardex']['salida_cantidad'] = 0;
+               $resultados['kardex']['ingreso_cantidad'] = 0;
+               $resultados['kardex']['salida_monto'] = 0;
+               $resultados['kardex']['ingreso_monto'] = 0;
+               $resultados['kardex']['cantidad_inicial'] = 0;
+               $resultados['kardex']['monto_inicial'] = 0;
+              /*
+               * Generamos la informacion del saldo final del dia anterior segun Inventario diario
+               */
+              $fechaProceso = new DateTime( $this->fecha_proceso );
+              $fechaAnterior = $fechaProceso->sub(new DateInterval('P1D'))->format('Y-m-d');
+              $sql_regstocks = "select referencia, descripcion, cantidad_saldo, monto_saldo
+                     FROM kardex 
+                     where codalmacen = '".$almacen->codalmacen."' AND fecha = '".$fechaAnterior."'
+                     and referencia = '".$item['referencia']."';";
+              $data = $this->db->select($sql_regstocks);
+              if($data){
+                  foreach($data as $linea){
+                      $resultados['kardex']['referencia'] = $item['referencia'];
+                      $resultados['kardex']['descripcion'] = $item['descripcion'];
+                      $resultados['kardex']['cantidad_inicial'] = $linea['cantidad_saldo'];
+                      $resultados['kardex']['monto_inicial'] = $linea['monto_saldo'];
+                  }
+              }
+              
+              /*
+               * Generamos la informacion de las regularizaciones que se hayan hecho a los stocks
+               */
+              $sql_regstocks = "select l.idstock, referencia, motivo, sum(cantidadfin) as cantidad
+                     from lineasregstocks AS ls
+                     JOIN stocks as l ON(ls.idstock = l.idstock)
+                     where codalmacen = '".$almacen->codalmacen."' AND fecha = '".$this->fecha_proceso."'
+                     and referencia = '".$item['referencia']."'
+                     group by l.idstock, referencia, motivo
+                     order by l.idstock;";
+              $data = $this->db->select($sql_regstocks);
+              if($data){
+                  foreach($data as $linea){
+                      $resultados['kardex']['referencia'] = $item['referencia'];
+                      $resultados['kardex']['descripcion'] = $item['descripcion'];
+                      $resultados['kardex']['salida_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
+                      $resultados['kardex']['ingreso_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
+                      $resultados['kardex']['salida_monto'] += ($linea['cantidad']<=0)?($item['costemedio']*$linea['cantidad']):0;
+                      $resultados['kardex']['ingreso_monto'] += ($linea['cantidad']>=0)?($item['costemedio']*$linea['cantidad']):0;
+                  }
+              }
+              
+              /*
+               * Generamos la informacion de los albaranes de proveedor asociados a facturas no anuladas
+               */
+              $sql_albaranes = "select ac.idalbaran,referencia,sum(cantidad) as cantidad, sum(pvptotal) as monto
+                      from albaranesprov as ac
+                      join lineasalbaranesprov as l ON (ac.idalbaran=l.idalbaran)
+                      where codalmacen = '".$almacen->codalmacen."' AND fecha = '".$this->fecha_proceso."'
+                      and idfactura is not null
+                      and referencia = '".$item['referencia']."'
+                      group by ac.idalbaran,l.referencia 
+                      order by ac.idalbaran;";
+              $data = $this->db->select($sql_albaranes);
+              if($data){
+                  foreach($data as $linea){
+                     $resultados['kardex']['referencia'] = $item['referencia'];
+                     $resultados['kardex']['descripcion'] = $item['descripcion'];
+                     $resultados['kardex']['salida_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
+                     $resultados['kardex']['ingreso_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
+                     $resultados['kardex']['salida_monto'] += ($linea['monto']<=0)?$linea['monto']:0;
+                     $resultados['kardex']['ingreso_monto'] += ($linea['monto']>=0)?$linea['monto']:0;
+                  }
+              }
 
-        /*
-         * Generamos la informacion de las facturas de proveedor ingresadas
-         * que no esten asociadas a un albaran de proveedor
-         */
-        $sql_facturasprov = "select codalmacen,fc.fecha,fc.idfactura,referencia,descripcion,sum(cantidad) as cantidad, sum(pvptotal) as monto
-                from facturasprov as fc
-                join lineasfacturasprov as l ON (fc.idfactura=l.idfactura)
-                where codalmacen = '".$almacen->codalmacen."' AND fecha = '".$this->fecha_proceso."'
-                and anulada=FALSE and idalbaran is null
-                and l.referencia in ($productos)
-                group by codalmacen,fc.fecha,fc.idfactura,referencia,descripcion
-                order by codalmacen,referencia,fecha;";
-        $data = $this->db->select($sql_facturasprov);
-        if($data){
-            foreach($data as $linea){
-                $resultados['referencia'] = $linea['referencia'];
-                $resultados['descripcion'] = $linea['descripcion'];
-                $resultados['salida_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
-                $resultados['ingreso_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
-                $resultados['salida_monto'] += ($linea['monto']<=0)?$linea['monto']:0;
-                $resultados['ingreso_monto'] += ($linea['monto']>=0)?$linea['monto']:0;
-            }
-        }
+              /*
+               * Generamos la informacion de las facturas de proveedor ingresadas
+               * que no esten asociadas a un albaran de proveedor
+               */
+              $sql_facturasprov = "select fc.idfactura,referencia,sum(cantidad) as cantidad, sum(pvptotal) as monto
+                      from facturasprov as fc
+                      join lineasfacturasprov as l ON (fc.idfactura=l.idfactura)
+                      where codalmacen = '".$almacen->codalmacen."' AND fecha = '".$this->fecha_proceso."'
+                      and anulada=FALSE and idalbaran is null
+                      and referencia = '".$item['referencia']."'
+                      group by fc.idfactura,referencia
+                      order by fc.idfactura;";
+              $data = $this->db->select($sql_facturasprov);
+              if($data){
+                  foreach($data as $linea){
+                     $resultados['kardex']['referencia'] = $item['referencia'];
+                     $resultados['kardex']['descripcion'] = $item['descripcion'];
+                     $resultados['kardex']['salida_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
+                     $resultados['kardex']['ingreso_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
+                     $resultados['kardex']['salida_monto'] += ($linea['monto']<=0)?$linea['monto']:0;
+                     $resultados['kardex']['ingreso_monto'] += ($linea['monto']>=0)?$linea['monto']:0;
+                  }
+              }
+              
+               /*
+               * Generamos la informacion de los albaranes asociados a facturas no anuladas
+               */
+              $sql_albaranes = "select ac.idalbaran,referencia,sum(cantidad) as cantidad, sum(pvptotal) as monto
+                      from albaranescli as ac
+                      join lineasalbaranescli as l ON (ac.idalbaran=l.idalbaran)
+                      where codalmacen = '".$almacen->codalmacen."' AND fecha = '".$this->fecha_proceso."'
+                      and idfactura is not null
+                      and referencia = '".$item['referencia']."'
+                      group by ac.idalbaran,referencia
+                      order by ac.idalbaran;";
+              $data = $this->db->select($sql_albaranes);
+              if($data){
+                  foreach($data as $linea){
+                     $resultados['kardex']['referencia'] = $item['referencia'];
+                     $resultados['kardex']['descripcion'] = $item['descripcion'];
+                     $resultados['kardex']['salida_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
+                     $resultados['kardex']['ingreso_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
+                     $resultados['kardex']['salida_monto'] += ($linea['monto']>=0)?$linea['monto']:0;
+                     $resultados['kardex']['ingreso_monto'] += ($linea['monto']<=0)?$linea['monto']:0;
+                  }
+              }
 
-        /*
-         * Generamos la informacion de los albaranes asociados a facturas no anuladas
-         */
-        $sql_albaranes = "select codalmacen,ac.fecha,ac.idalbaran,referencia,descripcion,sum(cantidad) as cantidad, sum(pvptotal) as monto
-                from albaranescli as ac
-                join lineasalbaranescli as l ON (ac.idalbaran=l.idalbaran)
-                where codalmacen = '".$almacen->codalmacen."' AND fecha = '".$this->fecha_proceso."'
-                and idfactura is not null
-                and l.referencia in ($productos)
-                group by codalmacen,ac.fecha,ac.idalbaran,referencia,descripcion
-                order by codalmacen,referencia,fecha;";
-        $data = $this->db->select($sql_albaranes);
-        if($data){
-            foreach($data as $linea){
-                $resultados['referencia'] = $linea['referencia'];
-                $resultados['descripcion'] = $linea['descripcion'];
-                $resultados['salida_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
-                $resultados['ingreso_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
-                $resultados['salida_monto'] += ($linea['monto']>=0)?$linea['monto']:0;
-                $resultados['ingreso_monto'] += ($linea['monto']<=0)?$linea['monto']:0;
-            }
+              /*
+               * Generamos la informacion de las facturas que se han generado sin albaran
+               */
+              $sql_facturas = "select fc.idfactura,referencia,sum(cantidad) as cantidad, sum(pvptotal) as monto
+                      from facturascli as fc
+                      join lineasfacturascli as l ON (fc.idfactura=l.idfactura)
+                      where codalmacen = '".$almacen->codalmacen."' AND fecha = '".$this->fecha_proceso."'
+                      and anulada=FALSE and idalbaran is null
+                      and referencia = '".$item['referencia']."'
+                      group by fc.idfactura,referencia
+                      order by fc.idfactura;";
+              $data = $this->db->select($sql_facturas);
+              if($data){
+                  foreach($data as $linea){
+                     $resultados['kardex']['referencia'] = $item['referencia'];
+                     $resultados['kardex']['descripcion'] = $item['descripcion'];
+                     $resultados['kardex']['salida_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
+                     $resultados['kardex']['ingreso_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
+                     $resultados['kardex']['salida_monto'] += ($linea['monto']>=0)?$linea['monto']:0;
+                     $resultados['kardex']['ingreso_monto'] += ($linea['monto']<=0)?$linea['monto']:0;
+                  }
+              }
+              /*
+               * Guardamos el resultado de las consultas
+               */
+              foreach($resultados as $valores){
+                 $valores['ingreso_cantidad'] = ($valores['ingreso_cantidad'])?$valores['ingreso_cantidad']:0;
+                 $valores['salida_cantidad'] = ($valores['salida_cantidad'])?$valores['salida_cantidad']:0;
+                 $valores['ingreso_monto'] = ($valores['ingreso_monto'])?$valores['ingreso_monto']:0;
+                 $valores['salida_monto'] = ($valores['salida_monto'])?$valores['salida_monto']:0;
+                 $kardex0 = new kardex();
+                 $kardex0->codalmacen = $almacen->codalmacen;
+                 $kardex0->fecha = $this->fecha_proceso;
+                 $kardex0->referencia = $valores['referencia'];
+                 $kardex0->descripcion = $valores['descripcion'];
+                 $kardex0->cantidad_ingreso = $valores['ingreso_cantidad'];
+                 $kardex0->cantidad_salida = $valores['salida_cantidad'];
+                 $kardex0->cantidad_saldo = ($valores['cantidad_inicial']+($valores['ingreso_cantidad']-$valores['salida_cantidad']));
+                 $kardex0->monto_ingreso = $valores['ingreso_monto'];
+                 $kardex0->monto_salida = $valores['salida_monto'];
+                 $kardex0->monto_saldo = ($valores['monto_inicial']+($valores['ingreso_monto']-$valores['salida_monto']));
+                 $kardex0->save();
+              }
+              gc_collect_cycles();
+           }
         }
-
-        /*
-         * Generamos la informacion de las facturas que se han generado sin albaran
-         */
-        $sql_facturas = "select codalmacen,fc.fecha,fc.idfactura,referencia,descripcion,sum(cantidad) as cantidad, sum(pvptotal) as monto
-                from facturascli as fc
-                join lineasfacturascli as l ON (fc.idfactura=l.idfactura)
-                where codalmacen = '".$almacen->codalmacen."' AND fecha = '".$this->fecha_proceso."'
-                and anulada=FALSE and idalbaran is null
-                and l.referencia in ($productos)
-                group by codalmacen,fc.fecha,fc.idfactura,referencia,descripcion
-                order by codalmacen,referencia,fecha;";
-        $data = $this->db->select($sql_facturas);
-        if($data){
-            foreach($data as $linea){
-                $resultados['referencia'] = $linea['referencia'];
-                $resultados['descripcion'] = $linea['descripcion'];
-                $resultados['salida_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
-                $resultados['ingreso_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
-                $resultados['salida_monto'] += ($linea['monto']>=0)?$linea['monto']:0;
-                $resultados['ingreso_monto'] += ($linea['monto']<=0)?$linea['monto']:0;
-            }
-        }
-        /*
-         * Guardamos el resultado de las consultas
-         */
     }
 
    /*

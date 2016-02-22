@@ -29,6 +29,7 @@ require_model('forma_pago.php');
 require_model('pais.php');
 require_model('proveedor.php');
 require_model('serie.php');
+require_model('kardex.php');
 require_once 'plugins/facturacion_base/extras/xlsxwriter.class.php';
 /**
  * Description of informe_resumenarticulos
@@ -55,7 +56,8 @@ class informe_analisisarticulos extends fs_controller {
    public $kardex_ultimo_proceso;
    public $kardex_procesandose;
    public $kardex_usuario_procesando;
-
+   public $kardex_programado;
+   public $loop_horas;
    public function __construct() {
        parent::__construct(__CLASS__, "Análisis de Stock", 'informes', FALSE, TRUE);
    }
@@ -72,11 +74,17 @@ class informe_analisisarticulos extends fs_controller {
       $this->resultados_almacen = '';
       $this->fileName = '';
       $tiporeporte = \filter_input(INPUT_POST, 'procesar-reporte');
-
+      
+      for($x=0; $x<25;$x++)
+      {
+         $this->loop_horas[]=str_pad($x, 2,"0", STR_PAD_LEFT);
+      }
+      
       $fsvar = new fs_var();
       $this->kardex_setup = $fsvar->array_get(
          array(
-         'kardex_ultimo_proceso' => \date('d-m-Y'),
+         'kardex_ultimo_proceso' => '',
+         'kardex_programado' => '',
          'kardex_procesandose' => 'FALSE',
          'kardex_usuario_procesando' => 'cron'
          ), FALSE
@@ -84,7 +92,7 @@ class informe_analisisarticulos extends fs_controller {
       $this->kardex_ultimo_proceso = $this->kardex_setup['kardex_ultimo_proceso'];
       $this->kardex_procesandose = ($this->kardex_setup['kardex_procesandose']=='TRUE')?TRUE:FALSE;
       $this->kardex_usuario_procesando = $this->kardex_setup['kardex_usuario_procesando'];
-
+      $this->kardex_programado = $this->kardex_setup['kardex_programado'];
       if(!empty($tiporeporte)){
          $inicio = \date('Y-m-d', strtotime(\filter_input(INPUT_POST, 'inicio')));
          $fin = \date('Y-m-d', strtotime(\filter_input(INPUT_POST, 'fin')));
@@ -102,11 +110,36 @@ class informe_analisisarticulos extends fs_controller {
 
       $kardex = \filter_input(INPUT_GET, 'procesar-kardex');
       if(!empty($kardex)){
-         require_model('kardex.php');
          $k = new kardex();
          $this->template = false;
          header('Content-Type: application/json');
          $k->procesar_kardex($this->user->nick);
+      }
+      
+      $opciones_kardex = \filter_input(INPUT_GET, 'opciones-kardex');
+      if(!empty($opciones_kardex)){
+         $data = array();
+         $op_kardex_cron = \filter_input(INPUT_GET, 'kardex_cron');
+         $op_kardex_programado = \filter_input(INPUT_GET, 'kardex_programado');
+         $kardex_cron = ($op_kardex_cron == 'TRUE')?"TRUE":"FALSE";
+         $kardex_programado = $op_kardex_programado;
+         $kardex_config = 
+            array(
+               'kardex_cron' => $kardex_cron,
+               'kardex_programado' => $kardex_programado
+            );
+         if($fsvar->array_save($kardex_config)){
+            $data['success']=true;
+            $data['mensake']='Cambios grabados correctamente';
+         }
+         else
+         {
+            $data['success']=false;
+            $data['mensake']='Ocurrio un error al grabar las opciones, intentelo nuevamente';
+         }
+         $this->template = false;
+         header('Content-Type: application/json');
+         echo json_encode(array($data));
       }
    }
 

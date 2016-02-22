@@ -18,7 +18,13 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
 -->
 <div class="container-fluid" style="margin-top: -10px;">
     <div class="row">
-        <div class="col-sm-1 text-center">
+        <div class="col-sm-12 text-left">
+            <h3>
+                <span class='glyphicon glyphicon-equalizer'></span>
+                <span class="hidden-xs"> Análisis de Stock</span>
+            </h3>
+        </div>
+        <div class="col-sm-12 col-md-12">
             <div class="btn-group">
                 <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                     <span class="glyphicon glyphicon-refresh"></span>
@@ -32,17 +38,32 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
                    <span class="glyphicon glyphicon-home"></span>
                 </a>
                 {/if}
+                <button class="btn btn-default btn-sm" {if="$fsc->kardex_procesandose"}disabled{/if} type="button" id="b_kardex" name="kardex">
+                    <span class='glyphicon glyphicon-equalizer'></span><span class="hidden-xs"> Calcular Inventario Diario</span>
+                </button>
+                <button class="btn btn-default btn-sm" {if="$fsc->kardex_procesandose"}disabled{/if} type="button" id="b_opciones_kardex" name="opciones_kardex">
+                    <span class='glyphicon glyphicon-cog'></span><span class="hidden-xs"> Opciones de Calculo</span>
+                </button>
             </div>
         </div>
-        <div class="col-sm-11 text-left">
-            <h4>Análisis de Stock</h4>
+        <div class="col-sm-12 text-left">
+            <br />
+            <p align="left">Por favor seleccione el rango de fechas, el almacen involucrado y proceda a darle click al boton <b>Generar Informaci&oacute;n</b></p>
+            <div class="row ">
+                    {if="$fsc->kardex_procesandose"}
+                    <div class="alert alert-warning">Usuario <b>{$fsc->kardex_usuario_procesando}</b> procesando Kardex, por favor actualice la página hasta que el usuario termine su proceso.</div>
+                    {/if}
+                    {if="$fsc->kardex_ultimo_proceso==''"}
+                    <div class="alert alert-warning">
+                        No se ha ejecutado el Calculo de Inventario Diario nunca, por favor ejecutelo ahora o programelo para que pueda tener información correcta de los art&iacute;culos
+                    </div>
+                    {else}
+                    <div class="alert alert-info">
+                        Ultima fecha de Kardex procesado: <b>{$fsc->kardex_ultimo_proceso}</b>
+                    </div>
+                    {/if}
+            </div>
         </div>
-        <p align="left">Por favor seleccione el rango de fechas, el almacen involucrado y proceda a darle click al boton <b>Generar Informaci&oacute;n</b></p>
-        <button class="btn btn-default btn-sm" {if="$fsc->kardex_procesandose"}disabled{/if} type="button" id="b_kardex" name="kardex">Ejecutar Calculo Kardex</button>
-        {if="$fsc->kardex_procesandose"}
-        <div class="alert alert-warning">Usuario <b>{$fsc->kardex_usuario_procesando}</b> procesando Kardex, por favor actualice la página hasta que el usuario termine su proceso.</div>
-        {/if}
-        <div class="info">Ultima fecha de Kardex procesado: <b>{$fsc->kardex_ultimo_proceso}</b></div>
         <hr />
     </div>
 </div>
@@ -109,6 +130,52 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
             </div>
         </div>
     </div>
+</div>
+<div class="modal fade" id="modal_opciones_kardex">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Opciones de Calculo de Inventario Diario</h4>
+         </div>
+         <div class="modal-body bg-warning">
+            <p align="justify">
+               Aqui puede indicar una hora espec&iacute;fica para ejecutar autom&aacute;ticamente el Calculo de Inventario Diario, pero para esto debe tener correctamente configurado
+               el proceso de cron al instalar FacturaScripts, tenga en cuenta que si su cron esta configurado para ejecutarse una sola vez al d&iacute;a, entonces debe colocar 
+               la hora de ejecuci&oacute;n del Calculo de Inventario a la hora que corre el cron:
+            </p>
+            <hr/>
+            <div class="row">
+               <div class="col-sm-6">
+                  <label class="control-label"><b>Se ejecuta autom&aacute;ticamente?</b></label>
+               </div>
+               <div class="col-sm-6">
+                  <div class="form-group" id="kardex_cron_ops">
+                     <label class="control-label">
+                     <input class="form-control" type="radio" name='kardex_cron' value='TRUE'>Si
+                     </label>
+                     <label class="control-label">
+                        <input class="form-control" type="radio" name='kardex_cron' value=''>No
+                     </label>
+                  </div>
+               </div>
+            </div>
+            <div class="form-group">
+               <label class="control-label col-sm-6 pull-left" for='kardex_programado'><b>Hora de Ejecuci&oacute;n:</b></label>
+               <select class="control-label selectpicker col-xs-2" name='kardex_programado' style="width: 20px;">
+                  {loop="$fsc->loop_horas"}
+                     <option value="{$value}" {if="$fsc->kardex_programado == $value"}selected{/if}>{$value}</option>
+                  {/loop}
+               </select> 
+            </div>
+         </div>
+         <div class="modal-footer">
+            <button type="submit" data-disable="true" class="btn btn-sm btn-warning">
+               <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar Cambios
+            </button>
+         </div>
+      </div>
+   </div>
 </div>
 <script>
     $.fn.selectpicker.defaults = {
@@ -281,20 +348,24 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
         }, 0)).toFixed(2);
     }
 
-    $('#inicio').datepicker('option', 'dateFormat','Y-m-d');
-    $('#inicio').datepicker('update', '{$fsc->fecha_inicio}');
-    $('#fin').datepicker('option', 'dateFormat','Y-m-d');
-    $('#fin').datepicker('update', '{$fsc->fecha_fin}');
+   $('#inicio').datepicker('option', 'dateFormat','Y-m-d');
+   $('#inicio').datepicker('update', '{$fsc->fecha_inicio}');
+   $('#fin').datepicker('option', 'dateFormat','Y-m-d');
+   $('#fin').datepicker('update', '{$fsc->fecha_fin}');
 
-    $(document).ready(function () {
-        $('#f_generar_reporte').submit(function (event) {
-            event.preventDefault();
-            get_stock();
-        });
-        $('#b_kardex').click(function (event) {
-            console.log('Click');
-            execute_kardex();
-        });
-    });
+   $(document).ready(function () {
+      $('#f_generar_reporte').submit(function (event) {
+          event.preventDefault();
+          get_stock();
+      });
+      $('#b_kardex').click(function (event) {
+          console.log('Click');
+          execute_kardex();
+      });
+      $("#b_opciones_kardex").click(function(event) {
+         event.preventDefault();
+         $("#modal_opciones_kardex").modal('show');
+      });
+   });
 </script>
 {include="footer"}
