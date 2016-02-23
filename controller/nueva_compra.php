@@ -1010,9 +1010,10 @@ class nueva_compra extends fs_controller
                            
                            $this->actualizar_precio_proveedor($factura->codproveedor, $linea);
                         }
-                        
+						
                         if( isset($_POST['stock']) )
                         {
+						
                            $articulo->sum_stock($factura->codalmacen, $linea->cantidad);
                         }
                         else if( isset($_POST['costemedio']) )

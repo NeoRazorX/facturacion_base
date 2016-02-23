@@ -424,8 +424,13 @@
                </div>
                {if="!$fsc->proveedor_s->acreedor"}
                <div class="checkbox">
+			   
                   <label>
+				  {if="$fsc->autorizar_factura == 0"}
                      <input type="checkbox" name="stock" value="TRUE" checked="checked"/>
+					 {else}
+					 <input type="checkbox" name="stock" value="FALSE" />
+					 {/if}
                      Añadir al stock
                   </label>
                </div>

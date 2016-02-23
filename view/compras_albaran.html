@@ -246,7 +246,7 @@
 					</div></div>
 					<div class="col-sm-3">
 					  <div class="form-group" style="font:bold;font-size:12px">
-					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control datepicker" style="width:100px" {if="$fsc->albaran->caivence >'01-01-2000'"}  value="{$fsc->albaran->caivence}"{else}value="" {/if}    />
+					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control datepicker" style="width:100px" {if="strtotime($fsc->albaran->caivence) > strtotime('01-01-2000')"}  value="{$fsc->albaran->caivence}"{else}value="" {/if}    />
 					</div></div>
 					{else}
 					<input type="hidden" name="cai" value="{$fsc->albaran->cai}"/>
@@ -890,7 +890,7 @@
 	var aler = 0;	
 	
 	var numsub='';
-	
+
 				numsub = document.getElementById('numlineas').value;
 				var descr =''; 
 				
