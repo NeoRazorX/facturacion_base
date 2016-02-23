@@ -44,7 +44,13 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
                 <button class="btn btn-default btn-sm" {if="$fsc->kardex_procesandose"}disabled{/if} type="button" id="b_opciones_kardex" name="opciones_kardex">
                     <span class='glyphicon glyphicon-cog'></span><span class="hidden-xs"> Opciones de Calculo</span>
                 </button>
+                {if="$fsc->kardex_ultimo_proceso"}
+                 <div class="btn btn-sm btn-alert" style="margin-left: 5px;">
+                  Ultima fecha procesada: <span>{$fsc->kardex_ultimo_proceso}</span>
+                 </div>
+               {/if}
             </div>
+            
         </div>
         <div class="col-sm-12 text-left">
             <br />
@@ -56,10 +62,6 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
                     {if="$fsc->kardex_ultimo_proceso==''"}
                     <div class="alert alert-warning">
                         No se ha ejecutado el Calculo de Inventario Diario nunca, por favor ejecutelo ahora o programelo para que pueda tener información correcta de los art&iacute;culos
-                    </div>
-                    {else}
-                    <div class="alert alert-info">
-                        Ultima fecha de Kardex procesado: <b>{$fsc->kardex_ultimo_proceso}</b>
                     </div>
                     {/if}
             </div>
@@ -131,6 +133,40 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
         </div>
     </div>
 </div>
+<div class="modal fade" id="modal_calcular_kardex">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Ejecutar Calculo de Inventario Diario</h4>
+         </div>
+         <div class="modal-body bg-info">
+            <p align="justify">
+               Si lo necesita puede indicar dos fechas para procesar el Inventario diario, si deja en blanco estos valores, se procesar&aacute;
+               siguiendo la ultima fecha procesada, que es <b>{$fsc->kardex_ultimo_proceso}</b>.
+            </p>
+            <hr/>
+            <div class="row">
+               <div class="col-sm-12">
+                  <div class="form-group col-xs-6 col-md-6">
+                   <label for='kardex_inicio' class="control-label"><b>Fecha Inicio</b> (opcional)</label>
+                   <input type="text" class="form-control datepicker" name='kardex_inicio' id="kardex_inicio">
+                  </div>
+                  <div class="form-group col-xs-6 col-md-6">
+                      <label for='kardex_fin'><b>Fecha Fin</b> (opcional)</label>
+                      <input type="text" class="form-control datepicker" name="kardex_fin" id="kardex_fin">
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="modal-footer">
+            <button type="button" id="b_calcular_kardex" data-disable="true" class="btn btn-sm btn-warning">
+               <span class='glyphicon glyphicon-equalizer'></span> &nbsp; Calcular
+            </button>
+         </div>
+      </div>
+   </div>
+</div>
 <div class="modal fade" id="modal_opciones_kardex">
    <div class="modal-dialog">
       <div class="modal-content">
@@ -195,195 +231,207 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
     function last_stock(val, name, record){
         return parseFloat(record[name]||0);
     }
+    
+   function execute_kardex(){
+      var kardex_inicio = $('#kardex_inicio').val();
+      var kardex_fin = $('#kardex_fin').val();
+      if (!window.XMLHttpRequest){
+         alert("Tu navegador no soporta tecnología XMLHttpRequest.");
+         return;
+      }
+      try{
+         var xhr = new XMLHttpRequest();
+         xhr.previous_text = '';
+         xhr.onerror = function() { alert("Ocurrió un error inesperado en la llamada [XHR]."); };
+         xhr.onreadystatechange = function() {
+             try{
+                 if (xhr.readyState === 4){
+                     alert('Trabajo completado');
+                     $('#modal_proceso_kardex').modal('hide');
+                     window.location.assign("{$fsc->url()}");
+                 }
+                 else if (xhr.readyState > 2){
+                     var new_response = xhr.responseText.substring(xhr.previous_text.length);
+                     var result = JSON.parse( new_response );
+                     $('#modal_proceso_kardex').modal('show');
+                     document.getElementById("divProgress").innerHTML = result.message;
+                     document.getElementById("progressor").innerHTML = result.progress + "%";
+                     document.getElementById('progressor').style.width = result.progress + "%";
+                     xhr.previous_text = xhr.responseText;
+                 }
+             }
+             catch (e){
+                 alert("[XHR STATECHANGE] Exception: " + e);
+             }
+         };
+         xhr.open('GET', '{$fsc->url()}&procesar-kardex=TRUE&kardex_inicio='+kardex_inicio+'&kardex_fin='+kardex_fin, true);
+         xhr.send();
+      }
+      catch (e){
+         alert("[XHR REQUEST] Exception: " + e);
+      }
+   }
 
-    function execute_kardex(){
-        if (!window.XMLHttpRequest){
-            alert("Tu navegador no soporta tecnología XMLHttpRequest.");
-            return;
-        }
-        try{
-            var xhr = new XMLHttpRequest();
-            xhr.previous_text = '';
-            xhr.onerror = function() { alert("Ocurrió un error inesperado en la llamada [XHR]."); };
-            xhr.onreadystatechange = function() {
-                try{
-                    if (xhr.readyState === 4){
-                        alert('Trabajo completado');
-                        $('#modal_proceso_kardex').modal('hide');
-                    }
-                    else if (xhr.readyState > 2){
-                        var new_response = xhr.responseText.substring(xhr.previous_text.length);
-                        var result = JSON.parse( new_response );
-                        $('#modal_proceso_kardex').modal('show');
-                        document.getElementById("divProgress").innerHTML = result.message;
-                        document.getElementById("progressor").innerHTML = result.progress + "%";
-                        document.getElementById('progressor').style.width = result.progress + "%";
-                        xhr.previous_text = xhr.responseText;
-                    }
-                }
-                catch (e){
-                    alert("[XHR STATECHANGE] Exception: " + e);
-                }
-            };
-            xhr.open("GET", '{$fsc->url()}&procesar-kardex=TRUE', true);
-            xhr.send();
-        }
-        catch (e){
-            alert("[XHR REQUEST] Exception: " + e);
-        }
-    }
-
-    function set_options(){
-        $.ajax({
-            type: 'POST',
-            url: '{$fsc->url()}',
-            data: $('#f_opciones_kardex').serialize()+'&opciones-kardex=TRUE',
-            success: function(datos) {
-                alert(datos.mensaje);
-                $("#modal_opciones_kardex").modal('hide');
-            }
-        });
-    }
-
-    function get_stock(){
-        var inicio = $('#inicio').val();
-        var fin = $('#fin').val();
-        var almacen = $('#codalmacen').val();
-        var familia = $('#codfamilia').val();
-        var articulo = $('#referencia').val();
-        $.ajax({
-            type: 'POST',
-            url: '{$fsc->url()}',
-            async: false,
-            data: 'procesar-reporte=true&inicio='+inicio+'&fin='+fin+'&almacen='+almacen+'&familia='+familia+'&articulo='+articulo,
-            success: function(datos) {
-                $("#grid_kardex").jqGrid('clearGridData');
-                $("#grid_kardex").jqGrid({
-                    title: 'Kardex del '+inicio+' al '+fin,
-                    data: datos.rows,
-                    datatype: "local",
-                    colModel: [
-                        { label: 'Almacén', name: 'nombre', width: 150 },
-                        { label: 'Fecha', name: 'fecha', key: true, width: 150 },
-                        { label: 'Documento', name: 'tipo_documento', width: 70 },
-                        { label: 'Número', name: 'documento', width: 70 },
-                        { label: 'Artículo', name: 'descripcion', width: 150 },
-                        {
-                            label: 'Salida',
-                            name: 'salida_cantidad',
-                            width: 70,
-                            summaryTpl : "<b>{0}</b>",
-                            formatter: 'number', align: 'right', summaryType: 'sum',
-                            formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }
-                        },
-                        {
-                            label: 'Ingreso',
-                            name: 'ingreso_cantidad',
-                            width: 70,
-                            summaryTpl : "<b>{0}</b>",
-                            formatter: 'number', align: 'right', summaryType: 'sum',
-                            formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }
-                        },
-                        {
-                            label: 'Saldo',
-                            name: 'saldo_cantidad',
-                            width: 70,
-                            summaryTpl : "<b>{0}</b>",
-                            formatter: 'number', align: 'right', summaryType: last_stock,
-                            formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }
-                        }
-                    ],
-                    loadonce:true,
-                    viewrecords: true,
-                    rowList: [100,150,200],
-                    headertitles: true,
-                    autowidth: true,
-                    height: 350,
-                    rowNum: 100,
-                    sortname: 'fecha',
-                    pager: "#grid_kardex_pager",
-                    grouping: true,
-                    hoverrows: true,
-                    groupingView: {
-                        groupField: ["nombre", "descripcion"],
-                        groupColumnShow: [true, true],
-                        groupText: [
-                            "<b>{0}</b>",
-                            "<b>{0}</b>"
-                        ],
-                        groupOrder: ["asc", "asc"],
-                        groupSummary: [true, false],
-                        groupSummaryPos: ['header', 'header'],
-                        groupCollapse: false
-                    }
-                });
-                $('#grid_kardex').jqGrid()
-                    .setGridParam({
-                        data: datos.rows
-                    })
-                    .trigger("reloadGrid");
-
-                $('#grid_kardex').navGrid('#grid_kardex_pager',
-                    { edit: false, add: false, del: false, search: true, refresh: false, view: false, position: "left", cloneToTop: true
-                });
-                $('#b_descargar_reporte').attr('href',datos.filename);
-                $('#b_descargar_reporte').show();
-            }
-        });
-    }
-
-    function runningFormatter(value, row, index) {
-        return index;
-    }
-
-    function totalFormatter(data) {
-        return data.length + ' Documentos';
-    }
-
-    function totalTextFormatter(data) {
-        return 'Total';
-    }
-
-    function numberFormatter(value, row, index) {
-        return parseFloat(value).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
-    }
-
-    function sumFormatter(data) {
-        field = this.field;
-        return parseFloat(data.reduce(function(sum, row) {
-            return sum + (+row[field]);
-        }, 0)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
-    }
-
-    function sumNormalFormatter(data) {
-        field = this.field;
-        return parseFloat(data.reduce(function(sum, row) {
-            return sum + (+row[field]);
-        }, 0)).toFixed(2);
-    }
-
-   $('#inicio').datepicker('option', 'dateFormat','Y-m-d');
-   $('#inicio').datepicker('update', '{$fsc->fecha_inicio}');
-   $('#fin').datepicker('option', 'dateFormat','Y-m-d');
-   $('#fin').datepicker('update', '{$fsc->fecha_fin}');
-
-   $(document).ready(function () {
-      $('#f_generar_reporte').submit(function (event) {
-          event.preventDefault();
-          get_stock();
+   function set_options(){
+      $.ajax({
+         type: 'POST',
+         url: '{$fsc->url()}',
+         data: $('#f_opciones_kardex').serialize()+'&opciones-kardex=TRUE',
+         success: function(datos) {
+            alert(datos.mensaje);
+            $("#modal_opciones_kardex").modal('hide');
+         }
       });
-      $('#f_opciones_kardex').submit(function (event) {
-          event.preventDefault();
-          set_options();
-      });
-      $('#b_kardex').click(function (event) {
-          console.log('Click');
-          execute_kardex();
-      });
-      $("#b_opciones_kardex").click(function(event) {
+   }
+
+   function get_stock(){
+      var inicio = $('#inicio').val();
+      var fin = $('#fin').val();
+      var almacen = $('#codalmacen').val();
+      var familia = $('#codfamilia').val();
+      var articulo = $('#referencia').val();
+       $.ajax({
+           type: 'POST',
+           url: '{$fsc->url()}',
+           async: false,
+           data: 'procesar-reporte=true&inicio='+inicio+'&fin='+fin+'&almacen='+almacen+'&familia='+familia+'&articulo='+articulo,
+           success: function(datos) {
+               $("#grid_kardex").jqGrid('clearGridData');
+               $("#grid_kardex").jqGrid({
+                   title: 'Kardex del '+inicio+' al '+fin,
+                   data: datos.rows,
+                   datatype: "local",
+                   colModel: [
+                       { label: 'Almacén', name: 'nombre', width: 150 },
+                       { label: 'Fecha', name: 'fecha', key: true, width: 150 },
+                       { label: 'Documento', name: 'tipo_documento', width: 70 },
+                       { label: 'Número', name: 'documento', width: 70 },
+                       { label: 'Artículo', name: 'descripcion', width: 150 },
+                       {
+                           label: 'Salida',
+                           name: 'salida_cantidad',
+                           width: 70,
+                           summaryTpl : "<b>{0}</b>",
+                           formatter: 'number', align: 'right', summaryType: 'sum',
+                           formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }
+                       },
+                       {
+                           label: 'Ingreso',
+                           name: 'ingreso_cantidad',
+                           width: 70,
+                           summaryTpl : "<b>{0}</b>",
+                           formatter: 'number', align: 'right', summaryType: 'sum',
+                           formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }
+                       },
+                       {
+                           label: 'Saldo',
+                           name: 'saldo_cantidad',
+                           width: 70,
+                           summaryTpl : "<b>{0}</b>",
+                           formatter: 'number', align: 'right', summaryType: last_stock,
+                           formatoptions : { decimalSeparator: ".", decimalPlaces:2, thousandsSeparator:"," }
+                       }
+                   ],
+                   loadonce:true,
+                   viewrecords: true,
+                   rowList: [100,150,200],
+                   headertitles: true,
+                   autowidth: true,
+                   height: 350,
+                   rowNum: 100,
+                   sortname: 'fecha',
+                   pager: "#grid_kardex_pager",
+                   grouping: true,
+                   hoverrows: true,
+                   groupingView: {
+                       groupField: ["nombre", "descripcion"],
+                       groupColumnShow: [true, true],
+                       groupText: [
+                           "<b>{0}</b>",
+                           "<b>{0}</b>"
+                       ],
+                       groupOrder: ["asc", "asc"],
+                       groupSummary: [true, false],
+                       groupSummaryPos: ['header', 'header'],
+                       groupCollapse: false
+                   }
+               });
+               $('#grid_kardex').jqGrid()
+                   .setGridParam({
+                       data: datos.rows
+                   })
+                   .trigger("reloadGrid");
+
+               $('#grid_kardex').navGrid('#grid_kardex_pager',
+                   { edit: false, add: false, del: false, search: true, refresh: false, view: false, position: "left", cloneToTop: true
+               });
+               $('#b_descargar_reporte').attr('href',datos.filename);
+               $('#b_descargar_reporte').show();
+           }
+       });
+   }
+
+   function runningFormatter(value, row, index) {
+       return index;
+   }
+
+   function totalFormatter(data) {
+       return data.length + ' Documentos';
+   }
+
+   function totalTextFormatter(data) {
+       return 'Total';
+   }
+
+   function numberFormatter(value, row, index) {
+       return parseFloat(value).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+   }
+
+   function sumFormatter(data) {
+       field = this.field;
+       return parseFloat(data.reduce(function(sum, row) {
+           return sum + (+row[field]);
+       }, 0)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+   }
+
+   function sumNormalFormatter(data) {
+       field = this.field;
+       return parseFloat(data.reduce(function(sum, row) {
+           return sum + (+row[field]);
+       }, 0)).toFixed(2);
+   }
+
+  $('#inicio').datepicker('option', 'dateFormat','Y-m-d');
+  $('#inicio').datepicker('update', '{$fsc->fecha_inicio}');
+  $('#fin').datepicker('option', 'dateFormat','Y-m-d');
+  $('#fin').datepicker('update', '{$fsc->fecha_fin}');
+  $('#kardex_inicio').datepicker('option', 'dateFormat','Y-m-d');
+  $('#kardex_fin').datepicker('option', 'dateFormat','Y-m-d');
+
+  $(document).ready(function () {
+     $('#f_generar_reporte').submit(function (event) {
          event.preventDefault();
-         $("#modal_opciones_kardex").modal('show');
-      });
+         get_stock();
+     });
+
+     $('#f_opciones_kardex').submit(function (event) {
+         event.preventDefault();
+         set_options();
+     });
+     $('#b_kardex').click(function (event) {
+         $("#modal_calcular_kardex").modal('show');
+     });
+
+     $('#b_calcular_kardex').click(function (event) {
+        $("#modal_calcular_kardex").modal('hide');
+         execute_kardex();
+     });
+
+     $("#b_opciones_kardex").click(function(event) {
+        event.preventDefault();
+        $("#modal_opciones_kardex").modal('show');
+     });
+
    });
 </script>
 {include="footer"}
