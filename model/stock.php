@@ -12,7 +12,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,32 +27,32 @@ class stock extends fs_model
 {
    /**
     * Clave primaria.
-    * @var type 
+    * @var type
     */
    public $idstock;
-   
+
    public $codalmacen;
-   
+
    public $referencia;
-   
+
    public $nombre;
-   
+
    public $cantidad;
-   
+
    public $reservada;
-   
+
    public $disponible;
-   
+
    public $pterecibir;
-   
+
    public $stockmin;
-   
+
    public $stockmax;
-   
+
    public $cantidadultreg;
-   
+
    public $ubicacion;
-   
+
    public function __construct($s=FALSE)
    {
       parent::__construct('stocks', 'plugins/facturacion_base/');
@@ -87,7 +87,7 @@ class stock extends fs_model
          $this->ubicacion = NULL;
       }
    }
-   
+
    protected function install()
    {
       /**
@@ -97,34 +97,34 @@ class stock extends fs_model
        */
       new almacen();
       new articulo();
-      
+
       return '';
    }
-   
+
    public function set_cantidad($c = 0)
    {
       $this->cantidad = floatval($c);
-      
+
       if($this->cantidad < 0 AND !FS_STOCK_NEGATIVO)
       {
          $this->cantidad = 0;
       }
-      
+
       $this->disponible = $this->cantidad - $this->reservada;
    }
-   
+
    public function sum_cantidad($c = 0)
    {
       $this->cantidad += floatval($c);
-      
+
       if($this->cantidad < 0 AND !FS_STOCK_NEGATIVO)
       {
          $this->cantidad = 0;
       }
-      
+
       $this->disponible = $this->cantidad - $this->reservada;
    }
-   
+
    public function get($id)
    {
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idstock = ".$this->var2str($id).";");
@@ -135,7 +135,7 @@ class stock extends fs_model
       else
          return FALSE;
    }
-   
+
    public function get_by_referencia($ref)
    {
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref).";");
@@ -146,7 +146,7 @@ class stock extends fs_model
       else
          return FALSE;
    }
-   
+
    public function exists()
    {
       if( is_null($this->idstock) )
@@ -156,7 +156,7 @@ class stock extends fs_model
       else
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idstock = ".$this->var2str($this->idstock).";");
    }
-   
+
    public function save()
    {
       if( $this->exists() )
@@ -173,13 +173,13 @@ class stock extends fs_model
                  .", cantidadultreg = ".$this->var2str($this->cantidadultreg)
                  .", ubicacion = ".$this->var2str($this->ubicacion)
                  ."  WHERE idstock = ".$this->var2str($this->idstock).";";
-         
+
          return $this->db->exec($sql);
       }
       else
       {
          $sql = "INSERT INTO ".$this->table_name." (codalmacen,referencia,nombre,cantidad,reservada,
-            disponible,pterecibir,stockmin,stockmax,cantidadultreg,ubicacion) VALUES 
+            disponible,pterecibir,stockmin,stockmax,cantidadultreg,ubicacion) VALUES
                    (".$this->var2str($this->codalmacen)
                  .",".$this->var2str($this->referencia)
                  .",".$this->var2str($this->nombre)
@@ -191,7 +191,7 @@ class stock extends fs_model
                  .",".$this->var2str($this->stockmax)
                  .",".$this->var2str($this->cantidadultreg)
                  .",".$this->var2str($this->ubicacion).");";
-         
+
          if( $this->db->exec($sql) )
          {
             $this->idstock = $this->db->lastval();
@@ -201,16 +201,16 @@ class stock extends fs_model
             return FALSE;
       }
    }
-   
+
    public function delete()
    {
       return $this->db->exec("DELETE FROM ".$this->table_name." WHERE idstock = ".$this->var2str($this->idstock).";");
    }
-   
+
    public function all_from_articulo($ref)
    {
       $stocklist = array();
-      
+
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref)." ORDER BY codalmacen ASC;");
       if($data)
       {
@@ -219,52 +219,52 @@ class stock extends fs_model
             $stocklist[] = new stock($s);
          }
       }
-      
+
       return $stocklist;
    }
-   
+
    public function total_from_articulo($ref, $codalmacen = FALSE)
    {
       $num = 0;
       $sql = "SELECT SUM(cantidad) as total FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref);
-      
+
       if($codalmacen)
       {
          $sql .= " AND codalmacen = ".$this->var2str($codalmacen);
       }
-      
+
       $data = $this->db->select($sql);
       if($data)
       {
          $num = floatval($data[0]['total']);
       }
-      
+
       return $num;
    }
-   
+
    public function count()
    {
       $num = 0;
-      
+
       $data = $this->db->select("SELECT COUNT(idstock) as total FROM ".$this->table_name.";");
       if($data)
       {
          $num = intval($data[0]['total']);
       }
-      
+
       return $num;
    }
-   
+
    public function count_by_articulo()
    {
       $num = 0;
-      
+
       $data = $this->db->select("SELECT COUNT(DISTINCT referencia) as total FROM ".$this->table_name.";");
       if($data)
       {
          $num = intval($data[0]['total']);
       }
-      
+
       return $num;
    }
 }
