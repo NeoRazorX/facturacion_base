@@ -134,6 +134,7 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
 <div class="modal fade" id="modal_opciones_kardex">
    <div class="modal-dialog">
       <div class="modal-content">
+        <form class="form" id="f_opciones_kardex" role="form" action="{$fsc->url()}" method="POST">
          <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title">Opciones de Calculo de Inventario Diario</h4>
@@ -141,7 +142,7 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
          <div class="modal-body bg-warning">
             <p align="justify">
                Aqui puede indicar una hora espec&iacute;fica para ejecutar autom&aacute;ticamente el Calculo de Inventario Diario, pero para esto debe tener correctamente configurado
-               el proceso de cron al instalar FacturaScripts, tenga en cuenta que si su cron esta configurado para ejecutarse una sola vez al d&iacute;a, entonces debe colocar 
+               el proceso de cron al instalar FacturaScripts, tenga en cuenta que si su cron esta configurado para ejecutarse una sola vez al d&iacute;a, entonces debe colocar
                la hora de ejecuci&oacute;n del Calculo de Inventario a la hora que corre el cron:
             </p>
             <hr/>
@@ -152,10 +153,10 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
                <div class="col-sm-6">
                   <div class="form-group" id="kardex_cron_ops">
                      <label class="control-label">
-                     <input class="form-control" type="radio" name='kardex_cron' value='TRUE'>Si
+                     <input class="form-control" type="radio" name='kardex_cron' value='TRUE' {if="$fsc->kardex_cron"}checked{/if}>Si
                      </label>
                      <label class="control-label">
-                        <input class="form-control" type="radio" name='kardex_cron' value=''>No
+                        <input class="form-control" type="radio" name='kardex_cron' value='' {if="!$fsc->kardex_cron"}checked{/if}>No
                      </label>
                   </div>
                </div>
@@ -166,7 +167,7 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
                   {loop="$fsc->loop_horas"}
                      <option value="{$value}" {if="$fsc->kardex_programado == $value"}selected{/if}>{$value}</option>
                   {/loop}
-               </select> 
+               </select>
             </div>
          </div>
          <div class="modal-footer">
@@ -174,6 +175,7 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
                <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar Cambios
             </button>
          </div>
+        </form>
       </div>
    </div>
 </div>
@@ -229,6 +231,18 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
         catch (e){
             alert("[XHR REQUEST] Exception: " + e);
         }
+    }
+
+    function set_options(){
+        $.ajax({
+            type: 'POST',
+            url: '{$fsc->url()}',
+            data: $('#f_opciones_kardex').serialize()+'&opciones-kardex=TRUE',
+            success: function(datos) {
+                alert(datos.mensaje);
+                $("#modal_opciones_kardex").modal('hide');
+            }
+        });
     }
 
     function get_stock(){
@@ -357,6 +371,10 @@ Copyright (C) 2016 Joe Nilson <joenilson@gmail.com>
       $('#f_generar_reporte').submit(function (event) {
           event.preventDefault();
           get_stock();
+      });
+      $('#f_opciones_kardex').submit(function (event) {
+          event.preventDefault();
+          set_options();
       });
       $('#b_kardex').click(function (event) {
           console.log('Click');

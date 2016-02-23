@@ -132,12 +132,12 @@ class kardex extends fs_model
                  .",".$this->var2str($this->fecha)
                  .",".$this->var2str($this->referencia)
                  .",".$this->var2str($this->descripcion)
-                 .",".$this->intval($this->cantidad_ingreso)
-                 .",".$this->intval($this->cantidad_salida)
-                 .",".$this->intval($this->cantidad_saldo)
-                 .",".$this->intval($this->monto_ingreso)
-                 .",".$this->intval($this->monto_salida)
-                 .",".$this->intval($this->monto_saldo).");";
+                 .",".$this->var2str($this->cantidad_ingreso)
+                 .",".$this->var2str($this->cantidad_salida)
+                 .",".$this->var2str($this->cantidad_saldo)
+                 .",".$this->var2str($this->monto_ingreso)
+                 .",".$this->var2str($this->monto_salida)
+                 .",".$this->var2str($this->monto_saldo).");";
 
          if( $this->db->exec($sql) )
          {
@@ -160,7 +160,24 @@ class kardex extends fs_model
    */
    public function cron_job()
    {
-      $this->procesar_kardex();
+      $fsvar = new fs_var();
+      $this->kardex_setup = $fsvar->array_get(
+         array(
+         'kardex_ultimo_proceso' => $this->fecha_proceso,
+         'kardex_procesandose' => 'FALSE',
+         'kardex_usuario_procesando' => 'cron',
+         'kardex_cron' => '',
+         'kardex_programado' => ''
+         ), FALSE
+      );
+      if($this->kardex_setup['kardex_procesandose'] !== 'TRUE'){
+         if($this->kardex_setup['kardex_cron']=='TRUE'){
+            $ahora = new DateTime('NOW');
+            if($ahora->format('H') == $this->kardex_setup['kardex_cron']){
+               $this->procesar_kardex();
+            }
+         }
+      }
    }
 
    /*
@@ -261,7 +278,7 @@ class kardex extends fs_model
               $fechaProceso = new DateTime( $this->fecha_proceso );
               $fechaAnterior = $fechaProceso->sub(new DateInterval('P1D'))->format('Y-m-d');
               $sql_regstocks = "select referencia, descripcion, cantidad_saldo, monto_saldo
-                     FROM kardex 
+                     FROM kardex
                      where codalmacen = '".$almacen->codalmacen."' AND fecha = '".$fechaAnterior."'
                      and referencia = '".$item['referencia']."';";
               $data = $this->db->select($sql_regstocks);
@@ -273,7 +290,7 @@ class kardex extends fs_model
                       $resultados['kardex']['monto_inicial'] = $linea['monto_saldo'];
                   }
               }
-              
+
               /*
                * Generamos la informacion de las regularizaciones que se hayan hecho a los stocks
                */
@@ -289,13 +306,13 @@ class kardex extends fs_model
                   foreach($data as $linea){
                       $resultados['kardex']['referencia'] = $item['referencia'];
                       $resultados['kardex']['descripcion'] = $item['descripcion'];
-                      $resultados['kardex']['salida_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
+                      $resultados['kardex']['salida_cantidad'] += ($linea['cantidad']<=0)?($linea['cantidad']*-1):0;
                       $resultados['kardex']['ingreso_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
-                      $resultados['kardex']['salida_monto'] += ($linea['cantidad']<=0)?($item['costemedio']*$linea['cantidad']):0;
+                      $resultados['kardex']['salida_monto'] += ($linea['cantidad']<=0)?($item['costemedio']*($linea['cantidad']*-1)):0;
                       $resultados['kardex']['ingreso_monto'] += ($linea['cantidad']>=0)?($item['costemedio']*$linea['cantidad']):0;
                   }
               }
-              
+
               /*
                * Generamos la informacion de los albaranes de proveedor asociados a facturas no anuladas
                */
@@ -305,16 +322,16 @@ class kardex extends fs_model
                       where codalmacen = '".$almacen->codalmacen."' AND fecha = '".$this->fecha_proceso."'
                       and idfactura is not null
                       and referencia = '".$item['referencia']."'
-                      group by ac.idalbaran,l.referencia 
+                      group by ac.idalbaran,l.referencia
                       order by ac.idalbaran;";
               $data = $this->db->select($sql_albaranes);
               if($data){
                   foreach($data as $linea){
                      $resultados['kardex']['referencia'] = $item['referencia'];
                      $resultados['kardex']['descripcion'] = $item['descripcion'];
-                     $resultados['kardex']['salida_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
+                     $resultados['kardex']['salida_cantidad'] += ($linea['cantidad']<=0)?($linea['cantidad']*-1):0;
                      $resultados['kardex']['ingreso_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
-                     $resultados['kardex']['salida_monto'] += ($linea['monto']<=0)?$linea['monto']:0;
+                     $resultados['kardex']['salida_monto'] += ($linea['monto']<=0)?($linea['monto']*-1):0;
                      $resultados['kardex']['ingreso_monto'] += ($linea['monto']>=0)?$linea['monto']:0;
                   }
               }
@@ -336,13 +353,13 @@ class kardex extends fs_model
                   foreach($data as $linea){
                      $resultados['kardex']['referencia'] = $item['referencia'];
                      $resultados['kardex']['descripcion'] = $item['descripcion'];
-                     $resultados['kardex']['salida_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
+                     $resultados['kardex']['salida_cantidad'] += ($linea['cantidad']<=0)?($linea['cantidad']*-1):0;
                      $resultados['kardex']['ingreso_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
-                     $resultados['kardex']['salida_monto'] += ($linea['monto']<=0)?$linea['monto']:0;
+                     $resultados['kardex']['salida_monto'] += ($linea['monto']<=0)?($linea['monto']*-1):0;
                      $resultados['kardex']['ingreso_monto'] += ($linea['monto']>=0)?$linea['monto']:0;
                   }
               }
-              
+
                /*
                * Generamos la informacion de los albaranes asociados a facturas no anuladas
                */
@@ -360,9 +377,32 @@ class kardex extends fs_model
                      $resultados['kardex']['referencia'] = $item['referencia'];
                      $resultados['kardex']['descripcion'] = $item['descripcion'];
                      $resultados['kardex']['salida_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
-                     $resultados['kardex']['ingreso_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
+                     $resultados['kardex']['ingreso_cantidad'] += ($linea['cantidad']<=0)?($linea['cantidad']*-1):0;
                      $resultados['kardex']['salida_monto'] += ($linea['monto']>=0)?$linea['monto']:0;
-                     $resultados['kardex']['ingreso_monto'] += ($linea['monto']<=0)?$linea['monto']:0;
+                     $resultados['kardex']['ingreso_monto'] += ($linea['monto']<=0)?($linea['monto']*-1):0;
+                  }
+              }
+
+              /*
+               * Generamos la informacion de los albaranes no asociados a facturas
+               */
+              $sql_albaranes = "select ac.idalbaran,referencia,sum(cantidad) as cantidad, sum(pvptotal) as monto
+                      from albaranescli as ac
+                      join lineasalbaranescli as l ON (ac.idalbaran=l.idalbaran)
+                      where codalmacen = '".$almacen->codalmacen."' AND fecha = '".$this->fecha_proceso."'
+                      and idfactura is null
+                      and referencia = '".$item['referencia']."'
+                      group by ac.idalbaran,referencia
+                      order by ac.idalbaran;";
+              $data = $this->db->select($sql_albaranes);
+              if($data){
+                  foreach($data as $linea){
+                     $resultados['kardex']['referencia'] = $item['referencia'];
+                     $resultados['kardex']['descripcion'] = $item['descripcion'];
+                     $resultados['kardex']['salida_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
+                     $resultados['kardex']['ingreso_cantidad'] += ($linea['cantidad']<=0)?($linea['cantidad']*-1):0;
+                     $resultados['kardex']['salida_monto'] += ($linea['monto']>=0)?$linea['monto']:0;
+                     $resultados['kardex']['ingreso_monto'] += ($linea['monto']<=0)?($linea['monto']*-1):0;
                   }
               }
 
@@ -383,9 +423,9 @@ class kardex extends fs_model
                      $resultados['kardex']['referencia'] = $item['referencia'];
                      $resultados['kardex']['descripcion'] = $item['descripcion'];
                      $resultados['kardex']['salida_cantidad'] += ($linea['cantidad']>=0)?$linea['cantidad']:0;
-                     $resultados['kardex']['ingreso_cantidad'] += ($linea['cantidad']<=0)?$linea['cantidad']:0;
+                     $resultados['kardex']['ingreso_cantidad'] += ($linea['cantidad']<=0)?($linea['cantidad']*-1):0;
                      $resultados['kardex']['salida_monto'] += ($linea['monto']>=0)?$linea['monto']:0;
-                     $resultados['kardex']['ingreso_monto'] += ($linea['monto']<=0)?$linea['monto']:0;
+                     $resultados['kardex']['ingreso_monto'] += ($linea['monto']<=0)?($linea['monto']*-1):0;
                   }
               }
               /*
@@ -407,7 +447,9 @@ class kardex extends fs_model
                  $kardex0->monto_ingreso = $valores['ingreso_monto'];
                  $kardex0->monto_salida = $valores['salida_monto'];
                  $kardex0->monto_saldo = ($valores['monto_inicial']+($valores['ingreso_monto']-$valores['salida_monto']));
-                 $kardex0->save();
+                 if($kardex0->cantidad_saldo!=0){
+                     $kardex0->save();
+                 }
               }
               gc_collect_cycles();
            }
