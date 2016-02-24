@@ -32,6 +32,14 @@
 	var numsub='';
 	 if('{$fsc->tipo}'=='factura')
  	{
+ 
+				var f1 =(document.getElementById('caivence').value);
+				var f2 ='{$fsc->today()}';
+				if( f1.toLocaleString() < f2.toLocaleString() )
+				{
+				alert('La fecha CAI está vencida');
+				aler = 1;
+				}
 				var ban = 0;
 				numsub = document.getElementById('numlineas').value;
 				$caival = document.getElementById('cai').value;
@@ -181,7 +189,7 @@
 					</div></div>
 					<div class="col-sm-3">
 					  <div class="form-group" style="font:bold;font-size:12px">
-					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control datepicker" style="width:100px" {if="$fsc->caivence>'01-01-2000'"}  value="{$fsc->caivence}" {/if}    />
+					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control datepicker" style="width:100px" {if="strtotime($fsc->caivence) >strtotime('01-01-2000')"}  value="{$fsc->caivence}" {else} value=""  {/if}    />
 					</div></div>
 					{else}
 					<input type="hidden" name="cai" value="{$fsc->cai}"/>
@@ -200,12 +208,7 @@
 				   <span class="hidden-xs">&nbsp; Líneas</span>
 				</a>
 			 </li>
-			  <li role="presentation">
-				<a href="#opciones" aria-controls="opciones" role="tab" data-toggle="tab">
-				   <span class="glyphicon glyphicon-option-vertical" aria-hidden="true"></span>
-				   <span class="hidden-xs">&nbsp; Opciones</span>
-				</a>
-			 </li>
+
 	
 			 {loop="$fsc->extensions"}
 				{if="$value->type=='tab'"}
@@ -523,11 +526,7 @@
             <li id="li_mis_articulos">
                <a href="#" id="b_mis_articulos">Mi catálogo</a>
             </li>
-            <li id="li_kiwimaru">
-               <a href="#" id="b_kiwimaru">
-                  <span class="glyphicon glyphicon-globe"></span>
-               </a>
-            </li>
+
             <li id="li_nuevo_articulo">
                <a href="#" id="b_nuevo_articulo">
                   <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
@@ -666,14 +665,14 @@
          }
       });
    });
-   
+  
    
    function verificar_factura()
    {
 
  var existefact = 0;
  
- if('{$fsc->tipo}'=='factura')
+ if(document.getElementById('comprobante').value == 'B' || document.getElementById('comprobante').value == 'F' || document.getElementById('comprobante').value == 'C' || document.getElementById('comprobante').value == 'D' || document.getElementById('comprobante').value == 'T'  )
  {
 		 {loop="$fsc->verif_factura"};
 		 if( document.getElementById('ac_proveedor').value == '{$value->nombre}')

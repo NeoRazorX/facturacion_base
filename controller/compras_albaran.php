@@ -110,8 +110,17 @@ class compras_albaran extends fs_controller
       
       if( isset($_POST['idalbaran']) )
       {
-         $this->albaran = $albaran->get($_POST['idalbaran']);
-         $this->modificar();		 
+			if( $_POST['facturar'] == 'TRUE' )
+			{
+        		$this->albaran = $albaran->get($_POST['idalbaran']);
+				 $this->modificar();		 
+				 $this->generar_factura();
+			}
+			else
+			{
+			$this->albaran = $albaran->get($_POST['idalbaran']);
+			$this->modificar();
+			}		 
 	
       }
       else if( isset($_GET['id']) )
@@ -137,14 +146,17 @@ class compras_albaran extends fs_controller
          /// comprobamos el albarán
          $this->albaran->full_test();
          
-         if( isset($_GET['facturar']) AND isset($_GET['petid']) AND $this->albaran->ptefactura )
+         if( isset($_POST['facturar']) AND isset($_GET['petid']) AND $this->albaran->ptefactura )
          {
             if( $this->duplicated_petition($_GET['petid']) )
             {
                $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
             }
-            else
-               $this->generar_factura();
+            else $this->generar_factura();
+			 
+			
+			
+              
 		 if($this->autorizar_factura == 1)
 		 header('Location: '.$this->url_retorno());
 		 else

@@ -114,8 +114,9 @@
 			  }
 			  else 
 				{
-					document.f_nueva_compra.numfactproveedor.value = document.getElementById('comprobante').value+'/'+document.getElementById('numcorto').value+'-'+document.getElementById('numlargo').value;
-					return document.f_nueva_compra.submit();
+					document.f_albaran.numfactproveedor.value = document.getElementById('comprobante').value+'/'+document.getElementById('numcorto').value+'-'+document.getElementById('numlargo').value;
+					document.getElementById('facturar').value = 'TRUE'
+					return document.f_albaran.submit();
 				}
 		  }
 	  }
@@ -135,16 +136,7 @@
 			 <a class="btn btn-sm btn-default hidden-xs" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
-			<a id="b_imprimir" class="btn btn-sm btn-default">
-              <span class="glyphicon glyphicon-print"></span>
-              <span class="hidden-xs">&nbsp; Imprimir</span>
-            </a>
-			{if="$fsc->empresa->can_send_mail()"}
-			<a id="b_enviar" class="btn btn-sm btn-default" href="#">
-			  <span class="glyphicon glyphicon-envelope"></span>
-			  <span class="hidden-xs">&nbsp; Enviar</span>
-			</a>
-            {/if}
+
 			{loop="$fsc->extensions"}
             {if="$value->type=='button'"}
 			  <a href="index.php?page={$value->from}&id={$fsc->albaran->idalbaran}{$value->params}" class="btn btn-sm btn-default">
@@ -272,14 +264,7 @@
             </a>
          </li>
 		 {if="$fsc->autorizar_factura"}
-         {if="$fsc->albaran->ptefactura"}
-         <li role="presentation">
-            <a href="#opciones" aria-controls="opciones" role="tab" data-toggle="tab">
-               <span class="glyphicon glyphicon-option-vertical" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Opciones</span>
-            </a>
-         </li>
-         {/if}
+
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <li role="presentation">
@@ -519,6 +504,107 @@
       </div>
    </div>
    
+   
+   
+   
+    <div class="modal fade" id="modal_genfactura">
+      <div class="modal-dialog">
+         <div class="modal-content">
+		  <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">Colocar Nº de Comprobante</h4>
+            </div>
+            <div class="modal-body">
+               <div class="form-group">
+                  <div class="input-group">
+				  <input type="hidden" name="facturar" id="facturar" value="FALSE"/>
+                     <input type="hidden" name="nombreproveedor" id="nombreproveedor" value="{$fsc->albaran->nombre}" />
+					 <input type="hidden" name="proveedor" id="proveedor" value="{$fsc->albaran-> codproveedor}" />
+					 <input type="hidden" name="delete" value="{$fsc->albaran->idalbaran}"/>
+				   <input type="hidden" name="numfactproveedor" id="numfactproveedor" value="" />
+				   <input type="hidden" name="autorizar_factura" value="{$fsc->autorizar_factura}"/>
+                    Proveedor :<strong style="size:14px"> &nbsp;&nbsp;{$fsc->albaran->nombre}</strong>
+                  </div>
+				  <br />
+				  <script>
+				  {$compr=substr($fsc->albaran->numremito, 2)}
+				  {if="substr($fsc->albaran->numremito, 0,1)=='B'"}{$comp_doc ='FACTURA B'}{/if}
+				  {if="substr($fsc->albaran->numremito, 0,1)=='F'"}{$comp_doc ='FACTURA C'}{/if}
+				  {if="substr($fsc->albaran->numremito, 0,1)=='T'"}{$comp_doc ='TICKET'}{/if}
+				  {if="substr($fsc->albaran->numremito, 0,1)=='C'"}{$comp_doc ='NOTA DE CRÉDITO'}{/if}
+				  {if="substr($fsc->albaran->numremito, 0,1)=='D'"}{$comp_doc ='NOTA DE DÉBITO'}{/if}	
+				  {substr($fsc->albaran->numremito, 0,1)}	
+				  {$doc_letra = $tipcompr=substr($fsc->albaran->numremito, 0,1)}
+				  {$numcompr=substr($fsc->albaran->numremito, 2);}
+				  {$numcompr_corto = substr($numcompr,0,4);}
+				  {$numcompr_largo = substr($numcompr,5);}
+				  </script>
+				<div class="form-group">
+				 <table class="table table-condensed">
+                  <thead>
+                     <tr>
+                        <th class="text-left">Tipo Comprobante</th>
+                        <th class="text-left"> </th>
+						
+                        <th class="text-left">Número de comprobante del Proveedor</th>
+                     </tr>
+                  </thead>
+				  <tbody>
+                     <tr class="bg-info">
+					{if="substr($fsc->albaran->numremito, 0,1)=='R'"} 
+                        <td>
+					<select name="comprobante" id="comprobante" class="form-control" style="width:auto"  >
+						   <option value="B" selected="selected">FACTURA B</option>
+						   <option value="F" >FACTURA C</option>
+						   <option value="T" >TICKET</option>
+						   <option value="C" >NOTA DE CRÉDITO</option>
+						   <option value="D" >NOTA DE DÉBITO</option>
+						</select>	
+						</td>
+						<td>
+						<input id="numcorto" name="numcorto" class="form-control" style="width:60px" type="text" autocomplete="on" maxlength="4" onblur="rellenar(this,this.value,4)" onClick="this.setSelectionRange(0, this.value.length)" />
+						</td>
+						
+						<td>
+						<input id="numlargo" name="numlargo" class="form-control" style="width:auto" type="text" autocomplete="on" maxlength="8"  onblur="rellenar(this,this.value,8)" onClick="this.setSelectionRange(0, this.value.length)" />
+						</td>
+                      {else}
+					<td>
+					<select name="comprobante" id="comprobante" class="form-control" style="width:auto"  >
+						   <option value="{$doc_letra}" selected="selected">{$comp_doc}</option>
+						   <option value="B" >FACTURA B</option>
+						   <option value="F" >FACTURA C</option>
+						   <option value="T" >TICKET</option>
+						   <option value="C" >NOTA DE CRÉDITO</option>
+						   <option value="D" >NOTA DE DÉBITO</option>
+						</select>	
+						</td>
+						<td>
+						<input id="numcorto" name="numcorto" class="form-control" style="width:60px" type="text" autocomplete="on" maxlength="4" onblur="rellenar(this,this.value,4)" onClick="this.setSelectionRange(0, this.value.length)" value="{$numcompr_corto}" />
+						</td>
+						
+						<td>
+						<input id="numlargo" name="numlargo" class="form-control" style="width:auto" type="text" autocomplete="on" maxlength="8"  onblur="rellenar(this,this.value,8)" onClick="this.setSelectionRange(0, this.value.length)"  value="{$numcompr_largo}" />
+						</td>
+				  {/if}
+					  
+                     </tr>
+                  </tbody>
+               </table>
+               	</div>
+				 <span class="input-group-btn">
+				
+                        <button class="btn btn-primary" id="continuarfact" type="button"  onclick="verificar_factura();">
+                           <span class="glyphicon glyphicon-share-alt">Continuar</span>
+                        </button>
+                     </span>
+			   
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   
 
 </form>
 
@@ -588,11 +674,7 @@
             <li id="li_mis_articulos">
                <a href="#" id="b_mis_articulos">Mi catálogo</a>
             </li>
-            <li id="li_kiwimaru">
-               <a href="#" id="b_kiwimaru">
-                  <span class="glyphicon glyphicon-globe"></span>
-               </a>
-            </li>
+
             <li id="li_nuevo_articulo">
                <a href="#" id="b_nuevo_articulo">
                   <span class="glyphicon glyphicon-plus"></span> &nbsp; Nuevo
@@ -774,105 +856,7 @@
    </div>
 </form>
 
-<form name="f_nueva_compra" id="f_nueva_compra" action="{$fsc->url()}&facturar=TRUE&petid={$fsc->random_string()}" method="post">
-   <input type="hidden" name="delete" value="{$fsc->albaran->idalbaran}"/>
-   <input type="hidden" name="numfactproveedor" id="numfactproveedor" value="" />
-   <input type="hidden" name="autorizar_factura" value="{$fsc->autorizar_factura}"/>
-   <div class="modal fade" id="modal_genfactura">
-      <div class="modal-dialog">
-         <div class="modal-content">
-		  <div class="modal-header">
-               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Colocar Nº de Comprobante</h4>
-            </div>
-            <div class="modal-body">
-               <div class="form-group">
-                  <div class="input-group">
-                     <input type="hidden" name="nombreproveedor" id="nombreproveedor" value="{$fsc->albaran->nombre}" />
-					 <input type="hidden" name="proveedor" id="proveedor" value="{$fsc->albaran-> codproveedor}" />
-					
-                    Proveedor :<strong style="size:14px"> &nbsp;&nbsp;{$fsc->albaran->nombre}</strong>
-                  </div>
-				  <br />
-				  <script>
-				  {$compr=substr($fsc->albaran->numremito, 2)}
-				  {if="substr($fsc->albaran->numremito, 0,1)=='B'"}{$comp_doc ='FACTURA B'}{/if}
-				  {if="substr($fsc->albaran->numremito, 0,1)=='F'"}{$comp_doc ='FACTURA C'}{/if}
-				  {if="substr($fsc->albaran->numremito, 0,1)=='T'"}{$comp_doc ='TICKET'}{/if}
-				  {if="substr($fsc->albaran->numremito, 0,1)=='C'"}{$comp_doc ='NOTA DE CRÉDITO'}{/if}
-				  {if="substr($fsc->albaran->numremito, 0,1)=='D'"}{$comp_doc ='NOTA DE DÉBITO'}{/if}	
-				  {substr($fsc->albaran->numremito, 0,1)}	
-				  {$doc_letra = $tipcompr=substr($fsc->albaran->numremito, 0,1)}
-				  {$numcompr=substr($fsc->albaran->numremito, 2);}
-				  {$numcompr_corto = substr($numcompr,0,4);}
-				  {$numcompr_largo = substr($numcompr,5);}
-				  </script>
-				<div class="form-group">
-				 <table class="table table-condensed">
-                  <thead>
-                     <tr>
-                        <th class="text-left">Tipo Comprobante</th>
-                        <th class="text-left"> </th>
-						
-                        <th class="text-left">Número de comprobante del Proveedor</th>
-                     </tr>
-                  </thead>
-				  <tbody>
-                     <tr class="bg-info">
-					{if="substr($fsc->albaran->numremito, 0,1)=='R'"} 
-                        <td>
-					<select name="comprobante" id="comprobante" class="form-control" style="width:auto"  >
-						   <option value="B" selected="selected">FACTURA B</option>
-						   <option value="F" >FACTURA C</option>
-						   <option value="T" >TICKET</option>
-						   <option value="C" >NOTA DE CRÉDITO</option>
-						   <option value="D" >NOTA DE DÉBITO</option>
-						</select>	
-						</td>
-						<td>
-						<input id="numcorto" name="numcorto" class="form-control" style="width:60px" type="text" autocomplete="on" maxlength="4" onblur="rellenar(this,this.value,4)" onClick="this.setSelectionRange(0, this.value.length)" />
-						</td>
-						
-						<td>
-						<input id="numlargo" name="numlargo" class="form-control" style="width:auto" type="text" autocomplete="on" maxlength="8"  onblur="rellenar(this,this.value,8)" onClick="this.setSelectionRange(0, this.value.length)" />
-						</td>
-                      {else}
-					<td>
-					<select name="comprobante" id="comprobante" class="form-control" style="width:auto"  >
-						   <option value="{$doc_letra}" selected="selected">{$comp_doc}</option>
-						   <option value="B" >FACTURA B</option>
-						   <option value="F" >FACTURA C</option>
-						   <option value="T" >TICKET</option>
-						   <option value="C" >NOTA DE CRÉDITO</option>
-						   <option value="D" >NOTA DE DÉBITO</option>
-						</select>	
-						</td>
-						<td>
-						<input id="numcorto" name="numcorto" class="form-control" style="width:60px" type="text" autocomplete="on" maxlength="4" onblur="rellenar(this,this.value,4)" onClick="this.setSelectionRange(0, this.value.length)" value="{$numcompr_corto}" />
-						</td>
-						
-						<td>
-						<input id="numlargo" name="numlargo" class="form-control" style="width:auto" type="text" autocomplete="on" maxlength="8"  onblur="rellenar(this,this.value,8)" onClick="this.setSelectionRange(0, this.value.length)"  value="{$numcompr_largo}" />
-						</td>
-				  {/if}
-					  
-                     </tr>
-                  </tbody>
-               </table>
-               	</div>
-				 <span class="input-group-btn">
-				
-                        <button class="btn btn-primary" id="continuarfact" type="button"  onclick="verificar_factura();">
-                           <span class="glyphicon glyphicon-share-alt">Continuar</span>
-                        </button>
-                     </span>
-			   
-               </div>
-            </div>
-         </div>
-      </div>
-   </div>
-</form>
+
 
 
 {else}
@@ -929,7 +913,14 @@
 			var descr ='';
 			var numsub='';
 
-				var ban = 0;
+			var ban = 0;
+				var f1 =(document.getElementById('caivence').value);
+				var f2 ='{$fsc->today()}';
+				if( f1.toLocaleString() < f2.toLocaleString() )
+				{
+				alert('La fecha CAI está vencida');
+				aler = 1;
+				}
 				numsub = document.getElementById('numlineas').value;
 				$caival = document.getElementById('cai').value;
 				$caivenceval = document.getElementById('caivence').value;
@@ -989,6 +980,14 @@
 			var numsub='';
 
 				var ban = 0;
+				var f1 =(document.getElementById('caivence').value);
+				var f2 ='{$fsc->today()}';
+				if( f1.toLocaleString() < f2.toLocaleString() )
+				{
+				alert('La fecha CAI está vencida');
+				aler = 1;
+				}
+				
 				numsub = document.getElementById('numlineas').value;
 				$caival = document.getElementById('cai').value;
 				$caivenceval = document.getElementById('caivence').value;
