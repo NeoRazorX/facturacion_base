@@ -386,6 +386,11 @@ class linea_factura_proveedor extends fs_model
       return $this->db->exec("DELETE FROM ".$this->table_name." WHERE idlinea = ".$this->var2str($this->idlinea).";");
    }
    
+    public function delete_idfac()
+   {
+      return $this->db->exec("DELETE FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($this->idfactura).";");
+   }
+   
    public function all_from_factura($id)
    {
       $linlist = array();

@@ -21,6 +21,7 @@ require_model('agente.php');
 require_model('articulo.php');
 require_model('factura_proveedor.php');
 require_model('proveedor.php');
+require_model('albaran_proveedor.php');
 
 class compras_facturas extends fs_controller
 {
@@ -42,6 +43,7 @@ class compras_facturas extends fs_controller
    public $serie;
    public $total_resultados;
    public $total_resultados_txt;
+   public $autorizar_factura;
    
    public function __construct()
    {
@@ -53,7 +55,9 @@ class compras_facturas extends fs_controller
       $this->agente = new agente();
       $this->factura = new factura_proveedor();
       $this->serie = new serie();
-      
+	  $albaran = new albaran_proveedor();
+      $this->autorizar_factura = 1;
+	  
       $this->mostrar = 'todo';
       if( isset($_GET['mostrar']) )
       {
@@ -127,6 +131,11 @@ class compras_facturas extends fs_controller
          $this->num_resultados = '';
          $this->total_resultados = '';
          $this->total_resultados_txt = '';
+		 
+		 if( isset($_POST['delete']) )
+         {
+            $this->delete_albaran();
+         }
          
          if( isset($_GET['delete']) )
          {
@@ -164,6 +173,7 @@ class compras_facturas extends fs_controller
                $this->desde = $_REQUEST['desde'];
                $this->hasta = $_REQUEST['hasta'];
             }
+
          }
          
          /// añadimos segundo nivel de ordenación
@@ -197,7 +207,28 @@ class compras_facturas extends fs_controller
          }
          else
             $this->resultados = $this->factura->all($this->offset, FS_ITEM_LIMIT, $this->order.$order2);
-      }
+		}
+		
+			
+			
+         if($this->mostrar == 'remitos')
+         {
+            $this->resultados = $albaran->all_ptefactura($this->offset, $this->order.$order2);
+            
+            if($this->offset == 0)
+            {
+               $this->total_resultados = 0;
+               $this->total_resultados_txt = 'Suma total de esta página:';
+               foreach($this->resultados as $alb)
+               {
+                  $this->total_resultados += $alb->total;
+               }
+            }
+         }
+
+			
+			
+      
    }
    
    private function buscar_proveedor()
@@ -214,6 +245,11 @@ class compras_facturas extends fs_controller
       
       header('Content-Type: application/json');
       echo json_encode( array('query' => $_REQUEST['buscar_proveedor'], 'suggestions' => $json) );
+   }
+   
+    public function url_nueva_fact()
+   {
+   return 'index.php?page=nueva_compra';
    }
    
    public function anterior_url()
@@ -325,6 +361,17 @@ class compras_facturas extends fs_controller
          return 0;
    }
    
+  	public function total_remito_pend()
+	{
+      $data = $this->db->select("SELECT COUNT(idalbaran) as total FROM albaranesprov WHERE ptefactura = true ;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
+	}
+   
    private function buscar($order2)
    {
       $this->resultados = array();
@@ -430,4 +477,42 @@ class compras_facturas extends fs_controller
       else
          $this->new_error_msg("Factura no encontrada.");
    }
+   
+   
+      private function delete_albaran()
+   {
+      $alb = new albaran_proveedor();
+      $alb1 = $alb->get($_POST['delete']);
+      if($alb1)
+      {
+         /// ¿Actualizamos el stock de los artículos?
+         if( isset($_POST['stock']) )
+         {
+            $articulo = new articulo();
+            
+            foreach($alb1->get_lineas() as $linea)
+            {
+               $art0 = $articulo->get($linea->referencia);
+               if($art0)
+               {
+                  $art0->sum_stock($alb1->codalmacen, 0 - $linea->cantidad);
+                  $art0->save();
+               }
+            }
+         }
+         
+         if( $alb1->delete() )
+         {
+            $this->new_message(FS_ALBARAN." ".$alb1->codigo." borrado correctamente.");
+         }
+         else
+            $this->new_error_msg("¡Imposible borrar el ".FS_ALBARAN."!");
+      }
+      else
+         $this->new_error_msg("¡".FS_ALBARAN." no encontrado!");
+   }
+   
+   
+   
+   
 }

@@ -84,21 +84,22 @@
             {/if}
          </div>
          <div class="btn-group">
-            <a class="btn btn-sm btn-success" href="index.php?page=nueva_compra&tipo=factura">
+		 {if="$fsc->mostrar=='remitos'"}
+			 <a href="index.php?page=compras_agrupar_albaranes" class="btn btn-sm btn-default">Agrupar Remitos</a>
+		{else}             
+			 <a class="btn btn-sm btn-success" href="index.php?page=nueva_compra&tipo=factura&autorizar_factura=1">
                <span class="glyphicon glyphicon-plus"></span>
                <span class="hidden-xs">&nbsp; Nueva</span>
             </a>
-            {loop="$fsc->extensions"}
-               {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
-               {/if}
-            {/loop}
+		{/if}
          </div>
       </div>
       <div class="col-sm-4 col-xs-6 text-right">
+	  {if="$fsc->mostrar!='remitos'"}
          <a id="b_buscar_lineas" class="btn btn-sm btn-info" title="Buscar en las líneas">
             <span class="glyphicon glyphicon-search"></span> &nbsp; Líneas
          </a>
+		{/if}	 
          <div class="btn-group">
             <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
@@ -159,7 +160,90 @@
          {/if}
       </a>
    </li>
+      <li{if="$fsc->mostrar=='remitos'"} class="active"{/if}> 
+      <a href="{$fsc->url()}&mostrar=remitos">
+	   <span class="glyphicon glyphicon-time"></span>
+         {#FS_ALBARANES#} pendientes
+		<span class="hidden-xs badge">{$fsc->total_remito_pend()}</span>
+      </a>
+   </li>
 </ul>
+
+
+{if="$fsc->mostrar=='remitos'"}
+
+<div class="table-responsive">
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th></th>
+            <th class="text-left">Comprobante</th> 
+			<th class="text-left">Número</th>
+			<th class="text-left"></th>
+            <th class="text-left">Proveedor</th>
+            <th class="text-left">Observaciones</th>
+            <th class="text-right">Total</th>
+            <th class="text-right">Fecha</th>
+         </tr>
+      </thead>
+      {loop="$fsc->resultados"}
+	  
+      <tr class="clickableRow{if="!$value->ptefactura"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}&autorizar_factura=1">
+         <td class="text-center">
+            {if="!$value->ptefactura"}
+            <span class="glyphicon glyphicon-paperclip" title="facturado"></span>
+            {/if}
+         </td>
+         <td>
+		 {if="substr($value->numremito, 0,1)=='R'"}REMITO{/if}
+		 {if="substr($value->numremito, 0,1)=='B'"}FACTURA B{/if}
+		 {if="substr($value->numremito, 0,1)=='F'"}FACTURA C{/if}
+		 {if="substr($value->numremito, 0,1)=='T'"}TICKET{/if}
+		 </td>
+		 <td>
+		 {$numcompr=substr($value->numremito, 2)}
+		 {$numcompr}
+		 </td>
+		 <td><a href="{$value->url()}"></a> {$value->numproveedor}</td>
+         <td>
+            {$value->nombre}
+            <a href="{$fsc->url()}&codproveedor={$value->codproveedor}" class="cancel_clickable" title="Ver más {#FS_ALBARANES#} de {$value->nombre}">[+]</a>
+         </td>
+         <td>{$value->observaciones_resume()}</td>
+         <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
+         <td class="text-right">
+            <span title="Hora: {$value->hora}">
+               {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
+            </span>
+         </td>
+      </tr>
+	 
+      {else}
+      <tr class="bg-warning">
+         <td></td>
+         <td colspan="5">Ningún {#FS_ALBARAN#} encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</td>
+      </tr>
+	  
+      {/loop}
+	  
+      {if="$fsc->total_resultados!==''"}
+      <tr>
+         <td colspan="5" class="text-right">
+            {$fsc->total_resultados_txt} &nbsp; <b>{$fsc->show_precio($fsc->total_resultados)}</b>
+         </td>
+         <td></td>
+      </tr>
+      {/if}
+   </table>
+</div>
+
+
+
+
+{else}
+
+
+
 
 {if="$fsc->mostrar=='buscar'"}
 <br/>
@@ -169,6 +253,8 @@
    {else}
    <input type="hidden" name="codproveedor"/>
    {/if}
+   <input type="hidden" name="autorizar_factura" value="1"/>
+   
    <div class="container-fluid">
       <div class="row">
          <div class="col-sm-2">
@@ -251,9 +337,8 @@
             <th class="text-left">Pagado</th>
             <th class="text-left">Anulada</th>
 			<th class="text-left">Asiento</th>
-            <th class="text-left">Código int.</th>
-			<th class="text-left">Tipo</th>
-			<th class="text-left">Num. Proveedor</th>
+			<th class="text-left">Documento</th>
+			<th class="text-left">Número</th>
             <th class="text-left">Proveedor</th>
             <th class="text-left">Observaciones</th>
             <th class="text-right">Total</th>
@@ -277,10 +362,9 @@
             <span class="glyphicon glyphicon-paperclip" title="La factura tiene vinculado un asiento contable"></span>
             {/if}
          </td>
-		 <td><a href="{$value->url()}">{$value->codigo}</a></td>
-		 {if="$value->tipo=='F'"}<td>Factura</td>{elseif="$value->tipo=='C'"}<td>Crédito.</td>{elseif="$value->tipo=='D'"}<td>Débito.</td>{else}<td></td>{/if}
-		 
-         <td>{$value->numproveedor}</td>
+		 {if="$value->tipo=='B'"}<td>Factura B</td>{elseif="$value->tipo=='F'"}<td>Factura C</td>{elseif="$value->tipo=='C'"}<td>Crédito</td>{elseif="$value->tipo=='D'"}<td>Débito</td>{elseif="$value->tipo=='T'"}<td>Ticket</td>{else}<td></td>{/if}
+		 {$numcompr=substr($value->numproveedor, 2)}
+         <td>{$numcompr}</td>
          <td>
             {$value->nombre}
             <a href="{$fsc->url()}&codproveedor={$value->codproveedor}" class="cancel_clickable" title="Ver más facturas de {$value->nombre}">[+]</a>
@@ -328,6 +412,13 @@
    </li>
    {/if}
 </ul>
+
+
+{/if}
+
+
+
+
 
 <form class="form" role="form" id="f_buscar_lineas" name="f_buscar_lineas" action="{$fsc->url()}" method="post">
    <div class="modal" id="modal_buscar_lineas">

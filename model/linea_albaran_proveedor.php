@@ -104,9 +104,14 @@ class linea_albaran_proveedor extends fs_model
     * @var type 
     */
    public $recargo;
+   public $codsubcuenta;
+   public $idsubcuenta;
+   public $subcuentadesc;
+   
    
    private $codigo;
    private $fecha;
+   
    
    private static $albaranes;
    
@@ -134,6 +139,10 @@ class linea_albaran_proveedor extends fs_model
          $this->pvpunitario = floatval($l['pvpunitario']);
          $this->irpf = floatval($l['irpf']);
          $this->recargo = floatval($l['recargo']);
+		 $this->codsubcuenta = $l['codsubcuenta'];
+		 $this->idsubcuenta = $l['idsubcuenta'];
+		 $this->subcuentadesc = $l['subcuentadesc'];
+		 
       }
       else
       {
@@ -152,6 +161,9 @@ class linea_albaran_proveedor extends fs_model
          $this->pvpunitario = 0;
          $this->irpf = 0;
          $this->recargo = 0;
+		 $this->codsubcuenta = NULL;
+		 $this->idsubcuenta = NULL;
+		 $this->subcuentadesc = NULL;
       }
    }
 
@@ -304,14 +316,16 @@ class linea_albaran_proveedor extends fs_model
                     .", pvpunitario = ".$this->var2str($this->pvpunitario)
                     .", irpf = ".$this->var2str($this->irpf)
                     .", recargo = ".$this->var2str($this->recargo)
-                    ."  WHERE idlinea = ".$this->var2str($this->idlinea).";";
+					.", codsubcuenta = ".$this->var2str($this->codsubcuenta)
+					.", idsubcuenta = ".$this->var2str($this->idsubcuenta)
+					.", subcuentadesc = ".$this->var2str($this->subcuentadesc)
+					."  WHERE idlinea = ".$this->var2str($this->idlinea).";";
             
             return $this->db->exec($sql);
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (idlineapedido,idalbaran,idpedido,referencia,descripcion,
-               cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo) VALUES
+            $sql = "INSERT INTO ".$this->table_name." (idlineapedido,idalbaran,idpedido,referencia,descripcion,cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo,codsubcuenta,idsubcuenta,subcuentadesc) VALUES
                      (".$this->var2str($this->idlineapedido).
                     ",".$this->var2str($this->idalbaran).
                     ",".$this->var2str($this->idpedido).
@@ -325,7 +339,10 @@ class linea_albaran_proveedor extends fs_model
                     ",".$this->var2str($this->pvpsindto).
                     ",".$this->var2str($this->pvpunitario).
                     ",".$this->var2str($this->irpf).
-                    ",".$this->var2str($this->recargo).");";
+                    ",".$this->var2str($this->recargo).
+					",".$this->var2str($this->codsubcuenta).
+					",".$this->var2str($this->idsubcuenta).
+					",".$this->var2str($this->subcuentadesc).");";
             
             if( $this->db->exec($sql) )
             {

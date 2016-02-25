@@ -104,7 +104,7 @@ class compras_agrupar_albaranes extends fs_controller
       $json = array();
       foreach($proveedor->search($_REQUEST['buscar_proveedor']) as $pro)
       {
-         $json[] = array('value' => $pro->nombre, 'data' => $pro->codproveedor);
+         $json[] = array('value' => $pro->razonsocial, 'data' => $pro->codproveedor);
       }
       
       header('Content-Type: application/json');

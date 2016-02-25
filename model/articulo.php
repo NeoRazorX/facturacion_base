@@ -153,19 +153,28 @@ class articulo extends fs_model
    public $codbarras;
    public $observaciones;
    
-   /**
-    * Código de la subcuenta para compras.
-    * @var type 
-    */
-   public $codsubcuentacom;
-   
-   /**
+/*
     * Código para la subcuenta de compras, pero con IRPF.
     * @var type 
     */
    public $codsubcuentairpfcom;
+      /**
+    * Código de la subcuenta para compras.
+    * @var type 
+//////////////////////////////////////////////////////////////	
+    */
+   public $codsubcuentacom;
+   public $subcuentadescom;
+   
+ 
+   
    public $codsubcuentadevcom;
    public $subcuentadescdevcom;
+   
+   public $codsubcuentaven;
+   public $subcuentadescven;
+   public $codsubcuentadevven;
+   public $subcuentadescdevven;
    
    /**
     * % IVA del impuesto asignado.
@@ -196,10 +205,11 @@ class articulo extends fs_model
       {
          self::$column_list = 'referencia,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,'.
                  'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,'.
-                 'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,'.
-                 'codsubcuentacom,codsubcuentairpfcom,codsubcuentadevcom';
+                 'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,'.              
+				 'codsubcuentacom,codsubcuentairpfcom,codsubcuentadevcom,subcuentadesccom,'.
+				 'subcuentadescdevcom,codsubcuentaven,subcuentadescven,codsubcuentadevven,subcuentadescdevven';
       }
-      
+	 
       if($a)
       {
          $this->referencia = $a['referencia'];
@@ -233,7 +243,14 @@ class articulo extends fs_model
          $this->codsubcuentacom = $a['codsubcuentacom'];
          $this->codsubcuentairpfcom = $a['codsubcuentairpfcom'];
 		 $this->codsubcuentadevcom= $a['codsubcuentadevcom'];
-         
+         $this->subcuentadesccom= $a['subcuentadesccom'];
+		 $this->subcuentadescdevcom = $a['subcuentadescdevcom'];
+		 $this->codsubcuentaven = $a['codsubcuentaven'];
+		 $this->subcuentadescven = $a['subcuentadescven'];
+		 $this->codsubcuentadevven = $a['codsubcuentadevven'];
+		 $this->subcuentadescdevven = $a['subcuentadescdevven'];
+
+		 
          /// no cargamos la imagen directamente por cuestión de rendimiento
          $this->imagen = NULL;
          $this->has_imagen = isset($a['imagen']);
@@ -265,6 +282,14 @@ class articulo extends fs_model
          $this->observaciones = '';
          $this->codsubcuentacom = NULL;
          $this->codsubcuentairpfcom = NULL;
+
+		 $this->codsubcuentadevcom = NULL;
+         $this->subcuentadesccom = NULL;
+		 $this->subcuentadescdevcom = NULL;
+		 $this->codsubcuentaven = NULL;
+		 $this->subcuentadescven = NULL;
+		 $this->codsubcuentadevven = NULL;
+		 $this->subcuentadescdevven = NULL;
          
          $this->imagen = NULL;
          $this->has_imagen = FALSE;
@@ -915,6 +940,13 @@ class articulo extends fs_model
                     ", tipo = ".$this->var2str($this->tipo).
                     ", imagen = ".$this->bin2str($this->imagen).
                     ", codsubcuentacom = ".$this->var2str($this->codsubcuentacom).
+					", subcuentadesccom = ".$this->var2str($this->subcuentadesccom).
+					", codsubcuentadevcom = ".$this->var2str($this->codsubcuentadevcom).
+					", subcuentadescdevcom = ".$this->var2str($this->subcuentadescdevcom).
+					", codsubcuentaven = ".$this->var2str($this->codsubcuentaven).
+					", subcuentadescven = ".$this->var2str($this->subcuentadescven).
+					", codsubcuentadevven = ".$this->var2str($this->codsubcuentadevven).
+					", subcuentadescdevven = ".$this->var2str($this->subcuentadescdevven).					
                     ", codsubcuentairpfcom = ".$this->var2str($this->codsubcuentairpfcom).
                     ", codsubcuentadevcom = ".$this->var2str($this->codsubcuentadevcom).
                     " WHERE referencia = ".$this->var2str($this->referencia).";";
@@ -953,9 +985,15 @@ class articulo extends fs_model
                     $this->bin2str($this->imagen).",".
                     $this->var2str($this->publico).",".
                     $this->var2str($this->tipo).",".
-                    $this->var2str($this->codsubcuentacom).",".
-                    $this->var2str($this->codsubcuentairpfcom).",".
-                    $this->var2str($this->codsubcuentadevcom).");";
+                    $this->var2str($this->codsubcuentacom).",".	
+                    $this->var2str($this->codsubcuentairpfcom).",".	
+					$this->var2str($this->codsubcuentadevcom).",".				
+					$this->var2str($this->subcuentadesccom).",".					
+					$this->var2str($this->subcuentadescdevcom).",".
+					$this->var2str($this->codsubcuentaven).",".
+					$this->var2str($this->subcuentadescven).",".
+					$this->var2str($this->codsubcuentadevven).",".
+					$this->var2str($this->subcuentadescdevven).");";
          }
          
          if( $this->db->exec($sql) )

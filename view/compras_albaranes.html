@@ -95,15 +95,11 @@
             {/if}
          </div>
          <div class="btn-group">
-            <a class="btn btn-sm btn-success" href="index.php?page=nueva_compra&tipo=albaran">
+            <a class="btn btn-sm btn-success" href="index.php?page=nueva_compra&tipo=albaran&autorizar_factura=0">
                <span class="glyphicon glyphicon-plus"></span>
                <span class="hidden-xs">&nbsp; Nuevo</span>
             </a>
-            {loop="$fsc->extensions"}
-               {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
-               {/if}
-            {/loop}
+
          </div>
       </div>
       <div class="col-sm-4 col-xs-6 text-right">
@@ -260,7 +256,9 @@
       <thead>
          <tr>
             <th></th>
-            <th class="text-left">Código + Núm. Proveedor</th>
+            <th class="text-left">Comprobante</th> 
+			<th class="text-left">Número</th>
+			<th class="text-left"></th>
             <th class="text-left">Proveedor</th>
             <th class="text-left">Observaciones</th>
             <th class="text-right">Total</th>
@@ -268,13 +266,23 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr class="clickableRow{if="!$value->ptefactura"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}">
+	  
+      <tr class="clickableRow{if="!$value->ptefactura"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}&autorizar_factura=0">
          <td class="text-center">
             {if="!$value->ptefactura"}
             <span class="glyphicon glyphicon-paperclip" title="facturado"></span>
             {/if}
          </td>
-         <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numproveedor}</td>
+         <td>
+		 {if="substr($value->numremito, 0,1)=='R'"}REMITO{/if}
+		 {if="substr($value->numremito, 0,1)=='B'"}FACTURA B{/if}
+		 {if="substr($value->numremito, 0,1)=='F'"}FACTURA C{/if}
+		 {if="substr($value->numremito, 0,1)=='T'"}TICKET{/if}
+		 <td>
+		 {$numcompr=substr($value->numremito, 2)}
+		 {$numcompr}
+		 </td>
+		 <td><a href="{$value->url()}"></a> {$value->numproveedor}</td>
          <td>
             {$value->nombre}
             <a href="{$fsc->url()}&codproveedor={$value->codproveedor}" class="cancel_clickable" title="Ver más {#FS_ALBARANES#} de {$value->nombre}">[+]</a>
@@ -287,6 +295,7 @@
             </span>
          </td>
       </tr>
+	 
       {else}
       <tr class="bg-warning">
          <td></td>
@@ -323,6 +332,7 @@
 
 <form class="form" role="form" id="f_buscar_lineas" name="f_buscar_lineas" action="{$fsc->url()}" method="post">
    <input type="hidden" name="offset" value="0"/>
+   
    <div class="modal" id="modal_buscar_lineas">
       <div class="modal-dialog" style="width: 99%; max-width: 950px;">
          <div class="modal-content">

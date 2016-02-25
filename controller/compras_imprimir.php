@@ -334,19 +334,26 @@ class compras_imprimir extends fs_controller
                   'factimp' => '<b>Importe Fact.</b>'
                )
             );
+			
+			$sub_t = 0;
 			foreach($recibo as $p)
 			{		
 			$factura = $factura_prov->get_by_codigo($p->codigo);
+			
+			if(substr($p->factprov, 0,1)=='C' ) $sub_t = $p->importe * -1;
+					else  $sub_t = $p->importe;
+
+			
 			$pdf_doc->add_table_row(
 				   array(
 				  'fecha' => $p->fecha,
                   'factnum' => $p->factprov,
-                  'factimp' => $p->importe,
+                  'factimp' => $sub_t,
                   'valor' => $factura->observaciones,
-                  'importe' => $p->importe
+                  'importe' => $sub_t
 					   )
 					);   
-			$total_facturado +=	$p->importe;		
+			$total_facturado +=	$sub_t;		
 							
 			}	
 			
