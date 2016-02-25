@@ -316,11 +316,11 @@
                </td>
                <td><input class='form-control' type='text' id='desc_{$counter+1}' name='desc_{$counter+1}' value='{$value->desc_subcuenta}' disabled='disabled'/></td>
                <td>
-                  <input class='form-control text-right' type='text' id='debe_{$counter+1}' name='debe_{$counter+1}' value='{$value->debe}'
+                  <input class='form-control text-right' type='text' id='debe_{$counter+1}' name='debe_{$counter+1}' value='{$fsc->show_precio($value->debe)}'
                          onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>
                </td>
                <td>
-                  <input class='form-control text-right' type='text' id='haber_{$counter+1}' name='haber_{$counter+1}' value='{$value->haber}'
+                  <input class='form-control text-right' type='text' id='haber_{$counter+1}' name='haber_{$counter+1}' value='{$fsc->show_precio($value->haber)}'
                          onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>
                </td>
  			   <td>
@@ -566,10 +566,12 @@
                <th>Fecha</th>
                <th>Nombre</th>
                <th>Documento</th>
+			   <th>Número</th>
                <th class="text-right">Importe</th>
             </tr>
       </thead>
 	   {loop="$fsc->resultados1"}
+	   
       <tr>
 	   <td><a href="{$fsc->asiento->ejercicio_url()}">{$value->codejercicio}</a></td>
          <td>{$value->fecha}</td>
@@ -579,8 +581,18 @@
 			 	{$value->nombrecliente}
 			{/if}	
 		 </td>
-         <td>{$value->codigo} </td>
-         <td class="text-right">{$value->total}</td>
+		 		
+				  {if="substr($value->numproveedor, 0,1)=='B'"}<td>FACTURA B :</td>{/if}
+				  {if="substr($value->numproveedor, 0,1)=='F'"}<td>FACTURA C :</td>{/if}
+				  {if="substr($value->numproveedor, 0,1)=='R'"}<td>REMITO :</td>{/if}
+				  {if="substr($value->numproveedor, 0,1)=='T'"}<td>TICKET :</td>{/if}
+				  {if="substr($value->numproveedor, 0,1)=='C'"}<td>NOTA DE CRÉDITO :</td>{/if}
+				  {if="substr($value->numproveedor, 0,1)=='D'"}<td>NOTA DE DÉBITO :</td>{/if}		
+				 
+				  
+		 
+         <td>{$numcompr=substr($value->numproveedor, 2)}{$numcompr} </td>
+         <td class="text-right">{$fsc->show_precio($value->total)}</td>
       </tr>
 	  {/loop}
    </table>

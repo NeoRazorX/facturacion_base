@@ -697,6 +697,7 @@ class nueva_compra extends fs_controller
          }
          $albaran->codagente = $this->agente->codagente;
          $albaran->numremito = $_POST['tipo'].'/'.$_POST['numproveedor'];
+		 $albaran->tipo = $_POST['tipo'];
          $albaran->observaciones = $_POST['observaciones'];
          $albaran->irpf = $serie->irpf;
 		 $albaran->cai = $_POST['cai'];
