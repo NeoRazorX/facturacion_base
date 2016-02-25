@@ -29,6 +29,16 @@
       {
          show_tarifas();
       }
+      else
+      {
+         $('[data-toggle="popover"]').popover({
+            placement : 'bottom',
+            trigger : 'hover',
+            content: function() {
+               return '<div class="thumbnail" style="margin: 0px;"><img src="'+$(this).data('img') + '" /></a>';
+            }
+         });
+      }
       
       $("#b_nuevo_articulo").click(function(event) {
          event.preventDefault();
@@ -273,7 +283,15 @@
                </thead>
                {loop="$fsc->resultados"}
                <tr class='clickableRow{if="$value->bloqueado"} danger{elseif="$value->stockfis<=$value->stockmin"} warning{/if}' href='{$value->url()}'>
-                  <td><a href="{$value->url()}">{$value->referencia}</a> {$value->descripcion()}</td>
+                  <td>
+                     {$img=$value->imagen_url()}
+                     {if="$img"}
+                     <a href="{$value->url()}" data-toggle="popover" data-html="true" data-img="{$img}">{$value->referencia}</a>
+                     {else}
+                     <a href="{$value->url()}">{$value->referencia}</a>
+                     {/if}
+                     {$value->descripcion()}
+                  </td>
                   <td>
                      {if="is_null($value->codfamilia)"}
                         <span>-</span>

@@ -286,7 +286,7 @@
                                  <option value="">Predeterminada</option>
                                  <option value="">------</option>
                                  {loop="$fsc->serie->all()"}
-                                    {if="$value->codserie==$fsc->proveedor->codserie"}
+                                    {if="$value->codserie==$fsc->cliente->codserie"}
                                     <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
                                     {else}
                                     <option value="{$value->codserie}">{$value->descripcion}</option>

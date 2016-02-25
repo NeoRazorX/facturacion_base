@@ -46,7 +46,7 @@ class compras_facturas extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Facturas de compra', 'compras', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Facturas', 'compras', FALSE, TRUE);
    }
    
    protected function private_core()

@@ -232,6 +232,11 @@ class articulo_proveedor extends fs_model
       return $this->precio * (100-$this->dto) / 100 * (100+$this->get_iva()) / 100;
    }
    
+   /**
+    * Devuelve el artículo de proveedor solicitado, o false si no se encuentra.
+    * @param type $id
+    * @return \articulo_proveedor|boolean
+    */
    public function get($id)
    {
       $data = $this->db->select("SELECT * FROM articulosprov WHERE id = ".$this->var2str($id).";");

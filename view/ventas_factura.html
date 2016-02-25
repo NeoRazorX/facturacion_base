@@ -567,7 +567,7 @@
                   <span class="glyphicon glyphicon-send"></span> &nbsp;
                   Esta {#FS_FACTURA#} fue enviada el {$fsc->factura->femail}.
                </p>
-               {else}
+               {elseif="!in_array('CRM',$GLOBALS['plugins'])"}
                <p class="help-block">
                   Gestiona los contactos del cliente y comunícate con ellos con el
                   <a href="https://www.facturascripts.com/store/producto/plugin-crm/" target="_blank">plugin CRM</a>.
