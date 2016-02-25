@@ -1,0 +1,102 @@
+{include="header2"}
+<!--
+Copyright (C) 2016 Joe Nilson <joenilson at gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<script src="plugins/facturacion_base/view/js/plugins/validator.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+   function eliminar_devolucion(id)
+    $(document).ready(function() {
+      $('#f_devolucion').validator().on('submit', function (e) {
+        if (e.isDefaultPrevented()) {
+          alert('Formulario Invalido!');
+        } else {
+            if(confirm("¿Realmente desea guardar la devolución?"))
+                return true;
+        }
+      });
+   });
+</script>
+<div class="container-fluid">
+    <form action="{$fsc->url()}" method="post" data-toggle="validator" role="form" class="form" name="f_devolucion" id="f_devolucion">
+        {if="$fsc->devolucion"}
+        <div class="row panel-info">
+            <span class="col-sm-2">{#FS_FACTURA_RECTIFICATIVA#}:</span><span><b>{$fsc->resultados->idfactura} {$fsc->resultados->codigo}</b></span>
+        </div>
+        {/if}
+        <input type="hidden" name="id" value="{$fsc->factura}">
+        <input type="hidden" name="type" value="devolucion">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th class="text-left">{$fsc->devolucion} Referencia</th>
+                    <th class="text-left">Producto</th>
+                    <th class="text-right">Precio</th>
+                    <th class="text-center">Impuestos</th>
+                    <th class="text-right">Neto</th>
+                    <th class="text-center">Cantidad</th>
+                    {if="!$fsc->devolucion"}
+                        <th class="text-center">Devolución</th>
+                    {else}
+                        <th class="text-center">&nbsp;</th>
+                    {/if}
+                </tr>
+            </thead>
+            {loop="$fsc->resultados->get_lineas()"}
+                <tr>
+                    <td>{$value1->referencia}</td>
+                    <td>{$value1->descripcion}</td>
+                    <td class='text-right'>{$fsc->show_precio($value1->pvpunitario)}</td>
+                    <td class='text-center'>{$value1->iva}</td>
+                    <td class='text-right'>{$fsc->show_precio($value1->pvptotal)}</td>
+                    <td class='text-center'>{$value1->cantidad}</td>
+                    {if="!$fsc->devolucion"}
+                        <td class='text-center'><input name="id_{$value1->referencia}" type="number" step="0.0001" min="0" max="{$value1->cantidad}" required></td>
+                    {else}
+                        <td>&nbsp;</td>
+                    {/if}
+                </tr>
+            {/loop}
+            <tr>
+                <td colspan='3'>&nbsp;</td>
+                <th class="text-right">Impuestos</th>
+                <th class="text-right">Valor Neto</th>
+                <th class="text-right">Valor Total</th>
+            </tr>
+            <tr>
+                <td colspan='3'>&nbsp;</td>
+                <td class="text-right"><b>{$fsc->show_precio($fsc->resultados->totaliva)}</b></td>
+                <td class="text-right"><b>{$fsc->show_precio($fsc->resultados->neto)}</b></td>
+                <td class="text-right"><b>{$fsc->show_precio($fsc->resultados->total)}</b></td>
+            </tr>
+            <tfoot>
+                <tr>
+                    <td class="text-right" colspan="7">
+                        {if="!$fsc->devolucion"}
+                        <button id="b_guardar" data-disable="true" type="submit" class="btn btn-sm btn-primary">
+                            <span class="glyphicon glyphicon-floppy-disk"></span>
+                            &nbsp; Guardar Devolución
+                        </button>
+                        {/if}
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    </form>
+    <div class="row">Aqui puede generar las devoluciones parciales para esta factura, por favor verifique bien las cantidades ingresadas, ya que una vez guardada la devolución, solo el contador podrá reversar la misma.</div>
+</div>
+{include="footer2"}
