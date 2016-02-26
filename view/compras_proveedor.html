@@ -1,11 +1,5 @@
 {include="header"}
 
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
-<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-<script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
-<script src="jquery.ui.datepicker-es.js"></script>
-
-
 {if="$fsc->proveedor"}
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript">
@@ -83,13 +77,6 @@
          $("#modal_nueva_direccion").modal('show');
          document.f_nueva_direccion.provincia.focus();
       });
-	  	 $("#caivence").datepicker({
-        // Consistent format with the HTML5 picker
-        dateFormat: 'dd-mm-yy'
-		
-		
-    });
-	  
    });
 </script>
 
@@ -229,7 +216,7 @@
 						<div class="col-sm-2">
                            <div class="form-group">
                               CAI vencimiento:
-                              <input class="form-control " type="text" name="caivence" id="caivence"{if="strtotime($fsc->proveedor->caivence) > strtotime('01-01-2000')"}  value="{$fsc->proveedor->caivence}"{else}value="" {/if} autocomplete="off"/>
+                              <input class="form-control input-sm datepicker" type="text" name="caivence" {if="strtotime($fsc->proveedor->caivence) > strtotime('01-01-2000')"}  value="{$fsc->proveedor->caivence}"{else}value="" {/if} autocomplete="off"/>
                            </div>
                         </div>
                         <div class="col-sm-3">

@@ -916,7 +916,19 @@
 			var ban = 0;
 				var f1 =(document.getElementById('caivence').value);
 				var f2 ='{$fsc->today()}';
-				if( f1.toLocaleString() < f2.toLocaleString() )
+															
+				var d1 =f1.substr(0,2);
+				var m1 =f1.substr(3,2);
+				var y1 =f1.substr(6);
+				
+				var d2 =f2.substr(0,2);
+				var m2 =f2.substr(3,2);
+				var y2 =f2.substr(6);
+				
+				var fe1 = new Date(y1,m1,d1);
+				var fe2 = new Date(y2,m2,d2);
+				
+				if( fe1 < fe2 )
 				{
 				alert('La fecha CAI está vencida');
 				aler = 1;
