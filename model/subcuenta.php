@@ -456,10 +456,10 @@ class subcuenta extends fs_model
       return $sublist;
    }
    
-      public function subcoenta_compras()
+      public function subcoenta_compras($codejercicio)
    {
       $sublist = array();
-      $subcuentas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcuenta IN  ( SELECT codcuenta FROM co_cuentas WHERE idcuentaesp = 'COMPRA' ) ORDER BY descripcion ASC;");
+      $subcuentas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcuenta IN  ( SELECT codcuenta FROM co_cuentas WHERE idcuentaesp = 'COMPRA' ) AND codejercicio = '".$codejercicio."'  ORDER BY descripcion ASC;");
       if($subcuentas)
       {
          foreach($subcuentas as $s)
@@ -467,12 +467,12 @@ class subcuenta extends fs_model
       }
       return $sublist;
    }
+    
    
-   
-         public function subcoenta_compras_credito()
+         public function subcoenta_compras_credito($codejercicio)
    {
       $sublist = array();
-      $subcuentas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcuenta IN  ( SELECT codcuenta FROM co_cuentas WHERE idcuentaesp = 'DEVCOM' ) ORDER BY descripcion ASC;");
+      $subcuentas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcuenta IN  ( SELECT codcuenta FROM co_cuentas WHERE idcuentaesp = 'DEVCOM' ) AND codejercicio = '".$codejercicio."'  ORDER BY descripcion ASC;");
       if($subcuentas)
       {
          foreach($subcuentas as $s)

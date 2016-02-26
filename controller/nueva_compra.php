@@ -18,7 +18,7 @@
  */
  
  
-
+require_model('empresa.php');
 require_model('almacen.php');
 require_model('articulo_proveedor.php');
 require_model('asiento_factura.php');
@@ -31,6 +31,7 @@ require_model('albaran_proveedor.php');
 
 class nueva_compra extends fs_controller
 {
+   public $empresa;
    public $agente;
    public $almacen;
    public $articulo;
@@ -53,7 +54,8 @@ class nueva_compra extends fs_controller
    public $caivence;
    public $artsubcuentas;
    public $autorizar_factura;
-  
+   public $view_subcuen;
+   public $view_subcuen_dev;
    
    public function __construct()
    {
@@ -64,6 +66,7 @@ class nueva_compra extends fs_controller
    {
    $this->ppage = $this->page->get('compras_albaranes');
    
+	  $this->empresa = new empresa();   
       $this->articulo_prov = new articulo_proveedor();
       $this->fabricante = new fabricante();
       $this->familia = new familia();
@@ -77,8 +80,11 @@ class nueva_compra extends fs_controller
 	  $this->verif_remito = $remito->all_ptefactura();
 	  $this->subcuentas = new subcuenta();
 	  $this->artsubcuentas = new articulo();
-	  
-	  
+	  $this->view_subcuen = $this->subcuentas->subcoenta_compras($this->empresa->codejercicio);
+	  $this->view_subcuen_dev = $this->subcuentas->subcoenta_compras($this->empresa->codejercicio);  
+	
+	   
+	  	
 	  	
       
       if( isset($_REQUEST['tipo']) )
