@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+require_model('empresa.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
 require_model('ejercicio.php');
@@ -32,6 +32,7 @@ require_model('articulo_proveedor.php');
 
 class compras_factura extends fs_controller
 {
+   public $empresa;
    public $agente;
    public $allow_delete;
    public $ejercicio;
@@ -50,7 +51,8 @@ class compras_factura extends fs_controller
    public $codserie;
    public $divisa;
    public $tasaconv;
-  
+   public $view_subcuen;
+   public $view_subcuen_dev;  
    
    
    
@@ -62,6 +64,7 @@ class compras_factura extends fs_controller
    
    protected function process()
    {
+   	  $this->empresa = new empresa();
       $this->ppage = $this->page->get('compras_facturas');
       $this->agente = FALSE;
       $this->ejercicio = new ejercicio();
@@ -78,8 +81,10 @@ class compras_factura extends fs_controller
 	  $this->familia = new familia();
 	  $this->articulo_prov = new articulo_proveedor();
 	  $this->artsubcuentas = new articulo();
+	  $this->view_subcuen = $this->subcuentas->subcoenta_compras($this->empresa->codejercicio);
+	  $this->view_subcuen_dev = $this->subcuentas->subcoenta_compras_credito($this->empresa->codejercicio);
 	  
-	  $this->list_subcuen = $this->subcuentas->subcoenta_compras();
+	  $this->list_subcuen = $this->subcuentas->subcoenta_compras($this->empresa->codejercicio);
 	  ///   tecla anular factura
 	  if( isset($_POST['id']))
 	  {

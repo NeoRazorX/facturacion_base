@@ -118,14 +118,14 @@ function recalcular()
             $("#recargo_"+i).val(0);
          }
          
-         $("#neto_"+i).val( l_neto );
+         $("#neto_"+i).val( dosdec(l_neto) );
          if(numlineas == 1)
          {
-            $("#total_"+i).val( fs_round(l_neto, fs_nf0) + fs_round(l_neto*(l_iva-l_irpf+l_recargo)/100, fs_nf0) );
+            $("#total_"+i).val( dosdec(fs_round(l_neto, fs_nf0) + fs_round(l_neto*(l_iva-l_irpf+l_recargo)/100, fs_nf0)) );
          }
          else
          {
-            $("#total_"+i).val( number_format(l_neto + (l_neto*(l_iva-l_irpf+l_recargo)/100), fs_nf0, '.', '') );
+            $("#total_"+i).val( dosdec(number_format(l_neto + (l_neto*(l_iva-l_irpf+l_recargo)/100), fs_nf0, '.', '') ));
          }
          
          neto += l_neto;
@@ -143,7 +143,7 @@ function recalcular()
    $("#aiva").html( show_numero(total_iva) );
    $("#are").html( show_numero(total_recargo) );
    $("#airpf").html( '-'+show_numero(total_irpf) );
-   $("#atotal").val( neto + total_iva - total_irpf + total_recargo );
+   $("#atotal").val( dosdec(neto + total_iva - total_irpf + total_recargo ));
    
    if(total_recargo == 0 && !tiene_recargo)
    {
@@ -326,7 +326,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,codsub,subdesc,subdev,subdesd
          "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
       <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
          <span class=\"glyphicon glyphicon-trash\"></span></button></td>\n\
-      <td><input type=\"text\" class=\"form-control text-right\" id=\"pvp_"+numlineas+"\" name=\"pvp_"+numlineas+"\" value=\""+pvp+
+      <td><input type=\"text\" class=\"form-control text-right\" id=\"pvp_"+numlineas+"\" name=\"pvp_"+numlineas+"\" value=\""+dosdec(pvp)+
          "\" onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       <td><input type=\"text\" id=\"dto_"+numlineas+"\" name=\"dto_"+numlineas+"\" value=\""+dto+
          "\" class=\"form-control text-right\" onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
@@ -347,7 +347,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,codsub,subdesc,subdev,subdesd
          "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
       <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
          <span class=\"glyphicon glyphicon-trash\"></span></button></td>\n\
-      <td><input type=\"text\" class=\"form-control text-right\" id=\"pvp_"+numlineas+"\" name=\"pvp_"+numlineas+"\" value=\""+pvp+
+      <td><input type=\"text\" class=\"form-control text-right\" id=\"pvp_"+numlineas+"\" name=\"pvp_"+numlineas+"\" value=\""+dosdec(pvp)+
          "\" onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       <td><input type=\"text\" id=\"dto_"+numlineas+"\" name=\"dto_"+numlineas+"\" value=\""+dto+
          "\" class=\"form-control text-right\" onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
@@ -372,6 +372,12 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,codsub,subdesc,subdev,subdesd
    $("#desc_"+(numlineas-1)).select();
    return false;
 }
+
+		function dosdec(valdec)
+		{
+		valdec = parseFloat(valdec).toFixed(2);	
+		return 	valdec;
+		}
 
 function sel_remito(subdesc1,idsub,codsub,subdev)
 {

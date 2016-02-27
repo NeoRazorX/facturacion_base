@@ -9,8 +9,8 @@
    all_impuestos = {function="json_encode($fsc->impuesto->all())"};
    all_series = {function="json_encode($fsc->serie->all())"};
    proveedor = {function="json_encode($fsc->proveedor_s)"};   
-   subcuentas = {function="json_encode($fsc->subcuentas->subcoenta_compras())"};
-   subcuentas_c = {function="json_encode($fsc->subcuentas->subcoenta_compras_credito())"};
+   subcuentas = {function="json_encode($fsc->view_subcuen)"};
+   subcuentas_c = {function="json_encode($fsc->view_subcuen_dev)"};
    nueva_compra_url = '{$fsc->nuevo_albaran_url}';
    kiwimaru_url = '{#FS_COMMUNITY_URL#}/index.php?page=kiwimaru';
    precio_compra = '{#FS_PRECIO_COMPRA#}';
@@ -217,7 +217,7 @@
             <div class="form-group" style="font:bold;font-size:18px">
                Fecha:
 			   {if="$fsc->albaran->ptefactura"}
-               <input type="text" name="fecha" class="form-control datepicker" value="{$fsc->albaran->fecha}" autocomplete="off"/>
+               <input type="text" name="fecha" class="form-control input-sm datepicker" value="{$fsc->albaran->fecha}" autocomplete="off"/>
 			   {else}
                <div class="form-control">{$fsc->albaran->fecha}</div>
 			   {/if}
@@ -238,7 +238,7 @@
 					</div></div>
 					<div class="col-sm-3">
 					  <div class="form-group" style="font:bold;font-size:12px">
-					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control datepicker" style="width:100px" {if="strtotime($fsc->albaran->caivence) > strtotime('01-01-2000')"}  value="{$fsc->albaran->caivence}"{else}value="" {/if}    />
+					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control input-sm datepicker" style="width:100px" {if="strtotime($fsc->albaran->caivence) > strtotime('01-01-2000')"}  value="{$fsc->albaran->caivence}"{else}value="" {/if}    />
 					</div></div>
 					{else}
 					<input type="hidden" name="cai" value="{$fsc->albaran->cai}"/>
@@ -320,7 +320,7 @@
 						{if="$fsc->autorizar_factura==1"}
 						<select name="subcuenta_{$counter}" id="subcuenta_{$counter}" class="form-control text-right" style='width:200px; font-size:12px'>
 					 <option value='{$value->codsubcuenta}/{$value->subcuentadesc}%{$value->idsubcuenta}' selected="selected" >{$value->subcuentadesc}</option>
-					 {loop="$fsc->subcuentas->subcoenta_compras()"}
+					 {loop="$fsc->view_subcuen"}
 					 <option value='{$value->codsubcuenta}/{$value->descripcion}%{$value->idsubcuenta}' >{$value->descripcion}</option>
 					 {/loop}
 	 					</select>
@@ -336,7 +336,7 @@
                            </button>
                         </td>
                         <td>
-                           <input type="text" class="form-control text-right" id="pvp_{$counter}" name="pvp_{$counter}" value="{$value->pvpunitario}"
+                           <input type="text" class="form-control text-right" id="pvp_{$counter}" name="pvp_{$counter}" value="{$fsc->show_precio($value->pvpunitario)}"
                                   onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/>
                         </td>
                         <td>
@@ -916,7 +916,19 @@
 			var ban = 0;
 				var f1 =(document.getElementById('caivence').value);
 				var f2 ='{$fsc->today()}';
-				if( f1.toLocaleString() < f2.toLocaleString() )
+															
+				var d1 =f1.substr(0,2);
+				var m1 =f1.substr(3,2);
+				var y1 =f1.substr(6);
+				
+				var d2 =f2.substr(0,2);
+				var m2 =f2.substr(3,2);
+				var y2 =f2.substr(6);
+				
+				var fe1 = new Date(y1,m1,d1);
+				var fe2 = new Date(y2,m2,d2);
+				
+				if( fe1 < fe2 )
 				{
 				alert('La fecha CAI está vencida');
 				aler = 1;
@@ -982,7 +994,20 @@
 				var ban = 0;
 				var f1 =(document.getElementById('caivence').value);
 				var f2 ='{$fsc->today()}';
-				if( f1.toLocaleString() < f2.toLocaleString() )
+				
+								
+				var d1 =f1.substr(0,2);
+				var m1 =f1.substr(3,2);
+				var y1 =f1.substr(6);
+				
+				var d2 =f2.substr(0,2);
+				var m2 =f2.substr(3,2);
+				var y2 =f2.substr(6);
+				
+				var fe1 = new Date(y1,m1,d1);
+				var fe2 = new Date(y2,m2,d2);
+				
+				if( fe1 < fe2 )
 				{
 				alert('La fecha CAI está vencida');
 				aler = 1;

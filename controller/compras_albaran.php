@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+require_model('empresa.php');
 require_model('albaran_proveedor.php');
 require_model('articulo.php');
 require_model('asiento.php');
@@ -36,6 +36,7 @@ require_model('subcuenta.php');
 
 class compras_albaran extends fs_controller
 {
+   public $empresa;
    public $agente;
    public $albaran;
    public $allow_delete;
@@ -55,6 +56,8 @@ class compras_albaran extends fs_controller
    public $list_subcuen;
    public $cai;
    public $caivence;
+   public $view_subcuen;
+   public $view_subcuen_dev;
    
    public function __construct()
    {
@@ -75,7 +78,7 @@ class compras_albaran extends fs_controller
 		
 	  
       $this->agente = FALSE;
-      
+      $this->empresa = new empresa();
       $albaran = new albaran_proveedor();
       $this->albaran = FALSE;
       $this->divisa = new divisa();
@@ -90,8 +93,10 @@ class compras_albaran extends fs_controller
 	  $factura= new factura_proveedor();
 	  $this->verif_factura = $factura->all();
 	  $this->subcuentas = new subcuenta();
+	  $this->view_subcuen = $this->subcuentas->subcoenta_compras($this->empresa->codejercicio);
+	  $this->view_subcuen_dev = $this->subcuentas->subcoenta_compras_credito($this->empresa->codejercicio); 
 	  
-	  $this->list_subcuen = $this->subcuentas->subcoenta_compras();
+	  $this->list_subcuen = $this->subcuentas->subcoenta_compras($this->empresa->codejercicio);
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);

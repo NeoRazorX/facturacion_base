@@ -216,7 +216,7 @@
 						<div class="col-sm-2">
                            <div class="form-group">
                               CAI vencimiento:
-                              <input class="form-control datepicker" type="text" name="caivence" {if="$fsc->proveedor->caivence!='01-01-1970'"}  value="{$fsc->proveedor->caivence}" {/if} autocomplete="off"/>
+                              <input class="form-control input-sm datepicker" type="text" name="caivence" {if="strtotime($fsc->proveedor->caivence) > strtotime('01-01-2000')"}  value="{$fsc->proveedor->caivence}"{else}value="" {/if} autocomplete="off"/>
                            </div>
                         </div>
                         <div class="col-sm-3">

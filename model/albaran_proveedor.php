@@ -166,6 +166,7 @@ class albaran_proveedor extends fs_model
    public $ptefactura;
    public $cai;
    public $caivence;
+   public $tipo;
 
    public function __construct($a=FALSE)
    {
@@ -195,7 +196,7 @@ class albaran_proveedor extends fs_model
          $this->fecha = Date('d-m-Y', strtotime($a['fecha']));
 		 $this->cai = $a['cai'];
 		 $this->caivence =  Date('d-m-Y', strtotime($a['caivence']));
-         
+         $this->tipo = $a['tipo'];
          $this->hora = '00:00:00';
          if( !is_null($a['hora']) )
             $this->hora = $a['hora'];
@@ -244,6 +245,7 @@ class albaran_proveedor extends fs_model
          $this->ptefactura = TRUE;
 		 $this->cai = '';
    		 $this->caivence = Date('d-m-Y');
+		 $this->tipo = NULL;
       }
    }
    
@@ -554,6 +556,7 @@ class albaran_proveedor extends fs_model
                     .", ptefactura = ".$this->var2str($this->ptefactura)
 					.", caivence = ".$this->var2str($this->caivence)
 					.", cai = ".$this->var2str($this->cai)
+					.", tipo = ".$this->var2str($this->tipo)
                     ."  WHERE idalbaran = ".$this->var2str($this->idalbaran).";";
             
             return $this->db->exec($sql);
@@ -564,7 +567,7 @@ class albaran_proveedor extends fs_model
             $sql = "INSERT INTO ".$this->table_name." (codigo,numero,numproveedor,numremito,
                codejercicio,codserie,coddivisa,codpago,codagente,codalmacen,fecha,codproveedor,
                nombre,cifnif,neto,total,totaliva,totaleuros,irpf,totalirpf,tasaconv,
-               totalrecargo,observaciones,ptefactura,cai,caivence,hora) VALUES
+               totalrecargo,observaciones,ptefactura,cai,caivence,tipo,hora) VALUES
                       (".$this->var2str($this->codigo)
                     .",".$this->var2str($this->numero)
                     .",".$this->var2str($this->numproveedor)
@@ -591,6 +594,7 @@ class albaran_proveedor extends fs_model
                     .",".$this->var2str($this->ptefactura)
 					.",".$this->var2str($this->cai)
 					.",".$this->var2str($this->caivence)
+					.",".$this->var2str($this->tipo)
                     .",".$this->var2str($this->hora).");";
             
             if( $this->db->exec($sql) )
