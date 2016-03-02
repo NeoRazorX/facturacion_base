@@ -19,7 +19,6 @@
 
 require_model('albaran_cliente.php');
 require_model('albaran_proveedor.php');
-require_model('kardex.php');
 require_model('articulo.php');
 require_model('asiento.php');
 require_once 'plugins/facturacion_base/extras/libromayor.php';
@@ -44,10 +43,6 @@ class facturacion_base_cron
       $asiento = new asiento();
       echo "\nEjecutando tareas para los asientos...\n";
       $asiento->cron_job();
-
-      $kardex = new kardex();
-      echo "\nEjecutando inventario diario valorizado...\n";
-      $kardex->cron_job();
 
       if(FS_LIBROS_CONTABLES)
       {
