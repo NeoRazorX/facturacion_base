@@ -277,7 +277,8 @@
 		 {if="substr($value->numremito, 0,1)=='R'"}REMITO{/if}
 		 {if="substr($value->numremito, 0,1)=='B'"}FACTURA B{/if}
 		 {if="substr($value->numremito, 0,1)=='F'"}FACTURA C{/if}
-		 {if="substr($value->numremito, 0,1)=='T'"}TICKET{/if}
+		 {if="substr($value->numremito, 0,1)=='T'"}TICKET FACTURA{/if}
+		 {if="substr($value->numremito, 0,1)=='Q'"}TICKET CRÉDITO{/if}
 		 <td>
 		 {$numcompr=substr($value->numremito, 2)}
 		 {$numcompr}

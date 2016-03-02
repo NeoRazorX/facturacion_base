@@ -52,9 +52,27 @@
    });
    
    
-     	function guarfact()
-	{	
-
+    function guarfact()
+	{
+	if(verifica_()) document.f_factura.submit();
+	return;	
+	}
+	
+	function genera_asiento()
+	{
+	if(verifica_()) 
+	{
+	
+	document.getElementById('gen_asiento').value = 1;
+	document.getElementById('petid').value = '{$fsc->random_string()}';
+	document.f_factura.submit();
+	}	
+	else return;	
+	}
+//	{$fsc->url()}&gen_asiento=TRUE&petid={$fsc->random_string()}
+	
+	function verifica_()	
+	{
 	var aler = 0;	
 	
 	var numsub='';
@@ -133,8 +151,8 @@
 				alert("El Total de la Factura no puede ser 0.00");
 				aler = 1;
 				}
-				if( aler == 0) document.f_factura.submit();
-				else return;
+				if( aler == 0) return true;
+				else return false;
 				
 				
 	
@@ -150,12 +168,14 @@
     <input type="hidden" name="petition_id" value="{$fsc->random_string()}"/>
    <input type="hidden" id="numlineas" name="numlineas" value="0"/>
    <input type="hidden" name="proveedor" value="{$fsc->factura->codproveedor}"/>
-    	
+   <input type="hidden" name="gen_asiento" id="gen_asiento" value="0"  />
+   <input type="hidden" name="petid" id="petid" value=""  />
+   
    <input type="hidden" name="redir"/>
    
        <div class="container-fluid">
       <div class="row" style="margin-top: 10px;">
-        <div class="col-xs-9">
+        <div class="col-xs-8">
 			 <a class="btn btn-sm btn-default hidden-xs" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
@@ -166,10 +186,10 @@
                   <span class="hidden-xs">&nbsp; Asiento contable</span>
                </a>
                {else}
-               <a class="btn btn-sm btn-default" href="{$fsc->url()}&gen_asiento=TRUE&petid={$fsc->random_string()}">
-                  <span class="glyphicon glyphicon-paperclip"></span>
-                  <span class="hidden-xs">&nbsp; Generar asiento</span>
-               </a>
+			 <button class="btn btn-sm btn-default" type="button" onclick="genera_asiento()">
+               <span class="glyphicon glyphicon-paperclip"></span> &nbsp; Generar asiento
+            </button>
+
             {/if}
 			      {if="$fsc->factura->pagada==1"}
                   <span class="glyphicon glyphicon-ok"></span> &nbsp; Pagada</a>
@@ -178,6 +198,11 @@
 			{if="$fsc->factura->idasiento==null "}
 			<div >
 			<button class="btn btn-sm btn-primary" type="button" onclick="guarfact()">
+               <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar...
+            </button>
+			{else}
+			<div >
+			<button class="btn btn-sm btn-primary" type="button" disabled='true' onclick="guarfact()">
                <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar...
             </button>
 			{/if}
@@ -207,7 +232,7 @@
 			 {/if}
            {/if}
 		   {/if}
-		   {if="$fsc->factura->idasiento==NULL"}
+		   {if="$fsc->factura->idasiento==NULL && $fsc->factura->pagada=='0'"}
                <a id="b_eliminar" class="btn btn-sm btn-danger" href="#">
                   <span class="glyphicon glyphicon-trash"></span>
                   <span class="hidden-sm hidden-xs">&nbsp; Eliminar</span>
@@ -251,7 +276,8 @@
 				  {if="substr($fsc->factura->numproveedor, 0,1)=='B'"}<label style="font:bold;font-size:18px">FACTURA B :</label>{/if}
 				  {if="substr($fsc->factura->numproveedor, 0,1)=='F'"}<label style="font:bold;font-size:18px">FACTURA C :</label>{/if}
 				  {if="substr($fsc->factura->numproveedor, 0,1)=='R'"}<label style="font:bold;font-size:18px">REMITO :</label>{/if}
-				  {if="substr($fsc->factura->numproveedor, 0,1)=='T'"}<label style="font:bold;font-size:18px">TICKET :</label>{/if}
+				  {if="substr($fsc->factura->numproveedor, 0,1)=='T'"}<label style="font:bold;font-size:18px">TICKET FACTURA:</label>{/if}
+				  {if="substr($fsc->factura->numproveedor, 0,1)=='Q'"}<label style="font:bold;font-size:18px">TICKET CRÉDITO:</label>{/if}
 				  {if="substr($fsc->factura->numproveedor, 0,1)=='C'"}<label style="font:bold; font-size:18px">NOTA DE CRÉDITO :</label>{/if}
 				  {if="substr($fsc->factura->numproveedor, 0,1)=='D'"}<label style="font:bold;font-size:18px">NOTA DE DÉBITO :</label>{/if}		
 				  {$tipcompr=substr($fsc->factura->numproveedor, 0,1)}
@@ -285,7 +311,7 @@
 					</div></div>
 					<div class="col-sm-3">
 					  <div class="form-group" style="font:bold;font-size:12px">
-					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control input-sm  datepicker" style="width:100px" {if="strtotime($fsc->factura->caivence) >strtotime('01-01-2000')"}  value="{$fsc->factura->caivence}"{else} value="" {/if}   />
+					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control input-sm " style="width:100px" {if="strtotime($fsc->factura->caivence) >strtotime('01-01-2000')"}  value="{$fsc->factura->caivence}"{else} value="" {/if}   />
 					</div></div>
 					 
 
@@ -366,7 +392,7 @@
                            </button>
                         </td>
 					  	<td>
-                           <input type="text" class="form-control text-right" id="pvp_{$counter}" name="pvp_{$counter}" value="{$fsc->show_precio($value->pvpunitario)}"
+                           <input type="text" class="form-control text-right" id="pvp_{$counter}" name="pvp_{$counter}" value="{$fsc->show_numero($value->pvpunitario)}"
                                   onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/>
                         </td>
 			          	<td>
@@ -377,11 +403,11 @@
                            <input type="text" class="form-control text-right" id="neto_{$counter}" name="neto_{$counter}"
                                  readonly="true" style="font-weight: bold; background-color:#FFFFFF"   onchange="ajustar_neto()" onclick="this.select()" value="{$fsc->factura->neto}" autocomplete="off"/>
                         </td>	 
-					 	<input type="hidden" name="iva_{$counter}" id="iva_{$counter}" value="{$value2->iva}"  />                                               
+					 	<input type="hidden" name="iva_{$counter}" id="iva_{$counter}" value="0"  />                                               
                            <input type="hidden" id="recargo_{$counter}" name="recargo_{$counter}" value="{$value->recargo}" />
-                        <td class="irpf">
+                       
                            <input type="hidden" id="irpf_{$counter}" name="irpf_{$counter}" value="{$value->irpf}"  />
-                        </td>
+                       
 					 	<td>
                            <input type="text" class="form-control text-right" id="total_{$counter}" name="total_{$counter}"
                                  readonly="true" style="font-weight: bold; background-color:#FFFFFF"   onchange="ajustar_total()" onclick="this.select()" value="{$value->pvptotal}" autocomplete="off"/>

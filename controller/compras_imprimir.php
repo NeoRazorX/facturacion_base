@@ -330,7 +330,8 @@ class compras_imprimir extends fs_controller
 			$pdf_doc->add_table_header(
                array(
                   'fecha' => '<b>Fecha Fact.</b>',
-                  'factnum' => '<b>Factura</b>',
+				  'facdoc' => '<b>Documento</b>',
+                  'factnum' => '<b>Número</b>',
                   'factimp' => '<b>Importe Fact.</b>'
                )
             );
@@ -340,14 +341,22 @@ class compras_imprimir extends fs_controller
 			{		
 			$factura = $factura_prov->get_by_codigo($p->codigo);
 			
-			if(substr($p->factprov, 0,1)=='C' ) $sub_t = $p->importe * -1;
+			if(substr($p->factprov, 0,1)=='C' || substr($p->factprov, 0,1)=='Q' ) $sub_t = $p->importe * -1;
 					else  $sub_t = $p->importe;
-
+			
+				if( substr($p->factprov, 0,1)=='B') $comp_doc ='FACTURA B';
+				if( substr($p->factprov, 0,1)=='F') $comp_doc ='FACTURA C';
+				if( substr($p->factprov, 0,1)=='T') $comp_doc ='TICKET FACTURA';
+				if( substr($p->factprov, 0,1)=='Q') $comp_doc ='TICKET CRÉDITO';
+				if( substr($p->factprov, 0,1)=='C') $comp_doc ='NOTA DE CRÉDITO';
+				if( substr($p->factprov, 0,1)=='D') $comp_doc ='NOTA DE DÉBITO';
+				$numcompr=substr($p->factprov, 2);
 			
 			$pdf_doc->add_table_row(
 				   array(
 				  'fecha' => $p->fecha,
-                  'factnum' => $p->factprov,
+				  'facdoc' => $comp_doc,
+                  'factnum' => $numcompr,
                   'factimp' => $sub_t,
                   'valor' => $factura->observaciones,
                   'importe' => $sub_t

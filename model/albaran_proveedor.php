@@ -664,6 +664,21 @@ class albaran_proveedor extends fs_model
       return $albalist;
    }
    
+      public function all_remios_con_factura($offset=0, $order='fecha ASC, codigo ASC')
+   {
+      $albalist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE ptefactura = false ORDER BY ".$order;
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      if($data)
+      {
+         foreach($data as $a)
+            $albalist[] = new albaran_proveedor($a);
+      }
+      
+      return $albalist;
+   }
+   
    public function all_from_proveedor($codproveedor, $offset=0)
    {
       $alblist = array();

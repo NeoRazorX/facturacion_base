@@ -110,48 +110,8 @@ class compras_factura extends fs_controller
       
       if( isset($_POST['idfactura']) )
       {
-	  $fact_save=0;
-	  
-         $this->factura = $factura->get($_POST['idfactura']);
-         $this->factura->numproveedor = $_POST['numproveedor'];
-         $this->factura->observaciones = $_POST['observaciones'];
-         $this->factura->codpago = $_POST['forma_pago'];
-		 $this->factura->cai = $_POST['cai'];
-		 $this->factura->caivence = $_POST['caivence'];
-		 $this->factura->fecha = $_POST['fecha'];
-		 $this->factura->hora = $_POST['hora'];
-		 $this->factura->codpago = $_POST['forma_pago'];
-		 $this->factura->cifnif = 0;
-		 $this->factura->codserie = $_POST['codserie'];
-		 $this->factura->coddivisa = $_POST['coddivisa'];
-		 $this->factura->tasaconv = $_POST['tasaconv'];
-        
-         /// obtenemos el ejercicio para poder acotar la fecha
-         $eje0 = $this->ejercicio->get( $this->factura->codejercicio );
-         if( $eje0 )
-         {
-            $this->factura->fecha = $eje0->get_best_fecha($_POST['fecha'], TRUE);
-            $this->factura->hora = $_POST['hora'];
-         }
-         else
-            $this->new_error_msg('No se encuentra el ejercicio asociado a la factura.');
-         
-         if( $this->factura->save() )
-         {
-		  $fact_save=1;
-		 $this->nueva_factura_proveedor($fact_save);
-            $asiento = $this->factura->get_asiento();
-            if($asiento)
-            {
-               $asiento->fecha = $this->factura->fecha;
-               if( !$asiento->save() )
-                  $this->new_error_msg("Imposible modificar la fecha del asiento.");
-            }
-            $this->new_message("Factura modificada correctamente.");
-            $this->new_change('Factura Proveedor '.$this->factura->codigo, $this->factura->url());
-         }
-         else
-            $this->new_error_msg("¡Imposible modificar la factura!");
+	  	$this->modifica_factura();
+
       }
       else if( isset($_GET['id']) )
       {	  
@@ -163,20 +123,26 @@ class compras_factura extends fs_controller
       {
          $this->page->title = $this->factura->codigo;
          
-         if( isset($_GET['gen_asiento']) AND isset($_GET['petid']) )
+         if( isset($_POST['gen_asiento']) AND isset($_POST['petid']) AND $_POST['gen_asiento'] == '1' )
          {
-            if( $this->duplicated_petition($_GET['petid']) )
+            if( $this->duplicated_petition($_POST['petid']) )
             {
                $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
             }
             else
- 
-			if( substr($this->factura->numproveedor, 0,1) == 'B' || substr($this->factura->numproveedor, 0,1) =='F' || substr($this->factura->numproveedor, 0,1) =='T' || substr($this->factura->numproveedor, 0,1) =='C'  || substr($this->factura->numproveedor, 0,1) =='D' ) $this->generar_asiento();
-			else 
-			{
-				$asiento_credito = new asiento_factura();
-				$asiento_credito->nuevo_asiento_devolucion_prov($_REQUEST['id']);
-			}
+ 				{
+				if( substr($this->factura->numproveedor, 0,1) == 'B' || substr($this->factura->numproveedor, 0,1) =='F' || substr($this->factura->numproveedor, 0,1) =='T' || substr($this->factura->numproveedor, 0,1) =='D' ) 
+					$this->generar_asiento();
+				else if ( substr($this->factura->numproveedor, 0,1) =='Q' || substr($this->factura->numproveedor, 0,1) =='C' )
+					{			
+					$this->generar_asiento_credito();			
+					}
+					else 
+					{
+						$asiento_credito = new asiento_factura();
+						$asiento_credito->nuevo_asiento_devolucion_prov($_REQUEST['id']);
+					}
+				}	
          }
          else if( isset($_REQUEST['pagada']) )
          {
@@ -224,6 +190,53 @@ class compras_factura extends fs_controller
       }
       else
          return $this->page->url();
+   }
+   
+   public function modifica_factura()
+   {
+   	  $factura = new factura_proveedor();
+	  $fact_save=0;
+	  
+         $this->factura = $factura->get($_POST['idfactura']);
+         $this->factura->numproveedor = $_POST['numproveedor'];
+         $this->factura->observaciones = $_POST['observaciones'];
+         $this->factura->codpago = $_POST['forma_pago'];
+		 $this->factura->cai = $_POST['cai'];
+		 $this->factura->caivence = $_POST['caivence'];
+		 $this->factura->fecha = $_POST['fecha'];
+		 $this->factura->hora = $_POST['hora'];
+		 $this->factura->codpago = $_POST['forma_pago'];
+		 $this->factura->cifnif = 0;
+		 $this->factura->codserie = $_POST['codserie'];
+		 $this->factura->coddivisa = $_POST['coddivisa'];
+		 $this->factura->tasaconv = $_POST['tasaconv'];
+        
+         /// obtenemos el ejercicio para poder acotar la fecha
+         $eje0 = $this->ejercicio->get( $this->factura->codejercicio );
+         if( $eje0 )
+         {
+            $this->factura->fecha = $eje0->get_best_fecha($_POST['fecha'], TRUE);
+            $this->factura->hora = $_POST['hora'];
+         }
+         else
+            $this->new_error_msg('No se encuentra el ejercicio asociado a la factura.');
+         
+         if( $this->factura->save() )
+         {
+		  $fact_save=1;
+		 $this->nueva_factura_proveedor($fact_save);
+            $asiento = $this->factura->get_asiento();
+            if($asiento)
+            {
+               $asiento->fecha = $this->factura->fecha;
+               if( !$asiento->save() )
+                  $this->new_error_msg("Imposible modificar la fecha del asiento.");
+            }
+            $this->new_message("Factura modificada correctamente.");
+            $this->new_change('Factura Proveedor '.$this->factura->codigo, $this->factura->url());
+         }
+         else
+            $this->new_error_msg("¡Imposible modificar la factura!");
    }
 
  //////////////////////////////////////////////////////////  
@@ -520,6 +533,36 @@ class compras_factura extends fs_controller
          $asiento_factura->soloasiento = TRUE;
 		 // Genera la partida que está en asiento_factura
          if( $asiento_factura->generar_asiento_compra($this->factura) )
+         {
+            $this->new_message("<a href='".$asiento_factura->asiento->url()."'>Asiento</a> generado correctamente.");
+            $this->new_change('Factura Proveedor '.$this->factura->codigo, $this->factura->url());
+         }
+         
+         foreach($asiento_factura->errors as $err)
+         {
+            $this->new_error_msg($err);
+         }
+         
+         foreach($asiento_factura->messages as $msg)
+         {
+            $this->new_message($msg);
+         }
+      }
+   }
+   
+      private function generar_asiento_credito()
+   {
+   		// toma un asiento existente con su id
+      if( $this->factura->get_asiento() ) //factura_proveedor
+      {
+         $this->new_error_msg('Ya hay un asiento asociado a esta factura.');
+      }
+      else
+      {
+         $asiento_factura = new asiento_factura();
+         $asiento_factura->soloasiento = TRUE;
+		 // Genera la partida que está en asiento_factura
+         if( $asiento_factura->generar_asiento_compra_credito($this->factura) )
          {
             $this->new_message("<a href='".$asiento_factura->asiento->url()."'>Asiento</a> generado correctamente.");
             $this->new_change('Factura Proveedor '.$this->factura->codigo, $this->factura->url());
