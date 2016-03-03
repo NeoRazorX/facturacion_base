@@ -199,11 +199,20 @@ class ventas_facturas extends fs_controller
             
             if($this->offset == 0)
             {
-               $this->total_resultados = 0;
+               /// calculamos el total, pero desglosando por divisa
+               $this->total_resultados = array();
                $this->total_resultados_txt = 'Suma total de esta página:';
                foreach($this->resultados as $fac)
                {
-                  $this->total_resultados += $fac->total;
+                  if( !isset($this->total_resultados[$fac->coddivisa]) )
+                  {
+                     $this->total_resultados[$fac->coddivisa] = array(
+                         'coddivisa' => $fac->coddivisa,
+                         'total' => 0
+                     );
+                  }
+                  
+                  $this->total_resultados[$fac->coddivisa]['total'] += $fac->total;
                }
             }
          }

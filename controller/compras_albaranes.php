@@ -191,11 +191,20 @@ class compras_albaranes extends fs_controller
             
             if($this->offset == 0)
             {
-               $this->total_resultados = 0;
+               /// calculamos el total, pero desglosando por divisa
+               $this->total_resultados = array();
                $this->total_resultados_txt = 'Suma total de esta página:';
                foreach($this->resultados as $alb)
                {
-                  $this->total_resultados += $alb->total;
+                  if( !isset($this->total_resultados[$alb->coddivisa]) )
+                  {
+                     $this->total_resultados[$alb->coddivisa] = array(
+                         'coddivisa' => $alb->coddivisa,
+                         'total' => 0
+                     );
+                  }
+                  
+                  $this->total_resultados[$alb->coddivisa]['total'] += $alb->total;
                }
             }
          }
