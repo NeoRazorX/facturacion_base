@@ -18,6 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+function fs_tipos_id_fiscal()
+{
+   return array(FS_CIFNIF,'Pasaporte','DNI','NIF','CIF','CUIT');
+}
+
 function remote_printer()
 {
    if( isset($_REQUEST['terminal']) )

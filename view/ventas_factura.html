@@ -226,6 +226,12 @@
                <span class="hidden-xs">&nbsp; Detalles</span>
             </a>
          </li>
+         <li role="presentation">
+            <a href="#envio" aria-controls="envio" role="tab" data-toggle="tab">
+               <span class="glyphicon glyphicon-road" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Envío</span>
+            </a>
+         </li>
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <li role="presentation">
@@ -509,6 +515,70 @@
                            </tr>
                            {/loop}
                         </table>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div role="tabpanel" class="tab-pane" id="envio">
+            <div class="container-fluid" style="margin-top: 10px;">
+               <div class="row">
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        Nombre:
+                        <input type="text" name="envio_nombre" value="{$fsc->factura->envio_nombre}" class="form-control" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-4">
+                     <div class="form-group">
+                        Apellidos:
+                        <input type="text" name="envio_apellidos" value="{$fsc->factura->envio_apellidos}" class="form-control" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        Agencia:
+                        <select name="envio_codtrans" class="form-control">
+                           <option value="">Ninguna</option>
+                           <option value="">------</option>
+                           {loop="$fsc->agencia->all()"}
+                              {if="$fsc->factura->envio_codtrans==$value->codtrans"}
+                              <option value="{$value->codtrans}" selected="">{$value->nombre}</option>
+                              {else}
+                              <option value="{$value->codtrans}">{$value->nombre}</option>
+                              {/if}
+                           {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-4">
+                     <div class="form-group">
+                        Código de seguimiento:
+                        <input type="text" name="envio_codigo" value="{$fsc->factura->envio_codigo}" class="form-control" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        <span class="text-capitalize">{#FS_PROVINCIA#}</span>:
+                        <input type="text" name="envio_provincia" value="{$fsc->factura->envio_provincia}" id="ac_provincia2" class="form-control" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        Ciudad:
+                        <input type="text" name="envio_ciudad" value="{$fsc->factura->envio_ciudad}" class="form-control" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        Código Postal:
+                        <input type="text" name="envio_codpostal" value="{$fsc->factura->envio_codpostal}" class="form-control" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-6">
+                     <div class="form-group">
+                        Dirección:
+                        <input type="text" name="envio_direccion" value="{$fsc->factura->envio_direccion}" class="form-control" autocomplete="off"/>
                      </div>
                   </div>
                </div>

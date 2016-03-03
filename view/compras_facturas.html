@@ -344,11 +344,14 @@
          <td colspan="5">Ninguna factura encontrada. Pulsa el botón <b>Nueva</b> para crear una.</td>
       </tr>
       {/loop}
-      {if="$fsc->total_resultados!==''"}
+      {if="$fsc->total_resultados"}
       <tr>
          <td></td>
          <td colspan="5" class="text-right">
-            {$fsc->total_resultados_txt} &nbsp; <b>{$fsc->show_precio($fsc->total_resultados)}</b>
+            {$fsc->total_resultados_txt}
+            {loop="$fsc->total_resultados"}
+            <br/><b>{$fsc->show_precio($value['total'],$value['coddivisa'],FALSE)}</b>
+            {/loop}
          </td>
          <td></td>
       </tr>

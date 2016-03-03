@@ -297,7 +297,7 @@ class compras_factura extends fs_controller
       $factura = clone $this->factura;
       $factura->idfactura = NULL;
       $factura->numero = NULL;
-      $factura->numero2 = NULL;
+      $factura->numproveedor = NULL;
       $factura->codigo = NULL;
       $factura->idasiento = NULL;
       

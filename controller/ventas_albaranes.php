@@ -129,7 +129,7 @@ class ventas_albaranes extends fs_controller
          $this->desde = '';
          $this->hasta = '';
          $this->num_resultados = '';
-         $this->total_resultados = '';
+         $this->total_resultados = array();
          $this->total_resultados_txt = '';
          
          if( isset($_POST['delete']) )
@@ -495,11 +495,18 @@ class ventas_albaranes extends fs_controller
             }
          }
          
-         $data2 = $this->db->select("SELECT SUM(total) as total".$sql);
+         $data2 = $this->db->select("SELECT coddivisa,SUM(total) as total".$sql." GROUP BY coddivisa");
          if($data2)
          {
-            $this->total_resultados = floatval($data2[0]['total']);
             $this->total_resultados_txt = 'Suma total de los resultados:';
+            
+            foreach($data2 as $d)
+            {
+               $this->total_resultados[] = array(
+                   'coddivisa' => $d['coddivisa'],
+                   'total' => floatval($d['total'])
+               );
+            }
          }
       }
    }

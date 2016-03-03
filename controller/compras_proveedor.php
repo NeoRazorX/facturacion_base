@@ -147,6 +147,7 @@ class compras_proveedor extends fs_controller
       {
          $this->proveedor->nombre = $_POST['nombre'];
          $this->proveedor->razonsocial = $_POST['razonsocial'];
+         $this->proveedor->tipoidfiscal = $_POST['tipoidfiscal'];
          $this->proveedor->cifnif = $_POST['cifnif'];
          $this->proveedor->telefono1 = $_POST['telefono1'];
          $this->proveedor->telefono2 = $_POST['telefono2'];
@@ -158,6 +159,7 @@ class compras_proveedor extends fs_controller
          $this->proveedor->coddivisa = $_POST['coddivisa'];
          $this->proveedor->regimeniva = $_POST['regimeniva'];
          $this->proveedor->acreedor = isset($_POST['acreedor']);
+         $this->proveedor->personafisica = isset($_POST['personafisica']);
          
          $this->proveedor->codserie = NULL;
          if($_POST['codserie'] != '')

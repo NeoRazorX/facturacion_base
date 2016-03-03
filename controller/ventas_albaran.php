@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('agencia_transporte.php');
 require_model('albaran_cliente.php');
 require_model('articulo.php');
 require_model('asiento.php');
@@ -37,6 +38,7 @@ require_model('subcuenta.php');
 
 class ventas_albaran extends fs_controller
 {
+   public $agencia;
    public $agente;
    public $albaran;
    public $allow_delete;
@@ -62,6 +64,7 @@ class ventas_albaran extends fs_controller
       $this->ppage = $this->page->get('ventas_albaranes');
       $this->agente = FALSE;
       
+      $this->agencia = new agencia_transporte();
       $albaran = new albaran_cliente();
       $this->albaran = FALSE;
       $this->cliente = new cliente();
@@ -206,6 +209,19 @@ class ventas_albaran extends fs_controller
             $this->albaran->ciudad = $_POST['ciudad'];
             $this->albaran->codpostal = $_POST['codpostal'];
             $this->albaran->direccion = $_POST['direccion'];
+            
+            $this->albaran->envio_nombre = $_POST['envio_nombre'];
+            $this->albaran->envio_apellidos = $_POST['envio_apellidos'];
+            $this->albaran->envio_codtrans = NULL;
+            if($_POST['envio_codtrans'] != '')
+            {
+               $this->albaran->envio_codtrans = $_POST['envio_codtrans'];
+            }
+            $this->albaran->envio_codigo = $_POST['envio_codigo'];
+            $this->albaran->envio_provincia = $_POST['envio_provincia'];
+            $this->albaran->envio_ciudad = $_POST['envio_ciudad'];
+            $this->albaran->envio_codpostal = $_POST['envio_codpostal'];
+            $this->albaran->envio_direccion = $_POST['envio_direccion'];
             
             $cliente = $this->cliente->get($this->albaran->codcliente);
          }
@@ -455,6 +471,14 @@ class ventas_albaran extends fs_controller
       $factura->nombrecliente = $this->albaran->nombrecliente;
       $factura->observaciones = $this->albaran->observaciones;
       $factura->provincia = $this->albaran->provincia;
+      $factura->envio_apellidos = $this->albaran->envio_apellidos;
+      $factura->envio_ciudad = $this->albaran->envio_ciudad;
+      $factura->envio_codigo = $this->albaran->envio_codigo;
+      $factura->envio_codpostal = $this->albaran->envio_codpostal;
+      $factura->envio_codtrans = $this->albaran->envio_codtrans;
+      $factura->envio_direccion = $this->albaran->envio_direccion;
+      $factura->envio_nombre = $this->albaran->envio_nombre;
+      $factura->envio_provincia = $this->albaran->envio_provincia;
       $factura->total = $this->albaran->total;
       $factura->totaliva = $this->albaran->totaliva;
       $factura->numero2 = $this->albaran->numero2;

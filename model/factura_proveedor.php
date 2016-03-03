@@ -515,6 +515,26 @@ class factura_proveedor extends fs_model
       return $asiento->get($this->idasientop);
    }
    
+   /**
+    * Devuelve un array con todas las facturas rectificativas de esta factura.
+    * @return \factura_proveedor
+    */
+   public function get_rectificativas()
+   {
+      $devoluciones = array();
+      
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfacturarect = ".$this->var2str($this->idfactura).";");
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $devoluciones[] = new factura_proveedor($d);
+         }
+      }
+      
+      return $devoluciones;
+   }
+   
    public function get($id)
    {
       $fact = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id).";");

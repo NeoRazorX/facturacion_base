@@ -122,6 +122,16 @@ class factura_cliente extends fs_model
    public $provincia;
    public $apartado;
    
+   /// datos de transporte
+   public $envio_codtrans;
+   public $envio_codigo;
+   public $envio_nombre;
+   public $envio_apellidos;
+   public $envio_direccion;
+   public $envio_codpostal;
+   public $envio_ciudad;
+   public $envio_provincia;
+   
    /**
     * ID de la dirección en dirclientes.
     * Modelo direccion_cliente.
@@ -274,6 +284,15 @@ class factura_cliente extends fs_model
          {
             $this->femail = Date('d-m-Y', strtotime($f['femail']));
          }
+         
+         $this->envio_codtrans = $f['codtrans'];
+         $this->envio_codigo = $f['codigoenv'];
+         $this->envio_nombre = $f['nombreenv'];
+         $this->envio_apellidos = $f['apellidosenv'];
+         $this->envio_direccion = $f['direccionenv'];
+         $this->envio_codpostal = $f['codpostalenv'];
+         $this->envio_ciudad = $f['ciudadenv'];
+         $this->envio_provincia = $f['provinciaenv'];
       }
       else
       {
@@ -317,6 +336,14 @@ class factura_cliente extends fs_model
          $this->anulada = FALSE;
          $this->vencimiento = Date('d-m-Y', strtotime('+1month'));
          $this->femail = NULL;
+         $this->envio_codtrans = NULL;
+         $this->envio_codigo = NULL;
+         $this->envio_nombre = NULL;
+         $this->envio_apellidos = NULL;
+         $this->envio_direccion = NULL;
+         $this->envio_codpostal = NULL;
+         $this->envio_ciudad = NULL;
+         $this->envio_provincia = NULL;
       }
    }
    
@@ -618,6 +645,26 @@ class factura_cliente extends fs_model
          }
       }
       return $lineasi;
+   }
+   
+   /**
+    * Devuelve un array con todas las facturas rectificativas de esta factura.
+    * @return \factura_cliente
+    */
+   public function get_rectificativas()
+   {
+      $devoluciones = array();
+      
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfacturarect = ".$this->var2str($this->idfactura).";");
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $devoluciones[] = new factura_cliente($d);
+         }
+      }
+      
+      return $devoluciones;
    }
    
    public function get($id)
@@ -966,6 +1013,14 @@ class factura_cliente extends fs_model
                     ", hora = ".$this->var2str($this->hora).
                     ", vencimiento = ".$this->var2str($this->vencimiento).
                     ", femail = ".$this->var2str($this->femail).
+                    ", codtrans = ".$this->var2str($this->envio_codtrans).
+                    ", codigoenv = ".$this->var2str($this->envio_codigo).
+                    ", nombreenv = ".$this->var2str($this->envio_nombre).
+                    ", apellidosenv = ".$this->var2str($this->envio_apellidos).
+                    ", direccionenv = ".$this->var2str($this->envio_direccion).
+                    ", codpostalenv = ".$this->var2str($this->envio_codpostal).
+                    ", ciudadenv = ".$this->var2str($this->envio_ciudad).
+                    ", provinciaenv = ".$this->var2str($this->envio_provincia).
                     "  WHERE idfactura = ".$this->var2str($this->idfactura).";";
             
             return $this->db->exec($sql);
@@ -977,7 +1032,8 @@ class factura_cliente extends fs_model
                codigorect,codejercicio,codserie,codalmacen,codpago,coddivisa,fecha,codcliente,
                nombrecliente,cifnif,direccion,ciudad,provincia,apartado,coddir,codpostal,codpais,
                codagente,neto,totaliva,total,totaleuros,irpf,totalirpf,porcomision,tasaconv,
-               totalrecargo,pagada,anulada,observaciones,hora,numero2,vencimiento,femail) VALUES 
+               totalrecargo,pagada,anulada,observaciones,hora,numero2,vencimiento,femail,codtrans,
+               codigoenv,nombreenv,apellidosenv,direccionenv,codpostalenv,ciudadenv,provinciaenv) VALUES 
                      (".$this->var2str($this->idasiento).
                     ",".$this->var2str($this->idasientop).
                     ",".$this->var2str($this->idfacturarect).
@@ -1016,7 +1072,15 @@ class factura_cliente extends fs_model
                     ",".$this->var2str($this->hora).
                     ",".$this->var2str($this->numero2).
                     ",".$this->var2str($this->vencimiento).
-                    ",".$this->var2str($this->femail).");";
+                    ",".$this->var2str($this->femail).
+                    ",".$this->var2str($this->envio_codtrans).
+                    ",".$this->var2str($this->envio_codigo).
+                    ",".$this->var2str($this->envio_nombre).
+                    ",".$this->var2str($this->envio_apellidos).
+                    ",".$this->var2str($this->envio_direccion).
+                    ",".$this->var2str($this->envio_codpostal).
+                    ",".$this->var2str($this->envio_ciudad).
+                    ",".$this->var2str($this->envio_provincia).");";
             
             if( $this->db->exec($sql) )
             {

@@ -47,6 +47,13 @@ class proveedor extends fs_model
    public $razonsocial;
    
    /**
+    * Tipo de identificador fiscal del proveedor.
+    * Ejemplo: NIF, CIF, CUIT...
+    * @var type 
+    */
+   public $tipoidfiscal;
+   
+   /**
     * Identificador fiscal del proveedor.
     * @var type
     */
@@ -70,17 +77,11 @@ class proveedor extends fs_model
    public $coddivisa;
    
    /**
-    *
-    * @var type Forma de pago predeterminada para este proveedor.
+    * Forma de pago predeterminada para este proveedor.
+    * @var type
     */
    public $codpago;
    public $observaciones;
-   
-   /**
-    * Tipo de identificador fiscal, todavía sin uso.
-    * @var type 
-    */
-   public $tipoidfiscal;
    
    /**
     * Régimen de fiscalidad del proveedor. Por ahora solo están implementados
@@ -95,6 +96,13 @@ class proveedor extends fs_model
     * @var type
     */
    public $acreedor;
+   
+   /**
+    * TRUE  -> el cliente es una persona física.
+    * FALSE -> el cliente es una persona jurídica (empresa).
+    * @var type 
+    */
+   public $personafisica;
    
    private static $regimenes_iva;
    
@@ -115,6 +123,7 @@ class proveedor extends fs_model
             $this->razonsocial = $p['razonsocial'];
          }
          
+         $this->tipoidfiscal = $p['tipoidfiscal'];
          $this->cifnif = $p['cifnif'];
          $this->telefono1 = $p['telefono1'];
          $this->telefono2 = $p['telefono2'];
@@ -125,15 +134,16 @@ class proveedor extends fs_model
          $this->coddivisa = $p['coddivisa'];
          $this->codpago = $p['codpago'];
          $this->observaciones = $this->no_html($p['observaciones']);
-         $this->tipoidfiscal = $p['tipoidfiscal'];
          $this->regimeniva = $p['regimeniva'];
          $this->acreedor = $this->str2bool($p['acreedor']);
+         $this->personafisica = $this->str2bool($p['personafisica']);
       }
       else
       {
          $this->codproveedor = NULL;
          $this->nombre = '';
          $this->razonsocial = '';
+         $this->tipoidfiscal = FS_CIFNIF;
          $this->cifnif = '';
          $this->telefono1 = '';
          $this->telefono2 = '';
@@ -144,9 +154,9 @@ class proveedor extends fs_model
          $this->coddivisa = $this->default_items->coddivisa();
          $this->codpago = $this->default_items->codpago();
          $this->observaciones = '';
-         $this->tipoidfiscal = 'NIF';
          $this->regimeniva = 'General';
          $this->acreedor = FALSE;
+         $this->personafisica = TRUE;
       }
    }
    
@@ -425,6 +435,7 @@ class proveedor extends fs_model
          {
             $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre).
                     ", razonsocial = ".$this->var2str($this->razonsocial).
+                    ", tipoidfiscal = ".$this->var2str($this->tipoidfiscal).
                     ", cifnif = ".$this->var2str($this->cifnif).
                     ", telefono1 = ".$this->var2str($this->telefono1).
                     ", telefono2 = ".$this->var2str($this->telefono2).
@@ -435,18 +446,19 @@ class proveedor extends fs_model
                     ", coddivisa = ".$this->var2str($this->coddivisa).
                     ", codpago = ".$this->var2str($this->codpago).
                     ", observaciones = ".$this->var2str($this->observaciones).
-                    ", tipoidfiscal = ".$this->var2str($this->tipoidfiscal).
                     ", regimeniva = ".$this->var2str($this->regimeniva).
                     ", acreedor = ".$this->var2str($this->acreedor).
+                    ", personafisica = ".$this->var2str($this->personafisica).
                     " WHERE codproveedor = ".$this->var2str($this->codproveedor).";";
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (codproveedor,nombre,razonsocial,cifnif,telefono1,telefono2,
-                    fax,email,web,codserie,coddivisa,codpago,observaciones,tipoidfiscal,regimeniva,acreedor)
-                    VALUES (".$this->var2str($this->codproveedor).
+            $sql = "INSERT INTO ".$this->table_name." (codproveedor,nombre,razonsocial,tipoidfiscal,cifnif,
+               telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,observaciones,
+               regimeniva,acreedor,personafisica) VALUES (".$this->var2str($this->codproveedor).
                     ",".$this->var2str($this->nombre).
                     ",".$this->var2str($this->razonsocial).
+                    ",".$this->var2str($this->tipoidfiscal).
                     ",".$this->var2str($this->cifnif).
                     ",".$this->var2str($this->telefono1).
                     ",".$this->var2str($this->telefono2).
@@ -457,9 +469,9 @@ class proveedor extends fs_model
                     ",".$this->var2str($this->coddivisa).
                     ",".$this->var2str($this->codpago).
                     ",".$this->var2str($this->observaciones).
-                    ",".$this->var2str($this->tipoidfiscal).
                     ",".$this->var2str($this->regimeniva).
-                    ",".$this->var2str($this->acreedor).");";
+                    ",".$this->var2str($this->acreedor).
+                    ",".$this->var2str($this->personafisica).");";
          }
          
          return $this->db->exec($sql);

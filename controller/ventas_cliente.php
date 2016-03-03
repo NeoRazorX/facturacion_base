@@ -163,6 +163,7 @@ class ventas_cliente extends fs_controller
       {
          $this->cliente->nombre = $_POST['nombre'];
          $this->cliente->razonsocial = $_POST['razonsocial'];
+         $this->cliente->tipoidfiscal = $_POST['tipoidfiscal'];
          $this->cliente->cifnif = $_POST['cifnif'];
          $this->cliente->telefono1 = $_POST['telefono1'];
          $this->cliente->telefono2 = $_POST['telefono2'];
@@ -175,6 +176,7 @@ class ventas_cliente extends fs_controller
          $this->cliente->regimeniva = $_POST['regimeniva'];
          $this->cliente->recargo = isset($_POST['recargo']);
          $this->cliente->debaja = isset($_POST['debaja']);
+         $this->cliente->personafisica = isset($_POST['personafisica']);
          
          $this->cliente->codserie = NULL;
          if($_POST['codserie'] != '')

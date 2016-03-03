@@ -46,6 +46,13 @@ class cliente extends fs_model
    public $razonsocial;
    
    /**
+    * Tipo de identificador fiscal del cliente.
+    * Ejemplos: CIF, NIF, CUIT...
+    * @var type 
+    */
+   public $tipoidfiscal;
+   
+   /**
     * Identificador fiscal del cliente.
     * @var type 
     */
@@ -119,6 +126,13 @@ class cliente extends fs_model
     */
    public $recargo;
    
+   /**
+    * TRUE  -> el cliente es una persona física.
+    * FALSE -> el cliente es una persona jurídica (empresa).
+    * @var type 
+    */
+   public $personafisica;
+   
    private static $regimenes_iva;
 
    public function __construct($c=FALSE)
@@ -138,6 +152,7 @@ class cliente extends fs_model
             $this->razonsocial = $c['razonsocial'];
          }
          
+         $this->tipoidfiscal = $c['tipoidfiscal'];
          $this->cifnif = $c['cifnif'];
          $this->telefono1 = $c['telefono1'];
          $this->telefono2 = $c['telefono2'];
@@ -161,12 +176,14 @@ class cliente extends fs_model
          $this->observaciones = $this->no_html($c['observaciones']);
          $this->regimeniva = $c['regimeniva'];
          $this->recargo = $this->str2bool($c['recargo']);
+         $this->personafisica = $this->str2bool($c['personafisica']);
       }
       else
       {
          $this->codcliente = NULL;
          $this->nombre = '';
          $this->razonsocial = '';
+         $this->tipoidfiscal = FS_CIFNIF;
          $this->cifnif = '';
          $this->telefono1 = '';
          $this->telefono2 = '';
@@ -184,6 +201,7 @@ class cliente extends fs_model
          $this->observaciones = NULL;
          $this->regimeniva = 'General';
          $this->recargo = FALSE;
+         $this->personafisica = TRUE;
       }
    }
    
@@ -467,6 +485,7 @@ class cliente extends fs_model
          {
             $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre)
                     .", razonsocial = ".$this->var2str($this->razonsocial)
+                    .", tipoidfiscal = ".$this->var2str($this->tipoidfiscal)
                     .", cifnif = ".$this->var2str($this->cifnif)
                     .", telefono1 = ".$this->var2str($this->telefono1)
                     .", telefono2 = ".$this->var2str($this->telefono2)
@@ -484,15 +503,18 @@ class cliente extends fs_model
                     .", observaciones = ".$this->var2str($this->observaciones)
                     .", regimeniva = ".$this->var2str($this->regimeniva)
                     .", recargo = ".$this->var2str($this->recargo)
+                    .", personafisica = ".$this->var2str($this->personafisica)
                     ."  WHERE codcliente = ".$this->var2str($this->codcliente).";";
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,razonsocial,cifnif,telefono1,
-               telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,debaja,fechabaja,
-               fechaalta,observaciones,regimeniva,recargo) VALUES (".$this->var2str($this->codcliente)
+            $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,razonsocial,tipoidfiscal,
+               cifnif,telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,
+               debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,personafisica) VALUES
+                      (".$this->var2str($this->codcliente)
                     .",".$this->var2str($this->nombre)
                     .",".$this->var2str($this->razonsocial)
+                    .",".$this->var2str($this->tipoidfiscal)
                     .",".$this->var2str($this->cifnif)
                     .",".$this->var2str($this->telefono1)
                     .",".$this->var2str($this->telefono2)
@@ -509,7 +531,8 @@ class cliente extends fs_model
                     .",".$this->var2str($this->fechaalta)
                     .",".$this->var2str($this->observaciones)
                     .",".$this->var2str($this->regimeniva)
-                    .",".$this->var2str($this->recargo).");";
+                    .",".$this->var2str($this->recargo)
+                    .",".$this->var2str($this->personafisica).");";
          }
          
          return $this->db->exec($sql);

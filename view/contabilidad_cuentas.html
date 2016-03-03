@@ -80,7 +80,7 @@
 {if="$fsc->query==''"}
 <div class="container-fluid" style="margin-bottom: 10px;">
    <div class="row">
-      <div class="col-xs-6">
+      <div class="col-sm-9 col-xs-6">
          <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_epigrafes">
             <span class="glyphicon glyphicon-chevron-left"></span>
             <span class="hidden-xs">&nbsp; Grupos y epígrafes</span>
@@ -90,7 +90,7 @@
             <span class="hidden-xs">&nbsp; Cuentas especiales</span>
          </a>
       </div>
-      <div class="col-xs-6 text-right">
+      <div class=" col-sm-3 col-xs-6 text-right">
          <form name="f_filtro_cuentas" action="{$fsc->url()}" method="post" class="form">
             <select name="ejercicio" class="form-control" onchange="document.f_filtro_cuentas.submit()">
             {loop="$fsc->ejercicio->all()"}

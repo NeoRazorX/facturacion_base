@@ -220,17 +220,42 @@
                               <p class="help-block">Nombre por el que se conoce al cliente. Para uso interno.</p>
                            </div>
                         </div>
-                        <div class="col-sm-5">
+                        <div class="col-sm-4">
                            <div class="form-group">
                               Razón social:
                               <input class="form-control" type="text" name="razonsocial" value="{$fsc->cliente->razonsocial}" autocomplete="off"/>
                               <p class="help-block">Nombre oficial del cliente, para las facturas y otros documentos.</p>
                            </div>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
+                           <div class="form-group">
+                              <br/>
+                              <select name="tipoidfiscal" class="form-control">
+                              {$tiposids=fs_tipos_id_fiscal()}
+                              {loop="$tiposids"}
+                                 {if="$value==$fsc->cliente->tipoidfiscal"}
+                                 <option value="{$value}" selected="">{$value}</option>
+                                 {else}
+                                 <option value="{$value}">{$value}</option>
+                                 {/if}
+                              {/loop}
+                              </select>
+                           </div>
+                        </div>
+                        <div class="col-sm-2">
                            <div class="form-group">
                               {#FS_CIFNIF#}:
                               <input class="form-control" type="text" name="cifnif" value="{$fsc->cliente->cifnif}" autocomplete="off"/>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="row">
+                        <div class="col-sm-4">
+                           <div class="checkbox">
+                              <label>
+                                 <input type="checkbox" name="personafisica" value="TRUE"{if="$fsc->cliente->personafisica"} checked=""{/if}/>
+                                 Es una persona física (no una empresa)
+                              </label>
                            </div>
                         </div>
                      </div>
@@ -330,7 +355,7 @@
                                  {/loop}
                               </select>
                               <label>
-                                 <input type="checkbox" name="recargo" value="TRUE"{if="$fsc->cliente->recargo"} checked="checked"{/if}/>
+                                 <input type="checkbox" name="recargo" value="TRUE"{if="$fsc->cliente->recargo"} checked=""{/if}/>
                                  Aplicar recargo de equivalencia
                               </label>
                            </div>
@@ -546,13 +571,13 @@
                      <div class="form-group col-sm-3">
                         <div class="checkbox">
                         <label>
-                           <input type="checkbox" name="direnvio" value="TRUE"{if="$value->domenvio"} checked="checked"{/if}/>
+                           <input type="checkbox" name="direnvio" value="TRUE"{if="$value->domenvio"} checked=""{/if}/>
                            Dirección de envío
                         </label>
                         </div>
                         <div class="checkbox">
                         <label>
-                           <input type="checkbox" name="dirfact" value="TRUE"{if="$value->domfacturacion"} checked="checked"{/if}/>
+                           <input type="checkbox" name="dirfact" value="TRUE"{if="$value->domfacturacion"} checked=""{/if}/>
                            Dirección de facturación
                         </label>
                         </div>
@@ -748,11 +773,11 @@
                   Descripción:
                   <input class="form-control" type="text" name="descripcion" value="Nueva dirección"/>
                   <label>
-                     <input type="checkbox" name="direnvio" id="ndirenvio" value="TRUE" checked="checked"/>
+                     <input type="checkbox" name="direnvio" id="ndirenvio" value="TRUE" checked=""/>
                      Dirección de envío
                   </label>
                   <label>
-                     <input type="checkbox" name="dirfact" id="ndirfact" value="TRUE" checked="checked"/>
+                     <input type="checkbox" name="dirfact" id="ndirfact" value="TRUE" checked=""/>
                      Dirección de facturación
                   </label>
                </div>

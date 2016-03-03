@@ -28,13 +28,13 @@ require_model('subcuenta.php');
 class contabilidad_regusiva extends fs_controller
 {
    public $allow_delete;
-   public $fecha_desde;
-   public $fecha_hasta;
    public $aux_regiva;
-   public $periodo;
-   public $regiva;
    public $factura_cli;
    public $factura_pro;
+   public $fecha_desde;
+   public $fecha_hasta;
+   public $periodo;
+   public $regiva;
    
    public function __construct()
    {
@@ -150,43 +150,35 @@ class contabilidad_regusiva extends fs_controller
          $saldo = 0;
          
          /// obtenemos el IVA soportado
-         $scta_ivasop = $subcuenta->get_cuentaesp('IVASOP', $eje0->codejercicio);
-         if($scta_ivasop)
+         foreach($subcuenta->all_from_cuentaesp('IVASOP', $eje0->codejercicio) as $scta_ivasop)
          {
             $tot_sop = $partida->totales_from_subcuenta_fechas($scta_ivasop->idsubcuenta, $_POST['desde'], $_POST['hasta']);
-            
-            /// invertimos el debe y el haber
-            $this->aux_regiva[] = array(
-                'subcuenta' => $scta_ivasop->codsubcuenta,
-                'debe' => $tot_sop['haber'],
-                'haber' => $tot_sop['debe']
-            );
-            $saldo += $tot_sop['haber'] - $tot_sop['debe'];
-         }
-         else
-         {
-            $this->new_error_msg('Subcuenta de IVA soportado no encontrada.');
-            $continuar = FALSE;
+            if($tot_sop['saldo'])
+            {
+               /// invertimos el debe y el haber
+               $this->aux_regiva[] = array(
+                   'subcuenta' => $scta_ivasop,
+                   'debe' => $tot_sop['haber'],
+                   'haber' => $tot_sop['debe']
+               );
+               $saldo += $tot_sop['haber'] - $tot_sop['debe'];
+            }
          }
          
          /// obtenemos el IVA repercutido
-         $scta_ivarep = $subcuenta->get_cuentaesp('IVAREP', $eje0->codejercicio);
-         if($scta_ivarep)
+         foreach($subcuenta->all_from_cuentaesp('IVAREP', $eje0->codejercicio) as $scta_ivarep)
          {
             $tot_rep = $partida->totales_from_subcuenta_fechas($scta_ivarep->idsubcuenta, $_POST['desde'], $_POST['hasta']);
-            
-            /// invertimos el debe y el haber
-            $this->aux_regiva[] = array(
-                'subcuenta' => $scta_ivarep->codsubcuenta,
-                'debe' => $tot_rep['haber'],
-                'haber' => $tot_rep['debe']
-            );
-            $saldo += $tot_rep['haber'] - $tot_rep['debe'];
-         }
-         else
-         {
-            $this->new_error_msg('Subcuenta de IVA repercutido no encontrada.');
-            $continuar = FALSE;
+            if($tot_rep['saldo'])
+            {
+               /// invertimos el debe y el haber
+               $this->aux_regiva[] = array(
+                   'subcuenta' => $scta_ivarep,
+                   'debe' => $tot_rep['haber'],
+                   'haber' => $tot_rep['debe']
+               );
+               $saldo += $tot_rep['haber'] - $tot_rep['debe'];
+            }
          }
          
          if($continuar)
@@ -197,7 +189,7 @@ class contabilidad_regusiva extends fs_controller
                if($scta_ivaacr)
                {
                   $this->aux_regiva[] = array(
-                      'subcuenta' => $scta_ivaacr->codsubcuenta,
+                      'subcuenta' => $scta_ivaacr,
                       'debe' => 0,
                       'haber' => $saldo
                   );
@@ -211,7 +203,7 @@ class contabilidad_regusiva extends fs_controller
                if($scta_ivadeu)
                {
                   $this->aux_regiva[] = array(
-                      'subcuenta' => $scta_ivadeu->codsubcuenta,
+                      'subcuenta' => $scta_ivadeu,
                       'debe' => abs($saldo),
                       'haber' => 0
                   );
@@ -244,71 +236,65 @@ class contabilidad_regusiva extends fs_controller
          $asiento->concepto = 'REGULARIZACIÓN IVA '.$_POST['periodo'];
          $asiento->fecha = $_POST['hasta'];
          $asiento->editable = FALSE;
-         if( !$asiento->save() )
+         if( $asiento->save() )
+         {
+            /// obtenemos el IVA soportado
+            foreach($subcuenta->all_from_cuentaesp('IVASOP', $eje0->codejercicio) as $scta_ivasop)
+            {
+               $par0 = new partida();
+               $par0->idasiento = $asiento->idasiento;
+               $par0->concepto = $asiento->concepto;
+               $par0->coddivisa = $scta_ivasop->coddivisa;
+               $par0->tasaconv = $scta_ivasop->tasaconv();
+               $par0->codsubcuenta = $scta_ivasop->codsubcuenta;
+               $par0->idsubcuenta = $scta_ivasop->idsubcuenta;
+               
+               $tot_sop = $par0->totales_from_subcuenta_fechas($scta_ivasop->idsubcuenta, $_POST['desde'], $_POST['hasta']);
+               if($tot_sop['saldo'])
+               {
+                  /// invertimos el debe y el haber
+                  $par0->debe = $tot_sop['haber'];
+                  $par0->haber = $tot_sop['debe'];
+                  $saldo += $tot_sop['haber'] - $tot_sop['debe'];
+                  
+                  if( !$par0->save() )
+                  {
+                     $this->new_error_msg('Error al guardar la partida de la subcuenta de IVA soportado.');
+                     $continuar = FALSE;
+                  }
+               }
+            }
+            
+            /// obtenemos el IVA repercutido
+            foreach($subcuenta->all_from_cuentaesp('IVAREP', $eje0->codejercicio) as $scta_ivarep)
+            {
+               $par1 = new partida();
+               $par1->idasiento = $asiento->idasiento;
+               $par1->concepto = $asiento->concepto;
+               $par1->coddivisa = $scta_ivarep->coddivisa;
+               $par1->tasaconv = $scta_ivarep->tasaconv();
+               $par1->codsubcuenta = $scta_ivarep->codsubcuenta;
+               $par1->idsubcuenta = $scta_ivarep->idsubcuenta;
+               
+               $tot_rep = $par1->totales_from_subcuenta_fechas($scta_ivarep->idsubcuenta, $_POST['desde'], $_POST['hasta']);
+               if($tot_rep['saldo'])
+               {
+                  /// invertimos el debe y el haber
+                  $par1->debe = $tot_rep['haber'];
+                  $par1->haber = $tot_rep['debe'];
+                  $saldo += $tot_rep['haber'] - $tot_rep['debe'];
+                  
+                  if( !$par1->save() )
+                  {
+                     $this->new_error_msg('Error al guardar la partida de la subcuenta de IVA repercutido.');
+                     $continuar = FALSE;
+                  }
+               }
+            }
+         }
+         else
          {
             $this->new_error_msg('Imposible guardar el asiento.');
-            $continuar = FALSE;
-         }
-         
-         /// obtenemos el IVA soportado
-         $scta_ivasop = $subcuenta->get_cuentaesp('IVASOP', $eje0->codejercicio);
-         if($scta_ivasop)
-         {
-            $par0 = new partida();
-            $par0->idasiento = $asiento->idasiento;
-            $par0->concepto = $asiento->concepto;
-            $par0->coddivisa = $scta_ivasop->coddivisa;
-            $par0->tasaconv = $scta_ivasop->tasaconv();
-            $par0->codsubcuenta = $scta_ivasop->codsubcuenta;
-            $par0->idsubcuenta = $scta_ivasop->idsubcuenta;
-            
-            $tot_sop = $par0->totales_from_subcuenta_fechas($scta_ivasop->idsubcuenta, $_POST['desde'], $_POST['hasta']);
-            
-            /// invertimos el debe y el haber
-            $par0->debe = $tot_sop['haber'];
-            $par0->haber = $tot_sop['debe'];
-            $saldo += $tot_sop['haber'] - $tot_sop['debe'];
-            
-            if( !$par0->save() )
-            {
-               $this->new_error_msg('Error al guardar la partida de la subcuenta de IVA soportado.');
-               $continuar = FALSE;
-            }
-         }
-         else
-         {
-            $this->new_error_msg('Subcuenta de IVA soportado no encontrada.');
-            $continuar = FALSE;
-         }
-         
-         /// obtenemos el IVA repercutido
-         $scta_ivarep = $subcuenta->get_cuentaesp('IVAREP', $eje0->codejercicio);
-         if($scta_ivarep)
-         {
-            $par1 = new partida();
-            $par1->idasiento = $asiento->idasiento;
-            $par1->concepto = $asiento->concepto;
-            $par1->coddivisa = $scta_ivarep->coddivisa;
-            $par1->tasaconv = $scta_ivarep->tasaconv();
-            $par1->codsubcuenta = $scta_ivarep->codsubcuenta;
-            $par1->idsubcuenta = $scta_ivarep->idsubcuenta;
-            
-            $tot_rep = $par1->totales_from_subcuenta_fechas($scta_ivarep->idsubcuenta, $_POST['desde'], $_POST['hasta']);
-            
-            /// invertimos el debe y el haber
-            $par1->debe = $tot_rep['haber'];
-            $par1->haber = $tot_rep['debe'];
-            $saldo += $tot_rep['haber'] - $tot_rep['debe'];
-            
-            if( !$par1->save() )
-            {
-               $this->new_error_msg('Error al guardar la partida de la subcuenta de IVA repercutido.');
-               $continuar = FALSE;
-            }
-         }
-         else
-         {
-            $this->new_error_msg('Subcuenta de IVA repercutido no encontrada.');
             $continuar = FALSE;
          }
          
@@ -385,6 +371,10 @@ class contabilidad_regusiva extends fs_controller
             }
             else
                $this->new_error_msg('Error al guardar la regularización. No se ha podido eliminar el asiento.');
+         }
+         else
+         {
+            $asiento->delete();
          }
       }
       else

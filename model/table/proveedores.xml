@@ -126,6 +126,11 @@
       <tipo>boolean</tipo>
       <defecto>false</defecto>
    </columna>
+   <columna>
+      <nombre>personafisica</nombre>
+      <tipo>boolean</tipo>
+      <defecto>true</defecto>
+   </columna>
    <restriccion>
       <nombre>proveedores_pkey</nombre>
       <consulta>PRIMARY KEY (codproveedor)</consulta>

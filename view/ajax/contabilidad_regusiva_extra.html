@@ -9,14 +9,14 @@
          <tr>
             <th class="text-left">Ejercicio</th>
             <th class="text-left">Periodo</th>
-            <th>Fecha de inicio</th>
-            <th>Fecha fin</th>
+            <th class="text-center">Fecha de inicio</th>
+            <th class="text-center">Fecha fin</th>
             <th class="text-right">Asiento (fecha)</th>
          </tr>
       </thead>
       <tr>
-         <td><a href="{$fsc->regiva->ejercicio_url()}">{$fsc->regiva->codejercicio}</a></td>
-         <td>{$fsc->regiva->periodo}</td>
+         <td class="text-left"><a href="{$fsc->regiva->ejercicio_url()}">{$fsc->regiva->codejercicio}</a></td>
+         <td class="text-left">{$fsc->regiva->periodo}</td>
          <td class="text-center">{$fsc->regiva->fechainicio}</td>
          <td class="text-center">{$fsc->regiva->fechafin}</td>
          <td class="text-right">

@@ -126,6 +126,16 @@ class albaran_cliente extends fs_model
    public $fecha;
    public $hora;
    
+   /// datos de transporte
+   public $envio_codtrans;
+   public $envio_codigo;
+   public $envio_nombre;
+   public $envio_apellidos;
+   public $envio_direccion;
+   public $envio_codpostal;
+   public $envio_ciudad;
+   public $envio_provincia;
+   
    /**
     * Suma del pvptotal de líneas. Total del albarán antes de impuestos.
     * @var type 
@@ -260,6 +270,15 @@ class albaran_cliente extends fs_model
          {
             $this->femail = Date('d-m-Y', strtotime($a['femail']));
          }
+         
+         $this->envio_codtrans = $a['codtrans'];
+         $this->envio_codigo = $a['codigoenv'];
+         $this->envio_nombre = $a['nombreenv'];
+         $this->envio_apellidos = $a['apellidosenv'];
+         $this->envio_direccion = $a['direccionenv'];
+         $this->envio_codpostal = $a['codpostalenv'];
+         $this->envio_ciudad = $a['ciudadenv'];
+         $this->envio_provincia = $a['provinciaenv'];
       }
       else
       {
@@ -298,6 +317,14 @@ class albaran_cliente extends fs_model
          $this->observaciones = NULL;
          $this->ptefactura = TRUE;
          $this->femail = NULL;
+         $this->envio_codtrans = NULL;
+         $this->envio_codigo = NULL;
+         $this->envio_nombre = NULL;
+         $this->envio_apellidos = NULL;
+         $this->envio_direccion = NULL;
+         $this->envio_codpostal = NULL;
+         $this->envio_ciudad = NULL;
+         $this->envio_provincia = NULL;
       }
    }
    
@@ -632,6 +659,14 @@ class albaran_cliente extends fs_model
                     .", observaciones = ".$this->var2str($this->observaciones)
                     .", ptefactura = ".$this->var2str($this->ptefactura)
                     .", femail = ".$this->var2str($this->femail)
+                    .", codtrans = ".$this->var2str($this->envio_codtrans)
+                    .", codigoenv = ".$this->var2str($this->envio_codigo)
+                    .", nombreenv = ".$this->var2str($this->envio_nombre)
+                    .", apellidosenv = ".$this->var2str($this->envio_apellidos)
+                    .", direccionenv = ".$this->var2str($this->envio_direccion)
+                    .", codpostalenv = ".$this->var2str($this->envio_codpostal)
+                    .", ciudadenv = ".$this->var2str($this->envio_ciudad)
+                    .", provinciaenv = ".$this->var2str($this->envio_provincia)
                     ."  WHERE idalbaran = ".$this->var2str($this->idalbaran).";";
             
             return $this->db->exec($sql);
@@ -643,7 +678,8 @@ class albaran_cliente extends fs_model
                codserie,codejercicio,codcliente,codpago,coddivisa,codalmacen,codpais,coddir,
                codpostal,numero,numero2,nombrecliente,cifnif,direccion,ciudad,provincia,apartado,
                fecha,hora,neto,total,totaliva,totaleuros,irpf,totalirpf,porcomision,tasaconv,
-               totalrecargo,observaciones,ptefactura,femail) VALUES "
+               totalrecargo,observaciones,ptefactura,femail,codtrans,codigoenv,nombreenv,
+               apellidosenv,direccionenv,codpostalenv,ciudadenv,provinciaenv) VALUES "
                     ."(".$this->var2str($this->idfactura)
                     .",".$this->var2str($this->codigo)
                     .",".$this->var2str($this->codagente)
@@ -677,7 +713,15 @@ class albaran_cliente extends fs_model
                     .",".$this->var2str($this->totalrecargo)
                     .",".$this->var2str($this->observaciones)
                     .",".$this->var2str($this->ptefactura)
-                    .",".$this->var2str($this->femail).");";
+                    .",".$this->var2str($this->femail)
+                    .",".$this->var2str($this->envio_codtrans)
+                    .",".$this->var2str($this->envio_codigo)
+                    .",".$this->var2str($this->envio_nombre)
+                    .",".$this->var2str($this->envio_apellidos)
+                    .",".$this->var2str($this->envio_direccion)
+                    .",".$this->var2str($this->envio_codpostal)
+                    .",".$this->var2str($this->envio_ciudad)
+                    .",".$this->var2str($this->envio_provincia).");";
             
             if( $this->db->exec($sql) )
             {

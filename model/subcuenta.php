@@ -473,6 +473,32 @@ class subcuenta extends fs_model
       return $sublist;
    }
    
+   /**
+    * Devuelve las subcuentas del ejercicio $eje cuya cuenta madre
+    * está marcada como cuenta especial $id.
+    * @param type $id
+    * @param type $codeje
+    * @return \subcuenta
+    */
+   public function all_from_cuentaesp($id, $codeje)
+   {
+      $cuentas = array();
+      $sql = "SELECT * FROM co_subcuentas WHERE idcuenta IN "
+              ."(SELECT idcuenta FROM co_cuentas WHERE idcuentaesp = ".$this->var2str($id)
+              ." AND codejercicio = ".$this->var2str($codeje).") ORDER BY codsubcuenta ASC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $cuentas[] = new subcuenta($d);
+         }
+      }
+      
+      return $cuentas;
+   }
+   
    public function all_from_ejercicio($codejercicio, $random=FALSE, $limit=FALSE)
    {
       $sublist = array();

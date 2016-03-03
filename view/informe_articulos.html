@@ -34,7 +34,7 @@
    </li>
    <li role="presentation"{if="$fsc->pestanya=='varios'"} class="active"{/if}>
       <a href="{$fsc->url()}&tab=varios">
-         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+         <span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span>
          <span class="hidden-xs">&nbsp; Varios</span>
       </a>
    </li>
@@ -446,13 +446,20 @@
             <input type="hidden" name="informe" value="listadomov"/>
             <div class="panel panel-default">
                <div class="panel-heading">
-                  <h3 class="panel-title">Listado de movimientos</h3>
+                  <h3 class="panel-title">
+                     <span class="glyphicon glyphicon-transfer"></span>
+                     &nbsp; Listado de movimientos
+                  </h3>
                </div>
                <div class="panel-body">
                   <p class="help-block">
                      Genera un listado de movimientos de stock del artículo seleccionado
                      a partir de las regularizaciones de stock, los {#FS_ALBARANES#}
                      y las facturas de compra y de venta.
+                  </p>
+                  <p class="help-block">
+                     También dispones del <b>plugin kardex</b> para obtener un listado
+                     de inventario valorado.
                   </p>
                   <div class="form-group">
                      Referencia:
@@ -518,7 +525,10 @@
             <input type="hidden" name="informe" value="facturacion"/>
             <div class="panel panel-default">
                <div class="panel-heading">
-                  <h3 class="panel-title">Informe de facturación</h3>
+                  <h3 class="panel-title">
+                     <span class="glyphicon glyphicon-duplicate"></span>
+                     &nbsp; Informe de facturación
+                  </h3>
                </div>
                <div class="panel-body">
                   <p class="help-block">
@@ -583,7 +593,10 @@
             <input type="hidden" name="informe" value="ventascli"/>
             <div class="panel panel-default">
                <div class="panel-heading">
-                  <h3 class="panel-title">Desglose de ventas por artículo</h3>
+                  <h3 class="panel-title">
+                     <span class="glyphicon glyphicon-search"></span>
+                     &nbsp; Desglose de ventas por artículo
+                  </h3>
                </div>
                <div class="panel-body">
                   <p class="help-block">

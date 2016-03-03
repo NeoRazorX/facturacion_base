@@ -23,6 +23,7 @@
          dataType: 'html',
          data: $("form[name=f_nueva_regiva]").serialize(),
          success: function(datos) {
+            $("#div_completar_regiva").hide();
             $("#lineas_regiva").html(datos);
          }
       });
@@ -62,6 +63,9 @@
                </div>
             </h1>
          </div>
+         <p class="help-block">
+            Esto es el equivalente al modelo 303 de Hacienda.
+         </p>
       </div>
    </div>
    <div class="row">
@@ -106,6 +110,9 @@
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">Nueva regularización de {#FS_IVA#}</h4>
+               <p class="help-block">
+                  Esto es el equivalente al <b>modelo 303</b> de Hacienda.
+               </p>
             </div>
             <div class="modal-body">
                <div class="form-group">
@@ -132,7 +139,7 @@
                   </div>
                </div>
             </div>
-            <div class="modal-footer">
+            <div id="div_completar_regiva" class="modal-footer">
                <button class="btn btn-sm btn-default" type="button" onclick="completar_regiva()">
                    <span class="glyphicon glyphicon-play"></span> &nbsp; Completar
                 </button>

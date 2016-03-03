@@ -220,19 +220,48 @@
                               <p class="help-block">Nombre por el que se conoce al proveedor. Para uso interno.</p>
                            </div>
                         </div>
-                        <div class="col-sm-5">
+                        <div class="col-sm-4">
                            <div class="form-group">
                               Razón social:
                               <input class="form-control" type="text" name="razonsocial" value="{$fsc->proveedor->razonsocial}" autocomplete="off"/>
                               <p class="help-block">Nombre oficial del proveedor, para las facturas y otros documentos.</p>
                            </div>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
+                           <div class="form-group">
+                              <br/>
+                              <select name="tipoidfiscal" class="form-control">
+                              {$tiposids=fs_tipos_id_fiscal()}
+                              {loop="$tiposids"}
+                                 {if="$value==$fsc->proveedor->tipoidfiscal"}
+                                 <option value="{$value}" selected="">{$value}</option>
+                                 {else}
+                                 <option value="{$value}">{$value}</option>
+                                 {/if}
+                              {/loop}
+                              </select>
+                           </div>
+                        </div>
+                        <div class="col-sm-2">
                            <div class="form-group">
                               {#FS_CIFNIF#}:
                               <input class="form-control" type="text" name="cifnif" value="{$fsc->proveedor->cifnif}" autocomplete="off"/>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="row">
+                        <div class="col-sm-4">
+                           <div class="checkbox">
                               <label>
-                                 <input type="checkbox" name="acreedor" value="TRUE"{if="$fsc->proveedor->acreedor"} checked="checked"{/if}/>
+                                 <input type="checkbox" name="personafisica" value="TRUE"{if="$fsc->proveedor->personafisica"} checked=""{/if}/>
+                                 Es una persona física (no una empresa)
+                              </label>
+                           </div>
+                        </div>
+                        <div class="col-sm-5">
+                           <div class="checkbox">
+                              <label>
+                                 <input type="checkbox" name="acreedor" value="TRUE"{if="$fsc->proveedor->acreedor"} checked=""{/if}/>
                                  Es un <b>acreedor</b>
                                  <a href="#" onclick="return acreedores_help()">
                                     <span class="glyphicon glyphicon-question-sign"></span>
@@ -461,7 +490,7 @@
                      <div class="checkbox col-sm-3">
                         <label>
                            {if="$value->direccionppal"}
-                           <input type="checkbox" name="direccionppal" id="direccionppal_{$value->id}" value="TRUE" checked="checked"/>
+                           <input type="checkbox" name="direccionppal" id="direccionppal_{$value->id}" value="TRUE" checked=""/>
                            {else}
                            <input type="checkbox" name="direccionppal" id="direccionppal_{$value->id}" value="TRUE"/>
                            {/if}
@@ -661,7 +690,7 @@
                   Descripción:
                   <input class="form-control" type="text" name="descripcion" value="Nueva dirección"/>
                   <label>
-                     <input type="checkbox" name="direccionppal" value="TRUE" checked="checked"/>
+                     <input type="checkbox" name="direccionppal" value="TRUE" checked=""/>
                      Dirección principal
                   </label>
                </div>

@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('agencia_transporte.php');
 require_model('articulo.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
@@ -33,6 +34,7 @@ require_model('subcuenta.php');
 
 class ventas_factura extends fs_controller
 {
+   public $agencia;
    public $agente;
    public $agentes;
    public $allow_delete;
@@ -58,11 +60,13 @@ class ventas_factura extends fs_controller
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       $this->ppage = $this->page->get('ventas_facturas');
-      $this->ejercicio = new ejercicio();
+      
+      $this->agencia = new agencia_transporte();
       $this->agente = FALSE;
       $this->agentes = array();
       $this->cliente = FALSE;
       $this->divisa = new divisa();
+      $this->ejercicio = new ejercicio();
       $this->factura = FALSE;
       $this->forma_pago = new forma_pago();
       $this->pais = new pais();
@@ -179,6 +183,19 @@ class ventas_factura extends fs_controller
       $this->factura->ciudad = $_POST['ciudad'];
       $this->factura->codpostal = $_POST['codpostal'];
       $this->factura->direccion = $_POST['direccion'];
+      
+      $this->factura->envio_nombre = $_POST['envio_nombre'];
+      $this->factura->envio_apellidos = $_POST['envio_apellidos'];
+      $this->factura->envio_codtrans = NULL;
+      if($_POST['envio_codtrans'] != '')
+      {
+         $this->factura->envio_codtrans = $_POST['envio_codtrans'];
+      }
+      $this->factura->envio_codigo = $_POST['envio_codigo'];
+      $this->factura->envio_provincia = $_POST['envio_provincia'];
+      $this->factura->envio_ciudad = $_POST['envio_ciudad'];
+      $this->factura->envio_codpostal = $_POST['envio_codpostal'];
+      $this->factura->envio_direccion = $_POST['envio_direccion'];
       
       $this->factura->codagente = NULL;
       $this->factura->porcomision = 0;

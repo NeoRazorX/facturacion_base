@@ -146,6 +146,7 @@ class ventas_clientes extends fs_controller
          $cliente->codcliente = $cliente->get_new_codigo();
          $cliente->nombre = $_POST['nombre'];
          $cliente->razonsocial = $_POST['nombre'];
+         $cliente->tipoidfiscal = $_POST['tipoidfiscal'];
          $cliente->cifnif = $_POST['cifnif'];
          
          if($_POST['scodgrupo'] != '')

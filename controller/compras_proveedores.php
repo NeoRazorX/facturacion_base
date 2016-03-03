@@ -64,6 +64,7 @@ class compras_proveedores extends fs_controller
          $proveedor->codproveedor = $proveedor->get_new_codigo();
          $proveedor->nombre = $_POST['nombre'];
          $proveedor->razonsocial = $_POST['nombre'];
+         $proveedor->tipoidfiscal = $_POST['tipoidfiscal'];
          $proveedor->cifnif = $_POST['cifnif'];
          $proveedor->acreedor = isset($_POST['acreedor']);
          
