@@ -399,7 +399,7 @@ class asiento_factura
             }
 
 		   
-		     $subcuenta_compras = $subcuenta->get_cuentaesp('COMPRA',$asiento->codejercicio);
+		     $subcuenta_compras = $subcuenta->get_cuentaesp('CAJA',$asiento->codejercicio);
  
             if($subcuenta_compras AND $asiento_correcto)
             {

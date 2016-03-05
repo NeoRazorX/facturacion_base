@@ -192,6 +192,18 @@
             alert('¡Asiento descuadrado!');
       });
    });
+   
+   
+   		$(function() {		
+						$('.calendario').datepicker({
+						format: "dd-mm-yyyy",
+						autoclose: true,
+							}).on('changeDate', function (ev) {
+								$(this).datepicker('hide');
+							});
+					});
+   
+   
 </script>
 
 {if="$fsc->asiento->editable"}
@@ -239,7 +251,7 @@
          <div class="col-sm-2">
             <div class="form-group">
                Fecha:
-               <input class="form-control datepicker" name="fecha" type="text" value="{$fsc->asiento->fecha}"/>
+               <input class="form-control calendario"  data-date-format="dd-mm-yyyy"  name="fecha" type="text" value="{$fsc->asiento->fecha}"/>
             </div>
          </div>
 		 <div class="col-sm-2">

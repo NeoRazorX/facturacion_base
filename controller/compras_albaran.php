@@ -91,7 +91,7 @@ class compras_albaran extends fs_controller
       $this->proveedor_s = FALSE;
       $this->serie = new serie();
 	  $factura= new factura_proveedor();
-	  $this->verif_factura = $factura->all();
+	  $this->verif_factura = $factura->all_sin_anular();
 	  $this->subcuentas = new subcuenta();
 	  $this->view_subcuen = $this->subcuentas->subcoenta_compras($this->empresa->codejercicio);
 	  $this->view_subcuen_dev = $this->subcuentas->subcoenta_compras_credito($this->empresa->codejercicio); 

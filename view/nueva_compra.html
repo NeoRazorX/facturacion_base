@@ -121,6 +121,16 @@
 	}
 	}
 	
+		$(function() {		
+						$('.calendario').datepicker({
+						format: "dd-mm-yyyy",
+						autoclose: true,
+							}).on('changeDate', function (ev) {
+								$(this).datepicker('hide');
+							});
+					});
+
+
 
 </script>
 
@@ -185,7 +195,7 @@
          <div class="col-sm-2">
             <div class="form-group" style="font:bold;font-size:18px">
                Fecha:
-               <input type="text" name="fecha" class="form-control input-sm  datepicker" value="{$fsc->today()}" autocomplete="off"/>
+               <input type="text" name="fecha" class="form-control calendario"  data-date-format="dd-mm-yyyy" value="{$fsc->today()}" autocomplete="off"/>
 			</div>
 		</div>
         <div class="col-sm-2">
@@ -203,7 +213,7 @@
 					</div></div>
 					<div class="col-sm-3">
 					  <div class="form-group" style="font:bold;font-size:12px">
-					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control input-sm datepicker" style="width:100px" {if="strtotime($fsc->caivence) >strtotime('01-01-2000')"}  value="{$fsc->caivence}" {else} value=""  {/if}    />
+					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control calendario"  data-date-format="dd-mm-yyyy" style="width:150px" {if="strtotime($fsc->caivence) >strtotime('01-01-2000')"}  value="{$fsc->caivence}" {else} value=""  {/if}    />
 					</div></div>
 					{else}
 					<input type="hidden" name="cai" value="{$fsc->cai}"/>
@@ -798,8 +808,7 @@
 						   <option value="R" selected="selected">Remito</option>
 						   <option value="B" >Factura B</option>
 						   <option value="F" >Factura C</option>
-						   <option value="T" >Ticket Factura</option>
-						   <option value="Q" >Ticket Crédito</option>
+						   <option value="T" >Ticket Factura</option>						   
 						</select>
 					{/if}	
 						</td>

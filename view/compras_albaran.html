@@ -123,6 +123,15 @@
 	   
    }
    
+   		$(function() {		
+						$('.calendario').datepicker({
+						format: "dd-mm-yyyy",
+						autoclose: true,
+							}).on('changeDate', function (ev) {
+								$(this).datepicker('hide');
+							});
+					});
+   
 </script>
 
 <form name="f_albaran" action="{$fsc->albaran->url()}" method="post" class="form">
@@ -219,7 +228,7 @@
             <div class="form-group" style="font:bold;font-size:18px">
                Fecha:
 			   {if="$fsc->albaran->ptefactura"}
-               <input type="text" name="fecha" class="form-control input-sm datepicker" value="{$fsc->albaran->fecha}" autocomplete="off"/>
+               <input type="text" name="fecha" class="form-control calendario"  data-date-format="dd-mm-yyyy"  value="{$fsc->albaran->fecha}" autocomplete="off"/>
 			   {else}
                <div class="form-control">{$fsc->albaran->fecha}</div>
 			   {/if}
@@ -240,7 +249,7 @@
 					</div></div>
 					<div class="col-sm-3">
 					  <div class="form-group" style="font:bold;font-size:12px">
-					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control input-sm datepicker" style="width:100px" {if="strtotime($fsc->albaran->caivence) > strtotime('01-01-2000')"}  value="{$fsc->albaran->caivence}"{else}value="" {/if}    />
+					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control calendario"  data-date-format="dd-mm-yyyy" style="width:150px" {if="strtotime($fsc->albaran->caivence) > strtotime('01-01-2000')"}  value="{$fsc->albaran->caivence}"{else}value="" {/if}    />
 					</div></div>
 					{else}
 					<input type="hidden" name="cai" value="{$fsc->albaran->cai}"/>

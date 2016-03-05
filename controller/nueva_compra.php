@@ -75,7 +75,7 @@ class nueva_compra extends fs_controller
       $this->proveedor_s = FALSE;
       $this->results = array();
 	  $factura= new factura_proveedor();
-	  $this->verif_factura = $factura->all();
+	  $this->verif_factura = $factura->all_sin_anular();
 	  $remito= new albaran_proveedor();
 	  $this->verif_remito = $remito->all_ptefactura();
 	  $this->subcuentas = new subcuenta();

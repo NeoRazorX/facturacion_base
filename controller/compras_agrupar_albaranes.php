@@ -273,6 +273,9 @@ class compras_agrupar_albaranes extends fs_controller
                $n->pvpunitario = $l->pvpunitario;
                $n->recargo = $l->recargo;
                $n->referencia = $l->referencia;
+			   $n->codsubcuenta = $l->codsubcuenta;
+			   $n->idsubcuenta = $l->idsubcuenta;
+			   $n->subcuentadesc = $l->subcuentadesc;
                
                if( !$n->save() )
                {

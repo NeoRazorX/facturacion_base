@@ -88,6 +88,11 @@ class compras_factura extends fs_controller
 	  ///   tecla anular factura
 	  if( isset($_POST['id']))
 	  {
+	  $var_idpagodevol=$factura->get($_POST['id']);
+	  $this->factura_anulada=$var_idpagodevol->idpagodevol;
+   	  }
+	  if( isset($_GET['id']))
+	  {
 	  $var_idpagodevol=$factura->get($_GET['id']);
 	  $this->factura_anulada=$var_idpagodevol->idpagodevol;
    	  }
@@ -160,7 +165,12 @@ class compras_factura extends fs_controller
 		 $this->nuevo_asiento_devolucion(); // Compras_factura
 
 		 }
-		 
+		 else if( isset($_REQUEST['reestab_anulada']) )
+		 {
+	
+		 $this->restab_anulada(); // Compras_factura
+
+		 }
 		 
 		 
          
@@ -515,6 +525,19 @@ class compras_factura extends fs_controller
  
  /////////////////////////////////////
  /////////////////////////////////////
+ ////// Restablecer factura anulada
+ 	private function restab_anulada()
+	{
+	
+	
+	$anular= new factura_proveedor();
+	$anular->boton_restab_anulada($_REQUEST['id']);
+	
+		$factura = new factura_proveedor();
+	  	$var_idpagodevol=$factura->get($_REQUEST['id']);
+ 
+		$this->factura_anulada=$var_idpagodevol->idpagodevol;
+	}
    
    
    

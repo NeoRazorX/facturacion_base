@@ -153,13 +153,19 @@
 				}
 				if( aler == 0) return true;
 				else return false;
-				
-				
-	
-	
-	
 
 }
+
+
+		$(function() {		
+						$('.calendario').datepicker({
+						format: "dd-mm-yyyy",
+						autoclose: true,
+							}).on('changeDate', function (ev) {
+								$(this).datepicker('hide');
+							});
+					});
+
    
 </script>
 
@@ -208,43 +214,52 @@
 			{/if}
 			
 			
-			 {if="$fsc->allow_delete"}
-			 {if="$fsc->factura->idasiento==NULL"}
-			<div class="btn-group">
-				<a id="b_anular" class="btn btn-sm btn-default" disabled='true'  href="#">
-                <span class="glyphicon glyphicon-paperclip"></span> <span class="hidden-xs">&nbsp; Anular Factura</span>
-               </a>
-			 </div>
+{if="$fsc->allow_delete"}
+			{if="$fsc->factura->idasiento==NULL and $fsc->factura->pagada=='0' and $fsc->factura_anulada=='0'"}
+			 	<div class="btn-group">	
+				   <a id="b_eliminar" class="btn btn-sm btn-danger" href="#">
+					  <span class="glyphicon glyphicon-trash"></span>
+					  <span class="hidden-sm hidden-xs">&nbsp; Eliminar</span>
+				   </a>
+				</div>	
 			{else}
-			{if="!$fsc->factura->pagada"}
-			{if="$fsc->factura_anulada==1 or $fsc->factura_anulada!=NULL"}
-			<div class="btn-group">
-				<a class="btn btn-sm btn-danger"  disabled='true' href="{$fsc->url()}&gen_devolucion=TRUE&petid={$fsc->random_string()}&id={$fsc->factura->idfactura}">
-                <span class="glyphicon glyphicon-remove-circle"></span> <span class="hidden-xs">&nbsp;Factura anulada</span>
-               </a>
-			 </div>
-			 {else}
-			 <div class="btn-group">
-				<a id="b_anular" class="btn btn-sm btn-warning" href="#">
-                <span class="glyphicon glyphicon-paperclip"></span> <span class="hidden-xs">&nbsp; Anular Factura</span>
-               </a>
-			 </div>
-			 {/if}
-           {/if}
-		   {/if}
-		   {if="$fsc->factura->idasiento==NULL && $fsc->factura->pagada=='0'"}
-               <a id="b_eliminar" class="btn btn-sm btn-danger" href="#">
+				<div class="btn-group">				
+				<a id="b_eliminar" class="btn btn-sm btn-default" disabled='true' href="#">
                   <span class="glyphicon glyphicon-trash"></span>
                   <span class="hidden-sm hidden-xs">&nbsp; Eliminar</span>
                </a>
-			   {else}
-			   <a id="b_eliminar" class="btn btn-sm btn-default" disabled='true' href="#">
-                  <span class="glyphicon glyphicon-trash"></span>
-                  <span class="hidden-sm hidden-xs">&nbsp; Eliminar</span>
-               </a>
-			  {/if} 
-			  
+				</div>	
 			{/if}
+			{if="$fsc->factura->idasiento!=NULL"}
+				{if="$fsc->factura->pagada=='0'"}
+					{if="$fsc->factura_anulada!=1"}
+						<div class="btn-group">
+							<a class="btn btn-sm btn-warning"   href="{$fsc->url()}&gen_devolucion=TRUE&petid={$fsc->random_string()}&id={$fsc->factura->idfactura}">
+							<span class="glyphicon glyphicon-paperclip"></span> <span class="hidden-xs">&nbsp; Anular Factura</span>
+							</a>
+						 </div>
+					{else}
+						<div class="btn-group">
+							<a class="btn btn-sm btn-danger" disabled='true'  href="{$fsc->url()}&reestab_anulada=TRUE&petid={$fsc->random_string()}&id={$fsc->factura->idfactura}">
+							<span class="glyphicon glyphicon-remove-circle"></span> <span class="hidden-xs">&nbsp;Factura anulada</span>
+							</a>
+					   </div>
+					{/if}
+				{else}
+					<div class="btn-group">
+							<a id="b_anular" class="btn btn-sm btn-default" disabled='true'  href="#">
+							<span class="glyphicon glyphicon-paperclip"></span> <span class="hidden-xs">&nbsp; Anular Factura</span>
+						   </a>
+					</div>
+				{/if}
+			{else}
+					<div class="btn-group">
+							<a id="b_anular" class="btn btn-sm btn-default" disabled='true'  href="#">
+							<span class="glyphicon glyphicon-paperclip"></span> <span class="hidden-xs">&nbsp; Anular Factura</span>
+						   </a>
+					</div>
+			{/if}				  
+{/if}
 		
   		</div>
 	  </div>
@@ -284,12 +299,11 @@
 				  {$numcompr=substr($fsc->factura->numproveedor, 2)}
 			  
 			<input type="text" name="comprobantenum" id="comprobantenum" class="form-control" style="font-size:18px;" readonly="true" value="{$numcompr}" />
-			</div>
-	  
+			</div>	  
 	  	  <div class="col-sm-2">
             <div class="form-group" style="font:bold;font-size:18px">
                Fecha:
-               <input type="text" name="fecha" id="fecha" class="form-control input-sm datepicker" value="{$fsc->factura->fecha}" autocomplete="off"/>
+               <input type="text" name="fecha" id="fecha" class="form-control calendario" value="{$fsc->factura->fecha}" autocomplete="off"/>
 			</div>
 		</div>
         <div class="col-sm-2">
@@ -310,8 +324,8 @@
 					&nbsp;&nbsp;&nbsp;&nbsp;CAI :&nbsp;&nbsp;<input type="text" class="form-control"  id="cai" name="cai" value="{$fsc->factura->cai}" />
 					</div></div>
 					<div class="col-sm-3">
-					  <div class="form-group" style="font:bold;font-size:12px">
-					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control input-sm " style="width:100px" {if="strtotime($fsc->factura->caivence) >strtotime('01-01-2000')"}  value="{$fsc->factura->caivence}"{else} value="" {/if}   />
+					  <div class="form-group" style="font:bold;font-size:14px">
+					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control calendario"  style="width:150px" {if="strtotime($fsc->factura->caivence) >strtotime('01-01-2000')"}  value="{$fsc->factura->caivence}"{else} value="" {/if}   />
 					</div></div>
 					 
 

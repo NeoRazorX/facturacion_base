@@ -86,7 +86,14 @@
    }
    
    
-
+		$(function() {		
+						$('.calendario').datepicker({
+						format: "dd-mm-yyyy",
+						autoclose: true,
+							}).on('changeDate', function (ev) {
+								$(this).datepicker('hide');
+							});
+					});
    
 </script>
 
@@ -155,13 +162,13 @@
          <div class="col-md-3">
             <div class="form-group">
                Desde:
-               <input type="text" name="desde" class="form-control datepicker" value="{$fsc->desde}"/>
+               <input type="text" name="desde" class="form-control calendario"  data-date-format="dd-mm-yyyy"  value="{$fsc->desde}"/>
             </div>
          </div>
          <div class="col-md-3">
             <div class="form-group">
                Hasta:
-               <input type="text" name="hasta" class="form-control datepicker" value="{$fsc->hasta}"/>
+               <input type="text" name="hasta" class="form-control calendario" data-date-format="dd-mm-yyyy"  value="{$fsc->hasta}"/>
             </div>
          </div>
       </div>
