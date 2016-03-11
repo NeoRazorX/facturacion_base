@@ -100,9 +100,11 @@
             <div class="btn-group">
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}&id={$fsc->factura->idfactura}{$value->params}" class="btn btn-sm btn-default">
-                  {$value->text}
-               </a>
+               <a href="index.php?page={$value->from}&id={$fsc->factura->idfactura}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+               {elseif="$value->type=='modal'"}
+               <!--{$txt=base64_encode($value->text)}-->
+               <!--{$url='index.php?page='.$value->from.'&id='.$fsc->factura->idfactura.$value->params}-->
+               <a href="#" class="btn btn-sm btn-default" onclick="fs_modal('{$txt}','{$url}')">{$value->text}</a>
                {/if}
             {/loop}
             </div>

@@ -134,6 +134,10 @@
             <a href="index.php?page={$value->from}&ref={function="urlencode($fsc->articulo->referencia)"}{$value->params}" class="btn btn-sm btn-default">
                {$value->text}
             </a>
+            {elseif="$value->type=='modal'"}
+            <!--{$txt=base64_encode($value->text)}-->
+            <!--{$url='index.php?page='.$value->from.'&ref='.urlencode($fsc->articulo->referencia).$value->params}-->
+            <a href="#" class="btn btn-sm btn-default" onclick="fs_modal('{$txt}','{$url}')">{$value->text}</a>
             {/if}
          {/loop}
       </div>

@@ -424,11 +424,13 @@ class ventas_facturas extends fs_controller
          $sql .= $where;
          if( is_numeric($query) )
          {
-            $sql .= "(codigo LIKE '%".$query."%' OR numero2 LIKE '%".$query."%' OR observaciones LIKE '%".$query."%')";
+            $sql .= "(codigo LIKE '%".$query."%' OR numero2 LIKE '%".$query."%' "
+                    . "OR observaciones LIKE '%".$query."%' OR cifnif LIKE '".$query."%')";
          }
          else
          {
             $sql .= "(lower(codigo) LIKE '%".$query."%' OR lower(numero2) LIKE '%".$query."%' "
+                    . "OR lower(cifnif) LIKE '".$query."%' "
                     . "OR lower(observaciones) LIKE '%".str_replace(' ', '%', $query)."%')";
          }
          $where = ' AND ';

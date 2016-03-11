@@ -167,7 +167,7 @@ class albaran_proveedor extends fs_model
 
    public function __construct($a=FALSE)
    {
-      parent::__construct('albaranesprov', 'plugins/facturacion_base/');
+      parent::__construct('albaranesprov');
       if($a)
       {
          $this->idalbaran = $this->intval($a['idalbaran']);
@@ -620,6 +620,12 @@ class albaran_proveedor extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve un array con los últimos albaranes
+    * @param type $offset
+    * @param type $order
+    * @return \albaran_proveedor
+    */
    public function all($offset=0, $order='fecha DESC, codigo DESC')
    {
       $albalist = array();
@@ -637,6 +643,12 @@ class albaran_proveedor extends fs_model
       return $albalist;
    }
    
+   /**
+    * Devuelve un array con los albaranes pendientes
+    * @param type $offset
+    * @param type $order
+    * @return \albaran_proveedor
+    */
    public function all_ptefactura($offset=0, $order='fecha ASC, codigo ASC')
    {
       $albalist = array();
@@ -654,6 +666,12 @@ class albaran_proveedor extends fs_model
       return $albalist;
    }
    
+   /**
+    * Devuelve un array con los albaranes del proveedor
+    * @param type $codproveedor
+    * @param type $offset
+    * @return \albaran_proveedor
+    */
    public function all_from_proveedor($codproveedor, $offset=0)
    {
       $alblist = array();
@@ -672,6 +690,12 @@ class albaran_proveedor extends fs_model
       return $alblist;
    }
    
+   /**
+    * Devuelve un array con los albaranes del agente/empleado
+    * @param type $codagente
+    * @param type $offset
+    * @return \albaran_proveedor
+    */
    public function all_from_agente($codagente, $offset=0)
    {
       $alblist = array();
@@ -690,6 +714,35 @@ class albaran_proveedor extends fs_model
       return $alblist;
    }
    
+   /**
+    * Devuelve un array con los albaranes relacionados con la factura $id
+    * @param type $id
+    * @return \albaran_proveedor
+    */
+   public function all_from_factura($id)
+   {
+      $alblist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE idfactura = "
+              .$this->var2str($id)." ORDER BY fecha DESC, codigo DESC";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $a)
+         {
+            $alblist[] = new albaran_proveedor($a);
+         }
+      }
+      
+      return $alblist;
+   }
+   
+   /**
+    * Devuelve un array con los albaranes comprendidos entre $desde y $hasta
+    * @param type $desde
+    * @param type $hasta
+    * @return \albaran_proveedor
+    */
    public function all_desde($desde, $hasta)
    {
       $alblist = array();
@@ -709,6 +762,12 @@ class albaran_proveedor extends fs_model
       return $alblist;
    }
    
+   /**
+    * Devuelve un array con los albaranes que coinciden con $query
+    * @param type $query
+    * @param type $offset
+    * @return \albaran_proveedor
+    */
    public function search($query, $offset=0)
    {
       $alblist = array();
@@ -738,6 +797,14 @@ class albaran_proveedor extends fs_model
       return $alblist;
    }
    
+   /**
+    * Devuelve un array con los albaranes del proveedor $codproveedor que coinciden con $query
+    * @param type $codproveedor
+    * @param type $desde
+    * @param type $hasta
+    * @param type $serie
+    * @return \albaran_proveedor
+    */
    public function search_from_proveedor($codproveedor, $desde, $hasta, $serie)
    {
       $albalist = array();

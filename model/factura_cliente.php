@@ -225,7 +225,7 @@ class factura_cliente extends fs_model
    
    public function __construct($f=FALSE)
    {
-      parent::__construct('facturascli', 'plugins/facturacion_base/');
+      parent::__construct('facturascli');
       if($f)
       {
          $this->idfactura = $this->intval($f['idfactura']);
@@ -1151,12 +1151,21 @@ class factura_cliente extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_cliente($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas sin pagar
+    * @param type $offset
+    * @param type $limit
+    * @param type $order
+    * @return \factura_cliente
+    */
    public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT, $order='vencimiento ASC, codigo ASC')
    {
       $faclist = array();
@@ -1166,44 +1175,74 @@ class factura_cliente extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_cliente($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas del agente/empleado
+    * @param type $codagente
+    * @param type $offset
+    * @return \factura_cliente
+    */
    public function all_from_agente($codagente, $offset=0)
    {
       $faclist = array();
-      
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      $sql = "SELECT * FROM ".$this->table_name.
          " WHERE codagente = ".$this->var2str($codagente).
-         " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
+         " ORDER BY fecha DESC, codigo DESC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_cliente($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas del cliente $codcliente
+    * @param type $codcliente
+    * @param type $offset
+    * @return \factura_cliente
+    */
    public function all_from_cliente($codcliente, $offset=0)
    {
       $faclist = array();
-      
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      $sql = "SELECT * FROM ".$this->table_name.
          " WHERE codcliente = ".$this->var2str($codcliente).
-         " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
+         " ORDER BY fecha DESC, codigo DESC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_cliente($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas comprendidas entre $desde y $hasta
+    * @param type $desde
+    * @param type $hasta
+    * @param type $codserie
+    * @param type $codagente
+    * @param type $codcliente
+    * @param type $estado
+    * @return \factura_cliente
+    */
    public function all_desde($desde, $hasta, $codserie=FALSE, $codagente=FALSE, $codcliente=FALSE, $estado=FALSE)
    {
       $faclist = array();
@@ -1237,12 +1276,20 @@ class factura_cliente extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_cliente($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas que coinciden con $query
+    * @param type $query
+    * @param type $offset
+    * @return \factura_cliente
+    */
    public function search($query, $offset=0)
    {
       $faclist = array();
@@ -1264,12 +1311,23 @@ class factura_cliente extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_cliente($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas del cliente $codcliente que coinciden con $query
+    * @param type $codcliente
+    * @param type $desde
+    * @param type $hasta
+    * @param type $serie
+    * @param type $obs
+    * @return \factura_cliente
+    */
    public function search_from_cliente($codcliente, $desde, $hasta, $serie, $obs='')
    {
       $faclist = array();
@@ -1288,7 +1346,9 @@ class factura_cliente extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_cliente($f);
+         }
       }
       
       return $faclist;

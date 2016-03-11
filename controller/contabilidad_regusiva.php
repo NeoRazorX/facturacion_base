@@ -35,6 +35,7 @@ class contabilidad_regusiva extends fs_controller
    public $fecha_hasta;
    public $periodo;
    public $regiva;
+   public $s_regiva;
    
    public function __construct()
    {
@@ -90,9 +91,14 @@ class contabilidad_regusiva extends fs_controller
             break;
       }
       
-      if( isset($_POST['idregiva']) )
+      $this->s_regiva = FALSE;
+      if( isset($_REQUEST['id']) )
       {
-         $this->full_regularizacion();
+         $this->s_regiva = $this->regiva->get($_REQUEST['id']);
+         if($this->s_regiva)
+         {
+            $this->page->title = 'Regularización '.$this->s_regiva->periodo.'@'.$this->s_regiva->codejercicio;
+         }
       }
       else if( isset($_POST['proceso']) )
       {
@@ -125,12 +131,6 @@ class contabilidad_regusiva extends fs_controller
                $this->new_error_msg('Regularización no encontrada.');
          }
       }
-   }
-   
-   private function full_regularizacion()
-   {
-      $this->template = 'ajax/contabilidad_regusiva_extra';
-      $this->regiva = $this->regiva->get($_POST['idregiva']);
    }
    
    private function completar_regiva()
@@ -362,8 +362,8 @@ class contabilidad_regusiva extends fs_controller
             
             if( $this->regiva->save() )
             {
-               $this->new_message('<a href="#" onclick="full_regiva(\''.$this->regiva->idregiva.'\')">Regularización</a>
-                  guardada correctamente.');
+               $this->new_message('<a href="'.$this->regiva->url().'">Regularización</a> guardada correctamente.');
+               header('Location: '.$this->regiva->url());
             }
             else if( $asiento->delete() )
             {
@@ -379,5 +379,167 @@ class contabilidad_regusiva extends fs_controller
       }
       else
          $this->new_error_msg('El ejercicio está cerrado.');
+   }
+   
+   public function desglosar_iva_compras()
+   {
+      $desglose = array();
+      
+      if( $this->db->table_exists('lineasivafactprov') )
+      {
+         $sql = "select iva,recargo,sum(neto) as neto,sum(totaliva) as totaliva,sum(totalrecargo) as totalrecargo"
+                 . " from lineasivafactprov where idfactura in (select idfactura from facturasprov"
+                 . " where fecha >= ".$this->empresa->var2str($this->s_regiva->fechainicio)
+                 . " and fecha <= ".$this->empresa->var2str($this->s_regiva->fechafin)
+                 . " and idasiento < ".$this->empresa->var2str($this->s_regiva->idasiento).")"
+                 . " group by iva,recargo order by iva asc, recargo asc;";
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $desglose[] = array(
+                   'iva' => floatval($d['iva']),
+                   'recargo' => floatval($d['recargo']),
+                   'neto' => floatval($d['neto']),
+                   'totaliva' => floatval($d['totaliva']),
+                   'totalrecargo' => floatval($d['totalrecargo']),
+               );
+            }
+         }
+      }
+      
+      return $desglose;
+   }
+   
+   public function desglosar_iva_ventas()
+   {
+      $desglose = array();
+      
+      if( $this->db->table_exists('lineasivafactcli') )
+      {
+         $sql = "select iva,recargo,sum(neto) as neto,sum(totaliva) as totaliva,sum(totalrecargo) as totalrecargo"
+                 . " from lineasivafactcli where idfactura in (select idfactura from facturascli"
+                 . " where fecha >= ".$this->empresa->var2str($this->s_regiva->fechainicio)
+                 . " and fecha <= ".$this->empresa->var2str($this->s_regiva->fechafin)
+                 . " and idasiento < ".$this->empresa->var2str($this->s_regiva->idasiento).")"
+                 . " group by iva,recargo order by iva asc, recargo asc;";
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $desglose[] = array(
+                   'iva' => floatval($d['iva']),
+                   'recargo' => floatval($d['recargo']),
+                   'neto' => floatval($d['neto']),
+                   'totaliva' => floatval($d['totaliva']),
+                   'totalrecargo' => floatval($d['totalrecargo']),
+               );
+            }
+         }
+      }
+      
+      return $desglose;
+   }
+   
+   public function facturas_compra_posteriores()
+   {
+      $facturas = array();
+      
+      $sql = "SELECT * FROM facturasprov WHERE fecha >= ".$this->empresa->var2str($this->s_regiva->fechainicio)
+              . " and fecha <= ".$this->empresa->var2str($this->s_regiva->fechafin)
+              . " and idasiento > ".$this->empresa->var2str($this->s_regiva->idasiento)
+              . " ORDER BY fecha ASC;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $facturas[] = new factura_proveedor($d);
+         }
+      }
+      
+      return $facturas;
+   }
+   
+   public function facturas_venta_posteriores()
+   {
+      $facturas = array();
+      
+      $sql = "SELECT * FROM facturascli WHERE fecha >= ".$this->empresa->var2str($this->s_regiva->fechainicio)
+              . " and fecha <= ".$this->empresa->var2str($this->s_regiva->fechafin)
+              . " and idasiento > ".$this->empresa->var2str($this->s_regiva->idasiento)
+              . " ORDER BY fecha ASC;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $facturas[] = new factura_cliente($d);
+         }
+      }
+      
+      return $facturas;
+   }
+   
+   public function partidas_problematicas_compras()
+   {
+      $partidas = array();
+      
+      $subcuenta = new subcuenta();
+      $ejercicio = new ejercicio();
+      $eje0 = $ejercicio->get($this->s_regiva->codejercicio);
+      
+      foreach($subcuenta->all_from_cuentaesp('IVASOP', $eje0->codejercicio) as $scta_ivasop)
+      {
+         $sql = "select * from co_partidas where codsubcuenta = ".$eje0->var2str($scta_ivasop->codsubcuenta)
+                 . " and idasiento in (select idasiento from co_asientos"
+                 . " where fecha >= ".$this->empresa->var2str($this->s_regiva->fechainicio)
+                 . " and fecha <= ".$this->empresa->var2str($this->s_regiva->fechafin).")"
+                 . " and idasiento != ".$this->empresa->var2str($this->s_regiva->idasiento)
+                 . " and idasiento not in (select idasiento from facturasprov where idasiento is not null);";
+         
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $partidas[] = new partida($d);
+            }
+         }
+      }
+      
+      return $partidas;
+   }
+   
+   public function partidas_problematicas_ventas()
+   {
+      $partidas = array();
+      
+      $subcuenta = new subcuenta();
+      $ejercicio = new ejercicio();
+      $eje0 = $ejercicio->get($this->s_regiva->codejercicio);
+      
+      foreach($subcuenta->all_from_cuentaesp('IVAREP', $eje0->codejercicio) as $scta_ivasop)
+      {
+         $sql = "select * from co_partidas where codsubcuenta = ".$eje0->var2str($scta_ivasop->codsubcuenta)
+                 . " and idasiento in (select idasiento from co_asientos"
+                 . " where fecha >= ".$this->empresa->var2str($this->s_regiva->fechainicio)
+                 . " and fecha <= ".$this->empresa->var2str($this->s_regiva->fechafin).")"
+                 . " and idasiento != ".$this->empresa->var2str($this->s_regiva->idasiento)
+                 . " and idasiento not in (select idasiento from facturascli where idasiento is not null);";
+         
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $partidas[] = new partida($d);
+            }
+         }
+      }
+      
+      return $partidas;
    }
 }

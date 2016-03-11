@@ -209,7 +209,7 @@ class albaran_cliente extends fs_model
    
    public function __construct($a=FALSE)
    {
-      parent::__construct('albaranescli', 'plugins/facturacion_base/');
+      parent::__construct('albaranescli');
       if($a)
       {
          $this->idalbaran = $this->intval($a['idalbaran']);
@@ -760,6 +760,12 @@ class albaran_cliente extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve un array con los últimos albaranes
+    * @param type $offset
+    * @param type $order
+    * @return \albaran_cliente
+    */
    public function all($offset=0, $order='fecha DESC')
    {
       $albalist = array();
@@ -777,6 +783,12 @@ class albaran_cliente extends fs_model
       return $albalist;
    }
    
+   /**
+    * Devuelve un array con los albaranes pendientes.
+    * @param type $offset
+    * @param type $order
+    * @return \albaran_cliente
+    */
    public function all_ptefactura($offset=0, $order='fecha ASC')
    {
       $albalist = array();
@@ -794,6 +806,12 @@ class albaran_cliente extends fs_model
       return $albalist;
    }
    
+   /**
+    * Devuelve un array con los albaranes del cliente.
+    * @param type $codcliente
+    * @param type $offset
+    * @return \albaran_cliente
+    */
    public function all_from_cliente($codcliente, $offset=0)
    {
       $albalist = array();
@@ -812,6 +830,12 @@ class albaran_cliente extends fs_model
       return $albalist;
    }
    
+   /**
+    * Devuelve un array con los albaranes del agente/empleado
+    * @param type $codagente
+    * @param type $offset
+    * @return \albaran_cliente
+    */
    public function all_from_agente($codagente, $offset=0)
    {
       $albalist = array();
@@ -830,6 +854,35 @@ class albaran_cliente extends fs_model
       return $albalist;
    }
    
+   /**
+    * Devuelve todos los albaranes relacionados con la factura.
+    * @param type $id
+    * @return \albaran_cliente
+    */
+   public function all_from_factura($id)
+   {
+      $albalist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id)
+              ." ORDER BY fecha DESC, codigo DESC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $a)
+         {
+            $albalist[] = new albaran_cliente($a);
+         }
+      }
+      
+      return $albalist;
+   }
+   
+   /**
+    * Devuelve un array con los albaranes comprendidos entre $desde y $hasta
+    * @param type $desde
+    * @param type $hasta
+    * @return \albaran_cliente
+    */
    public function all_desde($desde, $hasta)
    {
       $alblist = array();
@@ -848,6 +901,12 @@ class albaran_cliente extends fs_model
       return $alblist;
    }
    
+   /**
+    * Devuelve un array con todos los albaranes que coinciden con $query
+    * @param type $query
+    * @param type $offset
+    * @return \albaran_cliente
+    */
    public function search($query, $offset=0)
    {
       $alblist = array();
@@ -877,6 +936,15 @@ class albaran_cliente extends fs_model
       return $alblist;
    }
    
+   /**
+    * Devuelve un array con los albaranes del cliente $codcliente que coinciden con $query
+    * @param type $codcliente
+    * @param type $desde
+    * @param type $hasta
+    * @param type $serie
+    * @param type $obs
+    * @return \albaran_cliente
+    */
    public function search_from_cliente($codcliente, $desde, $hasta, $serie, $obs='')
    {
       $albalist = array();

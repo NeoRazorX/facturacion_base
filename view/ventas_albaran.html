@@ -95,13 +95,14 @@
                {/if}
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
-                  <a href="index.php?page={$value->from}&id={$fsc->albaran->idalbaran}{$value->params}" class="btn btn-sm btn-default">
-                     {$value->text}
-                  </a>
+                  <a href="index.php?page={$value->from}&id={$fsc->albaran->idalbaran}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+                  {elseif="$value->type=='modal'"}
+                  <!--{$txt=base64_encode($value->text)}-->
+                  <!--{$url='index.php?page='.$value->from.'&id='.$fsc->albaran->idalbaran.$value->params}-->
+                  <a href="#" class="btn btn-sm btn-default" onclick="fs_modal('{$txt}','{$url}')">{$value->text}</a>
                   {/if}
                {/loop}
             </div>
-            
             {if="$fsc->albaran->idfactura"}
             <a class="btn btn-sm btn-info" href="{$fsc->albaran->factura_url()}">
                <span class="glyphicon glyphicon-eye-open"></span>

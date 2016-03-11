@@ -7,7 +7,9 @@
       $("#b_delete_agente").click(function (event) {
          event.preventDefault();
          if( confirm("¿Realmente desea eliminar el agente?") )
+         {
             window.location.href = '{$fsc->ppage->url()}&delete={$fsc->agente->codagente}';
+         }
       });
    });
 </script>

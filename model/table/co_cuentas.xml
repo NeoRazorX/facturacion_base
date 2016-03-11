@@ -51,6 +51,10 @@
       <consulta>PRIMARY KEY (idcuenta)</consulta>
    </restriccion>
    <restriccion>
+      <nombre>uniq_codcuenta</nombre>
+      <consulta>UNIQUE (codcuenta,codejercicio)</consulta>
+   </restriccion>
+   <restriccion>
       <nombre>ca_co_cuentas_ejercicios</nombre>
       <consulta>FOREIGN KEY (codejercicio)
       REFERENCES ejercicios (codejercicio)

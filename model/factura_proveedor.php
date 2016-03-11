@@ -191,7 +191,7 @@ class factura_proveedor extends fs_model
    
    public function __construct($f=FALSE)
    {
-      parent::__construct('facturasprov', 'plugins/facturacion_base/');
+      parent::__construct('facturasprov');
       if($f)
       {
          $this->anulada = $this->str2bool($f['anulada']);
@@ -903,20 +903,37 @@ class factura_proveedor extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve un array con las últimas facturas
+    * @param type $offset
+    * @param type $limit
+    * @param type $order
+    * @return \factura_proveedor
+    */
    public function all($offset=0, $limit=FS_ITEM_LIMIT, $order='fecha DESC, codigo DESC')
    {
       $faclist = array();
+      $sql = "SELECT * FROM ".$this->table_name." ORDER BY ".$order;
       
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY ".$order, $limit, $offset);
+      $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_proveedor($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas sin pagar.
+    * @param type $offset
+    * @param type $limit
+    * @param type $order
+    * @return \factura_proveedor
+    */
    public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT, $order='fecha ASC, codigo ASC')
    {
       $faclist = array();
@@ -926,44 +943,74 @@ class factura_proveedor extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_proveedor($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas del agente/empleado
+    * @param type $codagente
+    * @param type $offset
+    * @return \factura_proveedor
+    */
    public function all_from_agente($codagente, $offset=0)
    {
       $faclist = array();
-      
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      $sql = "SELECT * FROM ".$this->table_name.
          " WHERE codagente = ".$this->var2str($codagente).
-         " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
+         " ORDER BY fecha DESC, codigo DESC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_proveedor($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas del proveedor
+    * @param type $codproveedor
+    * @param type $offset
+    * @return \factura_proveedor
+    */
    public function all_from_proveedor($codproveedor, $offset=0)
    {
       $faclist = array();
-      
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      $sql = "SELECT * FROM ".$this->table_name.
          " WHERE codproveedor = ".$this->var2str($codproveedor).
-         " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
+         " ORDER BY fecha DESC, codigo DESC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_proveedor($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas comprendidas entre $desde y $hasta
+    * @param type $desde
+    * @param type $hasta
+    * @param type $codserie
+    * @param type $codagente
+    * @param type $codproveedor
+    * @param type $estado
+    * @return \factura_proveedor
+    */
    public function all_desde($desde, $hasta, $codserie=FALSE, $codagente=FALSE, $codproveedor=FALSE, $estado=FALSE)
    {
       $faclist = array();
@@ -997,12 +1044,20 @@ class factura_proveedor extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_proveedor($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas coincidentes con $query
+    * @param type $query
+    * @param type $offset
+    * @return \factura_proveedor
+    */
    public function search($query, $offset=0)
    {
       $faclist = array();
@@ -1025,7 +1080,9 @@ class factura_proveedor extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_proveedor($f);
+         }
       }
       
       return $faclist;
