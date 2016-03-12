@@ -413,7 +413,7 @@ class compras_facturas extends fs_controller
          if( is_numeric($query) )
          {
             $sql .= "(codigo LIKE '%".$query."%' OR numproveedor LIKE '%".$query."%' "
-                    . "OR observaciones LIKE '%".$query."%' OR cifnif LIKE '".$query."%'))";
+                    . "OR observaciones LIKE '%".$query."%' OR cifnif LIKE '".$query."%')";
          }
          else
          {
