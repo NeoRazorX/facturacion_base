@@ -4,7 +4,9 @@
    function delete_impuesto(cod)
    {
       if( confirm("¿Realmente desea eliminar el impuesto "+cod+"?") )
+      {
          window.location.href = '{$fsc->url()}&delete='+cod;
+      }
    }
 </script>
 
@@ -26,8 +28,8 @@
                </div>
             </h1>
             <p class="help-block">
-               El <b>% Recargo</b> es un impuesto que se aplica a las compras a
-               proveedores si lo tenemos activado en las opciones de la empresa
+               El <b>% Recargo</b> de equivalencia es un impuesto que se aplica a las compras
+               a proveedores si lo tenemos activado en las opciones de la empresa
                (sección facturación). Y se aplica a los clientes si está activado
                en los datos generales de ese cliente.
             </p>

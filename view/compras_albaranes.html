@@ -159,7 +159,8 @@
 <ul class="nav nav-tabs" role="tablist">
    <li{if="$fsc->mostrar=='todo'"} class="active"{/if}>
       <a href="{$fsc->url()}&mostrar=todo">
-         Todos los {#FS_ALBARANES#}
+         <span class="text-capitalize hidden-xs">{#FS_ALBARANES#} (todo)</span>
+         <span class="visible-xs">Todo</span>
       </a>
    </li>
    <li{if="$fsc->mostrar=='pendientes'"} class="active"{/if}>

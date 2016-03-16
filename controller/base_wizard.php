@@ -5,16 +5,16 @@
  * Copyright (C) 2015-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -37,6 +37,7 @@ class base_wizard extends fs_controller
    public $divisa;
    public $ejercicio;
    public $forma_pago;
+   public $irpf;
    public $pais;
    public $serie;
    public $step;
@@ -55,6 +56,7 @@ class base_wizard extends fs_controller
       $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
       $this->forma_pago = new forma_pago();
+      $this->irpf = 0;
       $this->pais = new pais();
       $this->serie = new serie();
       
@@ -232,6 +234,22 @@ class base_wizard extends fs_controller
          }
          else
             $this->new_error_msg ('Error al guardar los datos.');
+      }
+      
+      /// cargamos el IRPF
+      foreach($this->serie->all() as $serie)
+      {
+         if($serie->codserie == $this->empresa->codserie)
+         {
+            if( isset($_POST['irpf_serie']) )
+            {
+               $serie->irpf = floatval($_POST['irpf_serie']);
+               $serie->save();
+            }
+            
+            $this->irpf = $serie->irpf;
+            break;
+         }
       }
    }
    

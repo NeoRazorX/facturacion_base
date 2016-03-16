@@ -289,9 +289,16 @@
                   <option value="{$value->codserie}"{if="$fsc->empresa->codserie == $value->codserie"} selected=""{/if}>{$value->descripcion}</option>
                   {/loop}
                </select>
-               <p class="help-block">El {#FS_IRPF#} se define en la serie.</p>
             </div>
          </div>
+         <div class="col-sm-4">
+            <div class="form-group">
+               {#FS_IRPF#}:
+               <input type="number" name="irpf_serie" value="{$fsc->irpf}" step="any" class="form-control"/>
+            </div>
+         </div>
+      </div>
+      <div class="row">
          <div class="col-sm-4">
             <div class="form-group">
                Algoritmo de nuevo código:
@@ -301,8 +308,6 @@
                </select>
             </div>
          </div>
-      </div>
-      <div class="row">
          <div class="col-sm-4">
             <div class="form-group">
                <a href="{$fsc->forma_pago->url()}">Forma de pago predeterminada</a>:
@@ -336,7 +341,7 @@
             <div class="checkbox">
                <label>
                   <input type="checkbox" name="recequivalencia" value="TRUE"{if="$fsc->empresa->recequivalencia"} checked="checked"{/if}/>
-                  Aplicar recargo de equivalencia a tus compras.
+                  Aplicar recargo de equivalencia (R.E.) a tus compras.
                </label>
             </div>
             {/if}
