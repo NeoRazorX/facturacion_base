@@ -41,7 +41,8 @@ class contabilidad_asientos extends fs_controller
          {
             if( $asiento->delete() )
             {
-               $this->new_message("Asiento eliminado correctamente.");
+               $this->new_message("Asiento eliminado correctamente. (ID: ".$asiento->idasiento.", ".$asiento->fecha.")", TRUE);
+               $this->clean_last_changes();
             }
             else
                $this->new_error_msg("¡Imposible eliminar el asiento!");

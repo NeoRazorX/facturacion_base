@@ -230,7 +230,7 @@
    <input type="hidden" name="petition_id" value="{$fsc->random_string()}"/>
    <input type="hidden" name="numlineas" value="0"/>
    <input type="hidden" name="redir"/>
-   <div class="container-fluid" style="margin-top: 10px;">
+   <div class="container-fluid">
       <div class="row">
          <div class="col-xs-6">
             <div class="btn-group hidden-xs">
@@ -265,7 +265,9 @@
                Predefinido:
                <select id="s_idconceptopar" name="idconceptopar" onchange="asigna_concepto()" class="form-control">
                  <option value="">---</option>
-                 {loop="$fsc->concepto->all()"}<option value="{$value->idconceptopar}">{$value->concepto}</option>{/loop}
+                 {loop="$fsc->concepto->all()"}
+                 <option value="{$value->idconceptopar}">{$value->concepto}</option>
+                 {/loop}
                </select>
             </div>
          </div>
@@ -300,100 +302,140 @@
       </div>
    </div>
    
-   <div class="table-responsive">
-      <table class="table table-hover">
-         <thead>
-            <tr>
-               <th class="text-left" width="135">Subcuenta</th>
-               <th class="text-left">Descripción</th>
-               <th class="text-right" width="110">Saldo</th>
-               <th class="text-right" width="110">Debe</th>
-               <th class="text-right" width="110">Haber</th>
-               <th class="text-left" width="135">Contrapartida</th>
-               <th class="text-right contrapartida" width="110">Saldo</th>
-               <th class="text-right contrapartida">{#FS_IVA#}</th>
-               <th class="text-right contrapartida" width="110">Base Imp.</th>
-               <th class="text-left contrapartida">{#FS_CIFNIF#}</th>
-               <th width="50"></th>
-            </tr>
-         </thead>
-         <tbody id="partidas">
-            {loop="$fsc->lineas"}
-            <tr id="partida_{$counter+1}">
-               <td>
-                  <input class="form-control" id='codsubcuenta_{$counter+1}' name='codsubcuenta_{$counter+1}' type='text'
-                         value="{$value->codsubcuenta}" onclick="show_buscar_subcuentas('{$counter+1}','subcuenta')"
-                         onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'
-                         autocomplete='off' placeholder='Seleccionar'/>
-               </td>
-               <td><input class='form-control' type='text' id='desc_{$counter+1}' name='desc_{$counter+1}' value='{$value->desc_subcuenta}' disabled='disabled'/></td>
-               <td>
-                  <input class='form-control text-right' type='text' id='saldo_{$counter+1}' name='saldo_{$counter+1}'
-                         value='{function="round($value->saldo, FS_NF0)"}' disabled='disabled'/>
-               </td>
-               <td>
-                  <input class='form-control text-right' type='text' id='debe_{$counter+1}' name='debe_{$counter+1}' value='{$value->debe}'
-                         onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>
-               </td>
-               <td>
-                  <input class='form-control text-right' type='text' id='haber_{$counter+1}' name='haber_{$counter+1}' value='{$value->haber}'
-                         onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>
-               </td>
-               <td>
-                  <input class='form-control' id='codcontrapartida_{$counter+1}' name='codcontrapartida_{$counter+1}' type='text'
-                         value='{$value->codcontrapartida}' onclick="show_buscar_subcuentas('{$counter+1}','contrapartida')"
-                         onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'
-                         autocomplete='off' placeholder='Seleccionar'/>
-               </td>
-               <td class="contrapartida">
-                  <input class='form-control text-right' type='text' id='saldoc_{$counter+1}' name='saldoc_{$counter+1}' value='0' disabled='disabled'/>
-               </td>
-               <td class="contrapartida">
-                  <select class='form-control' id='iva_{$counter+1}' name='iva_{$counter+1}' onchange='recalcular()'{if="!$value->codcontrapartida"} disabled='disabled'{/if}>
-                     <option value='0'>---</option>
-                     {loop="$fsc->impuesto->all()"}
-                        {if="$value1->iva==$value2->iva"}
-                        <option value='{$value->iva}' selected="">{$value->descripcion}</option>
-                        {else}
-                        <option value='{$value->iva}'>{$value->descripcion}</option>
-                        {/if}
-                     {/loop}
-                  </select>
-               </td>
-               <td class="contrapartida">
-                  <input class='form-control text-right' type='text' id='baseimp_{$counter+1}' name='baseimp_{$counter+1}'
-                         value='{$value->baseimponible}' autocomplete='off'{if="!$value->codcontrapartida"} disabled='disabled'{/if}/>
-               </td>
-               <td class="contrapartida">
-                  <input class='form-control' type='text' id='cifnif_{$counter+1}' name='cifnif_{$counter+1}' value='{$value->cifnif}'{if="!$value->codcontrapartida"} disabled='disabled'{/if}/>
-               </td>
-               <td class="text-right">
-                  <button class="btn btn-sm btn-danger" type="button" onclick="clean_partida('{$counter+1}')">
-                     <span class="glyphicon glyphicon-trash"></span>
-                  </button>
-               </td>
-            </tr>
-            {/loop}
-         </tbody>
-      </table>
-   </div>
-      
-   <div class="container-fluid">
-      <div class="row">
-         <div class="col-xs-6">
-            <a href="#" class="btn btn-sm btn-success" onclick="add_partida();return false;">
-               <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Añadir línea</span>
-            </a>
+   <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active">
+         <a href="#lineas" aria-controls="lineas" role="tab" data-toggle="tab">
+            <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+            <span class="hidden-xs">&nbsp; Líneas</span>
+         </a>
+      </li>
+      <li role="presentation">
+         <a href="#asistente" aria-controls="asistente" role="tab" data-toggle="tab">
+            <i class="fa fa-magic"></i>
+            <span class="hidden-xs">&nbsp; Asistente</span>
+         </a>
+      </li>
+   </ul>
+   <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="lineas">
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th class="text-left" width="135">Subcuenta</th>
+                     <th class="text-left">Descripción</th>
+                     <th class="text-right" width="110">Saldo</th>
+                     <th class="text-right" width="110">Debe</th>
+                     <th class="text-right" width="110">Haber</th>
+                     <th class="text-left" width="135">Contrapartida</th>
+                     <th class="text-right contrapartida" width="110">Saldo</th>
+                     <th class="text-right contrapartida">{#FS_IVA#}</th>
+                     <th class="text-right contrapartida" width="110">Base Imp.</th>
+                     <th class="text-left contrapartida">{#FS_CIFNIF#}</th>
+                     <th width="50"></th>
+                  </tr>
+               </thead>
+               <tbody id="partidas">
+                  {loop="$fsc->lineas"}
+                  <tr id="partida_{$counter+1}">
+                     <td>
+                        <input class="form-control" id='codsubcuenta_{$counter+1}' name='codsubcuenta_{$counter+1}' type='text'
+                            value="{$value->codsubcuenta}" onclick="show_buscar_subcuentas('{$counter+1}','subcuenta')"
+                            onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'
+                            autocomplete='off' placeholder='Seleccionar'/>
+                     </td>
+                     <td><input class='form-control' type='text' id='desc_{$counter+1}' name='desc_{$counter+1}' value='{$value->desc_subcuenta}' disabled='disabled'/></td>
+                     <td>
+                        <input class='form-control text-right' type='text' id='saldo_{$counter+1}' name='saldo_{$counter+1}'
+                            value='{function="round($value->saldo, FS_NF0)"}' disabled='disabled'/>
+                     </td>
+                     <td>
+                        <input class='form-control text-right' type='text' id='debe_{$counter+1}' name='debe_{$counter+1}' value='{$value->debe}'
+                            onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>
+                     </td>
+                     <td>
+                        <input class='form-control text-right' type='text' id='haber_{$counter+1}' name='haber_{$counter+1}' value='{$value->haber}'
+                            onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>
+                     </td>
+                     <td>
+                        <input class='form-control' id='codcontrapartida_{$counter+1}' name='codcontrapartida_{$counter+1}' type='text'
+                            value='{$value->codcontrapartida}' onclick="show_buscar_subcuentas('{$counter+1}','contrapartida')"
+                            onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'
+                            autocomplete='off' placeholder='Seleccionar'/>
+                     </td>
+                     <td class="contrapartida">
+                        <input class='form-control text-right' type='text' id='saldoc_{$counter+1}' name='saldoc_{$counter+1}' value='0' disabled='disabled'/>
+                     </td>
+                     <td class="contrapartida">
+                        <select class='form-control' id='iva_{$counter+1}' name='iva_{$counter+1}' onchange='recalcular()'{if="!$value->codcontrapartida"} disabled='disabled'{/if}>
+                           <option value='0'>---</option>
+                           {loop="$fsc->impuesto->all()"}
+                              {if="$value1->iva==$value2->iva"}
+                              <option value='{$value->iva}' selected="">{$value->descripcion}</option>
+                              {else}
+                              <option value='{$value->iva}'>{$value->descripcion}</option>
+                              {/if}
+                           {/loop}
+                        </select>
+                     </td>
+                     <td class="contrapartida">
+                        <input class='form-control text-right' type='text' id='baseimp_{$counter+1}' name='baseimp_{$counter+1}'
+                            value='{$value->baseimponible}' autocomplete='off'{if="!$value->codcontrapartida"} disabled='disabled'{/if}/>
+                     </td>
+                     <td class="contrapartida">
+                        <input class='form-control' type='text' id='cifnif_{$counter+1}' name='cifnif_{$counter+1}' value='{$value->cifnif}'{if="!$value->codcontrapartida"} disabled='disabled'{/if}/>
+                     </td>
+                     <td class="text-right">
+                        <button class="btn btn-sm btn-danger" type="button" onclick="clean_partida('{$counter+1}')">
+                           <span class="glyphicon glyphicon-trash"></span>
+                        </button>
+                     </td>
+                  </tr>
+                  {/loop}
+               </tbody>
+            </table>
          </div>
-         <div class="col-xs-6 text-right">
-            <div class="btn-group">
-               <button id="b_guardar_asiento" class="btn btn-sm btn-primary" type="button" onclick="guardar_asiento(false)" title="Guardar y volver a empezar">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
-               </button>
-               <button id="b_guardar_asiento_r" class="btn btn-sm btn-info" type="button" onclick="guardar_asiento(true)" title="Guardar y ver asiento">
-                  <span class="glyphicon glyphicon-eye-open"></span>
-               </button>
+         <div class="container-fluid">
+            <div class="row">
+               <div class="col-xs-6">
+                  <a href="#" class="btn btn-sm btn-success" onclick="add_partida();return false;">
+                     <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                     <span class="hidden-xs">&nbsp; Añadir línea</span>
+                  </a>
+               </div>
+               <div class="col-xs-6 text-right">
+                  <div class="btn-group">
+                     <button id="b_guardar_asiento" class="btn btn-sm btn-primary" type="button" onclick="guardar_asiento(false)" title="Guardar y volver a empezar">
+                        <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                     </button>
+                     <button id="b_guardar_asiento_r" class="btn btn-sm btn-info" type="button" onclick="guardar_asiento(true)" title="Guardar y ver asiento">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                     </button>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div role="tabpanel" class="tab-pane" id="asistente">
+         <br/>
+         <div class="container-fluid">
+            <div class="row">
+               <div class="col-sm-4">
+                  <div class="panel panel-default">
+                     <div class="panel-heading">
+                        <h3 class="panel-title">Cuota de autónomos</h3>
+                     </div>
+                     <div class="panel-body">
+                        <div class="form-group">
+                           Importe:
+                           <input type="number" name="autonomo" value="0" step="any" class="form-control"/>
+                        </div>
+                        <button class="btn btn-sm btn-primary" type="button" onclick="this.form.submit()">
+                           <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                        </button>
+                     </div>
+                  </div>
+               </div>
             </div>
          </div>
       </div>
@@ -416,7 +458,7 @@
                   <div class="row">
                      <div class="col-xs-8">
                         <div class="input-group">
-                           <input class="form-control" type="text" name="query" onkeyup="buscar_subcuentas();" autocomplete="off" autofocus />
+                           <input class="form-control" type="text" name="query" onkeyup="buscar_subcuentas();" autocomplete="off" autofocus="" />
                            <span class="input-group-btn">
                               <button class="btn btn-primary" type="submit">
                                  <span class="glyphicon glyphicon-search"></span>
