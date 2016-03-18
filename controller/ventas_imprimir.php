@@ -120,6 +120,14 @@ class ventas_imprimir extends fs_controller
               'params' => '&albaran=TRUE'
           ),
           array(
+              'name' => 'imprimir_albaran_noval',
+              'page_from' => __CLASS__,
+              'page_to' => 'ventas_albaran',
+              'type' => 'pdf',
+              'text' => ucfirst(FS_ALBARAN).' no valorado',
+              'params' => '&albaran=TRUE&noval=TRUE'
+          ),
+          array(
               'name' => 'email_albaran',
               'page_from' => __CLASS__,
               'page_to' => 'ventas_albaran',
@@ -306,27 +314,35 @@ class ventas_imprimir extends fs_controller
          unset($table_header['alb']);
       }
       
-      if($this->impresion['print_dto'])
+      if($this->impresion['print_dto'] AND !isset($_GET['noval']) )
       {
          $table_header['dto'] = '<b>Dto.</b>';
       }
       
-      if($multi_iva)
+      if($multi_iva AND !isset($_GET['noval']) )
       {
          $table_header['iva'] = '<b>'.FS_IVA.'</b>';
       }
       
-      if($multi_re)
+      if($multi_re AND !isset($_GET['noval']) )
       {
          $table_header['re'] = '<b>R.E.</b>';
       }
       
-      if($multi_irpf)
+      if($multi_irpf AND !isset($_GET['noval']) )
       {
          $table_header['irpf'] = '<b>'.FS_IRPF.'</b>';
       }
       
-      $table_header['importe'] = '<b>Importe</b>';
+      if( isset($_GET['noval']) )
+      {
+         unset($table_header['pvp']);
+      }
+      else
+      {
+         $table_header['importe'] = '<b>Importe</b>';
+      }
+      
       $pdf_doc->add_table_header($table_header);
       
       for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < count($lineas)));)
@@ -516,11 +532,18 @@ class ventas_imprimir extends fs_controller
             $titulo['liquido'] = '<b>Total</b>';
             $fila['liquido'] = $this->show_precio($this->albaran->total, $this->albaran->coddivisa);
             $opciones['cols']['liquido'] = array('justification' => 'right');
-            $pdf_doc->add_table_header($titulo);
-            $pdf_doc->add_table_row($fila);
-            $pdf_doc->save_table($opciones);
             
-            $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text($this->fix_html($this->empresa->pie_factura), 153), 0, 1.5);
+            if( isset($_GET['noval']) )
+            {
+               $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text('Página '.$fila['pagina'], 153), 0, 1.5);
+            }
+            else
+            {
+               $pdf_doc->add_table_header($titulo);
+               $pdf_doc->add_table_row($fila);
+               $pdf_doc->save_table($opciones);
+               $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text($this->fix_html($this->empresa->pie_factura), 153), 0, 1.5);
+            }
             
             $pagina++;
          }
