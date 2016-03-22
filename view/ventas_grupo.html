@@ -101,15 +101,15 @@
       <tr class="clickableRow{if="$value->vencida()"} danger{elseif="$value->pagada"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}">
          <td class="text-center">
             {if="$value->pagada"}
-            <span class="glyphicon glyphicon-ok" title="La {#FS_FACTURA#} está pagada"></span>
+            <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
             {/if}
             {if="$value->femail"}
-            <span class="glyphicon glyphicon-send" title="La {#FS_FACTURA#} fue enviada por email el {$value->femail}"></span>
+            <span class="glyphicon glyphicon-send" title="La factura fue enviada por email el {$value->femail}"></span>
             {/if}
          </td>
          <td class="text-center">
             {if="$value->idasiento"}
-            <span class="glyphicon glyphicon-paperclip" title="La {#FS_FACTURA#} tiene vinculado un asiento contable"></span>
+            <span class="glyphicon glyphicon-paperclip" title="La factura tiene vinculado un asiento contable"></span>
             {/if}
          </td>
          <td>

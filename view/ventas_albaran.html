@@ -200,7 +200,7 @@
          {if="$fsc->albaran->ptefactura"}
          <div class="col-md-2 col-sm-2">
             <div class="form-group">
-               <a href="{$fsc->serie->url()}">Serie</a>:
+               <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
                <select class="form-control" name="serie" id="codserie" onchange="usar_serie();recalcular();">
                {loop="$fsc->serie->all()"}
                   {if="$value->codserie==$fsc->albaran->codserie"}
@@ -897,10 +897,10 @@
             </div>
             <div class="modal-body">
                <div class="form-group">
-                  Fecha de la {#FS_FACTURA#}:
+                  Fecha de la factura:
                   <input class="form-control datepicker" type="text" name="facturar" value="{$fsc->today()}" autocomplete="off"/>
                   <p class="help-block">
-                     Se generará una {#FS_FACTURA#}. Si deseas aprobar de golpe todos
+                     Se generará una factura. Si deseas aprobar de golpe todos
                      los {#FS_ALBARANES#} pendientes, puedes usar el plugin <b>megafacturador</b>.
                   </p>
                </div>
@@ -926,7 +926,7 @@
             </div>
             {if="$fsc->albaran->idfactura"}
             <div class="modal-body bg-warning">
-               Hay una {#FS_FACTURA#} asociada que será eliminada junto con este {#FS_ALBARAN#}.
+               Hay una factura asociada que será eliminada junto con este {#FS_ALBARAN#}.
             </div>
             {/if}
             <div class="modal-footer">

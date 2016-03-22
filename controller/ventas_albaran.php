@@ -559,27 +559,27 @@ class ventas_albaran extends fs_controller
             }
             else
             {
-               $this->new_error_msg("¡Imposible vincular el ".FS_ALBARAN." con la nueva ".FS_FACTURA."!");
+               $this->new_error_msg("¡Imposible vincular el ".FS_ALBARAN." con la nueva factura!");
                if( $factura->delete() )
                {
                   $this->new_error_msg("La factura se ha borrado.");
                }
                else
-                  $this->new_error_msg("¡Imposible borrar la ".FS_FACTURA."!");
+                  $this->new_error_msg("¡Imposible borrar la factura!");
             }
          }
          else
          {
             if( $factura->delete() )
             {
-               $this->new_error_msg("La ".FS_FACTURA." se ha borrado.");
+               $this->new_error_msg("La factura se ha borrado.");
             }
             else
-               $this->new_error_msg("¡Imposible borrar la ".FS_FACTURA."!");
+               $this->new_error_msg("¡Imposible borrar la factura!");
          }
       }
       else
-         $this->new_error_msg("¡Imposible guardar la ".FS_FACTURA."!");
+         $this->new_error_msg("¡Imposible guardar la factura!");
    }
    
    private function generar_asiento(&$factura)
@@ -589,7 +589,7 @@ class ventas_albaran extends fs_controller
          $asiento_factura = new asiento_factura();
          if( $asiento_factura->generar_asiento_venta($factura) )
          {
-            $this->new_message("<a href='".$factura->url()."'>".ucfirst(FS_FACTURA)."</a> generada correctamente.");
+            $this->new_message("<a href='".$factura->url()."'>Factura</a> generada correctamente.");
          }
          
          foreach($asiento_factura->errors as $err)
@@ -604,9 +604,9 @@ class ventas_albaran extends fs_controller
       }
       else
       {
-         $this->new_message("<a href='".$factura->url()."'>".ucfirst(FS_FACTURA)."</a> generada correctamente.");
+         $this->new_message("<a href='".$factura->url()."'>Factura</a> generada correctamente.");
       }
       
-      $this->new_change(ucfirst(FS_FACTURA).' '.$factura->codigo, $factura->url(), TRUE);
+      $this->new_change('Factura '.$factura->codigo, $factura->url(), TRUE);
    }
 }

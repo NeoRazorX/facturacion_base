@@ -542,7 +542,7 @@ class compras_imprimir extends fs_controller
             {
                $pdf_doc->add_table_row(
                      array(
-                        'campo1' => "<b>".ucfirst(FS_FACTURA).":</b>",
+                        'campo1' => "<b>Factura:</b>",
                         'dato1' => $this->factura->codigo,
                         'campo2' => "<b>Fecha:</b>",
                         'dato2' => $this->factura->fecha

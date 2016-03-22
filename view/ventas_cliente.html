@@ -155,7 +155,7 @@
       // Create the data table.
       var data = new google.visualization.DataTable();
       data.addColumn('string', 'mes');
-      data.addColumn('number', 'albaranes');
+      data.addColumn('number', '{#FS_ALBARANES#}');
       data.addColumn('number', 'facturas');
       data.addRows([
       {loop="$fsc->stats_from_cli()"}
@@ -306,7 +306,7 @@
                         </div>
                         <div class="col-sm-2">
                            <div class="form-group">
-                              <a href="{$fsc->serie->url()}">Serie</a>:
+                              <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
                               <select class="form-control" name="codserie">
                                  <option value="">Predeterminada</option>
                                  <option value="">------</option>

@@ -298,7 +298,8 @@ class base_wizard extends fs_controller
       $zones_array = array();
       
       $timestamp = time();
-      foreach(timezone_identifiers_list() as $key => $zone) {
+      foreach(timezone_identifiers_list() as $key => $zone)
+      {
          date_default_timezone_set($zone);
          $zones_array[$key]['zone'] = $zone;
          $zones_array[$key]['diff_from_GMT'] = 'UTC/GMT ' . date('P', $timestamp);
@@ -339,13 +340,15 @@ class base_wizard extends fs_controller
       $include = array(
           'factura','facturas','factura_simplificada','factura_rectificativa',
           'albaran','albaranes','pedido','pedidos','presupuesto','presupuestos',
-          'provincia','apartado','cifnif','iva','irpf','numero2'
+          'provincia','apartado','cifnif','iva','irpf','numero2','serie','series'
       );
       
       foreach($GLOBALS['config2'] as $i => $value)
       {
          if( in_array($i, $include) )
+         {
             $clist[] = array('nombre' => $i, 'valor' => $value);
+         }
       }
       
       return $clist;

@@ -3,7 +3,7 @@
 <script type="text/javascript">
    function delete_serie(cod)
    {
-      if( confirm("¿Realmente desea eliminar la serie "+cod+"?") )
+      if( confirm("¿Realmente desea eliminar {#FS_SERIE#} "+cod+"?") )
       {
          window.location.href = '{$fsc->url()}&delete='+cod;
       }
@@ -15,7 +15,7 @@
       <div class="col-sm-12">
          <div class="page-header">
             <h1>
-               Series
+               <span class="text-capitalize">{#FS_SERIES#}</span>
                <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
@@ -37,7 +37,7 @@
             </p>
             {else}
             <p class="help-block">
-               ¿Quieres modificar el <b>nº de factura inicial</b> de un serie? Activa la
+               ¿Quieres modificar el <b>nº de factura inicial</b>? Activa la
                <a href="{$fsc->url()}&num_personalizada=TRUE">numeración personalizada</a>.
             </p>
             {/if}
@@ -94,7 +94,7 @@
                         <div class="btn-group">
                            {if="$fsc->allow_delete"}
                               {if="$value->codserie==$fsc->empresa->codserie"}
-                              <a href="#" class="btn btn-sm btn-warning" title="Bloqueado" onclick="alert('No puedes eliminar la serie predeterminada.')">
+                              <a href="#" class="btn btn-sm btn-warning" title="Bloqueado" onclick="alert('No puedes eliminar la {#FS_SERIE#} predeterminada.')">
                                  <span class="glyphicon glyphicon-lock"></span>
                               </a>
                               {else}

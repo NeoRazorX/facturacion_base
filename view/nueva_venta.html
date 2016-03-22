@@ -32,10 +32,12 @@
          </div>
          <div class="col-sm-2">
             <div class="form-group">
-               <a href="{$fsc->serie->url()}">Serie</a>:
+               <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
                <select name="serie" class="form-control" id="codserie" onchange="usar_serie();recalcular();">
                {loop="$fsc->serie->all()"}
                   {if="$value->codserie==$fsc->cliente_s->codserie"}
+                  <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
+                  {elseif="$value->is_default() AND is_null($fsc->cliente_s->codserie)"}
                   <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
                   {else}
                   <option value="{$value->codserie}">{$value->descripcion}</option>

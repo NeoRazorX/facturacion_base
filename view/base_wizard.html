@@ -225,7 +225,7 @@
       </div>
       <div class="row">
          <div class="col-sm-12">
-            <h2>Traducciones:</h2>
+            <h2><i class="fa fa-language"></i>&nbsp; Traducciones:</h2>
             <p class="help-block">
                Puedes traducir ciertos términos para adaptarlos a tu país o simplemente por comodidad.
             </p>
@@ -283,7 +283,7 @@
          </div>
          <div class="col-sm-4">
             <div class="form-group">
-               <a href="{$fsc->serie->url()}">Serie de facturación</a>:
+               <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
                <select name="codserie" class="form-control">
                   {loop="$fsc->serie->all()"}
                   <option value="{$value->codserie}"{if="$fsc->empresa->codserie == $value->codserie"} selected=""{/if}>{$value->descripcion}</option>
@@ -291,12 +291,14 @@
                </select>
             </div>
          </div>
+         {if="$fsc->empresa->codpais=='ESP' or $fsc->empresa->codpais=='ES'"}
          <div class="col-sm-4">
             <div class="form-group">
                {#FS_IRPF#}:
                <input type="number" name="irpf_serie" value="{$fsc->irpf}" step="any" class="form-control"/>
             </div>
          </div>
+         {/if}
       </div>
       <div class="row">
          <div class="col-sm-4">
@@ -304,7 +306,7 @@
                Algoritmo de nuevo código:
                <select name="new_codigo" class="form-control">
                   <option value="eneboo"{if="$GLOBALS['config2']['new_codigo']=='eneboo'"} selected=''{/if}>Compatible con Eneboo</option>
-                  <option value="new"{if="$GLOBALS['config2']['new_codigo']=='new'"} selected=''{/if}>TIPO + EJERCICIO + SERIE + NÚMERO</option>
+                  <option value="new"{if="$GLOBALS['config2']['new_codigo']=='new'"} selected=''{/if}>TIPO + EJERCICIO + {#FS_SERIE#} + NÚMERO</option>
                </select>
             </div>
          </div>
@@ -365,7 +367,7 @@
             <h1>
                Fin
                <a href="{$fsc->url()}&restart=TRUE" class="btn btn-xs btn-warning" title="Volver a empezar">
-                  <span class="glyphicon glyphicon-lock"></span>
+                  <span class="glyphicon glyphicon-fast-backward"></span>
                </a>
             </h1>
             <p class="help-block">
@@ -392,7 +394,7 @@
             <h1>
                Fin
                <a href="{$fsc->url()}&restart=TRUE" class="btn btn-xs btn-warning" title="Volver a empezar">
-                  <span class="glyphicon glyphicon-lock"></span>
+                  <span class="glyphicon glyphicon-fast-backward"></span>
                </a>
             </h1>
             <p class="help-block">
@@ -402,45 +404,52 @@
       </div>
    </div>
    <div class="row">
-      <div class="col-sm-4">
-         <a href="index.php?page=admin_home#descargas" class="btn btn-sm btn-block btn-default">
+      <div class="col-sm-3">
+         <a href="index.php?page=admin_home&download=argentina#plugins" class="btn btn-sm btn-block btn-default">
             <span class="glyphicon glyphicon-download-alt"></span> &nbsp;
             Argentina
          </a>
          <br/>
       </div>
-      <div class="col-sm-4">
-         <a href="index.php?page=admin_home#descargas" class="btn btn-sm btn-block btn-default">
+      <div class="col-sm-3">
+         <a href="index.php?page=admin_home&download=colombia#plugins" class="btn btn-sm btn-block btn-default">
             <span class="glyphicon glyphicon-download-alt"></span> &nbsp;
             Colombia
          </a>
          <br/>
       </div>
-      <div class="col-sm-4">
-         <a href="index.php?page=admin_home#descargas" class="btn btn-sm btn-block btn-default">
+      <div class="col-sm-3">
+         <a href="index.php?page=admin_home&download=ecuador#plugins" class="btn btn-sm btn-block btn-default">
             <span class="glyphicon glyphicon-download-alt"></span> &nbsp;
             Ecuador
          </a>
          <br/>
       </div>
-      <div class="col-sm-4">
-         <a href="index.php?page=admin_home#descargas" class="btn btn-sm btn-block btn-default">
+      <div class="col-sm-3">
+         <a href="index.php?page=admin_home&download=panama#plugins" class="btn btn-sm btn-block btn-default">
             <span class="glyphicon glyphicon-download-alt"></span> &nbsp;
             Panamá
          </a>
          <br/>
       </div>
-      <div class="col-sm-4">
-         <a href="index.php?page=admin_home#descargas" class="btn btn-sm btn-block btn-default">
+      <div class="col-sm-3">
+         <a href="index.php?page=admin_home&download=peru#plugins" class="btn btn-sm btn-block btn-default">
             <span class="glyphicon glyphicon-download-alt"></span> &nbsp;
             Perú
          </a>
          <br/>
       </div>
-      <div class="col-sm-4">
-         <a href="index.php?page=admin_home#descargas" class="btn btn-sm btn-block btn-default">
+      <div class="col-sm-3">
+         <a href="index.php?page=admin_home&download=republica_dominicana#plugins" class="btn btn-sm btn-block btn-default">
             <span class="glyphicon glyphicon-download-alt"></span> &nbsp;
-            República Dominicana
+            Rep. Dominicana
+         </a>
+         <br/>
+      </div>
+      <div class="col-sm-3">
+         <a href="index.php?page=admin_home&download=venezuela#plugins" class="btn btn-sm btn-block btn-default">
+            <span class="glyphicon glyphicon-download-alt"></span> &nbsp;
+            Venezuela
          </a>
          <br/>
       </div>

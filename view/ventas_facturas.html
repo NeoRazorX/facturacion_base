@@ -156,7 +156,7 @@
 <ul class="nav nav-tabs" role="tablist">
    <li{if="$fsc->mostrar=='todo'"} class="active"{/if}>
       <a href="{$fsc->url()}&mostrar=todo">
-         <span class="text-capitalize hidden-xs">{#FS_FACTURAS#} (todo)</span>
+         <span class="text-capitalize hidden-xs">Facturas (todo)</span>
          <span class="visible-xs">Todo</span>
       </a>
    </li>
@@ -202,7 +202,7 @@
          <div class="col-sm-2">
             <div class="form-group">
                <select class="form-control" name="codserie" onchange="this.form.submit()">
-                  <option value="">Cualquier serie</option>
+                  <option value="">Cualquier {#FS_SERIE#}</option>
                   <option value="">-----</option>
                   {loop="$fsc->serie->all()"}
                      {if="$value->codserie==$fsc->codserie"}
@@ -326,27 +326,27 @@
       <tr class="clickableRow{if="$value->vencida() OR $value->anulada"} danger{elseif="$value->pagada"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}">
          <td class="text-center">
             {if="$value->pagada"}
-            <span class="glyphicon glyphicon-ok" title="La {#FS_FACTURA#} está pagada"></span>
+            <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
             {/if}
             {if="$value->anulada"}
-            <span class="glyphicon glyphicon-remove" title="La {#FS_FACTURA#} está anulada"></span>
+            <span class="glyphicon glyphicon-remove" title="La factura está anulada"></span>
             {/if}
             {if="$value->idfacturarect"}
             <span class="glyphicon glyphicon-flag" title="{#FS_FACTURA_RECTIFICATIVA#} de {$value->codigorect}"></span>
             {/if}
             {if="$value->femail"}
-            <span class="glyphicon glyphicon-send" title="La {#FS_FACTURA#} fue enviada por email el {$value->femail}"></span>
+            <span class="glyphicon glyphicon-send" title="La factura fue enviada por email el {$value->femail}"></span>
             {/if}
          </td>
          <td class="text-center">
             {if="$value->idasiento"}
-            <span class="glyphicon glyphicon-paperclip" title="La {#FS_FACTURA#} tiene vinculado un asiento contable"></span>
+            <span class="glyphicon glyphicon-paperclip" title="La factura tiene vinculado un asiento contable"></span>
             {/if}
          </td>
          <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}</td>
          <td>
             {$value->nombrecliente}
-            <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más {#FS_FACTURAS#} de {$value->nombrecliente}">[+]</a>
+            <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más facturas de {$value->nombrecliente}">[+]</a>
          </td>
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
@@ -367,7 +367,7 @@
       <tr class="warning">
          <td></td>
          <td></td>
-         <td colspan="6">Ninguna {#FS_FACTURA#} encontrada. Pulsa <b>Nueva</b> para crear una.</td>
+         <td colspan="6">Ninguna factura encontrada. Pulsa <b>Nueva</b> para crear una.</td>
          {if="$fsc->codagente!==''"}
          <td></td>
          <td></td>
@@ -434,7 +434,7 @@
                </tr>
                {else}
                <tr class="success">
-                  <td colspan="2">No hay huecos en la numeración de {#FS_FACTURAS#}. Eso es bueno ;-)</td>
+                  <td colspan="2">No hay huecos en la numeración de facturas. Eso es bueno ;-)</td>
                </tr>
                {/loop}
             </table>
@@ -452,7 +452,7 @@
                <h4 class="modal-title">Buscar en las líneas</h4>
                {if="$fsc->cliente"}
                <p class="help-block">
-                  Estas buscando en las líneas de las {#FS_FACTURAS#} de {$fsc->cliente->nombre}.
+                  Estas buscando en las líneas de las facturas de {$fsc->cliente->nombre}.
                </p>
                {else}
                <p class="help-block">Si quieres, puede <a href="{$fsc->url()}&mostrar=buscar">filtrar por cliente</a>.</p>

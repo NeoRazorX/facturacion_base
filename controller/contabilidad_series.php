@@ -29,7 +29,7 @@ class contabilidad_series extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Series', 'contabilidad', FALSE, TRUE);
+      parent::__construct(__CLASS__, ucfirst(FS_SERIES), 'contabilidad', FALSE, TRUE);
    }
    
    protected function private_core()
@@ -78,16 +78,16 @@ class contabilidad_series extends fs_controller
          
          if( $serie->save() )
          {
-            $this->new_message("Serie ".$serie->codserie." guardada correctamente");
+            $this->new_message('Datos guardados correctamente.');
          }
          else
-            $this->new_error_msg("¡Imposible guardar la serie!");
+            $this->new_error_msg("¡Imposible guardar ".FS_SERIE."!");
       }
       else if( isset($_GET['delete']) )
       {
          if(!$this->user->admin)
          {
-            $this->new_error_msg('Sólo un administrador puede eliminar series.');
+            $this->new_error_msg('Sólo un administrador puede eliminar '.FS_SERIES.'.');
          }
          else
          {
@@ -96,13 +96,13 @@ class contabilidad_series extends fs_controller
             {
                if( $serie->delete() )
                {
-                  $this->new_message('Serie eliminada correctamente.');
+                  $this->new_message('Datos eliminados correctamente: '.FS_SERIE.' '.$_GET['delete'], TRUE);
                }
                else
-                  $this->new_error_msg("¡Imposible eliminar la serie!");
+                  $this->new_error_msg("¡Imposible eliminar ".FS_SERIE.' '.$_GET['delete']."!");
             }
             else
-               $this->new_error_msg("Serie no encontrada.");
+               $this->new_error_msg('Datos no encontrados: '.FS_SERIE.' '.$_GET['delete']);
          }
       }
    }
