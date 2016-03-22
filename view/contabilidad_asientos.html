@@ -29,8 +29,7 @@
                <span class="hidden-xs">&nbsp; Nuevo</span>
             </a>
             <a class="btn btn-sm btn-default" href="{$fsc->url()}&renumerar=TRUE">
-               <span class="glyphicon glyphicon-sort-by-attributes"></span>
-               <span class="hidden-xs">&nbsp; Renumerar</span>
+               <span class="glyphicon glyphicon-sort-by-attributes"></span> &nbsp; Renumerar
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -69,20 +68,48 @@
 </ul>
 {else}
 <ul class="nav nav-tabs" role="tablist">
-   <li{if="!isset($_GET['descuadrados'])"} class="active"{/if}>
-      <a href="{$fsc->url()}">
+   <li{if="$fsc->mostrar=='todo'"} class="active"{/if}>
+      <a href="{$fsc->url()}&mostrar=todo">
          Todos <span class="badge">{$fsc->total_asientos()}</span>
       </a>
    </li>
-   <li{if="isset($_GET['descuadrados'])"} class="active"{/if}>
-      <a href="{$fsc->url()}&descuadrados=TRUE">
+   <li{if="$fsc->mostrar=='descuadrados'"} class="active"{/if}>
+      <a href="{$fsc->url()}&mostrar=descuadrados">
          <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
          <span class="hidden-xs">&nbsp; Descuadrados</span>
       </a>
    </li>
+   <li{if="$fsc->mostrar=='buscar'"} class="active"{/if}>
+      <a href="{$fsc->url()}&mostrar=buscar" title="Buscar">
+         <span class="glyphicon glyphicon-search"></span>
+         {if="$fsc->num_resultados!==''"}
+         <span class="hidden-xs badge">{$fsc->num_resultados}</span>
+         {else}
+         <span class="hidden-xs badge">{$fsc->total_asientos()}</span>
+         {/if}
+      </a>
+   </li>
 </ul>
 {/if}
-
+{if="$fsc->mostrar=='buscar'"}
+<br/>
+<form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-sm-2">
+            <div class="form-group">
+               <input type="text" name="desde" value="{$fsc->desde}" class="form-control datepicker" placeholder="Desde" autocomplete="off" onchange="this.form.submit()"/>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               <input type="text" name="hasta" value="{$fsc->hasta}" class="form-control datepicker" placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
+            </div>
+         </div>
+      </div>
+   </div>
+</form>
+{/if}
 <div class="table-responsive">
    <table class="table table-hover">
       <thead>
@@ -104,9 +131,7 @@
          <td>{$value->codejercicio} <a href="{$value->url()}">{$value->numero}</a></td>
          <td>{$value->concepto}</td>
          <td class="text-right">{$fsc->show_precio($value->importe)}</td>
-         <td class="text-right">
-            {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
-         </td>
+         <td class="text-right">{$value->fecha}</td>
       </tr>
       {else}
       <tr class="warning">
