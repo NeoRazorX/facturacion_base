@@ -18,16 +18,16 @@
  */
 
 require_model('asiento.php');
-require_model('agente.php');
 
 class contabilidad_asientos extends fs_controller
 {
    public $asiento;
-   public $resultados;
-   public $offset;
    public $desde;
    public $hasta;
-   public $agente;
+   public $offset;
+   public $resultados;
+   
+   private $num_resultados;
    
    public function __construct()
    {
@@ -38,63 +38,10 @@ class contabilidad_asientos extends fs_controller
    {
       $this->asiento = new asiento();
       $this->mostrar = 'todo';
-      $this->order = 'fecha DESC';
       $this->offset = 0;
       $this->desde = '';
       $this->hasta = '';
-      $this->num_resultados = '';
-      $this->total_resultados = array();
-      $this->total_resultados_txt = '';
       
-      if( isset($_REQUEST['mostrar']) )
-      {
-         $this->mostrar = $_REQUEST['mostrar'];
-         setcookie('co_asientos_mostrar', $this->mostrar, time()+FS_COOKIES_EXPIRE);
-      }
-      else if( isset($_COOKIE['co_asientos_mostrar']) )
-      {
-         $this->mostrar = $_COOKIE['co_asientos_mostrar'];
-      }
-      
-      if( isset($_REQUEST['order']) )
-      {
-         if($_REQUEST['order'] == 'fecha_desc')
-         {
-            $this->order = 'fecha DESC';
-         }
-         else if($_REQUEST['order'] == 'fecha_asc')
-         {
-            $this->order = 'fecha ASC';
-         }
-         else if($_REQUEST['order'] == 'codigo_desc')
-         {
-            $this->order = 'codigo DESC';
-         }
-         else if($_REQUEST['order'] == 'codigo_asc')
-         {
-            $this->order = 'codigo ASC';
-         }
-         else if($_REQUEST['order'] == 'total_desc')
-         {
-            $this->order = 'total DESC';
-            
-           setcookie('co_asientos_order', $this->order, time()+FS_COOKIES_EXPIRE);
-      }
-      else if( isset($_COOKIE['co_asientos_order']) )
-      {
-         $this->order = $_COOKIE['co_asientos_order'];
-      }
-            
-      }
-      $order2 = '';
-         if( substr($this->order, -4) == 'DESC' )
-         {
-            $order2 = ', fecha DESC';
-         }
-         else
-         {
-            $order2 = ', fecha ASC';
-         }
       if( isset($_GET['delete']) )
       {
          $asiento = $this->asiento->get($_GET['delete']);
@@ -118,8 +65,6 @@ class contabilidad_asientos extends fs_controller
             $this->new_message("Asientos renumerados.");
          }
       }
-        
-       
       
       $this->offset = 0;
       if( isset($_GET['offset']) )
@@ -131,31 +76,47 @@ class contabilidad_asientos extends fs_controller
       {
          $this->resultados = $this->asiento->descuadrados();
       }
-      else if($this->mostrar == 'buscar')
-      {
-            if( isset($_REQUEST['desde']) or isset($_REQUEST['hasta']))
-            {
-               $this->desde = $_REQUEST['desde'];
-               $this->hasta = $_REQUEST['hasta'];
-               $this->buscar($order2);
-            }else{
-                $this->resultados = $this->asiento->all($this->offset);
-            }
-      }
-      else if($this->query)
-      {
-         $this->resultados = $this->asiento->search($this->query, $this->offset);
-      }
       else
-         $this->resultados = $this->asiento->all($this->offset);
+      {
+         if( isset($_REQUEST['desde']) OR isset($_REQUEST['hasta']) )
+         {
+            $this->desde = $_REQUEST['desde'];
+            $this->hasta = $_REQUEST['hasta'];
+         }
+         
+         $this->buscar();
+      }
    }
-   private function buscar($order2)
+   
+   private function buscar()
    {
       $this->resultados = array();
       $this->num_resultados = 0;
-      $query = $this->empresa->no_html( strtolower($this->query) );
+      $query = $this->empresa->no_html( mb_strtolower($this->query) );
       $sql = " FROM co_asientos ";
       $where = 'WHERE ';
+      
+      if($query == '')
+      {
+         /// nada
+      }
+      else if( is_numeric($query) )
+      {
+         $aux_sql = '';
+         if( strtolower(FS_DB_TYPE) == 'postgresql' )
+         {
+            $aux_sql = '::TEXT';
+         }
+         
+         $sql .= $where."(numero".$aux_sql." LIKE '%".$query."%' OR concepto LIKE '%".$query
+                 ."%' OR importe BETWEEN ".($query-.01)." AND ".($query+.01).')';
+         $where = ' AND ';
+      }
+      else
+      {
+         $sql .= $where."(lower(concepto) LIKE '%".$buscar = str_replace(' ', '%', $query)."%')";
+         $where = ' AND ';
+      }
       
       if($this->desde != '')
       {
@@ -174,7 +135,7 @@ class contabilidad_asientos extends fs_controller
       {
          $this->num_resultados = intval($data[0]['total']);
          
-         $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$this->order.$order2, FS_ITEM_LIMIT, $this->offset);
+         $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY fecha DESC, numero DESC", FS_ITEM_LIMIT, $this->offset);
          if($data2)
          {
             foreach($data2 as $d)
@@ -184,17 +145,18 @@ class contabilidad_asientos extends fs_controller
          }
       }
    }
+   
    public function anterior_url()
    {
       $url = '';
       
       if($this->query != '' AND $this->offset > 0)
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT);
+         $url = $this->url(TRUE)."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT);
       }
       else if($this->query == '' AND $this->offset > 0)
       {
-         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT);
+         $url = $this->url(TRUE)."&offset=".($this->offset-FS_ITEM_LIMIT);
       }
       
       return $url;
@@ -206,21 +168,21 @@ class contabilidad_asientos extends fs_controller
       
       if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT);
+         $url = $this->url(TRUE)."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT);
       }
       else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
       {
-         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT);
+         $url = $this->url(TRUE)."&offset=".($this->offset+FS_ITEM_LIMIT);
       }
       
       return $url;
    }
+   
    public function url($busqueda = FALSE)
    {
       if($busqueda)
       {         
-         $url = $this->url()."&mostrar=".$this->mostrar
-                 ."&desde=".$this->desde
+         $url = $this->url()."&desde=".$this->desde
                  ."&hasta=".$this->hasta;
          
          return $url;
@@ -230,15 +192,22 @@ class contabilidad_asientos extends fs_controller
          return parent::url();
       }
    }
+   
    public function total_asientos()
    {
-      $data = $this->db->select("SELECT COUNT(idasiento) as total FROM co_asientos;");
-      if($data)
+      if( isset($this->num_resultados) )
       {
-         return intval($data[0]['total']);
+         return $this->num_resultados;
       }
       else
-         return 0;
+      {
+         $data = $this->db->select("SELECT COUNT(idasiento) as total FROM co_asientos;");
+         if($data)
+         {
+            return intval($data[0]['total']);
+         }
+         else
+            return 0;
+      }
    }
-   
 }
