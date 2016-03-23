@@ -24,6 +24,7 @@ class contabilidad_asientos extends fs_controller
    public $asiento;
    public $desde;
    public $hasta;
+   public $mostrar;
    public $offset;
    public $resultados;
    
@@ -41,6 +42,11 @@ class contabilidad_asientos extends fs_controller
       $this->offset = 0;
       $this->desde = '';
       $this->hasta = '';
+      
+      if( isset($_GET['mostrar']) )
+      {
+         $this->mostrar = $_GET['mostrar'];
+      }
       
       if( isset($_GET['delete']) )
       {
@@ -72,7 +78,7 @@ class contabilidad_asientos extends fs_controller
          $this->offset = intval($_GET['offset']);
       }
       
-      if( isset($_GET['descuadrados']) )
+      if($this->mostrar == 'descuadrados')
       {
          $this->resultados = $this->asiento->descuadrados();
       }
