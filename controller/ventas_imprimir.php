@@ -124,7 +124,7 @@ class ventas_imprimir extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'ventas_albaran',
               'type' => 'pdf',
-              'text' => ucfirst(FS_ALBARAN).' no valorado',
+              'text' => ucfirst(FS_ALBARAN).' sin valorar',
               'params' => '&albaran=TRUE&noval=TRUE'
           ),
           array(
@@ -364,6 +364,11 @@ class ventas_imprimir extends fs_controller
              'irpf' => $this->show_numero($lineas[$linea_actual]->irpf) . " %",
              'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $documento->coddivisa)
          );
+         
+         if($lineas[$linea_actual]->dtopor == 0)
+         {
+            $fila['dto'] = '';
+         }
          
          if( get_class($lineas[$linea_actual]) == 'linea_factura_cliente' )
          {
@@ -744,12 +749,12 @@ class ventas_imprimir extends fs_controller
                            $texto_pago .= "\n<b>Domiciliado en</b>: ";
                            if($cbc->iban)
                            {
-                              $texto_pago .= $cbc->iban;
+                              $texto_pago .= $cbc->iban(TRUE);
                            }
                            
                            if($cbc->swift)
                            {
-                              $texto_pago .= "  <b>SWIFT/BIC</b>: ".$cbc->swift;
+                              $texto_pago .= "\n<b>SWIFT/BIC</b>: ".$cbc->swift;
                            }
                            $encontrada = TRUE;
                            break;
@@ -767,7 +772,7 @@ class ventas_imprimir extends fs_controller
                         {
                            if($cuenta_banco->iban)
                            {
-                              $texto_pago .= "\n<b>IBAN</b>: ".$cuenta_banco->iban;
+                              $texto_pago .= "\n<b>IBAN</b>: ".$cuenta_banco->iban(TRUE);
                            }
                            
                            if($cuenta_banco->swift)

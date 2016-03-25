@@ -283,7 +283,7 @@ function add_articulo_atributos(ref,desc,pvp,dto,codimpuesto,cantidad)
    $.ajax({
       type: 'POST',
       url: 'index.php?page=tpv_recambios',
-      ataType: 'html',
+      dataType: 'html',
       data: "referencia4combi="+ref+"&desc="+desc+"&pvp="+pvp+"&dto="+dto
               +"&codimpuesto="+codimpuesto+"&cantidad="+cantidad,
       success: function(datos) {

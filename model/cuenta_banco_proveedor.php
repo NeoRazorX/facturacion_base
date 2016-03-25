@@ -76,7 +76,13 @@ class cuenta_banco_proveedor extends fs_model
    {
       if($espacios)
       {
-         return $this->iban;
+         $txt = '';
+         $iban = str_replace(' ', '', $this->iban);
+         for($i = 0; $i < strlen($iban); $i += 4)
+         {
+            $txt .= substr($iban, $i, 4).' ';
+         }
+         return $txt;
       }
       else
       {

@@ -43,3 +43,37 @@ function remote_printer()
    }
 }
 
+function plantilla_email($tipo, $documento, $firma)
+{
+   /// obtenemos las plantillas
+   $fsvar = new fs_var();
+   $plantillas = array(
+       'mail_factura' => "Buenos días, le adjunto su #DOCUMENTO#.\n#FIRMA#",
+       'mail_albaran' => "Buenos días, le adjunto su #DOCUMENTO#.\n#FIRMA#",
+       'mail_pedido' => "Buenos días, le adjunto su #DOCUMENTO#.\n#FIRMA#",
+       'mail_presupuesto' => "Buenos días, le adjunto su #DOCUMENTO#.\n#FIRMA#",
+   );
+   $plantillas = $fsvar->array_get($plantillas, FALSE);
+   
+   if($tipo == 'albaran')
+   {
+      $documento = FS_ALBARAN.' '.$documento;
+   }
+   else if($tipo == 'pedido')
+   {
+      $documento = FS_PEDIDO.' '.$documento;
+   }
+   else if($tipo == 'presupuesto')
+   {
+      $documento = FS_PRESUPUESTO.' '.$documento;
+   }
+   else
+   {
+      $documento = $tipo.' '.$documento;
+   }
+   
+   $txt = str_replace('#DOCUMENTO#', $documento, $plantillas['mail_'.$tipo]);
+   $txt = str_replace('#FIRMA#', $firma, $txt);
+   
+   return $txt;
+}

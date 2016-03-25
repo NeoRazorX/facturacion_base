@@ -852,8 +852,7 @@
                   </div>
                </div>
                <div class="form-group">
-                  <textarea class="form-control" name="mensaje" rows="6">Buenos días, le adjunto su {#FS_ALBARAN#} {$fsc->albaran->codigo}.
-{$fsc->empresa->email_config['mail_firma']}</textarea>
+                  <textarea class="form-control" name="mensaje" rows="6">{function="plantilla_email('albaran',$fsc->albaran->codigo,$fsc->empresa->email_config['mail_firma'])"}</textarea>
                   <p class="help-block">
                      <a href="index.php?page=admin_empresa#email">Editar la firma</a>
                   </p>
