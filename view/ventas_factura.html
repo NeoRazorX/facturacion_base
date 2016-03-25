@@ -4,6 +4,11 @@
 <script type="text/javascript" src="{$fsc->get_js_location('ac_email_cliente.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript">
+   function enviar_email(url)
+   {
+      document.f_enviar_email.action = url;
+      document.f_enviar_email.submit();
+   }
    $(document).ready(function() {
       $("#b_imprimir").click(function(event) {
          event.preventDefault();
@@ -700,7 +705,7 @@
                   {loop="$fsc->extensions"}
                      {if="$value->type=='email'"}
                      <li>
-                        <a href="#" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}';this.form.submit();">{$value->text}</a>
+                        <a href="#" onclick="this.disabled=true;enviar_email('index.php?page={$value->from}{$value->params}&id={$fsc->factura->idfactura}');">{$value->text}</a>
                      </li>
                      {/if}
                   {/loop}

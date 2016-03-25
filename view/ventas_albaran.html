@@ -47,6 +47,11 @@
 </script>
 {/if}
 <script type="text/javascript">
+   function enviar_email(url)
+   {
+      document.f_enviar_email.action = url;
+      document.f_enviar_email.submit();
+   }
    $(document).ready(function() {
       $("#b_imprimir").click(function(event) {
          event.preventDefault();
@@ -873,7 +878,7 @@
                   {loop="$fsc->extensions"}
                      {if="$value->type=='email'"}
                      <li>
-                        <a href="#" onclick="this.disabled=true;this.form.action='index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}';this.form.submit();">{$value->text}</a>
+                        <a href="#" onclick="this.disabled=true;enviar_email('index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}');">{$value->text}</a>
                      </li>
                      {/if}
                   {/loop}

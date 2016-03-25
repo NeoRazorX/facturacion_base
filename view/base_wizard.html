@@ -3,7 +3,7 @@
 {if="$fsc->step==2"}
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">
-   <div class="container">
+   <div class="container-fluid">
       {if="$fsc->bad_password"}
       <div class="row">
          <div class="col-sm-12">
@@ -145,7 +145,7 @@
 </form>
 {elseif="$fsc->step==3"}
 <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">
-   <div class="container">
+   <div class="container-fluid">
       <div class="row">
          <div class="col-sm-12">
             <div class="page-header">
@@ -258,7 +258,7 @@
 </form>
 {elseif="$fsc->step==4"}
 <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">
-   <div class="container">
+   <div class="container-fluid">
       <div class="row">
          <div class="col-sm-12">
             <div class="page-header">
@@ -359,7 +359,7 @@
    </div>
 </form>
 {elseif="$fsc->step==5"}
-<div class="container">
+<div class="container-fluid">
    {if="$fsc->empresa->codpais=='ESP' or $fsc->empresa->codpais=='ES'"}
    <div class="row">
       <div class="col-sm-12">
