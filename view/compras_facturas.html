@@ -198,7 +198,8 @@
 		 {if="substr($value->numremito, 0,1)=='R'"}REMITO{/if}
 		 {if="substr($value->numremito, 0,1)=='B'"}FACTURA B{/if}
 		 {if="substr($value->numremito, 0,1)=='F'"}FACTURA C{/if}
-		 {if="substr($value->numremito, 0,1)=='T'"}TICKET{/if}
+		 {if="substr($value->numremito, 0,1)=='T'"}TICKET FACTURA{/if}
+		 {if="substr($value->numremito, 0,1)=='Q'"}TICKET CREDITO{/if}
 		 </td>
 		 <td>
 		 {$numcompr=substr($value->numremito, 2)}
@@ -362,7 +363,7 @@
             <span class="glyphicon glyphicon-paperclip" title="La factura tiene vinculado un asiento contable"></span>
             {/if}
          </td>
-		 {if="$value->tipo=='B'"}<td>Factura B</td>{elseif="$value->tipo=='F'"}<td>Factura C</td>{elseif="$value->tipo=='C'"}<td>Crédito</td>{elseif="$value->tipo=='D'"}<td>Débito</td>{elseif="$value->tipo=='T'"}<td>Ticket</td>{else}<td></td>{/if}
+		 {if="$value->tipo=='B'"}<td>Factura B</td>{elseif="$value->tipo=='F'"}<td>Factura C</td>{elseif="$value->tipo=='C'"}<td>Crédito</td>{elseif="$value->tipo=='D'"}<td>Débito</td>{elseif="$value->tipo=='T'"}<td>Ticket Factura</td>{elseif="$value->tipo=='Q'"}<td>Ticket Crédito</td>{else}<td></td>{/if}
 		 {$numcompr=substr($value->numproveedor, 2)}
          <td>{$numcompr}</td>
          <td>

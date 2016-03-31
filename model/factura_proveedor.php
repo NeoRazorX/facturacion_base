@@ -719,6 +719,19 @@ class factura_proveedor extends fs_model
       return $faclist;
    }
    
+   
+   public function all_sin_anular($offset=0, $limit=FS_ITEM_LIMIT)
+   {
+      $faclist = array();
+      $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name." WHERE idpagodevol = '0' ORDER BY fecha DESC, codigo DESC", $limit, $offset);
+      if($facturas)
+      {
+         foreach($facturas as $f)
+            $faclist[] = new factura_proveedor($f);
+      }
+      return $faclist;
+   }
+   
 
     public function boton_anular($idfactura)
    {
@@ -744,6 +757,44 @@ class factura_proveedor extends fs_model
 		 
    
     $sql = "UPDATE facturasprov SET idpagodevol = '1'   WHERE idfactura = ".$_GET['id'].";";
+           if( $this->db->exec($sql) )
+            {
+               $this->idfactura = $this->db->lastval();
+               return TRUE;
+            }
+            else
+               return FALSE; 
+	}
+	      else
+         $this->new_error_msg("Factura no encontrada.");
+ }
+ 
+ 
+ 
+     public function boton_restab_anulada($idfactura)
+   {
+   
+   $factura = new factura_proveedor();
+         $fact = $factura->get($idfactura);
+      if($fact)
+      {
+
+         /// ¿Descontamos stock?
+         $art0 = new articulo();
+         foreach($fact->get_lineas() as $linea)
+         {
+            if( is_null($linea->idalbaran) )
+            {
+               $articulo = $art0->get($linea->referencia);
+               if($articulo)
+               {
+                  $articulo->sum_stock($fact->codalmacen,  $linea->cantidad, TRUE);
+               }
+            }
+         }
+		 
+   
+    $sql = "UPDATE facturasprov SET idpagodevol = '0'   WHERE idfactura = ".$_GET['id'].";";
            if( $this->db->exec($sql) )
             {
                $this->idfactura = $this->db->lastval();
@@ -790,7 +841,7 @@ class factura_proveedor extends fs_model
    {
       $faclist = array();
       $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name.
-         " WHERE pagada = false AND idpagodevol = '0' ORDER BY fecha ASC, codigo ASC", $limit, $offset);
+         " WHERE pagada = false AND idpagodevol = '0' and idasiento != 'NULL' ORDER BY fecha ASC, codigo ASC", $limit, $offset);
       if($facturas)
       {
          foreach($facturas as $f)

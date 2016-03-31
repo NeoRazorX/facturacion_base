@@ -123,6 +123,15 @@
 	   
    }
    
+   		$(function() {		
+						$('.calendario').datepicker({
+						format: "dd-mm-yyyy",
+						autoclose: true,
+							}).on('changeDate', function (ev) {
+								$(this).datepicker('hide');
+							});
+					});
+   
 </script>
 
 <form name="f_albaran" action="{$fsc->albaran->url()}" method="post" class="form">
@@ -158,6 +167,7 @@
             {/if}{/if}
 			</div>
 			<div >
+			
 			<button class="btn btn-sm btn-primary" type="button" onclick="guarfact()">
                <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar...
             </button>
@@ -202,7 +212,8 @@
 				  {if="substr($fsc->albaran->numremito, 0,1)=='B'"}<label style="font:bold;font-size:18px">FACTURA B :</label>{/if}
 				  {if="substr($fsc->albaran->numremito, 0,1)=='F'"}<label style="font:bold;font-size:18px">FACTURA C :</label>{/if}
 				  {if="substr($fsc->albaran->numremito, 0,1)=='R'"}<label style="font:bold;font-size:18px">REMITO :</label>{/if}
-				  {if="substr($fsc->albaran->numremito, 0,1)=='T'"}<label style="font:bold;font-size:18px">TICKET :</label>{/if}
+				  {if="substr($fsc->albaran->numremito, 0,1)=='T'"}<label style="font:bold;font-size:18px">TICKET FACTURA:</label>{/if}
+				  {if="substr($fsc->albaran->numremito, 0,1)=='Q'"}<label style="font:bold;font-size:18px">TICKET CRÉDITO:</label>{/if}
 				  {if="substr($fsc->albaran->numremito, 0,1)=='C'"}<label style="font:bold; font-size:18px">NOTA DE CRÉDITO :</label>{/if}
 				  {if="substr($fsc->albaran->numremito, 0,1)=='D'"}<label style="font:bold;font-size:18px">NOTA DE DÉBITO :</label>{/if}		
 				  {$tipcompr=substr($fsc->albaran->numremito, 0,1)}
@@ -217,7 +228,7 @@
             <div class="form-group" style="font:bold;font-size:18px">
                Fecha:
 			   {if="$fsc->albaran->ptefactura"}
-               <input type="text" name="fecha" class="form-control input-sm datepicker" value="{$fsc->albaran->fecha}" autocomplete="off"/>
+               <input type="text" name="fecha" class="form-control calendario"  data-date-format="dd-mm-yyyy"  value="{$fsc->albaran->fecha}" autocomplete="off"/>
 			   {else}
                <div class="form-control">{$fsc->albaran->fecha}</div>
 			   {/if}
@@ -238,7 +249,7 @@
 					</div></div>
 					<div class="col-sm-3">
 					  <div class="form-group" style="font:bold;font-size:12px">
-					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control input-sm datepicker" style="width:100px" {if="strtotime($fsc->albaran->caivence) > strtotime('01-01-2000')"}  value="{$fsc->albaran->caivence}"{else}value="" {/if}    />
+					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control calendario"  data-date-format="dd-mm-yyyy" style="width:150px" {if="strtotime($fsc->albaran->caivence) > strtotime('01-01-2000')"}  value="{$fsc->albaran->caivence}"{else}value="" {/if}    />
 					</div></div>
 					{else}
 					<input type="hidden" name="cai" value="{$fsc->albaran->cai}"/>
@@ -336,7 +347,7 @@
                            </button>
                         </td>
                         <td>
-                           <input type="text" class="form-control text-right" id="pvp_{$counter}" name="pvp_{$counter}" value="{$fsc->show_precio($value->pvpunitario)}"
+                           <input type="text" class="form-control text-right" id="pvp_{$counter}" name="pvp_{$counter}" value="{$fsc->show_numero($value->pvpunitario)}"
                                   onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/>
                         </td>
                         <td>
@@ -347,16 +358,16 @@
                            <input type="text" class="form-control text-right" id="neto_{$counter}" name="neto_{$counter}"
                                  readonly="true" style="font-weight: bold; background-color:#FFFFFF"    onchange="ajustar_neto()" onclick="this.select()" autocomplete="off"/>
                         </td>
-						<input type="hidden" name="iva_{$counter}" id="iva_{$counter}" value="{$value2->iva}"  />                                               
+						<input type="hidden" name="iva_{$counter}" id="iva_{$counter}" value="0"  />                                               
                        
-                        <td class="recargo">
-                           <input type="text" class="form-control text-right" id="recargo_{$counter}" name="recargo_{$counter}" value="{$value->recargo}"
+                        
+                           <input type="hidden" class="form-control text-right" id="recargo_{$counter}" name="recargo_{$counter}" value="{$value->recargo}"
                                   onchange="recalcular()" onclick="this.select()" autocomplete="off"/>
-                        </td>
-                        <td class="irpf">
-                           <input type="text" class="form-control text-right" id="irpf_{$counter}" name="irpf_{$counter}" value="{$value->irpf}"
+                     
+                        
+                           <input type="hidden" class="form-control text-right" id="irpf_{$counter}" name="irpf_{$counter}" value="{$value->irpf}"
                              onchange="recalcular()" onclick="this.select()" autocomplete="off"/>
-                        </td>
+                       
                         <td>
                            <input type="text" class="form-control text-right" id="total_{$counter}" name="total_{$counter}"
                                 readonly="true" style="font-weight: bold; background-color:#FFFFFF;"    onchange="ajustar_total()" onclick="this.select()" autocomplete="off"/>
@@ -394,9 +405,6 @@
                         <th class="text-right">Precio</th>
                         <th class="text-right">Dto</th>
                         <th class="text-right">Neto</th>
-                        <th class="text-right">{#FS_IVA#}</th>
-                        <th class="text-right recargo">RE</th>
-                        <th class="text-right irpf">{#FS_IRPF#}</th>
                         <th class="text-right">Total</th>
                      </tr>
                   </thead>
@@ -414,18 +422,15 @@
                      <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->albaran->coddivisa)}</td>
                      <td class="text-right">{$fsc->show_numero($value->dtopor, 2)} %</td>
                      <td class="text-right">{$fsc->show_precio($value->pvptotal, $fsc->albaran->coddivisa)}</td>
-                     <td class="text-right">{$fsc->show_numero($value->iva, 2)} %</td>
-                     <td class="text-right recargo">{$fsc->show_numero($value->recargo, 2)} %</td>
-                     <td class="text-right irpf">{$fsc->show_numero($value->irpf, 2)} %</td>
                      <td class="text-right">{$fsc->show_precio($value->total_iva(), $fsc->albaran->coddivisa)}</td>
                   </tr>
                   {/loop}
                   <tr>
                      <td colspan="4"></td>
                      <td class="text-right"><b>{$fsc->show_precio($fsc->albaran->neto, $fsc->albaran->coddivisa)}</b></td>
-                     <td class="text-right"><b>{$fsc->show_precio($fsc->albaran->totaliva, $fsc->albaran->coddivisa)}</b></td>
-                     <td class="text-right recargo"><b>{$fsc->show_precio($fsc->albaran->totalrecargo, $fsc->albaran->coddivisa)}</b></td>
-                     <td class="text-right irpf"><b>-{$fsc->show_precio($fsc->albaran->totalirpf, $fsc->albaran->coddivisa)}</b></td>
+                    
+                     
+              
                      <td class="text-right"><b>{$fsc->show_precio($fsc->albaran->total, $fsc->albaran->coddivisa)}</b></td>
                   </tr>
                </table>
@@ -530,7 +535,8 @@
 				  {$compr=substr($fsc->albaran->numremito, 2)}
 				  {if="substr($fsc->albaran->numremito, 0,1)=='B'"}{$comp_doc ='FACTURA B'}{/if}
 				  {if="substr($fsc->albaran->numremito, 0,1)=='F'"}{$comp_doc ='FACTURA C'}{/if}
-				  {if="substr($fsc->albaran->numremito, 0,1)=='T'"}{$comp_doc ='TICKET'}{/if}
+				  {if="substr($fsc->albaran->numremito, 0,1)=='T'"}{$comp_doc ='TICKET FACTURA'}{/if}
+				  {if="substr($fsc->albaran->numremito, 0,1)=='Q'"}{$comp_doc ='TICKET CRÉDITO'}{/if}
 				  {if="substr($fsc->albaran->numremito, 0,1)=='C'"}{$comp_doc ='NOTA DE CRÉDITO'}{/if}
 				  {if="substr($fsc->albaran->numremito, 0,1)=='D'"}{$comp_doc ='NOTA DE DÉBITO'}{/if}	
 				  {substr($fsc->albaran->numremito, 0,1)}	
@@ -556,7 +562,8 @@
 					<select name="comprobante" id="comprobante" class="form-control" style="width:auto"  >
 						   <option value="B" selected="selected">FACTURA B</option>
 						   <option value="F" >FACTURA C</option>
-						   <option value="T" >TICKET</option>
+						   <option value="T" >TICKET FACTURA</option>
+						   <option value="Q" >TICKET CRÉDITO</option>
 						   <option value="C" >NOTA DE CRÉDITO</option>
 						   <option value="D" >NOTA DE DÉBITO</option>
 						</select>	
@@ -574,7 +581,8 @@
 						   <option value="{$doc_letra}" selected="selected">{$comp_doc}</option>
 						   <option value="B" >FACTURA B</option>
 						   <option value="F" >FACTURA C</option>
-						   <option value="T" >TICKET</option>
+						   <option value="T" >TICKET FACTURA</option>
+						   <option value="Q" >TICKET CRÉDITO</option>
 						   <option value="C" >NOTA DE CRÉDITO</option>
 						   <option value="D" >NOTA DE DÉBITO</option>
 						</select>	
@@ -897,11 +905,16 @@
 						aler = 1;
 						}
 					 
-						if( document.getElementById('total_'+i).value <= 0)
+						if( document.getElementById('total_'+i).value <= 0 )
 						{
 						alert("El Total de una linea no puede ser 0.00");
 						aler = 1;
 						}
+						if( document.getElementById('atotal').value <= 0 || document.getElementById('atotal').value == 'NaN' )
+				{
+				alert("El Total de la Factura no puede ser 0.00");
+				aler = 1;
+				}
 					  }
 					}
 			if( aler == 0) document.f_albaran.submit();
@@ -966,7 +979,7 @@
 				alert("Falta completar el campo de SubCuenta o el Total de un Ítem es 0.00");
 				aler =1;
 				}												
-				if( document.getElementById('atotal').value <= 0)
+				if( document.getElementById('atotal').value <= 0 || document.getElementById('atotal').value == 'NaN' )
 				{
 				alert("El Total de la Factura no puede ser 0.00");
 				aler = 1;

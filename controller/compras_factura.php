@@ -88,6 +88,11 @@ class compras_factura extends fs_controller
 	  ///   tecla anular factura
 	  if( isset($_POST['id']))
 	  {
+	  $var_idpagodevol=$factura->get($_POST['id']);
+	  $this->factura_anulada=$var_idpagodevol->idpagodevol;
+   	  }
+	  if( isset($_GET['id']))
+	  {
 	  $var_idpagodevol=$factura->get($_GET['id']);
 	  $this->factura_anulada=$var_idpagodevol->idpagodevol;
    	  }
@@ -110,6 +115,96 @@ class compras_factura extends fs_controller
       
       if( isset($_POST['idfactura']) )
       {
+	  	$this->modifica_factura();
+
+      }
+      else if( isset($_GET['id']) )
+      {	  
+	  
+         $this->factura = $factura->get($_GET['id']);
+      }
+	   
+      if($this->factura)
+      {
+         $this->page->title = $this->factura->codigo;
+         
+         if( isset($_POST['gen_asiento']) AND isset($_POST['petid']) AND $_POST['gen_asiento'] == '1' )
+         {
+            if( $this->duplicated_petition($_POST['petid']) )
+            {
+               $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
+            }
+            else
+ 				{
+				if( substr($this->factura->numproveedor, 0,1) == 'B' || substr($this->factura->numproveedor, 0,1) =='F' || substr($this->factura->numproveedor, 0,1) =='T' || substr($this->factura->numproveedor, 0,1) =='D' ) 
+					$this->generar_asiento();
+				else if ( substr($this->factura->numproveedor, 0,1) =='Q' || substr($this->factura->numproveedor, 0,1) =='C' )
+					{			
+					$this->generar_asiento_credito();			
+					}
+					else 
+					{
+						$asiento_credito = new asiento_factura();
+						$asiento_credito->nuevo_asiento_devolucion_prov($_REQUEST['id']);
+					}
+				}	
+         }
+         else if( isset($_REQUEST['pagada']) )
+         {
+            $this->factura->pagada = ($_REQUEST['pagada'] == 'TRUE');
+            if( $this->factura->save() )
+            {
+               $this->new_message("Factura modificada correctamente.");
+            }
+            else
+               $this->new_error_msg("¡Imposible modificar la factura!");
+         }
+		 else if( isset($_REQUEST['gen_devolucion']) )
+		 {
+	
+		 $this->nuevo_asiento_devolucion(); // Compras_factura
+
+		 }
+		 else if( isset($_REQUEST['reestab_anulada']) )
+		 {
+	
+		 $this->restab_anulada(); // Compras_factura
+
+		 }
+		 
+		 
+         
+         /// comprobamos la factura
+ //        $this->factura->full_test();
+         
+         /// cargamos el agente
+         if( !is_null($this->factura->codagente) )
+         {
+            $agente = new agente();
+            $this->agente = $agente->get($this->factura->codagente);
+         }
+      }
+      else
+         $this->new_error_msg("¡Factura de proveedor no encontrada!");
+   }
+   
+   public function url()
+   {
+      if( !isset($this->factura) )
+      {
+         return parent::url();
+      }
+      else if($this->factura)
+      {
+         return $this->factura->url();
+      }
+      else
+         return $this->page->url();
+   }
+   
+   public function modifica_factura()
+   {
+   	  $factura = new factura_proveedor();
 	  $fact_save=0;
 	  
          $this->factura = $factura->get($_POST['idfactura']);
@@ -152,78 +247,6 @@ class compras_factura extends fs_controller
          }
          else
             $this->new_error_msg("¡Imposible modificar la factura!");
-      }
-      else if( isset($_GET['id']) )
-      {	  
-	  
-         $this->factura = $factura->get($_GET['id']);
-      }
-	   
-      if($this->factura)
-      {
-         $this->page->title = $this->factura->codigo;
-         
-         if( isset($_GET['gen_asiento']) AND isset($_GET['petid']) )
-         {
-            if( $this->duplicated_petition($_GET['petid']) )
-            {
-               $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
-            }
-            else
- 
-			if( substr($this->factura->numproveedor, 0,1) == 'B' || substr($this->factura->numproveedor, 0,1) =='F' || substr($this->factura->numproveedor, 0,1) =='T' || substr($this->factura->numproveedor, 0,1) =='C'  || substr($this->factura->numproveedor, 0,1) =='D' ) $this->generar_asiento();
-			else 
-			{
-				$asiento_credito = new asiento_factura();
-				$asiento_credito->nuevo_asiento_devolucion_prov($_REQUEST['id']);
-			}
-         }
-         else if( isset($_REQUEST['pagada']) )
-         {
-            $this->factura->pagada = ($_REQUEST['pagada'] == 'TRUE');
-            if( $this->factura->save() )
-            {
-               $this->new_message("Factura modificada correctamente.");
-            }
-            else
-               $this->new_error_msg("¡Imposible modificar la factura!");
-         }
-		 else if( isset($_REQUEST['gen_devolucion']) )
-		 {
-	
-		 $this->nuevo_asiento_devolucion(); // Compras_factura
-
-		 }
-		 
-		 
-		 
-         
-         /// comprobamos la factura
- //        $this->factura->full_test();
-         
-         /// cargamos el agente
-         if( !is_null($this->factura->codagente) )
-         {
-            $agente = new agente();
-            $this->agente = $agente->get($this->factura->codagente);
-         }
-      }
-      else
-         $this->new_error_msg("¡Factura de proveedor no encontrada!");
-   }
-   
-   public function url()
-   {
-      if( !isset($this->factura) )
-      {
-         return parent::url();
-      }
-      else if($this->factura)
-      {
-         return $this->factura->url();
-      }
-      else
-         return $this->page->url();
    }
 
  //////////////////////////////////////////////////////////  
@@ -502,6 +525,19 @@ class compras_factura extends fs_controller
  
  /////////////////////////////////////
  /////////////////////////////////////
+ ////// Restablecer factura anulada
+ 	private function restab_anulada()
+	{
+	
+	
+	$anular= new factura_proveedor();
+	$anular->boton_restab_anulada($_REQUEST['id']);
+	
+		$factura = new factura_proveedor();
+	  	$var_idpagodevol=$factura->get($_REQUEST['id']);
+ 
+		$this->factura_anulada=$var_idpagodevol->idpagodevol;
+	}
    
    
    
@@ -520,6 +556,36 @@ class compras_factura extends fs_controller
          $asiento_factura->soloasiento = TRUE;
 		 // Genera la partida que está en asiento_factura
          if( $asiento_factura->generar_asiento_compra($this->factura) )
+         {
+            $this->new_message("<a href='".$asiento_factura->asiento->url()."'>Asiento</a> generado correctamente.");
+            $this->new_change('Factura Proveedor '.$this->factura->codigo, $this->factura->url());
+         }
+         
+         foreach($asiento_factura->errors as $err)
+         {
+            $this->new_error_msg($err);
+         }
+         
+         foreach($asiento_factura->messages as $msg)
+         {
+            $this->new_message($msg);
+         }
+      }
+   }
+   
+      private function generar_asiento_credito()
+   {
+   		// toma un asiento existente con su id
+      if( $this->factura->get_asiento() ) //factura_proveedor
+      {
+         $this->new_error_msg('Ya hay un asiento asociado a esta factura.');
+      }
+      else
+      {
+         $asiento_factura = new asiento_factura();
+         $asiento_factura->soloasiento = TRUE;
+		 // Genera la partida que está en asiento_factura
+         if( $asiento_factura->generar_asiento_compra_credito($this->factura) )
          {
             $this->new_message("<a href='".$asiento_factura->asiento->url()."'>Asiento</a> generado correctamente.");
             $this->new_change('Factura Proveedor '.$this->factura->codigo, $this->factura->url());

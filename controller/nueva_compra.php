@@ -75,7 +75,7 @@ class nueva_compra extends fs_controller
       $this->proveedor_s = FALSE;
       $this->results = array();
 	  $factura= new factura_proveedor();
-	  $this->verif_factura = $factura->all();
+	  $this->verif_factura = $factura->all_sin_anular();
 	  $remito= new albaran_proveedor();
 	  $this->verif_remito = $remito->all_ptefactura();
 	  $this->subcuentas = new subcuenta();
@@ -208,7 +208,12 @@ class nueva_compra extends fs_controller
             {			
 			 $this->nueva_factura_proveedor();
 			header('Location: '.$this->url_list());			 
-            }					
+            }		
+			 else if($_POST['tipo'] == 'Q')
+            {			
+			 $this->nueva_factura_proveedor();
+			header('Location: '.$this->url_list());			 
+            }			
 			 else if($_POST['tipo'] == 'C')
             {
 			  $this->nueva_factura_proveedor();
@@ -980,7 +985,7 @@ class nueva_compra extends fs_controller
 
 				  if($artval != $subcuencod || $subcuencod==NULL )
 				  {
-				  if($_POST['tipo'] == 'B' || $_POST['tipo'] == 'F' || $_POST['tipo'] == 'T' || $_POST['tipo'] == 'C' || $_POST['tipo'] == 'D' )
+				  if($_POST['tipo'] == 'B' || $_POST['tipo'] == 'F' || $_POST['tipo'] == 'T' || $_POST['tipo'] == 'Q' || $_POST['tipo'] == 'C' || $_POST['tipo'] == 'D' )
             		{				  
 					$this->artsubcuentas->guarda_subcuenta_comp($_POST['referencia_'.$i],$subcuencod,$subcuendes);
 					}

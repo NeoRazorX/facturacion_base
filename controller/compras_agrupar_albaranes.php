@@ -41,6 +41,7 @@ class compras_agrupar_albaranes extends fs_controller
    public $serie;
    public $neto;
    public $total;
+   public $verif_factura;
    
    public function __construct()
    {
@@ -54,6 +55,8 @@ class compras_agrupar_albaranes extends fs_controller
       $this->forma_pago = new forma_pago();
       $this->proveedor = FALSE;
       $this->serie = new serie();
+	  $factura= new factura_proveedor();
+	  $this->verif_factura = $factura->all();
       $this->neto = 0;
       $this->total = 0;
       $this->desde = Date('01-m-Y');
@@ -125,7 +128,7 @@ class compras_agrupar_albaranes extends fs_controller
       {
          foreach($_POST['idalbaran'] as $id)
             $albaranes[] = $this->albaran->get($id);
-         
+
          $codejercicio = NULL;
          foreach($albaranes as $alb)
          {
@@ -163,8 +166,9 @@ class compras_agrupar_albaranes extends fs_controller
       
       if($continuar)
       {
-         if( isset($_POST['individuales']) )
+         if( isset($_POST['individuales']) )if($_POST['individuales'] == 1)
          {
+		 
             foreach($albaranes as $alb)
                $this->generar_factura( array($alb) );
          }
@@ -186,19 +190,20 @@ class compras_agrupar_albaranes extends fs_controller
       $factura->codpago = $albaranes[0]->codpago;
       $factura->codserie = $albaranes[0]->codserie;
       $factura->irpf = $albaranes[0]->irpf;
-      $factura->numproveedor = $albaranes[0]->numproveedor;
+      $factura->numproveedor = $_POST['numfactproveedor'];
+	  $factura->tipo = $_POST['comprobante'];
       $factura->observaciones = $albaranes[0]->observaciones;
       
       /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
       $formapago = $this->forma_pago->get($factura->codpago);
-      if($formapago)
+/*      if($formapago)
       {
          if($formapago->genrecibos == 'Pagados')
          {
             $factura->pagada = TRUE;
          }
       }
-      
+*/      
       /// obtenemos los datos actualizados del proveedor
       $proveedor = $this->proveedor->get($albaranes[0]->codproveedor);
       if($proveedor)
@@ -206,6 +211,8 @@ class compras_agrupar_albaranes extends fs_controller
          $factura->cifnif = $proveedor->cifnif;
          $factura->codproveedor = $proveedor->codproveedor;
          $factura->nombre = $proveedor->razonsocial;
+		 $factura->cai = $proveedor->cai;
+	     $factura->caivence = $proveedor->caivence;
       }
       
       /// calculamos neto e iva
@@ -266,6 +273,9 @@ class compras_agrupar_albaranes extends fs_controller
                $n->pvpunitario = $l->pvpunitario;
                $n->recargo = $l->recargo;
                $n->referencia = $l->referencia;
+			   $n->codsubcuenta = $l->codsubcuenta;
+			   $n->idsubcuenta = $l->idsubcuenta;
+			   $n->subcuentadesc = $l->subcuentadesc;
                
                if( !$n->save() )
                {
@@ -293,7 +303,7 @@ class compras_agrupar_albaranes extends fs_controller
             
             if( $continuar )
             {
-               $this->generar_asiento($factura);
+ //              $this->generar_asiento($factura);
             }
             else
             {

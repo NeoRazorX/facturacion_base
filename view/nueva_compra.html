@@ -73,8 +73,8 @@
 				{
 				alert("Falta completar el campo de SubCuenta o el Total de un Ítem es 0.00");
 				aler =1;
-				}												
-				if( document.getElementById('atotal').value <= 0)
+				}											
+				if( document.getElementById('atotal').value <= 0.00 || document.getElementById('atotal').value == 'NaN' )
 				{
 				alert("El Total de la Factura no puede ser 0.00");
 				aler = 1;
@@ -106,7 +106,7 @@
 							aler = 1;
 							}
 						 
-							if( document.getElementById('total_'+i).value <= 0)
+							if( document.getElementById('total_'+i).value <= 0 || document.getElementById('atotal').value == 'NaN' )
 							{
 							alert("El Total de una linea no puede ser 0.00");
 							aler = 1;
@@ -121,6 +121,16 @@
 	}
 	}
 	
+		$(function() {		
+						$('.calendario').datepicker({
+						format: "dd-mm-yyyy",
+						autoclose: true,
+							}).on('changeDate', function (ev) {
+								$(this).datepicker('hide');
+							});
+					});
+
+
 
 </script>
 
@@ -172,7 +182,8 @@
 				  {if="substr($fsc->numproveedor, 0,1)=='B'"}<label style="font:bold;font-size:18px">FACTURA B :</label>{/if}
 				  {if="substr($fsc->numproveedor, 0,1)=='F'"}<label style="font:bold;font-size:18px">FACTURA C :</label>{/if}
 				  {if="substr($fsc->numproveedor, 0,1)=='R'"}<label style="font:bold;font-size:18px">REMITO :</label>{/if}
-				  {if="substr($fsc->numproveedor, 0,1)=='T'"}<label style="font:bold;font-size:18px">TICKET :</label>{/if}
+				  {if="substr($fsc->numproveedor, 0,1)=='T'"}<label style="font:bold;font-size:18px">TICKET FACTURA :</label>{/if}
+				  {if="substr($fsc->numproveedor, 0,1)=='Q'"}<label style="font:bold;font-size:18px">TICKET CRÉDITO :</label>{/if}
 				  {if="substr($fsc->numproveedor, 0,1)=='C'"}<label style="font:bold; font-size:18px">NOTA DE CRÉDITO :</label>{/if}
 				  {if="substr($fsc->numproveedor, 0,1)=='D'"}<label style="font:bold;font-size:18px">NOTA DE DÉBITO :</label>{/if}		
 				  {$tipcompr=substr($fsc->numproveedor, 0,1)}
@@ -184,7 +195,7 @@
          <div class="col-sm-2">
             <div class="form-group" style="font:bold;font-size:18px">
                Fecha:
-               <input type="text" name="fecha" class="form-control input-sm  datepicker" value="{$fsc->today()}" autocomplete="off"/>
+               <input type="text" name="fecha" class="form-control calendario"  data-date-format="dd-mm-yyyy" value="{$fsc->today()}" autocomplete="off"/>
 			</div>
 		</div>
         <div class="col-sm-2">
@@ -202,7 +213,7 @@
 					</div></div>
 					<div class="col-sm-3">
 					  <div class="form-group" style="font:bold;font-size:12px">
-					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control input-sm datepicker" style="width:100px" {if="strtotime($fsc->caivence) >strtotime('01-01-2000')"}  value="{$fsc->caivence}" {else} value=""  {/if}    />
+					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control calendario"  data-date-format="dd-mm-yyyy" style="width:150px" {if="strtotime($fsc->caivence) >strtotime('01-01-2000')"}  value="{$fsc->caivence}" {else} value=""  {/if}    />
 					</div></div>
 					{else}
 					<input type="hidden" name="cai" value="{$fsc->cai}"/>
@@ -418,8 +429,11 @@
 			   <div class="form-group">
 			   	  {$a=substr($fsc->numproveedor, 0,1)}
 			   	  {$compr=substr($fsc->numproveedor, 2)}
-				  {if="substr($fsc->numproveedor, 0,1)=='F'"}<label style="font:bold;font-size:18px">FACTURA :</label>{/if}
+				  {if="substr($fsc->numproveedor, 0,1)=='B'"}<label style="font:bold;font-size:18px">FACTURA B:</label>{/if}
+				  {if="substr($fsc->numproveedor, 0,1)=='F'"}<label style="font:bold;font-size:18px">FACTURA C:</label>{/if}			  
 				  {if="substr($fsc->numproveedor, 0,1)=='R'"}<label style="font:bold;font-size:18px">REMITO :</label>{/if}
+				  {if="substr($fsc->numproveedor, 0,1)=='T'"}<label style="font:bold;font-size:18px">TICKET FACTURA :</label>{/if}
+				  {if="substr($fsc->numproveedor, 0,1)=='Q'"}<label style="font:bold;font-size:18px">TICKET CRÉDITO :</label>{/if}				  
 				  {if="substr($fsc->numproveedor, 0,1)=='C'"}<label style="font:bold; font-size:18px">NOTA DE CRÉDITO :</label>{/if}
 				  {if="substr($fsc->numproveedor, 0,1)=='D'"}<label style="font:bold;font-size:18px">NOTA DE DÉBITO :</label>{/if}
 				   <input type="hidden" name="tipo" value="{$a}"/>
@@ -684,8 +698,8 @@
    {
 
  var existefact = 0;
- 
- if(document.getElementById('comprobante').value == 'B' || document.getElementById('comprobante').value == 'F' || document.getElementById('comprobante').value == 'C' || document.getElementById('comprobante').value == 'D' || document.getElementById('comprobante').value == 'T'  )
+
+ if( '{$fsc->tipo}'== 'factura'  )
  {
 		 {loop="$fsc->verif_factura"};
 		 if( document.getElementById('ac_proveedor').value == '{$value->nombre}')
@@ -784,16 +798,17 @@
 						<select name="comprobante" id="comprobante" class="form-control" style="width:auto" disabled="disabled" >
 							<option value="B" selected="selected">FACTURA B</option>
 						   <option value="F" >FACTURA C</option>
-						   <option value="T" >TICKET</option>
+						   <option value="T" >TICKET FACTURA</option>
+						   <option value="Q" >TICKET CRÉDITO</option>
 						   <option value="C" >NOTA DE CRÉDITO</option>
 						   <option value="D" >NOTA DE DÉBITO</option>
 						</select>
 					{else} 
-												<select name="comprobante" id="comprobante" class="form-control" style="width:auto" disabled="disabled" >
+						<select name="comprobante" id="comprobante" class="form-control" style="width:auto" disabled="disabled" >
 						   <option value="R" selected="selected">Remito</option>
 						   <option value="B" >Factura B</option>
 						   <option value="F" >Factura C</option>
-						   <option value="T" >Ticket</option>
+						   <option value="T" >Ticket Factura</option>						   
 						</select>
 					{/if}	
 						</td>

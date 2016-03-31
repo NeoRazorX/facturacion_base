@@ -78,6 +78,17 @@
          document.f_nueva_direccion.provincia.focus();
       });
    });
+   
+   		$(function() {		
+						$('.calendario').datepicker({
+						format: "dd-mm-yyyy",
+						autoclose: true,
+							}).on('changeDate', function (ev) {
+								$(this).datepicker('hide');
+							});
+					});
+   
+   
 </script>
 
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
@@ -216,7 +227,7 @@
 						<div class="col-sm-2">
                            <div class="form-group">
                               CAI vencimiento:
-                              <input class="form-control input-sm datepicker" type="text" name="caivence" {if="strtotime($fsc->proveedor->caivence) > strtotime('01-01-2000')"}  value="{$fsc->proveedor->caivence}"{else}value="" {/if} autocomplete="off"/>
+                              <input class="form-control calendario"  data-date-format="dd-mm-yyyy" type="text" name="caivence" {if="strtotime($fsc->proveedor->caivence) > strtotime('01-01-2000')"}  value="{$fsc->proveedor->caivence}"{else}value="" {/if} autocomplete="off"/>
                            </div>
                         </div>
                         <div class="col-sm-3">

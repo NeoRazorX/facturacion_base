@@ -303,8 +303,8 @@ function aux_all_impuestos(num,codimpuesto)
    
    
 
- var  html = "<td class=\"irpf\"><input type=\"text\" class=\"form-control text-right\" id=\"irpf_"+num+"\" name=\"irpf_"+num+
-         "\" value=\""+irpf+"\"  autocomplete=\"off\"/></td>";
+ var  html = "<input type=\"hidden\" class=\"form-control text-right\" id=\"irpf_"+num+"\" name=\"irpf_"+num+
+         "\" value=\""+irpf+"\"  autocomplete=\"off\"/>";
    
    return html;
 }
@@ -415,7 +415,7 @@ var html='';
 if(document.f_new_albaran)
 {
 	
-		if(document.f_new_albaran.tipo_com.value =='B' || document.f_new_albaran.tipo_com.value =='F' || document.f_new_albaran.tipo_com.value =='T' || document.f_new_albaran.tipo_com.value =='D' || document.f_new_albaran.tipo_com.value == 'C' )
+		if(document.f_new_albaran.tipo_com.value =='B' || document.f_new_albaran.tipo_com.value =='F' || document.f_new_albaran.tipo_com.value =='T' || document.f_new_albaran.tipo_com.value =='Q' || document.f_new_albaran.tipo_com.value =='D' || document.f_new_albaran.tipo_com.value == 'C' )
 		{
 			
 				
@@ -464,7 +464,7 @@ else
 	if(document.f_factura)
 	{
 		
-				if(document.f_factura.tipo_com.value =='B' || document.f_factura.tipo_com.value =='F' || document.f_factura.tipo_com.value =='T' || document.f_factura.tipo_com.value =='D' || document.f_factura.tipo_com.value == 'C' )
+				if(document.f_factura.tipo_com.value =='B' || document.f_factura.tipo_com.value =='F' || document.f_factura.tipo_com.value =='T' || document.f_factura.tipo_com.value =='Q' || document.f_factura.tipo_com.value =='D' || document.f_factura.tipo_com.value == 'C' )
 		{
 			
 				
@@ -514,7 +514,7 @@ else
 
 if(document.f_albaran)
 	{
-					if(document.f_albaran.tipo_com.value =='B' || document.f_albaran.tipo_com.value =='F' || document.f_albaran.tipo_com.value =='T' || document.f_albaran.tipo_com.value =='R'  )
+					if(document.f_albaran.tipo_com.value =='B' || document.f_albaran.tipo_com.value =='F' || document.f_albaran.tipo_com.value =='T' || document.f_albaran.tipo_com.value =='Q' || document.f_albaran.tipo_com.value =='R'  )
 		{
 		
 						for(var i=0; i<subcuentas.length; i++)
@@ -547,7 +547,7 @@ var html='';
 if(document.f_new_albaran)
 {
 
-		if(document.f_new_albaran.tipo_com.value =='B' || document.f_new_albaran.tipo_com.value =='F' || document.f_new_albaran.tipo_com.value =='T' || document.f_new_albaran.tipo_com.value =='C' || document.f_new_albaran.tipo_com.value =='D')
+		if(document.f_new_albaran.tipo_com.value =='B' || document.f_new_albaran.tipo_com.value =='F' || document.f_new_albaran.tipo_com.value =='T' || document.f_new_albaran.tipo_com.value =='Q' || document.f_new_albaran.tipo_com.value =='C' || document.f_new_albaran.tipo_com.value =='D')
 		{
 			
 			   for(var i=0; i<subcuentas.length; i++)
@@ -571,7 +571,7 @@ else
 {
 	if(document.f_factura)
 	{
-		if(document.f_factura.tipo_com.value =='B' || document.f_factura.tipo_com.value =='F' || document.f_factura.tipo_com.value =='T' || document.f_factura.tipo_com.value =='T' || document.f_factura.tipo_com.value =='D' || document.f_factura.tipo_com.value == 'C' )
+		if(document.f_factura.tipo_com.value =='B' || document.f_factura.tipo_com.value =='F' || document.f_factura.tipo_com.value =='T' || document.f_factura.tipo_com.value =='Q'  || document.f_factura.tipo_com.value =='T' || document.f_factura.tipo_com.value =='D' || document.f_factura.tipo_com.value == 'C' )
 		{
 			
 				for(var i=0; i<subcuentas.length; i++)
@@ -594,7 +594,7 @@ else
 
 if(document.f_albaran)
 	{
-					if(document.f_albaran.tipo_com.value =='B' || document.f_albaran.tipo_com.value =='F' || document.f_albaran.tipo_com.value =='T' || document.f_albaran.tipo_com.value =='R'  )
+					if(document.f_albaran.tipo_com.value =='B' || document.f_albaran.tipo_com.value =='F' || document.f_albaran.tipo_com.value =='T' || document.f_albaran.tipo_com.value =='Q' || document.f_albaran.tipo_com.value =='R'  )
 				{
 					for(var i=0; i<subcuentas.length; i++)
 			   		{

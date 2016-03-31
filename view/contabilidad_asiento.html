@@ -149,11 +149,11 @@
          }
       }
       
-      document.f_asiento.importe.value = Math.max(t_debe, t_haber);
+      document.f_asiento.importe.value = Math.max(t_debe, t_haber).toFixed(2);
       document.f_asiento.descuadre.value = fs_round(t_debe - t_haber, {#FS_NF0#});
-	  document.f_asiento.total_debe.value = t_debe;
-	  document.f_asiento.total_haber.value = t_haber;
-	  document.f_asiento.total_saldo.value = t_debe - t_haber;
+	  document.f_asiento.total_debe.value = t_debe.toFixed(2);
+	  document.f_asiento.total_haber.value = t_haber.toFixed(2);
+	  document.f_asiento.total_saldo.value = t_debe.toFixed(2) - t_haber.toFixed(2);
       
       if(show_contrapartidas)
       {
@@ -192,6 +192,18 @@
             alert('¡Asiento descuadrado!');
       });
    });
+   
+   
+   		$(function() {		
+						$('.calendario').datepicker({
+						format: "dd-mm-yyyy",
+						autoclose: true,
+							}).on('changeDate', function (ev) {
+								$(this).datepicker('hide');
+							});
+					});
+   
+   
 </script>
 
 {if="$fsc->asiento->editable"}
@@ -239,7 +251,7 @@
          <div class="col-sm-2">
             <div class="form-group">
                Fecha:
-               <input class="form-control datepicker" name="fecha" type="text" value="{$fsc->asiento->fecha}"/>
+               <input class="form-control calendario"  data-date-format="dd-mm-yyyy"  name="fecha" type="text" value="{$fsc->asiento->fecha}"/>
             </div>
          </div>
 		 <div class="col-sm-2">
@@ -316,11 +328,11 @@
                </td>
                <td><input class='form-control' type='text' id='desc_{$counter+1}' name='desc_{$counter+1}' value='{$value->desc_subcuenta}' disabled='disabled'/></td>
                <td>
-                  <input class='form-control text-right' type='text' id='debe_{$counter+1}' name='debe_{$counter+1}' value='{$fsc->show_precio($value->debe)}'
+                  <input class='form-control text-right' type='text' id='debe_{$counter+1}' name='debe_{$counter+1}' value='{$fsc->show_numero($value->debe)}'
                          onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>
                </td>
                <td>
-                  <input class='form-control text-right' type='text' id='haber_{$counter+1}' name='haber_{$counter+1}' value='{$fsc->show_precio($value->haber)}'
+                  <input class='form-control text-right' type='text' id='haber_{$counter+1}' name='haber_{$counter+1}' value='{$fsc->show_numero($value->haber)}'
                          onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>
                </td>
  			   <td>
@@ -567,7 +579,7 @@
                <th>Nombre</th>
                <th>Documento</th>
 			   <th>Número</th>
-               <th class="text-right">Importe</th>
+               <th class="text-left">Importe</th>
             </tr>
       </thead>
 	   {loop="$fsc->resultados1"}
@@ -575,24 +587,35 @@
       <tr>
 	   <td><a href="{$fsc->asiento->ejercicio_url()}">{$value->codejercicio}</a></td>
          <td>{$value->fecha}</td>
-         <td>{if="$value->nombre!=NULL"}
+		 {if="$value->nombre!=NULL"}
+         <td>
 		 		{$value->nombre}
-			 {else}
-			 	{$value->nombrecliente}
-			{/if}	
-		 </td>
-		 		
+		</td>		
 				  {if="substr($value->numproveedor, 0,1)=='B'"}<td>FACTURA B :</td>{/if}
 				  {if="substr($value->numproveedor, 0,1)=='F'"}<td>FACTURA C :</td>{/if}
 				  {if="substr($value->numproveedor, 0,1)=='R'"}<td>REMITO :</td>{/if}
-				  {if="substr($value->numproveedor, 0,1)=='T'"}<td>TICKET :</td>{/if}
+				  {if="substr($value->numproveedor, 0,1)=='T'"}<td>TICKET FACTURA:</td>{/if}
+				  {if="substr($value->numproveedor, 0,1)=='Q'"}<td>TICKET CRÉDITO:</td>{/if}
 				  {if="substr($value->numproveedor, 0,1)=='C'"}<td>NOTA DE CRÉDITO :</td>{/if}
-				  {if="substr($value->numproveedor, 0,1)=='D'"}<td>NOTA DE DÉBITO :</td>{/if}		
+				  {if="substr($value->numproveedor, 0,1)=='D'"}<td>NOTA DE DÉBITO :</td>{/if}
+		 <td>{$numcompr=substr($value->numproveedor, 2)}{$numcompr} </td>
+         <td class="text-left">{$fsc->show_precio($value->total)}</td>	  
+				
+			 {else}
+			<td> 	{$value->nombrecliente} </td>
+			 <td></td>
+			 <td>{$value->numero2} </td>
+			
+			 <td class="text-left">{$fsc->show_precio($value->total)}</td>	
+				
+			{/if}	
+		 
+		 		
+		
 				 
 				  
 		 
-         <td>{$numcompr=substr($value->numproveedor, 2)}{$numcompr} </td>
-         <td class="text-right">{$fsc->show_precio($value->total)}</td>
+
       </tr>
 	  {/loop}
    </table>

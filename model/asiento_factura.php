@@ -399,7 +399,7 @@ class asiento_factura
             }
 
 		   
-		     $subcuenta_compras = $subcuenta->get_cuentaesp('COMPRA',$asiento->codejercicio);
+		     $subcuenta_compras = $subcuenta->get_cuentaesp('CAJA',$asiento->codejercicio);
  
             if($subcuenta_compras AND $asiento_correcto)
             {
@@ -641,6 +641,247 @@ class asiento_factura
                }
             }
             
+            /// ¿IRPF?
+            if($factura->totalirpf != 0 AND $asiento_correcto)
+            {
+               $subcuenta_irpf = $subcuenta->get_cuentaesp('IRPFPR', $asiento->codejercicio);
+               if($subcuenta_irpf)
+               {
+                  $partida3 = new partida();
+                  $partida3->idasiento = $asiento->idasiento;
+                  $partida3->concepto = $asiento->concepto;
+                  $partida3->idsubcuenta = $subcuenta_irpf->idsubcuenta;
+                  $partida3->codsubcuenta = $subcuenta_irpf->codsubcuenta;
+                  $partida3->haber = $factura->totalirpf;
+                  $partida3->coddivisa = $factura->coddivisa;
+                  $partida3->tasaconv = $factura->tasaconv;
+                  $partida3->codserie = $factura->codserie;
+                  if( !$partida3->save() )
+                  {
+                     $asiento_correcto = FALSE;
+                     $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida3->codsubcuenta."!");
+                  }
+               }
+            }
+            
+            if($asiento_correcto)
+            {
+               $factura->idasiento = $asiento->idasiento;
+               if( $factura->save() )
+               {
+                  $ok = TRUE;
+                  $this->asiento = $asiento;
+               }
+               else
+                  $this->new_error_msg("¡Imposible añadir el asiento a la factura!");
+            }
+            else
+            {
+               if( $asiento->delete() )
+               {
+                  $this->new_message("El asiento se ha borrado.");
+               }
+               else
+                  $this->new_error_msg("¡Imposible borrar el asiento!");
+            }
+			
+			
+			
+			
+         }
+      }
+      
+      return $ok;
+   }
+   
+     /**
+    * Genera el asiento contable para una factura de CRÉDITO de compra.
+    * Devuelve TRUE si el asiento se ha generado correctamente, False en caso contrario.
+    * Si genera el asiento, este es accesible desde $this->asiento.
+    * @param type $factura
+    */
+   public function generar_asiento_compra_credito(&$factura)
+   {
+      $ok = FALSE;
+      $this->asiento = FALSE;
+      $proveedor0 = new proveedor();
+      $subcuenta_prov = FALSE;
+      
+      $proveedor = $proveedor0->get($factura->codproveedor);
+      if($proveedor)
+      {
+	  /// Obtengo subcuenta proveedor
+         $subcuenta_prov = $proveedor->get_subcuenta($factura->codejercicio);
+      }
+      
+      if( !$subcuenta_prov )
+      {
+         $eje0 = $this->ejercicio->get( $factura->codejercicio );
+         $this->new_message("No se ha podido generar una subcuenta para el proveedor
+            <a href='".$eje0->url()."'>¿Has importado los datos del ejercicio?</a>");
+         
+         if(!$this->soloasiento)
+         {
+            $this->new_message("Aun así la <a href='".$factura->url()."'>factura</a> se ha generado correctamente,
+            pero sin asiento contable.");
+         }
+      }
+      else
+      {
+         $asiento = new asiento();
+         $asiento->codejercicio = $factura->codejercicio;
+         $asiento->concepto = "Factura de compra ".$factura->codigo." - ".$factura->nombre;
+         $asiento->documento = $factura->codigo;
+         $asiento->editable = TRUE;
+         $asiento->fecha = $factura->fecha;
+         $asiento->importe = $factura->total;
+         $asiento->tipodocumento = "Ingreso proveedor";
+
+		 
+         if( $asiento->save() ) // Genera el asiento
+         {
+			 $asiento_correcto = TRUE;
+			 $subcuenta = new subcuenta();
+		 	/////// Acá se genera la partida con cada subcuenta	
+			$subcuenta_compras = $subcuenta->get_cuentaesp('COMPRA', $asiento->codejercicio);
+            
+////////////////////////////////////////////////////////////////////////////////////////
+            if($subcuenta_compras AND $asiento_correcto)
+            {
+               $partida2 = new partida();
+               $partida2->idasiento = $asiento->idasiento;
+               $partida2->concepto = $asiento->concepto;
+			   $partida2->idsubcuenta = $subcuenta_prov->idsubcuenta;
+               $partida2->codsubcuenta = $subcuenta_prov->codsubcuenta;
+///////// Proveedor compra debe  ////////////////////////			   
+               $partida2->debe = $factura->neto;
+               $partida2->coddivisa = $factura->coddivisa;
+               $partida2->tasaconv = $factura->tasaconv;
+               $partida2->codserie = $factura->codserie;
+               if( !$partida2->save() )
+               {
+                  $asiento_correcto = FALSE;
+                  $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida2->codsubcuenta."!");
+               }
+            }
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////            
+
+            
+            /// generamos una partida por cada impuesto
+            $subcuenta_iva = $subcuenta->get_cuentaesp('IVASOP', $asiento->codejercicio);
+            foreach($factura->get_lineas_iva() as $li)
+            {
+               if($subcuenta_iva AND $asiento_correcto)
+               {
+                  $partida1 = new partida();
+                  $partida1->idasiento = $asiento->idasiento;
+                  $partida1->concepto = $asiento->concepto;
+                  $partida1->idsubcuenta = $subcuenta_iva->idsubcuenta;
+                  $partida1->codsubcuenta = $subcuenta_iva->codsubcuenta;
+                  $partida1->debe = $li->totaliva;
+                  $partida1->idcontrapartida = $subcuenta_prov->idsubcuenta;
+                  $partida1->codcontrapartida = $subcuenta_prov->codsubcuenta;
+                  $partida1->cifnif = $proveedor->cifnif;
+                  $partida1->documento = $asiento->documento;
+                  $partida1->tipodocumento = $asiento->tipodocumento;
+                  $partida1->codserie = $factura->codserie;
+                  $partida1->factura = $factura->numero;
+                  $partida1->baseimponible = $li->neto;
+                  $partida1->iva = $li->iva;
+                  $partida1->coddivisa = $factura->coddivisa;
+                  $partida1->tasaconv = $factura->tasaconv;
+                  if( !$partida1->save() )
+                  {
+                     $asiento_correcto = FALSE;
+                     $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida1->codsubcuenta."!");
+                  }
+                  
+                  if($li->recargo != 0)
+                  {
+                     $partida11 = new partida();
+                     $partida11->idasiento = $asiento->idasiento;
+                     $partida11->concepto = $asiento->concepto;
+                     $partida11->idsubcuenta = $subcuenta_iva->idsubcuenta;
+                     $partida11->codsubcuenta = $subcuenta_iva->codsubcuenta;
+                     $partida11->debe = $li->totalrecargo;
+                     $partida11->idcontrapartida = $subcuenta_prov->idsubcuenta;
+                     $partida11->codcontrapartida = $subcuenta_prov->codsubcuenta;
+                     $partida11->cifnif = $proveedor->cifnif;
+                     $partida11->documento = $asiento->documento;
+                     $partida11->tipodocumento = $asiento->tipodocumento;
+                     $partida11->codserie = $factura->codserie;
+                     $partida11->factura = $factura->numero;
+                     $partida11->baseimponible = $li->neto;
+                     $partida11->recargo = $li->recargo;
+                     $partida11->coddivisa = $factura->coddivisa;
+                     $partida11->tasaconv = $factura->tasaconv;
+                     if( !$partida11->save() )
+                     {
+                        $asiento_correcto = FALSE;
+                        $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida11->codsubcuenta."!");
+                     }
+                  }
+               }
+            }
+            
+/////////////////////////////////////////////////////////////////////////////////////  
+			
+	//////////////////////////////////////////////////////////
+	///  Separa las subcuentas de las facturas y crea los asientos
+	//////////////////////////////////////////////////////////	
+			$partida0 = new partida();
+			$lineas_f = new linea_factura_proveedor();
+			$lineas_fact = $lineas_f->all_from_factura($factura->idfactura);
+			for ($i=0;$i<count($lineas_fact);$i++)   ///Barre la Factura
+			{
+			$total_sub = 0;
+			$finaliza = 0;
+				$subcuenta1 = $lineas_fact[$i]->codsubcuenta; 
+				$idsubcuen = $lineas_fact[$i]->idsubcuenta; 
+
+				for ($j=0;$j<$i;$j++)    /// Compara para atrás si ya fue comparada la subcuenta
+				{
+					if($subcuenta1 == $lineas_fact[$j]->codsubcuenta) $finaliza = 1;
+				}				
+					if( $finaliza == 0 )
+					{
+						for ($k=0;$k<count($lineas_fact);$k++)  /// Barre hacia delante para comparar las subcuentas
+						{
+							if($subcuenta1 == $lineas_fact[$k]->codsubcuenta)
+							{
+							$total_sub = $total_sub + $lineas_fact[$k]->pvptotal;								
+							}				
+						}
+						
+
+		
+									
+							$partida0->idasiento = $asiento->idasiento;
+							$partida0->concepto = $asiento->concepto;
+							$partida0->idsubcuenta = $idsubcuen;
+							$partida0->codsubcuenta = $subcuenta1;
+				///////////  Proveedor  haber			/////////
+							$partida0->haber = $total_sub;
+							$partida0->coddivisa = $factura->coddivisa;
+							$partida0->tasaconv = $factura->tasaconv;
+							$partida0->codserie = $factura->codserie;
+							if( !$partida0->save() )
+							{
+							   $asiento_correcto = FALSE;
+							   $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida0->codsubcuenta."!");
+							}
+			
+					}																
+			}
+/////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////				
+
+
+////////////////////////////////////////////////////////////////////////////////////////////            
             /// ¿IRPF?
             if($factura->totalirpf != 0 AND $asiento_correcto)
             {
