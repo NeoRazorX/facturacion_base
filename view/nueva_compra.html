@@ -45,7 +45,7 @@
 					   {
 					    if( document.getElementById('subcuenta_'+i))
 							{
-					   			if( document.getElementById('subcuenta_'+i).value == 'null/%' || document.getElementById('total_'+i).value == 0 || document.getElementById('subcuenta_'+i).value == '0/%'  ){ ban = 1;}
+					   			if( document.getElementById('subcuenta_'+i).value == 'null/%' || document.getElementById('total_'+i).value == 0 || document.getElementById('subcuenta_'+i).value == '0/%' || document.getElementById('subcuenta_'+i).value == '/%'   || document.getElementById('subcuenta_'+i).value == '/%0'  ){ ban = 1;}
 							}							
 					   }				
 				if(ban == 1 ) 
@@ -432,7 +432,7 @@
                <div class="checkbox">
                   <label>
                      <input type="checkbox" name="costemedio" value="TRUE"{if="FS_COST_IS_AVERAGE"} checked="checked"{/if}/>
-                     Actualizar precio de coste de los artículos
+                     Actualizar precio de costo de los artículos
                   </label>
                </div>
                {/if}

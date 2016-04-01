@@ -325,7 +325,8 @@ class compras_albaran extends fs_controller
                         $lineas[$k]->descripcion = $_POST['desc_'.$num];
 						
 						
-						
+						if( isset($_POST['subcuenta_'.$num]) )
+               			{
 							  $postot = strlen($_POST['subcuenta_'.$num]);				  
 							  $poscad = strpos($_POST['subcuenta_'.$num], '/');
 							  $posid = strpos($_POST['subcuenta_'.$num], '%');				  				  
@@ -335,7 +336,7 @@ class compras_albaran extends fs_controller
 							  $lineas[$k]->codsubcuenta = $subcuencod;
 							  $lineas[$k]->idsubcuenta = $idsubcuen;
 							  $lineas[$k]->subcuentadesc = $subcuendes;
-					
+						}
 						
                         $lineas[$k]->codimpuesto = NULL;
                         $lineas[$k]->iva = 0;

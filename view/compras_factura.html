@@ -97,7 +97,7 @@
 							   }
 								if( document.getElementById('subcuenta_'+i))
 									{
-									if(  document.getElementById('subcuenta_'+i).value == 'null/%' || document.getElementById('subcuenta_'+i).value == '0/%'  ){ ban = 1;}
+									if(  document.getElementById('subcuenta_'+i).value == 'null/%' || document.getElementById('total_'+i).value == 0  ||  document.getElementById('subcuenta_'+i).value == '0/%' || document.getElementById('subcuenta_'+i).value == '/%'  || document.getElementById('subcuenta_'+i).value == '/%0'   ){ ban = 1;}
 									}
 							}									
 					   }				
@@ -338,7 +338,7 @@
 							 <select name="subcuenta_{$counter}" id="subcuenta_{$counter}" class="form-control text-right" style='width:200px; font-size:12px'>
 							 <option value='{$value->codsubcuenta}/{$value->subcuentadesc}%{$value->idsubcuenta}' selected="selected" >{$value->subcuentadesc}</option>
 							 {loop="$fsc->list_subcuen"}
-							 <option value='{$value->codcuenta}' >{$value->descripcion}</option>
+							 <option value='{$value->codcuenta}/{$value->descripcion}%{$value->idsubcuenta}' >{$value->descripcion}</option>
 							 {/loop}
 								</select>
 						</td>

@@ -246,7 +246,7 @@
 					</div></div>
 					<div class="col-sm-3">
 					  <div class="form-group" style="font:bold;font-size:12px">
-					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control datepicker" style="width:100px" {if="$fsc->albaran->caivence>'01-01-2000'"}  value="{$fsc->albaran->caivence}" {/if}    />
+					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control datepicker" style="width:100px" {if="$fsc->albaran->caivence >'01-01-2000'"}  value="{$fsc->albaran->caivence}"{else}value="" {/if}    />
 					</div></div>
 					{else}
 					<input type="hidden" name="cai" value="{$fsc->albaran->cai}"/>
@@ -837,18 +837,24 @@
 						<input id="numlargo" name="numlargo" class="form-control" style="width:auto" type="text" autocomplete="on" maxlength="8"  onblur="rellenar(this,this.value,8)" onClick="this.setSelectionRange(0, this.value.length)" />
 						</td>
                       {else}
-					   <td>
-					<input type="text"  class="form-control" style="width:auto" value="{$comp_doc}" readonly="true" >
-					<input type="hidden"  name="comprobante" id="comprobante"  value="{$doc_letra}" />
+					<td>
+					<select name="comprobante" id="comprobante" class="form-control" style="width:auto"  >
+						   <option value="{$doc_letra}" selected="selected">{$comp_doc}</option>
+						   <option value="B" >FACTURA B</option>
+						   <option value="F" >FACTURA C</option>
+						   <option value="T" >TICKET</option>
+						   <option value="C" >NOTA DE CRÉDITO</option>
+						   <option value="D" >NOTA DE DÉBITO</option>
+						</select>	
 						</td>
 						<td>
-						<input id="numcorto" name="numcorto" class="form-control" style="width:60px" type="text" readonly="true" value="{$numcompr_corto}"  />
+						<input id="numcorto" name="numcorto" class="form-control" style="width:60px" type="text" autocomplete="on" maxlength="4" onblur="rellenar(this,this.value,4)" onClick="this.setSelectionRange(0, this.value.length)" value="{$numcompr_corto}" />
 						</td>
 						
 						<td>
-						<input id="numlargo" name="numlargo" class="form-control" style="width:auto" type="text" readonly="true" value="{$numcompr_largo}"  />
+						<input id="numlargo" name="numlargo" class="form-control" style="width:auto" type="text" autocomplete="on" maxlength="8"  onblur="rellenar(this,this.value,8)" onClick="this.setSelectionRange(0, this.value.length)"  value="{$numcompr_largo}" />
 						</td>
-					  {/if}
+				  {/if}
 					  
                      </tr>
                   </tbody>
