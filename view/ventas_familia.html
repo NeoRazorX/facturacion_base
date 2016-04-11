@@ -7,7 +7,7 @@
          event.preventDefault();
          if( confirm("¿Estas seguro de que deseas eliminar esta familia?") )
          {
-            window.location.href = "index.php?page=ventas_familias&delete={$fsc->familia->codfamilia}";
+            window.location.href = 'index.php?page=ventas_familias&delete={function="urlencode($fsc->familia->codfamilia)"}';
          }
       });
    });
@@ -23,11 +23,11 @@
             </a>
             {if="$fsc->madre"}
             <a class="btn btn-sm btn-default" href="{$fsc->madre->url()}" title="{$fsc->madre->descripcion}">
-               <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Madre
+               <span class="glyphicon glyphicon-arrow-left"></span>&nbsp; Madre
             </a>
             {else}
             <a class="btn btn-sm btn-default" href="index.php?page=ventas_familias">
-               <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Familias
+               <span class="glyphicon glyphicon-arrow-left"></span>&nbsp; Familias
             </a>
             {/if}
             <div class="btn-group">

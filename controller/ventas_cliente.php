@@ -199,6 +199,7 @@ class ventas_cliente extends fs_controller
          if( $this->cliente->save() )
          {
             $this->new_message("Datos del cliente modificados correctamente.");
+            $this->propagar_cifnif();
          }
          else
             $this->new_error_msg("¡Imposible modificar los datos del cliente!");
@@ -338,5 +339,28 @@ class ventas_cliente extends fs_controller
       }
       
       return $tiene;
+   }
+   
+   /**
+    * Asigna el cif/nif a todos los albaranes y facturas del cliente que no tengan cif/nif
+    */
+   private function propagar_cifnif()
+   {
+      if($this->cliente->cifnif)
+      {
+         /// actualizamos albaranes
+         $sql = "UPDATE albaranescli SET cifnif = ".$this->cliente->var2str($this->cliente->cifnif)
+                 ." WHERE codcliente = ".$this->cliente->var2str($this->cliente->codcliente)
+                 ." AND cifnif = '';";
+         $this->db->exec($sql);
+         
+         /// actualizamos facturas
+         $sql = "UPDATE facturascli SET cifnif = ".$this->cliente->var2str($this->cliente->cifnif)
+                 ." WHERE codcliente = ".$this->cliente->var2str($this->cliente->codcliente)
+                 ." AND cifnif = '';";
+         $this->db->exec($sql);
+         
+         $this->new_message('Se ha asignado este '.FS_CIFNIF.' a todos los '.FS_ALBARANES.' y facturas sin '.FS_CIFNIF);
+      }
    }
 }

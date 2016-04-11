@@ -70,7 +70,7 @@ class familia extends fs_model
          return "index.php?page=ventas_familias";
       }
       else
-         return "index.php?page=ventas_familia&cod=".$this->codfamilia;
+         return "index.php?page=ventas_familia&cod=".urlencode($this->codfamilia);
    }
    
    public function descripcion($len = 12)

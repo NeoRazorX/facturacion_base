@@ -157,6 +157,20 @@
                      </select>
                   </div>
                </div>
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="checkbox-inline">
+                        <label>
+                           {if="$fsc->nocifnif"}
+                           <input type="checkbox" name="nocifnif" value="TRUE" checked="" onchange="this.form.submit()"/>
+                           {else}
+                           <input type="checkbox" name="nocifnif" value="TRUE" onchange="this.form.submit()"/>
+                           {/if}
+                           sin {#FS_CIFNIF#}
+                        </label>
+                     </div>
+                  </div>
+               </div>
             </div>
          </form>
          

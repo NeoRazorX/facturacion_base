@@ -1116,6 +1116,16 @@ class articulo extends fs_model
       }
    }
    
+   /**
+    * Devuelve un array con los artículos encontrados en base a la búsqueda.
+    * @param type $query
+    * @param type $offset
+    * @param type $codfamilia
+    * @param type $con_stock
+    * @param type $codfabricante
+    * @param type $bloqueados
+    * @return \articulo
+    */
    public function search($query='', $offset=0, $codfamilia='', $con_stock=FALSE, $codfabricante='', $bloqueados=FALSE)
    {
       $artilist = array();
@@ -1171,15 +1181,46 @@ class articulo extends fs_model
          else if( is_numeric($query) )
          {
             $sql .= $separador." (referencia = ".$this->var2str($query)
-                    . " OR referencia LIKE '%".$query."%' OR equivalencia LIKE '%".$query."%'"
-                    . " OR descripcion LIKE '%".$query."%' OR codbarras = '".$query."')";
+                    . " OR referencia LIKE '%".$query."%'"
+                    . " OR partnumber LIKE '%".$query."%'"
+                    . " OR equivalencia LIKE '%".$query."%'"
+                    . " OR descripcion LIKE '%".$query."%'"
+                    . " OR codbarras = '".$query."')";
          }
          else
          {
-            $buscar = str_replace(' ', '%', $query);
-            $sql .= $separador." (lower(referencia) = ".$this->var2str($query)
-                    . " OR lower(referencia) LIKE '%".$buscar."%' OR lower(equivalencia) LIKE '%".$buscar."%'"
-                    . " OR lower(descripcion) LIKE '%".$buscar."%')";
+            /// ¿La búsqueda son varias palabras?
+            $palabras = explode(' ', $query);
+            if( count($palabras) > 1 )
+            {
+               $sql .= $separador." (lower(referencia) = ".$this->var2str($query)
+                       . " OR lower(referencia) LIKE '%".$query."%'"
+                       . " OR lower(partnumber) LIKE '%".$query."%'"
+                       . " OR lower(equivalencia) LIKE '%".$query."%'"
+                       . " OR (";
+               
+               foreach($palabras as $i => $pal)
+               {
+                  if($i == 0)
+                  {
+                     $sql .= "lower(descripcion) LIKE '%".$pal."%'";
+                  }
+                  else
+                  {
+                     $sql .= " AND lower(descripcion) LIKE '%".$pal."%'";
+                  }
+               }
+               
+               $sql .= "))";
+            }
+            else
+            {
+               $sql .= $separador." (lower(referencia) = ".$this->var2str($query)
+                       . " OR lower(referencia) LIKE '%".$query."%'"
+                       . " OR lower(partnumber) LIKE '%".$query."%'"
+                       . " OR lower(equivalencia) LIKE '%".$query."%'"
+                       . " OR lower(descripcion) LIKE '%".$query."%')";
+            }
          }
          
          if( strtolower(FS_DB_TYPE) == 'mysql' )

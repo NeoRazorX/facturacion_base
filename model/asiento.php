@@ -191,34 +191,28 @@ class asiento extends fs_model
       }
    }
    
+   /**
+    * Asignamos un número al asiento.
+    */
    public function new_numero()
    {
+      $this->numero = 1;
+      $sql = "SELECT MAX(".$this->db->sql_to_int('numero').") as num FROM ".$this->table_name
+              ." WHERE codejercicio = ".$this->var2str($this->codejercicio).";";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $this->numero = 1 + intval($data[0]['num']);
+      }
+      
+      /// Nos guardamos la secuencia para dar compatibilidad con eneboo
       $secc = new secuencia_contabilidad();
       $secc0 = $secc->get_by_params2($this->codejercicio, 'nasiento');
       if($secc0)
       {
-         $this->numero = $secc0->valorout;
-         $secc0->valorout++;
+         $secc0->valorout = 1 + $this->numero;
          $secc0->save();
-      }
-      
-      if( !$secc0 OR $this->numero <= 1 )
-      {
-         $this->numero = 1;
-         $sql = "SELECT MAX(".$this->db->sql_to_int('numero').") as num FROM ".$this->table_name
-                 ." WHERE codejercicio = ".$this->var2str($this->codejercicio).";";
-         
-         $num = $this->db->select($sql);
-         if($num)
-         {
-            $this->numero = 1 + intval($num[0]['num']);
-         }
-         
-         if($secc0)
-         {
-            $secc0->valorout = 1 + $this->numero;
-            $secc0->save();
-         }
       }
    }
    

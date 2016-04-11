@@ -53,7 +53,7 @@ class fabricante extends fs_model
          return "index.php?page=ventas_fabricantes";
       }
       else
-         return "index.php?page=ventas_fabricante&cod=".$this->codfabricante;
+         return "index.php?page=ventas_fabricante&cod=".urlencode($this->codfabricante);
    }
    
    public function nombre($len = 12)

@@ -18,6 +18,7 @@
  */
 
 require_model('almacen.php');
+require_model('articulo_combinacion.php');
 require_model('articulo_proveedor.php');
 require_model('asiento_factura.php');
 require_model('fabricante.php');
@@ -91,6 +92,10 @@ class nueva_compra extends fs_controller
       else if( isset($_POST['referencia4precios']) )
       {
          $this->get_precios_articulo();
+      }
+      else if( isset($_POST['referencia4combi']) )
+      {
+         $this->get_combinaciones_articulo();
       }
       else if( isset($_POST['proveedor']) )
       {
@@ -323,6 +328,34 @@ class nueva_compra extends fs_controller
       
       $articulo = new articulo();
       $this->articulo = $articulo->get($_POST['referencia4precios']);
+   }
+   
+   private function get_combinaciones_articulo()
+   {
+      /// cambiamos la plantilla HTML
+      $this->template = 'ajax/nueva_compra_combinaciones';
+      
+      $this->results = array();
+      $comb1 = new articulo_combinacion();
+      foreach($comb1->all_from_ref($_POST['referencia4combi']) as $com)
+      {
+         if( isset($this->results[$com->codigo]) )
+         {
+            $this->results[$com->codigo]['desc'] .= ', '.$com->nombreatributo.' - '.$com->valor;
+            $this->results[$com->codigo]['txt'] .= ', '.$com->nombreatributo.' - '.$com->valor;
+         }
+         else
+         {
+            $this->results[$com->codigo] = array(
+                'ref' => $_POST['referencia4combi'],
+                'desc' => base64_decode($_POST['desc'])."\n".$com->nombreatributo.' - '.$com->valor,
+                'pvp' => floatval($_POST['pvp']),
+                'dto' => floatval($_POST['dto']),
+                'codimpuesto' => $_POST['codimpuesto'],
+                'txt' => $com->nombreatributo.' - '.$com->valor
+            );
+         }
+      }
    }
    
    private function nuevo_pedido_proveedor()
@@ -1050,15 +1083,46 @@ class nueva_compra extends fs_controller
       if( is_numeric($query) )
       {
          $sql .= $separador." (referencia = ".$this->articulo_prov->var2str($query)
-                 . " OR referencia LIKE '%".$query."%' OR equivalencia LIKE '%".$query."%'"
-                 . " OR descripcion LIKE '%".$query."%' OR codbarras = '".$query."')";
+                 . " OR referencia LIKE '%".$query."%'"
+                 . " OR partnumber LIKE '%".$query."%'"
+                 . " OR equivalencia LIKE '%".$query."%'"
+                 . " OR descripcion LIKE '%".$query."%'"
+                 . " OR codbarras = '".$query."')";
       }
       else
       {
-         $buscar = str_replace(' ', '%', $query);
-         $sql .= $separador." (lower(referencia) = ".$this->articulo_prov->var2str($query)
-                 . " OR lower(referencia) LIKE '%".$buscar."%' OR lower(equivalencia) LIKE '%".$buscar."%'"
-                 . " OR lower(descripcion) LIKE '%".$buscar."%')";
+         /// ¿La búsqueda son varias palabras?
+         $palabras = explode(' ', $query);
+         if( count($palabras) > 1 )
+         {
+            $sql .= $separador." (lower(referencia) = ".$this->var2str($query)
+                    . " OR lower(referencia) LIKE '%".$query."%'"
+                    . " OR lower(partnumber) LIKE '%".$query."%'"
+                    . " OR lower(equivalencia) LIKE '%".$query."%'"
+                    . " OR (";
+            
+            foreach($palabras as $i => $pal)
+            {
+               if($i == 0)
+               {
+                  $sql .= "lower(descripcion) LIKE '%".$pal."%'";
+               }
+               else
+               {
+                  $sql .= " AND lower(descripcion) LIKE '%".$pal."%'";
+               }
+            }
+            
+            $sql .= "))";
+         }
+         else
+         {
+            $sql .= $separador." (lower(referencia) = ".$this->var2str($query)
+                    . " OR lower(referencia) LIKE '%".$query."%'"
+                    . " OR lower(partnumber) LIKE '%".$query."%'"
+                    . " OR lower(equivalencia) LIKE '%".$query."%'"
+                    . " OR lower(descripcion) LIKE '%".$query."%')";
+         }
       }
       
       if( strtolower(FS_DB_TYPE) == 'mysql' )

@@ -129,6 +129,14 @@ function recalcular()
          total_iva += l_neto * l_iva/100;
          total_irpf += l_neto * l_irpf/100;
          total_recargo += l_neto * l_recargo/100;
+         
+         /// adaptamos el alto del textarea al texto
+         var txt = $("textarea[name='desc_"+i+"']").val();
+         txt = txt.split(/\r*\n/);
+         if(txt.length > 1)
+         {
+            $("textarea[name='desc_"+i+"']").prop('rows', txt.length);
+         }
       }
    }
    
@@ -361,6 +369,20 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto)
    return false;
 }
 
+function add_articulo_atributos(ref,desc,pvp,dto,codimpuesto)
+{
+   $.ajax({
+      type: 'POST',
+      url: nueva_compra_url,
+      dataType: 'html',
+      data: "referencia4combi="+ref+"&desc="+desc+"&pvp="+pvp+"&dto="+dto+"&codimpuesto="+codimpuesto,
+      success: function(datos) {
+         $("#nav_articulos").hide();
+         $("#search_results").html(datos);
+      }
+   });
+}
+
 function add_linea_libre()
 {
    codimpuesto = false;
@@ -521,15 +543,22 @@ function buscar_articulos()
                
                if(val.secompra)
                {
+                  var funcion = 'add_articulo';
+                  
+                  if(val.tipo == 'atributos')
+                  {
+                     funcion = 'add_articulo_atributos';
+                  }
+                  
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
                      <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
-                     &nbsp; <a href=\"#\" onclick=\"return add_articulo('"
+                     &nbsp; <a href=\"#\" onclick=\"return "+funcion+"('"
                           +val.referencia+"','"+descripcion+"','"+precio+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"
                           +val.referencia+'</a> '+descripcion_visible+"</td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"('"
                           +val.referencia+"','"+descripcion+"','"+val.coste+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"
                           +show_precio(val.coste)+"</a></td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"return add_articulo('"
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"('"
                           +val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\" title=\"actualizado el "
                           +val.factualizado+"\">"+show_precio(val.pvp)+"</a></td>\n\
                      <td class=\"text-right\">"+val.stockfis+"</td></tr>");

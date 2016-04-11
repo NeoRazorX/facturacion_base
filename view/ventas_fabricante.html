@@ -7,7 +7,7 @@
          event.preventDefault();
          if( confirm("¿Estas seguro de que deseas eliminar este fabricante?") )
          {
-            window.location.href = "index.php?page=ventas_fabricantes&delete={$fsc->fabricante->codfabricante}";
+            window.location.href = 'index.php?page=ventas_fabricantes&delete={function="urlencode($fsc->fabricante->codfabricante)"}';
          }
       });
    });

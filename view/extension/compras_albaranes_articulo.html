@@ -5,8 +5,11 @@
       <div class="col-sm-12">
          <div class="page-header">
             <h1>
+               <span class="glyphicon glyphicon-duplicate"></span>&nbsp;
                <span class="text-capitalize">{#FS_ALBARANES#}</span> de compra con el artículo
-               <a href="{$fsc->articulo->url()}">{$fsc->articulo->referencia}</a>
+               <small>
+                  <a href="{$fsc->articulo->url()}">{$fsc->articulo->referencia}</a>
+               </small>
             </h1>
          </div>
       </div>
@@ -48,14 +51,14 @@
    {if="$fsc->offset>0"}
    <li class="previous">
       <a href="{$fsc->url()}&ref={$fsc->articulo->referencia}&offset={$fsc->offset-FS_ITEM_LIMIT}">
-         <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
+         <span class="glyphicon glyphicon-chevron-left"></span>&nbsp; Anteriores
       </a>
    </li>
    {/if}
    {if="count($fsc->resultados)==FS_ITEM_LIMIT"}
    <li class="next">
       <a href="{$fsc->url()}&ref={$fsc->articulo->referencia}&offset={$fsc->offset+FS_ITEM_LIMIT}">
-         Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
+         Siguientes &nbsp;<span class="glyphicon glyphicon-chevron-right"></span>
       </a>
    </li>
    {/if}

@@ -251,19 +251,48 @@ class ventas_articulos extends fs_controller
          $sql .= $where;
          if( is_numeric($query) )
          {
+            /// ¿La búsqueda son números?
             $sql .= "(referencia = ".$this->empresa->var2str($query)
                     . " OR referencia LIKE '%".$query."%'"
+                    . " OR partnumber LIKE '%".$query."%'"
                     . " OR equivalencia LIKE '%".$query."%'"
                     . " OR descripcion LIKE '%".$query."%'"
                     . " OR codbarras = '".$query."')";
          }
          else
          {
-            $buscar = str_replace(' ', '%', $query);
-            $sql .= "(lower(referencia) = ".$this->empresa->var2str($query)
-                    . " OR lower(referencia) LIKE '%".$buscar."%'"
-                    . " OR lower(equivalencia) LIKE '%".$buscar."%'"
-                    . " OR lower(descripcion) LIKE '%".$buscar."%')";
+            /// ¿La búsqueda son varias palabras?
+            $palabras = explode(' ', $query);
+            if( count($palabras) > 1 )
+            {
+               $sql .= "(lower(referencia) = ".$this->empresa->var2str($query)
+                       . " OR lower(referencia) LIKE '%".$query."%'"
+                       . " OR lower(partnumber) LIKE '%".$query."%'"
+                       . " OR lower(equivalencia) LIKE '%".$query."%'"
+                       . " OR (";
+               
+               foreach($palabras as $i => $pal)
+               {
+                  if($i == 0)
+                  {
+                     $sql .= "lower(descripcion) LIKE '%".$pal."%'";
+                  }
+                  else
+                  {
+                     $sql .= " AND lower(descripcion) LIKE '%".$pal."%'";
+                  }
+               }
+               
+               $sql .= "))";
+            }
+            else
+            {
+               $sql .= "(lower(referencia) = ".$this->empresa->var2str($query)
+                       . " OR lower(referencia) LIKE '%".$query."%'"
+                       . " OR lower(partnumber) LIKE '%".$query."%'"
+                       . " OR lower(equivalencia) LIKE '%".$query."%'"
+                       . " OR lower(descripcion) LIKE '%".$query."%')";
+            }
          }
          $where = ' AND ';
       }

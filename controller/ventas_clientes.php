@@ -32,6 +32,7 @@ class ventas_clientes extends fs_controller
    public $codpais;
    public $grupo;
    public $grupos;
+   public $nocifnif;
    public $nuevocli_setup;
    public $offset;
    public $pais;
@@ -232,16 +233,18 @@ class ventas_clientes extends fs_controller
       }
       
       $this->codpais = '';
-      if( isset($_POST['codpais']) )
+      if( isset($_REQUEST['codpais']) )
       {
-         $this->codpais = $_POST['codpais'];
+         $this->codpais = $_REQUEST['codpais'];
       }
       
       $this->codgrupo = '';
-      if( isset($_POST['bcodgrupo']) )
+      if( isset($_REQUEST['bcodgrupo']) )
       {
-         $this->codgrupo = $_POST['bcodgrupo'];
+         $this->codgrupo = $_REQUEST['bcodgrupo'];
       }
+      
+      $this->nocifnif = isset($_REQUEST['nocifnif']);
       
       $this->buscar();
       $this->grupos = $this->grupo->all();
@@ -255,6 +258,11 @@ class ventas_clientes extends fs_controller
                  ."&codpais=".$this->codpais
                  ."&codgrupo=".$this->codgrupo
                  ."&offset=".($this->offset+FS_ITEM_LIMIT);
+      
+      if($this->nocifnif)
+      {
+         $url .= '&nocifnif=TRUE';
+      }
       
       $paginas = array();
       $i = 0;
@@ -388,16 +396,20 @@ class ventas_clientes extends fs_controller
       
       if( is_numeric($query) )
       {
-         $sql .= $and."(codcliente LIKE '%".$query."%' OR cifnif LIKE '%".$query."%'"
-                 . " OR telefono1 LIKE '".$query."%' OR telefono2 LIKE '".$query."%'"
+         $sql .= $and."(codcliente LIKE '%".$query."%'"
+                 . " OR cifnif LIKE '%".$query."%'"
+                 . " OR telefono1 LIKE '".$query."%'"
+                 . " OR telefono2 LIKE '".$query."%'"
                  . " OR observaciones LIKE '%".$query."%')";
          $and = ' AND ';
       }
       else
       {
          $buscar = str_replace(' ', '%', $query);
-         $sql .= $and."(lower(nombre) LIKE '%".$buscar."%' OR lower(razonsocial) LIKE '%".$buscar."%'"
-                 . " OR lower(cifnif) LIKE '%".$buscar."%' OR lower(observaciones) LIKE '%".$buscar."%'"
+         $sql .= $and."(lower(nombre) LIKE '%".$buscar."%'"
+                 . " OR lower(razonsocial) LIKE '%".$buscar."%'"
+                 . " OR lower(cifnif) LIKE '%".$buscar."%'"
+                 . " OR lower(observaciones) LIKE '%".$buscar."%'"
                  . " OR lower(email) LIKE '%".$buscar."%')";
          $and = ' AND ';
       }
@@ -431,6 +443,13 @@ class ventas_clientes extends fs_controller
       if($this->codgrupo != '')
       {
          $sql .= $and."codgrupo = '".$this->codgrupo."'";
+         $and = ' AND ';
+      }
+      
+      if($this->nocifnif)
+      {
+         $sql .= $and."cifnif = ''";
+         $and = ' AND ';
       }
       
       $data = $this->db->select("SELECT COUNT(codcliente) as total".$sql);

@@ -372,7 +372,15 @@ class asiento_factura
                   if( $partidaA->save() )
                   {
                      $partida2->debe -= $restar;
-                     $partida2->save();
+                     
+                     if($partida2->debe == 0)
+                     {
+                        $partida2->delete();
+                     }
+                     else
+                     {
+                        $partida2->save();
+                     }
                   }
                   else
                   {
@@ -717,7 +725,15 @@ class asiento_factura
                   if( $partidaA->save() )
                   {
                      $partida2->haber -= $restar;
-                     $partida2->save();
+                     
+                     if($partida2->haber == 0)
+                     {
+                        $partida2->delete();
+                     }
+                     else
+                     {
+                        $partida2->save();
+                     }
                   }
                   else
                   {

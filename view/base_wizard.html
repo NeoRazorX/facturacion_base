@@ -3,7 +3,7 @@
 {if="$fsc->step==2"}
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">
-   <div class="container-fluid">
+   <div class="container">
       {if="$fsc->bad_password"}
       <div class="row">
          <div class="col-sm-12">
@@ -145,7 +145,7 @@
 </form>
 {elseif="$fsc->step==3"}
 <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">
-   <div class="container-fluid">
+   <div class="container">
       <div class="row">
          <div class="col-sm-12">
             <div class="page-header">
@@ -258,7 +258,7 @@
 </form>
 {elseif="$fsc->step==4"}
 <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">
-   <div class="container-fluid">
+   <div class="container">
       <div class="row">
          <div class="col-sm-12">
             <div class="page-header">
@@ -359,7 +359,7 @@
    </div>
 </form>
 {elseif="$fsc->step==5"}
-<div class="container-fluid">
+<div class="container">
    {if="$fsc->empresa->codpais=='ESP' or $fsc->empresa->codpais=='ES'"}
    <div class="row">
       <div class="col-sm-12">
@@ -392,6 +392,7 @@
       <div class="col-sm-12">
          <div class="page-header">
             <h1>
+               <span class="glyphicon glyphicon-map-marker"></span>&nbsp;
                Fin
                <a href="{$fsc->url()}&restart=TRUE" class="btn btn-xs btn-warning" title="Volver a empezar">
                   <span class="glyphicon glyphicon-fast-backward"></span>
@@ -406,49 +407,56 @@
    <div class="row">
       <div class="col-sm-3">
          <a href="index.php?page=admin_home&download=argentina#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span> &nbsp;
+            <span class="glyphicon glyphicon-download-alt"></span>&nbsp;
             Argentina
          </a>
          <br/>
       </div>
       <div class="col-sm-3">
+         <a href="index.php?page=admin_home&download=chile#plugins" class="btn btn-sm btn-block btn-default">
+            <span class="glyphicon glyphicon-download-alt"></span>&nbsp;
+            Chile
+         </a>
+         <br/>
+      </div>
+      <div class="col-sm-3">
          <a href="index.php?page=admin_home&download=colombia#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span> &nbsp;
+            <span class="glyphicon glyphicon-download-alt"></span>&nbsp;
             Colombia
          </a>
          <br/>
       </div>
       <div class="col-sm-3">
          <a href="index.php?page=admin_home&download=ecuador#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span> &nbsp;
+            <span class="glyphicon glyphicon-download-alt"></span>&nbsp;
             Ecuador
          </a>
          <br/>
       </div>
       <div class="col-sm-3">
          <a href="index.php?page=admin_home&download=panama#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span> &nbsp;
+            <span class="glyphicon glyphicon-download-alt"></span>&nbsp;
             Panamá
          </a>
          <br/>
       </div>
       <div class="col-sm-3">
          <a href="index.php?page=admin_home&download=peru#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span> &nbsp;
+            <span class="glyphicon glyphicon-download-alt"></span>&nbsp;
             Perú
          </a>
          <br/>
       </div>
       <div class="col-sm-3">
          <a href="index.php?page=admin_home&download=republica_dominicana#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span> &nbsp;
+            <span class="glyphicon glyphicon-download-alt"></span>&nbsp;
             Rep. Dominicana
          </a>
          <br/>
       </div>
       <div class="col-sm-3">
          <a href="index.php?page=admin_home&download=venezuela#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span> &nbsp;
+            <span class="glyphicon glyphicon-download-alt"></span>&nbsp;
             Venezuela
          </a>
          <br/>

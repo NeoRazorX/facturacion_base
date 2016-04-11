@@ -1,0 +1,23 @@
+<div class="table-responsive">
+   <table class="table table-hover">
+      <caption class="text-center">Elige una combinación de atributos:</caption>
+      <thead>
+         <tr>
+            <th>Combinación</th>
+            <th class="text-right">Precio</th>
+         </tr>
+      </thead>
+      {loop="$fsc->results"}
+      <tr>
+         <td>
+            <a href="#" onclick="add_articulo('{$value['ref']}','{function="base64_encode($value['desc'])"}','{$value['pvp']}','{$value['dto']}','{$value['codimpuesto']}')">{$value['txt']}</a>
+         </td>
+         <td class="text-right">{$fsc->show_precio($value['pvp'])}</td>
+      </tr>
+      {else}
+      <tr class="danger">
+         <td colspan="2">No hay combinaciones definidas.</td>
+      </tr>
+      {/loop}
+   </table>
+</div>

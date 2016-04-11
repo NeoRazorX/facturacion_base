@@ -133,6 +133,14 @@ function recalcular()
          total_iva += l_neto * l_iva/100;
          total_irpf += l_neto * l_irpf/100;
          total_recargo += l_neto * l_recargo/100;
+         
+         /// adaptamos el alto del textarea al texto
+         var txt = $("textarea[name='desc_"+i+"']").val();
+         txt = txt.split(/\r*\n/);
+         if(txt.length > 1)
+         {
+            $("textarea[name='desc_"+i+"']").prop('rows', txt.length);
+         }
       }
    }
    
@@ -369,7 +377,7 @@ function add_articulo_atributos(ref,desc,pvp,dto,codimpuesto,cantidad)
 {
    $.ajax({
       type: 'POST',
-      url: 'index.php?page=nueva_venta',
+      url: nueva_venta_url,
       dataType: 'html',
       data: "referencia4combi="+ref+"&desc="+desc+"&pvp="+pvp+"&dto="+dto
               +"&codimpuesto="+codimpuesto+"&cantidad="+cantidad,
