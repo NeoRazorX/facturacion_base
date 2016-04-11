@@ -36,7 +36,15 @@
             }
          }
       });
+      $('textarea[data-limit-rows=true]').on('keypress', function (event) {
+      var textarea = $(this),
+        numberOfLines = (textarea.val().match(/\n/g) || []).length + 1,
+                 maxRows = parseInt(textarea.attr('rows'));
+         if (event.which === 13 && numberOfLines === maxRows) {
+         return false;
+      }
    });
+});
 </script>
 {else}
 <script type="text/javascript">
@@ -249,6 +257,12 @@
                <span class="hidden-xs">&nbsp; Detalles</span>
             </a>
          </li>
+         <li role="presentation">
+            <a href="#numserie" aria-controls="numserie" role="tab" data-toggle="tab">
+               <span class="glyphicon glyphicon-barcode" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Números de serie</span>
+            </a>
+         </li>
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <li role="presentation">
@@ -301,11 +315,19 @@
                            <input type="number" step="any" id="cantidad_{$counter}" class="form-control text-right" name="cantidad_{$counter}"
                                   value="{$value->cantidad}" onchange="recalcular()" onkeyup="recalcular()" autocomplete="off" value="1"/>
                         </td>
+                        {if="$fsc->numserie->can_delete('idlalbcompra',$value->idlinea)"}
                         <td>
                            <button class="btn btn-sm btn-danger" type="button" onclick="$('#linea_{$counter}').remove();recalcular();">
                               <span class="glyphicon glyphicon-trash"></span>
                            </button>
                         </td>
+                        {else}
+                        <td>
+                           <button class="btn btn-sm btn-info" type="button">
+                              <span class="glyphicon glyphicon-lock"></span>
+                           </button>
+                        </td>
+                        {/if}
                         <td>
                            <input type="text" class="form-control text-right" id="pvp_{$counter}" name="pvp_{$counter}" value="{$value->pvpunitario}"
                                   onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/>
@@ -502,8 +524,63 @@
                </div>
             </div>
          </div>
+         <div role="tabpanel" class="tab-pane" id="numserie">
+            <div class="container-fluid" style="margin-top: 10px;">
+               <div class="row">
+                  <div class="table-responsive">
+                     <table class="table table-condensed">
+                        <thead>
+                           <tr>
+                              <th class="text-left" width="90">Referencia</th>
+                              <th class="text-left" width="190">Descripción</th>
+                              <th class="text-right" width="20">Cantidad</th>
+                              <th class="text-left"width="190">Números de serie</th>
+                              <th width="190"></th>
+                           </tr>
+                        </thead>
+                        {loop="$fsc->albaran->get_lineas()"}
+                        <tr>
+                           <td>
+                              <div class="form-control">
+                                 <a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a>
+                              </div>
+                           </td>
+                           <td>
+                              <div class="form-control">
+                                 {$value->descripcion}
+                              </div>
+                           </td>
+                           <td>
+                              <div class="form-control text-right">
+                                 {$value->cantidad}
+                              </div>
+                           </td>
+                           {if="!$fsc->control_numserie($value->referencia)"}
+                           <td colspan="2">           
+                           </td>
+                           {else}
+                           {if="$value->cantidad == $fsc->numserie->total_por_linea('idlalbcompra',$value->idlinea)"}
+                           <td>
+                              <textarea class="form-control" cols="60" name="numserie_{$counter}" rows="{$value->cantidad}" disabled>{function="implode("\n", $fsc->numserie->all_from_linea('idlalbcompra',$value->idlinea))"}</textarea>
+                           </td>
+                           {else}
+                           <td>
+                              <textarea data-limit-rows="true" cols="60" rows="{$value->cantidad}" class="form-control" name="numserie_{$counter}">{function="implode("\n", $fsc->numserie->all_from_linea('idlalbcompra',$value->idlinea))"}</textarea>
+                           </td>
+                           {/if}
+                           <td>
+                              Uno por cada línea
+                           </td>
+                           {/if}
+                        </tr>
+                        {/loop}
+                     </table>                   
+                  </div>
+               </div>
+            </div>           
+         </div>
          {loop="$fsc->extensions"}
-            {if="$value->type=='tab'"}
+         {if="$value->type=='tab'"}
             <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
                <iframe src="index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}" width="100%" height="2000" frameborder="0"></iframe>
             </div>
@@ -838,5 +915,4 @@
    <img src="view/img/fuuu_face.png" alt="fuuuuu"/>
 </div>
 {/if}
-
 {include="footer"}

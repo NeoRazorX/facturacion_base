@@ -172,6 +172,12 @@ class articulo extends fs_model
    public $codsubcuentairpfcom;
    
    /**
+    * Control por número de serie
+    * @var type 
+    */
+   public $numserie;
+   
+   /**
     * % IVA del impuesto asignado.
     * @var type 
     */
@@ -200,7 +206,7 @@ class articulo extends fs_model
          self::$column_list = 'referencia,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,'.
                  'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,'.
                  'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,'.
-                 'partnumber,codsubcuentacom,codsubcuentairpfcom';
+                 'partnumber,codsubcuentacom,codsubcuentairpfcom,numserie';
       }
       
       if($a)
@@ -236,6 +242,7 @@ class articulo extends fs_model
          $this->observaciones = $this->no_html($a['observaciones']);
          $this->codsubcuentacom = $a['codsubcuentacom'];
          $this->codsubcuentairpfcom = $a['codsubcuentairpfcom'];
+         $this->numserie = $this->str2bool($a['publico']);
          
          $this->imagen = NULL;
          if( isset($a['imagen']) )
@@ -314,6 +321,7 @@ class articulo extends fs_model
          $this->observaciones = '';
          $this->codsubcuentacom = NULL;
          $this->codsubcuentairpfcom = NULL;
+         $this->numserie = FALSE;
          
          $this->imagen = NULL;
          $this->exists = FALSE;
@@ -944,6 +952,7 @@ class articulo extends fs_model
                     ", imagen = ".$this->var2str($this->imagen).
                     ", codsubcuentacom = ".$this->var2str($this->codsubcuentacom).
                     ", codsubcuentairpfcom = ".$this->var2str($this->codsubcuentairpfcom).
+                    ", numserie = ".$this->var2str($this->numserie).
                     " WHERE referencia = ".$this->var2str($this->referencia).";";
             
             if($this->nostock AND $this->stockfis != 0)
@@ -982,7 +991,8 @@ class articulo extends fs_model
                     $this->var2str($this->tipo).",".
                     $this->var2str($this->partnumber).",".
                     $this->var2str($this->codsubcuentacom).",".
-                    $this->var2str($this->codsubcuentairpfcom).");";
+                    $this->var2str($this->codsubcuentairpfcom).",".
+                    $this->var2str($this->numserie).");";
          }
          
          if( $this->db->exec($sql) )
@@ -1376,5 +1386,17 @@ class articulo extends fs_model
       $ref = str_replace('\\', '_', $ref);
       
       return rawurlencode($ref);
+   }
+   
+   public function control_traza()
+   {
+      if($this->numserie)
+      {
+         return TRUE;
+      }
+      else
+      {
+         return FALSE;
+      }
    }
 }
