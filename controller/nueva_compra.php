@@ -1095,7 +1095,7 @@ class nueva_compra extends fs_controller
          $palabras = explode(' ', $query);
          if( count($palabras) > 1 )
          {
-            $sql .= $separador." (lower(referencia) = ".$this->var2str($query)
+            $sql .= $separador." (lower(referencia) = ".$this->articulo_prov->var2str($query)
                     . " OR lower(referencia) LIKE '%".$query."%'"
                     . " OR lower(partnumber) LIKE '%".$query."%'"
                     . " OR lower(equivalencia) LIKE '%".$query."%'"
@@ -1117,7 +1117,7 @@ class nueva_compra extends fs_controller
          }
          else
          {
-            $sql .= $separador." (lower(referencia) = ".$this->var2str($query)
+            $sql .= $separador." (lower(referencia) = ".$this->articulo_prov->var2str($query)
                     . " OR lower(referencia) LIKE '%".$query."%'"
                     . " OR lower(partnumber) LIKE '%".$query."%'"
                     . " OR lower(equivalencia) LIKE '%".$query."%'"
