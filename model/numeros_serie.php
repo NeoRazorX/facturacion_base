@@ -263,30 +263,15 @@ class numero_serie extends fs_model
     
       $lista = array();
       
-      $sql = "SELECT numserie FROM ".$this->table_name." WHERE ".$documento." = ".$idlinea." ORDER BY numserie;";
-      $data = $this->db->select($sql);
-      if($data)
-      {
-         foreach($data as $key => $value)
-         {
-            $lista[]= $value['numserie'];
-         }
-      }
-      return $lista;
-   }
-   
-   public function all_from_linea_completo($documento,$idlinea)
-   {
-    
-      $lista = array();
-      
       $sql = "SELECT * FROM ".$this->table_name." WHERE ".$documento." = ".$idlinea." ORDER BY numserie;";
       $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $d)
+         {
             $lista[] = new numero_serie($d);
-      } 
+         }
+      }
       return $lista;
    }
 
@@ -327,6 +312,18 @@ class numero_serie extends fs_model
       $sql = "UPDATE numeros_serie SET $documento = NULL,vendido = 'FALSE' WHERE ".$documento." = ".$idlinea.";";
       
       return $this->db->exec($sql);
+   }
+   
+   public function vendido($numserie)
+   {
+      $data = $this->db->select("SELECT vendido FROM numeros_serie WHERE numserie = ".$this->var2str($numserie).";");
+         if($data[0]['vendido'] == 't')
+         {
+            return TRUE;
+         }
+         else
+            return FALSE;
+      
    }
 
 }

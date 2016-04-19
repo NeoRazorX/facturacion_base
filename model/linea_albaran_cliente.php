@@ -492,4 +492,22 @@ class linea_albaran_cliente extends fs_model
       else
          return 0;
    }
+   
+   /**
+    * Devuelve los datos de una linea 
+    * @param type $idlinea
+    * @return new linea_albaran_cliente
+    */
+   public function get($idlinea)
+   {
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idlinea = ".$this->var2str($idlinea).";");
+      if($data)
+      {
+         return new linea_albaran_cliente($data[0]);
+      }
+      else
+      {
+         return FALSE;
+      }
+   }
 }

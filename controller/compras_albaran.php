@@ -51,6 +51,7 @@ class compras_albaran extends fs_controller
    public $proveedor_s;
    public $serie;
    public $numserie;
+   public $linea_numserie;
     
    public function __construct()
    {
@@ -303,27 +304,25 @@ class compras_albaran extends fs_controller
 
                         if ($lineas[$k]->save())
                         {
-                              if ($this->control_numserie($lineas[$k]->referencia))
+                           //numeros de serie
+                           if ($this->control_numserie($lineas[$k]->referencia))
+                           {
+                              foreach ($_POST['numserie_' . $num] as $serial)
                               {
-                                 //numeros de serie
-                                 foreach (explode("\n", $_POST['numserie_' . $num]) as $serial)
+                                 $serial = trim($serial);
+                                 $numero = $num0->get($serial);
+                                 if (!$numero AND $serial != '')
                                  {
-                                    $serial = trim($serial);
-                                    $numero = $num0->get($serial);
-                                    if (!$numero AND $serial!='')
-                                    {
-                                       $numero = new numero_serie;
-                                       $numero->numserie = $serial;
-                                       $numero->referencia = $lineas[$k]->referencia;
-                                       $numero->idlalbcompra = $lineas[$k]->idlinea;
-                                       $numero->save();
-                                    }
-                                    else if($serial!='')
-                                    {
-                                       $this->new_error_msg("El número de serie ".$serial." ya existe");
-                                    }
+                                    $numero = new numero_serie;
+                                    $numero->numserie = $serial;
+                                    $numero->referencia = $lineas[$k]->referencia;
+                                    $numero->idlalbcompra = $lineas[$k]->idlinea;
+                                    $numero->save();
                                  }
+                                 else if($serial != NULL)
+                                    $this->new_error_msg("El número de serie #".$serial." ya existe");
                               }
+                           }
                            $this->albaran->neto += $value->pvptotal;
                            $this->albaran->totaliva += $value->pvptotal * $value->iva / 100;
                            $this->albaran->totalirpf += $value->pvptotal * $value->irpf / 100;
@@ -513,8 +512,27 @@ class compras_albaran extends fs_controller
                $this->new_error_msg("¡Imposible guardar la línea el artículo ".$linea->referencia."! ");
                break;
             }
+            else
+            {
+               //numeros de serie
+               if ($this->control_numserie($l->referencia))
+               {
+                  //numeros de serie
+                  foreach ($this->numserie->all_from_linea('idlalbcompra', $l->idlinea) as $serial)
+                  { 
+                     $numero = $this->numserie->get($serial->numserie);
+                     if ($numero)
+                     {
+                        $numero->numserie = $serial->numserie;
+                        $numero->referencia = $serial->referencia;
+                        $numero->idlfaccompra = $linea->idlinea;
+                        $numero->save();
+                     }
+                  }
+               }
+            }
          }
-         
+
          if( $continuar )
          {
             $this->albaran->idfactura = $factura->idfactura;
@@ -578,18 +596,25 @@ class compras_albaran extends fs_controller
    
    public function control_numserie($ref)
    {
-      $data = $this->db->select("SELECT numserie FROM articulos WHERE referencia = '" . $ref . "';");
-      if ($data)
+      $art0 = new articulo();
+      $articulo = $art0->get($ref);
+      if ($articulo->numserie)
       {
-         if ($data[0]['numserie'] == 't')
-         {
-            return TRUE;
-         }
-         else
-            return FALSE;
+         return TRUE;
       }
       else
          return FALSE;
+   }
+   
+   public function seriales($cantidad)
+   {
+      $this->linea_numserie = array();
+
+      for ($i = 0; $i < $cantidad; $i++)
+      {
+         $this->linea_numserie[] = '';
+      }
+      return $this->linea_numserie;
    }
 
 }

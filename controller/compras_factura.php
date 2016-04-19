@@ -29,6 +29,8 @@ require_model('partida.php');
 require_model('proveedor.php');
 require_model('serie.php');
 require_model('subcuenta.php');
+require_model('numeros_serie.php');
+
 
 class compras_factura extends fs_controller
 {
@@ -65,6 +67,7 @@ class compras_factura extends fs_controller
       $this->rectificada = FALSE;
       $this->rectificativa = FALSE;
       $this->serie = new serie();
+      $this->numserie = new numero_serie();
       
       /**
        * Si hay alguna extensión de tipo config y texto no_button_pagada,
@@ -84,6 +87,7 @@ class compras_factura extends fs_controller
       {
          $this->factura = $factura->get($_POST['idfactura']);
          $this->modificar();
+         $this->numeros_serie();
       }
       else if( isset($_GET['id']) )
       {
@@ -190,7 +194,7 @@ class compras_factura extends fs_controller
       else
          $this->new_error_msg("¡Imposible modificar la factura!");
    }
-   
+
    private function generar_asiento(&$factura)
    {
       if( $factura->get_asiento() )
@@ -383,5 +387,66 @@ class compras_factura extends fs_controller
       }
       
       return $cuentas;
+   }
+   
+   public function control_numserie($ref)
+   {
+      $art0 = new articulo();
+      $articulo = $art0->get($ref);
+      if ($articulo->numserie)
+      {
+         return TRUE;
+      }
+      else
+         return FALSE;
+   }
+   
+   public function seriales($cantidad)
+   {
+      $this->linea_numserie = array();
+
+      for ($i = 0; $i < $cantidad; $i++)
+      {
+         $this->linea_numserie[] = '';
+      }
+      return $this->linea_numserie;
+   }
+   
+   public function numeros_serie()
+   {
+      $num0 = new numero_serie();
+      $lineas = $this->factura->get_lineas();
+      $numlineas = count($lineas);
+      
+      for ($num = 0; $num <= $numlineas; $num++)
+      {      
+            foreach ($lineas as $k => $value)
+            {
+               if ($value->idlinea == intval($_POST['idlinea_' . $num]))
+               {
+                  if ($this->control_numserie($lineas[$k]->referencia))
+                  {
+                     foreach ($_POST['numserie_' . $num] as $serial)
+                     {
+                        $serial = trim($serial);
+                        $numero = $num0->get($serial);
+                        if (!$numero AND $serial != '')
+                        {
+                           $numero = new numero_serie;
+                           $numero->numserie = $serial;
+                           $numero->referencia = $lineas[$k]->referencia;
+                           $numero->idlfaccompra = $lineas[$k]->idlinea;
+                           $numero->save();
+                        }
+                        else if ($serial != NULL)
+                        {
+                           $this->new_error_msg("El número de serie #" . $serial . " ya existe");
+                        }   
+                     }
+                  }
+               }
+            }
+         
+      }
    }
 }

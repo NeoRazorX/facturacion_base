@@ -25,6 +25,15 @@
  */
 
 require_model ('numeros_serie.php');
+require_model ('articulo.php');
+require_model ('albaran_cliente.php');
+require_model ('factura_cliente.php');
+require_model ('albaran_proveedor.php');
+require_model ('factura_proveedor.php');
+require_model ('linea_albaran_cliente.php');
+require_model ('linea_factura_cliente.php');
+require_model ('linea_albaran_proveedor.php');
+require_model ('linea_factura_proveedor.php');
 
 class trazabilidad extends fs_controller
 {
@@ -32,25 +41,14 @@ class trazabilidad extends fs_controller
    public $resultados;
    
    public $albcompra;
-   public $albcompra_fecha;
    public $faccompra;
-   public $faccompra_fecha;
-   public $proveedor;
    
    public $albventa;
-   public $albventa_fecha;
+   public $facventa;
    
    
+   public $numserie;
    
-   
-   
-   //para nueva_venta.js
-   public $ref;
-   public $desc;
-   public $pvp;
-   public $dto;
-   public $codimpuesto;
-   public $cantidad;
 
    public function __construct()
    {
@@ -60,22 +58,25 @@ class trazabilidad extends fs_controller
    {
       ///creamos el botón para acceder
       $this->share_extensions();
+      $this->numserie = '';
+      $this->albcompra = '';
+      $this->faccompra = '';
+      $this->albventa = '';
+      $this->facventa = '';
+      
+      $numserie = new numero_serie();
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
-      
-      $num0 = new numero_serie();
-      $this->resultados = $num0->all();
-      
-      if( isset($_REQUEST['referencia4numserie']) )
+     
+      //mostramos datos del numserie
+      if( isset($_REQUEST['numserie']) )
       {
-         $this->get_numserie_articulo();
+         $this->numserie = $numserie->get($_REQUEST['numserie']);  
+         $this->get_datos();
       }
-      
-      if( isset($_REQUEST['buscar_numserie']) )
-      {
-         $this->buscar_numserie();
-      }
+      else
+         $this->resultados = $numserie->all ();
    }
    
    /**
@@ -93,60 +94,46 @@ class trazabilidad extends fs_controller
       $fsext->save();
    }
    
-   public function get_albaran_compra($linea)
+   public function get_datos()
    {
-      $albaranc ='';
-      $sql = "SELECT codigo FROM albaranesprov INNER JOIN lineasalbaranesprov on lineasalbaranesprov.idalbaran = albaranesprov.idalbaran "
-              . "INNER JOIN numeros_serie on numeros_serie.idlalbcompra = lineasalbaranesprov.idlinea WHERE numeros_serie.idlalbcompra = $linea ;";
+      //albarán de compra
+      $lac = new linea_albaran_proveedor();
+      $lineaalbaranproveedor = $lac->get($this->numserie->idlalbcompra);
+      if (isset($lineaalbaranproveedor))
+      {
+         $albaranprov0 = new albaran_proveedor();
+         $this->albcompra = $albaranprov0->get($lineaalbaranproveedor->idalbaran);
+      }
+
+      //factura de compra
+      $lfp = new linea_factura_proveedor();
+      $lineafacturaproveedor = $lfp->get($this->numserie->idlfaccompra);
+      $facturaproveedor0 = new factura_proveedor();
+      $this->faccompra = $facturaproveedor0->get($lineafacturaproveedor->idfactura);
       
-      $result = $this->db->select($sql);
-        if($result)
-         {
-            $albaranc = $result[0]['codigo'];
-         }
-         return $albaranc;
-   }
+      //albaran de venta
+      $lav = new linea_albaran_cliente();
+      $lineaalbarancliente = $lav->get($this->numserie->idlalbventa);
+      $albarancli0 = new albaran_cliente();
+      $this->albventa = $albarancli0->get($lineaalbarancliente->idalbaran);
+      
+      //factura cliente
+      $lfc = new linea_factura_cliente();
+      $lineafacturacli0 = $lfc->get($this->numserie->idlfacventa);
+      $faccli0 = new factura_cliente();
+      $this->facventa = $faccli0->get($lineafacturacli0->idfactura);
    
-   public function get_factura_compra($linea)
-   {
-      $facturac ='';
-      $sql = "SELECT codigo FROM facturasprov INNER JOIN lineasfacturasprov on lineasfacturasprov.idfactura = facturasprov.idfactura "
-              . "INNER JOIN numeros_serie on numeros_serie.idlfaccompra = lineasfacturasprov.idlinea WHERE numeros_serie.idlfaccompra = $linea ;";
-      
-      $result = $this->db->select($sql);
-        if($result)
-         {
-            $albaranc = $result[0]['codigo'];
-         }
-         return $facturac;
    } 
-   
-   public function get_albaran_venta($linea)
+   public function art_desc($ref)
    {
-      $albaranv ='';
-      $sql = "SELECT codigo FROM albaranescli INNER JOIN lineasalbaranescli on lineasalbaranescli.idalbaran = albaranescli.idalbaran "
-              . "INNER JOIN numeros_serie on numeros_serie.idlalbventa = lineasalbaranescli.idlinea WHERE numeros_serie.idlalbventa = $linea ;";
-      
+      $descripcion = '';
+      $sql = "SELECT descripcion FROM articulos WHERE referencia = '$ref' ;";
       $result = $this->db->select($sql);
-        if($result)
-         {
-            $albaranv = $result[0]['codigo'];
-         }
-         return $albaranv;
+      if ($result)
+      {
+         $descripcion = $result[0]['descripcion'];
+      }
+         return $descripcion;
    }
    
-   
-   public function get_factura_venta($linea)
-   {
-      $facturav ='';
-      $sql = "SELECT codigo FROM facturascli INNER JOIN lineasfacturascli on lineasfacturascli.idfactura = facturascli.idfactura "
-              . "INNER JOIN numeros_serie on numeros_serie.idlfacventa = lineasfacturascli.idlinea WHERE numeros_serie.idlfacventa = $linea ;";
-      
-      $result = $this->db->select($sql);
-        if($result)
-         {
-            $facturav = $result[0]['codigo'];
-         }
-         return $facturav;
-   }
 }

@@ -242,7 +242,7 @@ class articulo extends fs_model
          $this->observaciones = $this->no_html($a['observaciones']);
          $this->codsubcuentacom = $a['codsubcuentacom'];
          $this->codsubcuentairpfcom = $a['codsubcuentairpfcom'];
-         $this->numserie = $this->str2bool($a['publico']);
+         $this->numserie = $this->str2bool($a['numserie']);
          
          $this->imagen = NULL;
          if( isset($a['imagen']) )

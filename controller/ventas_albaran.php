@@ -303,20 +303,7 @@ class ventas_albaran extends fs_controller
                      if ($this->control_numserie($l->referencia))
                      {
                         //numeros de serie
-                        foreach ($_POST['numserie_'.$num] as $serial)
-                        {
-                           $serial = trim($serial);
-                           $numero = $num0->get($serial);
-                           if ($numero)
-                           {
-                              $numero = new numero_serie;
-                              $numero->numserie = $serial;
-                              $numero->referencia = $l->referencia;
-                              $numero->idlalbventa = NULL;
-                              $numero->vendido = FALSE;
-                              $numero->save();
-                           }
-                        }
+                        $num0->limpiar_linea('idlalbventa', $l->idlinea);
                      }
                   }
                   else
@@ -362,16 +349,15 @@ class ventas_albaran extends fs_controller
 
                         if ($lineas[$k]->save())
                         {
+                           //numeros de serie
                            if ($this->control_numserie($lineas[$k]->referencia))
                            {
                               $num0->limpiar_linea('idlalbventa', $lineas[$k]->idlinea);
-                              //numeros de serie
                               foreach ($_POST['numserie_'.$num] as $serial)
                               {
                                  $numero = $num0->get($serial);
                                  if ($numero)
                                  {
-                                    $numero = new numero_serie;
                                     $numero->numserie = $serial;
                                     $numero->referencia = $lineas[$k]->referencia;
                                     $numero->idlalbventa = $lineas[$k]->idlinea;
@@ -587,6 +573,25 @@ class ventas_albaran extends fs_controller
                $this->new_error_msg("¡Imposible guardar la línea el artículo ".$n->referencia."! ");
                break;
             }
+            else
+            {
+               //numeros de serie
+               if ($this->control_numserie($l->referencia))
+               {
+                  //numeros de serie
+                  foreach ($this->numserie->all_from_linea('idlalbventa', $l->idlinea) as $serial)
+                  { 
+                     $numero = $this->numserie->get($serial->numserie);
+                     if ($numero)
+                     {
+                        $numero->numserie = $serial->numserie;
+                        $numero->referencia = $serial->referencia;
+                        $numero->idlfacventa = $n->idlinea;
+                        $numero->save();
+                     }
+                  }
+               }
+            }
          }
 
          if($continuar)
@@ -652,17 +657,14 @@ class ventas_albaran extends fs_controller
 
    public function control_numserie($ref)
    {
-      $data = $this->db->select("SELECT numserie FROM articulos WHERE referencia = '" . $ref . "';");
-      if ($data)
+      $art0 = new articulo();
+      $articulo = $art0->get($ref);
+      if ($articulo->numserie)
       {
-         if ($data[0]['numserie'] == 't')
-         {
-            return TRUE;
-         }
-         else
-            return FALSE;
+         return TRUE;
       }
       else
          return FALSE;
    }
+
 }

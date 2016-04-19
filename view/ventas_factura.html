@@ -3,6 +3,11 @@
 {if="$fsc->factura"}
 <script type="text/javascript" src="{$fsc->get_js_location('ac_email_cliente.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
+
+<script type="text/javascript" src="{$fsc->get_js_location('select2/js/select2.js')}"></script>
+<link rel="stylesheet" href="plugins/facturacion_base/view/js/select2/css/select2.css" />
+<link rel="stylesheet" href="plugins/facturacion_base/view/js/select2/css/select2-bootstrap.css" />
+
 <script type="text/javascript">
    function enviar_email(url)
    {
@@ -237,6 +242,12 @@
             <a href="#envio" aria-controls="envio" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-road" aria-hidden="true"></span>
                <span class="hidden-xs">&nbsp; Envío</span>
+            </a>
+         </li>
+         <li role="presentation">
+            <a href="#numserie" aria-controls="numserie" role="tab" data-toggle="tab">
+               <span class="glyphicon glyphicon-barcode" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Números de serie</span>
             </a>
          </li>
          {loop="$fsc->extensions"}
@@ -587,6 +598,85 @@
                         Dirección:
                         <input type="text" name="envio_direccion" value="{$fsc->factura->envio_direccion}" class="form-control" autocomplete="off"/>
                      </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div role="tabpanel" class="tab-pane" id="numserie">
+            <div class="container-fluid" style="margin-top: 10px;">
+               <div class="row">
+                  <div class="table-responsive">
+                     <table class="table table-condensed">
+                        <thead>
+                           <tr>
+                              <th class="text-left" width="90">Referencia</th>
+                              <th class="text-left" width="190">Descripción</th>
+                              <th class="text-right" width="20">Cantidad</th>
+                              <th class="text-left"width="300">Números de serie</th>
+                              <th width="190"></th>
+                           </tr>
+                        </thead>
+                        {loop="$fsc->factura->get_lineas()"}
+                        <!--{$linea = $counter}-->
+                        <tr id="linea_{$counter}">
+                           <input type="hidden" name="idlinea_{$counter}" value="{$value->idlinea}"/>
+                           <td>
+                              <div class="form-control">
+                                 {$value->referencia}
+                              </div>
+                           </td>
+                           <td>
+                              <div class="form-control">
+                                 {$value->descripcion}
+                              </div>
+                           </td>
+                           <td>
+                              <div class="form-control text-right">
+                                 {$value->cantidad}
+                              </div>
+                           </td>
+                           {if="!$fsc->control_numserie($value->referencia)"}
+                           <td colspan="2">
+                           </td>
+                           {else}
+                           <td>
+                              {if="$fsc->numserie->total_por_linea('idlfacventa', $value->idlinea) == $value->cantidad"}
+                              {loop="$fsc->numserie->all_from_linea('idlfacventa',$value->idlinea)"}
+                              <div class="form-group">
+                                 <input class="form-control inputs" type="text" name="numserie_{$linea}[]" value="{$value->numserie}" autocomplete="off" readonly="readonly"/> 
+                              </div>
+                              {/loop}
+                              {else}
+                              <div class="form-group">
+<script type="text/javascript">
+   $(document).ready(function() {
+      $("#numserie_{$counter}").select2({
+         theme: 'bootstrap',
+         placeholder: 'Num. Serie',
+         allowClear: false,
+         width: '400',
+         maximumSelectionLength : {$value->cantidad},
+         language: "es",
+      });
+});
+</script>
+                                 <select name="numserie_{$counter}[]" id="numserie_{$counter}" class="form-control" multiple="multiple">
+                                    {loop="$fsc->numserie->all_from_linea('idlfacventa',$value->idlinea)"}
+                                    <option value="{$value2->numserie}" selected>{$value2->numserie}</option>
+                                    {/loop}
+                                    {loop="$fsc->numserie->all_from_ref_libre($value->referencia)"}
+                                    <option value="{$value2->numserie}">{$value2->numserie}</option>
+                                    {/loop}
+                                 </select>
+                              </div>
+                              {/if}
+                           </td>
+                           <td>
+                           </td>
+                           {/if}
+                        </tr>
+                        {/loop}
+                     </table>
                   </div>
                </div>
             </div>

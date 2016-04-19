@@ -44,6 +44,12 @@
          return false;
       }
    });
+   $('.inputs').keydown(function (e) {
+         if (e.which === 13) {
+             var index = $('.inputs').index(this) + 1;
+             $('.inputs').eq(index).focus();
+         }
+     });
 });
 </script>
 {else}
@@ -539,6 +545,7 @@
                            </tr>
                         </thead>
                         {loop="$fsc->albaran->get_lineas()"}
+                        <!--{$linea = $counter}-->
                         <tr>
                            <td>
                               <div class="form-control">
@@ -559,17 +566,19 @@
                            <td colspan="2">           
                            </td>
                            {else}
-                           {if="$value->cantidad == $fsc->numserie->total_por_linea('idlalbcompra',$value->idlinea)"}
                            <td>
-                              <textarea class="form-control" cols="60" name="numserie_{$counter}" rows="{$value->cantidad}" disabled>{function="implode("\n", $fsc->numserie->all_from_linea('idlalbcompra',$value->idlinea))"}</textarea>
+                              {loop="$fsc->numserie->all_from_linea('idlalbcompra',$value->idlinea)"}
+                              <div class="form-group">
+                                 <input class="form-control inputs" type="text" name="" value="{$value->numserie}" autocomplete="off" readonly="readonly"/> 
+                              </div>
+                              {/loop}
+                              {loop="$fsc->seriales($value->cantidad - $fsc->numserie->total_por_linea('idlalbcompra', $value->idlinea))"}
+                              <div class="form-group">
+                                 <input class="form-control inputs" type="text" name="numserie_{$linea}[]" value="" autocomplete="off" {if="!$fsc->albaran->ptefactura"}disabled{/if}/>
+                              </div>
+                              {/loop}
                            </td>
-                           {else}
-                           <td>
-                              <textarea data-limit-rows="true" cols="60" rows="{$value->cantidad}" class="form-control" name="numserie_{$counter}">{function="implode("\n", $fsc->numserie->all_from_linea('idlalbcompra',$value->idlinea))"}</textarea>
-                           </td>
-                           {/if}
-                           <td>
-                              Uno por cada línea
+                           <td> 
                            </td>
                            {/if}
                         </tr>

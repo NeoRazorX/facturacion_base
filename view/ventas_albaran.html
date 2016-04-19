@@ -18,7 +18,7 @@
    cliente = {function="json_encode($fsc->cliente_s)"};
    nueva_venta_url = '{$fsc->nuevo_albaran_url}';
    kiwimaru_url = '{#FS_COMMUNITY_URL#}/index.php?page=kiwimaru';
-   
+
    $(document).ready(function() {
       $("#numlineas").val(numlineas);
       usar_serie();
@@ -245,7 +245,7 @@
          </div>
       </div>
    </div>
-   
+
    <div role="tabpanel">
       <ul class="nav nav-tabs" role="tablist">
          <li role="presentation" class="active">
@@ -468,7 +468,7 @@
                </table>
                {/if}
             </div>
-            
+
             <div class="container-fluid">
                <div class="row">
                   <div class="col-sm-12">
@@ -604,41 +604,42 @@
                               </div>
                            </td>
                            {if="!$fsc->control_numserie($value->referencia)"}
-                           <td colspan="2">           
+                           <td colspan="2">
                            </td>
                            {else}
                            <td>
+                              <div class="form-group">
 <script type="text/javascript">
    $(document).ready(function() {
       $("#numserie_{$counter}").select2({
          theme: 'bootstrap',
-         placeholder: 'Selecciona número de serie',
+         placeholder: 'Num. Serie',
          allowClear: true,
-         width: '100%',
+         width: '400',
          maximumSelectionLength : {$value->cantidad},
          language: "es",
       });
-   });
-</script>                                                         
-                                 <select name="numserie_{$counter}[]" id="numserie_{$counter}" class="form-control" multiple="multiple">
-                                    {loop="$fsc->numserie->all_from_linea_completo('idlalbventa',$value->idlinea)"}
+});
+</script>
+                                 <select name="numserie_{$counter}[]" id="numserie_{$counter}" class="form-control" multiple="multiple" {if="!$fsc->albaran->ptefactura"}disabled{/if}/>>
+                                    {loop="$fsc->numserie->all_from_linea('idlalbventa',$value->idlinea)"}
                                     <option value="{$value2->numserie}" selected>{$value2->numserie}</option>
                                     {/loop}
                                     {loop="$fsc->numserie->all_from_ref_libre($value->referencia)"}
                                     <option value="{$value2->numserie}">{$value2->numserie}</option>
                                     {/loop}
                                  </select>
+                              </div>
                            </td>
                            <td>
-                              Uno por cada línea
                            </td>
                            {/if}
                         </tr>
                         {/loop}
-                     </table>                   
+                     </table>
                   </div>
                </div>
-            </div>           
+            </div>
          </div>
          <div role="tabpanel" class="tab-pane" id="envio">
             <div class="container-fluid" style="margin-top: 10px;">
