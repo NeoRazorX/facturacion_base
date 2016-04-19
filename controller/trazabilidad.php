@@ -58,11 +58,11 @@ class trazabilidad extends fs_controller
    {
       ///creamos el botón para acceder
       $this->share_extensions();
-      $this->numserie = '';
-      $this->albcompra = '';
-      $this->faccompra = '';
-      $this->albventa = '';
-      $this->facventa = '';
+      $this->numserie = FALSE;
+      $this->albcompra = FALSE;
+      $this->faccompra = FALSE;
+      $this->albventa = FALSE;
+      $this->facventa = FALSE;
       
       $numserie = new numero_serie();
       

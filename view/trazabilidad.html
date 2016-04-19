@@ -34,7 +34,7 @@
    <div class="row bg-info">
       <div class="col-sm-3">
          <div class="form-group">
-            <b>Albarán</b>
+            <b>{#FS_ALBARAN#}</b>
             <div class="form-control">
                {if="$fsc->numserie->idlalbcompra"}
                <a href="{$fsc->albcompra->url()}">{$fsc->albcompra->codigo}</a>
@@ -44,13 +44,13 @@
       </div>
       <div class="col-sm-3">
          <div class="form-group">
-            Num. Proveedor
+           Número proveedor
             <div class="form-control">
                {$fsc->albcompra->numproveedor}
             </div>
          </div>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-2">
          <div class="form-group">
             Fecha
             <div class="form-control">
@@ -58,7 +58,7 @@
             </div>
          </div>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-4">
          <div class="form-group">
             Proveedor
             <div class="form-control">
@@ -70,7 +70,7 @@
    <div class="row bg-info">
       <div class="col-sm-3">
          <div class="form-group">
-            <b>Factura</b>
+            <b>{#FS_FACTURA#}</b>
             <div class="form-control">
                {if="$fsc->numserie->idlfaccompra"}
                <a href="{$fsc->faccompra->url()}">{$fsc->faccompra->codigo}</a>
@@ -80,13 +80,13 @@
       </div>
       <div class="col-sm-3">
          <div class="form-group">
-            Num. Proveedor
+            Número proveedor
             <div class="form-control">
                {$fsc->faccompra->numproveedor}
             </div>
          </div>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-2">
          <div class="form-group">
             Fecha
             <div class="form-control">
@@ -94,7 +94,7 @@
             </div>
          </div>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-4">
          <div class="form-group">
             Proveedor
             <div class="form-control">
@@ -114,7 +114,7 @@
    <div class="row bg-success">
       <div class="col-sm-3">
          <div class="form-group">
-            <b>Albarán</b>
+            <b>{#FS_ALBARAN#}</b>
             <div class="form-control">
                {if="$fsc->numserie->idlalbventa"}
                <a href="{$fsc->albventa->url()}">{$fsc->albventa->codigo}</a>
@@ -124,13 +124,13 @@
       </div>
       <div class="col-sm-3">
          <div class="form-group">
-            Referencia Cliente
+            {#FS_NUMERO2#}
             <div class="form-control">
                {$fsc->albventa->numero2}
             </div>
          </div>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-2">
          <div class="form-group">
             Fecha
             <div class="form-control">
@@ -138,7 +138,7 @@
             </div>
          </div>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-4">
          <div class="form-group">
             Cliente
             <div class="form-control">
@@ -150,7 +150,7 @@
    <div class="row bg-success">
       <div class="col-sm-3">
          <div class="form-group">
-            <b>Factura</b>
+            <b>{#FS_FACTURA#}</b>
             <div class="form-control">
                {if="$fsc->numserie->idlfacventa"}
                <a href="{$fsc->facventa->url()}">{$fsc->facventa->codigo}</a>
@@ -160,13 +160,13 @@
       </div>
       <div class="col-sm-3">
          <div class="form-group">
-            Referencia cliente
+            {#FS_NUMERO2#}
             <div class="form-control">
                {$fsc->facventa->numero2}
             </div>
          </div>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-2">
          <div class="form-group">
             Fecha
             <div class="form-control">
@@ -174,7 +174,7 @@
             </div>
          </div>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-4">
          <div class="form-group">
             Cliente
             <div class="form-control">
