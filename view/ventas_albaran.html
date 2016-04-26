@@ -4,6 +4,11 @@
 <script type="text/javascript" src="{$fsc->get_js_location('ac_email_cliente.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('nueva_venta.js')}"></script>
+
+<script type="text/javascript" src="{$fsc->get_js_location('select2/js/select2.js')}"></script>
+<link rel="stylesheet" href="plugins/facturacion_base/view/js/select2/css/select2.css" />
+<link rel="stylesheet" href="plugins/facturacion_base/view/js/select2/css/select2-bootstrap.css" />
+
 {if="$fsc->albaran->ptefactura"}
 <script type="text/javascript">
    numlineas = {function="count($fsc->albaran->get_lineas())"};
@@ -13,7 +18,7 @@
    cliente = {function="json_encode($fsc->cliente_s)"};
    nueva_venta_url = '{$fsc->nuevo_albaran_url}';
    kiwimaru_url = '{#FS_COMMUNITY_URL#}/index.php?page=kiwimaru';
-   
+
    $(document).ready(function() {
       $("#numlineas").val(numlineas);
       usar_serie();
@@ -32,7 +37,7 @@
             }
          }
       });
-   });
+});
 </script>
 {else}
 <script type="text/javascript">
@@ -221,7 +226,7 @@
          <div class="col-md-2 col-sm-2">
             <div class="form-group">
                <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
-               <select class="form-control" name="serie" id="codserie" onchange="usar_serie();recalcular();">
+               <select class="form-control" name="serie" onchange="usar_serie();recalcular();">
                {loop="$fsc->serie->all()"}
                   {if="$value->codserie==$fsc->albaran->codserie"}
                   <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
@@ -255,7 +260,7 @@
          </div>
       </div>
    </div>
-   
+
    <div role="tabpanel">
       <ul class="nav nav-tabs" role="tablist">
          <li role="presentation" class="active">
@@ -268,6 +273,12 @@
             <a href="#detalles" aria-controls="detalles" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                <span class="hidden-xs">&nbsp; Detalles</span>
+            </a>
+         </li>
+         <li role="presentation">
+            <a href="#numserie" aria-controls="numserie" role="tab" data-toggle="tab">
+               <span class="glyphicon glyphicon-barcode" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Números de serie</span>
             </a>
          </li>
          <li role="presentation">
@@ -472,7 +483,7 @@
                </table>
                {/if}
             </div>
-            
+
             <div class="container-fluid">
                <div class="row">
                   <div class="col-sm-12">
@@ -572,6 +583,75 @@
                         Dirección:
                         <input class="form-control" type="text" name="direccion" value="{$fsc->albaran->direccion}" autocomplete="off"/>
                      </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div role="tabpanel" class="tab-pane" id="numserie">
+            <div class="container-fluid" style="margin-top: 10px;">
+               <div class="row">
+                  <div class="table-responsive">
+                     <table class="table table-condensed">
+                        <thead>
+                           <tr>
+                              <th class="text-left" width="90">Referencia</th>
+                              <th class="text-left" width="190">Descripción</th>
+                              <th class="text-right" width="20">Cantidad</th>
+                              <th class="text-left"width="300">Números de serie</th>
+                              <th width="190"></th>
+                           </tr>
+                        </thead>
+                        {loop="$fsc->albaran->get_lineas()"}
+                        <tr>
+                           <td>
+                              <div class="form-control">
+                                 {$value->referencia}
+                              </div>
+                           </td>
+                           <td>
+                              <div class="form-control">
+                                 {$value->descripcion}
+                              </div>
+                           </td>
+                           <td>
+                              <div class="form-control text-right">
+                                 {$value->cantidad}
+                              </div>
+                           </td>
+                           {if="!$fsc->control_numserie($value->referencia)"}
+                           <td colspan="2">
+                           </td>
+                           {else}
+                           <td>
+                              <div class="form-group">
+<script type="text/javascript">
+   $(document).ready(function() {
+      $("#numserie_{$counter}").select2({
+         theme: 'bootstrap',
+         placeholder: 'Num. Serie',
+         allowClear: true,
+         width: '400',
+         maximumSelectionLength : {$value->cantidad},
+         language: "es",
+      });
+});
+</script>
+                                 <select name="numserie_{$counter}[]" id="numserie_{$counter}" class="form-control" multiple="multiple" {if="!$fsc->albaran->ptefactura"}disabled{/if}/>>
+                                    {loop="$fsc->numserie->all_from_linea('idlalbventa',$value->idlinea)"}
+                                    <option value="{$value2->numserie}" selected>{$value2->numserie}</option>
+                                    {/loop}
+                                    {loop="$fsc->numserie->all_from_ref_libre($value->referencia)"}
+                                    <option value="{$value2->numserie}">{$value2->numserie}</option>
+                                    {/loop}
+                                 </select>
+                              </div>
+                           </td>
+                           <td>
+                           </td>
+                           {/if}
+                        </tr>
+                        {/loop}
+                     </table>
                   </div>
                </div>
             </div>
@@ -968,5 +1048,4 @@
    <img src="view/img/fuuu_face.png" alt="fuuuuu"/>
 </div>
 {/if}
-
 {include="footer"}

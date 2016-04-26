@@ -33,6 +33,7 @@ require_model('proveedor.php');
 require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('subcuenta.php');
+require_model('numeros_serie.php');
 
 class compras_albaran extends fs_controller
 {
@@ -49,7 +50,9 @@ class compras_albaran extends fs_controller
    public $proveedor;
    public $proveedor_s;
    public $serie;
-   
+   public $numserie;
+   public $linea_numserie;
+    
    public function __construct()
    {
       parent::__construct(__CLASS__, FS_ALBARAN.' de proveedor', 'compras', FALSE, FALSE);
@@ -71,6 +74,7 @@ class compras_albaran extends fs_controller
       $this->proveedor = new proveedor();
       $this->proveedor_s = FALSE;
       $this->serie = new serie();
+      $this->numserie = new numero_serie();
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -227,6 +231,7 @@ class compras_albaran extends fs_controller
             foreach($lineas as $l)
             {
                $encontrada = FALSE;
+               $num0 = new numero_serie();
                for($num = 0; $num <= $numlineas; $num++)
                {
                   if( isset($_POST['idlinea_'.$num]) )
@@ -247,6 +252,13 @@ class compras_albaran extends fs_controller
                      if($art0)
                      {
                         $art0->sum_stock($this->albaran->codalmacen, 0 - $l->cantidad);
+                     }
+                     if ($this->control_numserie($l->referencia))
+                     {
+                        if (!$num0->delete_idlinea('idlalbcompra', $l->idlinea))
+                        {
+                           $this->new_error_msg("¡Imposible eliminar el número de srie del artículo " . $l->referencia . "!");
+                        }
                      }
                   }
                   else
@@ -289,15 +301,34 @@ class compras_albaran extends fs_controller
                            $lineas[$k]->iva = floatval($_POST['iva_'.$num]);
                            $lineas[$k]->recargo = floatval($_POST['recargo_'.$num]);
                         }
-                        
-                        if( $lineas[$k]->save() )
+
+                        if ($lineas[$k]->save())
                         {
+                           //numeros de serie
+                           if ($this->control_numserie($lineas[$k]->referencia))
+                           {
+                              foreach ($_POST['numserie_' . $num] as $serial)
+                              {
+                                 $serial = trim($serial);
+                                 $numero = $num0->get($serial);
+                                 if (!$numero AND $serial != '')
+                                 {
+                                    $numero = new numero_serie;
+                                    $numero->numserie = $serial;
+                                    $numero->referencia = $lineas[$k]->referencia;
+                                    $numero->idlalbcompra = $lineas[$k]->idlinea;
+                                    $numero->save();
+                                 }
+                                 else if($serial != NULL)
+                                    $this->new_error_msg("El número de serie #".$serial." ya existe");
+                              }
+                           }
                            $this->albaran->neto += $value->pvptotal;
-                           $this->albaran->totaliva += $value->pvptotal * $value->iva/100;
-                           $this->albaran->totalirpf += $value->pvptotal * $value->irpf/100;
-                           $this->albaran->totalrecargo += $value->pvptotal * $value->recargo/100;
-                           
-                           if($value->irpf > $this->albaran->irpf)
+                           $this->albaran->totaliva += $value->pvptotal * $value->iva / 100;
+                           $this->albaran->totalirpf += $value->pvptotal * $value->irpf / 100;
+                           $this->albaran->totalrecargo += $value->pvptotal * $value->recargo / 100;
+
+                           if ($value->irpf > $this->albaran->irpf)
                            {
                               $this->albaran->irpf = $value->irpf;
                            }
@@ -481,8 +512,27 @@ class compras_albaran extends fs_controller
                $this->new_error_msg("¡Imposible guardar la línea el artículo ".$linea->referencia."! ");
                break;
             }
+            else
+            {
+               //numeros de serie
+               if ($this->control_numserie($l->referencia))
+               {
+                  //numeros de serie
+                  foreach ($this->numserie->all_from_linea('idlalbcompra', $l->idlinea) as $serial)
+                  { 
+                     $numero = $this->numserie->get($serial->numserie);
+                     if ($numero)
+                     {
+                        $numero->numserie = $serial->numserie;
+                        $numero->referencia = $serial->referencia;
+                        $numero->idlfaccompra = $linea->idlinea;
+                        $numero->save();
+                     }
+                  }
+               }
+            }
          }
-         
+
          if( $continuar )
          {
             $this->albaran->idfactura = $factura->idfactura;
@@ -543,4 +593,28 @@ class compras_albaran extends fs_controller
       
       $this->new_change('Factura Proveedor '.$factura->codigo, $factura->url(), TRUE);
    }
+   
+   public function control_numserie($ref)
+   {
+      $art0 = new articulo();
+      $articulo = $art0->get($ref);
+      if ($articulo->numserie)
+      {
+         return TRUE;
+      }
+      else
+         return FALSE;
+   }
+   
+   public function seriales($cantidad)
+   {
+      $this->linea_numserie = array();
+
+      for ($i = 0; $i < $cantidad; $i++)
+      {
+         $this->linea_numserie[] = '';
+      }
+      return $this->linea_numserie;
+   }
+
 }

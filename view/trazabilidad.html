@@ -1,0 +1,240 @@
+{include="header"}
+<!--Bootstrap table-->
+<link rel="stylesheet" href="plugins/facturacion_base/view/js/bootstrap-table.css" />
+<script type="text/javascript" src="plugins/facturacion_base/view/js/bootstrap-table.js"></script>
+<script type="text/javascript" src="plugins/facturacion_base/view/js/bootstrap-table-filter-control.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/locale/bootstrap-table-es-ES.js"></script>
+
+{if="$fsc->numserie->numserie"}
+<div class="container">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               <a class="btn btn-xs btn-default" href="{$fsc->url()}&numserie={$fsc->numserie->numserie}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+               <a class="btn btn-xs btn-default" href="index.php?page=trazabilidad">
+                  <span class="glyphicon glyphicon-arrow-left"></span>
+               </a>
+               Número de serie
+               <small>{$fsc->numserie->numserie} | {$fsc->art_desc($fsc->numserie->referencia)}</small>
+              
+            </h1>
+         </div>
+      </div>
+   </div>
+   <div class="row bg-info">
+      <div class="col-md-12 col-sm-12">
+         <h2>
+            <i class="glyphicon glyphicon-shopping-cart"></i>&nbsp; Compra
+         </h2>
+      </div>
+   </div>
+   <div class="row bg-info">
+      <div class="col-sm-3">
+         <div class="form-group">
+            <b>{#FS_ALBARAN#}</b>
+            <div class="form-control">
+               {if="$fsc->numserie->idlalbcompra"}
+               <a href="{$fsc->albcompra->url()}">{$fsc->albcompra->codigo}</a>
+               {/if}
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-3">
+         <div class="form-group">
+           Número proveedor
+            <div class="form-control">
+               {$fsc->albcompra->numproveedor}
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-2">
+         <div class="form-group">
+            Fecha
+            <div class="form-control">
+               {$fsc->albcompra->fecha}
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-4">
+         <div class="form-group">
+            Proveedor
+            <div class="form-control">
+               {$fsc->albcompra->nombre}
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row bg-info">
+      <div class="col-sm-3">
+         <div class="form-group">
+            <b>{#FS_FACTURA#}</b>
+            <div class="form-control">
+               {if="$fsc->numserie->idlfaccompra"}
+               <a href="{$fsc->faccompra->url()}">{$fsc->faccompra->codigo}</a>
+               {/if}
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-3">
+         <div class="form-group">
+            Número proveedor
+            <div class="form-control">
+               {$fsc->faccompra->numproveedor}
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-2">
+         <div class="form-group">
+            Fecha
+            <div class="form-control">
+               {$fsc->faccompra->fecha}
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-4">
+         <div class="form-group">
+            Proveedor
+            <div class="form-control">
+               {$fsc->faccompra->nombre}
+            </div>
+         </div>
+      </div>
+   </div>
+   <br />
+   <div class="row bg-success">
+      <div class="col-md-12 col-sm-12">
+         <h2>
+            <i class="glyphicon glyphicon-usd"></i>&nbsp; Venta
+         </h2>
+      </div>
+   </div>
+   <div class="row bg-success">
+      <div class="col-sm-3">
+         <div class="form-group">
+            <b>{#FS_ALBARAN#}</b>
+            <div class="form-control">
+               {if="$fsc->numserie->idlalbventa"}
+               <a href="{$fsc->albventa->url()}">{$fsc->albventa->codigo}</a>
+               {/if}
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-3">
+         <div class="form-group">
+            {#FS_NUMERO2#}
+            <div class="form-control">
+               {$fsc->albventa->numero2}
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-2">
+         <div class="form-group">
+            Fecha
+            <div class="form-control">
+               {$fsc->albventa->fecha}
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-4">
+         <div class="form-group">
+            Cliente
+            <div class="form-control">
+               {$fsc->albventa->nombrecliente}
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row bg-success">
+      <div class="col-sm-3">
+         <div class="form-group">
+            <b>{#FS_FACTURA#}</b>
+            <div class="form-control">
+               {if="$fsc->numserie->idlfacventa"}
+               <a href="{$fsc->facventa->url()}">{$fsc->facventa->codigo}</a>
+               {/if}
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-3">
+         <div class="form-group">
+            {#FS_NUMERO2#}
+            <div class="form-control">
+               {$fsc->facventa->numero2}
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-2">
+         <div class="form-group">
+            Fecha
+            <div class="form-control">
+               {$fsc->facventa->fecha}
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-4">
+         <div class="form-group">
+            Cliente
+            <div class="form-control">
+               {$fsc->facventa->nombrecliente}
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{else}
+<div class="container">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               Trazabilidad
+               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+               <div class="btn-group">
+                  {loop="$fsc->extensions"}
+                  {if="$value->type=='button'"}
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                  {/if}
+                  {/loop}
+               </div>
+            </h1>
+         </div>
+         <div class="table table-responsive">
+             <table id="trazabilidad" class="table table-bordered table-striped" 
+                    data-toggle="table" 
+                    data-pagination="true"
+                    data-filter-control="true">
+               <thead>
+                  <tr>
+                     <th data-field="numserie" data-filter-control="input" data-sortable="true" class="text-left" >Número de serie</th>
+                     <th data-field="referencia" data-filter-control="input" data-sortable="true" >Referencia</th>
+                     <th data-field="descripcion" data-filter-control="input" data-sortable="true" >Descripción</th>
+                     <th data-field="vendido" data-filter-control="select" data-sortable="true" class="text-center">Vendido</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->resultados"}
+               <tr class="{if="$value->vendido == 't'"}success{else}success{/if}">
+                  <td><a href="{$value->url()}">{$value->numserie}</a></td>
+                  <td>{$value->referencia}</td>
+                  <td>{$fsc->art_desc($value->referencia)}</td> 
+                  <td>
+                     {if="$value->vendido == 't'"}
+                     Si
+                     {else}
+                     No
+                     {/if}
+                  </td>
+               </tr>
+               {/loop}
+             </table>
+         </div>
+      </div>
+   </div>
+</div>
+{/if}
+
+{include="footer"}

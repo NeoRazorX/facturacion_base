@@ -369,6 +369,12 @@
                            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Bloqueado / Obsoleto
                         </label>
                      </div>
+                     <div class="checkbox">
+                        <label>
+                           <input type="checkbox" name="numserie" value="TRUE"{if="$fsc->articulo->numserie"} checked="checked"{/if}/>
+                           <span class="glyphicon glyphicon-barcode" aria-hidden="true"></span> Control por números de serie
+                        </label>
+                     </div>
                      {if="$fsc->mostrar_boton_publicar"}
                      <div class="checkbox">
                         <label title="Sincronizar con tienda online (si está disponible)">
