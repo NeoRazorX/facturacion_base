@@ -587,4 +587,22 @@ class linea_factura_cliente extends fs_model
       
       return $facturalist;
    }
+   
+   /**
+    * Devuelve los datos de una linea 
+    * @param type $idlinea
+    * @return new linea_factura_cliente
+    */
+   public function get($idlinea)
+   {
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idlinea = ".$this->var2str($idlinea).";");
+      if($data)
+      {
+         return new linea_factura_cliente($data[0]);
+      }
+      else
+      {
+         return FALSE;
+      }
+   }
 }
