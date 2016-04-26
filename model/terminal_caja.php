@@ -37,7 +37,7 @@ class terminal_caja extends fs_model
    
    public function __construct($t = FALSE)
    {
-      parent::__construct('cajas_terminales', 'plugins/facturacion_base/');
+      parent::__construct('cajas_terminales');
       if($t)
       {
          $this->id = $this->intval($t['id']);
@@ -127,7 +127,9 @@ class terminal_caja extends fs_model
       if($aux)
       {
          foreach($aux as $a)
+         {
             $this->tickets .= chr($a);
+         }
       }
       
       $this->tickets .= "\n";
@@ -276,7 +278,9 @@ class terminal_caja extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $tlist[] = new terminal_caja($d);
+         }
       }
       
       return $tlist;
@@ -285,12 +289,17 @@ class terminal_caja extends fs_model
    public function disponibles()
    {
       $tlist = array();
+      $sql = "SELECT * FROM cajas_terminales WHERE id NOT IN "
+              . "(SELECT fs_id as id FROM cajas WHERE f_fin IS NULL) "
+              . "ORDER BY id ASC;";
       
-      $data = $this->db->select("SELECT * FROM cajas_terminales WHERE id NOT IN (SELECT fs_id as id FROM cajas WHERE f_fin IS NULL) ORDER BY id ASC;");
+      $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $d)
+         {
             $tlist[] = new terminal_caja($d);
+         }
       }
       
       return $tlist;

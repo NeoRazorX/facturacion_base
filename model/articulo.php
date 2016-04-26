@@ -188,7 +188,7 @@ class articulo extends fs_model
 
    public function __construct($a=FALSE)
    {
-      parent::__construct('articulos', 'plugins/facturacion_base/');
+      parent::__construct('articulos');
       
       if( !isset(self::$impuestos) )
       {
@@ -402,12 +402,12 @@ class articulo extends fs_model
    {
       if( strtolower(FS_DB_TYPE) == 'postgresql' )
       {
-         $sql = "SELECT referencia from articulos where referencia ~ '^\d+$'"
+         $sql = "SELECT referencia from ".$this->table_name." where referencia ~ '^\d+$'"
                  . " ORDER BY referencia::integer DESC";
       }
       else
       {
-         $sql = "SELECT referencia from articulos where referencia REGEXP '^[0-9]+$'"
+         $sql = "SELECT referencia from ".$this->table_name." where referencia REGEXP '^[0-9]+$'"
                  . " ORDER BY CAST(`referencia` AS decimal) DESC";
       }
       
@@ -584,6 +584,10 @@ class articulo extends fs_model
          return $coste;
    }
    
+   /**
+    * Devuelve la url relativa de la imagen del artículo.
+    * @return boolean
+    */
    public function imagen_url()
    {
       if( file_exists('images/articulos/'.$this->image_ref().'-1.png') )
@@ -598,6 +602,11 @@ class articulo extends fs_model
          return FALSE;
    }
    
+   /**
+    * Asigna una imagen a un artículo.
+    * @param type $img
+    * @param type $png
+    */
    public function set_imagen($img, $png = TRUE)
    {
       $this->imagen = NULL;
@@ -1375,6 +1384,6 @@ class articulo extends fs_model
       $ref = str_replace('/', '_', $ref);
       $ref = str_replace('\\', '_', $ref);
       
-      return rawurlencode($ref);
+      return $ref;
    }
 }

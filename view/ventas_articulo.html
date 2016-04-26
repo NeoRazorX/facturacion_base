@@ -117,14 +117,16 @@
 
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
-      <div class="col-xs-8">
-         <a href="{$fsc->url()}" class="btn btn-sm btn-default hidden-xs" title="Recargar la página">
-            <span class="glyphicon glyphicon-refresh"></span>
-         </a>
-         <a href="index.php?page=ventas_articulos" class="btn btn-sm btn-default">
-            <span class="glyphicon glyphicon-arrow-left"></span>
-            <span class="hidden-xs">&nbsp; Todos</span>
-         </a>
+      <div class="col-xs-7">
+         <div class="btn-group">
+            <a href="index.php?page=ventas_articulos" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-arrow-left"></span>
+               <span class="hidden-xs">&nbsp; Todos</span>
+            </a>
+            <a href="{$fsc->url()}" class="btn btn-sm btn-default hidden-xs" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+         </div>
          <a href="#" id="b_imagen" class="btn btn-sm btn-default">
             <span class="glyphicon glyphicon-picture"></span>
             <span class="hidden-xs">&nbsp; Imagen</span>
@@ -141,8 +143,8 @@
             {/if}
          {/loop}
       </div>
-      <div class="col-xs-4 text-right">
-         <a class="btn btn-sm btn-success" href="index.php?page=ventas_articulos#nuevo" title="Nuevo artículo">
+      <div class="col-xs-5 text-right">
+         <a class="btn btn-sm btn-success" href="index.php?page=ventas_articulos&b_codfamilia={$fsc->articulo->codfamilia}&b_codfabricante={$fsc->articulo->codfabricante}#nuevo" title="Nuevo artículo">
             <span class="glyphicon glyphicon-plus"></span>
          </a>
          {if="$fsc->allow_delete"}

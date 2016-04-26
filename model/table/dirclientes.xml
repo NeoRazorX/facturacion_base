@@ -66,6 +66,10 @@
       <nulo>NO</nulo>
       <defecto>nextval('dirclientes_id_seq'::regclass)</defecto>
    </columna>
+   <columna>
+      <nombre>fecha</nombre>
+      <tipo>date</tipo>
+   </columna>
    <restriccion>
       <nombre>dirclientes_pkey</nombre>
       <consulta>PRIMARY KEY (id)</consulta>

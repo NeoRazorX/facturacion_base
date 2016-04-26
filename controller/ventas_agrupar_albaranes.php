@@ -225,7 +225,11 @@ class ventas_agrupar_albaranes extends fs_controller
       {
          foreach($cliente->get_direcciones() as $dir)
          {
-            if($dir->domfacturacion)
+            /**
+             * Si la dirección es de facturación y ha sido modificada posteriormente
+             * al albarán, la usamos para la factura, porque está más actualizada.
+             */
+            if( $dir->domfacturacion AND strtotime($dir->fecha) > strtotime($albaranes[0]->fecha) )
             {
                $factura->apartado = $dir->apartado;
                $factura->cifnif = $cliente->cifnif;

@@ -28,7 +28,7 @@ class cuenta_especial extends fs_model
    
    public function __construct($c = FALSE)
    {
-      parent::__construct('co_cuentasesp', 'plugins/facturacion_base/');
+      parent::__construct('co_cuentasesp');
       if($c)
       {
          $this->idcuentaesp = $c['idcuentaesp'];

@@ -78,7 +78,7 @@ class caja extends fs_model
    
    public function __construct($c=FALSE)
    {
-      parent::__construct('cajas', 'plugins/facturacion_base/');
+      parent::__construct('cajas');
       
       if( !isset(self::$agentes) )
       {

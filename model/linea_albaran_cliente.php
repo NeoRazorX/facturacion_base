@@ -112,7 +112,7 @@ class linea_albaran_cliente extends fs_model
 
    public function __construct($l=FALSE)
    {
-      parent::__construct('lineasalbaranescli', 'plugins/facturacion_base/');
+      parent::__construct('lineasalbaranescli');
       
       if( !isset(self::$albaranes) )
          self::$albaranes = array();

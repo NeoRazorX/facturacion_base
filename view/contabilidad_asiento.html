@@ -229,20 +229,20 @@
 <form id="f_asiento" name="f_asiento" action="{$fsc->url()}" method="post">
    <input type="hidden" name="numlineas" value="0"/>
    <div class="container-fluid">
-      <div class="row" style="margin-top: 10px; margin-bottom: 10px;">
+      <div class="row" style="margin-bottom: 10px;">
          <div class="col-xs-6">
-            <div class="btn-group hidden-xs">
+            <div class="btn-group">
+               <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
+                  <span class="glyphicon glyphicon-arrow-left"></span>
+                  <span class="hidden-xs">&nbsp; Asientos</span>
+               </a>
                <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
             </div>
-            <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
-               <span class="glyphicon glyphicon-arrow-left"></span>
-               <span class="hidden-xs">&nbsp; Asientos</span>
-            </a>
             <div class="btn-group">
                <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_nuevo_asiento&copy={$fsc->asiento->idasiento}">
-                  <span class="glyphicon glyphicon-duplicate"></span>
+                  <span class="glyphicon glyphicon-scissors"></span>
                   <span class="hidden-xs">&nbsp; Copiar</span>
                </a>
                {loop="$fsc->extensions"}
@@ -418,18 +418,18 @@
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
       <div class="col-xs-8">
-         <div class="btn-group hidden-xs">
+         <div class="btn-group">
+            <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
+               <span class="glyphicon glyphicon-arrow-left"></span>
+               <span class="hidden-xs">&nbsp; Asientos</span>
+            </a>
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
          </div>
-         <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
-            <span class="glyphicon glyphicon-arrow-left"></span>
-            <span class="hidden-xs">&nbsp; Asientos</span>
-         </a>
          <div class="btn-group">
             <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_nuevo_asiento&copy={$fsc->asiento->idasiento}">
-               <span class="glyphicon glyphicon-duplicate"></span>
+               <span class="glyphicon glyphicon-scissors"></span>
                <span class="hidden-xs">&nbsp; Copiar</span>
             </a>
             {loop="$fsc->extensions"}

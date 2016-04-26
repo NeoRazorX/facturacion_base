@@ -137,7 +137,7 @@ class cliente extends fs_model
 
    public function __construct($c=FALSE)
    {
-      parent::__construct('clientes', 'plugins/facturacion_base/');
+      parent::__construct('clientes');
       if($c)
       {
          $this->codcliente = $c['codcliente'];
@@ -303,16 +303,31 @@ class cliente extends fs_model
    }
    
    /**
-    * Devuelve un cliente a partir del cifnif
+    * Devuelve la primera ocurrencia del cifnif en la lista de clientes.
+    * Si el cifnif está en blanco y se proporciona una razón social,
+    * se devuelve la primera ocurrencia.
     * @param type $cifnif
-    * @return \cliente|boolean
+    * @param type $razon
+    * @return boolean|\proveedor
     */
-   public function get_by_cifnif($cifnif)
+   public function get_by_cifnif($cifnif, $razon=FALSE)
    {
-      $cli = $this->db->select("SELECT * FROM ".$this->table_name." WHERE cifnif = ".$this->var2str($cifnif).";");
-      if($cli)
+      if($cifnif == '' AND $razon)
       {
-         return new cliente($cli[0]);
+         $razon = mb_strtolower( $this->no_html($razon) );
+         $sql = "SELECT * FROM ".$this->table_name." WHERE cifnif = ''"
+                 . " AND lower(razonsocial) = ".$this->var2str($razon).";";
+      }
+      else
+      {
+         $cifnif = mb_strtolower($cifnif);
+         $sql = "SELECT * FROM ".$this->table_name." WHERE lower(cifnif) = ".$this->var2str($cifnif).";";
+      }
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         return new cliente($data[0]);
       }
       else
          return FALSE;
@@ -459,15 +474,15 @@ class cliente extends fs_model
       
       if( !preg_match("/^[A-Z0-9]{1,6}$/i", $this->codcliente) )
       {
-         $this->new_error_msg("Código de cliente no válido.");
+         $this->new_error_msg("Código de cliente no válido: ".$this->codcliente);
       }
       else if( strlen($this->nombre) < 1 OR strlen($this->nombre) > 100 )
       {
-         $this->new_error_msg("Nombre de cliente no válido.");
+         $this->new_error_msg("Nombre de cliente no válido: ".$this->nombre);
       }
       else if( strlen($this->razonsocial) < 1 OR strlen($this->razonsocial) > 100 )
       {
-         $this->new_error_msg("Razón social del cliente no válida.");
+         $this->new_error_msg("Razón social del cliente no válida: ".$this->razonsocial);
       }
       else
          $status = TRUE;

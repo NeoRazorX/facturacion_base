@@ -114,10 +114,25 @@
                <span class="hidden-xs">&nbsp; Ver Factura</span>
             </a>
             {elseif="$fsc->albaran->ptefactura"}
-            <a id="b_aprobar" class="btn btn-sm btn-default" href="#">
-               <span class="glyphicon glyphicon-paperclip"></span>
-               <span class="hidden-xs">&nbsp; Aprobar</span>
-            </a>
+            <div class="btn-group">
+               <button type="button" class="btn btn-sm btn-warning dropdown-toggle" data-toggle="dropdown">
+                  <span class="glyphicon glyphicon-time"></span>
+                  <span class="hidden-xs">&nbsp; Pendiente</span>
+                  <span class="caret"></span>
+               </button>
+               <ul class="dropdown-menu" role="menu">
+                  <li>
+                     <a id="b_aprobar" href="#">
+                        <span class="glyphicon glyphicon-ok"></span>&nbsp; Aprobado
+                     </a>
+                  </li>
+                  <li>
+                     <a href="index.php?page=ventas_agrupar_albaranes&codcliente={$fsc->albaran->codcliente}&codserie={$fsc->albaran->codserie}&desde={$fsc->albaran->fecha}">
+                        <span class="glyphicon glyphicon-duplicate"></span>&nbsp; Agrupar...
+                     </a>
+                  </li>
+               </ul>
+            </div>
             {else}
             <a class="btn btn-sm btn-warning" href="#">
                <span class="glyphicon glyphicon-lock"></span>

@@ -30,7 +30,7 @@ class subcuenta_proveedor extends fs_model
    
    public function __construct($s=FALSE)
    {
-      parent::__construct('co_subcuentasprov', 'plugins/facturacion_base/');
+      parent::__construct('co_subcuentasprov');
       if($s)
       {
          $this->codproveedor = $s['codproveedor'];

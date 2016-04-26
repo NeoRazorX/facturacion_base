@@ -44,7 +44,7 @@ class grupo_clientes extends fs_model
    
    public function __construct($g = FALSE)
    {
-      parent::__construct('gruposclientes', 'plugins/facturacion_base/');
+      parent::__construct('gruposclientes');
       if($g)
       {
          $this->codgrupo = $g['codgrupo'];
@@ -79,11 +79,21 @@ class grupo_clientes extends fs_model
    
    public function get_new_codigo()
    {
-      $sql = "SELECT MAX(".$this->db->sql_to_int('codgrupo').") as cod FROM ".$this->table_name.";";
-      $cod = $this->db->select($sql);
-      if($cod)
+      if( strtolower(FS_DB_TYPE) == 'postgresql' )
       {
-         return sprintf('%06s', (1 + intval($cod[0]['cod'])));
+         $sql = "SELECT codgrupo from ".$this->table_name." where codgrupo ~ '^\d+$'"
+                 . " ORDER BY codgrupo::integer DESC";
+      }
+      else
+      {
+         $sql = "SELECT codgrupo from ".$this->table_name." where codgrupo REGEXP '^[0-9]+$'"
+                 . " ORDER BY CAST(`codgrupo` AS decimal) DESC";
+      }
+      
+      $data = $this->db->select_limit($sql, 1, 0);
+      if($data)
+      {
+         return sprintf('%06s', (1 + intval($data[0]['codgrupo'])));
       }
       else
          return '000001';

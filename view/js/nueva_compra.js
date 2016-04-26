@@ -318,7 +318,7 @@ function aux_all_impuestos(num,codimpuesto)
    {
       if(iva == all_impuestos[i].iva)
       {
-         html += "<option value=\""+all_impuestos[i].iva+"\" selected=\"selected\">"+all_impuestos[i].descripcion+"</option>";
+         html += "<option value=\""+all_impuestos[i].iva+"\" selected=\"\">"+all_impuestos[i].descripcion+"</option>";
       }
       else
          html += "<option value=\""+all_impuestos[i].iva+"\">"+all_impuestos[i].descripcion+"</option>";

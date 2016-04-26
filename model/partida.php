@@ -58,7 +58,7 @@ class partida extends fs_model
    
    public function __construct($p=FALSE)
    {
-      parent::__construct('co_partidas', 'plugins/facturacion_base/');
+      parent::__construct('co_partidas');
       if($p)
       {
          $this->idpartida = $this->intval($p['idpartida']);

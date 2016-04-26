@@ -22,21 +22,48 @@
  */
 class direccion_cliente extends fs_model
 {
+   /**
+    * Clave primaria.
+    * @var type 
+    */
    public $id;
+   
+   /**
+    * Código del cliente asociado.
+    * @var type 
+    */
    public $codcliente;
+   
    public $codpais;
    public $apartado;
    public $provincia;
    public $ciudad;
    public $codpostal;
    public $direccion;
+   
+   /**
+    * TRUE -> esta dirección es de envío.
+    * @var type 
+    */
    public $domenvio;
+   
+   /**
+    * TRUE -> esta dirección es de facturación.
+    * @var type 
+    */
    public $domfacturacion;
+   
    public $descripcion;
+   
+   /**
+    * Fecha de última modificación.
+    * @var type 
+    */
+   public $fecha;
    
    public function __construct($d=FALSE)
    {
-      parent::__construct('dirclientes', 'plugins/facturacion_base/');
+      parent::__construct('dirclientes');
       if($d)
       {
          $this->id = $this->intval($d['id']);
@@ -50,6 +77,7 @@ class direccion_cliente extends fs_model
          $this->domenvio = $this->str2bool($d['domenvio']);
          $this->domfacturacion = $this->str2bool($d['domfacturacion']);
          $this->descripcion = $d['descripcion'];
+         $this->fecha = date('d-m-Y', strtotime($d['fecha']));
       }
       else
       {
@@ -64,6 +92,7 @@ class direccion_cliente extends fs_model
          $this->domenvio = TRUE;
          $this->domfacturacion = TRUE;
          $this->descripcion = NULL;
+         $this->fecha = date('d-m-Y');
       }
    }
    
@@ -74,10 +103,10 @@ class direccion_cliente extends fs_model
    
    public function get($id)
    {
-      $dir = $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($id).";");
-      if($dir)
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($id).";");
+      if($data)
       {
-         return new direccion_cliente($dir[0]);
+         return new direccion_cliente($data[0]);
       }
       else
          return FALSE;
@@ -102,6 +131,9 @@ class direccion_cliente extends fs_model
       $this->direccion = $this->no_html($this->direccion);
       $this->provincia = $this->no_html($this->provincia);
       
+      /// actualizamos la fecha de modificación
+      $this->fecha = date('d-m-Y');
+      
       if( $this->exists() )
       {
          $sql = "UPDATE ".$this->table_name." SET codcliente = ".$this->var2str($this->codcliente)
@@ -114,6 +146,7 @@ class direccion_cliente extends fs_model
                  .", domenvio = ".$this->var2str($this->domenvio)
                  .", domfacturacion = ".$this->var2str($this->domfacturacion)
                  .", descripcion = ".$this->var2str($this->descripcion)
+                 .", fecha = ".$this->var2str($this->fecha)
                  ."  WHERE id = ".$this->var2str($this->id).";";
          
          return $this->db->exec($sql);
@@ -121,7 +154,7 @@ class direccion_cliente extends fs_model
       else
       {
          $sql = "INSERT INTO ".$this->table_name." (codcliente,codpais,apartado,provincia,ciudad,codpostal,
-            direccion,domenvio,domfacturacion,descripcion) VALUES (".$this->var2str($this->codcliente)
+            direccion,domenvio,domfacturacion,descripcion,fecha) VALUES (".$this->var2str($this->codcliente)
                  .",".$this->var2str($this->codpais)
                  .",".$this->var2str($this->apartado)
                  .",".$this->var2str($this->provincia)
@@ -130,7 +163,8 @@ class direccion_cliente extends fs_model
                  .",".$this->var2str($this->direccion)
                  .",".$this->var2str($this->domenvio)
                  .",".$this->var2str($this->domfacturacion)
-                 .",".$this->var2str($this->descripcion).");";
+                 .",".$this->var2str($this->descripcion)
+                 .",".$this->var2str($this->fecha).");";
          
          if( $this->db->exec($sql) )
          {
@@ -155,7 +189,9 @@ class direccion_cliente extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $dirlist[] = new direccion_cliente($d);
+         }
       }
       
       return $dirlist;
@@ -169,7 +205,9 @@ class direccion_cliente extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $dirlist[] = new direccion_cliente($d);
+         }
       }
       
       return $dirlist;

@@ -22,7 +22,18 @@
  */
 class direccion_proveedor extends fs_model
 {
+   /**
+    * Clave primaria.
+    * @var type 
+    */
+   public $id;
+   
+   /**
+    * Código del proveedor asociado.
+    * @var type 
+    */
    public $codproveedor;
+   
    public $codpais;
    public $apartado;
    public $provincia;
@@ -31,13 +42,19 @@ class direccion_proveedor extends fs_model
    public $direccion;
    public $direccionppal;
    public $descripcion;
-   public $id; /// pkey
+   
+   /**
+    * Fecha de la última modificación.
+    * @var type 
+    */
+   public $fecha;
    
    public function __construct($d=FALSE)
    {
-      parent::__construct('dirproveedores', 'plugins/facturacion_base/');
+      parent::__construct('dirproveedores');
       if($d)
       {
+         $this->id = $this->intval($d['id']);
          $this->codproveedor = $d['codproveedor'];
          $this->codpais = $d['codpais'];
          $this->apartado = $d['apartado'];
@@ -47,10 +64,11 @@ class direccion_proveedor extends fs_model
          $this->direccion = $d['direccion'];
          $this->direccionppal = $this->str2bool($d['direccionppal']);
          $this->descripcion = $d['descripcion'];
-         $this->id = $this->intval($d['id']);
+         $this->fecha = date('d-m-Y', strtotime($d['fecha']));
       }
       else
       {
+         $this->id = NULL;
          $this->codproveedor = NULL;
          $this->codpais = NULL;
          $this->apartado = NULL;
@@ -60,7 +78,7 @@ class direccion_proveedor extends fs_model
          $this->direccion = NULL;
          $this->direccionppal = TRUE;
          $this->descripcion = NULL;
-         $this->id = NULL;
+         $this->fecha = date('d-m-Y');
       }
    }
    
@@ -71,10 +89,11 @@ class direccion_proveedor extends fs_model
    
    public function get($id)
    {
-      $dir = $this->db->select("SELECT * FROM ".$this->table_name.
-              " WHERE id = ".$this->var2str($id).";");
-      if($dir)
-         return new direccion_proveedor($dir[0]);
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($id).";");
+      if($data)
+      {
+         return new direccion_proveedor($data[0]);
+      }
       else
          return FALSE;
    }
@@ -82,13 +101,14 @@ class direccion_proveedor extends fs_model
    public function exists()
    {
       if( is_null($this->id) )
+      {
          return FALSE;
+      }
       else
-         return $this->db->select("SELECT * FROM ".$this->table_name.
-                 " WHERE id = ".$this->var2str($this->id).";");
+         return $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($this->id).";");
    }
    
-   public function test()
+   public function save()
    {
       $this->apartado = $this->no_html($this->apartado);
       $this->ciudad = $this->no_html($this->ciudad);
@@ -96,42 +116,48 @@ class direccion_proveedor extends fs_model
       $this->descripcion = $this->no_html($this->descripcion);
       $this->direccion = $this->no_html($this->direccion);
       $this->provincia = $this->no_html($this->provincia);
-      return TRUE;
-   }
-   
-   public function save()
-   {
-      if( $this->test() )
+      
+      /// actualizamos la fecha de modificación
+      $this->fecha = date('d-m-Y');
+      
+      if( $this->exists() )
       {
-         if( $this->exists() )
-         {
-            $sql = "UPDATE ".$this->table_name." SET codproveedor = ".$this->var2str($this->codproveedor).",
-               codpais = ".$this->var2str($this->codpais).", apartado = ".$this->var2str($this->apartado).",
-               provincia = ".$this->var2str($this->provincia).", ciudad = ".$this->var2str($this->ciudad).",
-               codpostal = ".$this->var2str($this->codpostal).", direccion = ".$this->var2str($this->direccion).",
-               direccionppal = ".$this->var2str($this->direccionppal).",
-               descripcion = ".$this->var2str($this->descripcion)." WHERE id = ".$this->var2str($this->id).";";
-            return $this->db->exec($sql);
-         }
-         else
-         {
-            $sql = "INSERT INTO ".$this->table_name." (codproveedor,codpais,apartado,provincia,ciudad,codpostal,direccion,
-               direccionppal,descripcion) VALUES (".$this->var2str($this->codproveedor).",".$this->var2str($this->codpais).",
-               ".$this->var2str($this->apartado).",".$this->var2str($this->provincia).",".$this->var2str($this->ciudad).",
-               ".$this->var2str($this->codpostal).",".$this->var2str($this->direccion).",".$this->var2str($this->direccionppal).",
-               ".$this->var2str($this->descripcion).");";
-            $resultado = $this->db->exec($sql);
-            if($resultado)
-            {
-               $newid = $this->db->lastval();
-               if($newid)
-                  $this->id = intval($newid);
-            }
-            return $resultado;
-         }
+         $sql = "UPDATE ".$this->table_name." SET codproveedor = ".$this->var2str($this->codproveedor)
+                 .", codpais = ".$this->var2str($this->codpais)
+                 .", apartado = ".$this->var2str($this->apartado)
+                 .", provincia = ".$this->var2str($this->provincia)
+                 .", ciudad = ".$this->var2str($this->ciudad)
+                 .", codpostal = ".$this->var2str($this->codpostal)
+                 .", direccion = ".$this->var2str($this->direccion)
+                 .", direccionppal = ".$this->var2str($this->direccionppal)
+                 .", descripcion = ".$this->var2str($this->descripcion)
+                 .", fecha = ".$this->var2str($this->fecha)
+                 ."  WHERE id = ".$this->var2str($this->id).";";
+         
+         return $this->db->exec($sql);
       }
       else
-         return FALSE;
+      {
+         $sql = "INSERT INTO ".$this->table_name." (codproveedor,codpais,apartado,provincia,ciudad,
+            codpostal,direccion,direccionppal,descripcion,fecha) VALUES (".$this->var2str($this->codproveedor)
+                 .",".$this->var2str($this->codpais)
+                 .",".$this->var2str($this->apartado)
+                 .",".$this->var2str($this->provincia)
+                 .",".$this->var2str($this->ciudad)
+                 .",".$this->var2str($this->codpostal)
+                 .",".$this->var2str($this->direccion)
+                 .",".$this->var2str($this->direccionppal)
+                 .",".$this->var2str($this->descripcion)
+                 .",".$this->var2str($this->fecha).");";
+         
+         if( $this->db->exec($sql) )
+         {
+            $this->id = $this->db->lastval();
+            return TRUE;
+         }
+         else
+            return FALSE;
+      }
    }
    
    public function delete()
@@ -142,13 +168,16 @@ class direccion_proveedor extends fs_model
    public function all_from_proveedor($codprov)
    {
       $dirlist = array();
-      $dirs = $this->db->select("SELECT * FROM ".$this->table_name."
-         WHERE codproveedor = ".$this->var2str($codprov).";");
-      if($dirs)
+      
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codproveedor = ".$this->var2str($codprov).";");
+      if($data)
       {
-         foreach($dirs as $d)
+         foreach($data as $d)
+         {
             $dirlist[] = new direccion_proveedor($d);
+         }
       }
+      
       return $dirlist;
    }
 }

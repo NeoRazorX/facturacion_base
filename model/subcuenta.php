@@ -63,7 +63,7 @@ class subcuenta extends fs_model
    
    public function __construct($s=FALSE)
    {
-      parent::__construct('co_subcuentas', 'plugins/facturacion_base/');
+      parent::__construct('co_subcuentas');
       if($s)
       {
          $this->idsubcuenta = $this->intval($s['idsubcuenta']);

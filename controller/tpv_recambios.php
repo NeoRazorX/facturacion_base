@@ -493,7 +493,8 @@ class tpv_recambios extends fs_controller
          $regularizacion = new regularizacion_iva();
          if( $regularizacion->get_fecha_inside($factura->fecha) )
          {
-            $this->new_error_msg("El IVA de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.");
+            $this->new_error_msg("El ".FS_IVA." de ese periodo ya ha sido regularizado."
+                    . " No se pueden añadir más facturas en esa fecha.");
          }
          else if( is_null($factura->codcliente) )
          {
@@ -685,6 +686,12 @@ class tpv_recambios extends fs_controller
          $this->new_error_msg("Ticket no encontrado.");
    }
    
+   /**
+    * Añade el ticket a la cola de impresión.
+    * @param factura_cliente $factura
+    * @param type $num_tickets
+    * @param type $cajon
+    */
    private function imprimir_ticket($factura, $num_tickets = 1, $cajon = TRUE)
    {
       if($this->terminal)
@@ -697,33 +704,35 @@ class tpv_recambios extends fs_controller
          $medio = $this->terminal->anchopapel / 2.5;
          while($num_tickets > 0)
          {
-            $this->terminal->add_linea_big( $this->terminal->center_text($this->empresa->nombre, $medio)."\n");
+            $this->terminal->add_linea_big( $this->terminal->center_text( $this->sanitize($this->empresa->nombre), $medio)."\n");
             
             if($this->empresa->lema != '')
             {
-               $this->terminal->add_linea( $this->terminal->center_text($this->empresa->lema) . "\n\n");
+               $this->terminal->add_linea( $this->terminal->center_text( $this->sanitize($this->empresa->lema) ) . "\n\n");
             }
             else
                $this->terminal->add_linea("\n");
             
-            $this->terminal->add_linea( $this->terminal->center_text($this->empresa->direccion . " - " . $this->empresa->ciudad) . "\n");
-            $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif));
+            $this->terminal->add_linea(
+               $this->terminal->center_text( $this->sanitize($this->empresa->direccion)." - ".$this->sanitize($this->empresa->ciudad) )."\n"
+            );
+            $this->terminal->add_linea( $this->terminal->center_text(FS_CIFNIF.": ".$this->empresa->cifnif) );
             $this->terminal->add_linea("\n\n");
             
             if($this->empresa->horario != '')
             {
-               $this->terminal->add_linea( $this->terminal->center_text($this->empresa->horario) . "\n\n");
+               $this->terminal->add_linea( $this->terminal->center_text( $this->sanitize($this->empresa->horario) ) . "\n\n");
             }
             
             $linea = "\n".ucfirst(FS_FACTURA_SIMPLIFICADA).": " . $factura->codigo . "\n";
             $linea .= $factura->fecha. " " . Date('H:i', strtotime($factura->hora)) . "\n";
             $this->terminal->add_linea($linea);
-            $this->terminal->add_linea("Cliente: " . $factura->nombrecliente . "\n");
+            $this->terminal->add_linea("Cliente: " . $this->sanitize($factura->nombrecliente) . "\n");
             $this->terminal->add_linea("Empleado: " . $factura->codagente . "\n\n");
             
             if($this->imprimir_observaciones)
             {
-               $this->terminal->add_linea('Observaciones: '.$factura->observaciones."\n\n");
+               $this->terminal->add_linea('Observaciones: ' . $this->sanitize($factura->observaciones) . "\n\n");
             }
             
             $width = $this->terminal->anchopapel - 15;
@@ -741,35 +750,61 @@ class tpv_recambios extends fs_controller
             {
                if($this->imprimir_descripciones)
                {
-                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", substr($col->descripcion, 0, $width-1))." "
-                     .sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s",
+                          substr($this->sanitize($col->descripcion), 0, $width-1))." ".
+                          sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
                }
                else
                {
-                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", $col->referencia)." "
-                     .sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", $this->sanitize($col->referencia))
+                          ." ".sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
                }
                
                $this->terminal->add_linea($linea);
             }
             
-            $linea = '';
+            $lineaiguales = '';
             for($i = 0; $i < $this->terminal->anchopapel; $i++)
             {
-               $linea .= '-';
+               $lineaiguales .= '=';
+            }
+            $this->terminal->add_linea($lineaiguales."\n");
+            $this->terminal->add_linea(
+                 'TOTAL A PAGAR: '.sprintf("%".($this->terminal->anchopapel-15)."s", $this->show_precio($factura->total, $factura->coddivisa, FALSE))
+            );
+            $this->terminal->add_linea($lineaiguales."\n");
+            
+            /// imprimimos los impuestos desglosados
+            $this->terminal->add_linea(
+                    'TIPO   BASE    IVA    RE'.
+                    sprintf('%'.($this->terminal->anchopapel-24).'s', 'TOTAL').
+                    "\n"
+            );
+            foreach($factura->get_lineas_iva() as $imp)
+            {
+               $this->terminal->add_linea(
+                       sprintf("%-6s", $imp->iva.'%').' '.
+                       sprintf("%-7s", $this->show_numero($imp->neto)).' '.
+                       sprintf("%-6s", $this->show_numero($imp->totaliva)).' '.
+                       sprintf("%-6s", $this->show_numero($imp->totalrecargo)).' '.
+                       sprintf('%'.($this->terminal->anchopapel-29).'s', $this->show_numero($imp->totallinea)).
+                       "\n"
+               );
             }
             
-            $linea .= "\n".$this->terminal->center_text(
-                  FS_IVA.": ".$this->show_precio($factura->totaliva, $factura->coddivisa, FALSE).'   '.
-                  "Total: ".$this->show_precio($factura->total, $factura->coddivisa, FALSE)
-               )."\n\n\n\n\n\n\n\n";
-            $this->terminal->add_linea($linea);
+            $lineaiguales .= "\n\n\n\n\n\n\n\n";
+            $this->terminal->add_linea($lineaiguales);
             $this->terminal->cortar_papel();
             
             $num_tickets--;
          }
          
          $this->terminal->save();
+         $this->new_message('<a href="#" data-toggle="modal" data-target="#modal_ayuda_ticket">¿No se imprime el ticket?</a>');
+      }
+      else
+      {
+         $this->new_error_msg('Terminal no encontrado.');
       }
    }
    
@@ -785,33 +820,35 @@ class tpv_recambios extends fs_controller
          $medio = $this->terminal->anchopapel / 2.5;
          while($num_tickets > 0)
          {
-            $this->terminal->add_linea_big( $this->terminal->center_text($this->empresa->nombre, $medio)."\n");
+            $this->terminal->add_linea_big( $this->terminal->center_text( $this->sanitize($this->empresa->nombre), $medio)."\n");
             
             if($this->empresa->lema != '')
             {
-               $this->terminal->add_linea( $this->terminal->center_text($this->empresa->lema) . "\n\n");
+               $this->terminal->add_linea( $this->terminal->center_text( $this->sanitize($this->empresa->lema) ) . "\n\n");
             }
             else
                $this->terminal->add_linea("\n");
             
-            $this->terminal->add_linea( $this->terminal->center_text($this->empresa->direccion . " - " . $this->empresa->ciudad) . "\n");
-            $this->terminal->add_linea( $this->terminal->center_text("CIF: " . $this->empresa->cifnif));
+            $this->terminal->add_linea(
+               $this->terminal->center_text( $this->sanitize($this->empresa->direccion)." - ".$this->sanitize($this->empresa->ciudad) )."\n"
+            );
+            $this->terminal->add_linea( $this->terminal->center_text(FS_CIFNIF.": ".$this->empresa->cifnif) );
             $this->terminal->add_linea("\n\n");
             
             if($this->empresa->horario != '')
             {
-               $this->terminal->add_linea( $this->terminal->center_text($this->empresa->horario) . "\n\n");
+               $this->terminal->add_linea( $this->terminal->center_text( $this->sanitize($this->empresa->horario) ) . "\n\n");
             }
             
             $linea = "\n".ucfirst(FS_FACTURA_SIMPLIFICADA).": " . $factura->codigo . "\n";
             $linea .= $factura->fecha. " " . Date('H:i', strtotime($factura->hora)) . "\n";
             $this->terminal->add_linea($linea);
-            $this->terminal->add_linea("Cliente: " . $factura->nombrecliente . "\n");
+            $this->terminal->add_linea("Cliente: " . $this->sanitize($factura->nombrecliente) . "\n");
             $this->terminal->add_linea("Empleado: " . $factura->codagente . "\n\n");
             
             if($this->imprimir_observaciones)
             {
-               $this->terminal->add_linea('Observaciones: '.$factura->observaciones."\n\n");
+               $this->terminal->add_linea('Observaciones: ' . $this->sanitize($factura->observaciones) . "\n\n");
             }
             
             $width = $this->terminal->anchopapel - 15;
@@ -829,13 +866,14 @@ class tpv_recambios extends fs_controller
             {
                if($this->imprimir_descripciones)
                {
-                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", substr($col->descripcion, 0, $width-1))." "
-                     .sprintf("%10s", '-')."\n";
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s",
+                          substr($this->sanitize($col->descripcion), 0, $width-1))." ".
+                          sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
                }
                else
                {
-                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", $col->referencia)." "
-                     .sprintf("%10s", '-')."\n";
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", $this->sanitize($col->referencia))
+                          ." ".sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
                }
                
                $this->terminal->add_linea($linea);
@@ -856,6 +894,25 @@ class tpv_recambios extends fs_controller
          
          $this->terminal->save();
       }
+   }
+   
+   private function sanitize($txt)
+   {
+      $changes = array('/à/' => 'a', '/á/' => 'a', '/â/' => 'a', '/ã/' => 'a', '/ä/' => 'a',
+          '/å/' => 'a', '/æ/' => 'ae', '/ç/' => 'c', '/è/' => 'e', '/é/' => 'e', '/ê/' => 'e',
+          '/ë/' => 'e', '/ì/' => 'i', '/í/' => 'i', '/î/' => 'i', '/ï/' => 'i', '/ð/' => 'd',
+          '/ñ/' => 'n', '/ò/' => 'o', '/ó/' => 'o', '/ô/' => 'o', '/õ/' => 'o', '/ö/' => 'o',
+          '/ő/' => 'o', '/ø/' => 'o', '/ù/' => 'u', '/ú/' => 'u', '/û/' => 'u', '/ü/' => 'u',
+          '/ű/' => 'u', '/ý/' => 'y', '/þ/' => 'th', '/ÿ/' => 'y',
+          '/&quot;/' => '-',
+          '/À/' => 'A', '/Á/' => 'A', '/Â/' => 'A', '/Ä/' => 'A',
+          '/Ç/' => 'C', '/È/' => 'E', '/É/' => 'E', '/Ê/' => 'E',
+          '/Ë/' => 'E', '/Ì/' => 'I', '/Í/' => 'I', '/Î/' => 'I', '/Ï/' => 'I',
+          '/Ñ/' => 'N', '/Ò/' => 'O', '/Ó/' => 'O', '/Ô/' => 'O', '/Ö/' => 'O',
+          '/Ù/' => 'U', '/Ú/' => 'U', '/Û/' => 'U', '/Ü/' => 'U',
+          '/Ý/' => 'Y', '/Ÿ/' => 'Y',
+      );
+      return preg_replace(array_keys($changes), $changes, $txt);
    }
    
    private function generar_asiento(&$factura)

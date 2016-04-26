@@ -35,7 +35,7 @@ class linea_iva_factura_proveedor extends fs_model
    
    public function __construct($l = FALSE)
    {
-      parent::__construct('lineasivafactprov', 'plugins/facturacion_base/');
+      parent::__construct('lineasivafactprov');
       if($l)
       {
          $this->idlinea = $this->intval($l['idlinea']);

@@ -55,7 +55,7 @@ class regularizacion_stock extends fs_model
    
    public function __construct($r = FALSE)
    {
-      parent::__construct('lineasregstocks', 'plugins/facturacion_base/');
+      parent::__construct('lineasregstocks');
       if($r)
       {
          $this->id = $this->intval($r['id']);

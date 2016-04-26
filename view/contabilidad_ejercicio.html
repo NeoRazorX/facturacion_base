@@ -32,13 +32,15 @@
    <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
       <div class="row">
          <div class="col-xs-7">
-            <a class="btn btn-sm btn-default hidden-xs" href="{$fsc->url()}" title="recargar la página">
-               <span class="glyphicon glyphicon-refresh"></span>
-            </a>
-            <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_ejercicios">
-               <span class="glyphicon glyphicon-arrow-left"></span>
-               <span class="hidden-xs hidden-sm">&nbsp; Ejercicios</span>
-            </a>
+            <div class="btn-group">
+               <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_ejercicios">
+                  <span class="glyphicon glyphicon-arrow-left"></span>
+                  <span class="hidden-xs hidden-sm">&nbsp; Ejercicios</span>
+               </a>
+               <a class="btn btn-sm btn-default hidden-xs" href="{$fsc->url()}" title="recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+            </div>
             {if="$fsc->asiento_apertura_url OR $fsc->asiento_cierre_url OR $fsc->asiento_pyg_url"}
             <div class="btn-group">
                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
@@ -331,9 +333,12 @@
                </div>
             </div>
             <div class="modal-footer">
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Importar">
-                   <span class="glyphicon glyphicon-import"></span> &nbsp; Importar
-                </button>
+               <p class="help-block pull-left">
+                  Es un proceso lento. Espera a que termine.
+               </p>
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                  <span class="glyphicon glyphicon-import"></span>&nbsp; Importar
+               </button>
             </div>
          </div>
       </div>

@@ -126,6 +126,14 @@ function recalcular()
          total_iva += l_neto * l_iva/100;
          total_irpf += l_neto * l_irpf/100;
          total_recargo += l_neto * l_recargo/100;
+         
+         /// adaptamos el alto del textarea al texto
+         var txt = $("textarea[name='desc_"+i+"']").val();
+         txt = txt.split(/\r*\n/);
+         if(txt.length > 1)
+         {
+            $("textarea[name='desc_"+i+"']").prop('rows', txt.length);
+         }
       }
    }
    
@@ -186,18 +194,24 @@ function ajustar_total()
          
          l_irpf = irpf;
          if(l_iva <= 0)
+         {
             l_irpf = 0;
+         }
          
          l_total = parseFloat( $("#total_"+i).val() );
          if( isNaN(l_total) )
+         {
             l_total = 0;
+         }
          
          if( l_total <= l_pvp*l_uds + (l_pvp*l_uds*(l_iva-l_irpf+l_recargo)/100) )
          {
             l_neto = 100*l_total/(100+l_iva-l_irpf+l_recargo);
             l_dto = 100 - 100*l_neto/(l_pvp*l_uds);
             if( isNaN(l_dto) )
+            {
                l_dto = 0;
+            }
          }
          else
          {
@@ -449,7 +463,9 @@ $(document).ready(function() {
    
    $("#b_cerrar_caja").click(function() {
       if( confirm("¿Realmente deseas cerrar la caja?") )
+      {
          window.location.href = tpv_url+"&cerrar_caja=TRUE";
+      }
    });
    
    $("#i_new_line").click(function() {

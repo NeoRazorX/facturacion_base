@@ -49,7 +49,7 @@ class impuesto extends fs_model
 
    public function __construct($i=FALSE)
    {
-      parent::__construct('impuestos', 'plugins/facturacion_base/');
+      parent::__construct('impuestos');
       if($i)
       {
          $this->codimpuesto = $i['codimpuesto'];

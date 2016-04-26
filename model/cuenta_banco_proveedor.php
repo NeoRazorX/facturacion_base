@@ -41,7 +41,7 @@ class cuenta_banco_proveedor extends fs_model
    
    public function __construct($c = FALSE)
    {
-      parent::__construct('cuentasbcopro', 'plugins/facturacion_base/');
+      parent::__construct('cuentasbcopro');
       if($c)
       {
          $this->codcuenta = $c['codcuenta'];

@@ -35,7 +35,7 @@ class linea_iva_factura_cliente extends fs_model
    
    public function __construct($l=FALSE)
    {
-      parent::__construct('lineasivafactcli', 'plugins/facturacion_base/');
+      parent::__construct('lineasivafactcli');
       if($l)
       {
          $this->idlinea = $this->intval($l['idlinea']);

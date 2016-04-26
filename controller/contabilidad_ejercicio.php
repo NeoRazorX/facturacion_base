@@ -382,11 +382,13 @@ class contabilidad_ejercicio extends fs_controller
          
          if($offset == 0)
          {
-            $this->new_message('Importando ejercicio: paso '.$import_step.' de 6 ...');
+            $this->new_message('Importando ejercicio: paso '.$import_step.' de 6 ...'
+                    . '<br/>Espera a que termine.');
          }
          else
          {
-            $this->new_message('Importando ejercicio: paso '.$import_step.'.'.($offset/1000).' de 6 ...');
+            $this->new_message('Importando ejercicio: paso '.$import_step.'.'.($offset/1000).' de 6 ...'
+                    . '<br/>Espera a que termine.');
          }
          
          $xml = simplexml_load_file('tmp/'.FS_TMP_NAME.'ejercicio.xml');

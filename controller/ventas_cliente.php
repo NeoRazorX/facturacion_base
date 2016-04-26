@@ -359,8 +359,6 @@ class ventas_cliente extends fs_controller
                  ." WHERE codcliente = ".$this->cliente->var2str($this->cliente->codcliente)
                  ." AND cifnif = '';";
          $this->db->exec($sql);
-         
-         $this->new_message('Se ha asignado este '.FS_CIFNIF.' a todos los '.FS_ALBARANES.' y facturas sin '.FS_CIFNIF);
       }
    }
 }

@@ -30,7 +30,7 @@ class subcuenta_cliente extends fs_model
    
    public function __construct($s = FALSE)
    {
-      parent::__construct('co_subcuentascli', 'plugins/facturacion_base/');
+      parent::__construct('co_subcuentascli');
       if($s)
       {
          $this->codcliente = $s['codcliente'];

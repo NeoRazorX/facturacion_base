@@ -95,7 +95,7 @@ class articulo_proveedor extends fs_model
    
    public function __construct($a = FALSE)
    {
-      parent::__construct('articulosprov', 'plugins/facturacion_base/');
+      parent::__construct('articulosprov');
       
       if( !isset(self::$impuestos) )
       {

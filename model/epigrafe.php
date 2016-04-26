@@ -35,7 +35,7 @@ class grupo_epigrafes extends fs_model
    
    public function __construct($f = FALSE)
    {
-      parent::__construct('co_gruposepigrafes', 'plugins/facturacion_base/');
+      parent::__construct('co_gruposepigrafes');
       if($f)
       {
          $this->idgrupo = $this->intval($f['idgrupo']);
@@ -207,7 +207,7 @@ class epigrafe extends fs_model
    
    public function __construct($e = FALSE)
    {
-      parent::__construct('co_epigrafes', 'plugins/facturacion_base/');
+      parent::__construct('co_epigrafes');
       if($e)
       {
          $this->idepigrafe = $this->intval($e['idepigrafe']);

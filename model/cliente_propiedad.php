@@ -31,7 +31,7 @@ class cliente_propiedad extends fs_model
    
    public function __construct($a = FALSE)
    {
-      parent::__construct('cliente_propiedades', 'plugins/facturacion_base/');
+      parent::__construct('cliente_propiedades');
       if($a)
       {
          $this->name = $a['name'];

@@ -44,7 +44,7 @@ class asiento extends fs_model
    
    public function __construct($a = FALSE)
    {
-      parent::__construct('co_asientos', 'plugins/facturacion_base/');
+      parent::__construct('co_asientos');
       if($a)
       {
          $this->idasiento = $this->intval($a['idasiento']);
@@ -211,8 +211,11 @@ class asiento extends fs_model
       $secc0 = $secc->get_by_params2($this->codejercicio, 'nasiento');
       if($secc0)
       {
-         $secc0->valorout = 1 + $this->numero;
-         $secc0->save();
+         if($this->numero >= $secc0->valorout)
+         {
+            $secc0->valorout = 1 + $this->numero;
+            $secc0->save();
+         }
       }
    }
    

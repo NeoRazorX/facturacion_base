@@ -40,7 +40,7 @@ class secuencia extends fs_model
    
    public function __construct($s = FALSE)
    {
-      parent::__construct('secuencias', 'plugins/facturacion_base/');
+      parent::__construct('secuencias');
       if($s)
       {
          $this->idsec = $this->intval($s['idsec']);
@@ -183,7 +183,7 @@ class secuencia_contabilidad extends fs_model
    
    public function __construct($s = FALSE)
    {
-      parent::__construct('co_secuencias', 'plugins/facturacion_base/');
+      parent::__construct('co_secuencias');
       if($s)
       {
          $this->codejercicio = $s['codejercicio'];
@@ -312,7 +312,7 @@ class secuencia_ejercicio extends fs_model
    
    public function __construct($s = FALSE)
    {
-      parent::__construct('secuenciasejercicios', 'plugins/facturacion_base/');
+      parent::__construct('secuenciasejercicios');
       if($s)
       {
          $this->id = $this->intval($s['id']);

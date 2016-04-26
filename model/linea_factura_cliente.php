@@ -111,7 +111,7 @@ class linea_factura_cliente extends fs_model
    
    public function __construct($l=FALSE)
    {
-      parent::__construct('lineasfacturascli', 'plugins/facturacion_base/');
+      parent::__construct('lineasfacturascli');
       
       if( !isset(self::$facturas) )
       {
@@ -346,12 +346,14 @@ class linea_factura_cliente extends fs_model
       
       if( !$this->floatcmp($this->pvptotal, $total, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Error en el valor de pvptotal de la línea ".$this->referencia." de la factura. Valor correcto: ".$total);
+         $this->new_error_msg("Error en el valor de pvptotal de la línea ".$this->referencia
+                 ." de la factura. Valor correcto: ".$total);
          return FALSE;
       }
       else if( !$this->floatcmp($this->pvpsindto, $totalsindto, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Error en el valor de pvpsindto de la línea ".$this->referencia." de la factura. Valor correcto: ".$totalsindto);
+         $this->new_error_msg("Error en el valor de pvpsindto de la línea ".$this->referencia
+                 ." de la factura. Valor correcto: ".$totalsindto);
          return FALSE;
       }
       else
@@ -377,7 +379,7 @@ class linea_factura_cliente extends fs_model
                     .", iva = ".$this->var2str($this->iva)
                     .", recargo = ".$this->var2str($this->recargo)
                     .", irpf = ".$this->var2str($this->irpf)
-                    ." WHERE idlinea = ".$this->var2str($this->idlinea).";";
+                    ."  WHERE idlinea = ".$this->var2str($this->idlinea).";";
             
             return $this->db->exec($sql);
          }
@@ -465,7 +467,7 @@ class linea_factura_cliente extends fs_model
       $linealist = array();
       $sql = "SELECT * FROM ".$this->table_name.
               " WHERE referencia = ".$this->var2str($ref).
-              " ORDER BY idalbaran DESC";
+              " ORDER BY idfactura DESC";
       
       $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
@@ -494,7 +496,7 @@ class linea_factura_cliente extends fs_model
          $buscar = str_replace(' ', '%', $query);
          $sql .= "lower(referencia) LIKE '%".$buscar."%' OR lower(descripcion) LIKE '%".$buscar."%'";
       }
-      $sql .= " ORDER BY idalbaran DESC, idlinea ASC";
+      $sql .= " ORDER BY idfactura DESC, idlinea ASC";
       
       $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)

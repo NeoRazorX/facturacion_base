@@ -27,7 +27,7 @@ class concepto_partida extends fs_model
    
    public function __construct($c = FALSE)
    {
-      parent::__construct('co_conceptospar', 'plugins/facturacion_base/');
+      parent::__construct('co_conceptospar');
       if($c)
       {
          $this->idconceptopar = $c['idconceptopar'];

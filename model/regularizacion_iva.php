@@ -44,7 +44,7 @@ class regularizacion_iva extends fs_model
    
    public function __construct($r = FALSE)
    {
-      parent::__construct('co_regiva', 'plugins/facturacion_base/');
+      parent::__construct('co_regiva');
       if($r)
       {
          $this->idregiva = $this->intval($r['idregiva']);

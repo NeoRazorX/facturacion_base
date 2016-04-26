@@ -30,7 +30,7 @@ class familia extends fs_model
    
    public function __construct($f=FALSE)
    {
-      parent::__construct('familias', 'plugins/facturacion_base/');
+      parent::__construct('familias');
       if($f)
       {
          $this->codfamilia = $f['codfamilia'];

@@ -33,9 +33,13 @@
    {else}
    <input type="hidden" name="codcliente"/>
    {/if}
-   <div class="container">
+   <div class="container-fluid">
       <div class="row">
          <div class="col-xs-12">
+            <a class="btn btn-sm btn-default" href="index.php?page=ventas_albaranes">
+               <span class="glyphicon glyphicon-arrow-left"></span>
+               <span class="hidden-xs">&nbsp; Todos</span>
+            </a>
             <div class="btn-group">
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -45,20 +49,21 @@
             </div>
             <div class="page-header">
                <h1>
-                  <a class="btn btn-xs btn-default" href="index.php?page=ventas_albaranes">
-                     <span class="glyphicon glyphicon-arrow-left"></span>
-                  </a>
                   <span class="glyphicon glyphicon-duplicate"></span>
                   Agrupar {#FS_ALBARANES#}
                   <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
                      <span class="glyphicon glyphicon-refresh"></span>
                   </a>
                </h1>
+               <p class='help-block'>
+                  Con esta herramienta puedes buscar y agrupar varios {#FS_ALBARANES#}
+                  pendientes <b>de un mismo cliente</b> y generar una factura (o una para cada uno).
+               </p>
             </div>
          </div>
       </div>
       <div class="row">
-         <div class="col-sm-5">
+         <div class="col-sm-3">
             <div class="form-group">
                Cliente:
                <div class="input-group">
@@ -75,7 +80,7 @@
                </div>
             </div>
          </div>
-         <div class="col-sm-3">
+         <div class="col-sm-2">
             Serie:
             <select name="codserie" class="form-control">
             {loop="$fsc->serie->all()"}
@@ -99,18 +104,16 @@
                <input type="text" name="hasta" class="form-control datepicker" value="{$fsc->hasta}"/>
             </div>
          </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-5">
+         <div class="col-sm-2">
             <div class="form-group">
                Observaciones:
                <input type="text" name="observaciones" class="form-control" value="{$fsc->observaciones}"/>
             </div>
          </div>
-         <div class="col-sm-7 text-right">
+         <div class="col-sm-1 text-right">
             <br/>
             <button type="submit" class="btn btn-sm btn-primary" onclick="this.disabled=true;this.form.submit();">
-               <span class="glyphicon glyphicon-search"></span> &nbsp; Buscar
+               <span class="glyphicon glyphicon-search"></span>
             </button>
          </div>
       </div>
@@ -120,7 +123,7 @@
 {if="$fsc->resultados"}
 <form id="f_agrupar_cli" action="{$fsc->url()}" method="post" class="form">
    <input type="hidden" name="petition_id" value="{$fsc->random_string()}"/>
-   <div class="container">
+   <div class="container-fluid">
       <div class="row">
          <div class="col-sm-12">
             <div class="table-responsive">
@@ -171,7 +174,7 @@
          </div>
          <div class="col-sm-6 text-right">
             <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal_agrupar">
-               <span class="glyphicon glyphicon-file"></span> &nbsp; Generar Factura
+               <span class="glyphicon glyphicon-file"></span>&nbsp; Generar Factura
             </button>
          </div>
       </div>
@@ -199,7 +202,7 @@
             </div>
             <div class="modal-footer">
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-file"></span> &nbsp; Generar Factura
+                  <span class="glyphicon glyphicon-file"></span>&nbsp; Generar Factura
                </button>
             </div>
          </div>
@@ -207,7 +210,7 @@
    </div>
 </form>
 {elseif="$fsc->cliente"}
-<div class="container">
+<div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
          <div class="panel panel-info">
@@ -222,25 +225,19 @@
    </div>
 </div>
 {else}
-<div class="container">
+<div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
-         <div class="panel panel-default">
-            <div class="panel-heading">
-               <h3 class="panel-title">Ayuda</h3>
-            </div>
-            <div class="panel-body">
-               Con esta herramienta puedes buscar y agrupar varios {#FS_ALBARANES#}
-               pendientes de un mismo cliente y generar una factura (o una para cada uno).
-               Si hay {#FS_ALBARANES#} pendientes aparecerán los clientes aquí debajo
-               para ahorrarte clics ;-)
-            </div>
-         </div>
+         <hr/>
+         <p class='help-block text-center'>
+            Si hay {#FS_ALBARANES#} pendientes aparecerán los clientes aquí debajo
+            para ahorrarte clics ;-)
+         </p>
       </div>
    </div>
    <div class="row">
       {loop="$fsc->pendientes()"}
-      <div class="col-sm-4">
+      <div class="col-sm-4 col-md-3">
          <a href="{$fsc->url()}&codcliente={$value['codcliente']}&codserie={$value['codserie']}&desde={$value['desde']}" class="btn btn-sm btn-block {if="$value['num']>1"}btn-info{else}btn-default{/if}">
             <span class="glyphicon glyphicon-user"></span>
             &nbsp; {$value['nombre']}

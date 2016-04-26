@@ -567,7 +567,11 @@
                         <option value="">Ninguna</option>
                         <option value="">-------</option>
                         {loop="$fsc->familia->all()"}
-                        <option value="{$value->codfamilia}"{if="$value->is_default()"} selected=""{/if}>{$value->nivel}{$value->descripcion}</option>
+                           {if="$value->codfamilia==$fsc->b_codfamilia"}
+                           <option value="{$value->codfamilia}" selected="">{$value->nivel}{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
+                           {/if}
                         {/loop}
                      </select>
                   </div>
@@ -579,7 +583,11 @@
                         <option value="">Ninguno</option>
                         <option value="">-------</option>
                         {loop="$fsc->fabricante->all()"}
-                        <option value="{$value->codfabricante}">{$value->codfabricante}</option>
+                           {if="$value->codfabricante==$fsc->b_codfabricante"}
+                           <option value="{$value->codfabricante}" selected="">{$value->codfabricante}</option>
+                           {else}
+                           <option value="{$value->codfabricante}">{$value->codfabricante}</option>
+                           {/if}
                         {/loop}
                      </select>
                   </div>
@@ -588,9 +596,13 @@
                   <label class="col-sm-2 control-label"><a href="{$fsc->impuesto->url()}">{#FS_IVA#}</a></label>
                   <div class="col-sm-10">
                      <select class="form-control" name="codimpuesto">
-                        {loop="$fsc->impuesto->all()"}
-                        <option value="{$value->codimpuesto}"{if="$value->is_default()"} selected=""{/if}>{$value->descripcion}</option>
-                        {/loop}
+                     {loop="$fsc->impuesto->all()"}
+                        {if="$value->is_default()"}
+                        <option value="{$value->codimpuesto}" selected="">{$value->descripcion}</option>
+                        {else}
+                        <option value="{$value->codimpuesto}">{$value->descripcion}</option>
+                        {/if}
+                     {/loop}
                      </select>
                   </div>
                </div>

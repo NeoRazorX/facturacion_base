@@ -106,18 +106,20 @@
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
       <div class="col-sm-3 col-xs-3">
-         <a href="{$fsc->url()}" class="btn btn-sm btn-default" title="Recarga la página">
-            <span class="glyphicon glyphicon-refresh"></span>
-         </a>
-         <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
-            <span class="glyphicon glyphicon-arrow-left"></span>
-            <span class="hidden-xs">&nbsp; Proveedores</span>
-         </a>
+         <div class="btn-group">
+            <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-arrow-left"></span>
+               <span class="hidden-xs hidden-sm">&nbsp; Proveedores</span>
+            </a>
+            <a href="{$fsc->url()}" class="btn btn-sm btn-default" title="Recarga la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+         </div>
       </div>
-      <div class="col-sm-7 col-xs-7 text-center">
+      <div class="col-sm-6 col-xs-6 text-center">
          <h2 style="margin-top: 0px;">Editar proveedor {$fsc->proveedor->codproveedor}</h2>
       </div>
-      <div class="col-sm-2 col-xs-2 text-right">
+      <div class="col-sm-3 col-xs-3 text-right">
          <a class="btn btn-sm btn-success" href="index.php?page=compras_proveedores#nuevo" title="Nuevo proveedor">
             <span class="glyphicon glyphicon-plus"></span>
          </a>
@@ -125,12 +127,12 @@
             {if="$fsc->tiene_facturas()"}
             <a href="#" class="btn btn-sm btn-warning" onclick="alert('Este proveedor ya tiene facturas. No puedes eliminarlo.')">
                <span class="glyphicon glyphicon-lock"></span>
-               <span class="hidden-xs">&nbsp; Eliminar</span>
+               <span class="hidden-xs hidden-sm">&nbsp; Eliminar</span>
             </a>
             {else}
             <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
                <span class="glyphicon glyphicon-trash"></span>
-               <span class="hidden-xs">&nbsp; Eliminar</span>
+               <span class="hidden-xs hidden-sm">&nbsp; Eliminar</span>
             </a>
             {/if}
          {/if}
@@ -456,7 +458,11 @@
                <input type="hidden" name="coddir" value="{$value->id}"/>
                <div class="panel panel-info">
                   <div class="panel-heading">
-                     <h3 class="panel-title">{$value->descripcion}</h3>
+                     <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-road"></span>&nbsp; {$value->descripcion}
+                        &nbsp; | &nbsp;
+                        <span class="glyphicon glyphicon-calendar"></span> {$value->fecha}
+                     </h3>
                   </div>
                   <div class="panel-body">
                      <div class="form-group col-sm-4">

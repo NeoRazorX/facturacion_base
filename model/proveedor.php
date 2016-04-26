@@ -108,7 +108,7 @@ class proveedor extends fs_model
    
    public function __construct($p=FALSE)
    {
-      parent::__construct('proveedores', 'plugins/facturacion_base/');
+      parent::__construct('proveedores');
       if($p)
       {
          $this->codproveedor = $p['codproveedor'];
@@ -258,16 +258,31 @@ class proveedor extends fs_model
    }
    
    /**
-    * Devuelve un proveedor a partir de su cifnif
+    * Devuelve la primera ocurrencia del cifnif en la lista de proveedores.
+    * Si el cifnif está en blanco y se proporciona una razón social, se devuelve
+    * la primera ocurrencia.
     * @param type $cifnif
+    * @param type $razon
     * @return boolean|\proveedor
     */
-   public function get_by_cifnif($cifnif)
+   public function get_by_cifnif($cifnif, $razon=FALSE)
    {
-      $prov = $this->db->select("SELECT * FROM ".$this->table_name." WHERE cifnif = ".$this->var2str($cifnif).";");
-      if($prov)
+      if($cifnif == '' AND $razon)
       {
-         return new proveedor($prov[0]);
+         $razon = mb_strtolower( $this->no_html($razon) );
+         $sql = "SELECT * FROM ".$this->table_name." WHERE cifnif = ''"
+                 . " AND lower(razonsocial) = ".$this->var2str($razon).";";
+      }
+      else
+      {
+         $cifnif = mb_strtolower($cifnif);
+         $sql = "SELECT * FROM ".$this->table_name." WHERE lower(cifnif) = ".$this->var2str($cifnif).";";
+      }
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         return new proveedor($data[0]);
       }
       else
          return FALSE;

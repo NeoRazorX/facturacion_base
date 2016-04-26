@@ -112,7 +112,7 @@ class linea_albaran_proveedor extends fs_model
    
    public function __construct($l=FALSE)
    {
-      parent::__construct('lineasalbaranesprov', 'plugins/facturacion_base/');
+      parent::__construct('lineasalbaranesprov');
       
       if( !isset(self::$albaranes) )
          self::$albaranes = array();

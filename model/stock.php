@@ -55,7 +55,7 @@ class stock extends fs_model
    
    public function __construct($s=FALSE)
    {
-      parent::__construct('stocks', 'plugins/facturacion_base/');
+      parent::__construct('stocks');
       if($s)
       {
          $this->idstock = $this->intval($s['idstock']);

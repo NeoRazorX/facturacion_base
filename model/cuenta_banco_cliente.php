@@ -51,7 +51,7 @@ class cuenta_banco_cliente extends fs_model
    
    public function __construct($c = FALSE)
    {
-      parent::__construct('cuentasbcocli', 'plugins/facturacion_base/');
+      parent::__construct('cuentasbcocli');
       if($c)
       {
          $this->codcliente = $c['codcliente'];

@@ -38,7 +38,7 @@ class cuenta extends fs_model
    
    public function __construct($c=FALSE)
    {
-      parent::__construct('co_cuentas', 'plugins/facturacion_base/');
+      parent::__construct('co_cuentas');
       if($c)
       {
          $this->idcuenta = $this->intval( $c['idcuenta'] );

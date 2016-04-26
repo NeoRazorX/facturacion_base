@@ -27,7 +27,7 @@ class fabricante extends fs_model
    
    public function __construct($f=FALSE)
    {
-      parent::__construct('fabricantes', 'plugins/facturacion_base/');
+      parent::__construct('fabricantes');
       if($f)
       {
          $this->codfabricante = $f['codfabricante'];

@@ -66,7 +66,7 @@ class tarifa extends fs_model
    
    public function __construct($t = FALSE)
    {
-      parent::__construct('tarifas', 'plugins/facturacion_base/');
+      parent::__construct('tarifas');
       if( $t )
       {
          $this->codtarifa = $t['codtarifa'];

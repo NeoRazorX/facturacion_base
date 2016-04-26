@@ -44,7 +44,7 @@ class balance extends fs_model
    
    public function __construct($b = FALSE)
    {
-      parent::__construct('co_codbalances08', 'plugins/facturacion_base/');
+      parent::__construct('co_codbalances08');
       if($b)
       {
          $this->codbalance = $b['codbalance'];
@@ -191,7 +191,7 @@ class balance_cuenta extends fs_model
    
    public function __construct($b = FALSE)
    {
-      parent::__construct('co_cuentascb', 'plugins/facturacion_base/');
+      parent::__construct('co_cuentascb');
       if($b)
       {
          $this->id = $this->intval($b['id']);
@@ -314,7 +314,7 @@ class balance_cuenta_a extends fs_model
    
    public function __construct($b = FALSE)
    {
-      parent::__construct('co_cuentascbba', 'plugins/facturacion_base/');
+      parent::__construct('co_cuentascbba');
       if($b)
       {
          $this->id = $this->intval($b['id']);
