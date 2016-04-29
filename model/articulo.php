@@ -172,10 +172,10 @@ class articulo extends fs_model
    public $codsubcuentairpfcom;
    
    /**
-    * Control por número de serie
+    * Control de trazabilidad.
     * @var type 
     */
-   public $numserie;
+   public $trazabilidad;
    
    /**
     * % IVA del impuesto asignado.
@@ -206,7 +206,7 @@ class articulo extends fs_model
          self::$column_list = 'referencia,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,'.
                  'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,'.
                  'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,'.
-                 'partnumber,codsubcuentacom,codsubcuentairpfcom,numserie';
+                 'partnumber,codsubcuentacom,codsubcuentairpfcom,trazabilidad';
       }
       
       if($a)
@@ -242,7 +242,7 @@ class articulo extends fs_model
          $this->observaciones = $this->no_html($a['observaciones']);
          $this->codsubcuentacom = $a['codsubcuentacom'];
          $this->codsubcuentairpfcom = $a['codsubcuentairpfcom'];
-         $this->numserie = $this->str2bool($a['numserie']);
+         $this->trazabilidad = $this->str2bool($a['trazabilidad']);
          
          $this->imagen = NULL;
          if( isset($a['imagen']) )
@@ -321,7 +321,7 @@ class articulo extends fs_model
          $this->observaciones = '';
          $this->codsubcuentacom = NULL;
          $this->codsubcuentairpfcom = NULL;
-         $this->numserie = FALSE;
+         $this->trazabilidad = FALSE;
          
          $this->imagen = NULL;
          $this->exists = FALSE;
@@ -961,8 +961,8 @@ class articulo extends fs_model
                     ", imagen = ".$this->var2str($this->imagen).
                     ", codsubcuentacom = ".$this->var2str($this->codsubcuentacom).
                     ", codsubcuentairpfcom = ".$this->var2str($this->codsubcuentairpfcom).
-                    ", numserie = ".$this->var2str($this->numserie).
-                    " WHERE referencia = ".$this->var2str($this->referencia).";";
+                    ", trazabilidad = ".$this->var2str($this->trazabilidad).
+                    "  WHERE referencia = ".$this->var2str($this->referencia).";";
             
             if($this->nostock AND $this->stockfis != 0)
             {
@@ -1001,7 +1001,7 @@ class articulo extends fs_model
                     $this->var2str($this->partnumber).",".
                     $this->var2str($this->codsubcuentacom).",".
                     $this->var2str($this->codsubcuentairpfcom).",".
-                    $this->var2str($this->numserie).");";
+                    $this->var2str($this->trazabilidad).");";
          }
          
          if( $this->db->exec($sql) )
@@ -1072,8 +1072,10 @@ class articulo extends fs_model
             $actualizar = TRUE;
          }
          
-         if( $actualizar )
+         if($actualizar)
+         {
             $this->cache->set('articulos_searches', self::$search_tags, 5400);
+         }
       }
       
       return $encontrado;
@@ -1128,7 +1130,9 @@ class articulo extends fs_model
          if( self::$search_tags )
          {
             foreach(self::$search_tags as $value)
+            {
                $this->cache->delete('articulos_search_'.$value['tag']);
+            }
          }
          
          self::$cleaned_cache = TRUE;
@@ -1282,7 +1286,9 @@ class articulo extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $artilist[] = new articulo($d);
+         }
       }
       
       return $artilist;
@@ -1304,7 +1310,9 @@ class articulo extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $artilist[] = new articulo($d);
+         }
       }
       
       return $artilist;
@@ -1326,7 +1334,9 @@ class articulo extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $artilist[] = new articulo($d);
+         }
       }
       
       return $artilist;
@@ -1349,7 +1359,9 @@ class articulo extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $artilist[] = new articulo($d);
+         }
       }
       
       return $artilist;
@@ -1372,7 +1384,9 @@ class articulo extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $artilist[] = new articulo($d);
+         }
       }
       
       return $artilist;
@@ -1395,17 +1409,5 @@ class articulo extends fs_model
       $ref = str_replace('\\', '_', $ref);
       
       return $ref;
-   }
-   
-   public function control_traza()
-   {
-      if($this->numserie)
-      {
-         return TRUE;
-      }
-      else
-      {
-         return FALSE;
-      }
    }
 }

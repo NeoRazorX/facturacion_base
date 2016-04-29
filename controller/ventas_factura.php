@@ -31,8 +31,6 @@ require_model('pais.php');
 require_model('partida.php');
 require_model('serie.php');
 require_model('subcuenta.php');
-require_model('numeros_serie.php');
-
 
 class ventas_factura extends fs_controller
 {
@@ -50,7 +48,6 @@ class ventas_factura extends fs_controller
    public $rectificada;
    public $rectificativa;
    public $serie;
-   public $numserie;
    
    public function __construct()
    {
@@ -76,7 +73,6 @@ class ventas_factura extends fs_controller
       $this->rectificada = FALSE;
       $this->rectificativa = FALSE;
       $this->serie = new serie();
-      $this->numserie = new numero_serie();
       
       /**
        * Si hay alguna extensión de tipo config y texto no_button_pagada,
@@ -100,7 +96,6 @@ class ventas_factura extends fs_controller
       {
          $this->factura = $factura->get($_POST['idfactura']);
          $this->modificar();
-         $this->numeros_serie();
       }
       else if( isset($_GET['id']) )
       {
@@ -484,61 +479,4 @@ class ventas_factura extends fs_controller
       
       return $cuentas;
    }
-   
-   public function control_numserie($ref)
-   {
-      $art0 = new articulo();
-      $articulo = $art0->get($ref);
-      if ($articulo->numserie)
-      {
-         return TRUE;
-      }
-      else
-         return FALSE;
-   }
-   
-   public function seriales($cantidad)
-   {
-      $this->linea_numserie = array();
-
-      for ($i = 0; $i < $cantidad; $i++)
-      {
-         $this->linea_numserie[] = '';
-      }
-      return $this->linea_numserie;
-   }
-
-   public function numeros_serie()
-   {
-      $num0 = new numero_serie();
-      $lineas = $this->factura->get_lineas();
-      $numlineas = count($lineas);
-      
-      for ($num = 0; $num <= $numlineas; $num++)
-      {      
-         foreach ($lineas as $k => $value)
-         {
-            if ($value->idlinea == intval($_POST['idlinea_' . $num]))
-            {
-               if ($this->control_numserie($value->referencia))
-               {
-                  $num0->limpiar_linea('idlfacventa', $value->idlinea);
-                  foreach ($_POST['numserie_' . $num] as $serial)
-                  {
-                     $numero = $num0->get($serial);
-                     if ($numero)
-                     {
-                        $numero->numserie = $serial;
-                        $numero->referencia = $value->referencia;
-                        $numero->idlfacventa = $value->idlinea;
-                        $numero->vendido = TRUE;
-                        $numero->save();
-                     }
-                  }
-               }
-            }
-         }
-      }
-   }
-
 }

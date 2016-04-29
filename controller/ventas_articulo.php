@@ -373,7 +373,7 @@ class ventas_articulo extends fs_controller
          $this->articulo->observaciones = $_POST['observaciones'];
          $this->articulo->stockmin = floatval($_POST['stockmin']);
          $this->articulo->stockmax = floatval($_POST['stockmax']);
-         $this->articulo->numserie = isset($_POST['numserie']);
+         $this->articulo->trazabilidad = isset($_POST['trazabilidad']);
          if( $this->articulo->save() )
          {
             $this->new_message("Datos del articulo modificados correctamente");

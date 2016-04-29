@@ -321,6 +321,9 @@
                      {if="$value->tipo"}
                      <span class="glyphicon glyphicon-list-alt" aria-hidden="true" title="Artículo tipo: {$value->tipo}"></span>
                      {/if}
+                     {if="$value->trazabilidad"}
+                     <i class="fa fa-code-fork" aria-hidden="true" title="Trazabilidad activada"></i>
+                     {/if}
                      {if="$value->publico"}
                      <span class="glyphicon glyphicon-globe" aria-hidden="true" title="Artículo público"></span>
                      {/if}

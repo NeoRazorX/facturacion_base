@@ -206,12 +206,6 @@
                <span class="hidden-xs">&nbsp; Detalles</span>
             </a>
          </li>
-         <li role="presentation">
-            <a href="#numserie" aria-controls="numserie" role="tab" data-toggle="tab">
-               <span class="glyphicon glyphicon-barcode" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Números de serie</span>
-            </a>
-         </li>
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
             <li role="presentation">
@@ -419,66 +413,6 @@
                   </div>
                </div>
             </div>
-         </div>
-         <div role="tabpanel" class="tab-pane" id="numserie">
-            <div class="container-fluid" style="margin-top: 10px;">
-               <div class="row">
-                  <div class="table-responsive">
-                     <table class="table table-condensed">
-                        <thead>
-                           <tr>
-                              <th class="text-left" width="90">Referencia</th>
-                              <th class="text-left" width="190">Descripción</th>
-                              <th class="text-right" width="20">Cantidad</th>
-                              <th class="text-left"width="190">Números de serie</th>
-                              <th width="190"></th>
-                           </tr>
-                        </thead>
-                        {loop="$fsc->factura->get_lineas()"}
-                        <!--{$linea = $counter}-->
-                        <tr id="linea_{$counter}">
-                           <input type="hidden" name="idlinea_{$counter}" value="{$value->idlinea}"/>
-                           <td>
-                              <div class="form-control">
-                                 <a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a>
-                              </div>
-                           </td>
-                           <td>
-                              <div class="form-control">
-                                 {$value->descripcion}
-                              </div>
-                           </td>
-                           <td>
-                              <div class="form-control text-right">
-                                 {$value->cantidad}
-                              </div>
-                           </td>
-                           {if="!$fsc->control_numserie($value->referencia)"}
-                           <td colspan="2">           
-                           </td>
-                           {else}
-                           <td>
-                              {loop="$fsc->numserie->all_from_linea('idlfaccompra',$value->idlinea)"}
-                              <div class="form-group">
-                                 <input class="form-control inputs" type="text" name="" value="{$value->numserie}" autocomplete="off" disabled/> 
-                              </div>
-                              {/loop}
-                              {loop="$fsc->seriales($value->cantidad - $fsc->numserie->total_por_linea('idlfaccompra', $value->idlinea))"}
-                              <div class="form-group">
-                                 <input class="form-control inputs" type="text" name="numserie_{$linea}[]" value="" autocomplete="off"/>
-                              </div>
-                              {/loop}
-                           </td>
-                           <td>
-                              
-                           </td>
-                           {/if}
-                        </tr>
-                        {/loop}
-                     </table>                   
-                  </div>
-               </div>
-            </div>           
          </div>
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}

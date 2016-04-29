@@ -22,7 +22,6 @@ require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
 require_model('articulo_proveedor.php');
 require_model('proveedor.php');
-require_model ('numeros_serie.php');
 
 /**
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes e imprimir facturas.
@@ -189,11 +188,6 @@ class compras_imprimir extends fs_controller
    
    private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag, &$documento)
    {
-      $doc = 'idlalbcompra';
-      if( get_class($documento) == 'factura_proveedor' )
-      {
-         $doc = 'idlfaccompra';
-      }
       if($this->impresion['print_dto'])
       {
          $this->impresion['print_dto'] = FALSE;
@@ -292,22 +286,6 @@ class compras_imprimir extends fs_controller
          {
             $descripcion = '<b>'.$this->get_referencia_proveedor($lineas[$linea_actual]->referencia, $documento->codproveedor)
                     .'</b> '.$descripcion;
-         }
-         
-         $art0 = new articulo();
-         $articulo = $art0->get($lineas[$linea_actual]->referencia);
-         if ($articulo->numserie)
-         {
-            $descripcion .= "\n <i>Números de serie:</i> \n";
-            $num0 = new numero_serie();
-            $numeros = $num0->all_from_linea($doc, $lineas[$linea_actual]->idlinea);
-            if($numeros)
-            {
-               foreach($numeros as $num)
-               {
-                  $descripcion .= $num->numserie."  ";
-               }
-            }
          }
          
          $fila = array(

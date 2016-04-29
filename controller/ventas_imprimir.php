@@ -24,7 +24,6 @@ require_model('cliente.php');
 require_model('cuenta_banco.php');
 require_model('cuenta_banco_cliente.php');
 require_model('forma_pago.php');
-require_model ('numeros_serie.php');
 
 /**
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes y facturas.
@@ -219,7 +218,6 @@ class ventas_imprimir extends fs_controller
    
    private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag, &$documento)
    {
-      $doc = 'idlalbventa';
       if($this->impresion['print_dto'])
       {
          $this->impresion['print_dto'] = FALSE;
@@ -292,7 +290,6 @@ class ventas_imprimir extends fs_controller
       /// ¿Desactivamos la columna de albaran?
       if( get_class($documento) == 'factura_cliente' )
       {
-         $doc = 'idlfacventa';
          if($this->impresion['print_alb'])
          {
             /// aunque esté activada, si la factura no viene de un albaran, la desactivamos
@@ -354,21 +351,6 @@ class ventas_imprimir extends fs_controller
          if( !is_null($lineas[$linea_actual]->referencia) )
          {
             $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
-         }
-         $art0 = new articulo();
-         $articulo = $art0->get($lineas[$linea_actual]->referencia);
-         if ($articulo->numserie)
-         {
-            $descripcion .= "\n <i>Números de serie:</i> \n";
-            $num0 = new numero_serie();
-            $numeros = $num0->all_from_linea($doc, $lineas[$linea_actual]->idlinea);
-            if($numeros)
-            {
-               foreach($numeros as $num)
-               {
-                  $descripcion .= $num->numserie."  ";
-               }
-            }
          }
          
          $fila = array(

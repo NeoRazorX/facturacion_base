@@ -127,10 +127,19 @@
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
          </div>
-         <a href="#" id="b_imagen" class="btn btn-sm btn-default">
-            <span class="glyphicon glyphicon-picture"></span>
-            <span class="hidden-xs">&nbsp; Imagen</span>
-         </a>
+         <div class="btn-group">
+            <a href="#" id="b_imagen" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-picture"></span>
+               <span class="hidden-xs">&nbsp; Imagen</span>
+            </a>
+            {if="$fsc->articulo->trazabilidad"}
+            <a href="index.php?page=articulo_trazabilidad&ref={function="urlencode($fsc->articulo->referencia)"}" class="btn btn-sm btn-default">
+               <i class="fa fa-code-fork" aria-hidden="true"></i>
+               <span class="hidden-xs">&nbsp; Trazabilidad</span>
+            </a>
+            {/if}
+         </div>
+         <div class="btn-group">
          {loop="$fsc->extensions"}
             {if="$value->type=='button'"}
             <a href="index.php?page={$value->from}&ref={function="urlencode($fsc->articulo->referencia)"}{$value->params}" class="btn btn-sm btn-default">
@@ -142,6 +151,7 @@
             <a href="#" class="btn btn-sm btn-default" onclick="fs_modal('{$txt}','{$url}')">{$value->text}</a>
             {/if}
          {/loop}
+         </div>
       </div>
       <div class="col-xs-5 text-right">
          <a class="btn btn-sm btn-success" href="index.php?page=ventas_articulos&b_codfamilia={$fsc->articulo->codfamilia}&b_codfabricante={$fsc->articulo->codfabricante}#nuevo" title="Nuevo artículo">
@@ -325,7 +335,7 @@
                         Stock:
                         <input class="form-control" type="text" name="stockfis" value="{$fsc->articulo->stockfis}" disabled="disabled"/>
                         <label>
-                           <input type="checkbox" name="nostock" value="TRUE"{if="$fsc->articulo->nostock"} checked="checked"{/if}/>
+                           <input type="checkbox" name="nostock" value="TRUE"{if="$fsc->articulo->nostock"} checked=""{/if}/>
                            No controlar stock
                         </label>
                      </div>
@@ -345,19 +355,19 @@
                   <div class="col-sm-2">
                      <div class="checkbox">
                         <label>
-                           <input type="checkbox" name="secompra" value="TRUE"{if="$fsc->articulo->secompra"} checked="checked"{/if}/>
+                           <input type="checkbox" name="secompra" value="TRUE"{if="$fsc->articulo->secompra"} checked=""{/if}/>
                            Se compra
                         </label>
                      </div>
                      <div class="checkbox">
                         <label>
-                           <input type="checkbox" name="sevende" value="TRUE"{if="$fsc->articulo->sevende"} checked="checked"{/if}/>
+                           <input type="checkbox" name="sevende" value="TRUE"{if="$fsc->articulo->sevende"} checked=""{/if}/>
                            Se vende
                         </label>
                      </div>
                      <div class="checkbox">
                         <label>
-                           <input type="checkbox" name="controlstock" value="TRUE"{if="$fsc->articulo->controlstock"} checked="checked"{/if}/>
+                           <input type="checkbox" name="controlstock" value="TRUE"{if="$fsc->articulo->controlstock"} checked=""{/if}/>
                            Permitir ventas sin stock
                         </label>
                      </div>
@@ -365,20 +375,20 @@
                   <div class="col-sm-3">
                      <div class="checkbox">
                         <label>
-                           <input type="checkbox" name="bloqueado" value="TRUE"{if="$fsc->articulo->bloqueado"} checked="checked"{/if}/>
+                           <input type="checkbox" name="bloqueado" value="TRUE"{if="$fsc->articulo->bloqueado"} checked=""{/if}/>
                            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Bloqueado / Obsoleto
                         </label>
                      </div>
                      <div class="checkbox">
                         <label>
-                           <input type="checkbox" name="numserie" value="TRUE"{if="$fsc->articulo->numserie"} checked="checked"{/if}/>
-                           <span class="glyphicon glyphicon-barcode" aria-hidden="true"></span> Control por números de serie
+                           <input type="checkbox" name="trazabilidad" value="TRUE"{if="$fsc->articulo->trazabilidad"} checked=""{/if}/>
+                           <i class="fa fa-code-fork" aria-hidden="true"></i> Trazabilidad / números de serie
                         </label>
                      </div>
                      {if="$fsc->mostrar_boton_publicar"}
                      <div class="checkbox">
                         <label title="Sincronizar con tienda online (si está disponible)">
-                           <input type="checkbox" name="publico" value="TRUE"{if="$fsc->articulo->publico"} checked="checked"{/if}/>
+                           <input type="checkbox" name="publico" value="TRUE"{if="$fsc->articulo->publico"} checked=""{/if}/>
                            <span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Público
                         </label>
                      </div>

@@ -60,7 +60,7 @@
                </a>
                {/if}
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                  <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
                </button>
             </div>
          </div>
@@ -128,6 +128,9 @@
                   <td class="text-right">
                      {if="$value->tipo"}
                      <span class="glyphicon glyphicon-list-alt" aria-hidden="true" title="Artículo tipo: {$value->tipo}"></span>
+                     {/if}
+                     {if="$value->trazabilidad"}
+                     <i class="fa fa-code-fork" aria-hidden="true" title="Trazabilidad activada"></i>
                      {/if}
                      {if="$value->publico"}
                      <span class="glyphicon glyphicon-globe" aria-hidden="true" title="Artículo público"></span>
