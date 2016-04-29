@@ -464,15 +464,15 @@ class factura_proveedor extends fs_model
                if( !$this->floatcmp($this->totaliva, $t_iva) )
                {
                   /*
-                   * Sumamos o restamos un céntimo a los netos más altos
+                   * Sumamos o restamos un céntimo a los importes más altos
                    * hasta que desaparezca el descuadre
                    */
                   $diferencia = round( ($this->totaliva-$t_iva) * 100 );
                   usort($lineasi, function($a, $b) {
-                     if($a->totallinea == $b->totallinea)
+                     if($a->totaliva == $b->totaliva)
                         return 0;
                      else
-                        return ($a->totallinea < $b->totallinea) ? 1 : -1;
+                        return ($a->totaliva < $b->totaliva) ? 1 : -1;
                   });
                   
                   foreach($lineasi as $i => $value)

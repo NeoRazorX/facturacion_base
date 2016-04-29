@@ -102,7 +102,9 @@ class linea_iva_factura_proveedor extends fs_model
       foreach($this->all_from_factura($idfactura) as $li)
       {
          if( !$li->test() )
+         {
             $status = FALSE;
+         }
          
          $li_neto += $li->neto;
          $li_iva += $li->totaliva;
@@ -138,23 +140,30 @@ class linea_iva_factura_proveedor extends fs_model
       {
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET idfactura = ".$this->var2str($this->idfactura).",
-               neto = ".$this->var2str($this->neto).", codimpuesto = ".$this->var2str($this->codimpuesto).",
-               iva = ".$this->var2str($this->iva).", totaliva = ".$this->var2str($this->totaliva).",
-               recargo = ".$this->var2str($this->recargo).",
-               totalrecargo = ".$this->var2str($this->totalrecargo).",
-               totallinea = ".$this->var2str($this->totallinea)." WHERE idlinea = ".$this->var2str($this->idlinea).";";
+            $sql = "UPDATE ".$this->table_name." SET idfactura = ".$this->var2str($this->idfactura)
+                    .", neto = ".$this->var2str($this->neto)
+                    .", codimpuesto = ".$this->var2str($this->codimpuesto)
+                    .", iva = ".$this->var2str($this->iva)
+                    .", totaliva = ".$this->var2str($this->totaliva)
+                    .", recargo = ".$this->var2str($this->recargo)
+                    .", totalrecargo = ".$this->var2str($this->totalrecargo)
+                    .", totallinea = ".$this->var2str($this->totallinea)
+                    ."  WHERE idlinea = ".$this->var2str($this->idlinea).";";
             
             return $this->db->exec($sql);
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (idfactura,neto,codimpuesto,iva,totaliva,
-               recargo,totalrecargo,totallinea) VALUES (".$this->var2str($this->idfactura).",
-               ".$this->var2str($this->neto).",".$this->var2str($this->codimpuesto).",
-               ".$this->var2str($this->iva).",".$this->var2str($this->totaliva).",
-               ".$this->var2str($this->recargo).",".$this->var2str($this->totalrecargo).",
-               ".$this->var2str($this->totallinea).");";
+            $sql = "INSERT INTO ".$this->table_name." (idfactura,neto,codimpuesto,iva,
+               totaliva,recargo,totalrecargo,totallinea) VALUES 
+                      (".$this->var2str($this->idfactura)
+                    .",".$this->var2str($this->neto)
+                    .",".$this->var2str($this->codimpuesto)
+                    .",".$this->var2str($this->iva)
+                    .",".$this->var2str($this->totaliva)
+                    .",".$this->var2str($this->recargo)
+                    .",".$this->var2str($this->totalrecargo)
+                    .",".$this->var2str($this->totallinea).");";
             
             if( $this->db->exec($sql) )
             {
@@ -178,11 +187,13 @@ class linea_iva_factura_proveedor extends fs_model
    {
       $linealist = array();
       
-      $lineas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id)." ORDER BY iva ASC;");
-      if($lineas)
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id)." ORDER BY iva DESC;");
+      if($data)
       {
-         foreach($lineas as $l)
+         foreach($data as $l)
+         {
             $linealist[] = new linea_iva_factura_proveedor($l);
+         }
       }
       
       return $linealist;
