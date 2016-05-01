@@ -150,7 +150,7 @@
             </ul>
          </div>
       </div>
-    </div>
+   </div>
 </div>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -175,6 +175,13 @@
          {/if}
       </a>
    </li>
+   {loop="$fsc->extensions"}
+      {if="$value->type=='tab'"}
+      <li{if="$fsc->mostrar=='ext_'.$value->name"} class="active"{/if}>
+         <a href="{$fsc->url()}&mostrar=ext_{$value->name}">{$value->text}</a>
+      </li>
+      {/if}
+   {/loop}
 </ul>
 
 {if="$fsc->mostrar=='buscar'"}
@@ -304,6 +311,7 @@
 </form>
 {/if}
 
+{if="in_array($fsc->mostrar, array('todo','sinpagar','buscar'))"}
 <div class="table-responsive">
    <table class="table table-hover">
       <thead>
@@ -405,6 +413,13 @@
       </div>
    </div>
 </div>
+{else}
+   {loop="$fsc->extensions"}
+      {if="$value->type=='tab' AND $fsc->mostrar=='ext_'.$value->name"}
+      <iframe src="index.php?page={$value->from}{$value->params}" width="100%" height="2000" frameborder="0"></iframe>
+      {/if}
+   {/loop}
+{/if}
 
 <div class="modal fade" id="modal_huecos">
    <div class="modal-dialog">

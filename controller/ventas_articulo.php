@@ -560,7 +560,10 @@ class ventas_articulo extends fs_controller
          );
       }
       
-      if( $this->db->table_exists('albaranesprov') AND $this->db->table_exists('lineasalbaranesprov') )
+      /// nos guardamos la lista de tablas para agilizar
+      $tablas = $this->db->list_tables();
+      
+      if( $this->db->table_exists('albaranesprov', $tablas) AND $this->db->table_exists('lineasalbaranesprov', $tablas) )
       {
          /// buscamos el artículo en albaranes de compra
          $sql = "SELECT a.idalbaran,a.codigo,l.cantidad,a.fecha,a.hora,a.codalmacen
@@ -568,7 +571,7 @@ class ventas_articulo extends fs_controller
             WHERE a.idalbaran = l.idalbaran
             AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
          
-         $data = $this->db->select_limit($sql, 1000, 0);
+         $data = $this->db->select_limit($sql, 500, 0);
          if($data)
          {
             foreach($data as $d)
@@ -586,7 +589,7 @@ class ventas_articulo extends fs_controller
          }
       }
       
-      if( $this->db->table_exists('facturasprov') AND $this->db->table_exists('lineasfacturasprov') )
+      if( $this->db->table_exists('facturasprov', $tablas) AND $this->db->table_exists('lineasfacturasprov', $tablas) )
       {
          /// buscamos el artículo en facturas de compra
          $sql = "SELECT f.idfactura,f.codigo,l.cantidad,f.fecha,f.hora,f.codalmacen
@@ -594,7 +597,7 @@ class ventas_articulo extends fs_controller
             WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL
             AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
          
-         $data = $this->db->select_limit($sql, 1000, 0);
+         $data = $this->db->select_limit($sql, 500, 0);
          if($data)
          {
             foreach($data as $d)
@@ -612,7 +615,7 @@ class ventas_articulo extends fs_controller
          }
       }
       
-      if( $this->db->table_exists('albaranescli') AND $this->db->table_exists('lineasalbaranescli') )
+      if( $this->db->table_exists('albaranescli', $tablas) AND $this->db->table_exists('lineasalbaranescli', $tablas) )
       {
          /// buscamos el artículo en albaranes de venta
          $sql = "SELECT a.idalbaran,a.codigo,l.cantidad,a.fecha,a.hora,a.codalmacen
@@ -620,7 +623,7 @@ class ventas_articulo extends fs_controller
             WHERE a.idalbaran = l.idalbaran
             AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
          
-         $data = $this->db->select_limit($sql, 1000, 0);
+         $data = $this->db->select_limit($sql, 500, 0);
          if($data)
          {
             foreach($data as $d)
@@ -638,7 +641,7 @@ class ventas_articulo extends fs_controller
          }
       }
       
-      if( $this->db->table_exists('facturascli') AND $this->db->table_exists('lineasfacturascli') )
+      if( $this->db->table_exists('facturascli', $tablas) AND $this->db->table_exists('lineasfacturascli', $tablas) )
       {
          /// buscamos el artículo en facturas de venta
          $sql = "SELECT f.idfactura,f.codigo,l.cantidad,f.fecha,f.hora,f.codalmacen
@@ -646,7 +649,7 @@ class ventas_articulo extends fs_controller
             WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL
             AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
          
-         $data = $this->db->select_limit($sql, 1000, 0);
+         $data = $this->db->select_limit($sql, 500, 0);
          if($data)
          {
             foreach($data as $d)

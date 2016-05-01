@@ -451,8 +451,15 @@ class articulo extends fs_model
     */
    public function get_familia()
    {
-      $fam = new familia();
-      return $fam->get($this->codfamilia);
+      if( is_null($this->codfamilia) )
+      {
+         return FALSE;
+      }
+      else
+      {
+         $fam = new familia();
+         return $fam->get($this->codfamilia);
+      }
    }
    
    /**
@@ -461,8 +468,15 @@ class articulo extends fs_model
     */
    public function get_fabricante()
    {
-      $fab = new fabricante();
-      return $fab->get($this->codfabricante);
+      if( is_null($this->codfabricante) )
+      {
+         return FALSE;
+      }
+      else
+      {
+         $fab = new fabricante();
+         return $fab->get($this->codfabricante);
+      }
    }
    
    public function get_stock()

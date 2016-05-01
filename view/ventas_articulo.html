@@ -375,14 +375,14 @@
                   <div class="col-sm-3">
                      <div class="checkbox">
                         <label>
-                           <input type="checkbox" name="bloqueado" value="TRUE"{if="$fsc->articulo->bloqueado"} checked=""{/if}/>
-                           <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Bloqueado / Obsoleto
+                           <input type="checkbox" name="trazabilidad" value="TRUE"{if="$fsc->articulo->trazabilidad"} checked=""{/if}/>
+                           <i class="fa fa-code-fork" aria-hidden="true"></i> Trazabilidad / números de serie
                         </label>
                      </div>
                      <div class="checkbox">
                         <label>
-                           <input type="checkbox" name="trazabilidad" value="TRUE"{if="$fsc->articulo->trazabilidad"} checked=""{/if}/>
-                           <i class="fa fa-code-fork" aria-hidden="true"></i> Trazabilidad / números de serie
+                           <input type="checkbox" name="bloqueado" value="TRUE"{if="$fsc->articulo->bloqueado"} checked=""{/if}/>
+                           <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Bloqueado / Obsoleto
                         </label>
                      </div>
                      {if="$fsc->mostrar_boton_publicar"}

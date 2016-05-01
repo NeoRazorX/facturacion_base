@@ -55,7 +55,7 @@
       ON DELETE CASCADE ON UPDATE CASCADE</consulta>
    </restriccion>
    <restriccion>
-      <nombre>uniq_codigo_albaranescli</nombre>
+      <nombre>uniq_codigo_articulo_trazas</nombre>
       <consulta>UNIQUE (numserie)</consulta>
    </restriccion>
 </tabla>
