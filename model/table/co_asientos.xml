@@ -61,6 +61,11 @@
       <tipo>character varying(25)</tipo>
       <nulo>YES</nulo>
    </columna>
+   <columna>
+      <nombre>mayorizado</nombre>
+      <tipo>integer</tipo>
+      <defecto>0</defecto>
+   </columna>
    <restriccion>
       <nombre>ca_co_asientos_ejercicios2</nombre>
       <consulta>FOREIGN KEY (codejercicio)

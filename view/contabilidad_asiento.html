@@ -17,8 +17,9 @@
 			    <input  class='form-control' id='alias_"+numlineas+"' name='alias_"+numlineas+"' type='text' value='' disabled='disabled'/>\n\
                </td>\n\
          <td></td>\n\
+		 <td></td>\n\
          <td>\n\
-            <input class='form-control' type='text' id='desc_"+numlineas+"' name='desc_"+numlineas+"' disabled='disabled'/>\n\
+            <input class='form-control' type='text' id='desc_"+numlineas+"' name='desc_"+numlineas+"' style='font-size:12px' disabled='disabled'/>\n\
          </td>\n\
          <td>\n\
             <input class='form-control text-right' type='text' id='debe_"+numlineas+"' name='debe_"+numlineas+"' value='0'\n\
@@ -29,11 +30,7 @@
                onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>\n\
          </td>\n\
 		  <td>\n\
-		  	<select class='form-control' type='text'  id='comp_"+numlineas+"' name='comp_"+numlineas+"'>\n\
-			<option value='' ></option>\n\
-		   	<option value='Factura' >Factura</option>\n\
-			<option value='Ticket' >Ticket</option>\n\
-			</select>\n\
+		  	<input class='form-control text-right' type='text' id='comp_"+numlineas+"' name='comp_"+numlineas+"'>\n\
 		  </td>\n\
 			   <td>\n\
               <input class='form-control text-right' type='text' id='ref_"+numlineas+"' name='ref_"+numlineas+"' value='' autocomplete='off'/>\n\
@@ -175,6 +172,11 @@
          if( confirm("¿Estas seguro de que deseas eliminar este asiento?") )
             window.location.href = "{$fsc->ppage->url()}&delete={$fsc->asiento->idasiento}";
       });
+	  $("#b_anular_mayor").click(function(event) {
+         event.preventDefault();
+         if( confirm("¿Estas seguro de que deseas anular el mayorizado?") )
+            window.location.href = "{$fsc->url()}&anu_may={$fsc->asiento->idasiento}";
+      });
       $("#f_buscar_subcuentas").submit(function(event) {
          event.preventDefault();
          buscar_subcuentas();
@@ -221,6 +223,10 @@
                <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
                   <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Asientos
                </a>
+			   <a href="{$fsc->url()}&genlibro=1&idasiento={$fsc->asiento->idasiento}" class="btn btn-sm btn-default">
+                  <span class="glyphicon glyphicon-book"></span> &nbsp; Mayorizar
+               </a>
+
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
@@ -298,13 +304,14 @@
          <thead>
             <tr>
                <th class="text-left">Subcuenta</th>
-			   <th class="text-left">Alias</th>
+			   <th >Alias</th>
                <th></th>
-               <th class="text-left">Descripción</th>
-               <th class="text-right">Debe</th>
-               <th class="text-right">Haber</th>
-			   <th class="text-right">Comp.</th>
-				<th class="text-right">Referencia</th>
+			   <th></th>
+               <th class="col-sm-2">Descripción</th>
+               <th class="col-sm-1">Debe</th>
+               <th class="col-sm-1">Haber</th>
+			   <th class="text-left">Comprobante</th>
+				<th class="text-left">Referencia</th>
                <th></th>
             </tr>
          </thead>
@@ -314,34 +321,34 @@
                <td>
                   <input type="hidden" name="idpartida_{$counter+1}" value="{$value->idpartida}"/>
                   <input class="form-control" id='codsubcuenta_{$counter+1}' name='codsubcuenta_{$counter+1}' type='text'
-                         value="{$value->codsubcuenta}" onclick="show_buscar_subcuentas('{$counter+1}','subcuenta')"
+                        {if="$value->codsubcuenta"} value="{$value->codsubcuenta}" {/if} onclick="show_buscar_subcuentas('{$counter+1}','subcuenta')"
                          onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'
                          autocomplete='off' placeholder='Seleccionar'/>
                </td>
 			   <td>
-			    <input  class="form-control" id='alias_{$counter+1}' name="alias_{$counter+1}" type="text" value="{$value->alias}" readonly="true"/>
+			    <input  class="form-control" id='alias_{$counter+1}' name="alias_{$counter+1}" type="text" {if="$value->codsubcuenta"} value="{$value->alias}" {/if} readonly="true"/>
                </td>
                <td>
                   <a href="{$value->subcuenta_url()}" target="_blank" class="btn btn-sm btn-default" title="ver la subcuenta">
                      <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
                   </a>
                </td>
-               <td><input class='form-control' type='text' id='desc_{$counter+1}' name='desc_{$counter+1}' value='{$value->desc_subcuenta}' disabled='disabled'/></td>
+			   <td>
+				<a class='btn btn-sm btn-default' target="_blank"  href="{$fsc->url_cambio()}&idsubcuenta={$value->idsubcuenta}&modo=0" title="Ver Libro SubCuenta">
+				  <span class='glyphicon glyphicon-eye-open'></span>
+				</a>
+			  </td>
+               <td><input class='form-control' type='text' id='desc_{$counter+1}' name='desc_{$counter+1}' style="font-size:12px" {if="$value->codsubcuenta"} value='{$value->desc_subcuenta}' {/if} disabled='disabled'/></td>
                <td>
-                  <input class='form-control text-right' type='text' id='debe_{$counter+1}' name='debe_{$counter+1}' value='{$fsc->show_numero($value->debe)}'
+                  <input class='form-control text-right' type='text' id='debe_{$counter+1}' name='debe_{$counter+1}' value='{$value->debe}'
                          onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>
                </td>
                <td>
-                  <input class='form-control text-right' type='text' id='haber_{$counter+1}' name='haber_{$counter+1}' value='{$fsc->show_numero($value->haber)}'
+                  <input class='form-control text-right' type='text' id='haber_{$counter+1}' name='haber_{$counter+1}' value='{$value->haber}'
                          onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>
                </td>
  			   <td>
-			      <select class="form-control" type='text'  id='comp_{$counter+1}' name='comp_{$counter+1}' value='{$value->comprobante}'>
-				  <option>{$value->comprobante}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
-				  <option value='' ></option>
-                  <option value='Factura' >Factura</option>
-				  <option value='Ticket' >Ticket</option>
-               	  </select>
+			      <input class='form-control text-right' type='text'  id='comp_{$counter+1}' name='comp_{$counter+1}' value='{$value->comprobante}'>
                </td>
 			   <td>
                   <input class='form-control text-right' type='text' id='ref_{$counter+1}' name='ref_{$counter+1}' value='{$value->referencia}' autocomplete='off'/>
@@ -415,6 +422,12 @@
             <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
                <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Asientos
             </a>
+			{if="$fsc->allow_delete"}
+			<a href="#" id="b_anular_mayor" class="btn btn-sm btn-danger">
+                  <span class="glyphicon glyphicon-trash"></span>
+                  <span class="hidden-sm hidden-xs">&nbsp; Anular Mayorizado</span>
+             </a>
+			 {/if}
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
@@ -499,7 +512,11 @@
             <td class="text-right"> </td>
             <td class="text-right">{$value->comprobante}</td>
             <td class="text-center">{$value->referencia}</td>
-           
+           	<td class='text-right'>
+				<a class='btn btn-sm btn-default' href="{$fsc->url_cambio()}&idsubcuenta={$value->idsubcuenta}&modo=0" target="_blank" title="Ver Libro SubCuenta">
+				  <span class='glyphicon glyphicon-eye-open'></span>
+				</a>
+			</td>
          </tr>
          {else}
          <tr class="bg-warning">

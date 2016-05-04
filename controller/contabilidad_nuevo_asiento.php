@@ -94,6 +94,7 @@ class contabilidad_nuevo_asiento extends fs_controller
 			$this->asiento->tipodocumento = $_POST['concepto'];
             $this->asiento->fecha = $_POST['fecha'];
             $this->asiento->importe = floatval($_POST['importe']);
+			
             if( $this->asiento->save() )
             {
                $numlineas = intval($_POST['numlineas']);
@@ -114,6 +115,8 @@ class contabilidad_nuevo_asiento extends fs_controller
                            $partida->codsubcuenta = $sub0->codsubcuenta;
                            $partida->debe = floatval($_POST['debe_'.$i]);
                            $partida->haber = floatval($_POST['haber_'.$i]);
+						   $partida->comprobante = $_POST['comp_'.$i];
+						   $partida->referencia = $_POST['ref_'.$i];
                            $partida->idconcepto = $this->asiento->idconcepto;
                            $partida->concepto = $this->asiento->concepto;
                            $partida->documento = $this->asiento->documento;

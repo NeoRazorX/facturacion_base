@@ -40,6 +40,7 @@ class asiento extends fs_model
    public $documento;
    public $tipodocumento;
    public $importe;
+   public $mayorizado;
    
    private $coddivisa;
    
@@ -63,6 +64,7 @@ class asiento extends fs_model
          $this->documento = $a['documento'];
          $this->tipodocumento = $a['tipodocumento'];
          $this->importe = floatval($a['importe']);
+		 $this->mayorizado = $a['mayorizado'];
       }
       else
       {
@@ -77,6 +79,7 @@ class asiento extends fs_model
          $this->documento = NULL;
          $this->tipodocumento = NULL;
          $this->importe = 0;
+		 $this->mayorizado = 0;
       }
    }
    
@@ -453,7 +456,7 @@ class asiento extends fs_model
       			}
 				
 /*				print '<script language="JavaScript">'; 
-				print 'alert(" id partida : '.$sum_importe.' id  '.$array_sum_importe[0]['idasiento'].'  importe '.$this->importe.' ");'; 
+				print 'alert(" id partida '..' ");'; 
 				print '</script>'; 
 */
 		 
@@ -464,7 +467,9 @@ class asiento extends fs_model
                codplanasiento = ".$this->var2str($this->codplanasiento).",
                documento = ".$this->var2str($this->documento).",
                tipodocumento = ".$this->var2str($this->tipodocumento).",
-               importe = ".$this->var2str($sum_importe)."
+               importe = ".$this->var2str($sum_importe).",
+			   editable = ".$this->var2str($this->editable).",
+			   mayorizado = ".$this->var2str($this->mayorizado)."
                WHERE codejercicio = ".$this->var2str($this->codejercicio)." AND fecha=".$this->var2str($this->fecha)." AND tipodocumento=".$this->var2str($this->tipodocumento).";";
  
  			////  De acá sale el idasiento para partida
@@ -485,13 +490,13 @@ class asiento extends fs_model
  
             $this->new_numero();
             $sql = "INSERT INTO ".$this->table_name." (numero,idconcepto,concepto,
-               fecha,codejercicio,codplanasiento,editable,documento,tipodocumento,importe)
+               fecha,codejercicio,codplanasiento,editable,documento,tipodocumento,importe,mayorizado)
                VALUES (".$this->var2str($this->numero).",".$this->var2str($this->idconcepto).",".$this->var2str($this->concepto).",
                ".$this->var2str($this->fecha).",".$this->var2str($this->codejercicio).",
                ".$this->var2str($this->codplanasiento).",".$this->var2str($this->editable).",
                ".$this->var2str($this->documento).",".$this->var2str($this->tipodocumento).",
-               ".$this->var2str($this->importe).");";
-            
+               ".$this->var2str($this->importe).",
+               ".$this->var2str($this->mayorizado).");";
             if( $this->db->exec($sql) )
             {
                $this->idasiento = $this->db->lastval();
@@ -611,10 +616,46 @@ class asiento extends fs_model
       return $alist;
    }
    
+    public function all_por_ejercicio($ejercicio)
+   {
+      $alist = array();
+      $asientos = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codejercicio =".$this->var2str($ejercicio)." AND mayorizado ='1' ");
+      if($asientos)
+      {
+         foreach($asientos as $a)
+            $alist[] = new asiento($a);
+      }
+      return $alist;
+   } 
+   
    public function all($offset=0, $limit=FS_ITEM_LIMIT)
    {
       $alist = array();
       $asientos = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY fecha DESC, numero DESC", $limit, $offset);
+      if($asientos)
+      {
+         foreach($asientos as $a)
+            $alist[] = new asiento($a);
+      }
+      return $alist;
+   }
+   
+   public function all_sin_mayorizar($offset=0, $limit=FS_ITEM_LIMIT)
+   {
+      $alist = array();
+      $asientos = $this->db->select_limit("SELECT * FROM ".$this->table_name." WHERE mayorizado = '0' ORDER BY fecha DESC, numero DESC", $limit, $offset);
+      if($asientos)
+      {
+         foreach($asientos as $a)
+            $alist[] = new asiento($a);
+      }
+      return $alist;
+   }
+   
+    public function all_mayorizados($offset=0, $limit=FS_ITEM_LIMIT)
+   {
+      $alist = array();
+      $asientos = $this->db->select_limit("SELECT * FROM ".$this->table_name." WHERE mayorizado = '1' ORDER BY fecha DESC, numero DESC", $limit, $offset);
       if($asientos)
       {
          foreach($asientos as $a)

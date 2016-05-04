@@ -12,7 +12,7 @@
                autocomplete='off' placeholder='Seleccionar'/>\n\
          </td>\n\
          <td>\n\
-            <input class='form-control' type='text' id='desc_"+numlineas+"' name='desc_"+numlineas+"' disabled='disabled'/>\n\
+            <input class='form-control' type='text' id='desc_"+numlineas+"' name='desc_"+numlineas+"' style='font-size:12px' disabled='disabled'/>\n\
          </td>\n\
          <td>\n\
             <input class='form-control text-right' type='text' id='saldo_"+numlineas+"' name='saldo_"+numlineas+"' value='0' disabled='disabled'/>\n\
@@ -25,26 +25,15 @@
             <input class='form-control text-right' type='text' id='haber_"+numlineas+"' name='haber_"+numlineas+"' value='0'\n\
                onclick='this-select()' onkeyup='recalcular()' autocomplete='off'/>\n\
          </td>\n\
-         <td>\n\
-            <input class='form-control' id='codcontrapartida_"+numlineas+"' name='codcontrapartida_"+numlineas+"' type='text'\n\
-               onclick=\"show_buscar_subcuentas('"+numlineas+"','contrapartida')\" onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'\n\
-               autocomplete='off' placeholder='Seleccionar'/>\n\
-         </td>\n\
-         <td class='contrapartida'>\n\
-            <input class='form-control text-right' type='text' id='saldoc_"+numlineas+"' name='saldoc_"+numlineas+"' value='0' disabled='disabled'/>\n\
-         </td>\n\
-         <td class='contrapartida'>\n\
-            <select id='iva_"+numlineas+"' name='iva_"+numlineas+"' onchange='recalcular()' class='form-control'>\n\
-               <option value='0'>---</option>\n\
-               {loop="$fsc->impuesto->all()"}<option value='{$value->iva}'>{$value->descripcion}</option>{/loop}\n\
-            </select>\n\
-         </td>\n\
-         <td class='contrapartida'>\n\
-            <input class='form-control text-right' type='text' id='baseimp_"+numlineas+"' name='baseimp_"+numlineas+"' value='0' autocomplete='off'/>\n\
-         </td>\n\
-         <td class='contrapartida'>\n\
-            <input class='form-control text-right' type='text' id='cifnif_"+numlineas+"' name='cifnif_"+numlineas+"'/>\n\
-         </td>\n\
+		  <input type='hidden' id='iva_"+numlineas+"' name='iva_"+numlineas+"' value='0' />\n\
+		  <input type='hidden' id='baseimp_"+numlineas+"' name='baseimp_"+numlineas+"' value='0' />\n\
+		  <input type='hidden'  id='cifnif_"+numlineas+"' name='cifnif_"+numlineas+"' value='0' />\n\
+		  	<td>\n\
+			<input class='form-control text-right' type='text' id='comp_"+numlineas+"' name='comp_"+numlineas+"'>\n\
+		  </td>\n\
+			   <td>\n\
+              <input class='form-control text-right' type='text' id='ref_"+numlineas+"' name='ref_"+numlineas+"' value='' autocomplete='off'/>\n\
+               </td>\n\
          <td class='text-right'>\n\
             <a class='btn btn-sm btn-danger' onclick=\"clean_partida('"+numlineas+"')\">\n\
                <span class='glyphicon glyphicon-trash'></span>\n\
@@ -155,6 +144,9 @@
       
       document.f_asiento.importe.value = Math.max(t_debe, t_haber);
       document.f_asiento.descuadre.value = fs_round(t_debe - t_haber, 2);
+	  document.f_asiento.total_debe.value = t_debe.toFixed(2);
+	  document.f_asiento.total_haber.value = t_haber.toFixed(2);
+	  document.f_asiento.total_saldo.value = t_debe.toFixed(2) - t_haber.toFixed(2);
       
       if(show_contrapartidas)
       {
@@ -287,13 +279,11 @@
          </div>
          <div class="col-lg-2 col-md-2 col-sm-2">
             <div class="form-group">
-               Divisa:
-               <select name='divisa' class='form-control'>
                {loop="$fsc->divisa->all()"}
-                  <option value='{$value->coddivisa}'{if="$value->is_default()"} selected="selected"{/if}>{$value->descripcion}</option>
-               {/loop}
-               </select>
+			    <input type="hidden" name='divisa' id='divisa' value='{$value->coddivisa}'/> 
+			  {/loop}
             </div>
+			 
          </div>
          <div class="col-lg-2 col-md-2 col-sm-2">
             <div class="form-group">
@@ -314,21 +304,45 @@
       <table class="table table-hover">
          <thead>
             <tr>
-               <th class="text-left">Subcuenta</th>
-               <th class="text-left">Descripción</th>
-               <th class="text-right">Saldo</th>
-               <th class="text-right">Debe</th>
-               <th class="text-right">Haber</th>
-               <th class="text-left">Contrapartida</th>
-               <th class="text-right contrapartida">Saldo</th>
-               <th class="text-right contrapartida">{#FS_IVA#}</th>
-               <th class="text-right contrapartida">Base Imp.</th>
-               <th class="text-left contrapartida">{#FS_CIFNIF#}</th>
-               <th></th>
+               <th class="col-sm-2">Subcuenta</th>
+               <th class="col-sm-2">Descripción</th>
+               <th class="col-sm-1">Saldo</th>
+               <th class="col-sm-1">Debe</th>
+               <th class="col-sm-1">Haber</th>
+               <th class="col-sm-2">Comprobante</th>
+			   <th class="col-sm-2">Referencia</th>
+			   <th></th>
             </tr>
          </thead>
          <tbody id="partidas"></tbody>
       </table>
+	   <table class="table table-hover">
+         <thead>
+		
+            <tr>
+			   <th class="text-right">Total Debe :</th>
+			   <th class="text-left" ><input class="form-control text-left " type="text" id="total_debe" name="total_debe" disabled="disabled"/></th>
+			  
+			   <th class="text-left"></th>
+			   <th class="text-left"></th>
+			   <th class="text-left"></th>
+			</tr>
+			<tr>
+               <th class="text-right">Total Haber :</th>
+			   <th class="text-left"><input class="form-control text-left " type="text" id="total_haber" name="total_haber" disabled="disabled"/></th>
+			   <th class="text-left"></th>
+			   <th class="text-left"></th>
+			   <th class="text-left"></th>
+			</tr>
+				<tr>
+               <th class="text-right">Saldo :</th>
+			   <th class="text-left"><input class="form-control text-left " type="text" id="total_saldo" name="total_saldo" disabled="disabled"/></th>
+			   <th class="text-left"></th>
+			   <th class="text-left"></th>
+			   <th class="text-left"></th>
+			</tr> 
+		</thead>
+	</table>	
    </div>
       
    <div class="container-fluid">

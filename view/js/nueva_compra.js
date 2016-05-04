@@ -319,7 +319,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,codsub,subdesc,subdev,subdesd
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\" value=\""+ref+"\"/>\n\
          <div class=\"form-control\"><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></div></td>\n\
-      <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\">"+desc+"</textarea></td>\n\
+      <td><textarea class=\"form-control\" style=\"font-size:12px\"  id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\">"+desc+"</textarea></td>\n\
 	  <td><select name=\"subcuenta_"+numlineas+"\" id=\"subcuenta_"+numlineas+"\" class=\"form-control text-right\" style='width:200px; font-size:12px'>\n\
 	  "+sel(subdesc1,idsub,codsub,subdev)+"</select></td>\n\
 	  <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
@@ -644,7 +644,7 @@ function add_linea_libre()
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\"/>\n\
          <div class=\"form-control\"></div></td>\n\
-      <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\"></textarea></td>\n\
+      <td><textarea class=\"form-control\" style=\"font-size:12px\"  id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\"></textarea></td>\n\
 	  <td><select name=\"subcuenta_"+numlineas+"\" id=\"subcuenta_"+numlineas+"\" class=\"form-control text-right\" style='width:200px; font-size:12px'>\n\
 	   <option selected=\"selected\"></option>"+sel_1()+"</select></td>\n\
       <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+

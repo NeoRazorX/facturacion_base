@@ -53,6 +53,42 @@ class asiento_factura
    {
       $this->errors[] = $msg;
    }
+   
+   private function fact_tipo_num($num,$nom)
+   {
+	   
+	   	$poscad = strpos($num, '/');	   	
+		$subcuencod = substr($num, 0, $poscad);
+   		$idsubcuen = substr($num,$poscad+1);
+		
+		switch ($subcuencod) {
+			case 'B':
+				$tipo = 'FACTURA B';
+				break;
+			case 'F':
+				$tipo = 'FACTURA C';
+				break;
+			case 'R':
+				$tipo = 'REMITO';
+				break;	
+			case 'T':
+				$tipo = 'TICKET FACTURA';
+				break;	
+			case 'Q':
+				$tipo = 'TICKET CRÉDITO';
+				break;				
+			case 'D':
+				$tipo = 'DÉBITO';
+				break;
+			case 'C':
+				$tipo = 'CRÉDITO';
+				break;
+					}
+		
+		return $tipo.' - '.$idsubcuen.' - '.$nom;
+
+   }
+   
   /////////////////////////////////////////
   ////////////////////////////////////////
   
@@ -94,6 +130,7 @@ class asiento_factura
       {
 	     $asiento = new asiento();
          $asiento->codejercicio = $factura->codejercicio;
+		 $concepto_fact = $this->fact_tipo_num($factura->numproveedor,$factura->nombre);
          $asiento->concepto = "Nota de crédito ".$factura->codigo." - ".$factura->nombre;
          $asiento->documento = $factura->codigo;
          $asiento->editable = TRUE;
@@ -489,7 +526,7 @@ class asiento_factura
       {
          $asiento = new asiento();
          $asiento->codejercicio = $factura->codejercicio;
-         $asiento->concepto = "Factura de compra ".$factura->codigo." - ".$factura->nombre;
+         $asiento->concepto = $this->fact_tipo_num($factura->numproveedor,$factura->nombre);	 
          $asiento->documento = $factura->codigo;
          $asiento->editable = TRUE;
          $asiento->fecha = $factura->fecha;

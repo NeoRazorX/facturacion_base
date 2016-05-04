@@ -34,7 +34,7 @@
  	{
  
 				var f1 =(document.getElementById('caivence').value);
-				var f2 ='{$fsc->today()}';
+				var f2 =document.getElementById('fecha').value;
 				
 				
 				var d1 =f1.substr(0,2);
@@ -61,12 +61,19 @@
 				{		
 					alert("Debe completar el campo CAI y la fecha de vencimiento");
 					aler = 1;
-				}	 
+				}	
+				fecha_fac = document.getElementById('fecha').value;
+				if( fecha_fac.trim() == '' )
+				{
+				alert('Debe colocar la fecha de la factura');
+				aler = 1;
+				}
+				 
 				for(i=0;i<(numsub);i++)
 					   {
 					    if( document.getElementById('subcuenta_'+i))
 							{
-					   			if( document.getElementById('subcuenta_'+i).value == 'null/%' || document.getElementById('total_'+i).value == 0 || document.getElementById('subcuenta_'+i).value == '0/%' || document.getElementById('subcuenta_'+i).value == '/%'   || document.getElementById('subcuenta_'+i).value == '/%0'  ){ ban = 1;}
+					   			if( document.getElementById('subcuenta_'+i).value == 'null/%0' || document.getElementById('subcuenta_'+i).value == 'null/%' || document.getElementById('total_'+i).value == 0 || document.getElementById('subcuenta_'+i).value == '0/%' || document.getElementById('subcuenta_'+i).value == '/%'   || document.getElementById('subcuenta_'+i).value == '/%0' || document.getElementById('subcuenta_'+i).value == '0/0%0'  || document.getElementById('subcuenta_'+i).value == '' ){ ban = 1;}
 							}							
 					   }				
 				if(ban == 1 ) 
@@ -195,7 +202,7 @@
          <div class="col-sm-2">
             <div class="form-group" style="font:bold;font-size:18px">
                Fecha:
-               <input type="text" name="fecha" class="form-control calendario"  data-date-format="dd-mm-yyyy" value="{$fsc->today()}" autocomplete="off"/>
+               <input type="text" name="fecha" id="fecha" class="form-control calendario"  data-date-format="dd-mm-yyyy" value="{$fsc->today()}" autocomplete="off"/>
 			</div>
 		</div>
         <div class="col-sm-2">
@@ -673,6 +680,7 @@
    
    $(document).ready(function() {
       $("#modal_proveedor").modal('show');
+	  
       document.f_nueva_compra.ac_proveedor.focus();
       $("#ac_proveedor").autocomplete({
          serviceUrl: '{$fsc->url()}',
@@ -692,6 +700,14 @@
          }
       });
    });
+   
+   function enfocarventana()
+   {
+				  document.getElementById('comprobante').disabled='';
+				  document.getElementById('numcorto').disabled='';
+				  document.getElementById('numlargo').disabled='';
+				  document.getElementById('continuarfact').disabled='';
+   }
   
    
    function verificar_factura()
@@ -777,7 +793,7 @@
             <div class="modal-body">
                <div class="form-group">
                   <div class="input-group">
-                     <input class="form-control" type="text" name="ac_proveedor" id="ac_proveedor" placeholder="Proveedor..." autocomplete="off"/>
+                     <input class="form-control" type="text" name="ac_proveedor" onblur="enfocarventana()" id="ac_proveedor" placeholder="Proveedor..." autocomplete="off"/>
                     
                   </div>
 				  

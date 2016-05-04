@@ -24,6 +24,8 @@ require_model('impuesto.php');
 require_model('partida.php');
 require_model('subcuenta.php');
 require_model('factura_proveedor.php');
+require_once 'plugins/facturacion_base/extras/libromayor.php';
+
 
 class contabilidad_asiento extends fs_controller
 {
@@ -41,6 +43,7 @@ class contabilidad_asiento extends fs_controller
    public $suma_haber;
    public $saldo;
    public $alias;
+   public $resu;
    
    public function __construct()
    {
@@ -84,56 +87,134 @@ class contabilidad_asiento extends fs_controller
 	  $this->resultados1 = $this->factura_cli->facturas_cliente();
 	  
 	  }
-    }  
-      if( isset($_POST['fecha']) AND isset($_POST['query']) )
+    } 
+	
+	if(isset($_GET['genlibro']))
+	if( $_GET['genlibro'] == 1 )
+	{
+			$idasiento = $_GET['idasiento'];
+			$this->asiento->mayorizado = 1;
+			$this->asiento->editable = 0;
+			$may_corr = 0;
+			$may_inco = 1;
+			if( $this->asiento->save())
+		 	{
+			$libro_mayor = new libro_mayor();
+			$partida = new partida();
+			$asiento_all = new asiento();	
+			$asientos_ejer = $asiento_all->all_por_ejercicio($this->asiento->codejercicio);
+			foreach($asientos_ejer as $ext)
+						{
+			// suma por sub cuenta
+			//  SELECT codsubcuenta,sum(`debe`),sum(`haber`) FROM `co_partidas` WHERE `libromayor`=1 group by codsubcuenta			
+				//		partida
+				 	$libro_mes = substr( $ext->fecha,3,2);
+					if( $partida->marca_libro_idasiento($ext->idasiento,$libro_mes,$this->asiento->codejercicio))
+					{
+					$may_corr = 1;
+					}
+					else 	$may_inco = 0;	
+						}
+			}	
+			
+			if( $may_corr * $may_inco == 1) $this->new_message('Mayorizado correcto.');
+			else $this->new_message('Imposible Mayorizar.');
+	}
+	
+	
+////////	
+	if(isset($_GET['anu_may']))
+	{
+	 
+			$idasiento = $_GET['anu_may'];
+
+			$may_corr = 0;
+			$may_inco = 1;
+			
+			$libro_mayor = new libro_mayor();
+			$partida = new partida();
+			$asiento_all = new asiento();	
+			$asientos_ejer = $asiento_all->all_por_ejercicio($this->asiento->codejercicio);
+
+
+			foreach($asientos_ejer as $ext)
+				{
+							$libro_mes = substr( $ext->fecha,3,2);
+							if( $partida->marca_libro_idasiento($idasiento,'0','0'))
+							{
+							$may_corr = 1;
+							}
+							else 	$may_inco = 0;	
+				}
+				
+			
+			
+			
+			if( $may_corr * $may_inco == 1)
+			{ 
+			$this->asiento->mayorizado = 0;
+			$this->asiento->editable = 1;
+			if( $this->asiento->save()) $this->new_message('Mayorizado Anulado.');
+			}
+			else 
+			{
+			$this->asiento->mayorizado = 1;
+			$this->asiento->editable = 0;
+			$this->asiento->save();
+			$this->new_message('Imposible Anular Mayorizado.');
+			}
+	}
+
+
+
+/////////// 
+    if( isset($_POST['fecha']) AND isset($_POST['query']) )
       {
          $this->new_search();
       }
-      else if($this->asiento)
+    else if($this->asiento)
       {
-         $this->page->title = 'Asiento: '.$this->asiento->numero;
+         	$this->page->title = 'Asiento: '.$this->asiento->numero;
+         		//////
+			 if( isset($_GET['bloquear']) )
+			 {
+				$this->asiento->editable = FALSE;
+				if( $this->asiento->bloquear_on_off() )
+				{
+				   $this->new_message('Asiento bloqueado correctamente.');
+				}
+				else $this->new_error_msg('Imposible bloquear el asiento.');
+			 }
+			 else if( isset($_GET['desbloquear']) )
+			 {
+				$this->asiento->editable = TRUE;
+				if( $this->asiento->bloquear_on_off() )
+				{
+				   $this->new_message('Asiento desbloqueado correctamente.');
+				}
+				else $this->new_error_msg('Imposible desbloquear el asiento.');
+			 }
+         		////
+			 if( isset($_POST['fecha']) AND $this->asiento->editable )
+			 {
+				$this->modificar();
+			 }
          
-         if( isset($_GET['bloquear']) )
-         {
-            $this->asiento->editable = FALSE;
-            if( $this->asiento->bloquear_on_off() )
-            {
-               $this->new_message('Asiento bloqueado correctamente.');
-            }
-            else
-               $this->new_error_msg('Imposible bloquear el asiento.');
-         }
-         else if( isset($_GET['desbloquear']) )
-         {
-            $this->asiento->editable = TRUE;
-            if( $this->asiento->bloquear_on_off() )
-            {
-               $this->new_message('Asiento desbloqueado correctamente.');
-            }
-            else
-               $this->new_error_msg('Imposible desbloquear el asiento.');
-         }
-         
-         if( isset($_POST['fecha']) AND $this->asiento->editable )
-         {
-            $this->modificar();
-         }
-         
-         /// comprobamos el asiento
-         $this->asiento->full_test();
-         
-         $this->lineas = $this->get_lineas_asiento();
-		 $partida = new partida();
-		 $valores=$partida->totales_from_asiento($this->asiento->idasiento);
-		 $this->suma_debe = $valores['debe'];
-		 $this->suma_haber = $valores['haber'];
-		 $this->saldo = $valores['saldo'];
-//		 $this->comprobante = $valores['comprobante'];
-//		 $this->referencia = $valores['referencia'];
-		 
+			 /// comprobamos el asiento
+			 $this->asiento->full_test();
+			 
+			 $this->lineas = $this->get_lineas_asiento();
+			 $partida = new partida();
+			 $valores=$partida->totales_from_asiento($this->asiento->idasiento);
+			 $this->suma_debe = $valores['debe'];
+			 $this->suma_haber = $valores['haber'];
+			 $this->saldo = $valores['saldo'];
+	//		 $this->comprobante = $valores['comprobante'];
+	//		 $this->referencia = $valores['referencia'];
+			 
       }
-      else
-         $this->new_error_msg("Asiento no encontrado.");
+	  
+      else $this->new_error_msg("Asiento no encontrado.");
    }
    
    public function url()
@@ -148,6 +229,16 @@ class contabilidad_asiento extends fs_controller
       }
       else
          return $this->ppage->url();
+   }
+   
+   public function url_mayorizar()
+   {
+   return 'index.php?page=mayorizar_subc';
+   }
+   
+       public function url_cambio()
+   {
+   return 'index.php?page=libro_mayor_generar';
    }
    
    private function new_search()

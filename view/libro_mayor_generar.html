@@ -1,0 +1,243 @@
+{include="header"}
+
+
+
+
+
+<script type="text/javascript">
+   function fs_marcar_todo()
+   {
+      $('#f_subcuenta input:checkbox').prop('checked', true);
+   }
+   function fs_marcar_nada()
+   {
+      $('#f_subcuenta input:checkbox').prop('checked', false);
+   }
+   
+
+</script>
+
+
+<div class="container-fluid">
+	<div class="row" style="margin-top: 10px; margin-bottom: 10px;">
+		<div class="col-md-8">
+			<a href="{$fsc->url()}" class="btn btn-sm btn-default" title="Recargar la página">
+			<span class="glyphicon glyphicon-refresh"></span>
+			</a>
+			<a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
+			<span class="glyphicon glyphicon-arrow-left"></span> &nbsp; {$fsc->ppage->title}
+			</a>
+		</div>
+	</div>
+</div>			
+
+
+
+
+
+							<form id="f_subcuenta" class="form" action="" method="post">
+							   <input type="hidden" name="puntear" value="1"/>	
+					   				   					 	
+									<table class="table table-hover">
+										<thead>
+											<tr>
+												<th class="text-left">Subcuenta</th>			   
+												<th class="text-left">Descripci&oacute;n</th>
+												<th class="text-left">Alias</th>
+												<th>Ejercicio</th>
+												<th class="text-right">Debe</th>
+												<th class="text-right">Haber</th>
+												<th class="text-right">Saldo</th>
+											</tr>
+										</thead>
+											<tr>
+												<td >
+													<div class="form-control">{$fsc->subcuenta->codsubcuenta}</div>
+												</td>	
+												<td >
+													<div class="form-control">{$fsc->subcuenta->descripcion}</div>
+												</td>
+												<td >
+													<div class="form-control">{$fsc->subcuenta->alias}</div>
+												</td>
+												<td >
+													<div class="form-control">
+													<a href="{$fsc->ejercicio->url()}">{$fsc->ejercicio->nombre} ({$fsc->ejercicio->codejercicio})</a>
+													</div>
+												</td>
+												<td><div class="form-control text-right">{$fsc->show_numero($fsc->subcuenta->debe, 2)}</div></td>
+												<td><div class="form-control text-right">{$fsc->show_numero($fsc->subcuenta->haber, 2)}</div></td>
+												<td><div class="form-control text-right">{$fsc->show_numero($fsc->subcuenta->saldo,2)}</div></td>									
+											</tr>				 		
+									</table>
+
+
+
+
+
+<div role="tabpanel" style="margin-left:20px; margin-right:20px">
+
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" {if="$fsc->modo==1"} class="active" {/if}>
+				<a href="#lineas" aria-controls="lineas" role="tab" data-toggle="tab">
+				   <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+				   <span class="hidden-xs">&nbsp; No Mayorizados</span>
+				</a>
+			</li>
+			<li role="presentation" {if="$fsc->modo==0"} class="active" {/if}>
+				<a href="#ver_libros" aria-controls="ver_libros" role="tab" data-toggle="tab">
+					<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+				   	<span class="hidden-xs">&nbsp; Ver Libros</span>
+				</a>
+			</li>
+		</ul>  
+		<div class="tab-content">
+			<div role="tabpanel" {if="$fsc->modo==1"}class="tab-pane active"{else}class="tab-pane"{/if} id="lineas">
+					<div class="row"> 
+						<div class="col-sm-12">  
+
+
+
+
+								
+								
+										<div class="container-fluid" style="margin-bottom: 10px;">
+											<div class="row">							  
+												<div class="col-md-2 col-sm-2">
+													
+												</div>
+												<div class="col-sm-4  btn-group text-left">
+												
+													<h4>Periodo : {$fsc->periodo}</h4>
+												</div>
+												<div class="col-md-2 btn-group text-left">  
+													<h4>Saldo : {$fsc->saldo_anterior}</h4>
+												</div> 
+												
+												<div class="col-sm-1 btn-group text-right">
+												{loop="$fsc->paginas()"}
+													<a class="btn btn-sm btn-default{if="$value.actual"} active{/if}" href="{$value.url}">P&aacute;g.{$value.num}</a>
+												{/loop}								
+												</div>
+												
+													
+												
+																				
+											</div>
+										</div>
+										
+										<div class="table-responsive">
+											<table class="table table-hover">
+												<thead>
+													<tr>
+														<th class="text-center" title="puntear"></th>
+														<th>Fecha</th>
+														<th class="text-left">Asiento</th>             
+														<th class="text-left">Comprobante</th>
+														<th class="text-left">Referencia</th>
+														<th class="text-right">Debe</th>
+														<th class="text-right">Haber</th>
+														<th class="text-right">Saldo</th>
+													</tr>
+												</thead>
+											{$total=-1+count($fsc->resultados)}
+											{loop="$fsc->periodo_seleccionado"}
+											
+											<tr>
+												<td class="text-center">
+												
+												</td>
+												<td>{$value->fecha}</td>
+												<td><a href="{$value->url()}">{$value->numero}</a></td>            
+												<td><a href="{$value->url()}">{$value->comprobante}</a></td>
+												<td><a href="{$value->url()}">{$value->referencia}</a></td>
+												<td class="text-right">{$fsc->show_numero($value->debe, 2)}</td>
+												<td class="text-right">{$fsc->show_numero($value->haber, 2)}</td>
+												<td class="text-right">{$fsc->show_numero($value->saldo, 2)}</td>									
+											</tr>
+											{if="$counter==$total"}
+											<tr>
+												<td></td>
+												<td colspan="4" class="text-right"><b>Sumas</b>:</td>
+												<td class="text-right"><b>{$fsc->show_numero($value->sum_debe, 2)}</b></td>
+												<td class="text-right"><b>{$fsc->show_numero($value->sum_haber, 2)}</b></td>
+												<td colspan="5"></td>
+											</tr>
+											{/if}
+											{/loop}
+
+											</table>
+										</div>
+										
+										{if="$total>10"}
+										<div class="container-fluid">
+												<div class="row">
+													<div class="col-lg-2 col-md-2 col-sm-2">
+														
+													</div>
+													<div class="col-lg-8 col-md-8 col-sm-8 text-center">
+														<div class="btn-group">
+														{loop="$fsc->paginas()"}
+														<a class="btn btn-sm btn-default{if="$value.actual"} active{/if}" href="{$value.url}">{$value.num}</a>
+														{/loop}
+														</div>
+													</div>
+													
+												</div>
+											</div>
+										{/if}						
+							</form>		
+						</div>
+					</div>
+				</div>
+						
+			<div role="tabpanel" {if="$fsc->modo==0"}class="tab-pane active"{else}class="tab-pane"{/if} id="ver_libros">
+									<div class="container-fluid" style="margin-top: 10px;">
+										<div class="row">
+											<div class="col-sm-4">
+												 <div class="form-group">
+												 
+													<div class="table-responsive">
+														<table class="table table-hover">
+															<thead>
+																<tr>
+																	<th class="text-left">Subcuenta</th>			   
+																	<th class="text-left">Descripci&oacute;n</th>
+																	<th class="text-left">Alias</th>
+																	<th class="text-left">Periodo</th>
+																</tr>
+															</thead>
+															{loop="$fsc->meses"}
+																<tr>		   
+																<td >
+																	{$fsc->subcuenta->codsubcuenta}
+																</td>	
+																<td >
+																	{$fsc->subcuenta->descripcion}
+																</td>
+																<td >
+																	{$fsc->subcuenta->alias}
+																</td>
+																<td >
+																	<a href="{$fsc->url()}&implibro=1&mes={$value['libromayor']}"  target="_blank">
+																	
+																	{$fsc->subcuenta->get_nom_mes($value['libromayor'])}&nbsp;&nbsp;&nbsp;{$fsc->ejercicio->codejercicio}
+																	</a>
+																</td>
+																</tr>
+																{/loop}
+														</table>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>	
+							
+		</div>
+</div>
+		
+			
+					 
+					 
+{include="footer"}

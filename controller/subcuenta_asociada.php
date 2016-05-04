@@ -45,6 +45,7 @@ class subcuenta_asociada extends fs_controller
    {
       $this->tipo = FALSE;
       $this->subcuenta = FALSE;
+	  $this->subcuenta_a = FALSE;
       $this->cuenta = new cuenta();
       
       $this->codejercicio = $this->default_items->codejercicio();
@@ -78,6 +79,7 @@ class subcuenta_asociada extends fs_controller
          if($this->cliente)
          {
             $subcuenta_cliente = new subcuenta_cliente();
+			$this->subcuenta_a =  new subcuenta_cliente();
             
             if( isset($_GET['delete_sca']) )
             {
@@ -212,6 +214,7 @@ class subcuenta_asociada extends fs_controller
       }
       else if( isset($_REQUEST['pro']) )
       {
+ 
          $this->tipo = 'pro';
          $proveedor = new proveedor();
          $this->proveedor = $proveedor->get($_REQUEST['pro']);
@@ -219,7 +222,7 @@ class subcuenta_asociada extends fs_controller
          if($this->proveedor)
          {
             $subcuenta_proveedor = new subcuenta_proveedor();
-            
+            $this->subcuenta_a =  new subcuenta_proveedor();
             if( isset($_GET['delete_sca']) )
             {
                $aux_sca = $subcuenta_proveedor->get2($_GET['delete_sca']);
@@ -310,7 +313,7 @@ class subcuenta_asociada extends fs_controller
                   $subc0->coddivisa = $this->default_items->coddivisa();
                   $subc0->codejercicio = $cuenta0->codejercicio;
                   $subc0->codsubcuenta = $_POST['codsubcuenta'];
-                  $subc0->descripcion = $this->proveedor->nombre;
+                  $subc0->descripcion = $this->proveedor->razonsocial;
                   $subc0->idcuenta = $cuenta0->idcuenta;
                   if( $subc0->save() )
                   {
