@@ -176,13 +176,15 @@ class fabricante extends fs_model
    public function search($query)
    {
       $fablist = array();
-      $query = $this->no_html( strtolower($query) );
+      $query = $this->no_html( mb_strtolower($query, 'UTF8') );
       
       $fabricantes = $this->db->select("SELECT * FROM ".$this->table_name." WHERE lower(nombre) LIKE '%".$query."%' ORDER BY nombre ASC;");
       if($fabricantes)
       {
          foreach($fabricantes as $f)
+         {
             $fablist[] = new fabricante($f);
+         }
       }
       
       return $fablist;

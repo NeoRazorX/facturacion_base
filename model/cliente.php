@@ -314,13 +314,13 @@ class cliente extends fs_model
    {
       if($cifnif == '' AND $razon)
       {
-         $razon = mb_strtolower( $this->no_html($razon) );
+         $razon = $this->no_html( mb_strtolower($razon, 'UTF8') );
          $sql = "SELECT * FROM ".$this->table_name." WHERE cifnif = ''"
                  . " AND lower(razonsocial) = ".$this->var2str($razon).";";
       }
       else
       {
-         $cifnif = mb_strtolower($cifnif);
+         $cifnif = mb_strtolower($cifnif, 'UTF8');
          $sql = "SELECT * FROM ".$this->table_name." WHERE lower(cifnif) = ".$this->var2str($cifnif).";";
       }
       
@@ -575,12 +575,18 @@ class cliente extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $clientlist[] = new cliente($d);
+         }
       }
       
       return $clientlist;
    }
    
+   /**
+    * Devuelve un array con la lista completa de clientes.
+    * @return \cliente
+    */
    public function all_full()
    {
       $clientlist = $this->cache->get_array('m_cliente_all');
@@ -590,10 +596,13 @@ class cliente extends fs_model
          if($data)
          {
             foreach($data as $d)
+            {
                $clientlist[] = new cliente($d);
+            }
          }
          $this->cache->set('m_cliente_all', $clientlist);
       }
+      
       return $clientlist;
    }
    
@@ -622,7 +631,9 @@ class cliente extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $clilist[] = new cliente($d);
+         }
       }
       
       return $clilist;
@@ -637,7 +648,7 @@ class cliente extends fs_model
    public function search_by_dni($dni, $offset=0)
    {
       $clilist = array();
-      $query = strtolower( $this->no_html($dni) );
+      $query = mb_strtolower( $this->no_html($dni), 'UTF8' );
       $consulta = "SELECT * FROM ".$this->table_name." WHERE debaja = FALSE "
               . "AND lower(cifnif) LIKE '".$query."%' ORDER BY nombre ASC";
       
@@ -645,7 +656,9 @@ class cliente extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $clilist[] = new cliente($d);
+         }
       }
       
       return $clilist;

@@ -387,7 +387,7 @@ class linea_albaran_cliente extends fs_model
    public function search($query='', $offset=0)
    {
       $linealist = array();
-      $query = strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query), 'UTF8' );
       
       $sql = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )
@@ -401,19 +401,22 @@ class linea_albaran_cliente extends fs_model
       }
       $sql .= " ORDER BY idalbaran DESC, idlinea ASC";
       
-      $lineas = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-      if( $lineas )
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($lineas as $l)
+         foreach($data as $l)
+         {
             $linealist[] = new linea_albaran_cliente($l);
+         }
       }
+      
       return $linealist;
    }
    
    public function search_from_cliente($codcliente, $query='', $offset=0)
    {
       $linealist = array();
-      $query = strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query), 'UTF8' );
       
       $sql = "SELECT * FROM ".$this->table_name." WHERE idalbaran IN
          (SELECT idalbaran FROM albaranescli WHERE codcliente = ".$this->var2str($codcliente).") AND ";
@@ -428,23 +431,26 @@ class linea_albaran_cliente extends fs_model
       }
       $sql .= " ORDER BY idalbaran DESC, idlinea ASC";
       
-      $lineas = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-      if( $lineas )
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($lineas as $l)
+         foreach($data as $l)
+         {
             $linealist[] = new linea_albaran_cliente($l);
+         }
       }
+      
       return $linealist;
    }
    
    public function search_from_cliente2($codcliente, $ref='', $obs='', $offset=0)
    {
       $linealist = array();
-      $ref = strtolower( $this->no_html($ref) );
+      $ref = mb_strtolower( $this->no_html($ref), 'UTF8' );
       
       $sql = "SELECT * FROM ".$this->table_name." WHERE idalbaran IN
          (SELECT idalbaran FROM albaranescli WHERE codcliente = ".$this->var2str($codcliente)."
-         AND lower(observaciones) LIKE '".strtolower($obs)."%') AND ";
+         AND lower(observaciones) LIKE '".mb_strtolower($obs, 'UTF8')."%') AND ";
       if( is_numeric($ref) )
       {
          $sql .= "(referencia LIKE '%".$ref."%' OR descripcion LIKE '%".$ref."%')";
@@ -456,12 +462,15 @@ class linea_albaran_cliente extends fs_model
       }
       $sql .= " ORDER BY idalbaran DESC, idlinea ASC";
       
-      $lineas = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-      if( $lineas )
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($lineas as $l)
+         foreach($data as $l)
+         {
             $linealist[] = new linea_albaran_cliente($l);
+         }
       }
+      
       return $linealist;
    }
    

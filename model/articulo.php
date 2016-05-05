@@ -1166,7 +1166,7 @@ class articulo extends fs_model
    public function search($query='', $offset=0, $codfamilia='', $con_stock=FALSE, $codfabricante='', $bloqueados=FALSE)
    {
       $artilist = array();
-      $query = $this->no_html( strtolower($query) );
+      $query = $this->no_html( mb_strtolower($query, 'UTF8') );
       
       if($query != '' AND $offset == 0 AND $codfamilia == '' AND $codfabricante == '' AND !$con_stock AND !$bloqueados)
       {

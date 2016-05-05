@@ -1051,7 +1051,7 @@ class nueva_compra extends fs_controller
    private function search_from_proveedor()
    {
       $artilist = array();
-      $query = $this->articulo_prov->no_html( strtolower($this->query) );
+      $query = $this->articulo_prov->no_html( mb_strtolower($this->query, 'UTF8') );
       $sql = "SELECT * FROM articulos";
       $separador = ' WHERE';
       

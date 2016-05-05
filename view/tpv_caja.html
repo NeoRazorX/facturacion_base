@@ -87,7 +87,7 @@
                   </tr>
                </thead>
                {loop="$fsc->resultados"}
-               <tr{if="$value->abierta()"} class="bg-warning"{/if}>
+               <tr{if="$value->abierta()"} class="warning"{/if}>
                   <td>{$value->id}</td>
                   <td>{$value->fs_id}</td>
                   <td>
@@ -150,7 +150,7 @@
                      <th>Almacén</th>
                      <th>Serie</th>
                      <th>Código Cliente</th>
-                     <th>Ancho papel</th>
+                     <th>Caracteres por linea</th>
                      <th>Comando corte</th>
                      <th>Comando apertura</th>
                      <th>nº tickets</th>
@@ -161,7 +161,7 @@
                {loop="$fsc->terminales"}
                <form action="{$fsc->url()}#terminales" method="post" class="form">
                   <input type="hidden" name="idt" value="{$value->id}">
-                  <tr{if="!$value->disponible()"} class="bg-warning"{/if}>
+                  <tr{if="!$value->disponible()"} class="warning"{/if}>
                      <td><div class="form-control">{$value->id}</div></td>
                      <td>
                         <select name="codalmacen" class="form-control">
@@ -233,7 +233,10 @@
                         </select>
                      </td>
                      <td><input type="text" name="codcliente" class="form-control" maxlength="6" placeholder="Código" autocomplete="off"/></td>
-                     <td><input type="number" name="anchopapel" value="{$fsc->terminal->anchopapel}" class="form-control" autocomplete="off"/></td>
+                     <td>
+                        <input type="number" name="anchopapel" value="{$fsc->terminal->anchopapel}" class="form-control" autocomplete="off"/>
+                        <p class="help-block">Nº de caracteres que caben en una linea.</p>
+                     </td>
                      <td><input type="text" name="comandocorte" value="{$fsc->terminal->comandocorte}" class="form-control" autocomplete="off"/></td>
                      <td><input type="text" name="comandoapertura" value="{$fsc->terminal->comandoapertura}" class="form-control" autocomplete="off"/></td>
                      <td><input type="number" name="num_tickets" value="{$fsc->terminal->num_tickets}" class="form-control" autocomplete="off"/></td>
@@ -253,7 +256,15 @@
             <div class="row">
                <div class="col-sm-12">
                   <div class="page-header">
-                     <h2>Ayuda</h2>
+                     <h2>
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp; Ayuda
+                     </h2>
+                     <p class="help-block">
+                        Para el correcto funcionamiento de la impresora es necesario
+                        especificar bien sus comandos. Y <b>recuerda</b> que es necesario ejecutar el
+                        <a target="_blank" href="https://www.facturascripts.com/comm3/index.php?page=community_item&id=170">Remote printer</a>
+                        para poder imprimir tickets.
+                     </p>
                   </div>
                   <div class="table-responsive">
                      <table class="table table-hover">

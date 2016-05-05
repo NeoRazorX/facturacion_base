@@ -442,7 +442,7 @@ class ventas_albaranes extends fs_controller
    {
       $this->resultados = array();
       $this->num_resultados = 0;
-      $query = $this->agente->no_html( strtolower($this->query) );
+      $query = $this->agente->no_html( mb_strtolower($this->query, 'UTF8') );
       $sql = " FROM albaranescli ";
       $where = 'WHERE ';
       

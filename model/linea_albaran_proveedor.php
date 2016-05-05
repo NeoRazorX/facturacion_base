@@ -382,7 +382,7 @@ class linea_albaran_proveedor extends fs_model
    public function search($query='', $offset=0)
    {
       $linealist = array();
-      $query = strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query), 'UTF8' );
       
       $sql = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )
@@ -396,19 +396,22 @@ class linea_albaran_proveedor extends fs_model
       }
       $sql .= " ORDER BY idalbaran DESC, idlinea ASC";
       
-      $lineas = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-      if( $lineas )
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($lineas as $l)
+         foreach($data as $l)
+         {
             $linealist[] = new linea_albaran_proveedor($l);
+         }
       }
+      
       return $linealist;
    }
    
    public function search_from_proveedor($codproveedor, $query='', $offset=0)
    {
       $linealist = array();
-      $query = strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query), 'UTF8' );
       
       $sql = "SELECT * FROM ".$this->table_name." WHERE idalbaran IN
          (SELECT idalbaran FROM albaranesprov WHERE codproveedor = ".$this->var2str($codproveedor).") AND ";
@@ -423,12 +426,15 @@ class linea_albaran_proveedor extends fs_model
       }
       $sql .= " ORDER BY idalbaran DESC, idlinea ASC";
       
-      $lineas = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-      if( $lineas )
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($lineas as $l)
+         foreach($data as $l)
+         {
             $linealist[] = new linea_albaran_proveedor($l);
+         }
       }
+      
       return $linealist;
    }
    

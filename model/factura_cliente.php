@@ -1293,7 +1293,7 @@ class factura_cliente extends fs_model
    public function search($query, $offset=0)
    {
       $faclist = array();
-      $query = strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query), 'UTF8' );
       
       $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )
@@ -1337,7 +1337,7 @@ class factura_cliente extends fs_model
       
       if($obs != '')
       {
-         $sql .= " AND lower(observaciones) = ".$this->var2str(strtolower($obs));
+         $sql .= " AND lower(observaciones) = ".$this->var2str( mb_strtolower($obs, 'UTF8') );
       }
       
       $sql .= " ORDER BY fecha DESC, codigo DESC;";

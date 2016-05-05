@@ -266,13 +266,15 @@ class familia extends fs_model
    public function search($query)
    {
       $famlist = array();
-      $query = $this->no_html( strtolower($query) );
+      $query = $this->no_html( mb_strtolower($query, 'UTF8') );
       
       $familias = $this->db->select("SELECT * FROM ".$this->table_name." WHERE lower(descripcion) LIKE '%".$query."%' ORDER BY descripcion ASC;");
       if($familias)
       {
          foreach($familias as $f)
+         {
             $famlist[] = new familia($f);
+         }
       }
       
       return $famlist;

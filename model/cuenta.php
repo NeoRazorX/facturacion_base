@@ -285,7 +285,7 @@ class cuenta extends fs_model
    public function search($query, $offset=0)
    {
       $cuenlist = array();
-      $query = strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query), 'UTF8' );
       
       $cuentas = $this->db->select_limit("SELECT * FROM ".$this->table_name.
               " WHERE codcuenta LIKE '".$query."%' OR lower(descripcion) LIKE '%".$query."%'".
@@ -294,7 +294,9 @@ class cuenta extends fs_model
       if($cuentas)
       {
          foreach($cuentas as $c)
+         {
             $cuenlist[] = new cuenta($c);
+         }
       }
       
       return $cuenlist;

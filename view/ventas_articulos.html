@@ -616,7 +616,10 @@
                         <input class="form-control" type="text" name="pvp" value="0" autocomplete="off"/>
                         <div class="input-group-addon">{$fsc->simbolo_divisa()}</div>
                      </div>
-                     <p class="help-block">Precio sin {#FS_IVA#}</p>
+                     <label>
+                        <input type="checkbox" name="coniva" value="TRUE"/>
+                        Precio con {#FS_IVA#}
+                     </label>
                   </div>
                </div>
             </div>
@@ -627,7 +630,7 @@
                   </label>
                </div>
                <button class="btn btn-sm btn-primary" type="submit">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                  <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
                </button>
             </div>
          </div>

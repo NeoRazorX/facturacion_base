@@ -98,7 +98,7 @@ class contabilidad_asientos extends fs_controller
    {
       $this->resultados = array();
       $this->num_resultados = 0;
-      $query = $this->empresa->no_html( mb_strtolower($this->query) );
+      $query = $this->empresa->no_html( mb_strtolower($this->query, 'UTF8') );
       $sql = " FROM co_asientos ";
       $where = 'WHERE ';
       

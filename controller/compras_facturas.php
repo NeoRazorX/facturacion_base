@@ -403,7 +403,7 @@ class compras_facturas extends fs_controller
    {
       $this->resultados = array();
       $this->num_resultados = 0;
-      $query = $this->agente->no_html( strtolower($this->query) );
+      $query = $this->agente->no_html( mb_strtolower($this->query, 'UTF8') );
       $sql = " FROM facturasprov ";
       $where = 'WHERE ';
       

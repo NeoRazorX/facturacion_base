@@ -1061,7 +1061,7 @@ class factura_proveedor extends fs_model
    public function search($query, $offset=0)
    {
       $faclist = array();
-      $query = strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query), 'UTF8' );
       
       $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )

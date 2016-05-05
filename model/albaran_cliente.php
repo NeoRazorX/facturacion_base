@@ -959,7 +959,7 @@ class albaran_cliente extends fs_model
       
       if($obs != '')
       {
-         $sql .= " AND lower(observaciones) = ".$this->var2str(strtolower($obs));
+         $sql .= " AND lower(observaciones) = ".$this->var2str( mb_strtolower($obs, 'UTF8') );
       }
       
       $sql .= " ORDER BY fecha DESC, codigo DESC;";

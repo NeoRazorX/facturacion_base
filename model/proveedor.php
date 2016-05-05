@@ -269,13 +269,13 @@ class proveedor extends fs_model
    {
       if($cifnif == '' AND $razon)
       {
-         $razon = mb_strtolower( $this->no_html($razon) );
+         $razon = mb_strtolower( $this->no_html($razon), 'UTF8' );
          $sql = "SELECT * FROM ".$this->table_name." WHERE cifnif = ''"
                  . " AND lower(razonsocial) = ".$this->var2str($razon).";";
       }
       else
       {
-         $cifnif = mb_strtolower($cifnif);
+         $cifnif = mb_strtolower($cifnif, 'UTF8');
          $sql = "SELECT * FROM ".$this->table_name." WHERE lower(cifnif) = ".$this->var2str($cifnif).";";
       }
       
@@ -519,12 +519,18 @@ class proveedor extends fs_model
       if($data)
       {
          foreach($data as $p)
+         {
             $provelist[] = new proveedor($p);
+         }
       }
       
       return $provelist;
    }
    
+   /**
+    * Devuelve un array con la lista completa de proveedores.
+    * @return \proveedor
+    */
    public function all_full()
    {
       $provelist = $this->cache->get_array('m_proveedor_all');
@@ -534,10 +540,13 @@ class proveedor extends fs_model
          if($data)
          {
             foreach($data as $d)
+            {
                $provelist[] = new proveedor($d);
+            }
          }
          $this->cache->set('m_proveedor_all', $provelist);
       }
+      
       return $provelist;
    }
    
@@ -566,7 +575,9 @@ class proveedor extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $prolist[] = new proveedor($d);
+         }
       }
       
       return $prolist;

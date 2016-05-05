@@ -502,7 +502,7 @@ class linea_factura_cliente extends fs_model
    public function search($query='', $offset=0)
    {
       $linealist = array();
-      $query = strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query), 'UTF8' );
       
       $sql = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )
@@ -531,7 +531,7 @@ class linea_factura_cliente extends fs_model
    public function search_from_cliente($codcliente, $query='', $offset=0)
    {
       $linealist = array();
-      $query = strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query), 'UTF8' );
       
       $sql = "SELECT * FROM ".$this->table_name." WHERE idfactura IN
          (SELECT idfactura FROM facturascli WHERE codcliente = ".$this->var2str($codcliente).") AND ";
@@ -561,11 +561,11 @@ class linea_factura_cliente extends fs_model
    public function search_from_cliente2($codcliente, $ref='', $obs='', $offset=0)
    {
       $linealist = array();
-      $ref = strtolower( $this->no_html($ref) );
+      $ref = mb_strtolower( $this->no_html($ref), 'UTF8' );
       
       $sql = "SELECT * FROM ".$this->table_name." WHERE idfactura IN
          (SELECT idfactura FROM facturascli WHERE codcliente = ".$this->var2str($codcliente)."
-         AND lower(observaciones) LIKE '".strtolower($obs)."%') AND ";
+         AND lower(observaciones) LIKE '".mb_strtolower($obs, 'UTF8')."%') AND ";
       if( is_numeric($ref) )
       {
          $sql .= "(referencia LIKE '%".$ref."%' OR descripcion LIKE '%".$ref."%')";

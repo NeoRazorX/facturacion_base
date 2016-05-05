@@ -538,16 +538,16 @@ class subcuenta extends fs_model
    public function search($query)
    {
       $sublist = array();
-      $query = strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query), 'UTF8' );
       $sql = "SELECT * FROM ".$this->table_name." WHERE codsubcuenta LIKE '".$query."%'"
               ." OR codsubcuenta LIKE '%".$query."'"
               ." OR lower(descripcion) LIKE '%".$query."%'"
               ." ORDER BY codejercicio DESC, codcuenta ASC;";
       
-      $subcuentas = $this->db->select($sql);
-      if($subcuentas)
+      $data = $this->db->select($sql);
+      if($data)
       {
-         foreach($subcuentas as $s)
+         foreach($data as $s)
          {
             $sublist[] = new subcuenta($s);
          }
@@ -558,7 +558,7 @@ class subcuenta extends fs_model
    
    public function search_by_ejercicio($ejercicio, $query)
    {
-      $query = $this->escape_string( strtolower( trim($query) ) );
+      $query = $this->escape_string( mb_strtolower( trim($query), 'UTF8' ) );
       
       $sublist = $this->cache->get_array('search_subcuenta_ejercicio_'.$ejercicio.'_'.$query);
       if( count($sublist) < 1 )
@@ -567,10 +567,10 @@ class subcuenta extends fs_model
                  ." AND (codsubcuenta LIKE '".$query."%' OR codsubcuenta LIKE '%".$query."'"
                  ." OR lower(descripcion) LIKE '%".$query."%') ORDER BY codcuenta ASC;";
          
-         $subcuentas = $this->db->select($sql);
-         if($subcuentas)
+         $data = $this->db->select($sql);
+         if($data)
          {
-            foreach($subcuentas as $s)
+            foreach($data as $s)
             {
                $sublist[] = new subcuenta($s);
             }

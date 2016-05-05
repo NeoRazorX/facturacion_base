@@ -144,8 +144,16 @@ class ventas_articulos extends fs_controller
                $articulo->codfabricante = $_POST['codfabricante'];
             }
             
-            $articulo->set_pvp( floatval($_POST['pvp']) );
             $articulo->set_impuesto($_POST['codimpuesto']);
+            if( isset($_POST['coniva']) )
+            {
+               $articulo->set_pvp_iva( floatval($_POST['pvp']) );
+            }
+            else
+            {
+               $articulo->set_pvp( floatval($_POST['pvp']) );
+            }
+            
             if( $articulo->save() )
             {
                header('location: '.$articulo->url());
@@ -242,7 +250,7 @@ class ventas_articulos extends fs_controller
    {
       $this->resultados = array();
       $this->num_resultados = 0;
-      $query = $this->empresa->no_html( strtolower($this->query) );
+      $query = $this->empresa->no_html( mb_strtolower($this->query, 'UTF8') );
       $sql = ' FROM articulos ';
       $where = ' WHERE ';
       
