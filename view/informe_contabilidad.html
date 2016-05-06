@@ -1,15 +1,72 @@
 {include="header"}
 
+<script type="text/javascript">
+   var codsubcuenta = '';
+   function check_librom(cod)
+   {
+      $("#div_librom_"+cod).html('');
+      if( $("#filtro_librom_"+cod).val() == '' )
+      {
+         $("#f_librom_"+cod).submit();
+      }
+      else
+      {
+         $.ajax({
+            type: 'POST',
+            url: '{$fsc->url()}',
+            dataType: 'html',
+            data: $("#f_librom_"+cod).serialize(),
+            success: function(datos) {
+               $("#div_librom_"+cod).html(datos);
+               $("#ac_subcuenta_"+cod).autocomplete({
+                  serviceUrl: '{$fsc->url()}&codejercicio='+cod,
+                  paramName: 'buscar_subcuenta',
+                  onSelect: function (suggestion) {
+                     if(suggestion)
+                     {
+                        if(suggestion.value != codsubcuenta)
+                        {
+                           add_check_subcuenta(cod, suggestion);
+                           codsubcuenta = suggestion.value;
+                        }
+                     }
+                  }
+               });
+               $("#modal_librom_"+cod).modal('show');
+               $("#modal_librom_"+cod).on('hidden.bs.modal', function () {
+                  $("#div2_librom_"+cod).html('');
+                  codsubcuenta = '';
+               })
+            }
+         });
+      }
+   }
+   function add_check_subcuenta(cod, data)
+   {
+      $("#div2_librom_"+cod).html( "<div class='checkbox'>\n\
+<label>\n\
+<input type='checkbox' name='codsubcuenta[]' value='"+data.value+"' checked=''/> <b>"+
+              data.value+"</b> "+data.data+"</label></div>"+
+              $("#div2_librom_"+cod).html());
+   }
+</script>
+
 <div class="container">
    <div class="row">
       <div class="col-sm-12">
          <div class="page-header">
             <h1>
-               <span class="glyphicon glyphicon-book"></span>
-               &nbsp; Informes contables
+               <span class="glyphicon glyphicon-book"></span>&nbsp; Informes contables
                <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
+               <span class="btn-group">
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='button'"}
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                  {/if}
+               {/loop}
+               </span>
             </h1>
             <p class="help-block">
                Estos son los informes contables básicos para España. Algunos se generan
@@ -39,7 +96,7 @@
                   <div class="panel-body">
                      <div class="container-fluid">
                         <div class="row">
-                           <div class="col-sm-3">
+                           <div class="col-sm-4">
                               {if="$fsc->existe_libro_diario($value->codejercicio)"}
                               <a href="tmp/{#FS_TMP_NAME#}libro_diario/{$value->codejercicio}.pdf" target="_blank">
                                  <span class="glyphicon glyphicon-book" aria-hidden="true"></span> Libro diario
@@ -48,12 +105,12 @@
                               <a href="#"><s>Libro diario</s></a>
                               {/if}
                            </div>
-                           <div class="col-sm-3">
+                           <div class="col-sm-4">
                               <a href="{$fsc->url()}&diario={$value->codejercicio}" target="_blank">
                                  <span class="glyphicon glyphicon-file" aria-hidden="true"></span> Libro diario (CSV)
                               </a>
                            </div>
-                           <div class="col-sm-3">
+                           <div class="col-sm-4">
                               {if="$fsc->existe_libro_inventarios($value->codejercicio)"}
                               <a href="tmp/{#FS_TMP_NAME#}inventarios_balances/{$value->codejercicio}.pdf" target="_blank">
                                  <span class="glyphicon glyphicon-book" aria-hidden="true"></span> Libro de inventarios y balances
@@ -62,15 +119,90 @@
                               <a href="#"><s>Libro de inventarios y balances</s></a>
                               {/if}
                            </div>
-                           <div class="col-sm-3">
-                              <a href="{$fsc->url()}&balance=pyg&eje={$value->codejercicio}" target="_blank">
-                                 <span class="glyphicon glyphicon-book" aria-hidden="true"></span> Balance de pérdidas y ganancias
-                              </a>
-                           </div>
                         </div>
                         <div class="row">
                            <div class="col-sm-12">
+                              <h3>Libro mayor:</h3>
+                              <p class="help-block">
+                                 Selecciona las fechas y después los filtros: todo, grupos, epígrafes, cuentas o subcuentas.
+                              </p>
+                           </div>
+                        </div>
+                        <form id="f_librom_{$value->codejercicio}" action="{$fsc->url()}" method="post" target="_blank" class="form">
+                           <input type="hidden" name="codejercicio" value="{$value->codejercicio}"/>
+                           <input type="hidden" name="informe" value="librom"/>
+                           <div class="row">
+                              <div class="col-sm-2">
+                                 <div class="form-group">
+                                    Desde:
+                                    <input type="text" name="desde" value="{$value->fechainicio}" class="form-control datepicker" autocomplete="off"/>
+                                 </div>
+                              </div>
+                              <div class="col-sm-2">
+                                 <div class="form-group">
+                                    Hasta:
+                                    <input type="text" name="hasta" value="{$value->fechafin}" class="form-control datepicker" autocomplete="off"/>
+                                 </div>
+                              </div>
+                              <div class="col-sm-3">
+                                 <div class="form-group">
+                                    Filtro:
+                                    <select name="filtro" id="filtro_librom_{$value->codejercicio}" class="form-control">
+                                       <option value="">Todo</option>
+                                       <option value="">------</option>
+                                       <option value="grupo">Seleccionar grupo</option>
+                                       <option value="epigrafe">Seleccionar epigrafe</option>
+                                       <option value="cuenta">Seleccionar cuenta</option>
+                                       <option value="subcuenta">Seleccionar subcuenta</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-sm-2">
+                                 <div class="form-group">
+                                    Formato:
+                                    <select name="formato" class="form-control">
+                                       <option value="csv">CSV</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-sm-2">
+                                 <br/>
+                                 <button type="button" class="btn btn-sm btn-primary" onclick="check_librom('{$value->codejercicio}')">
+                                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> &nbsp; Mostrar
+                                 </button>
+                              </div>
+                           </div>
+                           <div class="modal fade" id="modal_librom_{$value->codejercicio}" tabindex="-1" role="dialog">
+                              <div class="modal-dialog" role="document">
+                                 <div class="modal-content">
+                                    <div class="modal-header">
+                                       <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                          <span aria-hidden="true">&times;</span>
+                                       </button>
+                                       <h4 class="modal-title">
+                                          <span class="glyphicon glyphicon-book" aria-hidden="true"></span> &nbsp; Libro mayor...
+                                       </h4>
+                                    </div>
+                                    <div class="modal-body">
+                                       <div id="div_librom_{$value->codejercicio}">...</div>
+                                       <div id="div2_librom_{$value->codejercicio}"></div>
+                                    </div>
+                                    <div class="modal-footer">
+                                       <button type="button" class="btn btn-sm btn-primary" onclick="this.form.submit();">
+                                          <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> &nbsp; Mostrar
+                                       </button>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </form>
+                        <div class="row">
+                           <div class="col-sm-12">
+                              <hr/>
                               <h3>Balance de sumas y saldos:</h3>
+                              <p class="help-block">
+                                 Puedes filtrar por fecha, seleccionar el tipo y el formato.
+                              </p>
                            </div>
                         </div>
                         <div class="row">
@@ -99,6 +231,15 @@
                                  </div>
                               </div>
                               <div class="col-sm-2">
+                                 <div class="form-group">
+                                    Formato:
+                                    <select name="formato" class="form-control">
+                                       <option value="pdf">PDF</option>
+                                       <option value="csv">CSV</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-sm-2">
                                  <br/>
                                  <button type="submit" class="btn btn-sm btn-primary">
                                     <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> &nbsp; Mostrar
@@ -108,6 +249,7 @@
                         </div>
                         <div class="row">
                            <div class="col-sm-12">
+                              <hr/>
                               <h3>Balance de situación:</h3>
                               <p class="help-block">
                                  Puedes filtrar por fecha o bien visualizar el
@@ -120,6 +262,41 @@
                            <form action="{$fsc->url()}" method="post" target="_blank" class="form">
                               <input type="hidden" name="codejercicio" value="{$value->codejercicio}"/>
                               <input type="hidden" name="informe" value="situacion"/>
+                              <div class="col-sm-2">
+                                 <div class="form-group">
+                                    Desde:
+                                    <input type="text" name="desde" value="{$value->fechainicio}" class="form-control datepicker" autocomplete="off"/>
+                                 </div>
+                              </div>
+                              <div class="col-sm-2">
+                                 <div class="form-group">
+                                    Hasta:
+                                    <input type="text" name="hasta" value="{$value->fechafin}" class="form-control datepicker" autocomplete="off"/>
+                                 </div>
+                              </div>
+                              <div class="col-sm-2">
+                                 <br/>
+                                 <button type="submit" class="btn btn-sm btn-primary">
+                                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> &nbsp; Mostrar
+                                 </button>
+                              </div>
+                           </form>
+                        </div>
+                        <div class="row">
+                           <div class="col-sm-12">
+                              <hr/>
+                              <h3>Balance de pérdidas y ganancias:</h3>
+                              <p class="help-block">
+                                 Puedes filtrar por fecha o bien visualizar el
+                                 <a href="{$fsc->url()}&balance=pyg&eje={$value->codejercicio}" target="_blank">balance completo</a>
+                                 comparado con el año anterior.
+                              </p>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <form action="{$fsc->url()}" method="post" target="_blank" class="form">
+                              <input type="hidden" name="codejercicio" value="{$value->codejercicio}"/>
+                              <input type="hidden" name="informe" value="perdidasyg"/>
                               <div class="col-sm-2">
                                  <div class="form-group">
                                     Desde:

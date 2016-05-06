@@ -92,6 +92,10 @@
       <defecto>now()</defecto>
    </columna>
    <columna>
+      <nombre>femail</nombre>
+      <tipo>date</tipo>
+   </columna>
+   <columna>
       <nombre>idalbaran</nombre>
       <tipo>serial</tipo>
       <nulo>NO</nulo>
@@ -196,6 +200,39 @@
       <tipo>double precision</tipo>
       <nulo>NO</nulo>
       <defecto>0</defecto>
+   </columna>
+   <columna>
+      <nombre>codtrans</nombre>
+      <tipo>character varying(8)</tipo>
+   </columna>
+   <columna>
+      <nombre>codigoenv</nombre>
+      <tipo>character varying(200)</tipo>
+   </columna>
+   <columna>
+      <nombre>nombreenv</nombre>
+      <tipo>character varying(200)</tipo>
+   </columna>
+   <columna>
+      <nombre>apellidosenv</nombre>
+      <tipo>character varying(200)</tipo>
+   </columna>
+   <columna>
+      <nombre>direccionenv</nombre>
+      <tipo>character varying(100)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>codpostalenv</nombre>
+      <tipo>character varying(10)</tipo>
+   </columna>
+   <columna>
+      <nombre>ciudadenv</nombre>
+      <tipo>character varying(100)</tipo>
+   </columna>
+   <columna>
+      <nombre>provinciaenv</nombre>
+      <tipo>character varying(100)</tipo>
    </columna>
    <restriccion>
       <nombre>ca_albaranescli_series2</nombre>

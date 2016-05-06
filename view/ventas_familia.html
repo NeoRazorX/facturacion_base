@@ -3,10 +3,19 @@
 {if="$fsc->familia"}
 <script type="text/javascript">
    $(document).ready(function() {
+      $('[data-toggle="popover"]').popover({
+         placement : 'bottom',
+         trigger : 'hover',
+         content: function() {
+            return '<div class="thumbnail" style="margin: 0px;"><img src="'+$(this).data('img') + '" /></a>';
+         }
+      });
       $("#b_eliminar_familia").click(function(event) {
          event.preventDefault();
          if( confirm("¿Estas seguro de que deseas eliminar esta familia?") )
-            window.location.href = "index.php?page=ventas_familias&delete={$fsc->familia->codfamilia}";
+         {
+            window.location.href = 'index.php?page=ventas_familias&delete={function="urlencode($fsc->familia->codfamilia)"}';
+         }
       });
    });
 </script>
@@ -14,18 +23,20 @@
 <form action="{$fsc->url()}" method="post" class="form">
    <input type="hidden" name="cod" value="{$fsc->familia->codfamilia}"/>
    <div class="container-fluid">
-      <div class="row" style="margin-top: 10px; margin-bottom: 10px;">
-         <div class="col-sm-8">
+      <div class="row" style="margin-bottom: 10px;">
+         <div class="col-sm-7">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             {if="$fsc->madre"}
             <a class="btn btn-sm btn-default" href="{$fsc->madre->url()}" title="{$fsc->madre->descripcion}">
-               <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Madre
+               <span class="glyphicon glyphicon-arrow-left"></span>
+               <span class="hidden-xs">&nbsp; Madre</span>
             </a>
             {else}
             <a class="btn btn-sm btn-default" href="index.php?page=ventas_familias">
-               <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Familias
+               <span class="glyphicon glyphicon-arrow-left"></span>
+               <span class="hidden-xs">&nbsp; Familias</span>
             </a>
             {/if}
             <div class="btn-group">
@@ -53,11 +64,27 @@
             {/loop}
             </div>
          </div>
-         <div class="col-sm-4 text-right">
+         <div class="col-sm-5 text-right">
+            <div class="btn-group">
+               <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <span class="glyphicon glyphicon-plus"></span>
+                  <span class="caret"></span>
+               </button>
+               <ul class="dropdown-menu dropdown-menu-right">
+                  <li><a href="index.php?page=ventas_familias#nueva">Nueva familia</a></li>
+                  <li><a href="index.php?page=ventas_familias&madre={$fsc->familia->codfamilia}">Nueva subfamilia</a></li>
+                  {if="$fsc->familia->madre"}
+                  <li><a href="index.php?page=ventas_familias&madre={$fsc->familia->madre}">Nueva familia hermana</a></li>
+                  {/if}
+                  <li role="separator" class="divider"></li>
+                  <li><a href="index.php?page=ventas_articulos&b_codfamilia={$fsc->familia->codfamilia}#nuevo">Nuevo artículo</a></li>
+               </ul>
+            </div>
             <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar_familia" class="btn btn-sm btn-danger">
-                  <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+                  <span class="glyphicon glyphicon-trash"></span>
+                  <span class="hidden-xs hidden-sm">&nbsp; Eliminar</span>
                </a>
                {/if}
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
@@ -81,6 +108,7 @@
                   <option value="---">-----</option>
                   {loop="$fsc->familia->all()"}
                      {if="$value->codfamilia==$fsc->familia->codfamilia"}
+                     {elseif="$value->madre==$fsc->familia->codfamilia"}
                      {elseif="$fsc->familia->madre==$value->codfamilia"}
                      <option value="{$value->codfamilia}" selected="">{$value->nivel}{$value->descripcion}</option>
                      {else}
@@ -117,21 +145,47 @@
                <thead>
                   <tr>
                      <th class="text-left">Referencia + Descripción</th>
+                     <th class="text-left">Fabricante</th>
                      <th class="text-right">Coste</th>
                      <th class="text-right">Precio</th>
                      <th class="text-right">Stock</th>
+                     <th class="text-right"></th>
                   </tr>
                </thead>
                {loop="$fsc->articulos"}
-               <tr class="clickableRow{if="$value->bloqueado"} bg-danger{elseif="$value->stockfis<$value->stockmin"} bg-warning{/if}" href="{$value->url()}">
-                  <td><a href="{$value->url()}">{$value->referencia}</a> {$value->descripcion}</td>
-                  <td class="text-right">{$fsc->show_precio($value->preciocoste())}</td>
-                  <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp)}</span></td>
+               <tr class='clickableRow{if="$value->bloqueado"} danger{elseif="$value->stockfis<=$value->stockmin"} warning{/if}' href='{$value->url()}'>
+                  <td>
+                     {$img=$value->imagen_url()}
+                     {if="$img"}
+                     <a href="{$value->url()}" data-toggle="popover" data-html="true" data-img="{$img}">{$value->referencia}</a>
+                     {else}
+                     <a href="{$value->url()}">{$value->referencia}</a>
+                     {/if}
+                     {$value->descripcion()}
+                  </td>
+                  <td>
+                     {if="is_null($value->codfabricante)"}<span>-</span>{else}{$value->codfabricante}{/if}
+                  </td>
+                  <td class="text-right">{$fsc->show_precio($value->preciocoste(), FALSE, TRUE, FS_NF0_ART)}</td>
+                  <td class="text-right">
+                     <span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp, FALSE, TRUE, FS_NF0_ART)}</span>
+                  </td>
                   <td class="text-right">{$value->stockfis}</td>
+                  <td class="text-right">
+                     {if="$value->tipo"}
+                     <span class="glyphicon glyphicon-list-alt" aria-hidden="true" title="Artículo tipo: {$value->tipo}"></span>
+                     {/if}
+                     {if="$value->trazabilidad"}
+                     <i class="fa fa-code-fork" aria-hidden="true" title="Trazabilidad activada"></i>
+                     {/if}
+                     {if="$value->publico"}
+                     <span class="glyphicon glyphicon-globe" aria-hidden="true" title="Artículo público"></span>
+                     {/if}
+                  </td>
                </tr>
                {else}
                <tr class="warning">
-                  <td colspan="5">Ningún artículo encontrado.</td>
+                  <td colspan="6">Ningún artículo encontrado.</td>
                </tr>
                {/loop}
             </table>
@@ -165,8 +219,14 @@
 </div>
 
 {else}
-<div class="thumbnail">
-   <img src="view/img/fuuu_face.png" alt="fuuuuu"/>
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-6 col-sm-offset-3">
+         <div class="thumbnail">
+            <img src="view/img/fuuu_face.png" alt="fuuuuu"/>
+         </div>
+      </div>
+   </div>
 </div>
 {/if}
 

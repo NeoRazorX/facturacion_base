@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -36,7 +36,7 @@ class factura_proveedor extends fs_model
    public $idfactura;
    
    /**
-    * Todavía sin uso.
+    * ID de la factura a la que rectifica.
     * @var type 
     */
    public $idfacturarect;
@@ -46,6 +46,12 @@ class factura_proveedor extends fs_model
     * @var type 
     */
    public $idasiento;
+   
+   /**
+    * ID del asiento de pago relacionado, si lo hay.
+    * @var type 
+    */
+   public $idasientop;
    
    public $cifnif;
    
@@ -81,7 +87,7 @@ class factura_proveedor extends fs_model
    public $codigo;
    
    /**
-    * Todavía sin uso.
+    * Código de la factura a la que rectifica.
     * @var type 
     */
    public $codigorect;
@@ -181,11 +187,14 @@ class factura_proveedor extends fs_model
     */
    public $totalrecargo;
    
+   public $anulada;
+   
    public function __construct($f=FALSE)
    {
-      parent::__construct('facturasprov', 'plugins/facturacion_base/');
+      parent::__construct('facturasprov');
       if($f)
       {
+         $this->anulada = $this->str2bool($f['anulada']);
          $this->cifnif = $f['cifnif'];
          $this->codagente = $f['codagente'];
          $this->codalmacen = $f['codalmacen'];
@@ -200,9 +209,12 @@ class factura_proveedor extends fs_model
          
          $this->hora = '00:00:00';
          if( !is_null($f['hora']) )
-            $this->hora = $f['hora'];
+         {
+            $this->hora = date('H:i:s', strtotime($f['hora']));
+         }
          
          $this->idasiento = $this->intval($f['idasiento']);
+         $this->idasientop = $this->intval($f['idasientop']);
          $this->idfactura = $this->intval($f['idfactura']);
          $this->idfacturarect = $this->intval($f['idfacturarect']);
          $this->irpf = floatval($f['irpf']);
@@ -221,6 +233,7 @@ class factura_proveedor extends fs_model
       }
       else
       {
+         $this->anulada = FALSE;
          $this->cifnif = NULL;
          $this->codagente = NULL;
          $this->codalmacen = NULL;
@@ -234,6 +247,7 @@ class factura_proveedor extends fs_model
          $this->fecha = Date('d-m-Y');
          $this->hora = Date('H:i:s');
          $this->idasiento = NULL;
+         $this->idasientop = NULL;
          $this->idfactura = NULL;
          $this->idfacturarect = NULL;
          $this->irpf = 0;
@@ -274,6 +288,17 @@ class factura_proveedor extends fs_model
          return substr($this->observaciones, 0, 50).'...';
    }
    
+   /**
+    * Establece la fecha y la hora.
+    * @param type $fecha
+    * @param type $hora
+    */
+   public function set_fecha_hora($fecha, $hora)
+   {
+      $this->fecha = $fecha;
+      $this->hora = $hora;
+   }
+   
    public function url()
    {
       if( is_null($this->idfactura) )
@@ -292,6 +317,16 @@ class factura_proveedor extends fs_model
       }
       else
          return 'index.php?page=contabilidad_asiento&id='.$this->idasiento;
+   }
+   
+   public function asiento_pago_url()
+   {
+      if( is_null($this->idasientop) )
+      {
+         return 'index.php?page=contabilidad_asientos';
+      }
+      else
+         return 'index.php?page=contabilidad_asiento&id='.$this->idasientop;
    }
    
    public function agente_url()
@@ -314,6 +349,10 @@ class factura_proveedor extends fs_model
          return "index.php?page=compras_proveedor&cod=".$this->codproveedor;
    }
    
+   /**
+    * Devuelve las líneas de la factura.
+    * @return line_factura_proveedor
+    */
    public function get_lineas()
    {
       $linea = new linea_factura_proveedor();
@@ -341,7 +380,7 @@ class factura_proveedor extends fs_model
                $encontrada = FALSE;
                while($i < count($lineasi))
                {
-                  if($l->codimpuesto == $lineasi[$i]->codimpuesto)
+                  if($l->iva == $lineasi[$i]->iva AND $l->recargo == $lineasi[$i]->recargo)
                   {
                      $encontrada = TRUE;
                      $lineasi[$i]->neto += $l->pvptotal;
@@ -425,15 +464,15 @@ class factura_proveedor extends fs_model
                if( !$this->floatcmp($this->totaliva, $t_iva) )
                {
                   /*
-                   * Sumamos o restamos un céntimo a los netos más altos
+                   * Sumamos o restamos un céntimo a los importes más altos
                    * hasta que desaparezca el descuadre
                    */
                   $diferencia = round( ($this->totaliva-$t_iva) * 100 );
                   usort($lineasi, function($a, $b) {
-                     if($a->totallinea == $b->totallinea)
+                     if($a->totaliva == $b->totaliva)
                         return 0;
                      else
-                        return ($a->totallinea < $b->totallinea) ? 1 : -1;
+                        return ($a->totaliva < $b->totaliva) ? 1 : -1;
                   });
                   
                   foreach($lineasi as $i => $value)
@@ -468,6 +507,32 @@ class factura_proveedor extends fs_model
    {
       $asiento = new asiento();
       return $asiento->get($this->idasiento);
+   }
+   
+   public function get_asiento_pago()
+   {
+      $asiento = new asiento();
+      return $asiento->get($this->idasientop);
+   }
+   
+   /**
+    * Devuelve un array con todas las facturas rectificativas de esta factura.
+    * @return \factura_proveedor
+    */
+   public function get_rectificativas()
+   {
+      $devoluciones = array();
+      
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfacturarect = ".$this->var2str($this->idfactura).";");
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $devoluciones[] = new factura_proveedor($d);
+         }
+      }
+      
+      return $devoluciones;
    }
    
    public function get($id)
@@ -508,7 +573,8 @@ class factura_proveedor extends fs_model
       $encontrado = FALSE;
       $num = 1;
       $fecha = $this->fecha;
-      $data = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha
+      $hora = $this->hora;
+      $data = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha,hora
          FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).
          " AND codserie = ".$this->var2str($this->codserie)." ORDER BY numero ASC;");
       if($data)
@@ -533,6 +599,7 @@ class factura_proveedor extends fs_model
                /// Hemos encontrado un hueco y debemos usar el número y la fecha.
                $encontrado = TRUE;
                $fecha = Date('d-m-Y', strtotime($d['fecha']));
+               $hora = Date('H:i:s', strtotime($d['hora']));
                break;
             }
          }
@@ -542,6 +609,7 @@ class factura_proveedor extends fs_model
       {
          $this->numero = $num;
          $this->fecha = $fecha;
+         $this->hora = $hora;
       }
       else
       {
@@ -610,7 +678,9 @@ class factura_proveedor extends fs_model
       foreach($this->get_lineas() as $l)
       {
          if( !$l->test() )
+         {
             $status = FALSE;
+         }
          
          $neto += $l->pvptotal;
          $iva += $l->pvptotal * $l->iva / 100;
@@ -659,7 +729,10 @@ class factura_proveedor extends fs_model
       /// comprobamos las líneas de IVA
       $this->get_lineas_iva();
       $linea_iva = new linea_iva_factura_proveedor();
-      $status = $linea_iva->factura_test($this->idfactura, $neto, $iva, $recargo);
+      if( !$linea_iva->factura_test($this->idfactura, $neto, $iva, $recargo) )
+      {
+         $status = FALSE;
+      }
       
       /// comprobamos el asiento
       if( isset($this->idasiento) )
@@ -720,6 +793,7 @@ class factura_proveedor extends fs_model
                     .", neto = ".$this->var2str($this->neto)
                     .", cifnif = ".$this->var2str($this->cifnif)
                     .", pagada = ".$this->var2str($this->pagada)
+                    .", anulada = ".$this->var2str($this->anulada)
                     .", observaciones = ".$this->var2str($this->observaciones)
                     .", codagente = ".$this->var2str($this->codagente)
                     .", codalmacen = ".$this->var2str($this->codalmacen)
@@ -733,6 +807,7 @@ class factura_proveedor extends fs_model
                     .", codigorect = ".$this->var2str($this->codigorect)
                     .", codserie = ".$this->var2str($this->codserie)
                     .", idasiento = ".$this->var2str($this->idasiento)
+                    .", idasientop = ".$this->var2str($this->idasientop)
                     .", totalirpf = ".$this->var2str($this->totalirpf)
                     .", totaliva = ".$this->var2str($this->totaliva)
                     .", coddivisa = ".$this->var2str($this->coddivisa)
@@ -749,14 +824,15 @@ class factura_proveedor extends fs_model
          else
          {
             $this->new_codigo();
-            $sql = "INSERT INTO ".$this->table_name." (codigo,total,neto,cifnif,pagada,observaciones,
+            $sql = "INSERT INTO ".$this->table_name." (codigo,total,neto,cifnif,pagada,anulada,observaciones,
                codagente,codalmacen,irpf,totaleuros,nombre,codpago,codproveedor,idfacturarect,numproveedor,
-               codigorect,codserie,idasiento,totalirpf,totaliva,coddivisa,numero,codejercicio,tasaconv,
+               codigorect,codserie,idasiento,idasientop,totalirpf,totaliva,coddivisa,numero,codejercicio,tasaconv,
                totalrecargo,fecha,hora) VALUES (".$this->var2str($this->codigo)
                     .",".$this->var2str($this->total)
                     .",".$this->var2str($this->neto)
                     .",".$this->var2str($this->cifnif)
                     .",".$this->var2str($this->pagada)
+                    .",".$this->var2str($this->anulada)
                     .",".$this->var2str($this->observaciones)
                     .",".$this->var2str($this->codagente)
                     .",".$this->var2str($this->codalmacen)
@@ -770,6 +846,7 @@ class factura_proveedor extends fs_model
                     .",".$this->var2str($this->codigorect)
                     .",".$this->var2str($this->codserie)
                     .",".$this->var2str($this->idasiento)
+                    .",".$this->var2str($this->idasientop)
                     .",".$this->var2str($this->totalirpf)
                     .",".$this->var2str($this->totaliva)
                     .",".$this->var2str($this->coddivisa)
@@ -808,6 +885,12 @@ class factura_proveedor extends fs_model
             {
                $asi0->delete();
             }
+            
+            $asi1 = $asiento->get($this->idasientop);
+            if($asi1)
+            {
+               $asi1->delete();
+            }
          }
          
          /// desvinculamos el/los albaranes asociados
@@ -820,20 +903,37 @@ class factura_proveedor extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve un array con las últimas facturas
+    * @param type $offset
+    * @param type $limit
+    * @param type $order
+    * @return \factura_proveedor
+    */
    public function all($offset=0, $limit=FS_ITEM_LIMIT, $order='fecha DESC, codigo DESC')
    {
       $faclist = array();
+      $sql = "SELECT * FROM ".$this->table_name." ORDER BY ".$order;
       
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY ".$order, $limit, $offset);
+      $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_proveedor($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas sin pagar.
+    * @param type $offset
+    * @param type $limit
+    * @param type $order
+    * @return \factura_proveedor
+    */
    public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT, $order='fecha ASC, codigo ASC')
    {
       $faclist = array();
@@ -843,44 +943,74 @@ class factura_proveedor extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_proveedor($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas del agente/empleado
+    * @param type $codagente
+    * @param type $offset
+    * @return \factura_proveedor
+    */
    public function all_from_agente($codagente, $offset=0)
    {
       $faclist = array();
-      
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      $sql = "SELECT * FROM ".$this->table_name.
          " WHERE codagente = ".$this->var2str($codagente).
-         " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
+         " ORDER BY fecha DESC, codigo DESC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_proveedor($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas del proveedor
+    * @param type $codproveedor
+    * @param type $offset
+    * @return \factura_proveedor
+    */
    public function all_from_proveedor($codproveedor, $offset=0)
    {
       $faclist = array();
-      
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      $sql = "SELECT * FROM ".$this->table_name.
          " WHERE codproveedor = ".$this->var2str($codproveedor).
-         " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
+         " ORDER BY fecha DESC, codigo DESC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_proveedor($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas comprendidas entre $desde y $hasta
+    * @param type $desde
+    * @param type $hasta
+    * @param type $codserie
+    * @param type $codagente
+    * @param type $codproveedor
+    * @param type $estado
+    * @return \factura_proveedor
+    */
    public function all_desde($desde, $hasta, $codserie=FALSE, $codagente=FALSE, $codproveedor=FALSE, $estado=FALSE)
    {
       $faclist = array();
@@ -914,12 +1044,20 @@ class factura_proveedor extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_proveedor($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas coincidentes con $query
+    * @param type $query
+    * @param type $offset
+    * @return \factura_proveedor
+    */
    public function search($query, $offset=0)
    {
       $faclist = array();
@@ -942,7 +1080,9 @@ class factura_proveedor extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_proveedor($f);
+         }
       }
       
       return $faclist;

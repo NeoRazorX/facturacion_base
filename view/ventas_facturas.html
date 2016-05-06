@@ -113,31 +113,38 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-right">
                <li>
-                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=fecha_desc">
+                  <a href="{$fsc->url(TRUE)}&order=fecha_desc">
                      <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
                      &nbsp; Fecha &nbsp;
                      {if="$fsc->order=='fecha DESC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
                   </a>
                </li>
                <li>
-                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=fecha_asc">
+                  <a href="{$fsc->url(TRUE)}&order=fecha_asc">
                      <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
                      &nbsp; Fecha &nbsp;
                      {if="$fsc->order=='fecha ASC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
                   </a>
                </li>
                <li>
-                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=vencimiento_desc">
+                  <a href="{$fsc->url(TRUE)}&order=vencimiento_desc">
                      <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
                      &nbsp; Vencimiento &nbsp;
                      {if="$fsc->order=='vencimiento DESC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
                   </a>
                </li>
                <li>
-                  <a href="{$fsc->url()}&mostrar={$fsc->mostrar}&order=vencimiento_asc">
+                  <a href="{$fsc->url(TRUE)}&order=vencimiento_asc">
                      <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
                      &nbsp; Vencimiento &nbsp;
                      {if="$fsc->order=='vencimiento ASC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                  </a>
+               </li>
+               <li>
+                  <a href="{$fsc->url(TRUE)}&order=total_desc">
+                     <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                     &nbsp; Total &nbsp;
+                     {if="$fsc->order=='total DESC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
                   </a>
                </li>
             </ul>
@@ -149,7 +156,8 @@
 <ul class="nav nav-tabs" role="tablist">
    <li{if="$fsc->mostrar=='todo'"} class="active"{/if}>
       <a href="{$fsc->url()}&mostrar=todo">
-         Todas las {#FS_FACTURAS#}
+         <span class="text-capitalize hidden-xs">Facturas (todo)</span>
+         <span class="visible-xs">Todo</span>
       </a>
    </li>
    <li{if="$fsc->mostrar=='sinpagar'"} class="active"{/if}>
@@ -194,7 +202,7 @@
          <div class="col-sm-2">
             <div class="form-group">
                <select class="form-control" name="codserie" onchange="this.form.submit()">
-                  <option value="">Cualquier serie</option>
+                  <option value="">Cualquier {#FS_SERIE#}</option>
                   <option value="">-----</option>
                   {loop="$fsc->serie->all()"}
                      {if="$value->codserie==$fsc->codserie"}
@@ -248,6 +256,50 @@
             </div>
          </div>
       </div>
+      <div class="row">
+         <div class="col-sm-12">
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->estado==''"}
+                  <input type="radio" name="estado" value="" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="estado" value="" onchange="this.form.submit()"/>
+                  {/if}
+                  Todas
+               </label>
+            </div>
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->estado=='pagadas'"}
+                  <input type="radio" name="estado" value="pagadas" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="estado" value="pagadas" onchange="this.form.submit()"/>
+                  {/if}
+                  Pagadas
+               </label>
+            </div>
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->estado=='impagadas'"}
+                  <input type="radio" name="estado" value="impagadas" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="estado" value="impagadas" onchange="this.form.submit()"/>
+                  {/if}
+                  Impagadas
+               </label>
+            </div>
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->estado=='anuladas'"}
+                  <input type="radio" name="estado" value="anuladas" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="estado" value="anuladas" onchange="this.form.submit()"/>
+                  {/if}
+                  Anuladas
+               </label>
+            </div>
+         </div>
+      </div>
    </div>
 </form>
 {/if}
@@ -271,50 +323,64 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr class="clickableRow{if="$value->vencida()"} danger{elseif="$value->pagada"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}">
+      <tr class="clickableRow{if="$value->vencida() OR $value->anulada"} danger{elseif="$value->pagada"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}">
          <td class="text-center">
             {if="$value->pagada"}
-            <span class="glyphicon glyphicon-ok" title="La {#FS_FACTURA#} está pagada"></span>
+            <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
+            {/if}
+            {if="$value->anulada"}
+            <span class="glyphicon glyphicon-remove" title="La factura está anulada"></span>
+            {/if}
+            {if="$value->idfacturarect"}
+            <span class="glyphicon glyphicon-flag" title="{#FS_FACTURA_RECTIFICATIVA#} de {$value->codigorect}"></span>
+            {/if}
+            {if="$value->femail"}
+            <span class="glyphicon glyphicon-send" title="La factura fue enviada por email el {$value->femail}"></span>
             {/if}
          </td>
          <td class="text-center">
             {if="$value->idasiento"}
-            <span class="glyphicon glyphicon-paperclip" title="La {#FS_FACTURA#} tiene vinculado un asiento contable"></span>
+            <span class="glyphicon glyphicon-paperclip" title="La factura tiene vinculado un asiento contable"></span>
             {/if}
          </td>
          <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}</td>
          <td>
             {$value->nombrecliente}
-            <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más {#FS_FACTURAS#} de {$value->nombrecliente}">[+]</a>
+            <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más facturas de {$value->nombrecliente}">[+]</a>
          </td>
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
          {if="$fsc->codagente!==''"}
-         <td class="text-right bg-info">
+         <td class="text-right info">
             {$fsc->show_precio($value->neto*$value->porcomision/100, $value->coddivisa)}
          </td>
          <td class="text-left">{$fsc->show_numero($value->porcomision)}</td>
          {/if}
-         <td class="text-right">
+         <td class="text-right" title="Hora {$value->hora}">
             {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
          </td>
-         <td class="text-right">{$value->vencimiento}</td>
+         <td class="text-right">
+            {if="$value->vencimiento==$fsc->today()"}<b>{$value->vencimiento}</b>{else}{$value->vencimiento}{/if}
+         </td>
       </tr>
       {else}
       <tr class="warning">
          <td></td>
          <td></td>
-         <td colspan="6">Ninguna {#FS_FACTURA#} encontrada. Pulsa <b>Nueva</b> para crear una.</td>
+         <td colspan="6">Ninguna factura encontrada. Pulsa <b>Nueva</b> para crear una.</td>
          {if="$fsc->codagente!==''"}
          <td></td>
          <td></td>
          {/if}
       </tr>
       {/loop}
-      {if="$fsc->total_resultados!==''"}
+      {if="$fsc->total_resultados"}
       <tr>
          <td colspan="6" class="text-right">
-            {$fsc->total_resultados_txt} &nbsp; <b>{$fsc->show_precio($fsc->total_resultados)}</b>
+            {$fsc->total_resultados_txt}
+            {loop="$fsc->total_resultados"}
+            <br/><b>{$fsc->show_precio($value['total'],$value['coddivisa'],FALSE)}</b>
+            {/loop}
          </td>
          {if="$fsc->codagente!==''"}
          <td class="text-right"><b>{$fsc->show_precio($fsc->total_resultados_comision)}</b></td>
@@ -368,7 +434,7 @@
                </tr>
                {else}
                <tr class="success">
-                  <td colspan="2">No hay huecos en la numeración de {#FS_FACTURAS#}. Eso es bueno ;-)</td>
+                  <td colspan="2">No hay huecos en la numeración de facturas. Eso es bueno ;-)</td>
                </tr>
                {/loop}
             </table>
@@ -386,7 +452,7 @@
                <h4 class="modal-title">Buscar en las líneas</h4>
                {if="$fsc->cliente"}
                <p class="help-block">
-                  Estas buscando en las líneas de las {#FS_FACTURAS#} de {$fsc->cliente->nombre}.
+                  Estas buscando en las líneas de las facturas de {$fsc->cliente->nombre}.
                </p>
                {else}
                <p class="help-block">Si quieres, puede <a href="{$fsc->url()}&mostrar=buscar">filtrar por cliente</a>.</p>

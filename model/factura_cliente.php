@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -42,10 +42,16 @@ class factura_cliente extends fs_model
    public $idasiento;
    
    /**
-    * Todavía sin uso.
+    * ID del asiento de pago relacionado, si lo hay.
     * @var type 
     */
-   private $idfacturarect;
+   public $idasientop;
+   
+   /**
+    * ID de la factura que rectifica.
+    * @var type 
+    */
+   public $idfacturarect;
    
    /**
     * Código único de la factura. Para humanos.
@@ -67,10 +73,10 @@ class factura_cliente extends fs_model
    public $numero2;
    
    /**
-    * Todavía sin uso.
+    * Código de la factura que rectifica.
     * @var type 
     */
-   private $codigorect;
+   public $codigorect;
    
    /**
     * Ejercicio relacionado. El que corresponde a la fecha.
@@ -115,6 +121,16 @@ class factura_cliente extends fs_model
    public $ciudad;
    public $provincia;
    public $apartado;
+   
+   /// datos de transporte
+   public $envio_codtrans;
+   public $envio_codigo;
+   public $envio_nombre;
+   public $envio_apellidos;
+   public $envio_direccion;
+   public $envio_codpostal;
+   public $envio_ciudad;
+   public $envio_provincia;
    
    /**
     * ID de la dirección en dirclientes.
@@ -193,6 +209,7 @@ class factura_cliente extends fs_model
    
    public $observaciones;
    public $pagada;
+   public $anulada;
    
    /**
     * Fecha de vencimiento de la factura.
@@ -200,13 +217,20 @@ class factura_cliente extends fs_model
     */
    public $vencimiento;
    
+   /**
+    * Fecha en la que se envió la factura por email.
+    * @var type 
+    */
+   public $femail;
+   
    public function __construct($f=FALSE)
    {
-      parent::__construct('facturascli', 'plugins/facturacion_base/');
+      parent::__construct('facturascli');
       if($f)
       {
          $this->idfactura = $this->intval($f['idfactura']);
          $this->idasiento = $this->intval($f['idasiento']);
+         $this->idasientop = $this->intval($f['idasientop']);
          $this->idfacturarect = $this->intval($f['idfacturarect']);
          $this->codigo = $f['codigo'];
          $this->numero = $f['numero'];
@@ -222,7 +246,7 @@ class factura_cliente extends fs_model
          $this->hora = '00:00:00';
          if( !is_null($f['hora']) )
          {
-            $this->hora = date('h:i:s', strtotime($f['hora']));
+            $this->hora = date('H:i:s', strtotime($f['hora']));
          }
          
          $this->codcliente = $f['codcliente'];
@@ -247,17 +271,34 @@ class factura_cliente extends fs_model
          $this->totalrecargo = floatval($f['totalrecargo']);
          $this->observaciones = $this->no_html($f['observaciones']);
          $this->pagada = $this->str2bool($f['pagada']);
+         $this->anulada = $this->str2bool($f['anulada']);
          
          $this->vencimiento = Date('d-m-Y', strtotime($f['fecha'].' +1month'));
          if( !is_null($f['vencimiento']) )
          {
             $this->vencimiento = Date('d-m-Y', strtotime($f['vencimiento']));
          }
+         
+         $this->femail = NULL;
+         if( !is_null($f['femail']) )
+         {
+            $this->femail = Date('d-m-Y', strtotime($f['femail']));
+         }
+         
+         $this->envio_codtrans = $f['codtrans'];
+         $this->envio_codigo = $f['codigoenv'];
+         $this->envio_nombre = $f['nombreenv'];
+         $this->envio_apellidos = $f['apellidosenv'];
+         $this->envio_direccion = $f['direccionenv'];
+         $this->envio_codpostal = $f['codpostalenv'];
+         $this->envio_ciudad = $f['ciudadenv'];
+         $this->envio_provincia = $f['provinciaenv'];
       }
       else
       {
          $this->idfactura = NULL;
          $this->idasiento = NULL;
+         $this->idasientop = NULL;
          $this->idfacturarect = NULL;
          $this->codigo = NULL;
          $this->numero = NULL;
@@ -292,7 +333,17 @@ class factura_cliente extends fs_model
          $this->totalrecargo = 0;
          $this->observaciones = NULL;
          $this->pagada = FALSE;
+         $this->anulada = FALSE;
          $this->vencimiento = Date('d-m-Y', strtotime('+1month'));
+         $this->femail = NULL;
+         $this->envio_codtrans = NULL;
+         $this->envio_codigo = NULL;
+         $this->envio_nombre = NULL;
+         $this->envio_apellidos = NULL;
+         $this->envio_direccion = NULL;
+         $this->envio_codpostal = NULL;
+         $this->envio_ciudad = NULL;
+         $this->envio_provincia = NULL;
       }
    }
    
@@ -330,6 +381,56 @@ class factura_cliente extends fs_model
       }
    }
    
+   /**
+    * Establece la fecha y la hora, pero respetando la numeración.
+    * Devuelve TRUE si se asigna una fecha distinta.
+    * @param type $fecha
+    * @param type $hora
+    * @return boolean
+    */
+   public function set_fecha_hora($fecha, $hora)
+   {
+      $cambio = FALSE;
+      
+      if( is_null($this->numero) )
+      {
+         /// buscamos la última fecha usada en una factura en esta serie y ejercicio
+         $sql = "SELECT MAX(fecha) as fecha FROM ".$this->table_name
+                 . " WHERE codserie = ".$this->var2str($this->codserie)
+                 . " AND codejercicio = ".$this->var2str($this->codejercicio).";";
+         
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            if( strtotime($data[0]['fecha']) > strtotime($fecha) )
+            {
+               $fecha = date('d-m-Y', strtotime($data[0]['fecha']));
+               $cambio = TRUE;
+            }
+         }
+         
+         /// ahora buscamos la última hora usada para esa fecha, serie y ejercicio
+         $sql = "SELECT MAX(hora) as hora FROM ".$this->table_name
+                 . " WHERE codserie = ".$this->var2str($this->codserie)
+                 . " AND codejercicio = ".$this->var2str($this->codejercicio)
+                 . " AND fecha = ".$this->var2str($fecha).";";
+         
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            if( strtotime($data[0]['hora']) > strtotime($hora) OR $cambio )
+            {
+               $hora = date('H:i:s', strtotime($data[0]['hora']));
+            }
+         }
+      }
+      
+      $this->fecha = $fecha;
+      $this->hora = $hora;
+      
+      return $cambio;
+   }
+   
    public function url()
    {
       if( is_null($this->idfactura) )
@@ -348,6 +449,16 @@ class factura_cliente extends fs_model
       }
       else
          return 'index.php?page=contabilidad_asiento&id='.$this->idasiento;
+   }
+   
+   public function asiento_pago_url()
+   {
+      if( is_null($this->idasientop) )
+      {
+         return 'index.php?page=contabilidad_asientos';
+      }
+      else
+         return 'index.php?page=contabilidad_asiento&id='.$this->idasientop;
    }
    
    public function agente_url()
@@ -376,6 +487,16 @@ class factura_cliente extends fs_model
       return $asiento->get($this->idasiento);
    }
    
+   public function get_asiento_pago()
+   {
+      $asiento = new asiento();
+      return $asiento->get($this->idasientop);
+   }
+   
+   /**
+    * Devulve las líneas de la factura.
+    * @return linea_factura_cliente
+    */
    public function get_lineas()
    {
       $linea = new linea_factura_cliente();
@@ -403,7 +524,7 @@ class factura_cliente extends fs_model
                $encontrada = FALSE;
                while($i < count($lineasi))
                {
-                  if($l->codimpuesto == $lineasi[$i]->codimpuesto)
+                  if($l->iva == $lineasi[$i]->iva AND $l->recargo == $lineasi[$i]->recargo)
                   {
                      $encontrada = TRUE;
                      $lineasi[$i]->neto += $l->pvptotal;
@@ -487,15 +608,15 @@ class factura_cliente extends fs_model
                if( !$this->floatcmp($this->totaliva, $t_iva) )
                {
                   /*
-                   * Sumamos o restamos un céntimo a los netos más altos
+                   * Sumamos o restamos un céntimo a los importes más altos
                    * hasta que desaparezca el descuadre
                    */
                   $diferencia = round( ($this->totaliva-$t_iva) * 100 );
                   usort($lineasi, function($a, $b) {
-                     if($a->totallinea == $b->totallinea)
+                     if($a->totaliva == $b->totaliva)
                         return 0;
                      else
-                        return ($a->totallinea < $b->totallinea) ? 1 : -1;
+                        return ($a->totaliva < $b->totaliva) ? 1 : -1;
                   });
                   
                   foreach($lineasi as $i => $value)
@@ -526,6 +647,26 @@ class factura_cliente extends fs_model
       return $lineasi;
    }
    
+   /**
+    * Devuelve un array con todas las facturas rectificativas de esta factura.
+    * @return \factura_cliente
+    */
+   public function get_rectificativas()
+   {
+      $devoluciones = array();
+      
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfacturarect = ".$this->var2str($this->idfactura).";");
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $devoluciones[] = new factura_cliente($d);
+         }
+      }
+      
+      return $devoluciones;
+   }
+   
    public function get($id)
    {
       $fact = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id).";");
@@ -548,6 +689,21 @@ class factura_cliente extends fs_model
          return FALSE;
    }
    
+   public function get_by_num_serie($num, $serie, $eje)
+   {
+      $sql = "SELECT * FROM ".$this->table_name." WHERE numero = ".$this->var2str($num)
+              ." AND codserie = ".$this->var2str($serie)
+              ." AND codejercicio = ".$this->var2str($eje).";";
+      
+      $fact = $this->db->select($sql);
+      if($fact)
+      {
+         return new factura_cliente($fact[0]);
+      }
+      else
+         return FALSE;
+   }
+   
    public function exists()
    {
       if( is_null($this->idfactura) )
@@ -562,11 +718,6 @@ class factura_cliente extends fs_model
    {
       /// buscamos el número inicial para la serie
       $num = 1;
-      if( defined('FS_NFACTURA_CLI') )
-      {
-         /// mantenemos compatibilidad con versiones anteriores
-         $num = intval(FS_NFACTURA_CLI);
-      }
       $serie0 = new serie();
       $serie = $serie0->get($this->codserie);
       if($serie)
@@ -581,7 +732,8 @@ class factura_cliente extends fs_model
       /// buscamos un hueco
       $encontrado = FALSE;
       $fecha = $this->fecha;
-      $data = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha
+      $hora = $this->hora;
+      $data = $this->db->select("SELECT ".$this->db->sql_to_int('numero')." as numero,fecha,hora
          FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).
          " AND codserie = ".$this->var2str($this->codserie)." ORDER BY numero ASC;");
       if($data)
@@ -606,6 +758,7 @@ class factura_cliente extends fs_model
                /// Hemos encontrado un hueco y debemos usar el número y la fecha.
                $encontrado = TRUE;
                $fecha = Date('d-m-Y', strtotime($d['fecha']));
+               $hora = Date('H:i:s', strtotime($d['hora']));
                break;
             }
          }
@@ -615,6 +768,7 @@ class factura_cliente extends fs_model
       {
          $this->numero = $num;
          $this->fecha = $fecha;
+         $this->hora = $hora;
       }
       else
       {
@@ -677,8 +831,7 @@ class factura_cliente extends fs_model
       $numero0 = intval($this->numero)-1;
       if( $numero0 > 0 )
       {
-         $codigo0 = $this->codejercicio . sprintf('%02s', $this->codserie) . sprintf('%06s', $numero0);
-         $fac0 = $this->get_by_codigo($codigo0);
+         $fac0 = $this->get_by_num_serie($numero0, $this->codserie, $this->codejercicio);
          if($fac0)
          {
             if( strtotime($fac0->fecha) > strtotime($this->fecha) )
@@ -690,8 +843,7 @@ class factura_cliente extends fs_model
          }
       }
       $numero2 = intval($this->numero)+1;
-      $codigo2 = $this->codejercicio . sprintf('%02s', $this->codserie) . sprintf('%06s', $numero2);
-      $fac2 = $this->get_by_codigo($codigo2);
+      $fac2 = $this->get_by_num_serie($numero2, $this->codserie, $this->codejercicio);
       if($fac2)
       {
          if( strtotime($fac2->fecha) < strtotime($this->fecha) )
@@ -710,7 +862,9 @@ class factura_cliente extends fs_model
       foreach($this->get_lineas() as $l)
       {
          if( !$l->test() )
+         {
             $status = FALSE;
+         }
          
          $neto += $l->pvptotal;
          $iva += $l->pvptotal * $l->iva / 100;
@@ -759,7 +913,10 @@ class factura_cliente extends fs_model
       /// comprobamos las líneas de IVA
       $this->get_lineas_iva();
       $linea_iva = new linea_iva_factura_cliente();
-      $status = $linea_iva->factura_test($this->idfactura, $neto, $iva, $recargo);
+      if( !$linea_iva->factura_test($this->idfactura, $neto, $iva, $recargo) )
+      {
+         $status = FALSE;
+      }
       
       /// comprobamos el asiento
       if( isset($this->idasiento) )
@@ -814,9 +971,11 @@ class factura_cliente extends fs_model
       if( $this->test() )
       {
          $this->clean_cache();
+         
          if( $this->exists() )
          {
             $sql = "UPDATE ".$this->table_name." SET idasiento = ".$this->var2str($this->idasiento).
+                    ", idasientop = ".$this->var2str($this->idasientop).
                     ", idfacturarect = ".$this->var2str($this->idfacturarect).
                     ", codigo = ".$this->var2str($this->codigo).
                     ", numero = ".$this->var2str($this->numero).
@@ -850,8 +1009,18 @@ class factura_cliente extends fs_model
                     ", totalrecargo = ".$this->var2str($this->totalrecargo).
                     ", observaciones = ".$this->var2str($this->observaciones).
                     ", pagada = ".$this->var2str($this->pagada).
+                    ", anulada = ".$this->var2str($this->anulada).
                     ", hora = ".$this->var2str($this->hora).
                     ", vencimiento = ".$this->var2str($this->vencimiento).
+                    ", femail = ".$this->var2str($this->femail).
+                    ", codtrans = ".$this->var2str($this->envio_codtrans).
+                    ", codigoenv = ".$this->var2str($this->envio_codigo).
+                    ", nombreenv = ".$this->var2str($this->envio_nombre).
+                    ", apellidosenv = ".$this->var2str($this->envio_apellidos).
+                    ", direccionenv = ".$this->var2str($this->envio_direccion).
+                    ", codpostalenv = ".$this->var2str($this->envio_codpostal).
+                    ", ciudadenv = ".$this->var2str($this->envio_ciudad).
+                    ", provinciaenv = ".$this->var2str($this->envio_provincia).
                     "  WHERE idfactura = ".$this->var2str($this->idfactura).";";
             
             return $this->db->exec($sql);
@@ -859,11 +1028,14 @@ class factura_cliente extends fs_model
          else
          {
             $this->new_codigo();
-            $sql = "INSERT INTO ".$this->table_name." (idasiento,idfacturarect,codigo,numero,
-               codigorect,codejercicio,codserie,codalmacen,codpago,coddivisa,fecha,codcliente,nombrecliente,
-               cifnif,direccion,ciudad,provincia,apartado,coddir,codpostal,codpais,codagente,neto,totaliva,total,totaleuros,
-               irpf,totalirpf,porcomision,tasaconv,totalrecargo,pagada,observaciones,
-               hora,numero2,vencimiento) VALUES (".$this->var2str($this->idasiento).
+            $sql = "INSERT INTO ".$this->table_name." (idasiento,idasientop,idfacturarect,codigo,numero,
+               codigorect,codejercicio,codserie,codalmacen,codpago,coddivisa,fecha,codcliente,
+               nombrecliente,cifnif,direccion,ciudad,provincia,apartado,coddir,codpostal,codpais,
+               codagente,neto,totaliva,total,totaleuros,irpf,totalirpf,porcomision,tasaconv,
+               totalrecargo,pagada,anulada,observaciones,hora,numero2,vencimiento,femail,codtrans,
+               codigoenv,nombreenv,apellidosenv,direccionenv,codpostalenv,ciudadenv,provinciaenv) VALUES 
+                     (".$this->var2str($this->idasiento).
+                    ",".$this->var2str($this->idasientop).
                     ",".$this->var2str($this->idfacturarect).
                     ",".$this->var2str($this->codigo).
                     ",".$this->var2str($this->numero).
@@ -895,10 +1067,20 @@ class factura_cliente extends fs_model
                     ",".$this->var2str($this->tasaconv).
                     ",".$this->var2str($this->totalrecargo).
                     ",".$this->var2str($this->pagada).
+                    ",".$this->var2str($this->anulada).
                     ",".$this->var2str($this->observaciones).
                     ",".$this->var2str($this->hora).
                     ",".$this->var2str($this->numero2).
-                    ",".$this->var2str($this->vencimiento).");";
+                    ",".$this->var2str($this->vencimiento).
+                    ",".$this->var2str($this->femail).
+                    ",".$this->var2str($this->envio_codtrans).
+                    ",".$this->var2str($this->envio_codigo).
+                    ",".$this->var2str($this->envio_nombre).
+                    ",".$this->var2str($this->envio_apellidos).
+                    ",".$this->var2str($this->envio_direccion).
+                    ",".$this->var2str($this->envio_codpostal).
+                    ",".$this->var2str($this->envio_ciudad).
+                    ",".$this->var2str($this->envio_provincia).");";
             
             if( $this->db->exec($sql) )
             {
@@ -922,13 +1104,19 @@ class factura_cliente extends fs_model
          if($this->idasiento)
          {
             /**
-             * Delegamos la eliminación del asiento en la clase correspondiente.
+             * Delegamos la eliminación de los asientos en la clase correspondiente.
              */
             $asiento = new asiento();
             $asi0 = $asiento->get($this->idasiento);
             if($asi0)
             {
                $asi0->delete();
+            }
+            
+            $asi1 = $asiento->get($this->idasientop);
+            if($asi1)
+            {
+               $asi1->delete();
             }
          }
          
@@ -963,12 +1151,21 @@ class factura_cliente extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_cliente($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas sin pagar
+    * @param type $offset
+    * @param type $limit
+    * @param type $order
+    * @return \factura_cliente
+    */
    public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT, $order='vencimiento ASC, codigo ASC')
    {
       $faclist = array();
@@ -978,44 +1175,74 @@ class factura_cliente extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_cliente($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas del agente/empleado
+    * @param type $codagente
+    * @param type $offset
+    * @return \factura_cliente
+    */
    public function all_from_agente($codagente, $offset=0)
    {
       $faclist = array();
-      
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      $sql = "SELECT * FROM ".$this->table_name.
          " WHERE codagente = ".$this->var2str($codagente).
-         " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
+         " ORDER BY fecha DESC, codigo DESC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_cliente($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas del cliente $codcliente
+    * @param type $codcliente
+    * @param type $offset
+    * @return \factura_cliente
+    */
    public function all_from_cliente($codcliente, $offset=0)
    {
       $faclist = array();
-      
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
+      $sql = "SELECT * FROM ".$this->table_name.
          " WHERE codcliente = ".$this->var2str($codcliente).
-         " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
+         " ORDER BY fecha DESC, codigo DESC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_cliente($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas comprendidas entre $desde y $hasta
+    * @param type $desde
+    * @param type $hasta
+    * @param type $codserie
+    * @param type $codagente
+    * @param type $codcliente
+    * @param type $estado
+    * @return \factura_cliente
+    */
    public function all_desde($desde, $hasta, $codserie=FALSE, $codagente=FALSE, $codcliente=FALSE, $estado=FALSE)
    {
       $faclist = array();
@@ -1049,12 +1276,20 @@ class factura_cliente extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_cliente($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas que coinciden con $query
+    * @param type $query
+    * @param type $offset
+    * @return \factura_cliente
+    */
    public function search($query, $offset=0)
    {
       $faclist = array();
@@ -1076,12 +1311,23 @@ class factura_cliente extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_cliente($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con las facturas del cliente $codcliente que coinciden con $query
+    * @param type $codcliente
+    * @param type $desde
+    * @param type $hasta
+    * @param type $serie
+    * @param type $obs
+    * @return \factura_cliente
+    */
    public function search_from_cliente($codcliente, $desde, $hasta, $serie, $obs='')
    {
       $faclist = array();
@@ -1100,16 +1346,22 @@ class factura_cliente extends fs_model
       if($data)
       {
          foreach($data as $f)
+         {
             $faclist[] = new factura_cliente($f);
+         }
       }
       
       return $faclist;
    }
    
+   /**
+    * Devuelve un array con los huecos en la numeración.
+    * @return type
+    */
    public function huecos()
    {
       $error = TRUE;
-      $huecolist = $this->cache->get_array2('factura_cliente_huecos', $error, TRUE);
+      $huecolist = $this->cache->get_array2('factura_cliente_huecos', $error);
       if($error)
       {
          $ejercicio = new ejercicio();
@@ -1129,11 +1381,6 @@ class factura_cliente extends fs_model
                   {
                      $codserie = $d['codserie'];
                      $num = 1;
-                     if( defined('FS_NFACTURA_CLI') )
-                     {
-                        /// mantenemos compatibilidad con versiones anteriores
-                        $num = intval(FS_NFACTURA_CLI);
-                     }
                      
                      $se = $serie->get($codserie);
                      if($se)
@@ -1161,8 +1408,13 @@ class factura_cliente extends fs_model
                   }
                   else
                   {
-                     /// Hemos encontrado un hueco y debemos usar el número y la fecha.
-                     while($num < intval($d['numero']))
+                     /**
+                      * Hemos encontrado un hueco y debemos usar el número y la fecha.
+                      * La variable pasos permite dejar de añadir huecos al llegar a 100,
+                      * así evitamos agotar la memoria en caso de error grave.
+                      */
+                     $pasos = 0;
+                     while($num < intval($d['numero']) AND $pasos < 100)
                      {
                         $huecolist[] = array(
                             'codigo' => $eje->codejercicio . sprintf('%02s', $codserie) . sprintf('%06s', $num),
@@ -1170,6 +1422,7 @@ class factura_cliente extends fs_model
                             'hora' => $d['hora']
                         );
                         $num++;
+                        $pasos++;
                      }
                      
                      /// avanzamos uno más
@@ -1179,7 +1432,7 @@ class factura_cliente extends fs_model
             }
          }
          
-         $this->cache->set('factura_cliente_huecos', $huecolist, 3600, TRUE);
+         $this->cache->set('factura_cliente_huecos', $huecolist, 3600);
       }
       
       return $huecolist;

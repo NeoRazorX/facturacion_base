@@ -34,7 +34,7 @@
                            <option value="{$value->codejercicio}">{$value->nombre}</option>
                            {/loop}
                            <option value="">---</option>
-                           <option value="">Comprobar todos</option>
+                           <option value="" selected="">Comprobar todos</option>
                         </select>
                      </div>
                      <div class="checkbox">
@@ -106,7 +106,7 @@
    </script>
    
    <div id="informe_errores">
-      <div class="alert alert-info" role="alert">Cargando...</div>
+      <div class="alert alert-warning" role="alert">Cargando...</div>
    </div>
    
    {include="footer"}
@@ -119,7 +119,7 @@
       </div>
    {else}
       <!--{$fsc->informe['show_page']}-->
-      <div class="alert alert-info" role="alert">
+      <div class="alert alert-success" role="alert">
          <a href="{$fsc->url()}&cancelar=TRUE" class="close"><span aria-hidden="true">&times;</span></a>
          Comprobado hasta {$fsc->informe['model']} {$fsc->informe['offset']}...
          {$fsc->duration()}

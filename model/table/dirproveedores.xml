@@ -61,6 +61,10 @@
       <nulo>NO</nulo>
       <defecto>nextval('dirproveedores_id_seq'::regclass)</defecto>
    </columna>
+   <columna>
+      <nombre>fecha</nombre>
+      <tipo>date</tipo>
+   </columna>
    <restriccion>
       <nombre>dirproveedores_pkey</nombre>
       <consulta>PRIMARY KEY (id)</consulta>

@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -29,7 +29,7 @@ class contabilidad_series extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Series', 'contabilidad', FALSE, TRUE);
+      parent::__construct(__CLASS__, ucfirst(FS_SERIES), 'contabilidad', FALSE, TRUE);
    }
    
    protected function private_core()
@@ -78,16 +78,16 @@ class contabilidad_series extends fs_controller
          
          if( $serie->save() )
          {
-            $this->new_message("Serie ".$serie->codserie." guardada correctamente");
+            $this->new_message('Datos guardados correctamente.');
          }
          else
-            $this->new_error_msg("¡Imposible guardar la serie!");
+            $this->new_error_msg("¡Imposible guardar ".FS_SERIE."!");
       }
       else if( isset($_GET['delete']) )
       {
          if(!$this->user->admin)
          {
-            $this->new_error_msg('Sólo un administrador puede eliminar series.');
+            $this->new_error_msg('Sólo un administrador puede eliminar '.FS_SERIES.'.');
          }
          else
          {
@@ -96,13 +96,13 @@ class contabilidad_series extends fs_controller
             {
                if( $serie->delete() )
                {
-                  $this->new_message('Serie eliminada correctamente.');
+                  $this->new_message('Datos eliminados correctamente: '.FS_SERIE.' '.$_GET['delete'], TRUE);
                }
                else
-                  $this->new_error_msg("¡Imposible eliminar la serie!");
+                  $this->new_error_msg("¡Imposible eliminar ".FS_SERIE.' '.$_GET['delete']."!");
             }
             else
-               $this->new_error_msg("Serie no encontrada.");
+               $this->new_error_msg('Datos no encontrados: '.FS_SERIE.' '.$_GET['delete']);
          }
       }
    }

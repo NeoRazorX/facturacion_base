@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -203,6 +203,7 @@ class compras_imprimir extends fs_controller
          }
       }
       
+      $dec_cantidad = 0;
       $multi_iva = FALSE;
       $multi_re = FALSE;
       $multi_irpf = FALSE;
@@ -212,6 +213,11 @@ class compras_imprimir extends fs_controller
       /// leemos las líneas para ver si hay que mostrar los tipos de iva, re o irpf
       foreach($lineas as $lin)
       {
+         if( $lin->cantidad != intval($lin->cantidad) )
+         {
+            $dec_cantidad = 2;
+         }
+         
          if($iva === FALSE)
          {
             $iva = $lin->iva;
@@ -283,9 +289,9 @@ class compras_imprimir extends fs_controller
          }
          
          $fila = array(
-             'cantidad' => $lineas[$linea_actual]->cantidad,
+             'cantidad' => $this->show_numero($lineas[$linea_actual]->cantidad, $dec_cantidad),
              'descripcion' => $descripcion,
-             'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $documento->coddivisa),
+             'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $documento->coddivisa, TRUE, FS_NF0_ART),
              'dto' => $this->show_numero($lineas[$linea_actual]->dtopor) . " %",
              'iva' => $this->show_numero($lineas[$linea_actual]->iva) . " %",
              're' => $this->show_numero($lineas[$linea_actual]->recargo) . " %",
@@ -512,14 +518,38 @@ class compras_imprimir extends fs_controller
              * Dirección:           Teléfonos:
              */
             $pdf_doc->new_table();
-            $pdf_doc->add_table_row(
-               array(
-                  'campo1' => "<b>Factura:</b>",
-                  'dato1' => $this->factura->codigo,
-                  'campo2' => "<b>Fecha:</b>",
-                  'dato2' => $this->factura->fecha
-               )
-            );
+            
+            if($this->factura->idfacturarect)
+            {
+               $pdf_doc->add_table_row(
+                       array(
+                           'campo1' => "<b>".ucfirst(FS_FACTURA_RECTIFICATIVA).":</b>",
+                           'dato1' => $this->factura->codigo,
+                           'campo2' => "<b>Fecha:</b>",
+                           'dato2' => $this->factura->fecha
+                       )
+               );
+               $pdf_doc->add_table_row(
+                       array(
+                           'campo1' => "<b>Original:</b>",
+                           'dato1' => $this->factura->codigorect,
+                           'campo2' => '',
+                           'dato2' => ''
+                       )
+               );
+            }
+            else
+            {
+               $pdf_doc->add_table_row(
+                     array(
+                        'campo1' => "<b>Factura:</b>",
+                        'dato1' => $this->factura->codigo,
+                        'campo2' => "<b>Fecha:</b>",
+                        'dato2' => $this->factura->fecha
+                     )
+               );
+            }
+            
             $pdf_doc->add_table_row(
                array(
                   'campo1' => "<b>Proveedor:</b>",
@@ -634,21 +664,11 @@ class compras_imprimir extends fs_controller
    {
       if( $this->empresa->can_send_mail() )
       {
-         if( $_POST['email'] != $this->proveedor->email )
+         if( $_POST['email'] != $this->proveedor->email AND isset($_POST['guardar']) )
          {
             $this->proveedor->email = $_POST['email'];
             $this->proveedor->save();
          }
-         
-         /// obtenemos la configuración extra del email
-         $mailop = array(
-             'mail_host' => 'smtp.gmail.com',
-             'mail_port' => '465',
-             'mail_user' => '',
-             'mail_enc' => 'ssl'
-         );
-         $fsvar = new fs_var();
-         $mailop = $fsvar->array_get($mailop, FALSE);
          
          $filename = 'albaran_'.$this->albaran->codigo.'.pdf';
          $this->generar_pdf_albaran($filename);
@@ -656,35 +676,73 @@ class compras_imprimir extends fs_controller
          if( file_exists('tmp/'.FS_TMP_NAME.'enviar/'.$filename) )
          {
             $mail = new PHPMailer();
-            $mail->IsSMTP();
+            $mail->CharSet = 'UTF-8';
+            $mail->WordWrap = 50;
+            $mail->isSMTP();
             $mail->SMTPAuth = TRUE;
-            $mail->SMTPSecure = $mailop['mail_enc'];
-            $mail->Host = $mailop['mail_host'];
-            $mail->Port = intval($mailop['mail_port']);
+            $mail->SMTPSecure = $this->empresa->email_config['mail_enc'];
+            $mail->Host = $this->empresa->email_config['mail_host'];
+            $mail->Port = intval($this->empresa->email_config['mail_port']);
             
             $mail->Username = $this->empresa->email;
-            if($mailop['mail_user'] != '')
+            if($this->empresa->email_config['mail_user'] != '')
             {
-               $mail->Username = $mailop['mail_user'];
+               $mail->Username = $this->empresa->email_config['mail_user'];
             }
             
-            $mail->Password = $this->empresa->email_password;
+            $mail->Password = $this->empresa->email_config['mail_password'];
             $mail->From = $this->empresa->email;
-            $mail->FromName = $this->user->nick;
-            $mail->CharSet = 'UTF-8';
+            $mail->FromName = $this->user->get_agente_fullname();
+            $mail->addReplyTo($_POST['de'], $mail->FromName);
+            
+            $mail->addAddress($_POST['email'], $this->proveedor->razonsocial);
+            if($_POST['email_copia'])
+            {
+               if( isset($_POST['cco']) )
+               {
+                  $mail->addBCC($_POST['email_copia'], $this->proveedor->razonsocial);
+               }
+               else
+               {
+                  $mail->addCC($_POST['email_copia'], $this->proveedor->razonsocial);
+               }
+            }
+            if($this->empresa->email_config['mail_bcc'])
+            {
+               $mail->addBCC($this->empresa->email_config['mail_bcc']);
+            }
             
             $mail->Subject = $this->empresa->nombre . ': Mi '.FS_ALBARAN.' '.$this->albaran->codigo;
-            $mail->AltBody = 'Buenos días, le adjunto mi '.FS_ALBARAN.' '.$this->albaran->codigo.".\n".$this->empresa->email_firma;
+            $mail->AltBody = $_POST['mensaje'];
+            $mail->msgHTML( nl2br($_POST['mensaje']) );
+            $mail->isHTML(TRUE);
             
-            $mail->WordWrap = 50;
-            $mail->MsgHTML( nl2br($_POST['mensaje']) );
-            $mail->AddAttachment('tmp/'.FS_TMP_NAME.'enviar/'.$filename);
-            $mail->AddAddress($_POST['email'], $this->proveedor->razonsocial);
-            $mail->IsHTML(TRUE);
-            
-            if( $mail->Send() )
+            $mail->addAttachment('tmp/'.FS_TMP_NAME.'enviar/'.$filename);
+            if( is_uploaded_file($_FILES['adjunto']['tmp_name']) )
             {
-               $this->new_message('Mensaje enviado correctamente.');
+               $mail->addAttachment($_FILES['adjunto']['tmp_name'], $_FILES['adjunto']['name']);
+            }
+            
+            $SMTPOptions = array();
+            if($this->empresa->email_config['mail_low_security'])
+            {
+               $SMTPOptions = array(
+                   'ssl' => array(
+                       'verify_peer' => false,
+                       'verify_peer_name' => false,
+                       'allow_self_signed' => true
+                   )
+               );
+            }
+            
+            if( $mail->smtpConnect($SMTPOptions) )
+            {
+               if( $mail->send() )
+               {
+                  $this->new_message('Mensaje enviado correctamente.');
+               }
+               else
+                  $this->new_error_msg("Error al enviar el email: " . $mail->ErrorInfo);
             }
             else
                $this->new_error_msg("Error al enviar el email: " . $mail->ErrorInfo);

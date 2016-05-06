@@ -87,6 +87,7 @@
    <columna>
       <nombre>deabono</nombre>
       <tipo>boolean</tipo>
+      <defecto>false</defecto>
    </columna>
    <columna>
       <nombre>direccion</nombre>
@@ -108,6 +109,10 @@
       <tipo>date</tipo>
    </columna>
    <columna>
+      <nombre>femail</nombre>
+      <tipo>date</tipo>
+   </columna>
+   <columna>
       <nombre>hora</nombre>
       <tipo>time without time zone</tipo>
       <nulo>NO</nulo>
@@ -115,6 +120,11 @@
    </columna>
    <columna>
       <nombre>idasiento</nombre>
+      <tipo>integer</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>idasientop</nombre>
       <tipo>integer</tipo>
       <nulo>YES</nulo>
    </columna>
@@ -180,6 +190,12 @@
       <defecto>false</defecto>
    </columna>
    <columna>
+      <nombre>anulada</nombre>
+      <tipo>boolean</tipo>
+      <nulo>NO</nulo>
+      <defecto>false</defecto>
+   </columna>
+   <columna>
       <nombre>porcomision</nombre>
       <tipo>double precision</tipo>
       <nulo>YES</nulo>
@@ -228,6 +244,39 @@
       <tipo>boolean</tipo>
       <nulo>YES</nulo>
    </columna>
+   <columna>
+      <nombre>codtrans</nombre>
+      <tipo>character varying(8)</tipo>
+   </columna>
+   <columna>
+      <nombre>codigoenv</nombre>
+      <tipo>character varying(200)</tipo>
+   </columna>
+   <columna>
+      <nombre>nombreenv</nombre>
+      <tipo>character varying(200)</tipo>
+   </columna>
+   <columna>
+      <nombre>apellidosenv</nombre>
+      <tipo>character varying(200)</tipo>
+   </columna>
+   <columna>
+      <nombre>direccionenv</nombre>
+      <tipo>character varying(100)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>codpostalenv</nombre>
+      <tipo>character varying(10)</tipo>
+   </columna>
+   <columna>
+      <nombre>ciudadenv</nombre>
+      <tipo>character varying(100)</tipo>
+   </columna>
+   <columna>
+      <nombre>provinciaenv</nombre>
+      <tipo>character varying(100)</tipo>
+   </columna>
    <restriccion>
       <nombre>ca_facturascli_series2</nombre>
       <consulta>FOREIGN KEY (codserie)
@@ -243,6 +292,12 @@
    <restriccion>
       <nombre>ca_facturascli_asiento2</nombre>
       <consulta>FOREIGN KEY (idasiento)
+      REFERENCES co_asientos (idasiento)
+      ON DELETE SET NULL ON UPDATE CASCADE</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>ca_facturascli_asientop</nombre>
+      <consulta>FOREIGN KEY (idasientop)
       REFERENCES co_asientos (idasiento)
       ON DELETE SET NULL ON UPDATE CASCADE</consulta>
    </restriccion>

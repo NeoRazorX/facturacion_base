@@ -1,20 +1,20 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015    Carlos Garcia Gomez  neorazorx@gmail.com
- *                            GISBEL JOSE          gpg841@gmail.com
+ * Copyright (C) 2014-2016    Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014         GISBEL JOSE          gpg841@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -72,12 +72,25 @@ class contabilidad_formas_pago extends fs_controller
          $fp0->descripcion = $_POST['descripcion'];
          $fp0->genrecibos = $_POST['genrecibos'];
          $fp0->vencimiento = $_POST['vencimiento'];
-         $fp0->domiciliado = isset($_POST['domiciliado']);
          
          $fp0->codcuenta = NULL;
          if($_POST['codcuenta'] != '')
          {
             $fp0->codcuenta = $_POST['codcuenta'];
+         }
+         
+         $fp0->domiciliado = FALSE;
+         if( isset($_POST['domiciliado']) )
+         {
+            if( is_null($fp0->codcuenta) )
+            {
+               $this->new_error_msg('Para marcar una forma de pago como domiciliada,'
+                       . ' también tienes que seleccionar una cuenta bancaria.');
+            }
+            else
+            {
+               $fp0->domiciliado = TRUE;
+            }
          }
          
          if($fp0->codpago == '' OR $fp0->descripcion == '')
@@ -90,7 +103,7 @@ class contabilidad_formas_pago extends fs_controller
             
             if($nueva AND $this->button_plazos AND $fp0->genrecibos == 'Emitidos')
             {
-               header('Location: index.php?page='.$this->button_plazos.'&cod='.$fp0->codpago);
+               header('Location: index.php?page='.$this->button_plazos.'&cod='.$fp0->codpago.'&nueva=TRUE');
             }
          }
          else

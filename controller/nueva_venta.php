@@ -1,25 +1,26 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  * Copyright (C) 2014-2015  Francesc Pineda Segarra  shawe.ewahs@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 require_model('almacen.php');
 require_model('articulo.php');
+require_model('articulo_combinacion.php');
 require_model('asiento_factura.php');
 require_model('cliente.php');
 require_model('divisa.php');
@@ -31,6 +32,7 @@ require_model('impuesto.php');
 require_model('pais.php');
 require_model('pedido_cliente.php');
 require_model('presupuesto_cliente.php');
+require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('tarifa.php');
 
@@ -56,7 +58,7 @@ class nueva_venta extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'nueva venta', 'ventas', FALSE, FALSE);
+      parent::__construct(__CLASS__, 'Nueva venta...', 'ventas', FALSE, FALSE, TRUE);
    }
    
    protected function private_core()
@@ -128,6 +130,10 @@ class nueva_venta extends fs_controller
       {
          $this->get_precios_articulo();
       }
+      else if( isset($_POST['referencia4combi']) )
+      {
+         $this->get_combinaciones_articulo();
+      }
       else if( isset($_POST['cliente']) )
       {
          $this->cliente_s = $this->cliente->get($_POST['cliente']);
@@ -154,6 +160,7 @@ class nueva_venta extends fs_controller
                   $this->cliente_s = new cliente();
                   $this->cliente_s->codcliente = $this->cliente_s->get_new_codigo();
                   $this->cliente_s->nombre = $this->cliente_s->razonsocial = $_POST['nuevo_cliente'];
+                  $this->cliente_s->tipoidfiscal = $_POST['nuevo_tipoidfiscal'];
                   $this->cliente_s->cifnif = $_POST['nuevo_cifnif'];
                   
                   if( isset($_POST['codgrupo']) )
@@ -462,6 +469,35 @@ class nueva_venta extends fs_controller
       $this->articulo = $articulo->get($_POST['referencia4precios']);
    }
    
+   private function get_combinaciones_articulo()
+   {
+      /// cambiamos la plantilla HTML
+      $this->template = 'ajax/nueva_venta_combinaciones';
+      
+      $this->results = array();
+      $comb1 = new articulo_combinacion();
+      foreach($comb1->all_from_ref($_POST['referencia4combi']) as $com)
+      {
+         if( isset($this->results[$com->codigo]) )
+         {
+            $this->results[$com->codigo]['desc'] .= ', '.$com->nombreatributo.' - '.$com->valor;
+            $this->results[$com->codigo]['txt'] .= ', '.$com->nombreatributo.' - '.$com->valor;
+         }
+         else
+         {
+            $this->results[$com->codigo] = array(
+                'ref' => $_POST['referencia4combi'],
+                'desc' => base64_decode($_POST['desc'])."\n".$com->nombreatributo.' - '.$com->valor,
+                'pvp' => floatval($_POST['pvp']) + $com->impactoprecio,
+                'dto' => floatval($_POST['dto']),
+                'codimpuesto' => $_POST['codimpuesto'],
+                'cantidad' => floatval($_POST['cantidad']),
+                'txt' => $com->nombreatributo.' - '.$com->valor
+            );
+         }
+      }
+   }
+   
    public function get_tarifas_articulo($ref)
    {
       $tarlist = array();
@@ -506,7 +542,7 @@ class nueva_venta extends fs_controller
       }
       
       $eje0 = new ejercicio();
-      $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
+      $ejercicio = $eje0->get_by_fecha($_POST['fecha'], FALSE);
       if(!$ejercicio)
       {
          $this->new_error_msg('Ejercicio no encontrado.');
@@ -567,12 +603,11 @@ class nueva_venta extends fs_controller
          $albaran->codagente = $this->agente->codagente;
          $albaran->numero2 = $_POST['numero2'];
          $albaran->observaciones = $_POST['observaciones'];
-         $albaran->irpf = $serie->irpf;
          $albaran->porcomision = $this->agente->porcomision;
          
          $albaran->codcliente = $cliente->codcliente;
-         $albaran->cifnif = $cliente->cifnif;
-         $albaran->nombrecliente = $cliente->razonsocial;
+         $albaran->cifnif = $_POST['cifnif'];
+         $albaran->nombrecliente = $_POST['nombrecliente'];
          $albaran->ciudad = $_POST['ciudad'];
          $albaran->codpais = $_POST['codpais'];
          $albaran->codpostal = $_POST['codpostal'];
@@ -632,6 +667,11 @@ class nueva_venta extends fs_controller
                      $albaran->totaliva += ($linea->pvptotal * $linea->iva/100);
                      $albaran->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                      $albaran->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                     
+                     if($linea->irpf > $albaran->irpf)
+                     {
+                        $albaran->irpf = $linea->irpf;
+                     }
                   }
                   else
                   {
@@ -707,7 +747,7 @@ class nueva_venta extends fs_controller
       $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
       if(!$ejercicio)
       {
-         $this->new_error_msg('Ejercicio no encontrado.');
+         $this->new_error_msg('Ejercicio no encontrado o está cerrado.');
          $continuar = FALSE;
       }
       
@@ -748,11 +788,11 @@ class nueva_venta extends fs_controller
       
       if($continuar)
       {
-         $factura->fecha = $_POST['fecha'];
-         $factura->hora = $_POST['hora'];
-         $factura->codalmacen = $almacen->codalmacen;
          $factura->codejercicio = $ejercicio->codejercicio;
          $factura->codserie = $serie->codserie;
+         $factura->set_fecha_hora($_POST['fecha'], $_POST['hora']);
+         
+         $factura->codalmacen = $almacen->codalmacen;
          $factura->codpago = $forma_pago->codpago;
          $factura->coddivisa = $divisa->coddivisa;
          $factura->tasaconv = $divisa->tasaconv;
@@ -765,7 +805,6 @@ class nueva_venta extends fs_controller
          $factura->codagente = $this->agente->codagente;
          $factura->observaciones = $_POST['observaciones'];
          $factura->numero2 = $_POST['numero2'];
-         $factura->irpf = $serie->irpf;
          $factura->porcomision = $this->agente->porcomision;
          
          if($forma_pago->genrecibos == 'Pagados')
@@ -776,15 +815,20 @@ class nueva_venta extends fs_controller
          $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$forma_pago->vencimiento));
          
          $factura->codcliente = $cliente->codcliente;
-         $factura->cifnif = $cliente->cifnif;
-         $factura->nombrecliente = $cliente->razonsocial;
+         $factura->cifnif = $_POST['cifnif'];
+         $factura->nombrecliente = $_POST['nombrecliente'];
          $factura->ciudad = $_POST['ciudad'];
          $factura->codpais = $_POST['codpais'];
          $factura->codpostal = $_POST['codpostal'];
          $factura->direccion = $_POST['direccion'];
          $factura->provincia = $_POST['provincia'];
          
-         if( $factura->save() )
+         $regularizacion = new regularizacion_iva();
+         if( $regularizacion->get_fecha_inside($factura->fecha) )
+         {
+            $this->new_error_msg("El ".FS_IVA." de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.");
+         }
+         else if( $factura->save() )
          {
             $art0 = new articulo();
             $n = floatval($_POST['numlineas']);
@@ -837,6 +881,11 @@ class nueva_venta extends fs_controller
                      $factura->totaliva += ($linea->pvptotal * $linea->iva/100);
                      $factura->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                      $factura->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                     
+                     if($linea->irpf > $factura->irpf)
+                     {
+                        $factura->irpf = $linea->irpf;
+                     }
                   }
                   else
                   {
@@ -887,7 +936,7 @@ class nueva_venta extends fs_controller
       }
    }
    
-   private function generar_asiento($factura)
+   private function generar_asiento(&$factura)
    {
       if($this->empresa->contintegrada)
       {
@@ -929,7 +978,7 @@ class nueva_venta extends fs_controller
       }
       
       $eje0 = new ejercicio();
-      $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
+      $ejercicio = $eje0->get_by_fecha($_POST['fecha'], FALSE);
       if(!$ejercicio)
       {
          $this->new_error_msg('Ejercicio no encontrado.');
@@ -974,13 +1023,21 @@ class nueva_venta extends fs_controller
       if($continuar)
       {
          $presupuesto->fecha = $_POST['fecha'];
-         $presupuesto->finoferta = date("Y-m-d", strtotime($_POST['fecha']." +1 month"));
          $presupuesto->codalmacen = $almacen->codalmacen;
          $presupuesto->codejercicio = $ejercicio->codejercicio;
          $presupuesto->codserie = $serie->codserie;
          $presupuesto->codpago = $forma_pago->codpago;
          $presupuesto->coddivisa = $divisa->coddivisa;
          $presupuesto->tasaconv = $divisa->tasaconv;
+         
+         /// establecemos la fecha de finoferta
+         $presupuesto->finoferta = date("Y-m-d", strtotime($_POST['fecha']." +1 month"));
+         $fsvar = new fs_var();
+         $dias = $fsvar->simple_get('presu_validez');
+         if($dias)
+         {
+            $presupuesto->finoferta = date("Y-m-d", strtotime($_POST['fecha']." +".intval($dias)." days"));
+         }
          
          if($_POST['tasaconv'] != '')
          {
@@ -990,12 +1047,11 @@ class nueva_venta extends fs_controller
          $presupuesto->codagente = $this->agente->codagente;
          $presupuesto->observaciones = $_POST['observaciones'];
          $presupuesto->numero2 = $_POST['numero2'];
-         $presupuesto->irpf = $serie->irpf;
          $presupuesto->porcomision = $this->agente->porcomision;
          
          $presupuesto->codcliente = $cliente->codcliente;
-         $presupuesto->cifnif = $cliente->cifnif;
-         $presupuesto->nombrecliente = $cliente->razonsocial;
+         $presupuesto->cifnif = $_POST['cifnif'];
+         $presupuesto->nombrecliente = $_POST['nombrecliente'];
          $presupuesto->ciudad = $_POST['ciudad'];
          $presupuesto->codpais = $_POST['codpais'];
          $presupuesto->codpostal = $_POST['codpostal'];
@@ -1049,6 +1105,11 @@ class nueva_venta extends fs_controller
                      $presupuesto->totaliva += ($linea->pvptotal * $linea->iva/100);
                      $presupuesto->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                      $presupuesto->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                     
+                     if($linea->irpf > $presupuesto->irpf)
+                     {
+                        $presupuesto->irpf = $linea->irpf;
+                     }
                   }
                   else
                   {
@@ -1121,7 +1182,7 @@ class nueva_venta extends fs_controller
       }
       
       $eje0 = new ejercicio();
-      $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
+      $ejercicio = $eje0->get_by_fecha($_POST['fecha'], FALSE);
       if(!$ejercicio)
       {
          $this->new_error_msg('Ejercicio no encontrado.');
@@ -1181,12 +1242,11 @@ class nueva_venta extends fs_controller
          $pedido->codagente = $this->agente->codagente;
          $pedido->observaciones = $_POST['observaciones'];
          $pedido->numero2 = $_POST['numero2'];
-         $pedido->irpf = $serie->irpf;
          $pedido->porcomision = $this->agente->porcomision;
          
          $pedido->codcliente = $cliente->codcliente;
-         $pedido->cifnif = $cliente->cifnif;
-         $pedido->nombrecliente = $cliente->razonsocial;
+         $pedido->cifnif = $_POST['cifnif'];
+         $pedido->nombrecliente = $_POST['nombrecliente'];
          $pedido->ciudad = $_POST['ciudad'];
          $pedido->codpais = $_POST['codpais'];
          $pedido->codpostal = $_POST['codpostal'];
@@ -1240,6 +1300,11 @@ class nueva_venta extends fs_controller
                      $pedido->totaliva += ($linea->pvptotal * $linea->iva/100);
                      $pedido->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                      $pedido->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                     
+                     if($linea->irpf > $pedido->irpf)
+                     {
+                        $pedido->irpf = $linea->irpf;
+                     }
                   }
                   else
                   {

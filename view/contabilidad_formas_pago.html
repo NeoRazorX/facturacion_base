@@ -33,11 +33,17 @@
             </p>
             {else}
             <p class="help-block">
+               <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> &nbsp;
                Puedes configurar plazos de pago con el
                <a href="https://www.facturascripts.com/store/producto/plugin-facturacion_premium/" target="_blank">plugin tesorería</a>,
                que se vende junto con facturación premium.
             </p>
             {/if}
+            <p class="help-block">
+               <span class="glyphicon glyphicon-credit-card" aria-hidden="true"></span> &nbsp;
+               Además puedes gestionar las cuentas bancarias de la empresa desde
+               <a href="index.php?page=admin_empresa#cuentasb">Admin &gt; Empresa &gt; Cuentas bancarias</a>.
+            </p>
          </div>
       </div>
    </div>
@@ -139,7 +145,7 @@
       </form>
       {/loop}
       <form action="{$fsc->url()}" method="post" class="form" role="form">
-         <tr class="bg-info">
+         <tr class="info">
             <td>
                <input class="form-control" type="text" name="codpago" maxlength="10" autocomplete="off" placeholder="Nuevo código"/>
             </td>

@@ -20,7 +20,9 @@
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
          if( confirm("¿Realmente desea eliminar este ejercicio?") )
+         {
             window.location.href = 'index.php?page=contabilidad_ejercicios&delete={$fsc->ejercicio->codejercicio}';
+         }
       });
    });
 </script>
@@ -30,13 +32,15 @@
    <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
       <div class="row">
          <div class="col-xs-7">
-            <a class="btn btn-sm btn-default hidden-xs" href="{$fsc->url()}" title="recargar la página">
-               <span class="glyphicon glyphicon-refresh"></span>
-            </a>
-            <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_ejercicios">
-               <span class="glyphicon glyphicon-arrow-left"></span>
-               <span class="hidden-xs hidden-sm">&nbsp; Ejercicios</span>
-            </a>
+            <div class="btn-group">
+               <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_ejercicios">
+                  <span class="glyphicon glyphicon-arrow-left"></span>
+                  <span class="hidden-xs hidden-sm">&nbsp; Ejercicios</span>
+               </a>
+               <a class="btn btn-sm btn-default hidden-xs" href="{$fsc->url()}" title="recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+            </div>
             {if="$fsc->asiento_apertura_url OR $fsc->asiento_cierre_url OR $fsc->asiento_pyg_url"}
             <div class="btn-group">
                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
@@ -219,7 +223,7 @@
       <tr class="clickableRow" href="{$value->url()}">
          <td>{$value->codcuenta}</td>
          <td><a href="{$value->url()}">{$value->codsubcuenta}</a> {$value->descripcion}</td>
-         <td class="text-right">{$fsc->show_precio($value->saldo, $value->coddivisa)}</td>
+         <td class='text-right{if="$value->saldo<0"} danger{/if}'>{$fsc->show_precio($value->saldo, $value->coddivisa)}</td>
       </tr>
       {else}
       <tr class="warning">
@@ -272,7 +276,25 @@
                <div class="radio">
                   <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
                      <input type="radio" name="fuente" value="" disabled="disabled"/>
+                     Plan contable de <b>Argentina</b> (Requiere instalar plugin argentina)
+                  </label>
+               </div>
+               <div class="radio">
+                  <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
+                     <input type="radio" name="fuente" value="" disabled="disabled"/>
+                     Plan contable de <b>Chile</b> (Requiere instalar plugin chile)
+                  </label>
+               </div>
+               <div class="radio">
+                  <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
+                     <input type="radio" name="fuente" value="" disabled="disabled"/>
                      PUC de <b>Colombia</b> (Requiere instalar plugin colombia)
+                  </label>
+               </div>
+               <div class="radio">
+                  <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
+                     <input type="radio" name="fuente" value="" disabled="disabled"/>
+                     Plan contable de <b>Ecuador</b> (Requiere instalar plugin ecuador)
                   </label>
                </div>
                <div class="radio">
@@ -287,6 +309,18 @@
                      PCGE de <b>Perú</b> (Requiere instalar plugin peru)
                   </label>
                </div>
+               <div class="radio">
+                  <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
+                     <input type="radio" name="fuente" value="" disabled="disabled"/>
+                     Plan contable de <b>República Dominicana</b> (Requiere instalar plugin republica_dominicana)
+                  </label>
+               </div>
+               <div class="radio">
+                  <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
+                     <input type="radio" name="fuente" value="" disabled="disabled"/>
+                     Plan contable de <b>Venezuela</b> (Requiere instalar plugin venezuela)
+                  </label>
+               </div>
                {/loop}
                <div class="radio">
                   <label>
@@ -299,9 +333,12 @@
                </div>
             </div>
             <div class="modal-footer">
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Importar">
-                   <span class="glyphicon glyphicon-import"></span> &nbsp; Importar
-                </button>
+               <p class="help-block pull-left">
+                  Es un proceso lento. Espera a que termine.
+               </p>
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                  <span class="glyphicon glyphicon-import"></span>&nbsp; Importar
+               </button>
             </div>
          </div>
       </div>

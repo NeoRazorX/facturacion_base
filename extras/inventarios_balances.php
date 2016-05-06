@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -28,12 +28,14 @@ class inventarios_balances
 {
    private $balance;
    private $balance_cuenta_a;
+   private $db;
    private $empresa;
    
-   public function __construct()
+   public function __construct(&$db)
    {
       $this->balance = new balance();
       $this->balance_cuenta_a = new balance_cuenta_a();
+      $this->db = $db;
       $this->empresa = new empresa();
    }
    
@@ -60,18 +62,20 @@ class inventarios_balances
    
    /**
     * Genera el libro de inventarios y balances de un ejercicio.
-    * @param type $eje
+    * @param ejercicio $eje
     */
    private function generar_libro(&$eje)
    {
       if($eje)
       {
          if( !file_exists('tmp/'.FS_TMP_NAME.'inventarios_balances') )
+         {
             mkdir('tmp/'.FS_TMP_NAME.'inventarios_balances');
+         }
          
          if( !file_exists('tmp/'.FS_TMP_NAME.'inventarios_balances/'.$eje->codejercicio.'.pdf') )
          {
-            echo '.';
+            echo '.'.$eje->codejercicio.'.';
             
             $pdf_doc = new fs_pdf();
             $pdf_doc->pdf->addInfo('Title', 'Libro de inventarios y balances de ' . $this->empresa->nombre);
@@ -152,145 +156,10 @@ class inventarios_balances
     */
    public function sumas_y_saldos(&$pdf_doc, &$eje, $titulo, $fechaini, $fechafin, $excluir=FALSE, $np=TRUE)
    {
-      $cuenta = new cuenta();
-      $partida = new partida();
-      
-      /// metemos todo en una lista
-      $auxlist = array();
-      $offset = 0;
-      $cuentas = $cuenta->all_from_ejercicio($eje->codejercicio, $offset);
-      while( count($cuentas) > 0 )
-      {
-         foreach($cuentas as $c)
-         {
-            $subcuentas = $c->get_subcuentas();
-            $debe = 0;
-            $haber = 0;
-            
-            foreach($subcuentas as $sc)
-            {
-               $auxt = $partida->totales_from_subcuenta_fechas($sc->idsubcuenta, $fechaini, $fechafin, $excluir);
-               $debe += $auxt['debe'];
-               $haber += $auxt['haber'];
-            }
-            
-            if( $debe!=0 OR $haber!=0)
-            {
-               $auxlist[] = array(
-                   'cuenta' => TRUE,
-                   'codigo' => $c->codcuenta,
-                   'descripcion' => $c->descripcion,
-                   'debe' => $debe,
-                   'haber' => $haber,
-                   'saldo' => $debe-$haber
-               );
-               
-               foreach($subcuentas as $sc)
-               {
-                  $auxt = $partida->totales_from_subcuenta_fechas($sc->idsubcuenta, $fechaini, $fechafin, $excluir);
-                  if( $auxt['debe']!=0 OR $auxt['haber']!=0 )
-                  {
-                     $auxlist[] = array(
-                         'cuenta' => FALSE,
-                         'codigo' => $sc->codsubcuenta,
-                         'descripcion' => $sc->descripcion,
-                         'debe' => $auxt['debe'],
-                         'haber' => $auxt['haber'],
-                         'saldo' => $auxt['saldo']
-                     );
-                  }
-               }
-            }
-            
-            $offset++;
-         }
-         
-         $cuentas = $cuenta->all_from_ejercicio($eje->codejercicio, $offset);
-      }
-      
-      
-      /// a partir de la lista generamos el documento
-      $linea = 0;
-      $tdebe = 0;
-      $thaber = 0;
-      while( $linea < count($auxlist) )
-      {
-         if($linea > 0 OR $np)
-            $pdf_doc->pdf->ezNewPage();
-         
-         $pdf_doc->pdf->ezText($this->empresa->nombre." - Balance de sumas y saldos ".$eje->year().' '.$titulo.".\n\n", 12);
-         
-         /// Creamos la tabla con las lineas
-         $pdf_doc->new_table();
-         $pdf_doc->add_table_header(
-            array(
-                'subcuenta' => '<b>Cuenta</b>',
-                'descripcion' => '<b>Descripción</b>',
-                'debe' => '<b>Debe</b>',
-                'haber' => '<b>Haber</b>',
-                'saldo' => '<b>Saldo</b>'
-            )
-         );
-         
-         for($i=$linea; $i<min( array($linea+48, count($auxlist)) ); $i++)
-         {
-            if( $auxlist[$i]['cuenta'] )
-            {
-               $a = '<b>';
-               $b = '</b>';
-            }
-            else
-            {
-               $a = $b = '';
-               $tdebe += $auxlist[$i]['debe'];
-               $thaber += $auxlist[$i]['haber'];
-            }
-            
-            $pdf_doc->add_table_row(
-               array(
-                   'subcuenta' => $a.$auxlist[$i]['codigo'].$b,
-                   'descripcion' => $a.substr($auxlist[$i]['descripcion'], 0, 50).$b,
-                   'debe' => $a.$this->show_numero($auxlist[$i]['debe']).$b,
-                   'haber' => $a.$this->show_numero($auxlist[$i]['haber']).$b,
-                   'saldo' => $a.$this->show_numero($auxlist[$i]['saldo']).$b
-               )
-            );
-         }
-         $linea += 48;
-         
-         /// añadimos las sumas de la línea actual
-         $pdf_doc->add_table_row(
-            array(
-                'subcuenta' => '',
-                'descripcion' => '<b>Suma y sigue</b>',
-                'debe' => '<b>'.$this->show_numero($tdebe).'</b>',
-                'haber' => '<b>'.$this->show_numero($thaber).'</b>',
-                'saldo' => '<b>'.$this->show_numero($tdebe-$thaber).'</b>'
-            )
-         );
-         $pdf_doc->save_table(
-            array(
-                'fontSize' => 9,
-                'cols' => array(
-                    'debe' => array('justification' => 'right'),
-                    'haber' => array('justification' => 'right'),
-                    'saldo' => array('justification' => 'right')
-                ),
-                'width' => 540,
-                'shaded' => 0
-            )
-         );
-      }
-   }
-   
-   /**
-    * Función auxiliar para generar el balance de sumas y saldos, en su versión de 3 dígitos.
-    */
-   public function sumas_y_saldos3(&$db, &$pdf_doc, &$eje, $titulo, $fechaini, $fechafin, $excluir=FALSE, $np=TRUE)
-   {
       $ge0 = new grupo_epigrafes();
       $epi0 = new epigrafe();
       $cuenta0 = new cuenta();
+      $subcuenta0 = new subcuenta();
       
       $lineas = array();
       
@@ -310,7 +179,7 @@ class inventarios_balances
       
       $sql .= " GROUP BY p.codsubcuenta ORDER BY codsubcuenta ASC;";
       
-      $data = $db->select($sql);
+      $data = $this->db->select($sql);
       if($data)
       {
          $grupos = $ge0->all_from_ejercicio($eje->codejercicio);
@@ -398,6 +267,36 @@ class inventarios_balances
                             'haber' => $haber
                         );
                      }
+                     else
+                     {
+                        $lineas[] = array(
+                            'cuenta' => $i.$j.$k,
+                            'descripcion' => '-',
+                            'debe' => $debe,
+                            'haber' => $haber
+                        );
+                     }
+                  }
+                  
+                  /// añadimos las subcuentas
+                  foreach($data as $d)
+                  {
+                     if( substr($d['codsubcuenta'], 0, 3) == (string)$i.$j.$k )
+                     {
+                        $desc = '';
+                        $subc = $subcuenta0->get_by_codigo($d['codsubcuenta'], $eje->codejercicio);
+                        if($subc)
+                        {
+                           $desc = $subc->descripcion;
+                        }
+                        
+                        $lineas[] = array(
+                            'cuenta' => $d['codsubcuenta'],
+                            'descripcion' => $desc,
+                            'debe' => floatval($d['debe']),
+                            'haber' => floatval($d['haber'])
+                        );
+                     }
                   }
                }
             }
@@ -410,21 +309,23 @@ class inventarios_balances
       $thaber = 0;
       while( $linea < count($lineas) )
       {
-         if($linea > 0 OR $np)
+         if($linea > 0)
+         {
             $pdf_doc->pdf->ezNewPage();
+         }
          
          $pdf_doc->pdf->ezText($this->empresa->nombre." - Balance de sumas y saldos ".$eje->year().' '.$titulo.".\n\n", 12);
          
          /// Creamos la tabla con las lineas
          $pdf_doc->new_table();
          $pdf_doc->add_table_header(
-            array(
-                'cuenta' => '<b>Cuenta</b>',
-                'descripcion' => '<b>Descripción</b>',
-                'debe' => '<b>Debe</b>',
-                'haber' => '<b>Haber</b>',
-                'saldo' => '<b>Saldo</b>'
-            )
+               array(
+                   'cuenta' => '<b>Cuenta</b>',
+                   'descripcion' => '<b>Descripción</b>',
+                   'debe' => '<b>Debe</b>',
+                   'haber' => '<b>Haber</b>',
+                   'saldo' => '<b>Saldo</b>'
+               )
          );
          
          for($i=$linea; $i<min( array($linea+48, count($lineas)) ); $i++)
@@ -447,38 +348,43 @@ class inventarios_balances
             }
             
             $pdf_doc->add_table_row(
-               array(
-                   'cuenta' => $a.$lineas[$i]['cuenta'].$b,
-                   'descripcion' => $a.substr($lineas[$i]['descripcion'], 0, 50).$b,
-                   'debe' => $a.$this->show_numero($lineas[$i]['debe']).$b,
-                   'haber' => $a.$this->show_numero($lineas[$i]['haber']).$b,
-                   'saldo' => $a.$this->show_numero( floatval($lineas[$i]['debe']) - floatval($lineas[$i]['haber']) ).$b
-               )
+                  array(
+                      'cuenta' => $a.$lineas[$i]['cuenta'].$b,
+                      'descripcion' => $a.substr($lineas[$i]['descripcion'], 0, 50).$b,
+                      'debe' => $a.$this->show_numero($lineas[$i]['debe']).$b,
+                      'haber' => $a.$this->show_numero($lineas[$i]['haber']).$b,
+                      'saldo' => $a.$this->show_numero( floatval($lineas[$i]['debe']) - floatval($lineas[$i]['haber']) ).$b
+                  )
             );
          }
          $linea += 48;
          
          /// añadimos las sumas de la línea actual
+         $desc = 'Suma y sigue';
+         if( $linea >= count($lineas) )
+         {
+            $desc = 'Totales';
+         }
          $pdf_doc->add_table_row(
-            array(
-                'cuenta' => '',
-                'descripcion' => '<b>Suma y sigue</b>',
-                'debe' => '<b>'.$this->show_numero($tdebe).'</b>',
-                'haber' => '<b>'.$this->show_numero($thaber).'</b>',
-                'saldo' => '<b>'.$this->show_numero($tdebe-$thaber).'</b>'
-            )
+               array(
+                   'cuenta' => '',
+                   'descripcion' => '<b>'.$desc.'</b>',
+                   'debe' => '<b>'.$this->show_numero($tdebe).'</b>',
+                   'haber' => '<b>'.$this->show_numero($thaber).'</b>',
+                   'saldo' => '<b>'.$this->show_numero($tdebe-$thaber).'</b>'
+               )
          );
          $pdf_doc->save_table(
-            array(
-                'fontSize' => 9,
-                'cols' => array(
-                    'debe' => array('justification' => 'right'),
-                    'haber' => array('justification' => 'right'),
-                    'saldo' => array('justification' => 'right')
-                ),
-                'width' => 540,
-                'shaded' => 0
-            )
+               array(
+                   'fontSize' => 9,
+                   'cols' => array(
+                       'debe' => array('justification' => 'right'),
+                       'haber' => array('justification' => 'right'),
+                       'saldo' => array('justification' => 'right')
+                   ),
+                   'width' => 540,
+                   'shaded' => 0
+               )
          );
       }
    }
@@ -491,7 +397,9 @@ class inventarios_balances
    private function perdidas_y_ganancias(&$pdf_doc, &$eje, $np=TRUE)
    {
       if($np)
+      {
          $pdf_doc->pdf->ezNewPage();
+      }
       
       $pdf_doc->pdf->ezText($this->empresa->nombre." - Cuenta de pérdidas y ganancias abreviada del ejercicio ".$eje->year().".\n\n", 13);
       
@@ -718,7 +626,9 @@ class inventarios_balances
       $total = 0;
       
       foreach($this->balance_cuenta_a->search_by_codbalance($codbalance) as $bca)
+      {
          $total += $bca->saldo($ejercicio);
+      }
       
       return $total;
    }
@@ -745,7 +655,9 @@ class inventarios_balances
          foreach($nivel0 as $nv0)
          {
             if($np)
+            {
                $pdf_doc->pdf->ezNewPage();
+            }
             else
                $np = TRUE;
             
@@ -868,7 +780,9 @@ class inventarios_balances
          foreach($nivel0 as $nv0)
          {
             if($np)
+            {
                $pdf_doc->pdf->ezNewPage();
+            }
             else
                $np = TRUE;
             
@@ -979,10 +893,14 @@ class inventarios_balances
       $total = 0;
       
       foreach($this->balance_cuenta_a->search_by_codbalance($codbalance) as $bca)
+      {
          $total += $bca->saldo($ejercicio);
+      }
       
       if($naturaleza == 'A')
+      {
          return $this->show_numero(0-$total);
+      }
       else
          return $this->show_numero($total);
    }

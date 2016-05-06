@@ -4,7 +4,9 @@
    function delete_agencia(cod)
    {
       if( confirm("¿Realmente desea eliminar la agencia "+cod+"?") )
+      {
          window.location.href = '{$fsc->url()}&delete='+cod;
+      }
    }
 </script>
 
@@ -26,6 +28,10 @@
                   {/loop}
                </span>
             </h1>
+            <p class="help-block">
+               Aquí puedes dar de alta las agencias que uses para los envíos.
+               Por ejemplo UPS, MRW, SEUR o cualquier otra.
+            </p>
          </div>
       </div>
    </div>

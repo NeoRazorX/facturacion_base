@@ -29,7 +29,7 @@
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-sm-5">
+      <div class="col-sm-5 col-xs-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -44,10 +44,10 @@
             </a>
             {/if}
          </div>
-         
          <div class="btn-group">
             <a id="b_nueva_cuenta" class="btn btn-sm btn-success" href="#">
-               <span class="glyphicon glyphicon-plus"></span> &nbsp; Nueva
+               <span class="glyphicon glyphicon-plus"></span>
+               <span class="hidden-xs">&nbsp; Nueva</span>
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -56,10 +56,10 @@
             {/loop}
          </div>
       </div>
-      <div class="col-sm-5 text-right">
+      <div class="col-sm-5 col-xs-6 text-right">
          <h2 style="margin-top: 0px;">Cuentas</h2>
       </div>
-      <div class="col-sm-2">
+      <div class="col-sm-2 col-xs-12">
          <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
@@ -70,6 +70,9 @@
                </span>
             </div>
          </form>
+         <div class="visible-xs">
+            <br/>
+         </div>
       </div>
    </div>
 </div>
@@ -77,15 +80,17 @@
 {if="$fsc->query==''"}
 <div class="container-fluid" style="margin-bottom: 10px;">
    <div class="row">
-      <div class="col-sm-10">
+      <div class="col-sm-9 col-xs-6">
          <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_epigrafes">
-            <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Grupos y epígrafes
+            <span class="glyphicon glyphicon-chevron-left"></span>
+            <span class="hidden-xs">&nbsp; Grupos y epígrafes</span>
          </a>
          <a class="btn btn-sm btn-default" href="index.php?page=cuentas_especiales">
-            <span class="glyphicon glyphicon-cog"></span> &nbsp; Cuentas especiales
+            <span class="glyphicon glyphicon-cog"></span>
+            <span class="hidden-xs">&nbsp; Cuentas especiales</span>
          </a>
       </div>
-      <div class="col-sm-2 text-right">
+      <div class=" col-sm-3 col-xs-6 text-right">
          <form name="f_filtro_cuentas" action="{$fsc->url()}" method="post" class="form">
             <select name="ejercicio" class="form-control" onchange="document.f_filtro_cuentas.submit()">
             {loop="$fsc->ejercicio->all()"}

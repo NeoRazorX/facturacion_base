@@ -2,19 +2,19 @@
 
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2015-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -33,9 +33,11 @@ require_model('serie.php');
 class base_wizard extends fs_controller
 {
    public $almacen;
+   public $bad_password;
    public $divisa;
    public $ejercicio;
    public $forma_pago;
+   public $irpf;
    public $pais;
    public $serie;
    public $step;
@@ -50,11 +52,26 @@ class base_wizard extends fs_controller
       $this->check_menu();
       
       $this->almacen = new almacen();
+      $this->bad_password = FALSE;
       $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
       $this->forma_pago = new forma_pago();
+      $this->irpf = 0;
       $this->pais = new pais();
       $this->serie = new serie();
+      
+      /// ¿Hay errores? Usa informes > Errores
+      if( $this->get_errors() )
+      {
+         $this->new_message('Puedes solucionar la mayoría de errores en la base de datos ejecutando el '
+                 . '<a href="index.php?page=informe_errores" target="_blank">informe de errores</a> '
+                 . 'sobre las tablas.');
+      }
+      
+      if( $this->user->password == sha1('admin') )
+      {
+         $this->bad_password = TRUE;
+      }
       
       $fsvar = new fs_var();
       $this->step = $fsvar->simple_get('install_step');
@@ -63,7 +80,13 @@ class base_wizard extends fs_controller
          $this->step = 2;
       }
       
-      if( isset($_POST['nombrecorto']) )
+      if(FS_DEMO)
+      {
+         $this->new_advice('En el modo demo no se pueden hacer cambios en esta página.');
+         $this->new_advice('Si te gusta FacturaScripts y quieres saber más, consulta la '
+                 . '<a href="https://www.facturascripts.com/comm3/index.php?page=community_questions">sección preguntas</a>.');
+      }
+      else if( isset($_POST['nombrecorto']) )
       {
          /// guardamos los datos de la empresa
          $this->empresa->nombre = $_POST['nombre'];
@@ -79,7 +102,29 @@ class base_wizard extends fs_controller
          $this->empresa->fax = $_POST['fax'];
          $this->empresa->web = $_POST['web'];
          
-         if( $this->empresa->save() )
+         $continuar = TRUE;
+         if( isset($_POST['npassword']) )
+         {
+            if($_POST['npassword'] != '')
+            {
+               if($_POST['npassword'] == $_POST['npassword2'])
+               {
+                  $this->user->set_password($_POST['npassword']);
+                  $this->user->save();
+               }
+               else
+               {
+                  $this->new_error_msg('Las contraseñas no coinciden.');
+                  $continuar = FALSE;
+               }
+            }
+         }
+         
+         if(!$continuar)
+         {
+            /// no hacemos nada
+         }
+         else if( $this->empresa->save() )
          {
             $this->new_message('Datos guardados correctamente.');
             
@@ -151,6 +196,36 @@ class base_wizard extends fs_controller
          
          if( $this->empresa->save() )
          {
+            /// guardamos las opciones por defecto de almacén y forma de pago
+            $this->save_codalmacen($_POST['codalmacen']);
+            $this->save_codpago($_POST['codpago']);
+            
+            foreach($GLOBALS['config2'] as $i => $value)
+            {
+               if( isset($_POST[$i]) )
+               {
+                  $GLOBALS['config2'][$i] = $_POST[$i];
+               }
+            }
+            
+            $file = fopen('tmp/'.FS_TMP_NAME.'config2.ini', 'w');
+            if($file)
+            {
+               foreach($GLOBALS['config2'] as $i => $value)
+               {
+                  if( is_numeric($value) )
+                  {
+                     fwrite($file, $i." = ".$value.";\n");
+                  }
+                  else
+                  {
+                     fwrite($file, $i." = '".$value."';\n");
+                  }
+               }
+               
+               fclose($file);
+            }
+            
             $this->new_message('Datos guardados correctamente.');
             
             /// avanzamos el asistente
@@ -159,6 +234,22 @@ class base_wizard extends fs_controller
          }
          else
             $this->new_error_msg ('Error al guardar los datos.');
+      }
+      
+      /// cargamos el IRPF
+      foreach($this->serie->all() as $serie)
+      {
+         if($serie->codserie == $this->empresa->codserie)
+         {
+            if( isset($_POST['irpf_serie']) )
+            {
+               $serie->irpf = floatval($_POST['irpf_serie']);
+               $serie->save();
+            }
+            
+            $this->irpf = $serie->irpf;
+            break;
+         }
       }
    }
    
@@ -207,7 +298,8 @@ class base_wizard extends fs_controller
       $zones_array = array();
       
       $timestamp = time();
-      foreach(timezone_identifiers_list() as $key => $zone) {
+      foreach(timezone_identifiers_list() as $key => $zone)
+      {
          date_default_timezone_set($zone);
          $zones_array[$key]['zone'] = $zone;
          $zones_array[$key]['diff_from_GMT'] = 'UTC/GMT ' . date('P', $timestamp);
@@ -222,7 +314,7 @@ class base_wizard extends fs_controller
     */
    public function nf0()
    {
-      return array(0, 1, 2, 3, 4);
+      return array(0, 1, 2, 3, 4, 5);
    }
    
    /**
@@ -246,15 +338,17 @@ class base_wizard extends fs_controller
    {
       $clist = array();
       $include = array(
-          'factura','facturas', 'factura_simplificada','albaran','albaranes','pedido','pedidos',
-          'presupuesto','presupuestos','provincia','apartado','cifnif',
-          'iva','irpf','numero2'
+          'factura','facturas','factura_simplificada','factura_rectificativa',
+          'albaran','albaranes','pedido','pedidos','presupuesto','presupuestos',
+          'provincia','apartado','cifnif','iva','irpf','numero2','serie','series'
       );
       
       foreach($GLOBALS['config2'] as $i => $value)
       {
          if( in_array($i, $include) )
+         {
             $clist[] = array('nombre' => $i, 'valor' => $value);
+         }
       }
       
       return $clist;

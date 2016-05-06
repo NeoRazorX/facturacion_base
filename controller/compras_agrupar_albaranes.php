@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -34,13 +34,15 @@ class compras_agrupar_albaranes extends fs_controller
    public $albaran;
    public $codserie;
    public $desde;
-   private $forma_pago;
    public $hasta;
    public $proveedor;
    public $resultados;
    public $serie;
    public $neto;
    public $total;
+   
+   private $ejercicio;
+   private $forma_pago;
    
    public function __construct()
    {
@@ -51,6 +53,7 @@ class compras_agrupar_albaranes extends fs_controller
    {
       $this->albaran = new albaran_proveedor();
       $this->codserie = NULL;
+      $this->ejercicio = new ejercicio();
       $this->forma_pago = new forma_pago();
       $this->proveedor = FALSE;
       $this->serie = new serie();
@@ -104,8 +107,6 @@ class compras_agrupar_albaranes extends fs_controller
                   $this->total += $alb->total;
                }
             }
-            else
-               $this->new_message("Sin resultados.");
          }
       }
       else
@@ -141,39 +142,17 @@ class compras_agrupar_albaranes extends fs_controller
       else
       {
          foreach($_POST['idalbaran'] as $id)
+         {
             $albaranes[] = $this->albaran->get($id);
+         }
          
-         $codejercicio = NULL;
          foreach($albaranes as $alb)
          {
-            if( !isset($codejercicio) )
-               $codejercicio = $alb->codejercicio;
-            
-            if( !$alb->ptefactura )
+            if(!$alb->ptefactura)
             {
                $this->new_error_msg("El ".FS_ALBARAN." <a href='".$alb->url()."'>".$alb->codigo."</a> ya está facturado.");
                $continuar = FALSE;
                break;
-            }
-            else if($alb->codejercicio != $codejercicio)
-            {
-               $this->new_error_msg("Los ejercicios de los ".FS_ALBARANES." no coinciden.");
-               $continuar = FALSE;
-               break;
-            }
-         }
-         
-         if( isset($codejercicio) )
-         {
-            $ejercicio = new ejercicio();
-            $eje0 = $ejercicio->get($codejercicio);
-            if($eje0)
-            {
-               if( !$eje0->abierto() )
-               {
-                  $this->new_error_msg("El ejercicio está cerrado.");
-                  $continuar = FALSE;
-               }
             }
          }
       }
@@ -183,7 +162,9 @@ class compras_agrupar_albaranes extends fs_controller
          if( isset($_POST['individuales']) )
          {
             foreach($albaranes as $alb)
+            {
                $this->generar_factura( array($alb) );
+            }
          }
          else
             $this->generar_factura($albaranes);
@@ -199,22 +180,11 @@ class compras_agrupar_albaranes extends fs_controller
       $factura->codalmacen = $albaranes[0]->codalmacen;
       $factura->coddivisa = $albaranes[0]->coddivisa;
       $factura->tasaconv = $albaranes[0]->tasaconv;
-      $factura->codejercicio = $albaranes[0]->codejercicio;
       $factura->codpago = $albaranes[0]->codpago;
       $factura->codserie = $albaranes[0]->codserie;
       $factura->irpf = $albaranes[0]->irpf;
       $factura->numproveedor = $albaranes[0]->numproveedor;
       $factura->observaciones = $albaranes[0]->observaciones;
-      
-      /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
-      $formapago = $this->forma_pago->get($factura->codpago);
-      if($formapago)
-      {
-         if($formapago->genrecibos == 'Pagados')
-         {
-            $factura->pagada = TRUE;
-         }
-      }
       
       /// obtenemos los datos actualizados del proveedor
       $proveedor = $this->proveedor->get($albaranes[0]->codproveedor);
@@ -244,14 +214,31 @@ class compras_agrupar_albaranes extends fs_controller
       $factura->totalrecargo = round($factura->totalrecargo, FS_NF0);
       $factura->total = $factura->neto + $factura->totaliva - $factura->totalirpf + $factura->totalrecargo;
       
-      /// asignamos la mejor fecha posible, pero dentro del ejercicio
-      $ejercicio = new ejercicio();
-      $eje0 = $ejercicio->get($factura->codejercicio);
-      $factura->fecha = $eje0->get_best_fecha($factura->fecha);
+      /// asignamos el ejercicio que corresponde a la fecha elegida
+      $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha']);
+      if($eje0)
+      {
+         $factura->codejercicio = $eje0->codejercicio;
+         $factura->set_fecha_hora($_POST['fecha'], $factura->hora);
+      }
+      
+      /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
+      $formapago = $this->forma_pago->get($factura->codpago);
+      if($formapago)
+      {
+         if($formapago->genrecibos == 'Pagados')
+         {
+            $factura->pagada = TRUE;
+         }
+      }
       
       $regularizacion = new regularizacion_iva();
       
-      if( !$eje0->abierto() )
+      if( !$eje0 )
+      {
+         $this->new_error_msg("Ejercicio no encontrado o está cerrado.");
+      }
+      else if( !$eje0->abierto() )
       {
          $this->new_error_msg('El ejercicio '.$eje0->codejercicio.' está cerrado.');
       }
@@ -261,7 +248,7 @@ class compras_agrupar_albaranes extends fs_controller
           * comprobamos que la fecha de la factura no esté dentro de un periodo de
           * IVA regularizado.
           */
-         $this->new_error_msg('El IVA de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.');
+         $this->new_error_msg('El '.FS_IVA.' de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.');
       }
       else if( $factura->save() )
       {
@@ -401,6 +388,7 @@ class compras_agrupar_albaranes extends fs_controller
                 'codproveedor' => $alb->codproveedor,
                 'nombre' => $alb->nombre,
                 'codserie' => $alb->codserie,
+                'desde' => $alb->fecha,
                 'num' => 1
             );
          }

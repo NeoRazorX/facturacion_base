@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -137,7 +137,20 @@ class contabilidad_asiento extends fs_controller
       $eje0 = $this->ejercicio->get($this->asiento->codejercicio);
       if($eje0)
       {
-         $this->asiento->fecha = $eje0->get_best_fecha($_POST['fecha']);
+         if( strtotime($eje0->fechainicio) > strtotime($_POST['fecha']) )
+         {
+            $this->new_error_msg('La fecha '.$_POST['fecha'].' está fuera del'
+                    . ' rango del ejercicio '.$eje0->codejercicio.'.');
+         }
+         else if( strtotime($eje0->fechafin) < strtotime($_POST['fecha']) )
+         {
+            $this->new_error_msg('La fecha '.$_POST['fecha'].' está fuera del'
+                    . ' rango del ejercicio '.$eje0->codejercicio.'.');
+         }
+         else
+         {
+            $this->asiento->fecha = $_POST['fecha'];
+         }
       }
       else
          $this->new_error_msg('No se encuentra el ejercicio asociado al asiento.');
@@ -222,6 +235,11 @@ class contabilidad_asiento extends fs_controller
                      $partida->documento = $this->asiento->documento;
                      $partida->tipodocumento = $this->asiento->tipodocumento;
                      
+                     $partida->idcontrapartida = NULL;
+                     $partida->codcontrapartida = NULL;
+                     $partida->cifnif = NULL;
+                     $partida->iva = 0;
+                     $partida->baseimponible = 0;
                      if( isset($_POST['codcontrapartida_'.$i]) )
                      {
                         if( $_POST['codcontrapartida_'.$i] != '')
@@ -282,6 +300,11 @@ class contabilidad_asiento extends fs_controller
          {
             $lineas[$i]->desc_subcuenta = $subcuenta->descripcion;
             $lineas[$i]->saldo = $subcuenta->saldo;
+         }
+         else
+         {
+            $lineas[$i]->desc_subcuenta = '';
+            $lineas[$i]->saldo = 0;
          }
       }
       

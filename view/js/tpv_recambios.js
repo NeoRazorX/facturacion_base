@@ -1,18 +1,18 @@
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -126,6 +126,14 @@ function recalcular()
          total_iva += l_neto * l_iva/100;
          total_irpf += l_neto * l_irpf/100;
          total_recargo += l_neto * l_recargo/100;
+         
+         /// adaptamos el alto del textarea al texto
+         var txt = $("textarea[name='desc_"+i+"']").val();
+         txt = txt.split(/\r*\n/);
+         if(txt.length > 1)
+         {
+            $("textarea[name='desc_"+i+"']").prop('rows', txt.length);
+         }
       }
    }
    
@@ -186,18 +194,24 @@ function ajustar_total()
          
          l_irpf = irpf;
          if(l_iva <= 0)
+         {
             l_irpf = 0;
+         }
          
          l_total = parseFloat( $("#total_"+i).val() );
          if( isNaN(l_total) )
+         {
             l_total = 0;
+         }
          
          if( l_total <= l_pvp*l_uds + (l_pvp*l_uds*(l_iva-l_irpf+l_recargo)/100) )
          {
             l_neto = 100*l_total/(100+l_iva-l_irpf+l_recargo);
             l_dto = 100 - 100*l_neto/(l_pvp*l_uds);
             if( isNaN(l_dto) )
+            {
                l_dto = 0;
+            }
          }
          else
          {
@@ -264,7 +278,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
          <td><input type=\"text\" class=\"form-control text-right\" id=\"pvp_"+numlineas+"\" name=\"pvp_"+numlineas+"\" value=\""+pvp+
             "\" onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
          <td><input type=\"text\" id=\"dto_"+numlineas+"\" name=\"dto_"+numlineas+"\" value=\""+dto+
-            "\" class=\"form-control text-right\" onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+            "\" class=\"form-control text-right\" onkeyup=\"recalcular()\" onchange=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
          <td><input type=\"text\" class=\"form-control text-right\" id=\"neto_"+numlineas+"\" name=\"neto_"+numlineas+
             "\" readonly/></td>\n\
          <td class=\"text-right\"><div class=\"form-control\">"+iva+"</div></td>\n\
@@ -276,6 +290,21 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
    $("#modal_articulos").modal('hide');
    
    $("#cantidad_"+(numlineas)).focus();
+}
+
+function add_articulo_atributos(ref,desc,pvp,dto,codimpuesto,cantidad)
+{
+   $.ajax({
+      type: 'POST',
+      url: 'index.php?page=tpv_recambios',
+      dataType: 'html',
+      data: "referencia4combi="+ref+"&desc="+desc+"&pvp="+pvp+"&dto="+dto
+              +"&codimpuesto="+codimpuesto+"&cantidad="+cantidad,
+      success: function(datos) {
+         $("#nav_articulos").hide();
+         $("#search_results").html(datos);
+      }
+   });
 }
 
 function buscar_articulos()
@@ -294,11 +323,23 @@ function buscar_articulos()
          var items = [];
          var insertar = false;
          $.each(json, function(key, val) {
-            var descripcion = Base64.encode(val.descripcion);
             var stock = val.stockalm;
             if(val.stockalm != val.stockfis)
             {
                stock += ' ('+val.stockfis+')';
+            }
+            
+            var descripcion = Base64.encode(val.descripcion);
+            var descripcion_visible = val.descripcion;
+            if(val.codfamilia)
+            {
+               descripcion_visible += ' <span class="label label-default" title="Familia: '+val.codfamilia+'">'
+                       +val.codfamilia+'</span>';
+            }
+            if(val.codfabricante)
+            {
+               descripcion_visible += ' <span class="label label-default" title="Fabricante: '+val.codfabricante+'">'
+                       +val.codfabricante+'</span>';
             }
             
             var tr_aux = '<tr>';
@@ -350,18 +391,22 @@ function buscar_articulos()
                
                items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
                   <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
-                  &nbsp; <a href=\"#\" onclick=\""+funcion+"\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
-                  <td class=\"text-right\"><a href=\"#\" onclick=\""+funcion+"\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
-                  <td class=\"text-right\"><a href=\"#\" onclick=\""+funcion+"\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
+                  &nbsp; <a href=\"#\" onclick=\""+funcion+"\">"+val.referencia+'</a> '+descripcion_visible+"</td>\n\
+                  <td class=\"text-right\"><a href=\"#\" onclick=\""+funcion+"\" title=\"actualizado el "+val.factualizado
+                       +"\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
+                  <td class=\"text-right\"><a href=\"#\" onclick=\""+funcion+"\" title=\"actualizado el "+val.factualizado
+                       +"\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
                   <td class=\"text-right\">"+stock+"</td></tr>");
             }
             else if(val.sevende)
             {
                items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
                   <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
-                  &nbsp; <a href=\"#\" onclick=\"alert('Sin stock.')\">"+val.referencia+'</a> '+val.descripcion+"</td>\n\
-                  <td class=\"text-right\"><a href=\"#\" onclick=\"alert('Sin stock.')\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
-                  <td class=\"text-right\"><a href=\"#\" onclick=\"alert('Sin stock.')\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
+                  &nbsp; <a href=\"#\" onclick=\"alert('Sin stock.')\">"+val.referencia+'</a> '+descripcion_visible+"</td>\n\
+                  <td class=\"text-right\"><a href=\"#\" onclick=\"alert('Sin stock.')\" title=\"actualizado el "+val.factualizado
+                       +"\">"+show_precio(val.pvp*(100-val.dtopor)/100)+"</a></td>\n\
+                  <td class=\"text-right\"><a href=\"#\" onclick=\"alert('Sin stock.')\" title=\"actualizado el "+val.factualizado
+                       +"\">"+show_pvp_iva(val.pvp*(100-val.dtopor)/100,val.codimpuesto)+"</a></td>\n\
                   <td class=\"text-right\">"+stock+"</td></tr>");
             }
             
@@ -406,6 +451,11 @@ function show_pvp_iva(pvp,codimpuesto)
    return show_precio(pvp + pvp*iva/100);
 }
 
+function sin_stock()
+{
+   alert('No hay stock.');
+}
+
 $(document).ready(function() {
    $("#b_reticket").click(function() {
       window.location.href = tpv_url+"&reticket="+prompt('Introduce el código del ticket (o déjalo en blanco para re-imprimir el último):');
@@ -413,7 +463,9 @@ $(document).ready(function() {
    
    $("#b_cerrar_caja").click(function() {
       if( confirm("¿Realmente deseas cerrar la caja?") )
+      {
          window.location.href = tpv_url+"&cerrar_caja=TRUE";
+      }
    });
    
    $("#i_new_line").click(function() {

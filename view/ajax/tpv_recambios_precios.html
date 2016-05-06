@@ -13,6 +13,13 @@
 
 {$equivalentes=$fsc->articulo->get_equivalentes()}
 
+{$function='add_articulo'}
+{if="$fsc->articulo->stockfis <= 0 AND !$fsc->articulo->controlstock"}
+{$function='sin_stock'}
+{elseif="$fsc->articulo->tipo"}
+{$function='add_articulo_'.$fsc->articulo->tipo}
+{/if}
+
 <div role="tabpanel">
    <ul class="nav nav-tabs" role="tablist">
       <li role="presentation" class="active">
@@ -37,19 +44,40 @@
                <thead>
                   <tr>
                      <th class="text-left">Referencia</th>
-                     <th class="text-left">Descripción</th>
-                     <th class="text-left">Observaciones</th>
+                     <th class="text-left">Familia</th>
+                     <th class="text-left">Fabricante</th>
                      <th class="text-right">Stock</th>
                   </tr>
                </thead>
                <tr>
                   <td><a target="_blank" href="{$fsc->articulo->url()}">{$fsc->articulo->referencia}</a></td>
-                  <td>{$fsc->articulo->descripcion}</td>
-                  <td>{$fsc->articulo->observaciones}</td>
+                  <td>
+                     {loop="$fsc->familia->all()"}
+                        {if="$value->codfamilia==$fsc->articulo->codfamilia"}
+                        <a href="{$value->url()}" target="_blank">{$value->descripcion}</a>
+                        {/if}
+                     {else}
+                     -
+                     {/loop}
+                  </td>
+                  <td>
+                     {loop="$fsc->fabricante->all()"}
+                        {if="$value->codfabricante==$fsc->articulo->codfabricante"}
+                        <a href="{$value->url()}" target="_blank">{$value->nombre}</a>
+                        {/if}
+                     {else}
+                     -
+                     {/loop}
+                  </td>
+                  {if="$fsc->articulo->stockfis<$fsc->articulo->stockmin"}
+                  <td class="text-right danger">{$fsc->articulo->stockfis}</td>
+                  {else}
                   <td class="text-right">{$fsc->articulo->stockfis}</td>
+                  {/if}
                </tr>
             </table>
          </div>
+         <p class="help-block" style="margin: 5px;">{$fsc->articulo->descripcion}</p>
          <div class="table-responsive">
             <table class="table table-hover">
                <thead>
@@ -66,12 +94,12 @@
                   <td>-</td>
                   <td class="text-right">{$fsc->show_precio($fsc->articulo->pvp)}</td>
                   <td class="text-right">
-                     <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{$fsc->articulo->get_descripcion_64()}','{$fsc->articulo->pvp}','0','{$fsc->articulo->codimpuesto}','1')">
+                     <a href="#" onclick="{$function}('{$fsc->articulo->referencia}','{function="base64_encode($fsc->articulo->descripcion)"}','{$fsc->articulo->pvp}','0','{$fsc->articulo->codimpuesto}','1')" title="actualizado el {$fsc->articulo->factualizado}">
                         {$fsc->show_precio($fsc->articulo->pvp_iva())}
                      </a>
                   </td>
                   <td class="text-right">
-                     <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{$fsc->articulo->get_descripcion_64()}','{$fsc->articulo->pvp}','0','{$fsc->articulo->codimpuesto}','1')">
+                     <a href="#" onclick="{$function}('{$fsc->articulo->referencia}','{function="base64_encode($fsc->articulo->descripcion)"}','{$fsc->articulo->pvp}','0','{$fsc->articulo->codimpuesto}','1')">
                         <span class="glyphicon glyphicon-shopping-cart" title="añadir"></span>
                      </a>
                   </td>
@@ -82,12 +110,12 @@
                   <td>{$value->tarifa_diff}</td>
                   <td class="text-right">{$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100)}</td>
                   <td class="text-right">
-                     <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{$fsc->articulo->get_descripcion_64()}','{$value->pvp}','{$value->dtopor}','{$fsc->articulo->codimpuesto}','1')">
+                     <a href="#" onclick="{$function}('{$fsc->articulo->referencia}','{function="base64_encode($fsc->articulo->descripcion)"}','{$value->pvp}','{$value->dtopor}','{$fsc->articulo->codimpuesto}','1')">
                         {$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100*(100 + $value->get_iva())/100)}
                      </a>
                   </td>
                   <td class="text-right">
-                     <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{$fsc->articulo->get_descripcion_64()}','{$value->pvp}','{$value->dtopor}','{$fsc->articulo->codimpuesto}','1')">
+                     <a href="#" onclick="{$function}('{$fsc->articulo->referencia}','{function="base64_encode($fsc->articulo->descripcion)"}','{$value->pvp}','{$value->dtopor}','{$fsc->articulo->codimpuesto}','1')">
                         <span class="glyphicon glyphicon-shopping-cart" title="añadir"></span>
                      </a>
                   </td>
@@ -100,6 +128,7 @@
             <img src="{$fsc->articulo->imagen_url()}" alt="{$fsc->articulo->referencia}"/>
          </div>
          {/if}
+         <p class="help-block" style="margin: 5px;">{$fsc->articulo->observaciones}</p>
       </div>
       {if="$equivalentes"}
       <div role="tabpanel" class="tab-pane" id="detalle_equivalentes">
@@ -114,16 +143,18 @@
                   </tr>
                </thead>
                {loop="$equivalentes"}
-               <tr>
+               <tr{if="$value->bloqueado"} class="danger"{elseif="$value->stockfis<=$value->stockmin"} class="warning"{/if}>
                   <td>
-                     <a href="#" onclick="add_articulo('{$value->referencia}','{$value->get_descripcion_64()}','{$value->pvp}','0','{$value->codimpuesto}','1')">
+                     <a href="#" onclick="get_precios('{$value->referencia}')" title="más detalles"><span class="glyphicon glyphicon-eye-open"></span></a>
+                     &nbsp;
+                     <a href="#" onclick="{$function}('{$value->referencia}','{function="base64_encode($fsc->articulo->descripcion)"}','{$value->pvp}','0','{$value->codimpuesto}','1')">
                         {$value->referencia}
                      </a>
                      {$value->descripcion}
                   </td>
                   <td class="text-right">{$fsc->show_precio($value->pvp)}</td>
                   <td class="text-right">
-                     <a href="#" onclick="add_articulo('{$fsc->articulo->referencia}','{$fsc->articulo->get_descripcion_64()}','{$value->pvp}','0','{$fsc->articulo->codimpuesto}','1')">
+                     <a href="#" onclick="{$function}('{$fsc->articulo->referencia}','{function="base64_encode($fsc->articulo->descripcion)"}','{$value->pvp}','0','{$fsc->articulo->codimpuesto}','1')" title="actualizado el {$value->factualizado}">
                         {$fsc->show_precio($value->pvp_iva())}
                      </a>
                   </td>
@@ -131,7 +162,7 @@
                </tr>
                {else}
                <tr class="warning">
-                  <td colspan="4" class="text-center">No hay artículos equivalentes.</td>
+                  <td colspan="4">No hay artículos equivalentes.</td>
                </tr>
                {/loop}
             </table>

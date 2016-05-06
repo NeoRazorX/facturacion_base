@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -28,13 +28,14 @@ require_model('subcuenta.php');
 class contabilidad_regusiva extends fs_controller
 {
    public $allow_delete;
-   public $fecha_desde;
-   public $fecha_hasta;
    public $aux_regiva;
-   public $periodo;
-   public $regiva;
    public $factura_cli;
    public $factura_pro;
+   public $fecha_desde;
+   public $fecha_hasta;
+   public $periodo;
+   public $regiva;
+   public $s_regiva;
    
    public function __construct()
    {
@@ -90,9 +91,14 @@ class contabilidad_regusiva extends fs_controller
             break;
       }
       
-      if( isset($_POST['idregiva']) )
+      $this->s_regiva = FALSE;
+      if( isset($_REQUEST['id']) )
       {
-         $this->full_regularizacion();
+         $this->s_regiva = $this->regiva->get($_REQUEST['id']);
+         if($this->s_regiva)
+         {
+            $this->page->title = 'Regularización '.$this->s_regiva->periodo.'@'.$this->s_regiva->codejercicio;
+         }
       }
       else if( isset($_POST['proceso']) )
       {
@@ -127,12 +133,6 @@ class contabilidad_regusiva extends fs_controller
       }
    }
    
-   private function full_regularizacion()
-   {
-      $this->template = 'ajax/contabilidad_regusiva_extra';
-      $this->regiva = $this->regiva->get($_POST['idregiva']);
-   }
-   
    private function completar_regiva()
    {
       $this->template = 'ajax/contabilidad_regusiva';
@@ -150,43 +150,35 @@ class contabilidad_regusiva extends fs_controller
          $saldo = 0;
          
          /// obtenemos el IVA soportado
-         $scta_ivasop = $subcuenta->get_cuentaesp('IVASOP', $eje0->codejercicio);
-         if($scta_ivasop)
+         foreach($subcuenta->all_from_cuentaesp('IVASOP', $eje0->codejercicio) as $scta_ivasop)
          {
             $tot_sop = $partida->totales_from_subcuenta_fechas($scta_ivasop->idsubcuenta, $_POST['desde'], $_POST['hasta']);
-            
-            /// invertimos el debe y el haber
-            $this->aux_regiva[] = array(
-                'subcuenta' => $scta_ivasop->codsubcuenta,
-                'debe' => $tot_sop['haber'],
-                'haber' => $tot_sop['debe']
-            );
-            $saldo += $tot_sop['haber'] - $tot_sop['debe'];
-         }
-         else
-         {
-            $this->new_error_msg('Subcuenta de IVA soportado no encontrada.');
-            $continuar = FALSE;
+            if($tot_sop['saldo'])
+            {
+               /// invertimos el debe y el haber
+               $this->aux_regiva[] = array(
+                   'subcuenta' => $scta_ivasop,
+                   'debe' => $tot_sop['haber'],
+                   'haber' => $tot_sop['debe']
+               );
+               $saldo += $tot_sop['haber'] - $tot_sop['debe'];
+            }
          }
          
          /// obtenemos el IVA repercutido
-         $scta_ivarep = $subcuenta->get_cuentaesp('IVAREP', $eje0->codejercicio);
-         if($scta_ivarep)
+         foreach($subcuenta->all_from_cuentaesp('IVAREP', $eje0->codejercicio) as $scta_ivarep)
          {
             $tot_rep = $partida->totales_from_subcuenta_fechas($scta_ivarep->idsubcuenta, $_POST['desde'], $_POST['hasta']);
-            
-            /// invertimos el debe y el haber
-            $this->aux_regiva[] = array(
-                'subcuenta' => $scta_ivarep->codsubcuenta,
-                'debe' => $tot_rep['haber'],
-                'haber' => $tot_rep['debe']
-            );
-            $saldo += $tot_rep['haber'] - $tot_rep['debe'];
-         }
-         else
-         {
-            $this->new_error_msg('Subcuenta de IVA repercutido no encontrada.');
-            $continuar = FALSE;
+            if($tot_rep['saldo'])
+            {
+               /// invertimos el debe y el haber
+               $this->aux_regiva[] = array(
+                   'subcuenta' => $scta_ivarep,
+                   'debe' => $tot_rep['haber'],
+                   'haber' => $tot_rep['debe']
+               );
+               $saldo += $tot_rep['haber'] - $tot_rep['debe'];
+            }
          }
          
          if($continuar)
@@ -197,7 +189,7 @@ class contabilidad_regusiva extends fs_controller
                if($scta_ivaacr)
                {
                   $this->aux_regiva[] = array(
-                      'subcuenta' => $scta_ivaacr->codsubcuenta,
+                      'subcuenta' => $scta_ivaacr,
                       'debe' => 0,
                       'haber' => $saldo
                   );
@@ -211,7 +203,7 @@ class contabilidad_regusiva extends fs_controller
                if($scta_ivadeu)
                {
                   $this->aux_regiva[] = array(
-                      'subcuenta' => $scta_ivadeu->codsubcuenta,
+                      'subcuenta' => $scta_ivadeu,
                       'debe' => abs($saldo),
                       'haber' => 0
                   );
@@ -244,71 +236,65 @@ class contabilidad_regusiva extends fs_controller
          $asiento->concepto = 'REGULARIZACIÓN IVA '.$_POST['periodo'];
          $asiento->fecha = $_POST['hasta'];
          $asiento->editable = FALSE;
-         if( !$asiento->save() )
+         if( $asiento->save() )
+         {
+            /// obtenemos el IVA soportado
+            foreach($subcuenta->all_from_cuentaesp('IVASOP', $eje0->codejercicio) as $scta_ivasop)
+            {
+               $par0 = new partida();
+               $par0->idasiento = $asiento->idasiento;
+               $par0->concepto = $asiento->concepto;
+               $par0->coddivisa = $scta_ivasop->coddivisa;
+               $par0->tasaconv = $scta_ivasop->tasaconv();
+               $par0->codsubcuenta = $scta_ivasop->codsubcuenta;
+               $par0->idsubcuenta = $scta_ivasop->idsubcuenta;
+               
+               $tot_sop = $par0->totales_from_subcuenta_fechas($scta_ivasop->idsubcuenta, $_POST['desde'], $_POST['hasta']);
+               if($tot_sop['saldo'])
+               {
+                  /// invertimos el debe y el haber
+                  $par0->debe = $tot_sop['haber'];
+                  $par0->haber = $tot_sop['debe'];
+                  $saldo += $tot_sop['haber'] - $tot_sop['debe'];
+                  
+                  if( !$par0->save() )
+                  {
+                     $this->new_error_msg('Error al guardar la partida de la subcuenta de IVA soportado.');
+                     $continuar = FALSE;
+                  }
+               }
+            }
+            
+            /// obtenemos el IVA repercutido
+            foreach($subcuenta->all_from_cuentaesp('IVAREP', $eje0->codejercicio) as $scta_ivarep)
+            {
+               $par1 = new partida();
+               $par1->idasiento = $asiento->idasiento;
+               $par1->concepto = $asiento->concepto;
+               $par1->coddivisa = $scta_ivarep->coddivisa;
+               $par1->tasaconv = $scta_ivarep->tasaconv();
+               $par1->codsubcuenta = $scta_ivarep->codsubcuenta;
+               $par1->idsubcuenta = $scta_ivarep->idsubcuenta;
+               
+               $tot_rep = $par1->totales_from_subcuenta_fechas($scta_ivarep->idsubcuenta, $_POST['desde'], $_POST['hasta']);
+               if($tot_rep['saldo'])
+               {
+                  /// invertimos el debe y el haber
+                  $par1->debe = $tot_rep['haber'];
+                  $par1->haber = $tot_rep['debe'];
+                  $saldo += $tot_rep['haber'] - $tot_rep['debe'];
+                  
+                  if( !$par1->save() )
+                  {
+                     $this->new_error_msg('Error al guardar la partida de la subcuenta de IVA repercutido.');
+                     $continuar = FALSE;
+                  }
+               }
+            }
+         }
+         else
          {
             $this->new_error_msg('Imposible guardar el asiento.');
-            $continuar = FALSE;
-         }
-         
-         /// obtenemos el IVA soportado
-         $scta_ivasop = $subcuenta->get_cuentaesp('IVASOP', $eje0->codejercicio);
-         if($scta_ivasop)
-         {
-            $par0 = new partida();
-            $par0->idasiento = $asiento->idasiento;
-            $par0->concepto = $asiento->concepto;
-            $par0->coddivisa = $scta_ivasop->coddivisa;
-            $par0->tasaconv = $scta_ivasop->tasaconv();
-            $par0->codsubcuenta = $scta_ivasop->codsubcuenta;
-            $par0->idsubcuenta = $scta_ivasop->idsubcuenta;
-            
-            $tot_sop = $par0->totales_from_subcuenta_fechas($scta_ivasop->idsubcuenta, $_POST['desde'], $_POST['hasta']);
-            
-            /// invertimos el debe y el haber
-            $par0->debe = $tot_sop['haber'];
-            $par0->haber = $tot_sop['debe'];
-            $saldo += $tot_sop['haber'] - $tot_sop['debe'];
-            
-            if( !$par0->save() )
-            {
-               $this->new_error_msg('Error al guardar la partida de la subcuenta de IVA soportado.');
-               $continuar = FALSE;
-            }
-         }
-         else
-         {
-            $this->new_error_msg('Subcuenta de IVA soportado no encontrada.');
-            $continuar = FALSE;
-         }
-         
-         /// obtenemos el IVA repercutido
-         $scta_ivarep = $subcuenta->get_cuentaesp('IVAREP', $eje0->codejercicio);
-         if($scta_ivarep)
-         {
-            $par1 = new partida();
-            $par1->idasiento = $asiento->idasiento;
-            $par1->concepto = $asiento->concepto;
-            $par1->coddivisa = $scta_ivarep->coddivisa;
-            $par1->tasaconv = $scta_ivarep->tasaconv();
-            $par1->codsubcuenta = $scta_ivarep->codsubcuenta;
-            $par1->idsubcuenta = $scta_ivarep->idsubcuenta;
-            
-            $tot_rep = $par1->totales_from_subcuenta_fechas($scta_ivarep->idsubcuenta, $_POST['desde'], $_POST['hasta']);
-            
-            /// invertimos el debe y el haber
-            $par1->debe = $tot_rep['haber'];
-            $par1->haber = $tot_rep['debe'];
-            $saldo += $tot_rep['haber'] - $tot_rep['debe'];
-            
-            if( !$par1->save() )
-            {
-               $this->new_error_msg('Error al guardar la partida de la subcuenta de IVA repercutido.');
-               $continuar = FALSE;
-            }
-         }
-         else
-         {
-            $this->new_error_msg('Subcuenta de IVA repercutido no encontrada.');
             $continuar = FALSE;
          }
          
@@ -376,8 +362,8 @@ class contabilidad_regusiva extends fs_controller
             
             if( $this->regiva->save() )
             {
-               $this->new_message('<a href="#" onclick="full_regiva(\''.$this->regiva->idregiva.'\')">Regularización</a>
-                  guardada correctamente.');
+               $this->new_message('<a href="'.$this->regiva->url().'">Regularización</a> guardada correctamente.');
+               header('Location: '.$this->regiva->url());
             }
             else if( $asiento->delete() )
             {
@@ -386,8 +372,174 @@ class contabilidad_regusiva extends fs_controller
             else
                $this->new_error_msg('Error al guardar la regularización. No se ha podido eliminar el asiento.');
          }
+         else
+         {
+            $asiento->delete();
+         }
       }
       else
          $this->new_error_msg('El ejercicio está cerrado.');
+   }
+   
+   public function desglosar_iva_compras()
+   {
+      $desglose = array();
+      
+      if( $this->db->table_exists('lineasivafactprov') )
+      {
+         $sql = "select iva,recargo,sum(neto) as neto,sum(totaliva) as totaliva,sum(totalrecargo) as totalrecargo"
+                 . " from lineasivafactprov where idfactura in (select idfactura from facturasprov"
+                 . " where fecha >= ".$this->empresa->var2str($this->s_regiva->fechainicio)
+                 . " and fecha <= ".$this->empresa->var2str($this->s_regiva->fechafin)
+                 . " and idasiento < ".$this->empresa->var2str($this->s_regiva->idasiento).")"
+                 . " group by iva,recargo order by iva asc, recargo asc;";
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $desglose[] = array(
+                   'iva' => floatval($d['iva']),
+                   'recargo' => floatval($d['recargo']),
+                   'neto' => floatval($d['neto']),
+                   'totaliva' => floatval($d['totaliva']),
+                   'totalrecargo' => floatval($d['totalrecargo']),
+               );
+            }
+         }
+      }
+      
+      return $desglose;
+   }
+   
+   public function desglosar_iva_ventas()
+   {
+      $desglose = array();
+      
+      if( $this->db->table_exists('lineasivafactcli') )
+      {
+         $sql = "select iva,recargo,sum(neto) as neto,sum(totaliva) as totaliva,sum(totalrecargo) as totalrecargo"
+                 . " from lineasivafactcli where idfactura in (select idfactura from facturascli"
+                 . " where fecha >= ".$this->empresa->var2str($this->s_regiva->fechainicio)
+                 . " and fecha <= ".$this->empresa->var2str($this->s_regiva->fechafin)
+                 . " and idasiento < ".$this->empresa->var2str($this->s_regiva->idasiento).")"
+                 . " group by iva,recargo order by iva asc, recargo asc;";
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $desglose[] = array(
+                   'iva' => floatval($d['iva']),
+                   'recargo' => floatval($d['recargo']),
+                   'neto' => floatval($d['neto']),
+                   'totaliva' => floatval($d['totaliva']),
+                   'totalrecargo' => floatval($d['totalrecargo']),
+               );
+            }
+         }
+      }
+      
+      return $desglose;
+   }
+   
+   public function facturas_compra_posteriores()
+   {
+      $facturas = array();
+      
+      $sql = "SELECT * FROM facturasprov WHERE fecha >= ".$this->empresa->var2str($this->s_regiva->fechainicio)
+              . " and fecha <= ".$this->empresa->var2str($this->s_regiva->fechafin)
+              . " and idasiento > ".$this->empresa->var2str($this->s_regiva->idasiento)
+              . " ORDER BY fecha ASC;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $facturas[] = new factura_proveedor($d);
+         }
+      }
+      
+      return $facturas;
+   }
+   
+   public function facturas_venta_posteriores()
+   {
+      $facturas = array();
+      
+      $sql = "SELECT * FROM facturascli WHERE fecha >= ".$this->empresa->var2str($this->s_regiva->fechainicio)
+              . " and fecha <= ".$this->empresa->var2str($this->s_regiva->fechafin)
+              . " and idasiento > ".$this->empresa->var2str($this->s_regiva->idasiento)
+              . " ORDER BY fecha ASC;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $facturas[] = new factura_cliente($d);
+         }
+      }
+      
+      return $facturas;
+   }
+   
+   public function partidas_problematicas_compras()
+   {
+      $partidas = array();
+      
+      $subcuenta = new subcuenta();
+      $ejercicio = new ejercicio();
+      $eje0 = $ejercicio->get($this->s_regiva->codejercicio);
+      
+      foreach($subcuenta->all_from_cuentaesp('IVASOP', $eje0->codejercicio) as $scta_ivasop)
+      {
+         $sql = "select * from co_partidas where codsubcuenta = ".$eje0->var2str($scta_ivasop->codsubcuenta)
+                 . " and idasiento in (select idasiento from co_asientos"
+                 . " where fecha >= ".$this->empresa->var2str($this->s_regiva->fechainicio)
+                 . " and fecha <= ".$this->empresa->var2str($this->s_regiva->fechafin).")"
+                 . " and idasiento != ".$this->empresa->var2str($this->s_regiva->idasiento)
+                 . " and idasiento not in (select idasiento from facturasprov where idasiento is not null);";
+         
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $partidas[] = new partida($d);
+            }
+         }
+      }
+      
+      return $partidas;
+   }
+   
+   public function partidas_problematicas_ventas()
+   {
+      $partidas = array();
+      
+      $subcuenta = new subcuenta();
+      $ejercicio = new ejercicio();
+      $eje0 = $ejercicio->get($this->s_regiva->codejercicio);
+      
+      foreach($subcuenta->all_from_cuentaesp('IVAREP', $eje0->codejercicio) as $scta_ivasop)
+      {
+         $sql = "select * from co_partidas where codsubcuenta = ".$eje0->var2str($scta_ivasop->codsubcuenta)
+                 . " and idasiento in (select idasiento from co_asientos"
+                 . " where fecha >= ".$this->empresa->var2str($this->s_regiva->fechainicio)
+                 . " and fecha <= ".$this->empresa->var2str($this->s_regiva->fechafin).")"
+                 . " and idasiento != ".$this->empresa->var2str($this->s_regiva->idasiento)
+                 . " and idasiento not in (select idasiento from facturascli where idasiento is not null);";
+         
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $partidas[] = new partida($d);
+            }
+         }
+      }
+      
+      return $partidas;
    }
 }

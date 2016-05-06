@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2012-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2012-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -122,6 +122,12 @@ class articulo extends fs_model
    public $equivalencia;
    
    /**
+    * Partnumber del producto. Máximo 38 caracteres.
+    * @var type 
+    */
+   public $partnumber;
+   
+   /**
     * Stock físico. La suma de las cantidades de esta referencia que en la tabla stocks.
     * @var type 
     */
@@ -166,6 +172,12 @@ class articulo extends fs_model
    public $codsubcuentairpfcom;
    
    /**
+    * Control de trazabilidad.
+    * @var type 
+    */
+   public $trazabilidad;
+   
+   /**
     * % IVA del impuesto asignado.
     * @var type 
     */
@@ -182,7 +194,7 @@ class articulo extends fs_model
 
    public function __construct($a=FALSE)
    {
-      parent::__construct('articulos', 'plugins/facturacion_base/');
+      parent::__construct('articulos');
       
       if( !isset(self::$impuestos) )
       {
@@ -194,7 +206,7 @@ class articulo extends fs_model
          self::$column_list = 'referencia,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,'.
                  'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,'.
                  'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,'.
-                 'codsubcuentacom,codsubcuentairpfcom';
+                 'partnumber,codsubcuentacom,codsubcuentairpfcom,trazabilidad';
       }
       
       if($a)
@@ -225,10 +237,12 @@ class articulo extends fs_model
          $this->sevende = $this->str2bool($a['sevende']);
          $this->publico = $this->str2bool($a['publico']);
          $this->equivalencia = $a['equivalencia'];
+         $this->partnumber = $a['partnumber'];
          $this->codbarras = $a['codbarras'];
          $this->observaciones = $this->no_html($a['observaciones']);
          $this->codsubcuentacom = $a['codsubcuentacom'];
          $this->codsubcuentairpfcom = $a['codsubcuentairpfcom'];
+         $this->trazabilidad = $this->str2bool($a['trazabilidad']);
          
          $this->imagen = NULL;
          if( isset($a['imagen']) )
@@ -254,10 +268,10 @@ class articulo extends fs_model
                /// eneboo, no hacemos nada
                $this->imagen = $a['imagen'];
             }
-            else if( file_exists('tmp/articulos/'.$this->referencia.'.png') )
+            else if( file_exists('tmp/articulos/'.$this->image_ref().'.png') )
             {
                /// si está el archivo, lo movemos
-               if( !rename('tmp/articulos/'.$this->referencia.'.png', 'images/articulos/'.$this->referencia.'-1.png') )
+               if( !rename('tmp/articulos/'.$this->image_ref().'.png', 'images/articulos/'.$this->image_ref().'-1.png') )
                {
                   $this->new_error_msg('Error al mover la imagen del artículo.');
                }
@@ -265,7 +279,7 @@ class articulo extends fs_model
             else
             {
                /// sino está el archivo, intentamos extraer los datos de la base de datos
-               $f = @fopen('images/articulos/'.$this->referencia.'-1.png', 'a');
+               $f = @fopen('images/articulos/'.$this->image_ref().'-1.png', 'a');
                if($f)
                {
                   fwrite( $f, $this->str2bin($a['imagen']) );
@@ -302,10 +316,12 @@ class articulo extends fs_model
          $this->sevende = TRUE;
          $this->publico = FALSE;
          $this->equivalencia = NULL;
+         $this->partnumber = NULL;
          $this->codbarras = '';
          $this->observaciones = '';
          $this->codsubcuentacom = NULL;
          $this->codsubcuentairpfcom = NULL;
+         $this->trazabilidad = FALSE;
          
          $this->imagen = NULL;
          $this->exists = FALSE;
@@ -332,14 +348,16 @@ class articulo extends fs_model
       return '';
    }
    
-   /**
-    * Devuelve la descripción en base64.
-    * @deprecated since version 50
-    * @return type
-    */
-   public function get_descripcion_64()
+   public function descripcion($len = 120)
    {
-      return base64_encode($this->descripcion);
+      if( mb_strlen($this->descripcion, 'UTF8') > $len )
+      {
+         return mb_substr( nl2br($this->descripcion), 0, $len).'...';
+      }
+      else
+      {
+         return nl2br($this->descripcion);
+      }
    }
    
    public function pvp_iva()
@@ -392,11 +410,13 @@ class articulo extends fs_model
    {
       if( strtolower(FS_DB_TYPE) == 'postgresql' )
       {
-         $sql = "SELECT referencia from articulos where referencia ~ '^\d+$' ORDER BY referencia DESC";
+         $sql = "SELECT referencia from ".$this->table_name." where referencia ~ '^\d+$'"
+                 . " ORDER BY referencia::integer DESC";
       }
       else
       {
-         $sql = "SELECT referencia from articulos where referencia REGEXP '^[0-9]+$' ORDER BY referencia DESC";
+         $sql = "SELECT referencia from ".$this->table_name." where referencia REGEXP '^[0-9]+$'"
+                 . " ORDER BY CAST(`referencia` AS decimal) DESC";
       }
       
       $ref = 1;
@@ -572,31 +592,40 @@ class articulo extends fs_model
          return $coste;
    }
    
+   /**
+    * Devuelve la url relativa de la imagen del artículo.
+    * @return boolean
+    */
    public function imagen_url()
    {
-      if( file_exists('images/articulos/'.$this->referencia.'-1.png') )
+      if( file_exists('images/articulos/'.$this->image_ref().'-1.png') )
       {
-         return 'images/articulos/'.$this->referencia.'-1.png';
+         return 'images/articulos/'.$this->image_ref().'-1.png';
       }
-      else if( file_exists('images/articulos/'.$this->referencia.'-1.jpg') )
+      else if( file_exists('images/articulos/'.$this->image_ref().'-1.jpg') )
       {
-         return 'images/articulos/'.$this->referencia.'-1.jpg';
+         return 'images/articulos/'.$this->image_ref().'-1.jpg';
       }
       else
          return FALSE;
    }
    
+   /**
+    * Asigna una imagen a un artículo.
+    * @param type $img
+    * @param type $png
+    */
    public function set_imagen($img, $png = TRUE)
    {
       $this->imagen = NULL;
       
-      if( file_exists('images/articulos/'.$this->referencia.'-1.png') )
+      if( file_exists('images/articulos/'.$this->image_ref().'-1.png') )
       {
-         unlink('images/articulos/'.$this->referencia.'-1.png');
+         unlink('images/articulos/'.$this->image_ref().'-1.png');
       }
-      else if( file_exists('images/articulos/'.$this->referencia.'-1.jpg') )
+      else if( file_exists('images/articulos/'.$this->image_ref().'-1.jpg') )
       {
-         unlink('images/articulos/'.$this->referencia.'-1.jpg');
+         unlink('images/articulos/'.$this->image_ref().'-1.jpg');
       }
       
       if($img)
@@ -608,11 +637,11 @@ class articulo extends fs_model
          
          if($png)
          {
-            $f = @fopen('images/articulos/'.$this->referencia.'-1.png', 'a');
+            $f = @fopen('images/articulos/'.$this->image_ref().'-1.png', 'a');
          }
          else
          {
-            $f = @fopen('images/articulos/'.$this->referencia.'-1.jpg', 'a');
+            $f = @fopen('images/articulos/'.$this->image_ref().'-1.jpg', 'a');
          }
          
          if($f)
@@ -625,18 +654,19 @@ class articulo extends fs_model
    
    public function set_pvp($p)
    {
-      if( !$this->floatcmp($this->pvp, $p, FS_NF0+2) )
+      $p = bround($p, FS_NF0_ART);
+      
+      if( !$this->floatcmp($this->pvp, $p, FS_NF0_ART+2) )
       {
          $this->pvp_ant = $this->pvp;
          $this->factualizado = Date('d-m-Y');
-         $this->pvp = round($p, FS_NF0+2);
+         $this->pvp = $p;
       }
    }
    
    public function set_pvp_iva($p)
    {
-      $pvp = round((100*$p)/(100+$this->get_iva()), FS_NF0+2);
-      $this->set_pvp($pvp);
+      $this->set_pvp( (100*$p)/(100+$this->get_iva()) );
    }
    
    /**
@@ -658,9 +688,9 @@ class articulo extends fs_model
          if( $this->db->exec($sql) )
          {
             /// renombramos la imagen, si la hay
-            if( file_exists('images/articulos/'.$this->referencia.'-1.png') )
+            if( file_exists('images/articulos/'.$this->image_ref().'-1.png') )
             {
-               rename('images/articulos/'.$this->referencia.'-1.png', 'images/articulos/'.$ref.'-1.png');
+               rename('images/articulos/'.$this->image_ref().'-1.png', 'images/articulos/'.$this->image_ref($ref).'-1.png');
             }
             
             $this->referencia = $ref;
@@ -924,13 +954,15 @@ class articulo extends fs_model
                     ", publico = ".$this->var2str($this->publico).
                     ", secompra = ".$this->var2str($this->secompra).
                     ", equivalencia = ".$this->var2str($this->equivalencia).
+                    ", partnumber = ".$this->var2str($this->partnumber).
                     ", codbarras = ".$this->var2str($this->codbarras).
                     ", observaciones = ".$this->var2str($this->observaciones).
                     ", tipo = ".$this->var2str($this->tipo).
                     ", imagen = ".$this->var2str($this->imagen).
                     ", codsubcuentacom = ".$this->var2str($this->codsubcuentacom).
                     ", codsubcuentairpfcom = ".$this->var2str($this->codsubcuentairpfcom).
-                    " WHERE referencia = ".$this->var2str($this->referencia).";";
+                    ", trazabilidad = ".$this->var2str($this->trazabilidad).
+                    "  WHERE referencia = ".$this->var2str($this->referencia).";";
             
             if($this->nostock AND $this->stockfis != 0)
             {
@@ -966,8 +998,10 @@ class articulo extends fs_model
                     $this->var2str($this->imagen).",".
                     $this->var2str($this->publico).",".
                     $this->var2str($this->tipo).",".
+                    $this->var2str($this->partnumber).",".
                     $this->var2str($this->codsubcuentacom).",".
-                    $this->var2str($this->codsubcuentairpfcom).");";
+                    $this->var2str($this->codsubcuentairpfcom).",".
+                    $this->var2str($this->trazabilidad).");";
          }
          
          if( $this->db->exec($sql) )
@@ -1038,8 +1072,10 @@ class articulo extends fs_model
             $actualizar = TRUE;
          }
          
-         if( $actualizar )
+         if($actualizar)
+         {
             $this->cache->set('articulos_searches', self::$search_tags, 5400);
+         }
       }
       
       return $encontrado;
@@ -1094,13 +1130,25 @@ class articulo extends fs_model
          if( self::$search_tags )
          {
             foreach(self::$search_tags as $value)
+            {
                $this->cache->delete('articulos_search_'.$value['tag']);
+            }
          }
          
          self::$cleaned_cache = TRUE;
       }
    }
    
+   /**
+    * Devuelve un array con los artículos encontrados en base a la búsqueda.
+    * @param type $query
+    * @param type $offset
+    * @param type $codfamilia
+    * @param type $con_stock
+    * @param type $codfabricante
+    * @param type $bloqueados
+    * @return \articulo
+    */
    public function search($query='', $offset=0, $codfamilia='', $con_stock=FALSE, $codfabricante='', $bloqueados=FALSE)
    {
       $artilist = array();
@@ -1156,15 +1204,46 @@ class articulo extends fs_model
          else if( is_numeric($query) )
          {
             $sql .= $separador." (referencia = ".$this->var2str($query)
-                    . " OR referencia LIKE '%".$query."%' OR equivalencia LIKE '%".$query."%'"
-                    . " OR descripcion LIKE '%".$query."%' OR codbarras = '".$query."')";
+                    . " OR referencia LIKE '%".$query."%'"
+                    . " OR partnumber LIKE '%".$query."%'"
+                    . " OR equivalencia LIKE '%".$query."%'"
+                    . " OR descripcion LIKE '%".$query."%'"
+                    . " OR codbarras = '".$query."')";
          }
          else
          {
-            $buscar = str_replace(' ', '%', $query);
-            $sql .= $separador." (lower(referencia) = ".$this->var2str($query)
-                    . " OR lower(referencia) LIKE '%".$buscar."%' OR lower(equivalencia) LIKE '%".$buscar."%'"
-                    . " OR lower(descripcion) LIKE '%".$buscar."%')";
+            /// ¿La búsqueda son varias palabras?
+            $palabras = explode(' ', $query);
+            if( count($palabras) > 1 )
+            {
+               $sql .= $separador." (lower(referencia) = ".$this->var2str($query)
+                       . " OR lower(referencia) LIKE '%".$query."%'"
+                       . " OR lower(partnumber) LIKE '%".$query."%'"
+                       . " OR lower(equivalencia) LIKE '%".$query."%'"
+                       . " OR (";
+               
+               foreach($palabras as $i => $pal)
+               {
+                  if($i == 0)
+                  {
+                     $sql .= "lower(descripcion) LIKE '%".$pal."%'";
+                  }
+                  else
+                  {
+                     $sql .= " AND lower(descripcion) LIKE '%".$pal."%'";
+                  }
+               }
+               
+               $sql .= "))";
+            }
+            else
+            {
+               $sql .= $separador." (lower(referencia) = ".$this->var2str($query)
+                       . " OR lower(referencia) LIKE '%".$query."%'"
+                       . " OR lower(partnumber) LIKE '%".$query."%'"
+                       . " OR lower(equivalencia) LIKE '%".$query."%'"
+                       . " OR lower(descripcion) LIKE '%".$query."%')";
+            }
          }
          
          if( strtolower(FS_DB_TYPE) == 'mysql' )
@@ -1189,6 +1268,13 @@ class articulo extends fs_model
       return $artilist;
    }
    
+   /**
+    * Devuelve un array con los artículos que tengan $cod como código de barras.
+    * @param type $cod
+    * @param type $offset
+    * @param type $limit
+    * @return \articulo
+    */
    public function search_by_codbar($cod, $offset=0, $limit=FS_ITEM_LIMIT)
    {
       $artilist = array();
@@ -1200,7 +1286,9 @@ class articulo extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $artilist[] = new articulo($d);
+         }
       }
       
       return $artilist;
@@ -1222,7 +1310,9 @@ class articulo extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $artilist[] = new articulo($d);
+         }
       }
       
       return $artilist;
@@ -1244,7 +1334,9 @@ class articulo extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $artilist[] = new articulo($d);
+         }
       }
       
       return $artilist;
@@ -1267,7 +1359,9 @@ class articulo extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $artilist[] = new articulo($d);
+         }
       }
       
       return $artilist;
@@ -1290,9 +1384,30 @@ class articulo extends fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $artilist[] = new articulo($d);
+         }
       }
       
       return $artilist;
+   }
+   
+   /**
+    * Devuelve la referencia codificada para poder ser usada en imágenes.
+    * Evitamos así errores con caracteres especiales como / y \.
+    * @param type $ref
+    * @return type
+    */
+   public function image_ref($ref = FALSE)
+   {
+      if(!$ref)
+      {
+         $ref = $this->referencia;
+      }
+      
+      $ref = str_replace('/', '_', $ref);
+      $ref = str_replace('\\', '_', $ref);
+      
+      return $ref;
    }
 }

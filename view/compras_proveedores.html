@@ -132,22 +132,19 @@
    </table>
 </div>
 
-<ul class="pager">
-   {if="$fsc->anterior_url()!=''"}
-   <li class="previous">
-      <a href="{$fsc->anterior_url()}">
-         <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
-      </a>
-   </li>
-   {/if}
-   {if="$fsc->siguiente_url()!=''"}
-   <li class="next">
-      <a href="{$fsc->siguiente_url()}">
-         Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
-      </a>
-   </li>
-   {/if}
-</ul>
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12 text-center">
+         <ul class="pagination">
+            {loop="$fsc->paginas()"}
+            <li{if="$value['actual']"} class="active"{/if}>
+               <a href="{$value['url']}">{$value['num']}</a>
+            </li>
+            {/loop}
+         </ul>
+      </div>
+   </div>
+</div>
 
 <form class="form-horizontal" role="form" name="f_nuevo_proveedor" action="{$fsc->url()}" method="post">
    <div class="modal" id="modal_nuevo_proveedor">
@@ -170,11 +167,16 @@
                </div>
                <div class="form-group">
                   <label class="col-sm-2 control-label">{#FS_CIFNIF#}</label>
-                  <div class="col-sm-10">
+                  <div class="col-sm-3">
+                     <select name="tipoidfiscal" class="form-control">
+                        {$tiposid=fs_tipos_id_fiscal()}
+                        {loop="$tiposid"}
+                        <option value="{$value}">{$value}</option>
+                        {/loop}
+                     </select>
+                  </div>
+                  <div class="col-sm-7">
                      <input type="text" name="cifnif" class="form-control" autocomplete="off"/>
-                     <label>
-                        <input type="checkbox" name="acreedor" value="TRUE"/> es un <b>acreedor</b>
-                     </label>
                   </div>
                </div>
                <div class="form-group">
@@ -215,6 +217,11 @@
                </div>
             </div>
             <div class="modal-footer">
+               <div class="checkbox pull-left">
+                  <label>
+                     <input type="checkbox" name="acreedor" value="TRUE"/> es un <b>acreedor</b>
+                  </label>
+               </div>
                <button class="btn btn-sm btn-primary" type="submit">
                    <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                 </button>

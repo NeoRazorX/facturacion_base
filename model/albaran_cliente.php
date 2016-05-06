@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -126,6 +126,16 @@ class albaran_cliente extends fs_model
    public $fecha;
    public $hora;
    
+   /// datos de transporte
+   public $envio_codtrans;
+   public $envio_codigo;
+   public $envio_nombre;
+   public $envio_apellidos;
+   public $envio_direccion;
+   public $envio_codpostal;
+   public $envio_ciudad;
+   public $envio_provincia;
+   
    /**
     * Suma del pvptotal de líneas. Total del albarán antes de impuestos.
     * @var type 
@@ -191,9 +201,15 @@ class albaran_cliente extends fs_model
     */
    public $ptefactura;
    
+   /**
+    * Fecha en la que se envió el albarán por email.
+    * @var type 
+    */
+   public $femail;
+   
    public function __construct($a=FALSE)
    {
-      parent::__construct('albaranescli', 'plugins/facturacion_base/');
+      parent::__construct('albaranescli');
       if($a)
       {
          $this->idalbaran = $this->intval($a['idalbaran']);
@@ -234,7 +250,9 @@ class albaran_cliente extends fs_model
          
          $this->hora = '00:00:00';
          if( !is_null($a['hora']) )
-            $this->hora = $a['hora'];
+         {
+            $this->hora = date('H:i:s', strtotime($a['hora']));
+         }
          
          $this->neto = floatval($a['neto']);
          $this->total = floatval($a['total']);
@@ -246,6 +264,21 @@ class albaran_cliente extends fs_model
          $this->tasaconv = floatval($a['tasaconv']);
          $this->totalrecargo = floatval($a['totalrecargo']);
          $this->observaciones = $this->no_html($a['observaciones']);
+         
+         $this->femail = NULL;
+         if( !is_null($a['femail']) )
+         {
+            $this->femail = Date('d-m-Y', strtotime($a['femail']));
+         }
+         
+         $this->envio_codtrans = $a['codtrans'];
+         $this->envio_codigo = $a['codigoenv'];
+         $this->envio_nombre = $a['nombreenv'];
+         $this->envio_apellidos = $a['apellidosenv'];
+         $this->envio_direccion = $a['direccionenv'];
+         $this->envio_codpostal = $a['codpostalenv'];
+         $this->envio_ciudad = $a['ciudadenv'];
+         $this->envio_provincia = $a['provinciaenv'];
       }
       else
       {
@@ -283,6 +316,15 @@ class albaran_cliente extends fs_model
          $this->totalrecargo = 0;
          $this->observaciones = NULL;
          $this->ptefactura = TRUE;
+         $this->femail = NULL;
+         $this->envio_codtrans = NULL;
+         $this->envio_codigo = NULL;
+         $this->envio_nombre = NULL;
+         $this->envio_apellidos = NULL;
+         $this->envio_direccion = NULL;
+         $this->envio_codpostal = NULL;
+         $this->envio_ciudad = NULL;
+         $this->envio_provincia = NULL;
       }
    }
    
@@ -361,6 +403,11 @@ class albaran_cliente extends fs_model
       return $linea->all_from_albaran($this->idalbaran);
    }
    
+   /**
+    * Devuelve el albarán solicitado o false si no se encuentra.
+    * @param type $id
+    * @return \albaran_cliente|boolean
+    */
    public function get($id)
    {
       $albaran = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($id).";");
@@ -466,7 +513,9 @@ class albaran_cliente extends fs_model
       foreach($this->get_lineas() as $l)
       {
          if( !$l->test() )
+         {
             $status = FALSE;
+         }
          
          $neto += $l->pvptotal;
          $iva += $l->pvptotal * $l->iva / 100;
@@ -614,6 +663,15 @@ class albaran_cliente extends fs_model
                     .", totalrecargo = ".$this->var2str($this->totalrecargo)
                     .", observaciones = ".$this->var2str($this->observaciones)
                     .", ptefactura = ".$this->var2str($this->ptefactura)
+                    .", femail = ".$this->var2str($this->femail)
+                    .", codtrans = ".$this->var2str($this->envio_codtrans)
+                    .", codigoenv = ".$this->var2str($this->envio_codigo)
+                    .", nombreenv = ".$this->var2str($this->envio_nombre)
+                    .", apellidosenv = ".$this->var2str($this->envio_apellidos)
+                    .", direccionenv = ".$this->var2str($this->envio_direccion)
+                    .", codpostalenv = ".$this->var2str($this->envio_codpostal)
+                    .", ciudadenv = ".$this->var2str($this->envio_ciudad)
+                    .", provinciaenv = ".$this->var2str($this->envio_provincia)
                     ."  WHERE idalbaran = ".$this->var2str($this->idalbaran).";";
             
             return $this->db->exec($sql);
@@ -625,7 +683,9 @@ class albaran_cliente extends fs_model
                codserie,codejercicio,codcliente,codpago,coddivisa,codalmacen,codpais,coddir,
                codpostal,numero,numero2,nombrecliente,cifnif,direccion,ciudad,provincia,apartado,
                fecha,hora,neto,total,totaliva,totaleuros,irpf,totalirpf,porcomision,tasaconv,
-               totalrecargo,observaciones,ptefactura) VALUES (".$this->var2str($this->idfactura)
+               totalrecargo,observaciones,ptefactura,femail,codtrans,codigoenv,nombreenv,
+               apellidosenv,direccionenv,codpostalenv,ciudadenv,provinciaenv) VALUES "
+                    ."(".$this->var2str($this->idfactura)
                     .",".$this->var2str($this->codigo)
                     .",".$this->var2str($this->codagente)
                     .",".$this->var2str($this->codserie)
@@ -657,7 +717,16 @@ class albaran_cliente extends fs_model
                     .",".$this->var2str($this->tasaconv)
                     .",".$this->var2str($this->totalrecargo)
                     .",".$this->var2str($this->observaciones)
-                    .",".$this->var2str($this->ptefactura).");";
+                    .",".$this->var2str($this->ptefactura)
+                    .",".$this->var2str($this->femail)
+                    .",".$this->var2str($this->envio_codtrans)
+                    .",".$this->var2str($this->envio_codigo)
+                    .",".$this->var2str($this->envio_nombre)
+                    .",".$this->var2str($this->envio_apellidos)
+                    .",".$this->var2str($this->envio_direccion)
+                    .",".$this->var2str($this->envio_codpostal)
+                    .",".$this->var2str($this->envio_ciudad)
+                    .",".$this->var2str($this->envio_provincia).");";
             
             if( $this->db->exec($sql) )
             {
@@ -696,6 +765,12 @@ class albaran_cliente extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve un array con los últimos albaranes
+    * @param type $offset
+    * @param type $order
+    * @return \albaran_cliente
+    */
    public function all($offset=0, $order='fecha DESC')
    {
       $albalist = array();
@@ -705,12 +780,20 @@ class albaran_cliente extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_cliente($a);
+         }
       }
       
       return $albalist;
    }
    
+   /**
+    * Devuelve un array con los albaranes pendientes.
+    * @param type $offset
+    * @param type $order
+    * @return \albaran_cliente
+    */
    public function all_ptefactura($offset=0, $order='fecha ASC')
    {
       $albalist = array();
@@ -720,57 +803,115 @@ class albaran_cliente extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_cliente($a);
+         }
       }
       
       return $albalist;
    }
    
+   /**
+    * Devuelve un array con los albaranes del cliente.
+    * @param type $codcliente
+    * @param type $offset
+    * @return \albaran_cliente
+    */
    public function all_from_cliente($codcliente, $offset=0)
    {
       $albalist = array();
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
-              " WHERE codcliente = ".$this->var2str($codcliente).
-              " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($codcliente)
+              ." ORDER BY fecha DESC, codigo DESC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_cliente($a);
+         }
       }
       
       return $albalist;
    }
    
+   /**
+    * Devuelve un array con los albaranes del agente/empleado
+    * @param type $codagente
+    * @param type $offset
+    * @return \albaran_cliente
+    */
    public function all_from_agente($codagente, $offset=0)
    {
       $albalist = array();
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name.
-              " WHERE codagente = ".$this->var2str($codagente).
-              " ORDER BY fecha DESC, codigo DESC", FS_ITEM_LIMIT, $offset);
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codagente = ".$this->var2str($codagente)
+              ." ORDER BY fecha DESC, codigo DESC";
+      
+      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_cliente($a);
+         }
       }
       
       return $albalist;
    }
    
-   public function all_desde($desde, $hasta)
+   /**
+    * Devuelve todos los albaranes relacionados con la factura.
+    * @param type $id
+    * @return \albaran_cliente
+    */
+   public function all_from_factura($id)
    {
-      $alblist = array();
-      $data = $this->db->select("SELECT * FROM ".$this->table_name.
-         " WHERE fecha >= ".$this->var2str($desde)." AND fecha <= ".$this->var2str($hasta).
-         " ORDER BY codigo ASC;");
+      $albalist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id)
+              ." ORDER BY fecha DESC, codigo DESC;";
+      
+      $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $a)
+         {
+            $albalist[] = new albaran_cliente($a);
+         }
+      }
+      
+      return $albalist;
+   }
+   
+   /**
+    * Devuelve un array con los albaranes comprendidos entre $desde y $hasta
+    * @param type $desde
+    * @param type $hasta
+    * @return \albaran_cliente
+    */
+   public function all_desde($desde, $hasta)
+   {
+      $alblist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE fecha >= ".$this->var2str($desde)
+              ." AND fecha <= ".$this->var2str($hasta)." ORDER BY codigo ASC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $a)
+         {
             $alblist[] = new albaran_cliente($a);
+         }
       }
       
       return $alblist;
    }
    
+   /**
+    * Devuelve un array con todos los albaranes que coinciden con $query
+    * @param type $query
+    * @param type $offset
+    * @return \albaran_cliente
+    */
    public function search($query, $offset=0)
    {
       $alblist = array();
@@ -792,12 +933,23 @@ class albaran_cliente extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $alblist[] = new albaran_cliente($a);
+         }
       }
       
       return $alblist;
    }
    
+   /**
+    * Devuelve un array con los albaranes del cliente $codcliente que coinciden con $query
+    * @param type $codcliente
+    * @param type $desde
+    * @param type $hasta
+    * @param type $serie
+    * @param type $obs
+    * @return \albaran_cliente
+    */
    public function search_from_cliente($codcliente, $desde, $hasta, $serie, $obs='')
    {
       $albalist = array();
@@ -816,7 +968,9 @@ class albaran_cliente extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_cliente($a);
+         }
       }
       
       return $albalist;
@@ -825,22 +979,14 @@ class albaran_cliente extends fs_model
    public function cron_job()
    {
       /**
-       * Marcamos como ptefactura = FALSE todos los albaranes de ejercicios
-       * ya cerrados. Así no se podrán modificar ni facturar.
-       */
-      $ejercicio = new ejercicio();
-      foreach($ejercicio->all() as $eje)
-      {
-         if( !$eje->abierto() )
-         {
-            $this->db->exec("UPDATE ".$this->table_name." SET ptefactura = FALSE
-               WHERE codejercicio = ".$this->var2str($eje->codejercicio).";");
-         }
-      }
-      
-      /**
        * Ponemos a NULL todos los idfactura = 0
        */
       $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura = '0';");
+      
+      /**
+       * Ponemos a NULL todos los idfactura que no están en facturascli
+       */
+      $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura NOT IN"
+              . " (SELECT idfactura FROM facturascli);");
    }
 }

@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -59,7 +59,9 @@ class compras_proveedor extends fs_controller
          $this->proveedor = $proveedor->get($_POST['codproveedor']);
       }
       else if( isset($_GET['cod']) )
+      {
          $this->proveedor = $proveedor->get($_GET['cod']);
+      }
       
       
       /// ¿Hay que hacer algo más?
@@ -98,7 +100,9 @@ class compras_proveedor extends fs_controller
       {
          $direccion = new direccion_proveedor();
          if($_POST['coddir'] != '')
+         {
             $direccion = $direccion->get($_POST['coddir']);
+         }
          $direccion->apartado = $_POST['apartado'];
          $direccion->ciudad = $_POST['ciudad'];
          $direccion->codpais = $_POST['pais'];
@@ -126,16 +130,11 @@ class compras_proveedor extends fs_controller
             $cuentab = new cuenta_banco_proveedor();
             $cuentab->codproveedor = $this->proveedor->codproveedor;
          }
+         
          $cuentab->descripcion = $_POST['descripcion'];
-         
-         if($_POST['ciban'] != '')
-         {
-            $cuentab->iban = $this->calcular_iban($_POST['ciban']);
-         }
-         else
-            $cuentab->iban = $_POST['iban'];
-         
+         $cuentab->iban = $_POST['iban'];
          $cuentab->swift = $_POST['swift'];
+         $cuentab->principal = isset($_POST['principal']);
          
          if( $cuentab->save() )
          {
@@ -148,6 +147,7 @@ class compras_proveedor extends fs_controller
       {
          $this->proveedor->nombre = $_POST['nombre'];
          $this->proveedor->razonsocial = $_POST['razonsocial'];
+         $this->proveedor->tipoidfiscal = $_POST['tipoidfiscal'];
          $this->proveedor->cifnif = $_POST['cifnif'];
          $this->proveedor->telefono1 = $_POST['telefono1'];
          $this->proveedor->telefono2 = $_POST['telefono2'];
@@ -155,11 +155,18 @@ class compras_proveedor extends fs_controller
          $this->proveedor->email = $_POST['email'];
          $this->proveedor->web = $_POST['web'];
          $this->proveedor->observaciones = $_POST['observaciones'];
-         $this->proveedor->codserie = $_POST['codserie'];
          $this->proveedor->codpago = $_POST['codpago'];
          $this->proveedor->coddivisa = $_POST['coddivisa'];
          $this->proveedor->regimeniva = $_POST['regimeniva'];
          $this->proveedor->acreedor = isset($_POST['acreedor']);
+         $this->proveedor->personafisica = isset($_POST['personafisica']);
+         
+         $this->proveedor->codserie = NULL;
+         if($_POST['codserie'] != '')
+         {
+            $this->proveedor->codserie = $_POST['codserie'];
+         }
+         
          if( $this->proveedor->save() )
          {
             $this->new_message('Datos del proveedor modificados correctamente.');
@@ -195,34 +202,6 @@ class compras_proveedor extends fs_controller
       return intval(Date('Y')) - $previous;
    }
    
-   private function calcular_iban($ccc)
-   {
-      $codpais = substr($this->empresa->codpais, 0, 2);
-      
-      foreach($this->proveedor->get_direcciones() as $dir)
-      {
-         if($dir->direccionppal)
-         {
-            $codpais = substr($dir->codpais, 0, 2);
-            break;
-         }
-      }
-      
-      $pesos = array('A' => '10', 'B' => '11', 'C' => '12', 'D' => '13', 'E' => '14', 'F' => '15',
-          'G' => '16', 'H' => '17', 'I' => '18', 'J' => '19', 'K' => '20', 'L' => '21', 'M' => '22',
-          'N' => '23', 'O' => '24', 'P' => '25', 'Q' => '26', 'R' => '27', 'S' => '28', 'T' => '29',
-          'U' => '30', 'V' => '31', 'W' => '32', 'X' => '33', 'Y' => '34', 'Z' => '35'
-      );
-      
-      $dividendo = $ccc.$pesos[substr($codpais, 0 , 1)].$pesos[substr($codpais, 1 , 1)].'00';	
-      $digitoControl =  98 - bcmod($dividendo, '97');
-      
-      if( strlen($digitoControl) == 1 )
-         $digitoControl = '0'.$digitoControl;
-      
-      return $codpais.$digitoControl.$ccc;
-   }
-   
    /*
     * Devuelve un array con los datos estadísticos de las compras al proveedor
     * en los cinco últimos años.
@@ -232,42 +211,75 @@ class compras_proveedor extends fs_controller
       $stats = array();
       $years = array();
       for($i=4; $i>=0; $i--)
+      {
          $years[] = intval(Date('Y')) - $i;
+      }
       
       $meses = array('Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic');
       
       foreach($years as $year)
       {
-         for($i = 1; $i <= 12; $i++)
+         if( $year == intval(Date('Y')) )
          {
-            $stats[$year.'-'.$i]['mes'] = $meses[$i-1].' '.$year;
-            $stats[$year.'-'.$i]['albaranes'] = 0;
-            $stats[$year.'-'.$i]['facturas'] = 0;
+            /// año actual
+            for($i = 1; $i <= intval(Date('m')); $i++)
+            {
+               $stats[$year.'-'.$i]['mes'] = $meses[$i-1].' '.$year;
+               $stats[$year.'-'.$i]['albaranes'] = 0;
+               $stats[$year.'-'.$i]['facturas'] = 0;
+            }
+         }
+         else
+         {
+            /// años anteriores
+            for($i = 1; $i <= 12; $i++)
+            {
+               $stats[$year.'-'.$i]['mes'] = $meses[$i-1].' '.$year;
+               $stats[$year.'-'.$i]['albaranes'] = 0;
+               $stats[$year.'-'.$i]['facturas'] = 0;
+            }
          }
          
          if( strtolower(FS_DB_TYPE) == 'postgresql')
+         {
             $sql_aux = "to_char(fecha,'FMMM')";
+         }
          else
             $sql_aux = "DATE_FORMAT(fecha, '%m')";
          
-         $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(total) as total
-            FROM albaranesprov WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))."
-            AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))." AND codproveedor = ".$this->empresa->var2str($this->proveedor->codproveedor)."
-            GROUP BY ".$sql_aux." ORDER BY mes ASC;");
+         $sql = "SELECT ".$sql_aux." as mes, sum(neto) as total FROM albaranesprov"
+                 ." WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))
+                 ." AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))
+                 ." AND codproveedor = ".$this->empresa->var2str($this->proveedor->codproveedor)
+                 ." GROUP BY ".$sql_aux." ORDER BY mes ASC;";
+         
+         $data = $this->db->select($sql);
          if($data)
          {
             foreach($data as $d)
-               $stats[$year.'-'.intval($d['mes'])]['albaranes'] = number_format($d['total'], FS_NF0, '.', '');
+            {
+               if( isset($stats[$year.'-'.intval($d['mes'])]['albaranes']) )
+               {
+                  $stats[$year.'-'.intval($d['mes'])]['albaranes'] = number_format($d['total'], FS_NF0, '.', '');
+               }
+            }
          }
          
-         $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(total) as total
-            FROM facturasprov WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))."
-            AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))." AND codproveedor = ".$this->empresa->var2str($this->proveedor->codproveedor)."
-            GROUP BY ".$sql_aux." ORDER BY mes ASC;");
+         $sql = "SELECT ".$sql_aux." as mes, sum(neto) as total FROM facturasprov"
+                 ." WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))
+                 ." AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))
+                 ." AND codproveedor = ".$this->empresa->var2str($this->proveedor->codproveedor)
+                 ." GROUP BY ".$sql_aux." ORDER BY mes ASC;";
+         $data = $this->db->select($sql);
          if($data)
          {
             foreach($data as $d)
-               $stats[$year.'-'.intval($d['mes'])]['facturas'] = number_format($d['total'], FS_NF0, '.', '');
+            {
+               if( isset($stats[$year.'-'.intval($d['mes'])]['facturas']) )
+               {
+                  $stats[$year.'-'.intval($d['mes'])]['facturas'] = number_format($d['total'], FS_NF0, '.', '');
+               }
+            }
          }
       }
       

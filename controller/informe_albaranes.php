@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -22,11 +22,8 @@ require_model('albaran_proveedor.php');
 
 class informe_albaranes extends fs_controller
 {
-   public $desde;
-   public $hasta;
    public $mostrar;
-   public $resultados;
-   public $tipo;
+   public $stats;
    
    public function __construct()
    {
@@ -39,36 +36,62 @@ class informe_albaranes extends fs_controller
       $albaran_cli = new albaran_cliente();
       $albaran_pro = new albaran_proveedor();
       
-      $this->mostrar = 'stats';
-      if( isset($_REQUEST['mostrar']) )
+      $this->mostrar = 'general';
+      if( isset($_GET['mostrar']) )
       {
-         $this->mostrar = $_REQUEST['mostrar'];
+         $this->mostrar = $_GET['mostrar'];
       }
       
-      $this->tipo = 'ventas';
-      if( isset($_REQUEST['tipo']) )
+      if($this->mostrar == 'operaciones')
       {
-         $this->tipo = $_REQUEST['tipo'];
+         
       }
-      
-      if($this->mostrar == 'listado')
+      else
       {
-         $this->desde = Date('1-m-Y');
-         $this->hasta = Date('d-m-Y', mktime(0, 0, 0, date("m")+1, date("1")-1, date("Y")));
+         $this->stats = array(
+             'alb_pendientes' => 0,
+             'alb_pendientes_total' => 0,
+             'ped_pendientes' => 0,
+             'ped_pendientes_total' => 0,
+             'pre_pendientes' => 0,
+             'pre_pendientes_total' => 0,
+             'media_ventas_dia' => 0,
+             'media_compras_dia' => 0,
+             'media_ventas_mes' => 0,
+             'media_compras_mes' => 0,
+         );
          
-         if( isset($_POST['desde']) )
+         /// comprobamos los albaranes pendientes
+         $sql = "SELECT COUNT(idalbaran) as num, SUM(total) as total FROM albaranescli WHERE ptefactura = true;";
+         $data = $this->db->select($sql);
+         if($data)
          {
-            $this->desde = $_POST['desde'];
-            $this->hasta = $_POST['hasta'];
+            $this->stats['alb_pendientes'] = intval($data[0]['num']);
+            $this->stats['alb_pendientes_total'] = floatval($data[0]['total']);
          }
          
-         if($this->tipo == 'ventas')
+         if( $this->db->table_exists('pedidoscli') )
          {
-            $this->resultados = $albaran_cli->all_desde($this->desde, $this->hasta);
+            /// comprobamos los pedidos pendientes
+            $sql = "SELECT COUNT(idpedido) as num, SUM(total) as total FROM pedidoscli WHERE idalbaran IS NULL AND status=0;";
+            $data = $this->db->select($sql);
+            if($data)
+            {
+               $this->stats['ped_pendientes'] = intval($data[0]['num']);
+               $this->stats['ped_pendientes_total'] = floatval($data[0]['total']);
+            }
          }
-         else
+         
+         if( $this->db->table_exists('presupuestoscli') )
          {
-            $this->resultados = $albaran_pro->all_desde($this->desde, $this->hasta);
+            /// comprobamos los presupuestos pendientes
+            $sql = "SELECT COUNT(idpresupuesto) as num, SUM(total) as total FROM presupuestoscli WHERE idpedido IS NULL AND status=0;";
+            $data = $this->db->select($sql);
+            if($data)
+            {
+               $this->stats['pre_pendientes'] = intval($data[0]['num']);
+               $this->stats['pre_pendientes_total'] = floatval($data[0]['total']);
+            }
          }
       }
    }
@@ -89,7 +112,24 @@ class informe_albaranes extends fs_controller
       }
       
       foreach($stats_pro as $i => $value)
+      {
          $stats[$i]['total_pro'] = $value['total'];
+      }
+      
+      /// leemos para completar $this->stats
+      $num = 0;
+      foreach($stats as $st)
+      {
+         $this->stats['media_ventas_dia'] += $st['total_cli'];
+         $this->stats['media_compras_dia'] += $st['total_pro'];
+         $num++;
+      }
+      
+      if($num > 0)
+      {
+         $this->stats['media_ventas_dia'] = $this->stats['media_ventas_dia'] / $num;
+         $this->stats['media_compras_dia'] = $this->stats['media_compras_dia'] / $num;
+      }
       
       return $stats;
    }
@@ -106,7 +146,9 @@ class informe_albaranes extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMDD')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%d')";
       
@@ -158,7 +200,24 @@ class informe_albaranes extends fs_controller
       }
       
       foreach($stats_pro as $i => $value)
+      {
          $stats[$i]['total_pro'] = round($value['total'], 2);
+      }
+      
+      /// leemos para completar $this->stats
+      $num = 0;
+      foreach($stats as $st)
+      {
+         $this->stats['media_ventas_mes'] += $st['total_cli'];
+         $this->stats['media_compras_mes'] += $st['total_pro'];
+         $num++;
+      }
+      
+      if($num > 0)
+      {
+         $this->stats['media_ventas_mes'] = $this->stats['media_ventas_mes'] / $num;
+         $this->stats['media_compras_mes'] = $this->stats['media_compras_mes'] / $num;
+      }
       
       return $stats;
    }
@@ -175,7 +234,9 @@ class informe_albaranes extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMMM')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%m')";
       
@@ -213,7 +274,9 @@ class informe_albaranes extends fs_controller
       }
       
       foreach($stats_pro as $i => $value)
+      {
          $stats[$i]['total_pro'] = round($value['total'], 2);
+      }
       
       return $stats;
    }
@@ -230,7 +293,9 @@ class informe_albaranes extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMYYYY')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%Y')";
       
@@ -265,5 +330,46 @@ class informe_albaranes extends fs_controller
       }
       
       return $dates;
+   }
+   
+   public function stats_last_operations($tabla = 'albaranesprov', $ndias = 180)
+   {
+      $stats = array();
+      
+      /// rellenamos $nidas de datos
+      for($i = $ndias; $i > 0; $i--)
+      {
+         $stats[date('d-m-Y', strtotime('-'.$i.'days'))] = array(
+             'diario' => 0,
+             'semanal' => 0,
+             'semana' => date('Y#W', strtotime('-'.$i.'days'))
+         );
+      }
+      
+      $sql = "select fecha,count(*) as total from ".$tabla." group by fecha order by fecha desc";
+      $data = $this->db->select_limit($sql, $ndias, 0);
+      if($data)
+      {
+         foreach( array_reverse($data) as $d )
+         {
+            $fecha = date('d-m-Y', strtotime($d['fecha']));
+            if( isset($stats[$fecha]) )
+            {
+               $stats[$fecha]['diario'] = intval($d['total']);
+               
+               /// añadimos el cálculo para la semana
+               $semana = date('Y#W', strtotime($d['fecha']));
+               foreach($stats as $i => $value)
+               {
+                  if($value['semana'] == $semana)
+                  {
+                     $stats[$i]['semanal'] += intval($d['total']);
+                  }
+               }
+            }
+         }
+      }
+      
+      return $stats;
    }
 }

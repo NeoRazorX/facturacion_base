@@ -1,0 +1,119 @@
+{include="header2"}
+
+{if="$fsc->factura"}
+<div class="table-responsive">
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th class="text-capitalize">{#FS_FACTURA_RECTIFICATIVA#}</th>
+            <th>Observaciones</th>
+            <th class="text-right">Total</th>
+            <th class="text-right">Fecha</th>
+         </tr>
+      </thead>
+      {loop="$fsc->factura->get_rectificativas()"}
+      <tr>
+         <td><a href="{$value->url()}" target="_parent">{$value->codigo}</a> {$value->numero2}</td>
+         <td>{$value->observaciones_resume()}</td>
+         <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
+         <td class="text-right" title="Hora {$value->hora}">
+            {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
+         </td>
+      </tr>
+      {else}
+      <tr class="warning">
+         <td colspan="4">Ninguna {#FS_FACTURA_RECTIFICATIVA#} encontrada.</td>
+      </tr>
+      {/loop}
+   </table>
+</div>
+
+{if="$fsc->factura->anulada"}
+<div class="alert alert-danger">
+   <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> &nbsp; Esta factura está anulada.
+</div>
+{else}
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>Nueva devolución</h1>
+         </div>
+         <p class="help-block">
+            Rellena la columna <b>Devolver</b> para indicar qué cantidades y de qué
+            artículos se quiere guardar la devolución. Se generará una {#FS_FACTURA_RECTIFICATIVA#}.
+         </p>
+      </div>
+   </div>
+</div>
+<form action="{$fsc->url()}" method="post" class="form">
+   <input type="hidden" name="id" value="{$fsc->factura->idfactura}"/>
+   <div class="table-responsive">
+      <table class="table table-hover">
+         <thead>
+            <tr>
+               <th>Artículo</th>
+               <th class="text-right">Precio</th>
+               <th class="text-right">Descuento</th>
+               <th width="150" class="text-right">Cantidad</th>
+               <th width="150" class="text-right">Devolver</th>
+            </tr>
+         </thead>
+         {loop="$fsc->factura->get_lineas()"}
+         <tr>
+            <td>
+               <div class="form-control">{$value->referencia} {$value->descripcion}</div>
+            </td>
+            <td class="text-right">
+               <div class="form-control">{$fsc->show_precio($value->pvpunitario, $fsc->factura->coddivisa)}</div>
+            </td>
+            <td class="text-right">
+               <div class="form-control">{$fsc->show_numero($value->dtopor)} %</div>
+            </td>
+            <td class="text-right">
+               <div class="form-control">{$value->cantidad}</div>
+            </td>
+            <td>
+               <input type="number" name="devolver_{$value->idlinea}" value="0" min="0" max="{$value->cantidad}" step="any" class="form-control text-right"/>
+            </td>
+         </tr>
+         {/loop}
+      </table>
+   </div>
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-sm-3">
+            <div class="form-group">
+               <a href="{$fsc->serie->url()}" target="_parent">Serie</a>:
+               <select name="codserie" class="form-control">
+                  {loop="$fsc->serie->all()"}
+                  <option value="{$value->codserie}">{$value->descripcion}</option>
+                  {/loop}
+               </select>
+            </div>
+         </div>
+         <div class="col-sm-6">
+            <br/>
+            <p class="help-block">
+               En España la {#FS_FACTURA_RECTIFICATIVA#} debe ir en una serie distinta.
+            </p>
+         </div>
+         <div class="col-sm-3 text-right">
+            <br/>
+            <button type="submit" class="btn btn-sm btn-primary">
+               <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> &nbsp; Guardar
+            </button>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-12">
+            <textarea name="motivo" class="form-control" placeholder="Motivo de la devolución..." rows="4"></textarea>
+         </div>
+      </div>
+   </div>
+</form>
+{/if}
+
+{/if}
+
+{include="footer2"}

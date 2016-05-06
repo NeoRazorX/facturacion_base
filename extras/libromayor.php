@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -48,26 +48,21 @@ class libro_mayor
       {
          if($num < 2 OR $num == $random)
          {
-            foreach($this->subcuenta->all_from_ejercicio($eje->codejercicio) as $sc)
+            foreach($this->subcuenta->all_from_ejercicio($eje->codejercicio, TRUE, 200) as $sc)
             {
                /**
                 * Recalcular los saldos de las subcuentas es un proceso lento,
-                * por eso evitamos hacerlo siempre.
-                * En este caso solamente se hace cuando del debe o el haber supera
-                * los 2000 o cada 3 veces (el mt_rand() genera un número aleatorio).
+                * por eso lo hacemos de una muestra aleatoria de subcuentas.
                 */
-               if($sc->debe > 2000 OR $sc->haber > 2000 OR mt_rand(0, 3) == 0 )
+               $sc->save();
+               
+               if(FS_LIBROS_CONTABLES)
                {
-                  $sc->save();
-                  
-                  if(FS_LIBROS_CONTABLES)
-                  {
-                     $this->libro_mayor($sc, TRUE);
-                  }
-                  else
-                  {
-                     echo '.';
-                  }
+                  $this->libro_mayor($sc, TRUE);
+               }
+               else
+               {
+                  echo '.';
                }
             }
             
@@ -84,12 +79,16 @@ class libro_mayor
       if($subc)
       {
          if( !file_exists('tmp/'.FS_TMP_NAME.'libro_mayor') )
+         {
             mkdir('tmp/'.FS_TMP_NAME.'libro_mayor');
+         }
          
          if( !file_exists('tmp/'.FS_TMP_NAME.'libro_mayor/'.$subc->idsubcuenta.'.pdf') )
          {
             if($echos)
+            {
                echo '.';
+            }
             
             $pdf_doc = new fs_pdf();
             $pdf_doc->pdf->addInfo('Title', 'Libro mayor de ' . $subc->codsubcuenta);
@@ -109,7 +108,9 @@ class libro_mayor
                {
                   /// salto de página
                   if($linea_actual > 0)
+                  {
                      $pdf_doc->pdf->ezNewPage();
+                  }
                   
                   /// Creamos la tabla del encabezado
                   $pdf_doc->new_table();
@@ -195,7 +196,9 @@ class libro_mayor
       if($eje)
       {
          if( !file_exists('tmp/'.FS_TMP_NAME.'libro_diario') )
+         {
             mkdir('tmp/'.FS_TMP_NAME.'libro_diario');
+         }
          
          if( !file_exists('tmp/'.FS_TMP_NAME.'libro_diario/'.$eje->codejercicio.'.pdf') )
          {

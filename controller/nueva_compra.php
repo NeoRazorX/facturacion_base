@@ -1,23 +1,24 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 require_model('almacen.php');
+require_model('articulo_combinacion.php');
 require_model('articulo_proveedor.php');
 require_model('asiento_factura.php');
 require_model('fabricante.php');
@@ -25,6 +26,7 @@ require_model('familia.php');
 require_model('forma_pago.php');
 require_model('pedido_proveedor.php');
 require_model('proveedor.php');
+require_model('regularizacion_iva.php');
 
 class nueva_compra extends fs_controller
 {
@@ -45,7 +47,7 @@ class nueva_compra extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'nueva compra', 'compras', FALSE, FALSE);
+      parent::__construct(__CLASS__, 'Nueva compra...', 'compras', FALSE, FALSE, TRUE);
    }
    
    protected function private_core()
@@ -91,6 +93,10 @@ class nueva_compra extends fs_controller
       {
          $this->get_precios_articulo();
       }
+      else if( isset($_POST['referencia4combi']) )
+      {
+         $this->get_combinaciones_articulo();
+      }
       else if( isset($_POST['proveedor']) )
       {
          $this->proveedor_s = $this->proveedor->get($_POST['proveedor']);
@@ -100,9 +106,9 @@ class nueva_compra extends fs_controller
             if($_POST['nuevo_proveedor'] != '')
             {
                $this->proveedor_s = FALSE;
-               if($_POST['nuevo_dni'] != '')
+               if($_POST['nuevo_cifnif'] != '')
                {
-                  $this->proveedor_s = $this->proveedor->get_by_cifnif($_POST['nuevo_dni']);
+                  $this->proveedor_s = $this->proveedor->get_by_cifnif($_POST['nuevo_cifnif']);
                   if($this->proveedor_s)
                   {
                      $this->new_advice('Ya existe un proveedor con ese '.FS_CIFNIF.'. Se ha seleccionado.');
@@ -114,7 +120,8 @@ class nueva_compra extends fs_controller
                   $this->proveedor_s = new proveedor();
                   $this->proveedor_s->codproveedor = $this->proveedor_s->get_new_codigo();
                   $this->proveedor_s->nombre = $this->proveedor_s->razonsocial = $_POST['nuevo_proveedor'];
-                  $this->proveedor_s->cifnif = $_POST['nuevo_dni'];
+                  $this->proveedor_s->tipoidfiscal = $_POST['nuevo_tipoidfiscal'];
+                  $this->proveedor_s->cifnif = $_POST['nuevo_cifnif'];
                   $this->proveedor_s->acreedor = isset($_POST['acreedor']);
                   $this->proveedor_s->save();
                }
@@ -323,6 +330,34 @@ class nueva_compra extends fs_controller
       $this->articulo = $articulo->get($_POST['referencia4precios']);
    }
    
+   private function get_combinaciones_articulo()
+   {
+      /// cambiamos la plantilla HTML
+      $this->template = 'ajax/nueva_compra_combinaciones';
+      
+      $this->results = array();
+      $comb1 = new articulo_combinacion();
+      foreach($comb1->all_from_ref($_POST['referencia4combi']) as $com)
+      {
+         if( isset($this->results[$com->codigo]) )
+         {
+            $this->results[$com->codigo]['desc'] .= ', '.$com->nombreatributo.' - '.$com->valor;
+            $this->results[$com->codigo]['txt'] .= ', '.$com->nombreatributo.' - '.$com->valor;
+         }
+         else
+         {
+            $this->results[$com->codigo] = array(
+                'ref' => $_POST['referencia4combi'],
+                'desc' => base64_decode($_POST['desc'])."\n".$com->nombreatributo.' - '.$com->valor,
+                'pvp' => floatval($_POST['pvp']),
+                'dto' => floatval($_POST['dto']),
+                'codimpuesto' => $_POST['codimpuesto'],
+                'txt' => $com->nombreatributo.' - '.$com->valor
+            );
+         }
+      }
+   }
+   
    private function nuevo_pedido_proveedor()
    {
       $continuar = TRUE;
@@ -346,7 +381,7 @@ class nueva_compra extends fs_controller
       }
       
       $eje0 = new ejercicio();
-      $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
+      $ejercicio = $eje0->get_by_fecha($_POST['fecha'], FALSE);
       if(!$ejercicio)
       {
          $this->new_error_msg('Ejercicio no encontrado.');
@@ -393,8 +428,8 @@ class nueva_compra extends fs_controller
          $pedido->fecha = $_POST['fecha'];
          $pedido->hora = $_POST['hora'];
          $pedido->codproveedor = $proveedor->codproveedor;
-         $pedido->nombre = $proveedor->razonsocial;
-         $pedido->cifnif = $proveedor->cifnif;
+         $pedido->nombre = $_POST['nombre'];
+         $pedido->cifnif = $_POST['cifnif'];
          $pedido->codalmacen = $almacen->codalmacen;
          $pedido->codejercicio = $ejercicio->codejercicio;
          $pedido->codserie = $serie->codserie;
@@ -410,7 +445,6 @@ class nueva_compra extends fs_controller
          $pedido->codagente = $this->agente->codagente;
          $pedido->numproveedor = $_POST['numproveedor'];
          $pedido->observaciones = $_POST['observaciones'];
-         $pedido->irpf = $serie->irpf;
          
          if( $pedido->save() )
          {
@@ -481,6 +515,11 @@ class nueva_compra extends fs_controller
                      $pedido->totaliva += ($linea->pvptotal * $linea->iva/100);
                      $pedido->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                      $pedido->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                     
+                     if($linea->irpf > $pedido->irpf)
+                     {
+                        $pedido->irpf = $linea->irpf;
+                     }
                   }
                   else
                   {
@@ -553,7 +592,7 @@ class nueva_compra extends fs_controller
       }
       
       $eje0 = new ejercicio();
-      $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
+      $ejercicio = $eje0->get_by_fecha($_POST['fecha'], FALSE);
       if(!$ejercicio)
       {
          $this->new_error_msg('Ejercicio no encontrado.');
@@ -600,8 +639,8 @@ class nueva_compra extends fs_controller
          $albaran->fecha = $_POST['fecha'];
          $albaran->hora = $_POST['hora'];
          $albaran->codproveedor = $proveedor->codproveedor;
-         $albaran->nombre = $proveedor->razonsocial;
-         $albaran->cifnif = $proveedor->cifnif;
+         $albaran->nombre = $_POST['nombre'];
+         $albaran->cifnif = $_POST['cifnif'];
          $albaran->codalmacen = $almacen->codalmacen;
          $albaran->codejercicio = $ejercicio->codejercicio;
          $albaran->codserie = $serie->codserie;
@@ -617,7 +656,6 @@ class nueva_compra extends fs_controller
          $albaran->codagente = $this->agente->codagente;
          $albaran->numproveedor = $_POST['numproveedor'];
          $albaran->observaciones = $_POST['observaciones'];
-         $albaran->irpf = $serie->irpf;
          
          if( $albaran->save() )
          {
@@ -686,6 +724,11 @@ class nueva_compra extends fs_controller
                      $albaran->totaliva += ($linea->pvptotal * $linea->iva/100);
                      $albaran->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                      $albaran->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                     
+                     if($linea->irpf > $albaran->irpf)
+                     {
+                        $albaran->irpf = $linea->irpf;
+                     }
                   }
                   else
                   {
@@ -761,7 +804,7 @@ class nueva_compra extends fs_controller
       $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
       if(!$ejercicio)
       {
-         $this->new_error_msg('Ejercicio no encontrado.');
+         $this->new_error_msg('Ejercicio no encontrado o está cerrado.');
          $continuar = FALSE;
       }
       
@@ -800,16 +843,16 @@ class nueva_compra extends fs_controller
          $continuar = FALSE;
       }
       
-      if( $continuar )
+      if($continuar)
       {
-         $factura->fecha = $_POST['fecha'];
-         $factura->hora = $_POST['hora'];
-         $factura->codproveedor = $proveedor->codproveedor;
-         $factura->nombre = $proveedor->razonsocial;
-         $factura->cifnif = $proveedor->cifnif;
-         $factura->codalmacen = $almacen->codalmacen;
          $factura->codejercicio = $ejercicio->codejercicio;
          $factura->codserie = $serie->codserie;
+         $factura->set_fecha_hora($_POST['fecha'], $_POST['hora']);
+         
+         $factura->codproveedor = $proveedor->codproveedor;
+         $factura->nombre = $_POST['nombre'];
+         $factura->cifnif = $_POST['cifnif'];
+         $factura->codalmacen = $almacen->codalmacen;
          $factura->codpago = $forma_pago->codpago;
          $factura->coddivisa = $divisa->coddivisa;
          $factura->tasaconv = $divisa->tasaconv_compra;
@@ -822,14 +865,18 @@ class nueva_compra extends fs_controller
          $factura->codagente = $this->agente->codagente;
          $factura->numproveedor = $_POST['numproveedor'];
          $factura->observaciones = $_POST['observaciones'];
-         $factura->irpf = $serie->irpf;
          
          if($forma_pago->genrecibos == 'Pagados')
          {
             $factura->pagada = TRUE;
          }
          
-         if( $factura->save() )
+         $regularizacion = new regularizacion_iva();
+         if( $regularizacion->get_fecha_inside($factura->fecha) )
+         {
+            $this->new_error_msg("El ".FS_IVA." de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.");
+         }
+         else if( $factura->save() )
          {
             $art0 = new articulo();
             $n = floatval($_POST['numlineas']);
@@ -843,18 +890,18 @@ class nueva_compra extends fs_controller
                      
                   if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
                   {
-                        $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$i]);
-                        if($imp0)
-                        {
-                           $linea->codimpuesto = $imp0->codimpuesto;
-                           $linea->iva = floatval($_POST['iva_'.$i]);
-                           $linea->recargo = floatval($_POST['recargo_'.$i]);
-                        }
-                        else
-                        {
-                           $linea->iva = floatval($_POST['iva_'.$i]);
-                           $linea->recargo = floatval($_POST['recargo_'.$i]);
-                        }
+                     $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$i]);
+                     if($imp0)
+                     {
+                        $linea->codimpuesto = $imp0->codimpuesto;
+                        $linea->iva = floatval($_POST['iva_'.$i]);
+                        $linea->recargo = floatval($_POST['recargo_'.$i]);
+                     }
+                     else
+                     {
+                        $linea->iva = floatval($_POST['iva_'.$i]);
+                        $linea->recargo = floatval($_POST['recargo_'.$i]);
+                     }
                   }
                      
                   $linea->irpf = floatval($_POST['irpf_'.$i]);
@@ -906,6 +953,11 @@ class nueva_compra extends fs_controller
                      $factura->totaliva += ($linea->pvptotal * $linea->iva/100);
                      $factura->totalirpf += ($linea->pvptotal * $linea->irpf/100);
                      $factura->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                     
+                     if($linea->irpf > $factura->irpf)
+                     {
+                        $factura->irpf = $linea->irpf;
+                     }
                   }
                   else
                   {
@@ -956,7 +1008,7 @@ class nueva_compra extends fs_controller
       }
    }
    
-   private function generar_asiento($factura)
+   private function generar_asiento(&$factura)
    {
       if($this->empresa->contintegrada)
       {
@@ -1031,15 +1083,46 @@ class nueva_compra extends fs_controller
       if( is_numeric($query) )
       {
          $sql .= $separador." (referencia = ".$this->articulo_prov->var2str($query)
-                 . " OR referencia LIKE '%".$query."%' OR equivalencia LIKE '%".$query."%'"
-                 . " OR descripcion LIKE '%".$query."%' OR codbarras = '".$query."')";
+                 . " OR referencia LIKE '%".$query."%'"
+                 . " OR partnumber LIKE '%".$query."%'"
+                 . " OR equivalencia LIKE '%".$query."%'"
+                 . " OR descripcion LIKE '%".$query."%'"
+                 . " OR codbarras = '".$query."')";
       }
       else
       {
-         $buscar = str_replace(' ', '%', $query);
-         $sql .= $separador." (lower(referencia) = ".$this->articulo_prov->var2str($query)
-                 . " OR lower(referencia) LIKE '%".$buscar."%' OR lower(equivalencia) LIKE '%".$buscar."%'"
-                 . " OR lower(descripcion) LIKE '%".$buscar."%')";
+         /// ¿La búsqueda son varias palabras?
+         $palabras = explode(' ', $query);
+         if( count($palabras) > 1 )
+         {
+            $sql .= $separador." (lower(referencia) = ".$this->articulo_prov->var2str($query)
+                    . " OR lower(referencia) LIKE '%".$query."%'"
+                    . " OR lower(partnumber) LIKE '%".$query."%'"
+                    . " OR lower(equivalencia) LIKE '%".$query."%'"
+                    . " OR (";
+            
+            foreach($palabras as $i => $pal)
+            {
+               if($i == 0)
+               {
+                  $sql .= "lower(descripcion) LIKE '%".$pal."%'";
+               }
+               else
+               {
+                  $sql .= " AND lower(descripcion) LIKE '%".$pal."%'";
+               }
+            }
+            
+            $sql .= "))";
+         }
+         else
+         {
+            $sql .= $separador." (lower(referencia) = ".$this->articulo_prov->var2str($query)
+                    . " OR lower(referencia) LIKE '%".$query."%'"
+                    . " OR lower(partnumber) LIKE '%".$query."%'"
+                    . " OR lower(equivalencia) LIKE '%".$query."%'"
+                    . " OR lower(descripcion) LIKE '%".$query."%')";
+         }
       }
       
       if( strtolower(FS_DB_TYPE) == 'mysql' )

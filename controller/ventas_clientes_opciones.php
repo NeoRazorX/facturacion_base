@@ -2,20 +2,20 @@
 
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2015   Carlos Garcia Gomez        neorazorx@gmail.com
- * Copyright (C) 2015   Luis Miguel Pérez Romero   luismipr@gmail.com
+ * Copyright (C) 2015-2016    Carlos Garcia Gomez        neorazorx@gmail.com
+ * Copyright (C) 2015         Luis Miguel Pérez Romero   luismipr@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -38,6 +38,8 @@ class ventas_clientes_opciones extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extension();
+      
       $this->grupo = new grupo_clientes();
       
       /// cargamos la configuración
@@ -90,5 +92,16 @@ class ventas_clientes_opciones extends fs_controller
          else
             $this->new_error_msg('Error al guardar los datos.');
       }
+   }
+   
+   private function share_extension()
+   {
+      $fsext = new fs_extension();
+      $fsext->name = 'opciones_clientes';
+      $fsext->from = __CLASS__;
+      $fsext->to = 'ventas_clientes';
+      $fsext->type = 'button';
+      $fsext->text = '<span class="glyphicon glyphicon-cog" aria-hidden="true" title="Opciones para nuevos clientes"></span>';
+      $fsext->save();
    }
 }

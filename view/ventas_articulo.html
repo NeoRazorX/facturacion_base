@@ -60,6 +60,13 @@
       
       $("#margen").val(margen);
    }
+   function delete_combinacion(cod)
+   {
+      if( confirm("¿Realmente desea eliminar la combinacion "+cod+"?") )
+      {
+         window.location.href = '{$fsc->url()}&delete_combi='+cod+'#atributos';
+      }
+   }
    $(document).ready(function() {
       calcular_margen();
       
@@ -71,6 +78,10 @@
       {
          $('#tab_articulo a[href="#stock"]').tab('show');
       }
+      else if(window.location.hash.substring(1) == 'atributos')
+      {
+         $('#tab_articulo a[href="#atributos"]').tab('show');
+      }
       
       $("#b_eliminar_articulo").click(function(event) {
          event.preventDefault();
@@ -78,39 +89,74 @@
          alert('Este artículo es público. Si estas seguro de que quieres eliminarlo, desmarcalo como público, guarda y pulsa eliminar.');
          {else}
          if( confirm("¿Estas seguro de que deseas eliminar este articulo?") )
+         {
             window.location.href = "index.php?page=ventas_articulos&delete={function="urlencode($fsc->articulo->referencia)"}";
+         }
          {/if}
       });
       $("#b_imagen").click(function(event) {
          event.preventDefault();
          $("#modal_articulo_imagen").modal('show');
       });
+      $('#b_regularizaciones').click(function(event) {
+         event.preventDefault();
+         $("#b_movimientos").removeClass('active');
+         $("#b_regularizaciones").addClass('active');
+         $("#table_movimientos").hide();
+         $("#table_regularizaciones").show();
+      });
+      $('#b_movimientos').click(function(event) {
+         event.preventDefault();
+         $("#b_movimientos").addClass('active');
+         $("#b_regularizaciones").removeClass('active');
+         $("#table_movimientos").show();
+         $("#table_regularizaciones").hide();
+      });
    });
 </script>
 
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
    <div class="row">
-      <div class="col-xs-10">
-         <a href="{$fsc->url()}" class="btn btn-sm btn-default hidden-xs" title="Recargar la página">
-            <span class="glyphicon glyphicon-refresh"></span>
-         </a>
-         <a href="index.php?page=ventas_articulos" class="btn btn-sm btn-default">
-            <span class="glyphicon glyphicon-arrow-left"></span>
-            <span class="hidden-xs">&nbsp; Todos los artículos</span>
-         </a>
-         <a href="#" id="b_imagen" class="btn btn-sm btn-default">
-            <span class="glyphicon glyphicon-picture"></span>
-            <span class="hidden-xs">&nbsp; Imagen</span>
-         </a>
+      <div class="col-xs-7">
+         <div class="btn-group">
+            <a href="index.php?page=ventas_articulos" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-arrow-left"></span>
+               <span class="hidden-xs">&nbsp; Todos</span>
+            </a>
+            <a href="{$fsc->url()}" class="btn btn-sm btn-default hidden-xs" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+         </div>
+         <div class="btn-group">
+            <a href="#" id="b_imagen" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-picture"></span>
+               <span class="hidden-xs">&nbsp; Imagen</span>
+            </a>
+            {if="$fsc->articulo->trazabilidad"}
+            <a href="index.php?page=articulo_trazabilidad&ref={function="urlencode($fsc->articulo->referencia)"}" class="btn btn-sm btn-default">
+               <i class="fa fa-code-fork" aria-hidden="true"></i>
+               <span class="hidden-xs">&nbsp; Trazabilidad</span>
+            </a>
+            {/if}
+         </div>
+         <div class="btn-group">
          {loop="$fsc->extensions"}
             {if="$value->type=='button'"}
             <a href="index.php?page={$value->from}&ref={function="urlencode($fsc->articulo->referencia)"}{$value->params}" class="btn btn-sm btn-default">
                {$value->text}
             </a>
+            {elseif="$value->type=='modal'"}
+            <!--{$txt=base64_encode($value->text)}-->
+            <!--{$url='index.php?page='.$value->from.'&ref='.urlencode($fsc->articulo->referencia).$value->params}-->
+            <a href="#" class="btn btn-sm btn-default" onclick="fs_modal('{$txt}','{$url}')">{$value->text}</a>
             {/if}
          {/loop}
+         </div>
       </div>
-      <div class="col-xs-2 text-right">
+      <div class="col-xs-5 text-right">
+         <a class="btn btn-sm btn-success" href="index.php?page=ventas_articulos&b_codfamilia={$fsc->articulo->codfamilia}&b_codfabricante={$fsc->articulo->codfabricante}#nuevo" title="Nuevo artículo">
+            <span class="glyphicon glyphicon-plus"></span>
+         </a>
          {if="$fsc->allow_delete"}
          <a href="#" id="b_eliminar_articulo" class="btn btn-sm btn-danger">
             <span class="glyphicon glyphicon-trash"></span>
@@ -129,6 +175,14 @@
             <span class="hidden-xs">&nbsp; {$fsc->articulo->referencia}</span>
          </a>
       </li>
+      {if="$fsc->mostrar_tab_atributos"}
+      <li role="presentation">
+         <a href="#atributos" aria-controls="atributos" role="tab" data-toggle="tab">
+            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+            <span class="hidden-xs">&nbsp; Atributos</span>
+         </a>
+      </li>
+      {/if}
       {if="$fsc->mostrar_tab_precios"}
       <li role="presentation">
          <a href="#precios" aria-controls="precios" role="tab" data-toggle="tab">
@@ -161,7 +215,7 @@
          {/if}
       {/loop}
       <li class="dropdown">
-         <a class="dropdown-toggle" data-toggle="dropdown">
+         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
             <span class="hidden-xs">&nbsp; Buscar en...</span>
             <span class="caret"></span>
@@ -194,6 +248,9 @@
                         Tipo:
                         <select name="tipo" class="form-control" onchange="this.form.submit()">
                            <option value="">Producto simple</option>
+                           {if="$fsc->hay_atributos"}
+                           <option value="atributos"{if="$fsc->articulo->tipo=='atributos'"} selected=""{/if}>Producto con atributos</option>
+                           {/if}
                            {loop="$fsc->extensions"}
                               {if="$value->type=='tipo_art'"}
                               <option value="{$value->params}"{if="$fsc->articulo->tipo==$value->params"} selected=""{/if}>{$value->text}</option>
@@ -242,7 +299,7 @@
                         </select>
                      </div>
                   </div>
-                  <div class="col-sm-3">
+                  <div class="col-sm-2">
                      <div class="form-group">
                         Código de barras:
                         <div class="input-group">
@@ -253,7 +310,18 @@
                         </div>
                      </div>
                   </div>
-                  <div class="col-sm-4">
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        PartNumber:
+                        <div class="input-group">
+                           <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
+                           </span>
+                           <input class="form-control" type="text" name="partnumber" value="{$fsc->articulo->partnumber}" autocomplete="off"/>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
                      <div class="form-group">
                         Código de equivalencia:
                         <input class="form-control" type="text" name="equivalencia" value="{$fsc->articulo->equivalencia}" autocomplete="off"/>
@@ -267,7 +335,7 @@
                         Stock:
                         <input class="form-control" type="text" name="stockfis" value="{$fsc->articulo->stockfis}" disabled="disabled"/>
                         <label>
-                           <input type="checkbox" name="nostock" value="TRUE"{if="$fsc->articulo->nostock"} checked="checked"{/if}/>
+                           <input type="checkbox" name="nostock" value="TRUE"{if="$fsc->articulo->nostock"} checked=""{/if}/>
                            No controlar stock
                         </label>
                      </div>
@@ -287,19 +355,19 @@
                   <div class="col-sm-2">
                      <div class="checkbox">
                         <label>
-                           <input type="checkbox" name="secompra" value="TRUE"{if="$fsc->articulo->secompra"} checked="checked"{/if}/>
+                           <input type="checkbox" name="secompra" value="TRUE"{if="$fsc->articulo->secompra"} checked=""{/if}/>
                            Se compra
                         </label>
                      </div>
                      <div class="checkbox">
                         <label>
-                           <input type="checkbox" name="sevende" value="TRUE"{if="$fsc->articulo->sevende"} checked="checked"{/if}/>
+                           <input type="checkbox" name="sevende" value="TRUE"{if="$fsc->articulo->sevende"} checked=""{/if}/>
                            Se vende
                         </label>
                      </div>
                      <div class="checkbox">
                         <label>
-                           <input type="checkbox" name="controlstock" value="TRUE"{if="$fsc->articulo->controlstock"} checked="checked"{/if}/>
+                           <input type="checkbox" name="controlstock" value="TRUE"{if="$fsc->articulo->controlstock"} checked=""{/if}/>
                            Permitir ventas sin stock
                         </label>
                      </div>
@@ -307,14 +375,20 @@
                   <div class="col-sm-3">
                      <div class="checkbox">
                         <label>
-                           <input type="checkbox" name="bloqueado" value="TRUE"{if="$fsc->articulo->bloqueado"} checked="checked"{/if}/>
+                           <input type="checkbox" name="bloqueado" value="TRUE"{if="$fsc->articulo->bloqueado"} checked=""{/if}/>
                            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Bloqueado / Obsoleto
+                        </label>
+                     </div>
+                     <div class="checkbox">
+                        <label>
+                           <input type="checkbox" name="trazabilidad" value="TRUE"{if="$fsc->articulo->trazabilidad"} checked=""{/if}/>
+                           <i class="fa fa-code-fork" aria-hidden="true"></i> Trazabilidad / números de serie
                         </label>
                      </div>
                      {if="$fsc->mostrar_boton_publicar"}
                      <div class="checkbox">
                         <label title="Sincronizar con tienda online (si está disponible)">
-                           <input type="checkbox" name="publico" value="TRUE"{if="$fsc->articulo->publico"} checked="checked"{/if}/>
+                           <input type="checkbox" name="publico" value="TRUE"{if="$fsc->articulo->publico"} checked=""{/if}/>
                            <span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Público
                         </label>
                      </div>
@@ -336,9 +410,116 @@
                      </button>
                   </div>
                </div>
+               <div class="row">
+                  <div class="col-sm-12">
+                     <p class="help-block">
+                        <span class="glyphicon glyphicon-question-sign"></span> &nbsp;
+                        Puedes aplicar cambios masivos a los artículos usando el
+                        <a href="https://www.facturascripts.com/store/producto/plugin-articulos_megamod/" target="_blank">plugin articulos_megamod</a>.
+                     </p>
+                  </div>
+               </div>
             </div>
          </form>
       </div>
+      {if="$fsc->mostrar_tab_atributos"}
+      <div role="tabpanel" class="tab-pane" id="atributos">
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th width="100">Código</th>
+                     <th>Combinación</th>
+                     <th width="200" class="text-right">Impacto en el precio</th>
+                     <th width="120"></th>
+                  </tr>
+               </thead>
+               {loop="$fsc->combinaciones()"}
+               <form action="{$fsc->url()}#atributos" method="post" class="form">
+                  <input type="hidden" name="editar_combi" value="{$value->codigo}"/>
+                  <tr>
+                     <td><div class="form-control">{$value->codigo}</div></td>
+                     <td><div class="form-control">{$value->txt}</div></td>
+                     <td>
+                        <div class="input-group">
+                           <input type="number" step="any" name="impactoprecio" value="{$value->impactoprecio}" class="form-control text-right" autocomplete="off" required=""/>
+                           <span class="input-group-addon">{$fsc->simbolo_divisa()}</span>
+                        </div>
+                     </td>
+                     <td class="text-right">
+                        <div class="btn-group">
+                           {if="$fsc->allow_delete"}
+                           <a href="#" class="btn btn-sm btn-danger" onclick="delete_combinacion('{$value->codigo}')">
+                              <span class="glyphicon glyphicon-trash"></span>
+                           </a>
+                           {/if}
+                           <button class="btn btn-sm btn-primary" type="submit" title="Guardar">
+                              <span class="glyphicon glyphicon-floppy-disk"></span>
+                           </button>
+                        </div>
+                     </td>
+                  </tr>
+               </form>
+               {else}
+               <tr class="warning">
+                  <td colspan="4">Sin resultados.</td>
+               </tr>
+               {/loop}
+            </table>
+         </div>
+         <form action="{$fsc->url()}#atributos" method="post" class="form">
+            <input type="hidden" name="nueva_combi" value="TRUE"/>
+            <div class="container-fluid">
+               <div class="row">
+                  <div class="col-sm-6 col-sm-offset-3">
+                     <div class="panel panel-info">
+                        <div class="panel-heading">
+                           <h3 class="panel-title">Nueva combinación</h3>
+                        </div>
+                        <div class="panel-body">
+                           <div class="row">
+                              <div class="col-sm-6">
+                                 {loop="$fsc->atributos()"}
+                                 <div class="form-group">
+                                    <a href="{$value->url()}">{$value->nombre}</a>
+                                    <select name="idvalor_{$counter}" class="form-control">
+                                       <option value="">Ninguno</option>
+                                       <option value="">------</option>
+                                       {loop="$value->valores()"}
+                                       <option value="{$value2->id}">{$value2->valor}</option>
+                                       {/loop}
+                                    </select>
+                                 </div>
+                                 {/loop}
+                              </div>
+                              <div class="col-sm-6">
+                                 <div class="form-group">
+                                    Impacto en el precio:
+                                    <div class="input-group">
+                                       <input type="number" step="any" class="form-control text-right" name="impactoprecio" value="0" autocomplete="off" required=""/>
+                                       <span class="input-group-addon">{$fsc->simbolo_divisa()}</span>
+                                    </div>
+                                    <p class="help-block">
+                                       Se le sumará al precio del artículo. Si quieres que reste
+                                       pon un menos delante del número.
+                                    </p>
+                                 </div>
+                                 <div class="text-right">
+                                    <br/>
+                                    <button class="btn btn-sm btn-primary" type="submit">
+                                       <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                                    </button>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </form>
+      </div>
+      {/if}
       {if="$fsc->mostrar_tab_precios"}
       <div role="tabpanel" class="tab-pane" id="precios">
          <form action="{$fsc->url()}#precios" method="post" class="form">
@@ -353,7 +534,10 @@
                            <span class="input-group-addon">{$fsc->simbolo_divisa()}</span>
                            <input type="text" class="form-control" id="pvp" name="pvp" value="{$fsc->articulo->pvp}" autocomplete="off" onkeyup="cambiar_pvp()" onclick="this.select()"/>
                         </div>
-                        <p class="help-block">Último cambio de precio: {$fsc->articulo->factualizado}</p>
+                        <p class="help-block">
+                           El precio se guarda con <b>{#FS_NF0_ART#} decimales</b>.
+                           Puedes cambiarlo desde el <a href="index.php?page=admin_home#avanzado">panel de control</a>.
+                        </p>
                      </div>
                   </div>
                   <div class="col-sm-4">
@@ -377,6 +561,7 @@
                            <span class="input-group-addon">{$fsc->simbolo_divisa()}</span>
                            <input type="text" class="form-control" id="pvpi" name="pvpiva" value="{$fsc->articulo->pvp_iva()}" autocomplete="off" onkeyup="cambiar_pvpi()" onclick="this.select()"/>
                         </div>
+                        <p class="help-block">Último cambio de precio: {$fsc->articulo->factualizado}</p>
                      </div>
                   </div>
                </div>
@@ -390,7 +575,8 @@
                         <input type="text" name="preciocoste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" onclick="this.select()" autocomplete="off">
                         {/if}
                         <p class="help-block">
-                           Puede cambiar la configuración de precio de coste desde el <a href="index.php?page=admin_home#avanzado">panel de control</a>.
+                           Puede cambiar la configuración de precio de coste desde
+                           la configuración del <a href="index.php?page=admin_almacenes">almacén</a>.
                         </p>
                      </div>
                   </div>
@@ -492,6 +678,17 @@
                            {/loop}
                         </table>
                      </div>
+                     <div class="container-fluid">
+                        <div class="row">
+                           <div class="col-sm-12">
+                              <p class="help-block">
+                                 Estos son los proveedores a los que has comprado este producto,
+                                 sus referencias, su último precio y descuento, y su stock,
+                                 si lo ofrecen.
+                              </p>
+                           </div>
+                        </div>
+                     </div>
                   </div>
                </div>
             </div>
@@ -535,7 +732,7 @@
                </tr>
                {/loop}
                {if="$fsc->nuevos_almacenes"}
-               <tr class="bg-info">
+               <tr class="info">
                   <form action="{$fsc->url()}#stock" method="post" class="form">
                      <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
                      <input type="hidden" name="cantidadini" value="0"/>
@@ -564,13 +761,61 @@
          </div>
          <div class="container-fluid">
             <div class="row">
-               <div class="col-sm-12">
-                  <h2>Regularizaciones de stock:</h2>
+               <div class="col-sm-6">
+                  <div class="btn-group">
+                     <button type="button" id="b_movimientos" class="btn btn-sm btn-default active">
+                        <span class="glyphicon glyphicon-transfer"></span>
+                        &nbsp; Movimientos
+                     </button>
+                     <button type="button" id="b_regularizaciones" class="btn btn-sm btn-default">Regularizaciones</button>
+                  </div>
+               </div>
+               <div class="col-sm-6 text-right">
+                  <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_recal_stock">
+                     <span class="glyphicon glyphicon-wrench"></span>
+                     &nbsp; Recalcular stock
+                  </a>
                </div>
             </div>
          </div>
-         <div class="table-responsive">
-            <table class="table table-hover">
+         <div class="table-responsive" style="margin-top: 10px;">
+            <table id="table_movimientos" class="table table-hover">
+               <thead>
+                  <tr>
+                     <th>Orígen</th>
+                     <th class="text-right">Movimiento</th>
+                     <th class="text-right">Cantidad final</th>
+                     <th class="text-right">
+                        Fecha
+                        <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                     </th>
+                     <th class="text-right">Hora</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->get_movimientos()"}
+               <tr class='clickableRow{if="$value['movimiento']=='-'"} warning{elseif="$value['movimiento']>0"} success{else} danger{/if}' href='{$value['url']}'>
+                  <td>
+                     {$value['codalmacen']} - <a href="{$value['url']}">{$value['origen']}</a>
+                  </td>
+                  <td class="text-right">
+                     {if="$value['movimiento']>0"}+{/if}{$value['movimiento']}
+                  </td>
+                  <td class="text-right">{$value['final']}</td>
+                  <td class="text-right">{$value['fecha']}</td>
+                  <td class="text-right">{$value['hora']}</td>
+               </tr>
+               {else}
+               <tr>
+                  <td colspan="5" class="warning">Sin resultados.</td>
+               </tr>
+               {/loop}
+               <tr>
+                  <td colspan="2"></td>
+                  <td class="text-right"><b>{$fsc->articulo->stockfis}</b></td>
+                  <td colspan="2"></td>
+               </tr>
+            </table>
+            <table id="table_regularizaciones" class="table table-hover" style="display: none;">
                <thead>
                   <tr>
                      <th class="text-left">Usuario</th>
@@ -579,23 +824,60 @@
                      <th class="text-right">Cantidad final</th>
                      <th class="text-right">Fecha</th>
                      <th class="text-right">Hora</th>
+                     <th></th>
                   </tr>
                </thead>
                {loop="$fsc->regularizaciones"}
-               <tr{if="$value->cantidadfin<$value->cantidadini"} class="bg-danger"{/if}>
+               <tr{if="$value->cantidadfin<$value->cantidadini"} class="danger"{/if}>
                   <td>{$value->nick}</td>
                   <td>{$value->motivo}</td>
                   <td class="text-right">{$value->cantidadini}</td>
                   <td class="text-right">{$value->cantidadfin}</td>
                   <td class="text-right">{$value->fecha}</td>
                   <td class="text-right">{$value->hora}</td>
+                  <td>
+                     {if="$fsc->allow_delete"}
+                     <a href="{$fsc->url()}&deletereg={$value->id}#stock" title="Eliminar la regularización">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                     </a>
+                     {/if}
+                  </td>
                </tr>
                {else}
                <tr class="warning">
-                  <td colspan="6">Sin resultados.</td>
+                  <td colspan="7">Sin resultados.</td>
                </tr>
                {/loop}
             </table>
+         </div>
+         <div class="modal fade" id="modal_recal_stock" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                     </button>
+                     <h4 class="modal-title">Recalcular stock</h4>
+                  </div>
+                  <div class="modal-body">
+                     <p class='help-block'>
+                        Se recalculará el stock del artículo a partir de las
+                        regularizaciones (de stock) y los albaranes y facturas de compra
+                        y venta.
+                     </p>
+                     <p class='help-block'>
+                        <b>Advertencia</b>: si el artículo no tiene ningún movimiento,
+                        ni regularización, el stock resultante <b>será 0</b>.
+                     </p>
+                  </div>
+                  <div class="modal-footer">
+                     <a href="{$fsc->url()}&recalcular_stock=TRUE#stock" class="btn btn-sm btn-warning">
+                        <span class="glyphicon glyphicon-wrench"></span>
+                        &nbsp; Recalcular stock
+                     </a>
+                  </div>
+               </div>
+            </div>
          </div>
       </div>
       {/if}

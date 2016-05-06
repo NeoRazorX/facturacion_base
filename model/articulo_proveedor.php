@@ -2,19 +2,19 @@
 
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2015-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -87,12 +87,15 @@ class articulo_proveedor extends fs_model
     */
    private $iva;
    
+   public $codbarras;
+   public $partnumber;
+   
    private static $impuestos;
    private static $nombres;
    
    public function __construct($a = FALSE)
    {
-      parent::__construct('articulosprov', 'plugins/facturacion_base/');
+      parent::__construct('articulosprov');
       
       if( !isset(self::$impuestos) )
       {
@@ -124,6 +127,8 @@ class articulo_proveedor extends fs_model
          $this->codimpuesto = $a['codimpuesto'];
          $this->stock = floatval($a['stock']);
          $this->nostock = $this->str2bool($a['nostock']);
+         $this->codbarras = $a['codbarras'];
+         $this->partnumber = $a['partnumber'];
       }
       else
       {
@@ -137,6 +142,8 @@ class articulo_proveedor extends fs_model
          $this->codimpuesto = NULL;
          $this->stock = 0;
          $this->nostock = TRUE;
+         $this->codbarras = NULL;
+         $this->partnumber = NULL;
       }
       
       $this->iva = NULL;
@@ -225,6 +232,11 @@ class articulo_proveedor extends fs_model
       return $this->precio * (100-$this->dto) / 100 * (100+$this->get_iva()) / 100;
    }
    
+   /**
+    * Devuelve el artículo de proveedor solicitado, o false si no se encuentra.
+    * @param type $id
+    * @return \articulo_proveedor|boolean
+    */
    public function get($id)
    {
       $data = $this->db->select("SELECT * FROM articulosprov WHERE id = ".$this->var2str($id).";");
@@ -303,6 +315,8 @@ class articulo_proveedor extends fs_model
                  ", codimpuesto = ".$this->var2str($this->codimpuesto).
                  ", stock = ".$this->var2str($this->stock).
                  ", nostock = ".$this->var2str($this->nostock).
+                 ", codbarras = ".$this->var2str($this->codbarras).
+                 ", partnumber = ".$this->var2str($this->partnumber).
                  " WHERE id = ".$this->var2str($this->id).";";
          
          return $this->db->exec($sql);
@@ -310,7 +324,7 @@ class articulo_proveedor extends fs_model
       else
       {
          $sql = "INSERT INTO articulosprov (referencia,codproveedor,refproveedor,descripcion,".
-                 "precio,dto,codimpuesto,stock,nostock) VALUES ".
+                 "precio,dto,codimpuesto,stock,nostock,codbarras,partnumber) VALUES ".
                  "(".$this->var2str($this->referencia).
                  ",".$this->var2str($this->codproveedor).
                  ",".$this->var2str($this->refproveedor).
@@ -319,7 +333,9 @@ class articulo_proveedor extends fs_model
                  ",".$this->var2str($this->dto).
                  ",".$this->var2str($this->codimpuesto).
                  ",".$this->var2str($this->stock).
-                 ",".$this->var2str($this->nostock).");";
+                 ",".$this->var2str($this->nostock).
+                 ",".$this->var2str($this->codbarras).
+                 ",".$this->var2str($this->partnumber).");";
          
          if( $this->db->exec($sql) )
          {
@@ -344,12 +360,15 @@ class articulo_proveedor extends fs_model
    public function all_from_ref($ref)
    {
       $alist = array();
+      $sql = "SELECT * FROM articulosprov WHERE referencia = ".$this->var2str($ref)." ORDER BY precio ASC;";
       
-      $data = $this->db->select("SELECT * FROM articulosprov WHERE referencia = ".$this->var2str($ref)." ORDER BY precio ASC;");
+      $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $d)
+         {
             $alist[] = new articulo_proveedor($d);
+         }
       }
       
       return $alist;
@@ -362,12 +381,37 @@ class articulo_proveedor extends fs_model
     */
    public function mejor_from_ref($ref)
    {
-      $data = $this->db->select("SELECT * FROM articulosprov WHERE referencia = ".$this->var2str($ref)." ORDER BY precio ASC;");
+      $sql = "SELECT * FROM articulosprov WHERE referencia = ".$this->var2str($ref)
+              ." ORDER BY precio ASC;";
+      
+      $data = $this->db->select($sql);
       if($data)
       {
          return new articulo_proveedor($data[0]);
       }
       else
          return FALSE;
+   }
+   
+   /**
+    * Devuelve todos los articulos que tienen asociada una referencia para actualizar.
+    * @param 
+    * @return \articulo_proveedor
+    */
+   public function all_con_ref()
+   {
+      $alist = array();
+      $sql = "SELECT * FROM articulosprov WHERE referencia !='' ORDER BY precio ASC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $alist[] = new articulo_proveedor($d);
+         }
+      }
+      
+      return $alist;
    }
 }

@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -167,7 +167,7 @@ class albaran_proveedor extends fs_model
 
    public function __construct($a=FALSE)
    {
-      parent::__construct('albaranesprov', 'plugins/facturacion_base/');
+      parent::__construct('albaranesprov');
       if($a)
       {
          $this->idalbaran = $this->intval($a['idalbaran']);
@@ -198,7 +198,9 @@ class albaran_proveedor extends fs_model
          
          $this->hora = '00:00:00';
          if( !is_null($a['hora']) )
-            $this->hora = $a['hora'];
+         {
+            $this->hora = date('H:i:s', strtotime($a['hora']));
+         }
          
          $this->codproveedor = $a['codproveedor'];
          $this->nombre = $a['nombre'];
@@ -311,6 +313,11 @@ class albaran_proveedor extends fs_model
       return $linea->all_from_albaran($this->idalbaran);
    }
    
+   /**
+    * Devuelve el albraán solicitado o false si no lo encuentra.
+    * @param type $id
+    * @return \albaran_proveedor|boolean
+    */
    public function get($id)
    {
       $albaran = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($id).";");
@@ -618,6 +625,12 @@ class albaran_proveedor extends fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve un array con los últimos albaranes
+    * @param type $offset
+    * @param type $order
+    * @return \albaran_proveedor
+    */
    public function all($offset=0, $order='fecha DESC, codigo DESC')
    {
       $albalist = array();
@@ -627,12 +640,20 @@ class albaran_proveedor extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_proveedor($a);
+         }
       }
       
       return $albalist;
    }
    
+   /**
+    * Devuelve un array con los albaranes pendientes
+    * @param type $offset
+    * @param type $order
+    * @return \albaran_proveedor
+    */
    public function all_ptefactura($offset=0, $order='fecha ASC, codigo ASC')
    {
       $albalist = array();
@@ -642,12 +663,20 @@ class albaran_proveedor extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_proveedor($a);
+         }
       }
       
       return $albalist;
    }
    
+   /**
+    * Devuelve un array con los albaranes del proveedor
+    * @param type $codproveedor
+    * @param type $offset
+    * @return \albaran_proveedor
+    */
    public function all_from_proveedor($codproveedor, $offset=0)
    {
       $alblist = array();
@@ -658,12 +687,20 @@ class albaran_proveedor extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $alblist[] = new albaran_proveedor($a);
+         }
       }
       
       return $alblist;
    }
    
+   /**
+    * Devuelve un array con los albaranes del agente/empleado
+    * @param type $codagente
+    * @param type $offset
+    * @return \albaran_proveedor
+    */
    public function all_from_agente($codagente, $offset=0)
    {
       $alblist = array();
@@ -674,12 +711,43 @@ class albaran_proveedor extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $alblist[] = new albaran_proveedor($a);
+         }
       }
       
       return $alblist;
    }
    
+   /**
+    * Devuelve un array con los albaranes relacionados con la factura $id
+    * @param type $id
+    * @return \albaran_proveedor
+    */
+   public function all_from_factura($id)
+   {
+      $alblist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE idfactura = "
+              .$this->var2str($id)." ORDER BY fecha DESC, codigo DESC";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $a)
+         {
+            $alblist[] = new albaran_proveedor($a);
+         }
+      }
+      
+      return $alblist;
+   }
+   
+   /**
+    * Devuelve un array con los albaranes comprendidos entre $desde y $hasta
+    * @param type $desde
+    * @param type $hasta
+    * @return \albaran_proveedor
+    */
    public function all_desde($desde, $hasta)
    {
       $alblist = array();
@@ -691,12 +759,20 @@ class albaran_proveedor extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $alblist[] = new albaran_proveedor($a);
+         }
       }
       
       return $alblist;
    }
    
+   /**
+    * Devuelve un array con los albaranes que coinciden con $query
+    * @param type $query
+    * @param type $offset
+    * @return \albaran_proveedor
+    */
    public function search($query, $offset=0)
    {
       $alblist = array();
@@ -718,12 +794,22 @@ class albaran_proveedor extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $alblist[] = new albaran_proveedor($a);
+         }
       }
       
       return $alblist;
    }
    
+   /**
+    * Devuelve un array con los albaranes del proveedor $codproveedor que coinciden con $query
+    * @param type $codproveedor
+    * @param type $desde
+    * @param type $hasta
+    * @param type $serie
+    * @return \albaran_proveedor
+    */
    public function search_from_proveedor($codproveedor, $desde, $hasta, $serie)
    {
       $albalist = array();
@@ -737,7 +823,9 @@ class albaran_proveedor extends fs_model
       if($data)
       {
          foreach($data as $a)
+         {
             $albalist[] = new albaran_proveedor($a);
+         }
       }
       
       return $albalist;
@@ -745,23 +833,15 @@ class albaran_proveedor extends fs_model
    
    public function cron_job()
    {
-      /*
-       * Marcamos como ptefactura = TRUE todos los albaranes de ejercicios
-       * ya cerrados. Así no se podrán modificar ni facturar.
-       */
-      $ejercicio = new ejercicio();
-      foreach($ejercicio->all() as $eje)
-      {
-         if( !$eje->abierto() )
-         {
-            $this->db->exec("UPDATE ".$this->table_name." SET ptefactura = FALSE
-               WHERE codejercicio = ".$this->var2str($eje->codejercicio).";");
-         }
-      }
-      
       /**
        * Ponemos a NULL todos los idfactura = 0
        */
       $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura = '0';");
+      
+      /**
+       * Ponemos a NULL todos los idfactura que no están en facturascli
+       */
+      $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura NOT IN"
+              . " (SELECT idfactura FROM facturasprov);");
    }
 }

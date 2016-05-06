@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -69,7 +69,9 @@ class contabilidad_ejercicio extends fs_controller
             $this->ejercicio->longsubcuenta = intval($_POST['longsubcuenta']);
             $this->ejercicio->estado = $_POST['estado'];
             if( $this->ejercicio->save() )
+            {
                $this->new_message('Datos guardados correctamente.');
+            }
             else
                $this->new_error_msg('Imposible guardar los datos.');
          }
@@ -108,21 +110,27 @@ class contabilidad_ejercicio extends fs_controller
             {
                $asiento_a = $asiento->get( $this->ejercicio->idasientoapertura );
                if($asiento_a)
+               {
                   $this->asiento_apertura_url = $asiento_a->url();
+               }
             }
             $this->asiento_cierre_url = FALSE;
             if( $this->ejercicio->idasientocierre )
             {
                $asiento_c = $asiento->get( $this->ejercicio->idasientocierre );
                if($asiento_c)
+               {
                   $this->asiento_cierre_url = $asiento_c->url();
+               }
             }
             $this->asiento_pyg_url = FALSE;
             if( $this->ejercicio->idasientopyg )
             {
                $asiento_pyg = $asiento->get( $this->ejercicio->idasientopyg );
                if($asiento_pyg)
+               {
                   $this->asiento_pyg_url = $asiento_pyg->url();
+               }
             }
             
             /// comprobamos el proceso de importación
@@ -374,11 +382,13 @@ class contabilidad_ejercicio extends fs_controller
          
          if($offset == 0)
          {
-            $this->new_message('Importando ejercicio: paso '.$import_step.' de 6 ...');
+            $this->new_message('Importando ejercicio: paso '.$import_step.' de 6 ...'
+                    . '<br/>Espera a que termine.');
          }
          else
          {
-            $this->new_message('Importando ejercicio: paso '.$import_step.'.'.($offset/1000).' de 6 ...');
+            $this->new_message('Importando ejercicio: paso '.$import_step.'.'.($offset/1000).' de 6 ...'
+                    . '<br/>Espera a que termine.');
          }
          
          $xml = simplexml_load_file('tmp/'.FS_TMP_NAME.'ejercicio.xml');
@@ -520,7 +530,9 @@ class contabilidad_ejercicio extends fs_controller
                            $epigrafe->descripcion = base64_decode($ep->descripcion);
                            
                            if( !$epigrafe->save() )
+                           {
                               $this->importar_url = FALSE;
+                           }
                         }
                         else if($ep->codpadre)
                         {
@@ -534,7 +546,9 @@ class contabilidad_ejercicio extends fs_controller
                               $epigrafe->descripcion = base64_decode($ep->descripcion);
                               
                               if( !$epigrafe->save() )
+                              {
                                  $this->importar_url = FALSE;
+                              }
                            }
                         }
                      }
@@ -561,7 +575,9 @@ class contabilidad_ejercicio extends fs_controller
                         $cuenta->idcuentaesp = $c->idcuentaesp;
                         
                         if( !$cuenta->save() )
+                        {
                            $this->importar_url = FALSE;
+                        }
                      }
                   }
                }
@@ -590,7 +606,9 @@ class contabilidad_ejercicio extends fs_controller
                         $subcuenta->descripcion = base64_decode($sc->descripcion);
                         
                         if( !$subcuenta->save() )
+                        {
                            $this->importar_url = FALSE;
+                        }
                      }
                   }
                }
@@ -713,7 +731,9 @@ class contabilidad_ejercicio extends fs_controller
          $asiento_pyg->editable = FALSE;
          $asiento_pyg->fecha = $this->ejercicio->fechafin;
          if( !$asiento_pyg->save() )
+         {
             $continuar = FALSE;
+         }
       }
       
       if( $continuar )
@@ -724,7 +744,9 @@ class contabilidad_ejercicio extends fs_controller
          $asiento_cierre->editable = FALSE;
          $asiento_cierre->fecha = $this->ejercicio->fechafin;
          if( !$asiento_cierre->save() )
+         {
             $continuar = FALSE;
+         }
       }
       
       if( $continuar )
@@ -736,7 +758,9 @@ class contabilidad_ejercicio extends fs_controller
          $asiento_apertura->editable = FALSE;
          $asiento_apertura->fecha = $siguiente_ejercicio->fechainicio;
          if( !$asiento_apertura->save() )
+         {
             $continuar = FALSE;
+         }
       }
       
       if( $continuar )
@@ -775,7 +799,9 @@ class contabilidad_ejercicio extends fs_controller
                
                $ppyg->coddivisa = $sc->coddivisa;
                if( !$ppyg->save() )
+               {
                   $continuar = FALSE;
+               }
             }
          }
          
@@ -800,7 +826,9 @@ class contabilidad_ejercicio extends fs_controller
                $ppyg->haber = $diferencia;
                $ppyg->coddivisa = $sc->coddivisa;
                if( !$ppyg->save() )
+               {
                   $continuar = FALSE;
+               }
             }
             else
             {
@@ -837,7 +865,9 @@ class contabilidad_ejercicio extends fs_controller
                
                $pac->coddivisa = $sc->coddivisa;
                if( !$pac->save() )
+               {
                   $continuar = FALSE;
+               }
                
                if($sc->codcuenta == '129')
                {
@@ -863,7 +893,9 @@ class contabilidad_ejercicio extends fs_controller
                   
                   $paa->coddivisa = $nsc->coddivisa;
                   if( !$paa->save() )
+                  {
                      $continuar = FALSE;
+                  }
                }
                else
                   $continuar = FALSE;
@@ -941,7 +973,9 @@ class contabilidad_ejercicio extends fs_controller
             
             $siguiente_ejercicio->idasientoapertura = $asiento_apertura->idasiento;
             if( !$siguiente_ejercicio->save() )
+            {
                $this->new_error_msg('Error al modificar el siguiente ejercicio.');
+            }
          }
          else
          {

@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -112,7 +112,7 @@ class linea_albaran_proveedor extends fs_model
    
    public function __construct($l=FALSE)
    {
-      parent::__construct('lineasalbaranesprov', 'plugins/facturacion_base/');
+      parent::__construct('lineasalbaranesprov');
       
       if( !isset(self::$albaranes) )
          self::$albaranes = array();
@@ -441,5 +441,23 @@ class linea_albaran_proveedor extends fs_model
       }
       else
          return 0;
+   }
+   
+   /**
+    * Devuelve los datos de una linea 
+    * @param type $idlinea
+    * @return new linea_albaran_proveedor
+    */
+   public function get($idlinea)
+   {
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idlinea = ".$this->var2str($idlinea).";");
+      if($data)
+      {
+         return new linea_albaran_proveedor($data[0]);
+      }
+      else
+      {
+         return FALSE;
+      }
    }
 }

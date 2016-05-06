@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -32,6 +32,7 @@ class ventas_clientes extends fs_controller
    public $codpais;
    public $grupo;
    public $grupos;
+   public $nocifnif;
    public $nuevocli_setup;
    public $offset;
    public $pais;
@@ -142,84 +143,75 @@ class ventas_clientes extends fs_controller
       }
       else if( isset($_POST['cifnif']) ) /// añadir un nuevo cliente
       {
-         $cliente = FALSE;
-         if($_POST['cifnif'] != '')
+         $cliente = new cliente();
+         $cliente->codcliente = $cliente->get_new_codigo();
+         $cliente->nombre = $_POST['nombre'];
+         $cliente->razonsocial = $_POST['nombre'];
+         $cliente->tipoidfiscal = $_POST['tipoidfiscal'];
+         $cliente->cifnif = $_POST['cifnif'];
+         
+         if($_POST['scodgrupo'] != '')
          {
-            $cliente = $this->cliente->get_by_cifnif($_POST['cifnif']);
-            if($cliente)
-            {
-               $this->new_advice('Ya existe un cliente con el '.FS_CIFNIF.' '.$_POST['cifnif']);
-               $this->query = $_POST['cifnif'];
-            }
+            $cliente->codgrupo = $_POST['scodgrupo'];
          }
          
-         if(!$cliente)
+         if( isset($_POST['telefono1']) )
          {
-            $cliente = new cliente();
-            $cliente->codcliente = $cliente->get_new_codigo();
-            $cliente->nombre = $_POST['nombre'];
-            $cliente->razonsocial = $_POST['nombre'];
-            $cliente->cifnif = $_POST['cifnif'];
+            $cliente->telefono1 = $_POST['telefono1'];
+         }
+         
+         if( isset($_POST['telefono2']) )
+         {
+            $cliente->telefono2 = $_POST['telefono2'];
+         }
+         
+         if( $cliente->save() )
+         {
+            $dircliente = new direccion_cliente();
+            $dircliente->codcliente = $cliente->codcliente;
+            $dircliente->codpais = $this->empresa->codpais;
+            $dircliente->provincia = $this->empresa->provincia;
+            $dircliente->ciudad = $this->empresa->ciudad;
+            $dircliente->descripcion = 'Principal';
             
-            if($_POST['scodgrupo'] != '')
+            if( isset($_POST['pais']) )
             {
-               $cliente->codgrupo = $_POST['scodgrupo'];
+               $dircliente->codpais = $_POST['pais'];
             }
             
-            if( isset($_POST['telefono1']) )
+            if( isset($_POST['provincia']) )
             {
-               $cliente->telefono1 = $_POST['telefono1'];
+               $dircliente->provincia = $_POST['provincia'];
             }
             
-            if( isset($_POST['telefono2']) )
+            if( isset($_POST['ciudad']) )
             {
-               $cliente->telefono2 = $_POST['telefono2'];
+               $dircliente->ciudad = $_POST['ciudad'];
             }
             
-            if( $cliente->save() )
+            if( isset($_POST['codpostal']) )
             {
-               $dircliente = new direccion_cliente();
-               $dircliente->codcliente = $cliente->codcliente;
-               $dircliente->codpais = $this->empresa->codpais;
-               $dircliente->provincia = $this->empresa->provincia;
-               $dircliente->ciudad = $this->empresa->ciudad;
-               $dircliente->descripcion = 'Principal';
+               $dircliente->codpostal = $_POST['codpostal'];
+            }
+            
+            if( isset($_POST['direccion']) )
+            {
+               $dircliente->direccion = $_POST['direccion'];
+            }
+            
+            if( $dircliente->save() )
+            {
+               /// forzamos la creación de la subcuenta
+               $cliente->get_subcuenta($this->empresa->codejercicio);
                
-               if( isset($_POST['pais']) )
-               {
-                  $dircliente->codpais = $_POST['pais'];
-               }
-               
-               if( isset($_POST['provincia']) )
-               {
-                  $dircliente->provincia = $_POST['provincia'];
-               }
-               
-               if( isset($_POST['ciudad']) )
-               {
-                  $dircliente->ciudad = $_POST['ciudad'];
-               }
-               
-               if( isset($_POST['codpostal']) )
-               {
-                  $dircliente->codpostal = $_POST['codpostal'];
-               }
-               
-               if( isset($_POST['direccion']) )
-               {
-                  $dircliente->direccion = $_POST['direccion'];
-               }
-               
-               if( $dircliente->save() )
-               {
-                  header('location: '.$cliente->url());
-               }
-               else
-                  $this->new_error_msg("¡Imposible guardar la dirección del cliente!");
+               /// redireccionamos a la página del cliente
+               header('location: '.$cliente->url());
             }
             else
-               $this->new_error_msg("¡Imposible guardar los datos del cliente!");
+               $this->new_error_msg("¡Imposible guardar la dirección del cliente!");
          }
+         else
+            $this->new_error_msg("¡Imposible guardar los datos del cliente!");
       }
       
       $this->offset = 0;
@@ -241,53 +233,21 @@ class ventas_clientes extends fs_controller
       }
       
       $this->codpais = '';
-      if( isset($_POST['codpais']) )
+      if( isset($_REQUEST['codpais']) )
       {
-         $this->codpais = $_POST['codpais'];
+         $this->codpais = $_REQUEST['codpais'];
       }
       
       $this->codgrupo = '';
-      if( isset($_POST['bcodgrupo']) )
+      if( isset($_REQUEST['bcodgrupo']) )
       {
-         $this->codgrupo = $_POST['bcodgrupo'];
+         $this->codgrupo = $_REQUEST['bcodgrupo'];
       }
+      
+      $this->nocifnif = isset($_REQUEST['nocifnif']);
       
       $this->buscar();
       $this->grupos = $this->grupo->all();
-   }
-   
-   public function anterior_url()
-   {
-      $url = '';
-      
-      if($this->offset > 0)
-      {
-         $url = $this->url()."&query=".$this->query
-                 ."&ciudad=".$this->ciudad
-                 ."&provincia=".$this->provincia
-                 ."&codpais=".$this->codpais
-                 ."&codgrupo=".$this->codgrupo
-                 ."&offset=".($this->offset-FS_ITEM_LIMIT);
-      }
-      
-      return $url;
-   }
-   
-   public function siguiente_url()
-   {
-      $url = '';
-      
-      if( count($this->resultados) == FS_ITEM_LIMIT )
-      {
-         $url = $this->url()."&query=".$this->query
-                 ."&ciudad=".$this->ciudad
-                 ."&provincia=".$this->provincia
-                 ."&codpais=".$this->codpais
-                 ."&codgrupo=".$this->codgrupo
-                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
-      }
-      
-      return $url;
    }
    
    public function paginas()
@@ -298,6 +258,11 @@ class ventas_clientes extends fs_controller
                  ."&codpais=".$this->codpais
                  ."&codgrupo=".$this->codgrupo
                  ."&offset=".($this->offset+FS_ITEM_LIMIT);
+      
+      if($this->nocifnif)
+      {
+         $url .= '&nocifnif=TRUE';
+      }
       
       $paginas = array();
       $i = 0;
@@ -337,7 +302,14 @@ class ventas_clientes extends fs_controller
          }
       }
       
-      return $paginas;
+      if( count($paginas) > 1 )
+      {
+         return $paginas;
+      }
+      else
+      {
+         return array();
+      }
    }
    
    public function nombre_grupo($cod)
@@ -379,7 +351,7 @@ class ventas_clientes extends fs_controller
       {
          if($ciu != '')
          {
-            $final[ mb_strtolower($ciu) ] = $ciu;
+            $final[ mb_strtolower($ciu, 'UTF8') ] = $ciu;
          }
       }
       
@@ -408,7 +380,7 @@ class ventas_clientes extends fs_controller
       {
          if($pro != '')
          {
-            $final[ mb_strtolower($pro) ] = $pro;
+            $final[ mb_strtolower($pro, 'UTF8') ] = $pro;
          }
       }
       
@@ -418,22 +390,26 @@ class ventas_clientes extends fs_controller
    private function buscar()
    {
       $this->total_resultados = 0;
-      $query = mb_strtolower( $this->cliente->no_html($this->query) );
+      $query = mb_strtolower( $this->cliente->no_html($this->query), 'UTF8' );
       $sql = " FROM clientes";
       $and = ' WHERE ';
       
       if( is_numeric($query) )
       {
-         $sql .= $and."(codcliente LIKE '%".$query."%' OR cifnif LIKE '%".$query."%'"
-                 . " OR telefono1 LIKE '".$query."%' OR telefono2 LIKE '".$query."%'"
+         $sql .= $and."(codcliente LIKE '%".$query."%'"
+                 . " OR cifnif LIKE '%".$query."%'"
+                 . " OR telefono1 LIKE '".$query."%'"
+                 . " OR telefono2 LIKE '".$query."%'"
                  . " OR observaciones LIKE '%".$query."%')";
          $and = ' AND ';
       }
       else
       {
          $buscar = str_replace(' ', '%', $query);
-         $sql .= $and."(lower(nombre) LIKE '%".$buscar."%' OR lower(razonsocial) LIKE '%".$buscar."%'"
-                 . " OR lower(cifnif) LIKE '%".$buscar."%' OR lower(observaciones) LIKE '%".$buscar."%'"
+         $sql .= $and."(lower(nombre) LIKE '%".$buscar."%'"
+                 . " OR lower(razonsocial) LIKE '%".$buscar."%'"
+                 . " OR lower(cifnif) LIKE '%".$buscar."%'"
+                 . " OR lower(observaciones) LIKE '%".$buscar."%'"
                  . " OR lower(email) LIKE '%".$buscar."%')";
          $and = ' AND ';
       }
@@ -445,13 +421,13 @@ class ventas_clientes extends fs_controller
          
          if($this->ciudad != '')
          {
-            $sql .= "lower(ciudad) = '".mb_strtolower($this->ciudad)."'";
+            $sql .= "lower(ciudad) = '".mb_strtolower($this->ciudad, 'UTF8')."'";
             $and2 = ' AND ';
          }
          
          if($this->provincia != '')
          {
-            $sql .= $and2."lower(provincia) = '".mb_strtolower($this->provincia)."'";
+            $sql .= $and2."lower(provincia) = '".mb_strtolower($this->provincia, 'UTF8')."'";
             $and2 = ' AND ';
          }
          
@@ -467,6 +443,13 @@ class ventas_clientes extends fs_controller
       if($this->codgrupo != '')
       {
          $sql .= $and."codgrupo = '".$this->codgrupo."'";
+         $and = ' AND ';
+      }
+      
+      if($this->nocifnif)
+      {
+         $sql .= $and."cifnif = ''";
+         $and = ' AND ';
       }
       
       $data = $this->db->select("SELECT COUNT(codcliente) as total".$sql);

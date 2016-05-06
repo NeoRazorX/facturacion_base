@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -44,6 +44,13 @@ class cliente extends fs_model
     * @var type
     */
    public $razonsocial;
+   
+   /**
+    * Tipo de identificador fiscal del cliente.
+    * Ejemplos: CIF, NIF, CUIT...
+    * @var type 
+    */
+   public $tipoidfiscal;
    
    /**
     * Identificador fiscal del cliente.
@@ -119,11 +126,18 @@ class cliente extends fs_model
     */
    public $recargo;
    
+   /**
+    * TRUE  -> el cliente es una persona física.
+    * FALSE -> el cliente es una persona jurídica (empresa).
+    * @var type 
+    */
+   public $personafisica;
+   
    private static $regimenes_iva;
 
    public function __construct($c=FALSE)
    {
-      parent::__construct('clientes', 'plugins/facturacion_base/');
+      parent::__construct('clientes');
       if($c)
       {
          $this->codcliente = $c['codcliente'];
@@ -138,6 +152,7 @@ class cliente extends fs_model
             $this->razonsocial = $c['razonsocial'];
          }
          
+         $this->tipoidfiscal = $c['tipoidfiscal'];
          $this->cifnif = $c['cifnif'];
          $this->telefono1 = $c['telefono1'];
          $this->telefono2 = $c['telefono2'];
@@ -161,19 +176,21 @@ class cliente extends fs_model
          $this->observaciones = $this->no_html($c['observaciones']);
          $this->regimeniva = $c['regimeniva'];
          $this->recargo = $this->str2bool($c['recargo']);
+         $this->personafisica = $this->str2bool($c['personafisica']);
       }
       else
       {
          $this->codcliente = NULL;
          $this->nombre = '';
          $this->razonsocial = '';
+         $this->tipoidfiscal = FS_CIFNIF;
          $this->cifnif = '';
          $this->telefono1 = '';
          $this->telefono2 = '';
          $this->fax = '';
          $this->email = '';
          $this->web = '';
-         $this->codserie = $this->default_items->codserie();
+         $this->codserie = NULL;
          $this->coddivisa = $this->default_items->coddivisa();
          $this->codpago = $this->default_items->codpago();
          $this->codagente = NULL;
@@ -184,6 +201,7 @@ class cliente extends fs_model
          $this->observaciones = NULL;
          $this->regimeniva = 'General';
          $this->recargo = FALSE;
+         $this->personafisica = TRUE;
       }
    }
    
@@ -285,16 +303,31 @@ class cliente extends fs_model
    }
    
    /**
-    * Devuelve un cliente a partir del cifnif
+    * Devuelve la primera ocurrencia del cifnif en la lista de clientes.
+    * Si el cifnif está en blanco y se proporciona una razón social,
+    * se devuelve la primera ocurrencia.
     * @param type $cifnif
-    * @return \cliente|boolean
+    * @param type $razon
+    * @return boolean|\proveedor
     */
-   public function get_by_cifnif($cifnif)
+   public function get_by_cifnif($cifnif, $razon=FALSE)
    {
-      $cli = $this->db->select("SELECT * FROM ".$this->table_name." WHERE cifnif = ".$this->var2str($cifnif).";");
-      if($cli)
+      if($cifnif == '' AND $razon)
       {
-         return new cliente($cli[0]);
+         $razon = mb_strtolower( $this->no_html($razon) );
+         $sql = "SELECT * FROM ".$this->table_name." WHERE cifnif = ''"
+                 . " AND lower(razonsocial) = ".$this->var2str($razon).";";
+      }
+      else
+      {
+         $cifnif = mb_strtolower($cifnif);
+         $sql = "SELECT * FROM ".$this->table_name." WHERE lower(cifnif) = ".$this->var2str($cifnif).";";
+      }
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         return new cliente($data[0]);
       }
       else
          return FALSE;
@@ -336,16 +369,16 @@ class cliente extends fs_model
    /**
     * Devuelve la subcuenta asociada al cliente para el ejercicio $eje.
     * Si no existe intenta crearla. Si falla devuelve FALSE.
-    * @param type $ejercicio
+    * @param type $codejercicio
     * @return subcuenta
     */
-   public function get_subcuenta($ejercicio)
+   public function get_subcuenta($codejercicio)
    {
       $subcuenta = FALSE;
       
       foreach($this->get_subcuentas() as $s)
       {
-         if($s->codejercicio == $ejercicio)
+         if($s->codejercicio == $codejercicio)
          {
             $subcuenta = $s;
             break;
@@ -358,7 +391,7 @@ class cliente extends fs_model
          $continuar = TRUE;
          
          $cuenta = new cuenta();
-         $ccli = $cuenta->get_cuentaesp('CLIENT', $ejercicio);
+         $ccli = $cuenta->get_cuentaesp('CLIENT', $codejercicio);
          if($ccli)
          {
             $subc0 = $ccli->new_subcuenta($this->codcliente);
@@ -373,7 +406,7 @@ class cliente extends fs_model
             {
                $sccli = new subcuenta_cliente();
                $sccli->codcliente = $this->codcliente;
-               $sccli->codejercicio = $ejercicio;
+               $sccli->codejercicio = $codejercicio;
                $sccli->codsubcuenta = $subc0->codsubcuenta;
                $sccli->idsubcuenta = $subc0->idsubcuenta;
                if( $sccli->save() )
@@ -385,7 +418,8 @@ class cliente extends fs_model
             }
          }
          else
-            $this->new_error_msg('No se encuentra ninguna cuenta especial para clientes.');
+            $this->new_error_msg('No se encuentra ninguna cuenta especial para clientes'
+                    . ' en el ejercicio '.$codejercicio.' ¿Has importado los datos del ejercicio?');
       }
       
       return $subcuenta;
@@ -440,15 +474,15 @@ class cliente extends fs_model
       
       if( !preg_match("/^[A-Z0-9]{1,6}$/i", $this->codcliente) )
       {
-         $this->new_error_msg("Código de cliente no válido.");
+         $this->new_error_msg("Código de cliente no válido: ".$this->codcliente);
       }
       else if( strlen($this->nombre) < 1 OR strlen($this->nombre) > 100 )
       {
-         $this->new_error_msg("Nombre de cliente no válido.");
+         $this->new_error_msg("Nombre de cliente no válido: ".$this->nombre);
       }
       else if( strlen($this->razonsocial) < 1 OR strlen($this->razonsocial) > 100 )
       {
-         $this->new_error_msg("Razón social del cliente no válida.");
+         $this->new_error_msg("Razón social del cliente no válida: ".$this->razonsocial);
       }
       else
          $status = TRUE;
@@ -466,6 +500,7 @@ class cliente extends fs_model
          {
             $sql = "UPDATE ".$this->table_name." SET nombre = ".$this->var2str($this->nombre)
                     .", razonsocial = ".$this->var2str($this->razonsocial)
+                    .", tipoidfiscal = ".$this->var2str($this->tipoidfiscal)
                     .", cifnif = ".$this->var2str($this->cifnif)
                     .", telefono1 = ".$this->var2str($this->telefono1)
                     .", telefono2 = ".$this->var2str($this->telefono2)
@@ -483,15 +518,18 @@ class cliente extends fs_model
                     .", observaciones = ".$this->var2str($this->observaciones)
                     .", regimeniva = ".$this->var2str($this->regimeniva)
                     .", recargo = ".$this->var2str($this->recargo)
+                    .", personafisica = ".$this->var2str($this->personafisica)
                     ."  WHERE codcliente = ".$this->var2str($this->codcliente).";";
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,razonsocial,cifnif,telefono1,
-               telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,debaja,fechabaja,
-               fechaalta,observaciones,regimeniva,recargo) VALUES (".$this->var2str($this->codcliente)
+            $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,razonsocial,tipoidfiscal,
+               cifnif,telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,
+               debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,personafisica) VALUES
+                      (".$this->var2str($this->codcliente)
                     .",".$this->var2str($this->nombre)
                     .",".$this->var2str($this->razonsocial)
+                    .",".$this->var2str($this->tipoidfiscal)
                     .",".$this->var2str($this->cifnif)
                     .",".$this->var2str($this->telefono1)
                     .",".$this->var2str($this->telefono2)
@@ -508,7 +546,8 @@ class cliente extends fs_model
                     .",".$this->var2str($this->fechaalta)
                     .",".$this->var2str($this->observaciones)
                     .",".$this->var2str($this->regimeniva)
-                    .",".$this->var2str($this->recargo).");";
+                    .",".$this->var2str($this->recargo)
+                    .",".$this->var2str($this->personafisica).");";
          }
          
          return $this->db->exec($sql);
@@ -561,7 +600,7 @@ class cliente extends fs_model
    public function search($query, $offset=0)
    {
       $clilist = array();
-      $query = mb_strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query), 'UTF8' );
       
       $consulta = "SELECT * FROM ".$this->table_name." WHERE debaja = FALSE AND ";
       if( is_numeric($query) )

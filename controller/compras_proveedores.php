@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -60,46 +60,37 @@ class compras_proveedores extends fs_controller
       }
       else if( isset($_POST['cifnif']) )
       {
-         $proveedor = FALSE;
-         if($_POST['cifnif'] != '')
-         {
-            $proveedor = $this->proveedor->get_by_cifnif($_POST['cifnif']);
-            if($proveedor)
-            {
-               $this->new_advice('Ya existe un proveedor con el '.FS_CIFNIF.' '.$_POST['cifnif']);
-               $this->query = $_POST['cifnif'];
-            }
-         }
+         $proveedor = new proveedor();
+         $proveedor->codproveedor = $proveedor->get_new_codigo();
+         $proveedor->nombre = $_POST['nombre'];
+         $proveedor->razonsocial = $_POST['nombre'];
+         $proveedor->tipoidfiscal = $_POST['tipoidfiscal'];
+         $proveedor->cifnif = $_POST['cifnif'];
+         $proveedor->acreedor = isset($_POST['acreedor']);
          
-         if(!$proveedor)
+         if( $proveedor->save() )
          {
-            $proveedor = new proveedor();
-            $proveedor->codproveedor = $proveedor->get_new_codigo();
-            $proveedor->nombre = $_POST['nombre'];
-            $proveedor->razonsocial = $_POST['nombre'];
-            $proveedor->cifnif = $_POST['cifnif'];
-            $proveedor->acreedor = isset($_POST['acreedor']);
-            
-            if( $proveedor->save() )
+            $dirproveedor = new direccion_proveedor();
+            $dirproveedor->codproveedor = $proveedor->codproveedor;
+            $dirproveedor->descripcion = "Principal";
+            $dirproveedor->codpais = $_POST['pais'];
+            $dirproveedor->provincia = $_POST['provincia'];
+            $dirproveedor->ciudad = $_POST['ciudad'];
+            $dirproveedor->codpostal = $_POST['codpostal'];
+            $dirproveedor->direccion = $_POST['direccion'];
+            if( $dirproveedor->save() )
             {
-               $dirproveedor = new direccion_proveedor();
-               $dirproveedor->codproveedor = $proveedor->codproveedor;
-               $dirproveedor->descripcion = "Principal";
-               $dirproveedor->codpais = $_POST['pais'];
-               $dirproveedor->provincia = $_POST['provincia'];
-               $dirproveedor->ciudad = $_POST['ciudad'];
-               $dirproveedor->codpostal = $_POST['codpostal'];
-               $dirproveedor->direccion = $_POST['direccion'];
-               if( $dirproveedor->save() )
-               {
-                  header('location: '.$proveedor->url());
-               }
-               else
-                  $this->new_error_msg("¡Imposible guardar la dirección el proveedor!");
+               /// forzamos crear la subcuenta
+               $proveedor->get_subcuenta($this->empresa->codejercicio);
+               
+               /// redireccionamos a la página del proveedor
+               header('location: '.$proveedor->url());
             }
             else
-               $this->new_error_msg("¡Imposible guardar el proveedor!");
+               $this->new_error_msg("¡Imposible guardar la dirección el proveedor!");
          }
+         else
+            $this->new_error_msg("¡Imposible guardar el proveedor!");
       }
       
       $this->mostrar = 'todo';
@@ -129,43 +120,83 @@ class compras_proveedores extends fs_controller
       }
    }
    
-   public function anterior_url()
+   public function paginas()
    {
-      $url = '';
-      $extra = '&mostrar='.$this->mostrar;
+      $url = $this->url()."&query=".$this->query
+                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
       
-      if($this->query != '' AND $this->offset > 0)
-      {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
-      }
-      else if($this->query == '' AND $this->offset > 0)
-      {
-         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).$extra;
-      }
+      $paginas = array();
+      $i = 0;
+      $num = 0;
+      $actual = 1;
       
-      return $url;
-   }
-   
-   public function siguiente_url()
-   {
-      $url = '';
-      $extra = '&mostrar='.$this->mostrar;
-      
-      if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
+      $total = 0;
+      if($this->mostrar == 'acreedores')
       {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+         $total = $this->total_acreedores();
       }
-      else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
+      else
       {
-         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).$extra;
+         $total = $this->total_proveedores();
       }
       
-      return $url;
+      /// añadimos todas la página
+      while($num < $total)
+      {
+         $paginas[$i] = array(
+             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
+             'num' => $i + 1,
+             'actual' => ($num == $this->offset)
+         );
+         
+         if($num == $this->offset)
+         {
+            $actual = $i;
+         }
+         
+         $i++;
+         $num += FS_ITEM_LIMIT;
+      }
+      
+      /// ahora descartamos
+      foreach($paginas as $j => $value)
+      {
+         $enmedio = intval($i/2);
+         
+         /**
+          * descartamos todo excepto la primera, la última, la de enmedio,
+          * la actual, las 5 anteriores y las 5 siguientes
+          */
+         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
+         {
+            unset($paginas[$j]);
+         }
+      }
+      
+      if( count($paginas) > 1 )
+      {
+         return $paginas;
+      }
+      else
+      {
+         return array();
+      }
    }
    
    public function total_proveedores()
    {
       $data = $this->db->select("SELECT COUNT(codproveedor) as total FROM proveedores;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
+   }
+   
+   public function total_acreedores()
+   {
+      $data = $this->db->select("SELECT COUNT(codproveedor) as total FROM proveedores WHERE acreedor;");
       if($data)
       {
          return intval($data[0]['total']);

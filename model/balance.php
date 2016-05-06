@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -44,7 +44,7 @@ class balance extends fs_model
    
    public function __construct($b = FALSE)
    {
-      parent::__construct('co_codbalances08', 'plugins/facturacion_base/');
+      parent::__construct('co_codbalances08');
       if($b)
       {
          $this->codbalance = $b['codbalance'];
@@ -191,7 +191,7 @@ class balance_cuenta extends fs_model
    
    public function __construct($b = FALSE)
    {
-      parent::__construct('co_cuentascb', 'plugins/facturacion_base/');
+      parent::__construct('co_cuentascb');
       if($b)
       {
          $this->id = $this->intval($b['id']);
@@ -314,7 +314,7 @@ class balance_cuenta_a extends fs_model
    
    public function __construct($b = FALSE)
    {
-      parent::__construct('co_cuentascbba', 'plugins/facturacion_base/');
+      parent::__construct('co_cuentascbba');
       if($b)
       {
          $this->id = $this->intval($b['id']);

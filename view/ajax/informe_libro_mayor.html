@@ -1,0 +1,39 @@
+{if="is_array($fsc->grupos)"}
+<p class="help-block">Selecciona el <b>grupo de epígrafes</b> que quieras.</p>
+<div class="form-group">
+   <select name="codgrupo" class="form-control">
+      {loop="$fsc->grupos"}
+      <option value="{$value->codgrupo}">{$value->codgrupo} - {$value->descripcion}</option>
+      {else}
+      <option value="">Ningún grupo encontrado</option>
+      {/loop}
+   </select>
+</div>
+{elseif="is_array($fsc->epigrafes)"}
+<p class="help-block">Selecciona el <b>epígrafe</b> que quieras.</p>
+<div class="form-group">
+   <select name="codepigrafe" class="form-control">
+      {loop="$fsc->epigrafes"}
+      <option value="{$value->codepigrafe}">{$value->codepigrafe} - {$value->descripcion}</option>
+      {else}
+      <option value="">Ningún epígrafe encontrado</option>
+      {/loop}
+   </select>
+</div>
+{elseif="is_array($fsc->cuentas)"}
+<p class="help-block">Selecciona la cuenta que quieras.</p>
+<div class="form-group">
+   <select name="codcuenta" class="form-control">
+      {loop="$fsc->cuentas"}
+      <option value="{$value->codcuenta}">{$value->codcuenta} - {$value->descripcion}</option>
+      {else}
+      <option value="">Ninguna cuenta encontrads</option>
+      {/loop}
+   </select>
+</div>
+{else}
+<p class="help-block">Busca las subcuentas que quieras y pulsa intro.</p>
+<div class="form-group">
+   <input class="form-control" type="text" name="ac_subcuenta" id="ac_subcuenta_{$_POST['codejercicio']}" placeholder="Buscar subcuenta" autocomplete="off"/>
+</div>
+{/if}

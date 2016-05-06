@@ -1,17 +1,29 @@
 {include="header"}
 
-{if="$fsc->factura"}
-<div class="text-center">
-   <a href="{$fsc->factura->url()}" class="btn btn-default">
-      <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> &nbsp; Volver
-   </a>
+<div class="container">
+   <div class="row">
+      <div class="col-sm-12">
+         {if="$fsc->factura"}
+         <a href="{$fsc->factura->url()}" class="btn btn-default">
+            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> &nbsp; Volver
+         </a>
+         {elseif="$fsc->albaran"}
+         <a href="{$fsc->albaran->url()}" class="btn btn-default">
+            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> &nbsp; Volver
+         </a>
+         {/if}
+         <div class="page-header">
+            <h1>
+               <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+               &nbsp; Más formatos de facturas
+            </h1>
+         </div>
+         <p class="help-block">
+            Tienes disponibles más formatos de facturas, {#FS_ALBARANES#}, {#FS_PEDIDOS#}
+            y {#FS_PRESUPUESTOS#} en la <a href="https://www.facturascripts.com/store" target="_blank">tienda de plugins</a>.
+         </p>
+      </div>
+   </div>
 </div>
-{elseif="$fsc->albaran"}
-<div class="text-center">
-   <a href="{$fsc->albaran->url()}" class="btn btn-default">
-      <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> &nbsp; Volver
-   </a>
-</div>
-{/if}
 
 {include="footer"}

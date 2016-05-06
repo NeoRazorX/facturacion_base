@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -44,7 +44,7 @@ class grupo_clientes extends fs_model
    
    public function __construct($g = FALSE)
    {
-      parent::__construct('gruposclientes', 'plugins/facturacion_base/');
+      parent::__construct('gruposclientes');
       if($g)
       {
          $this->codgrupo = $g['codgrupo'];
@@ -79,14 +79,24 @@ class grupo_clientes extends fs_model
    
    public function get_new_codigo()
    {
-      $sql = "SELECT MAX(".$this->db->sql_to_int('codgrupo').") as cod FROM ".$this->table_name.";";
-      $cod = $this->db->select($sql);
-      if($cod)
+      if( strtolower(FS_DB_TYPE) == 'postgresql' )
       {
-         return 1 + intval($cod[0]['cod']);
+         $sql = "SELECT codgrupo from ".$this->table_name." where codgrupo ~ '^\d+$'"
+                 . " ORDER BY codgrupo::integer DESC";
       }
       else
-         return 1;
+      {
+         $sql = "SELECT codgrupo from ".$this->table_name." where codgrupo REGEXP '^[0-9]+$'"
+                 . " ORDER BY CAST(`codgrupo` AS decimal) DESC";
+      }
+      
+      $data = $this->db->select_limit($sql, 1, 0);
+      if($data)
+      {
+         return sprintf('%06s', (1 + intval($data[0]['codgrupo'])));
+      }
+      else
+         return '000001';
    }
    
    public function get($cod)
@@ -150,6 +160,11 @@ class grupo_clientes extends fs_model
       return $glist;
    }
    
+   /**
+    * Devuelve todos los grupos con la tarifa $cod
+    * @param type $cod
+    * @return \grupo_clientes
+    */
    public function all_with_tarifa($cod)
    {
       $glist = array();

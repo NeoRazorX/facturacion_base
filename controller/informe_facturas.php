@@ -1,28 +1,30 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
+require_model('cliente.php');
 require_model('factura_cliente.php');
 require_model('factura_proveedor.php');
-require_model('serie.php');
-require_model('cliente.php');
+require_model('forma_pago.php');
+require_model('pais.php');
 require_model('proveedor.php');
+require_model('serie.php');
 
 class informe_facturas extends fs_controller
 {
@@ -32,7 +34,9 @@ class informe_facturas extends fs_controller
    public $factura_cli;
    public $factura_pro;
    public $hasta;
+   public $mostrar;
    public $pagada;
+   public $pais;
    public $proveedor;
    public $serie;
    public $stats;
@@ -45,12 +49,19 @@ class informe_facturas extends fs_controller
    protected function private_core()
    {
       $this->agente = new agente();
-      $this->cliente = new cliente();
       $this->desde = Date('1-m-Y');
       $this->factura_cli = new factura_cliente();
       $this->factura_pro = new factura_proveedor();
       $this->hasta = Date('d-m-Y', mktime(0, 0, 0, date("m")+1, date("1")-1, date("Y")));
+      $this->pais = new pais();
       $this->serie = new serie();
+      $this->stats = array();
+      
+      $this->mostrar = 'general';
+      if( isset($_GET['mostrar']) )
+      {
+         $this->mostrar = $_GET['mostrar'];
+      }
       
       if( isset($_REQUEST['buscar_cliente']) )
       {
@@ -81,7 +92,32 @@ class informe_facturas extends fs_controller
                $this->csv_facturas_prov();
          }
       }
-      else
+      else if( isset($_POST['informe']) )
+      {
+         if($_POST['informe'] == 'facturascli')
+         {
+            if($_POST['unidades'] == 'TRUE')
+            {
+               $this->informe_ventas_unidades();
+            }
+            else
+            {
+               $this->informe_ventas();
+            }
+         }
+         else
+         {
+            if($_POST['unidades'] == 'TRUE')
+            {
+               $this->informe_compras_unidades();
+            }
+            else
+            {
+               $this->informe_compras();
+            }
+         }
+      }
+      else if($this->mostrar == 'general')
       {
          $this->albaranes_pendientes();
       }
@@ -117,6 +153,30 @@ class informe_facturas extends fs_controller
       
       header('Content-Type: application/json');
       echo json_encode( array('query' => $_REQUEST['buscar_proveedor'], 'suggestions' => $json) );
+   }
+   
+   public function provincias()
+   {
+      $final = array();
+      
+      $provincias = array();
+      $sql = "SELECT DISTINCT provincia FROM dirclientes ORDER BY provincia ASC;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+            $provincias[] = $d['provincia'];
+      }
+      
+      foreach($provincias as $pro)
+      {
+         if($pro != '')
+         {
+            $final[ mb_strtolower($pro, 'UTF8') ] = $pro;
+         }
+      }
+      
+      return $final;
    }
    
    private function csv_facturas_cli()
@@ -857,7 +917,9 @@ class informe_facturas extends fs_controller
       }
       
       foreach($stats_pro as $i => $value)
+      {
          $stats[$i]['total_pro'] = $value['total'];
+      }
       
       return $stats;
    }
@@ -874,7 +936,9 @@ class informe_facturas extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMDD')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%d')";
       
@@ -972,7 +1036,9 @@ class informe_facturas extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMMM')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%m')";
       
@@ -1007,7 +1073,9 @@ class informe_facturas extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMMM')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%m')";
       
@@ -1076,7 +1144,9 @@ class informe_facturas extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMYYYY')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%Y')";
       
@@ -1111,7 +1181,9 @@ class informe_facturas extends fs_controller
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
          $sql_aux = "to_char(fecha,'FMYYYY')";
+      }
       else
          $sql_aux = "DATE_FORMAT(fecha, '%Y')";
       
@@ -1202,5 +1274,695 @@ class informe_facturas extends fs_controller
       
       $this->stats['total'] = $this->stats['facturas_venta_importe'] + $this->stats['alb_ptes_venta_importe'];
       $this->stats['total'] -= $this->stats['facturas_compra_importe'] + $this->stats['alb_ptes_compra_importe'];
+   }
+   
+   public function stats_impagos($tabla = 'facturasprov')
+   {
+      $stats = array();
+      
+      $sql = "select pagada,sum(totaleuros) as total from ".$tabla." group by pagada order by pagada desc;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $stats[] = array(
+                'txt' => $this->empresa->str2bool($d['pagada']) ? 'Pagadas':'Impagadas',
+                'total' => round( abs( floatval($d['total']) ), FS_NF0)
+            );
+         }
+      }
+      
+      return $stats;
+   }
+   
+   public function stats_series($tabla = 'facturasprov')
+   {
+      $stats = array();
+      $serie0 = new serie();
+      
+      $sql = "select codserie,sum(totaleuros) as total from ".$tabla." group by codserie order by total desc;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $serie = $serie0->get($d['codserie']);
+            if($serie)
+            {
+               $stats[] = array(
+                   'txt' => $serie->descripcion,
+                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+               );
+            }
+            else
+            {
+               $stats[] = array(
+                   'txt' => $d['codserie'],
+                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+               );
+            }
+         }
+      }
+      
+      return $stats;
+   }
+   
+   public function stats_almacenes($tabla = 'facturasprov')
+   {
+      $stats = array();
+      $al0 = new almacen();
+      
+      $sql = "select codalmacen,sum(totaleuros) as total from ".$tabla." group by codalmacen order by total desc;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $alma = $al0->get($d['codalmacen']);
+            if($alma)
+            {
+               $stats[] = array(
+                   'txt' => $alma->nombre,
+                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+               );
+            }
+            else
+            {
+               $stats[] = array(
+                   'txt' => $d['codalmacen'],
+                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+               );
+            }
+         }
+      }
+      
+      return $stats;
+   }
+   
+   public function stats_formas_pago($tabla = 'facturasprov')
+   {
+      $stats = array();
+      $fp0 = new forma_pago();
+      
+      $sql = "select codpago,sum(totaleuros) as total from ".$tabla." group by codpago order by total desc;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $formap = $fp0->get($d['codpago']);
+            if($formap)
+            {
+               $stats[] = array(
+                   'txt' => $formap->descripcion,
+                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+               );
+            }
+            else
+            {
+               $stats[] = array(
+                   'txt' => $d['codpago'],
+                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+               );
+            }
+         }
+      }
+      
+      return $stats;
+   }
+   
+   public function stats_last_operations($tabla = 'facturasprov', $ndias = 180)
+   {
+      $stats = array();
+      
+      /// rellenamos $nidas de datos
+      for($i = $ndias; $i > 0; $i--)
+      {
+         $stats[date('d-m-Y', strtotime('-'.$i.'days'))] = array(
+             'diario' => 0,
+             'semanal' => 0,
+             'semana' => date('Y#W', strtotime('-'.$i.'days'))
+         );
+      }
+      
+      $sql = "select fecha,count(*) as total from ".$tabla." group by fecha order by fecha desc";
+      $data = $this->db->select_limit($sql, $ndias, 0);
+      if($data)
+      {
+         foreach( array_reverse($data) as $d )
+         {
+            $fecha = date('d-m-Y', strtotime($d['fecha']));
+            if( isset($stats[$fecha]) )
+            {
+               $stats[$fecha]['diario'] = intval($d['total']);
+               
+               /// añadimos el cálculo para la semana
+               $semana = date('Y#W', strtotime($d['fecha']));
+               foreach($stats as $i => $value)
+               {
+                  if($value['semana'] == $semana)
+                  {
+                     $stats[$i]['semanal'] += intval($d['total']);
+                  }
+               }
+            }
+         }
+      }
+      
+      return $stats;
+   }
+   
+   private function informe_compras()
+   {
+      $sql = "SELECT codproveedor,fecha,SUM(neto) as total FROM facturasprov"
+              . " WHERE fecha >= ".$this->empresa->var2str($_POST['desde'])
+              . " AND fecha <= ".$this->empresa->var2str($_POST['hasta']);
+      
+      if($_POST['codserie'] != '')
+      {
+         $sql .= " AND codserie = ".$this->empresa->var2str($_POST['codserie']);
+      }
+      
+      if($_POST['codagente'] != '')
+      {
+         $sql .= " AND codagente = ".$this->empresa->var2str($_POST['codagente']);
+      }
+      
+      if($_POST['codproveedor'] != '')
+      {
+         $sql .= " AND codproveedor = ".$this->empresa->var2str($_POST['codproveedor']);
+      }
+      
+      if($_POST['minimo'] != '')
+      {
+         $sql .= " AND neto > ".$this->empresa->var2str($_POST['minimo']);
+      }
+      
+      $sql .= " GROUP BY codproveedor,fecha ORDER BY codproveedor ASC, fecha DESC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $this->template = FALSE;
+         
+         header("content-type:application/csv;charset=UTF-8");
+         header("Content-Disposition: attachment; filename=\"informe_compras.csv\"");
+         echo "codproveedor;nombre;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
+         
+         $proveedor = new proveedor();
+         $stats = array();
+         foreach($data as $d)
+         {
+            $anyo = date('Y', strtotime($d['fecha']));
+            $mes = date('n', strtotime($d['fecha']));
+            if( !isset($stats[ $d['codproveedor'] ][ $anyo ]) )
+            {
+               $stats[ $d['codproveedor'] ][ $anyo ] = array(
+                   1 => 0,
+                   2 => 0,
+                   3 => 0,
+                   4 => 0,
+                   5 => 0,
+                   6 => 0,
+                   7 => 0,
+                   8 => 0,
+                   9 => 0,
+                   10 => 0,
+                   11 => 0,
+                   12 => 0,
+                   13 => 0,
+                   14 => 0
+               );
+            }
+            
+            $stats[ $d['codproveedor'] ][ $anyo ][ $mes ] += floatval($d['total']);
+            $stats[ $d['codproveedor'] ][ $anyo ][13] += floatval($d['total']);
+         }
+         
+         $totales = array();
+         foreach($stats as $i => $value)
+         {
+            /// calculamos la variación
+            $anterior = 0;
+            foreach( array_reverse($value, TRUE) as $j => $value2 )
+            {
+               if($anterior > 0)
+               {
+                  $value[$j][14] = ($value2[13]*100/$anterior) - 100;
+               }
+               
+               $anterior = $value2[13];
+               
+               if( isset($totales[$j]) )
+               {
+                  foreach($value2 as $k => $value3)
+                  {
+                     $totales[$j][$k] += $value3;
+                  }
+               }
+               else
+               {
+                  $totales[$j] = $value2;
+               }
+            }
+            
+            $pro = $proveedor->get($i);
+            foreach($value as $j => $value2)
+            {
+               if($pro)
+               {
+                  echo '"'.$i.'";'.$this->fix_html($pro->nombre).';'.$j;
+               }
+               else
+               {
+                  echo '"'.$i.'";-;'.$j;
+               }
+               
+               foreach($value2 as $value3)
+               {
+                  echo ';'.number_format($value3, FS_NF0, ',', '');
+               }
+               
+               echo "\n";
+            }
+            echo ";;;;;;;;;;;;;;;\n";
+         }
+         
+         foreach( array_reverse($totales, TRUE) as $i => $value)
+         {
+            echo ";TOTALES;".$i;
+            $l_total = 0;
+            foreach($value as $j => $value3)
+            {
+               if($j < 13)
+               {
+                  echo ';'.number_format($value3, FS_NF0, ',', '');
+                  $l_total += $value3;
+               }
+            }
+            echo ";".number_format($l_total, FS_NF0, ',', '').";\n";
+         }
+      }
+      else
+      {
+         $this->new_error_msg('Sin resultados.');
+      }
+   }
+   
+   private function informe_ventas()
+   {
+      $sql = "SELECT codcliente,fecha,SUM(neto) as total FROM facturascli"
+              . " WHERE fecha >= ".$this->empresa->var2str($_POST['desde'])
+              . " AND fecha <= ".$this->empresa->var2str($_POST['hasta']);
+      
+      if($_POST['codpais'] != '')
+      {
+         $sql .= " AND codpais = ".$this->empresa->var2str($_POST['codpais']);
+      }
+      
+      if($_POST['provincia'] != '')
+      {
+         $sql .= " AND lower(provincia) = lower(".$this->empresa->var2str($_POST['provincia']).")";
+      }
+      
+      if($_POST['codcliente'] != '')
+      {
+         $sql .= " AND codcliente = ".$this->empresa->var2str($_POST['codcliente']);
+      }
+      
+      if($_POST['codserie'] != '')
+      {
+         $sql .= " AND codserie = ".$this->empresa->var2str($_POST['codserie']);
+      }
+      
+      if($_POST['codagente'] != '')
+      {
+         $sql .= " AND codagente = ".$this->empresa->var2str($_POST['codagente']);
+      }
+      
+      if($_POST['minimo'] != '')
+      {
+         $sql .= " AND neto > ".$this->empresa->var2str($_POST['minimo']);
+      }
+      
+      $sql .= " GROUP BY codcliente,fecha ORDER BY codcliente ASC, fecha DESC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $this->template = FALSE;
+         
+         header("content-type:application/csv;charset=UTF-8");
+         header("Content-Disposition: attachment; filename=\"informe_ventas.csv\"");
+         echo "codcliente;nombre;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
+         
+         $cliente = new cliente();
+         $stats = array();
+         foreach($data as $d)
+         {
+            $anyo = date('Y', strtotime($d['fecha']));
+            $mes = date('n', strtotime($d['fecha']));
+            if( !isset($stats[ $d['codcliente'] ][ $anyo ]) )
+            {
+               $stats[ $d['codcliente'] ][ $anyo ] = array(
+                   1 => 0,
+                   2 => 0,
+                   3 => 0,
+                   4 => 0,
+                   5 => 0,
+                   6 => 0,
+                   7 => 0,
+                   8 => 0,
+                   9 => 0,
+                   10 => 0,
+                   11 => 0,
+                   12 => 0,
+                   13 => 0,
+                   14 => 0
+               );
+            }
+            
+            $stats[ $d['codcliente'] ][ $anyo ][ $mes ] += floatval($d['total']);
+            $stats[ $d['codcliente'] ][ $anyo ][13] += floatval($d['total']);
+         }
+         
+         $totales = array();
+         foreach($stats as $i => $value)
+         {
+            /// calculamos la variación y los totales
+            $anterior = 0;
+            foreach( array_reverse($value, TRUE) as $j => $value2 )
+            {
+               if($anterior > 0)
+               {
+                  $value[$j][14] = ($value2[13]*100/$anterior) - 100;
+               }
+               
+               $anterior = $value2[13];
+               
+               if( isset($totales[$j]) )
+               {
+                  foreach($value2 as $k => $value3)
+                  {
+                     $totales[$j][$k] += $value3;
+                  }
+               }
+               else
+               {
+                  $totales[$j] = $value2;
+               }
+            }
+            
+            $cli = $cliente->get($i);
+            foreach($value as $j => $value2)
+            {
+               if($cli)
+               {
+                  echo '"'.$i.'";'.$this->fix_html($cli->nombre).';'.$j;
+               }
+               else
+               {
+                  echo '"'.$i.'";-;'.$j;
+               }
+               
+               foreach($value2 as $value3)
+               {
+                  echo ';'.number_format($value3, FS_NF0, ',', '');
+               }
+               
+               echo "\n";
+            }
+            echo ";;;;;;;;;;;;;;;\n";
+         }
+         
+         foreach( array_reverse($totales, TRUE) as $i => $value)
+         {
+            echo ";TOTALES;".$i;
+            $l_total = 0;
+            foreach($value as $j => $value3)
+            {
+               if($j < 13)
+               {
+                  echo ';'.number_format($value3, FS_NF0, ',', '');
+                  $l_total += $value3;
+               }
+            }
+            echo ";".number_format($l_total, FS_NF0, ',', '').";\n";
+         }
+      }
+      else
+      {
+         $this->new_error_msg('Sin resultados.');
+      }
+   }
+   
+   private function informe_compras_unidades()
+   {
+      $sql = "SELECT f.codproveedor,f.fecha,l.referencia,SUM(l.cantidad) as total"
+              . " FROM facturasprov f, lineasfacturasprov l"
+              . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
+              . " AND f.fecha >= ".$this->empresa->var2str($_POST['desde'])
+              . " AND f.fecha <= ".$this->empresa->var2str($_POST['hasta']);
+      
+      if($_POST['codserie'] != '')
+      {
+         $sql .= " AND f.codserie = ".$this->empresa->var2str($_POST['codserie']);
+      }
+      
+      if($_POST['codagente'] != '')
+      {
+         $sql .= " AND f.codagente = ".$this->empresa->var2str($_POST['codagente']);
+      }
+      
+      if($_POST['codproveedor'] != '')
+      {
+         $sql .= " AND codproveedor = ".$this->empresa->var2str($_POST['codproveedor']);
+      }
+      
+      if($_POST['minimo'] != '')
+      {
+         $sql .= " AND l.cantidad > ".$this->empresa->var2str($_POST['minimo']);
+      }
+      
+      $sql .= " GROUP BY f.codproveedor,f.fecha,l.referencia ORDER BY f.codproveedor ASC, l.referencia ASC, f.fecha DESC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $this->template = FALSE;
+         
+         header("content-type:application/csv;charset=UTF-8");
+         header("Content-Disposition: attachment; filename=\"informe_compras_unidades.csv\"");
+         echo "codproveedor;nombre;referencia;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
+         
+         $proveedor = new proveedor();
+         $stats = array();
+         foreach($data as $d)
+         {
+            $anyo = date('Y', strtotime($d['fecha']));
+            $mes = date('n', strtotime($d['fecha']));
+            if( !isset($stats[ $d['codproveedor'] ][ $d['referencia'] ][ $anyo ]) )
+            {
+               $stats[ $d['codproveedor'] ][ $d['referencia'] ][ $anyo ] = array(
+                   1 => 0,
+                   2 => 0,
+                   3 => 0,
+                   4 => 0,
+                   5 => 0,
+                   6 => 0,
+                   7 => 0,
+                   8 => 0,
+                   9 => 0,
+                   10 => 0,
+                   11 => 0,
+                   12 => 0,
+                   13 => 0,
+                   14 => 0
+               );
+            }
+            
+            $stats[ $d['codproveedor'] ][ $d['referencia'] ][ $anyo ][ $mes ] += floatval($d['total']);
+            $stats[ $d['codproveedor'] ][ $d['referencia'] ][ $anyo ][13] += floatval($d['total']);
+         }
+         
+         foreach($stats as $i => $value)
+         {
+            $pro = $proveedor->get($i);
+            foreach($value as $j => $value2)
+            {
+               /// calculamos la variación
+               $anterior = 0;
+               foreach( array_reverse($value2, TRUE) as $k => $value3 )
+               {
+                  if($anterior > 0)
+                  {
+                     $value2[$k][14] = ($value3[13]*100/$anterior) - 100;
+                  }
+                  
+                  $anterior = $value3[13];
+               }
+               
+               foreach($value2 as $k => $value3)
+               {
+                  if($pro)
+                  {
+                     echo '"'.$i.'";'.$this->fix_html($pro->nombre).';"'.$j.'";'.$k;
+                  }
+                  else
+                  {
+                     echo '"'.$i.'";-;"'.$j.'";'.$k;
+                  }
+                  
+                  foreach($value3 as $value4)
+                  {
+                     echo ';'.number_format($value4, FS_NF0, ',', '');
+                  }
+                  
+                  echo "\n";
+               }
+               echo ";;;;;;;;;;;;;;;\n";
+            }
+            echo ";;;;;;;;;;;;;;;\n";
+         }
+      }
+      else
+      {
+         $this->new_error_msg('Sin resultados.');
+      }
+   }
+   
+   private function informe_ventas_unidades()
+   {
+      $sql = "SELECT f.codcliente,f.fecha,l.referencia,SUM(l.cantidad) as total"
+              . " FROM facturascli f, lineasfacturascli l"
+              . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
+              . " AND f.fecha >= ".$this->empresa->var2str($_POST['desde'])
+              . " AND f.fecha <= ".$this->empresa->var2str($_POST['hasta']);
+      
+      if($_POST['codpais'] != '')
+      {
+         $sql .= " AND f.codpais = ".$this->empresa->var2str($_POST['codpais']);
+      }
+      
+      if($_POST['provincia'] != '')
+      {
+         $sql .= " AND lower(f.provincia) = lower(".$this->empresa->var2str($_POST['provincia']).")";
+      }
+      
+      if($_POST['codcliente'] != '')
+      {
+         $sql .= " AND codcliente = ".$this->empresa->var2str($_POST['codcliente']);
+      }
+      
+      if($_POST['codserie'] != '')
+      {
+         $sql .= " AND f.codserie = ".$this->empresa->var2str($_POST['codserie']);
+      }
+      
+      if($_POST['codagente'] != '')
+      {
+         $sql .= " AND f.codagente = ".$this->empresa->var2str($_POST['codagente']);
+      }
+      
+      if($_POST['minimo'] != '')
+      {
+         $sql .= " AND l.cantidad > ".$this->empresa->var2str($_POST['minimo']);
+      }
+      
+      $sql .= " GROUP BY f.codcliente,f.fecha,l.referencia ORDER BY f.codcliente ASC, l.referencia ASC, f.fecha DESC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $this->template = FALSE;
+         
+         header("content-type:application/csv;charset=UTF-8");
+         header("Content-Disposition: attachment; filename=\"informe_ventas_unidades.csv\"");
+         echo "codcliente;nombre;referencia;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
+         
+         $cliente = new cliente();
+         $stats = array();
+         foreach($data as $d)
+         {
+            $anyo = date('Y', strtotime($d['fecha']));
+            $mes = date('n', strtotime($d['fecha']));
+            if( !isset($stats[ $d['codcliente'] ][ $d['referencia'] ][ $anyo ]) )
+            {
+               $stats[ $d['codcliente'] ][ $d['referencia'] ][ $anyo ] = array(
+                   1 => 0,
+                   2 => 0,
+                   3 => 0,
+                   4 => 0,
+                   5 => 0,
+                   6 => 0,
+                   7 => 0,
+                   8 => 0,
+                   9 => 0,
+                   10 => 0,
+                   11 => 0,
+                   12 => 0,
+                   13 => 0,
+                   14 => 0
+               );
+            }
+            
+            $stats[ $d['codcliente'] ][ $d['referencia'] ][ $anyo ][ $mes ] += floatval($d['total']);
+            $stats[ $d['codcliente'] ][ $d['referencia'] ][ $anyo ][13] += floatval($d['total']);
+         }
+         
+         foreach($stats as $i => $value)
+         {
+            $cli = $cliente->get($i);
+            foreach($value as $j => $value2)
+            {
+               /// calculamos la variación
+               $anterior = 0;
+               foreach( array_reverse($value2, TRUE) as $k => $value3 )
+               {
+                  if($anterior > 0)
+                  {
+                     $value2[$k][14] = ($value3[13]*100/$anterior) - 100;
+                  }
+                  
+                  $anterior = $value3[13];
+               }
+               
+               foreach($value2 as $k => $value3)
+               {
+                  if($cli)
+                  {
+                     echo '"'.$i.'";'.$this->fix_html($cli->nombre).';"'.$j.'";'.$k;
+                  }
+                  else
+                  {
+                     echo '"'.$i.'";-;"'.$j.'";'.$k;
+                  }
+                  
+                  foreach($value3 as $value4)
+                  {
+                     echo ';'.number_format($value4, FS_NF0, ',', '');
+                  }
+                  
+                  echo "\n";
+               }
+               echo ";;;;;;;;;;;;;;;\n";
+            }
+            echo ";;;;;;;;;;;;;;;\n";
+         }
+      }
+      else
+      {
+         $this->new_error_msg('Sin resultados.');
+      }
+   }
+   
+   private function fix_html($txt)
+   {
+      $newt = str_replace('&lt;', '<', $txt);
+      $newt = str_replace('&gt;', '>', $newt);
+      $newt = str_replace('&quot;', '"', $newt);
+      $newt = str_replace('&#39;', "'", $newt);
+      return $newt;
    }
 }

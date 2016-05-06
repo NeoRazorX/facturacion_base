@@ -63,7 +63,7 @@
    <columna>
       <nombre>codserie</nombre>
       <tipo>character varying(2)</tipo>
-      <nulo>NO</nulo>
+      <nulo>YES</nulo>
    </columna>
    <columna>
       <nombre>codsubcuenta</nombre>
@@ -170,6 +170,11 @@
       <tipo>character varying(25)</tipo>
       <nulo>NO</nulo>
       <defecto>'NIF'::character varying</defecto>
+   </columna>
+   <columna>
+      <nombre>personafisica</nombre>
+      <tipo>boolean</tipo>
+      <defecto>true</defecto>
    </columna>
    <columna>
       <nombre>web</nombre>

@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2014-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -44,7 +44,7 @@ class asiento extends fs_model
    
    public function __construct($a = FALSE)
    {
-      parent::__construct('co_asientos', 'plugins/facturacion_base/');
+      parent::__construct('co_asientos');
       if($a)
       {
          $this->idasiento = $this->intval($a['idasiento']);
@@ -53,7 +53,9 @@ class asiento extends fs_model
          
          $this->concepto = '---';
          if($a['concepto'] != '')
+         {
             $this->concepto = $a['concepto'];
+         }
          
          $this->fecha = Date('d-m-Y', strtotime($a['fecha']));
          $this->codejercicio = $a['codejercicio'];
@@ -87,7 +89,9 @@ class asiento extends fs_model
    public function url()
    {
       if( is_null($this->idasiento) )
+      {
          return 'index.php?page=contabilidad_asientos';
+      }
       else
          return 'index.php?page=contabilidad_asiento&id='.$this->idasiento;
    }
@@ -112,7 +116,9 @@ class asiento extends fs_model
    {
       $fac = $this->get_factura();
       if($fac)
+      {
          return $fac->url();
+      }
       else
          return '#';
    }
@@ -122,7 +128,9 @@ class asiento extends fs_model
       $ejercicio = new ejercicio();
       $eje0 = $ejercicio->get($this->codejercicio);
       if($eje0)
+      {
          return $eje0->url();
+      }
       else
          return '#';
    }
@@ -183,27 +191,27 @@ class asiento extends fs_model
       }
    }
    
+   /**
+    * Asignamos un número al asiento.
+    */
    public function new_numero()
    {
+      $this->numero = 1;
+      $sql = "SELECT MAX(".$this->db->sql_to_int('numero').") as num FROM ".$this->table_name
+              ." WHERE codejercicio = ".$this->var2str($this->codejercicio).";";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $this->numero = 1 + intval($data[0]['num']);
+      }
+      
+      /// Nos guardamos la secuencia para dar compatibilidad con eneboo
       $secc = new secuencia_contabilidad();
       $secc0 = $secc->get_by_params2($this->codejercicio, 'nasiento');
       if($secc0)
       {
-         $this->numero = $secc0->valorout;
-         $secc0->valorout++;
-         $secc0->save();
-      }
-      
-      if( !$secc0 OR $this->numero <= 1 )
-      {
-         $num = $this->db->select("SELECT MAX(".$this->db->sql_to_int('numero').") as num
-            FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).";");
-         if($num)
-            $this->numero = 1 + intval($num[0]['num']);
-         else
-            $this->numero = 1;
-         
-         if($secc0)
+         if($this->numero >= $secc0->valorout)
          {
             $secc0->valorout = 1 + $this->numero;
             $secc0->save();
@@ -279,20 +287,6 @@ class asiento extends fs_model
          }
       }
       
-      if($partidas)
-      {
-         /// comprobamos la factura asociada
-         $fac = $this->get_factura();
-         if($fac)
-         {
-            if($fac->idasiento != $this->idasiento)
-            {
-               $status = FALSE;
-               $this->new_error_msg("Este asiento apunta a una <a href='".$fac->url()."'>factura incorrecta</a>.");
-            }
-         }
-      }
-      
       if($status AND $duplicados)
       {
          /// comprobamos si es un duplicado
@@ -362,7 +356,9 @@ class asiento extends fs_model
          {
             $this->importe = max( array($debe, $haber) );
             foreach($partidas as $p)
+            {
                $p->save();
+            }
          }
          else
          {
@@ -370,12 +366,18 @@ class asiento extends fs_model
             $total = 0;
             $partidas = $this->get_partidas();
             foreach($partidas as $p)
+            {
                $total += ($p->debe - $p->haber);
+            }
             
             if($partidas[0]->debe != 0)
+            {
                $partidas[0]->debe = ($partidas[0]->debe - $total);
+            }
             else if($partidas[0]->haber != 0)
+            {
                $partidas[0]->haber += $total;
+            }
             
             $debe = 0;
             $haber = 0;
@@ -390,7 +392,9 @@ class asiento extends fs_model
             {
                $this->importe = max( array($debe, $haber) );
                foreach($partidas as $p)
+               {
                   $p->save();
+               }
             }
          }
       }
@@ -409,7 +413,9 @@ class asiento extends fs_model
       }
       
       if($status)
+      {
          return $this->full_test();
+      }
       else
          return FALSE;
    }
@@ -420,16 +426,18 @@ class asiento extends fs_model
       {
          if( $this->exists() )
          {
-            $sql = "UPDATE ".$this->table_name." SET numero = ".$this->var2str($this->numero).",
-               idconcepto = ".$this->var2str($this->idconcepto).",
-               concepto = ".$this->var2str($this->concepto).", fecha = ".$this->var2str($this->fecha).",
-               codejercicio = ".$this->var2str($this->codejercicio).",
-               codplanasiento = ".$this->var2str($this->codplanasiento).",
-               editable = ".$this->var2str($this->editable).",
-               documento = ".$this->var2str($this->documento).",
-               tipodocumento = ".$this->var2str($this->tipodocumento).",
-               importe = ".$this->var2str($this->importe)."
-               WHERE idasiento = ".$this->var2str($this->idasiento).";";
+            $sql = "UPDATE ".$this->table_name." SET numero = ".$this->var2str($this->numero)
+                    .", idconcepto = ".$this->var2str($this->idconcepto)
+                    .", concepto = ".$this->var2str($this->concepto)
+                    .", fecha = ".$this->var2str($this->fecha)
+                    .", codejercicio = ".$this->var2str($this->codejercicio)
+                    .", codplanasiento = ".$this->var2str($this->codplanasiento)
+                    .", editable = ".$this->var2str($this->editable)
+                    .", documento = ".$this->var2str($this->documento)
+                    .", tipodocumento = ".$this->var2str($this->tipodocumento)
+                    .", importe = ".$this->var2str($this->importe)
+                    ."  WHERE idasiento = ".$this->var2str($this->idasiento).";";
+            
             return $this->db->exec($sql);
          }
          else
@@ -437,11 +445,16 @@ class asiento extends fs_model
             $this->new_numero();
             $sql = "INSERT INTO ".$this->table_name." (numero,idconcepto,concepto,
                fecha,codejercicio,codplanasiento,editable,documento,tipodocumento,importe)
-               VALUES (".$this->var2str($this->numero).",".$this->var2str($this->idconcepto).",".$this->var2str($this->concepto).",
-               ".$this->var2str($this->fecha).",".$this->var2str($this->codejercicio).",
-               ".$this->var2str($this->codplanasiento).",".$this->var2str($this->editable).",
-               ".$this->var2str($this->documento).",".$this->var2str($this->tipodocumento).",
-               ".$this->var2str($this->importe).");";
+               VALUES (".$this->var2str($this->numero)
+                    .",".$this->var2str($this->idconcepto)
+                    .",".$this->var2str($this->concepto)
+                    .",".$this->var2str($this->fecha)
+                    .",".$this->var2str($this->codejercicio)
+                    .",".$this->var2str($this->codplanasiento)
+                    .",".$this->var2str($this->editable)
+                    .",".$this->var2str($this->documento)
+                    .",".$this->var2str($this->tipodocumento)
+                    .",".$this->var2str($this->importe).");";
             
             if( $this->db->exec($sql) )
             {
@@ -471,7 +484,9 @@ class asiento extends fs_model
       
       /// eliminamos las partidas una a una para forzar la actualización de las subcuentas asociadas
       foreach($this->get_partidas() as $p)
+      {
          $p->delete();
+      }
       
       return $this->db->exec("DELETE FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento).";");
    }
@@ -479,42 +494,56 @@ class asiento extends fs_model
    public function search($query, $offset=0)
    {
       $alist = array();
-      $query = strtolower( $this->no_html($query) );
+      $query = mb_strtolower( $this->no_html($query) );
       
       $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )
       {
          $aux_sql = '';
          if( strtolower(FS_DB_TYPE) == 'postgresql' )
+         {
             $aux_sql = '::TEXT';
+         }
          
-         $consulta .= "numero".$aux_sql." LIKE '%".$query."%' OR concepto LIKE '%".$query."%'
-            OR importe BETWEEN ".($query-.01)." AND ".($query+.01);
+         $consulta .= "numero".$aux_sql." LIKE '%".$query."%' OR concepto LIKE '%".$query
+                 ."%' OR importe BETWEEN ".($query-.01)." AND ".($query+.01);
       }
       else if( preg_match('/^([0-9]{1,2})-([0-9]{1,2})-([0-9]{4})$/i', $query) )
+      {
          $consulta .= "fecha = ".$this->var2str($query)." OR concepto LIKE '%".$query."%'";
+      }
       else
+      {
          $consulta .= "lower(concepto) LIKE '%".$buscar = str_replace(' ', '%', $query)."%'";
+      }
       $consulta .= " ORDER BY fecha DESC";
       
-      $asientos = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-      if($asientos)
+      $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+      if($data)
       {
-         foreach($asientos as $a)
+         foreach($data as $a)
+         {
             $alist[] = new asiento($a);
+         }
       }
+      
       return $alist;
    }
    
    public function all($offset=0, $limit=FS_ITEM_LIMIT)
    {
       $alist = array();
-      $asientos = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY fecha DESC, numero DESC", $limit, $offset);
-      if($asientos)
+      $sql = "SELECT * FROM ".$this->table_name." ORDER BY fecha DESC, numero DESC";
+      
+      $data = $this->db->select_limit($sql, $limit, $offset);
+      if($data)
       {
-         foreach($asientos as $a)
+         foreach($data as $a)
+         {
             $alist[] = new asiento($a);
+         }
       }
+      
       return $alist;
    }
    
@@ -524,17 +553,22 @@ class asiento extends fs_model
       new partida();
       
       $alist = array();
-      $asientos = $this->db->select("SELECT p.idasiento,SUM(p.debe) as sdebe,SUM(p.haber) as shaber
+      $sql = "SELECT p.idasiento,SUM(p.debe) as sdebe,SUM(p.haber) as shaber
          FROM co_partidas p, ".$this->table_name." a
           WHERE p.idasiento = a.idasiento
            GROUP BY p.idasiento
             HAVING ABS(SUM(p.haber) - SUM(p.debe)) > 0.01
-             ORDER BY p.idasiento DESC;");
-      if($asientos)
+             ORDER BY p.idasiento DESC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
       {
-         foreach($asientos as $a)
+         foreach($data as $a)
+         {
             $alist[] = $this->get($a['idasiento']);
+         }
       }
+      
       return $alist;
    }
    

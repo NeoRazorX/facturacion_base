@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -45,7 +45,7 @@ class ventas_albaranes extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, ucfirst(FS_ALBARANES).' de cliente', 'ventas', FALSE, TRUE, TRUE);
+      parent::__construct(__CLASS__, ucfirst(FS_ALBARANES), 'ventas');
    }
    
    protected function private_core()
@@ -90,6 +90,10 @@ class ventas_albaranes extends fs_controller
          {
             $this->order = 'codigo ASC';
          }
+         else if($_GET['order'] == 'total_desc')
+         {
+            $this->order = 'total DESC';
+         }
          
          setcookie('ventas_alb_order', $this->order, time()+FS_COOKIES_EXPIRE);
       }
@@ -125,7 +129,7 @@ class ventas_albaranes extends fs_controller
          $this->desde = '';
          $this->hasta = '';
          $this->num_resultados = '';
-         $this->total_resultados = '';
+         $this->total_resultados = array();
          $this->total_resultados_txt = '';
          
          if( isset($_POST['delete']) )
@@ -134,10 +138,10 @@ class ventas_albaranes extends fs_controller
          }
          else
          {
-            if( !isset($_GET['mostrar']) AND (isset($_REQUEST['codagente']) OR isset($_REQUEST['codcliente'])) )
+            if( !isset($_GET['mostrar']) AND (isset($_REQUEST['codagente']) OR isset($_REQUEST['codcliente']) OR isset($_REQUEST['codserie'])) )
             {
                /**
-                * si obtenermos un codagente o un codcliente pasamos direcatemente
+                * si obtenermos un codagente, un codcliente o un codserie pasamos direcatemente
                 * a la pestaña de búsqueda, a menos que tengamos un mostrar, que
                 * entonces nos indica donde tenemos que estar.
                 */
@@ -161,6 +165,10 @@ class ventas_albaranes extends fs_controller
             if( isset($_REQUEST['codserie']) )
             {
                $this->codserie = $_REQUEST['codserie'];
+            }
+            
+            if( isset($_REQUEST['desde']) )
+            {
                $this->desde = $_REQUEST['desde'];
                $this->hasta = $_REQUEST['hasta'];
             }
@@ -170,11 +178,11 @@ class ventas_albaranes extends fs_controller
          $order2 = '';
          if($this->order == 'fecha DESC')
          {
-            $order2 = ', codigo DESC';
+            $order2 = ', hora DESC';
          }
          else if($this->order == 'fecha ASC')
          {
-            $order2 = ', codigo ASC';
+            $order2 = ', hora ASC';
          }
          
          if($this->mostrar == 'pendientes')
@@ -183,11 +191,20 @@ class ventas_albaranes extends fs_controller
             
             if($this->offset == 0)
             {
-               $this->total_resultados = 0;
+               /// calculamos el total, pero desglosando por divisa
+               $this->total_resultados = array();
                $this->total_resultados_txt = 'Suma total de esta página:';
                foreach($this->resultados as $alb)
                {
-                  $this->total_resultados += $alb->total;
+                  if( !isset($this->total_resultados[$alb->coddivisa]) )
+                  {
+                     $this->total_resultados[$alb->coddivisa] = array(
+                         'coddivisa' => $alb->coddivisa,
+                         'total' => 0
+                     );
+                  }
+                  
+                  $this->total_resultados[$alb->coddivisa]['total'] += $alb->total;
                }
             }
          }
@@ -199,6 +216,32 @@ class ventas_albaranes extends fs_controller
          {
             $this->resultados = $albaran->all($this->offset, $this->order.$order2);
          }
+      }
+   }
+   
+   public function url($busqueda = FALSE)
+   {
+      if($busqueda)
+      {
+         $codcliente = '';
+         if($this->cliente)
+         {
+            $codcliente = $this->cliente->codcliente;
+         }
+         
+         $url = $this->url()."&mostrar=".$this->mostrar
+                 ."&query=".$this->query
+                 ."&codserie=".$this->codserie
+                 ."&codagente=".$this->codagente
+                 ."&codcliente=".$codcliente
+                 ."&desde=".$this->desde
+                 ."&hasta=".$this->hasta;
+         
+         return $url;
+      }
+      else
+      {
+         return parent::url();
       }
    }
    
@@ -220,20 +263,7 @@ class ventas_albaranes extends fs_controller
    
    public function paginas()
    {
-      $codcliente = '';
-      if($this->cliente)
-      {
-         $codcliente = $this->cliente->codcliente;
-      }
-      
-      $url = $this->url()."&mostrar=".$this->mostrar
-              ."&query=".$this->query
-              ."&codserie=".$this->codserie
-              ."&codagente=".$this->codagente
-              ."&codcliente=".$codcliente
-              ."&desde=".$this->desde
-              ."&hasta=".$this->hasta;
-      
+      $url = $this->url(TRUE);
       $paginas = array();
       $i = 0;
       $num = 0;
@@ -285,7 +315,14 @@ class ventas_albaranes extends fs_controller
          }
       }
       
-      return $paginas;
+      if( count($paginas) > 1 )
+      {
+         return $paginas;
+      }
+      else
+      {
+         return array();
+      }
    }
    
    public function buscar_lineas()
@@ -330,10 +367,11 @@ class ventas_albaranes extends fs_controller
          
          if( $alb1->delete() )
          {
-            $this->new_message(FS_ALBARAN." ".$alb1->codigo." borrado correctamente.");
+            $this->new_message(FS_ALBARAN." ".$alb1->codigo." eliminado correctamente.", TRUE);
+            $this->clean_last_changes();
          }
          else
-            $this->new_error_msg("¡Imposible borrar el ".FS_ALBARAN."!");
+            $this->new_error_msg("¡Imposible eliminar el ".FS_ALBARAN."!");
       }
       else
          $this->new_error_msg("¡".FS_ALBARAN." no encontrado!");
@@ -467,11 +505,18 @@ class ventas_albaranes extends fs_controller
             }
          }
          
-         $data2 = $this->db->select("SELECT SUM(total) as total".$sql);
+         $data2 = $this->db->select("SELECT coddivisa,SUM(total) as total".$sql." GROUP BY coddivisa");
          if($data2)
          {
-            $this->total_resultados = floatval($data2[0]['total']);
             $this->total_resultados_txt = 'Suma total de los resultados:';
+            
+            foreach($data2 as $d)
+            {
+               $this->total_resultados[] = array(
+                   'coddivisa' => $d['coddivisa'],
+                   'total' => floatval($d['total'])
+               );
+            }
          }
       }
    }

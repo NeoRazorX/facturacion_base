@@ -1,19 +1,19 @@
 <?php
 /*
  * This file is part of FacturaSctipts
- * Copyright (C) 2013-2015  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -35,13 +35,15 @@ class ventas_agrupar_albaranes extends fs_controller
    public $cliente;
    public $codserie;
    public $desde;
-   private $forma_pago;
    public $hasta;
    public $neto;
    public $observaciones;
    public $resultados;
    public $serie;
    public $total;
+   
+   private $ejercicio;
+   private $forma_pago;
    
    public function __construct()
    {
@@ -53,6 +55,7 @@ class ventas_agrupar_albaranes extends fs_controller
       $this->albaran = new albaran_cliente();
       $this->cliente = FALSE;
       $this->codserie = NULL;
+      $this->ejercicio = new ejercicio();
       $this->forma_pago = new forma_pago();
       $this->serie = new serie();
       $this->neto = 0;
@@ -149,39 +152,17 @@ class ventas_agrupar_albaranes extends fs_controller
       else
       {
          foreach($_POST['idalbaran'] as $id)
+         {
             $albaranes[] = $this->albaran->get($id);
+         }
          
-         $codejercicio = NULL;
          foreach($albaranes as $alb)
          {
-            if( !isset($codejercicio) )
-               $codejercicio = $alb->codejercicio;
-            
             if( !$alb->ptefactura )
             {
                $this->new_error_msg("El ".FS_ALBARAN." <a href='".$alb->url()."'>".$alb->codigo."</a> ya está facturado.");
                $continuar = FALSE;
                break;
-            }
-            else if($alb->codejercicio != $codejercicio)
-            {
-               $this->new_error_msg("Los ejercicios de los ".FS_ALBARANES." no coinciden.");
-               $continuar = FALSE;
-               break;
-            }
-         }
-         
-         if( isset($codejercicio) )
-         {
-            $ejercicio = new ejercicio();
-            $eje0 = $ejercicio->get($codejercicio);
-            if($eje0)
-            {
-               if( !$eje0->abierto() )
-               {
-                  $this->new_error_msg("El ejercicio está cerrado.");
-                  $continuar = FALSE;
-               }
             }
          }
       }
@@ -191,13 +172,19 @@ class ventas_agrupar_albaranes extends fs_controller
          if( isset($_POST['individuales']) )
          {
             foreach($albaranes as $alb)
+            {
                $this->generar_factura( array($alb) );
+            }
          }
          else
             $this->generar_factura($albaranes);
       }
    }
    
+   /**
+    * Genera una factura a partir de un array de albaranes.
+    * @param albaran_cliente $albaranes
+    */
    private function generar_factura($albaranes)
    {
       $continuar = TRUE;
@@ -207,7 +194,6 @@ class ventas_agrupar_albaranes extends fs_controller
       $factura->codalmacen = $albaranes[0]->codalmacen;
       $factura->coddivisa = $albaranes[0]->coddivisa;
       $factura->tasaconv = $albaranes[0]->tasaconv;
-      $factura->codejercicio = $albaranes[0]->codejercicio;
       $factura->codpago = $albaranes[0]->codpago;
       $factura->codserie = $albaranes[0]->codserie;
       $factura->irpf = $albaranes[0]->irpf;
@@ -224,17 +210,14 @@ class ventas_agrupar_albaranes extends fs_controller
       $factura->nombrecliente = $albaranes[0]->nombrecliente;
       $factura->provincia = $albaranes[0]->provincia;
       
-      /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
-      $formapago = $this->forma_pago->get($factura->codpago);
-      if($formapago)
-      {
-         if($formapago->genrecibos == 'Pagados')
-         {
-            $factura->pagada = TRUE;
-         }
-         
-         $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$formapago->vencimiento));
-      }
+      $factura->envio_apellidos = $albaranes[0]->envio_apellidos;
+      $factura->envio_ciudad = $albaranes[0]->envio_ciudad;
+      $factura->envio_codigo = $albaranes[0]->envio_codigo;
+      $factura->envio_codpostal = $albaranes[0]->envio_codpostal;
+      $factura->envio_codtrans = $albaranes[0]->envio_codtrans;
+      $factura->envio_direccion = $albaranes[0]->envio_direccion;
+      $factura->envio_nombre = $albaranes[0]->envio_nombre;
+      $factura->envio_provincia = $albaranes[0]->envio_provincia;
       
       /// obtenemos los datos actuales del cliente, por si ha habido cambios
       $cliente = $this->cliente->get($albaranes[0]->codcliente);
@@ -242,7 +225,11 @@ class ventas_agrupar_albaranes extends fs_controller
       {
          foreach($cliente->get_direcciones() as $dir)
          {
-            if($dir->domfacturacion)
+            /**
+             * Si la dirección es de facturación y ha sido modificada posteriormente
+             * al albarán, la usamos para la factura, porque está más actualizada.
+             */
+            if( $dir->domfacturacion AND strtotime($dir->fecha) > strtotime($albaranes[0]->fecha) )
             {
                $factura->apartado = $dir->apartado;
                $factura->cifnif = $cliente->cifnif;
@@ -278,14 +265,33 @@ class ventas_agrupar_albaranes extends fs_controller
       $factura->totalrecargo = round($factura->totalrecargo, FS_NF0);
       $factura->total = $factura->neto + $factura->totaliva - $factura->totalirpf + $factura->totalrecargo;
       
-      /// asignamos la mejor fecha posible, pero dentro del ejercicio
-      $ejercicio = new ejercicio();
-      $eje0 = $ejercicio->get($factura->codejercicio);
-      $factura->fecha = $eje0->get_best_fecha($factura->fecha);
+      /// asignamos el ejercicio que corresponde a la fecha elegida
+      $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha']);
+      if($eje0)
+      {
+         $factura->codejercicio = $eje0->codejercicio;
+         $factura->set_fecha_hora($_POST['fecha'], $factura->hora);
+      }
+      
+      /// comprobamos la forma de pago para saber si hay que marcar la factura como pagada
+      $formapago = $this->forma_pago->get($factura->codpago);
+      if($formapago)
+      {
+         if($formapago->genrecibos == 'Pagados')
+         {
+            $factura->pagada = TRUE;
+         }
+         
+         $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$formapago->vencimiento));
+      }
       
       $regularizacion = new regularizacion_iva();
       
-      if( !$eje0->abierto() )
+      if( !$eje0 )
+      {
+         $this->new_error_msg("Ejercicio no encontrado o está cerrado.");
+      }
+      else if( !$eje0->abierto() )
       {
          $this->new_error_msg('El ejercicio '.$eje0->codejercicio.' está cerrado.');
       }
@@ -295,8 +301,7 @@ class ventas_agrupar_albaranes extends fs_controller
           * comprobamos que la fecha de la factura no esté dentro de un periodo de
           * IVA regularizado.
           */
-         $this->new_error_msg('El IVA de ese periodo ya ha sido regularizado. No se pueden añadir más '
-                 .FS_FACTURAS.' en esa fecha.');
+         $this->new_error_msg('El '.FS_IVA.' de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.');
       }
       else if( $factura->save() )
       {
@@ -337,32 +342,38 @@ class ventas_agrupar_albaranes extends fs_controller
                
                if( !$alb->save() )
                {
-                  $this->new_error_msg("¡Imposible vincular el ".FS_ALBARAN." con la nueva ".FS_FACTURA."!");
+                  $this->new_error_msg("¡Imposible vincular el ".FS_ALBARAN." con la nueva factura!");
                   $continuar = FALSE;
                   break;
                }
             }
             
             if( $continuar )
+            {
                $this->generar_asiento($factura);
+            }
             else
             {
                if( $factura->delete() )
-                  $this->new_error_msg("La ".FS_FACTURA." se ha borrado.");
+               {
+                  $this->new_error_msg("La factura se ha borrado.");
+               }
                else
-                  $this->new_error_msg("¡Imposible borrar la ".FS_FACTURA."!");
+                  $this->new_error_msg("¡Imposible borrar la factura!");
             }
          }
          else
          {
             if( $factura->delete() )
-               $this->new_error_msg("La ".FS_FACTURA." se ha borrado.");
+            {
+               $this->new_error_msg("La factura se ha borrado.");
+            }
             else
-               $this->new_error_msg("¡Imposible borrar la ".FS_FACTURA."!");
+               $this->new_error_msg("¡Imposible borrar la factura!");
          }
       }
       else
-         $this->new_error_msg("¡Imposible guardar la ".FS_FACTURA."!");
+         $this->new_error_msg("¡Imposible guardar la factura!");
    }
    
    private function generar_asiento(&$factura)
@@ -372,8 +383,7 @@ class ventas_agrupar_albaranes extends fs_controller
          $asiento_factura = new asiento_factura();
          if( $asiento_factura->generar_asiento_venta($factura) )
          {
-            $this->new_message("<a href='".$factura->url()."'>".ucfirst(FS_FACTURA)
-                    ."</a> generada correctamente.");
+            $this->new_message("<a href='".$factura->url()."'>Factura</a> generada correctamente.");
          }
          
          foreach($asiento_factura->errors as $err)
@@ -388,11 +398,10 @@ class ventas_agrupar_albaranes extends fs_controller
       }
       else
       {
-         $this->new_message("<a href='".$factura->url()."'>".ucfirst(FS_FACTURA)
-                 ."</a> generada correctamente.");
+         $this->new_message("<a href='".$factura->url()."'>Factura</a> generada correctamente.");
       }
       
-      $this->new_change(ucfirst(FS_FACTURA).' '.$factura->codigo, $factura->url(), TRUE);
+      $this->new_change('Factura '.$factura->codigo, $factura->url(), TRUE);
    }
    
    private function share_extensions()
@@ -432,6 +441,7 @@ class ventas_agrupar_albaranes extends fs_controller
                 'codcliente' => $alb->codcliente,
                 'nombre' => $alb->nombrecliente,
                 'codserie' => $alb->codserie,
+                'desde' => $alb->fecha,
                 'num' => 1
             );
          }
