@@ -111,7 +111,9 @@ class admin_empresa extends fs_controller
          $this->empresa->email_config['mail_enc'] = strtolower($_POST['mail_enc']);
          $this->empresa->email_config['mail_user'] = $_POST['mail_user'];
          $this->empresa->email_config['mail_low_security'] = isset($_POST['mail_low_security']);
-         
+         $this->empresa->email_config['mail_sent_save'] = isset($_POST['mail_sent_save']);
+         $this->empresa->email_config['mail_folder_save'] = $_POST['mail_folder_save'];
+
          if( $this->empresa->save() )
          {
             /// guardamos las opciones por defecto de almacén y forma de pago
