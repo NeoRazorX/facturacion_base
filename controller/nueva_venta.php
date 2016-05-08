@@ -354,7 +354,14 @@ class nueva_venta extends fs_controller
       $this->template = FALSE;
       
       $art0 = new articulo();
-      $art0->referencia = $_REQUEST['referencia'];
+      if($_REQUEST['referencia'] != '')
+      {
+         $art0->referencia = $_REQUEST['referencia'];
+      }
+      else
+      {
+         $art0->referencia = $art0->get_new_referencia();
+      }
       if( $art0->exists() )
       {
          $this->results[] = $art0->get($_REQUEST['referencia']);
