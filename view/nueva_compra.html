@@ -396,8 +396,16 @@
                      <div class="col-sm-3">
                         <div class="form-group">
                            Referencia:
-                           <input class="form-control" type="text" name="referencia" maxlength="18" autocomplete="off"/>
-                        </div>
+                           <div class="input-group">
+                              <input class="form-control" type="text" name="referencia" id="referencia" maxlength="18" autocomplete="off"/>
+                              <span class="input-group-btn">
+                                 <button class="btn btn-default" type="button" onclick="document.f_nuevo_articulo.referencia.value=''; document.f_nuevo_articulo.descripcion.focus();" title="Borrar">
+                                    <span class="glyphicon glyphicon-edit"></span>
+                                 </button>
+                              </span>
+                           </div>
+                           En blanco-> Ref. autom.
+                        </div> 
                      </div>
                      <div class="col-sm-3">
                         <div class="form-group">
