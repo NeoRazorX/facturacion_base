@@ -23,19 +23,22 @@
 
 <form id="f_subcuenta" class="form" action="{$fsc->url()}&offset={$fsc->offset}" method="post">
    <input type="hidden" name="puntear" value="TRUE"/>
-   <div class="container-fluid">
-      <div class="row" style="margin-top: 10px; margin-bottom: 10px;">
+   <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
+      <div class="row">
          <div class="col-xs-7">
-            <a href="{$fsc->url()}" class="btn btn-sm btn-default hidden-xs" title="Recargar la página">
-               <span class="glyphicon glyphicon-refresh"></span>
-            </a>
-            <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
-               <span class="glyphicon glyphicon-arrow-left"></span>
-               <span class="hidden-xs">&nbsp; {$fsc->ppage->title}</span>
-            </a>
+            <div class="btn-group">
+               <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
+                  <span class="glyphicon glyphicon-arrow-left"></span>
+                  <span class="hidden-xs">&nbsp; {$fsc->ppage->title}</span>
+               </a>
+               <a href="{$fsc->url()}" class="btn btn-sm btn-default hidden-xs" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+            </div>
             <div class="btn-group">
                <a href="#" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_librom">
-                  <span class="glyphicon glyphicon-book"></span> &nbsp; Libro mayor
+                  <span class="glyphicon glyphicon-book"></span>
+                  <span class="hidden-xs">&nbsp; Libro mayor</span>
                </a>
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
