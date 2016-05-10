@@ -65,6 +65,7 @@ class articulo extends fs_model
     * @var type 
     */
    public $pvp;
+   public $margen;
    
    /**
     * Almacena el valor del pvp antes de hacer el cambio.
@@ -203,7 +204,7 @@ class articulo extends fs_model
       
       if( !isset(self::$column_list) )
       {
-         self::$column_list = 'referencia,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,'.
+         self::$column_list = 'referencia,margen,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,'.
                  'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,'.
                  'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,'.
                  'partnumber,codsubcuentacom,codsubcuentairpfcom,trazabilidad';
@@ -212,6 +213,7 @@ class articulo extends fs_model
       if($a)
       {
          $this->referencia = $a['referencia'];
+         $this->margen = $a['margen'];
          $this->tipo = $a['tipo'];
          $this->codfamilia = $a['codfamilia'];
          $this->codfabricante = $a['codfabricante'];
@@ -297,6 +299,7 @@ class articulo extends fs_model
       else
       {
          $this->referencia = NULL;
+         $this->margen = 0;
          $this->tipo = NULL;
          $this->codfamilia = NULL;
          $this->codfabricante = NULL;
@@ -941,6 +944,7 @@ class articulo extends fs_model
                     ", codfabricante = ".$this->var2str($this->codfabricante).
                     ", pvp = ".$this->var2str($this->pvp).
                     ", factualizado = ".$this->var2str($this->factualizado).
+                    ", margen = ".$this->var2str($this->margen).
                     ", costemedio = ".$this->var2str($this->costemedio).
                     ", preciocoste = ".$this->var2str($this->preciocoste).
                     ", codimpuesto = ".$this->var2str($this->codimpuesto).
@@ -976,6 +980,7 @@ class articulo extends fs_model
          {
             $sql = "INSERT INTO ".$this->table_name." (".self::$column_list.") VALUES (".
                     $this->var2str($this->referencia).",".
+                    $this->var2str($this->margen).",".
                     $this->var2str($this->codfamilia).",".
                     $this->var2str($this->codfabricante).",".
                     $this->var2str($this->descripcion).",".
