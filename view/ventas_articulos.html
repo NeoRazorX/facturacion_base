@@ -159,17 +159,24 @@
                         </div>
                         <div class="col-sm-2">
                            <div class="form-group{if="$fsc->b_codtarifa"} has-success{/if}">
-                              <select name="b_codtarifa" class="form-control" onchange="this.form.submit()">
-                                 <option value="">Ninguna tarifa</option>
-                                 <option value="">---</option>
-                                 {loop="$fsc->tarifa->all()"}
-                                    {if="$value->codtarifa==$fsc->b_codtarifa"}
-                                    <option value="{$value->codtarifa}" selected="">{$value->nombre}</option>
-                                    {else}
-                                    <option value="{$value->codtarifa}">{$value->nombre}</option>
-                                    {/if}
-                                 {/loop}
-                              </select>
+                              <div class="input-group">
+                                 <select name="b_codtarifa" class="form-control" onchange="this.form.submit()">
+                                    <option value="">Ninguna tarifa</option>
+                                    <option value="">---</option>
+                                    {loop="$fsc->tarifa->all()"}
+                                       {if="$value->codtarifa==$fsc->b_codtarifa"}
+                                       <option value="{$value->codtarifa}" selected="">{$value->nombre}</option>
+                                       {else}
+                                       <option value="{$value->codtarifa}">{$value->nombre}</option>
+                                       {/if}
+                                    {/loop}
+                                 </select>
+                                 <span class="input-group-btn" title="Descargar">
+                                    <a class="btn btn-info" href="{$fsc->b_url}&download=csv" title="Descargar en formato CSV">
+                                       <span class="glyphicon glyphicon-download-alt"></span>
+                                    </a>
+                                 </span>
+                              </div>
                            </div>
                         </div>
                         <div class="col-sm-4 text-right">
@@ -255,10 +262,6 @@
                                  </li>
                               </ul>
                            </div>
-                           <a class="btn btn-sm btn-info" href="{$fsc->b_url}&download=csv" title="Descargar en formato CSV">
-                              <span class="glyphicon glyphicon-download-alt"></span>
-                              <span class="visible-xs">&nbsp; Descargar</span>
-                           </a>
                         </div>
                      </div>
                   </div>
