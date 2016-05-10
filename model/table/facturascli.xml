@@ -277,6 +277,11 @@
       <nombre>provinciaenv</nombre>
       <tipo>character varying(100)</tipo>
    </columna>
+   <columna>
+      <nombre>idimprenta</nombre>
+      <tipo>integer</tipo>
+      <nulo>YES</nulo>
+   </columna>
    <restriccion>
       <nombre>ca_facturascli_series2</nombre>
       <consulta>FOREIGN KEY (codserie)

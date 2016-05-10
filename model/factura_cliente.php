@@ -223,6 +223,14 @@ class factura_cliente extends fs_model
     */
    public $femail;
    
+   /**
+    * Identificador opcional para la impresión. Todavía sin uso.
+    * Se puede usar para identificar una forma de impresión y usar siempre
+    * esa en esta factura.
+    * @var type 
+    */
+   public $idimprenta;
+   
    public function __construct($f=FALSE)
    {
       parent::__construct('facturascli');
@@ -293,6 +301,8 @@ class factura_cliente extends fs_model
          $this->envio_codpostal = $f['codpostalenv'];
          $this->envio_ciudad = $f['ciudadenv'];
          $this->envio_provincia = $f['provinciaenv'];
+         
+         $this->idimprenta = $this->intval($f['idimprenta']);
       }
       else
       {
@@ -344,6 +354,7 @@ class factura_cliente extends fs_model
          $this->envio_codpostal = NULL;
          $this->envio_ciudad = NULL;
          $this->envio_provincia = NULL;
+         $this->idimprenta = NULL;
       }
    }
    
@@ -1021,6 +1032,7 @@ class factura_cliente extends fs_model
                     ", codpostalenv = ".$this->var2str($this->envio_codpostal).
                     ", ciudadenv = ".$this->var2str($this->envio_ciudad).
                     ", provinciaenv = ".$this->var2str($this->envio_provincia).
+                    ", idimprenta = ".$this->var2str($this->idimprenta).
                     "  WHERE idfactura = ".$this->var2str($this->idfactura).";";
             
             return $this->db->exec($sql);
@@ -1033,7 +1045,7 @@ class factura_cliente extends fs_model
                nombrecliente,cifnif,direccion,ciudad,provincia,apartado,coddir,codpostal,codpais,
                codagente,neto,totaliva,total,totaleuros,irpf,totalirpf,porcomision,tasaconv,
                totalrecargo,pagada,anulada,observaciones,hora,numero2,vencimiento,femail,codtrans,
-               codigoenv,nombreenv,apellidosenv,direccionenv,codpostalenv,ciudadenv,provinciaenv) VALUES 
+               codigoenv,nombreenv,apellidosenv,direccionenv,codpostalenv,ciudadenv,provinciaenv,idimprenta) VALUES 
                      (".$this->var2str($this->idasiento).
                     ",".$this->var2str($this->idasientop).
                     ",".$this->var2str($this->idfacturarect).
@@ -1080,7 +1092,8 @@ class factura_cliente extends fs_model
                     ",".$this->var2str($this->envio_direccion).
                     ",".$this->var2str($this->envio_codpostal).
                     ",".$this->var2str($this->envio_ciudad).
-                    ",".$this->var2str($this->envio_provincia).");";
+                    ",".$this->var2str($this->envio_provincia).
+                    ",".$this->var2str($this->idimprenta).");";
             
             if( $this->db->exec($sql) )
             {
