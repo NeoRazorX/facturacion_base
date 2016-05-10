@@ -543,7 +543,7 @@ class ventas_facturas extends fs_controller
          
          if( $fact->delete() )
          {
-            $this->new_message("Factura eliminada correctamente.", TRUE);
+            $this->new_message("Factura de venta ".$fact->codigo." eliminada correctamente.", TRUE);
             $this->clean_last_changes();
          }
          else

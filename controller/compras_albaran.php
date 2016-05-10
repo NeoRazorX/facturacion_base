@@ -124,7 +124,7 @@ class compras_albaran extends fs_controller
          }
       }
       else
-         $this->new_error_msg("¡".FS_ALBARAN." de proveedor no encontrado!");
+         $this->new_error_msg("¡".ucfirst(FS_ALBARAN)." de compra no encontrado!");
    }
    
    public function url()

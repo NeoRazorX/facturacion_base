@@ -137,7 +137,7 @@ class ventas_albaran extends fs_controller
          }
       }
       else
-         $this->new_error_msg("¡".FS_ALBARAN." de cliente no encontrado!");
+         $this->new_error_msg("¡".ucfirst(FS_ALBARAN)." de venta no encontrado!");
    }
    
    public function url()

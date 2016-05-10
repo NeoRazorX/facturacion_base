@@ -521,7 +521,7 @@ class compras_facturas extends fs_controller
          
          if( $fact->delete() )
          {
-            $this->new_message("Factura eliminada correctamente.", TRUE);
+            $this->new_message("Factura de compra ".$fact->codigo." eliminada correctamente.", TRUE);
             $this->clean_last_changes();
          }
          else

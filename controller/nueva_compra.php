@@ -241,10 +241,15 @@ class nueva_compra extends fs_controller
       else
       {
          $art0->descripcion = $_REQUEST['descripcion'];
+         $art0->codbarras = $_REQUEST['codbarras'];
          $art0->set_impuesto($_REQUEST['codimpuesto']);
          $art0->set_pvp( floatval($_REQUEST['pvp']) );
          $art0->costemedio = floatval($_REQUEST['coste']);
          $art0->preciocoste = floatval($_REQUEST['coste']);
+         
+         $art0->secompra = isset($_POST['secompra']);
+         $art0->sevende = isset($_POST['sevende']);
+         $art0->nostock = isset($_POST['nostock']);
          $art0->publico = isset($_POST['publico']);
          
          if($_POST['codfamilia'] != '')

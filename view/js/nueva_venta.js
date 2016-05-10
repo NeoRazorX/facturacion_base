@@ -363,10 +363,6 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
    $("#numlineas").val(numlineas);
    recalcular();
    
-   $("#nav_articulos").hide();
-   $("#search_results").html('');
-   $("#kiwimaru_results").html('');
-   $("#nuevo_articulo").hide();
    $("#modal_articulos").modal('hide');
    
    $("#desc_"+(numlineas-1)).select();
@@ -667,14 +663,11 @@ function kiwi_import(ref,desc,pvp)
 $(document).ready(function() {
    $("#i_new_line").click(function() {
       $("#i_new_line").val("");
-      document.f_buscar_articulos.query.value = "";
       $("#nav_articulos li").each(function() {
          $(this).removeClass("active");
       });
       $("#li_mis_articulos").addClass('active');
-      $("#nav_articulos").hide();
-      $("#search_results").html('');
-      $("#search_results").show('');
+      $("#search_results").show();
       $("#kiwimaru_results").html('');
       $("#kiwimaru_results").hide();
       $("#nuevo_articulo").hide();
@@ -689,9 +682,8 @@ $(document).ready(function() {
          $(this).removeClass("active");
       });
       $("#li_mis_articulos").addClass('active');
-      $("#nav_articulos").hide();
       $("#search_results").html('');
-      $("#search_results").show('');
+      $("#search_results").show();
       $("#kiwimaru_results").html('');
       $("#kiwimaru_results").hide();
       $("#nuevo_articulo").hide();
