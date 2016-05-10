@@ -130,7 +130,7 @@
                         {/loop}
                      </select>
                   </div>
-                  <div class="col-sm-3">
+                  <div class="col-sm-2">
                      <select name="ciudad" class="form-control" onchange="this.form.submit()">
                         <option value="">Cualquier ciudad</option>
                         <option value="">------</option>
@@ -143,7 +143,7 @@
                         {/loop}
                      </select>
                   </div>
-                  <div class="col-sm-3">
+                  <div class="col-sm-2">
                      <select name="bcodgrupo" class="form-control" onchange="this.form.submit()">
                         <option value="">Cualquier grupo</option>
                         <option value="">------</option>
@@ -154,6 +154,14 @@
                            <option value="{$value->codgrupo}">{$value->nombre}</option>
                            {/if}
                         {/loop}
+                     </select>
+                  </div>
+                  <div class="col-sm-2">
+                     <select name="orden" class="form-control" onchange="this.form.submit()">
+                        <option value="nombre ASC">Orden: nombre</option>
+                        <option value="nombre DESC"{if="$fsc->orden=='nombre DESC'"} selected=""{/if}>Orden: nombre descendente</option>
+                        <option value="fechaalta ASC"{if="$fsc->orden=='fechaalta ASC'"} selected=""{/if}>Orden: fecha</option>
+                        <option value="fechaalta DESC"{if="$fsc->orden=='fechaalta DESC'"} selected=""{/if}>Orden: fecha descendente</option>
                      </select>
                   </div>
                </div>

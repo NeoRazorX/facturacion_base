@@ -35,6 +35,7 @@ class ventas_clientes extends fs_controller
    public $nocifnif;
    public $nuevocli_setup;
    public $offset;
+   public $orden;
    public $pais;
    public $provincia;
    public $resultados;
@@ -244,6 +245,12 @@ class ventas_clientes extends fs_controller
          $this->codgrupo = $_REQUEST['bcodgrupo'];
       }
       
+      $this->orden = 'nombre ASC';
+      if( isset($_REQUEST['orden']) )
+      {
+         $this->orden = $_REQUEST['orden'];
+      }
+      
       $this->nocifnif = isset($_REQUEST['nocifnif']);
       
       $this->buscar();
@@ -257,7 +264,8 @@ class ventas_clientes extends fs_controller
                  ."&provincia=".$this->provincia
                  ."&codpais=".$this->codpais
                  ."&codgrupo=".$this->codgrupo
-                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
+                 ."&offset=".($this->offset+FS_ITEM_LIMIT)
+                 ."&orden=".$this->orden;
       
       if($this->nocifnif)
       {
@@ -343,7 +351,9 @@ class ventas_clientes extends fs_controller
       if($data)
       {
          foreach($data as $d)
+         {
             $ciudades[] = $d['ciudad'];
+         }
       }
       
       /// usamos las minúsculas para filtrar
@@ -373,7 +383,9 @@ class ventas_clientes extends fs_controller
       if($data)
       {
          foreach($data as $d)
+         {
             $provincias[] = $d['provincia'];
+         }
       }
       
       foreach($provincias as $pro)
@@ -457,7 +469,7 @@ class ventas_clientes extends fs_controller
       {
          $this->total_resultados = intval($data[0]['total']);
          
-         $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY nombre ASC", FS_ITEM_LIMIT, $this->offset);
+         $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$this->orden, FS_ITEM_LIMIT, $this->offset);
          if($data2)
          {
             foreach($data2 as $d)
