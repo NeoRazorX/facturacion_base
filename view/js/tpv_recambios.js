@@ -470,10 +470,8 @@ $(document).ready(function() {
    
    $("#i_new_line").click(function() {
       $("#i_new_line").val("");
-      document.f_buscar_articulos.query.value = "";
-      $("#search_results").html("");
       $("#modal_articulos").modal('show');
-      document.f_buscar_articulos.query.focus();
+      document.f_buscar_articulos.query.select();
    });
    
    $("#i_new_line").keyup(function() {

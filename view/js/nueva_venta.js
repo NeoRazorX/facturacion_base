@@ -189,20 +189,26 @@ function ajustar_neto()
          l_dto = parseFloat( $("#dto_"+i).val() );
          l_neto = parseFloat( $("#neto_"+i).val() );
          if( isNaN(l_neto) )
+         {
             l_neto = 0;
+         }
          
          if( l_neto <= l_pvp*l_uds )
          {
             l_dto = 100 - 100*l_neto/(l_pvp*l_uds);
             if( isNaN(l_dto) )
+            {
                l_dto = 0;
+            }
          }
          else
          {
             l_dto = 0;
             l_pvp = 100*l_neto/(l_uds*(100-l_dto));
             if( isNaN(l_pvp) )
+            {
                l_pvp = 0;
+            }
          }
          
          $("#pvp_"+i).val(l_pvp);
@@ -236,18 +242,24 @@ function ajustar_total()
          
          l_irpf = irpf;
          if(l_iva <= 0)
+         {
             l_irpf = 0;
+         }
          
          l_total = parseFloat( $("#total_"+i).val() );
          if( isNaN(l_total) )
+         {
             l_total = 0;
+         }
          
          if( l_total <= l_pvp*l_uds + (l_pvp*l_uds*(l_iva-l_irpf+l_recargo)/100) )
          {
             l_neto = 100*l_total/(100+l_iva-l_irpf+l_recargo);
             l_dto = 100 - 100*l_neto/(l_pvp*l_uds);
             if( isNaN(l_dto) )
+            {
                l_dto = 0;
+            }
          }
          else
          {
@@ -451,8 +463,7 @@ function new_articulo()
                $(this).removeClass("active");
             });
             $("#li_mis_articulos").addClass('active');
-            $("#search_results").html('');
-            $("#search_results").show('');
+            $("#search_results").show();
             $("#kiwimaru_results").hide();
             $("#nuevo_articulo").hide();
             
@@ -672,7 +683,7 @@ $(document).ready(function() {
       $("#kiwimaru_results").hide();
       $("#nuevo_articulo").hide();
       $("#modal_articulos").modal('show');
-      document.f_buscar_articulos.query.focus();
+      document.f_buscar_articulos.query.select();
    });
    
    $("#i_new_line").keyup(function() {
@@ -688,7 +699,7 @@ $(document).ready(function() {
       $("#kiwimaru_results").hide();
       $("#nuevo_articulo").hide();
       $("#modal_articulos").modal('show');
-      document.f_buscar_articulos.query.focus();
+      document.f_buscar_articulos.query.select();
       buscar_articulos();
    });
    
