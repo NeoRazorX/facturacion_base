@@ -64,7 +64,7 @@
 <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
    <div class="container-fluid">
       <div class="row">
-         <div class="col-sm-3">
+         <div class="col-sm-2">
             <div class="input-group">
                <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
                <span class="input-group-btn">
@@ -82,6 +82,20 @@
          <div class="col-sm-2">
             <div class="form-group">
                <input type="text" name="hasta" value="{$fsc->hasta}" class="form-control datepicker" placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
+            </div>
+         </div>
+         <div class="col-sm-4"></div>
+         <div class="col-sm-2">
+            <div class="input-group">
+               <div class="input-group-addon">
+                  <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
+               </div>
+               <select name="orden" class="form-control" onchange="this.form.submit()">
+                  <option value="fecha DESC, numero DESC">Orden: fecha descendente</option>
+                  <option value="fecha ASC, numero ASC"{if="$fsc->orden=='fecha ASC, numero ASC'"} selected=""{/if}>Orden: fecha</option>
+                  <option value="importe ASC"{if="$fsc->orden=='importe ASC'"} selected=""{/if}>Orden: importe</option>
+                  <option value="importe DESC"{if="$fsc->orden=='importe DESC'"} selected=""{/if}>Orden: importe descendente</option>
+               </select>
             </div>
          </div>
       </div>

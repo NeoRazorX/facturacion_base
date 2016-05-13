@@ -77,6 +77,7 @@
    <li role="presentation"{if="$fsc->mostrar=='todo'"} class="active"{/if}>
       <a href="{$fsc->url()}&mostrar=todo">
          {if="$fsc->query==''"}
+         <i class="fa fa-users" aria-hidden="true"></i>&nbsp;
          Todos <span class="badge">{$fsc->total_proveedores()}</span>
          {else}
          <span class="glyphicon glyphicon-search"></span>

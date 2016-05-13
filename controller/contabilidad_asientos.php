@@ -26,6 +26,7 @@ class contabilidad_asientos extends fs_controller
    public $hasta;
    public $mostrar;
    public $offset;
+   public $orden;
    public $resultados;
    
    private $num_resultados;
@@ -38,10 +39,12 @@ class contabilidad_asientos extends fs_controller
    protected function private_core()
    {
       $this->asiento = new asiento();
-      $this->mostrar = 'todo';
-      $this->offset = 0;
+      
       $this->desde = '';
       $this->hasta = '';
+      $this->mostrar = 'todo';
+      $this->offset = 0;
+      $this->orden = 'fecha DESC, numero DESC';
       
       if( isset($_GET['mostrar']) )
       {
@@ -84,10 +87,11 @@ class contabilidad_asientos extends fs_controller
       }
       else
       {
-         if( isset($_REQUEST['desde']) OR isset($_REQUEST['hasta']) )
+         if( isset($_REQUEST['desde']) OR isset($_REQUEST['hasta']) OR isset($_REQUEST['orden']) )
          {
             $this->desde = $_REQUEST['desde'];
             $this->hasta = $_REQUEST['hasta'];
+            $this->orden = $_REQUEST['orden'];
          }
          
          $this->buscar();
@@ -141,7 +145,7 @@ class contabilidad_asientos extends fs_controller
       {
          $this->num_resultados = intval($data[0]['total']);
          
-         $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY fecha DESC, numero DESC", FS_ITEM_LIMIT, $this->offset);
+         $data2 = $this->db->select_limit("SELECT *".$sql.' ORDER BY '.$this->orden, FS_ITEM_LIMIT, $this->offset);
          if($data2)
          {
             foreach($data2 as $d)
@@ -189,7 +193,7 @@ class contabilidad_asientos extends fs_controller
       if($busqueda)
       {         
          $url = $this->url()."&desde=".$this->desde
-                 ."&hasta=".$this->hasta;
+                 ."&hasta=".$this->hasta."&orden=".$this->orden;
          
          return $url;
       }

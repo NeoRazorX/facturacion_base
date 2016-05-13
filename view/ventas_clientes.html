@@ -14,7 +14,9 @@
    function eliminar_grupo(cod)
    {
       if( confirm("¿Realmente desea eliminar el grupo "+cod+"?") )
+      {
          window.location.href = '{$fsc->url()}&delete_grupo='+cod+'#grupos';
+      }
    }
    $(document).ready(function() {
       if(window.location.hash.substring(1) == 'nuevo')
@@ -157,12 +159,17 @@
                      </select>
                   </div>
                   <div class="col-sm-2">
-                     <select name="orden" class="form-control" onchange="this.form.submit()">
-                        <option value="nombre ASC">Orden: nombre</option>
-                        <option value="nombre DESC"{if="$fsc->orden=='nombre DESC'"} selected=""{/if}>Orden: nombre descendente</option>
-                        <option value="fechaalta ASC"{if="$fsc->orden=='fechaalta ASC'"} selected=""{/if}>Orden: fecha</option>
-                        <option value="fechaalta DESC"{if="$fsc->orden=='fechaalta DESC'"} selected=""{/if}>Orden: fecha descendente</option>
-                     </select>
+                     <div class="input-group">
+                        <div class="input-group-addon">
+                           <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
+                        </div>
+                        <select name="orden" class="form-control" onchange="this.form.submit()">
+                           <option value="nombre ASC">Orden: nombre</option>
+                           <option value="nombre DESC"{if="$fsc->orden=='nombre DESC'"} selected=""{/if}>Orden: nombre descendente</option>
+                           <option value="fechaalta ASC"{if="$fsc->orden=='fechaalta ASC'"} selected=""{/if}>Orden: fecha</option>
+                           <option value="fechaalta DESC"{if="$fsc->orden=='fechaalta DESC'"} selected=""{/if}>Orden: fecha descendente</option>
+                        </select>
+                     </div>
                   </div>
                </div>
                <div class="row">
