@@ -81,10 +81,9 @@
 				alert("Falta completar el campo de SubCuenta o el Total de un Ítem es 0.00");
 				aler =1;
 				}											
-				if( document.getElementById('atotal').value <= 0.00 || document.getElementById('atotal').value == 'NaN' )
+				if( document.getElementById('atotal').value == 'NaN' )
 				{
-				alert("El Total de la Factura no puede ser 0.00");
-				aler = 1;
+				document.getElementById('atotal').value = '0.00';
 				}
 				if( aler == 0) $('#modal_guardar').modal('show');
 				else return;

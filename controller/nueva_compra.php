@@ -196,7 +196,7 @@ class nueva_compra extends fs_controller
             {
 			
 			 $this->nueva_factura_proveedor();
-			header('Location: '.$this->url_list());
+//			header('Location: '.$this->url_list());
 			 
             }
             else if($_POST['tipo'] == 'F')
@@ -918,6 +918,7 @@ class nueva_compra extends fs_controller
       if( $continuar )
       {
          $factura->fecha = $_POST['fecha'];
+		 $fecha_factura = $_POST['fecha'];
          $factura->hora = $_POST['hora'];
          $factura->codproveedor = $proveedor->codproveedor;
          $factura->nombre = $proveedor->razonsocial;
@@ -1049,7 +1050,9 @@ class nueva_compra extends fs_controller
             
             if($continuar)
             {
-               /// redondeamos
+
+				$factura->fecha = $fecha_factura;
+               /// redondeamos			   
                $factura->neto = round($factura->neto, FS_NF0);
                $factura->totaliva = round($factura->totaliva, FS_NF0);
                $factura->totalirpf = round($factura->totalirpf, FS_NF0);

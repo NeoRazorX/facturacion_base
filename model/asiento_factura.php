@@ -294,7 +294,7 @@ class asiento_factura
          $asiento->editable = TRUE;
          $asiento->fecha = $factura->fecha;
          $asiento->importe = $factura->total;
-         $asiento->tipodocumento = 'Egreso cliente';
+         $asiento->tipodocumento = 'Egreso';
          if( $asiento->save() )
          {
             $asiento_correcto = TRUE;
@@ -1012,7 +1012,7 @@ class asiento_factura
          $asiento->editable = TRUE;
          $asiento->fecha = $factura->fecha;
          $asiento->importe = $factura->total;
-         $asiento->tipodocumento = 'Ingreso cliente';
+         $asiento->tipodocumento = 'Ingreso';
          if( $asiento->save() )
          {
             $asiento_correcto = TRUE;

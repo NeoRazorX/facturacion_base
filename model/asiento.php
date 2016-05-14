@@ -98,7 +98,7 @@ class asiento extends fs_model
    
    public function get_factura()
    {
-      if($this->tipodocumento == 'Ingreso cliente')
+      if($this->tipodocumento == 'Ingreso')
       {
          $fac = new factura_cliente();
          return $fac->get_by_codigo($this->documento);

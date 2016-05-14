@@ -130,11 +130,7 @@
 							  alert('Debe completar el campo descripción');
 							  aler = 1;						   
 							   }
-							   if(document.getElementById('total_'+i).value <= 0)
-							   {
-							   alert('El total de la linea no puede ser 0 ');
-							   aler = 1;
-							   }
+							   
 								if( document.getElementById('subcuenta_'+i))
 									{
 									if( document.getElementById('subcuenta_'+i).value == 'null/%0' || document.getElementById('subcuenta_'+i).value == 'null/%' || document.getElementById('total_'+i).value == 0  ||  document.getElementById('subcuenta_'+i).value == '0/%' || document.getElementById('subcuenta_'+i).value == '/%'  || document.getElementById('subcuenta_'+i).value == '/%0' || document.getElementById('subcuenta_'+i).value == '0/0%0'  || document.getElementById('subcuenta_'+i).value == ''  ){ ban = 1;}

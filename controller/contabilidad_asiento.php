@@ -79,7 +79,7 @@ class contabilidad_asiento extends fs_controller
 	  $this->factura_prov->idasiento=$this->asiento->idasiento;
 	  $this->resultados1 = $this->factura_prov->facturas_proveedor();
 	  }
-	  else if($this->asiento->tipodocumento=='Ingreso cliente')
+	  else if($this->asiento->tipodocumento=='Ingreso')
 	  {
 	  $this->factura_cli = new factura_cliente();
 	  $this->factura_cli->codejercicio=$this->asiento->codejercicio;
