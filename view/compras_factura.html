@@ -197,12 +197,7 @@
                   <span class="glyphicon glyphicon-ok"></span> &nbsp; Pagada</a>
                   {/if}
 			</div>
-	{if="$fsc->allow_delete"}
-			<div >
-			<button class="btn btn-sm btn-primary" type="button" onclick="guarfact()">
-               <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar...
-            </button>
-	{else}		
+		
 			{if="$fsc->factura->idasiento==null "}
 			<div >
 			<button class="btn btn-sm btn-primary" type="button" onclick="guarfact()">
@@ -214,7 +209,7 @@
                <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar...
             </button>
 			{/if}
-	{/if}		
+			
 			
 			
 {if="$fsc->allow_delete"}

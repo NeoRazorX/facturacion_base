@@ -56,6 +56,7 @@ class nueva_compra extends fs_controller
    public $autorizar_factura;
    public $view_subcuen;
    public $view_subcuen_dev;
+   public $id_factura;
    
    public function __construct()
    {
@@ -196,7 +197,7 @@ class nueva_compra extends fs_controller
             {
 			
 			 $this->nueva_factura_proveedor();
-//			header('Location: '.$this->url_list());
+			header('Location: '.$this->url_factura());
 			 
             }
             else if($_POST['tipo'] == 'F')
@@ -274,6 +275,12 @@ class nueva_compra extends fs_controller
    {
 
          return 'index.php?page=compras_facturas';
+   }
+   
+      public function url_factura()
+   {
+
+         return 'index.php?page=compras_factura&id='.$this->id_factura;
    }
    
    private function buscar_proveedor()
@@ -959,6 +966,7 @@ class nueva_compra extends fs_controller
                {
                   $linea = new linea_factura_proveedor();
                   $linea->idfactura = $factura->idfactura;
+				  $this->id_factura = $factura->idfactura;
                   $linea->descripcion = $_POST['desc_'.$i];                     
                   $linea->irpf = floatval($_POST['irpf_'.$i]);
                   $linea->pvpunitario = floatval($_POST['pvp_'.$i]);
