@@ -146,14 +146,14 @@
             <table class="table table-hover">
                <thead>
                   <tr>
-                     <th>ID</th>
+                     <th width="90">ID</th>
                      <th>Almacén</th>
                      <th>Serie</th>
                      <th>Código Cliente</th>
-                     <th>Caracteres por linea</th>
+                     <th width="145">Caracteres por linea</th>
                      <th>Comando corte</th>
                      <th>Comando apertura</th>
-                     <th>nº tickets</th>
+                     <th width="90">nº tickets</th>
                      <th></th>
                      <th class="text-right" width="120">Acciones</th>
                   </tr>
@@ -189,7 +189,17 @@
                         <input type="text" name="codcliente" value="{$value->codcliente}" class="form-control" maxlength="6" placeholder="Código" autocomplete="off"/>
                      </td>
                      <td><input type="number" name="anchopapel" value="{$value->anchopapel}" class="form-control" autocomplete="off"/></td>
-                     <td><input type="text" name="comandocorte" value="{$value->comandocorte}" class="form-control" autocomplete="off"/></td>
+                     <td>
+                        <input type="text" name="comandocorte" value="{$value->comandocorte}" class="form-control" autocomplete="off"/>
+                        <label class="checkbox-inline">
+                           {if="$value->sin_comandos"}
+                           <input type="checkbox" name="sin_comandos" value="TRUE" checked=""/>
+                           {else}
+                           <input type="checkbox" name="sin_comandos" value="TRUE"/>
+                           {/if}
+                           Desactivar comandos
+                        </label>
+                     </td>
                      <td><input type="text" name="comandoapertura" value="{$value->comandoapertura}" class="form-control" autocomplete="off"/></td>
                      <td><input type="number" name="num_tickets" value="{$value->num_tickets}" class="form-control" autocomplete="off"/></td>
                      <td class="text-center">
@@ -237,7 +247,17 @@
                         <input type="number" name="anchopapel" value="{$fsc->terminal->anchopapel}" class="form-control" autocomplete="off"/>
                         <p class="help-block">Nº de caracteres que caben en una linea.</p>
                      </td>
-                     <td><input type="text" name="comandocorte" value="{$fsc->terminal->comandocorte}" class="form-control" autocomplete="off"/></td>
+                     <td>
+                        <input type="text" name="comandocorte" value="{$fsc->terminal->comandocorte}" class="form-control" autocomplete="off"/>
+                        <label class="checkbox-inline">
+                           {if="$fsc->terminal->sin_comandos"}
+                           <input type="checkbox" name="sin_comandos" value="TRUE" checked=""/>
+                           {else}
+                           <input type="checkbox" name="sin_comandos" value="TRUE"/>
+                           {/if}
+                           Desactivar comandos
+                        </label>
+                     </td>
                      <td><input type="text" name="comandoapertura" value="{$fsc->terminal->comandoapertura}" class="form-control" autocomplete="off"/></td>
                      <td><input type="number" name="num_tickets" value="{$fsc->terminal->num_tickets}" class="form-control" autocomplete="off"/></td>
                      <td></td>
@@ -292,6 +312,11 @@
                         </tr>
                      </table>
                   </div>
+                  <p class="help-block">
+                     <span class="glyphicon glyphicon-info-sign"></span> Si aun así
+                     no consigues imprimir nada o tienes problemas, puedes
+                     <b>desactivar los comandos</b> de la impresora.
+                  </p>
                </div>
             </div>
          </div>

@@ -166,12 +166,13 @@ function recalcular()
    }
    
    $("#tpv_total").val( show_precio(neto + total_iva - total_irpf + total_recargo) );
-   $("#tpv_total2").val(neto + total_iva - total_irpf + total_recargo);
+   $("#tpv_total2").val( fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0) );
+   
    var tpv_efectivo = parseFloat( $("#tpv_efectivo").val() );
    $("#tpv_cambio").val( show_precio(tpv_efectivo - (neto + total_iva - total_irpf + total_recargo)) );
 }
 
-function ajustar_total()
+function ajustar_total(i)
 {
    var l_uds = 0;
    var l_pvp = 0;
@@ -182,47 +183,41 @@ function ajustar_total()
    var l_neto = 0;
    var l_total = 0;
    
-   for(var i=1; i<=numlineas; i++)
+   if($("#linea_"+i).length > 0)
    {
-      if($("#linea_"+i).length > 0)
+      l_uds = parseFloat( $("#cantidad_"+i).val() );
+      l_pvp = parseFloat( $("#pvp_"+i).val() );
+      l_dto = parseFloat( $("#dto_"+i).val() );
+      l_iva = parseFloat( $("#iva_"+i).val() );
+      l_recargo = parseFloat( $("#recargo_"+i).val() );
+      l_irpf = parseFloat( $("#irpf_"+i).val() );
+      
+      l_total = parseFloat( $("#total_"+i).val() );
+      if( isNaN(l_total) )
       {
-         l_uds = parseFloat( $("#cantidad_"+i).val() );
-         l_pvp = parseFloat( $("#pvp_"+i).val() );
-         l_dto = parseFloat( $("#dto_"+i).val() );
-         l_iva = parseFloat( $("#iva_"+i).val() );
-         l_recargo = parseFloat( $("#recargo_"+i).val() );
-         
-         l_irpf = irpf;
-         if(l_iva <= 0)
-         {
-            l_irpf = 0;
-         }
-         
-         l_total = parseFloat( $("#total_"+i).val() );
-         if( isNaN(l_total) )
-         {
-            l_total = 0;
-         }
-         
-         if( l_total <= l_pvp*l_uds + (l_pvp*l_uds*(l_iva-l_irpf+l_recargo)/100) )
-         {
-            l_neto = 100*l_total/(100+l_iva-l_irpf+l_recargo);
-            l_dto = 100 - 100*l_neto/(l_pvp*l_uds);
-            if( isNaN(l_dto) )
-            {
-               l_dto = 0;
-            }
-         }
-         else
+         l_total = 0;
+      }
+      
+      if( l_total <= l_pvp*l_uds + (l_pvp*l_uds*(l_iva-l_irpf+l_recargo)/100) )
+      {
+         l_neto = 100*l_total/(100+l_iva-l_irpf+l_recargo);
+         l_dto = 100 - 100*l_neto/(l_pvp*l_uds);
+         if( isNaN(l_dto) )
          {
             l_dto = 0;
-            l_neto = 100*l_total/(100+l_iva-l_irpf+l_recargo);
-            l_pvp = l_neto/l_uds;
          }
          
-         $("#pvp_"+i).val(l_pvp);
-         $("#dto_"+i).val(l_dto);
+         l_dto = fs_round(l_dto, 2);
       }
+      else
+      {
+         l_dto = 0;
+         l_neto = 100*l_total/(100+l_iva-l_irpf+l_recargo);
+         l_pvp = fs_round(l_neto/l_uds, 2);
+      }
+      
+      $("#pvp_"+i).val(l_pvp);
+      $("#dto_"+i).val(l_dto);
    }
    
    recalcular();
@@ -270,7 +265,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
             <input type=\"hidden\" id=\"recargo_"+numlineas+"\" name=\"recargo_"+numlineas+"\" value=\""+recargo+"\"/>\n\
             <input type=\"hidden\" id=\"irpf_"+numlineas+"\" name=\"irpf_"+numlineas+"\" value=\""+irpf+"\"/>\n\
             <div class=\"form-control\"><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></div></td>\n\
-         <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\">"+desc+"</textarea></td>\n\
+         <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\">"+desc+"</textarea></td>\n\
          <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
             "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\""+cantidad+"\"/></td>\n\
          <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
@@ -284,8 +279,9 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
          <td class=\"text-right\"><div class=\"form-control\">"+iva+"</div></td>\n\
          <td class=\"text-right recargo\"><div class=\"form-control\">"+recargo+"</div></td>\n\
          <td class=\"text-right irpf\"><div class=\"form-control\">"+irpf+"</div></td>\n\
-         <td><input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
-            "\" onchange=\"ajustar_total()\" onclick=\"this.select()\" autocomplete=\"off\"/></td></tr>");
+         <td class=\"warning\" title=\"Cálculo aproximado del total de la linea\">\n\
+            <input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
+            "\" onchange=\"ajustar_total("+numlineas+")\" onclick=\"this.select()\" autocomplete=\"off\"/></td></tr>");
    recalcular();
    $("#modal_articulos").modal('hide');
    

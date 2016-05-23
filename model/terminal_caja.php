@@ -25,7 +25,12 @@
  */
 class terminal_caja extends fs_model
 {
+   /**
+    *
+    * @var type Clave primiaria.
+    */
    public $id;
+   
    public $codalmacen;
    public $codserie;
    public $codcliente;
@@ -34,6 +39,7 @@ class terminal_caja extends fs_model
    public $comandocorte;
    public $comandoapertura;
    public $num_tickets;
+   public $sin_comandos;
    
    public function __construct($t = FALSE)
    {
@@ -69,6 +75,8 @@ class terminal_caja extends fs_model
          {
             $this->num_tickets = intval($t['num_tickets']);
          }
+         
+         $this->sin_comandos = $this->str2bool($t['sin_comandos']);
       }
       else
       {
@@ -81,6 +89,7 @@ class terminal_caja extends fs_model
          $this->comandocorte = '27.105';
          $this->comandoapertura = '27.112.48';
          $this->num_tickets = 1;
+         $this->sin_comandos = FALSE;
       }
    }
    
@@ -106,7 +115,14 @@ class terminal_caja extends fs_model
    
    public function add_linea_big($linea)
    {
-      $this->tickets .= chr(27).chr(33).chr(56).$linea.chr(27).chr(33).chr(1);
+      if($this->sin_comandos)
+      {
+         $this->tickets .= $linea;
+      }
+      else
+      {
+         $this->tickets .= chr(27).chr(33).chr(56).$linea.chr(27).chr(33).chr(1);
+      }
    }
    
    public function abrir_cajon()
@@ -115,10 +131,15 @@ class terminal_caja extends fs_model
       if($aux)
       {
          foreach($aux as $a)
+         {
             $this->tickets .= chr($a);
+         }
       }
       
-      $this->tickets .= "\n";
+      if(!$this->sin_comandos)
+      {
+         $this->tickets .= "\n";
+      }
    }
    
    public function cortar_papel()
@@ -132,7 +153,10 @@ class terminal_caja extends fs_model
          }
       }
       
-      $this->tickets .= "\n";
+      if(!$this->sin_comandos)
+      {
+         $this->tickets .= "\n";
+      }
    }
    
    public function center_text($word = '', $ancho = FALSE)
@@ -238,14 +262,15 @@ class terminal_caja extends fs_model
                  ", comandocorte = ".$this->var2str($this->comandocorte).
                  ", comandoapertura = ".$this->var2str($this->comandoapertura).
                  ", num_tickets = ".$this->var2str($this->num_tickets).
-                 " WHERE id = ".$this->var2str($this->id).";";
+                 ", sin_comandos = ".$this->var2str($this->sin_comandos).
+                 "  WHERE id = ".$this->var2str($this->id).";";
          
          return $this->db->exec($sql);
       }
       else
       {
          $sql = "INSERT INTO cajas_terminales (codalmacen,codserie,codcliente,tickets,anchopapel,"
-                 . "comandocorte,comandoapertura,num_tickets) VALUES (".
+                 . "comandocorte,comandoapertura,num_tickets,sin_comandos) VALUES (".
                  $this->var2str($this->codalmacen).",".
                  $this->var2str($this->codserie).",".
                  $this->var2str($this->codcliente).",".
@@ -253,7 +278,8 @@ class terminal_caja extends fs_model
                  $this->var2str($this->anchopapel).",".
                  $this->var2str($this->comandocorte).",".
                  $this->var2str($this->comandoapertura).",".
-                 $this->var2str($this->num_tickets).");";
+                 $this->var2str($this->num_tickets).",".
+                 $this->var2str($this->sin_comandos).");";
          
          if( $this->db->exec($sql) )
          {

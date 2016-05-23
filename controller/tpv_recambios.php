@@ -776,7 +776,7 @@ class tpv_recambios extends fs_controller
             
             /// imprimimos los impuestos desglosados
             $this->terminal->add_linea(
-                    'TIPO   BASE    IVA    RE'.
+                    'TIPO   BASE    '.FS_IVA.'    RE'.
                     sprintf('%'.($this->terminal->anchopapel-24).'s', 'TOTAL').
                     "\n"
             );

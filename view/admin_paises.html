@@ -4,7 +4,9 @@
    function delete_pais(url)
    {
       if( confirm("¿Realmente desea eliminar este país?") )
+      {
          window.location.href = url;
+      }
    }
 </script>
 
@@ -13,7 +15,7 @@
       <div class="col-sm-12">
          <div class="page-header">
             <h1>
-               Países
+               <i class="fa fa-globe" aria-hidden="true"></i>&nbsp; Países
                <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>

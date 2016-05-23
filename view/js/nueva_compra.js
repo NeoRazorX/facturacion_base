@@ -148,7 +148,7 @@ function recalcular()
    $("#aiva").html( show_numero(total_iva) );
    $("#are").html( show_numero(total_recargo) );
    $("#airpf").html( show_numero(total_irpf) );
-   $("#atotal").val( neto + total_iva - total_irpf + total_recargo );
+   $("#atotal").val( fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0) );
    
    if(total_recargo == 0 && !tiene_recargo)
    {
@@ -169,53 +169,54 @@ function recalcular()
    }
 }
 
-function ajustar_neto()
+function ajustar_neto(i)
 {
    var l_uds = 0;
    var l_pvp = 0;
    var l_dto = 0;
    var l_neto = 0;
    
-   for(var i=0; i<numlineas; i++)
+   if($("#linea_"+i).length > 0)
    {
-      if($("#linea_"+i).length > 0)
+      l_uds = parseFloat( $("#cantidad_"+i).val() );
+      l_pvp = parseFloat( $("#pvp_"+i).val() );
+      l_dto = parseFloat( $("#dto_"+i).val() );
+      l_neto = parseFloat( $("#neto_"+i).val() );
+      if( isNaN(l_neto) )
       {
-         l_uds = parseFloat( $("#cantidad_"+i).val() );
-         l_pvp = parseFloat( $("#pvp_"+i).val() );
-         l_dto = parseFloat( $("#dto_"+i).val() );
-         l_neto = parseFloat( $("#neto_"+i).val() );
-         if( isNaN(l_neto) )
-         {
-            l_neto = 0;
-         }
-         
-         if( l_neto <= l_pvp*l_uds )
-         {
-            l_dto = 100 - 100*l_neto/(l_pvp*l_uds);
-            if( isNaN(l_dto) )
-            {
-               l_dto = 0;
-            }
-         }
-         else
+         l_neto = 0;
+      }
+      
+      if( l_neto <= l_pvp*l_uds )
+      {
+         l_dto = 100 - 100*l_neto/(l_pvp*l_uds);
+         if( isNaN(l_dto) )
          {
             l_dto = 0;
-            l_pvp = 100*l_neto/(l_uds*(100-l_dto));
-            if( isNaN(l_pvp) )
-            {
-               l_pvp = 0;
-            }
          }
          
-         $("#pvp_"+i).val(l_pvp);
-         $("#dto_"+i).val(l_dto);
+         l_dto = fs_round(l_dto, 2);
       }
+      else
+      {
+         l_dto = 0;
+         l_pvp = 100*l_neto/(l_uds*(100-l_dto));
+         if( isNaN(l_pvp) )
+         {
+            l_pvp = 0;
+         }
+         
+         l_pvp = fs_round(l_pvp, 2);
+      }
+      
+      $("#pvp_"+i).val(l_pvp);
+      $("#dto_"+i).val(l_dto);
    }
    
    recalcular();
 }
 
-function ajustar_total()
+function ajustar_total(i)
 {
    var l_uds = 0;
    var l_pvp = 0;
@@ -226,47 +227,41 @@ function ajustar_total()
    var l_neto = 0;
    var l_total = 0;
    
-   for(var i=0; i<numlineas; i++)
+   if($("#linea_"+i).length > 0)
    {
-      if($("#linea_"+i).length > 0)
+      l_uds = parseFloat( $("#cantidad_"+i).val() );
+      l_pvp = parseFloat( $("#pvp_"+i).val() );
+      l_dto = parseFloat( $("#dto_"+i).val() );
+      l_iva = parseFloat( $("#iva_"+i).val() );
+      l_recargo = parseFloat( $("#recargo_"+i).val() );
+      l_irpf = parseFloat( $("#irpf_"+i).val() );
+      
+      l_total = parseFloat( $("#total_"+i).val() );
+      if( isNaN(l_total) )
       {
-         l_uds = parseFloat( $("#cantidad_"+i).val() );
-         l_pvp = parseFloat( $("#pvp_"+i).val() );
-         l_dto = parseFloat( $("#dto_"+i).val() );
-         l_iva = parseFloat( $("#iva_"+i).val() );
-         l_recargo = parseFloat( $("#recargo_"+i).val() );
-         
-         l_irpf = irpf;
-         if(l_iva <= 0)
-         {
-            l_irpf = 0;
-         }
-         
-         l_total = parseFloat( $("#total_"+i).val() );
-         if( isNaN(l_total) )
-         {
-            l_total = 0;
-         }
-         
-         if( l_total <= l_pvp*l_uds + (l_pvp*l_uds*(l_iva-l_irpf+l_recargo)/100) )
-         {
-            l_neto = 100*l_total/(100+l_iva-l_irpf+l_recargo);
-            l_dto = 100 - 100*l_neto/(l_pvp*l_uds);
-            if( isNaN(l_dto) )
-            {
-               l_dto = 0;
-            }
-         }
-         else
+         l_total = 0;
+      }
+      
+      if( l_total <= l_pvp*l_uds + (l_pvp*l_uds*(l_iva-l_irpf+l_recargo)/100) )
+      {
+         l_neto = 100*l_total/(100+l_iva-l_irpf+l_recargo);
+         l_dto = 100 - 100*l_neto/(l_pvp*l_uds);
+         if( isNaN(l_dto) )
          {
             l_dto = 0;
-            l_neto = 100*l_total/(100+l_iva-l_irpf+l_recargo);
-            l_pvp = l_neto/l_uds;
          }
          
-         $("#pvp_"+i).val(l_pvp);
-         $("#dto_"+i).val(l_dto);
+         l_dto = fs_round(l_dto, 2);
       }
+      else
+      {
+         l_dto = 0;
+         l_neto = 100*l_total/(100+l_iva-l_irpf+l_recargo);
+         l_pvp = fs_round(l_neto/l_uds, 2);
+      }
+      
+      $("#pvp_"+i).val(l_pvp);
+      $("#dto_"+i).val(l_dto);
    }
    
    recalcular();
@@ -353,7 +348,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto)
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\" value=\""+ref+"\"/>\n\
          <div class=\"form-control\"><small><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></small></div></td>\n\
-      <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\">"+desc+"</textarea></td>\n\
+      <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\">"+desc+"</textarea></td>\n\
       <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
          "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
       <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
@@ -363,10 +358,11 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto)
       <td><input type=\"text\" id=\"dto_"+numlineas+"\" name=\"dto_"+numlineas+"\" value=\""+dto+
          "\" class=\"form-control text-right\" onkeyup=\"recalcular()\" onchange=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"neto_"+numlineas+"\" name=\"neto_"+numlineas+
-         "\" onchange=\"ajustar_neto()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+         "\" onchange=\"ajustar_neto("+numlineas+")\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
-      <td><input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
-         "\" onchange=\"ajustar_total()\" onclick=\"this.select()\" autocomplete=\"off\"/></td></tr>");
+      <td class=\"warning\" title=\"Cálculo aproximado del total de la linea\">\n\
+         <input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
+         "\" onchange=\"ajustar_total("+numlineas+")\" onclick=\"this.select()\" autocomplete=\"off\"/></td></tr>");
    numlineas += 1;
    $("#numlineas").val(numlineas);
    recalcular();
@@ -404,7 +400,7 @@ function add_linea_libre()
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\"/>\n\
          <div class=\"form-control\"></div></td>\n\
-      <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\" onclick=\"this.select()\"></textarea></td>\n\
+      <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\"></textarea></td>\n\
       <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
          "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
       <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
@@ -414,10 +410,11 @@ function add_linea_libre()
       <td><input type=\"text\" id=\"dto_"+numlineas+"\" name=\"dto_"+numlineas+"\" value=\"0\" class=\"form-control text-right\"\n\
           onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"neto_"+numlineas+"\" name=\"neto_"+numlineas+
-         "\" onchange=\"ajustar_neto()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+         "\" onchange=\"ajustar_neto("+numlineas+")\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
-      <td><input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
-         "\" onchange=\"ajustar_total()\" onclick=\"this.select()\" autocomplete=\"off\"/></td></tr>");
+      <td class=\"warning\" title=\"Cálculo aproximado del total de la linea\">\n\
+         <input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
+         "\" onchange=\"ajustar_total("+numlineas+")\" onclick=\"this.select()\" autocomplete=\"off\"/></td></tr>");
    numlineas += 1;
    $("#numlineas").val(numlineas);
    recalcular();

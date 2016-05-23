@@ -237,6 +237,9 @@ class ventas_articulo extends fs_controller
             {
                if($stock->codalmacen == $_POST['almacen'])
                {
+                  /// forzamos que se asigne el nombre del almacén
+                  $stock->nombre();
+                  
                   $stock->ubicacion = $_POST['ubicacion'];
                   if( $stock->save() )
                   {
@@ -254,6 +257,9 @@ class ventas_articulo extends fs_controller
             {
                if($stock->codalmacen == $_POST['almacen'])
                {
+                  /// forzamos que se asigne el nombre del almacén
+                  $stock->nombre();
+                  
                   $stock->ubicacion = $_POST['ubicacion'];
                   $stock->save();
                   

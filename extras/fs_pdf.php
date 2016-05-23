@@ -63,7 +63,9 @@ class fs_pdf
       if($filename)
       {
          if( file_exists($filename) )
+         {
             unlink($filename);
+         }
          
          $file = fopen($filename, 'a');
          if($file)
@@ -106,7 +108,9 @@ class fs_pdf
             else
             {
                if($result != '')
+               {
                   $result .= "\n";
+               }
                $result .= $this->center_text2($nword, $tot_width);
                $nword = $aux;
             }
@@ -114,7 +118,9 @@ class fs_pdf
          if($nword != '')
          {
             if($result != '')
+            {
                $result .= "\n";
+            }
             $result .= $this->center_text2($nword, $tot_width);
          }
          return $result;
@@ -158,7 +164,9 @@ class fs_pdf
       if( !$this->table_header )
       {
          foreach( array_keys($this->table_rows[0]) as $k )
+         {
             $this->table_header[$k] = '';
+         }
       }
       
       $this->pdf->ezTable($this->table_rows, $this->table_header, '', $options);

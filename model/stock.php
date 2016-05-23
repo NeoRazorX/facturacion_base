@@ -101,6 +101,18 @@ class stock extends fs_model
       return '';
    }
    
+   public function nombre()
+   {
+      $al0 = new almacen();
+      $almacen = $al0->get($this->codalmacen);
+      if($almacen)
+      {
+         $this->nombre = $almacen->nombre;
+      }
+      
+      return $this->nombre;
+   }
+   
    public function set_cantidad($c = 0)
    {
       $this->cantidad = floatval($c);

@@ -281,7 +281,7 @@
                      <tr>
                         <th class="text-left" width="180">Referencia</th>
                         <th class="text-left">Descripción</th>
-                        <th class="text-right" width="80">Cantidad</th>
+                        <th class="text-right" width="90">Cantidad</th>
                         <th width="50"></th>
                         <th class="text-right" width="110">Precio</th>
                         <th class="text-right" width="90">Dto. %</th>
@@ -311,7 +311,7 @@
                            </div>
                            {/if}
                         </td>
-                        <td><textarea class="form-control" name="desc_{$counter}" rows="1" onclick="this.select()">{$value->descripcion}</textarea></td>
+                        <td><textarea class="form-control" name="desc_{$counter}" rows="1">{$value->descripcion}</textarea></td>
                         <td>
                            <input type="number" step="any" id="cantidad_{$counter}" class="form-control text-right" name="cantidad_{$counter}"
                                   value="{$value->cantidad}" onchange="recalcular()" onkeyup="recalcular()" autocomplete="off" value="1"/>
@@ -331,7 +331,7 @@
                         </td>
                         <td>
                            <input type="text" class="form-control text-right" id="neto_{$counter}" name="neto_{$counter}"
-                                  onchange="ajustar_neto()" onclick="this.select()" autocomplete="off"/>
+                                  onchange="ajustar_neto('{$counter}')" onclick="this.select()" autocomplete="off"/>
                         </td>
                         <td>
                            <select class="form-control" id="iva_{$counter}" name="iva_{$counter}" onchange="ajustar_iva('{$counter}')">
@@ -352,9 +352,9 @@
                            <input type="text" class="form-control text-right" id="irpf_{$counter}" name="irpf_{$counter}" value="{$value->irpf}"
                                   onchange="recalcular()" onclick="this.select()" autocomplete="off"/>
                         </td>
-                        <td>
+                        <td class="warning" title="Cálculo aproximado del total de la linea">
                            <input type="text" class="form-control text-right" id="total_{$counter}" name="total_{$counter}"
-                                  onchange="ajustar_total()" onclick="this.select()" autocomplete="off"/>
+                                  onchange="ajustar_total('{$counter}')" onclick="this.select()" autocomplete="off"/>
                         </td>
                      </tr>
                      {/loop}
@@ -463,7 +463,7 @@
                   <div class="col-sm-12">
                      <div class="form-group">
                         Observaciones:
-                        <textarea class="form-control" name="observaciones" rows="3">{$fsc->albaran->observaciones}</textarea>
+                        <textarea class="form-control" name="observaciones" rows="6">{$fsc->albaran->observaciones}</textarea>
                      </div>
                   </div>
                </div>

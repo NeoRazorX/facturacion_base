@@ -147,8 +147,44 @@ class compras_imprimir extends fs_controller
       {
          if( function_exists('imagecreatefromstring') )
          {
-            $pdf_doc->pdf->ezImage($this->logo, 0, 150, 'none');
             $lppag -= 2; /// si metemos el logo, caben menos líneas
+            
+            if( substr( strtolower($this->logo), -4 ) == '.png' )
+            {
+               $pdf_doc->pdf->addPngFromFile($this->logo, 35, 740, 80, 80);
+            }
+            else
+            {
+               $pdf_doc->pdf->addJpegFromFile($this->logo, 35, 740, 80, 80);
+            }
+            
+            $pdf_doc->pdf->ez['rightMargin'] = 40;
+            $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 12, array('justification' => 'right'));
+            $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'right'));
+            
+            $direccion = $this->empresa->direccion;
+            if($this->empresa->codpostal)
+            {
+               $direccion .= "\nCP: " . $this->empresa->codpostal;
+            }
+            
+            if($this->empresa->ciudad)
+            {
+               $direccion .= ' - ' . $this->empresa->ciudad;
+            }
+            
+            if($this->empresa->provincia)
+            {
+               $direccion .= ' (' . $this->empresa->provincia . ')';
+            }
+            
+            if($this->empresa->telefono)
+            {
+               $direccion .= "\nTeléfono: " . $this->empresa->telefono;
+            }
+            
+            $pdf_doc->pdf->ezText($this->fix_html($direccion)."\n", 9, array('justification' => 'right'));
+            $pdf_doc->set_y(750);
          }
          else
          {
@@ -364,34 +400,30 @@ class compras_imprimir extends fs_controller
             
             /*
              * Esta es la tabla con los datos del proveedor:
-             * Albarán:             Fecha:
+             * Albarán:                 Fecha:
              * Proveedor:             CIF/NIF:
-             * Dirección:           Teléfonos:
              */
             $pdf_doc->new_table();
             $pdf_doc->add_table_row(
                array(
                    'campo1' => "<b>".ucfirst(FS_ALBARAN).":</b>",
                    'dato1' => $this->albaran->codigo,
-                   'campo2' => "<b>Fecha:</b>",
-                   'dato2' => $this->albaran->fecha
+                   'campo2' => "<b>Fecha:</b> ".$this->albaran->fecha
                )
             );
             $pdf_doc->add_table_row(
                array(
                    'campo1' => "<b>Proveedor:</b>",
                    'dato1' => $this->fix_html($this->albaran->nombre),
-                   'campo2' => "<b>".FS_CIFNIF.":</b>",
-                   'dato2' => $this->albaran->cifnif
+                   'campo2' => "<b>".$this->proveedor->tipoidfiscal.":</b> ".$this->albaran->cifnif
                )
             );
             $pdf_doc->save_table(
                array(
                    'cols' => array(
-                       'campo1' => array('justification' => 'right'),
+                       'campo1' => array('width' => 90, 'justification' => 'right'),
                        'dato1' => array('justification' => 'left'),
                        'campo2' => array('justification' => 'right'),
-                       'dato2' => array('justification' => 'left')
                    ),
                    'showLines' => 0,
                    'width' => 520,
@@ -468,7 +500,9 @@ class compras_imprimir extends fs_controller
       if($archivo)
       {
          if( !file_exists('tmp/'.FS_TMP_NAME.'enviar') )
+         {
             mkdir('tmp/'.FS_TMP_NAME.'enviar');
+         }
          
          $pdf_doc->save('tmp/'.FS_TMP_NAME.'enviar/'.$archivo);
       }
@@ -513,9 +547,8 @@ class compras_imprimir extends fs_controller
             
             /*
              * Esta es la tabla con los datos del proveedor:
-             * Factura:             Fecha:
+             * Factura:                 Fecha:
              * Proveedor:             CIF/NIF:
-             * Dirección:           Teléfonos:
              */
             $pdf_doc->new_table();
             
@@ -525,8 +558,7 @@ class compras_imprimir extends fs_controller
                        array(
                            'campo1' => "<b>".ucfirst(FS_FACTURA_RECTIFICATIVA).":</b>",
                            'dato1' => $this->factura->codigo,
-                           'campo2' => "<b>Fecha:</b>",
-                           'dato2' => $this->factura->fecha
+                           'campo2' => "<b>Fecha:</b> ".$this->factura->fecha
                        )
                );
                $pdf_doc->add_table_row(
@@ -534,7 +566,6 @@ class compras_imprimir extends fs_controller
                            'campo1' => "<b>Original:</b>",
                            'dato1' => $this->factura->codigorect,
                            'campo2' => '',
-                           'dato2' => ''
                        )
                );
             }
@@ -544,8 +575,7 @@ class compras_imprimir extends fs_controller
                      array(
                         'campo1' => "<b>Factura:</b>",
                         'dato1' => $this->factura->codigo,
-                        'campo2' => "<b>Fecha:</b>",
-                        'dato2' => $this->factura->fecha
+                        'campo2' => "<b>Fecha:</b> ".$this->factura->fecha
                      )
                );
             }
@@ -554,17 +584,15 @@ class compras_imprimir extends fs_controller
                array(
                   'campo1' => "<b>Proveedor:</b>",
                   'dato1' => $this->fix_html($this->factura->nombre),
-                  'campo2' => "<b>".FS_CIFNIF.":</b>",
-                  'dato2' => $this->factura->cifnif
+                  'campo2' => "<b>".$this->proveedor->tipoidfiscal.":</b> ".$this->factura->cifnif
                )
             );
             $pdf_doc->save_table(
                array(
                   'cols' => array(
-                     'campo1' => array('justification' => 'right'),
+                     'campo1' => array('width' => 90, 'justification' => 'right'),
                      'dato1' => array('justification' => 'left'),
                      'campo2' => array('justification' => 'right'),
-                     'dato2' => array('justification' => 'left')
                   ),
                   'showLines' => 0,
                   'width' => 520,

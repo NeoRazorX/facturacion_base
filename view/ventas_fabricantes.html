@@ -54,7 +54,7 @@
    </div>
 </div>
 
-<div class="container">
+<div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
          <div class="page-header">
@@ -79,14 +79,14 @@
    </div>
    <div class="row">
       {loop="$fsc->resultados"}
-      <div class="col-sm-3" style="margin-bottom: 5px;">
+      <div class="col-sm-3 col-lg-2" style="margin-bottom: 5px;">
          <a class="btn btn-block btn-default" href="{$value->url()}">
             <span class="glyphicon glyphicon-folder-open"></span>
             &nbsp; {$value->nombre()}
          </a>
       </div>
       {else}
-      <div class="col-sm-12">
+      <div class="col-sm-12 col-lg-12">
          <div class="alert alert-warning">Ningún fabricante encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</div>
       </div>
       {/loop}

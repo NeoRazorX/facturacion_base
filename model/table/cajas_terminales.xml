@@ -47,6 +47,11 @@
       <nombre>num_tickets</nombre>
       <tipo>integer</tipo>
    </columna>
+   <columna>
+      <nombre>sin_comandos</nombre>
+      <tipo>boolean</tipo>
+      <defecto>false</defecto>
+   </columna>
    <restriccion>
       <nombre>cajas_terminales_pkey</nombre>
       <consulta>PRIMARY KEY (id)</consulta>

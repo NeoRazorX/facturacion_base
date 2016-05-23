@@ -4,7 +4,9 @@
    function eliminar_fp(cod)
    {
       if( confirm("¿Realmente desea eliminar la forma de pago "+cod+"?") )
+      {
          window.location.href = '{$fsc->url()}&delete='+cod;
+      }
    }
 </script>
 
@@ -57,9 +59,6 @@
             <th class="text-left">Descripción</th>
             <th class="text-left">Generar facturas</th>
             <th class="text-left">Vencimiento</th>
-            {if="$fsc->button_plazos"}
-            <th width="80"></th>
-            {/if}
             <th class="text-left">
                <a href="index.php?page=admin_empresa#cuentasb" target="_blank">Cuenta bancaria</a>
             </th>
@@ -82,27 +81,25 @@
                </select>
             </td>
             <td>
-               <select name="vencimiento" class="form-control">
-               {loop="$fsc->vencimientos()"}
-                  {if="$value1->vencimiento==$key2"}
-                  <option value="{$key2}" selected="">{$value2}</option>
-                  {else}
-                  <option value="{$key2}">{$value2}</option>
-                  {/if}
-               {/loop}
-               </select>
-            </td>
-            {if="$fsc->button_plazos"}
-               {if="$value->genrecibos=='Emitidos'"}
-               <td>
-                  <a href="index.php?page={$fsc->button_plazos}&cod={$value->codpago}" class="btn btn-sm btn-default" title="Plazos de pago">
-                     <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+               {if="$fsc->button_plazos"}
+                  <input type="hidden" name="vencimiento" value="$value->vencimiento"/>
+                  {if="$value->genrecibos=='Emitidos'"}
+                  <a href="index.php?page={$fsc->button_plazos}&cod={$value->codpago}" class="btn btn-sm btn-block btn-default">
+                     <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>&nbsp; Plazos de pago
                   </a>
-               </td>
+                  {/if}
                {else}
-               <td></td>
+                  <select name="vencimiento" class="form-control">
+                  {loop="$fsc->vencimientos()"}
+                     {if="$value1->vencimiento==$key2"}
+                     <option value="{$key2}" selected="">{$value2}</option>
+                     {else}
+                     <option value="{$key2}">{$value2}</option>
+                     {/if}
+                  {/loop}
+                  </select>
                {/if}
-            {/if}
+            </td>
             <td>
                <select name="codcuenta" class="form-control">
                   <option value="">Ninguna</option>
@@ -159,15 +156,16 @@
                </select>
             </td>
             <td class="text-center">
+               {if="$fsc->button_plazos"}
+               <input type="hidden" name="vencimiento" value="+1day"/>
+               {else}
                <select name="vencimiento" class="form-control">
                   {loop="$fsc->vencimientos()"}
                   <option value="{$key}">{$value}</option>
                   {/loop}
                </select>
+               {/if}
             </td>
-            {if="$fsc->button_plazos"}
-            <td></td>
-            {/if}
             <td>
                <select name="codcuenta" class="form-control">
                   <option value="">Ninguna</option>

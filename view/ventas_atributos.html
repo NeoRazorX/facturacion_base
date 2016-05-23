@@ -36,7 +36,7 @@
    </div>
 </div>
 
-<div class="container">
+<div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
          <div class="page-header">
@@ -47,7 +47,6 @@
                <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
-               
             </h1>
             <p class="help-block">
                Desde aquí puedes crear atributos como talla, color, etc... para
@@ -60,14 +59,14 @@
    </div>
    <div class="row">
       {loop="$fsc->resultados"}
-      <div class="col-sm-4" style="margin-bottom: 5px;">
+      <div class="col-sm-4 col-lg-3" style="margin-bottom: 5px;">
          <a href="{$value->url()}" class="btn btn-sm btn-block btn-default">
             <span class="glyphicon glyphicon-list-alt"></span>
             &nbsp; {$value->nombre}
          </a>
       </div>
       {else}
-      <div class="col-sm-12">
+      <div class="col-sm-12 col-lg-12">
          <div class="alert alert-warning">Sin resultados.</div>
       </div>
       {/loop}

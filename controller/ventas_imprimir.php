@@ -177,8 +177,44 @@ class ventas_imprimir extends fs_controller
       {
          if( function_exists('imagecreatefromstring') )
          {
-            $pdf_doc->pdf->ezImage($this->logo, 0, 150, 'none');
             $lppag -= 2; /// si metemos el logo, caben menos líneas
+            
+            if( substr( strtolower($this->logo), -4 ) == '.png' )
+            {
+               $pdf_doc->pdf->addPngFromFile($this->logo, 35, 740, 80, 80);
+            }
+            else
+            {
+               $pdf_doc->pdf->addJpegFromFile($this->logo, 35, 740, 80, 80);
+            }
+            
+            $pdf_doc->pdf->ez['rightMargin'] = 40;
+            $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 12, array('justification' => 'right'));
+            $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'right'));
+            
+            $direccion = $this->empresa->direccion;
+            if($this->empresa->codpostal)
+            {
+               $direccion .= "\nCP: " . $this->empresa->codpostal;
+            }
+            
+            if($this->empresa->ciudad)
+            {
+               $direccion .= ' - ' . $this->empresa->ciudad;
+            }
+            
+            if($this->empresa->provincia)
+            {
+               $direccion .= ' (' . $this->empresa->provincia . ')';
+            }
+            
+            if($this->empresa->telefono)
+            {
+               $direccion .= "\nTeléfono: " . $this->empresa->telefono;
+            }
+            
+            $pdf_doc->pdf->ezText($this->fix_html($direccion)."\n", 9, array('justification' => 'right'));
+            $pdf_doc->set_y(750);
          }
          else
          {
@@ -432,8 +468,8 @@ class ventas_imprimir extends fs_controller
             
             /*
              * Esta es la tabla con los datos del cliente:
-             * Albarán:             Fecha:
-             * Cliente:             CIF/NIF:
+             * Albarán:                 Fecha:
+             * Cliente:               CIF/NIF:
              * Dirección:           Teléfonos:
              */
             $pdf_doc->new_table();
@@ -441,34 +477,34 @@ class ventas_imprimir extends fs_controller
                array(
                    'campo1' => "<b>".ucfirst(FS_ALBARAN).":</b>",
                    'dato1' => $this->albaran->codigo,
-                   'campo2' => "<b>Fecha:</b>",
-                   'dato2' => $this->albaran->fecha
+                   'campo2' => "<b>Fecha:</b> ".$this->albaran->fecha
                )
             );
             $pdf_doc->add_table_row(
                array(
-                   'campo1' => "<b>Cliente:</b>",
+                   'campo1' => "<b>Cliente:</b> ",
                    'dato1' => $this->fix_html($this->albaran->nombrecliente),
-                   'campo2' => "<b>".FS_CIFNIF.":</b>",
-                   'dato2' => $this->albaran->cifnif
+                   'campo2' => "<b>".$this->cliente->tipoidfiscal.":</b> ".$this->albaran->cifnif
                )
             );
-            $pdf_doc->add_table_row(
-               array(
-                   'campo1' => "<b>Dirección:</b>",
-                   'dato1' => $this->fix_html($this->albaran->direccion.' CP: '.$this->albaran->codpostal.
-                           ' - '.$this->albaran->ciudad.' ('.$this->albaran->provincia.')'),
-                   'campo2' => "<b>Teléfonos:</b>",
-                   'dato2' => $this->cliente->telefono1.'  '.$this->cliente->telefono2
-               )
+            $row = array(
+                'campo1' => "<b>Dirección:</b>",
+                'dato1' => $this->fix_html($this->albaran->direccion.' CP: '.$this->albaran->codpostal.
+                        ' - '.$this->albaran->ciudad.' ('.$this->albaran->provincia.')'),
+                'campo2' => ''
             );
+            if($this->cliente->telefono1 OR $this->cliente->telefono1)
+            {
+               $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono1.'  '.$this->cliente->telefono2;
+            }
+            $pdf_doc->add_table_row($row);
+            
             $pdf_doc->save_table(
                array(
                    'cols' => array(
-                       'campo1' => array('justification' => 'right'),
+                       'campo1' => array('width' => 90, 'justification' => 'right'),
                        'dato1' => array('justification' => 'left'),
-                       'campo2' => array('justification' => 'right'),
-                       'dato2' => array('justification' => 'left')
+                       'campo2' => array('justification' => 'right')
                    ),
                    'showLines' => 0,
                    'width' => 520,
@@ -547,7 +583,6 @@ class ventas_imprimir extends fs_controller
                $pdf_doc->add_table_header($titulo);
                $pdf_doc->add_table_row($fila);
                $pdf_doc->save_table($opciones);
-               $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text($this->fix_html($this->empresa->pie_factura), 153), 0, 1.5);
             }
             
             $pagina++;
@@ -653,8 +688,8 @@ class ventas_imprimir extends fs_controller
                
                /*
                 * Esta es la tabla con los datos del cliente:
-                * Factura:             Fecha:
-                * Cliente:             CIF/NIF:
+                * Factura:                 Fecha:
+                * Cliente:               CIF/NIF:
                 * Dirección:           Teléfonos:
                 */
                $pdf_doc->new_table();
@@ -663,18 +698,16 @@ class ventas_imprimir extends fs_controller
                {
                   $pdf_doc->add_table_row(
                      array(
-                        'campo1' => "<b>".ucfirst(FS_FACTURA_RECTIFICATIVA).":</b>",
+                        'campo1' => "<b>".ucfirst(FS_FACTURA_RECTIFICATIVA).":</b> ",
                         'dato1' => $this->factura->codigo,
-                        'campo2' => "<b>Fecha:</b>",
-                        'dato2' => $this->factura->fecha
+                        'campo2' => "<b>Fecha:</b> ".$this->factura->fecha
                      )
                   );
                   $pdf_doc->add_table_row(
                      array(
-                        'campo1' => "<b>Original:</b>",
+                        'campo1' => "<b>Original:</b> ",
                         'dato1' => $this->factura->codigorect,
-                        'campo2' => '',
-                        'dato2' => ''
+                        'campo2' => ''
                      )
                   );
                }
@@ -682,38 +715,38 @@ class ventas_imprimir extends fs_controller
                {
                   $pdf_doc->add_table_row(
                      array(
-                        'campo1' => "<b>".ucfirst(FS_FACTURA).":</b>",
+                        'campo1' => "<b>".ucfirst(FS_FACTURA).":</b> ",
                         'dato1' => $this->factura->codigo,
-                        'campo2' => "<b>Fecha:</b>",
-                        'dato2' => $this->factura->fecha
+                        'campo2' => "<b>Fecha:</b> ".$this->factura->fecha
                      )
                   );
                }
                
                $pdf_doc->add_table_row(
                   array(
-                     'campo1' => "<b>Cliente:</b>",
+                     'campo1' => "<b>Cliente:</b> ",
                      'dato1' => $this->fix_html($this->factura->nombrecliente),
-                     'campo2' => "<b>".FS_CIFNIF.":</b>",
-                     'dato2' => $this->factura->cifnif
+                     'campo2' => "<b>".$this->cliente->tipoidfiscal.":</b> ".$this->factura->cifnif
                   )
                );
-               $pdf_doc->add_table_row(
-                  array(
-                     'campo1' => "<b>Dirección:</b>",
-                     'dato1' => $this->factura->direccion.' CP: '.$this->factura->codpostal.' - '.$this->factura->ciudad.
-                                 ' ('.$this->factura->provincia.')',
-                     'campo2' => "<b>Teléfonos:</b>",
-                     'dato2' => $this->cliente->telefono1.'  '.$this->cliente->telefono2
-                  )
+               $row = array(
+                   'campo1' => "<b>Dirección:</b>",
+                   'dato1' => $this->factura->direccion.' CP: '.$this->factura->codpostal.' - '.$this->factura->ciudad
+                       .' ('.$this->factura->provincia.')',
+                   'campo2' => ''
                );
+               if($this->cliente->telefono1 OR $this->cliente->telefono1)
+               {
+                  $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono1.'  '.$this->cliente->telefono2;
+               }
+               $pdf_doc->add_table_row($row);
+               
                $pdf_doc->save_table(
                   array(
                      'cols' => array(
-                        'campo1' => array('justification' => 'right'),
+                        'campo1' => array('width' => 90, 'justification' => 'right'),
                         'dato1' => array('justification' => 'left'),
                         'campo2' => array('justification' => 'right'),
-                        'dato2' => array('justification' => 'left')
                      ),
                      'showLines' => 0,
                      'width' => 520,

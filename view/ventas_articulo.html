@@ -559,7 +559,7 @@
                         Precio+{#FS_IVA#}:
                         <div class="input-group">
                            <input type="text" class="form-control" id="pvpi" name="pvpiva" value="{$fsc->articulo->pvp_iva()}" autocomplete="off" onkeyup="cambiar_pvpi()" onclick="this.select()"/>
-                           <span class="input-group-addon" title="precio redondeado">{$fsc->show_precio($fsc->articulo->pvp_iva(), FALSE, TRUE, FS_NF0_ART)}</span>
+                           <span class="input-group-addon" title="precio redondeado">{$fsc->show_precio($fsc->articulo->pvp_iva())}</span>
                         </div>
                         <p class="help-block">Último cambio de precio: {$fsc->articulo->factualizado}</p>
                      </div>
@@ -703,8 +703,8 @@
                   <tr>
                      <th class="text-left">Almacén</th>
                      <th class="text-left">Ubicación</th>
-                     <th class="text-right">Cantidad actual</th>
-                     <th class="text-right">Nueva cantidad</th>
+                     <th class="text-right" width="120">Cantidad actual</th>
+                     <th class="text-right" width="120">Nueva cantidad</th>
                      <th class="text-left">Motivo</th>
                      <th class="text-right">Acción</th>
                   </tr>
@@ -716,7 +716,7 @@
                      <input type="hidden" name="almacen" value="{$value->codalmacen}"/>
                      <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
                      <input type="hidden" name="cantidadini" value="{$value->cantidad}"/>
-                     <td><div class="form-control">{$value->codalmacen}</div></td>
+                     <td><div class="form-control">{$value->nombre()}</div></td>
                      <td>
                         <input type="text" class="form-control" name="ubicacion" value="{$value->ubicacion}" placeholder="dentro del almacén..." autocomplete="off"/>
                      </td>

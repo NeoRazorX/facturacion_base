@@ -64,6 +64,7 @@ class tpv_caja extends fs_controller
          $terminal->comandoapertura = $_POST['comandoapertura'];
          $terminal->comandocorte = $_POST['comandocorte'];
          $terminal->num_tickets = intval($_POST['num_tickets']);
+         $terminal->sin_comandos = isset($_POST['sin_comandos']);
          
          if( $terminal->save() )
          {
@@ -90,6 +91,7 @@ class tpv_caja extends fs_controller
             $t2->comandoapertura = $_POST['comandoapertura'];
             $t2->comandocorte = $_POST['comandocorte'];
             $t2->num_tickets = intval($_POST['num_tickets']);
+            $t2->sin_comandos = isset($_POST['sin_comandos']);
             
             if( $t2->save() )
             {
