@@ -68,15 +68,21 @@
 </ul>
 {else}
 <ul class="nav nav-tabs" role="tablist">
-   <li{if="!isset($_GET['descuadrados'])"} class="active"{/if}>
+   <li{if="!isset($_GET['descuadrados']) && !isset($_GET['mayorizados'])"} class="active"{/if}>
       <a href="{$fsc->url()}">
-         Todos <span class="badge">{$fsc->total_asientos()}</span>
+         Todos <span class="badge">{$fsc->total_asientos_no_mayor()}</span>
       </a>
    </li>
    <li{if="isset($_GET['descuadrados'])"} class="active"{/if}>
       <a href="{$fsc->url()}&descuadrados=TRUE">
          <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
          <span class="hidden-xs">&nbsp; Descuadrados</span>
+      </a>
+   </li>
+   <li{if="isset($_GET['mayorizados'])"} class="active"{/if}>
+      <a href="{$fsc->url()}&mayorizados=TRUE">
+         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp; Mayorizados</span><span class="badge">{$fsc->total_asientos_mayor()}</span>
       </a>
    </li>
 </ul>

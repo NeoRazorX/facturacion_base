@@ -707,7 +707,7 @@ class factura_cliente extends fs_model
          $asiento = $this->get_asiento();
          if($asiento)
          {
-            if($asiento->tipodocumento != 'Ingreso cliente' )
+            if($asiento->tipodocumento != 'Ingreso' )
             {
                $this->new_error_msg("Esta factura apunta a un <a href='".$this->asiento_url()."'>asiento incorrecto</a>.");
                $status = FALSE;

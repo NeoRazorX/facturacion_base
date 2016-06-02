@@ -29,6 +29,7 @@ class libro_mayor
    private $empresa;
    private $subcuenta;
    
+   
    public function __construct()
    {
       $this->ejercicio = new ejercicio();
@@ -62,16 +63,16 @@ class libro_mayor
       }
    }
    
-   public function libro_mayor(&$subc, $echos = FALSE)
+      public function libro_mayor(&$subc,$mes, $echos = FALSE)
    {
       if($subc)
       {
-         if( !file_exists('tmp/'.FS_TMP_NAME.'libro_mayor') )
+/*         if( !file_exists('tmp/'.FS_TMP_NAME.'libro_mayor') )
             mkdir('tmp/'.FS_TMP_NAME.'libro_mayor');
          
-         if( !file_exists('tmp/'.FS_TMP_NAME.'libro_mayor/'.$subc->idsubcuenta.'.pdf') )
+         if( !file_exists('tmp/'.FS_TMP_NAME.'libro_mayor/'.$subc->idsubcuenta.'-'.$mes.'-'.$subc->codejercicio.'.pdf') )
          {
-            if($echos)
+ */           if($echos)
                echo '.';
             
             $pdf_doc = new fs_pdf();
@@ -80,7 +81,7 @@ class libro_mayor
             $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
             $pdf_doc->pdf->ezStartPageNumbers(590, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
             
-            $partidas = $subc->get_partidas_full();
+            $partidas = $subc->get_partidas_libros($mes,$offset=0);
             if($partidas)
             {
                $lineasfact = count($partidas);
@@ -93,13 +94,19 @@ class libro_mayor
                   /// salto de página
                   if($linea_actual > 0)
                      $pdf_doc->pdf->ezNewPage();
-                  
-                  /// Creamos la tabla del encabezado
+					 /////  Primer encabezado
+				$pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 14, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("<b>Libro Mayor</b>", 12, array('justification' => 'center'));
+				$pdf_doc->pdf->ezText("\n", 10);
+				$pdf_doc->pdf->ezText("Fecha/Hora impresión: ".Date('d-m-Y - H:i:s'), 10, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("\n", 10);
                   $pdf_doc->new_table();
                   $pdf_doc->add_table_row(
                      array(
-                         'campos' => "<b>Empresa:</b>\n<b>Subcuenta:</b>\n<b>Fecha:</b>",
-                         'factura' => $this->empresa->nombre."\n".$subc->codsubcuenta."\n".Date('d-m-Y')
+                         'subcuenta' => "<b>Subcuenta: </b>".$subc->codsubcuenta,
+						 'descripcion' =>$subc->descripcion,
+                         'alias' => "<b>Alias: </b>".$subc->alias,
+						 'periodo' => "<b>Periodo: </b>".$subc->get_nom_mes($mes).'  '.$subc->codejercicio,
                      )
                   );
                   $pdf_doc->save_table(
@@ -117,6 +124,16 @@ class libro_mayor
                   
                   /// Creamos la tabla con las lineas
                   $pdf_doc->new_table();
+				  $pdf_doc->add_table_row(
+                     array(
+                         'asiento' => "",
+						 'fecha' =>"",
+                         'concepto' => "Saldo Anterior",
+						 'debe' => "",
+						 'haber' => "",
+						 'saldo' => $subc->get_partidas_saldo_anterior(),
+                     )
+                  );
                   $pdf_doc->add_table_header(
                      array(
                          'asiento' => '<b>Asiento</b>',
@@ -139,7 +156,7 @@ class libro_mayor
                             'saldo' => $this->show_numero($partidas[$linea_actual]->saldo)
                         )
                      );
-                     
+					 $a=$linea_actual;
                      $linea_actual++;
                   }
                   /// añadimos las sumas de la línea actual
@@ -167,8 +184,286 @@ class libro_mayor
                   );
                }
             }
+
+			$pdf_doc->pdf->ezText("\n", 18);
+				$pdf_doc->pdf->ezText("<b>Total Debe :    </b>".$this->show_numero($partidas[$linea_actual-1]->sum_debe), 12, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("\n", 12);
+				$pdf_doc->pdf->ezText("<b>Total Haber :   </b>".$this->show_numero($partidas[$linea_actual-1]->sum_haber), 12, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("\n", 12);
+				$pdf_doc->pdf->ezText("<b>Saldo :         </b>".$this->show_numero($partidas[$linea_actual-1]->saldo), 12, array('justification' => 'left'));
             
-            $pdf_doc->save('tmp/'.FS_TMP_NAME.'libro_mayor/'.$subc->idsubcuenta.'.pdf');
+			$pdf_doc->show();
+  //          $pdf_doc->save('tmp/'.FS_TMP_NAME.'libro_mayor/'.$subc->idsubcuenta.'-'.$mes.'-'.$subc->codejercicio.'.pdf');
+  //       }
+      }
+   }
+   
+   
+         public function libro_mayor_ver(&$subc,$mes, $echos = FALSE)
+   {
+      if($subc)
+      {
+/*         if( !file_exists('tmp/'.FS_TMP_NAME.'libro_mayor') )
+            mkdir('tmp/'.FS_TMP_NAME.'libro_mayor');
+         
+         if( !file_exists('tmp/'.FS_TMP_NAME.'libro_mayor/'.$subc->idsubcuenta.'-'.$mes.'-'.$subc->codejercicio.'.pdf') )
+         {
+ */           if($echos)
+               echo '.';
+            
+            $pdf_doc = new fs_pdf();
+            $pdf_doc->pdf->addInfo('Title', 'Libro mayor de ' . $subc->codsubcuenta);
+            $pdf_doc->pdf->addInfo('Subject', 'Libro mayor de ' . $subc->codsubcuenta);
+            $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
+            $pdf_doc->pdf->ezStartPageNumbers(590, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
+            
+            $partidas = $subc->get_partidas_libros_ver($mes,$offset=0);
+            if($partidas)
+            {
+               $lineasfact = count($partidas);
+               $linea_actual = 0;
+               $lppag = 49;
+               
+               // Imprimimos las páginas necesarias
+               while($linea_actual < $lineasfact)
+               {
+                  /// salto de página
+                  if($linea_actual > 0)
+                     $pdf_doc->pdf->ezNewPage();
+					 /////  Primer encabezado
+				$pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 14, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("<b>Libro Mayor</b>", 12, array('justification' => 'center'));
+				$pdf_doc->pdf->ezText("\n", 10);
+				$pdf_doc->pdf->ezText("Fecha/Hora impresión: ".Date('d-m-Y - H:i:s'), 10, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("\n", 10);
+                  $pdf_doc->new_table();
+                  $pdf_doc->add_table_row(
+                     array(
+                         'subcuenta' => "<b>Subcuenta: </b>".$subc->codsubcuenta,
+						 'descripcion' =>$subc->descripcion,
+                         'alias' => "<b>Alias: </b>".$subc->alias,
+						 'periodo' => "<b>Periodo: </b>".$subc->get_nom_mes($mes).'  '.$subc->codejercicio,
+                     )
+                  );
+                  $pdf_doc->save_table(
+                     array(
+                         'cols' => array(
+                             'campos' => array('justification' => 'right', 'width' => 70),
+                             'factura' => array('justification' => 'left')
+                         ),
+                         'showLines' => 0,
+                         'width' => 540
+                     )
+                  );
+                  $pdf_doc->pdf->ezText("\n", 10);
+                  
+                  
+                  /// Creamos la tabla con las lineas
+                  $pdf_doc->new_table();
+				  $pdf_doc->add_table_row(
+                     array(
+                         'asiento' => "",
+						 'fecha' =>"",
+                         'concepto' => "Saldo Anterior",
+						 'debe' => "",
+						 'haber' => "",
+						 'saldo' => $subc->get_partidas_saldo_anterior_ver($mes),
+                     )
+                  );
+                  $pdf_doc->add_table_header(
+                     array(
+                         'asiento' => '<b>Asiento</b>',
+                         'fecha' => '<b>Fecha</b>',
+                         'concepto' => '<b>Concepto</b>',
+                         'debe' => '<b>Debe</b>',
+                         'haber' => '<b>Haber</b>',
+                         'saldo' => '<b>Saldo</b>'
+                     )
+                  );
+                  for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < $lineasfact));)
+                  {
+                     $pdf_doc->add_table_row(
+                        array(
+                            'asiento' => $partidas[$linea_actual]->numero,
+                            'fecha' => $partidas[$linea_actual]->fecha,
+                            'concepto' => substr($partidas[$linea_actual]->concepto, 0, 60),
+                            'debe' => $this->show_numero($partidas[$linea_actual]->debe),
+                            'haber' => $this->show_numero($partidas[$linea_actual]->haber),
+                            'saldo' => $this->show_numero($partidas[$linea_actual]->saldo)
+                        )
+                     );
+					 $a=$linea_actual;
+                     $linea_actual++;
+                  }
+                  /// añadimos las sumas de la línea actual
+                  $pdf_doc->add_table_row(
+                        array(
+                            'asiento' => '',
+                            'fecha' => '',
+                            'concepto' => '',
+                            'debe' => '<b>'.$this->show_numero($partidas[$linea_actual-1]->sum_debe).'</b>',
+                            'haber' => '<b>'.$this->show_numero($partidas[$linea_actual-1]->sum_haber).'</b>',
+                            'saldo' => ''
+                        )
+                  );
+                  $pdf_doc->save_table(
+                     array(
+                         'fontSize' => 8,
+                         'cols' => array(
+                             'debe' => array('justification' => 'right'),
+                             'haber' => array('justification' => 'right'),
+                             'saldo' => array('justification' => 'right')
+                         ),
+                         'width' => 540,
+                         'shaded' => 0
+                     )
+                  );
+               }
+            }
+
+			$pdf_doc->pdf->ezText("\n", 18);
+				$pdf_doc->pdf->ezText("<b>Total Debe :    </b>".$this->show_numero($partidas[$linea_actual-1]->sum_debe), 12, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("\n", 12);
+				$pdf_doc->pdf->ezText("<b>Total Haber :   </b>".$this->show_numero($partidas[$linea_actual-1]->sum_haber), 12, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("\n", 12);
+				$pdf_doc->pdf->ezText("<b>Saldo :         </b>".$this->show_numero($partidas[$linea_actual-1]->saldo), 12, array('justification' => 'left'));
+            
+			$pdf_doc->show();
+  //          $pdf_doc->save('tmp/'.FS_TMP_NAME.'libro_mayor/'.$subc->idsubcuenta.'-'.$mes.'-'.$subc->codejercicio.'.pdf');
+  //       }
+      }
+   }
+   
+   public function libro_mayor_archivo(&$subc,$mes, $echos = FALSE)
+   {
+      if($subc)
+      {
+         if( !file_exists('tmp/'.FS_TMP_NAME.'libro_mayor') )
+            mkdir('tmp/'.FS_TMP_NAME.'libro_mayor');
+         
+         if( !file_exists('tmp/'.FS_TMP_NAME.'libro_mayor/'.$subc->idsubcuenta.'-'.$mes.'-'.$subc->codejercicio.'.pdf') )
+         {
+            if($echos)
+               echo '.';
+            
+            $pdf_doc = new fs_pdf();
+            $pdf_doc->pdf->addInfo('Title', 'Libro mayor de ' . $subc->codsubcuenta);
+            $pdf_doc->pdf->addInfo('Subject', 'Libro mayor de ' . $subc->codsubcuenta);
+            $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
+            $pdf_doc->pdf->ezStartPageNumbers(590, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
+            
+            $partidas = $subc->get_partidas_libros($mes,$offset=0);
+            if($partidas)
+            {
+               $lineasfact = count($partidas);
+               $linea_actual = 0;
+               $lppag = 49;
+               
+               // Imprimimos las páginas necesarias
+               while($linea_actual < $lineasfact)
+               {
+                  /// salto de página
+                  if($linea_actual > 0)
+                     $pdf_doc->pdf->ezNewPage();
+					 /////  Primer encabezado
+				$pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 14, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("<b>Libro Mayor</b>", 12, array('justification' => 'center'));
+				$pdf_doc->pdf->ezText("\n", 10);
+				$pdf_doc->pdf->ezText("Fecha/Hora impresión: ".Date('d-m-Y - H:i:s'), 10, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("\n", 10);
+                  $pdf_doc->new_table();
+                  $pdf_doc->add_table_row(
+                     array(
+                         'subcuenta' => "<b>Subcuenta: </b>".$subc->codsubcuenta,
+						 'descripcion' =>$subc->descripcion,
+                         'alias' => "<b>Alias: </b>".$subc->alias,
+						 'periodo' => "<b>Periodo: </b>".$subc->get_nom_mes($mes).'  '.$subc->codejercicio,
+                     )
+                  );
+                  $pdf_doc->save_table(
+                     array(
+                         'cols' => array(
+                             'campos' => array('justification' => 'right', 'width' => 70),
+                             'factura' => array('justification' => 'left')
+                         ),
+                         'showLines' => 0,
+                         'width' => 540
+                     )
+                  );
+                  $pdf_doc->pdf->ezText("\n", 10);
+                  
+                  
+                  /// Creamos la tabla con las lineas
+                  $pdf_doc->new_table();
+				  $pdf_doc->add_table_row(
+                     array(
+                         'asiento' => "",
+						 'fecha' =>"",
+                         'concepto' => "Saldo Anterior",
+						 'debe' => "",
+						 'haber' => "",
+						 'saldo' => $subc->get_partidas_saldo_anterior(),
+                     )
+                  );
+                  $pdf_doc->add_table_header(
+                     array(
+                         'asiento' => '<b>Asiento</b>',
+                         'fecha' => '<b>Fecha</b>',
+                         'concepto' => '<b>Concepto</b>',
+                         'debe' => '<b>Debe</b>',
+                         'haber' => '<b>Haber</b>',
+                         'saldo' => '<b>Saldo</b>'
+                     )
+                  );
+                  for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < $lineasfact));)
+                  {
+                     $pdf_doc->add_table_row(
+                        array(
+                            'asiento' => $partidas[$linea_actual]->numero,
+                            'fecha' => $partidas[$linea_actual]->fecha,
+                            'concepto' => substr($partidas[$linea_actual]->concepto, 0, 60),
+                            'debe' => $this->show_numero($partidas[$linea_actual]->debe),
+                            'haber' => $this->show_numero($partidas[$linea_actual]->haber),
+                            'saldo' => $this->show_numero($partidas[$linea_actual]->saldo)
+                        )
+                     );
+					 $a=$linea_actual;
+                     $linea_actual++;
+                  }
+                  /// añadimos las sumas de la línea actual
+                  $pdf_doc->add_table_row(
+                        array(
+                            'asiento' => '',
+                            'fecha' => '',
+                            'concepto' => '',
+                            'debe' => '<b>'.$this->show_numero($partidas[$linea_actual-1]->sum_debe).'</b>',
+                            'haber' => '<b>'.$this->show_numero($partidas[$linea_actual-1]->sum_haber).'</b>',
+                            'saldo' => ''
+                        )
+                  );
+                  $pdf_doc->save_table(
+                     array(
+                         'fontSize' => 8,
+                         'cols' => array(
+                             'debe' => array('justification' => 'right'),
+                             'haber' => array('justification' => 'right'),
+                             'saldo' => array('justification' => 'right')
+                         ),
+                         'width' => 540,
+                         'shaded' => 0
+                     )
+                  );
+               }
+            }
+
+			$pdf_doc->pdf->ezText("\n", 18);
+				$pdf_doc->pdf->ezText("<b>Total Debe :    </b>".$this->show_numero($partidas[$linea_actual-1]->sum_debe), 12, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("\n", 12);
+				$pdf_doc->pdf->ezText("<b>Total Haber :   </b>".$this->show_numero($partidas[$linea_actual-1]->sum_haber), 12, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("\n", 12);
+				$pdf_doc->pdf->ezText("<b>Saldo :         </b>".$this->show_numero($partidas[$linea_actual-1]->saldo), 12, array('justification' => 'left'));
+            
+            $pdf_doc->save('tmp/'.FS_TMP_NAME.'libro_mayor/'.$subc->idsubcuenta.'-'.$mes.'-'.$subc->codejercicio.'.pdf');
          }
       }
    }

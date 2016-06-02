@@ -67,12 +67,16 @@ class contabilidad_asientos extends fs_controller
       {
          $this->resultados = $this->asiento->descuadrados();
       }
+	  else if( isset($_GET['mayorizados']) )
+      {
+         $this->resultados = $this->asiento->all_mayorizados($this->offset);
+      }
       else if($this->query)
       {
          $this->resultados = $this->asiento->search($this->query, $this->offset);
       }
       else
-         $this->resultados = $this->asiento->all($this->offset);
+         $this->resultados = $this->asiento->all_sin_mayorizar($this->offset);
    }
    
    public function anterior_url()
@@ -117,4 +121,27 @@ class contabilidad_asientos extends fs_controller
       else
          return 0;
    }
+   
+    public function total_asientos_no_mayor()
+   {
+      $data = $this->db->select("SELECT COUNT(idasiento) as total FROM co_asientos WHERE mayorizado = '0' ;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
+   }
+   
+       public function total_asientos_mayor()
+   {
+      $data = $this->db->select("SELECT COUNT(idasiento) as total FROM co_asientos WHERE mayorizado = '1' ;");
+      if($data)
+      {
+         return intval($data[0]['total']);
+      }
+      else
+         return 0;
+   }
+   
 }

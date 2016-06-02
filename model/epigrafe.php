@@ -82,8 +82,14 @@ class pgrupo_epigrafes extends fs_model
    
      public function get_pgrupo()
    {
-      $epigrafe = new pgrupo_epigrafes();
-      return $epigrafe->all_from_pgrupo($this->idpgrupo);
+      $grupo = new pgrupo_epigrafes();
+      return $grupo->all_from_pgrupo($this->idpgrupo);
+   }
+   
+   public function get_subcuentas()
+   {
+      $subcuenta = new subcuenta();
+      return $subcuenta->all_from_cuenta($this->idpgrupo);
    }
    
         public function all_from_pgrupo($id)

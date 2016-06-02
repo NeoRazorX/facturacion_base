@@ -170,6 +170,7 @@ class subcuenta extends fs_model
          return 'index.php?page=contabilidad_subcuenta&id='.$this->idsubcuenta;
    }
    
+   
    public function get_cuenta()
    {
       $cuenta = new cuenta();
@@ -194,6 +195,50 @@ class subcuenta extends fs_model
       return $part->all_from_subcuenta($this->idsubcuenta, $offset);
    }
    
+      public function get_partidas_desc($offset=0)
+   {
+      $part = new partida();
+      return $part->all_from_subcuenta_desc($this->idsubcuenta, $offset);
+   }
+   
+   public function get_partidas_libros($mes,$offset=0)
+   {
+      $part = new partida();
+	  $saldo_ant = $this->get_partidas_saldo_anterior();
+      return $part->libro_subcuenta($this->idsubcuenta,$mes,$saldo_ant, $offset);
+   }
+   
+   public function get_partidas_libros_ver($mes,$offset=0)
+   {
+      $part = new partida();
+	  $saldo_ant = $this->get_partidas_saldo_anterior_ver($mes);
+      return $part->libro_subcuenta_ver($this->idsubcuenta,$mes,$saldo_ant, $offset);
+   }
+   
+   public function get_partidas_mes($offset=0)
+   {
+      $part = new partida();
+      return $part->libro_mes_subcuenta($this->idsubcuenta, $offset);
+   }
+   
+   public function meses_archivo($offset=0)
+   {
+      $part = new partida();
+      return $part->meses_archivo($this->idsubcuenta, $offset);
+   }
+   
+    public function get_partidas_saldo_anterior()
+   {
+      $part = new partida();
+      return $part->libro_saldo_anterior_subcuenta($this->idsubcuenta);
+   }
+   
+    public function get_partidas_saldo_anterior_ver($mes)
+   {
+      $part = new partida();
+      return $part->libro_saldo_anterior_subcuenta_ver($this->idsubcuenta,$mes);
+   }
+   
    public function get_partidas_full()
    {
       $part = new partida();
@@ -210,6 +255,50 @@ class subcuenta extends fs_model
    {
       $part = new partida();
       return $part->totales_from_subcuenta( $this->idsubcuenta );
+   }
+   
+      public function get_nom_mes($mes)
+   {
+   		$tipo = '';
+      switch ($mes) {
+			case '01':
+				$tipo = 'ENERO';
+				break;
+			case '02':
+				$tipo = 'FEBRERO';
+				break;
+			case '03':
+				$tipo = 'MARZO';
+				break;	
+			case '04':
+				$tipo = 'ABRIL';
+				break;	
+			case '05':
+				$tipo = 'MAYO';
+				break;				
+			case '06':
+				$tipo = 'JUNIO';
+				break;
+			case '07':
+				$tipo = 'JULIO';
+				break;
+			case '08':
+				$tipo = 'AGOSTO';
+				break;	
+			case '09':
+				$tipo = 'SEPTIEMBRE';
+				break;	
+			case '10':
+				$tipo = 'OCTUBRE';
+				break;				
+			case '11':
+				$tipo = 'NOVIEMBRE';
+				break;
+			case '12':
+				$tipo = 'DICIEMBRE';
+				break;					
+					}
+		return $tipo;			
    }
    
    public function get($id)

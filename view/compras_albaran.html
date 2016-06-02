@@ -228,7 +228,7 @@
             <div class="form-group" style="font:bold;font-size:18px">
                Fecha:
 			   {if="$fsc->albaran->ptefactura"}
-               <input type="text" name="fecha" class="form-control calendario"  data-date-format="dd-mm-yyyy"  value="{$fsc->albaran->fecha}" autocomplete="off"/>
+               <input type="text" name="fecha" id="fecha" class="form-control calendario"  data-date-format="dd-mm-yyyy"  value="{$fsc->albaran->fecha}" autocomplete="off"/>
 			   {else}
                <div class="form-control">{$fsc->albaran->fecha}</div>
 			   {/if}
@@ -347,7 +347,7 @@
                            </button>
                         </td>
                         <td>
-                           <input type="text" class="form-control text-right" id="pvp_{$counter}" name="pvp_{$counter}" value="{$fsc->show_numero($value->pvpunitario)}"
+                           <input type="text" class="form-control text-right" id="pvp_{$counter}" name="pvp_{$counter}" value="{$value->pvpunitario}"
                                   onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/>
                         </td>
                         <td>
@@ -928,7 +928,7 @@
 
 			var ban = 0;
 				var f1 =(document.getElementById('caivence').value);
-				var f2 ='{$fsc->today()}';
+				var f2 =document.getElementById('fecha').value;
 															
 				var d1 =f1.substr(0,2);
 				var m1 =f1.substr(3,2);
@@ -958,7 +958,7 @@
 					   {
 					    if( document.getElementById('subcuenta_'+i))
 							{
-					   			if( document.getElementById('subcuenta_'+i).value == 'null/%' || document.getElementById('total_'+i).value == 0 || document.getElementById('subcuenta_'+i).value == '0/%'  || document.getElementById('subcuenta_'+i).value == '/%'  || document.getElementById('subcuenta_'+i).value == '/%0' ){ ban = 1;}
+					   			if( document.getElementById('subcuenta_'+i).value == 'null/%0' || document.getElementById('subcuenta_'+i).value == 'null/%' || document.getElementById('total_'+i).value == 0 || document.getElementById('subcuenta_'+i).value == '0/%'  || document.getElementById('subcuenta_'+i).value == '/%'  || document.getElementById('subcuenta_'+i).value == '/%0' || document.getElementById('subcuenta_'+i).value == '0/0%0'  || document.getElementById('subcuenta_'+i).value == '' ){ ban = 1;}
 							}
 							
 						if(document.getElementById('desc_'+i))
@@ -1038,7 +1038,7 @@
 					   {
 					    if( document.getElementById('subcuenta_'+i))
 							{
-					   			if( document.getElementById('subcuenta_'+i).value == 'null/%' || document.getElementById('total_'+i).value == 0 || document.getElementById('subcuenta_'+i).value == '0/%'  || document.getElementById('subcuenta_'+i).value == '/%'  || document.getElementById('subcuenta_'+i).value == '/%0' ){ ban = 1;}
+					   			if( document.getElementById('subcuenta_'+i).value == 'null/%0' || document.getElementById('subcuenta_'+i).value == 'null/%' || document.getElementById('total_'+i).value == 0 || document.getElementById('subcuenta_'+i).value == '0/%'  || document.getElementById('subcuenta_'+i).value == '/%'  || document.getElementById('subcuenta_'+i).value == '/%0' || document.getElementById('subcuenta_'+i).value == '0/0%0'  || document.getElementById('subcuenta_'+i).value == '' ){ ban = 1;}
 							}
 							
 						if(document.getElementById('desc_'+i))

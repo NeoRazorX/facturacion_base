@@ -240,7 +240,7 @@ class compras_facturas extends fs_controller
       $json = array();
       foreach($pro0->search($_REQUEST['buscar_proveedor']) as $pro)
       {
-         $json[] = array('value' => $pro->nombre, 'data' => $pro->codproveedor);
+         $json[] = array('value' => $pro->razonsocial, 'data' => $pro->codproveedor);
       }
       
       header('Content-Type: application/json');
@@ -352,7 +352,7 @@ class compras_facturas extends fs_controller
    
    public function total_sinpagar()
    {
-      $data = $this->db->select("SELECT COUNT(idfactura) as total FROM facturasprov WHERE pagada = false AND idpagodevol ='0';");
+      $data = $this->db->select("SELECT COUNT(idfactura) as total FROM facturasprov WHERE pagada = '0' AND idpagodevol ='0' AND idasiento != 'NULL' ;");
       if($data)
       {
          return intval($data[0]['total']);

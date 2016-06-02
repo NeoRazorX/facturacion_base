@@ -33,6 +33,7 @@ class contabilidad_subcuenta extends fs_controller
    public $subcuenta;
    public $offset;
    public $alias;
+  
    
    public function __construct()
    {
@@ -68,8 +69,8 @@ class contabilidad_subcuenta extends fs_controller
          if( isset($_GET['offset']) )
             $this->offset = intval($_GET['offset']);
          
-         $this->resultados = $this->subcuenta->get_partidas($this->offset);
-         
+         $this->resultados = $this->subcuenta->get_partidas_desc($this->offset);
+		 
          if( isset($_POST['puntear']) )
             $this->puntear();
          
@@ -109,6 +110,11 @@ class contabilidad_subcuenta extends fs_controller
       }
       else
          return $this->ppage->url();
+   }
+   
+    public function url_cambio()
+   {
+   return 'index.php?page=libro_mayor_generar';
    }
    
    public function paginas()
@@ -160,9 +166,10 @@ class contabilidad_subcuenta extends fs_controller
             $valor = FALSE;
          
          if($pa->punteada != $valor)
-         {
+         { 
             $pa->punteada = $valor;
-            $pa->save();
+			$pa->modificar();
+     //       $pa->save();
          }
       }
       
