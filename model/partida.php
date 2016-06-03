@@ -840,4 +840,133 @@ class partida extends fs_model
       
       return $totales;
    }
+   
+   public function totales_pgrupo($id, $fechaini, $fechafin)
+   {
+      	$totales = array( 'debe' => 0, 'haber' => 0, 'saldo' => 0 );      
+        $resultados = $this->db->select("SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
+   FROM co_pgruposepigrafes pg, co_gruposepigrafes g, co_epigrafes e, co_cuentas c, co_subcuentas s, co_partidas p, co_asientos a
+   WHERE g.idpgrupo = pg.idpgrupo AND e.idgrupo = g.idgrupo AND c.idepigrafe = e.idepigrafe AND s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND g.codpgrupo = ".$this->var2str($id)."
+               AND a.fecha BETWEEN ".$this->var2str($fechaini)." AND ".$this->var2str($fechafin).";");
+      
+      
+      if( $resultados )
+      {
+         $totales['debe'] = floatval($resultados[0]['debe']);
+         $totales['haber'] = floatval($resultados[0]['haber']);
+         $totales['saldo'] = floatval($resultados[0]['debe']) - floatval($resultados[0]['haber']);
+      }
+      
+      return $totales;
+   }
+   
+    public function totales_grupo($id, $fechaini, $fechafin)
+   {
+      	$totales = array( 'debe' => 0, 'haber' => 0, 'saldo' => 0 );      
+        $resultados = $this->db->select("SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
+   FROM co_gruposepigrafes g, co_epigrafes e, co_cuentas c, co_subcuentas s, co_partidas p, co_asientos a
+   WHERE e.idgrupo = g.idgrupo AND c.idepigrafe = e.idepigrafe AND s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND g.codgrupo = ".$this->var2str($id)."
+               AND a.fecha BETWEEN ".$this->var2str($fechaini)." AND ".$this->var2str($fechafin).";");
+      
+      
+      if( $resultados )
+      {
+         $totales['debe'] = floatval($resultados[0]['debe']);
+         $totales['haber'] = floatval($resultados[0]['haber']);
+         $totales['saldo'] = floatval($resultados[0]['debe']) - floatval($resultados[0]['haber']);
+      }
+      
+      return $totales;
+   }
+   
+    public function totales_epigrafe($id, $fechaini, $fechafin)
+   {
+      	$totales = array( 'debe' => 0, 'haber' => 0, 'saldo' => 0 );      
+        $resultados = $this->db->select("SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
+   FROM co_epigrafes e, co_cuentas c, co_subcuentas s, co_partidas p, co_asientos a
+   WHERE c.idepigrafe = e.idepigrafe AND s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND e.codepigrafe = ".$this->var2str($id)."
+               AND a.fecha BETWEEN ".$this->var2str($fechaini)." AND ".$this->var2str($fechafin).";");
+      
+      
+      if( $resultados )
+      {
+         $totales['debe'] = floatval($resultados[0]['debe']);
+         $totales['haber'] = floatval($resultados[0]['haber']);
+         $totales['saldo'] = floatval($resultados[0]['debe']) - floatval($resultados[0]['haber']);
+      }
+      
+      return $totales;
+   }
+   
+    public function totales_cuenta($id, $fechaini, $fechafin)
+   {
+      	$totales = array( 'debe' => 0, 'haber' => 0, 'saldo' => 0 );      
+        $resultados = $this->db->select("SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
+   FROM co_cuentas c, co_subcuentas s, co_partidas p, co_asientos a
+   WHERE s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND s.codcuenta = ".$this->var2str($id)."
+               AND a.fecha BETWEEN ".$this->var2str($fechaini)." AND ".$this->var2str($fechafin).";");
+      
+      
+      if( $resultados )
+      {
+         $totales['debe'] = floatval($resultados[0]['debe']);
+         $totales['haber'] = floatval($resultados[0]['haber']);
+         $totales['saldo'] = floatval($resultados[0]['debe']) - floatval($resultados[0]['haber']);
+      }
+      
+      return $totales;
+   }
+   
+    public function totales_subcuenta($id, $fechaini, $fechafin)
+   {
+      	$totales = array( 'debe' => 0, 'haber' => 0, 'saldo' => 0 );      
+        $resultados = $this->db->select("SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
+   FROM co_subcuentas s, co_partidas p, co_asientos a
+   WHERE p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND s.codsubcuenta = ".$this->var2str($id)."
+               AND a.fecha BETWEEN ".$this->var2str($fechaini)." AND ".$this->var2str($fechafin).";");
+      
+      
+      if( $resultados )
+      {
+         $totales['debe'] = floatval($resultados[0]['debe']);
+         $totales['haber'] = floatval($resultados[0]['haber']);
+         $totales['saldo'] = floatval($resultados[0]['debe']) - floatval($resultados[0]['haber']);
+      }
+      
+      return $totales;
+   }
+   
+/*   
+  
+   
+         pgrupo
+ SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
+   FROM co_pgruposepigrafes pg, co_gruposepigrafes g, co_epigrafes e, co_cuentas c, co_subcuentas s, co_partidas p, co_asientos a
+   WHERE g.idpgrupo = pg.idpgrupo AND e.idgrupo = g.idgrupo AND c.idepigrafe = e.idepigrafe AND s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND g.codpgrupo = 1
+   
+      grupo
+ SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
+   FROM co_gruposepigrafes g, co_epigrafes e, co_cuentas c, co_subcuentas s, co_partidas p, co_asientos a
+   WHERE e.idgrupo = g.idgrupo AND c.idepigrafe = e.idepigrafe AND s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND g.codgrupo = 11
+   
+   epigrafe
+ SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
+   FROM co_epigrafes e, co_cuentas c, co_subcuentas s, co_partidas p, co_asientos a
+   WHERE c.idepigrafe = e.idepigrafe AND s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND e.codepigrafe = 1101
+   
+   cuenta
+ SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
+   FROM co_cuentas c, co_subcuentas s, co_partidas p, co_asientos a
+   WHERE s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND s.codcuenta = 110102  
+   
+      subcuenta
+ SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
+   FROM co_subcuentas s, co_partidas p, co_asientos a
+   WHERE p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND s.codsubcuenta = 110102 
+   
+  */
+   
+ 
+   
+   
 }

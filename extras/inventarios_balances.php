@@ -150,6 +150,285 @@ class inventarios_balances
     * Este informe muestra los saldos (distintos de cero) de cada cuenta y subcuenta
     * por periodos, pero siempre excluyendo los asientos de cierre y pérdidas y ganancias.
     */
+   
+   	public function sumas_y_saldos_all(&$pdf_doc, &$eje, $titulo, $fechaini, $fechafin, $excluir=FALSE, $np=TRUE)
+   {
+      $pgrupo = new pgrupo_epigrafes();
+      $partida = new partida();
+      
+      /// metemos todo en una lista
+      $auxlist = array();
+      $offset = 0;
+      $pgrupo = $pgrupo->all_from_ejercicio($eje->codejercicio, $offset);
+	  
+  
+
+			
+         foreach($pgrupo as $pg)
+         {
+				$grupo = $pg->get_grupo();
+				$debe = 0;
+            	$haber = 0;
+				$auxt = $partida->totales_pgrupo($pg->codpgrupo, $fechaini, $fechafin);
+						   $debe = $auxt['debe'];
+						   $haber = $auxt['haber'];
+				if( $debe!=0 OR $haber!=0)
+            	{
+						if( $debe-$haber > 0)
+						   {
+						   $saldo_d = $debe-$haber;
+						   $saldo_a = 0;
+						   }
+						   else
+						   {
+						   $saldo_d = 0;
+						   $saldo_a = $haber-$debe;
+						   }
+						$auxlist[] = array(
+						   'cuenta' => TRUE,
+						   'codigo' => $pg->codpgrupo,
+						   'descripcion' => substr($pg->descripcion,0,34),
+						   'debe' => $debe,
+						   'haber' => $haber,
+						   'saldo' => $saldo_d,
+						   'saldoa' => $saldo_a
+							);	
+				}				
+							
+			foreach($grupo as $g)
+            {
+				$epigrafe = $g->get_epigrafes();
+				$debe = 0;
+            	$haber = 0;
+
+				$auxt = $partida->totales_grupo($g->codgrupo, $fechaini, $fechafin);
+						   $debe = $auxt['debe'];
+						   $haber = $auxt['haber'];
+				if( $debe!=0 OR $haber!=0)
+            	{
+							if( $debe-$haber > 0)
+						   {
+						   $saldo_d = $debe-$haber;
+						   $saldo_a = 0;
+						   }
+						   else
+						   {
+						   $saldo_d = 0;
+						   $saldo_a = $haber-$debe;
+						   }
+				   $auxlist[] = array(
+							   'cuenta' => FALSE,
+							   'codigo' => $g->codgrupo,
+							   'descripcion' => substr('  '.$g->descripcion,0,34),
+							   'debe' => $debe,
+							   'haber' => $haber,
+							   'saldo' => $saldo_d,
+						   		'saldoa' => $saldo_a
+								);
+				}				
+				
+				foreach($epigrafe as $e)
+				{
+					$cuentas = $e->get_cuentas();
+					$debe = 0;
+            		$haber = 0;
+					$auxt = $partida->totales_epigrafe($e->codepigrafe, $fechaini, $fechafin);
+						   $debe = $auxt['debe'];
+						   $haber = $auxt['haber'];
+					if( $debe!=0 OR $haber!=0)
+            		{
+							if( $debe-$haber > 0)
+						   {
+						   $saldo_d = $debe-$haber;
+						   $saldo_a = 0;
+						   }
+						   else
+						   {
+						   $saldo_d = 0;
+						   $saldo_a = $haber-$debe;
+						   }
+					$auxlist[] = array(
+							   'cuenta' => FALSE,
+							   'codigo' => $e->codepigrafe,
+							   'descripcion' => substr('    '.$e->descripcion,0,34),
+							   'debe' => $debe,
+							   'haber' => $haber,
+							   'saldo' => $saldo_d,
+						   		'saldoa' => $saldo_a
+								);
+					}	
+					
+					foreach($cuentas as $c)
+					{
+					$subcuentas = $c->get_subcuentas();
+					$debe = 0;
+            		$haber = 0;
+					$auxt = $partida->totales_cuenta($c->codcuenta, $fechaini, $fechafin);
+						   $debe = $auxt['debe'];
+						   $haber = $auxt['haber'];
+					if( $debe!=0 OR $haber!=0)
+            		{
+							if( $debe-$haber > 0)
+						   {
+						   $saldo_d = $debe-$haber;
+						   $saldo_a = 0;
+						   }
+						   else
+						   {
+						   $saldo_d = 0;
+						   $saldo_a = $haber-$debe;
+						   }
+						$auxlist[] = array(
+							   'cuenta' => FALSE,
+							   'codigo' => $c->codcuenta,
+							   'descripcion' => substr('      '.$c->descripcion,0,34),
+							   'debe' => $debe,
+							   'haber' => $haber,
+							   'saldo' => $saldo_d,
+						   		'saldoa' => $saldo_a
+								);
+					}
+						foreach($subcuentas as $sc)
+						{
+						   					$debe = 0;
+            		$haber = 0;
+					$auxt = $partida->totales_subcuenta($sc->codsubcuenta, $fechaini, $fechafin);
+						   $debe = $auxt['debe'];
+						   $haber = $auxt['haber'];
+					if( $debe!=0 OR $haber!=0)
+            		{
+							if( $debe-$haber > 0)
+						   {
+						   $saldo_d = $debe-$haber;
+						   $saldo_a = 0;
+						   }
+						   else
+						   {
+						   $saldo_d = 0;
+						   $saldo_a = $haber-$debe;
+						   }
+						   $auxlist[] = array(
+							   'cuenta' => FALSE,
+							   'codigo' => $sc->codsubcuenta,
+							   'descripcion' => substr('        '.$sc->descripcion,0,45),
+							   'debe' => $debe,
+							   'haber' => $haber,
+							   'saldo' => $saldo_d,
+						   		'saldoa' => $saldo_a
+								);	
+					}								   
+						}	
+					}					
+				}				
+            }
+			
+
+            $offset++;
+         }
+ ////////////////////////////////////////////
+ 		        
+      /// a partir de la lista generamos el documento
+      $linea = 0;
+      $tdebe = 0;
+      $thaber = 0;
+	  $tsaldod = 0;
+	  $tsaldoa = 0;
+      while( $linea < count($auxlist) )
+      {/////
+         if($linea > 0 OR $np)
+            $pdf_doc->pdf->ezNewPage();
+         
+         $pdf_doc->pdf->ezText($this->empresa->nombre."\n".$this->empresa->provincia." - ".$this->empresa->ciudad."\n\nBalance Acumulado Periodo : ".$eje->year().' '.$titulo.".\nFecha de Emisión :   ".Date('d-m-Y')."   ".Date('H:i:s')."\n", 10);
+         
+         /// Creamos la tabla con las lineas
+         $pdf_doc->new_table();
+         $pdf_doc->add_table_header(
+            array(
+                'subcuenta' => '<b>Cuenta</b>',
+                'descripcion' => '<b>Descripción</b>',
+                'debe' => '<b>Debe</b>',
+                'haber' => '<b>Haber</b>',
+                'saldo' => '<b>Saldo Deudor</b>',
+				'saldoa' => '<b>Saldo Acreedor</b>',				
+				)
+			 );
+			 
+			 
+			 for($i=$linea; $i<min( array($linea+48, count($auxlist)) ); $i++)
+				 {
+					if( $auxlist[$i]['cuenta'] )
+					{
+					   $a = '<b>';
+					   $b = '</b>';
+					}
+					else
+					{
+					   $a = $b = '';
+
+					}
+						$tdebe += $auxlist[$i]['debe'];
+					   	$thaber += $auxlist[$i]['haber'];
+						$tsaldod += $auxlist[$i]['saldo'];
+						$tsaldoa += $auxlist[$i]['saldoa'];
+					if( $this->show_numero($auxlist[$i]['debe']) == 0 ) $num_debe = '';
+					else $num_debe = $this->show_numero($auxlist[$i]['debe']);
+					if( $this->show_numero($auxlist[$i]['haber']) == 0 ) $num_haber = '';
+					else $num_haber = $this->show_numero($auxlist[$i]['haber']);
+					if( $this->show_numero($auxlist[$i]['saldo']) == 0 ) $num_saldo = '';
+					else $num_saldo = $this->show_numero($auxlist[$i]['saldo']);
+					if( $this->show_numero($auxlist[$i]['saldoa']) == 0 ) $num_saldoa = '';
+					else $num_saldoa = $this->show_numero($auxlist[$i]['saldoa']);
+					
+					  $pdf_doc->add_table_row(
+					   array(
+						   'subcuenta' => $a.$auxlist[$i]['codigo'].$b,
+						   'descripcion' => $a.substr($auxlist[$i]['descripcion'], 0, 50).$b,
+						   'debe' => $a.$num_debe.$b,
+						   'haber' => $a.$num_haber.$b,
+						   'saldo' => $a.$num_saldo.$b,
+						   'saldoa' => $a.$num_saldoa.$b
+						   )
+						);
+						
+				 }
+				 
+				 $linea += 48;
+			 
+			 if( $linea > count($auxlist))
+			 {
+			          /// añadimos las sumas de la línea actual
+					 $pdf_doc->add_table_row(
+						array(
+							'subcuenta' => '',
+							'descripcion' => '<b>   Totales  </b>',
+							'debe' => '<b>'.$this->show_numero($tdebe).'</b>',
+							'haber' => '<b>'.$this->show_numero($thaber).'</b>',
+							'saldo' => '<b>'.$tsaldod.'</b>',
+							'saldoa' => '<b>'.$tsaldoa.'</b>',							
+								)
+							 );
+				}				 
+					 $pdf_doc->save_table(
+						array(
+							'fontSize' => 8,
+							'cols' => array(
+								'debe' => array('justification' => 'right'),
+								'haber' => array('justification' => 'right'),
+								'saldo' => array('justification' => 'right'),
+								'saldoa' => array('justification' => 'right'),							
+								),
+								'width' => 545,
+								'shaded' => 0
+									)
+								 );
+			 
+     
+      	}/////
+
+   
+   }
+	
+	
    public function sumas_y_saldos(&$pdf_doc, &$eje, $titulo, $fechaini, $fechafin, $excluir=FALSE, $np=TRUE)
    {
       $cuenta = new cuenta();
@@ -232,7 +511,7 @@ class inventarios_balances
             )
          );
          
-         for($i=$linea; $i<min( array($linea+48, count($auxlist)) ); $i++)
+        for($i=$linea; $i<min( array($linea+48, count($auxlist)) ); $i++)
          {
             if( $auxlist[$i]['cuenta'] )
             {
@@ -246,15 +525,15 @@ class inventarios_balances
                $thaber += $auxlist[$i]['haber'];
             }
             
-            $pdf_doc->add_table_row(
+			  $pdf_doc->add_table_row(
                array(
                    'subcuenta' => $a.$auxlist[$i]['codigo'].$b,
                    'descripcion' => $a.substr($auxlist[$i]['descripcion'], 0, 50).$b,
                    'debe' => $a.$this->show_numero($auxlist[$i]['debe']).$b,
                    'haber' => $a.$this->show_numero($auxlist[$i]['haber']).$b,
                    'saldo' => $a.$this->show_numero($auxlist[$i]['saldo']).$b
-               )
-            );
+				   )
+				);
          }
          $linea += 48;
          
@@ -266,8 +545,8 @@ class inventarios_balances
                 'debe' => '<b>'.$this->show_numero($tdebe).'</b>',
                 'haber' => '<b>'.$this->show_numero($thaber).'</b>',
                 'saldo' => '<b>'.$this->show_numero($tdebe-$thaber).'</b>'
-            )
-         );
+					)
+				 );
          $pdf_doc->save_table(
             array(
                 'fontSize' => 9,
@@ -275,13 +554,14 @@ class inventarios_balances
                     'debe' => array('justification' => 'right'),
                     'haber' => array('justification' => 'right'),
                     'saldo' => array('justification' => 'right')
-                ),
-                'width' => 540,
-                'shaded' => 0
-            )
-         );
+					),
+					'width' => 540,
+					'shaded' => 0
+						)
+					 );
       }
    }
+
    
    /**
     * Función auxiliar para generar el balance de sumas y saldos, en su versión de 3 dígitos.

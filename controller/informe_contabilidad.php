@@ -103,7 +103,7 @@ class informe_contabilidad extends fs_controller
             $pdf_doc->pdf->addInfo('Title', 'Balance de situación de ' . $this->empresa->nombre);
             $pdf_doc->pdf->addInfo('Subject', 'Balance de situación de ' . $this->empresa->nombre);
             $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
-            $pdf_doc->pdf->ezStartPageNumbers(580, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
+            $pdf_doc->pdf->ezStartPageNumbers(570, 800, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
             
             $excluir = FALSE;
             if( isset($eje->idasientocierre) AND isset($eje->idasientopyg) )
@@ -117,10 +117,14 @@ class informe_contabilidad extends fs_controller
             {
                $iba->sumas_y_saldos3($this->db, $pdf_doc, $eje, 'de '.$_POST['desde'].' a '.$_POST['hasta'], $_POST['desde'], $_POST['hasta'], $excluir, FALSE);
             }
-            else
+            else if($_POST['tipo'] == '4')
             {
-               $iba->sumas_y_saldos($pdf_doc, $eje, 'de '.$_POST['desde'].' a '.$_POST['hasta'], $_POST['desde'], $_POST['hasta'], $excluir, FALSE);
+               $iba->sumas_y_saldos_all($pdf_doc, $eje, 'de '.$_POST['desde'].' a '.$_POST['hasta'], $_POST['desde'], $_POST['hasta'], $excluir, FALSE);
             }
+			else
+			{
+			$iba->sumas_y_saldos($pdf_doc, $eje, 'de '.$_POST['desde'].' a '.$_POST['hasta'], $_POST['desde'], $_POST['hasta'], $excluir, FALSE);
+			}
             
             $pdf_doc->show();
          }

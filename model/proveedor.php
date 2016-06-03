@@ -355,7 +355,7 @@ class proveedor extends fs_model
          if($cpro)
          {
             $subc0 = $cpro->new_subcuenta($this->codproveedor);
-            $subc0->descripcion = $this->nombre;
+            $subc0->descripcion = $this->razonsocial;
             if( !$subc0->save() )
             {
                $this->new_error_msg('Imposible crear la subcuenta para el proveedor '.$this->codproveedor);
