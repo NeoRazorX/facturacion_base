@@ -3,7 +3,7 @@
 {if="$fsc->step==2"}
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">
-   <div class="container">
+   <div class="container-fluid">
       {if="$fsc->bad_password"}
       <div class="row">
          <div class="col-sm-12">
@@ -20,12 +20,12 @@
          </div>
       </div>
       <div class="row">
-         <div class="col-sm-3">
+         <div class="col-sm-2">
             <div class="form-group">
                <input class="form-control" type="password" name="npassword" maxlength="32" placeholder="nueva contraseña" autofocus />
             </div>
          </div>
-         <div class="col-sm-3">
+         <div class="col-sm-2">
             <div class="form-group">
                <input class="form-control" type="password" name="npassword2" maxlength="32" placeholder="repite la contraseña"/>
             </div>
@@ -145,7 +145,7 @@
 </form>
 {elseif="$fsc->step==3"}
 <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">
-   <div class="container">
+   <div class="container-fluid">
       <div class="row">
          <div class="col-sm-12">
             <div class="page-header">
@@ -258,7 +258,7 @@
 </form>
 {elseif="$fsc->step==4"}
 <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">
-   <div class="container">
+   <div class="container-fluid">
       <div class="row">
          <div class="col-sm-12">
             <div class="page-header">
@@ -359,7 +359,7 @@
    </div>
 </form>
 {elseif="$fsc->step==5"}
-<div class="container">
+<div class="container-fluid">
    {if="$fsc->empresa->codpais=='ESP' or $fsc->empresa->codpais=='ES'"}
    <div class="row">
       <div class="col-sm-12">
@@ -376,14 +376,14 @@
             </p>
          </div>
          {if="$fsc->empresa->contintegrada"}
-            <a href="index.php?page=contabilidad_ejercicio&cod={$fsc->empresa->codejercicio}" target="_blank" class="btn btn-sm btn-block btn-info">
-               <span class="glyphicon glyphicon-import"></span> &nbsp;
-               importar los datos contables
-            </a>
             <p class="help-block">
                Ahora es el momento de importar el plan contable, si todavía no lo
                has hecho.
             </p>
+            <a href="index.php?page=contabilidad_ejercicio&cod={$fsc->empresa->codejercicio}" target="_blank" class="btn btn-sm btn-primary">
+               <span class="glyphicon glyphicon-import"></span>&nbsp;
+               importar los datos contables
+            </a>
          {/if}
       </div>
    </div>
@@ -464,67 +464,112 @@
    </div>
    {/if}
    <div class="row">
-      <div class="col-sm-6">
-         <h3>El menú ventas</h3>
-         <div class="embed-responsive embed-responsive-16by9">
-            <iframe width="420" height="315" src="https://www.youtube.com/embed/B7o9pfF4NYA" frameborder="0" allowfullscreen></iframe>
-         </div>
+      <div class="col-sm-12">
+         <br/><br/>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-sm-6 col-lg-4">
+         <h3>
+            <span class="glyphicon glyphicon-question-sign"></span>
+            El menú ventas
+         </h3>
          <p class="help-block">
             Dispones de tu catálogo de artículos, con sus familias y fabricantes,
             el listado de clientes y las facturas y {#FS_ALBARANES#} de venta.
          </p>
-         <h3>El menú compras</h3>
          <div class="embed-responsive embed-responsive-16by9">
-            <iframe width="420" height="315" src="https://www.youtube.com/embed/PbmhKDzANkM" frameborder="0" allowfullscreen></iframe>
+            <iframe width="420" height="315" src="https://www.youtube.com/embed/B7o9pfF4NYA" frameborder="0" allowfullscreen></iframe>
          </div>
+         <h3>
+            <span class="glyphicon glyphicon-question-sign"></span>
+            El menú compras
+         </h3>
          <p class="help-block">
             En este menú tienes el listado de proveedores y acreedores (lo acreedores
             son aquellos a los que les compras servicios, por ejemplo el proveedor
             de Internet), además de los listados de facturas y {#FS_ALBARANES#} de compra.
          </p>
+         <div class="embed-responsive embed-responsive-16by9">
+            <iframe width="420" height="315" src="https://www.youtube.com/embed/PbmhKDzANkM" frameborder="0" allowfullscreen></iframe>
+         </div>
          <p class="help-block">
             <b>¿No lo necesitas?</b> Puedes desactivar todo lo que quieras desde la
             pestaña <b>menú</b> de Admin &gt; Panel de control.
          </p>
       </div>
-      <div class="col-sm-6">
-         <h3>
-            <span class="glyphicon glyphicon-transfer"></span>
-            ¿Necesitas copiar datos de tu antiguo software?
-         </h3>
-         <p class="help-block">
-            Muchos programas permiten exportar datos a archivos CSV o Excel,
-            si es el caso, puedes usar el plugin
-            <a href="https://www.facturascripts.com/store/producto/plugin-importarexportar-csv/" target="_blank">
-               Importar/Exportar CSV
-            </a>
-            para copiar esos datos a FacturaScripts.
-         </p>
-         <hr/>
-         <h3>
-            <span class="glyphicon glyphicon-envelope"></span>
-            ¿Quieres enviar emails desde FacturaScripts?
-         </h3>
-         <p class="help-block">
-            Puedes usar tu cuenta de gmail, hotmail o tu dominio personalizado
-            para enviar documentos cómodamente desde FacturaScripts.
-         </p>
-         <a href="index.php?page=admin_empresa#email" target="_blank" class="btn btn-xs btn-default">
-            <span class="glyphicon glyphicon-envelope"></span>
-            &nbsp; Configuración de email
-         </a>
-         <hr/>
-         <h3>¿Quieres cambiar el número de factura inicial?</h3>
-         <p class="help-block">
-            Si ya tienes facturas en otro programa y quieres empezar por un número
-            concreto de factura, puedes modificar la numeración desde
-            <b>Contabilidad &gt; Series</b>. Activa la <b>numeración personalizada</b>
-            y elige el número inicial.
-         </p>
-         <a href="index.php?page=contabilidad_series&num_personalizada=TRUE" target="_blank" class="btn btn-xs btn-default">
-            <span class="glyphicon glyphicon-cog"></span>
-            &nbsp; Numeración personalizada
-         </a>
+      <div class="col-sm-6 col-lg-8">
+         <div class="panel panel-info">
+            <div class="panel-heading">
+               <h3 class="panel-title">
+                  <span class="glyphicon glyphicon-transfer"></span>
+                  ¿Necesitas copiar datos de tu antiguo software?
+               </h3>
+            </div>
+            <div class="panel-body">
+               <p class="help-block">
+                  Muchos programas permiten exportar datos a archivos CSV o Excel,
+                  si es el caso, puedes usar el plugin
+                  <a href="https://www.facturascripts.com/store/producto/plugin-importarexportar-csv/" target="_blank">
+                     Importar/Exportar CSV
+                  </a>
+                  para copiar esos datos a FacturaScripts.
+               </p>
+            </div>
+         </div>
+         <div class="panel panel-info">
+            <div class="panel-heading">
+               <h3 class="panel-title">
+                  <span class="glyphicon glyphicon-envelope"></span>
+                  ¿Quieres enviar emails desde FacturaScripts?
+               </h3>
+            </div>
+            <div class="panel-body">
+               <p class="help-block">
+                  Puedes usar tu cuenta de gmail, hotmail o tu dominio personalizado
+                  para enviar documentos cómodamente desde FacturaScripts.
+               </p>
+               <a href="index.php?page=admin_empresa#email" target="_blank" class="btn btn-xs btn-default">
+                  <span class="glyphicon glyphicon-envelope"></span>
+                  &nbsp; Configuración de email
+               </a>
+            </div>
+         </div>
+         <div class="panel panel-info">
+            <div class="panel-heading">
+               <h3 class="panel-title">
+                  ¿Quieres cambiar el número de factura inicial?
+               </h3>
+            </div>
+            <div class="panel-body">
+               <p class="help-block">
+                  Si ya tienes facturas en otro programa y quieres empezar por un número
+                  concreto de factura, puedes modificar la numeración desde
+                  <b>Contabilidad &gt; Series</b>. Activa la <b>numeración personalizada</b>
+                  y elige el número inicial.
+               </p>
+               <a href="index.php?page=contabilidad_series&num_personalizada=TRUE" target="_blank" class="btn btn-xs btn-default">
+                  <span class="glyphicon glyphicon-cog"></span>
+                  &nbsp; Numeración personalizada
+               </a>
+            </div>
+         </div>
+         <div class="panel panel-info">
+            <div class="panel-heading">
+               <h3 class="panel-title">
+                  <i class="fa fa-puzzle-piece" aria-hidden="true"></i> ¿Echas en falta algo?
+               </h3>
+            </div>
+            <div class="panel-body">
+               <p class="help-block">
+                  Tienes la lista completa de plugins en la sección descargas del
+                  panel de control: presupuestos_y_pedidos, megafacturador, CRM...
+               </p>
+               <a href="index.php?page=admin_home#descargas" class="btn btn-xs btn-default">
+                  <i class="fa fa-puzzle-piece" aria-hidden="true"></i> Plugins
+               </a>
+            </div>
+         </div>
       </div>
    </div>
 </div>

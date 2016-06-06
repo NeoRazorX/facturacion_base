@@ -493,9 +493,17 @@ class ventas_imprimir extends fs_controller
                         ' - '.$this->albaran->ciudad.' ('.$this->albaran->provincia.')'),
                 'campo2' => ''
             );
-            if($this->cliente->telefono1 OR $this->cliente->telefono1)
+            if($this->cliente->telefono1 OR $this->cliente->telefono2)
             {
-               $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono1.'  '.$this->cliente->telefono2;
+               $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono1;
+               if($this->cliente->telefono2)
+               {
+                  $row['campo2'] .= '  '.$this->cliente->telefono2;
+               }
+            }
+            else if($this->cliente->telefono2)
+            {
+               $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono2;
             }
             $pdf_doc->add_table_row($row);
             
@@ -735,9 +743,17 @@ class ventas_imprimir extends fs_controller
                        .' ('.$this->factura->provincia.')',
                    'campo2' => ''
                );
-               if($this->cliente->telefono1 OR $this->cliente->telefono1)
+               if($this->cliente->telefono1 OR $this->cliente->telefono2)
                {
-                  $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono1.'  '.$this->cliente->telefono2;
+                  $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono1;
+                  if($this->cliente->telefono2)
+                  {
+                     $row['campo2'] .= '  '.$this->cliente->telefono2;
+                  }
+               }
+               else if($this->cliente->telefono2)
+               {
+                  $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono2;
                }
                $pdf_doc->add_table_row($row);
                

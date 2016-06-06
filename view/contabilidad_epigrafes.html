@@ -206,7 +206,7 @@
    </div>
 </div>
 {else}
-<div class="container">
+<div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
          <div class="page-header">
@@ -325,11 +325,11 @@
    <div class="modal-dialog">
       <div class="modal-content">
          <form class="form" role="form" name="f_nuevo_epigrafe" action="{$fsc->url()}" method="post">
-            <input type="hidden" name="ejercicio" value="{$fsc->grupo->codejercicio}"/>
+            <input type="hidden" name="ejercicio" value="{$fsc->codejercicio}"/>
             {if="$fsc->epigrafe"}
             <input type="hidden" name="ejercicio" value="{$fsc->epigrafe->codejercicio}"/>
             <input type="hidden" name="idpadre" value="{$fsc->epigrafe->idepigrafe}"/>
-            {else}
+            {elseif="$fsc->grupo"}
             <input type="hidden" name="ejercicio" value="{$fsc->grupo->codejercicio}"/>
             <input type="hidden" name="idgrupo" value="{$fsc->grupo->idgrupo}"/>
             <input type="hidden" name="codgrupo" value="{$fsc->grupo->codgrupo}"/>
@@ -343,7 +343,7 @@
                   Código:
                   {if="$fsc->epigrafe"}
                   <input class="form-control" type="text" name="nepigrafe" autocomplete="off" maxlength="6"/>
-                  {else}
+                  {elseif="$fsc->grupo"}
                   <input class="form-control" type="text" name="nepigrafe" value="{$fsc->grupo->codgrupo}0" autocomplete="off" maxlength="6"/>
                   {/if}
                </div>
@@ -362,6 +362,7 @@
    </div>
 </div>
 
+{if="$fsc->epigrafe"}
 <div class="modal" id="modal_nueva_cuenta">
    <div class="modal-dialog">
       <div class="modal-content">
@@ -391,5 +392,6 @@
       </div>
    </div>
 </div>
+{/if}
 
 {include="footer"}

@@ -22,30 +22,45 @@
  */
 class subcuenta_cliente extends fs_model
 {
+   /**
+    * Clave primaria
+    * @var type 
+    */
+   public $id;
+   
+   /**
+    * ID de la subcuenta
+    * @var type 
+    */
+   public $idsubcuenta;
+   
+   /**
+    * Código del cliente
+    * @var type 
+    */
    public $codcliente;
+   
    public $codsubcuenta;
    public $codejercicio;
-   public $idsubcuenta;
-   public $id; /// pkey
    
    public function __construct($s = FALSE)
    {
       parent::__construct('co_subcuentascli');
       if($s)
       {
+         $this->id = $this->intval($s['id']);
+         $this->idsubcuenta = $this->intval($s['idsubcuenta']);
          $this->codcliente = $s['codcliente'];
          $this->codsubcuenta = $s['codsubcuenta'];
          $this->codejercicio = $s['codejercicio'];
-         $this->idsubcuenta = $this->intval($s['idsubcuenta']);
-         $this->id = $this->intval($s['id']);
       }
       else
       {
+         $this->id = NULL;
+         $this->idsubcuenta = NULL;
          $this->codcliente = NULL;
          $this->codsubcuenta = NULL;
          $this->codejercicio = NULL;
-         $this->idsubcuenta = NULL;
-         $this->id = NULL;
       }
    }
    
@@ -62,10 +77,14 @@ class subcuenta_cliente extends fs_model
    
    public function get($cli, $idsc)
    {
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($cli)."
-         AND idsubcuenta = ".$this->var2str($idsc).";");
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($cli)
+              ." AND idsubcuenta = ".$this->var2str($idsc).";";
+      
+      $data = $this->db->select($sql);
       if($data)
+      {
          return new subcuenta_cliente($data[0]);
+      }
       else
          return FALSE;
    }
@@ -74,7 +93,9 @@ class subcuenta_cliente extends fs_model
    {
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($id).";");
       if($data)
+      {
          return new subcuenta_cliente($data[0]);
+      }
       else
          return FALSE;
    }
@@ -89,35 +110,35 @@ class subcuenta_cliente extends fs_model
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($this->id).";");
    }
    
-   public function test()
-   {
-      return TRUE;
-   }
-   
    public function save()
    {
       if( $this->exists() )
       {
-         $sql = "UPDATE ".$this->table_name." SET codcliente = ".$this->var2str($this->codcliente).",
-            codsubcuenta = ".$this->var2str($this->codsubcuenta).",
-            codejercicio = ".$this->var2str($this->codejercicio).",
-            idsubcuenta = ".$this->var2str($this->idsubcuenta)."
-            WHERE id = ".$this->var2str($this->id).";";
+         $sql = "UPDATE ".$this->table_name." SET codcliente = ".$this->var2str($this->codcliente)
+                 .", codsubcuenta = ".$this->var2str($this->codsubcuenta)
+                 .", codejercicio = ".$this->var2str($this->codejercicio)
+                 .", idsubcuenta = ".$this->var2str($this->idsubcuenta)
+                 ."  WHERE id = ".$this->var2str($this->id).";";
+         
          return $this->db->exec($sql);
       }
       else
       {
          $sql = "INSERT INTO ".$this->table_name." (codcliente,codsubcuenta,codejercicio,idsubcuenta)
-            VALUES (".$this->var2str($this->codcliente).",".$this->var2str($this->codsubcuenta).",
-            ".$this->var2str($this->codejercicio).",".$this->var2str($this->idsubcuenta).");";
-         $resultado = $this->db->exec($sql);
-         if($resultado)
+            VALUES (".$this->var2str($this->codcliente)
+                 .",".$this->var2str($this->codsubcuenta)
+                 .",".$this->var2str($this->codejercicio)
+                 .",".$this->var2str($this->idsubcuenta).");";
+         
+         if( $this->db->exec($sql) )
          {
-            $newid = $this->db->lastval();
-            if($newid)
-               $this->id = intval($newid);
+            $this->id = $this->db->lastval();
+            return TRUE;
          }
-         return $resultado;
+         else
+         {
+            return FALSE;
+         }
       }
    }
    
@@ -129,13 +150,18 @@ class subcuenta_cliente extends fs_model
    public function all_from_cliente($cod)
    {
       $sublist = array();
-      $subcs = $this->db->select("SELECT * FROM ".$this->table_name.
-         " WHERE codcliente = ".$this->var2str($cod)." ORDER BY codejercicio DESC;");
-      if($subcs)
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($cod)
+              ." ORDER BY codejercicio DESC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
       {
-         foreach($subcs as $s)
+         foreach($data as $s)
+         {
             $sublist[] = new subcuenta_cliente($s);
+         }
       }
+      
       return $sublist;
    }
 }

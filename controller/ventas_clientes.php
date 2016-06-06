@@ -340,28 +340,31 @@ class ventas_clientes extends fs_controller
    {
       $final = array();
       
-      $ciudades = array();
-      $sql = "SELECT DISTINCT ciudad FROM dirclientes ORDER BY ciudad ASC;";
-      if($this->provincia != '')
+      if( $this->db->table_exists('dirclientes') )
       {
-         $sql = "SELECT DISTINCT ciudad FROM dirclientes WHERE lower(provincia) = '"
-                 .$this->provincia."' ORDER BY ciudad ASC;";
-      }
-      $data = $this->db->select($sql);
-      if($data)
-      {
-         foreach($data as $d)
+         $ciudades = array();
+         $sql = "SELECT DISTINCT ciudad FROM dirclientes ORDER BY ciudad ASC;";
+         if($this->provincia != '')
          {
-            $ciudades[] = $d['ciudad'];
+            $sql = "SELECT DISTINCT ciudad FROM dirclientes WHERE lower(provincia) = '"
+                    .$this->provincia."' ORDER BY ciudad ASC;";
          }
-      }
-      
-      /// usamos las minúsculas para filtrar
-      foreach($ciudades as $ciu)
-      {
-         if($ciu != '')
+         $data = $this->db->select($sql);
+         if($data)
          {
-            $final[ mb_strtolower($ciu, 'UTF8') ] = $ciu;
+            foreach($data as $d)
+            {
+               $ciudades[] = $d['ciudad'];
+            }
+         }
+         
+         /// usamos las minúsculas para filtrar
+         foreach($ciudades as $ciu)
+         {
+            if($ciu != '')
+            {
+               $final[ mb_strtolower($ciu, 'UTF8') ] = $ciu;
+            }
          }
       }
       
@@ -372,27 +375,30 @@ class ventas_clientes extends fs_controller
    {
       $final = array();
       
-      $provincias = array();
-      $sql = "SELECT DISTINCT provincia FROM dirclientes ORDER BY provincia ASC;";
-      if($this->codpais != '')
+      if( $this->db->table_exists('dirclientes') )
       {
-         $sql = "SELECT DISTINCT provincia FROM dirclientes WHERE codpais = '".$this->codpais
-                 ."' ORDER BY provincia ASC;";
-      }
-      $data = $this->db->select($sql);
-      if($data)
-      {
-         foreach($data as $d)
+         $provincias = array();
+         $sql = "SELECT DISTINCT provincia FROM dirclientes ORDER BY provincia ASC;";
+         if($this->codpais != '')
          {
-            $provincias[] = $d['provincia'];
+            $sql = "SELECT DISTINCT provincia FROM dirclientes WHERE codpais = '".$this->codpais
+                    ."' ORDER BY provincia ASC;";
          }
-      }
-      
-      foreach($provincias as $pro)
-      {
-         if($pro != '')
+         $data = $this->db->select($sql);
+         if($data)
          {
-            $final[ mb_strtolower($pro, 'UTF8') ] = $pro;
+            foreach($data as $d)
+            {
+               $provincias[] = $d['provincia'];
+            }
+         }
+         
+         foreach($provincias as $pro)
+         {
+            if($pro != '')
+            {
+               $final[ mb_strtolower($pro, 'UTF8') ] = $pro;
+            }
          }
       }
       

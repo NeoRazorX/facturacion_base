@@ -25,6 +25,7 @@
       <nombre>f_inicio</nombre>
       <tipo>timestamp without time zone</tipo>
       <nulo>NO</nulo>
+      <defecto>CURRENT_TIMESTAMP</defecto>
    </columna>
    <columna>
       <nombre>d_inicio</nombre>

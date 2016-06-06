@@ -10,7 +10,7 @@
    }
 </script>
 
-<div class="container" style="margin-top: 10px;">
+<div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
          <div class="page-header">
@@ -29,18 +29,15 @@
             </h1>
             <p class="help-block">
                El <b>% {#FS_IRPF#}</b> es una retención que se aplica tanto en las compras como en las ventas.
-            </p>
-            {if="$fsc->num_personalizada"}
-            <p class="help-block">
+               <br/>
+               {if="$fsc->num_personalizada"}
                <mark>Numeración personalizada</mark>: selecciona un ejercicio y el número
                de factura inicial, las facturas de venta de ese ejercicio empezarán en ese número.
-            </p>
-            {else}
-            <p class="help-block">
+               {else}
                ¿Quieres modificar el <b>nº de factura inicial</b>? Activa la
                <a href="{$fsc->url()}&num_personalizada=TRUE">numeración personalizada</a>.
+               {/if}
             </p>
-            {/if}
          </div>
          <div class="table-responsive">
             <table class="table table-hover">

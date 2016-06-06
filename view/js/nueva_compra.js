@@ -18,6 +18,7 @@
 
 var numlineas = 0;
 var fs_nf0 = 2;
+var fs_nf0_art = 2;
 var all_impuestos = [];
 var all_series = [];
 var proveedor = false;
@@ -206,7 +207,7 @@ function ajustar_neto(i)
             l_pvp = 0;
          }
          
-         l_pvp = fs_round(l_pvp, 2);
+         l_pvp = fs_round(l_pvp, fs_nf0_art);
       }
       
       $("#pvp_"+i).val(l_pvp);
@@ -257,7 +258,7 @@ function ajustar_total(i)
       {
          l_dto = 0;
          l_neto = 100*l_total/(100+l_iva-l_irpf+l_recargo);
-         l_pvp = fs_round(l_neto/l_uds, 2);
+         l_pvp = fs_round(l_neto/l_uds, fs_nf0_art);
       }
       
       $("#pvp_"+i).val(l_pvp);
