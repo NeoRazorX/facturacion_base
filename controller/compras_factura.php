@@ -282,7 +282,7 @@ class compras_factura extends fs_controller
          $this->save_codejercicio( $ejercicio->codejercicio );
       else
       {
-         $this->new_error_msg('Ejercicio no encontrado1.');
+         $this->new_error_msg('Ejercicio no encontrado.');
          $continuar = FALSE;
       }
       if( isset($_POST['serie']))

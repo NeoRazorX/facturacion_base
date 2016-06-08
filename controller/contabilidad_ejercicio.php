@@ -708,8 +708,8 @@ class contabilidad_ejercicio extends fs_controller
                $continuar = FALSE;
             }
          }
-         else
-            $this->ejercicio->save(); /// al guardar ya comprueba los asientos especiales
+        else
+          $this->ejercicio->save(); /// al guardar ya comprueba los asientos especiales
       }
       
       if( isset($this->ejercicio->idasientocierre) )

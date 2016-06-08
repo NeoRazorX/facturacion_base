@@ -1076,8 +1076,8 @@ class nueva_compra extends fs_controller
                else if( $factura->save() )
                {
 ///////// GENERA  ASIENTO			   
-                  $this->generar_asiento($factura);
-                  $this->new_message("<a href='".$factura->url()."'>Factura</a> guardada correctamente.");
+//                  $this->generar_asiento($factura);
+//                  $this->new_message("<a href='".$factura->url()."'>Factura</a> guardada correctamente.");
                   $this->new_change('Factura Proveedor '.$factura->codigo, $factura->url(), TRUE);
                   
                   if($_POST['redir'] == 'TRUE')

@@ -94,6 +94,12 @@
 	}
 	else
 	{
+				fecha_fac = document.getElementById('fecha').value;
+				if( fecha_fac.trim() == '' )
+				{
+				alert('Debe colocar fecha de Remito');
+				aler = 1;
+				}
 				numsub = document.getElementById('numlineas').value;
 				var descr =''; 
 				if( document.getElementById('atotal').value <= 0)
@@ -175,7 +181,7 @@
 			 <div>
 			   {if="$fsc->agente"}
 			   <p>
-			   <span class="text-capitalize">{#FS_ALBARAN#}</span> creado por
+			   <span class="text-capitalize">Documento</span> creado por
 			   <a href="{$fsc->agente->url()}">{$fsc->agente->get_fullname()}</a>.
 			   </p>
 			   {else}
