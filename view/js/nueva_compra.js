@@ -222,8 +222,8 @@ function ajustar_total()
          l_uds = parseFloat( $("#cantidad_"+i).val() );
          l_pvp = parseFloat( $("#pvp_"+i).val() );
          l_dto = parseFloat( $("#dto_"+i).val() );
-         l_iva = parseFloat( $("#iva_"+i).val() );
-         l_recargo = parseFloat( $("#recargo_"+i).val() );
+         l_iva = 0;
+         l_recargo = 0;
          
          l_irpf = irpf;
          if(l_iva <= 0)
@@ -248,7 +248,7 @@ function ajustar_total()
          }
          
          $("#pvp_"+i).val(l_pvp);
-         $("#dto_"+i).val(l_dto);
+         $("#dto_"+i).val(parseFloat(l_dto).toFixed(3));
       }
    }
    
@@ -334,7 +334,9 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,codsub,subdesc,subdev,subdesd
          "\" readonly=\"true\" style=\"font-weight: bold; background-color:#FFFFFF\"  onchange=\"ajustar_neto()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
-         "\" readonly=\"true\" style=\"font-weight: bold; background-color:#FFFFFF\" autocomplete=\"off\"/></td></tr>");
+         "\" onchange=\"ajustar_total()\" onclick=\"this.select()\" style=\"font-weight: bold; background-color:#FFFFFF\" autocomplete=\"off\"/></td>\n\
+		 <td><input type=\"button\" value=\"A\" onclick=\"ajustar_total()\"/></td>\n\
+		 </tr>");
    
    
       $("#lineas_albaran1").append("<tr id=\"linea_"+numlineas+"\">\n\
@@ -355,7 +357,9 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,codsub,subdesc,subdev,subdesd
          "\"  readonly=\"true\" style=\"font-weight: bold; background-color:#FFFFFF\" onchange=\"ajustar_neto()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
-         "\" readonly=\"true\" style=\"font-weight: bold; background-color:#FFFFFF\" autocomplete=\"off\"/></td></tr>");
+         "\" onchange=\"ajustar_total()\" onclick=\"this.select()\" style=\"font-weight: bold; background-color:#FFFFFF\" autocomplete=\"off\"/></td>\n\
+		 <td><input type=\"button\" value=\"A\" onclick=\"ajustar_total()\"/></td>\n\
+		 </tr>");
    
    
    
@@ -636,7 +640,9 @@ function add_linea_libre()
          "\"  readonly=\"true\" style=\"font-weight: bold; background-color:#FFFFFF\"  onchange=\"ajustar_neto()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
-         "\" readonly=\"true\" style=\"font-weight: bold; background-color:#FFFFFF\" autocomplete=\"off\"/></td></tr>");
+         "\" onchange=\"ajustar_total()\" onclick=\"this.select()\" style=\"font-weight: bold; background-color:#FFFFFF\" autocomplete=\"off\"/></td>\n\
+		 <td><input type=\"button\" value=\"A\" onclick=\"ajustar_total()\"/></td>\n\
+		 </tr>");
    
    
    
@@ -659,7 +665,9 @@ function add_linea_libre()
          "\" readonly=\"true\" style=\"font-weight: bold; background-color:#FFFFFF\"  onchange=\"ajustar_neto()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
-         "\" readonly=\"true\" style=\"font-weight: bold; background-color:#FFFFFF\" autocomplete=\"off\"/></td></tr>");
+         "\" onchange=\"ajustar_total()\" onclick=\"this.select()\" style=\"font-weight: bold; background-color:#FFFFFF\" autocomplete=\"off\"/></td>\n\
+		 <td><input type=\"button\" value=\"A\" onclick=\"ajustar_total()\"/></td>\n\
+		 </tr>");
    
    numlineas += 1;
    $("#numlineas").val(numlineas);

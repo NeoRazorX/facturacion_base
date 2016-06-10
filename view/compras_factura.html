@@ -22,6 +22,7 @@
    		$("#numlineas").val(numlineas);
       usar_serie();
       recalcular();
+	  ajustar_total();
    });
 
 
@@ -364,7 +365,7 @@
            	<table class="table table-hover">
               	<thead>
                    	<tr>
-                        <th class="text-left text-capitalize">Referencia</th>
+                        <th class="text-left " style="width:110px">Referencia</th>
                         <th class="text-left">Descripción</th>
 						<th class="text-left">SubCuenta</th>
                         <th class="text-left">Cantidad</th>
@@ -412,7 +413,7 @@
                         </td>	
 						<td>
                            <input type="text" class="form-control text-right" id="neto_{$counter}" name="neto_{$counter}"
-                                 readonly="true" style="font-weight: bold; background-color:#FFFFFF"   onchange="ajustar_neto()" onclick="this.select()" value="{$fsc->factura->neto}" autocomplete="off"/>
+                             readonly="true"  style="font-weight: bold; background-color:#FFFFFF"   onchange="ajustar_neto()" onclick="this.select()" value="{$fsc->factura->neto}" autocomplete="off"/>
                         </td>	 
 					 	<input type="hidden" name="iva_{$counter}" id="iva_{$counter}" value="0"  />                                               
                            <input type="hidden" id="recargo_{$counter}" name="recargo_{$counter}" value="{$value->recargo}" />
@@ -421,7 +422,8 @@
                        
 					 	<td>
                            <input type="text" class="form-control text-right" id="total_{$counter}" name="total_{$counter}"
-                                 readonly="true" style="font-weight: bold; background-color:#FFFFFF"   onchange="ajustar_total()" onclick="this.select()" value="{$value->pvptotal}" autocomplete="off"/>
+                                  style="font-weight: bold; background-color:#FFFFFF" onchange="ajustar_total()" onclick="this.select()" value="{$value->pvptotal}" autocomplete="off"/>
+							<td> <input type="button" value="A" onclick="ajustar_total()"/></td>
                   		</td>               
                   	</tr>
                   	{/loop}				  
