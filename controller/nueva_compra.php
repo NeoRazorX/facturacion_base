@@ -197,7 +197,7 @@ class nueva_compra extends fs_controller
             {
 			
 			 $this->nueva_factura_proveedor();
-			header('Location: '.$this->url_factura());
+			header('Location: '.$this->url_list());
 			 
             }
             else if($_POST['tipo'] == 'F')
@@ -263,7 +263,7 @@ class nueva_compra extends fs_controller
    
     public function url_list()
    {
-      return 'index.php?page=compras_facturas';
+      return 'index.php?page=compras_facturas&nueva=1';
    }
    
     public function url_list1()
@@ -922,6 +922,11 @@ class nueva_compra extends fs_controller
          $continuar = FALSE;
       }
       
+	  
+	  $a = strlen(substr($_POST['fecha'],6));
+	  if( $a == 4) $continuar = TRUE;
+	  else $continuar = FALSE;
+
       if( $continuar )
       {
          $factura->fecha = $_POST['fecha'];
@@ -1055,7 +1060,7 @@ class nueva_compra extends fs_controller
                   }
                }
             }
-            
+           
             if($continuar)
             {
 
@@ -1078,22 +1083,21 @@ class nueva_compra extends fs_controller
 ///////// GENERA  ASIENTO			   
 //                  $this->generar_asiento($factura);
 //                  $this->new_message("<a href='".$factura->url()."'>Factura</a> guardada correctamente.");
-                  $this->new_change('Factura Proveedor '.$factura->codigo, $factura->url(), TRUE);
-                  
+     //             $this->new_change('Factura Proveedor '.$factura->codigo, $factura->url(), TRUE);
+                   
                   if($_POST['redir'] == 'TRUE')
                   {
-                     header('Location: '.$factura->url());
+  //                  header('Location: '.$factura->url_list());
+
                   }
                }
-               else
-                  $this->new_error_msg("¡Imposible actualizar la <a href='".$factura->url()."'>factura</a>!");
+               else $this->new_error_msg("¡Imposible actualizar la <a href='".$factura->url()."'>factura</a>!");
             }
-            else if( $factura->delete() )
+            else 
             {
                $this->new_message("Factura eliminada correctamente.");
             }
-            else
-               $this->new_error_msg("¡Imposible eliminar la <a href='".$factura->url()."'>factura</a>!");
+            
          }
          else
             $this->new_error_msg("¡Imposible guardar la factura!");

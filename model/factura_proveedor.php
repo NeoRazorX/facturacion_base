@@ -196,6 +196,13 @@ class factura_proveedor extends fs_model
          return 'index.php?page=compras_factura&id='.$this->idfactura;
    }
    
+      public function url_list()
+   {
+      
+         return 'index.php?page=compras_facturas&nueva=1';
+     
+   }
+   
    public function asiento_url()
    {
       if( is_null($this->idasiento) )
