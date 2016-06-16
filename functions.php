@@ -18,11 +18,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * Devuelve la lista de identificadores fiscales.
+ * @return type
+ */
 function fs_tipos_id_fiscal()
 {
    return array(FS_CIFNIF,'Pasaporte','DNI','NIF','CIF','CUIT');
 }
 
+/**
+ * Vuelca en la salida estándar el buffer de tickets pendientes de imprimir.
+ */
 function remote_printer()
 {
    if( isset($_REQUEST['terminal']) )
@@ -43,6 +50,13 @@ function remote_printer()
    }
 }
 
+/**
+ * Devuelve el texto para un email con las modificaciones oportunas.
+ * @param type $tipo
+ * @param type $documento
+ * @param type $firma
+ * @return type
+ */
 function plantilla_email($tipo, $documento, $firma)
 {
    /// obtenemos las plantillas

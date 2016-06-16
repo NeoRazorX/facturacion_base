@@ -18,123 +18,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once __DIR__.'/core/agencia_transporte.php';
+
 /**
  * Agencia de transporte de mercancías.
+ * 
+ * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class agencia_transporte extends fs_model
+class agencia_transporte extends FacturaScripts\model\agencia_transporte
 {
-   /**
-    * Clave primaria. Varchar(8).
-    * @var type 
-    */
-   public $codtrans;
    
-   /**
-    * Nombre de la agencia.
-    * @var type 
-    */
-   public $nombre;
-   
-   public $telefono;
-   public $web;
-   
-   /**
-    * TRUE => activo.
-    * @var type
-    */
-   public $activo;
-   
-   public function __construct($p = FALSE)
-   {
-      parent::__construct('agenciastrans');
-      if($p)
-      {
-         $this->codtrans = $p['codtrans'];
-         $this->nombre = $p['nombre'];
-         $this->telefono = $p['telefono'];
-         $this->web = $p['web'];
-         $this->activo = $this->str2bool($p['activo']);
-      }
-      else
-      {
-         $this->codtrans = NULL;
-         $this->nombre = NULL;
-         $this->telefono = NULL;
-         $this->web = NULL;
-         $this->activo = TRUE;
-      }
-   }
-
-   public function install()
-   {
-      return '';
-   }
-
-   public function url()
-   {
-      return "index.php?page=admin_transportes&cod=".$this->codtrans;
-   }
-   
-   public function get($cod)
-   {
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codtrans = ".$this->var2str($cod).";");
-      if($data)
-      {
-         return new agencia_transporte($data[0]);
-      }
-      else
-         return FALSE;
-   }
-   
-   public function exists()
-   {
-      if( is_null($this->codtrans) )
-      {
-         return FALSE;
-      }
-      else
-         return $this->db->select("SELECT * FROM ".$this->table_name." WHERE codtrans = ".$this->var2str($this->codtrans).";");
-   }
-   
-   public function save()
-   {
-      if( $this->exists() )
-      {
-         $sql = "UPDATE ".$this->table_name." SET  nombre = ".$this->var2str($this->nombre)
-                 .", telefono = ".$this->var2str($this->telefono)
-                 .", web = ".$this->var2str($this->web)
-                 .", activo = ".  $this->var2str($this->activo)
-                 ."  WHERE codtrans = ".$this->var2str($this->codtrans).";";
-      }
-      else
-      {
-         $sql = "INSERT INTO ".$this->table_name." (codtrans,nombre,telefono,web,activo)"
-                 . " VALUES (".$this->var2str($this->codtrans)
-                 .",".$this->var2str($this->nombre)
-                 .",".$this->var2str($this->telefono)
-                 .",".$this->var2str($this->web)
-                 .",".$this->var2str($this->activo).");";
-      }
-      
-      return $this->db->exec($sql);
-   }
-   
-   public function delete()
-   {
-      return $this->db->exec("DELETE FROM ".$this->table_name." WHERE codtrans = ".$this->var2str($this->codtrans).";");
-   }
-   
-   public function all()
-   {
-      $listaa = array();
-      
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
-      if($data)
-      {
-         foreach($data as $d)
-            $listaa[] = new agencia_transporte($d);
-      }
-      
-      return $listaa;
-   }
 }

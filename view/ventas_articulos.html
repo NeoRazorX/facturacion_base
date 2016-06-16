@@ -590,9 +590,9 @@
                         <option value="">-------</option>
                         {loop="$fsc->fabricante->all()"}
                            {if="$value->codfabricante==$fsc->b_codfabricante"}
-                           <option value="{$value->codfabricante}" selected="">{$value->codfabricante}</option>
+                           <option value="{$value->codfabricante}" selected="">{$value->nombre}</option>
                            {else}
-                           <option value="{$value->codfabricante}">{$value->codfabricante}</option>
+                           <option value="{$value->codfabricante}">{$value->nombre}</option>
                            {/if}
                         {/loop}
                      </select>

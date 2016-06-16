@@ -1,0 +1,88 @@
+{include="header2"}
+
+<!--
+Copyright (C) 2016 Joe Nilson <joenilson at gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{if="$fsc->cliente"}
+<form class="form" role="form" action="{$fsc->url()}" method="post">
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-sm-3">
+            <div class="input-group">
+               <input class="form-control" type="text" name="query" value="{$fsc->query}" placeholder="Referencia" autocomplete="off"/>
+               <span class="input-group-btn">
+                  <button class="btn btn-primary" type="submit">
+                     <span class="glyphicon glyphicon-search"></span>
+                  </button>
+               </span>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               <input class="form-control" type="text" name="observaciones" value="{$fsc->observaciones}" placeholder="Observaciones" autocomplete="off"/>
+            </div>
+         </div>
+      </div>
+   </div>
+</form>
+
+<div class="table-responsive">
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th class="text-left text-capitalize">Factura</th>
+            <th class="text-right">Cantidad</th>
+            <th class="text-left">Artículo</th>
+            <th class="text-right">Total+{#FS_IVA#}</th>
+            <th class="text-right" width="90">Fecha</th>
+         </tr>
+      </thead>
+      {loop="$fsc->resultados"}
+      <tr{if="$value->cantidad<=0"} class="warning"{/if}>
+         <td><a target="_blank" href="{$value->url()}">{$value->show_codigo()}</a></td>
+         <td class="text-right">{$value->cantidad}</td>
+         <td><a target="_blank" href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion}</td>
+         <td class="text-right">{$fsc->show_precio($value->total_iva())}</td>
+         <td class="text-right">{$value->show_fecha()}</td>
+      </tr>
+      {else}
+      <tr class="warning">
+         <td colspan="5">Sin resultados.</td>
+      </tr>
+      {/loop}
+   </table>
+</div>
+
+<ul class="pager">
+   {if="$fsc->offset>0"}
+   <li class="previous">
+      <a href="{$fsc->url()}&query={$fsc->query}&observaciones={$fsc->observaciones}&offset={$fsc->offset-FS_ITEM_LIMIT}">
+         <span class="glyphicon glyphicon-chevron-left"></span>&nbsp; Anteriores
+      </a>
+   </li>
+   {/if}
+   {if="count($fsc->resultados)==FS_ITEM_LIMIT"}
+   <li class="next">
+      <a href="{$fsc->url()}&query={$fsc->query}&observaciones={$fsc->observaciones}&offset={$fsc->offset+FS_ITEM_LIMIT}">
+         Siguientes &nbsp;<span class="glyphicon glyphicon-chevron-right"></span>
+      </a>
+   </li>
+   {/if}
+</ul>
+{/if}
+
+{include="footer2"}

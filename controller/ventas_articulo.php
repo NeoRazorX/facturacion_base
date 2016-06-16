@@ -390,28 +390,33 @@ class ventas_articulo extends fs_controller
              */
             if( $this->db->table_exists('lineasalbaranescli') )
             {
-               $this->db->exec("UPDATE lineasalbaranescli SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+               $this->db->exec("UPDATE lineasalbaranescli SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
+                       ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
             }
             
             if( $this->db->table_exists('lineasalbaranesprov') )
             {
-               $this->db->exec("UPDATE lineasalbaranesprov SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+               $this->db->exec("UPDATE lineasalbaranesprov SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
+                       ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
             }
             
             if( $this->db->table_exists('lineasfacturascli') )
             {
-               $this->db->exec("UPDATE lineasfacturascli SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+               $this->db->exec("UPDATE lineasfacturascli SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
+                       ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
             }
             
             if( $this->db->table_exists('lineasfacturasprov') )
             {
-               $this->db->exec("UPDATE lineasfacturasprov SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+               $this->db->exec("UPDATE lineasfacturasprov SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
+                       ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
             }
             
             /// esto es una personalización del plugin producción, será eliminado este código en futuras versiones.
             if( $this->db->table_exists('lineasfabricados') )
             {
-               $this->db->exec("UPDATE lineasfabricados SET referencia = '".$_POST['nreferencia']."' WHERE referencia = '".$_POST['referencia']."'");
+               $this->db->exec("UPDATE lineasfabricados SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
+                       ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
             }
          }
          else

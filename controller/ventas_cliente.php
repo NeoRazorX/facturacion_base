@@ -322,7 +322,9 @@ class ventas_cliente extends fs_controller
       
       if( $this->db->table_exists('facturascli') )
       {
-         $data = $this->db->select_limit("SELECT * FROM facturascli WHERE codcliente = '".$this->cliente->codcliente."'", 5, 0);
+         $sql = "SELECT * FROM facturascli WHERE codcliente = ".$this->cliente->var2str($this->cliente->codcliente);
+         
+         $data = $this->db->select_limit($sql, 5, 0);
          if($data)
          {
             $tiene = TRUE;
@@ -331,7 +333,9 @@ class ventas_cliente extends fs_controller
       
       if( !$tiene AND $this->db->table_exists('albaranescli') )
       {
-         $data = $this->db->select_limit("SELECT * FROM albaranescli WHERE codcliente = '".$this->cliente->codcliente."'", 5, 0);
+         $sql = "SELECT * FROM albaranescli WHERE codcliente = ".$this->cliente->var2str($this->cliente->codcliente);
+         
+         $data = $this->db->select_limit($sql, 5, 0);
          if($data)
          {
             $tiene = TRUE;

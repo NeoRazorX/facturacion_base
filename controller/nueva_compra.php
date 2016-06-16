@@ -124,6 +124,9 @@ class nueva_compra extends fs_controller
                   $this->proveedor_s->cifnif = $_POST['nuevo_cifnif'];
                   $this->proveedor_s->acreedor = isset($_POST['acreedor']);
                   $this->proveedor_s->save();
+                  
+                  /// forzamos crear la subcuenta
+                  $this->proveedor_s->get_subcuenta($this->empresa->codejercicio);
                }
             }
          }
@@ -1020,6 +1023,10 @@ class nueva_compra extends fs_controller
       }
    }
    
+   /**
+    * Genera el asiento correspondiente a la factura, si procede
+    * @param factura_proveedor $factura
+    */
    private function generar_asiento(&$factura)
    {
       if($this->empresa->contintegrada)
@@ -1036,6 +1043,11 @@ class nueva_compra extends fs_controller
          {
             $this->new_message($msg);
          }
+      }
+      else
+      {
+         /// de todas formas forzamos la generación de las líneas de iva
+         $factura->get_lineas_iva();
       }
    }
    

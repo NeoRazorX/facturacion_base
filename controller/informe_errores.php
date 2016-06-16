@@ -652,7 +652,10 @@ class informe_errores extends fs_controller
             {
                foreach($data as $d)
                {
-                  $data2 = $this->db->select("SELECT * FROM articulosprov WHERE codproveedor = '".$d['codproveedor']."' AND refproveedor = '".$d['refproveedor']."';");
+                  $sql = "SELECT * FROM articulosprov WHERE codproveedor = ".$this->empresa->var2str($d['codproveedor'])
+                          ." AND refproveedor = ".$this->empresa->var2str($d['refproveedor']).";";
+                  
+                  $data2 = $this->db->select($sql);
                   if($data2)
                   {
                      $this->db->exec("DELETE FROM articulosprov WHERE id = ".$this->empresa->var2str($data2[1]['id']).";");

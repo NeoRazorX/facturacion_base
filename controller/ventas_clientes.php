@@ -224,13 +224,13 @@ class ventas_clientes extends fs_controller
       $this->ciudad = '';
       if( isset($_REQUEST['ciudad']) )
       {
-         $this->ciudad = $_REQUEST['ciudad'];
+         $this->ciudad = $this->empresa->no_html($_REQUEST['ciudad']);
       }
       
       $this->provincia = '';
       if( isset($_REQUEST['provincia']) )
       {
-         $this->provincia = $_REQUEST['provincia'];
+         $this->provincia = $this->empresa->no_html($_REQUEST['provincia']);
       }
       
       $this->codpais = '';
@@ -346,8 +346,8 @@ class ventas_clientes extends fs_controller
          $sql = "SELECT DISTINCT ciudad FROM dirclientes ORDER BY ciudad ASC;";
          if($this->provincia != '')
          {
-            $sql = "SELECT DISTINCT ciudad FROM dirclientes WHERE lower(provincia) = '"
-                    .$this->provincia."' ORDER BY ciudad ASC;";
+            $sql = "SELECT DISTINCT ciudad FROM dirclientes WHERE lower(provincia) = "
+                    .$this->cliente->var2str($this->provincia)." ORDER BY ciudad ASC;";
          }
          $data = $this->db->select($sql);
          if($data)
@@ -381,8 +381,8 @@ class ventas_clientes extends fs_controller
          $sql = "SELECT DISTINCT provincia FROM dirclientes ORDER BY provincia ASC;";
          if($this->codpais != '')
          {
-            $sql = "SELECT DISTINCT provincia FROM dirclientes WHERE codpais = '".$this->codpais
-                    ."' ORDER BY provincia ASC;";
+            $sql = "SELECT DISTINCT provincia FROM dirclientes WHERE codpais = "
+                    .$this->cliente->var2str($this->codpais)." ORDER BY provincia ASC;";
          }
          $data = $this->db->select($sql);
          if($data)
@@ -439,19 +439,19 @@ class ventas_clientes extends fs_controller
          
          if($this->ciudad != '')
          {
-            $sql .= "lower(ciudad) = '".mb_strtolower($this->ciudad, 'UTF8')."'";
+            $sql .= "lower(ciudad) = ".$this->cliente->var2str( mb_strtolower($this->ciudad, 'UTF8') );
             $and2 = ' AND ';
          }
          
          if($this->provincia != '')
          {
-            $sql .= $and2."lower(provincia) = '".mb_strtolower($this->provincia, 'UTF8')."'";
+            $sql .= $and2."lower(provincia) = ".$this->cliente->var2str( mb_strtolower($this->provincia, 'UTF8') );
             $and2 = ' AND ';
          }
          
          if($this->codpais != '')
          {
-            $sql .= $and2."codpais = '".$this->codpais."'";
+            $sql .= $and2."codpais = ".$this->cliente->var2str($this->codpais);
          }
          
          $sql .= ")";
@@ -460,7 +460,7 @@ class ventas_clientes extends fs_controller
       
       if($this->codgrupo != '')
       {
-         $sql .= $and."codgrupo = '".$this->codgrupo."'";
+         $sql .= $and."codgrupo = ".$this->cliente->var2str($this->codgrupo);
          $and = ' AND ';
       }
       

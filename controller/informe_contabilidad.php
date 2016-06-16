@@ -278,19 +278,19 @@ class informe_contabilidad extends fs_controller
       
       if($codgrupo)
       {
-         $sql .= " AND p.codsubcuenta LIKE '".$codgrupo."%'";
+         $sql .= " AND p.codsubcuenta LIKE '".$this->empresa->no_html($codgrupo)."%'";
       }
       else if($codepi)
       {
-         $sql .= " AND p.codsubcuenta LIKE '".$codepi."%'";
+         $sql .= " AND p.codsubcuenta LIKE '".$this->empresa->no_html($codepi)."%'";
       }
       else if($codcuenta)
       {
-         $sql .= " AND p.codsubcuenta LIKE '".$codcuenta."%'";
+         $sql .= " AND p.codsubcuenta LIKE '".$this->empresa->no_html($codcuenta)."%'";
       }
       else if($codsubc)
       {
-         $sql .= " AND p.codsubcuenta IN ('".join("','", $codsubc)."')";
+         $sql .= " AND p.codsubcuenta IN ('".join( "','", $this->empresa->no_html($codsubc) )."')";
       }
       
       $sql .= " ORDER BY p.codsubcuenta ASC, a.numero ASC";

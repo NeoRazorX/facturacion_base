@@ -915,6 +915,10 @@ class tpv_recambios extends fs_controller
       return preg_replace(array_keys($changes), $changes, $txt);
    }
    
+   /**
+    * Genera el asiento para la factura, si procede
+    * @param factura_cliente $factura
+    */
    private function generar_asiento(&$factura)
    {
       if($this->empresa->contintegrada)
@@ -931,6 +935,11 @@ class tpv_recambios extends fs_controller
          {
             $this->new_message($msg);
          }
+      }
+      else
+      {
+         /// de todas formas forzamos la generación de las líneas de iva
+         $factura->get_lineas_iva();
       }
    }
    

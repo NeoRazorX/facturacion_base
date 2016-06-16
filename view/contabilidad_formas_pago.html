@@ -27,24 +27,23 @@
                {/loop}
                </span>
             </h1>
-            {if="$fsc->button_plazos"}
             <p class="help-block">
-               Usa el botón &nbsp;
-               <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> &nbsp;
-               para definir los plazos de pago de cada forma de pago.
-            </p>
-            {else}
-            <p class="help-block">
-               <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> &nbsp;
-               Puedes configurar plazos de pago con el
-               <a href="https://www.facturascripts.com/store/producto/plugin-facturacion_premium/" target="_blank">plugin tesorería</a>,
-               que se vende junto con facturación premium.
-            </p>
-            {/if}
-            <p class="help-block">
+               {if="$fsc->button_plazos"}
+                  Usa el botón &nbsp;
+                  <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> &nbsp;
+                  para definir los plazos de pago de cada forma de pago.
+               {else}
+                  <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> &nbsp;
+                  Puedes configurar plazos de pago con el
+                  <a href="https://www.facturascripts.com/store/producto/plugin-facturacion_premium/" target="_blank">plugin tesorería</a>,
+                  que se vende junto con facturación premium.
+               {/if}
+               <br/>
                <span class="glyphicon glyphicon-credit-card" aria-hidden="true"></span> &nbsp;
                Además puedes gestionar las cuentas bancarias de la empresa desde
                <a href="index.php?page=admin_empresa#cuentasb">Admin &gt; Empresa &gt; Cuentas bancarias</a>.
+               Y no te olvides de asignar una subcuenta a la cuenta bancaria si quieres que los
+               asientos de las facturas con esa forma de pago se asignen a esa cuenta.
             </p>
          </div>
       </div>

@@ -172,6 +172,7 @@ class informe_articulos extends fs_controller
             $this->referencia = $_GET['ref'];
          }
          
+         $this->resultados = array();
          if( isset($_POST['informe']) )
          {
             if($_POST['informe'] == 'listadomov')

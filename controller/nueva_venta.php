@@ -183,6 +183,9 @@ class nueva_venta extends fs_controller
                   
                   if( $this->cliente_s->save() )
                   {
+                     /// forzamos crear la subcuenta
+                     $this->cliente_s->get_subcuenta($this->empresa->codejercicio);
+                     
                      $dircliente = new direccion_cliente();
                      $dircliente->codcliente = $this->cliente_s->codcliente;
                      $dircliente->codpais = $this->empresa->codpais;
@@ -949,6 +952,10 @@ class nueva_venta extends fs_controller
       }
    }
    
+   /**
+    * Genera el asiento para la factura, si procede
+    * @param factura_cliente $factura
+    */
    private function generar_asiento(&$factura)
    {
       if($this->empresa->contintegrada)
@@ -965,6 +972,11 @@ class nueva_venta extends fs_controller
          {
             $this->new_message($msg);
          }
+      }
+      else
+      {
+         /// de todas formas forzamos la generación de las líneas de iva
+         $factura->get_lineas_iva();
       }
    }
    

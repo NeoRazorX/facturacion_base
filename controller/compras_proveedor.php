@@ -292,7 +292,10 @@ class compras_proveedor extends fs_controller
       
       if( $this->db->table_exists('facturasprov') )
       {
-         $data = $this->db->select_limit("SELECT * FROM facturasprov WHERE codproveedor = '".$this->proveedor->codproveedor."'", 5, 0);
+         $sql = "SELECT * FROM facturasprov WHERE codproveedor = "
+                 .$this->proveedor->var2str($this->proveedor->codproveedor);
+         
+         $data = $this->db->select_limit($sql, 5, 0);
          if($data)
          {
             $tiene = TRUE;

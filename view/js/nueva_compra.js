@@ -207,7 +207,7 @@ function ajustar_neto(i)
             l_pvp = 0;
          }
          
-         l_pvp = fs_round(l_pvp, fs_nf0_art);
+         l_pvp = fs_round(l_pvp, 4);
       }
       
       $("#pvp_"+i).val(l_pvp);
@@ -258,7 +258,7 @@ function ajustar_total(i)
       {
          l_dto = 0;
          l_neto = 100*l_total/(100+l_iva-l_irpf+l_recargo);
-         l_pvp = fs_round(l_neto/l_uds, fs_nf0_art);
+         l_pvp = fs_round(l_neto/l_uds, 4);
       }
       
       $("#pvp_"+i).val(l_pvp);
