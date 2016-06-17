@@ -335,6 +335,11 @@ class compras_imprimir extends fs_controller
              'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $documento->coddivisa)
          );
          
+         if($lineas[$linea_actual]->dtopor == 0)
+         {
+            $fila['dto'] = '';
+         }
+         
          $pdf_doc->add_table_row($fila);
          $linea_actual++;
       }

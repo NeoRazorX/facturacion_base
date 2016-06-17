@@ -1,0 +1,100 @@
+{include="header"}
+
+{if="$fsc->documento"}
+<script type="text/javascript">
+   var fixHelper = function(e, ui) {
+      ui.children().each(function() {
+         $(this).width($(this).width());
+      });
+      return ui;
+   };
+   
+   $(document).ready(function () {
+      $("#sortable tbody").sortable({
+         helper: fixHelper
+      }).disableSelection();
+   });
+</script>
+
+<div class="container-fluid">
+   <form action="{$fsc->url()}" method="post" class="form">
+      <div class="row">
+         <div class="col-xs-6">
+            <div class="btn-group">
+               <a class="btn btn-sm btn-default" href="{$fsc->documento->url()}">
+                  <span class="glyphicon glyphicon-arrow-left"></span>
+                  <span class="hidden-xs">&nbsp; Volver</span>
+               </a>
+               <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+            </div>
+         </div>
+         <div class="col-xs-6 text-right">
+            <button class="btn btn-sm btn-primary" type="button" onclick="this.disabled = true;this.form.submit();">
+               <span class="glyphicon glyphicon-floppy-disk"></span>
+               <span class="hidden-xs">&nbsp; Guardar</span>
+            </button>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-12">
+            <div class="page-header">
+               <h1>
+                  <i class="fa fa-magic"></i>
+                  Maquetar
+                  <small class="text-capitalize">{$fsc->titulo}</small>
+                  {if="!$fsc->editable"}
+                  <span class="btn btn-xs btn-danger">no editable</span>
+                  {/if}
+               </h1>
+               <p class="help-block">
+                  Mueve libremente las líneas del documento y desactiva las columnas que quieras.
+                  Cuando esté a tu gusto, pulsa guardar.
+               </p>
+            </div>
+            <div class="table-responsive">
+               <table id="sortable" class="table table-hover">
+                  <thead>
+                     <tr>
+                        <th></th>
+                        <th>Referencia + descripción</th>
+                        <th class="text-right">Cantidad</th>
+                        <th class="text-right">Precio</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     {loop="$fsc->lineas"}
+                     <tr style="cursor: pointer;">
+                        <td><span class="glyphicon glyphicon-resize-vertical"></span></td>
+                        <td>
+                           <input type="hidden" name="idlinea[]" value="{$value->idlinea}"/>
+                           <b>{$value->referencia}</b> {$value->descripcion()}
+                        </td>
+                        <td class="text-right">{$fsc->show_numero($value->cantidad)}</td>
+                        <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->documento->coddivisa, TRUE, FS_NF0_ART)}</td>
+                     </tr>
+                     {/loop}
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-xs-6">
+            <a href="{$fsc->url()}" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-refresh"></span>&nbsp; Deshacer
+            </a>
+         </div>
+         <div class="col-xs-6 text-right">
+            <button class="btn btn-sm btn-primary" type="button" onclick="this.disabled = true;this.form.submit();">
+               <span class="glyphicon glyphicon-floppy-disk"></span>
+               <span class="hidden-xs">&nbsp; Guardar</span>
+            </button>
+         </div>
+      </div>
+   </form>
+</div>
+{/if}
+
+{include="footer"}

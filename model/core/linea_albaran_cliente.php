@@ -109,6 +109,8 @@ class linea_albaran_cliente extends \fs_model
     */
    public $recargo;
    
+   public $orden;
+   
    private $codigo;
    private $fecha;
    
@@ -119,7 +121,9 @@ class linea_albaran_cliente extends \fs_model
       parent::__construct('lineasalbaranescli');
       
       if( !isset(self::$albaranes) )
+      {
          self::$albaranes = array();
+      }
       
       if($l)
       {
@@ -138,6 +142,7 @@ class linea_albaran_cliente extends \fs_model
          $this->pvpunitario = floatval($l['pvpunitario']);
          $this->irpf = floatval($l['irpf']);
          $this->recargo = floatval($l['recargo']);
+         $this->orden = intval($l['orden']);
       }
       else
       {
@@ -156,6 +161,7 @@ class linea_albaran_cliente extends \fs_model
          $this->pvpunitario = 0;
          $this->irpf = 0;
          $this->recargo = 0;
+         $this->orden = 0;
       }
    }
    
@@ -181,7 +187,7 @@ class linea_albaran_cliente extends \fs_model
       {
          $alb = new \albaran_cliente();
          $alb = $alb->get($this->idalbaran);
-         if( $alb )
+         if($alb)
          {
             $this->codigo = $alb->codigo;
             $this->fecha = $alb->fecha;
@@ -219,14 +225,18 @@ class linea_albaran_cliente extends \fs_model
    public function show_codigo()
    {
       if( !isset($this->codigo) )
+      {
          $this->fill();
+      }
       return $this->codigo;
    }
    
    public function show_fecha()
    {
       if( !isset($this->fecha) )
+      {
          $this->fill();
+      }
       return $this->fecha;
    }
    
@@ -313,6 +323,7 @@ class linea_albaran_cliente extends \fs_model
                     .", pvpunitario = ".$this->var2str($this->pvpunitario)
                     .", irpf = ".$this->var2str($this->irpf)
                     .", recargo = ".$this->var2str($this->recargo)
+                    .", orden = ".$this->var2str($this->orden)
                     ."  WHERE idlinea = ".$this->var2str($this->idlinea).";";
             
             return $this->db->exec($sql);
@@ -320,7 +331,7 @@ class linea_albaran_cliente extends \fs_model
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (idlineapedido,idalbaran,idpedido,referencia,descripcion,
-               cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo) VALUES
+               cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo,orden) VALUES
                      (".$this->var2str($this->idlineapedido).
                     ",".$this->var2str($this->idalbaran).
                     ",".$this->var2str($this->idpedido).
@@ -334,7 +345,8 @@ class linea_albaran_cliente extends \fs_model
                     ",".$this->var2str($this->pvpsindto).
                     ",".$this->var2str($this->pvpunitario).
                     ",".$this->var2str($this->irpf).
-                    ",".$this->var2str($this->recargo).");";
+                    ",".$this->var2str($this->recargo).
+                    ",".$this->var2str($this->orden).");";
             
             if( $this->db->exec($sql) )
             {
@@ -363,8 +375,10 @@ class linea_albaran_cliente extends \fs_model
    public function all_from_albaran($id)
    {
       $linealist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($id)
+              ." ORDER BY orden DESC, idlinea ASC;";
       
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($id)." ORDER BY idlinea ASC;");
+      $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $l)

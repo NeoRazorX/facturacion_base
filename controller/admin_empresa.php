@@ -228,11 +228,11 @@ class admin_empresa extends fs_controller
       $this->logo = FALSE;
       if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
       {
-         $this->logo = 'tmp/'.FS_TMP_NAME.'logo.png';
+         $this->logo = FS_PATH.'tmp/'.FS_TMP_NAME.'logo.png';
       }
       else if( file_exists('tmp/'.FS_TMP_NAME.'logo.jpg') )
       {
-         $this->logo = 'tmp/'.FS_TMP_NAME.'logo.jpg';
+         $this->logo = FS_PATH.'tmp/'.FS_TMP_NAME.'logo.jpg';
       }
    }
    

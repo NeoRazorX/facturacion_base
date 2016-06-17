@@ -85,6 +85,11 @@
       <nombre>referencia</nombre>
       <tipo>character varying(18)</tipo>
    </columna>
+   <columna>
+      <nombre>orden</nombre>
+      <tipo>integer</tipo>
+      <defecto>0</defecto>
+   </columna>
    <restriccion>
       <nombre>ca_linea_facturascli2</nombre>
       <consulta>FOREIGN KEY (idfactura)

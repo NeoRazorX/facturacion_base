@@ -125,8 +125,11 @@ class nueva_compra extends fs_controller
                   $this->proveedor_s->acreedor = isset($_POST['acreedor']);
                   $this->proveedor_s->save();
                   
-                  /// forzamos crear la subcuenta
-                  $this->proveedor_s->get_subcuenta($this->empresa->codejercicio);
+                  if($this->empresa->contintegrada)
+                  {
+                     /// forzamos crear la subcuenta
+                     $this->proveedor_s->get_subcuenta($this->empresa->codejercicio);
+                  }
                }
             }
          }

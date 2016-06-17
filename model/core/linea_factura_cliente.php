@@ -104,6 +104,8 @@ class linea_factura_cliente extends \fs_model
     */
    public $iva;
    
+   public $orden;
+   
    private $codigo;
    private $fecha;
    private $albaran_codigo;
@@ -143,6 +145,7 @@ class linea_factura_cliente extends \fs_model
          $this->iva = floatval($l['iva']);
          $this->recargo = floatval($l['recargo']);
          $this->irpf = floatval($l['irpf']);
+         $this->orden = floatval($l['orden']);
       }
       else
       {
@@ -160,6 +163,7 @@ class linea_factura_cliente extends \fs_model
          $this->iva = 0;
          $this->recargo = 0;
          $this->irpf = 0;
+         $this->orden = 0;
       }
    }
    
@@ -407,6 +411,7 @@ class linea_factura_cliente extends \fs_model
                     .", iva = ".$this->var2str($this->iva)
                     .", recargo = ".$this->var2str($this->recargo)
                     .", irpf = ".$this->var2str($this->irpf)
+                    .", orden = ".$this->var2str($this->orden)
                     ."  WHERE idlinea = ".$this->var2str($this->idlinea).";";
             
             return $this->db->exec($sql);
@@ -414,7 +419,7 @@ class linea_factura_cliente extends \fs_model
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (idfactura,idalbaran,referencia,
-               descripcion,cantidad,pvpunitario,pvpsindto,dtopor,pvptotal,codimpuesto,iva,recargo,irpf)
+               descripcion,cantidad,pvpunitario,pvpsindto,dtopor,pvptotal,codimpuesto,iva,recargo,irpf,orden)
                VALUES (".$this->var2str($this->idfactura)
                     .",".$this->var2str($this->idalbaran)
                     .",".$this->var2str($this->referencia)
@@ -427,7 +432,8 @@ class linea_factura_cliente extends \fs_model
                     .",".$this->var2str($this->codimpuesto)
                     .",".$this->var2str($this->iva)
                     .",".$this->var2str($this->recargo)
-                    .",".$this->var2str($this->irpf).");";
+                    .",".$this->var2str($this->irpf)
+                    .",".$this->var2str($this->orden).");";
             
             if( $this->db->exec($sql) )
             {
@@ -450,40 +456,15 @@ class linea_factura_cliente extends \fs_model
    public function all_from_factura($id)
    {
       $linlist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id)
+              ." ORDER BY orden DESC, idlinea ASC;";
       
-      $lineas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id)." ORDER BY idlinea ASC;");
+      $lineas = $this->db->select($sql);
       if($lineas)
       {
-         $aux = array();
          foreach($lineas as $l)
          {
-            $aux[] = new linea_factura_cliente($l);
-         }
-         
-         /// ordenamos por fecha del albarán
-         $lids = array();
-         while( count($linlist) != count($aux) )
-         {
-            $selection = FALSE;
-            foreach($aux as $linea)
-            {
-               if( !in_array($linea->idlinea, $lids) )
-               {
-                  if( !$selection )
-                  {
-                     $selection = $linea;
-                  }
-                  else if( $linea->albaran_fecha() < $selection->albaran_fecha() )
-                  {
-                     $selection = $linea;
-                  }
-               }
-            }
-            if($selection)
-            {
-               $linlist[] = $selection;
-               $lids[] = $selection->idlinea;
-            }
+            $linlist[] = new linea_factura_cliente($l);
          }
       }
       

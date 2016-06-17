@@ -442,7 +442,7 @@
                         <a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion()}
                      </td>
                      <td class="text-right">{$value->cantidad}</td>
-                     <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->albaran->coddivisa)}</td>
+                     <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->albaran->coddivisa, TRUE, FS_NF0_ART)}</td>
                      <td class="text-right">{$fsc->show_numero($value->dtopor, 2)} %</td>
                      <td class="text-right">{$fsc->show_precio($value->pvptotal, $fsc->albaran->coddivisa)}</td>
                      <td class="text-right">{$fsc->show_numero($value->iva, 2)} %</td>
@@ -845,9 +845,7 @@
          <div class="modal-body">
          {loop="$fsc->extensions"}
             {if="$value->type=='pdf'"}
-            <a href="index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}" target="_blank" class="btn btn-block btn-default">
-               <span class="glyphicon glyphicon-print"></span> &nbsp; {$value->text}
-            </a>
+            <a href="index.php?page={$value->from}{$value->params}&id={$fsc->albaran->idalbaran}" target="_blank" class="btn btn-block btn-default">{$value->text}</a>
             {/if}
          {/loop}
          </div>

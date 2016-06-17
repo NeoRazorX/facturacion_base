@@ -116,7 +116,7 @@ class ventas_imprimir extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'ventas_albaran',
               'type' => 'pdf',
-              'text' => ucfirst(FS_ALBARAN).' simple',
+              'text' => '<span class="glyphicon glyphicon-print"></span>&nbsp; '.ucfirst(FS_ALBARAN).' simple',
               'params' => '&albaran=TRUE'
           ),
           array(
@@ -124,7 +124,7 @@ class ventas_imprimir extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'ventas_albaran',
               'type' => 'pdf',
-              'text' => ucfirst(FS_ALBARAN).' sin valorar',
+              'text' => '<span class="glyphicon glyphicon-print"></span>&nbsp; '.ucfirst(FS_ALBARAN).' sin valorar',
               'params' => '&albaran=TRUE&noval=TRUE'
           ),
           array(
@@ -140,7 +140,7 @@ class ventas_imprimir extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'ventas_factura',
               'type' => 'pdf',
-              'text' => ucfirst(FS_FACTURA).' simple',
+              'text' => '<span class="glyphicon glyphicon-print"></span>&nbsp; '.ucfirst(FS_FACTURA).' simple',
               'params' => '&factura=TRUE&tipo=simple'
           ),
           array(
@@ -148,7 +148,7 @@ class ventas_imprimir extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'ventas_factura',
               'type' => 'pdf',
-              'text' => 'Modelo carta',
+              'text' => '<span class="glyphicon glyphicon-print"></span>&nbsp; Modelo carta',
               'params' => '&factura=TRUE&tipo=carta'
           ),
           array(
@@ -324,7 +324,7 @@ class ventas_imprimir extends fs_controller
       );
       
       /// ¿Desactivamos la columna de albaran?
-      if( get_class($documento) == 'factura_cliente' )
+      if( get_class_name($documento) == 'factura_cliente' )
       {
          if($this->impresion['print_alb'])
          {
@@ -406,7 +406,7 @@ class ventas_imprimir extends fs_controller
             $fila['dto'] = '';
          }
          
-         if( get_class($lineas[$linea_actual]) == 'linea_factura_cliente' )
+         if( get_class_name($lineas[$linea_actual]) == 'linea_factura_cliente' )
          {
             $fila['alb'] = $lineas[$linea_actual]->albaran_numero();
          }
@@ -498,7 +498,7 @@ class ventas_imprimir extends fs_controller
                $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono1;
                if($this->cliente->telefono2)
                {
-                  $row['campo2'] .= '  '.$this->cliente->telefono2;
+                  $row['campo2'] .= "\n".$this->cliente->telefono2;
                }
             }
             else if($this->cliente->telefono2)
@@ -748,7 +748,7 @@ class ventas_imprimir extends fs_controller
                   $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono1;
                   if($this->cliente->telefono2)
                   {
-                     $row['campo2'] .= '  '.$this->cliente->telefono2;
+                     $row['campo2'] .= "\n".$this->cliente->telefono2;
                   }
                }
                else if($this->cliente->telefono2)

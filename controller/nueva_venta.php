@@ -183,8 +183,11 @@ class nueva_venta extends fs_controller
                   
                   if( $this->cliente_s->save() )
                   {
-                     /// forzamos crear la subcuenta
-                     $this->cliente_s->get_subcuenta($this->empresa->codejercicio);
+                     if($this->empresa->contintegrada)
+                     {
+                        /// forzamos crear la subcuenta
+                        $this->cliente_s->get_subcuenta($this->empresa->codejercicio);
+                     }
                      
                      $dircliente = new direccion_cliente();
                      $dircliente->codcliente = $this->cliente_s->codcliente;
