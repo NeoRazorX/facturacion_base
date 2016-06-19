@@ -112,15 +112,19 @@
       {loop="$fsc->resultados"}
       <tr class="clickableRow" href="{$value->url()}">
          <td>
-            <a href="{$value->url()}">{$value->codproveedor}</a>
-            {$value->nombre}
+            <a href="{$value->url()}">{$value->codproveedor}</a> {$value->nombre}
+            {if="$value->nombre!=$value->razonsocial"}
+            <span class="label label-default">{$value->razonsocial}</span>
+            {/if}
             {if="$value->acreedor"}
             &nbsp; <span class="glyphicon glyphicon-briefcase" title="Es un acreedor"></span>
             {/if}
          </td>
          <td>{$value->cifnif}</td>
          <td>{$value->email}</td>
-         <td>{$value->telefono1}</td>
+         <td>
+            {if="$value->telefono1"}{$value->telefono1}{elseif="$value->telefono2"}{$value->telefono2}{/if}
+         </td>
          <td>{$value->observaciones_resume()}</td>
       </tr>
       {else}

@@ -81,7 +81,7 @@ class direccion_proveedor extends \fs_model
          $this->codpostal = NULL;
          $this->direccion = NULL;
          $this->direccionppal = TRUE;
-         $this->descripcion = NULL;
+         $this->descripcion = 'Principal';
          $this->fecha = date('d-m-Y');
       }
    }

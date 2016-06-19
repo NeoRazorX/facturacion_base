@@ -480,6 +480,11 @@ class proveedor extends \fs_model
          }
          else
          {
+            if( is_null($this->codproveedor) )
+            {
+               $this->codproveedor = $this->get_new_codigo();
+            }
+            
             $sql = "INSERT INTO ".$this->table_name." (codproveedor,nombre,razonsocial,tipoidfiscal,cifnif,
                telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,observaciones,
                regimeniva,acreedor,personafisica) VALUES (".$this->var2str($this->codproveedor).

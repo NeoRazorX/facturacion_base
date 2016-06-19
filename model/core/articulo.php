@@ -757,6 +757,7 @@ class articulo extends \fs_model
    
    /**
     * Modifica el stock del artículo en un almacén concreto.
+    * Ya se encarga de ejecutar save() si es necesario.
     * @param type $almacen
     * @param type $cantidad
     * @return boolean
@@ -820,6 +821,7 @@ class articulo extends \fs_model
    
    /**
     * Suma la cantidad especificada al stock del artículo en el almacén especificado.
+    * Ya se encarga de ejecutar save() si es necesario.
     * @param type $almacen
     * @param type $cantidad
     * @param type $recalcula_coste
@@ -925,6 +927,11 @@ class articulo extends \fs_model
       if($this->nostock)
       {
          $this->controlstock = TRUE;
+      }
+      
+      if($this->bloqueado)
+      {
+         $this->publico = FALSE;
       }
       
       if( is_null($this->referencia) OR strlen($this->referencia) < 1 OR strlen($this->referencia) > 18 )

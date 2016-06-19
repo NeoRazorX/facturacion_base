@@ -534,6 +534,11 @@ class cliente extends \fs_model
          }
          else
          {
+            if( is_null($this->codcliente) )
+            {
+               $this->codcliente = $this->get_new_codigo();
+            }
+            
             $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,razonsocial,tipoidfiscal,
                cifnif,telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,
                debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,personafisica) VALUES

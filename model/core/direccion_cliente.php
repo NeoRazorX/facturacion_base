@@ -95,7 +95,7 @@ class direccion_cliente extends \fs_model
          $this->direccion = NULL;
          $this->domenvio = TRUE;
          $this->domfacturacion = TRUE;
-         $this->descripcion = NULL;
+         $this->descripcion = 'Principal';
          $this->fecha = date('d-m-Y');
       }
    }

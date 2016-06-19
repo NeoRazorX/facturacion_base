@@ -44,8 +44,16 @@ class contabilidad_series extends fs_controller
       $fsvar = new fs_var();
       if( isset($_GET['num_personalizada']) )
       {
-         $this->num_personalizada = TRUE;
-         $fsvar->simple_save('numeracion_personalizada', $this->num_personalizada);
+         if($_GET['num_personalizada'] == 'TRUE')
+         {
+            $this->num_personalizada = TRUE;
+            $fsvar->simple_save('numeracion_personalizada', $this->num_personalizada);
+         }
+         else
+         {
+            $this->num_personalizada = FALSE;
+            $fsvar->simple_delete('numeracion_personalizada');
+         }
       }
       else
       {
