@@ -370,8 +370,9 @@
                        
                         <td>
                            <input type="text" class="form-control text-right" id="total_{$counter}" name="total_{$counter}"
-                                readonly="true" style="font-weight: bold; background-color:#FFFFFF;"    onchange="ajustar_total()" onclick="this.select()" autocomplete="off"/>
+                                style="font-weight: bold; background-color:#FFFFFF;"    onchange="ajustar_total()" onclick="this.select()" autocomplete="off"/>
                         </td>
+						<td> <input type="button" value="A" onclick="ajustar_total()"/></td>
                      </tr>
                      {/loop}
                   </tbody>

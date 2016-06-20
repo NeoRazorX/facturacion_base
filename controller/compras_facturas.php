@@ -58,6 +58,9 @@ class compras_facturas extends fs_controller
 	  $albaran = new albaran_proveedor();
       $this->autorizar_factura = 1;
 	  
+	  if( isset($_GET['nueva']) )
+	  if($_GET['nueva']) $this->new_message("Factura guardada correctamente.");
+	  
       $this->mostrar = 'todo';
       if( isset($_GET['mostrar']) )
       {
