@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/impuesto.php';
+require_once 'plugins/facturacion_base/model/core/impuesto.php';
 
 /**
  * Un impuesto (IVA) que puede estar asociado a artículos, líneas de albaranes,

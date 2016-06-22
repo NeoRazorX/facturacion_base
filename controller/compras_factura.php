@@ -265,7 +265,7 @@ class compras_factura extends fs_controller
             }
             
             $asiento_factura = new asiento_factura();
-            $this->factura->idasientop = $asiento_factura->generar_asiento_pago($asiento, $this->factura->codpago, $this->today(), $subpro);
+            $this->factura->idasientop = $asiento_factura->generar_asiento_pago($asiento, $this->factura->codpago, $this->today(), $subpro, $this->factura->totaleuros);
             if($this->factura->idasientop)
             {
                $this->factura->pagada = TRUE;

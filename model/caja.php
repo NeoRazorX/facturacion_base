@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/caja.php';
+require_once 'plugins/facturacion_base/model/core/caja.php';
 
 /**
  * Estructura para almacenar los datos de estado de una caja registradora (TPV).

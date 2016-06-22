@@ -225,7 +225,7 @@
                         <th class="text-right" width="70">Cantidad</th>
                         <th class="text-right" width="80">Precio</th>
                         <th class="text-right" width="70">Dto</th>
-                        <th class="text-right" width="80">Neto</th>
+                        <th class="text-right" width="85">Neto</th>
                         <th class="text-right" width="75">{#FS_IVA#}</th>
                         <th class="recargo text-right" width="70">RE</th>
                         <th class="irpf text-right" width="70">{#FS_IRPF#}</th>
@@ -275,6 +275,16 @@
                      <td class="irpf text-right"><b>-{$fsc->show_precio($fsc->factura->totalirpf, $fsc->factura->coddivisa)}</b></td>
                      <td class="text-right"><b>{$fsc->show_precio($fsc->factura->total, $fsc->factura->coddivisa)}</b></td>
                   </tr>
+                  {if="$fsc->factura->coddivisa!=$fsc->empresa->coddivisa"}
+                  <tr class="warning">
+                     <td colspan="5" class="text-right"><b>EUR:</b></td>
+                     <td></td>
+                     <td></td>
+                     <td class="recargo"></td>
+                     <td class="irpf"></td>
+                     <td class="text-right"><b>{$fsc->show_precio($fsc->factura->totaleuros)}</b></td>
+                  </tr>
+                  {/if}
                </table>
             </div>
             

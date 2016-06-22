@@ -38,12 +38,6 @@
                   <a href="https://www.facturascripts.com/store/producto/plugin-facturacion_premium/" target="_blank">plugin tesorería</a>,
                   que se vende junto con facturación premium.
                {/if}
-               <br/>
-               <span class="glyphicon glyphicon-credit-card" aria-hidden="true"></span> &nbsp;
-               Además puedes gestionar las cuentas bancarias de la empresa desde
-               <a href="index.php?page=admin_empresa#cuentasb">Admin &gt; Empresa &gt; Cuentas bancarias</a>.
-               Y no te olvides de asignar una subcuenta a la cuenta bancaria si quieres que los
-               asientos de las facturas con esa forma de pago se asignen a esa cuenta.
             </p>
          </div>
       </div>
@@ -59,7 +53,9 @@
             <th class="text-left">Generar facturas</th>
             <th class="text-left">Vencimiento</th>
             <th class="text-left">
-               <a href="index.php?page=admin_empresa#cuentasb" target="_blank">Cuenta bancaria</a>
+               <a href="index.php?page=admin_empresa#cuentasb" title="Editar las cuentas bancarias de la empresa">
+                  Cuenta bancaria &nbsp;<span class="glyphicon glyphicon-share"></span>
+               </a>
             </th>
             <th class="text-center">Domiciliado</th>
             <th class="text-right" width="120">Acciones</th>
@@ -191,6 +187,55 @@
          </tr>
       </form>
    </table>
+</div>
+
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-6">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">¿Quieres enlazar una forma de pago con una cuenta bancaria?</h3>
+            </div>
+            <div class="panel-body">
+               <ul>
+                  <li>
+                     Selecciona
+                     <a href="index.php?page=admin_empresa#cuentasb" title="Editar las cuentas bancarias de la empresa">tu cuenta bancaria</a>.
+                  </li>
+                  <li>
+                     Si quieres que los asientos de las facturas con esa forma de pago se asignen a una subcuenta,
+                     <a href="index.php?page=admin_empresa#cuentasb">edita esa cuenta bancaria</a>
+                     y vinculala con una subcuenta.
+                  </li>
+               </ul>
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-6">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">¿Quieres enlazar con una cuenta bancaria del cliente?</h3>
+            </div>
+            <div class="panel-body">
+               <ul>
+                  <li>
+                     Selecciona
+                     <a href="index.php?page=admin_empresa#cuentasb" title="Editar las cuentas bancarias de la empresa">tu cuenta bancaria</a>.
+                  </li>
+                  <li>Marca la opción <b>domiciliado</b>.</li>
+                  <li>Añade la cuenta bancaria del cliente en la ficha de ese cliente.</li>
+                  <li>
+                     <i>
+                        Además, con el
+                        <a href="https://www.facturascripts.com/store/producto/plugin-facturacion_premium/" target="_blank">plugin tesorería</a>
+                        puedes generar una remesa bancaria
+                     </i>.
+                  </li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
 </div>
 
 {include="footer"}

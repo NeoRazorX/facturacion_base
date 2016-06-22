@@ -166,12 +166,12 @@ class factura_proveedor extends \fs_model
    public $total;
    
    /**
-    * totaleuros = total*tasaconv
-    * Esto es para dar compatibilidad a Eneboo. Fuera de eso, no tiene sentido.
-    * Ni siquiera hace falta rellenarlo, al hacer save() se calcula el valor.
+    * Total expresado en euros, por si no fuese la divisa de la factura.
+    * totaleuros = total/tasaconv
+    * No hace falta rellenarlo, al hacer save() se calcula el valor.
     * @var type 
     */
-   private $totaleuros;
+   public $totaleuros;
    
    /**
     * Suma total de retenciones IRPF de las líneas.
@@ -576,7 +576,7 @@ class factura_proveedor extends \fs_model
     */
    public function new_codigo()
    {
-      /// buscamos un hueco
+      /// buscamos un hueco o el siguiente número disponible
       $encontrado = FALSE;
       $num = 1;
       $fecha = $this->fecha;
@@ -650,7 +650,7 @@ class factura_proveedor extends \fs_model
    public function test()
    {
       $this->observaciones = $this->no_html($this->observaciones);
-      $this->totaleuros = $this->total * $this->tasaconv;
+      $this->totaleuros = round($this->total / $this->tasaconv, 2);
       
       if( $this->floatcmp($this->total, $this->neto+$this->totaliva-$this->totalirpf+$this->totalrecargo, FS_NF0, TRUE) )
       {
@@ -726,12 +726,6 @@ class factura_proveedor extends \fs_model
       else if( !$this->floatcmp($this->total, $total, FS_NF0, TRUE) )
       {
          $this->new_error_msg("Valor total de la factura incorrecto. Valor correcto: ".$total);
-         $status = FALSE;
-      }
-      else if( !$this->floatcmp($this->totaleuros, $this->total * $this->tasaconv, FS_NF0, TRUE) )
-      {
-         $this->new_error_msg("Valor totaleuros de la factura incorrecto.
-            Valor correcto: ".round($this->total * $this->tasaconv, FS_NF0));
          $status = FALSE;
       }
       

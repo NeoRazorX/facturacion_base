@@ -795,12 +795,23 @@ class asiento_factura
    /**
     * Generamos un asiento de pago del asiento seleccionado.
     * @param asiento $asiento
+    * @param type $codpago
+    * @param type $fecha
+    * @param type $subclipro
+    * @param type $importe
+    * @return type
     */
-   public function generar_asiento_pago(&$asiento, $codpago=FALSE, $fecha=FALSE, $subclipro=FALSE)
+   public function generar_asiento_pago(&$asiento, $codpago=FALSE, $fecha=FALSE, $subclipro=FALSE, $importe=NULL)
    {
+      if( is_null($importe) )
+      {
+         $importe = $asiento->importe;
+      }
+      $importe = abs($importe);
+      
       $nasientop = new \asiento();
       $nasientop->editable = FALSE;
-      $nasientop->importe = $asiento->importe;
+      $nasientop->importe = $importe;
       $nasientop->tipodocumento = $asiento->tipodocumento;
       $nasientop->documento = $asiento->documento;
       
@@ -871,7 +882,7 @@ class asiento_factura
          $encontrada = FALSE;
          foreach($asiento->get_partidas() as $par)
          {
-            if( $nasientop->floatcmp( abs($par->debe), $nasientop->importe, FS_NF0) )
+            if( $nasientop->floatcmp( abs($par->debe), $importe, FS_NF0) )
             {
                if(!$subclipro)
                {
@@ -911,7 +922,7 @@ class asiento_factura
                }
                break;
             }
-            else if( $nasientop->floatcmp( abs($par->haber), $nasientop->importe, FS_NF0) )
+            else if( $nasientop->floatcmp( abs($par->haber), $importe, FS_NF0) )
             {
                if(!$subclipro)
                {

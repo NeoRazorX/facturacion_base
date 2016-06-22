@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/atributo.php';
+require_once 'plugins/facturacion_base/model/core/atributo.php';
 
 /**
  * Atributo de artículos.

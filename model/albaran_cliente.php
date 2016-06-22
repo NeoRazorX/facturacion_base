@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/albaran_cliente.php';
+require_once 'plugins/facturacion_base/model/core/albaran_cliente.php';
 
 /**
  * Albarán de cliente o albarán de venta. Representa la entrega a un cliente

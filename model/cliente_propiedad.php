@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/cliente_propiedad.php';
+require_once 'plugins/facturacion_base/model/core/cliente_propiedad.php';
 
 /**
  * Propiedad de un cliente, para añadir propiedades fácilmente.

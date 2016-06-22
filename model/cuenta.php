@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/cuenta.php';
+require_once 'plugins/facturacion_base/model/core/cuenta.php';
 
 /**
  * Elemento de tercer nivel del plan contable.

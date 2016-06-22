@@ -300,7 +300,7 @@
             <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más {#FS_ALBARANES#} de {$value->nombrecliente}">[+]</a>
          </td>
          <td>{$value->observaciones_resume()}</td>
-         <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
+         <td class="text-right" title="{$fsc->show_precio($value->totaleuros, 'EUR')}">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
          <td class="text-right" title="Hora {$value->hora}">
             {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
          </td>

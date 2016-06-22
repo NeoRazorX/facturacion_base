@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/subcuenta.php';
+require_once 'plugins/facturacion_base/model/core/subcuenta.php';
 
 /**
  * El cuarto nivel de un plan contable. Está relacionada con una única cuenta.

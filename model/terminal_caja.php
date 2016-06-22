@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/terminal_caja.php';
+require_once 'plugins/facturacion_base/model/core/terminal_caja.php';
 
 /**
  * Configuración del terminal para el TPV, además almacena los tickets a imprimir.

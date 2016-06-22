@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/concepto_partida.php';
+require_once 'plugins/facturacion_base/model/core/concepto_partida.php';
 
 /**
  * Un concepto predefinido para una partida (la línea de un asiento contable).

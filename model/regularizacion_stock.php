@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/regularizacion_stock.php';
+require_once 'plugins/facturacion_base/model/core/regularizacion_stock.php';
 
 /**
  * Regularización de stock de un artículo, para un almacén en una fecha dada.

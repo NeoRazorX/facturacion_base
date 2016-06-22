@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/asiento_factura.php';
+require_once 'plugins/facturacion_base/model/core/asiento_factura.php';
 
 /**
  * Esta clase permite genera un asiento a partir de una factura.

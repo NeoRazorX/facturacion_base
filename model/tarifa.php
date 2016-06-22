@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/tarifa.php';
+require_once 'plugins/facturacion_base/model/core/tarifa.php';
 
 /**
  * Una tarifa para los artículos.

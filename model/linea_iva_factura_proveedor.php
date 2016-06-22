@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/linea_iva_factura_proveedor.php';
+require_once 'plugins/facturacion_base/model/core/linea_iva_factura_proveedor.php';
 
 /**
  * La línea de IVA de una factura de proveedor.

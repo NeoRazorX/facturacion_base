@@ -173,12 +173,12 @@ class factura_cliente extends \fs_model
    public $total;
    
    /**
-    * totaleuros = total*tasaconv
-    * Esto es para dar compatibilidad a Eneboo. Fuera de eso, no tiene sentido.
-    * Ni siquiera hace falta rellenarlo, al hacer save() se calcula el valor.
+    * Total expresado en euros, por si no fuese la divisa de la factura.
+    * totaleuros = total/tasaconv
+    * No hace falta rellenarlo, al hacer save() se calcula el valor.
     * @var type 
     */
-   private $totaleuros;
+   public $totaleuros;
    
    /**
     * % de retención IRPF de la factura.
@@ -747,7 +747,7 @@ class factura_cliente extends \fs_model
          }
       }
       
-      /// buscamos un hueco
+      /// buscamos un hueco o el siguiente número disponible
       $encontrado = FALSE;
       $fecha = $this->fecha;
       $hora = $this->hora;
@@ -820,7 +820,7 @@ class factura_cliente extends \fs_model
    public function test()
    {
       $this->observaciones = $this->no_html($this->observaciones);
-      $this->totaleuros = $this->total * $this->tasaconv;
+      $this->totaleuros = round($this->total / $this->tasaconv, 2);
       
       if( $this->floatcmp($this->total, $this->neto+$this->totaliva-$this->totalirpf+$this->totalrecargo, FS_NF0, TRUE) )
       {
@@ -921,12 +921,6 @@ class factura_cliente extends \fs_model
       else if( !$this->floatcmp($this->total, $total, FS_NF0, TRUE) )
       {
          $this->new_error_msg("Valor total de la factura incorrecto. Valor correcto: ".$total);
-         $status = FALSE;
-      }
-      else if( !$this->floatcmp($this->totaleuros, $this->total * $this->tasaconv, FS_NF0, TRUE) )
-      {
-         $this->new_error_msg("Valor totaleuros de la factura incorrecto.
-            Valor correcto: ".round($this->total * $this->tasaconv, FS_NF0));
          $status = FALSE;
       }
       

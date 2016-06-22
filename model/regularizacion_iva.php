@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/regularizacion_iva.php';
+require_once 'plugins/facturacion_base/model/core/regularizacion_iva.php';
 
 /**
  * Una regularización de IVA para un periodo determinado.

@@ -222,7 +222,7 @@ class compras_imprimir extends fs_controller
       }
    }
    
-   private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag, &$documento)
+   private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag, $documento)
    {
       if($this->impresion['print_dto'])
       {
@@ -288,13 +288,13 @@ class compras_imprimir extends fs_controller
             while($len > 85)
             {
                $len -= 85;
-               $lppag -= 0.4;
+               $lppag -= 0.3;
             }
             
             $aux = explode("\n", $lin->descripcion);
             if( count($aux) > 1 )
             {
-               $lppag -= 0.4 * ( count($aux) - 1);
+               $lppag -= 0.3 * ( count($aux) - 1);
             }
          }
       }

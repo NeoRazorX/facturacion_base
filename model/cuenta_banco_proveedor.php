@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/cuenta_banco_proveedor.php';
+require_once 'plugins/facturacion_base/model/core/cuenta_banco_proveedor.php';
 
 /**
  * Una cuenta bancaria de un proveedor.

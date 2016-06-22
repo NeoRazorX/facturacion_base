@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/balance.php';
+require_once 'plugins/facturacion_base/model/core/balance.php';
 
 /**
  * Define que cuentas hay que usar para generar los distintos informes contables.

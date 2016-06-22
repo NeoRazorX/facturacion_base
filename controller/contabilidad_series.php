@@ -62,34 +62,7 @@ class contabilidad_series extends fs_controller
       
       if( isset($_POST['codserie']) )
       {
-         $serie = $this->serie->get($_POST['codserie']);
-         if( !$serie )
-         {
-            $serie = new serie();
-            $serie->codserie = $_POST['codserie'];
-         }
-         $serie->descripcion = $_POST['descripcion'];
-         $serie->siniva = isset($_POST['siniva']);
-         $serie->irpf = floatval($_POST['irpf']);
-         
-         if($this->num_personalizada)
-         {
-            $serie->codejercicio = NULL;
-            $serie->numfactura = 1;
-            
-            if($_POST['codejercicio'] != '')
-            {
-               $serie->codejercicio = $_POST['codejercicio'];
-               $serie->numfactura = intval($_POST['numfactura']);
-            }
-         }
-         
-         if( $serie->save() )
-         {
-            $this->new_message('Datos guardados correctamente.');
-         }
-         else
-            $this->new_error_msg("¡Imposible guardar ".FS_SERIE."!");
+         $this->modificar_serie();
       }
       else if( isset($_GET['delete']) )
       {
@@ -113,5 +86,86 @@ class contabilidad_series extends fs_controller
                $this->new_error_msg('Datos no encontrados: '.FS_SERIE.' '.$_GET['delete']);
          }
       }
+   }
+   
+   private function modificar_serie()
+   {
+      $serie = $this->serie->get($_POST['codserie']);
+      if(!$serie)
+      {
+         $serie = new serie();
+         $serie->codserie = $_POST['codserie'];
+      }
+      
+      $serie->descripcion = $_POST['descripcion'];
+      $serie->siniva = isset($_POST['siniva']);
+      $serie->irpf = floatval($_POST['irpf']);
+      
+      if($this->num_personalizada)
+      {
+         if($_POST['codejercicio'] != $serie->codejercicio OR $_POST['numfactura'] != $serie->numfactura)
+         {
+            if($this->user->admin)
+            {
+               if( $this->hay_facturas_venta($serie->codserie) )
+               {
+                  $this->new_error_msg('Ya hay facturas con esta serie, no puedes cambiar la numeración inicial.');
+               }
+               else
+               {
+                  $serie->codejercicio = NULL;
+                  $serie->numfactura = 1;
+                  
+                  if($_POST['codejercicio'] != '')
+                  {
+                     $serie->codejercicio = $_POST['codejercicio'];
+                     $serie->numfactura = intval($_POST['numfactura']);
+                     
+                     /// anotamos el cambio en el log
+                     $fslog = new fs_log();
+                     $fslog->alerta = TRUE;
+                     $fslog->detalle = 'Se ha cambiado la numeración inicial de la serie '
+                             .$serie->codserie.' para el ejercicio '.$serie->codejercicio
+                             .'. Nuevo número inicial: '.$serie->numfactura;
+                     $fslog->ip = $this->user->last_ip;
+                     $fslog->usuario = $this->user->nick;
+                     $fslog->tipo = 'serie';
+                     $fslog->save();
+                  }
+               }
+            }
+            else
+            {
+               $this->new_error_msg("La numeración de facturas es una cosa delicada,"
+                       . " solamente un administrador puede hacer cambios.", 'serie', TRUE);
+            }
+         }
+      }
+      
+      if( $serie->save() )
+      {
+         $this->new_message('Datos guardados correctamente.');
+      }
+      else
+         $this->new_error_msg("¡Imposible guardar ".FS_SERIE."!");
+   }
+   
+   /**
+    * Devuelve TRUE si ya existen facturas en la serie $codserie
+    * @param type $codserie
+    * @return boolean
+    */
+   private function hay_facturas_venta($codserie)
+   {
+      $hay = FALSE;
+      
+      $sql = "SELECT * FROM facturascli WHERE codserie = ".$this->empresa->var2str($codserie);
+      $data = $this->db->select_limit($sql, 5, 0);
+      if($data)
+      {
+         $hay = TRUE;
+      }
+      
+      return $hay;
    }
 }

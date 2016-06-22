@@ -470,6 +470,16 @@
                      <td class="text-right irpf"><b>-{$fsc->show_precio($fsc->albaran->totalirpf, $fsc->albaran->coddivisa)}</b></td>
                      <td class="text-right"><b>{$fsc->show_precio($fsc->albaran->total, $fsc->albaran->coddivisa)}</b></td>
                   </tr>
+                  {if="$fsc->albaran->coddivisa!=$fsc->empresa->coddivisa"}
+                  <tr class="warning">
+                     <td colspan="5" class="text-right"><b>EUR:</b></td>
+                     <td></td>
+                     <td></td>
+                     <td class="recargo"></td>
+                     <td class="irpf"></td>
+                     <td class="text-right"><b>{$fsc->show_precio($fsc->albaran->totaleuros)}</b></td>
+                  </tr>
+                  {/if}
                </table>
                {/if}
             </div>

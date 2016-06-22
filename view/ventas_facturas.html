@@ -357,7 +357,7 @@
             <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más facturas de {$value->nombrecliente}">[+]</a>
          </td>
          <td>{$value->observaciones_resume()}</td>
-         <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
+         <td class="text-right" title="{$fsc->show_precio($value->totaleuros, 'EUR')}">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
          {if="$fsc->codagente!==''"}
          <td class="text-right info">
             {$fsc->show_precio($value->neto*$value->porcomision/100, $value->coddivisa)}

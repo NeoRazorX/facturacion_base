@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/subcuenta_proveedor.php';
+require_once 'plugins/facturacion_base/model/core/subcuenta_proveedor.php';
 
 /**
  * Relaciona a un proveedor con una subcuenta para cada ejercicio.

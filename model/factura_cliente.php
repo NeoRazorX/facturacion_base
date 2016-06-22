@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/factura_cliente.php';
+require_once 'plugins/facturacion_base/model/core/factura_cliente.php';
 
 /**
  * Factura de un cliente.

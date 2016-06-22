@@ -409,7 +409,7 @@
                         <th class="text-right" width="70">Cantidad</th>
                         <th class="text-right" width="80">Precio</th>
                         <th class="text-right" width="70">Dto</th>
-                        <th class="text-right" width="80">Neto</th>
+                        <th class="text-right" width="85">Neto</th>
                         <th class="text-right" width="75">{#FS_IVA#}</th>
                         <th class="text-right recargo" width="70">RE</th>
                         <th class="text-right irpf" width="70">{#FS_IRPF#}</th>
@@ -455,6 +455,16 @@
                      <td class="text-right irpf"><b>-{$fsc->show_precio($fsc->albaran->totalirpf, $fsc->albaran->coddivisa)}</b></td>
                      <td class="text-right"><b>{$fsc->show_precio($fsc->albaran->total, $fsc->albaran->coddivisa)}</b></td>
                   </tr>
+                  {if="$fsc->albaran->coddivisa!=$fsc->empresa->coddivisa"}
+                  <tr class="warning">
+                     <td colspan="4" class="text-right"><b>EUR:</b></td>
+                     <td></td>
+                     <td></td>
+                     <td class="recargo"></td>
+                     <td class="irpf"></td>
+                     <td class="text-right"><b>{$fsc->show_precio($fsc->albaran->totaleuros)}</b></td>
+                  </tr>
+                  {/if}
                </table>
                {/if}
             </div>

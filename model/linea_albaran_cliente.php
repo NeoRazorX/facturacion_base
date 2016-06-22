@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/core/linea_albaran_cliente.php';
+require_once 'plugins/facturacion_base/model/core/linea_albaran_cliente.php';
 
 /**
  * Línea de un albarán de cliente.
