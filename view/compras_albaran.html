@@ -3,6 +3,7 @@
 {if="$fsc->albaran"}
 {if="$fsc->albaran->ptefactura"}
 <script type="text/javascript" src="{$fsc->get_js_location('nueva_compra.js')}"></script>
+<script type="text/javascript" src="plugins/facturacion_base/view/js/calendario_one.js"></script>
 <script type="text/javascript">
    numlineas = {function="count($fsc->albaran->get_lineas())"};
    fs_nf0 = {#FS_NF0#};
@@ -123,14 +124,6 @@
 	   
    }
    
-   		$(function() {		
-						$('.calendario').datepicker({
-						format: "dd-mm-yyyy",
-						autoclose: true,
-							}).on('changeDate', function (ev) {
-								$(this).datepicker('hide');
-							});
-					});
    
 </script>
 
@@ -228,7 +221,7 @@
             <div class="form-group" style="font:bold;font-size:18px">
                Fecha:
 			   {if="$fsc->albaran->ptefactura"}
-               <input type="text" name="fecha" id="fecha" class="form-control calendario"  data-date-format="dd-mm-yyyy"  value="{$fsc->albaran->fecha}" autocomplete="off"/>
+               <input type="text" name="fecha" id="fecha" class="form-control calendario"  data-date-format="dd-mm-yyyy"  value="{$fsc->albaran->fecha}" autocomplete="off" maxlength="10"/>
 			   {else}
                <div class="form-control">{$fsc->albaran->fecha}</div>
 			   {/if}
@@ -249,7 +242,7 @@
 					</div></div>
 					<div class="col-sm-3">
 					  <div class="form-group" style="font:bold;font-size:12px">
-					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control calendario"  data-date-format="dd-mm-yyyy" style="width:150px" {if="strtotime($fsc->albaran->caivence) > strtotime('01-01-2000')"}  value="{$fsc->albaran->caivence}"{else}value="" {/if}    />
+					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control calendario"  data-date-format="dd-mm-yyyy" style="width:150px" {if="strtotime($fsc->albaran->caivence) > strtotime('01-01-2000')"}  value="{$fsc->albaran->caivence}"{else}value="" {/if} maxlength="10" />
 					</div></div>
 					{else}
 					<input type="hidden" name="cai" value="{$fsc->albaran->cai}"/>
@@ -884,6 +877,21 @@
 	
 	var numsub='';
 
+				var f2 =document.getElementById('fecha').value;
+				var d2 =f2.substr(0,2);
+				var m2 =f2.substr(3,2);
+				var y2 =f2.substr(6);
+				var fe2 = new Date(y2,m2,d2);
+				if( !isNaN(fe2) ) document.getElementById('fecha').value = d2+'-'+m2+'-'+y2;				 				
+				else document.getElementById('fecha').value = "";
+				
+				fecha_fac = document.getElementById('fecha').value;
+				if( fecha_fac.trim() == '' )
+				{
+				alert('Debe colocar la fecha de la factura');
+				aler = 1;
+				}
+				
 				numsub = document.getElementById('numlineas').value;
 				var descr =''; 
 				
@@ -941,6 +949,18 @@
 				
 				var fe1 = new Date(y1,m1,d1);
 				var fe2 = new Date(y2,m2,d2);
+												
+				if( !isNaN(fe1) ) document.getElementById('caivence').value = d1+'-'+m1+'-'+y1;
+				else document.getElementById('caivence').value = "";				
+				if( !isNaN(fe2) ) document.getElementById('fecha').value = d2+'-'+m2+'-'+y2;				 				
+				else document.getElementById('fecha').value = "";	
+				
+				fecha_fac = document.getElementById('fecha').value;
+				if( fecha_fac.trim() == '' )
+				{
+				alert('Debe colocar la fecha de la factura');
+				aler = 1;
+				}
 				
 				if( fe1 < fe2 )
 				{
@@ -1020,6 +1040,18 @@
 				
 				var fe1 = new Date(y1,m1,d1);
 				var fe2 = new Date(y2,m2,d2);
+				
+				if( !isNaN(fe1) ) document.getElementById('caivence').value = d1+'-'+m1+'-'+y1;
+				else document.getElementById('caivence').value = "";				
+				if( !isNaN(fe2) ) document.getElementById('fecha').value = d2+'-'+m2+'-'+y2;				 				
+				else document.getElementById('fecha').value = "";	
+				
+				fecha_fac = document.getElementById('fecha').value;
+				if( fecha_fac.trim() == '' )
+				{
+				alert('Debe colocar la fecha de la factura');
+				aler = 1;
+				}
 				
 				if( fe1 < fe2 )
 				{

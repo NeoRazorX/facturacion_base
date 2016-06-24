@@ -220,7 +220,14 @@ class compras_albaran extends fs_controller
       if($this->albaran->ptefactura)
       {
          $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha']);
-         if($eje0->codejercicio == $this->albaran->codejercicio)
+		 if($eje0)
+		 {
+			 if($eje0->codejercicio == $this->albaran->codejercicio) $continuar = TRUE;
+			 else $continuar = FALSE;
+		}
+		else $continuar = FALSE;
+		
+         if( $continuar == TRUE )
          {
             $this->albaran->fecha = $_POST['fecha'];
             $this->albaran->hora = $_POST['hora'];

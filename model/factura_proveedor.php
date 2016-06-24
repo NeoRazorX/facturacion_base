@@ -714,10 +714,10 @@ class factura_proveedor extends fs_model
          return FALSE;
    }
    
-   public function all($offset=0, $limit=FS_ITEM_LIMIT)
+   public function all($offset=0, $limit=FS_ITEM_LIMIT, $orden)
    {
       $faclist = array();
-      $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY fecha DESC, codigo DESC", $limit, $offset);
+      $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY ".$orden, $limit, $offset);
       if($facturas)
       {
          foreach($facturas as $f)
@@ -844,11 +844,11 @@ class factura_proveedor extends fs_model
       return $faclist;
    }
    
-   public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT)
+   public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT, $orden)
    {
       $faclist = array();
       $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name.
-         " WHERE pagada = false AND idpagodevol = '0' and idasiento != 'NULL' ORDER BY fecha ASC, codigo ASC", $limit, $offset);
+         " WHERE pagada = false AND idpagodevol = '0' and idasiento != 'NULL' ORDER BY ".$orden, $limit, $offset);
       if($facturas)
       {
          foreach($facturas as $f)

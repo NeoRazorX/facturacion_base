@@ -2,6 +2,7 @@
 
 {if="$fsc->proveedor"}
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
+<script type="text/javascript" src="plugins/facturacion_base/view/js/calendario_one.js"></script>
 <script type="text/javascript">
    function comprobar_url()
    {
@@ -79,14 +80,28 @@
       });
    });
    
-   		$(function() {		
-						$('.calendario').datepicker({
-						format: "dd-mm-yyyy",
-						autoclose: true,
-							}).on('changeDate', function (ev) {
-								$(this).datepicker('hide');
-							});
-					});
+     	function guarprov()
+	{	
+				fechac=document.getElementById("caivence").value;
+				var d1 =fechac.substr(0,2);
+				var m1 =fechac.substr(3,2);
+				var y1 =fechac.substr(6);
+				
+				var fe1 = new Date(y1,m1,d1);
+				
+				if( !isNaN(fe1) ) 
+				{
+				document.getElementById("caivence").value = d1+'-'+m1+'-'+y1;
+				}
+				else 
+				{
+				document.getElementById("caivence").value = "";
+				}
+
+				if( confirm("¿Realmente desea guardar la información ?\n\  VERIFIQUE LOS DATOS") )
+				document.f_proveedor.submit(); 
+				 
+	}
    
    
 </script>
@@ -152,6 +167,8 @@
       var chart = new google.visualization.AreaChart(document.getElementById('chart_albaranes_month'));
       chart.draw(data);
    }
+   
+   
 </script>
 {/if}
 
@@ -221,13 +238,13 @@
 						 <div class="col-sm-2">
                            <div class="form-group">
                               CAI:
-                              <input class="form-control" type="text" name="cai" value="{$fsc->proveedor->cai}" autocomplete="off"/>
+                              <input class="form-control" type="text" id="cai" name="cai" value="{$fsc->proveedor->cai}" autocomplete="off"/>
                            </div>
                         </div>
 						<div class="col-sm-2">
                            <div class="form-group">
                               CAI vencimiento:
-                              <input class="form-control calendario"  data-date-format="dd-mm-yyyy" type="text" name="caivence" {if="strtotime($fsc->proveedor->caivence) > strtotime('01-01-2000')"}  value="{$fsc->proveedor->caivence}"{else}value="" {/if} autocomplete="off"/>
+                              <input class="form-control calendario"  data-date-format="dd-mm-yyyy" type="text" id="caivence" name="caivence" {if="strtotime($fsc->proveedor->caivence) > strtotime('01-01-2000')"}  value="{$fsc->proveedor->caivence}"{else}value="" {/if} autocomplete="off"/>
                            </div>
                         </div>
                         <div class="col-sm-3">
@@ -343,7 +360,7 @@
                   </div>
                </div>
                <div class="panel-footer text-right">
-                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                  <button class="btn btn-sm btn-primary" onclick="guarprov()">
                      <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
                   </button>
                </div>

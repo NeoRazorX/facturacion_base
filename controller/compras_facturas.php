@@ -59,8 +59,10 @@ class compras_facturas extends fs_controller
       $this->autorizar_factura = 1;
 	  
 	  if( isset($_GET['nueva']) )
-	  if($_GET['nueva']) $this->new_message("Factura guardada correctamente.");
-	  
+	  {
+	  if($_GET['nueva'] == 1) $this->new_message("Factura guardada correctamente.");
+	  if($_GET['nueva'] == 2) $this->new_error_msg("La Factura no se guardó. La Fecha corresponde a un ejercicio Cerrado o Inexistente.");
+	  }
       $this->mostrar = 'todo';
       if( isset($_GET['mostrar']) )
       {
@@ -91,11 +93,11 @@ class compras_facturas extends fs_controller
          }
          else if($_GET['order'] == 'codigo_desc')
          {
-            $this->order = 'codigo DESC';
+            $this->order = 'numproveedor DESC';
          }
          else if($_GET['order'] == 'codigo_asc')
          {
-            $this->order = 'codigo ASC';
+            $this->order = 'numproveedor ASC';
          }
          
          setcookie('compras_fac_order', $this->order, time()+FS_COOKIES_EXPIRE);
@@ -183,11 +185,11 @@ class compras_facturas extends fs_controller
          $order2 = '';
          if($this->order == 'fecha DESC')
          {
-            $order2 = ', codigo DESC';
+            $order2 = ', numproveedor DESC';
          }
          else if($this->order == 'fecha ASC')
          {
-            $order2 = ', codigo ASC';
+            $order2 = ', numproveedor ASC';
          }
          
          if($this->mostrar == 'sinpagar')
