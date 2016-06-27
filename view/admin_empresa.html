@@ -354,6 +354,34 @@
                                  </div>
                               </div>
                            </div>
+                           <div class="row">
+                              <div class="col-sm-12">
+                              <hr/>
+                                 <div class="col-sm-5">
+                                    <div class="checkbox">
+                                       <label>
+                                          {if="$fsc->empresa->email_config['mail_sent_save']"}
+                                          <input type="checkbox" name="mail_sent_save" value="TRUE" checked=""/>
+                                          {else}
+                                          <input type="checkbox" name="mail_sent_save" value="TRUE"/>
+                                          {/if}
+                                          <b>Guardar el correo enviado en el servidor.</b><br/> Solo válido si usas protocolo IMAP. Debes especificar el nombre de la carpeta donde guardar el correo, suele ser "Sent".
+                                       </label>
+                                    </div>
+                                 </div>
+                                 <div class="col-sm-4">
+                                    <div class="form-group">
+                                       Escribe le nombre de la carpeta:
+                                       <div class="input-group">
+                                          <span class="input-group-addon">
+                                             <span class="glyphicon glyphicon-folder-open"></span>
+                                          </span>
+                                          <input class="form-control" type="text" name="mail_folder_save" value="{$fsc->empresa->email_config['mail_folder_save']}" autocomplete="off"/>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
                         </div>
                         <div class="panel-footer">
                            <p class="help-block">
