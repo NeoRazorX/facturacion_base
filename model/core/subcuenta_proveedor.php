@@ -87,7 +87,7 @@ class subcuenta_proveedor extends \fs_model
       $data = $this->db->select($sql);
       if($data)
       {
-         return new subcuenta_proveedor($data[0]);
+         return new \subcuenta_proveedor($data[0]);
       }
       else
          return FALSE;
@@ -98,7 +98,7 @@ class subcuenta_proveedor extends \fs_model
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($id).";");
       if($data)
       {
-         return new subcuenta_proveedor($data[0]);
+         return new \subcuenta_proveedor($data[0]);
       }
       else
          return FALSE;
@@ -162,7 +162,7 @@ class subcuenta_proveedor extends \fs_model
       {
          foreach($data as $s)
          {
-            $sclist[] = new subcuenta_proveedor($s);
+            $sclist[] = new \subcuenta_proveedor($s);
          }
       }
       

@@ -82,7 +82,7 @@ class grupo_epigrafes extends \fs_model
       $grupo = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idgrupo = ".$this->var2str($id).";");
       if($grupo)
       {
-         return new grupo_epigrafes($grupo[0]);
+         return new \grupo_epigrafes($grupo[0]);
       }
       else
          return FALSE;
@@ -96,7 +96,7 @@ class grupo_epigrafes extends \fs_model
       $grupo = $this->db->select($sql);
       if($grupo)
       {
-         return new grupo_epigrafes($grupo[0]);
+         return new \grupo_epigrafes($grupo[0]);
       }
       else
          return FALSE;
@@ -178,7 +178,7 @@ class grupo_epigrafes extends \fs_model
       {
          foreach($data as $ep)
          {
-            $epilist[] = new grupo_epigrafes($ep);
+            $epilist[] = new \grupo_epigrafes($ep);
          }
       }
       
@@ -303,7 +303,7 @@ class epigrafe extends \fs_model
       {
          foreach($data as $ep)
          {
-            $epilist[] = new epigrafe($ep);
+            $epilist[] = new \epigrafe($ep);
          }
       }
       
@@ -321,7 +321,7 @@ class epigrafe extends \fs_model
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idepigrafe = ".$this->var2str($id).";");
       if($data)
       {
-         return new epigrafe($data[0]);
+         return new \epigrafe($data[0]);
       }
       else
          return FALSE;
@@ -335,7 +335,7 @@ class epigrafe extends \fs_model
       $data = $this->db->select($sql);
       if($data)
       {
-         return new epigrafe($data[0]);
+         return new \epigrafe($data[0]);
       }
       else
          return FALSE;
@@ -418,7 +418,7 @@ class epigrafe extends \fs_model
       {
          foreach($data as $ep)
          {
-            $epilist[] = new epigrafe($ep);
+            $epilist[] = new \epigrafe($ep);
          }
       }
       
@@ -436,7 +436,7 @@ class epigrafe extends \fs_model
       {
          foreach($data as $ep)
          {
-            $epilist[] = new epigrafe($ep);
+            $epilist[] = new \epigrafe($ep);
          }
       }
       
@@ -454,7 +454,7 @@ class epigrafe extends \fs_model
       {
          foreach($data as $ep)
          {
-            $epilist[] = new epigrafe($ep);
+            $epilist[] = new \epigrafe($ep);
          }
       }
       
@@ -472,7 +472,7 @@ class epigrafe extends \fs_model
       {
          foreach($data as $ep)
          {
-            $epilist[] = new epigrafe($ep);
+            $epilist[] = new \epigrafe($ep);
          }
       }
       

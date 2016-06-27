@@ -152,7 +152,7 @@ class informe_albaranes extends fs_controller
       else
          $sql_aux = "DATE_FORMAT(fecha, '%d')";
       
-      $data = $this->db->select("SELECT ".$sql_aux." as dia, sum(total) as total
+      $data = $this->db->select("SELECT ".$sql_aux." as dia, sum(totaleuros) as total
          FROM ".$table_name." WHERE fecha >= ".$this->empresa->var2str($desde)."
          AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))."
          GROUP BY ".$sql_aux." ORDER BY dia ASC;");
@@ -163,7 +163,7 @@ class informe_albaranes extends fs_controller
             $i = intval($d['dia']);
             $stats[$i] = array(
                 'day' => $i,
-                'total' => floatval($d['total'])
+                'total' => $this->euro_convert( floatval($d['total']) )
             );
          }
       }
@@ -240,7 +240,7 @@ class informe_albaranes extends fs_controller
       else
          $sql_aux = "DATE_FORMAT(fecha, '%m')";
       
-      $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(total) as total
+      $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(totaleuros) as total
          FROM ".$table_name." WHERE fecha >= ".$this->empresa->var2str($desde)."
          AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))."
          GROUP BY ".$sql_aux." ORDER BY mes ASC;");
@@ -251,7 +251,7 @@ class informe_albaranes extends fs_controller
             $i = intval($d['mes']);
             $stats[$i] = array(
                 'month' => $i,
-                'total' => floatval($d['total'])
+                'total' => $this->euro_convert( floatval($d['total']) )
             );
          }
       }
@@ -299,7 +299,7 @@ class informe_albaranes extends fs_controller
       else
          $sql_aux = "DATE_FORMAT(fecha, '%Y')";
       
-      $data = $this->db->select("SELECT ".$sql_aux." as ano, sum(total) as total
+      $data = $this->db->select("SELECT ".$sql_aux." as ano, sum(totaleuros) as total
          FROM ".$table_name." WHERE fecha >= ".$this->empresa->var2str($desde)."
          AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))."
          GROUP BY ".$sql_aux." ORDER BY ano ASC;");
@@ -310,7 +310,7 @@ class informe_albaranes extends fs_controller
             $i = intval($d['ano']);
             $stats[$i] = array(
                 'year' => $i,
-                'total' => floatval($d['total'])
+                'total' => $this->euro_convert( floatval($d['total']) )
             );
          }
       }

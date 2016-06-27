@@ -675,7 +675,7 @@ class factura_cliente extends \fs_model
       {
          foreach($data as $d)
          {
-            $devoluciones[] = new factura_cliente($d);
+            $devoluciones[] = new \factura_cliente($d);
          }
       }
       
@@ -687,7 +687,7 @@ class factura_cliente extends \fs_model
       $fact = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id).";");
       if($fact)
       {
-         return new factura_cliente($fact[0]);
+         return new \factura_cliente($fact[0]);
       }
       else
          return FALSE;
@@ -698,7 +698,7 @@ class factura_cliente extends \fs_model
       $fact = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codigo = ".$this->var2str($cod).";");
       if($fact)
       {
-         return new factura_cliente($fact[0]);
+         return new \factura_cliente($fact[0]);
       }
       else
          return FALSE;
@@ -713,7 +713,7 @@ class factura_cliente extends \fs_model
       $fact = $this->db->select($sql);
       if($fact)
       {
-         return new factura_cliente($fact[0]);
+         return new \factura_cliente($fact[0]);
       }
       else
          return FALSE;
@@ -817,8 +817,21 @@ class factura_cliente extends \fs_model
       }
    }
    
+   /**
+    * Comprueba los datos de la factura, devuelve TRUE si está todo correcto
+    * @return boolean
+    */
    public function test()
    {
+      $this->nombrecliente = $this->no_html($this->nombrecliente);
+      $this->direccion = $this->no_html($this->direccion);
+      $this->ciudad = $this->no_html($this->ciudad);
+      $this->provincia = $this->no_html($this->provincia);
+      $this->envio_nombre = $this->no_html($this->envio_nombre);
+      $this->envio_apellidos = $this->no_html($this->envio_apellidos);
+      $this->envio_direccion = $this->no_html($this->envio_direccion);
+      $this->envio_ciudad = $this->no_html($this->envio_ciudad);
+      $this->envio_provincia = $this->no_html($this->envio_provincia);
       $this->observaciones = $this->no_html($this->observaciones);
       $this->totaleuros = round($this->total / $this->tasaconv, 2);
       
@@ -1168,7 +1181,7 @@ class factura_cliente extends \fs_model
       {
          foreach($data as $f)
          {
-            $faclist[] = new factura_cliente($f);
+            $faclist[] = new \factura_cliente($f);
          }
       }
       
@@ -1192,7 +1205,7 @@ class factura_cliente extends \fs_model
       {
          foreach($data as $f)
          {
-            $faclist[] = new factura_cliente($f);
+            $faclist[] = new \factura_cliente($f);
          }
       }
       
@@ -1217,7 +1230,7 @@ class factura_cliente extends \fs_model
       {
          foreach($data as $f)
          {
-            $faclist[] = new factura_cliente($f);
+            $faclist[] = new \factura_cliente($f);
          }
       }
       
@@ -1242,7 +1255,7 @@ class factura_cliente extends \fs_model
       {
          foreach($data as $f)
          {
-            $faclist[] = new factura_cliente($f);
+            $faclist[] = new \factura_cliente($f);
          }
       }
       
@@ -1293,7 +1306,7 @@ class factura_cliente extends \fs_model
       {
          foreach($data as $f)
          {
-            $faclist[] = new factura_cliente($f);
+            $faclist[] = new \factura_cliente($f);
          }
       }
       
@@ -1328,7 +1341,7 @@ class factura_cliente extends \fs_model
       {
          foreach($data as $f)
          {
-            $faclist[] = new factura_cliente($f);
+            $faclist[] = new \factura_cliente($f);
          }
       }
       
@@ -1363,7 +1376,7 @@ class factura_cliente extends \fs_model
       {
          foreach($data as $f)
          {
-            $faclist[] = new factura_cliente($f);
+            $faclist[] = new \factura_cliente($f);
          }
       }
       

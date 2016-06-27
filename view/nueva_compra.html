@@ -18,6 +18,8 @@
    
    $(document).ready(function() {
       usar_serie();
+      usar_almacen();
+      usar_divisa();
       recalcular();
    });
 </script>
@@ -53,14 +55,30 @@
          </div>
          <div class="col-sm-2">
             <div class="form-group">
-               Fecha:
-               <input type="text" name="fecha" class="form-control datepicker" value="{$fsc->today()}" autocomplete="off"/>
+               <a href="{$fsc->almacen->url()}">Almacén</a>:
+               <select name="almacen" class="form-control" id="codalmacen" onchange="usar_almacen()">
+               {loop="$fsc->almacen->all()"}
+                  {if="$value->is_default()"}
+                  <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
+                  {else}
+                  <option value="{$value->codalmacen}">{$value->nombre}</option>
+                  {/if}
+               {/loop}
+               </select>
             </div>
          </div>
          <div class="col-sm-2">
             <div class="form-group">
-               Hora:
-               <input type="text" name="hora" class="form-control" value="{$fsc->hour()}" autocomplete="off"/>
+               <a href="{$fsc->divisa->url()}">Divisa</a>:
+               <select name="divisa" class="form-control" id="coddivisa" onchange="usar_divisa()">
+               {loop="$fsc->divisa->all()"}
+                  {if="$value->is_default()"}
+                  <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
+                  {else}
+                  <option value="{$value->coddivisa}">{$value->descripcion}</option>
+                  {/if}
+               {/loop}
+               </select>
             </div>
          </div>
       </div>
@@ -144,9 +162,8 @@
                         <input class="form-control" type="text" name="cifnif" value="{$fsc->proveedor_s->cifnif}" autocomplete="off"/>
                      </div>
                   </div>
-               </div>
-               <div class="row">
-                  <div class="col-sm-3">
+                  <div class="col-sm-2"></div>
+                  <div class="col-sm-2">
                      <div class="form-group">
                         <a href="{$fsc->agente->url()}">Empleado</a>:
                         <select name="codagente" class="form-control">
@@ -157,26 +174,6 @@
                               <option value="{$value->codagente}">{$value->get_fullname()}</option>
                               {/loop}
                            {/if}
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-sm-2">
-                     <div class="form-group">
-                        <a href="{$fsc->almacen->url()}">Almacén</a>:
-                        <select name="almacen" class="form-control">
-                           {loop="$fsc->almacen->all()"}
-                           <option value="{$value->codalmacen}"{if="$value->is_default()"} selected=""{/if}>{$value->nombre}</option>
-                           {/loop}
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-sm-2">
-                     <div class="form-group">
-                        <a href="{$fsc->divisa->url()}">Divisa</a>:
-                        <select name="divisa" class="form-control">
-                           {loop="$fsc->divisa->all()"}
-                           <option value="{$value->coddivisa}"{if="$value->is_default()"} selected=""{/if}>{$value->descripcion}</option>
-                           {/loop}
                         </select>
                      </div>
                   </div>
@@ -257,6 +254,28 @@
                   </label>
                </div>
                {/loop}
+               <div class="row">
+                  <div class="col-sm-6">
+                     <div class="form-group">
+                        <div class="input-group">
+                           <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-calendar"></span>
+                           </span>
+                           <input type="text" name="fecha" class="form-control datepicker" value="{$fsc->today()}" autocomplete="off"/>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-sm-6">
+                     <div class="form-group">
+                        <div class="input-group">
+                           <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-time"></span>
+                           </span>
+                           <input type="text" name="hora" class="form-control" value="{$fsc->hour()}" autocomplete="off"/>
+                        </div>
+                     </div>
+                  </div>
+               </div>
                <div class="form-group">
                   Núm. proveedor:
                   <input class="form-control" type="text" name="numproveedor" autocomplete="off"/>
@@ -320,6 +339,8 @@
          <div class="modal-body">
             <form id="f_buscar_articulos" name="f_buscar_articulos" action="{$fsc->url()}" method="post" class="form">
                <input type="hidden" name="codproveedor" value="{$fsc->proveedor_s->codproveedor}"/>
+               <input type="hidden" name="codalmacen"/>
+               <input type="hidden" name="coddivisa"/>
                <div class="container-fluid">
                   <div class="row">
                      <div class="col-sm-4">

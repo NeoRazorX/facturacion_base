@@ -356,11 +356,11 @@ class articulo extends \fs_model
    {
       if( mb_strlen($this->descripcion, 'UTF8') > $len )
       {
-         return mb_substr( nl2br($this->descripcion), 0, $len).'...';
+         return mb_substr($this->descripcion, 0, $len).'...';
       }
       else
       {
-         return nl2br($this->descripcion);
+         return $this->descripcion;
       }
    }
    
@@ -397,6 +397,10 @@ class articulo extends \fs_model
       return $this->preciocoste() * (100+$this->get_iva()) / 100;
    }
    
+   /**
+    * Devuelve la url donde ver/modificar estos datos
+    * @return string
+    */
    public function url()
    {
       if( is_null($this->referencia) )
@@ -443,7 +447,7 @@ class articulo extends \fs_model
       $art = $this->db->select("SELECT ".self::$column_list." FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref).";");
       if($art)
       {
-         return new articulo($art[0]);
+         return new \articulo($art[0]);
       }
       else
          return FALSE;
@@ -563,7 +567,7 @@ class articulo extends \fs_model
             {
                if($d['referencia'] != $this->referencia)
                {
-                  $artilist[] = new articulo($d);
+                  $artilist[] = new \articulo($d);
                }
             }
          }
@@ -1190,36 +1194,31 @@ class articulo extends \fs_model
       
       if( count($artilist) <= 1 )
       {
-         $sql = "SELECT ".self::$column_list." FROM ".$this->table_name;
-         $separador = ' WHERE';
+         $sql = "SELECT ".self::$column_list." FROM ".$this->table_name.' WHERE bloqueado = false';
+         $separador = ' AND';
          
          if($codfamilia != '')
          {
             $sql .= $separador." codfamilia = ".$this->var2str($codfamilia);
-            $separador = ' AND';
          }
          
          if($codfabricante != '')
          {
             $sql .= $separador." codfabricante = ".$this->var2str($codfabricante);
-            $separador = ' AND';
          }
          
          if($con_stock)
          {
             $sql .= $separador." stockfis > 0";
-            $separador = ' AND';
          }
          
          if($bloqueados)
          {
             $sql .= $separador." bloqueado";
-            $separador = ' AND';
          }
          else
          {
             $sql .= $separador." bloqueado = FALSE";
-            $separador = ' AND';
          }
          
          if($query == '')
@@ -1285,7 +1284,7 @@ class articulo extends \fs_model
          {
             foreach($data as $a)
             {
-               $artilist[] = new articulo($a);
+               $artilist[] = new \articulo($a);
             }
          }
       }
@@ -1312,7 +1311,7 @@ class articulo extends \fs_model
       {
          foreach($data as $d)
          {
-            $artilist[] = new articulo($d);
+            $artilist[] = new \articulo($d);
          }
       }
       
@@ -1336,7 +1335,7 @@ class articulo extends \fs_model
       {
          foreach($data as $d)
          {
-            $artilist[] = new articulo($d);
+            $artilist[] = new \articulo($d);
          }
       }
       
@@ -1360,7 +1359,7 @@ class articulo extends \fs_model
       {
          foreach($data as $d)
          {
-            $artilist[] = new articulo($d);
+            $artilist[] = new \articulo($d);
          }
       }
       
@@ -1385,7 +1384,7 @@ class articulo extends \fs_model
       {
          foreach($data as $d)
          {
-            $artilist[] = new articulo($d);
+            $artilist[] = new \articulo($d);
          }
       }
       
@@ -1410,7 +1409,7 @@ class articulo extends \fs_model
       {
          foreach($data as $d)
          {
-            $artilist[] = new articulo($d);
+            $artilist[] = new \articulo($d);
          }
       }
       

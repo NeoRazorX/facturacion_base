@@ -307,7 +307,7 @@ class cliente extends \fs_model
       $cli = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($cod).";");
       if($cli)
       {
-         return new cliente($cli[0]);
+         return new \cliente($cli[0]);
       }
       else
          return FALSE;
@@ -338,7 +338,7 @@ class cliente extends \fs_model
       $data = $this->db->select($sql);
       if($data)
       {
-         return new cliente($data[0]);
+         return new \cliente($data[0]);
       }
       else
          return FALSE;
@@ -592,7 +592,7 @@ class cliente extends \fs_model
       {
          foreach($data as $d)
          {
-            $clientlist[] = new cliente($d);
+            $clientlist[] = new \cliente($d);
          }
       }
       
@@ -613,7 +613,7 @@ class cliente extends \fs_model
          {
             foreach($data as $d)
             {
-               $clientlist[] = new cliente($d);
+               $clientlist[] = new \cliente($d);
             }
          }
          $this->cache->set('m_cliente_all', $clientlist);
@@ -648,7 +648,7 @@ class cliente extends \fs_model
       {
          foreach($data as $d)
          {
-            $clilist[] = new cliente($d);
+            $clilist[] = new \cliente($d);
          }
       }
       
@@ -673,7 +673,7 @@ class cliente extends \fs_model
       {
          foreach($data as $d)
          {
-            $clilist[] = new cliente($d);
+            $clilist[] = new \cliente($d);
          }
       }
       

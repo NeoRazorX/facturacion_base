@@ -277,12 +277,12 @@
                   </tr>
                   {if="$fsc->factura->coddivisa!=$fsc->empresa->coddivisa"}
                   <tr class="warning">
-                     <td colspan="5" class="text-right"><b>EUR:</b></td>
+                     <td colspan="5" class="text-right"><b>{$fsc->empresa->coddivisa}:</b></td>
                      <td></td>
                      <td></td>
                      <td class="recargo"></td>
                      <td class="irpf"></td>
-                     <td class="text-right"><b>{$fsc->show_precio($fsc->factura->totaleuros)}</b></td>
+                     <td class="text-right"><b>{$fsc->show_precio($fsc->euro_convert($fsc->factura->totaleuros))}</b></td>
                   </tr>
                   {/if}
                </table>

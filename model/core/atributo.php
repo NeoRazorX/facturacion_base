@@ -63,7 +63,7 @@ class atributo extends \fs_model
    
    public function valores()
    {
-      $valor0 = new atributo_valor();
+      $valor0 = new \atributo_valor();
       return $valor0->all_from_atributo($this->codatributo);
    }
    
@@ -72,7 +72,7 @@ class atributo extends \fs_model
       $data = $this->db->select("SELECT * FROM atributos WHERE codatributo = ".$this->var2str($cod).";");
       if($data)
       {
-         return new atributo($data[0]);
+         return new \atributo($data[0]);
       }
       else
       {
@@ -125,7 +125,7 @@ class atributo extends \fs_model
       {
          foreach($data as $d)
          {
-            $lista[] = new atributo($d);
+            $lista[] = new \atributo($d);
          }
       }
       

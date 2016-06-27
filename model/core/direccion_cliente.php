@@ -110,7 +110,7 @@ class direccion_cliente extends \fs_model
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($id).";");
       if($data)
       {
-         return new direccion_cliente($data[0]);
+         return new \direccion_cliente($data[0]);
       }
       else
          return FALSE;
@@ -194,7 +194,7 @@ class direccion_cliente extends \fs_model
       {
          foreach($data as $d)
          {
-            $dirlist[] = new direccion_cliente($d);
+            $dirlist[] = new \direccion_cliente($d);
          }
       }
       
@@ -210,7 +210,7 @@ class direccion_cliente extends \fs_model
       {
          foreach($data as $d)
          {
-            $dirlist[] = new direccion_cliente($d);
+            $dirlist[] = new \direccion_cliente($d);
          }
       }
       

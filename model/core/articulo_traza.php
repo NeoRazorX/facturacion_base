@@ -115,7 +115,7 @@ class articulo_traza extends \fs_model
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($id).";");
       if($data)
       {
-         return new articulo_traza($data[0]);
+         return new \articulo_traza($data[0]);
       }
       else
       {
@@ -128,7 +128,7 @@ class articulo_traza extends \fs_model
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE numserie = ".$this->var2str($numserie).";");
       if($data)
       {
-         return new articulo_traza($data[0]);
+         return new \articulo_traza($data[0]);
       }
       else
       {
@@ -201,7 +201,7 @@ class articulo_traza extends \fs_model
       {
          foreach($data as $d)
          {
-            $lista[] = new articulo_traza($d);
+            $lista[] = new \articulo_traza($d);
          }
       }
       
@@ -224,7 +224,7 @@ class articulo_traza extends \fs_model
       {
          foreach($data as $d)
          {
-            $lista[] = new articulo_traza($d);
+            $lista[] = new \articulo_traza($d);
          }
       }
       
@@ -244,7 +244,7 @@ class articulo_traza extends \fs_model
       {
          foreach($data as $d)
          {
-            $numlist[] = new articulo_traza($d);
+            $numlist[] = new \articulo_traza($d);
          }
       }
       
@@ -261,7 +261,7 @@ class articulo_traza extends \fs_model
       {
          foreach($data as $d)
          {
-            $lista[] = new articulo_traza($d);
+            $lista[] = new \articulo_traza($d);
          }
       }
       

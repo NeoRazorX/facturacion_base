@@ -69,12 +69,17 @@ class articulo_combinacion extends \fs_model
       return '';
    }
    
+   /**
+    * Devuelve la combinación del artículo con id = $id
+    * @param type $id
+    * @return \FacturaScripts\model\articulo_combinacion|boolean
+    */
    public function get($id)
    {
       $data = $this->db->select("SELECT * FROM articulo_combinaciones WHERE id = ".$this->var2str($id).";");
       if($data)
       {
-         return new articulo_combinacion($data[0]);
+         return new \articulo_combinacion($data[0]);
       }
       else
       {
@@ -82,12 +87,17 @@ class articulo_combinacion extends \fs_model
       }
    }
    
+   /**
+    * Devuelve la combinación de artículo con codigo = $cod
+    * @param type $cod
+    * @return \FacturaScripts\model\articulo_combinacion|boolean
+    */
    public function get_by_codigo($cod)
    {
       $data = $this->db->select("SELECT * FROM articulo_combinaciones WHERE codigo = ".$this->var2str($cod).";");
       if($data)
       {
-         return new articulo_combinacion($data[0]);
+         return new \articulo_combinacion($data[0]);
       }
       else
       {
@@ -95,6 +105,10 @@ class articulo_combinacion extends \fs_model
       }
    }
    
+   /**
+    * Devuelve un nuevo código para una combinación de artículo
+    * @return int
+    */
    private function get_new_codigo()
    {
       $cod = $this->db->select("SELECT MAX(".$this->db->sql_to_int('codigo').") as cod FROM ".$this->table_name.";");
@@ -106,6 +120,10 @@ class articulo_combinacion extends \fs_model
          return 1;
    }
    
+   /**
+    * Devuelve TRUE si la combinación de artículo existe en la base de datos
+    * @return boolean
+    */
    public function exists()
    {
       if( is_null($this->id) )
@@ -118,6 +136,10 @@ class articulo_combinacion extends \fs_model
       }
    }
    
+   /**
+    * Guarda los datos en la base de datos
+    * @return boolean
+    */
    public function save()
    {
       if( $this->exists() )
@@ -159,16 +181,30 @@ class articulo_combinacion extends \fs_model
       }
    }
    
+   /**
+    * Elimina la combinación de artículo
+    * @return type
+    */
    public function delete()
    {
       return $this->db->exec("DELETE FROM articulo_combinaciones WHERE id = ".$this->var2str($this->id).";");
    }
    
+   /**
+    * Elimina todas las combinaciones del artículo con referencia = $ref
+    * @param type $ref
+    * @return type
+    */
    public function delete_from_ref($ref)
    {
       return $this->db->exec("DELETE FROM articulo_combinaciones WHERE referencia = ".$this->var2str($ref).";");
    }
    
+   /**
+    * Devuelve un array con todas las combinaciones del artículo con referencia = $ref
+    * @param type $ref
+    * @return \FacturaScripts\model\articulo_combinacion
+    */
    public function all_from_ref($ref)
    {
       $lista = array();
@@ -180,13 +216,18 @@ class articulo_combinacion extends \fs_model
       {
          foreach($data as $d)
          {
-            $lista[] = new articulo_combinacion($d);
+            $lista[] = new \articulo_combinacion($d);
          }
       }
       
       return $lista;
    }
    
+   /**
+    * Devuelve un array con todas las combinaciones con código = $cod
+    * @param type $cod
+    * @return \FacturaScripts\model\articulo_combinacion
+    */
    public function all_from_codigo($cod)
    {
       $lista = array();
@@ -198,7 +239,7 @@ class articulo_combinacion extends \fs_model
       {
          foreach($data as $d)
          {
-            $lista[] = new articulo_combinacion($d);
+            $lista[] = new \articulo_combinacion($d);
          }
       }
       

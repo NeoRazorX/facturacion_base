@@ -76,7 +76,7 @@ class secuencia extends \fs_model
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idsec = ".$this->var2str($idsec).";");
       if($data)
       {
-         return new secuencia($data[0]);
+         return new \secuencia($data[0]);
       }
       else
          return FALSE;
@@ -90,7 +90,7 @@ class secuencia extends \fs_model
       $data = $this->db->select($sql);
       if($data)
       {
-         return new secuencia($data[0]);
+         return new \secuencia($data[0]);
       }
       else
          return FALSE;
@@ -110,7 +110,7 @@ class secuencia extends \fs_model
          }
          else
          {
-            $newsec = new secuencia();
+            $newsec = new \secuencia();
             $newsec->id = $aux->id;
             $newsec->nombre = $nombre;
             $newsec->descripcion = 'Secuencia del ejercicio '.$eje.' y la serie '.$serie;
@@ -226,7 +226,7 @@ class secuencia_contabilidad extends \fs_model
       $data = $this->db->select($sql);
       if($data)
       {
-         return new secuencia_contabilidad($data[0]);
+         return new \secuencia_contabilidad($data[0]);
       }
       else
          return FALSE;
@@ -241,7 +241,7 @@ class secuencia_contabilidad extends \fs_model
       }
       else
       {
-         $newsec = new secuencia_contabilidad();
+         $newsec = new \secuencia_contabilidad();
          $newsec->codejercicio = $eje;
          $newsec->descripcion = 'Creado por FacturaScripts';
          $newsec->nombre = $nombre;
@@ -363,7 +363,7 @@ class secuencia_ejercicio extends \fs_model
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($id).";");
       if($data)
       {
-         return new secuencia_ejercicio($data[0]);
+         return new \secuencia_ejercicio($data[0]);
       }
       else
          return FALSE;
@@ -377,7 +377,7 @@ class secuencia_ejercicio extends \fs_model
       $data = $this->db->select($sql);
       if($data)
       {
-         return new secuencia_ejercicio($data[0]);
+         return new \secuencia_ejercicio($data[0]);
       }
       else
          return FALSE;
@@ -402,7 +402,7 @@ class secuencia_ejercicio extends \fs_model
             }
             if( !$encontrada )
             {
-               $aux = new secuencia_ejercicio();
+               $aux = new \secuencia_ejercicio();
                $aux->codejercicio = $e->codejercicio;
                $aux->codserie = $serie->codserie;
                if( !$aux->save() )
@@ -482,7 +482,7 @@ class secuencia_ejercicio extends \fs_model
       {
          foreach($secs as $s)
          {
-            $seclist[] = new secuencia_ejercicio($s);
+            $seclist[] = new \secuencia_ejercicio($s);
          }
       }
       

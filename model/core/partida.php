@@ -203,7 +203,7 @@ class partida extends \fs_model
       $partida = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idpartida = ".$id.";");
       if( $partida )
       {
-         return new partida($partida[0]);
+         return new \partida($partida[0]);
       }
       else
          return FALSE;
@@ -333,7 +333,7 @@ class partida extends \fs_model
       $ordenadas = $this->db->select($sql);
       if( $ordenadas )
       {
-         $partida = new partida();
+         $partida = new \partida();
          $i = 0;
          $saldo = 0;
          $sum_debe = 0;
@@ -374,7 +374,7 @@ class partida extends \fs_model
       {
          foreach($partidas as $p)
          {
-            $plist[] = new partida($p);
+            $plist[] = new \partida($p);
          }
       }
       
@@ -392,7 +392,7 @@ class partida extends \fs_model
       $sum_debe = 0;
       $sum_haber = 0;
       
-      $partida = new partida();
+      $partida = new \partida();
       $offset = 0;
       $data = $this->db->select_limit($sql, 100, $offset);
       while($data)

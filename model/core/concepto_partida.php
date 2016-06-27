@@ -58,7 +58,7 @@ class concepto_partida extends \fs_model
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idconceptopar = ".$this->var2str($id).";");
       if($data)
       {
-         return new concepto_partida($data[0]);
+         return new \concepto_partida($data[0]);
       }
       else
          return FALSE;
@@ -101,7 +101,7 @@ class concepto_partida extends \fs_model
       {
          foreach($data as $c)
          {
-            $concelist[] = new concepto_partida($c);
+            $concelist[] = new \concepto_partida($c);
          }
       }
       

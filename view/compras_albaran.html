@@ -22,6 +22,8 @@
    $(document).ready(function() {
       $("#numlineas").val(numlineas);
       usar_serie();
+      usar_almacen();
+      usar_divisa();
       recalcular();
       $("#ac_proveedor").autocomplete({
          serviceUrl: nueva_compra_url,
@@ -76,6 +78,7 @@
 <form name="f_albaran" action="{$fsc->albaran->url()}" method="post" class="form">
    <input type="hidden" name="idalbaran" value="{$fsc->albaran->idalbaran}"/>
    <input type="hidden" name="proveedor" value="{$fsc->albaran->codproveedor}"/>
+   <input type="hidden" name="almacen" id="codalmacen" value="{$fsc->albaran->codalmacen}"/>
    <input type="hidden" id="numlineas" name="numlineas" value="0"/>
    <div class="container-fluid">
       <div class="row">
@@ -457,12 +460,12 @@
                   </tr>
                   {if="$fsc->albaran->coddivisa!=$fsc->empresa->coddivisa"}
                   <tr class="warning">
-                     <td colspan="4" class="text-right"><b>EUR:</b></td>
+                     <td colspan="4" class="text-right"><b>{$fsc->empresa->coddivisa}:</b></td>
                      <td></td>
                      <td></td>
                      <td class="recargo"></td>
                      <td class="irpf"></td>
-                     <td class="text-right"><b>{$fsc->show_precio($fsc->albaran->totaleuros)}</b></td>
+                     <td class="text-right"><b>{$fsc->show_precio($fsc->euro_convert($fsc->albaran->totaleuros))}</b></td>
                   </tr>
                   {/if}
                </table>
@@ -508,7 +511,7 @@
                   <div class="col-sm-2">
                      <div class="form-group">
                         <a href="{$fsc->divisa->url()}">Divisa</a>:
-                        <select name="divisa" class="form-control">
+                        <select name="divisa" id="coddivisa" class="form-control" onchange="usar_divisa()">
                         {loop="$fsc->divisa->all()"}
                            {if="$value->coddivisa==$fsc->albaran->coddivisa"}
                            <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
@@ -553,6 +556,8 @@
          <div class="modal-body">
             <form id="f_buscar_articulos" name="f_buscar_articulos" action="{$fsc->url()}" method="post" class="form">
                <input type="hidden" name="codproveedor" value="{$fsc->albaran->codproveedor}"/>
+               <input type="hidden" name="codalmacen"/>
+               <input type="hidden" name="coddivisa"/>
                <div class="container-fluid">
                   <div class="row">
                      <div class="col-sm-4">

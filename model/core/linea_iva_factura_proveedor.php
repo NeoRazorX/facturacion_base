@@ -240,7 +240,7 @@ class linea_iva_factura_proveedor extends \fs_model
       {
          foreach($data as $l)
          {
-            $linealist[] = new linea_iva_factura_proveedor($l);
+            $linealist[] = new \linea_iva_factura_proveedor($l);
          }
       }
       

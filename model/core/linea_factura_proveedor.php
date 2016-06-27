@@ -316,16 +316,16 @@ class linea_factura_proveedor extends \fs_model
    }
    
    /**
-    * Devuelve los datos de una linea 
+    * Devuelve los datos de una linea
     * @param type $idlinea
-    * @return new linea_factura_proveedor
+    * @return boolean|\linea_factura_proveedor
     */
    public function get($idlinea)
    {
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idlinea = ".$this->var2str($idlinea).";");
       if($data)
       {
-         return new linea_factura_proveedor($data[0]);
+         return new \linea_factura_proveedor($data[0]);
       }
       else
       {
@@ -433,7 +433,7 @@ class linea_factura_proveedor extends \fs_model
       {
          foreach($data as $l)
          {
-            $linlist[] = new linea_factura_proveedor($l);
+            $linlist[] = new \linea_factura_proveedor($l);
          }
       }
       
@@ -452,7 +452,7 @@ class linea_factura_proveedor extends \fs_model
       {
          foreach($data as $l)
          {
-            $linealist[] = new linea_factura_proveedor($l);
+            $linealist[] = new \linea_factura_proveedor($l);
          }
       }
       
@@ -481,7 +481,7 @@ class linea_factura_proveedor extends \fs_model
       {
          foreach($data as $l)
          {
-            $linealist[] = new linea_factura_proveedor($l);
+            $linealist[] = new \linea_factura_proveedor($l);
          }
       }
       

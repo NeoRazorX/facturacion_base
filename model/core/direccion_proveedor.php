@@ -96,7 +96,7 @@ class direccion_proveedor extends \fs_model
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($id).";");
       if($data)
       {
-         return new direccion_proveedor($data[0]);
+         return new \direccion_proveedor($data[0]);
       }
       else
          return FALSE;
@@ -178,7 +178,7 @@ class direccion_proveedor extends \fs_model
       {
          foreach($data as $d)
          {
-            $dirlist[] = new direccion_proveedor($d);
+            $dirlist[] = new \direccion_proveedor($d);
          }
       }
       

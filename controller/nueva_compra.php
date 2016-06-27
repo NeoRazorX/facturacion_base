@@ -315,15 +315,22 @@ class nueva_compra extends fs_controller
       /// desactivamos la plantilla HTML
       $this->template = FALSE;
       
+      $fsvar = new fs_var();
+      $multi_almacen = $fsvar->simple_get('multi_almacen');
+      $stock = new stock();
+      
       $this->results = $this->search_from_proveedor();
       
-      /// completamos los datos
+      /// completamos los datos de la búsqueda
       foreach($this->results as $i => $value)
       {
          $this->results[$i]->query = $this->query;
          $this->results[$i]->coste = $value->preciocoste();
          $this->results[$i]->dtopor = 0;
+         $this->results[$i]->cantidad = 1;
+         $this->results[$i]->coddivisa = $this->empresa->coddivisa;
          
+         /// si tenemos un codproveedor, ahí que buscar el coste para este proveedor
          if( isset($_REQUEST['codproveedor']) )
          {
             $ap = $this->articulo_prov->get_by($value->referencia, $_REQUEST['codproveedor']);
@@ -332,6 +339,34 @@ class nueva_compra extends fs_controller
                $this->results[$i]->coste = $ap->precio;
                $this->results[$i]->dtopor = $ap->dto;
             }
+         }
+         
+         /// añadimos el stock del almacén y el general
+         $this->results[$i]->stockalm = $this->results[$i]->stockfis;
+         if( $multi_almacen AND isset($_REQUEST['codalmacen']) )
+         {
+            $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
+         }
+         
+         /// convertimos la divisa
+         if( isset($_REQUEST['coddivisa']) )
+         {
+            if($_REQUEST['coddivisa'] != $this->empresa->coddivisa)
+            {
+               $this->results[$i]->coddivisa = $_REQUEST['coddivisa'];
+               $this->results[$i]->coste = $this->divisa_convert($value->coste, $this->empresa->coddivisa, $_REQUEST['coddivisa']);
+               $this->results[$i]->pvp = $this->divisa_convert($value->pvp, $this->empresa->coddivisa, $_REQUEST['coddivisa']);
+            }
+         }
+      }
+      
+      /// ejecutamos las funciones de las extensiones
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'function' AND $ext->params == 'new_search')
+         {
+            $name = $ext->text;
+            $name($this->db, $this->results);
          }
       }
       
@@ -1079,32 +1114,28 @@ class nueva_compra extends fs_controller
    {
       $artilist = array();
       $query = $this->articulo_prov->no_html( mb_strtolower($this->query, 'UTF8') );
-      $sql = "SELECT * FROM articulos";
-      $separador = ' WHERE';
+      $sql = "SELECT * FROM articulos WHERE bloqueado = false";
+      $separador = ' AND';
       
       if($_REQUEST['codfamilia'] != '')
       {
          $sql .= $separador." codfamilia = ".$this->articulo_prov->var2str($_REQUEST['codfamilia']);
-         $separador = ' AND';
       }
       
       if($_REQUEST['codfabricante'] != '')
       {
          $sql .= $separador." codfabricante = ".$this->articulo_prov->var2str($_REQUEST['codfabricante']);
-         $separador = ' AND';
       }
       
       if( isset($_REQUEST['con_stock']) )
       {
          $sql .= $separador." stockfis > 0";
-         $separador = ' AND';
       }
       
       if( isset($_REQUEST['solo_proveedor']) AND isset($_REQUEST['codproveedor']) )
       {
          $sql .= $separador." referencia IN (SELECT referencia FROM articulosprov WHERE codproveedor = "
                  .$this->articulo_prov->var2str($_REQUEST['codproveedor']).")";
-         $separador = ' AND';
       }
       
       if( is_numeric($query) )

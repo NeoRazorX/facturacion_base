@@ -281,7 +281,7 @@ class terminal_caja extends \fs_model
       $data = $this->db->select("SELECT * FROM cajas_terminales WHERE id = ".$this->var2str($id).";");
       if($data)
       {
-         return new terminal_caja($data[0]);
+         return new \terminal_caja($data[0]);
       }
       else
          return FALSE;
@@ -352,7 +352,7 @@ class terminal_caja extends \fs_model
       {
          foreach($data as $d)
          {
-            $tlist[] = new terminal_caja($d);
+            $tlist[] = new \terminal_caja($d);
          }
       }
       
@@ -371,7 +371,7 @@ class terminal_caja extends \fs_model
       {
          foreach($data as $d)
          {
-            $tlist[] = new terminal_caja($d);
+            $tlist[] = new \terminal_caja($d);
          }
       }
       

@@ -165,7 +165,9 @@ class informe_facturas extends fs_controller
       if($data)
       {
          foreach($data as $d)
+         {
             $provincias[] = $d['provincia'];
+         }
       }
       
       foreach($provincias as $pro)
@@ -942,7 +944,7 @@ class informe_facturas extends fs_controller
       else
          $sql_aux = "DATE_FORMAT(fecha, '%d')";
       
-      $data = $this->db->select("SELECT ".$sql_aux." as dia, sum(total) as total
+      $data = $this->db->select("SELECT ".$sql_aux." as dia, sum(totaleuros) as total
          FROM ".$table_name." WHERE fecha >= ".$this->empresa->var2str($desde)."
          AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))."
          GROUP BY ".$sql_aux." ORDER BY dia ASC;");
@@ -953,7 +955,7 @@ class informe_facturas extends fs_controller
             $i = intval($d['dia']);
             $stats[$i] = array(
                 'day' => $i,
-                'total' => floatval($d['total'])
+                'total' => $this->euro_convert( floatval($d['total']) )
             );
          }
       }
@@ -1042,7 +1044,8 @@ class informe_facturas extends fs_controller
       else
          $sql_aux = "DATE_FORMAT(fecha, '%m')";
       
-      $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(total) as total, sum(totaliva) as totaliva
+      $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(totaleuros) as total
+         , sum(totaliva/tasaconv) as totaliva
          FROM ".$table_name." WHERE fecha >= ".$this->empresa->var2str($desde)."
          AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))."
          GROUP BY ".$sql_aux." ORDER BY mes ASC;");
@@ -1053,8 +1056,8 @@ class informe_facturas extends fs_controller
             $i = intval($d['mes']);
             $stats[$i] = array(
                 'month' => $i,
-                'total' => floatval($d['total']),
-                'totaliva' => floatval($d['totaliva'])
+                'total' => $this->euro_convert( floatval($d['total']) ),
+                'totaliva' => $this->euro_convert( floatval($d['totaliva']) )
             );
          }
       }
@@ -1079,7 +1082,8 @@ class informe_facturas extends fs_controller
       else
          $sql_aux = "DATE_FORMAT(fecha, '%m')";
       
-      $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(neto) as neto, sum(total) as total, sum(totaliva) as totaliva
+      $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(neto/tasaconv) as neto, sum(totaleuros) as total
+         , sum(totaliva/tasaconv) as totaliva
          FROM ".$table_name." WHERE fecha >= ".$this->empresa->var2str($desde)."
          AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))." AND pagada = true
          GROUP BY ".$sql_aux." ORDER BY mes ASC;");
@@ -1090,9 +1094,9 @@ class informe_facturas extends fs_controller
             $i = intval($d['mes']);
             $stats[$i] = array(
                 'month' => $i,
-                'neto' => floatval($d['neto']),
-                'total' => floatval($d['total']),
-                'totaliva' => floatval($d['totaliva'])
+                'neto' => $this->euro_convert( floatval($d['neto']) ),
+                'total' => $this->euro_convert( floatval($d['total']) ),
+                'totaliva' => $this->euro_convert( floatval($d['totaliva']) )
             );
          }
       }
@@ -1150,7 +1154,8 @@ class informe_facturas extends fs_controller
       else
          $sql_aux = "DATE_FORMAT(fecha, '%Y')";
       
-      $data = $this->db->select("SELECT ".$sql_aux." as ano, sum(total) as total, sum(totaliva) as totaliva
+      $data = $this->db->select("SELECT ".$sql_aux." as ano, sum(totaleuros) as total
+         , sum(totaliva/tasaconv) as totaliva
          FROM ".$table_name." WHERE fecha >= ".$this->empresa->var2str($desde)."
          AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))."
          GROUP BY ".$sql_aux." ORDER BY ano ASC;");
@@ -1161,8 +1166,8 @@ class informe_facturas extends fs_controller
             $i = intval($d['ano']);
             $stats[$i] = array(
                 'year' => $i,
-                'total' => floatval($d['total']),
-                'totaliva' => floatval($d['totaliva'])
+                'total' => $this->euro_convert( floatval($d['total']) ),
+                'totaliva' => $this->euro_convert( floatval($d['totaliva']) )
             );
          }
       }
@@ -1187,7 +1192,8 @@ class informe_facturas extends fs_controller
       else
          $sql_aux = "DATE_FORMAT(fecha, '%Y')";
       
-      $data = $this->db->select("SELECT ".$sql_aux." as ano, sum(total) as total, sum(totaliva) as totaliva
+      $data = $this->db->select("SELECT ".$sql_aux." as ano, sum(totaleuros) as total
+         , sum(totaliva/tasaconv) as totaliva
          FROM ".$table_name." WHERE fecha >= ".$this->empresa->var2str($desde)."
          AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))." AND pagada = true
          GROUP BY ".$sql_aux." ORDER BY ano ASC;");
@@ -1198,8 +1204,8 @@ class informe_facturas extends fs_controller
             $i = intval($d['ano']);
             $stats[$i] = array(
                 'year' => $i,
-                'total' => floatval($d['total']),
-                'totaliva' => floatval($d['totaliva'])
+                'total' => $this->euro_convert( floatval($d['total']) ),
+                'totaliva' => $this->euro_convert( floatval($d['totaliva']) )
             );
          }
       }
@@ -1238,38 +1244,38 @@ class informe_facturas extends fs_controller
           'media_beneficios' => 0
       );
       
-      $sql = "SELECT COUNT(idalbaran) as num, SUM(total) as total FROM albaranesprov WHERE ptefactura;";
+      $sql = "SELECT COUNT(idalbaran) as num, SUM(totaleuros) as total FROM albaranesprov WHERE ptefactura;";
       $data = $this->db->select($sql);
       if($data)
       {
          $this->stats['alb_ptes_compra'] = intval($data[0]['num']);
-         $this->stats['alb_ptes_compra_importe'] = floatval($data[0]['total']);
+         $this->stats['alb_ptes_compra_importe'] = $this->euro_convert( floatval($data[0]['total']) );
       }
       
-      $sql = "SELECT COUNT(idalbaran) as num, SUM(total) as total FROM albaranescli WHERE ptefactura;";
+      $sql = "SELECT COUNT(idalbaran) as num, SUM(totaleuros) as total FROM albaranescli WHERE ptefactura;";
       $data = $this->db->select($sql);
       if($data)
       {
          $this->stats['alb_ptes_venta'] = intval($data[0]['num']);
-         $this->stats['alb_ptes_venta_importe'] = floatval($data[0]['total']);
+         $this->stats['alb_ptes_venta_importe'] = $this->euro_convert( floatval($data[0]['total']) );
       }
       
-      $sql = "SELECT COUNT(idfactura) as num, SUM(total) as total FROM facturasprov WHERE fecha >= "
+      $sql = "SELECT COUNT(idfactura) as num, SUM(totaleuros) as total FROM facturasprov WHERE fecha >= "
               .$this->empresa->var2str($this->desde)." AND fecha <= ".$this->empresa->var2str($this->hasta).";";
       $data = $this->db->select($sql);
       if($data)
       {
          $this->stats['facturas_compra'] = intval($data[0]['num']);
-         $this->stats['facturas_compra_importe'] = floatval($data[0]['total']);
+         $this->stats['facturas_compra_importe'] = $this->euro_convert( floatval($data[0]['total']) );
       }
       
-      $sql = "SELECT COUNT(idfactura) as num, SUM(total) as total FROM facturascli WHERE fecha >= "
+      $sql = "SELECT COUNT(idfactura) as num, SUM(totaleuros) as total FROM facturascli WHERE fecha >= "
               .$this->empresa->var2str($this->desde)." AND fecha <= ".$this->empresa->var2str($this->hasta).";";
       $data = $this->db->select($sql);
       if($data)
       {
          $this->stats['facturas_venta'] = intval($data[0]['num']);
-         $this->stats['facturas_venta_importe'] = floatval($data[0]['total']);
+         $this->stats['facturas_venta_importe'] = $this->euro_convert( floatval($data[0]['total']) );
       }
       
       $this->stats['total'] = $this->stats['facturas_venta_importe'] + $this->stats['alb_ptes_venta_importe'];
@@ -1288,7 +1294,7 @@ class informe_facturas extends fs_controller
          {
             $stats[] = array(
                 'txt' => $this->empresa->str2bool($d['pagada']) ? 'Pagadas':'Impagadas',
-                'total' => round( abs( floatval($d['total']) ), FS_NF0)
+                'total' => round( abs( $this->euro_convert(  floatval($d['total']) ) ), FS_NF0)
             );
          }
       }
@@ -1312,14 +1318,14 @@ class informe_facturas extends fs_controller
             {
                $stats[] = array(
                    'txt' => $serie->descripcion,
-                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+                   'total' => round( abs( $this->euro_convert( floatval($d['total']) ) ), FS_NF0)
                );
             }
             else
             {
                $stats[] = array(
                    'txt' => $d['codserie'],
-                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+                   'total' => round( abs( $this->euro_convert( floatval($d['total']) ) ), FS_NF0)
                );
             }
          }
@@ -1344,14 +1350,14 @@ class informe_facturas extends fs_controller
             {
                $stats[] = array(
                    'txt' => $alma->nombre,
-                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+                   'total' => round( abs( $this->euro_convert( floatval($d['total']) ) ), FS_NF0)
                );
             }
             else
             {
                $stats[] = array(
                    'txt' => $d['codalmacen'],
-                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+                   'total' => round( abs( $this->euro_convert( floatval($d['total']) ) ), FS_NF0)
                );
             }
          }
@@ -1376,14 +1382,14 @@ class informe_facturas extends fs_controller
             {
                $stats[] = array(
                    'txt' => $formap->descripcion,
-                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+                   'total' => round( abs( $this->euro_convert( floatval($d['total']) ) ), FS_NF0)
                );
             }
             else
             {
                $stats[] = array(
                    'txt' => $d['codpago'],
-                   'total' => round( abs( floatval($d['total']) ), FS_NF0)
+                   'total' => round( abs( $this->euro_convert( floatval($d['total']) ) ), FS_NF0)
                );
             }
          }

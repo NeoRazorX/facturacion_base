@@ -81,7 +81,7 @@ class fabricante extends \fs_model
       $f = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codfabricante = ".$this->var2str($cod).";");
       if($f)
       {
-         return new fabricante($f[0]);
+         return new \fabricante($f[0]);
       }
       else
          return FALSE;
@@ -162,19 +162,27 @@ class fabricante extends \fs_model
       $this->cache->delete('m_fabricante_all');
    }
    
-  public function all()
+   /**
+    * Devuelve un array con todos los fabricantes
+    * @return \fabricante
+    */
+   public function all()
    {
+      /// leemos la lista de la caché
       $fablist = $this->cache->get_array('m_fabricante_all');
       if(!$fablist)
       {
+         /// si la lista no está en caché, leemos de la base de datos
          $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
          if($data)
          {   
             foreach($data as $d)
             {
-               $fablist[] = new fabricante($d);
+               $fablist[] = new \fabricante($d);
             }
          }
+         
+         /// guardamos la lista en caché
          $this->cache->set('m_fabricante_all', $fablist);
       }
       
@@ -191,7 +199,7 @@ class fabricante extends \fs_model
       {
          foreach($data as $f)
          {
-            $fablist[] = new fabricante($f);
+            $fablist[] = new \fabricante($f);
          }
       }
       

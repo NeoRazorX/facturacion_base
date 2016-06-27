@@ -54,6 +54,10 @@ class articulo_propiedad extends \fs_model
       return '';
    }
    
+   /**
+    * Devuelve TRUE si los datos existen en la base de datos
+    * @return boolean
+    */
    public function exists()
    {
       if( is_null($this->name) OR is_null($this->referencia) )
@@ -67,6 +71,10 @@ class articulo_propiedad extends \fs_model
       }
    }
    
+   /**
+    * Guarda los datos en la base de datos
+    * @return type
+    */
    public function save()
    {
       if( $this->exists() )
@@ -86,6 +94,10 @@ class articulo_propiedad extends \fs_model
       return $this->db->exec($sql);
    }
    
+   /**
+    * Elimina los datos de la base de datos
+    * @return type
+    */
    public function delete()
    {
       return $this->db->exec("DELETE FROM articulo_propiedades WHERE name = ".
@@ -105,19 +117,27 @@ class articulo_propiedad extends \fs_model
       if($data)
       {
          foreach($data as $d)
+         {
             $vlist[ $d['name'] ] = $d['text'];
+         }
       }
       
       return $vlist;
    }
    
+   /**
+    * Guarda en la base de datos los pares name => text de propiedades de un artículo
+    * @param type $ref
+    * @param type $values
+    * @return boolean
+    */
    public function array_save($ref, $values)
    {
       $done = TRUE;
       
       foreach($values as $key => $value)
       {
-         $aux = new articulo_propiedad();
+         $aux = new \articulo_propiedad();
          $aux->name = $key;
          $aux->referencia = $ref;
          $aux->text = $value;

@@ -34,14 +34,14 @@ require_model('secuencia.php');
 class albaran_cliente extends \fs_model
 {
    /**
-    * Clave primaria.
-    * @var type 
+    * Clave primaria. Integer.
+    * @var integer 
     */
    public $idalbaran;
    
    /**
     * ID de la factura relacionada, si la hay.
-    * @var type 
+    * @var integer 
     */
    public $idfactura;
    
@@ -419,7 +419,7 @@ class albaran_cliente extends \fs_model
       $albaran = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($id).";");
       if($albaran)
       {
-         return new albaran_cliente($albaran[0]);
+         return new \albaran_cliente($albaran[0]);
       }
       else
          return FALSE;
@@ -430,7 +430,7 @@ class albaran_cliente extends \fs_model
       $albaran = $this->db->select("SELECT * FROM ".$this->table_name." WHERE upper(codigo) = ".strtoupper($this->var2str($cod)).";");
       if($albaran)
       {
-         return new albaran_cliente($albaran[0]);
+         return new \albaran_cliente($albaran[0]);
       }
       else
          return FALSE;
@@ -446,6 +446,9 @@ class albaran_cliente extends \fs_model
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($this->idalbaran).";");
    }
    
+   /**
+    * Genera un nuevo código y número para este albarán
+    */
    public function new_codigo()
    {
       $sec = new \secuencia();
@@ -486,8 +489,21 @@ class albaran_cliente extends \fs_model
       }
    }
    
+   /**
+    * Comprueba los datos del albarán, devuelve TRUE si son correctos
+    * @return boolean
+    */
    public function test()
    {
+      $this->nombrecliente = $this->no_html($this->nombrecliente);
+      $this->direccion = $this->no_html($this->direccion);
+      $this->ciudad = $this->no_html($this->ciudad);
+      $this->provincia = $this->no_html($this->provincia);
+      $this->envio_nombre = $this->no_html($this->envio_nombre);
+      $this->envio_apellidos = $this->no_html($this->envio_apellidos);
+      $this->envio_direccion = $this->no_html($this->envio_direccion);
+      $this->envio_ciudad = $this->no_html($this->envio_ciudad);
+      $this->envio_provincia = $this->no_html($this->envio_provincia);
       $this->observaciones = $this->no_html($this->observaciones);
       $this->totaleuros = round($this->total / $this->tasaconv, 2);
       
@@ -507,6 +523,11 @@ class albaran_cliente extends \fs_model
       }
    }
    
+   /**
+    * Comprobaciones extra del albarán, devuelve TRUE si está todo correcto
+    * @param type $duplicados
+    * @return boolean
+    */
    public function full_test($duplicados = TRUE)
    {
       $status = TRUE;
@@ -626,6 +647,10 @@ class albaran_cliente extends \fs_model
       return $status;
    }
    
+   /**
+    * Guarda los datos en la base de datos
+    * @return boolean
+    */
    public function save()
    {
       if( $this->test() )
@@ -783,7 +808,7 @@ class albaran_cliente extends \fs_model
       {
          foreach($data as $a)
          {
-            $albalist[] = new albaran_cliente($a);
+            $albalist[] = new \albaran_cliente($a);
          }
       }
       
@@ -806,7 +831,7 @@ class albaran_cliente extends \fs_model
       {
          foreach($data as $a)
          {
-            $albalist[] = new albaran_cliente($a);
+            $albalist[] = new \albaran_cliente($a);
          }
       }
       
@@ -830,7 +855,7 @@ class albaran_cliente extends \fs_model
       {
          foreach($data as $a)
          {
-            $albalist[] = new albaran_cliente($a);
+            $albalist[] = new \albaran_cliente($a);
          }
       }
       
@@ -854,7 +879,7 @@ class albaran_cliente extends \fs_model
       {
          foreach($data as $a)
          {
-            $albalist[] = new albaran_cliente($a);
+            $albalist[] = new \albaran_cliente($a);
          }
       }
       
@@ -877,7 +902,7 @@ class albaran_cliente extends \fs_model
       {
          foreach($data as $a)
          {
-            $albalist[] = new albaran_cliente($a);
+            $albalist[] = new \albaran_cliente($a);
          }
       }
       
@@ -901,7 +926,7 @@ class albaran_cliente extends \fs_model
       {
          foreach($data as $a)
          {
-            $alblist[] = new albaran_cliente($a);
+            $alblist[] = new \albaran_cliente($a);
          }
       }
       
@@ -936,7 +961,7 @@ class albaran_cliente extends \fs_model
       {
          foreach($data as $a)
          {
-            $alblist[] = new albaran_cliente($a);
+            $alblist[] = new \albaran_cliente($a);
          }
       }
       
@@ -971,7 +996,7 @@ class albaran_cliente extends \fs_model
       {
          foreach($data as $a)
          {
-            $albalist[] = new albaran_cliente($a);
+            $albalist[] = new \albaran_cliente($a);
          }
       }
       

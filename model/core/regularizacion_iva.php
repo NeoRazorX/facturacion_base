@@ -132,7 +132,7 @@ class regularizacion_iva extends \fs_model
       $data = $this->db->select($sql);
       if($data)
       {
-         return new regularizacion_iva($data[0]);
+         return new \regularizacion_iva($data[0]);
       }
       else
          return FALSE;
@@ -143,7 +143,7 @@ class regularizacion_iva extends \fs_model
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idregiva = ".$this->var2str($id).";");
       if($data)
       {
-         return new regularizacion_iva($data[0]);
+         return new \regularizacion_iva($data[0]);
       }
       else
          return FALSE;
@@ -226,7 +226,7 @@ class regularizacion_iva extends \fs_model
       {
          foreach($data as $r)
          {
-            $reglist[] = new regularizacion_iva($r);
+            $reglist[] = new \regularizacion_iva($r);
          }
       }
       

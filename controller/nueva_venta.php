@@ -368,6 +368,7 @@ class nueva_venta extends fs_controller
       {
          $art0->referencia = $art0->get_new_referencia();
       }
+      
       if( $art0->exists() )
       {
          $this->results[] = $art0->get($_REQUEST['referencia']);
@@ -433,7 +434,9 @@ class nueva_venta extends fs_controller
          $this->results[$i]->query = $this->query;
          $this->results[$i]->dtopor = 0;
          $this->results[$i]->cantidad = 1;
+         $this->results[$i]->coddivisa = $this->empresa->coddivisa;
          
+         /// añadimos el stock del almacén y el general
          $this->results[$i]->stockalm = $this->results[$i]->stockfis;
          if( $multi_almacen AND isset($_REQUEST['codalmacen']) )
          {
@@ -471,6 +474,19 @@ class nueva_venta extends fs_controller
                      $tarifa->set_precios($this->results);
                   }
                }
+            }
+         }
+      }
+      
+      /// convertimos la divisa
+      if( isset($_REQUEST['coddivisa']) )
+      {
+         if($_REQUEST['coddivisa'] != $this->empresa->coddivisa)
+         {
+            foreach($this->results as $i => $value)
+            {
+               $this->results[$i]->coddivisa = $_REQUEST['coddivisa'];
+               $this->results[$i]->pvp = $this->divisa_convert($value->pvp, $this->empresa->coddivisa, $_REQUEST['coddivisa']);
             }
          }
       }

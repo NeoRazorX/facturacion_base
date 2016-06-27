@@ -34,14 +34,14 @@ require_model('secuencia.php');
 class albaran_proveedor extends \fs_model
 {
    /**
-    * Clave primaria.
-    * @var type 
+    * Clave primaria. Integer
+    * @var integer 
     */
    public $idalbaran;
    
    /**
     * ID de la factura relacionada, si la hay.
-    * @var type 
+    * @var integer 
     */
    public $idfactura;
    
@@ -329,7 +329,7 @@ class albaran_proveedor extends \fs_model
       $albaran = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($id).";");
       if($albaran)
       {
-         return new albaran_proveedor($albaran[0]);
+         return new \albaran_proveedor($albaran[0]);
       }
       else
          return FALSE;
@@ -345,6 +345,9 @@ class albaran_proveedor extends \fs_model
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($this->idalbaran).";");
    }
    
+   /**
+    * Genera un nuevo código y número para el albarán
+    */
    public function new_codigo()
    {
       $sec = new \secuencia();
@@ -385,8 +388,13 @@ class albaran_proveedor extends \fs_model
       }
    }
    
+   /**
+    * Comprueba los datos del albarán, devuelve TRUE si está todo correcto
+    * @return boolean
+    */
    public function test()
    {
+      $this->nombre = $this->no_html($this->nombre);
       $this->observaciones = $this->no_html($this->observaciones);
       $this->totaleuros = round($this->total / $this->tasaconv, 2);
       
@@ -406,6 +414,11 @@ class albaran_proveedor extends \fs_model
       }
    }
    
+   /**
+    * Comprobaciones extra para el albarán. Devuelve TRUE si está todo correcto
+    * @param type $duplicados
+    * @return boolean
+    */
    public function full_test($duplicados = TRUE)
    {
       $status = TRUE;
@@ -525,6 +538,10 @@ class albaran_proveedor extends \fs_model
       return $status;
    }
    
+   /**
+    * Guarda los datos en la base de datos
+    * @return boolean
+    */
    public function save()
    {
       if( $this->test() )
@@ -605,6 +622,10 @@ class albaran_proveedor extends \fs_model
          return FALSE;
    }
    
+   /**
+    * Elimina el albarán de la base de datos
+    * @return boolean
+    */
    public function delete()
    {
       if( $this->db->exec("DELETE FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($this->idalbaran).";") )
@@ -645,7 +666,7 @@ class albaran_proveedor extends \fs_model
       {
          foreach($data as $a)
          {
-            $albalist[] = new albaran_proveedor($a);
+            $albalist[] = new \albaran_proveedor($a);
          }
       }
       
@@ -668,7 +689,7 @@ class albaran_proveedor extends \fs_model
       {
          foreach($data as $a)
          {
-            $albalist[] = new albaran_proveedor($a);
+            $albalist[] = new \albaran_proveedor($a);
          }
       }
       
@@ -692,7 +713,7 @@ class albaran_proveedor extends \fs_model
       {
          foreach($data as $a)
          {
-            $alblist[] = new albaran_proveedor($a);
+            $alblist[] = new \albaran_proveedor($a);
          }
       }
       
@@ -716,7 +737,7 @@ class albaran_proveedor extends \fs_model
       {
          foreach($data as $a)
          {
-            $alblist[] = new albaran_proveedor($a);
+            $alblist[] = new \albaran_proveedor($a);
          }
       }
       
@@ -739,7 +760,7 @@ class albaran_proveedor extends \fs_model
       {
          foreach($data as $a)
          {
-            $alblist[] = new albaran_proveedor($a);
+            $alblist[] = new \albaran_proveedor($a);
          }
       }
       
@@ -764,7 +785,7 @@ class albaran_proveedor extends \fs_model
       {
          foreach($data as $a)
          {
-            $alblist[] = new albaran_proveedor($a);
+            $alblist[] = new \albaran_proveedor($a);
          }
       }
       
@@ -799,7 +820,7 @@ class albaran_proveedor extends \fs_model
       {
          foreach($data as $a)
          {
-            $alblist[] = new albaran_proveedor($a);
+            $alblist[] = new \albaran_proveedor($a);
          }
       }
       
@@ -828,7 +849,7 @@ class albaran_proveedor extends \fs_model
       {
          foreach($data as $a)
          {
-            $albalist[] = new albaran_proveedor($a);
+            $albalist[] = new \albaran_proveedor($a);
          }
       }
       

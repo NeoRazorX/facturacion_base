@@ -146,7 +146,7 @@ class stock extends \fs_model
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idstock = ".$this->var2str($id).";");
       if($data)
       {
-         return new stock($data[0]);
+         return new \stock($data[0]);
       }
       else
          return FALSE;
@@ -157,7 +157,7 @@ class stock extends \fs_model
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref).";");
       if($data)
       {
-         return new stock($data[0]);
+         return new \stock($data[0]);
       }
       else
          return FALSE;
@@ -232,7 +232,7 @@ class stock extends \fs_model
       {
          foreach($data as $s)
          {
-            $stocklist[] = new stock($s);
+            $stocklist[] = new \stock($s);
          }
       }
       

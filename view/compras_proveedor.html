@@ -2,71 +2,45 @@
 
 {if="$fsc->proveedor"}
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
+   google.load('visualization', '1.0', {'packages':['corechart']});
+   google.setOnLoadCallback(drawChart);
+   var data_chart;
+   var chart;
+   function drawChart()
+   {
+      data_chart = new google.visualization.DataTable();
+      data_chart.addColumn('string', 'mes');
+      data_chart.addColumn('number', '{#FS_ALBARANES#}');
+      data_chart.addColumn('number', 'facturas');
+      data_chart.addRows([
+      {loop="$fsc->stats_from_prov()"}
+         ['{$value['mes']}', {$value['albaranes']}, {$value['facturas']}],
+      {/loop}
+      ]);
+      
+      chart = new google.visualization.AreaChart(document.getElementById('chart_albaranes_month'));
+      chart.draw(data_chart);
+   }
    function comprobar_url()
    {
       if(window.location.hash.substring(1) == 'cuentasb')
       {
-         mostrar_seccion('cuentasb');
+         $('#tabs_proveedor a[href="#cuentasb"]').tab('show');
       }
       else if(window.location.hash.substring(1) == 'direcciones')
       {
-         mostrar_seccion('direcciones');
+         $('#tabs_proveedor a[href="#direcciones"]').tab('show');
       }
       else if(window.location.hash.substring(1) == 'subcuentas')
       {
-         mostrar_seccion('subcuentas');
+         $('#tabs_proveedor a[href="#subcuentas"]').tab('show');
       }
       else if(window.location.hash.substring(1) == 'stats')
       {
-         mostrar_seccion('stats');
+         $('#tabs_proveedor a[href="#stats"]').tab('show');
       }
-      else
-      {
-         mostrar_seccion('');
-      }
-   }
-   function mostrar_seccion(id)
-   {
-      $(".pseudotab_prov").hide();
-      $("#lista_botones_prov a").removeClass('active');
-      
-      if(id == 'cuentasb')
-      {
-         $("#panel_cuentasb").show();
-         $("#b_cuentasb").addClass('active');
-      }
-      else if(id == 'direcciones')
-      {
-         $("#panel_direcciones").show();
-         $("#b_direcciones").addClass('active');
-      }
-      else if(id == 'subcuentas')
-      {
-         $("#div_subcuentas").show();
-         $("#b_subcuentas").addClass('active');
-      }
-      else if(id == 'stats')
-      {
-         $("#panel_stats").show();
-         $("#b_stats").addClass('active');
-      }
-      else
-      {
-         $("#panel_generales").show();
-         $("#b_generales").addClass('active');
-         document.f_proveedor.nombre.focus();
-      }
-   }
-   function mostrar_tab(name)
-   {
-      $(".pseudotab_prov").hide();
-      $("#lista_botones_prov a").removeClass('active');
-      
-      $("#ext_"+name).show();
-      $("#b_ext_"+name).addClass('active');
-      
-      return false;
    }
    function delete_cuenta(id)
    {
@@ -82,13 +56,12 @@
    }
    $(document).ready(function() {
       comprobar_url();
-      window.onpopstate = function() {
-         comprobar_url();
-      }
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
          if( confirm("¿Realmente desea eliminar este proveedor?") )
+         {
             window.location.href = '{$fsc->ppage->url()}&delete={$fsc->proveedor->codproveedor}';
+         }
       });
       $("#b_nueva_cuenta").click(function(event) {
          event.preventDefault();
@@ -100,12 +73,15 @@
          $("#modal_nueva_direccion").modal('show');
          document.f_nueva_direccion.provincia.focus();
       });
+      $('#tabs_proveedor a[href="#stats"]').on('shown.bs.tab', function(e) {
+         drawChart();
+      });
    });
 </script>
 
-<div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
-   <div class="row">
-      <div class="col-sm-3 col-xs-3">
+<div class="container-fluid">
+   <div class="row" style="margin-bottom: 10px;">
+      <div class="col-xs-3">
          <div class="btn-group">
             <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
                <span class="glyphicon glyphicon-arrow-left"></span>
@@ -116,10 +92,12 @@
             </a>
          </div>
       </div>
-      <div class="col-sm-6 col-xs-6 text-center">
-         <h2 style="margin-top: 0px;">Editar proveedor {$fsc->proveedor->codproveedor}</h2>
+      <div class="col-xs-6 text-center">
+         <h2 style="margin-top: 0px;">
+            Editar proveedor <small>{$fsc->proveedor->codproveedor}</small>
+         </h2>
       </div>
-      <div class="col-sm-3 col-xs-3 text-right">
+      <div class="col-xs-3 text-right">
          <a class="btn btn-sm btn-success" href="index.php?page=compras_proveedores#nuevo" title="Nuevo proveedor">
             <span class="glyphicon glyphicon-plus"></span>
          </a>
@@ -138,471 +116,469 @@
          {/if}
       </div>
    </div>
-</div>
-
-{if="isset($_GET['stats'])"}
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript">
-   // Load the Visualization API and the piechart package.
-   google.load('visualization', '1.0', {'packages':['corechart']});
-   
-   // Set a callback to run when the Google Visualization API is loaded.
-   google.setOnLoadCallback(drawChart);
-   
-   // Callback that creates and populates a data table,
-   // instantiates the pie chart, passes in the data and
-   // draws it.
-   function drawChart()
-   {
-      // Create the data table.
-      var data = new google.visualization.DataTable();
-      data.addColumn('string', 'mes');
-      data.addColumn('number', '{#FS_ALBARANES#}');
-      data.addColumn('number', 'facturas');
-      data.addRows([
-      {loop="$fsc->stats_from_prov()"}
-         ['{$value['mes']}', {$value['albaranes']}, {$value['facturas']}],
-      {/loop}
-      ]);
-      
-      // Instantiate and draw our chart, passing in some options.
-      var chart = new google.visualization.AreaChart(document.getElementById('chart_albaranes_month'));
-      chart.draw(data);
-   }
-</script>
-{/if}
-
-<div class="container-fluid">
    <div class="row">
-      <div class="col-lg-2 col-md-2 col-sm-3">
-         <div id="lista_botones_prov" class="list-group">
-            <a id="b_generales" href="#" class="list-group-item active" onclick="mostrar_seccion('')">
-               <span class="glyphicon glyphicon-dashboard"></span> &nbsp; Datos generales
-            </a>
-            <a id="b_cuentasb" href="#cuentasb" class="list-group-item" onclick="mostrar_seccion('cuentasb')">
-               <span class="glyphicon glyphicon-credit-card"></span> &nbsp; Cuentas bancarias
-            </a>
-            <a id="b_direcciones" href="#direcciones" class="list-group-item" onclick="mostrar_seccion('direcciones')">
-               <span class="glyphicon glyphicon-road"></span> &nbsp; Direcciones
-            </a>
-            <a id="b_subcuentas" href="#subcuentas" class="list-group-item" onclick="mostrar_seccion('subcuentas')">
-               <span class="glyphicon glyphicon-credit-card"></span> &nbsp; Subcuentas
-            </a>
+      <div class="col-sm-3 col-lg-2">
+         <ul id="tabs_proveedor" class="nav nav-pills nav-stacked" role="tablist">
+            <li role="presentation" class="active">
+               <a href="#general" aria-controls="general" role="tab" data-toggle="tab">
+                  <span class="glyphicon glyphicon-dashboard"></span> &nbsp; Datos generales
+               </a>
+            </li>
+            <li role="presentation">
+               <a href="#cuentasb" aria-controls="cuentasb" role="tab" data-toggle="tab">
+                  <span class="glyphicon glyphicon-credit-card"></span> &nbsp; Cuentas bancarias
+               </a>
+            </li>
+            <li role="presentation">
+               <a href="#direcciones" aria-controls="direcciones" role="tab" data-toggle="tab">
+                  <span class="glyphicon glyphicon-road"></span> &nbsp; Direcciones
+               </a>
+            </li>
+            <li role="presentation">
+               <a href="#subcuentas" aria-controls="subcuentas" role="tab" data-toggle="tab">
+                  <span class="glyphicon glyphicon-book"></span> &nbsp; Subcuentas
+               </a>
+            </li>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}{$value->params}&codproveedor={$fsc->proveedor->codproveedor}" class="list-group-item">
-                  {$value->text}
-               </a>
+               <li>
+                  <a id="b_{$value->from}" href="index.php?page={$value->from}{$value->params}&codproveedor={$fsc->proveedor->codproveedor}">
+                     {$value->text}
+                  </a>
+               </li>
                {elseif="$value->type=='tab'"}
-               <a href="#" id="b_ext_{$key}" class="list-group-item" onclick="return mostrar_tab('{$key}');">
-                  {$value->text}
-               </a>
+               <li role="presentation">
+                  <a href="#ext_{$key}" aria-controls="ext_{$key}" role="tab" data-toggle="tab">
+                     {$value->text}
+                  </a>
+               </li>
                {/if}
             {/loop}
-            <a id="b_stats" href="{$fsc->url()}&stats=TRUE#stats" class="list-group-item">
-               <span class="glyphicon glyphicon-stats"></span> &nbsp; Estadísticas
-            </a>
-         </div>
+            <li role="presentation">
+               <a href="#stats" aria-controls="stats" role="tab" data-toggle="tab">
+                  <span class="glyphicon glyphicon-stats"></span> &nbsp; Estadísticas
+               </a>
+            </li>
+         </ul>
       </div>
-      
-      <div class="col-lg-10 col-md-10 col-sm-9">
-         <form name="f_proveedor" action="{$fsc->url()}" method="post" class="form">
-            <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
-            <div class="panel panel-primary pseudotab_prov" id="panel_generales">
-               <div class="panel-heading">
-                  <h3 class="panel-title">Datos generales</h3>
-               </div>
-               <div class="panel-body">
-                  <div class="container-fluid">
-                     <div class="row">
-                        <div class="col-sm-4">
-                           <div class="form-group">
-                              Nombre:
-                              <input class="form-control" type="text" name="nombre" value="{$fsc->proveedor->nombre}" autocomplete="off"/>
-                              <p class="help-block">Nombre por el que se conoce al proveedor. Para uso interno.</p>
-                           </div>
-                        </div>
-                        <div class="col-sm-4">
-                           <div class="form-group">
-                              Razón social:
-                              <input class="form-control" type="text" name="razonsocial" value="{$fsc->proveedor->razonsocial}" autocomplete="off"/>
-                              <p class="help-block">Nombre oficial del proveedor, para las facturas y otros documentos.</p>
-                           </div>
-                        </div>
-                        <div class="col-sm-2">
-                           <div class="form-group">
-                              <br/>
-                              <select name="tipoidfiscal" class="form-control">
-                              {$tiposids=fs_tipos_id_fiscal()}
-                              {loop="$tiposids"}
-                                 {if="$value==$fsc->proveedor->tipoidfiscal"}
-                                 <option value="{$value}" selected="">{$value}</option>
-                                 {else}
-                                 <option value="{$value}">{$value}</option>
-                                 {/if}
-                              {/loop}
-                              </select>
-                           </div>
-                        </div>
-                        <div class="col-sm-2">
-                           <div class="form-group">
-                              {#FS_CIFNIF#}:
-                              <input class="form-control" type="text" name="cifnif" value="{$fsc->proveedor->cifnif}" autocomplete="off"/>
-                           </div>
-                        </div>
+      <div class="col-sm-9 col-lg-10">
+         <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="general">
+               <form name="f_proveedor" action="{$fsc->url()}" method="post" class="form">
+                  <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
+                  <div class="panel panel-primary">
+                     <div class="panel-heading">
+                        <h3 class="panel-title">Datos generales</h3>
                      </div>
-                     <div class="row">
-                        <div class="col-sm-4">
-                           <div class="checkbox">
-                              <label>
-                                 <input type="checkbox" name="personafisica" value="TRUE"{if="$fsc->proveedor->personafisica"} checked=""{/if}/>
-                                 Es una persona física (no una empresa)
-                              </label>
+                     <div class="panel-body">
+                        <div class="row">
+                           <div class="col-sm-4">
+                              <div class="form-group">
+                                 Nombre:
+                                 <input class="form-control" type="text" name="nombre" value="{$fsc->proveedor->nombre}" autocomplete="off"/>
+                                 <p class="help-block">Nombre por el que se conoce al proveedor. Para uso interno.</p>
+                              </div>
                            </div>
-                        </div>
-                        <div class="col-sm-5">
-                           <div class="checkbox">
-                              <label>
-                                 <input type="checkbox" name="acreedor" value="TRUE"{if="$fsc->proveedor->acreedor"} checked=""{/if}/>
-                                 Es un <b>acreedor</b>
-                                 <a href="#" onclick="return acreedores_help()">
-                                    <span class="glyphicon glyphicon-question-sign"></span>
-                                 </a>
-                              </label>
+                           <div class="col-sm-4">
+                              <div class="form-group">
+                                 Razón social:
+                                 <input class="form-control" type="text" name="razonsocial" value="{$fsc->proveedor->razonsocial}" autocomplete="off"/>
+                                 <p class="help-block">Nombre oficial del proveedor, para las facturas y otros documentos.</p>
+                              </div>
                            </div>
-                        </div>
-                     </div>
-                     <div class="row">
-                        <div class="col-sm-2">
-                           <div class="form-group">
-                              Teléfono 1:
-                              <input class="form-control" type="text" name="telefono1" value="{$fsc->proveedor->telefono1}" autocomplete="off"/>
-                           </div>
-                        </div>
-                        <div class="col-sm-2">
-                           <div class="form-group">
-                              Teléfono 2:
-                              <input class="form-control" type="text" name="telefono2" value="{$fsc->proveedor->telefono2}" autocomplete="off"/>
-                           </div>
-                        </div>
-                        <div class="col-sm-2">
-                           <div class="form-group">
-                              Fax:
-                              <input class="form-control" type="text" name="fax" value="{$fsc->proveedor->fax}" autocomplete="off"/>
-                           </div>
-                        </div>
-                        <div class="col-sm-3">
-                           <div class="form-group">
-                              Email:
-                              <input class="form-control" type="text" name="email" value="{$fsc->proveedor->email}" autocomplete="off"/>
-                           </div>
-                        </div>
-                        <div class="col-sm-3">
-                           <div class="form-group">
-                              Web:
-                              <input class="form-control" type="text" name="web" value="{$fsc->proveedor->web}" autocomplete="off"/>
-                           </div>
-                        </div>
-                     </div>
-                     <div class="row">
-                        <div class="col-sm-2">
-                           <div class="form-group">
-                              <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
-                              <select class="form-control" name="codserie">
-                                 <option value="">Predeterminada</option>
-                                 <option value="">------</option>
-                                 {loop="$fsc->serie->all()"}
-                                    {if="$value->codserie==$fsc->proveedor->codserie"}
-                                    <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
+                           <div class="col-sm-2">
+                              <div class="form-group">
+                                 <br/>
+                                 <select name="tipoidfiscal" class="form-control">
+                                 {$tiposids=fs_tipos_id_fiscal()}
+                                 {loop="$tiposids"}
+                                    {if="$value==$fsc->proveedor->tipoidfiscal"}
+                                    <option value="{$value}" selected="">{$value}</option>
                                     {else}
-                                    <option value="{$value->codserie}">{$value->descripcion}</option>
+                                    <option value="{$value}">{$value}</option>
+                                    {/if}
+                                 {/loop}
+                                 </select>
+                              </div>
+                           </div>
+                           <div class="col-sm-2">
+                              <div class="form-group">
+                                 {#FS_CIFNIF#}:
+                                 <input class="form-control" type="text" name="cifnif" value="{$fsc->proveedor->cifnif}" autocomplete="off"/>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col-sm-4">
+                              <div class="form-group">
+                                 <label class="checkbox-inline">
+                                    {if="$fsc->proveedor->personafisica"}
+                                    <input type="checkbox" name="personafisica" value="TRUE" checked=""/>
+                                    {else}
+                                    <input type="checkbox" name="personafisica" value="TRUE"/>
+                                    {/if}
+                                    Es una persona física (no una empresa)
+                                 </label>
+                              </div>
+                           </div>
+                           <div class="col-sm-5">
+                              <div class="form-group">
+                                 <label class="checkbox-inline">
+                                    {if="$fsc->proveedor->acreedor"}
+                                    <input type="checkbox" name="acreedor" value="TRUE" checked=""/>
+                                    {else}
+                                    <input type="checkbox" name="acreedor" value="TRUE"/>
+                                    {/if}
+                                    Es un <b>acreedor</b>
+                                    <a href="#" onclick="return acreedores_help()">
+                                       <span class="glyphicon glyphicon-question-sign"></span>
+                                    </a>
+                                 </label>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col-sm-2">
+                              <div class="form-group">
+                                 Teléfono 1:
+                                 <input class="form-control" type="text" name="telefono1" value="{$fsc->proveedor->telefono1}" autocomplete="off"/>
+                              </div>
+                           </div>
+                           <div class="col-sm-2">
+                              <div class="form-group">
+                                 Teléfono 2:
+                                 <input class="form-control" type="text" name="telefono2" value="{$fsc->proveedor->telefono2}" autocomplete="off"/>
+                              </div>
+                           </div>
+                           <div class="col-sm-2">
+                              <div class="form-group">
+                                 Fax:
+                                 <input class="form-control" type="text" name="fax" value="{$fsc->proveedor->fax}" autocomplete="off"/>
+                              </div>
+                           </div>
+                           <div class="col-sm-3">
+                              <div class="form-group">
+                                 Email:
+                                 <input class="form-control" type="text" name="email" value="{$fsc->proveedor->email}" autocomplete="off"/>
+                              </div>
+                           </div>
+                           <div class="col-sm-3">
+                              <div class="form-group">
+                                 Web:
+                                 <input class="form-control" type="text" name="web" value="{$fsc->proveedor->web}" autocomplete="off"/>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col-sm-2">
+                              <div class="form-group">
+                                 <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
+                                 <select class="form-control" name="codserie">
+                                    <option value="">Predeterminada</option>
+                                    <option value="">------</option>
+                                    {loop="$fsc->serie->all()"}
+                                       {if="$value->codserie==$fsc->proveedor->codserie"}
+                                       <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
+                                       {else}
+                                       <option value="{$value->codserie}">{$value->descripcion}</option>
+                                       {/if}
+                                    {/loop}
+                                 </select>
+                              </div>
+                           </div>
+                           <div class="col-sm-4">
+                              <div class="form-group">
+                                 <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
+                                 <select class="form-control" name="codpago">
+                                 {loop="$fsc->forma_pago->all()"}
+                                    {if="$value->codpago==$fsc->proveedor->codpago"}
+                                    <option value="{$value->codpago}" selected="">{$value->descripcion}</option>
+                                    {else}
+                                    <option value="{$value->codpago}">{$value->descripcion}</option>
+                                    {/if}
+                                 {/loop}
+                                 </select>
+                              </div>
+                           </div>
+                           <div class="col-sm-3">
+                              <div class="form-group">
+                                 <a href="{$fsc->divisa->url()}">Divisa</a>:
+                                 <select class="form-control" name="coddivisa">
+                                 {loop="$fsc->divisa->all()"}
+                                    {if="$value->coddivisa==$fsc->proveedor->coddivisa"}
+                                    <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
+                                    {else}
+                                    <option value="{$value->coddivisa}">{$value->descripcion}</option>
+                                    {/if}
+                                 {/loop}
+                                 </select>
+                              </div>
+                           </div>
+                           <div class="col-sm-3">
+                              <div class="form-group">
+                                 Régimen {#FS_IVA#}:
+                                 <select class="form-control" name="regimeniva">
+                                 {loop="$fsc->proveedor->regimenes_iva()"}
+                                    {if="$value==$fsc->proveedor->regimeniva"}
+                                    <option value="{$value}" selected="">{$value}</option>
+                                    {else}
+                                    <option value="{$value}">{$value}</option>
+                                    {/if}
+                                 {/loop}
+                                 </select>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col-sm-12">
+                              Observaciones:
+                              <textarea class="form-control" name="observaciones" rows="3">{$fsc->proveedor->observaciones}</textarea>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="panel-footer text-right">
+                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                           <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                        </button>
+                     </div>
+                  </div>
+               </form>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="cuentasb">
+               {loop="$fsc->cuenta_banco->all_from_proveedor($fsc->proveedor->codproveedor)"}
+               <form action="{$fsc->url()}#cuentasb" method="post" class="form">
+                  <input type="hidden" name="codcuenta" value="{$value->codcuenta}"/>
+                  <input type="hidden" name="codproveedor" value="{$value->codproveedor}"/>
+                  <div class="panel panel-info">
+                     <div class="panel-heading">
+                        <h3 class="panel-title">Cuenta bancaria #{$value->codcuenta}</h3>
+                     </div>
+                     <div class="panel-body">
+                        <div class="row">
+                           <div class="col-sm-5">
+                              <div class="form-group">
+                                 <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" placeholder="Cuenta principal" autocomplete="off"/>
+                              </div>
+                           </div>
+                           <div class="col-sm-3">
+                              <div class="form-group">
+                                 <label class="checkbox-inline">
+                                    {if="$value->principal"}
+                                    <input type="checkbox" name="principal" value="TRUE" checked=""/>
+                                    {else}
+                                    <input type="checkbox" name="principal" value="TRUE"/>
+                                    {/if}
+                                    Cuenta principal
+                                 </label>
+                              </div>
+                           </div>
+                           <div class="col-sm-4 text-right">
+                              <div class="btn-group">
+                                 <a class="btn btn-sm btn-danger" onclick="delete_cuenta('{$value->codcuenta}');">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                    <span class="hidden-xs hidden-sm">&nbsp; Eliminar</span>
+                                 </a>
+                                 <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                                    <span class="glyphicon glyphicon-floppy-disk"></span>
+                                    <span class="hidden-xs">&nbsp; Guardar</span>
+                                 </button>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col-sm-6">
+                              <div class="form-group">
+                                 <a target="_blank" href="http://es.wikipedia.org/wiki/International_Bank_Account_Number">IBAN</a>:
+                                 <input class="form-control" type="text" name="iban" value="{$value->iban}" maxlength="34" placeholder="ES12345678901234567890123456" autocomplete="off"/>
+                              </div>
+                           </div>
+                           <div class="col-sm-6">
+                              <div class="form-group">
+                                 <a target="_blank" href="http://es.wikipedia.org/wiki/Society_for_Worldwide_Interbank_Financial_Telecommunication">SWIFT</a> o BIC:
+                                 <input class="form-control" type="text" name="swift" value="{$value->swift}" maxlength="11" autocomplete="off"/>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </form>
+               {/loop}
+               <div class="panel panel-success">
+                  <div class="panel-heading">
+                     <h3 class="panel-title">
+                        <a id="b_nueva_cuenta" href="#">
+                           <span class="glyphicon glyphicon-plus-sign"></span>
+                           &nbsp; Nueva cuenta bancaria...
+                        </a>
+                     </h3>
+                  </div>
+               </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="direcciones">
+               {loop="$fsc->proveedor->get_direcciones()"}
+               <form action="{$fsc->url()}#direcciones" method="post" class="form">
+                  <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
+                  <input type="hidden" name="coddir" value="{$value->id}"/>
+                  <div class="panel panel-info">
+                     <div class="panel-heading">
+                        <h3 class="panel-title">
+                           <span class="glyphicon glyphicon-road"></span>&nbsp; {$value->descripcion}
+                           &nbsp; | &nbsp;
+                           <span class="glyphicon glyphicon-calendar"></span> {$value->fecha}
+                        </h3>
+                     </div>
+                     <div class="panel-body">
+                        <div class="col-sm-2">
+                           <div class="form-group">
+                              <a href="{$fsc->pais->url()}">País</a>
+                              <select class="form-control" name="pais">
+                                 {loop="$fsc->pais->all()"}
+                                    {if="$value1->codpais==$value2->codpais"}
+                                    <option value="{$value2->codpais}" selected="">{$value2->nombre}</option>
+                                    {else}
+                                    <option value="{$value2->codpais}">{$value2->nombre}</option>
                                     {/if}
                                  {/loop}
                               </select>
                            </div>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
                            <div class="form-group">
-                              <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
-                              <select class="form-control" name="codpago">
-                              {loop="$fsc->forma_pago->all()"}
-                                 {if="$value->codpago==$fsc->proveedor->codpago"}
-                                 <option value="{$value->codpago}" selected="">{$value->descripcion}</option>
-                                 {else}
-                                 <option value="{$value->codpago}">{$value->descripcion}</option>
-                                 {/if}
-                              {/loop}
-                              </select>
+                              <span class="text-capitalize">{#FS_PROVINCIA#}</span>:
+                              <input type="text" name="provincia" value="{$value->provincia}" id="ac_provincia" class="form-control"/>
                            </div>
                         </div>
                         <div class="col-sm-3">
                            <div class="form-group">
-                              <a href="{$fsc->divisa->url()}">Divisa</a>:
-                              <select class="form-control" name="coddivisa">
-                              {loop="$fsc->divisa->all()"}
-                                 {if="$value->coddivisa==$fsc->proveedor->coddivisa"}
-                                 <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
-                                 {else}
-                                 <option value="{$value->coddivisa}">{$value->descripcion}</option>
-                                 {/if}
-                              {/loop}
-                              </select>
+                              Ciudad:
+                              <input class="form-control" type="text" name="ciudad" value="{$value->ciudad}"/>
                            </div>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                            <div class="form-group">
-                              Régimen {#FS_IVA#}:
-                              <select class="form-control" name="regimeniva">
-                              {loop="$fsc->proveedor->regimenes_iva()"}
-                                 {if="$value==$fsc->proveedor->regimeniva"}
-                                 <option value="{$value}" selected="">{$value}</option>
-                                 {else}
-                                 <option value="{$value}">{$value}</option>
-                                 {/if}
-                              {/loop}
-                              </select>
+                              Código Postal:
+                              <input class="form-control" type="text" name="codpostal" value="{$value->codpostal}" autocomplete="off"/>
                            </div>
                         </div>
-                     </div>
-                     <div class="row">
-                        <div class="col-sm-12">
-                           Observaciones:
-                           <textarea class="form-control" name="observaciones" rows="3">{$fsc->proveedor->observaciones}</textarea>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               <div class="panel-footer text-right">
-                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                     <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
-                  </button>
-               </div>
-            </div>
-         </form>
-         
-         <div id="panel_cuentasb" class="pseudotab_prov">
-            {loop="$fsc->cuenta_banco->all_from_proveedor($fsc->proveedor->codproveedor)"}
-            <form action="{$fsc->url()}#cuentasb" method="post" class="form">
-               <input type="hidden" name="codcuenta" value="{$value->codcuenta}"/>
-               <input type="hidden" name="codproveedor" value="{$value->codproveedor}"/>
-               <div class="panel panel-info">
-                  <div class="panel-heading">
-                     <h3 class="panel-title">Cuenta bancaria #{$value->codcuenta}</h3>
-                  </div>
-                  <div class="panel-body">
-                     <div class="row">
-                        <div class="col-sm-5">
+                        <div class="col-sm-2">
                            <div class="form-group">
-                              <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" placeholder="Cuenta principal" autocomplete="off"/>
+                              <span class="text-capitalize">{#FS_APARTADO#}</span>:
+                              <input class="form-control" type="text" name="apartado" value="{$value->apartado}" autocomplete="off"/>
                            </div>
                         </div>
-                        <div class="col-sm-3">
-                           <div class="checkbox">
-                              <label>
-                                 {if="$value->principal"}
-                                 <input type="checkbox" name="principal" value="TRUE" checked=""/>
+                        <div class="col-sm-7">
+                           <div class="form-group">
+                              Dirección:
+                              <input class="form-control" type="text" name="direccion" value="{$value->direccion}" autocomplete="off"/>
+                              <label class="checkbox-inline">
+                                 {if="$value->direccionppal"}
+                                 <input type="checkbox" name="direccionppal" id="direccionppal_{$value->id}" value="TRUE" checked=""/>
                                  {else}
-                                 <input type="checkbox" name="principal" value="TRUE"/>
+                                 <input type="checkbox" name="direccionppal" id="direccionppal_{$value->id}" value="TRUE"/>
                                  {/if}
-                                 Cuenta principal
+                                 Dirección principal
                               </label>
                            </div>
                         </div>
-                        <div class="col-sm-4 text-right">
-                           <div class="btn-group">
-                              <a class="btn btn-sm btn-danger" onclick="delete_cuenta('{$value->codcuenta}');">
-                                 <span class="glyphicon glyphicon-trash"></span>
-                                 <span class="hidden-xs hidden-sm">&nbsp; Eliminar</span>
-                              </a>
-                              <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                                 <span class="glyphicon glyphicon-floppy-disk"></span>
-                                 <span class="hidden-xs">&nbsp; Guardar</span>
-                              </button>
+                        <div class="col-sm-5">
+                           <div class="form-group">
+                              Descripción:
+                              <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/>
                            </div>
                         </div>
                      </div>
-                     <div class="row">
-                        <div class="col-sm-6">
-                           <div class="form-group">
-                              <a target="_blank" href="http://es.wikipedia.org/wiki/International_Bank_Account_Number">IBAN</a>:
-                              <input class="form-control" type="text" name="iban" value="{$value->iban}" maxlength="34" placeholder="ES12345678901234567890123456" autocomplete="off"/>
-                           </div>
-                        </div>
-                        <div class="col-sm-6">
-                           <div class="form-group">
-                              <a target="_blank" href="http://es.wikipedia.org/wiki/Society_for_Worldwide_Interbank_Financial_Telecommunication">SWIFT</a> o BIC:
-                              <input class="form-control" type="text" name="swift" value="{$value->swift}" maxlength="11" autocomplete="off"/>
-                           </div>
-                        </div>
+                     <div class="panel-footer text-right">
+                        <a class="btn btn-sm btn-danger pull-left" href="{$fsc->url()}&delete_dir={$value->id}#direcciones">
+                           <span class="glyphicon glyphicon-trash"></span>&nbsp; Eliminar
+                        </a>
+                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                           <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                        </button>
                      </div>
                   </div>
-               </div>
-            </form>
-            {/loop}
-            <div class="panel panel-success">
-               <div class="panel-heading">
-                  <h3 class="panel-title">
-                     <a id="b_nueva_cuenta" href="#">
-                        <span class="glyphicon glyphicon-plus-sign"></span>
-                        &nbsp; Nueva cuenta bancaria...
-                     </a>
-                  </h3>
-               </div>
-            </div>
-         </div>
-         
-         <div id="panel_direcciones" class="pseudotab_prov">
-            {loop="$fsc->proveedor->get_direcciones()"}
-            <form action="{$fsc->url()}#direcciones" method="post" class="form">
-               <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
-               <input type="hidden" name="coddir" value="{$value->id}"/>
-               <div class="panel panel-info">
+               </form>
+               {/loop}
+               <div class="panel panel-success">
                   <div class="panel-heading">
                      <h3 class="panel-title">
-                        <span class="glyphicon glyphicon-road"></span>&nbsp; {$value->descripcion}
-                        &nbsp; | &nbsp;
-                        <span class="glyphicon glyphicon-calendar"></span> {$value->fecha}
+                        <a id="b_nueva_direccion" href="#">
+                           <span class="glyphicon glyphicon-plus-sign"></span>
+                           &nbsp; Nueva dirección...
+                        </a>
                      </h3>
                   </div>
-                  <div class="panel-body">
-                     <div class="form-group col-sm-4">
-                        <a href="{$fsc->pais->url()}">País</a>
-                        <select class="form-control" name="pais">
-                        {loop="$fsc->pais->all()"}
-                        <option value="{$value2->codpais}"{if="$value1->codpais==$value2->codpais"} selected=""{/if}>{$value2->nombre}</option>
-                        {/loop}
-                        </select>
-                     </div>
-                     <div class="form-group col-sm-4">
-                        <span class="text-capitalize">{#FS_PROVINCIA#}</span>:
-                        <input type="text" name="provincia" value="{$value->provincia}" id="ac_provincia" class="form-control"/>
-                     </div>
-                     <div class="form-group col-sm-4">
-                        Ciudad:
-                        <input class="form-control" type="text" name="ciudad" value="{$value->ciudad}"/>
-                     </div>
-                     <div class="form-group col-sm-3">
-                        Código Postal:
-                        <input class="form-control" type="text" name="codpostal" value="{$value->codpostal}" autocomplete="off"/>
-                     </div>
-                     <div class="form-group col-sm-9">
-                        Dirección:
-                        <input class="form-control" type="text" name="direccion" value="{$value->direccion}" autocomplete="off"/>
-                     </div>
-                     <div class="form-group col-sm-4">
-                        <span class="text-capitalize">{#FS_APARTADO#}</span>:
-                        <input class="form-control" type="text" name="apartado" value="{$value->apartado}" autocomplete="off"/>
-                     </div>
-                     <div class="checkbox col-sm-3">
-                        <label>
-                           {if="$value->direccionppal"}
-                           <input type="checkbox" name="direccionppal" id="direccionppal_{$value->id}" value="TRUE" checked=""/>
-                           {else}
-                           <input type="checkbox" name="direccionppal" id="direccionppal_{$value->id}" value="TRUE"/>
-                           {/if}
-                           Dirección principal
-                        </label>
-                     </div>
-                     <div class="form-group col-sm-5">
-                        Descripción:
-                        <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/>
-                     </div>
-                  </div>
-                  <div class="panel-footer text-right">
-                     <a class="btn btn-sm btn-danger pull-left" href="{$fsc->url()}&delete_dir={$value->id}#direcciones">
-                        <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
-                     </a>
-                     <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                        <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
-                     </button>
-                  </div>
-               </div>
-            </form>
-            {/loop}
-            <div class="panel panel-success">
-               <div class="panel-heading">
-                  <h3 class="panel-title">
-                     <a id="b_nueva_direccion" href="#">
-                        <span class="glyphicon glyphicon-plus-sign"></span>
-                        &nbsp; Nueva dirección...
-                     </a>
-                  </h3>
                </div>
             </div>
-         </div>
-         
-         <div class="table-responsive pseudotab_prov" id="div_subcuentas">
-            <div class="table-responsive">
-               <table class="table table-hover">
-                  <thead>
+            <div role="tabpanel" class="tab-pane" id="subcuentas">
+               <div class="table-responsive">
+                  <table class="table table-hover">
+                     <thead>
+                        <tr>
+                           <th class="text-left">Ejercicio</th>
+                           <th width="60"></th>
+                           <th class="text-left">Subcuenta + Descripción</th>
+                           <th class="text-right">Debe</th>
+                           <th class="text-right">Haber</th>
+                           <th class="text-right">Saldo</th>
+                        </tr>
+                     </thead>
+                     {loop="$fsc->proveedor->get_subcuentas()"}
                      <tr>
-                        <th class="text-left">Ejercicio</th>
-                        <th></th>
-                        <th class="text-left">Subcuenta + Descripción</th>
-                        <th class="text-right">Debe</th>
-                        <th class="text-right">Haber</th>
-                        <th class="text-right">Saldo</th>
+                        <td><div class="form-control">{$value->codejercicio}</div></td>
+                        <td class="text-right">
+                           <a class="btn btn-sm btn-default" href="index.php?page=subcuenta_asociada&pro={$fsc->proveedor->codproveedor}&idsc={$value->idsubcuenta}">
+                              <span class="glyphicon glyphicon-wrench"></span>
+                           </a>
+                        </td>
+                        <td>
+                           <div class="form-control">
+                              <a href="{$value->url()}">{$value->codsubcuenta}</a> {$value->descripcion}
+                           </div>
+                        </td>
+                        <td>
+                           <div class="form-control text-right">{$fsc->show_precio($value->debe, $value->coddivisa)}</div>
+                        </td>
+                        <td>
+                           <div class="form-control text-right">{$fsc->show_precio($value->haber, $value->coddivisa)}</div>
+                        </td>
+                        <td>
+                           <div class="form-control text-right">{$fsc->show_precio($value->saldo, $value->coddivisa)}</div>
+                        </td>
                      </tr>
-                  </thead>
-                  {loop="$fsc->proveedor->get_subcuentas()"}
-                  <tr>
-                     <td><div class="form-control">{$value->codejercicio}</div></td>
-                     <td class="text-right">
-                        <a class="btn btn-sm btn-default" href="index.php?page=subcuenta_asociada&pro={$fsc->proveedor->codproveedor}&idsc={$value->idsubcuenta}">
-                           <span class="glyphicon glyphicon-wrench"></span>
-                        </a>
-                     </td>
-                     <td>
-                        <div class="form-control">
-                           <a href="{$value->url()}">{$value->codsubcuenta}</a> {$value->descripcion}
-                        </div>
-                     </td>
-                     <td>
-                        <div class="form-control text-right">{$fsc->show_precio($value->debe, $value->coddivisa)}</div>
-                     </td>
-                     <td>
-                        <div class="form-control text-right">{$fsc->show_precio($value->haber, $value->coddivisa)}</div>
-                     </td>
-                     <td>
-                        <div class="form-control text-right">{$fsc->show_precio($value->saldo, $value->coddivisa)}</div>
-                     </td>
-                  </tr>
-                  {/loop}
-                  <tr>
-                     <td colspan="6" class="text-center">
-                        <a class="btn btn-sm btn-block btn-success" href="index.php?page=subcuenta_asociada&pro={$fsc->proveedor->codproveedor}">
-                           Asignar una nueva subcuenta...
-                        </a>
-                     </td>
-                  </tr>
-               </table>
-            </div>
-         </div>
-         
-         {loop="$fsc->extensions"}
-            {if="$value->type=='tab'"}
-            <div id="ext_{$key}" class="pseudotab_prov">
-               <iframe src="index.php?page={$value->from}{$value->params}&cod={$fsc->proveedor->codproveedor}" width="100%" height="2000" frameborder="0"></iframe>
-            </div>
-            {/if}
-         {/loop}
-         
-         <div id="panel_stats" class="pseudotab_prov">
-            <div class="panel panel-primary">
-               <div class="panel-heading">
-                  <h3 class="panel-title">Estadísticas</h3>
+                     {/loop}
+                     <tr>
+                        <td colspan="6" class="text-center">
+                           <a class="btn btn-sm btn-block btn-success" href="index.php?page=subcuenta_asociada&pro={$fsc->proveedor->codproveedor}">
+                              Asignar una nueva subcuenta...
+                           </a>
+                        </td>
+                     </tr>
+                  </table>
                </div>
-               <div class="panel-body">
-                  <div id="chart_albaranes_month" style="height: 400px;"></div>
+            </div>
+            {loop="$fsc->extensions"}
+               {if="$value->type=='tab'"}
+               <div role="tabpanel" class="tab-pane" id="ext_{$key}">
+                  <iframe src="index.php?page={$value->from}{$value->params}&cod={$fsc->proveedor->codproveedor}" width="100%" height="2000" frameborder="0"></iframe>
                </div>
-               <div class="panel-footer">
-                  <p class="help-block">
-                     Estas son las estadísticas de {#FS_ALBARANES#} y facturas del proveedor
-                     de los últimos años. Los valores son netos.
-                  </p>
-                  <p class="help-block">
-                     Puedes consultar informes de compras más detallados en <b>Informes &gt; Facturas</b>.
-                  </p>
+               {/if}
+            {/loop}
+            <div role="tabpanel" class="tab-pane" id="stats">
+               <div class="panel panel-primary">
+                  <div class="panel-heading">
+                     <h3 class="panel-title">Estadísticas</h3>
+                  </div>
+                  <div class="panel-body">
+                     <div id="chart_albaranes_month" style="height: 400px;"></div>
+                  </div>
+                  <div class="panel-footer">
+                     <p class="help-block">
+                        Estas son las estadísticas de {#FS_ALBARANES#} y facturas del proveedor
+                        de los últimos años. Los valores son netos en {$fsc->simbolo_divisa()}.
+                        <br/>
+                        Puedes consultar informes de compras más detallados en <b>Informes &gt; Facturas</b>.
+                     </p>
+                  </div>
                </div>
             </div>
          </div>
@@ -626,7 +602,7 @@
                <div class="form-group">
                   Descripción:
                   <input class="form-control" type="text" name="descripcion" placeholder="Banco XXX" autocomplete="off" required=""/>
-                  <label>
+                  <label class="checkbox-inline">
                      <input type="checkbox" name="principal" value="TRUE" checked=""/>
                      Principal
                   </label>
@@ -642,7 +618,7 @@
             </div>
             <div class="modal-footer">
                <button class="btn btn-sm btn-primary" type="submit">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                  <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
                </button>
             </div>
          </div>
@@ -667,9 +643,13 @@
                <div class="form-group">
                   <a href="{$fsc->pais->url()}">País</a>:
                   <select class="form-control" name="pais">
-                     {loop="$fsc->pais->all()"}
-                     <option value="{$value->codpais}"{if="$value->is_default()"} selected=""{/if}>{$value->nombre}</option>
-                     {/loop}
+                  {loop="$fsc->pais->all()"}
+                     {if="$value->is_default()"}
+                     <option value="{$value->codpais}" selected="">{$value->nombre}</option>
+                     {else}
+                     <option value="{$value->codpais}">{$value->nombre}</option>
+                     {/if}
+                  {/loop}
                   </select>
                </div>
                <div class="form-group">
@@ -695,7 +675,7 @@
                <div class="form-group">
                   Descripción:
                   <input class="form-control" type="text" name="descripcion" value="Nueva dirección"/>
-                  <label>
+                  <label class="checkbox-inline">
                      <input type="checkbox" name="direccionppal" value="TRUE" checked=""/>
                      Dirección principal
                   </label>
@@ -703,7 +683,7 @@
             </div>
             <div class="modal-footer">
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                  <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
                </button>
             </div>
          </div>

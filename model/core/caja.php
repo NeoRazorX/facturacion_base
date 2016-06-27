@@ -192,7 +192,7 @@ class caja extends \fs_model
          $caja = $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($id).";");
          if($caja)
          {
-            return new caja($caja[0]);
+            return new \caja($caja[0]);
          }
          else
             return FALSE;
@@ -253,7 +253,7 @@ class caja extends \fs_model
       {
          foreach($data as $c)
          {
-            $cajalist[] = new caja($c);
+            $cajalist[] = new \caja($c);
          }
       }
       
@@ -271,7 +271,7 @@ class caja extends \fs_model
       {
          foreach($data as $c)
          {
-            $cajalist[] = new caja($c);
+            $cajalist[] = new \caja($c);
          }
       }
       

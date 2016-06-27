@@ -115,7 +115,7 @@ class cliente_propiedad extends \fs_model
       
       foreach($values as $key => $value)
       {
-         $aux = new cliente_propiedad();
+         $aux = new \cliente_propiedad();
          $aux->name = $key;
          $aux->codcliente = $cod;
          $aux->text = $value;

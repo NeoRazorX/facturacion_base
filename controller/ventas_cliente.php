@@ -277,7 +277,7 @@ class ventas_cliente extends fs_controller
          else
             $sql_aux = "DATE_FORMAT(fecha, '%m')";
          
-         $sql = "SELECT ".$sql_aux." as mes, sum(neto) as total FROM albaranescli"
+         $sql = "SELECT ".$sql_aux." as mes, sum(neto/tasaconv) as total FROM albaranescli"
                  ." WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))
                  ." AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))
                  ." AND codcliente = ".$this->empresa->var2str($this->cliente->codcliente)
@@ -290,12 +290,13 @@ class ventas_cliente extends fs_controller
             {
                if( isset($stats[$year.'-'.intval($d['mes'])]['albaranes']) )
                {
-                  $stats[$year.'-'.intval($d['mes'])]['albaranes'] = number_format($d['total'], FS_NF0, '.', '');
+                  $total = $this->euro_convert( floatval($d['total']) );
+                  $stats[$year.'-'.intval($d['mes'])]['albaranes'] = number_format($total, FS_NF0, '.', '');
                }
             }
          }
          
-         $sql = "SELECT ".$sql_aux." as mes, sum(neto) as total FROM facturascli"
+         $sql = "SELECT ".$sql_aux." as mes, sum(neto/tasaconv) as total FROM facturascli"
                  ." WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))
                  ." AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))
                  ." AND codcliente = ".$this->empresa->var2str($this->cliente->codcliente)
@@ -307,7 +308,8 @@ class ventas_cliente extends fs_controller
             {
                if( isset($stats[$year.'-'.intval($d['mes'])]['facturas']) )
                {
-                  $stats[$year.'-'.intval($d['mes'])]['facturas'] = number_format($d['total'], FS_NF0, '.', '');
+                  $total = $this->euro_convert( floatval($d['total']) );
+                  $stats[$year.'-'.intval($d['mes'])]['facturas'] = number_format($total, FS_NF0, '.', '');
                }
             }
          }

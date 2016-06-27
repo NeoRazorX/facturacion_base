@@ -263,7 +263,7 @@ class proveedor extends \fs_model
       $prov = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codproveedor = ".$this->var2str($cod).";");
       if($prov)
       {
-         return new proveedor($prov[0]);
+         return new \proveedor($prov[0]);
       }
       else
          return FALSE;
@@ -294,7 +294,7 @@ class proveedor extends \fs_model
       $data = $this->db->select($sql);
       if($data)
       {
-         return new proveedor($data[0]);
+         return new \proveedor($data[0]);
       }
       else
          return FALSE;
@@ -537,7 +537,7 @@ class proveedor extends \fs_model
       {
          foreach($data as $p)
          {
-            $provelist[] = new proveedor($p);
+            $provelist[] = new \proveedor($p);
          }
       }
       
@@ -558,7 +558,7 @@ class proveedor extends \fs_model
          {
             foreach($data as $d)
             {
-               $provelist[] = new proveedor($d);
+               $provelist[] = new \proveedor($d);
             }
          }
          $this->cache->set('m_proveedor_all', $provelist);
@@ -593,7 +593,7 @@ class proveedor extends \fs_model
       {
          foreach($data as $d)
          {
-            $prolist[] = new proveedor($d);
+            $prolist[] = new \proveedor($d);
          }
       }
       

@@ -112,7 +112,9 @@ class subcuenta extends \fs_model
          foreach(glob('tmp/'.FS_TMP_NAME.'libro_mayor/*') as $file)
          {
             if( is_file($file) )
+            {
                unlink($file);
+            }
          }
       }
       if( file_exists('tmp/'.FS_TMP_NAME.'libro_diario') )
@@ -120,7 +122,9 @@ class subcuenta extends \fs_model
          foreach(glob('tmp/'.FS_TMP_NAME.'libro_diario/*') as $file)
          {
             if( is_file($file) )
+            {
                unlink($file);
+            }
          }
       }
       if( file_exists('tmp/'.FS_TMP_NAME.'inventarios_balances') )
@@ -128,7 +132,9 @@ class subcuenta extends \fs_model
          foreach(glob('tmp/'.FS_TMP_NAME.'inventarios_balances/*') as $file)
          {
             if( is_file($file) )
+            {
                unlink($file);
+            }
          }
       }
       
@@ -214,7 +220,7 @@ class subcuenta extends \fs_model
       $subc = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idsubcuenta = ".$this->var2str($id).";");
       if($subc)
       {
-         return new subcuenta($subc[0]);
+         return new \subcuenta($subc[0]);
       }
       else
          return FALSE;
@@ -228,7 +234,7 @@ class subcuenta extends \fs_model
       $subc = $this->db->select($sql);
       if($subc)
       {
-         return new subcuenta($subc[0]);
+         return new \subcuenta($subc[0]);
       }
       else if($crear)
       {
@@ -236,14 +242,14 @@ class subcuenta extends \fs_model
          $subc = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codsubcuenta = ".$this->var2str($cod).";");
          if($subc)
          {
-            $old_sc = new subcuenta($subc[0]);
+            $old_sc = new \subcuenta($subc[0]);
             
             /// buscamos la cuenta equivalente es ESTE ejercicio
             $cuenta = new \cuenta();
             $new_c = $cuenta->get_by_codigo($old_sc->codcuenta, $codejercicio);
             if($new_c)
             {
-               $new_sc = new subcuenta();
+               $new_sc = new \subcuenta();
                $new_sc->codcuenta = $new_c->codcuenta;
                $new_sc->coddivisa = $old_sc->coddivisa;
                $new_sc->codejercicio = $codejercicio;
@@ -293,7 +299,7 @@ class subcuenta extends \fs_model
       $data = $this->db->select($sql);
       if($data)
       {
-         return new subcuenta($data[0]);
+         return new \subcuenta($data[0]);
       }
       else
          return FALSE;
@@ -452,7 +458,7 @@ class subcuenta extends \fs_model
       {
          foreach($subcuentas as $s)
          {
-            $sublist[] = new subcuenta($s);
+            $sublist[] = new \subcuenta($s);
          }
       }
       
@@ -470,7 +476,7 @@ class subcuenta extends \fs_model
       {
          foreach($subcuentas as $s)
          {
-            $sublist[] = new subcuenta($s);
+            $sublist[] = new \subcuenta($s);
          }
       }
       
@@ -496,7 +502,7 @@ class subcuenta extends \fs_model
       {
          foreach($data as $d)
          {
-            $cuentas[] = new subcuenta($d);
+            $cuentas[] = new \subcuenta($d);
          }
       }
       
@@ -532,7 +538,7 @@ class subcuenta extends \fs_model
       {
          foreach($subcuentas as $s)
          {
-            $sublist[] = new subcuenta($s);
+            $sublist[] = new \subcuenta($s);
          }
       }
       
@@ -553,7 +559,7 @@ class subcuenta extends \fs_model
       {
          foreach($data as $s)
          {
-            $sublist[] = new subcuenta($s);
+            $sublist[] = new \subcuenta($s);
          }
       }
       
@@ -576,7 +582,7 @@ class subcuenta extends \fs_model
          {
             foreach($data as $s)
             {
-               $sublist[] = new subcuenta($s);
+               $sublist[] = new \subcuenta($s);
             }
          }
          

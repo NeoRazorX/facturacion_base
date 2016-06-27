@@ -92,6 +92,10 @@ class impuesto extends \fs_model
          return 'index.php?page=contabilidad_impuestos#'.$this->codimpuesto;
    }
    
+   /**
+    * Devuelve TRUE si el impuesto es el predeterminado del usuario
+    * @return type
+    */
    public function is_default()
    {
       return ( $this->codimpuesto == $this->default_items->codimpuesto() );
@@ -102,7 +106,7 @@ class impuesto extends \fs_model
       $impuesto = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codimpuesto = ".$this->var2str($cod).";");
       if($impuesto)
       {
-         return new impuesto($impuesto[0]);
+         return new \impuesto($impuesto[0]);
       }
       else
          return FALSE;
@@ -113,7 +117,7 @@ class impuesto extends \fs_model
       $impuesto = $this->db->select("SELECT * FROM ".$this->table_name." WHERE iva = ".$this->var2str( floatval($iva) ).";");
       if($impuesto)
       {
-         return new impuesto($impuesto[0]);
+         return new \impuesto($impuesto[0]);
       }
       else
          return FALSE;
@@ -196,19 +200,27 @@ class impuesto extends \fs_model
       $this->cache->delete('m_impuesto_all');
    }
    
+   /**
+    * Devuelve un array con todos los impuestos
+    * @return \impuesto
+    */
    public function all()
    {
+      /// leemos la lista de la caché
       $impuestolist = $this->cache->get_array('m_impuesto_all');
       if(!$impuestolist)
       {
+         /// si no encontramos la lista en caché, leemos de la base de datos
          $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY iva DESC;");
          if($data)
          {
             foreach($data as $i)
             {
-               $impuestolist[] = new impuesto($i);
+               $impuestolist[] = new \impuesto($i);
             }
          }
+         
+         /// guardamos la lista en caché
          $this->cache->set('m_impuesto_all', $impuestolist);
       }
       

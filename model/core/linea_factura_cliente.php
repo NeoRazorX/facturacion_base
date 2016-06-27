@@ -343,16 +343,16 @@ class linea_factura_cliente extends \fs_model
    }
    
    /**
-    * Devuelve los datos de una linea 
+    * Devuelve los datos de una linea.
     * @param type $idlinea
-    * @return new linea_factura_cliente
+    * @return boolean|\linea_factura_cliente
     */
    public function get($idlinea)
    {
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idlinea = ".$this->var2str($idlinea).";");
       if($data)
       {
-         return new linea_factura_cliente($data[0]);
+         return new \linea_factura_cliente($data[0]);
       }
       else
       {
@@ -464,7 +464,7 @@ class linea_factura_cliente extends \fs_model
       {
          foreach($lineas as $l)
          {
-            $linlist[] = new linea_factura_cliente($l);
+            $linlist[] = new \linea_factura_cliente($l);
          }
       }
       
@@ -483,7 +483,7 @@ class linea_factura_cliente extends \fs_model
       {
          foreach($data as $l)
          {
-            $linealist[] = new linea_factura_cliente($l);
+            $linealist[] = new \linea_factura_cliente($l);
          }
       }
       
@@ -512,7 +512,7 @@ class linea_factura_cliente extends \fs_model
       {
          foreach($data as $l)
          {
-            $linealist[] = new linea_factura_cliente($l);
+            $linealist[] = new \linea_factura_cliente($l);
          }
       }
       
@@ -542,7 +542,7 @@ class linea_factura_cliente extends \fs_model
       {
          foreach($data as $l)
          {
-            $linealist[] = new linea_factura_cliente($l);
+            $linealist[] = new \linea_factura_cliente($l);
          }
       }
       
@@ -574,7 +574,7 @@ class linea_factura_cliente extends \fs_model
       {
          foreach($data as $l)
          {
-            $linealist[] = new linea_factura_cliente($l);
+            $linealist[] = new \linea_factura_cliente($l);
          }
       }
       

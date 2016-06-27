@@ -37,6 +37,7 @@ class ventas_imprimir extends fs_controller
    public $impuesto;
    
    private $logo;
+   private $numpaginas;
    
    public function __construct()
    {
@@ -252,8 +253,51 @@ class ventas_imprimir extends fs_controller
       }
    }
    
-   private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag, $documento)
+   private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, $lppag, $documento)
    {
+      /// calculamos el número de páginas
+      if( !isset($this->numpaginas) )
+      {
+         $this->numpaginas = 0;
+         $linea_a = 0;
+         while( $linea_a < count($lineas) )
+         {
+            $lppag2 = $lppag;
+            foreach($lineas as $i => $lin)
+            {
+               if($i >= $linea_a AND $i < $linea_a + $lppag2)
+               {
+                  $linea_size = 1;
+                  $len = mb_strlen($lin->referencia.' '.$lin->descripcion);
+                  while($len > 85)
+                  {
+                     $len -= 85;
+                     $linea_size += 0.5;
+                  }
+                  
+                  $aux = explode("\n", $lin->descripcion);
+                  if( count($aux) > 1 )
+                  {
+                     $linea_size += 0.5 * ( count($aux) - 1);
+                  }
+                  
+                  if($linea_size > 1)
+                  {
+                     $lppag2 -= $linea_size - 1;
+                  }
+               }
+            }
+            
+            $linea_a += $lppag2;
+            $this->numpaginas++;
+         }
+         
+         if($this->numpaginas == 0)
+         {
+            $this->numpaginas = 1;
+         }
+      }
+      
       if($this->impresion['print_dto'])
       {
          $this->impresion['print_dto'] = FALSE;
@@ -277,7 +321,7 @@ class ventas_imprimir extends fs_controller
       $re = FALSE;
       $irpf = FALSE;
       /// leemos las líneas para ver si hay que mostrar los tipos de iva, re o irpf
-      foreach($lineas as $lin)
+      foreach($lineas as $i => $lin)
       {
          if( $lin->cantidad != intval($lin->cantidad) )
          {
@@ -312,19 +356,25 @@ class ventas_imprimir extends fs_controller
          }
          
          /// restamos líneas al documento en función del tamaño de la descripción
-         if($lppag > 1)
+         if($i >= $linea_actual AND $i < $linea_actual+$lppag)
          {
+            $linea_size = 1;
             $len = mb_strlen($lin->referencia.' '.$lin->descripcion);
             while($len > 85)
             {
                $len -= 85;
-               $lppag -= 0.3;
+               $linea_size += 0.5;
             }
             
             $aux = explode("\n", $lin->descripcion);
             if( count($aux) > 1 )
             {
-               $lppag -= 0.3 * ( count($aux) - 1);
+               $linea_size += 0.5 * ( count($aux) - 1);
+            }
+            
+            if($linea_size > 1)
+            {
+               $lppag -= $linea_size - 1;
             }
          }
       }
@@ -582,7 +632,7 @@ class ventas_imprimir extends fs_controller
             $pdf_doc->new_table();
             $titulo = array('pagina' => '<b>Página</b>', 'neto' => '<b>Neto</b>',);
             $fila = array(
-                'pagina' => $pagina . '/' . ceil(count($lineas) / $lppag),
+                'pagina' => $pagina . '/' . $this->numpaginas,
                 'neto' => $this->show_precio($this->albaran->neto, $this->albaran->coddivisa),
             );
             $opciones = array(
@@ -715,7 +765,7 @@ class ventas_imprimir extends fs_controller
                $pdf_doc->new_table();
                $pdf_doc->add_table_row(
                   array(
-                      'campos' => "<b>".ucfirst(FS_FACTURA).":</b>\n<b>Fecha:</b>\n<b>".FS_CIFNIF.":</b>",
+                      'campos' => "<b>".ucfirst(FS_FACTURA).":</b>\n<b>Fecha:</b>\n<b>".$this->cliente->tipoidfiscal.":</b>",
                       'factura' => $this->factura->codigo."\n".$this->factura->fecha."\n".$this->factura->cifnif,
                       'cliente' => $this->fix_html($direccion)
                   )
@@ -901,7 +951,7 @@ class ventas_imprimir extends fs_controller
             $pdf_doc->new_table();
             $titulo = array('pagina' => '<b>Página</b>', 'neto' => '<b>Neto</b>',);
             $fila = array(
-                'pagina' => $pagina . '/' . ceil(count($lineas) / $lppag),
+                'pagina' => $pagina . '/' . $this->numpaginas,
                 'neto' => $this->show_precio($this->factura->neto, $this->factura->coddivisa),
             );
             $opciones = array(

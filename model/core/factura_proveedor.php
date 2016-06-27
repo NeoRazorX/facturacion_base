@@ -532,7 +532,7 @@ class factura_proveedor extends \fs_model
       {
          foreach($data as $d)
          {
-            $devoluciones[] = new factura_proveedor($d);
+            $devoluciones[] = new \factura_proveedor($d);
          }
       }
       
@@ -544,7 +544,7 @@ class factura_proveedor extends \fs_model
       $fact = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id).";");
       if($fact)
       {
-         return new factura_proveedor($fact[0]);
+         return new \factura_proveedor($fact[0]);
       }
       else
          return FALSE;
@@ -555,7 +555,7 @@ class factura_proveedor extends \fs_model
       $fact = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codigo = ".$this->var2str($cod).";");
       if($fact)
       {
-         return new factura_proveedor($fact[0]);
+         return new \factura_proveedor($fact[0]);
       }
       else
          return FALSE;
@@ -647,8 +647,13 @@ class factura_proveedor extends \fs_model
       }
    }
    
+   /**
+    * Comprueba los datos de la factura, devuelve TRUE si está todo correcto
+    * @return boolean
+    */
    public function test()
    {
+      $this->nombre = $this->no_html($this->nombre);
       $this->observaciones = $this->no_html($this->observaciones);
       $this->totaleuros = round($this->total / $this->tasaconv, 2);
       
@@ -923,7 +928,7 @@ class factura_proveedor extends \fs_model
       {
          foreach($data as $f)
          {
-            $faclist[] = new factura_proveedor($f);
+            $faclist[] = new \factura_proveedor($f);
          }
       }
       
@@ -947,7 +952,7 @@ class factura_proveedor extends \fs_model
       {
          foreach($data as $f)
          {
-            $faclist[] = new factura_proveedor($f);
+            $faclist[] = new \factura_proveedor($f);
          }
       }
       
@@ -972,7 +977,7 @@ class factura_proveedor extends \fs_model
       {
          foreach($data as $f)
          {
-            $faclist[] = new factura_proveedor($f);
+            $faclist[] = new \factura_proveedor($f);
          }
       }
       
@@ -997,7 +1002,7 @@ class factura_proveedor extends \fs_model
       {
          foreach($data as $f)
          {
-            $faclist[] = new factura_proveedor($f);
+            $faclist[] = new \factura_proveedor($f);
          }
       }
       
@@ -1048,7 +1053,7 @@ class factura_proveedor extends \fs_model
       {
          foreach($data as $f)
          {
-            $faclist[] = new factura_proveedor($f);
+            $faclist[] = new \factura_proveedor($f);
          }
       }
       
@@ -1084,7 +1089,7 @@ class factura_proveedor extends \fs_model
       {
          foreach($data as $f)
          {
-            $faclist[] = new factura_proveedor($f);
+            $faclist[] = new \factura_proveedor($f);
          }
       }
       

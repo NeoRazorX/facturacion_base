@@ -113,7 +113,7 @@ class familia extends \fs_model
       $f = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codfamilia = ".$this->var2str($cod).";");
       if($f)
       {
-         return new familia($f[0]);
+         return new \familia($f[0]);
       }
       else
          return FALSE;
@@ -135,6 +135,10 @@ class familia extends \fs_model
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE codfamilia = ".$this->var2str($this->codfamilia).";");
    }
    
+   /**
+    * Comprueba los datos de la familia, devuelve TRUE si son correctos
+    * @return boolean
+    */
    public function test()
    {
       $status = FALSE;
@@ -156,6 +160,10 @@ class familia extends \fs_model
       return $status;
    }
    
+   /**
+    * Guarda los datos en la base de datos
+    * @return boolean
+    */
    public function save()
    {
       if( $this->test() )
@@ -182,6 +190,10 @@ class familia extends \fs_model
          return FALSE;
    }
    
+   /**
+    * Elimina la familia de la base de datos
+    * @return type
+    */
    public function delete()
    {
       $this->clean_cache();
@@ -192,16 +204,25 @@ class familia extends \fs_model
       return $this->db->exec($sql);
    }
    
+   /**
+    * Limpia la caché
+    */
    private function clean_cache()
    {
       $this->cache->delete('m_familia_all');
    }
    
+   /**
+    * Devuelve un array con todas las familias
+    * @return \familia
+    */
    public function all()
    {
+      /// lee la lista de la caché
       $famlist = $this->cache->get_array('m_familia_all');
       if(!$famlist)
       {
+         /// si la lista no está en caché, leemos de la base de datos
          $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY lower(descripcion) ASC;");
          if($data)
          {
@@ -209,21 +230,29 @@ class familia extends \fs_model
             {
                if( is_null($d['madre']) )
                {
-                  $famlist[] = new familia($d);
+                  $famlist[] = new \familia($d);
                   foreach( $this->aux_all($data, $d['codfamilia'], '· ') as $value )
                   {
-                     $famlist[] = new familia($value);
+                     $famlist[] = new \familia($value);
                   }
                }
             }
          }
          
+         /// guardamos la lista en caché
          $this->cache->set('m_familia_all', $famlist);
       }
       
       return $famlist;
    }
    
+   /**
+    * Completa los datos de la lista de familias con el nivel
+    * @param type $familias
+    * @param type $madre
+    * @param type $nivel
+    * @return type
+    */
    private function aux_all(&$familias, $madre, $nivel)
    {
       $subfamilias = array();
@@ -253,7 +282,7 @@ class familia extends \fs_model
       {
          foreach($data as $d)
          {
-            $famlist[] = new familia($d);
+            $famlist[] = new \familia($d);
          }
       }
       
@@ -274,7 +303,7 @@ class familia extends \fs_model
       {
          foreach($data as $d)
          {
-            $famlist[] = new familia($d);
+            $famlist[] = new \familia($d);
          }
       }
       
@@ -291,7 +320,7 @@ class familia extends \fs_model
       {
          foreach($familias as $f)
          {
-            $famlist[] = new familia($f);
+            $famlist[] = new \familia($f);
          }
       }
       

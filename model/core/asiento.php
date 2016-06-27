@@ -178,7 +178,7 @@ class asiento extends \fs_model
          $asiento = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($id).";");
          if($asiento)
          {
-            return new asiento($asiento[0]);
+            return new \asiento($asiento[0]);
          }
          else
             return FALSE;
@@ -537,7 +537,7 @@ class asiento extends \fs_model
       {
          foreach($data as $a)
          {
-            $alist[] = new asiento($a);
+            $alist[] = new \asiento($a);
          }
       }
       
@@ -554,7 +554,7 @@ class asiento extends \fs_model
       {
          foreach($data as $a)
          {
-            $alist[] = new asiento($a);
+            $alist[] = new \asiento($a);
          }
       }
       

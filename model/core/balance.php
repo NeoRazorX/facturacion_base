@@ -101,7 +101,7 @@ class balance extends \fs_model
       $balance = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codbalance = ".$this->var2str($cod).";");
       if($balance)
       {
-         return new balance($balance[0]);
+         return new \balance($balance[0]);
       }
       else
          return FALSE;
@@ -172,7 +172,7 @@ class balance extends \fs_model
       {
          foreach($data as $b)
          {
-            $balist[] = new balance($b);
+            $balist[] = new \balance($b);
          }
       }
       
@@ -226,7 +226,7 @@ class balance_cuenta extends \fs_model
       $bc = $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($id).";");
       if($bc)
       {
-         return new balance_cuenta($bc[0]);
+         return new \balance_cuenta($bc[0]);
       }
       else
          return FALSE;
@@ -285,7 +285,7 @@ class balance_cuenta extends \fs_model
       {
          foreach($data as $b)
          {
-            $balist[] = new balance_cuenta($b);
+            $balist[] = new \balance_cuenta($b);
          }
       }
       
@@ -301,7 +301,7 @@ class balance_cuenta extends \fs_model
       {
          foreach($data as $b)
          {
-            $balist[] = new balance_cuenta($b);
+            $balist[] = new \balance_cuenta($b);
          }
       }
       
@@ -409,7 +409,7 @@ class balance_cuenta_a extends \fs_model
       $bca = $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($id).";");
       if($bca)
       {
-         return new balance_cuenta_a($bca[0]);
+         return new \balance_cuenta_a($bca[0]);
       }
       else
          return FALSE;
@@ -467,7 +467,7 @@ class balance_cuenta_a extends \fs_model
       {
          foreach($data as $b)
          {
-            $balist[] = new balance_cuenta_a($b);
+            $balist[] = new \balance_cuenta_a($b);
          }
       }
       
@@ -484,7 +484,7 @@ class balance_cuenta_a extends \fs_model
       {
          foreach($data as $b)
          {
-            $balist[] = new balance_cuenta_a($b);
+            $balist[] = new \balance_cuenta_a($b);
          }
       }
       
@@ -501,7 +501,7 @@ class balance_cuenta_a extends \fs_model
       {
          foreach($data as $b)
          {
-            $balist[] = new balance_cuenta_a($b);
+            $balist[] = new \balance_cuenta_a($b);
          }
       }
       

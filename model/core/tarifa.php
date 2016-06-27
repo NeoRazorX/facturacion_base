@@ -259,7 +259,7 @@ class tarifa extends \fs_model
       $tarifa = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codtarifa = ".$this->var2str($cod).";");
       if($tarifa)
       {
-         return new tarifa($tarifa[0]);
+         return new \tarifa($tarifa[0]);
       }
       else
          return FALSE;
@@ -353,7 +353,7 @@ class tarifa extends \fs_model
       {
          foreach($data as $t)
          {
-            $tarlist[] = new tarifa($t);
+            $tarlist[] = new \tarifa($t);
          }
       }
       

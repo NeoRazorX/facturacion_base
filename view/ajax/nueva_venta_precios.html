@@ -95,6 +95,9 @@
                </tr>
             </table>
          </div>
+         {if="$fsc->articulo->bloqueado"}
+         <div class="alert alert-danger">Artículo bloqueado</div>
+         {/if}
          <p class="help-block" style="margin: 5px;">{$fsc->articulo->descripcion}</p>
          <div class="table-responsive">
             <table class="table table-hover">

@@ -100,7 +100,7 @@ class regularizacion_stock extends \fs_model
       $data = $this->db->select("SELECT * FROM lineasregstocks WHERE id = ".$this->var2str($id).";");
       if($data)
       {
-         return new regularizacion_stock($data[0]);
+         return new \regularizacion_stock($data[0]);
       }
       else
          return FALSE;
@@ -177,7 +177,7 @@ class regularizacion_stock extends \fs_model
       {
          foreach($data as $d)
          {
-            $rlist[] = new regularizacion_stock($d);
+            $rlist[] = new \regularizacion_stock($d);
          }
       }
       

@@ -109,28 +109,40 @@
    </div>
    <div class="row">
       <div class="col-md-2 col-sm-3">
-         <div class="list-group">
-            <a id="b_generales" href="#generales" class="list-group-item active" onclick="mostrar_seccion('')">
-               <span class="glyphicon glyphicon-dashboard"></span> &nbsp; Datos generales
-            </a>
-            <a id="b_email" href="#email" class="list-group-item" onclick="mostrar_seccion('email')">
-               <span class="glyphicon glyphicon-envelope"></span> &nbsp; Email
-            </a>
-            <a id="b_facturacion" href="#facturacion" class="list-group-item" onclick="mostrar_seccion('facturacion')">
-               <span class="glyphicon glyphicon-usd"></span> &nbsp; Facturación
-            </a>
-            <a id="b_cuentasb" href="#cuentasb" class="list-group-item" onclick="mostrar_seccion('cuentasb')">
-               <span class="glyphicon glyphicon-credit-card"></span> &nbsp; Cuentas bancarias
-            </a>
-            <a id="b_impresion" href="#impresion" class="list-group-item" onclick="mostrar_seccion('impresion')">
-               <span class="glyphicon glyphicon-print"></span> &nbsp; Impresión
-            </a>
+         <ul class="nav nav-pills nav-stacked">
+            <li id="b_generales" class="active">
+               <a href="#generales" onclick="mostrar_seccion('')">
+                  <span class="glyphicon glyphicon-dashboard"></span> &nbsp; Datos generales
+               </a>
+            </li>
+            <li id="b_email">
+               <a href="#email" onclick="mostrar_seccion('email')">
+                  <span class="glyphicon glyphicon-envelope"></span> &nbsp; Email
+               </a>
+            </li>
+            <li id="b_facturacion">
+               <a href="#facturacion" onclick="mostrar_seccion('facturacion')">
+                  <span class="glyphicon glyphicon-usd"></span> &nbsp; Facturación
+               </a>
+            </li>
+            <li id="b_cuentasb">
+               <a href="#cuentasb" onclick="mostrar_seccion('cuentasb')">
+                  <span class="glyphicon glyphicon-credit-card"></span> &nbsp; Cuentas bancarias
+               </a>
+            </li>
+            <li id="b_impresion">
+               <a href="#impresion" onclick="mostrar_seccion('impresion')">
+                  <span class="glyphicon glyphicon-print"></span> &nbsp; Impresión
+               </a>
+            </li>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}{$value->params}" class="list-group-item">{$value->text}</a>
+               <li>
+                  <a href="index.php?page={$value->from}{$value->params}">{$value->text}</a>
+               </li>
                {/if}
             {/loop}
-         </div>
+         </ul>
       </div>
       <div class="col-md-10 col-sm-9">
          <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">

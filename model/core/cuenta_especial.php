@@ -89,7 +89,7 @@ class cuenta_especial extends \fs_model
       $cuentae = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idcuentaesp = ".$this->var2str($id).";");
       if($cuentae)
       {
-         return new cuenta_especial($cuentae[0]);
+         return new \cuenta_especial($cuentae[0]);
       }
       else
          return FALSE;
@@ -138,7 +138,7 @@ class cuenta_especial extends \fs_model
       {
          foreach($data as $c)
          {
-            $culist[] = new cuenta_especial($c);
+            $culist[] = new \cuenta_especial($c);
          }
       }
       
@@ -153,7 +153,7 @@ class cuenta_especial extends \fs_model
       }
       if(!$encontrada)
       {
-         $ce = new cuenta_especial();
+         $ce = new \cuenta_especial();
          $ce->idcuentaesp = 'ACREED';
          $ce->descripcion = 'Cuentas de acreedores';
          if( $ce->save() )

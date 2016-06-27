@@ -73,23 +73,36 @@ class agencia_transporte extends \fs_model
    {
       return '';
    }
-
+   
+   /**
+    * Devuelve la url donde ver/modificar estos datos
+    * @return type
+    */
    public function url()
    {
       return "index.php?page=admin_transportes&cod=".$this->codtrans;
    }
    
+   /**
+    * Devuelve la agencia de transporte con codtrans = $cod
+    * @param type $cod
+    * @return \FacturaScripts\model\agencia_transporte|boolean
+    */
    public function get($cod)
    {
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codtrans = ".$this->var2str($cod).";");
       if($data)
       {
-         return new agencia_transporte($data[0]);
+         return new \agencia_transporte($data[0]);
       }
       else
          return FALSE;
    }
    
+   /**
+    * Devuelve TRUE si la agencia existe (en la base de datos)
+    * @return boolean
+    */
    public function exists()
    {
       if( is_null($this->codtrans) )
@@ -100,6 +113,10 @@ class agencia_transporte extends \fs_model
          return $this->db->select("SELECT * FROM ".$this->table_name." WHERE codtrans = ".$this->var2str($this->codtrans).";");
    }
    
+   /**
+    * Guarda los datos en la base de datos
+    * @return type
+    */
    public function save()
    {
       if( $this->exists() )
@@ -123,11 +140,19 @@ class agencia_transporte extends \fs_model
       return $this->db->exec($sql);
    }
    
+   /**
+    * Elimina la agencia de transportes (de la base de datos)
+    * @return type
+    */
    public function delete()
    {
       return $this->db->exec("DELETE FROM ".$this->table_name." WHERE codtrans = ".$this->var2str($this->codtrans).";");
    }
    
+   /**
+    * Devuelve un array con todas las agencias de transporte
+    * @return \FacturaScripts\model\agencia_transporte
+    */
    public function all()
    {
       $listaa = array();
@@ -137,7 +162,7 @@ class agencia_transporte extends \fs_model
       {
          foreach($data as $d)
          {
-            $listaa[] = new agencia_transporte($d);
+            $listaa[] = new \agencia_transporte($d);
          }
       }
       

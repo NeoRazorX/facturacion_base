@@ -244,7 +244,7 @@ class articulo_proveedor extends \fs_model
       $data = $this->db->select("SELECT * FROM articulosprov WHERE id = ".$this->var2str($id).";");
       if($data)
       {
-         return new articulo_proveedor($data[0]);
+         return new \articulo_proveedor($data[0]);
       }
       else
          return FALSE;
@@ -277,7 +277,7 @@ class articulo_proveedor extends \fs_model
       $data = $this->db->select($sql);
       if($data)
       {
-         return new articulo_proveedor($data[0]);
+         return new \articulo_proveedor($data[0]);
       }
       else
          return FALSE;
@@ -369,7 +369,7 @@ class articulo_proveedor extends \fs_model
       {
          foreach($data as $d)
          {
-            $alist[] = new articulo_proveedor($d);
+            $alist[] = new \articulo_proveedor($d);
          }
       }
       
@@ -389,7 +389,7 @@ class articulo_proveedor extends \fs_model
       $data = $this->db->select($sql);
       if($data)
       {
-         return new articulo_proveedor($data[0]);
+         return new \articulo_proveedor($data[0]);
       }
       else
          return FALSE;
@@ -410,7 +410,7 @@ class articulo_proveedor extends \fs_model
       {
          foreach($data as $d)
          {
-            $alist[] = new articulo_proveedor($d);
+            $alist[] = new \articulo_proveedor($d);
          }
       }
       

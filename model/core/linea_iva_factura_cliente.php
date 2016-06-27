@@ -235,7 +235,7 @@ class linea_iva_factura_cliente extends \fs_model
       {
          foreach($data as $l)
          {
-            $linealist[] = new linea_iva_factura_cliente($l);
+            $linealist[] = new \linea_iva_factura_cliente($l);
          }
       }
       

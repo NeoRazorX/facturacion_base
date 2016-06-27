@@ -128,7 +128,7 @@ class cuenta_banco_cliente extends \fs_model
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcuenta = ".$this->var2str($cod).";");
       if($data)
       {
-         return new cuenta_banco_cliente($data[0]);
+         return new \cuenta_banco_cliente($data[0]);
       }
       else
          return FALSE;
@@ -205,7 +205,7 @@ class cuenta_banco_cliente extends \fs_model
       {
          foreach($data as $d)
          {
-            $clist[] = new cuenta_banco_cliente($d);
+            $clist[] = new \cuenta_banco_cliente($d);
          }
       }
       

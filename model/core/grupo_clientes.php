@@ -69,6 +69,10 @@ class grupo_clientes extends \fs_model
       return '';
    }
    
+   /**
+    * Devuelve la url donde ver/modificar los datos
+    * @return string
+    */
    public function url()
    {
       if( is_null($this->codgrupo) )
@@ -79,6 +83,10 @@ class grupo_clientes extends \fs_model
          return 'index.php?page=ventas_grupo&cod='.$this->codgrupo;
    }
    
+   /**
+    * Devuelve un nuevo código para un nuevo grupo de clientes
+    * @return string
+    */
    public function get_new_codigo()
    {
       if( strtolower(FS_DB_TYPE) == 'postgresql' )
@@ -106,7 +114,7 @@ class grupo_clientes extends \fs_model
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codgrupo = ".$this->var2str($cod).";");
       if($data)
       {
-         return new grupo_clientes($data[0]);
+         return new \grupo_clientes($data[0]);
       }
       else
          return FALSE;
@@ -157,7 +165,7 @@ class grupo_clientes extends \fs_model
       {
          foreach($data as $d)
          {
-            $glist[] = new grupo_clientes($d);
+            $glist[] = new \grupo_clientes($d);
          }
       }
       
@@ -178,7 +186,7 @@ class grupo_clientes extends \fs_model
       {
          foreach($data as $d)
          {
-            $glist[] = new grupo_clientes($d);
+            $glist[] = new \grupo_clientes($d);
          }
       }
       

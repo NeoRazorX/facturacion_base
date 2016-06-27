@@ -81,6 +81,16 @@ function usar_serie()
    }
 }
 
+function usar_almacen()
+{
+   document.f_buscar_articulos.codalmacen.value = $("#codalmacen").val();
+}
+
+function usar_divisa()
+{
+   document.f_buscar_articulos.coddivisa.value = $("#coddivisa").val();
+}
+
 function recalcular()
 {
    var l_uds = 0;
@@ -513,6 +523,12 @@ function buscar_articulos()
             var items = [];
             var insertar = false;
             $.each(json, function(key, val) {
+               var stock = val.stockalm;
+               if(val.stockalm != val.stockfis)
+               {
+                  stock += ' <span title="stock general">('+val.stockfis+')</span>';
+               }
+               
                var descripcion = Base64.encode(val.descripcion);
                var descripcion_visible = val.descripcion;
                if(val.codfamilia)
@@ -548,25 +564,22 @@ function buscar_articulos()
                
                if(val.secompra)
                {
-                  var funcion = 'add_articulo';
+                  var funcion = "add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"
+                          +val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
                   
-                  if(val.tipo == 'atributos')
+                  if(val.tipo)
                   {
-                     funcion = 'add_articulo_atributos';
+                     funcion = "add_articulo_"+val.tipo+"('"+val.referencia+"','"+descripcion+"','"
+                             +val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
                   }
                   
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
                      <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
-                     &nbsp; <a href=\"#\" onclick=\"return "+funcion+"('"
-                          +val.referencia+"','"+descripcion+"','"+precio+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"
-                          +val.referencia+'</a> '+descripcion_visible+"</td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"('"
-                          +val.referencia+"','"+descripcion+"','"+val.coste+"','"+val.dtopor+"','"+val.codimpuesto+"')\">"
-                          +show_precio(val.coste)+"</a></td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"('"
-                          +val.referencia+"','"+descripcion+"','"+val.pvp+"','0','"+val.codimpuesto+"')\" title=\"actualizado el "
-                          +val.factualizado+"\">"+show_precio(val.pvp)+"</a></td>\n\
-                     <td class=\"text-right\">"+val.stockfis+"</td></tr>");
+                     &nbsp; <a href=\"#\" onclick=\"return "+funcion+"\">"+val.referencia+'</a> '+descripcion_visible+"</td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"\">"+show_precio(val.coste, val.coddivisa)+"</a></td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"\" title=\"actualizado el "
+                          +val.factualizado+"\">"+show_precio(val.pvp, val.coddivisa)+"</a></td>\n\
+                     <td class=\"text-right\">"+stock+"</td></tr>");
                }
                
                if(val.query == document.f_buscar_articulos.query.value)
@@ -587,9 +600,11 @@ function buscar_articulos()
             if(insertar)
             {
                $("#search_results").html("<div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>\n\
-                  <th class=\"text-left\">Referencia + descripción</th><th class=\"text-right\">Coste</th>\n\
-                  <th class=\"text-right\">Precio</th><th class=\"text-right\">Stock</th></tr></thead>"
-                       +items.join('')+"</table></div>");
+                  <th class=\"text-left\">Referencia + descripción</th>\n\
+                  <th class=\"text-right\" width=\"80\">Coste</th>\n\
+                  <th class=\"text-right\" width=\"80\">Precio</th>\n\
+                  <th class=\"text-right\" width=\"80\">Stock</th>\n\
+                  </tr></thead>"+items.join('')+"</table></div>");
             }
          });
       }

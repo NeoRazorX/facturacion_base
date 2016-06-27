@@ -114,7 +114,7 @@ class cuenta extends \fs_model
       $cuenta = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idcuenta = ".$this->var2str($id).";");
       if($cuenta)
       {
-         return new cuenta($cuenta[0]);
+         return new \cuenta($cuenta[0]);
       }
       else
          return FALSE;
@@ -128,7 +128,7 @@ class cuenta extends \fs_model
       $data = $this->db->select($sql);
       if($data)
       {
-         return new cuenta($data[0]);
+         return new \cuenta($data[0]);
       }
       else
          return FALSE;
@@ -148,7 +148,7 @@ class cuenta extends \fs_model
       $data = $this->db->select($sql);
       if($data)
       {
-         return new cuenta($data[0]);
+         return new \cuenta($data[0]);
       }
       else
          return FALSE;
@@ -234,7 +234,7 @@ class cuenta extends \fs_model
       {
          foreach($data as $c)
          {
-            $cuenlist[] = new cuenta($c);
+            $cuenlist[] = new \cuenta($c);
          }
       }
       
@@ -252,7 +252,7 @@ class cuenta extends \fs_model
       {
          foreach($data as $c)
          {
-            $cuenlist[] = new cuenta($c);
+            $cuenlist[] = new \cuenta($c);
          }
       }
       
@@ -270,7 +270,7 @@ class cuenta extends \fs_model
       {
          foreach($data as $c)
          {
-            $cuenlist[] = new cuenta($c);
+            $cuenlist[] = new \cuenta($c);
          }
       }
       
@@ -288,7 +288,7 @@ class cuenta extends \fs_model
       {
          foreach($data as $c)
          {
-            $cuenlist[] = new cuenta($c);
+            $cuenlist[] = new \cuenta($c);
          }
       }
       
@@ -306,7 +306,7 @@ class cuenta extends \fs_model
       {
          foreach($data as $d)
          {
-            $cuenlist[] = new cuenta($d);
+            $cuenlist[] = new \cuenta($d);
          }
       }
       
@@ -326,7 +326,7 @@ class cuenta extends \fs_model
       {
          foreach($data as $c)
          {
-            $cuenlist[] = new cuenta($c);
+            $cuenlist[] = new \cuenta($c);
          }
       }
       
