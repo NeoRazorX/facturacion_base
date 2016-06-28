@@ -180,87 +180,83 @@
                            </div>
                         </div>
                         <div class="col-sm-4 text-right">
-                           <div class="checkbox-inline">
-                              <label>
+                           <div class="form-group">
+                              <label class="checkbox-inline">
                                  <input type="checkbox" name="b_constock"{if="$fsc->b_constock"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
                                  Con stock
                               </label>
-                           </div>
-                           <div class="checkbox-inline">
-                              <label>
+                              <label class="checkbox-inline">
                                  <input type="checkbox" name="b_bloqueados"{if="$fsc->b_bloqueados"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
                                  Bloqueados
                               </label>
-                           </div>
-                           <div class="checkbox-inline">
-                              <label>
+                              <label class="checkbox-inline">
                                  <input type="checkbox" name="b_publicos"{if="$fsc->b_publicos"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
                                  Públicos
                               </label>
-                           </div>
-                           &nbsp;
-                           <div class="btn-group">
-                              <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                 <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-                              </button>
-                              <ul class="dropdown-menu dropdown-menu-right">
-                                 <li>
-                                    <a href="{$fsc->b_url}&b_orden=refmin&offset={$fsc->offset}">
-                                       <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-                                       &nbsp; Referencia &nbsp;
-                                       {if="$fsc->b_orden=='refmin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                    </a>
-                                 </li>
-                                 <li>
-                                    <a href="{$fsc->b_url}&b_orden=refmax&offset={$fsc->offset}">
-                                       <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-                                       &nbsp; Referencia &nbsp;
-                                       {if="$fsc->b_orden=='refmax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                    </a>
-                                 </li>
-                                 <li>
-                                    <a href="{$fsc->b_url}&b_orden=descmin&offset={$fsc->offset}">
-                                       <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-                                       &nbsp; Descripción &nbsp;
-                                       {if="$fsc->b_orden=='descmin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                    </a>
-                                 </li>
-                                 <li>
-                                    <a href="{$fsc->b_url}&b_orden=descmax&offset={$fsc->offset}">
-                                       <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-                                       &nbsp; Descripción &nbsp;
-                                       {if="$fsc->b_orden=='descmax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                    </a>
-                                 </li>
-                                 <li>
-                                    <a href="{$fsc->b_url}&b_orden=preciomin&offset={$fsc->offset}">
-                                       <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-                                       &nbsp; Precio &nbsp;
-                                       {if="$fsc->b_orden=='preciomin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                    </a>
-                                 </li>
-                                 <li>
-                                    <a href="{$fsc->b_url}&b_orden=preciomax&offset={$fsc->offset}">
-                                       <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-                                       &nbsp; Precio &nbsp;
-                                       {if="$fsc->b_orden=='preciomax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                    </a>
-                                 </li>
-                                 <li>
-                                    <a href="{$fsc->b_url}&b_orden=stockmin&offset={$fsc->offset}">
-                                       <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-                                       &nbsp; Stock &nbsp;
-                                       {if="$fsc->b_orden=='stockmin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                    </a>
-                                 </li>
-                                 <li>
-                                    <a href="{$fsc->b_url}&b_orden=stockmax&offset={$fsc->offset}">
-                                       <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-                                       &nbsp; Stock &nbsp;
-                                       {if="$fsc->b_orden=='stockmax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                    </a>
-                                 </li>
-                              </ul>
+                              &nbsp;
+                              <div class="btn-group">
+                                 <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                                 </button>
+                                 <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                       <a href="{$fsc->b_url}&b_orden=refmin&offset={$fsc->offset}">
+                                          <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                                          &nbsp; Referencia &nbsp;
+                                          {if="$fsc->b_orden=='refmin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                       </a>
+                                    </li>
+                                    <li>
+                                       <a href="{$fsc->b_url}&b_orden=refmax&offset={$fsc->offset}">
+                                          <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                                          &nbsp; Referencia &nbsp;
+                                          {if="$fsc->b_orden=='refmax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                       </a>
+                                    </li>
+                                    <li>
+                                       <a href="{$fsc->b_url}&b_orden=descmin&offset={$fsc->offset}">
+                                          <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                                          &nbsp; Descripción &nbsp;
+                                          {if="$fsc->b_orden=='descmin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                       </a>
+                                    </li>
+                                    <li>
+                                       <a href="{$fsc->b_url}&b_orden=descmax&offset={$fsc->offset}">
+                                          <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                                          &nbsp; Descripción &nbsp;
+                                          {if="$fsc->b_orden=='descmax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                       </a>
+                                    </li>
+                                    <li>
+                                       <a href="{$fsc->b_url}&b_orden=preciomin&offset={$fsc->offset}">
+                                          <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                                          &nbsp; Precio &nbsp;
+                                          {if="$fsc->b_orden=='preciomin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                       </a>
+                                    </li>
+                                    <li>
+                                       <a href="{$fsc->b_url}&b_orden=preciomax&offset={$fsc->offset}">
+                                          <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                                          &nbsp; Precio &nbsp;
+                                          {if="$fsc->b_orden=='preciomax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                       </a>
+                                    </li>
+                                    <li>
+                                       <a href="{$fsc->b_url}&b_orden=stockmin&offset={$fsc->offset}">
+                                          <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                                          &nbsp; Stock &nbsp;
+                                          {if="$fsc->b_orden=='stockmin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                       </a>
+                                    </li>
+                                    <li>
+                                       <a href="{$fsc->b_url}&b_orden=stockmax&offset={$fsc->offset}">
+                                          <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                                          &nbsp; Stock &nbsp;
+                                          {if="$fsc->b_orden=='stockmax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                       </a>
+                                    </li>
+                                 </ul>
+                              </div>
                            </div>
                         </div>
                      </div>
@@ -403,8 +399,8 @@
                               </div>
                               <div class="row">
                                  <div class="col-sm-3">
-                                    <div class="checkbox-inline">
-                                       <label>
+                                    <div class="form-group">
+                                       <label class="checkbox-inline">
                                           {if="$value->mincoste"}
                                           <input type="checkbox" name="mincoste" value="TRUE" checked=""/>
                                           {else}
@@ -412,9 +408,7 @@
                                           {/if}
                                           mínimo = precio de coste
                                        </label>
-                                    </div>
-                                    <div class="checkbox-inline">
-                                       <label>
+                                       <label class="checkbox-inline">
                                           {if="$value->maxpvp"}
                                           <input type="checkbox" name="maxpvp" value="TRUE" checked=""/>
                                           {else}
@@ -424,14 +418,14 @@
                                        </label>
                                     </div>
                                  </div>
-                                 <div class="col-sm-6">
+                                 <div class="col-sm-7">
                                     <p class="help-block">
                                        ¿Buscas <b>Precio de venta + X% + Y</b>? ¿O <b>Precio de coste - X% - Y</b>?
                                        Puedes usar números negativos, simplemente pon un <b>-</b> delante.
                                        <mark>1 - -1 = 1 + 1</mark>
                                     </p>
                                  </div>
-                                 <div class="col-sm-3 text-right">
+                                 <div class="col-sm-2 text-right">
                                     <div class="btn-group">
                                        {if="$fsc->allow_delete"}
                                        <a href="#" class="btn btn-sm btn-danger" title="Eliminar" onclick="eliminar_tarifa('{$value->codtarifa}')">
@@ -504,14 +498,12 @@
                               </div>
                               <div class="row">
                                  <div class="col-sm-5">
-                                    <div class="checkbox-inline">
-                                       <label>
+                                    <div class="form-group">
+                                       <label class="checkbox-inline">
                                           <input type="checkbox" name="mincoste" value="TRUE" checked=""/>
                                           mínimo = precio de coste
                                        </label>
-                                    </div>
-                                    <div class="checkbox-inline">
-                                       <label>
+                                       <label class="checkbox-inline">
                                           <input type="checkbox" name="maxpvp" value="TRUE" checked=""/>
                                           máximo = precio de venta
                                        </label>
@@ -619,7 +611,7 @@
                         <input class="form-control" type="text" name="pvp" value="0" autocomplete="off"/>
                         <div class="input-group-addon">{$fsc->simbolo_divisa()}</div>
                      </div>
-                     <label>
+                     <label class="checkbox-inline">
                         <input type="checkbox" name="coniva" value="TRUE"/>
                         Precio con {#FS_IVA#}
                      </label>
