@@ -550,9 +550,11 @@ class proveedor extends \fs_model
     */
    public function all_full()
    {
+      /// leemos la lista de la caché
       $provelist = $this->cache->get_array('m_proveedor_all');
-      if( !$provelist )
+      if(!$provelist)
       {
+         /// si no la encontramos en la caché, leemos de la base de datos
          $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
          if($data)
          {
@@ -561,6 +563,8 @@ class proveedor extends \fs_model
                $provelist[] = new \proveedor($d);
             }
          }
+         
+         /// guardamos la lista en la caché
          $this->cache->set('m_proveedor_all', $provelist);
       }
       

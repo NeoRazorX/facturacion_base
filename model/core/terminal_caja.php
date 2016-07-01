@@ -377,4 +377,224 @@ class terminal_caja extends \fs_model
       
       return $tlist;
    }
+   
+   /**
+    * A partir de una factura añade un ticket a la cola de impresión de este terminal.
+    * @param \factura_cliente $factura
+    * @param \empresa $empresa
+    * @param type $imprimir_descripciones
+    * @param type $imprimir_observaciones
+    */
+   public function imprimir_ticket(&$factura, &$empresa, $imprimir_descripciones = TRUE, $imprimir_observaciones = FALSE)
+   {
+      $medio = $this->anchopapel / 2.5;
+      $this->add_linea_big( $this->center_text( $this->sanitize($empresa->nombre), $medio)."\n");
+      
+      if($empresa->lema != '')
+      {
+         $this->add_linea( $this->center_text( $this->sanitize($empresa->lema) ) . "\n\n");
+      }
+      else
+         $this->add_linea("\n");
+      
+      $this->add_linea(
+              $this->center_text( $this->sanitize($empresa->direccion)." - ".$this->sanitize($empresa->ciudad) )."\n"
+      );
+      $this->add_linea( $this->center_text(FS_CIFNIF.": ".$empresa->cifnif) );
+      $this->add_linea("\n\n");
+      
+      if($empresa->horario != '')
+      {
+         $this->add_linea( $this->center_text( $this->sanitize($empresa->horario) ) . "\n\n");
+      }
+      
+      $linea = "\n".ucfirst(FS_FACTURA_SIMPLIFICADA).": " . $factura->codigo . "\n";
+      $linea .= $factura->fecha. " " . Date('H:i', strtotime($factura->hora)) . "\n";
+      $this->add_linea($linea);
+      $this->add_linea("Cliente: " . $this->sanitize($factura->nombrecliente) . "\n");
+      $this->add_linea("Empleado: " . $factura->codagente . "\n\n");
+      
+      if($imprimir_observaciones)
+      {
+         $this->add_linea('Observaciones: ' . $this->sanitize($factura->observaciones) . "\n\n");
+      }
+      
+      $width = $this->anchopapel - 15;
+      $this->add_linea(
+              sprintf("%3s", "Ud.")." ".
+              sprintf("%-".$width."s", "Articulo")." ".
+              sprintf("%10s", "TOTAL")."\n"
+      );
+      $this->add_linea(
+              sprintf("%3s", "---")." ".
+              sprintf("%-".$width."s", substr("--------------------------------------------------------", 0, $width-1))." ".
+              sprintf("%10s", "----------")."\n"
+      );
+      foreach($factura->get_lineas() as $col)
+      {
+         if($imprimir_descripciones)
+         {
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s",
+                          substr($this->sanitize($col->descripcion), 0, $width-1))." ".
+                          sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
+         }
+         else
+         {
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", $this->sanitize($col->referencia))
+                          ." ".sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
+         }
+         
+         $this->add_linea($linea);
+      }
+      
+      $lineaiguales = '';
+      for($i = 0; $i < $this->anchopapel; $i++)
+      {
+         $lineaiguales .= '=';
+      }
+      $this->add_linea($lineaiguales."\n");
+      $this->add_linea(
+              'TOTAL A PAGAR: '.sprintf("%".($this->anchopapel-15)."s", $this->show_precio($factura->total, $factura->coddivisa))
+      );
+      $this->add_linea($lineaiguales."\n");
+      
+      /// imprimimos los impuestos desglosados
+      $this->add_linea(
+              'TIPO   BASE    '.FS_IVA.'    RE'.
+              sprintf('%'.($this->anchopapel-24).'s', 'TOTAL').
+              "\n"
+      );
+      foreach($factura->get_lineas_iva() as $imp)
+      {
+         $this->add_linea(
+                 sprintf("%-6s", $imp->iva.'%').' '.
+                 sprintf("%-7s", $this->show_numero($imp->neto)).' '.
+                 sprintf("%-6s", $this->show_numero($imp->totaliva)).' '.
+                 sprintf("%-6s", $this->show_numero($imp->totalrecargo)).' '.
+                 sprintf('%'.($this->anchopapel-29).'s', $this->show_numero($imp->totallinea)).
+                 "\n"
+         );
+      }
+      
+      $lineaiguales .= "\n\n\n\n\n\n\n\n";
+      $this->add_linea($lineaiguales);
+      $this->cortar_papel();
+   }
+   
+   /**
+    * A partir de una factura añade un ticket regalo a la cola de impresión de este terminal.
+    * @param \factura_cliente $factura
+    * @param \empresa $empresa
+    */
+   public function imprimir_ticket_regalo(&$factura, &$empresa, $imprimir_descripciones = TRUE, $imprimir_observaciones = FALSE)
+   {
+      $medio = $this->anchopapel / 2.5;
+      $this->add_linea_big( $this->center_text( $this->sanitize($empresa->nombre), $medio)."\n");
+      
+      if($empresa->lema != '')
+      {
+         $this->add_linea( $this->center_text( $this->sanitize($empresa->lema) ) . "\n\n");
+      }
+      else
+         $this->add_linea("\n");
+      
+      $this->add_linea(
+              $this->center_text( $this->sanitize($empresa->direccion)." - ".$this->sanitize($empresa->ciudad) )."\n"
+      );
+      $this->add_linea( $this->center_text(FS_CIFNIF.": ".$empresa->cifnif) );
+      $this->add_linea("\n\n");
+      
+      if($empresa->horario != '')
+      {
+         $this->add_linea( $this->center_text( $this->sanitize($empresa->horario) ) . "\n\n");
+      }
+      
+      $linea = "\n".ucfirst(FS_FACTURA_SIMPLIFICADA).": " . $factura->codigo . "\n";
+      $linea .= $factura->fecha. " " . Date('H:i', strtotime($factura->hora)) . "\n";
+      $this->add_linea($linea);
+      $this->add_linea("Cliente: " . $this->sanitize($factura->nombrecliente) . "\n");
+      $this->add_linea("Empleado: " . $factura->codagente . "\n\n");
+      
+      if($imprimir_observaciones)
+      {
+         $this->add_linea('Observaciones: ' . $this->sanitize($factura->observaciones) . "\n\n");
+      }
+      
+      $width = $this->anchopapel - 15;
+      $this->add_linea(
+              sprintf("%3s", "Ud.")." ".
+              sprintf("%-".$width."s", "Articulo")." ".
+              sprintf("%10s", "TOTAL")."\n"
+      );
+      $this->add_linea(
+              sprintf("%3s", "---")." ".
+              sprintf("%-".$width."s", substr("--------------------------------------------------------", 0, $width-1))." ".
+              sprintf("%10s", "----------")."\n"
+      );
+      foreach($factura->get_lineas() as $col)
+      {
+         if($imprimir_descripciones)
+         {
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s",
+                          substr($this->sanitize($col->descripcion), 0, $width-1))." ".
+                          sprintf("%10s", '-')."\n";
+         }
+         else
+         {
+                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", $this->sanitize($col->referencia))
+                          ." ".sprintf("%10s", '-')."\n";
+         }
+         
+         $this->add_linea($linea);
+      }
+      
+      
+      $lineaiguales = '';
+      for($i = 0; $i < $this->anchopapel; $i++)
+      {
+         $lineaiguales .= '=';
+      }
+      $this->add_linea($lineaiguales);
+      $this->add_linea( $this->center_text('TICKET REGALO') );
+      $lineaiguales .= "\n\n\n\n\n\n\n\n";
+      $this->add_linea($lineaiguales);
+      $this->cortar_papel();
+   }
+   
+   public function sanitize($txt)
+   {
+      $changes = array('/à/' => 'a', '/á/' => 'a', '/â/' => 'a', '/ã/' => 'a', '/ä/' => 'a',
+          '/å/' => 'a', '/æ/' => 'ae', '/ç/' => 'c', '/è/' => 'e', '/é/' => 'e', '/ê/' => 'e',
+          '/ë/' => 'e', '/ì/' => 'i', '/í/' => 'i', '/î/' => 'i', '/ï/' => 'i', '/ð/' => 'd',
+          '/ñ/' => 'n', '/ò/' => 'o', '/ó/' => 'o', '/ô/' => 'o', '/õ/' => 'o', '/ö/' => 'o',
+          '/ő/' => 'o', '/ø/' => 'o', '/ù/' => 'u', '/ú/' => 'u', '/û/' => 'u', '/ü/' => 'u',
+          '/ű/' => 'u', '/ý/' => 'y', '/þ/' => 'th', '/ÿ/' => 'y',
+          '/&quot;/' => '-',
+          '/À/' => 'A', '/Á/' => 'A', '/Â/' => 'A', '/Ä/' => 'A',
+          '/Ç/' => 'C', '/È/' => 'E', '/É/' => 'E', '/Ê/' => 'E',
+          '/Ë/' => 'E', '/Ì/' => 'I', '/Í/' => 'I', '/Î/' => 'I', '/Ï/' => 'I',
+          '/Ñ/' => 'N', '/Ò/' => 'O', '/Ó/' => 'O', '/Ô/' => 'O', '/Ö/' => 'O',
+          '/Ù/' => 'U', '/Ú/' => 'U', '/Û/' => 'U', '/Ü/' => 'U',
+          '/Ý/' => 'Y', '/Ÿ/' => 'Y',
+      );
+      
+      return preg_replace(array_keys($changes), $changes, $txt);
+   }
+   
+   protected function show_precio($precio, $coddivisa)
+   {
+      if(FS_POS_DIVISA == 'right')
+      {
+         return number_format($precio, FS_NF0, FS_NF1, FS_NF2).' '.$coddivisa;
+      }
+      else
+      {
+         return $coddivisa.' '.number_format($precio, FS_NF0, FS_NF1, FS_NF2);
+      }
+   }
+   
+   protected function show_numero($num=0, $decimales=FS_NF0)
+   {
+      return number_format($num, $decimales, FS_NF1, FS_NF2);
+   }
 }

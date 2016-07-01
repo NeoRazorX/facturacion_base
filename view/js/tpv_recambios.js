@@ -168,6 +168,7 @@ function recalcular()
    
    $("#tpv_total").val( show_precio(neto + total_iva - total_irpf + total_recargo) );
    $("#tpv_total2").val( fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0) );
+   $("#tpv_total3").val( fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0) );
    
    var tpv_efectivo = parseFloat( $("#tpv_efectivo").val() );
    $("#tpv_cambio").val( show_precio(tpv_efectivo - (neto + total_iva - total_irpf + total_recargo)) );

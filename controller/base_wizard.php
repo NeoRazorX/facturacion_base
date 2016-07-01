@@ -49,6 +49,18 @@ class base_wizard extends fs_controller
    
    protected function private_core()
    {
+      if( floatval($this->version()) >= 2016.011 )
+      {
+         $this->private_core2();
+      }
+      else
+      {
+         $this->template = 'base_wizard_update';
+      }
+   }
+   
+   private function private_core2()
+   {
       $this->check_menu();
       
       $this->almacen = new almacen();

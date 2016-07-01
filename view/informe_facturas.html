@@ -360,7 +360,7 @@
                   {loop="$fsc->stats_impagos()"}
                   <tr>
                      <td>{$value['txt']}</td>
-                     <td class="text-right">{$value['total']}</td>
+                     <td class="text-right">{$fsc->show_precio($value['total'])}</td>
                   </tr>
                   {else}
                   <tr class="warning">
@@ -390,7 +390,7 @@
                   {loop="$fsc->stats_impagos('facturascli')"}
                   <tr>
                      <td>{$value['txt']}</td>
-                     <td class="text-right">{$value['total']}</td>
+                     <td class="text-right">{$fsc->show_precio($value['total'])}</td>
                   </tr>
                   {else}
                   <tr class="warning">
@@ -422,7 +422,7 @@
                   {loop="$fsc->stats_series()"}
                   <tr>
                      <td>{$value['txt']}</td>
-                     <td class="text-right">{$value['total']}</td>
+                     <td class="text-right">{$fsc->show_precio($value['total'])}</td>
                   </tr>
                   {else}
                   <tr class="warning">
@@ -452,7 +452,7 @@
                   {loop="$fsc->stats_series('facturascli')"}
                   <tr>
                      <td>{$value['txt']}</td>
-                     <td class="text-right">{$value['total']}</td>
+                     <td class="text-right">{$fsc->show_precio($value['total'])}</td>
                   </tr>
                   {else}
                   <tr class="warning">
@@ -484,7 +484,7 @@
                   {loop="$fsc->stats_formas_pago()"}
                   <tr>
                      <td>{$value['txt']}</td>
-                     <td class="text-right">{$value['total']}</td>
+                     <td class="text-right">{$fsc->show_precio($value['total'])}</td>
                   </tr>
                   {else}
                   <tr class="warning">
@@ -514,7 +514,7 @@
                   {loop="$fsc->stats_formas_pago('facturascli')"}
                   <tr>
                      <td>{$value['txt']}</td>
-                     <td class="text-right">{$value['total']}</td>
+                     <td class="text-right">{$fsc->show_precio($value['total'])}</td>
                   </tr>
                   {else}
                   <tr class="warning">
@@ -546,7 +546,7 @@
                   {loop="$fsc->stats_almacenes()"}
                   <tr>
                      <td>{$value['txt']}</td>
-                     <td class="text-right">{$value['total']}</td>
+                     <td class="text-right">{$fsc->show_precio($value['total'])}</td>
                   </tr>
                   {else}
                   <tr class="warning">
@@ -576,7 +576,7 @@
                   {loop="$fsc->stats_almacenes('facturascli')"}
                   <tr>
                      <td>{$value['txt']}</td>
-                     <td class="text-right">{$value['total']}</td>
+                     <td class="text-right">{$fsc->show_precio($value['total'])}</td>
                   </tr>
                   {else}
                   <tr class="warning">
@@ -613,7 +613,7 @@
       data2.addColumn('number', 'diario');
       data2.addColumn('number', 'semanal');
       data2.addRows([
-      {loop="$fsc->stats_last_operations('albaranescli')"}
+      {loop="$fsc->stats_last_operations('facturascli')"}
          ['{$key}', {$value['diario']}, {$value['semanal']}],
       {/loop}
       ]);

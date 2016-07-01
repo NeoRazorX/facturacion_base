@@ -92,7 +92,7 @@
          <div class="col-sm-2">
             <div class="form-group">
                <div class="input-group">
-                  <input class="form-control text-right" type="text" name="tpv_total3" value="0" readonly=""/>
+                  <input id="tpv_total3" class="form-control text-right" type="text" name="tpv_total3" value="0" readonly=""/>
                   <span class="input-group-addon">{$fsc->simbolo_divisa()}</span>
                </div>
             </div>
@@ -140,7 +140,8 @@
             </div>
             &nbsp; &nbsp;
             <button type="button" id="b_tpv_guardar" class="btn btn-sm btn-primary">
-               <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar...
+               <span class="glyphicon glyphicon-floppy-disk"></span>
+               <span class="hidden-xs">&nbsp; Guardar...</span>
             </button>
          </div>
       </div>

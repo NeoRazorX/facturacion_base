@@ -605,9 +605,11 @@ class cliente extends \fs_model
     */
    public function all_full()
    {
+      /// leemos la lista de la caché
       $clientlist = $this->cache->get_array('m_cliente_all');
-      if( !$clientlist )
+      if(!$clientlist)
       {
+         /// si no la encontramos en la caché, leemos de la base de datos
          $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
          if($data)
          {
@@ -616,6 +618,8 @@ class cliente extends \fs_model
                $clientlist[] = new \cliente($d);
             }
          }
+         
+         /// guardamos la lista en la caché
          $this->cache->set('m_cliente_all', $clientlist);
       }
       
