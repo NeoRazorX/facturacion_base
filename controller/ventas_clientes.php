@@ -439,7 +439,7 @@ class ventas_clientes extends fs_controller
          
          if($this->ciudad != '')
          {
-            $sql .= "lower(ciudad) = ".$this->cliente->var2str( mb_strtolower($this->ciudad, 'UTF8') );
+            $sql .= $and2."lower(ciudad) = ".$this->cliente->var2str( mb_strtolower($this->ciudad, 'UTF8') );
             $and2 = ' AND ';
          }
          
@@ -470,7 +470,7 @@ class ventas_clientes extends fs_controller
          $and = ' AND ';
       }
       
-      $data = $this->db->select("SELECT COUNT(codcliente) as total".$sql);
+      $data = $this->db->select("SELECT COUNT(codcliente) as total".$sql.';');
       if($data)
       {
          $this->total_resultados = intval($data[0]['total']);
