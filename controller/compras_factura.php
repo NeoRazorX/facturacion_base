@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('almacen.php');
 require_model('articulo.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
@@ -34,6 +35,7 @@ class compras_factura extends fs_controller
 {
    public $agente;
    public $allow_delete;
+   public $almacen;
    public $divisa;
    public $ejercicio;
    public $factura;
@@ -56,6 +58,7 @@ class compras_factura extends fs_controller
       
       $this->ppage = $this->page->get('compras_facturas');
       $this->agente = FALSE;
+      $this->almacen = new almacen();
       $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
       $factura = new factura_proveedor();

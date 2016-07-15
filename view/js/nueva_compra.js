@@ -564,20 +564,28 @@ function buscar_articulos()
                
                if(val.secompra)
                {
-                  var funcion = "add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"
+                  var funcion = "add_articulo('"+val.referencia+"','"+descripcion+"','"+precio+"','"
+                          +val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
+                  var funcion1 = "add_articulo('"+val.referencia+"','"+descripcion+"','"+val.coste+"','"
+                          +val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
+                  var funcion2 = "add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"
                           +val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
                   
                   if(val.tipo)
                   {
                      funcion = "add_articulo_"+val.tipo+"('"+val.referencia+"','"+descripcion+"','"
+                             +precio+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
+                     funcion1 = "add_articulo_"+val.tipo+"('"+val.referencia+"','"+descripcion+"','"
+                             +val.coste+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
+                     funcion2 = "add_articulo_"+val.tipo+"('"+val.referencia+"','"+descripcion+"','"
                              +val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
                   }
                   
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
                      <span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
                      &nbsp; <a href=\"#\" onclick=\"return "+funcion+"\">"+val.referencia+'</a> '+descripcion_visible+"</td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"\">"+show_precio(val.coste, val.coddivisa)+"</a></td>\n\
-                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion+"\" title=\"actualizado el "
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion1+"\">"+show_precio(val.coste, val.coddivisa)+"</a></td>\n\
+                     <td class=\"text-right\"><a href=\"#\" onclick=\"return "+funcion2+"\" title=\"actualizado el "
                           +val.factualizado+"\">"+show_precio(val.pvp, val.coddivisa)+"</a></td>\n\
                      <td class=\"text-right\">"+stock+"</td></tr>");
                }

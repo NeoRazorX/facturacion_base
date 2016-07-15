@@ -395,6 +395,11 @@ class albaran_proveedor extends \fs_model
    public function test()
    {
       $this->nombre = $this->no_html($this->nombre);
+      if($this->nombre == '')
+      {
+         $this->nombre = '-';
+      }
+      
       $this->observaciones = $this->no_html($this->observaciones);
       $this->totaleuros = round($this->total / $this->tasaconv, 2);
       

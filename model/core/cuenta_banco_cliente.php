@@ -186,6 +186,14 @@ class cuenta_banco_cliente extends \fs_model
                  ",".$this->var2str($this->fmandato).");";
       }
       
+      if($this->principal)
+      {
+         /// si esta cuenta es la principal, desmarcamos las demás
+         $sql .= "UPDATE ".$this->table_name." SET principal = false".
+                 " WHERE codcliente = ".$this->var2str($this->codcliente).
+                 " AND codcuenta != ".$this->var2str($this->codcuenta).";";
+      }
+      
       return $this->db->exec($sql);
    }
    
@@ -198,7 +206,7 @@ class cuenta_banco_cliente extends \fs_model
    {
       $clist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($codcli)
-              ." ORDER BY descripcion ASC;";
+              ." ORDER BY principal DESC, descripcion ASC;";
       
       $data = $this->db->select($sql);
       if($data)

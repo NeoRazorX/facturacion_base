@@ -18,6 +18,7 @@
  */
 
 require_model('agencia_transporte.php');
+require_model('almacen.php');
 require_model('articulo.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
@@ -38,6 +39,7 @@ class ventas_factura extends fs_controller
    public $agente;
    public $agentes;
    public $allow_delete;
+   public $almacen;
    public $cliente;
    public $divisa;
    public $ejercicio;
@@ -64,6 +66,7 @@ class ventas_factura extends fs_controller
       $this->agencia = new agencia_transporte();
       $this->agente = FALSE;
       $this->agentes = array();
+      $this->almacen = new almacen();
       $this->cliente = FALSE;
       $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();

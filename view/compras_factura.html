@@ -116,7 +116,8 @@
             <ol class="breadcrumb" style="margin-bottom: 5px;">
                <li><a href="{$fsc->ppage->url()}">Compras</a></li>
                <li><a href="{$fsc->ppage->url()}">Factura</a></li>
-               <li>
+               <li><a href="#" title="almacén: {$fsc->factura->codalmacen}">{$fsc->factura->codalmacen}</a></li>
+               <li title="{#FS_SERIE#}: {$fsc->factura->codserie}">
                   {loop="$fsc->serie->all()"}
                      {if="$value->codserie==$fsc->factura->codserie"}
                      <a href="{$fsc->ppage->url()}&codserie={$value->codserie}" class="text-capitalize">{$value->descripcion}</a>
@@ -161,10 +162,24 @@
       </div>
       
       <div class="row">
-         <div class="col-sm-4">
+         <div class="col-sm-3">
             <div class="form-group">
                Núm. Proveedor:
                <input class="form-control" type="text" name="numproveedor" value="{$fsc->factura->numproveedor}"/>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
+               <select name="serie" class="form-control" disabled="">
+               {loop="$fsc->serie->all()"}
+                  {if="$value->codserie==$fsc->factura->codserie"}
+                  <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
+                  {else}
+                  <option value="{$value->codserie}">{$value->descripcion}</option>
+                  {/if}
+               {/loop}
+               </select>
             </div>
          </div>
          <div class="col-sm-2">
@@ -179,13 +194,17 @@
                <input class="form-control" type="text" name="hora" value="{$fsc->factura->hora}" autocomplete="off"/>
             </div>
          </div>
-         <div class="col-sm-4">
+         <div class="col-sm-3">
             <div class="form-group">
                <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
                <select name="forma_pago" class="form-control">
-                  {loop="$fsc->forma_pago->all()"}
-                  <option value="{$value->codpago}"{if="$fsc->factura->codpago==$value->codpago"} selected=""{/if}>{$value->descripcion}</option>
-                  {/loop}
+               {loop="$fsc->forma_pago->all()"}
+                  {if="$fsc->factura->codpago==$value->codpago"}
+                  <option value="{$value->codpago}" selected="">{$value->descripcion}</option>
+                  {else}
+                  <option value="{$value->codpago}">{$value->descripcion}</option>
+                  {/if}
+               {/loop}
                </select>
             </div>
          </div>
@@ -287,7 +306,6 @@
                   {/if}
                </table>
             </div>
-            
             <div class="container-fluid">
                <div class="row">
                   <div class="col-sm-12">
@@ -316,6 +334,20 @@
                   </div>
                   <div class="col-sm-2">
                      <div class="form-group">
+                        <a href="{$fsc->almacen->url()}">Almacén</a>:
+                        <select name="almacen" class="form-control" disabled="">
+                        {loop="$fsc->almacen->all()"}
+                           {if="$value->codalmacen==$fsc->factura->codalmacen"}
+                           <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
+                           {else}
+                           <option value="{$value->codalmacen}">{$value->nombre}</option>
+                           {/if}
+                        {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
                         <a href="{$fsc->divisa->url()}">Divisa</a>:
                         <select name="divisa" class="form-control" disabled="">
                         {loop="$fsc->divisa->all()"}
@@ -328,7 +360,7 @@
                         </select>
                      </div>
                   </div>
-                  <div class="col-sm-2">
+                  <div class="col-sm-3">
                      <div class="form-group">
                         Tasa de conversión (1€ = X)
                         <input type="text" name="tasaconv" value="{$fsc->factura->tasaconv}" class="form-control" readonly=""/>

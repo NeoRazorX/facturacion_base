@@ -18,6 +18,7 @@
  */
 
 require_model('albaran_proveedor.php');
+require_model('almacen.php');
 require_model('articulo.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
@@ -39,6 +40,7 @@ class compras_albaran extends fs_controller
    public $agente;
    public $albaran;
    public $allow_delete;
+   public $almacen;
    public $divisa;
    public $ejercicio;
    public $fabricante;
@@ -62,6 +64,7 @@ class compras_albaran extends fs_controller
       
       $albaran = new albaran_proveedor();
       $this->albaran = FALSE;
+      $this->almacen = new almacen();
       $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
       $this->fabricante = new fabricante();

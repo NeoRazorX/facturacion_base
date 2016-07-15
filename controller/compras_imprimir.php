@@ -794,23 +794,7 @@ class compras_imprimir extends fs_controller
          
          if( file_exists('tmp/'.FS_TMP_NAME.'enviar/'.$filename) )
          {
-            $mail = new PHPMailer();
-            $mail->CharSet = 'UTF-8';
-            $mail->WordWrap = 50;
-            $mail->isSMTP();
-            $mail->SMTPAuth = TRUE;
-            $mail->SMTPSecure = $this->empresa->email_config['mail_enc'];
-            $mail->Host = $this->empresa->email_config['mail_host'];
-            $mail->Port = intval($this->empresa->email_config['mail_port']);
-            
-            $mail->Username = $this->empresa->email;
-            if($this->empresa->email_config['mail_user'] != '')
-            {
-               $mail->Username = $this->empresa->email_config['mail_user'];
-            }
-            
-            $mail->Password = $this->empresa->email_config['mail_password'];
-            $mail->From = $this->empresa->email;
+            $mail = $this->empresa->new_mail();
             $mail->FromName = $this->user->get_agente_fullname();
             $mail->addReplyTo($_POST['de'], $mail->FromName);
             
@@ -826,10 +810,6 @@ class compras_imprimir extends fs_controller
                   $mail->addCC($_POST['email_copia'], $this->proveedor->razonsocial);
                }
             }
-            if($this->empresa->email_config['mail_bcc'])
-            {
-               $mail->addBCC($this->empresa->email_config['mail_bcc']);
-            }
             
             $mail->Subject = $this->empresa->nombre . ': Mi '.FS_ALBARAN.' '.$this->albaran->codigo;
             $mail->AltBody = $_POST['mensaje'];
@@ -842,23 +822,12 @@ class compras_imprimir extends fs_controller
                $mail->addAttachment($_FILES['adjunto']['tmp_name'], $_FILES['adjunto']['name']);
             }
             
-            $SMTPOptions = array();
-            if($this->empresa->email_config['mail_low_security'])
-            {
-               $SMTPOptions = array(
-                   'ssl' => array(
-                       'verify_peer' => false,
-                       'verify_peer_name' => false,
-                       'allow_self_signed' => true
-                   )
-               );
-            }
-            
-            if( $mail->smtpConnect($SMTPOptions) )
+            if( $mail->smtpConnect($this->empresa->smtp_options()) )
             {
                if( $mail->send() )
                {
                   $this->new_message('Mensaje enviado correctamente.');
+                  $this->empresa->save_mail($mail);
                }
                else
                   $this->new_error_msg("Error al enviar el email: " . $mail->ErrorInfo);
