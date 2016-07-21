@@ -41,7 +41,7 @@
    <table class="table table-hover">
       <thead>
          <tr>
-            <th class="text-left">Código</th>
+            <th class="text-left" width="150">Código</th>
             <th class="text-left">Nombre</th>
             <th class="text-left">Teléfono</th>
             <th class="text-left">Web</th>
@@ -84,8 +84,8 @@
       {/loop}
       <form action="{$fsc->url()}" method="post" class="form">
          <tr class="info">
-            <td><input type="text" name="codtrans" class="form-control" maxlength="8" autocomplete="off" placeholder="Nuevo"/></td>
-            <td><input type="text" name="nombre" class="form-control" maxlength="100" autocomplete="off" placeholder="Nuevo"/></td>
+            <td><input type="text" name="codtrans" class="form-control" maxlength="8" autocomplete="off" placeholder="Nuevo código"/></td>
+            <td><input type="text" name="nombre" class="form-control" maxlength="100" autocomplete="off" placeholder="Nueva agencia..."/></td>
             <td><input type="text" name="telefono" class="form-control" maxlength="20" autocomplete="off" placeholder="Teléfono"/></td>
             <td><input type="text" name="web" class="form-control" maxlength="100" autocomplete="off" placeholder="Web"/></td>
             <td class="text-center">
@@ -96,8 +96,9 @@
                </div>
             </td>
             <td class="text-right">
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
-                  <span class="glyphicon glyphicon-floppy-disk"></span>
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Nueva">
+                  <span class="glyphicon glyphicon-plus-sign"></span>
+                  <span class="hidden-sm">&nbsp; Nueva</span>
                </button>
             </td>
          </tr>

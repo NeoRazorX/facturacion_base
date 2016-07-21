@@ -28,10 +28,25 @@
    <div class="container-fluid">
       <div class="row">
          <div class="col-sm-6">
-            <h1 style="margin-top: 5px;">
-               <span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;
+            <h1 style="margin-top: 5px; margin-bottom: 0px;">
+               <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                <a href="{$fsc->cliente_s->url()}">{$fsc->cliente_s->nombre}</a>
             </h1>
+            {loop="$fsc->grupo->all()"}
+               {if="$value->codgrupo==$fsc->cliente_s->codgrupo"}
+               <p class="help-block">
+                  <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;
+                  <a href="{$value->url()}">{$value->nombre}</a> &nbsp;
+                  {if="$value->codtarifa"}
+                  <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
+                  tarifa {$value->codtarifa}
+                  {else}
+                  <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
+                  ninguna tarifa asignada.
+                  {/if}
+               </p>
+               {/if}
+            {/loop}
          </div>
          <div class="col-sm-2">
             <div class="form-group">

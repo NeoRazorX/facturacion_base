@@ -69,7 +69,7 @@
             </thead>
             {loop="$fsc->divisa->all()"}
             <form action="{$fsc->url()}" method="post" class="form">
-               <tr>
+               <tr{if="$value->coddivisa==$fsc->empresa->coddivisa"} class="warning"{/if}>
                   <td>
                      <input type="hidden" name="coddivisa" value="{$value->coddivisa}"/>
                      <div class="form-control">{$value->coddivisa}</div>
@@ -102,16 +102,17 @@
             {/loop}
             <form action="{$fsc->url()}" method="post" class="form">
                <tr class="info">
-                  <td><input class="form-control" type="text" name="coddivisa" maxlength="3" autocomplete="off" placeholder="Nueva..."/></td>
+                  <td><input class="form-control" type="text" name="coddivisa" maxlength="3" autocomplete="off" placeholder="Nuevo"/></td>
                   <td><input class="form-control" type="text" name="simbolo" autocomplete="off" placeholder="$"/></td>
-                  <td><input class="form-control" type="text" name="descripcion" autocomplete="off" placeholder="Moneda"/></td>
+                  <td><input class="form-control" type="text" name="descripcion" autocomplete="off" placeholder="Nueva divisa..."/></td>
                   <td><input class="form-control" type="text" name="codiso" autocomplete="off"/></td>
                   <td><input class="form-control" type="text" name="tasaconv" value="1" autocomplete="off"/></td>
                   <td><input class="form-control" type="text" name="tasaconv_compra" value="1" autocomplete="off"/></td>
                   <td class="text-right">
                      <div class="btn-group">
-                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
-                           <span class="glyphicon glyphicon-floppy-disk"></span>
+                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Nueva">
+                           <span class="glyphicon glyphicon-plus-sign"></span>
+                           <span class="hidden-sm">&nbsp; Nueva</span>
                         </button>
                      </div>
                   </td>

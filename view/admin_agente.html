@@ -110,7 +110,11 @@
                         <div class="col-sm-4">
                            <div class="form-group">
                               Email:
+                              {if="FS_DEMO"}
+                              <input class="form-control" type="text" name="email" autocomplete="off"/>
+                              {else}
                               <input class="form-control" type="text" name="email" value="{$fsc->agente->email}" autocomplete="off"/>
+                              {/if}
                            </div>
                         </div>
                         <div class="col-sm-4">

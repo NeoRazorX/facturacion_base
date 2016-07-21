@@ -46,13 +46,13 @@ class direccion_cliente extends \fs_model
    public $direccion;
    
    /**
-    * TRUE -> esta dirección es de envío.
+    * TRUE -> esta dirección es la principal para envíos.
     * @var type 
     */
    public $domenvio;
    
    /**
-    * TRUE -> esta dirección es de facturación.
+    * TRUE -> esta dirección es la principal para facturación.
     * @var type 
     */
    public $domfacturacion;
@@ -138,9 +138,22 @@ class direccion_cliente extends \fs_model
       /// actualizamos la fecha de modificación
       $this->fecha = date('d-m-Y');
       
+      /// ¿Desmarcamos las demás direcciones principales?
+      $sql = "";
+      if($this->domenvio)
+      {
+         $sql .= "UPDATE ".$this->table_name." SET domenvio = false"
+                 . " WHERE codcliente = ".$this->var2str($this->codcliente).";";
+      }
+      if($this->domfacturacion)
+      {
+         $sql .= "UPDATE ".$this->table_name." SET domfacturacion = false"
+                 . " WHERE codcliente = ".$this->var2str($this->codcliente).";";
+      }
+      
       if( $this->exists() )
       {
-         $sql = "UPDATE ".$this->table_name." SET codcliente = ".$this->var2str($this->codcliente)
+         $sql .= "UPDATE ".$this->table_name." SET codcliente = ".$this->var2str($this->codcliente)
                  .", codpais = ".$this->var2str($this->codpais)
                  .", apartado = ".$this->var2str($this->apartado)
                  .", provincia = ".$this->var2str($this->provincia)
@@ -157,7 +170,7 @@ class direccion_cliente extends \fs_model
       }
       else
       {
-         $sql = "INSERT INTO ".$this->table_name." (codcliente,codpais,apartado,provincia,ciudad,codpostal,
+         $sql .= "INSERT INTO ".$this->table_name." (codcliente,codpais,apartado,provincia,ciudad,codpostal,
             direccion,domenvio,domfacturacion,descripcion,fecha) VALUES (".$this->var2str($this->codcliente)
                  .",".$this->var2str($this->codpais)
                  .",".$this->var2str($this->apartado)

@@ -1,6 +1,27 @@
 {include="header"}
 
-{if="$fsc->step==2"}
+{if="$fsc->recargar"}
+<script type="text/javascript">
+   $(document).ready(function() {
+      setTimeout("location.href = '{$fsc->url()}';", 1000);
+   });
+</script>
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               <span class="glyphicon glyphicon-info-sign"></span>
+               Trabajando...
+            </h1>
+         </div>
+         <p class="help-block">
+            Espera a que termine el proceso. Gracias ;-)
+         </p>
+      </div>
+   </div>
+</div>
+{elseif="$fsc->step==2"}
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">
    <div class="container-fluid">

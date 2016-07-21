@@ -35,7 +35,7 @@ class tpv_caja extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Cajas', 'TPV', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Arqueos y terminales', 'TPV', FALSE, TRUE);
    }
    
    protected function private_core()
@@ -132,16 +132,16 @@ class tpv_caja extends fs_controller
             {
                if( $caja2->delete() )
                {
-                  $this->new_message("Caja eliminada correctamente.");
+                  $this->new_message("Arqueo eliminado correctamente.");
                }
                else
-                  $this->new_error_msg("¡Imposible eliminar la caja!");
+                  $this->new_error_msg("¡Imposible eliminar el arqueo!");
             }
             else
-               $this->new_error_msg("Caja no encontrada.");
+               $this->new_error_msg("Arqueo no encontrado.");
          }
          else
-            $this->new_error_msg("Tienes que ser administrador para poder eliminar cajas.");
+            $this->new_error_msg("Tienes que ser administrador para poder eliminar arqueos.");
       }
       else if( isset($_GET['cerrar']) )
       {
@@ -153,16 +153,16 @@ class tpv_caja extends fs_controller
                $caja2->fecha_fin = Date('d-m-Y H:i:s');
                if( $caja2->save() )
                {
-                  $this->new_message("Caja cerrada correctamente.");
+                  $this->new_message("Arqueo cerrado correctamente.");
                }
                else
-                  $this->new_error_msg("¡Imposible cerrar la caja!");
+                  $this->new_error_msg("¡Imposible cerrar el arqueo!");
             }
             else
-               $this->new_error_msg("Caja no encontrada.");
+               $this->new_error_msg("Arqueo no encontrado.");
          }
          else
-            $this->new_error_msg("Tienes que ser administrador para poder cerrar cajas.");
+            $this->new_error_msg("Tienes que ser administrador para poder cerrar arqueos.");
       }
       
       $this->offset = 0;

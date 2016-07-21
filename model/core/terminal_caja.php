@@ -454,7 +454,7 @@ class terminal_caja extends \fs_model
       }
       $this->add_linea($lineaiguales."\n");
       $this->add_linea(
-              'TOTAL A PAGAR: '.sprintf("%".($this->anchopapel-15)."s", $this->show_precio($factura->total, $factura->coddivisa))
+              'TOTAL A PAGAR: '.sprintf("%".($this->anchopapel-15)."s", $this->show_precio($factura->total, $factura->coddivisa))."\n"
       );
       $this->add_linea($lineaiguales."\n");
       

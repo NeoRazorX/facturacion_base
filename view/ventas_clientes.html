@@ -39,7 +39,7 @@
    });
 </script>
 
-<div class="container-fluid" style="margin-top: 10px;">
+<div class="container-fluid">
    <div class="row">
       <div class="col-sm-7 col-xs-6">
          <div class="btn-group hidden-xs">
@@ -231,7 +231,6 @@
                {/loop}
             </table>
          </div>
-         
          <div class="container-fluid">
             <div class="row">
                <div class="col-sm-12 text-center">
@@ -310,11 +309,11 @@
                      <input class="form-control" type="text" name="codgrupo" value="{$fsc->grupo->get_new_codigo()}" maxlength="6" autocomplete="off"/>
                   </td>
                   <td>
-                     <input class="form-control" type="text" name="nombre" maxlength="50" placeholder="Nuevo grupo" autocomplete="off"/>
+                     <input class="form-control" type="text" name="nombre" maxlength="50" placeholder="Nuevo grupo..." autocomplete="off"/>
                   </td>
                   <td>
                      <select name="codtarifa" class="form-control">
-                        <option value="---">Ninguna</option>
+                        <option value="---">Ninguna tarifa</option>
                         <option value="---">---</option>
                         {loop="$fsc->tarifas"}
                         <option value="{$value->codtarifa}">{$value->nombre}</option>
@@ -322,8 +321,9 @@
                      </select>
                   </td>
                   <td class="text-right">
-                     <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
-                        <span class="glyphicon glyphicon-floppy-disk"></span>
+                     <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Nuevo">
+                        <span class="glyphicon glyphicon-plus-sign"></span>
+                        <span class="hidden-sm">&nbsp; Nuevo</span>
                      </button>
                   </td>
                </tr>

@@ -44,7 +44,13 @@ class direccion_proveedor extends \fs_model
    public $ciudad;
    public $codpostal;
    public $direccion;
+   
+   /**
+    * TRUE -> dirección principal
+    * @var type 
+    */
    public $direccionppal;
+   
    public $descripcion;
    
    /**
@@ -124,9 +130,17 @@ class direccion_proveedor extends \fs_model
       /// actualizamos la fecha de modificación
       $this->fecha = date('d-m-Y');
       
+      /// ¿Desmarcamos las demás direcciones principales?
+      $sql = "";
+      if($this->direccionppal)
+      {
+         $sql = "UPDATE ".$this->table_name." SET direccionppal = false"
+                 . " WHERE codproveedor = ".$this->var2str($this->codproveedor).";";
+      }
+      
       if( $this->exists() )
       {
-         $sql = "UPDATE ".$this->table_name." SET codproveedor = ".$this->var2str($this->codproveedor)
+         $sql .= "UPDATE ".$this->table_name." SET codproveedor = ".$this->var2str($this->codproveedor)
                  .", codpais = ".$this->var2str($this->codpais)
                  .", apartado = ".$this->var2str($this->apartado)
                  .", provincia = ".$this->var2str($this->provincia)
@@ -142,7 +156,7 @@ class direccion_proveedor extends \fs_model
       }
       else
       {
-         $sql = "INSERT INTO ".$this->table_name." (codproveedor,codpais,apartado,provincia,ciudad,
+         $sql .= "INSERT INTO ".$this->table_name." (codproveedor,codpais,apartado,provincia,ciudad,
             codpostal,direccion,direccionppal,descripcion,fecha) VALUES (".$this->var2str($this->codproveedor)
                  .",".$this->var2str($this->codpais)
                  .",".$this->var2str($this->apartado)

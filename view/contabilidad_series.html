@@ -116,8 +116,8 @@
                {/loop}
                <form class="form" name="f_nueva_serie" action ="{$fsc->url()}" method="post">
                   <tr class="info">
-                     <td><input class="form-control" type="text" name="codserie" maxlength="2" placeholder="Nuevo código..." autocomplete="off"/></td>
-                     <td><input class="form-control" type="text" name="descripcion" placeholder="Descripción" autocomplete="off"/></td>
+                     <td><input class="form-control" type="text" name="codserie" maxlength="2" placeholder="Nuevo código" autocomplete="off"/></td>
+                     <td><input class="form-control" type="text" name="descripcion" placeholder="Nueva serie..." autocomplete="off"/></td>
                      {if="$fsc->num_personalizada"}
                      <td>
                         <select name="codejercicio" class="form-control">
@@ -139,8 +139,9 @@
                      </td>
                      <td><input class="form-control text-right" type="text" name="irpf" value="0" autocomplete="off"/></td>
                      <td class="text-right">
-                        <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">
-                           <span class="glyphicon glyphicon-floppy-disk"></span>
+                        <button class="btn btn-sm btn-primary" type="submit" title="Nueva" onclick="this.disabled=true;this.form.submit();">
+                           <span class="glyphicon glyphicon-plus-sign"></span>
+                           <span class="hidden-sm">&nbsp; Nueva</span>
                         </button>
                      </td>
                   </tr>

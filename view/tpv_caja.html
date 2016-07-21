@@ -3,7 +3,7 @@
 <script type="text/javascript">
    function delete_caja(id)
    {
-      if( confirm("¿Realmente desea eliminar la caja "+id+"?") )
+      if( confirm("¿Realmente desea eliminar el arqueo "+id+"?") )
       {
          window.location.href = '{$fsc->url()}&delete='+id;
       }
@@ -23,33 +23,31 @@
    });
 </script>
 
-<div class="container-fluid" style="margin-top: 10px;">
+<div class="container-fluid">
    <div class="row">
-      <div class="col-sm-6">
-         <div class="btn-group hidden-xs">
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
-               <span class="glyphicon glyphicon-refresh"></span>
-            </a>
-            {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
-            </a>
-            {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
-            </a>
-            {/if}
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               <i class="fa fa-desktop" aria-hidden="true"></i>&nbsp;
+               Arqueos y terminales
+               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+               <span class="btn-group">
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='button'"}
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                  {/if}
+               {/loop}
+               </span>
+            </h1>
+            <p class="help-block">
+               Llamamos terminal al conjunto de PC + impresora de tickets + cajón
+               portamonedas. Puedes crear todos los terminales que quieras en la pestaña terminales.
+               Cada vez que usas un terminal se genera un <b>arqueo</b> con los datos
+               del dinero inicial, final, el número de tickets, etc...
+            </p>
          </div>
-         <div class="btn-group">
-         {loop="$fsc->extensions"}
-            {if="$value->type=='button'"}
-            <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
-            {/if}
-         {/loop}
-         </div>
-      </div>
-      <div class="col-sm-6 text-right">
-         <h2 style="margin-top: 0px;">Cajas</h2>
       </div>
    </div>
 </div>
@@ -59,12 +57,12 @@
       <li role="presentation" class="active">
          <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
             <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Historial</span>
+            <span class="hidden-xs">&nbsp; Arqueos</span>
          </a>
       </li>
       <li role="presentation">
          <a href="#terminales" aria-controls="terminales" role="tab" data-toggle="tab">
-            <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+            <i class="fa fa-desktop" aria-hidden="true"></i>
             <span class="hidden-xs">&nbsp; Terminales</span>
          </a>
       </li>
@@ -106,7 +104,7 @@
                      {if="$fsc->allow_delete"}
                      <div class="btn-group">
                         {if="$value->abierta()"}
-                        <a href="{$fsc->url()}&cerrar={$value->id}" class="btn btn-xs btn-warning" title="Cerrar caja">
+                        <a href="{$fsc->url()}&cerrar={$value->id}" class="btn btn-xs btn-warning" title="Cerrar arqueo">
                            <span class="glyphicon glyphicon-lock"></span>
                         </a>
                         {/if}
@@ -119,7 +117,7 @@
                </tr>
                {else}
                <tr class="warning">
-                  <td colspan="9">Sin resultados.</td>
+                  <td colspan="9">Ningún arqueo en el historial.</td>
                </tr>
                {/loop}
             </table>
@@ -128,14 +126,14 @@
             {if="$fsc->anterior_url()!=''"}
             <li class="previous">
                <a href="{$fsc->anterior_url()}">
-                  <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
+                  <span class="glyphicon glyphicon-chevron-left"></span>&nbsp; Anteriores
                </a>
             </li>
             {/if}
             {if="$fsc->siguiente_url()!=''"}
             <li class="next">
                <a href="{$fsc->siguiente_url()}">
-                  Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
+                  Siguientes &nbsp;<span class="glyphicon glyphicon-chevron-right"></span>
                </a>
             </li>
             {/if}
@@ -264,7 +262,8 @@
                      <td class="text-right">
                         <div class="btn-group">
                            <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">
-                              <span class="glyphicon glyphicon-floppy-disk"></span>
+                              <span class="glyphicon glyphicon-plus-sign"></span>
+                              <span class="hidden-xs">&nbsp; Nuevo</span>
                            </button>
                         </div>
                      </td>
@@ -281,7 +280,12 @@
                      </h2>
                      <p class="help-block">
                         Para el correcto funcionamiento de la impresora es necesario
-                        especificar bien sus comandos. Y <b>recuerda</b> que es necesario ejecutar el
+                        especificar bien sus comandos. Aquí tienes los comandos de algunas
+                        de las impresoras que hemos probado. Si tienes una impresora que no está
+                        en la lista, no significa que no pueda funcionar, simplemente que nunca
+                        la hemos usado.
+                        <br/>
+                        Y <b>recuerda</b> que es necesario ejecutar el
                         <a target="_blank" href="https://www.facturascripts.com/comm3/index.php?page=community_item&id=170">Remote printer</a>
                         para poder imprimir tickets.
                      </p>
@@ -310,13 +314,16 @@
                            <td>29.86.66.100</td>
                            <td>27.112.48</td>
                         </tr>
+                        <tr class="warning">
+                           <td colspan="3">
+                              <span class="glyphicon glyphicon-info-sign"></span> Si aun así
+                              no consigues imprimir nada o tienes problemas, puedes
+                              <b>desactivar los comandos</b> de la impresora en la configuración
+                              del terminal.
+                           </td>
+                        </tr>
                      </table>
                   </div>
-                  <p class="help-block">
-                     <span class="glyphicon glyphicon-info-sign"></span> Si aun así
-                     no consigues imprimir nada o tienes problemas, puedes
-                     <b>desactivar los comandos</b> de la impresora.
-                  </p>
                </div>
             </div>
          </div>

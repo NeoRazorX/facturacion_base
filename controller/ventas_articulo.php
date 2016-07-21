@@ -380,10 +380,19 @@ class ventas_articulo extends fs_controller
          $this->articulo->stockmin = floatval($_POST['stockmin']);
          $this->articulo->stockmax = floatval($_POST['stockmax']);
          $this->articulo->trazabilidad = isset($_POST['trazabilidad']);
+         
          if( $this->articulo->save() )
          {
             $this->new_message("Datos del articulo modificados correctamente");
+            
+            $img = $this->articulo->imagen_url();
             $this->articulo->set_referencia($_POST['nreferencia']);
+            
+            /// ¿Renombramos la imagen?
+            if($img)
+            {
+               @rename($img, $this->articulo->imagen_url());
+            }
             
             /**
              * Renombramos la referencia en el resto de tablas: lineasalbaranes, lineasfacturas...

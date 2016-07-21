@@ -217,10 +217,10 @@ class tarifa extends \fs_model
          $pvp = $articulos[$i]->pvp;
          if($this->aplicar_a == 'pvp')
          {
-            if( $this->x() >= 0 )
+            if( $this->y() == 0 AND  $this->x() >= 0 )
             {
+               /// si y == 0 y x >= 0, usamos x como descuento
                $articulos[$i]->dtopor = $this->x();
-               $articulos[$i]->pvp = $articulos[$i]->pvp - $this->y();
             }
             else
             {
@@ -232,12 +232,15 @@ class tarifa extends \fs_model
             $articulos[$i]->pvp = $articulos[$i]->preciocoste() * (100 + $this->x())/100 + $this->y();
          }
          
+         $articulos[$i]->tarifa_diff = $this->diff();
+         
          if($this->mincoste)
          {
             if( $articulos[$i]->pvp * (100 - $articulos[$i]->dtopor) / 100 < $articulos[$i]->preciocoste() )
             {
                $articulos[$i]->dtopor = 0;
                $articulos[$i]->pvp = $articulos[$i]->preciocoste();
+               $articulos[$i]->tarifa_diff = 'Precio de coste alcanzado';
             }
          }
          
@@ -247,10 +250,9 @@ class tarifa extends \fs_model
             {
                $articulos[$i]->dtopor = 0;
                $articulos[$i]->pvp = $pvp;
+               $articulos[$i]->tarifa_diff = 'Precio de venta alcanzado';
             }
          }
-         
-         $articulos[$i]->tarifa_diff = $this->diff();
       }
    }
    
