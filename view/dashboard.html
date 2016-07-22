@@ -1,0 +1,356 @@
+{include="header"}
+
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="btn-group hidden-xs">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+            {if="$fsc->page->is_default()"}
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+               <span class="glyphicon glyphicon-home"></span>
+            </a>
+            {else}
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+               <span class="glyphicon glyphicon-home"></span>
+            </a>
+            {/if}
+         </div>
+         <div class="btn-group">
+            {loop="$fsc->extensions"}
+               {if="$value->type=='button'"}
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+               {/if}
+            {/loop}
+         </div>
+         <br/>
+         <br/>
+         <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+               <a href="#mes" aria-controls="mes" role="tab" data-toggle="tab">
+                  <span class="glyphicon glyphicon-calendar"></span> Este mes
+               </a>
+            </li>
+            <li role="presentation">
+               <a href="#trimestre" aria-controls="trimestre" role="tab" data-toggle="tab">
+                  <span class="glyphicon glyphicon-calendar"></span> Trimestre
+               </a>
+            </li>
+            <li role="presentation">
+               <a href="#anyo" aria-controls="anyo" role="tab" data-toggle="tab">
+                  <span class="glyphicon glyphicon-calendar"></span> Año
+               </a>
+            </li>
+         </ul>
+      </div>
+   </div>
+   <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="mes">
+         <div class="row">
+            <div class="col-sm-12">
+               <br/>
+               <p class="help-block">
+                  Comparado con el mes anterior hasta el mismo día.
+               </p>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-sm-3">
+               <a href="#" class="btn btn-lg btn-block btn-danger">
+                  Compras: {$fsc->show_precio($fsc->mes['compras'])}
+                  <br/>
+                  {if="$fsc->mes['compras_mejora']>0"}
+                  +{$fsc->show_numero($fsc->mes['compras_mejora'])} %
+                  {elseif="$fsc->mes['compras_mejora']<0"}
+                  {$fsc->show_numero($fsc->mes['compras_mejora'])} %
+                  {else}
+                  =
+                  {/if}
+               </a>
+               <p class='help-block'>
+                  <b>{$fsc->show_precio($fsc->mes['compras_anterior'])}</b> el mes anterior hasta este mismo día.
+               </p>
+               <ul>
+                  <li>
+                     <b>{$fsc->show_precio($fsc->mes['compras_albaranes_pte'])}</b> en {#FS_ALBARANES#} pendientes.
+                  </li>
+                  <li>
+                     <b>{$fsc->show_precio($fsc->mes['compras_pedidos_pte'])}</b> en {#FS_PEDIDOS#} pendientes.
+                  </li>
+               </ul>
+            </div>
+            <div class="col-sm-3">
+               <a href="#" class="btn btn-lg btn-block btn-success">
+                  Ventas: {$fsc->show_precio($fsc->mes['ventas'])}
+                  <br/>
+                  {if="$fsc->mes['ventas_mejora']>0"}
+                  +{$fsc->show_numero($fsc->mes['ventas_mejora'])} %
+                  {elseif="$fsc->mes['ventas_mejora']<0"}
+                  {$fsc->show_numero($fsc->mes['ventas_mejora'])} %
+                  {else}
+                  =
+                  {/if}
+               </a>
+               <p class='help-block'>
+                  <b>{$fsc->show_precio($fsc->mes['ventas_anterior'])}</b> el mes anterior hasta este mismo día.
+               </p>
+               <ul>
+                  <li>
+                     <b>{$fsc->show_precio($fsc->mes['ventas_albaranes_pte'])}</b> en {#FS_ALBARANES#} pendientes.
+                  </li>
+                  <li>
+                     <b>{$fsc->show_precio($fsc->mes['ventas_pedidos_pte'])}</b> en {#FS_PEDIDOS#} pendientes.
+                  </li>
+               </ul>
+            </div>
+            <div class="col-sm-3">
+               <a href="#" class="btn btn-lg btn-block btn-warning">
+                  Impuestos: {$fsc->show_precio($fsc->mes['impuestos'])}
+                  <br/>
+                  {if="$fsc->mes['impuestos_mejora']>0"}
+                  +{$fsc->show_numero($fsc->mes['impuestos_mejora'])} %
+                  {elseif="$fsc->mes['impuestos_mejora']<0"}
+                  {$fsc->show_numero($fsc->mes['impuestos_mejora'])} %
+                  {else}
+                  =
+                  {/if}
+               </a>
+               <p class="help-block">
+                  <b>{$fsc->show_precio($fsc->mes['impuestos_anterior'])}</b> el mes anterior hasta este mismo día.
+               </p>
+            </div>
+            <div class="col-sm-3">
+               <a href="#" class="btn btn-lg btn-block btn-info">
+                  Beneficio: {$fsc->show_precio($fsc->mes['beneficios'])}
+                  <br/>
+                  {if="$fsc->mes['beneficios_mejora']>0"}
+                  +{$fsc->show_numero($fsc->mes['beneficios_mejora'])} %
+                  {elseif="$fsc->mes['beneficios_mejora']<0"}
+                  {$fsc->show_numero($fsc->mes['beneficios_mejora'])} %
+                  {else}
+                  =
+                  {/if}
+               </a>
+               <p class="help-block">
+                  <b>{$fsc->show_precio($fsc->mes['beneficios_anterior'])}</b> el mes anterior hasta este mismo día.
+               </p>
+               <ul>
+                  <li>
+                     <b>{$fsc->show_precio($fsc->mes['compras_sinpagar'])}</b> en facturas de compra sin pagar.
+                  </li>
+                  <li>
+                     <b>{$fsc->show_precio($fsc->mes['ventas_sinpagar'])}</b> en facturas de venta vencidas y sin pagar.
+                  </li>
+               </ul>
+            </div>
+         </div>
+      </div>
+      <div role="tabpanel" class="tab-pane" id="trimestre">
+         <div class="row">
+            <div class="col-sm-12">
+               <br/>
+               <p class="help-block">
+                  Del <b>{$fsc->trimestre['desde']}</b> al <b>{$fsc->trimestre['hasta']}</b>. Comparado con el trimestre anterior completo.
+               </p>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-sm-3">
+               <a href="#" class="btn btn-lg btn-block btn-danger">
+                  Compras: {$fsc->show_precio($fsc->trimestre['compras'])}
+                  <br/>
+                  {if="$fsc->trimestre['compras_mejora']>0"}
+                  +{$fsc->show_numero($fsc->trimestre['compras_mejora'])} %
+                  {elseif="$fsc->trimestre['compras_mejora']<0"}
+                  {$fsc->show_numero($fsc->trimestre['compras_mejora'])} %
+                  {else}
+                  =
+                  {/if}
+               </a>
+               <p class="help-block">
+                  <b>{$fsc->show_precio($fsc->trimestre['compras_anterior'])}</b> el trimestre anterior.
+               </p>
+            </div>
+            <div class="col-sm-3">
+               <a href="#" class="btn btn-lg btn-block btn-success">
+                  Ventas: {$fsc->show_precio($fsc->trimestre['ventas'])}
+                  <br/>
+                  {if="$fsc->trimestre['ventas_mejora']>0"}
+                  +{$fsc->show_numero($fsc->trimestre['ventas_mejora'])} %
+                  {elseif="$fsc->trimestre['ventas_mejora']<0"}
+                  {$fsc->show_numero($fsc->trimestre['ventas_mejora'])} %
+                  {else}
+                  =
+                  {/if}
+               </a>
+               <p class="help-block">
+                  <b>{$fsc->show_precio($fsc->trimestre['ventas_anterior'])}</b> el trimestre anterior.
+               </p>
+            </div>
+            <div class="col-sm-3">
+               <a href="#" class="btn btn-lg btn-block btn-warning">
+                  Impuestos: {$fsc->show_precio($fsc->trimestre['impuestos'])}
+                  <br/>
+                  {if="$fsc->trimestre['impuestos_mejora']>0"}
+                  +{$fsc->show_numero($fsc->trimestre['impuestos_mejora'])} %
+                  {elseif="$fsc->trimestre['impuestos_mejora']<0"}
+                  {$fsc->show_numero($fsc->trimestre['impuestos_mejora'])} %
+                  {else}
+                  =
+                  {/if}
+               </a>
+               <p class="help-block">
+                  <b>{$fsc->show_precio($fsc->trimestre['impuestos_anterior'])}</b> el trimestre anterior.
+               </p>
+            </div>
+            <div class="col-sm-3">
+               <a href="#" class="btn btn-lg btn-block btn-info">
+                  Beneficio: {$fsc->show_precio($fsc->trimestre['beneficios'])}
+                  <br/>
+                  {if="$fsc->trimestre['beneficios_mejora']>0"}
+                  +{$fsc->show_numero($fsc->trimestre['beneficios_mejora'])} %
+                  {elseif="$fsc->trimestre['beneficios_mejora']<0"}
+                  {$fsc->show_numero($fsc->trimestre['beneficios_mejora'])} %
+                  {else}
+                  =
+                  {/if}
+               </a>
+               <p class="help-block">
+                  <b>{$fsc->show_precio($fsc->trimestre['beneficios_anterior'])}</b> el trimestre anterior.
+               </p>
+            </div>
+         </div>
+      </div>
+      <div role="tabpanel" class="tab-pane" id="anyo">
+         <div class="row">
+            <div class="col-sm-12">
+               <br/>
+               <p class="help-block">
+                  Comparado con el año anterior hasta el mismo día.
+               </p>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-sm-3">
+               <a href="#" class="btn btn-lg btn-block btn-danger">
+                  Compras: {$fsc->show_precio($fsc->anyo['compras'])}
+                  <br/>
+                  {if="$fsc->anyo['compras_mejora']>0"}
+                  +{$fsc->show_numero($fsc->anyo['compras_mejora'])} %
+                  {elseif="$fsc->anyo['compras_mejora']<0"}
+                  {$fsc->show_numero($fsc->anyo['compras_mejora'])} %
+                  {else}
+                  =
+                  {/if}
+               </a>
+               <p class="help-block">
+                  <b>{$fsc->show_precio($fsc->anyo['compras_anterior'])}</b> el año anterior hasta este mismo día.
+               </p>
+            </div>
+            <div class="col-sm-3">
+               <a href="#" class="btn btn-lg btn-block btn-success">
+                  Ventas: {$fsc->show_precio($fsc->anyo['ventas'])}
+                  <br/>
+                  {if="$fsc->anyo['ventas_mejora']>0"}
+                  +{$fsc->show_numero($fsc->anyo['ventas_mejora'])} %
+                  {elseif="$fsc->anyo['ventas_mejora']<0"}
+                  {$fsc->show_numero($fsc->anyo['ventas_mejora'])} %
+                  {else}
+                  =
+                  {/if}
+               </a>
+               <p class="help-block">
+                  <b>{$fsc->show_precio($fsc->anyo['ventas_anterior'])}</b> el año anterior hasta este mismo día.
+               </p>
+            </div>
+            <div class="col-sm-3">
+               <a href="#" class="btn btn-lg btn-block btn-warning">
+                  Impuestos: {$fsc->show_precio($fsc->anyo['impuestos'])}
+                  <br/>
+                  {if="$fsc->anyo['impuestos_mejora']>0"}
+                  +{$fsc->show_numero($fsc->anyo['impuestos_mejora'])} %
+                  {elseif="$fsc->anyo['impuestos_mejora']<0"}
+                  {$fsc->show_numero($fsc->anyo['impuestos_mejora'])} %
+                  {else}
+                  =
+                  {/if}
+               </a>
+               <p class="help-block">
+                  <b>{$fsc->show_precio($fsc->anyo['impuestos_anterior'])}</b> el año anterior hasta este mismo día.
+               </p>
+            </div>
+            <div class="col-sm-3">
+               <a href="#" class="btn btn-lg btn-block btn-info">
+                  Beneficio: {$fsc->show_precio($fsc->anyo['beneficios'])}
+                  <br/>
+                  {if="$fsc->anyo['beneficios_mejora']>0"}
+                  +{$fsc->show_numero($fsc->anyo['beneficios_mejora'])} %
+                  {elseif="$fsc->anyo['beneficios_mejora']<0"}
+                  {$fsc->show_numero($fsc->anyo['beneficios_mejora'])} %
+                  {else}
+                  =
+                  {/if}
+               </a>
+               <p class="help-block">
+                  <b>{$fsc->show_precio($fsc->anyo['beneficios_anterior'])}</b> el año anterior hasta este mismo día.
+               </p>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+<ul class="nav nav-tabs" role="tablist">
+   <li role="presentation" class="active">
+      <a href="#novedades" aria-controls="novedades" role="tab" data-toggle="tab">
+         <i class="fa fa-newspaper-o"></i> Novedades
+      </a>
+   </li>
+   {loop="$fsc->extensions"}
+      {if="$value->type=='tab'"}
+      <li role="presentation">
+         <a href="#ext_{$value->name}" aria-controls="ext_{$value->name}" role="tab" data-toggle="tab">{$value->text}</a>
+      </li>
+      {/if}
+   {/loop}
+</ul>
+<div class="tab-content">
+   <div role="tabpanel" class="tab-pane active" id="novedades">
+      <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th class="text-left">Autor</th>
+                     <th class="text-left">Mensaje</th>
+                     <th class="text-right">
+                        <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+                     </th>
+                     <th class="text-right" width="120">Cambios</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->noticias"}
+               <tr class="info clickableRow" href="{$value->url}" target="_blank">
+                  <td>{$value->autor}</td>
+                  <td>{$value->texto}</td>
+                  <td class="text-right">{$value->num_comentarios}</td>
+                  <td class="text-right">{$value->fecha}</td>
+               </tr>
+               {else}
+               <tr class="warning">
+                  <td colspan="4">Sin resultados.</td>
+               </tr>
+               {/loop}
+            </table>
+      </div>
+   </div>
+   {loop="$fsc->extensions"}
+      {if="$value->type=='tab'"}
+      <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
+         <iframe src="index.php?page={$value->from}{$value->params}" width="100%" height="2000" frameborder="0"></iframe>
+      </div>
+      {/if}
+   {/loop}
+</div>
+
+{include="footer"}

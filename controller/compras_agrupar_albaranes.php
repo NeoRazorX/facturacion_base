@@ -52,7 +52,7 @@ class compras_agrupar_albaranes extends fs_controller
    protected function private_core()
    {
       $this->albaran = new albaran_proveedor();
-      $this->codserie = NULL;
+      $this->codserie = $this->empresa->codserie;
       $this->ejercicio = new ejercicio();
       $this->forma_pago = new forma_pago();
       $this->proveedor = FALSE;
@@ -89,6 +89,12 @@ class compras_agrupar_albaranes extends fs_controller
          if( isset($_REQUEST['hasta']) )
          {
             $this->hasta = $_REQUEST['hasta'];
+         }
+         
+         /// el desde no puede ser mayor que el hasta
+         if( strtotime($this->desde) > strtotime($this->hasta) )
+         {
+            $this->hasta = $this->desde;
          }
          
          if($this->proveedor)
@@ -369,29 +375,54 @@ class compras_agrupar_albaranes extends fs_controller
    {
       $pendientes = array();
       
-      foreach($this->albaran->all_ptefactura() as $alb)
+      $offset = 0;
+      $albaranes = $this->albaran->all_ptefactura($offset);
+      while($albaranes)
       {
-         $encontrado = FALSE;
-         foreach($pendientes as $i => $pe)
+         foreach($albaranes as $alb)
          {
-            if($alb->codproveedor == $pe['codproveedor'])
+            $encontrado = FALSE;
+            foreach($pendientes as $i => $pe)
             {
-               $encontrado = TRUE;
-               $pendientes[$i]['num']++;
-               break;
+               if($alb->codserie != $this->codserie)
+               {
+                  /// no lo usamos
+               }
+               else if($alb->codproveedor == $pe['codproveedor'])
+               {
+                  $encontrado = TRUE;
+                  $pendientes[$i]['num']++;
+                  
+                  if( strtotime($alb->fecha) < strtotime($pe['desde']) )
+                  {
+                     $pendientes[$i]['desde'] = $alb->fecha;
+                  }
+                  
+                  if( strtotime($alb->fecha) > strtotime($pe['hasta']) )
+                  {
+                     $pendientes[$i]['hasta'] = $alb->fecha;
+                  }
+                  
+                  break;
+               }
             }
+            
+            if( !$encontrado AND $alb->codserie == $this->codserie )
+            {
+               $pendientes[] = array(
+                   'codproveedor' => $alb->codproveedor,
+                   'nombre' => $alb->nombre,
+                   'codserie' => $alb->codserie,
+                   'desde' => date('d-m-Y', min( array( strtotime($alb->fecha), strtotime($this->desde) ) )),
+                   'hasta' => date('d-m-Y', max( array( strtotime($alb->fecha), strtotime($this->hasta) ) )),
+                   'num' => 1
+               );
+            }
+            
+            $offset++;
          }
          
-         if(!$encontrado)
-         {
-            $pendientes[] = array(
-                'codproveedor' => $alb->codproveedor,
-                'nombre' => $alb->nombre,
-                'codserie' => $alb->codserie,
-                'desde' => $alb->fecha,
-                'num' => 1
-            );
-         }
+         $albaranes = $this->albaran->all_ptefactura($offset);
       }
       
       return $pendientes;

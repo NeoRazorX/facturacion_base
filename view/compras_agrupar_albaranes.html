@@ -36,10 +36,15 @@
    <div class="container-fluid">
       <div class="row">
          <div class="col-xs-12">
-            <a class="btn btn-sm btn-default" href="index.php?page=compras_albaranes">
-               <span class="glyphicon glyphicon-arrow-left"></span>
-               <span class="hidden-xs">&nbsp; Todos</span>
-            </a>
+            <div class="btn-group">
+               <a class="btn btn-sm btn-default" href="index.php?page=compras_albaranes">
+                  <span class="glyphicon glyphicon-arrow-left"></span>
+                  <span class="hidden-xs">&nbsp; Todos</span>
+               </a>
+               <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+            </div>
             <div class="btn-group">
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -51,9 +56,6 @@
                <h1>
                   <span class="glyphicon glyphicon-duplicate"></span>
                   Agrupar {#FS_ALBARANES#}
-                  <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
-                     <span class="glyphicon glyphicon-refresh"></span>
-                  </a>
                </h1>
                <p class='help-block'>
                   Con esta herramienta puedes buscar y agrupar varios {#FS_ALBARANES#}
@@ -82,7 +84,7 @@
          </div>
          <div class="col-sm-2">
             Serie:
-            <select name="codserie" class="form-control">
+            <select name="codserie" class="form-control" onchange="this.form.submit()">
             {loop="$fsc->serie->all()"}
 				   {if="$value->codserie==$fsc->codserie"}
 				   <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
@@ -95,13 +97,13 @@
          <div class="col-sm-2">
             <div class="form-group">
                Desde:
-               <input type="text" name="desde" class="form-control datepicker" value="{$fsc->desde}"/>
+               <input type="text" name="desde" class="form-control datepicker" value="{$fsc->desde}" onchange="this.form.submit()"/>
             </div>
          </div>
          <div class="col-sm-2">
             <div class="form-group">
                Hasta:
-               <input type="text" name="hasta" class="form-control datepicker" value="{$fsc->hasta}"/>
+               <input type="text" name="hasta" class="form-control datepicker" value="{$fsc->hasta}" onchange="this.form.submit()"/>
             </div>
          </div>
          <div class="col-sm-2 text-right">
@@ -232,7 +234,7 @@
    <div class="row">
       {loop="$fsc->pendientes()"}
       <div class="col-sm-4 col-md-3">
-         <a href="{$fsc->url()}&codproveedor={$value['codproveedor']}&codserie={$value['codserie']}&desde={$value['desde']}" class="btn btn-sm btn-block {if="$value['num']>1"}btn-info{else}btn-default{/if}">
+         <a href="{$fsc->url()}&codproveedor={$value['codproveedor']}&codserie={$value['codserie']}&desde={$value['desde']}&hasta={$value['hasta']}" class="btn btn-sm btn-block {if="$value['num']>1"}btn-info{else}btn-default{/if}">
             <span class="glyphicon glyphicon-user"></span>
             &nbsp; {$value['nombre']}
             {if="$value['num']>1"}&nbsp; ({$value['num']}){/if}

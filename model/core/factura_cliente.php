@@ -824,6 +824,11 @@ class factura_cliente extends \fs_model
    public function test()
    {
       $this->nombrecliente = $this->no_html($this->nombrecliente);
+      if($this->nombrecliente == '')
+      {
+         $this->nombrecliente = '-';
+      }
+      
       $this->direccion = $this->no_html($this->direccion);
       $this->ciudad = $this->no_html($this->ciudad);
       $this->provincia = $this->no_html($this->provincia);

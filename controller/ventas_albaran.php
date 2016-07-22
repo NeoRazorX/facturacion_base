@@ -19,6 +19,7 @@
 
 require_model('agencia_transporte.php');
 require_model('albaran_cliente.php');
+require_model('almacen.php');
 require_model('articulo.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
@@ -42,6 +43,7 @@ class ventas_albaran extends fs_controller
    public $agente;
    public $albaran;
    public $allow_delete;
+   public $almacen;
    public $cliente;
    public $cliente_s;
    public $divisa;
@@ -67,6 +69,7 @@ class ventas_albaran extends fs_controller
       $this->agencia = new agencia_transporte();
       $albaran = new albaran_cliente();
       $this->albaran = FALSE;
+      $this->almacen = new almacen();
       $this->cliente = new cliente();
       $this->cliente_s = FALSE;
       $this->divisa = new divisa();

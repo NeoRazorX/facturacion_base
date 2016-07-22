@@ -433,6 +433,8 @@ class proveedor extends \fs_model
       $this->codproveedor = trim($this->codproveedor);
       $this->nombre = $this->no_html($this->nombre);
       $this->razonsocial = $this->no_html($this->razonsocial);
+      $this->cifnif = $this->no_html($this->cifnif);
+      $this->observaciones = $this->no_html($this->observaciones);
       
       if( !preg_match("/^[A-Z0-9]{1,6}$/i", $this->codproveedor) )
       {

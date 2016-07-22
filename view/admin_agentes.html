@@ -7,6 +7,11 @@
          $("#modal_nuevo_agente").modal('show');
          document.f_nuevo_agente.snombre.focus();
       }
+      else
+      {
+         document.f_custom_search.query.focus();
+      }
+      
       $("#b_nuevo_agente").click(function(event) {
          event.preventDefault();
          $("#modal_nuevo_agente").modal('show');
@@ -15,7 +20,7 @@
    });
 </script>
 
-<div class="container-fluid hidden-print" style="margin-top: 10px;">
+<div class="container-fluid hidden-print">
    <div class="row">
       <div class="col-sm-6 col-xs-6">
          <div class="btn-group hidden-xs">
@@ -50,10 +55,67 @@
       <div class="col-sm-6 col-xs-6 text-right">
          <h2 style="margin-top: 0px;">
             <i class="fa fa-users" aria-hidden="true"></i> Empleados
+            <span class="badge">{$fsc->total_resultados}</span>
          </h2>
       </div>
    </div>
+   <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
+      <div class="row">
+         <div class="col-sm-2">
+            <div class="input-group">
+               <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
+               <span class="input-group-btn hidden-sm">
+                  <button class="btn btn-primary" type="submit">
+                     <span class="glyphicon glyphicon-search"></span>
+                  </button>
+               </span>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <select name="provincia" class="form-control" onchange="this.form.submit()">
+               <option value="">Cualquier provincia</option>
+               <option value="">------</option>
+               {loop="$fsc->provincias()"}
+                  {if="$key===$fsc->provincia"}
+                  <option value="{$key}" selected="">{$value}</option>
+                  {else}
+                  <option value="{$key}">{$value}</option>
+                  {/if}
+               {/loop}
+            </select>
+         </div>
+         <div class="col-sm-2">
+            <select name="ciudad" class="form-control" onchange="this.form.submit()">
+               <option value="">Cualquier ciudad</option>
+               <option value="">------</option>
+               {loop="$fsc->ciudades()"}
+                  {if="$key===$fsc->ciudad"}
+                  <option value="{$key}" selected="">{$value}</option>
+                  {else}
+                  <option value="{$key}">{$value}</option>
+                  {/if}
+               {/loop}
+            </select>
+         </div>
+         <div class="col-sm-4"></div>
+         <div class="col-sm-2">
+            <div class="input-group">
+               <div class="input-group-addon">
+                  <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
+               </div>
+               <select name="orden" class="form-control" onchange="this.form.submit()">
+                  <option value="nombre ASC">Orden: nombre</option>
+                  <option value="nombre DESC"{if="$fsc->orden=='nombre DESC'"} selected=""{/if}>Orden: nombre descendente</option>
+                  <option value="f_alta ASC"{if="$fsc->orden=='f_alta ASC'"} selected=""{/if}>Orden: fecha</option>
+                  <option value="f_alta DESC"{if="$fsc->orden=='f_alta DESC'"} selected=""{/if}>Orden: fecha descendente</option>
+               </select>
+            </div>
+         </div>
+      </div>
+   </form>
 </div>
+
+<br/>
 
 <div class="table-responsive">
    <table class="table table-hover">
@@ -67,7 +129,7 @@
             <th class="text-right">Fecha Alta</th>
          </tr>
       </thead>
-      {loop="$fsc->agente->all()"}
+      {loop="$fsc->resultados"}
       <tr class='clickableRow{if="$value->f_baja"} danger{/if}' href='{$value->url()}'>
          <td>
             {$value->get_fullname()}
@@ -87,6 +149,20 @@
       </tr>
       {/loop}
    </table>
+</div>
+
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12 text-center">
+         <ul class="pagination">
+            {loop="$fsc->paginas()"}
+            <li{if="$value['actual']"} class="active"{/if}>
+               <a href="{$value['url']}">{$value['num']}</a>
+            </li>
+            {/loop}
+         </ul>
+      </div>
+   </div>
 </div>
 
 <form class="form-horizontal" role="form" name="f_nuevo_agente" action="{$fsc->url()}" method="post">
