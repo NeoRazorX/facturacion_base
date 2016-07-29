@@ -35,6 +35,8 @@ require_model('presupuesto_cliente.php');
 require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('tarifa.php');
+require_model('agencia_transporte.php');
+
 
 class nueva_venta extends fs_controller
 {
@@ -55,6 +57,7 @@ class nueva_venta extends fs_controller
    public $results;
    public $serie;
    public $tipo;
+   public $agencia;
    
    public function __construct()
    {
@@ -63,6 +66,7 @@ class nueva_venta extends fs_controller
    
    protected function private_core()
    {
+      $this->agencia = new agencia_transporte();
       $this->cliente = new cliente();
       $this->cliente_s = FALSE;
       $this->direccion = FALSE;
@@ -649,6 +653,20 @@ class nueva_venta extends fs_controller
          $albaran->direccion = $_POST['direccion'];
          $albaran->provincia = $_POST['provincia'];
          
+         //transporte
+         $albaran->envio_nombre = $_POST['envio_nombre'];
+         $albaran->envio_apellidos = $_POST['envio_apellidos'];
+         $albaran->envio_codtrans = NULL;
+         if ($_POST['envio_codtrans'] != '')
+         {
+            $albaran->envio_codtrans = $_POST['envio_codtrans'];
+         }
+         $albaran->envio_codigo = $_POST['envio_codigo'];
+         $albaran->envio_provincia = $_POST['envio_provincia'];
+         $albaran->envio_ciudad = $_POST['envio_ciudad'];
+         $albaran->envio_codpostal = $_POST['envio_codpostal'];
+         $albaran->envio_direccion = $_POST['envio_direccion'];
+         
          if( $albaran->save() )
          {
             $art0 = new articulo();
@@ -857,6 +875,20 @@ class nueva_venta extends fs_controller
          $factura->codpostal = $_POST['codpostal'];
          $factura->direccion = $_POST['direccion'];
          $factura->provincia = $_POST['provincia'];
+         
+         //transporte
+         $factura->envio_nombre = $_POST['envio_nombre'];
+         $factura->envio_apellidos = $_POST['envio_apellidos'];
+         $factura->envio_codtrans = NULL;
+         if ($_POST['envio_codtrans'] != '')
+         {
+            $factura->envio_codtrans = $_POST['envio_codtrans'];
+         }
+         $factura->envio_codigo = $_POST['envio_codigo'];
+         $factura->envio_provincia = $_POST['envio_provincia'];
+         $factura->envio_ciudad = $_POST['envio_ciudad'];
+         $factura->envio_codpostal = $_POST['envio_codpostal'];
+         $factura->envio_direccion = $_POST['envio_direccion'];
          
          $regularizacion = new regularizacion_iva();
          if( $regularizacion->get_fecha_inside($factura->fecha) )
@@ -1102,6 +1134,20 @@ class nueva_venta extends fs_controller
          $presupuesto->direccion = $_POST['direccion'];
          $presupuesto->provincia = $_POST['provincia'];
          
+         //transporte
+         $presupuesto->envio_nombre = $_POST['envio_nombre'];
+         $presupuesto->envio_apellidos = $_POST['envio_apellidos'];
+         $presupuesto->envio_codtrans = NULL;
+         if ($_POST['envio_codtrans'] != '')
+         {
+            $presupuesto->envio_codtrans = $_POST['envio_codtrans'];
+         }
+         $presupuesto->envio_codigo = $_POST['envio_codigo'];
+         $presupuesto->envio_provincia = $_POST['envio_provincia'];
+         $presupuesto->envio_ciudad = $_POST['envio_ciudad'];
+         $presupuesto->envio_codpostal = $_POST['envio_codpostal'];
+         $presupuesto->envio_direccion = $_POST['envio_direccion'];
+         
          if( $presupuesto->save() )
          {
             $art0 = new articulo();
@@ -1297,6 +1343,21 @@ class nueva_venta extends fs_controller
          $pedido->direccion = $_POST['direccion'];
          $pedido->provincia = $_POST['provincia'];
          
+         //transporte
+         $pedido->envio_nombre = $_POST['envio_nombre'];
+         $pedido->envio_apellidos = $_POST['envio_apellidos'];
+         $pedido->envio_codtrans = NULL;
+         if ($_POST['envio_codtrans'] != '')
+         {
+            $pedido->envio_codtrans = $_POST['envio_codtrans'];
+         }
+         $pedido->envio_codigo = $_POST['envio_codigo'];
+         $pedido->envio_provincia = $_POST['envio_provincia'];
+         $pedido->envio_ciudad = $_POST['envio_ciudad'];
+         $pedido->envio_codpostal = $_POST['envio_codpostal'];
+         $pedido->envio_direccion = $_POST['envio_direccion'];
+
+
          if( $pedido->save() )
          {
             $art0 = new articulo();

@@ -433,7 +433,7 @@ class articulo extends \fs_model
       {
          $ref = sprintf(1 + intval($data[0]['referencia']));
       }
-      
+      $this->exists = FALSE;
       return $ref;
    }
    

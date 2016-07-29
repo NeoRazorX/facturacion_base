@@ -639,8 +639,24 @@
                <div class="row">
                   <div class="col-sm-2">
                      <div class="form-group">
+                        Direcciones Cliente:
+                        <select id="coddireccion" class="form-control" onchange="usar_direccion();">
+                           <option value="">Seleccione</option>
+                           <option value="">------</option>
+                           {loop="$fsc->cliente_s->get_direcciones()"}
+                           {if="$value->domenvio"}
+                           <option value="{$value->id}">{$value->descripcion}</option>
+                           {/if}
+                           {/loop}
+                        </select>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-sm-2">
+                     <div class="form-group">
                         Nombre:
-                        <input type="text" name="envio_nombre" value="{$fsc->albaran->envio_nombre}" class="form-control" autocomplete="off"/>
+                        <input type="text" id="envio_nombre" name="envio_nombre" value="{$fsc->albaran->envio_nombre}" class="form-control" autocomplete="off"/>
                      </div>
                   </div>
                   <div class="col-sm-4">

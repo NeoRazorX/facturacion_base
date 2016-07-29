@@ -90,6 +90,21 @@ function usar_divisa()
    document.f_buscar_articulos.coddivisa.value = $("#coddivisa").val();
 }
 
+function usar_direccion()
+{
+   for(var i=0; i<all_direcciones.length; i++)
+   {
+      if(all_direcciones[i].id == $("#direnvio").val())
+      {
+         document.f_new_albaran.envio_direccion.value=all_direcciones[i].direccion;
+         document.f_new_albaran.envio_provincia.value=all_direcciones[i].provincia;
+         document.f_new_albaran.envio_ciudad.value=all_direcciones[i].ciudad;
+         document.f_new_albaran.envio_codpostal.value=all_direcciones[i].codpostal;
+
+      }
+   }
+}
+
 function recalcular()
 {
    var l_uds = 0;
