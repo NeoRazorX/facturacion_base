@@ -2,6 +2,7 @@
 
 {if="$fsc->factura"}
 <script type="text/javascript" src="{$fsc->get_js_location('nueva_compra.js')}"></script>
+<script type="text/javascript" src="plugins/facturacion_base/view/js/calendario_one.js"></script>
 <script type="text/javascript">
  	numlineas = {function="count($fsc->factura->get_lineas())"};
    fs_nf0 = {#FS_NF0#};
@@ -98,6 +99,11 @@
 				var fe1 = new Date(y1,m1,d1);
 				var fe2 = new Date(y2,m2,d2);
 				
+				if( !isNaN(fe1) ) document.getElementById('caivence').value = d1+'-'+m1+'-'+y1;
+				else document.getElementById('caivence').value = "";				
+				if( !isNaN(fe2) ) document.getElementById('fecha').value = d2+'-'+m2+'-'+y2;				 				
+				else document.getElementById('fecha').value = "";	
+				
 				if( fe1 < fe2 )
 				{
 				alert('La fecha CAI está vencida');
@@ -152,16 +158,6 @@
 				else return false;
 
 }
-
-
-		$(function() {		
-						$('.calendario').datepicker({
-						format: "dd-mm-yyyy",
-						autoclose: true,
-							}).on('changeDate', function (ev) {
-								$(this).datepicker('hide');
-							});
-					});
 
    
 </script>
@@ -302,7 +298,7 @@
 	  	  <div class="col-sm-2">
             <div class="form-group" style="font:bold;font-size:18px">
                Fecha:
-               <input type="text" name="fecha" id="fecha" class="form-control calendario" value="{$fsc->factura->fecha}" autocomplete="off"/>
+               <input type="text" name="fecha" id="fecha" class="form-control calendario" value="{$fsc->factura->fecha}" autocomplete="off" maxlength="10"/>
 			</div>
 		</div>
         <div class="col-sm-2">
@@ -324,7 +320,7 @@
 					</div></div>
 					<div class="col-sm-3">
 					  <div class="form-group" style="font:bold;font-size:14px">
-					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control calendario"  style="width:150px" {if="strtotime($fsc->factura->caivence) >strtotime('01-01-2000')"}  value="{$fsc->factura->caivence}"{else} value="" {/if}   />
+					&nbsp;&nbsp;Vence :&nbsp;&nbsp;<input type="text" id="caivence" name="caivence" class="form-control calendario"  style="width:150px" {if="strtotime($fsc->factura->caivence) >strtotime('01-01-2000')"}  value="{$fsc->factura->caivence}"{else} value="" {/if}  maxlength="10" />
 					</div></div>
 					 
 

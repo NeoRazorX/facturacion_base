@@ -190,40 +190,40 @@ class nueva_compra extends fs_controller
 				
                $this->nuevo_albaran_proveedor();
 			   
-			   header('Location: '.$this->url_list1());
+//			   header('Location: '.$this->url_list1());
 			   
             }
             else if($_POST['tipo'] == 'B')
             {
 			
 			 $this->nueva_factura_proveedor();
-			header('Location: '.$this->url_list());
+//			header('Location: '.$this->url_list());
 			 
             }
             else if($_POST['tipo'] == 'F')
             {			
 			 $this->nueva_factura_proveedor();
-			header('Location: '.$this->url_list());			 
+//			header('Location: '.$this->url_list());			 
             }	
             else if($_POST['tipo'] == 'T')
             {			
 			 $this->nueva_factura_proveedor();
-			header('Location: '.$this->url_list());			 
+//			header('Location: '.$this->url_list());			 
             }		
 			 else if($_POST['tipo'] == 'Q')
             {			
 			 $this->nueva_factura_proveedor();
-			header('Location: '.$this->url_list());			 
+//			header('Location: '.$this->url_list());			 
             }			
 			 else if($_POST['tipo'] == 'C')
             {
 			  $this->nueva_factura_proveedor();
-			  header('Location: '.$this->url_list());
+//			  header('Location: '.$this->url_list());
             }
 			 else if($_POST['tipo'] == 'D')
             {
 			  $this->nueva_factura_proveedor();
-			  header('Location: '.$this->url_list());
+//			  header('Location: '.$this->url_list());
             }
          }
       }
@@ -263,7 +263,7 @@ class nueva_compra extends fs_controller
    
     public function url_list()
    {
-      return 'index.php?page=compras_facturas&nueva=1';
+      return 'index.php?page=compras_facturas';
    }
    
     public function url_list1()
@@ -657,6 +657,7 @@ class nueva_compra extends fs_controller
       else
       {
          $this->new_error_msg('Ejercicio no encontrado.');
+		 header('Location: '.$this->url_list1().'&nueva=2');
          $continuar = FALSE;
       }
       
@@ -830,7 +831,8 @@ class nueva_compra extends fs_controller
                   
                   if($_POST['redir'] == 'TRUE')
                   {
-                     header('Location: '.$albaran->url());
+   //                  header('Location: '.$albaran->url());
+   						header('Location: '.$this->url_list1().'&nueva=1');
                   }
                }
                else
@@ -876,14 +878,17 @@ class nueva_compra extends fs_controller
 			 $continuar = FALSE;
 		  }
 		 } 
-      
+		 
+      $factura = new factura_proveedor();
       $eje0 = new ejercicio();
       $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
       if( $ejercicio )
          $this->save_codejercicio( $ejercicio->codejercicio );
       else
       {
-         $this->new_error_msg('Ejercicio no encontrado.');
+	  	$this->autorizar_factura=1;
+   //      $this->new_error_msg('Ejercicio no encontrado.1');
+		  header('Location: '.$factura->url_list().'&nueva=2');
          $continuar = FALSE;
       }
       
@@ -912,7 +917,7 @@ class nueva_compra extends fs_controller
          $continuar = FALSE;
       }
       
-      $factura = new factura_proveedor();
+      
       
       if( $this->duplicated_petition($_POST['petition_id']) )
       {
@@ -924,8 +929,7 @@ class nueva_compra extends fs_controller
       
 	  
 	  $a = strlen(substr($_POST['fecha'],6));
-	  if( $a == 4) $continuar = TRUE;
-	  else $continuar = FALSE;
+	  if( $a != 4) $continuar = FALSE;
 
       if( $continuar )
       {
@@ -1084,10 +1088,11 @@ class nueva_compra extends fs_controller
 //                  $this->generar_asiento($factura);
 //                  $this->new_message("<a href='".$factura->url()."'>Factura</a> guardada correctamente.");
      //             $this->new_change('Factura Proveedor '.$factura->codigo, $factura->url(), TRUE);
-                   
+	 				$this->autorizar_factura=1;
+                   $this->new_error_msg('Factura Guardada');
                   if($_POST['redir'] == 'TRUE')
                   {
-  //                  header('Location: '.$factura->url_list());
+                    header('Location: '.$factura->url_list().'&nueva=1');
 
                   }
                }

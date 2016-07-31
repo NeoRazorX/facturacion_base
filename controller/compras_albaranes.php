@@ -57,6 +57,11 @@ class compras_albaranes extends fs_controller
       $this->autorizar_factura=0;
 	  
 
+	  if( isset($_GET['nueva']) )
+	  {
+	  if($_GET['nueva'] == 1) $this->new_message("Remito guardado correctamente.");
+	  if($_GET['nueva'] == 2) $this->new_error_msg("El Remito no se guardó. La Fecha corresponde a un ejercicio Cerrado o Inexistente.");
+	  }
 	  
       $this->mostrar = 'todo';
       if( isset($_GET['mostrar']) )
