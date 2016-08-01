@@ -357,7 +357,9 @@ class informe_articulos extends fs_controller
          if($lineas)
          {
             foreach($lineas as $l)
+            {
                $toplist[] = new articulo($l);
+            }
          }
          $this->cache->set('top_articulos_sin_vender', $toplist);
       }
@@ -378,7 +380,9 @@ class informe_articulos extends fs_controller
             {
                $art0 = $articulo->get($l['referencia']);
                if($art0)
+               {
                   $toplist[] = array($art0, intval($l['compras']));
+               }
             }
          }
          $this->cache->set('facpro_top_articulos', $toplist);
@@ -467,7 +471,7 @@ class informe_articulos extends fs_controller
       $json = array();
       foreach($articulo->search($_REQUEST['buscar_referencia']) as $art)
       {
-         $json[] = array('value' => $art->referencia, 'data' => $art->referencia);
+         $json[] = array('value' => $art->referencia.' '.$art->descripcion(60), 'data' => $art->referencia);
       }
       
       header('Content-Type: application/json');
@@ -935,9 +939,18 @@ class informe_articulos extends fs_controller
                echo $value['referencia'].';'
                        .$value['codalmacen'].';'
                        .$value['origen'].';'
-                       .$this->fix_html($value['clipro']).';'
-                       .number_format($value['movimiento'], FS_NF0, ',', '').';'
-                       .number_format($value['precio'], FS_NF0_ART, ',', '').';'
+                       .$this->fix_html($value['clipro']).';';
+               
+               if( is_numeric($value['movimiento']) )
+               {
+                  echo number_format($value['movimiento'], FS_NF0, ',', '').';';
+               }
+               else
+               {
+                  echo ';';
+               }
+               
+               echo number_format($value['precio'], FS_NF0_ART, ',', '').';'
                        .number_format($value['dto'], FS_NF0, ',', '').';'
                        .number_format($value['final'], FS_NF0, ',', '').';'
                        .$value['fecha']."\n";

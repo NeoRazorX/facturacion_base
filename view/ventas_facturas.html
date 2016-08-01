@@ -353,6 +353,7 @@
          </td>
          <td>
             <a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}
+            {if="$value->totaliva==0"}<span class="label label-warning">Sin {#FS_IVA#}</span>{/if}
             {if="$value->totalrecargo!=0"}<span class="label label-default">RE</span>{/if}
             {if="$value->totalirpf!=0"}<span class="label label-default">{#FS_IRPF#}</span>{/if}
          </td>

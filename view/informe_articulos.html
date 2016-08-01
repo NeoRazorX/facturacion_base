@@ -421,10 +421,28 @@
       $("#ac_referencia").autocomplete({
          serviceUrl: '{$fsc->url()}',
          paramName: 'buscar_referencia',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if( $("#ac_referencia").val() != suggestion.data)
+               {
+                  $("#ac_referencia").val(suggestion.data);
+               }
+            }
+         }
       });
       $("#ac_referencia2").autocomplete({
          serviceUrl: '{$fsc->url()}',
          paramName: 'buscar_referencia',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if( $("#ac_referencia2").val() != suggestion.data)
+               {
+                  $("#ac_referencia2").val(suggestion.data);
+               }
+            }
+         }
       });
    });
 </script>

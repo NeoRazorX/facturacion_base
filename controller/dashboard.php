@@ -224,19 +224,17 @@ class dashboard extends fs_controller
       
       if( $this->db->table_exists('co_partidas') AND $this->empresa->codpais == 'ESP' )
       {
-         /// calculamos la cuota de autónomos de este mes
-         $sql = "select sum(debe-haber) as total from co_partidas where codsubcuenta = '6420000000' and idasiento"
+         $sql = "select sum(debe-haber) as total from co_partidas where codsubcuenta LIKE '57%' and idasiento"
                  . " in (select idasiento from co_asientos where fecha >= ".$this->empresa->var2str($stats['desde'])
                  . " and fecha <= ".$this->empresa->var2str($stats['hasta']).");";
          
          $data = $this->db->select($sql);
          if($data)
          {
-            $stats['impuestos'] += $this->euro_convert( floatval($data[0]['total']) );
+            $stats['impuestos'] += $this->euro_convert( abs( floatval($data[0]['total']) ) );
          }
          
-         /// calculamos la cuota de autónomos del mes pasado
-         $sql = "select sum(debe-haber) as total from co_partidas where codsubcuenta = '6420000000' and idasiento"
+         $sql = "select sum(debe-haber) as total from co_partidas where codsubcuenta LIKE '57%' and idasiento"
                  . " in (select idasiento from co_asientos where"
                  . " fecha >= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['desde'].' '.$stats['anterior'])))
                  . " and fecha <= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['hasta'].' '.$stats['anterior']))).");";
@@ -244,7 +242,7 @@ class dashboard extends fs_controller
          $data = $this->db->select($sql);
          if($data)
          {
-            $stats['impuestos_anterior'] += $this->euro_convert( floatval($data[0]['total']) );
+            $stats['impuestos_anterior'] += $this->euro_convert( abs( floatval($data[0]['total']) ) );
          }
       }
       

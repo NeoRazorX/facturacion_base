@@ -20,6 +20,8 @@
 
 namespace FacturaScripts\model;
 
+require_model('articulo.php');
+
 /**
  * Artículo vendido por un proveedor.
  *
@@ -223,6 +225,19 @@ class articulo_proveedor extends \fs_model
       }
       
       return $this->iva;
+   }
+   
+   public function get_articulo()
+   {
+      if( is_null($this->referencia) )
+      {
+         return FALSE;
+      }
+      else
+      {
+         $art0 = new \articulo();
+         return $art0->get($this->referencia);
+      }
    }
    
    /**

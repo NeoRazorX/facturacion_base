@@ -349,8 +349,10 @@ class ventas_factura extends fs_controller
                $subcli = $this->cliente->get_subcuenta($eje->codejercicio);
             }
             
+            $importe = $this->euro_convert($this->factura->totaleuros);
+            
             $asiento_factura = new asiento_factura();
-            $this->factura->idasientop = $asiento_factura->generar_asiento_pago($asiento, $this->factura->codpago, $this->today(), $subcli, $this->factura->totaleuros);
+            $this->factura->idasientop = $asiento_factura->generar_asiento_pago($asiento, $this->factura->codpago, $this->today(), $subcli, $importe);
             if($this->factura->idasientop)
             {
                $this->factura->pagada = TRUE;

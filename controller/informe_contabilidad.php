@@ -290,7 +290,7 @@ class informe_contabilidad extends fs_controller
       }
       else if($codsubc)
       {
-         $sql .= " AND p.codsubcuenta IN ('".join( "','", $this->empresa->no_html($codsubc) )."')";
+         $sql .= " AND p.codsubcuenta IN ('".join("','", $codsubc)."')";
       }
       
       $sql .= " ORDER BY p.codsubcuenta ASC, a.numero ASC";

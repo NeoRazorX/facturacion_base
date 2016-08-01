@@ -17,16 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('almacen.php');
 require_model('articulo.php');
 require_model('familia.php');
 require_model('fabricante.php');
 require_model('impuesto.php');
+require_model('linea_transferencia_stock.php');
 require_model('tarifa.php');
+require_model('transferencia_stock.php');
 
 class ventas_articulos extends fs_controller
 {
    public $allow_delete;
+   public $almacenes;
    public $b_bloqueados;
+   public $b_codalmacen;
    public $b_codfabricante;
    public $b_codfamilia;
    public $b_codtarifa;
@@ -42,6 +47,7 @@ class ventas_articulos extends fs_controller
    public $resultados;
    public $total_resultados;
    public $tarifa;
+   public $transferencia_stock;
    
    public function __construct()
    {
@@ -53,11 +59,14 @@ class ventas_articulos extends fs_controller
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
+      $almacen = new almacen();
+      $this->almacenes = $almacen->all();
       $articulo = new articulo();
       $this->familia = new familia();
       $this->fabricante = new fabricante();
       $this->impuesto = new impuesto();
       $this->tarifa = new tarifa();
+      $this->transferencia_stock = new transferencia_stock();
       
       /**
        * Si hay alguna extensión de tipo config y texto no_tab_tarifas,
@@ -176,6 +185,68 @@ class ventas_articulos extends fs_controller
                $this->new_error_msg("¡Error al eliminarl el articulo!");
          }
       }
+      else if( isset($_POST['origen']) )
+      {
+         /// nueva transferencia de stock
+         $this->transferencia_stock->usuario = $this->user->nick;
+         $this->transferencia_stock->codalmaorigen = $_POST['origen'];
+         $this->transferencia_stock->codalmadestino = $_POST['destino'];
+         
+         if( $this->transferencia_stock->save() )
+         {
+            $this->new_message('Datos guardados correctamente.');
+            header('Location: '.$this->transferencia_stock->url());
+         }
+         else
+         {
+            $this->new_error_msg('Error al guardar los datos.');
+         }
+      }
+      else if( isset($_GET['delete_transf']) )
+      {
+         $transf = $this->transferencia_stock->get($_GET['delete_transf']);
+         if($transf)
+         {
+            $ok = TRUE;
+            
+            /// eliminamos las líneas
+            $ltf = new linea_transferencia_stock();
+            foreach($ltf->all_from_transferencia($transf->idtrans) as $lin)
+            {
+               if( $lin->delete() )
+               {
+                  /// movemos el stock
+                  $art = $articulo->get($lin->referencia);
+                  if($art)
+                  {
+                     $art->sum_stock($transf->codalmadestino, 0 - $lin->cantidad);
+                     $art->sum_stock($transf->codalmaorigen, $lin->cantidad);
+                  }
+               }
+               else
+               {
+                  $this->new_error_msg('Error al eliminar la línea con referencia '.$lin->referencia);
+                  $ok = FALSE;
+               }
+            }
+            
+            if($ok)
+            {
+               if( $transf->delete() )
+               {
+                  $this->new_message('Transferencia eliminada correctamente.');
+               }
+               else
+               {
+                  $this->new_error_msg('Error al eliminar la transferencia.');
+               }
+            }
+         }
+         else
+         {
+            $this->new_error_msg('Transferencia no encontrada.');
+         }
+      }
       
       
       /// obtenemos los datos para la búsqueda
@@ -183,6 +254,12 @@ class ventas_articulos extends fs_controller
       if( isset($_REQUEST['offset']) )
       {
          $this->offset = intval($_REQUEST['offset']);
+      }
+      
+      $this->b_codalmacen = '';
+      if( isset($_REQUEST['b_codalmacen']) )
+      {
+         $this->b_codalmacen = $_REQUEST['b_codalmacen'];
       }
       
       $this->b_codfamilia = '';
@@ -225,6 +302,7 @@ class ventas_articulos extends fs_controller
       
       $this->b_url = $this->url()."&query=".$this->query
               ."&b_codfabricante=".$this->b_codfabricante
+              ."&b_codalmacen=".$this->b_codalmacen
               ."&b_codfamilia=".$this->b_codfamilia
               ."&b_codtarifa=".$this->b_codtarifa;
       
@@ -406,57 +484,7 @@ class ventas_articulos extends fs_controller
          /// ¿Descargar o mostrar en pantalla?
          if( isset($_GET['download']) )
          {
-            /// desactivamos el motor de plantillas
-            $this->template = FALSE;
-            
-            header("content-type:application/csv;charset=UTF-8");
-            header("Content-Disposition: attachment; filename=\"articulos.csv\"");
-            echo "referencia;codfamilia;codfabricante;descripcion;pvp;iva;codbarras;stock;coste\n";
-            
-            $offset2 = 0;
-            $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$order, 1000, $offset2);
-            while($data2)
-            {
-               $resultados = array();
-               foreach($data2 as $i)
-               {
-                  $resultados[] = new articulo($i);
-               }
-               
-               if($this->b_codtarifa != '')
-               {
-                  /// aplicamos la tarifa
-                  $tarifa = $this->tarifa->get($this->b_codtarifa);
-                  if($tarifa)
-                  {
-                     $tarifa->set_precios($resultados);
-                     
-                     /// si la tarifa añade descuento, lo aplicamos al precio
-                     foreach($resultados as $i => $value)
-                     {
-                        $resultados[$i]->pvp -= $value->pvp*$value->dtopor/100;
-                     }
-                  }
-               }
-               
-               /// escribimos los datos de los artículos
-               foreach($resultados as $art)
-               {
-                  echo $art->referencia.';';
-                  echo $art->codfamilia.';';
-                  echo $art->codfabricante.';';
-                  echo $this->fix_html($art->descripcion).';';
-                  echo $art->pvp.';';
-                  echo $art->get_iva().';';
-                  echo trim($art->codbarras).';';
-                  echo $art->stockfis.';';
-                  echo $art->preciocoste()."\n";
-                  
-                  $offset2++;
-               }
-               
-               $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$order, 1000, $offset2);
-            }
+            $this->download_resultados($sql, $order);
          }
          else
          {
@@ -466,6 +494,22 @@ class ventas_articulos extends fs_controller
                foreach($data2 as $i)
                {
                   $this->resultados[] = new articulo($i);
+               }
+               
+               if($this->b_codalmacen != '')
+               {
+                  /// obtenemos el stock correcto
+                  foreach($this->resultados as $i => $value)
+                  {
+                     $this->resultados[$i]->stockfis = 0;
+                     foreach($value->get_stock() as $s)
+                     {
+                        if($s->codalmacen == $this->b_codalmacen)
+                        {
+                           $this->resultados[$i]->stockfis = $s->cantidad;
+                        }
+                     }
+                  }
                }
                
                if($this->b_codtarifa != '')
@@ -485,6 +529,77 @@ class ventas_articulos extends fs_controller
                }
             }
          }
+      }
+   }
+   
+   private function download_resultados($sql, $order)
+   {
+      /// desactivamos el motor de plantillas
+      $this->template = FALSE;
+      
+      header("content-type:application/csv;charset=UTF-8");
+      header("Content-Disposition: attachment; filename=\"articulos.csv\"");
+      echo "referencia;codfamilia;codfabricante;descripcion;pvp;iva;codbarras;stock;coste\n";
+      
+      $offset2 = 0;
+      $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$order, 1000, $offset2);
+      while($data2)
+      {
+         $resultados = array();
+         foreach($data2 as $i)
+         {
+            $resultados[] = new articulo($i);
+         }
+         
+         if($this->b_codalmacen != '')
+         {
+            /// obtenemos el stock correcto
+            foreach($resultados as $i => $value)
+            {
+               $resultados[$i]->stockfis = 0;
+               foreach($value->get_stock() as $s)
+               {
+                  if($s->codalmacen == $this->b_codalmacen)
+                  {
+                     $resultados[$i]->stockfis = $s->cantidad;
+                  }
+               }
+            }
+         }
+         
+         if($this->b_codtarifa != '')
+         {
+            /// aplicamos la tarifa
+            $tarifa = $this->tarifa->get($this->b_codtarifa);
+            if($tarifa)
+            {
+               $tarifa->set_precios($resultados);
+               
+               /// si la tarifa añade descuento, lo aplicamos al precio
+               foreach($resultados as $i => $value)
+               {
+                  $resultados[$i]->pvp -= $value->pvp*$value->dtopor/100;
+               }
+            }
+         }
+         
+         /// escribimos los datos de los artículos
+         foreach($resultados as $art)
+         {
+            echo $art->referencia.';';
+            echo $art->codfamilia.';';
+            echo $art->codfabricante.';';
+            echo $this->fix_html($art->descripcion).';';
+            echo $art->pvp.';';
+            echo $art->get_iva().';';
+            echo trim($art->codbarras).';';
+            echo $art->stockfis.';';
+            echo $art->preciocoste()."\n";
+            
+            $offset2++;
+         }
+         
+         $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$order, 1000, $offset2);
       }
    }
    

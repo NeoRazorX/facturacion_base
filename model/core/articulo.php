@@ -434,6 +434,7 @@ class articulo extends \fs_model
          $ref = sprintf(1 + intval($data[0]['referencia']));
       }
       
+      $this->exists = FALSE;
       return $ref;
    }
    
@@ -489,8 +490,15 @@ class articulo extends \fs_model
    
    public function get_stock()
    {
-      $stock = new \stock();
-      return $stock->all_from_articulo($this->referencia);
+      if($this->nostock)
+      {
+         return array();
+      }
+      else
+      {
+         $stock = new \stock();
+         return $stock->all_from_articulo($this->referencia);
+      }
    }
    
    /**
@@ -722,6 +730,8 @@ class articulo extends \fs_model
             $this->new_error_msg('Imposible modificar la referencia.');
          }
       }
+      
+      $this->exists = FALSE;
    }
    
    /**

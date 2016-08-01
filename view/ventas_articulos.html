@@ -25,6 +25,10 @@
       {
          show_nuevo_articulo();
       }
+      else if(window.location.hash.substring(1) == 'transferencias')
+      {
+         $('#ul_tabs a[href="#transferencias"]').tab('show');
+      }
       else if(window.location.hash.substring(1) == 'tarifas')
       {
          show_tarifas();
@@ -51,7 +55,7 @@
    });
 </script>
 
-<div class="container-fluid" style="margin-top: 10px;">
+<div class="container-fluid" style="margin-bottom: 10px;">
    <div class="row">
       <div class="col-xs-12">
          <div class="btn-group hidden-xs">
@@ -73,6 +77,17 @@
                <span class="glyphicon glyphicon-plus"></span>
                <span class="hidden-xs">&nbsp; Nuevo</span>
             </a>
+            {if="count($fsc->almacenes)>1"}
+            <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
+               <span class="caret"></span>
+               <span class="sr-only">+</span>
+            </button>
+            <ul class="dropdown-menu">
+               <li><a href="#" data-toggle="modal" data-target="#modal_nueva_transferencia">Nueva transferencia de stock</a></li>
+            </ul>
+            {/if}
+         </div>
+         <div class="btn-group">
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
@@ -83,7 +98,7 @@
    </div>
 </div>
 
-<div role="tabpanel" style="margin-top: 10px;">
+<div role="tabpanel">
    <ul id="ul_tabs" class="nav nav-tabs" role="tablist">
       <li role="presentation" class="active">
          <a href="#articulos" aria-controls="articulos" role="tab" data-toggle="tab">
@@ -92,6 +107,14 @@
             <span class="badge">{$fsc->total_resultados}</span>
          </a>
       </li>
+      {if="count($fsc->almacenes)>1"}
+      <li role="presentation">
+         <a href="#transferencias" aria-controls="transferencias" role="tab" data-toggle="tab">
+            <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
+            <span class="hidden-xs">&nbsp; Transferencias</span>
+         </a>
+      </li>
+      {/if}
       {if="$fsc->mostrar_tab_tarifas"}
       <li role="presentation">
          <a href="#tarifas" aria-controls="tarifas" role="tab" data-toggle="tab">
@@ -127,6 +150,25 @@
                               </div>
                            </div>
                         </div>
+                        {if="count($fsc->almacenes)>1"}
+                        <div class="col-sm-2">
+                           <div class='form-group{if="$fsc->b_codalmacen"} has-success{/if}'>
+                              <select class="form-control" name="b_codalmacen" onchange="this.form.submit()">
+                                 <option value="">Todos los almacenes</option>
+                                 <option value="">-----</option>
+                                 {loop="$fsc->almacenes"}
+                                    {if="$value->codalmacen==$fsc->b_codalmacen"}
+                                    <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
+                                    {else}
+                                    <option value="{$value->codalmacen}">{$value->nombre}</option>
+                                    {/if}
+                                 {/loop}
+                              </select>
+                           </div>
+                        </div>
+                        {else}
+                        <input type="hidden" name="b_codalmacen" value=""/>
+                        {/if}
                         <div class="col-sm-2">
                            <div class='form-group{if="$fsc->b_codfamilia"} has-success{/if}'>
                               <select class="form-control" name="b_codfamilia" onchange="this.form.submit()">
@@ -158,7 +200,7 @@
                            </div>
                         </div>
                         <div class="col-sm-2">
-                           <div class="form-group{if="$fsc->b_codtarifa"} has-success{/if}">
+                           <div class='form-group{if="$fsc->b_codtarifa"} has-success{/if}'>
                               <div class="input-group">
                                  <select name="b_codtarifa" class="form-control" onchange="this.form.submit()">
                                     <option value="">Ninguna tarifa</option>
@@ -179,23 +221,12 @@
                               </div>
                            </div>
                         </div>
-                        <div class="col-sm-4 text-right">
-                           <div class="form-group">
-                              <label class="checkbox-inline">
-                                 <input type="checkbox" name="b_constock"{if="$fsc->b_constock"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
-                                 Con stock
-                              </label>
-                              <label class="checkbox-inline">
-                                 <input type="checkbox" name="b_bloqueados"{if="$fsc->b_bloqueados"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
-                                 Bloqueados
-                              </label>
-                              <label class="checkbox-inline">
-                                 <input type="checkbox" name="b_publicos"{if="$fsc->b_publicos"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
-                                 Públicos
-                              </label>
-                              &nbsp;
-                              <div class="btn-group">
-                                 <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {if="count($fsc->almacenes)<=1"}
+                        <div class="col-sm-2"></div>
+                        {/if}
+                        <div class="col-sm-2 text-right">
+                           <div class="btn-group">
+                                 <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
                                     <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
                                  </button>
                                  <ul class="dropdown-menu dropdown-menu-right">
@@ -256,9 +287,26 @@
                                        </a>
                                     </li>
                                  </ul>
-                              </div>
                            </div>
                         </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="form-group">
+                        <label class="checkbox-inline">
+                           <input type="checkbox" name="b_constock"{if="$fsc->b_constock"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
+                           Con stock
+                        </label>
+                        <label class="checkbox-inline">
+                           <input type="checkbox" name="b_bloqueados"{if="$fsc->b_bloqueados"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
+                           Bloqueados
+                        </label>
+                        <label class="checkbox-inline">
+                           <input type="checkbox" name="b_publicos"{if="$fsc->b_publicos"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
+                           Públicos
+                        </label>
                      </div>
                   </div>
                </div>
@@ -345,6 +393,36 @@
             </ul>
          </div>
       </div>
+      {if="count($fsc->almacenes)>1"}
+      <div role="tabpanel" class="tab-pane" id="transferencias">
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th>Usuario</th>
+                     <th>Origen</th>
+                     <th>Destino</th>
+                     <th class="text-right">Fecha</th>
+                     <th class="text-right">Hora</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->transferencia_stock->all()"}
+               <tr class="clickableRow" href="{$value->url()}">
+                  <td>{$value->usuario}</td>
+                  <td>{$value->codalmaorigen}</td>
+                  <td>{$value->codalmadestino}</td>
+                  <td class="text-right">{$value->fecha}</td>
+                  <td class="text-right">{$value->hora}</td>
+               </tr>
+               {else}
+               <tr class="warning">
+                  <td colspan="5">Sin resultados.</td>
+               </tr>
+               {/loop}
+            </table>
+         </div>
+      </div>
+      {/if}
       <div role="tabpanel" class="tab-pane" id="tarifas">
          <br/>
          <div class="container-fluid">
@@ -624,6 +702,59 @@
                      <input type="checkbox" name="nostock" value="TRUE"/> No controlar stock
                   </label>
                </div>
+               <button class="btn btn-sm btn-primary" type="submit">
+                  <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+               </button>
+            </div>
+         </div>
+      </div>
+   </div>
+</form>
+
+<form class="form" role="form" name="f_nueva_transferencia" action="{$fsc->url()}#transferencias" method="post">
+   <div class="modal" id="modal_nueva_transferencia">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">
+                  <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
+                  &nbsp;Nueva transferencia de stock
+               </h4>
+            </div>
+            <div class="modal-body">
+               <div class='form-group'>
+                  Almacén orígen:
+                  <div class="input-group">
+                     <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-export"></span>
+                     </span>
+                     <select class="form-control" name="origen">
+                     {loop="$fsc->almacenes"}
+                        {if="$value->is_default()"}
+                        <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
+                        {else}
+                        <option value="{$value->codalmacen}">{$value->nombre}</option>
+                        {/if}
+                     {/loop}
+                     </select>
+                  </div>
+               </div>
+               <div class='form-group'>
+                  Almacén destino:
+                  <div class="input-group">
+                     <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-import"></span>
+                     </span>
+                     <select class="form-control" name="destino">
+                        {loop="$fsc->almacenes"}
+                        <option value="{$value->codalmacen}">{$value->nombre}</option>
+                        {/loop}
+                     </select>
+                  </div>
+               </div>
+            </div>
+            <div class="modal-footer">
                <button class="btn btn-sm btn-primary" type="submit">
                   <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
                </button>
