@@ -5,8 +5,7 @@
       {if="$fsc->caja->codagente!=$fsc->user->codagente"}
       <div class="container-fluid">
          <div class="row">
-            <div class="col-sm-3"></div>
-            <div class="col-sm-6">
+            <div class="col-sm-12">
                <div class="thumbnail">
                   <img src='{#FS_PATH#}view/img/big_lock.png' alt="acceso denegado"/>
                </div>
@@ -16,8 +15,7 @@
       {elseif="!$fsc->cliente_s"}
       <div class="container-fluid">
          <div class="row">
-            <div class="col-sm-3"></div>
-            <div class="col-sm-6">
+            <div class="col-sm-12">
                <div class="alert alert-danger">
                   No hay clientes. Debes añadir al menos uno, por ejemplo <b>Contado</b>.
                </div>
@@ -38,12 +36,12 @@
    </script>
    <form name="f_caja" action="{$fsc->url()}" method="post" class="form">
       <input type="hidden" name="terminal" value="{$fsc->terminal->id}"/>
-      <div class="container">
+      <div class="container-fluid">
          <div class="row">
             <div class="col-sm-12">
                <div class="page-header">
                   <h1>
-                     <span class="glyphicon glyphicon-print" aria-hidden="true"></span>&nbsp;
+                     <i class="fa fa-desktop" aria-hidden="true"></i>&nbsp;
                      Terminal {$fsc->terminal->id}
                   </h1>
                   <p class="help-block">
@@ -56,7 +54,7 @@
             </div>
          </div>
          <div class="row">
-            <div class="col-sm-8">
+            <div class="col-sm-4">
                <div class="panel panel-primary">
                   <div class="panel-heading">
                      <h3 class="panel-title">¿Cuanto dinero hay en la caja?</h3>
@@ -75,12 +73,12 @@
                   </div>
                   <div class="panel-footer">
                      <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                        <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                        <span class="glyphicon glyphicon-play"></span>&nbsp; Continuar...
                      </button>
                   </div>
                </div>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-3">
                <div class="thumbnail">
                   <img src="{#FS_PATH#}plugins/facturacion_base/view/img/cajon.jpg" alt="tpv"/>
                </div>
@@ -108,14 +106,20 @@
          {loop="$fsc->results"}
          <div class="col-sm-6">
             <a href="{$fsc->url()}&terminal={$value->id}" class="btn btn-block btn-default">
-               <span class="glyphicon glyphicon-print" aria-hidden="true"></span> &nbsp; Terminal {$value->id}
+               <i class="fa fa-desktop" aria-hidden="true"></i>&nbsp; Terminal {$value->id}
             </a>
          </div>
          {else}
          <div class="col-sm-12">
             <a href="index.php?page=tpv_caja#terminales" class="btn btn-block btn-info">
-               <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> &nbsp; Administrar terminales
+               <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>&nbsp; Administrar terminales
             </a>
+            <p class="help-block">
+               Los terminales son la suma de PC + impresora de tickets + cajón
+               portamonedas. Ahora mismo no tiene ninguno disponible, bien porque
+               no hay configurado ningún terminal, o bien porque están todos
+               ocupados.
+            </p>
          </div>
          {/loop}
       </div>

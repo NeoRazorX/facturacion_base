@@ -39,6 +39,7 @@ class base_wizard extends fs_controller
    public $forma_pago;
    public $irpf;
    public $pais;
+   public $recargar;
    public $serie;
    public $step;
    
@@ -49,6 +50,8 @@ class base_wizard extends fs_controller
    
    protected function private_core()
    {
+      $this->recargar = FALSE;
+      
       if( floatval($this->version()) >= 2016.011 )
       {
          $this->private_core2();
@@ -265,19 +268,36 @@ class base_wizard extends fs_controller
       }
    }
    
+   /**
+    * Cargamos el menú en la base de datos, pero en varias pasadas.
+    */
    private function check_menu()
    {
-      if( !$this->page->get('ventas_articulos') )
+      if( file_exists(__DIR__) )
       {
-         if( file_exists(__DIR__) )
+         $max = 25;
+         
+         /// leemos todos los controladores del plugin
+         foreach( scandir(__DIR__) as $f)
          {
-            /// activamos las páginas del plugin
-            foreach( scandir(__DIR__) as $f)
+            if( is_string($f) AND strlen($f) > 0 AND !is_dir($f) AND $f != __CLASS__.'.php' )
             {
-               if( is_string($f) AND strlen($f) > 0 AND !is_dir($f) AND $f != __CLASS__.'.php' )
+               /// obtenemos el nombre
+               $page_name = substr($f, 0, -4);
+               
+               /// lo buscamos en el menú
+               $encontrado = FALSE;
+               foreach($this->menu as $m)
                {
-                  $page_name = substr($f, 0, -4);
-                  
+                  if($m->name == $page_name)
+                  {
+                     $encontrado = TRUE;
+                     break;
+                  }
+               }
+               
+               if(!$encontrado)
+               {
                   require_once __DIR__.'/'.$f;
                   $new_fsc = new $page_name();
                   
@@ -287,16 +307,27 @@ class base_wizard extends fs_controller
                   }
                   
                   unset($new_fsc);
+                  
+                  if($max > 0)
+                  {
+                     $max--;
+                  }
+                  else
+                  {
+                     $this->recargar = TRUE;
+                     $this->new_message('Instalando el menú... &nbsp; <i class="fa fa-refresh fa-spin"></i>');
+                     break;
+                  }
                }
             }
          }
-         else
-         {
-            $this->new_error_msg('No se encuentra el directorio '.__DIR__);
-         }
-         
-         $this->load_menu(TRUE);
       }
+      else
+      {
+         $this->new_error_msg('No se encuentra el directorio '.__DIR__);
+      }
+      
+      $this->load_menu(TRUE);
    }
    
    /**

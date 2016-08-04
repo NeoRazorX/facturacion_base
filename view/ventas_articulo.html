@@ -115,7 +115,7 @@
    });
 </script>
 
-<div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
+<div class="container-fluid">
    <div class="row">
       <div class="col-xs-7">
          <div class="btn-group">
@@ -166,6 +166,8 @@
       </div>
    </div>
 </div>
+
+<br/>
 
 <div id="tab_articulo" role="tabpanel">
    <ul class="nav nav-tabs" role="tablist">
@@ -641,10 +643,19 @@
                      </div>
                      <div class="container-fluid">
                         <div class="row">
-                           <div class="col-xs-12">
+                           <div class="col-sm-2">
                               <a class="btn btn-sm btn-success" href="index.php?page=ventas_articulos#tarifas">
-                                 <span class="glyphicon glyphicon-edit"></span> &nbsp; Nueva tarifa
+                                 <span class="glyphicon glyphicon-edit"></span>&nbsp; Nueva tarifa
                               </a>
+                           </div>
+                           <div class="col-sm-10">
+                              <p class='help-block text-right'>
+                                 <span class="glyphicon glyphicon-exclamation-sign"></span>
+                                 <b>Importante</b>: ten en cuenta que si la tarifa tiene marcado
+                                 <b>precio mínimo</b>, por mucho que cambies no podrás poner un precio
+                                 inferor al precio de coste. De la misma manera, si la tarifa tiene
+                                 marcado <b>precio máximo</b>, nunca podrás superar el PVP.
+                              </p>
                            </div>
                         </div>
                      </div>
@@ -682,9 +693,12 @@
                         <div class="row">
                            <div class="col-sm-12">
                               <p class="help-block">
-                                 Estos son los proveedores a los que has comprado este producto,
-                                 sus referencias, su último precio y descuento, y su stock,
+                                 <span class="glyphicon glyphicon-exclamation-sign"></span>
+                                 Estos son los proveedores a los que <b>has comprado</b> este producto,
+                                 sus referencias, su último precio, descuento y su stock,
                                  si lo ofrecen.
+                                 Si quieres que un proveedor aparezca aquí, crea un {#FS_PEDIDO#}
+                                 o {#FS_ALBARAN#} de compra con ese proveedor y este artículo.
                               </p>
                            </div>
                         </div>

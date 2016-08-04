@@ -19,6 +19,7 @@
 
 require_model('asiento.php');
 require_model('concepto_partida.php');
+require_model('cuenta_banco.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('impuesto.php');
@@ -29,6 +30,7 @@ class contabilidad_nuevo_asiento extends fs_controller
 {
    public $asiento;
    public $concepto;
+   public $cuenta_banco;
    public $divisa;
    public $ejercicio;
    public $impuesto;
@@ -47,6 +49,7 @@ class contabilidad_nuevo_asiento extends fs_controller
       
       $this->asiento = new asiento();
       $this->concepto = new concepto_partida();
+      $this->cuenta_banco = new cuenta_banco();
       $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
       $this->impuesto = new impuesto();
@@ -62,6 +65,10 @@ class contabilidad_nuevo_asiento extends fs_controller
          if( intval($_POST['autonomo']) > 0 )
          {
             $this->nuevo_asiento_autonomo();
+         }
+         else if( intval($_POST['modelo130']) > 0 )
+         {
+            $this->nuevo_asiento_modelo130();
          }
          else
          {
@@ -231,6 +238,15 @@ class contabilidad_nuevo_asiento extends fs_controller
              'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
          );
          
+         $codcaja = '5700000000';
+         if( isset($_POST['banco']) )
+         {
+            if($_POST['banco'] != '')
+            {
+               $codcaja = $_POST['banco'];
+            }
+         }
+         
          /// asiento de cuota
          $asiento = new asiento();
          $asiento->codejercicio = $eje0->codejercicio;
@@ -299,7 +315,7 @@ class contabilidad_nuevo_asiento extends fs_controller
                      $partida->save();
                   }
                   
-                  $subc = $this->subcuenta->get_by_codigo('5720000000', $eje0->codejercicio);
+                  $subc = $this->subcuenta->get_by_codigo($codcaja, $eje0->codejercicio);
                   if($subc)
                   {
                      $partida = new partida();
@@ -313,6 +329,112 @@ class contabilidad_nuevo_asiento extends fs_controller
                   
                   $this->new_message("<a href='".$asiento->url()."'>Asiento de pago</a> guardado correctamente!");
                }
+            }
+            else
+            {
+               if( $asiento->delete() )
+               {
+                  $this->new_error_msg("¡Error en alguna de las partidas! Se ha borrado el asiento.");
+               }
+               else
+                  $this->new_error_msg("¡Error en alguna de las partidas! Además ha sido imposible borrar el asiento.");
+            }
+         }
+         else
+         {
+            $this->new_error_msg("¡Imposible guardar el asiento!");
+         }
+      }
+   }
+   
+   private function nuevo_asiento_modelo130()
+   {
+      $continuar = TRUE;
+      
+      $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha']);
+      if(!$eje0)
+      {
+         $this->new_error_msg('Ejercicio no encontrado.');
+         $continuar = FALSE;
+      }
+      
+      $div0 = $this->divisa->get($_POST['divisa']);
+      if(!$div0)
+      {
+         $this->new_error_msg('Divisa no encontrada.');
+         $continuar = FALSE;
+      }
+      
+      if( $this->duplicated_petition($_POST['petition_id']) )
+      {
+         $this->new_error_msg('Petición duplicada. Has hecho doble clic sobre el botón Guardar
+               y se han enviado dos peticiones. Mira en <a href="'.$this->ppage->url().'">asientos</a>
+               para ver si el asiento se ha guardado correctamente.');
+         $continuar = FALSE;
+      }
+      
+      if($continuar)
+      {
+         $meses = array(
+             '', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
+             'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+         );
+         
+         $codcaja = '5700000000';
+         if( isset($_POST['banco130']) )
+         {
+            if($_POST['banco130'] != '')
+            {
+               $codcaja = $_POST['banco130'];
+            }
+         }
+         
+         /// asiento de cuota
+         $asiento = new asiento();
+         $asiento->codejercicio = $eje0->codejercicio;
+         $asiento->concepto = 'Pago modelo 130 '.$meses[ intval(date('m', strtotime($_POST['fecha']))) ];
+         $asiento->fecha = $_POST['fecha'];
+         $asiento->importe = floatval($_POST['modelo130']);
+         
+         if( $asiento->save() )
+         {
+            $subc = $this->subcuenta->get_by_codigo('4730000000', $eje0->codejercicio);
+            if($subc)
+            {
+               $partida = new partida();
+               $partida->idasiento = $asiento->idasiento;
+               $partida->concepto = $asiento->concepto;
+               $partida->idsubcuenta = $subc->idsubcuenta;
+               $partida->codsubcuenta = $subc->codsubcuenta;
+               $partida->debe = $asiento->importe;
+               $partida->save();
+            }
+            else
+            {
+               $this->new_error_msg('Subcuenta 4730000000 no encontrada.');
+               $continuar = FALSE;
+            }
+            
+            $subc = $this->subcuenta->get_by_codigo($codcaja, $eje0->codejercicio);
+            if($subc)
+            {
+               $partida = new partida();
+               $partida->idasiento = $asiento->idasiento;
+               $partida->concepto = $asiento->concepto;
+               $partida->idsubcuenta = $subc->idsubcuenta;
+               $partida->codsubcuenta = $subc->codsubcuenta;
+               $partida->haber = $asiento->importe;
+               $partida->save();
+            }
+            else
+            {
+               $this->new_error_msg('Subcuenta '.$codcaja.' no encontrada.');
+               $continuar = FALSE;
+            }
+            
+            if( $continuar )
+            {
+               $this->new_message("<a href='".$asiento->url()."'>Asiento de pago</a> guardado correctamente!");
             }
             else
             {

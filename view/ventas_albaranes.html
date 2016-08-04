@@ -294,7 +294,12 @@
             <span class="glyphicon glyphicon-send" title="El {#FS_ALBARAN#} fue enviado por email el {$value->femail}"></span>
             {/if}
          </td>
-         <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}</td>
+         <td>
+            <a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}
+            {if="$value->totaliva==0"}<span class="label label-warning">Sin {#FS_IVA#}</span>{/if}
+            {if="$value->totalrecargo!=0"}<span class="label label-default">RE</span>{/if}
+            {if="$value->totalirpf!=0"}<span class="label label-default">{#FS_IRPF#}</span>{/if}
+         </td>
          <td>
             {$value->nombrecliente}
             <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más {#FS_ALBARANES#} de {$value->nombrecliente}">[+]</a>

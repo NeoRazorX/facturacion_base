@@ -659,7 +659,7 @@ class ventas_imprimir extends fs_controller
                
                if($li['totalrecargo'] != 0)
                {
-                  $fila['iva'.$li['iva']] .= ' (RE: '.$this->show_precio($li['totalrecargo'], $this->albaran->coddivisa).')';
+                  $fila['iva'.$li['iva']] .= "\nR.E. ".$li['recargo']."%: ".$this->show_precio($li['totalrecargo'], $this->albaran->coddivisa);
                }
                
                $opciones['cols']['iva'.$li['iva']] = array('justification' => 'right');
@@ -678,7 +678,7 @@ class ventas_imprimir extends fs_controller
             
             if( isset($_GET['noval']) )
             {
-               $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text('Página '.$fila['pagina'], 153), 0, 1.5);
+               $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text('Página '.$pagina.'/'.$this->numpaginas, 250) );
             }
             else
             {
@@ -978,7 +978,7 @@ class ventas_imprimir extends fs_controller
                
                if($li['totalrecargo'] != 0)
                {
-                  $fila['iva'.$li['iva']] .= ' (RE: '.$this->show_precio($li['totalrecargo'], $this->factura->coddivisa).')';
+                  $fila['iva'.$li['iva']] .= "\nR.E. ".$li['recargo']."%: ".$this->show_precio($li['totalrecargo'], $this->factura->coddivisa);
                }
                
                $opciones['cols']['iva'.$li['iva']] = array('justification' => 'right');
@@ -1135,6 +1135,11 @@ class ventas_imprimir extends fs_controller
       {
          if( isset($lineasiva[$lin->codimpuesto]) )
          {
+            if($lin->recargo > $lineasiva[$lin->codimpuesto]['recargo'])
+            {
+               $lineasiva[$lin->codimpuesto]['recargo'] = $lin->recargo;
+            }
+            
             $lineasiva[$lin->codimpuesto]['neto'] += $lin->pvptotal;
             $lineasiva[$lin->codimpuesto]['totaliva'] += ($lin->pvptotal*$lin->iva)/100;
             $lineasiva[$lin->codimpuesto]['totalrecargo'] += ($lin->pvptotal*$lin->recargo)/100;

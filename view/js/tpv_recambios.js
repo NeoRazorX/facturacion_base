@@ -102,16 +102,7 @@ function recalcular()
          l_neto = l_uds*l_pvp*(100-l_dto)/100;
          l_iva = parseFloat( $("#iva_"+i).val() );
          l_irpf = parseFloat( $("#irpf_"+i).val() );
-         
-         if(cliente.recargo)
-         {
-            l_recargo = parseFloat( $("#recargo_"+i).val() );
-         }
-         else
-         {
-            l_recargo = 0;
-            $("#recargo_"+i).val(0);
-         }
+         l_recargo = parseFloat( $("#recargo_"+i).val() );
          
          $("#neto_"+i).val( l_neto );
          if(numlineas == 1)

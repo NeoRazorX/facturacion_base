@@ -444,24 +444,73 @@
                {/if}
             </td>
          </tr>
-         {else}
-         <tr class="warning">
-            <td colspan="8">Ningun artículo encontrado.</td>
-         </tr>
-         {/loop}
-      </table>
-   </div>
-   {elseif="$fsc->pestanya=='varios'"}
-   <script type="text/javascript">
-      $(document).ready(function () {
-         $("#ac_referencia").autocomplete({
-            serviceUrl: '{$fsc->url()}',
-            paramName: 'buscar_referencia',
-         });
-         $("#ac_referencia2").autocomplete({
-            serviceUrl: '{$fsc->url()}',
-            paramName: 'buscar_referencia',
-         });
+      </thead>
+      {loop="$fsc->resultados"}
+      <tr class='clickableRow{if="$value->bloqueado"} danger{elseif="$value->stockfis<=$value->stockmin"} warning{/if}' href='{$value->url()}'>
+         <td>
+            {if="is_null($value->codfamilia)"}
+            <span>-</span>
+            {else}
+            {$value->codfamilia}
+            <a href="index.php?page=ventas_familia&cod={$value->codfamilia}" class="cancel_clickable" title="Ver más artículos de esta familia">[+]</a>
+            {/if}
+         </td>
+         <td>
+            {if="is_null($value->codfabricante)"}
+            <span>-</span>
+            {else}
+            {$value->codfabricante}
+            <a href="index.php?page=ventas_fabricante&cod={$value->codfabricante}" class="cancel_clickable" title="Ver más artículos de este fabricante">[+]</a>
+            {/if}
+         </td>
+         <td><a href="{$value->url()}">{$value->referencia}</a> {$value->descripcion}</td>
+         <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp)}</span></td>
+         <td class="text-right info">{$value->codimpuesto}</td>
+         <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp_iva())}</span></td>
+         <td class="text-right">
+            {if="$value->nostock"}-{else}{$value->stockfis}{/if}
+         </td>
+         <td class="text-right">
+            {if="$value->publico"}
+            <span class="glyphicon glyphicon-globe" aria-hidden="true" title="Artículo público"></span>
+            {/if}
+         </td>
+      </tr>
+      {else}
+      <tr class="warning">
+         <td colspan="8">Ningun artículo encontrado.</td>
+      </tr>
+      {/loop}
+   </table>
+</div>
+{elseif="$fsc->pestanya=='varios'"}
+<script type="text/javascript">
+   $(document).ready(function() {
+      $("#ac_referencia").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_referencia',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if( $("#ac_referencia").val() != suggestion.data)
+               {
+                  $("#ac_referencia").val(suggestion.data);
+               }
+            }
+         }
+      });
+      $("#ac_referencia2").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_referencia',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if( $("#ac_referencia2").val() != suggestion.data)
+               {
+                  $("#ac_referencia2").val(suggestion.data);
+               }
+            }
+         }
       });
    </script>
 

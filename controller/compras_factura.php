@@ -267,8 +267,10 @@ class compras_factura extends fs_controller
                $subpro = $this->proveedor->get_subcuenta($eje->codejercicio);
             }
             
+            $importe = $this->euro_convert($this->factura->totaleuros);
+            
             $asiento_factura = new asiento_factura();
-            $this->factura->idasientop = $asiento_factura->generar_asiento_pago($asiento, $this->factura->codpago, $this->today(), $subpro, $this->factura->totaleuros);
+            $this->factura->idasientop = $asiento_factura->generar_asiento_pago($asiento, $this->factura->codpago, $this->today(), $subpro, $importe);
             if($this->factura->idasientop)
             {
                $this->factura->pagada = TRUE;

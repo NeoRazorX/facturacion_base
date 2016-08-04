@@ -48,7 +48,7 @@
                </thead>
                {loop="$fsc->pais->all()"}
                <form action="{$fsc->url()}" method="post" class="form" role="form">
-                  <tr>
+                  <tr{if="$value->codpais==$fsc->empresa->codpais"} class="warning"{/if}>
                      <td>
                         <input type="hidden" name="scodpais" value="{$value->codpais}"/>
                         <div class="form-control">{$value->codpais}</div>
@@ -80,10 +80,11 @@
                   <tr class="info">
                      <td><input class="form-control" type="text" name="scodpais" maxlength="20" placeholder="Nuevo código Alfa-3" autocomplete="off"/></td>
                      <td><input class="form-control" type="text" name="scodiso" placeholder="Código Alfa-2" autocomplete="off"/></td>
-                     <td><input class="form-control" type="text" name="snombre" placeholder="Nuevo nombre" autocomplete="off"/></td>
+                     <td><input class="form-control" type="text" name="snombre" placeholder="Nuevo país..." autocomplete="off"/></td>
                      <td class="text-right">
-                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
-                           <span class="glyphicon glyphicon-floppy-disk"></span>
+                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Nuevo">
+                           <span class="glyphicon glyphicon-plus-sign"></span>
+                           <span class="hidden-sm">&nbsp; Nuevo</span>
                         </button>
                      </td>
                   </tr>

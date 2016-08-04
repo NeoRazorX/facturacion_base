@@ -18,15 +18,26 @@
 <div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
+         <div class="btn-group">
+            <a href="index.php?page=ventas_clientes" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-arrow-left"></span>
+               <span class="hidden-xs">&nbsp; Clientes</span>
+            </a>
+            <a href="{$fsc->url()}" class="btn btn-sm btn-default" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+         </div>
+         <div class="btn-group">
+            {loop="$fsc->extensions"}
+               {if="$value->type=='button'"}
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+               {/if}
+            {/loop}
+         </div>
          <div class="page-header">
             <h1>
-               <a href="index.php?page=ventas_clientes" class="btn btn-xs btn-default">
-                  <span class="glyphicon glyphicon-arrow-left"></span>
-               </a>
+               <span class="glyphicon glyphicon-cog"></span>
                Opciones para nuevos clientes
-               <a href="{$fsc->url()}" class="btn btn-xs btn-default" title="Recargar la página">
-                  <span class="glyphicon glyphicon-refresh"></span>
-               </a>
             </h1>
             <p class="help-block">
                Selecciona qué casillas quieres utilizar <b>en los formularios para nuevo cliente</b>
