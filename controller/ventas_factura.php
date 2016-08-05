@@ -186,6 +186,7 @@ class ventas_factura extends fs_controller
       $this->factura->ciudad = $_POST['ciudad'];
       $this->factura->codpostal = $_POST['codpostal'];
       $this->factura->direccion = $_POST['direccion'];
+      $this->factura->apartado = $_POST['apartado'];
       
       $this->factura->envio_nombre = $_POST['envio_nombre'];
       $this->factura->envio_apellidos = $_POST['envio_apellidos'];
@@ -195,10 +196,12 @@ class ventas_factura extends fs_controller
          $this->factura->envio_codtrans = $_POST['envio_codtrans'];
       }
       $this->factura->envio_codigo = $_POST['envio_codigo'];
+      $this->factura->envio_codpais = $_POST['envio_codpais'];
       $this->factura->envio_provincia = $_POST['envio_provincia'];
       $this->factura->envio_ciudad = $_POST['envio_ciudad'];
       $this->factura->envio_codpostal = $_POST['envio_codpostal'];
       $this->factura->envio_direccion = $_POST['envio_direccion'];
+      $this->factura->envio_apartado = $_POST['envio_apartado'];
       
       $this->factura->codagente = NULL;
       $this->factura->porcomision = 0;

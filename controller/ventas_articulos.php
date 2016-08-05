@@ -321,7 +321,7 @@ class ventas_articulos extends fs_controller
          $this->b_url .= '&b_publicos=TRUE';
       }
       
-      $this->search_articulos();   
+      $this->search_articulos();
    }
 
    private function search_articulos()
@@ -404,7 +404,15 @@ class ventas_articulos extends fs_controller
       
       if($this->b_constock)
       {
-         $sql .= $where."stockfis > 0";
+         if($this->b_codalmacen == '')
+         {
+            $sql .= $where."stockfis > 0";
+         }
+         else
+         {
+            $sql .= $where."referencia IN (SELECT referencia FROM stocks WHERE cantidad > 0"
+                    . " AND codalmacen = ".$this->empresa->var2str($this->b_codalmacen).')';
+         }
          $where = ' AND ';
       }
       

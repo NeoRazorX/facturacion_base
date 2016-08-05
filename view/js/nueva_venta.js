@@ -19,6 +19,7 @@
 var numlineas = 0;
 var fs_nf0 = 2;
 var fs_nf0_art = 2;
+var all_direcciones = [];
 var all_impuestos = [];
 var all_series = [];
 var cliente = false;
@@ -94,13 +95,39 @@ function usar_direccion()
 {
    for(var i=0; i<all_direcciones.length; i++)
    {
-      if(all_direcciones[i].id == $("#direnvio").val())
+      if(all_direcciones[i].id == $('select[name="coddir"]').val())
       {
-         document.f_new_albaran.envio_direccion.value=all_direcciones[i].direccion;
-         document.f_new_albaran.envio_provincia.value=all_direcciones[i].provincia;
-         document.f_new_albaran.envio_ciudad.value=all_direcciones[i].ciudad;
-         document.f_new_albaran.envio_codpostal.value=all_direcciones[i].codpostal;
+         $('select[name="codpais"]').val(all_direcciones[i].codpais);
+         $('input[name="provincia"]').val(all_direcciones[i].provincia);
+         $('input[name="ciudad"]').val(all_direcciones[i].ciudad);
+         $('input[name="codpostal"]').val(all_direcciones[i].codpostal);
+         $('input[name="direccion"]').val(all_direcciones[i].direccion);
+         $('input[name="apartado"]').val(all_direcciones[i].apartado);
+      }
+   }
+}
 
+function usar_direccion_envio()
+{
+   for(var i=0; i<all_direcciones.length; i++)
+   {
+      if($('select[name="envio_coddir"]').val() == '')
+      {
+         $('input[name="envio_provincia"]').val('');
+         $('input[name="envio_ciudad"]').val('');
+         $('input[name="envio_codpostal"]').val('');
+         $('input[name="envio_direccion"]').val('');
+         $('input[name="envio_apartado"]').val('');
+         break;
+      }
+      else if(all_direcciones[i].id == $('select[name="envio_coddir"]').val())
+      {
+         $('select[name="envio_codpais"]').val(all_direcciones[i].codpais);
+         $('input[name="envio_provincia"]').val(all_direcciones[i].provincia);
+         $('input[name="envio_ciudad"]').val(all_direcciones[i].ciudad);
+         $('input[name="envio_codpostal"]').val(all_direcciones[i].codpostal);
+         $('input[name="envio_direccion"]').val(all_direcciones[i].direccion);
+         $('input[name="envio_apartado"]').val(all_direcciones[i].apartado);
       }
    }
 }

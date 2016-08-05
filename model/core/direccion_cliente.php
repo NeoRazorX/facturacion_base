@@ -217,8 +217,10 @@ class direccion_cliente extends \fs_model
    public function all_from_cliente($cod)
    {
       $dirlist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($cod)
+              ." ORDER BY id DESC;";
       
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($cod)." ORDER BY id ASC;");
+      $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $d)

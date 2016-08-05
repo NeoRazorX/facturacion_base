@@ -137,10 +137,12 @@ class albaran_cliente extends \fs_model
    public $envio_codigo;
    public $envio_nombre;
    public $envio_apellidos;
+   public $envio_apartado;
    public $envio_direccion;
    public $envio_codpostal;
    public $envio_ciudad;
    public $envio_provincia;
+   public $envio_codpais;
    
    /**
     * Suma del pvptotal de líneas. Total del albarán antes de impuestos.
@@ -281,10 +283,12 @@ class albaran_cliente extends \fs_model
          $this->envio_codigo = $a['codigoenv'];
          $this->envio_nombre = $a['nombreenv'];
          $this->envio_apellidos = $a['apellidosenv'];
+         $this->envio_apartado = $a['apartadoenv'];
          $this->envio_direccion = $a['direccionenv'];
          $this->envio_codpostal = $a['codpostalenv'];
          $this->envio_ciudad = $a['ciudadenv'];
          $this->envio_provincia = $a['provinciaenv'];
+         $this->envio_codpais = $a['codpaisenv'];
       }
       else
       {
@@ -323,14 +327,17 @@ class albaran_cliente extends \fs_model
          $this->observaciones = NULL;
          $this->ptefactura = TRUE;
          $this->femail = NULL;
+         
          $this->envio_codtrans = NULL;
          $this->envio_codigo = NULL;
          $this->envio_nombre = NULL;
          $this->envio_apellidos = NULL;
+         $this->envio_apartado = NULL;
          $this->envio_direccion = NULL;
          $this->envio_codpostal = NULL;
          $this->envio_ciudad = NULL;
          $this->envio_provincia = NULL;
+         $this->envio_codpais = NULL;
       }
    }
    
@@ -700,10 +707,12 @@ class albaran_cliente extends \fs_model
                     .", codigoenv = ".$this->var2str($this->envio_codigo)
                     .", nombreenv = ".$this->var2str($this->envio_nombre)
                     .", apellidosenv = ".$this->var2str($this->envio_apellidos)
+                    .", apartadoenv = ".$this->var2str($this->envio_apartado)
                     .", direccionenv = ".$this->var2str($this->envio_direccion)
                     .", codpostalenv = ".$this->var2str($this->envio_codpostal)
                     .", ciudadenv = ".$this->var2str($this->envio_ciudad)
                     .", provinciaenv = ".$this->var2str($this->envio_provincia)
+                    .", codpaisenv = ".$this->var2str($this->envio_codpais)
                     ."  WHERE idalbaran = ".$this->var2str($this->idalbaran).";";
             
             return $this->db->exec($sql);
@@ -716,7 +725,7 @@ class albaran_cliente extends \fs_model
                codpostal,numero,numero2,nombrecliente,cifnif,direccion,ciudad,provincia,apartado,
                fecha,hora,neto,total,totaliva,totaleuros,irpf,totalirpf,porcomision,tasaconv,
                totalrecargo,observaciones,ptefactura,femail,codtrans,codigoenv,nombreenv,
-               apellidosenv,direccionenv,codpostalenv,ciudadenv,provinciaenv) VALUES "
+               apellidosenv,apartadoenv,direccionenv,codpostalenv,ciudadenv,provinciaenv,codpaisenv) VALUES "
                     ."(".$this->var2str($this->idfactura)
                     .",".$this->var2str($this->codigo)
                     .",".$this->var2str($this->codagente)
@@ -755,10 +764,12 @@ class albaran_cliente extends \fs_model
                     .",".$this->var2str($this->envio_codigo)
                     .",".$this->var2str($this->envio_nombre)
                     .",".$this->var2str($this->envio_apellidos)
+                    .",".$this->var2str($this->envio_apartado)
                     .",".$this->var2str($this->envio_direccion)
                     .",".$this->var2str($this->envio_codpostal)
                     .",".$this->var2str($this->envio_ciudad)
-                    .",".$this->var2str($this->envio_provincia).");";
+                    .",".$this->var2str($this->envio_provincia)
+                    .",".$this->var2str($this->envio_codpais).");";
             
             if( $this->db->exec($sql) )
             {

@@ -64,6 +64,7 @@ class admin_agente extends fs_controller
                $this->agente->provincia = $_POST['provincia'];
                $this->agente->ciudad = $_POST['ciudad'];
                $this->agente->direccion = $_POST['direccion'];
+               $this->agente->codpostal = $_POST['codpostal'];
                
                $this->agente->f_nacimiento = NULL;
                if($_POST['f_nacimiento'] != '')

@@ -206,7 +206,7 @@ class cuenta_banco_cliente extends \fs_model
    {
       $clist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($codcli)
-              ." ORDER BY principal DESC, descripcion ASC;";
+              ." ORDER BY codcuenta DESC;";
       
       $data = $this->db->select($sql);
       if($data)

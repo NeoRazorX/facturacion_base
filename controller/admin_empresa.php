@@ -87,6 +87,7 @@ class admin_empresa extends fs_controller
          $this->empresa->ciudad = $_POST['ciudad'];
          $this->empresa->direccion = $_POST['direccion'];
          $this->empresa->codpostal = $_POST['codpostal'];
+         $this->empresa->apartado = $_POST['apartado'];
          $this->empresa->telefono = $_POST['telefono'];
          $this->empresa->fax = $_POST['fax'];
          $this->empresa->web = $_POST['web'];

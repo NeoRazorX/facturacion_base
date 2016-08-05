@@ -186,8 +186,10 @@ class direccion_proveedor extends \fs_model
    public function all_from_proveedor($codprov)
    {
       $dirlist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codproveedor = ".$this->var2str($codprov)
+              ." ORDER BY id DESC;";
       
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codproveedor = ".$this->var2str($codprov).";");
+      $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $d)

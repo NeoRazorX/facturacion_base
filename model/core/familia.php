@@ -286,6 +286,12 @@ class familia extends \fs_model
          }
       }
       
+      if( empty($famlist) )
+      {
+         /// si la lista está vacía, ponemos madre a NULL en todas por si el usuario ha estado jugando
+         $this->db->exec("UPDATE ".$this->table_name." SET madre = NULL;");
+      }
+      
       return $famlist;
    }
    

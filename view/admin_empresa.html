@@ -212,10 +212,16 @@
                            <input class="form-control" type="text" name="codpostal" value="{$fsc->empresa->codpostal}" autocomplete="off"/>
                         </div>
                      </div>
-                     <div class="col-sm-9">
+                     <div class="col-sm-6">
                         <div class="form-group">
                            Dirección:
                            <input class="form-control" type="text" name="direccion" value="{$fsc->empresa->direccion}" autocomplete="off"/>
+                        </div>
+                     </div>
+                     <div class="col-sm-3">
+                        <div class="form-group">
+                           <span class="text-capitalize">{#FS_APARTADO#}</span>:
+                           <input class="form-control" type="text" name="apartado" value="{$fsc->empresa->apartado}" autocomplete="off"/>
                         </div>
                      </div>
                   </div>
@@ -618,10 +624,10 @@
          </form>
          
          <div id="panel_cuentasb">
-            {loop="$fsc->cuenta_banco->all_from_empresa()"}
+            {loop="$fsc->cuenta_banco->all()"}
             <form action="{$fsc->url()}#cuentasb" method="post" class="form">
                <input type="hidden" name="codcuenta" value="{$value->codcuenta}"/>
-               <div class="panel panel-info">
+               <div class="panel panel-primary">
                   <div class="panel-heading">
                      <h3 class="panel-title">Cuenta bancaria #{$value->codcuenta}</h3>
                   </div>

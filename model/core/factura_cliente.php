@@ -131,10 +131,12 @@ class factura_cliente extends \fs_model
    public $envio_codigo;
    public $envio_nombre;
    public $envio_apellidos;
+   public $envio_apartado;
    public $envio_direccion;
    public $envio_codpostal;
    public $envio_ciudad;
    public $envio_provincia;
+   public $envio_codpais;
    
    /**
     * ID de la dirección en dirclientes.
@@ -301,10 +303,12 @@ class factura_cliente extends \fs_model
          $this->envio_codigo = $f['codigoenv'];
          $this->envio_nombre = $f['nombreenv'];
          $this->envio_apellidos = $f['apellidosenv'];
+         $this->envio_apartado = $f['apartadoenv'];
          $this->envio_direccion = $f['direccionenv'];
          $this->envio_codpostal = $f['codpostalenv'];
          $this->envio_ciudad = $f['ciudadenv'];
          $this->envio_provincia = $f['provinciaenv'];
+         $this->envio_codpais = $f['codpaisenv'];
          
          $this->idimprenta = $this->intval($f['idimprenta']);
       }
@@ -350,14 +354,18 @@ class factura_cliente extends \fs_model
          $this->anulada = FALSE;
          $this->vencimiento = Date('d-m-Y', strtotime('+1month'));
          $this->femail = NULL;
+         
          $this->envio_codtrans = NULL;
          $this->envio_codigo = NULL;
          $this->envio_nombre = NULL;
          $this->envio_apellidos = NULL;
+         $this->envio_apartado = NULL;
          $this->envio_direccion = NULL;
          $this->envio_codpostal = NULL;
          $this->envio_ciudad = NULL;
          $this->envio_provincia = NULL;
+         $this->envio_codpais = NULL;
+         
          $this->idimprenta = NULL;
       }
    }
@@ -1049,10 +1057,12 @@ class factura_cliente extends \fs_model
                     ", codigoenv = ".$this->var2str($this->envio_codigo).
                     ", nombreenv = ".$this->var2str($this->envio_nombre).
                     ", apellidosenv = ".$this->var2str($this->envio_apellidos).
+                    ", apartadoenv = ".$this->var2str($this->envio_apartado).
                     ", direccionenv = ".$this->var2str($this->envio_direccion).
                     ", codpostalenv = ".$this->var2str($this->envio_codpostal).
                     ", ciudadenv = ".$this->var2str($this->envio_ciudad).
                     ", provinciaenv = ".$this->var2str($this->envio_provincia).
+                    ", codpaisenv = ".$this->var2str($this->envio_codpais).
                     ", idimprenta = ".$this->var2str($this->idimprenta).
                     "  WHERE idfactura = ".$this->var2str($this->idfactura).";";
             
@@ -1066,8 +1076,8 @@ class factura_cliente extends \fs_model
                nombrecliente,cifnif,direccion,ciudad,provincia,apartado,coddir,codpostal,codpais,
                codagente,neto,totaliva,total,totaleuros,irpf,totalirpf,porcomision,tasaconv,
                totalrecargo,pagada,anulada,observaciones,hora,numero2,vencimiento,femail,codtrans,
-               codigoenv,nombreenv,apellidosenv,direccionenv,codpostalenv,ciudadenv,provinciaenv,idimprenta) VALUES 
-                     (".$this->var2str($this->idasiento).
+               codigoenv,nombreenv,apellidosenv,apartadoenv,direccionenv,codpostalenv,ciudadenv,provinciaenv,
+               codpaisenv,idimprenta) VALUES (".$this->var2str($this->idasiento).
                     ",".$this->var2str($this->idasientop).
                     ",".$this->var2str($this->idfacturarect).
                     ",".$this->var2str($this->codigo).
@@ -1110,10 +1120,12 @@ class factura_cliente extends \fs_model
                     ",".$this->var2str($this->envio_codigo).
                     ",".$this->var2str($this->envio_nombre).
                     ",".$this->var2str($this->envio_apellidos).
+                    ",".$this->var2str($this->envio_apartado).
                     ",".$this->var2str($this->envio_direccion).
                     ",".$this->var2str($this->envio_codpostal).
                     ",".$this->var2str($this->envio_ciudad).
                     ",".$this->var2str($this->envio_provincia).
+                    ",".$this->var2str($this->envio_codpais).
                     ",".$this->var2str($this->idimprenta).");";
             
             if( $this->db->exec($sql) )

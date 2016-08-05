@@ -193,20 +193,25 @@ class ventas_imprimir extends fs_controller
             $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 12, array('justification' => 'right'));
             $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'right'));
             
-            $direccion = $this->empresa->direccion;
+            $direccion = $this->empresa->direccion . "\n";
+            if($this->empresa->apartado)
+            {
+               $direccion .= ucfirst(FS_APARTADO) . ': ' . $this->empresa->apartado . ' - ';
+            }
+            
             if($this->empresa->codpostal)
             {
-               $direccion .= "\nCP: " . $this->empresa->codpostal;
+               $direccion .= 'CP: ' . $this->empresa->codpostal . ' - ';
             }
             
             if($this->empresa->ciudad)
             {
-               $direccion .= ' - ' . $this->empresa->ciudad;
+               $direccion .= $this->empresa->ciudad . ' - ';
             }
             
             if($this->empresa->provincia)
             {
-               $direccion .= ' (' . $this->empresa->provincia . ')';
+               $direccion .= '(' . $this->empresa->provincia . ')';
             }
             
             if($this->empresa->telefono)
@@ -229,9 +234,14 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'center'));
          
          $direccion = $this->empresa->direccion;
+         if($this->empresa->apartado)
+         {
+            $direccion .= ' - ' . ucfirst(FS_APARTADO) . ': ' . $this->empresa->apartado;
+         }
+         
          if($this->empresa->codpostal)
          {
-            $direccion .= ' - ' . $this->empresa->codpostal;
+            $direccion .= ' - CP: ' . $this->empresa->codpostal;
          }
          
          if($this->empresa->ciudad)
@@ -567,10 +577,19 @@ class ventas_imprimir extends fs_controller
                    'campo2' => "<b>".$this->cliente->tipoidfiscal.":</b> ".$this->albaran->cifnif
                )
             );
+            $direccion = $this->albaran->direccion;
+            if($this->albaran->apartado)
+            {
+               $direccion .= ' - '.ucfirst(FS_APARTADO).': '.$this->albaran->apartado;
+            }
+            if($this->albaran->codpostal)
+            {
+               $direccion .= ' - CP: '.$this->albaran->codpostal;
+            }
+            $direccion .= ' - '.$this->albaran->ciudad.' ('.$this->albaran->provincia.')';
             $row = array(
                 'campo1' => "<b>Dirección:</b>",
-                'dato1' => $this->fix_html($this->albaran->direccion.' CP: '.$this->albaran->codpostal.
-                        ' - '.$this->albaran->ciudad.' ('.$this->albaran->provincia.')'),
+                'dato1' => $this->fix_html($direccion),
                 'campo2' => ''
             );
             if($this->cliente->telefono1)
@@ -748,19 +767,20 @@ class ventas_imprimir extends fs_controller
                $this->generar_pdf_cabecera($pdf_doc, $lppag);
                
                $direccion = $this->factura->nombrecliente."\n".$this->factura->direccion;
-               if($this->factura->codpostal AND $this->factura->ciudad)
+               if($this->factura->apartado)
                {
-                  $direccion .= "\n CP: " . $this->factura->codpostal . ' ' . $this->factura->ciudad;
-               }
-               else if($this->factura->ciudad)
-               {
-                  $direccion .= "\n" . $this->factura->ciudad;
+                  $direccion .= "\n " . ucfirst(FS_APARTADO) . ": " . $this->factura->apartado;
                }
                
-               if($this->factura->provincia)
+               if($this->factura->codpostal)
                {
-                  $direccion .= "\n(" . $this->factura->provincia . ")";
+                  $direccion .= "\n CP: " . $this->factura->codpostal . ' - ';
                }
+               else
+               {
+                  $direccion .= "\n";
+               }
+               $direccion .= $this->factura->ciudad . "\n(" . $this->factura->provincia . ")";
                
                $pdf_doc->new_table();
                $pdf_doc->add_table_row(
@@ -830,10 +850,19 @@ class ventas_imprimir extends fs_controller
                       'campo2' => "<b>".$this->cliente->tipoidfiscal.":</b> ".$this->factura->cifnif
                   )
                );
+               $direccion = $this->factura->direccion;
+               if($this->factura->apartado)
+               {
+                  $direccion .= ' - '.ucfirst(FS_APARTADO).': '.$this->factura->apartado;
+               }
+               if($this->factura->codpostal)
+               {
+                  $direccion .= ' - CP: '.$this->factura->codpostal;
+               }
+               $direccion .= ' - '.$this->factura->ciudad.' ('.$this->factura->provincia.')';
                $row = array(
                    'campo1' => "<b>Dirección:</b>",
-                   'dato1' => $this->fix_html($this->factura->direccion.' CP: '.$this->factura->codpostal.
-                           ' - '.$this->factura->ciudad.' ('.$this->factura->provincia.')'),
+                   'dato1' => $this->fix_html($direccion),
                    'campo2' => ''
                );
                if($this->cliente->telefono1)

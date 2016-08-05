@@ -12,6 +12,7 @@
    });
 </script>
 {/if}
+
 <div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
@@ -22,65 +23,64 @@
                <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
+               <span class="btn-group">
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='button'"}
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                  {/if}
+               {/loop}
+               </span>
             </h1>
          </div>
+         <ul class="nav nav-tabs">
+            <li role="presentation"{if="$fsc->pestanya=='stats'"} class="active"{/if}>
+               <a href="{$fsc->url()}">
+                  <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+                  <span class="hidden-xs">&nbsp; Estadísticas</span>
+               </a>
+            </li>
+            <li role="presentation"{if="$fsc->pestanya=='stock'"} class="active"{/if}>
+               <a href="{$fsc->url()}&tab=stock">
+                  <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
+                  <span class="hidden-xs">&nbsp; Stock</span>
+               </a>
+            </li>
+            <li role="presentation"{if="$fsc->pestanya=='impuestos'"} class="active"{/if}>
+               <a href="{$fsc->url()}&tab=impuestos">
+                  <span class="glyphicon glyphicon-magnet" aria-hidden="true"></span>
+                  <span class="hidden-xs">&nbsp; Impuestos</span>
+               </a>
+            </li>
+            <li role="presentation"{if="$fsc->pestanya=='varios'"} class="active"{/if}>
+               <a href="{$fsc->url()}&tab=varios">
+                  <span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span>
+                  <span class="hidden-xs">&nbsp; Varios</span>
+               </a>
+            </li>
+         </ul>
       </div>
    </div>
-   <ul class="nav nav-tabs">
-      <li role="presentation"{if="$fsc->pestanya=='stats'"} class="active"{/if}>
-         <a href="{$fsc->url()}">
-            <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Estadísticas</span>
-         </a>
-      </li>
-      <li role="presentation"{if="$fsc->pestanya=='stock'"} class="active"{/if}>
-         <a href="{$fsc->url()}&tab=stock">
-            <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Stock</span>
-         </a>
-      </li>
-      <li role="presentation"{if="$fsc->pestanya=='impuestos'"} class="active"{/if}>
-         <a href="{$fsc->url()}&tab=impuestos">
-            <span class="glyphicon glyphicon-magnet" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Impuestos</span>
-         </a>
-      </li>
-      <li role="presentation"{if="$fsc->pestanya=='varios'"} class="active"{/if}>
-         <a href="{$fsc->url()}&tab=varios">
-            <span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Varios</span>
-         </a>
-      </li>
-   </ul>
-   {if="$fsc->pestanya=='stats'"}
-   <div class="container-fluid" style="margin-top: 10px; margin-bottom: 20px;">
-      <div class="row">
-         <div class="col-sm-12">
-            <p>
-               Hay un total de <b>{$fsc->show_numero($fsc->stats['total'], 0)}</b> artículos,
-               <b>{$fsc->show_numero($fsc->stats['con_stock'], 0)}</b> de ellos tienen stock,
-               <b>{$fsc->show_numero($fsc->stats['publicos'], 0)}</b> son públicos
-               y <b>{$fsc->show_numero($fsc->stats['bloqueados'], 0)}</b> están bloqueados.
-               La última actualización de precio de un artículo es del <b>{$fsc->stats['factualizado']}</b>.
-            </p>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="panel panel-info">
-               <div class="panel-heading">
-                  <h3 class="panel-title">Top ventas (desde hace un mes)</h3>
-               </div>
-               <div class="table-responsive">
-                  <table class="table table-hover">
-                     <thead>
-                        <tr>
-                           <th>Referencia + Descripción</th>
-                           <th class="text-right">Vendido</th>
-                           <th class="text-right">Total</th>
-                        </tr>
-                     </thead>
-                     {loop="$fsc->top_ventas"}
+</div>
+
+{if="$fsc->pestanya=='stats'"}
+<br/>
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12">
+         <p>
+            Hay un total de <b>{$fsc->show_numero($fsc->stats['total'], 0)}</b> artículos,
+            <b>{$fsc->show_numero($fsc->stats['con_stock'], 0)}</b> de ellos tienen stock,
+            <b>{$fsc->show_numero($fsc->stats['publicos'], 0)}</b> son públicos
+            y <b>{$fsc->show_numero($fsc->stats['bloqueados'], 0)}</b> están bloqueados.
+            La última actualización de precio de un artículo es del <b>{$fsc->stats['factualizado']}</b>.
+         </p>
+         <div class="panel panel-info">
+            <div class="panel-heading">
+               <h3 class="panel-title">Top ventas (desde hace un mes)</h3>
+            </div>
+            <div class="table-responsive">
+               <table class="table table-hover">
+                  <thead>
                      <tr>
                         <td>
                            <a href="{$value['articulo']->url()}">{$value['articulo']->referencia}</a>
@@ -98,164 +98,144 @@
                </div>
             </div>
          </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="panel panel-warning">
-               <div class="panel-heading">
-                  <h3 class="panel-title">Top artículos con stock aun no vendidos este año</h3>
-               </div>
-               <div class="panel-body">
-                  <div class="container-fluid">
-                     <div class="row">
-                        {loop="$fsc->sin_vender"}
-                        <div class="col-sm-4">
-                           <a href="{$value->url()}">{$value->referencia}</a>
-                           {$value->descripcion()}
-                           <span class="badge">{$value->stockfis}</span>
-                        </div>
-                        {else}
-                        <div class="col-sm-12">Sin resultados.</div>
-                        {/loop}
+         <div class="panel panel-warning">
+            <div class="panel-heading">
+               <h3 class="panel-title">Top artículos con stock aun no vendidos este año</h3>
+            </div>
+            <div class="panel-body">
+               <div class="container-fluid">
+                  <div class="row">
+                     {loop="$fsc->sin_vender"}
+                     <div class="col-sm-4">
+                        <a href="{$value->url()}">{$value->referencia}</a>
+                        {$value->descripcion()}
+                        <span class="badge">{$value->stockfis}</span>
                      </div>
                   </div>
                </div>
             </div>
          </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="panel panel-default">
-               <div class="panel-heading">
-                  <h3 class="panel-title">Top compras (Unidades)</h3>
-               </div>
-               <div class="panel-body">
-                  <div class="container-fluid">
-                     <div class="row">
-                        {loop="$fsc->top_compras"}
-                        <div class="col-sm-4">
-                           <a href="{$value[0]->url()}">{$value[0]->referencia}</a>
-                           {$value[0]->descripcion()}
-                           <span class="badge">{$value[1]}</span>
-                        </div>
-                        {else}
-                        <div class="col-sm-12">Sin resultados.</div>
-                        {/loop}
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Top compras (Unidades)</h3>
+            </div>
+            <div class="panel-body">
+               <div class="container-fluid">
+                  <div class="row">
+                     {loop="$fsc->top_compras"}
+                     <div class="col-sm-4">
+                        <a href="{$value[0]->url()}">{$value[0]->referencia}</a>
+                        {$value[0]->descripcion()}
+                        <span class="badge">{$value[1]}</span>
                      </div>
                   </div>
                </div>
             </div>
          </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="panel panel-default">
-               <div class="panel-heading">
-                  <h3 class="panel-title">Búsquedas de artículos</h3>
-               </div>
-               <div class="panel-body">
-                  <div class="container-fluid">
-                     <div class="row">
-                        {loop="$fsc->articulo->get_search_tags()"}
-                        <div class="col-sm-3">{$value['tag']} ({$value['count']})</div>
-                        {else}
-                        <div class="col-sm-12">Ninguna búsqueda realizada.</div>
-                        {/loop}
-                     </div>
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">Búsquedas de artículos</h3>
+            </div>
+            <div class="panel-body">
+               <div class="container-fluid">
+                  <div class="row">
+                     {loop="$fsc->articulo->get_search_tags()"}
+                     <div class="col-sm-3">{$value['tag']} ({$value['count']})</div>
+                     {else}
+                     <div class="col-sm-12">Ninguna búsqueda realizada.</div>
+                     {/loop}
                   </div>
                </div>
             </div>
          </div>
       </div>
    </div>
-   {elseif="$fsc->pestanya=='stock'"}
-   <div class="container-fluid" style="margin-top: 15px; margin-bottom: 10px;">
-      <div class="row">
-         <div class="col-sm-2">
-            Almacén: &nbsp;
-            <div class="btn-group">
-               <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  {if="$fsc->codalmacen"}
+</div>
+{elseif="$fsc->pestanya=='stock'"}
+<br/>
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-6">
+         <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               {if="$fsc->codalmacen"}
                   {loop="$fsc->almacen->all()"}
-                  {if="$value->codalmacen==$fsc->codalmacen"}
-                  {$value->nombre}&nbsp;<span class="caret"></span>
-                  {/if}
+                     {if="$value->codalmacen==$fsc->codalmacen"}
+                        {$value->nombre}&nbsp;<span class="caret"></span>
+                     {/if}
                   {/loop}
-                  {else}
-                  Todos&nbsp; <span class="caret"></span>               
-                  {/if}
-               </button>
-               <ul class="dropdown-menu">
-                  <li><a href="{$fsc->url()}&tipo={$fsc->tipo_stock}&tab=stock">Todos</a></li>
-                  <li>------</a></li>
-                  {loop="$fsc->almacen->all()"}
-                  <li><a href="{$fsc->url()}&tipo={$fsc->tipo_stock}&tab=stock&codalmacen={$value->codalmacen}">{$value->nombre}</a></li>
-                  {/loop}
-               </ul>
-            </div>
-         </div>
-         <div class="col-sm-3">
-            Artículos: &nbsp;
-            <div class="btn-group">
-               <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  {if="$fsc->tipo_stock=='todo'"}
-                  Todo <span class="caret"></span>
-                  {elseif="$fsc->tipo_stock=='min'"}
-                  Bajo mínimos <span class="caret"></span>
-                  {elseif="$fsc->tipo_stock=='max'"}
-                  Excesos <span class="caret"></span>
-                  {else}
-                  Regularizaciones <span class="caret"></span>
-                  {/if}
-               </button>
-               <ul class="dropdown-menu">
-                  {if="$fsc->tipo_stock!='todo'"}
-                  <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock">Todo</a></li>
-                  {/if}
-                  {if="$fsc->tipo_stock!='min'"}
-                  <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo=min">Bajo mínimos</a></li>
-                  {/if}
-                  {if="$fsc->tipo_stock!='max'"}
-                  <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo=max">Excesos</a></li>
-                  {/if}
-                  {if="$fsc->tipo_stock!='reg'"}
-                  <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo=reg">Regularizaciones</a></li>
-                  {/if}
-               </ul>
-            </div>
-         </div>
-         <div class="col-sm-6 text-right">
-            <div class="btn-group">
-               <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_recal_stock">
-                  <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
-                  <span class="hidden-xs">&nbsp; Recalcular stock</span>
-               </a>
-               {if="$fsc->tipo_stock!='reg'"}
-               <a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo={$fsc->tipo_stock}&download=TRUE" class="btn btn-sm btn-default">
-                  <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-                  <span class="hidden-xs">&nbsp; Descargar</span>
-               </a>
+               {else}
+                  Todos los almacenes&nbsp; <span class="caret"></span>               
                {/if}
-            </div>
+            </button>
+            <ul class="dropdown-menu">
+               <li><a href="{$fsc->url()}&tipo={$fsc->tipo_stock}&tab=stock">Todos</a></li>
+               <li role="separator" class="divider"></li>
+               {loop="$fsc->almacen->all()"}
+               <li><a href="{$fsc->url()}&tipo={$fsc->tipo_stock}&tab=stock&codalmacen={$value->codalmacen}">{$value->nombre}</a></li>
+               {/loop}
+            </ul>
+         </div>
+         <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               {if="$fsc->tipo_stock=='todo'"}
+                  Todo <span class="caret"></span>
+               {elseif="$fsc->tipo_stock=='min'"}
+                  Bajo mínimos <span class="caret"></span>
+               {elseif="$fsc->tipo_stock=='max'"}
+                  Excesos <span class="caret"></span>
+               {else}
+                  Regularizaciones <span class="caret"></span>
+               {/if}
+            </button>
+            <ul class="dropdown-menu">
+               {if="$fsc->tipo_stock!='todo'"}
+               <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock">Todo</a></li>
+               {/if}
+               {if="$fsc->tipo_stock!='min'"}
+               <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo=min">Bajo mínimos</a></li>
+               {/if}
+               {if="$fsc->tipo_stock!='max'"}
+               <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo=max">Excesos</a></li>
+               {/if}
+               {if="$fsc->tipo_stock!='reg'"}
+               <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo=reg">Regularizaciones</a></li>
+               {/if}
+            </ul>
+         </div>
+      </div>
+      <div class="col-sm-6 text-right">
+         <div class="btn-group">
+            <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_recal_stock">
+               <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Recalcular stock</span>
+            </a>
+            {if="$fsc->tipo_stock!='reg'"}
+            <a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo={$fsc->tipo_stock}&download=TRUE" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+               <span class="hidden-xs">&nbsp; Descargar</span>
+            </a>
+            {/if}
          </div>
       </div>
    </div>
-   <div class="table-responsive">
-      {if="$fsc->tipo_stock=='reg'"}
-      <table class="table table-hover">
-         <thead>
-            <tr>
-               <th class="text-left">Almacén</th>
-               <th class="text-left">Artículo</th>
-               <th class="text-right">Cant. inicial</th>
-               <th class="text-right">Cant. final</th>
-               <th class="text-left">Usuario</th>
-               <th class="text-left">Motivo</th>
-               <th class="text-right">Fecha</th>
-               <th class="text-right">Hora</th>
-            </tr>
-         </thead>
-         {loop="$fsc->resultados"}
+</div>
+<div class="table-responsive">
+   {if="$fsc->tipo_stock=='reg'"}
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th class="text-left">Almacén</th>
+            <th class="text-left">Artículo</th>
+            <th class="text-right">Cant. inicial</th>
+            <th class="text-right">Cant. final</th>
+            <th class="text-left">Usuario</th>
+            <th class="text-left">Motivo</th>
+            <th class="text-right">Fecha</th>
+            <th class="text-right">Hora</th>
+         </tr>
+      </thead>
+      {loop="$fsc->resultados"}
          <tr class="clickableRow{if="intval($value['cantidadfin'])<intval($value['cantidadini'])"} danger{/if}" href="index.php?page=ventas_articulo&ref={$value['referencia']}">
             <td>{$value['codalmacen']}</td>
             <td>
@@ -268,25 +248,25 @@
             <td>{$value['motivo']}</td>
             <td class="text-right">{$value['fecha']}</td>
             <td class="text-right">{$value['hora']}</td>
-            </tr>
-            {else}
-            <tr class="warning">
-               <td colspan="8">Sin resultados.</td>
-            </tr>
-            {/loop}
-      </table>
+         </tr>
       {else}
-      <table class="table table-hover">
-         <thead>
-            <tr>
-               <th class="text-left">Almacén</th>
-               <th class="text-left">Artículo</th>
-               <th class="text-right">Stock</th>
-               <th class="text-right">Mínimo</th>
-               <th class="text-right">Máximo</th>
-            </tr>
-         </thead>
-         {loop="$fsc->resultados"}
+         <tr class="warning">
+            <td colspan="8">Sin resultados.</td>
+         </tr>
+      {/loop}
+   </table>
+   {else}
+   <table class="table table-hover">
+      <thead>
+         <tr>
+            <th class="text-left">Almacén</th>
+            <th class="text-left">Artículo</th>
+            <th class="text-right">Stock</th>
+            <th class="text-right">Mínimo</th>
+            <th class="text-right">Máximo</th>
+         </tr>
+      </thead>
+      {loop="$fsc->resultados"}
          <tr class="clickableRow{if="intval($value['cantidad'])<intval($value['stockmin'])"} danger{/if}" href="index.php?page=ventas_articulo&ref={$value['referencia']}">
             <td>{$value['codalmacen']}</td>
             <td>
@@ -297,30 +277,30 @@
             <td class="text-right">{$value['stockmin']}</td>
             <td class="text-right">{$value['stockmax']}</td>
             </tr>
-            {else}
-            <tr class="warning">
-               <td colspan="5">Sin resultados.</td>
-            </tr>
-            {/loop}
-      </table>
-      {/if}
-   </div>
-   <ul class="pager" id="ul_paginador">
-      {if="$fsc->anterior_url()!=''"}
+      {else}
+         <tr class="warning">
+            <td colspan="5">Sin resultados.</td>
+         </tr>
+      {/loop}
+   </table>
+   {/if}
+</div>
+<ul class="pager" id="ul_paginador">
+   {if="$fsc->anterior_url()!=''"}
       <li class="previous">
          <a href="{$fsc->anterior_url()}">
             <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
          </a>
       </li>
-      {/if}
-      {if="$fsc->siguiente_url()!=''"}
+   {/if}
+   {if="$fsc->siguiente_url()!=''"}
       <li class="next">
          <a href="{$fsc->siguiente_url()}">
             Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
          </a>
       </li>
-      {/if}
-   </ul>
+   {/if}
+</ul>
 
    <div class="modal fade" id="modal_recal_stock" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
@@ -376,25 +356,24 @@
                   </select>
                </div>
             </div>
-            <div class="col-sm-2">
-               <br/>
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Mostrar
-               </button>
-            </div>
-            <div class="col-sm-4">
-            </div>
-            <div class="col-sm-3">
-               <div class="form-group">
-                  Cambiar a
-                  <select name="new_codimpuesto" class="form-control" onchange="this.form.submit()">
-                     <option value="">(Sin cambios)</option>
-                     <option value="">------</option>
-                     {loop="$fsc->impuesto->all()"}
-                     <option value="{$value->codimpuesto}">{$value->descripcion}</option>
-                     {/loop}
-                  </select>
-               </div>
+         </div>
+         <div class="col-sm-2">
+            <br/>
+            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <span class="glyphicon glyphicon-eye-open"></span> &nbsp; Mostrar
+            </button>
+         </div>
+         <div class="col-sm-4"></div>
+         <div class="col-sm-3">
+            <div class="form-group">
+               Cambiar a
+               <select name="new_codimpuesto" class="form-control" onchange="this.form.submit()">
+                  <option value="">(Sin cambios)</option>
+                  <option value="">------</option>
+                  {loop="$fsc->impuesto->all()"}
+                  <option value="{$value->codimpuesto}">{$value->descripcion}</option>
+                  {/loop}
+               </select>
             </div>
          </div>
       </div>
@@ -449,18 +428,18 @@
       <tr class='clickableRow{if="$value->bloqueado"} danger{elseif="$value->stockfis<=$value->stockmin"} warning{/if}' href='{$value->url()}'>
          <td>
             {if="is_null($value->codfamilia)"}
-            <span>-</span>
+               <span>-</span>
             {else}
-            {$value->codfamilia}
-            <a href="index.php?page=ventas_familia&cod={$value->codfamilia}" class="cancel_clickable" title="Ver más artículos de esta familia">[+]</a>
+               {$value->codfamilia}
+               <a href="index.php?page=ventas_familia&cod={$value->codfamilia}" class="cancel_clickable" title="Ver más artículos de esta familia">[+]</a>
             {/if}
          </td>
          <td>
             {if="is_null($value->codfabricante)"}
-            <span>-</span>
+               <span>-</span>
             {else}
-            {$value->codfabricante}
-            <a href="index.php?page=ventas_fabricante&cod={$value->codfabricante}" class="cancel_clickable" title="Ver más artículos de este fabricante">[+]</a>
+               {$value->codfabricante}
+               <a href="index.php?page=ventas_fabricante&cod={$value->codfabricante}" class="cancel_clickable" title="Ver más artículos de este fabricante">[+]</a>
             {/if}
          </td>
          <td><a href="{$value->url()}">{$value->referencia}</a> {$value->descripcion}</td>
@@ -485,7 +464,7 @@
 </div>
 {elseif="$fsc->pestanya=='varios'"}
 <script type="text/javascript">
-   $(document).ready(function() {
+   $(document).ready(function () {
       $("#ac_referencia").autocomplete({
          serviceUrl: '{$fsc->url()}',
          paramName: 'buscar_referencia',
@@ -514,19 +493,20 @@
       });
    </script>
 
-   <div class="container-fluid" style="margin-top: 15px;">
-      <div class="row">
-         <div class="col-sm-12">
-            <p class="help-block">
-               Aquí dispones de varios informes para consultar el listado de movimientos
-               de un artículo, las compras o ventas de artículos en un determinado periodo
-               o el desglose de ventas a clientes por artículo. Elige el que necesites
-               y ajusta los filtros a tus necesidades.
-            </p>
-         </div>
+<br/>
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12">
+         <p class="help-block">
+            Aquí dispones de varios informes para consultar el listado de movimientos
+            de un artículo, las compras o ventas de artículos en un determinado periodo
+            o el desglose de ventas a clientes por artículo. Elige el que necesites
+            y ajusta los filtros a tus necesidades.
+         </p>
       </div>
-      <div class="row">
-         <div class="col-sm-4">
+   </div>
+   <div class="row">
+      <div class="col-sm-4">
             <form name="f_listado_mov" action="{$fsc->url()}&tab=varios" method="post" class="form">
                <input type="hidden" name="informe" value="listadomov"/>
                <div class="panel panel-default">
@@ -604,8 +584,8 @@
                   </div>
                </div>
             </form>
-         </div>
-         <div class="col-sm-4">
+      </div>
+      <div class="col-sm-4">
             <form action="{$fsc->url()}&tab=varios" method="post" class="form">
                <input type="hidden" name="informe" value="facturacion"/>
                <div class="panel panel-default">
@@ -672,8 +652,8 @@
                   </div>
                </div>
             </form>
-         </div>
-         <div class="col-sm-4">
+      </div>
+      <div class="col-sm-4">
             <form name="f_informe_ventas" action="{$fsc->url()}&tab=varios" method="post" class="form">
                <input type="hidden" name="informe" value="ventascli"/>
                <div class="panel panel-default">
@@ -729,7 +709,6 @@
                   </div>
                </div>
             </form>
-         </div>
       </div>
    </div>
 
@@ -761,13 +740,25 @@
             <td class='text-right{if="$value['final']<0"} danger{/if}'>{$value['final']}</td>
             <td class="text-right">{$value['fecha']}</td>
          </tr>
-         {else}
+      </thead>
+      {loop="$fsc->resultados"}
+         <tr class="clickableRow" href="{$value['url']}">
+            <td>{$value['referencia']}</td>
+            <td>{$value['codalmacen']}</td>
+            <td><a href="{$value['url']}">{$value['origen']}</a></td>
+            <td>{$value['clipro']}</td>
+            <td class="text-right">{$value['movimiento']}</td>
+            <td class="text-right">{$fsc->show_precio($value['precio'])}</td>
+            <td class="text-right">{$fsc->show_numero($value['dto'])}</td>
+            <td class='text-right{if="$value['final']<0"} danger{/if}'>{$value['final']}</td>
+            <td class="text-right">{$value['fecha']}</td>
+         </tr>
+      {else}
          <tr class="warning">
             <td colspan="9">Sin resultados.</td>
          </tr>
-         {/loop}
-      </table>
-   </div>
+      {/loop}
+   </table>
 </div>
 {/if}
 

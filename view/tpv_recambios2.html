@@ -213,7 +213,7 @@
                   <a target="_blank" href="https://www.facturascripts.com/comm3/index.php?page=community_item&id=170">Remote printer</a>.
                </p>
             </div>
-            <ul class="nav nav-tabs" role="tablist">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
                <li role="presentation" class="active">
                   <a href="#pago" aria-controls="pago" role="tab" data-toggle="tab">
                      <span class="glyphicon glyphicon-usd"></span>
@@ -266,6 +266,9 @@
                         <input class="form-control" type="text" name="numero2" placeholder="{#FS_NUMERO2#}" autocomplete="off"/>
                      </div>
                      <div class="form-group">
+                        <textarea class="form-control" name="observaciones" placeholder="Observaciones"></textarea>
+                     </div>
+                     <div class="form-group">
                         <a href="{$fsc->divisa->url()}">Divisa</a>:
                         <select name="divisa" class="form-control">
                         {loop="$fsc->divisa->all()"}
@@ -296,9 +299,6 @@
                            <input type="checkbox" name="imprimir_obs" value="TRUE"{if="$fsc->imprimir_observaciones"} checked="checked"{/if}/>
                            Imprimir observaciones
                         </label>
-                     </div>
-                     <div class="form-group">
-                        <textarea class="form-control" name="observaciones" placeholder="Observaciones"></textarea>
                      </div>
                   </div>
                </div>
