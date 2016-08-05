@@ -187,7 +187,7 @@ class direccion_proveedor extends \fs_model
    {
       $dirlist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codproveedor = ".$this->var2str($codprov)
-              ." ORDER BY descripcion ASC, id ASC;";
+              ." ORDER BY id DESC;";
       
       $data = $this->db->select($sql);
       if($data)

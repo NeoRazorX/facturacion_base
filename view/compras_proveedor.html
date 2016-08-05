@@ -349,7 +349,7 @@
                <form action="{$fsc->url()}#cuentasb" method="post" class="form">
                   <input type="hidden" name="codcuenta" value="{$value->codcuenta}"/>
                   <input type="hidden" name="codproveedor" value="{$value->codproveedor}"/>
-                  <div class="panel panel-info">
+                  <div class='panel {if="$value->principal"}panel-primary{else}panel-default{/if}'>
                      <div class="panel-heading">
                         <h3 class="panel-title">Cuenta bancaria #{$value->codcuenta}</h3>
                      </div>
@@ -419,12 +419,11 @@
                <form action="{$fsc->url()}#direcciones" method="post" class="form">
                   <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
                   <input type="hidden" name="coddir" value="{$value->id}"/>
-                  <div class="panel panel-info">
+                  <div class='panel {if="$value->direccionppal"}panel-primary{else}panel-default{/if}'>
                      <div class="panel-heading">
                         <h3 class="panel-title">
-                           <span class="glyphicon glyphicon-road"></span>&nbsp; {$value->descripcion}
-                           &nbsp; | &nbsp;
-                           <span class="glyphicon glyphicon-calendar"></span> {$value->fecha}
+                           <span class="glyphicon glyphicon-road"></span>&nbsp; {$value->id} &nbsp; | &nbsp;
+                           <span class="glyphicon glyphicon-calendar"></span>&nbsp; {$value->fecha}
                         </h3>
                      </div>
                      <div class="panel-body">

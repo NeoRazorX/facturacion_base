@@ -35,6 +35,7 @@ require_model('presupuesto_cliente.php');
 require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('tarifa.php');
+require_model('agencia_transporte.php');
 
 class nueva_venta extends fs_controller
 {
@@ -55,6 +56,7 @@ class nueva_venta extends fs_controller
    public $results;
    public $serie;
    public $tipo;
+   public $agencia;
    
    public function __construct()
    {
@@ -63,6 +65,7 @@ class nueva_venta extends fs_controller
    
    protected function private_core()
    {
+      $this->agencia = new agencia_transporte();
       $this->cliente = new cliente();
       $this->cliente_s = FALSE;
       $this->direccion = FALSE;
@@ -194,7 +197,6 @@ class nueva_venta extends fs_controller
                      $dircliente->codpais = $this->empresa->codpais;
                      $dircliente->provincia = $this->empresa->provincia;
                      $dircliente->ciudad = $this->empresa->ciudad;
-                     $dircliente->descripcion = 'Principal';
                      
                      if( isset($_POST['nuevo_pais']) )
                      {
@@ -257,7 +259,6 @@ class nueva_venta extends fs_controller
          $this->forma_pago = new forma_pago();
          $this->divisa = new divisa();
          
-         
          if( isset($_POST['tipo']) )
          {
             if($_POST['tipo'] == 'albaran')
@@ -277,7 +278,15 @@ class nueva_venta extends fs_controller
                $this->nuevo_pedido_cliente();
             }
             
-            if(!$this->direccion)
+            /// si el cliente no tiene cifnif nos guardamos el que indique
+            if($this->cliente_s->cifnif == '')
+            {
+               $this->cliente_s->cifnif = $_POST['cifnif'];
+               $this->cliente_s->save();
+            }
+            
+            /// ¿Guardamos la dirección como nueva?
+            if($_POST['coddir'] == 'nueva')
             {
                $this->direccion = new direccion_cliente();
                $this->direccion->codcliente = $this->cliente_s->codcliente;
@@ -286,7 +295,21 @@ class nueva_venta extends fs_controller
                $this->direccion->ciudad = $_POST['ciudad'];
                $this->direccion->codpostal = $_POST['codpostal'];
                $this->direccion->direccion = $_POST['direccion'];
-               $this->direccion->descripcion = 'Principal';
+               $this->direccion->apartado = $_POST['apartado'];
+               $this->direccion->save();
+            }
+            else if($_POST['envio_coddir'] == 'nueva')
+            {
+               $this->direccion = new direccion_cliente();
+               $this->direccion->codcliente = $this->cliente_s->codcliente;
+               $this->direccion->codpais = $_POST['envio_codpais'];
+               $this->direccion->provincia = $_POST['envio_provincia'];
+               $this->direccion->ciudad = $_POST['envio_ciudad'];
+               $this->direccion->codpostal = $_POST['envio_codpostal'];
+               $this->direccion->direccion = $_POST['envio_direccion'];
+               $this->direccion->apartado = $_POST['envio_apartado'];
+               $this->direccion->domfacturacion = FALSE;
+               $this->direccion->domenvio = TRUE;
                $this->direccion->save();
             }
          }
@@ -643,11 +666,27 @@ class nueva_venta extends fs_controller
          $albaran->codcliente = $cliente->codcliente;
          $albaran->cifnif = $_POST['cifnif'];
          $albaran->nombrecliente = $_POST['nombrecliente'];
-         $albaran->ciudad = $_POST['ciudad'];
          $albaran->codpais = $_POST['codpais'];
+         $albaran->provincia = $_POST['provincia'];
+         $albaran->ciudad = $_POST['ciudad'];
          $albaran->codpostal = $_POST['codpostal'];
          $albaran->direccion = $_POST['direccion'];
-         $albaran->provincia = $_POST['provincia'];
+         $albaran->apartado = $_POST['apartado'];
+         
+         /// envío
+         $albaran->envio_nombre = $_POST['envio_nombre'];
+         $albaran->envio_apellidos = $_POST['envio_apellidos'];
+         if($_POST['envio_codtrans'] != '')
+         {
+            $albaran->envio_codtrans = $_POST['envio_codtrans'];
+         }
+         $albaran->envio_codigo = $_POST['envio_codigo'];
+         $albaran->envio_codpais = $_POST['envio_codpais'];
+         $albaran->envio_provincia = $_POST['envio_provincia'];
+         $albaran->envio_ciudad = $_POST['envio_ciudad'];
+         $albaran->envio_codpostal = $_POST['envio_codpostal'];
+         $albaran->envio_direccion = $_POST['envio_direccion'];
+         $albaran->envio_apartado = $_POST['envio_apartado'];
          
          if( $albaran->save() )
          {
@@ -852,11 +891,27 @@ class nueva_venta extends fs_controller
          $factura->codcliente = $cliente->codcliente;
          $factura->cifnif = $_POST['cifnif'];
          $factura->nombrecliente = $_POST['nombrecliente'];
-         $factura->ciudad = $_POST['ciudad'];
          $factura->codpais = $_POST['codpais'];
+         $factura->provincia = $_POST['provincia'];
+         $factura->ciudad = $_POST['ciudad'];
          $factura->codpostal = $_POST['codpostal'];
          $factura->direccion = $_POST['direccion'];
-         $factura->provincia = $_POST['provincia'];
+         $factura->apartado = $_POST['apartado'];
+         
+         /// envío
+         $factura->envio_nombre = $_POST['envio_nombre'];
+         $factura->envio_apellidos = $_POST['envio_apellidos'];
+         if($_POST['envio_codtrans'] != '')
+         {
+            $factura->envio_codtrans = $_POST['envio_codtrans'];
+         }
+         $factura->envio_codigo = $_POST['envio_codigo'];
+         $factura->envio_codpais = $_POST['envio_codpais'];
+         $factura->envio_provincia = $_POST['envio_provincia'];
+         $factura->envio_ciudad = $_POST['envio_ciudad'];
+         $factura->envio_codpostal = $_POST['envio_codpostal'];
+         $factura->envio_direccion = $_POST['envio_direccion'];
+         $factura->envio_apartado = $_POST['envio_apartado'];
          
          $regularizacion = new regularizacion_iva();
          if( $regularizacion->get_fecha_inside($factura->fecha) )
@@ -1096,11 +1151,27 @@ class nueva_venta extends fs_controller
          $presupuesto->codcliente = $cliente->codcliente;
          $presupuesto->cifnif = $_POST['cifnif'];
          $presupuesto->nombrecliente = $_POST['nombrecliente'];
-         $presupuesto->ciudad = $_POST['ciudad'];
          $presupuesto->codpais = $_POST['codpais'];
+         $presupuesto->provincia = $_POST['provincia'];
+         $presupuesto->ciudad = $_POST['ciudad'];
          $presupuesto->codpostal = $_POST['codpostal'];
          $presupuesto->direccion = $_POST['direccion'];
-         $presupuesto->provincia = $_POST['provincia'];
+         $presupuesto->apartado = $_POST['apartado'];
+         
+         /// envío
+         $presupuesto->envio_nombre = $_POST['envio_nombre'];
+         $presupuesto->envio_apellidos = $_POST['envio_apellidos'];
+         if($_POST['envio_codtrans'] != '')
+         {
+            $presupuesto->envio_codtrans = $_POST['envio_codtrans'];
+         }
+         $presupuesto->envio_codigo = $_POST['envio_codigo'];
+         $presupuesto->envio_codpais = $_POST['envio_codpais'];
+         $presupuesto->envio_provincia = $_POST['envio_provincia'];
+         $presupuesto->envio_ciudad = $_POST['envio_ciudad'];
+         $presupuesto->envio_codpostal = $_POST['envio_codpostal'];
+         $presupuesto->envio_direccion = $_POST['envio_direccion'];
+         $presupuesto->envio_apartado = $_POST['envio_apartado'];
          
          if( $presupuesto->save() )
          {
@@ -1291,11 +1362,27 @@ class nueva_venta extends fs_controller
          $pedido->codcliente = $cliente->codcliente;
          $pedido->cifnif = $_POST['cifnif'];
          $pedido->nombrecliente = $_POST['nombrecliente'];
-         $pedido->ciudad = $_POST['ciudad'];
          $pedido->codpais = $_POST['codpais'];
+         $pedido->provincia = $_POST['provincia'];
+         $pedido->ciudad = $_POST['ciudad'];
          $pedido->codpostal = $_POST['codpostal'];
          $pedido->direccion = $_POST['direccion'];
-         $pedido->provincia = $_POST['provincia'];
+         $pedido->apartado = $_POST['apartado'];
+         
+         /// envío
+         $pedido->envio_nombre = $_POST['envio_nombre'];
+         $pedido->envio_apellidos = $_POST['envio_apellidos'];
+         if($_POST['envio_codtrans'] != '')
+         {
+            $pedido->envio_codtrans = $_POST['envio_codtrans'];
+         }
+         $pedido->envio_codigo = $_POST['envio_codigo'];
+         $pedido->envio_codpais = $_POST['envio_codpais'];
+         $pedido->envio_provincia = $_POST['envio_provincia'];
+         $pedido->envio_ciudad = $_POST['envio_ciudad'];
+         $pedido->envio_codpostal = $_POST['envio_codpostal'];
+         $pedido->envio_direccion = $_POST['envio_direccion'];
+         $pedido->envio_apartado = $_POST['envio_apartado'];
          
          if( $pedido->save() )
          {

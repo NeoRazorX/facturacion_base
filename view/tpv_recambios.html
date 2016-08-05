@@ -87,13 +87,16 @@
       </div>
    </form>
    {else}
-   <div class="container">
+   <div class="container-fluid">
       <div class="row">
          <div class="col-sm-12">
             <div class="page-header">
                <h1>
                   <i class="fa fa-desktop" aria-hidden="true"></i>&nbsp;
                   Elige un terminal para empezar
+                  <a href="#" class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_ayuda_terminal">
+                     <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                  </a>
                </h1>
                <p class="help-block">
                   Una vez abierta la caja de un terminal, ningún otro usuario podrá
@@ -104,13 +107,13 @@
       </div>
       <div class="row">
          {loop="$fsc->results"}
-         <div class="col-sm-6">
+         <div class="col-sm-4">
             <a href="{$fsc->url()}&terminal={$value->id}" class="btn btn-block btn-default">
                <i class="fa fa-desktop" aria-hidden="true"></i>&nbsp; Terminal {$value->id}
             </a>
          </div>
          {else}
-         <div class="col-sm-12">
+         <div class="col-sm-6">
             <a href="index.php?page=tpv_caja#terminales" class="btn btn-block btn-info">
                <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>&nbsp; Administrar terminales
             </a>
@@ -122,6 +125,30 @@
             </p>
          </div>
          {/loop}
+      </div>
+   </div>
+   
+   <div class="modal fade" id="modal_ayuda_terminal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+               </button>
+               <h4 class="modal-title">¿Qué es un terminal?</h4>
+            </div>
+            <div class="modal-body">
+               <p class="help-block">
+                  Los terminales son la suma de PC + impresora de tickets + cajón portamonedas.
+               </p>
+               <div class="thumbnail">
+                  <img src="{#FS_PATH#}plugins/facturacion_base/view/img/cajon.jpg" alt="tpv"/>
+               </div>
+               <p class="help-block">
+                  Puedes configurar los terminales desde el menú <b>TPV &gt; Arqueos y terminales</b>.
+               </p>
+            </div>
+         </div>
       </div>
    </div>
    {/if}

@@ -9,6 +9,7 @@
    numlineas = {function="count($fsc->albaran->get_lineas())"};
    fs_nf0 = {#FS_NF0#};
    fs_nf0_art = {#FS_NF0_ART#};
+   all_direcciones = {function="json_encode($fsc->cliente_s->get_direcciones())"};
    all_impuestos = {function="json_encode($fsc->impuesto->all())"};
    all_series = {function="json_encode($fsc->serie->all())"};
    cliente = {function="json_encode($fsc->cliente_s)"};
@@ -96,9 +97,9 @@
                <a id="b_enviar" class="btn btn-sm btn-default" href="#">
                   <span class="glyphicon glyphicon-envelope"></span>
                   {if="$fsc->albaran->femail"}
-                  <span class="hidden-xs"> &nbsp; Reenviar</span>
+                  <span class="hidden-xs">&nbsp; Reenviar</span>
                   {else}
-                  <span class="hidden-xs"> &nbsp; Enviar</span>
+                  <span class="hidden-xs">&nbsp; Enviar</span>
                   {/if}
                </a>
                {/if}
@@ -584,18 +585,43 @@
                   <div class="col-sm-12">
                      <h3>
                         <span class="glyphicon glyphicon-road" aria-hidden="true"></span>
-                        &nbsp; Dirección de facturación:
+                        &nbsp;Dirección de facturación:
                      </h3>
                   </div>
                </div>
                <div class="row">
                   <div class="col-sm-3">
                      <div class="form-group">
+                        Direcciones del cliente:
+                        <div class="input-group">
+                           <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                           </span>
+                           <select name="coddir" class="form-control" onchange="usar_direccion();">
+                              {loop="$fsc->cliente_s->get_direcciones()"}
+                                 {if="$value->id==$fsc->albaran->coddir"}
+                                 <option value="{$value->id}" selected="">{$value->descripcion}</option>
+                                 {elseif="$value->direccion==$fsc->albaran->direccion"}
+                                 <option value="{$value->id}" selected="">{$value->descripcion}</option>
+                                 {else}
+                                 <option value="{$value->id}">{$value->descripcion}</option>
+                                 {/if}
+                              {/loop}
+                           </select>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
                         <a href="{$fsc->pais->url()}">País</a>:
                         <select class="form-control" name="codpais">
-                           {loop="$fsc->pais->all()"}
-                           <option value="{$value->codpais}"{if="$value->codpais==$fsc->albaran->codpais"} selected=""{/if}>{$value->nombre}</option>
-                           {/loop}
+                        {loop="$fsc->pais->all()"}
+                           {if="$value->codpais==$fsc->albaran->codpais"}
+                           <option value="{$value->codpais}" selected="">{$value->nombre}</option>
+                           {else}
+                           <option value="{$value->codpais}">{$value->nombre}</option>
+                           {/if}
+                        {/loop}
                         </select>
                      </div>
                   </div>
@@ -623,6 +649,12 @@
                         <input class="form-control" type="text" name="direccion" value="{$fsc->albaran->direccion}" autocomplete="off"/>
                      </div>
                   </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        <span class="text-capitalize">{#FS_APARTADO#}</span>:
+                        <input class="form-control" type="text" name="apartado" value="{$fsc->albaran->apartado}"/>
+                     </div>
+                  </div>
                </div>
             </div>
          </div>
@@ -637,13 +669,13 @@
                </div>
                {/if}
                <div class="row">
-                  <div class="col-sm-2">
+                  <div class="col-sm-3">
                      <div class="form-group">
                         Nombre:
                         <input type="text" name="envio_nombre" value="{$fsc->albaran->envio_nombre}" class="form-control" autocomplete="off"/>
                      </div>
                   </div>
-                  <div class="col-sm-4">
+                  <div class="col-sm-3">
                      <div class="form-group">
                         Apellidos:
                         <input type="text" name="envio_apellidos" value="{$fsc->albaran->envio_apellidos}" class="form-control" autocomplete="off"/>
@@ -671,19 +703,56 @@
                         <input type="text" name="envio_codigo" value="{$fsc->albaran->envio_codigo}" class="form-control" autocomplete="off"/>
                      </div>
                   </div>
-                  <div class="col-sm-2">
+               </div>
+               <div class="row">
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        Direcciones del cliente:
+                        <div class="input-group">
+                           <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                           </span>
+                           <select name="envio_coddir" class="form-control" onchange="usar_direccion_envio();">
+                              <option value="">Ninguna</option>
+                              <option value="">------</option>
+                              {loop="$fsc->cliente_s->get_direcciones()"}
+                                 {if="$value->direccion==$fsc->albaran->envio_direccion"}
+                                 <option value="{$value->id}" selected="">{$value->descripcion}</option>
+                                 {else}
+                                 <option value="{$value->id}">{$value->descripcion}</option>
+                                 {/if}
+                              {/loop}
+                           </select>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        <a href="{$fsc->pais->url()}">País</a>:
+                        <select class="form-control" name="envio_codpais">
+                        {loop="$fsc->pais->all()"}
+                           {if="$value->codpais==$fsc->albaran->envio_codpais"}
+                           <option value="{$value->codpais}" selected="">{$value->nombre}</option>
+                           {else}
+                           <option value="{$value->codpais}">{$value->nombre}</option>
+                           {/if}
+                        {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
                      <div class="form-group">
                         <span class="text-capitalize">{#FS_PROVINCIA#}</span>:
                         <input type="text" name="envio_provincia" value="{$fsc->albaran->envio_provincia}" id="ac_provincia2" class="form-control" autocomplete="off"/>
                      </div>
                   </div>
-                  <div class="col-sm-2">
+                  <div class="col-sm-3">
                      <div class="form-group">
                         Ciudad:
                         <input type="text" name="envio_ciudad" value="{$fsc->albaran->envio_ciudad}" class="form-control" autocomplete="off"/>
                      </div>
                   </div>
-                  <div class="col-sm-2">
+                  <div class="col-sm-3">
                      <div class="form-group">
                         Código Postal:
                         <input type="text" name="envio_codpostal" value="{$fsc->albaran->envio_codpostal}" class="form-control" autocomplete="off"/>
@@ -693,6 +762,12 @@
                      <div class="form-group">
                         Dirección:
                         <input type="text" name="envio_direccion" value="{$fsc->albaran->envio_direccion}" class="form-control" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-3">
+                     <div class="form-group">
+                        <span class="text-capitalize">{#FS_APARTADO#}</span>:
+                        <input class="form-control" type="text" name="envio_apartado" value="{$fsc->albaran->envio_apartado}"/>
                      </div>
                   </div>
                </div>

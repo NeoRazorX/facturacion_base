@@ -122,13 +122,19 @@
          </div>
       </div>
       <div class="row">
-         <div class="col-sm-8">
+         <div class="col-sm-6">
             <div class="form-group">
                Dirección:
                <input class="form-control" type="text" name="direccion" value="{$fsc->empresa->direccion}" autocomplete="off"/>
             </div>
          </div>
-         <div class="col-sm-4">
+         <div class="col-sm-3">
+            <div class="form-group">
+               <span class="text-capitalize">{#FS_APARTADO#}</span>:
+               <input class="form-control" type="text" name="apartado" value="{$fsc->empresa->apartado}" autocomplete="off"/>
+            </div>
+         </div>
+         <div class="col-sm-3">
             <div class="form-group">
                Administrador de la empresa:
                <input class="form-control" type="text" name="administrador" value="{$fsc->empresa->administrador}" autocomplete="off"/>

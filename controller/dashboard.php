@@ -47,6 +47,12 @@ class dashboard extends fs_controller
           'beneficios_anterior' => 0,
           'beneficios_mejora' => 0,
       );
+      if( intval( date('d') ) <= 7 )
+      {
+         /// en los primeros días del mes, mejor comparamos los datos del anterior
+         $this->mes['desde'] = date('1-m-Y', strtotime('-1 month'));
+         $this->mes['hasta'] = date('t-m-Y', strtotime('-1 month'));
+      }
       $this->calcula_periodo($this->mes, TRUE);
       
       $this->trimestre = array(
@@ -208,6 +214,10 @@ class dashboard extends fs_controller
          if($data)
          {
             $stats['impuestos'] -= $this->euro_convert( floatval($data[0]['total']) );
+            if($stats['impuestos'] < 0)
+            {
+               $stats['impuestos'] = 0;
+            }
          }
          
          /// calculamos los impuestos de las compras del mes anterior
@@ -219,30 +229,45 @@ class dashboard extends fs_controller
          if($data)
          {
             $stats['impuestos_anterior'] -= $this->euro_convert( floatval($data[0]['total']) );
+            if($stats['impuestos_anterior'] < 0)
+            {
+               $stats['impuestos_anterior'] = 0;
+            }
          }
       }
       
       if( $this->db->table_exists('co_partidas') AND $this->empresa->codpais == 'ESP' )
       {
+         /// calculamos el saldo de todos aquellos asientos que afecten a caja y no se correspondan con facturas
          $sql = "select sum(debe-haber) as total from co_partidas where codsubcuenta LIKE '57%' and idasiento"
-                 . " in (select idasiento from co_asientos where fecha >= ".$this->empresa->var2str($stats['desde'])
+                 . " in (select idasiento from co_asientos where tipodocumento IS NULL"
+                 . " and fecha >= ".$this->empresa->var2str($stats['desde'])
                  . " and fecha <= ".$this->empresa->var2str($stats['hasta']).");";
          
          $data = $this->db->select($sql);
          if($data)
          {
-            $stats['impuestos'] += $this->euro_convert( abs( floatval($data[0]['total']) ) );
+            $saldo = floatval($data[0]['total']);
+            if($saldo < 0)
+            {
+               $stats['impuestos'] += abs($saldo);
+            }
          }
          
+         /// calculamos el saldo de todos aquellos asientos que afecten a caja y no se correspondan con facturas
          $sql = "select sum(debe-haber) as total from co_partidas where codsubcuenta LIKE '57%' and idasiento"
-                 . " in (select idasiento from co_asientos where"
-                 . " fecha >= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['desde'].' '.$stats['anterior'])))
+                 . " in (select idasiento from co_asientos where tipodocumento IS NULL"
+                 . " and fecha >= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['desde'].' '.$stats['anterior'])))
                  . " and fecha <= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['hasta'].' '.$stats['anterior']))).");";
          
          $data = $this->db->select($sql);
          if($data)
          {
-            $stats['impuestos_anterior'] += $this->euro_convert( abs( floatval($data[0]['total']) ) );
+            $saldo = floatval($data[0]['total']);
+            if($saldo < 0)
+            {
+               $stats['impuestos_anterior'] += abs($saldo);
+            }
          }
       }
       

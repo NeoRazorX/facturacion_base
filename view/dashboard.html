@@ -3,6 +3,15 @@
 <div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
+         {if="$fsc->check_for_updates()"}
+         <div class="alert alert-info">
+            <a href="updater.php" class="btn btn-sm btn-primary">
+               <span class="glyphicon glyphicon-upload"></span>&nbsp; Actualizar
+            </a>
+            &nbsp; Hay actualizaciones disponibles. Las actualizaciones añaden nuevas
+            características y solucionan errores.
+         </div>
+         {else}
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -25,6 +34,7 @@
             {/loop}
          </div>
          <br/>
+         {/if}
          <br/>
          <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active">
@@ -51,13 +61,13 @@
             <div class="col-sm-12">
                <br/>
                <p class="help-block">
-                  Comparado con el mes anterior hasta el mismo día.
+                  Del <b>{$fsc->mes['desde']}</b> al <b>{$fsc->mes['hasta']}</b>. Comparado con el mes anterior hasta el mismo día.
                </p>
             </div>
          </div>
          <div class="row">
             <div class="col-sm-3">
-               <a href="#" class="btn btn-lg btn-block btn-danger">
+               <a href="index.php?page=informe_facturas" class="btn btn-lg btn-block btn-danger">
                   Compras: {$fsc->show_precio($fsc->mes['compras'])}
                   <br/>
                   {if="$fsc->mes['compras_mejora']>0"}
@@ -81,7 +91,7 @@
                </ul>
             </div>
             <div class="col-sm-3">
-               <a href="#" class="btn btn-lg btn-block btn-success">
+               <a href="index.php?page=informe_facturas" class="btn btn-lg btn-block btn-success">
                   Ventas: {$fsc->show_precio($fsc->mes['ventas'])}
                   <br/>
                   {if="$fsc->mes['ventas_mejora']>0"}
@@ -105,7 +115,7 @@
                </ul>
             </div>
             <div class="col-sm-3">
-               <a href="#" class="btn btn-lg btn-block btn-warning">
+               <a href="index.php?page=informe_facturas" class="btn btn-lg btn-block btn-warning">
                   Impuestos: {$fsc->show_precio($fsc->mes['impuestos'])}
                   <br/>
                   {if="$fsc->mes['impuestos_mejora']>0"}
@@ -121,7 +131,7 @@
                </p>
             </div>
             <div class="col-sm-3">
-               <a href="#" class="btn btn-lg btn-block btn-info">
+               <a href="index.php?page=informe_facturas" class="btn btn-lg btn-block btn-info">
                   Beneficio: {$fsc->show_precio($fsc->mes['beneficios'])}
                   <br/>
                   {if="$fsc->mes['beneficios_mejora']>0"}
@@ -157,7 +167,7 @@
          </div>
          <div class="row">
             <div class="col-sm-3">
-               <a href="#" class="btn btn-lg btn-block btn-danger">
+               <a href="index.php?page=informe_facturas" class="btn btn-lg btn-block btn-danger">
                   Compras: {$fsc->show_precio($fsc->trimestre['compras'])}
                   <br/>
                   {if="$fsc->trimestre['compras_mejora']>0"}
@@ -173,7 +183,7 @@
                </p>
             </div>
             <div class="col-sm-3">
-               <a href="#" class="btn btn-lg btn-block btn-success">
+               <a href="index.php?page=informe_facturas" class="btn btn-lg btn-block btn-success">
                   Ventas: {$fsc->show_precio($fsc->trimestre['ventas'])}
                   <br/>
                   {if="$fsc->trimestre['ventas_mejora']>0"}
@@ -189,7 +199,7 @@
                </p>
             </div>
             <div class="col-sm-3">
-               <a href="#" class="btn btn-lg btn-block btn-warning">
+               <a href="index.php?page=informe_facturas" class="btn btn-lg btn-block btn-warning">
                   Impuestos: {$fsc->show_precio($fsc->trimestre['impuestos'])}
                   <br/>
                   {if="$fsc->trimestre['impuestos_mejora']>0"}
@@ -205,7 +215,7 @@
                </p>
             </div>
             <div class="col-sm-3">
-               <a href="#" class="btn btn-lg btn-block btn-info">
+               <a href="index.php?page=informe_facturas" class="btn btn-lg btn-block btn-info">
                   Beneficio: {$fsc->show_precio($fsc->trimestre['beneficios'])}
                   <br/>
                   {if="$fsc->trimestre['beneficios_mejora']>0"}
@@ -233,7 +243,7 @@
          </div>
          <div class="row">
             <div class="col-sm-3">
-               <a href="#" class="btn btn-lg btn-block btn-danger">
+               <a href="index.php?page=informe_facturas" class="btn btn-lg btn-block btn-danger">
                   Compras: {$fsc->show_precio($fsc->anyo['compras'])}
                   <br/>
                   {if="$fsc->anyo['compras_mejora']>0"}
@@ -249,7 +259,7 @@
                </p>
             </div>
             <div class="col-sm-3">
-               <a href="#" class="btn btn-lg btn-block btn-success">
+               <a href="index.php?page=informe_facturas" class="btn btn-lg btn-block btn-success">
                   Ventas: {$fsc->show_precio($fsc->anyo['ventas'])}
                   <br/>
                   {if="$fsc->anyo['ventas_mejora']>0"}
@@ -265,7 +275,7 @@
                </p>
             </div>
             <div class="col-sm-3">
-               <a href="#" class="btn btn-lg btn-block btn-warning">
+               <a href="index.php?page=informe_facturas" class="btn btn-lg btn-block btn-warning">
                   Impuestos: {$fsc->show_precio($fsc->anyo['impuestos'])}
                   <br/>
                   {if="$fsc->anyo['impuestos_mejora']>0"}
@@ -281,7 +291,7 @@
                </p>
             </div>
             <div class="col-sm-3">
-               <a href="#" class="btn btn-lg btn-block btn-info">
+               <a href="index.php?page=informe_facturas" class="btn btn-lg btn-block btn-info">
                   Beneficio: {$fsc->show_precio($fsc->anyo['beneficios'])}
                   <br/>
                   {if="$fsc->anyo['beneficios_mejora']>0"}

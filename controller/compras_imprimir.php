@@ -163,20 +163,25 @@ class compras_imprimir extends fs_controller
             $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 12, array('justification' => 'right'));
             $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'right'));
             
-            $direccion = $this->empresa->direccion;
+            $direccion = $this->empresa->direccion . "\n";
+            if($this->empresa->apartado)
+            {
+               $direccion .= ucfirst(FS_APARTADO) . ': ' . $this->empresa->apartado . ' - ';
+            }
+            
             if($this->empresa->codpostal)
             {
-               $direccion .= "\nCP: " . $this->empresa->codpostal;
+               $direccion .= 'CP: ' . $this->empresa->codpostal . ' - ';
             }
             
             if($this->empresa->ciudad)
             {
-               $direccion .= ' - ' . $this->empresa->ciudad;
+               $direccion .= $this->empresa->ciudad . ' - ';
             }
             
             if($this->empresa->provincia)
             {
-               $direccion .= ' (' . $this->empresa->provincia . ')';
+               $direccion .= '(' . $this->empresa->provincia . ')';
             }
             
             if($this->empresa->telefono)
@@ -199,9 +204,14 @@ class compras_imprimir extends fs_controller
          $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'center'));
          
          $direccion = $this->empresa->direccion;
+         if($this->empresa->apartado)
+         {
+            $direccion .= ' - ' . ucfirst(FS_APARTADO) . ': ' . $this->empresa->apartado;
+         }
+         
          if($this->empresa->codpostal)
          {
-            $direccion .= ' - ' . $this->empresa->codpostal;
+            $direccion .= ' - CP: ' . $this->empresa->codpostal;
          }
          
          if($this->empresa->ciudad)

@@ -29,7 +29,7 @@ require_model('regularizacion_stock.php');
 class informe_articulos extends fs_controller
 {
    public $agente;
-   private $almacen;
+   public $almacen;
    public $articulo;
    public $cantidades;
    public $codagente;
@@ -51,6 +51,7 @@ class informe_articulos extends fs_controller
    public $top_ventas;
    public $top_compras;
    public $url_recarga;
+   public $codalmacen;
    
    public function __construct()
    {
@@ -66,6 +67,12 @@ class informe_articulos extends fs_controller
       $this->familia = new familia();
       $this->hasta = Date('d-m-Y', mktime(0, 0, 0, date("m")+1, date("1")-1, date("Y")));
       $this->url_recarga = FALSE;
+      $this->codalmacen = FALSE;
+      
+      if( isset ($_REQUEST['codalmacen']))
+      {
+         $this->codalmacen = $_REQUEST['codalmacen'];
+      }
       
       $this->pestanya = 'stats';
       if( isset($_GET['tab']) )
@@ -393,7 +400,7 @@ class informe_articulos extends fs_controller
    private function stock($offset = 0, $tipo = 'todo')
    {
       $slist = array();
-      
+         
       $sql = "SELECT codalmacen,s.referencia,a.descripcion,s.cantidad,a.stockmin,a.stockmax"
               . " FROM stocks s, articulos a WHERE s.referencia = a.referencia";
       
@@ -405,7 +412,12 @@ class informe_articulos extends fs_controller
       {
          $sql .= " AND a.stockmax > 0 AND s.cantidad > a.stockmax";
       }
-      
+     
+      if ($this->codalmacen)
+      {
+         $sql .= " AND s.codalmacen = " . $this->empresa->var2str($this->codalmacen);
+      }
+
       $sql .= " ORDER BY referencia ASC";
       
       $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);

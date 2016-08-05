@@ -112,6 +112,7 @@ class base_wizard extends fs_controller
          $this->empresa->provincia = $_POST['provincia'];
          $this->empresa->ciudad = $_POST['ciudad'];
          $this->empresa->direccion = $_POST['direccion'];
+         $this->empresa->apartado = $_POST['apartado'];
          $this->empresa->codpostal = $_POST['codpostal'];
          $this->empresa->telefono = $_POST['telefono'];
          $this->empresa->fax = $_POST['fax'];

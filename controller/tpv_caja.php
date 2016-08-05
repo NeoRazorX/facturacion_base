@@ -68,7 +68,8 @@ class tpv_caja extends fs_controller
          
          if( $terminal->save() )
          {
-            $this->new_message('Terminal añadido correctamente. Ya puedes usarlo desde el TPV.');
+            $this->new_message('Terminal añadido correctamente.');
+            header('Location: index.php?page=tpv_recambios');
          }
          else
             $this->new_error_msg('Error al guardar los datos.');

@@ -212,6 +212,7 @@ class ventas_albaran extends fs_controller
             $this->albaran->ciudad = $_POST['ciudad'];
             $this->albaran->codpostal = $_POST['codpostal'];
             $this->albaran->direccion = $_POST['direccion'];
+            $this->albaran->apartado = $_POST['apartado'];
             
             $this->albaran->envio_nombre = $_POST['envio_nombre'];
             $this->albaran->envio_apellidos = $_POST['envio_apellidos'];
@@ -221,10 +222,12 @@ class ventas_albaran extends fs_controller
                $this->albaran->envio_codtrans = $_POST['envio_codtrans'];
             }
             $this->albaran->envio_codigo = $_POST['envio_codigo'];
+            $this->albaran->envio_codpais = $_POST['envio_codpais'];
             $this->albaran->envio_provincia = $_POST['envio_provincia'];
             $this->albaran->envio_ciudad = $_POST['envio_ciudad'];
             $this->albaran->envio_codpostal = $_POST['envio_codpostal'];
             $this->albaran->envio_direccion = $_POST['envio_direccion'];
+            $this->albaran->envio_apartado = $_POST['envio_apartado'];
             
             $cliente = $this->cliente->get($this->albaran->codcliente);
          }
@@ -474,9 +477,11 @@ class ventas_albaran extends fs_controller
       $factura->nombrecliente = $this->albaran->nombrecliente;
       $factura->observaciones = $this->albaran->observaciones;
       $factura->provincia = $this->albaran->provincia;
+      $factura->envio_apartado = $this->albaran->envio_apartado;
       $factura->envio_apellidos = $this->albaran->envio_apellidos;
       $factura->envio_ciudad = $this->albaran->envio_ciudad;
       $factura->envio_codigo = $this->albaran->envio_codigo;
+      $factura->envio_codpais = $this->albaran->envio_codpais;
       $factura->envio_codpostal = $this->albaran->envio_codpostal;
       $factura->envio_codtrans = $this->albaran->envio_codtrans;
       $factura->envio_direccion = $this->albaran->envio_direccion;

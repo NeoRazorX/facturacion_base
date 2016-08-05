@@ -278,6 +278,16 @@
       <tipo>character varying(100)</tipo>
    </columna>
    <columna>
+      <nombre>apartadoenv</nombre>
+      <tipo>character varying(10)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>codpaisenv</nombre>
+      <tipo>character varying(20)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
       <nombre>idimprenta</nombre>
       <tipo>integer</tipo>
       <nulo>YES</nulo>

@@ -218,7 +218,7 @@ class direccion_cliente extends \fs_model
    {
       $dirlist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($cod)
-              ." ORDER BY descripcion ASC, id ASC;";
+              ." ORDER BY id DESC;";
       
       $data = $this->db->select($sql);
       if($data)
