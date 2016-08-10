@@ -1,0 +1,67 @@
+{include="header"}
+<link href="plugins/facturacion_base/view/css/bootstrap-timepicker.min.css" rel="stylesheet" />
+<script type="text/javascript" src="{$fsc->get_js_location('bootstrap-timepicker.min.js')}"></script>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-8">
+      <h1>{if="$fsc->action=='edit'"}Editar{else}Agregar{/if} Configuracion de Caja</h1>
+    </div>
+  </div>
+  <hr />
+  <form action="{$fsc->url()}" method="post">
+    <div class="row" style="margin-bottom: 20px">
+      <div class="col-md-1">
+        <label for="nombre">Nombre</label>
+      </div>
+      <div class="col-md-7">
+        <input type="text" name="nombre" id="nombre" class="form-control" value="{$fsc->conf_caja->getNombre()}" />
+      </div>
+    </div>
+    <div class="row" style="margin-bottom: 20px">
+      <div class="col-md-1">
+        <label for="descripcion">Descripcion</label>
+      </div>
+      <div class="col-md-7">
+        <input type="text" name="descripcion" id="descripcion" class="form-control" value="{$fsc->conf_caja->getDescripcion()}"/>
+      </div>
+    </div>
+    <div class="row" style="margin-bottom: 20px">
+      <div class="col-md-1">
+        <label for="start_time">Start Time</label>
+      </div>
+      <div class="col-md-2">
+        <div class="input-group bootstrap-timepicker timepicker">
+          <input type="text" name="start_time" id="start_time" class="form-control" value="{$fsc->conf_caja->getStartTime()}"/>
+          <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+        </div>
+        <script type="text/javascript">
+          $('#start_time').timepicker();
+        </script>
+      </div>
+      <div class="col-md-1">
+        <label for="end_time">End Time</label>
+      </div>
+      <div class="col-md-2">
+        <div class="input-group bootstrap-timepicker timepicker">
+          <input type="text" name="end_time" id="end_time" class="form-control" value="{$fsc->conf_caja->getEndTime()}"/>
+          <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+        </div>
+        <script type="text/javascript">
+          $('#end_time').timepicker();
+        </script>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-offset-5 col-md-3 text-right">
+        <button type="reset" class="btn btn-default">Cancelar</button>
+        <button type="submit" class="btn btn-success">Guardar</button>
+      </div>
+    </div>
+  </form>
+
+</div>
+
+
+{include="footer"}

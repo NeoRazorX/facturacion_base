@@ -40,6 +40,10 @@ class tpv_recambios extends fs_controller
    public $almacen;
    public $allow_delete;
    public $articulo;
+
+   /**
+    * @var caja
+    */
    public $caja;
    public $cliente;
    public $cliente_s;
@@ -541,15 +545,8 @@ class tpv_recambios extends fs_controller
                   {
                      $this->imprimir_ticket( $factura, floatval($_POST['num_tickets']) );
                   }
-                  
-                  /// actualizamos la caja
-                  $this->caja->dinero_fin += $factura->total;
-                  $this->caja->tickets += 1;
-                  $this->caja->ip = $_SERVER['REMOTE_ADDR'];
-                  if( !$this->caja->save() )
-                  {
-                     $this->new_error_msg("¡Imposible actualizar la caja!");
-                  }
+
+                  $this->caja->sumar_importe($factura->total);
                }
                else
                   $this->new_error_msg("¡Imposible actualizar la <a href='".$factura->url()."'>factura</a>!");

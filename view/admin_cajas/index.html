@@ -1,0 +1,79 @@
+{include="header"}
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="btn-group hidden-xs">
+        <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+          <span class="glyphicon glyphicon-refresh"></span>
+        </a>
+        {if="$fsc->page->is_default()"}
+        <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+          <span class="glyphicon glyphicon-home"></span>
+        </a>
+        {else}
+        <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+          <span class="glyphicon glyphicon-home"></span>
+        </a>
+        {/if}
+      </div>
+      <div class="btn-group">
+        <a class="btn btn-sm btn-success" href="{$fsc->new_url()}">
+          <span class="glyphicon glyphicon-plus"></span>
+          <span class="hidden-xs">&nbsp; Nueva</span>
+        </a>
+        {loop="$fsc->extensions"}
+        {if="$value->type=='button'"}
+        <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+        {/if}
+        {/loop}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-4">
+      <h1>Listado de Configuracion Cajas</h1>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Descripcion</th>
+          <th>Hora Inicio</th>
+          <th>Hora Fin</th>
+          <th>Fecha Creacion</th>
+          <th>Opciones</th>
+        </tr>
+      </thead>
+      <tbody>
+      {loop="$fsc->conf_caja->fetchAll()"}
+        <tr>
+          <td>{$value->getNombre()}</td>
+          <td>{$value->getDescripcion()}</td>
+          <td>{$value->getStartTime()}</td>
+          <td>{$value->getEndTime()}</td>
+          <td>{$value->getCreateDate(true)}</td>
+          <td class="text-right">
+            <a href="{$fsc->edit_url($value)}">
+              <span class="glyphicon glyphicon-pencil"></span>
+            </a>
+            &nbsp;
+            <a onclick="return confirm('Esta seguro que desea eliminar la configuracion de caja?')" href="{$fsc->delete_url($value)}">
+              <span class="glyphicon glyphicon-trash"></span>
+            </a>
+          </td>
+        </tr>
+      {/loop}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+
+{include="footer"}

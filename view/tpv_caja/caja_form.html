@@ -1,0 +1,54 @@
+{include="header"}
+
+<div class="container-fluid" style="margin-top: 10px;">
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="btn-group hidden-xs">
+        <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+          <span class="glyphicon glyphicon-refresh"></span>
+        </a>
+      </div>
+      <div class="btn-group">
+        {loop="$fsc->extensions"}
+        {if="$value->type=='button'"}
+        <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+        {/if}
+        {/loop}
+      </div>
+    </div>
+    <div class="col-sm-6 text-right">
+      <h2 style="margin-top: 0px;">Cajas</h2>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-8">
+      <h2>Abrir Caja</h2>
+    </div>
+  </div>
+  <hr />
+  <form action="{$fsc->url()}" method="post">
+    <input type="hidden" name="fs_id" value="{$fsc->idterminadefecto}" />
+    <input type="hidden" name="codagente" value="{$fsc->user->codagente}" />
+    <div class="row">
+      <div class="">
+        <div class="col-md-1">
+          <label for="d_inicio">Dinero Inicial</label>
+        </div>
+        <div class="col-md-1">
+          <input type="text" name="d_inicio" id="d_inicio" class="form-control" value="0.00" autocomplete="off" />
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-offset-5 col-md-3 text-right">
+        <button type="reset" class="btn btn-default">Cancelar</button>
+        <button type="submit" class="btn btn-success">Guardar</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+{include="footer"}

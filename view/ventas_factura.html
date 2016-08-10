@@ -1,31 +1,55 @@
 {include="header"}
 
 {if="$fsc->factura"}
+<script type="text/javascript" src="{$fsc->get_js_location('utils.js')}"></script>
 <script type="text/javascript">
+   function check_num2() {
+      {if="$fsc->empresa->requerirnum2"}
+      if(!$('#numero2').val().trim() || !validate_numero2($('#numero2').val().trim())) {
+         $('#modal_error_numero2').modal('show');
+         $('#modal_error_numero2').on('hidden.bs.modal', function (e) {
+            $('#numero2').focus();
+         });
+         return false;
+      } else {
+         return true;
+      }
+      {else}
+      return true;
+      {/if}
+   }
+
    $(document).ready(function() {
       $("#b_imprimir").click(function(event) {
          event.preventDefault();
-         $("#modal_imprimir").modal('show');
+         if(check_num2()) {
+            $("#modal_imprimir").modal('show');
+         }
       });
       $("#b_enviar").click(function(event) {
          event.preventDefault();
-         $("#modal_enviar").modal('show');
-         document.enviar_email.email.focus();
+         if(check_num2()) {
+            $("#modal_enviar").modal('show');
+            document.enviar_email.email.focus();
+         }
+      });
+      $('#b_asiento').click(function(e) {
+         if(!check_num2()) {
+            e.preventDefault();
+            return false
+         }
       });
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
          $("#modal_eliminar").modal('show');
       });
-	  $("#b_anular").click(function(event) {
+      $("#b_anular").click(function(event) {
          event.preventDefault();
          $("#modal_anular").modal('show');
       });
-      {if="$fsc->factura->totalrecargo==0"}
-      $(".recargo").hide();
-      {/if}
-      {if="$fsc->factura->totalirpf==0"}
-      $(".irpf").hide();
-      {/if}
+      {if="$fsc->factura->totalrecargo==0"} $(".recargo").hide(); {/if}
+      {if="$fsc->factura->totalirpf==0"} $(".irpf").hide(); {/if}
+      check_num2();
    });
 </script>
 
@@ -54,7 +78,7 @@
                   <span class="hidden-xs">&nbsp; Asiento contable</span>
                </a>
                {else}
-               <a class="btn btn-sm btn-default" href="{$fsc->url()}&gen_asiento=TRUE&petid={$fsc->random_string()}">
+               <a id="b_asiento" class="btn btn-sm btn-default" href="{$fsc->url()}&gen_asiento=TRUE&petid={$fsc->random_string()}">
                   <span class="glyphicon glyphicon-paperclip"></span>
                   <span class="hidden-xs">&nbsp; Generar asiento</span>
                </a>
@@ -124,7 +148,8 @@
          <div class="col-sm-4">
             <div class="form-group">
                <span class='text-capitalize'>{#FS_NUMERO2#}:</span>
-               <input class="form-control" type="text" name="numero2" value="{$fsc->factura->numero2}"/>
+               <input class="form-control" type="text" id="numero2" name="numero2" value="{$fsc->factura->numero2}"
+               {if="$fsc->empresa->requerirnum2"}required data-msg="Debe ingresar el número de factura"{/if}/>
             </div>
          </div>
          <div class="col-sm-2">
@@ -373,6 +398,23 @@
             <a class="btn btn-sm btn-danger" href="{$fsc->url()}&gen_devolucion=TRUE&petid={$fsc->random_string()}&idfaccli={$fsc->factura->idfactura}">
                <span class="glyphicon glyphicon-remove-circle"></span> &nbsp; Anular factura
             </a>
+         </div>
+      </div>
+   </div>
+</div>
+
+<div class="modal fade" id="modal_error_numero2">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3 class="modal-title">Advertencia</h3>
+         </div>
+         <div class="modal-body">
+            <p>El número de la facutra es incorrecto</p>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
          </div>
       </div>
    </div>

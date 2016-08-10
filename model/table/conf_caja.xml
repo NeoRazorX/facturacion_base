@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : conf_caja.xml
+    Description:
+        Estructura de la tabla conf_caja.
+-->
+<tabla>
+    <columna>
+        <nombre>id</nombre>
+        <tipo>serial</tipo>
+        <nulo>NO</nulo>
+        <defecto>nextval('conf_cajas_id_seq'::regclass)</defecto>
+    </columna>
+    <columna>
+        <nombre>nombre</nombre>
+        <tipo>character varying(16)</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
+        <nombre>descripcion</nombre>
+        <tipo>character varying(255)</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
+        <nombre>start_time</nombre>
+        <tipo>integer</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
+        <nombre>end_time</nombre>
+        <tipo>integer</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
+        <nombre>create_date</nombre>
+        <tipo>timestamp</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
+        <nombre>update_date</nombre>
+        <tipo>timestamp</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <restriccion>
+        <nombre>uniq_nombre</nombre>
+        <consulta>UNIQUE (nombre)</consulta>
+    </restriccion>
+    <restriccion>
+        <nombre>factura_plantilla_pkey</nombre>
+        <consulta>PRIMARY KEY (id)</consulta>
+    </restriccion></tabla>

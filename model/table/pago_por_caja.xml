@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : pago_por_caja.xml
+    Description:
+        Estructura de la tabla facturascli_por_caja.
+-->
+<tabla>
+    <columna>
+        <nombre>id</nombre>
+        <tipo>serial</tipo>
+        <nulo>NO</nulo>
+        <defecto>nextval('facturascli_por_caja_id_seq'::regclass)</defecto>
+    </columna>
+    <columna>
+        <nombre>idfactura</nombre>
+        <tipo>integer</tipo>
+    </columna>
+    <columna>
+        <nombre>idrecibo</nombre>
+        <tipo>integer</tipo>
+    </columna>
+    <columna>
+        <nombre>idpago</nombre>
+        <tipo>integer</tipo>
+    </columna>
+    <columna>
+        <nombre>idcaja</nombre>
+        <tipo>integer</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <restriccion>
+        <nombre>pago_por_caja_fk_idfactura</nombre>
+        <consulta>FOREIGN KEY (idfactura)
+            REFERENCES facturascli (idfactura)
+            ON DELETE RESTRICT ON UPDATE CASCADE</consulta>
+    </restriccion>
+    <restriccion>
+        <nombre>pago_por_caja_fk_idrecibo</nombre>
+        <consulta>FOREIGN KEY (idrecibo)
+            REFERENCES reciboscli (idrecibo)
+            ON DELETE RESTRICT ON UPDATE CASCADE</consulta>
+    </restriccion>
+    <restriccion>
+        <nombre>pago_por_caja_fk_idpago</nombre>
+        <consulta>FOREIGN KEY (idpago)
+            REFERENCES pagos (id)
+            ON DELETE RESTRICT ON UPDATE CASCADE</consulta>
+    </restriccion>
+    <restriccion>
+        <nombre>pago_por_caja_pkey</nombre>
+        <consulta>PRIMARY KEY (id)</consulta>
+    </restriccion>
+    <restriccion>
+        <nombre>pago_por_caja_uniq</nombre>
+        <consulta>UNIQUE (idfactura,idrecibo,idpago,idcaja)</consulta>
+    </restriccion>
+</tabla>

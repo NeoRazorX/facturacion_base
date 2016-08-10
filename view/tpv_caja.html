@@ -37,6 +37,10 @@
             {/if}
          </div>
          <div class="btn-group">
+            <a class="btn btn-sm btn-success" href="{$fsc->new_caja_url()}">
+               <span class="glyphicon glyphicon-plus"></span>
+               <span class="hidden-xs">&nbsp; Nueva</span>
+            </a>
          {loop="$fsc->extensions"}
             {if="$value->type=='button'"}
             <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
@@ -74,7 +78,7 @@
                      <th class="text-left">ID</th>
                      <th class="text-left">Terminal</th>
                      <th class="text-left">Empleado</th>
-					  <th class="text-left">Facturas</th>
+					           <th class="text-left">Facturas</th>
                      <th class="text-center">Fecha inicial</th>
                      <th class="text-right">Dinero inicial</th>
                      <th class="text-center">Fecha fin</th>
@@ -95,9 +99,8 @@
                      {/if}
                   </td>
 				           <td>
-            
-            <a href="index.php?page=ventas_facturas&codagente=1" class="cancel_clickable" title="Ver más facturas de {$value->nombre}">[+]</a>
-         </td>
+                     <a href="{$fsc->facturas_url($value)}">Ver listado de facturas</a>
+                   </td>
                   <td class="text-center">{$value->fecha_inicial}</td>
                   <td class="text-right">{$fsc->show_precio($value->dinero_inicial)}</td>
                   <td class="text-center">{$value->show_fecha_fin()}</td>
