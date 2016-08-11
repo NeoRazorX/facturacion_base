@@ -294,6 +294,17 @@ class caja extends fs_model {
         return $this->facturas;
     }
 
+    /**
+     * @return recibo_cliente[]
+     */
+    public function findRecibos() {
+        if (!$this->facturas) {
+            $this->facturas = $this->get_recibos($this->id);
+        }
+
+        return $this->facturas;
+    }
+
     public function test() {
         $status = false;
         $this->id = (int)$this->id;
@@ -397,6 +408,15 @@ class caja extends fs_model {
      */
     private function get_facturas($idcaja) {
         return pago_por_caja::getFacturasByCaja($idcaja);
+    }
+
+    /**
+     * @param int $idcaja
+     *
+     * @return recibo_cliente[]
+     */
+    private function get_recibos($idcaja) {
+        return pago_por_caja::getRecibosByCaja($idcaja);
     }
 
 }

@@ -182,6 +182,9 @@ class pago_por_caja extends fs_model {
      * @return recibo_cliente
      */
     public function getReciboCliente() {
+        if(!$this->recibo_cliente) {
+            $this->recibo_cliente = self::get_recibo($this->getIdRecibo());
+        }
         return $this->recibo_cliente;
     }
 
@@ -189,8 +192,9 @@ class pago_por_caja extends fs_model {
      * @param recibo_cliente $recibo_cliente
      * @return pago_por_caja
      */
-    public function setReciboCliente($recibo_cliente) {
+    public function setReciboCliente(recibo_cliente $recibo_cliente) {
         $this->recibo_cliente = $recibo_cliente;
+        $this->idrecibo = $recibo_cliente->idrecibo;
         return $this;
     }
     
@@ -401,6 +405,12 @@ class pago_por_caja extends fs_model {
         return $factura->get($idFactura);
     }
 
+    private static function get_recibo($idRecibo) {
+        $recibo = new recibo_cliente();
+
+        return $recibo->get($idRecibo);
+    }
+
     /**
      * @param int $idcaja
      *
@@ -411,6 +421,21 @@ class pago_por_caja extends fs_model {
             $pago_por_caja = new self();
 
             return $pago_por_caja->fetchFacturasByCaja($idcaja);
+        } else {
+            return array();
+        }
+    }
+
+    /**
+     * @param int $idcaja
+     *
+     * @return recibo_cliente[]
+     */
+    public static function getRecibosByCaja($idcaja) {
+        if(intval($idcaja) > 0) {
+            $pago_por_caja = new self();
+
+            return $pago_por_caja->fetchRecibosByCaja($idcaja);
         } else {
             return array();
         }
@@ -446,6 +471,19 @@ class pago_por_caja extends fs_model {
             $facturas[] = $facturascli_por_caja->getFactura();
         }
         return $facturas;
+    }
+
+    /**
+     * @param int $idcaja
+     *
+     * @return recibo_cliente[]
+     */
+    private function fetchRecibosByCaja($idcaja) {
+        $recibos = array();
+        foreach ($this->fetchAllByCaja($idcaja) as $pago_por_caja) {
+            $recibos[] = $pago_por_caja->getReciboCliente();
+        }
+        return $recibos;
     }
 
 

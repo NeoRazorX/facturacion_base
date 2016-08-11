@@ -21,6 +21,7 @@ require_model('almacen.php');
 require_model('caja.php');
 require_model('serie.php');
 require_model('terminal_caja.php');
+require_model('forma_pago.php');
 
 class tpv_caja extends fs_controller {
 
@@ -32,6 +33,7 @@ class tpv_caja extends fs_controller {
     public $serie;
     public $terminal;
     public $terminales;
+    public $forma_pago;
 
     public function __construct() {
         parent::__construct(__CLASS__, 'Cajas', 'TPV', FALSE, TRUE);
@@ -268,6 +270,10 @@ class tpv_caja extends fs_controller {
 
     public function facturas_url(caja $caja) {
         return str_ireplace('tpv_caja', 'facturascaja', $this->url()) . '&idcaja=' . $caja->id;
+    }
+
+    public function recibos_url(caja $caja) {
+        return str_ireplace('tpv_caja', 'reciboscaja', $this->url()) . '&idcaja=' . $caja->id;
     }
 
 }

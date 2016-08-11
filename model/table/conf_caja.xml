@@ -23,12 +23,12 @@
     </columna>
     <columna>
         <nombre>start_time</nombre>
-        <tipo>integer</tipo>
+        <tipo>time</tipo>
         <nulo>NO</nulo>
     </columna>
     <columna>
         <nombre>end_time</nombre>
-        <tipo>integer</tipo>
+        <tipo>time</tipo>
         <nulo>NO</nulo>
     </columna>
     <columna>
