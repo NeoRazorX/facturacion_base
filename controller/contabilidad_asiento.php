@@ -271,6 +271,8 @@ class contabilidad_asiento extends fs_controller
          $this->new_error_msg('No se encuentra el ejercicio asociado al asiento.');
       
       $this->asiento->concepto = $_POST['concepto'];
+	  $this->asiento->tipodocumento = $_POST['concepto'];
+	  $this->asiento->cambio_concepto();
       $this->asiento->importe = floatval($_POST['importe']);
       
       /// obtenemos la divisa de las partidas
@@ -288,7 +290,7 @@ class contabilidad_asiento extends fs_controller
       {
          $continuar = TRUE;
          $numlineas = intval($_POST['numlineas']);
-         
+       //$this->asiento->tipodocumento = $this->asiento->concepto;  
          /// eliminamos las partidas que faltan
          foreach($this->asiento->get_partidas() as $pa)
          {

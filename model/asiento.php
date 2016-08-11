@@ -431,6 +431,15 @@ class asiento extends fs_model
 			 return TRUE;		 
    }
    
+   public function cambio_concepto()
+   {
+   				$sql = "UPDATE ".$this->table_name." SET idconcepto = ".$this->var2str($this->idconcepto).",
+   				tipodocumento = ".$this->var2str($this->tipodocumento)."
+				WHERE codejercicio = ".$this->var2str($this->codejercicio)." AND fecha=".$this->var2str($this->fecha)." AND idasiento =".$this->var2str($this->idasiento).";";
+				 if( $this->db->exec($sql) ) return TRUE;
+            		else return FALSE;
+   }
+   
    public function save()
    {
    
