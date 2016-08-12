@@ -298,7 +298,7 @@ class cliente extends \fs_model
    }
    
    /**
-    * Devuelve un cliente a partir del codcliente
+    * Devuelve el cliente que tenga ese codcliente.
     * @param type $cod
     * @return \cliente|boolean
     */
@@ -314,9 +314,9 @@ class cliente extends \fs_model
    }
    
    /**
-    * Devuelve la primera ocurrencia del cifnif en la lista de clientes.
+    * Devuelve el primer cliente que tenga $cifnif como cifnif.
     * Si el cifnif está en blanco y se proporciona una razón social,
-    * se devuelve la primera ocurrencia.
+    * se devuelve el primer cliente que tenga esa razón social.
     * @param type $cifnif
     * @param type $razon
     * @return boolean|\proveedor
@@ -334,6 +334,25 @@ class cliente extends \fs_model
          $cifnif = mb_strtolower($cifnif, 'UTF8');
          $sql = "SELECT * FROM ".$this->table_name." WHERE lower(cifnif) = ".$this->var2str($cifnif).";";
       }
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         return new \cliente($data[0]);
+      }
+      else
+         return FALSE;
+   }
+   
+   /**
+    * Devuelve el primer cliente que tenga $email como email.
+    * @param type $email
+    * @return boolean|\cliente
+    */
+   public function get_by_email($email)
+   {
+      $email = mb_strtolower($email, 'UTF8');
+      $sql = "SELECT * FROM ".$this->table_name." WHERE lower(email) = ".$this->var2str($email).";";
       
       $data = $this->db->select($sql);
       if($data)
@@ -465,7 +484,15 @@ class cliente extends \fs_model
    {
       $status = FALSE;
       
-      $this->codcliente = trim($this->codcliente);
+      if( is_null($this->codcliente) )
+      {
+         $this->codcliente = $this->get_new_codigo();
+      }
+      else
+      {
+         $this->codcliente = trim($this->codcliente);
+      }
+      
       $this->nombre = $this->no_html($this->nombre);
       $this->razonsocial = $this->no_html($this->razonsocial);
       $this->cifnif = $this->no_html($this->cifnif);
@@ -534,11 +561,6 @@ class cliente extends \fs_model
          }
          else
          {
-            if( is_null($this->codcliente) )
-            {
-               $this->codcliente = $this->get_new_codigo();
-            }
-            
             $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,razonsocial,tipoidfiscal,
                cifnif,telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,
                debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,personafisica) VALUES

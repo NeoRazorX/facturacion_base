@@ -427,7 +427,7 @@
                         </h3>
                      </div>
                      <div class="panel-body">
-                        <div class="col-sm-2">
+                        <div class="col-sm-3">
                            <div class="form-group">
                               <a href="{$fsc->pais->url()}">País</a>
                               <select class="form-control" name="pais">
@@ -453,19 +453,13 @@
                               <input class="form-control" type="text" name="ciudad" value="{$value->ciudad}"/>
                            </div>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-3">
                            <div class="form-group">
                               Código Postal:
                               <input class="form-control" type="text" name="codpostal" value="{$value->codpostal}" autocomplete="off"/>
                            </div>
                         </div>
-                        <div class="col-sm-2">
-                           <div class="form-group">
-                              <span class="text-capitalize">{#FS_APARTADO#}</span>:
-                              <input class="form-control" type="text" name="apartado" value="{$value->apartado}" autocomplete="off"/>
-                           </div>
-                        </div>
-                        <div class="col-sm-7">
+                        <div class="col-sm-6">
                            <div class="form-group">
                               Dirección:
                               <input class="form-control" type="text" name="direccion" value="{$value->direccion}" autocomplete="off"/>
@@ -479,7 +473,13 @@
                               </label>
                            </div>
                         </div>
-                        <div class="col-sm-5">
+                        <div class="col-sm-3">
+                           <div class="form-group">
+                              <span class="text-capitalize">{#FS_APARTADO#}</span>:
+                              <input class="form-control" type="text" name="apartado" value="{$value->apartado}" autocomplete="off"/>
+                           </div>
+                        </div>
+                        <div class="col-sm-3">
                            <div class="form-group">
                               Descripción:
                               <input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/>
@@ -488,7 +488,8 @@
                      </div>
                      <div class="panel-footer text-right">
                         <a class="btn btn-sm btn-danger pull-left" href="{$fsc->url()}&delete_dir={$value->id}#direcciones">
-                           <span class="glyphicon glyphicon-trash"></span>&nbsp; Eliminar
+                           <span class="glyphicon glyphicon-trash"></span>
+                           <span class='hidden-xs'>&nbsp; Eliminar</span>
                         </a>
                         <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
                            <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar

@@ -254,7 +254,7 @@ class proveedor extends \fs_model
    }
    
    /**
-    * Devuelve un proveedor a partir de su codproveedor
+    * Devuelve el proveedor que tenga ese codproveedor.
     * @param type $cod
     * @return boolean|\proveedor
     */
@@ -270,9 +270,9 @@ class proveedor extends \fs_model
    }
    
    /**
-    * Devuelve la primera ocurrencia del cifnif en la lista de proveedores.
+    * Devuelve el primer proveedor que tenga ese cifnif.
     * Si el cifnif está en blanco y se proporciona una razón social, se devuelve
-    * la primera ocurrencia.
+    * el primer proveedor con esa razón social.
     * @param type $cifnif
     * @param type $razon
     * @return boolean|\proveedor
@@ -290,6 +290,25 @@ class proveedor extends \fs_model
          $cifnif = mb_strtolower($cifnif, 'UTF8');
          $sql = "SELECT * FROM ".$this->table_name." WHERE lower(cifnif) = ".$this->var2str($cifnif).";";
       }
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         return new \proveedor($data[0]);
+      }
+      else
+         return FALSE;
+   }
+   
+   /**
+    * Devuelve el primer proveedor con $email como email.
+    * @param type $email
+    * @return boolean|\proveedor
+    */
+   public function get_by_email($email)
+   {
+      $email = mb_strtolower($email, 'UTF8');
+      $sql = "SELECT * FROM ".$this->table_name." WHERE lower(email) = ".$this->var2str($email).";";
       
       $data = $this->db->select($sql);
       if($data)
@@ -430,7 +449,15 @@ class proveedor extends \fs_model
    {
       $status = FALSE;
       
-      $this->codproveedor = trim($this->codproveedor);
+      if( is_null($this->codproveedor) )
+      {
+         $this->codproveedor = $this->get_new_codigo();
+      }
+      else
+      {
+         $this->codproveedor = trim($this->codproveedor);
+      }
+      
       $this->nombre = $this->no_html($this->nombre);
       $this->razonsocial = $this->no_html($this->razonsocial);
       $this->cifnif = $this->no_html($this->cifnif);
@@ -482,11 +509,6 @@ class proveedor extends \fs_model
          }
          else
          {
-            if( is_null($this->codproveedor) )
-            {
-               $this->codproveedor = $this->get_new_codigo();
-            }
-            
             $sql = "INSERT INTO ".$this->table_name." (codproveedor,nombre,razonsocial,tipoidfiscal,cifnif,
                telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,observaciones,
                regimeniva,acreedor,personafisica) VALUES (".$this->var2str($this->codproveedor).

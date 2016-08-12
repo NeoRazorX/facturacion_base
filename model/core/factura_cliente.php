@@ -237,7 +237,7 @@ class factura_cliente extends \fs_model
     */
    public $idimprenta;
    
-   public function __construct($f=FALSE)
+   public function __construct($f = FALSE)
    {
       parent::__construct('facturascli');
       if($f)
@@ -323,9 +323,9 @@ class factura_cliente extends \fs_model
          $this->numero2 = NULL;
          $this->codigorect = NULL;
          $this->codejercicio = NULL;
-         $this->codserie = NULL;
-         $this->codalmacen = NULL;
-         $this->codpago = NULL;
+         $this->codserie = $this->default_items->codserie();
+         $this->codalmacen = $this->default_items->codalmacen();
+         $this->codpago = $this->default_items->codpago();
          $this->coddivisa = NULL;
          $this->fecha = Date('d-m-Y');
          $this->hora = Date('H:i:s');
@@ -1189,7 +1189,7 @@ class factura_cliente extends \fs_model
     * @param type $order
     * @return \factura_cliente
     */
-   public function all($offset=0, $limit=FS_ITEM_LIMIT, $order='fecha DESC, codigo DESC')
+   public function all($offset = 0, $limit = FS_ITEM_LIMIT, $order = 'fecha DESC, codigo DESC')
    {
       $faclist = array();
       
@@ -1212,7 +1212,7 @@ class factura_cliente extends \fs_model
     * @param type $order
     * @return \factura_cliente
     */
-   public function all_sin_pagar($offset=0, $limit=FS_ITEM_LIMIT, $order='vencimiento ASC, codigo ASC')
+   public function all_sin_pagar($offset = 0, $limit = FS_ITEM_LIMIT, $order = 'vencimiento ASC, codigo ASC')
    {
       $faclist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE pagada = false ORDER BY ".$order;
@@ -1235,7 +1235,7 @@ class factura_cliente extends \fs_model
     * @param type $offset
     * @return \factura_cliente
     */
-   public function all_from_agente($codagente, $offset=0)
+   public function all_from_agente($codagente, $offset = 0)
    {
       $faclist = array();
       $sql = "SELECT * FROM ".$this->table_name.
@@ -1260,7 +1260,7 @@ class factura_cliente extends \fs_model
     * @param type $offset
     * @return \factura_cliente
     */
-   public function all_from_cliente($codcliente, $offset=0)
+   public function all_from_cliente($codcliente, $offset = 0)
    {
       $faclist = array();
       $sql = "SELECT * FROM ".$this->table_name.
@@ -1289,7 +1289,7 @@ class factura_cliente extends \fs_model
     * @param type $estado
     * @return \factura_cliente
     */
-   public function all_desde($desde, $hasta, $codserie=FALSE, $codagente=FALSE, $codcliente=FALSE, $estado=FALSE)
+   public function all_desde($desde, $hasta, $codserie = FALSE, $codagente = FALSE, $codcliente = FALSE, $estado = FALSE)
    {
       $faclist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE fecha >= ".$this->var2str($desde)." AND fecha <= ".$this->var2str($hasta);
@@ -1336,7 +1336,7 @@ class factura_cliente extends \fs_model
     * @param type $offset
     * @return \factura_cliente
     */
-   public function search($query, $offset=0)
+   public function search($query, $offset = 0)
    {
       $faclist = array();
       $query = mb_strtolower( $this->no_html($query), 'UTF8' );
@@ -1374,7 +1374,7 @@ class factura_cliente extends \fs_model
     * @param type $obs
     * @return \factura_cliente
     */
-   public function search_from_cliente($codcliente, $desde, $hasta, $serie, $obs='')
+   public function search_from_cliente($codcliente, $desde, $hasta, $serie, $obs = '')
    {
       $faclist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($codcliente).

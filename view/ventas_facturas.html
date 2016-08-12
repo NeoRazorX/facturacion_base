@@ -108,7 +108,7 @@
             <span class="glyphicon glyphicon-search"></span> &nbsp; Líneas
          </a>
          <div class="btn-group">
-            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
                <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-right">
@@ -359,7 +359,9 @@
          </td>
          <td>
             {$value->nombrecliente}
+            {if="$value->codcliente"}
             <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más facturas de {$value->nombrecliente}">[+]</a>
+            {/if}
          </td>
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right" title="{$fsc->show_precio($fsc->euro_convert($value->totaleuros))}">{$fsc->show_precio($value->total, $value->coddivisa)}</td>

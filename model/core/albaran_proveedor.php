@@ -171,7 +171,7 @@ class albaran_proveedor extends \fs_model
     */
    public $ptefactura;
 
-   public function __construct($a=FALSE)
+   public function __construct($a = FALSE)
    {
       parent::__construct('albaranesprov');
       if($a)
@@ -229,11 +229,11 @@ class albaran_proveedor extends \fs_model
          $this->numero = '';
          $this->numproveedor = '';
          $this->codejercicio = NULL;
-         $this->codserie = NULL;
+         $this->codserie = $this->default_items->codserie();
          $this->coddivisa = NULL;
-         $this->codpago = NULL;
+         $this->codpago = $this->default_items->codpago();
          $this->codagente = NULL;
-         $this->codalmacen = NULL;
+         $this->codalmacen = $this->default_items->codalmacen();
          $this->fecha = Date('d-m-Y');
          $this->hora = Date('H:i:s');
          $this->codproveedor = NULL;
@@ -661,12 +661,12 @@ class albaran_proveedor extends \fs_model
     * @param type $order
     * @return \albaran_proveedor
     */
-   public function all($offset=0, $order='fecha DESC, codigo DESC')
+   public function all($offset = 0, $order = 'fecha DESC, codigo DESC', $limit = FS_ITEM_LIMIT)
    {
       $albalist = array();
       $sql = "SELECT * FROM ".$this->table_name." ORDER BY ".$order;
       
-      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
          foreach($data as $a)
@@ -684,12 +684,12 @@ class albaran_proveedor extends \fs_model
     * @param type $order
     * @return \albaran_proveedor
     */
-   public function all_ptefactura($offset=0, $order='fecha ASC, codigo ASC')
+   public function all_ptefactura($offset = 0, $order = 'fecha ASC, codigo ASC', $limit = FS_ITEM_LIMIT)
    {
       $albalist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE ptefactura = true ORDER BY ".$order;
       
-      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
          foreach($data as $a)
@@ -707,7 +707,7 @@ class albaran_proveedor extends \fs_model
     * @param type $offset
     * @return \albaran_proveedor
     */
-   public function all_from_proveedor($codproveedor, $offset=0)
+   public function all_from_proveedor($codproveedor, $offset = 0)
    {
       $alblist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codproveedor = "
@@ -731,7 +731,7 @@ class albaran_proveedor extends \fs_model
     * @param type $offset
     * @return \albaran_proveedor
     */
-   public function all_from_agente($codagente, $offset=0)
+   public function all_from_agente($codagente, $offset = 0)
    {
       $alblist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codagente = "
@@ -803,7 +803,7 @@ class albaran_proveedor extends \fs_model
     * @param type $offset
     * @return \albaran_proveedor
     */
-   public function search($query, $offset=0)
+   public function search($query, $offset = 0)
    {
       $alblist = array();
       $query = $this->no_html( mb_strtolower($query, 'UTF8') );

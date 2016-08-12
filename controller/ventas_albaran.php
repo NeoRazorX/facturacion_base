@@ -495,6 +495,11 @@ class ventas_albaran extends fs_controller
       $factura->totalrecargo = $this->albaran->totalrecargo;
       $factura->porcomision = $this->albaran->porcomision;
       
+      if( is_null($factura->codagente) )
+      {
+         $factura->codagente = $this->user->codagente;
+      }
+      
       /// asignamos el ejercicio que corresponde a la fecha elegida
       $eje0 = $this->ejercicio->get_by_fecha($_REQUEST['facturar']);
       if($eje0)

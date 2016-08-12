@@ -215,7 +215,7 @@ class albaran_cliente extends \fs_model
     */
    public $femail;
    
-   public function __construct($a=FALSE)
+   public function __construct($a = FALSE)
    {
       parent::__construct('albaranescli');
       if($a)
@@ -296,12 +296,12 @@ class albaran_cliente extends \fs_model
          $this->idfactura = NULL;
          $this->codigo = NULL;
          $this->codagente = NULL;
-         $this->codserie = NULL;
+         $this->codserie = $this->default_items->codserie();
          $this->codejercicio = NULL;
          $this->codcliente = NULL;
-         $this->codpago = NULL;
+         $this->codpago = $this->default_items->codpago();
          $this->coddivisa = NULL;
-         $this->codalmacen = NULL;
+         $this->codalmacen = $this->default_items->codalmacen();
          $this->codpais = NULL;
          $this->coddir = NULL;
          $this->codpostal = '';
@@ -346,7 +346,7 @@ class albaran_cliente extends \fs_model
       return '';
    }
    
-   public function show_hora($s=TRUE)
+   public function show_hora($s = TRUE)
    {
       if($s)
       {
@@ -814,12 +814,12 @@ class albaran_cliente extends \fs_model
     * @param type $order
     * @return \albaran_cliente
     */
-   public function all($offset=0, $order='fecha DESC')
+   public function all($offset = 0, $order = 'fecha DESC', $limit = FS_ITEM_LIMIT)
    {
       $albalist = array();
       $sql = "SELECT * FROM ".$this->table_name." ORDER BY ".$order;
       
-      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
          foreach($data as $a)
@@ -837,12 +837,12 @@ class albaran_cliente extends \fs_model
     * @param type $order
     * @return \albaran_cliente
     */
-   public function all_ptefactura($offset=0, $order='fecha ASC')
+   public function all_ptefactura($offset = 0, $order = 'fecha ASC', $limit = FS_ITEM_LIMIT)
    {
       $albalist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE ptefactura = true ORDER BY ".$order;
       
-      $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+      $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
          foreach($data as $a)
@@ -860,7 +860,7 @@ class albaran_cliente extends \fs_model
     * @param type $offset
     * @return \albaran_cliente
     */
-   public function all_from_cliente($codcliente, $offset=0)
+   public function all_from_cliente($codcliente, $offset = 0)
    {
       $albalist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($codcliente)
@@ -884,7 +884,7 @@ class albaran_cliente extends \fs_model
     * @param type $offset
     * @return \albaran_cliente
     */
-   public function all_from_agente($codagente, $offset=0)
+   public function all_from_agente($codagente, $offset = 0)
    {
       $albalist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codagente = ".$this->var2str($codagente)
@@ -955,7 +955,7 @@ class albaran_cliente extends \fs_model
     * @param type $offset
     * @return \albaran_cliente
     */
-   public function search($query, $offset=0)
+   public function search($query, $offset = 0)
    {
       $alblist = array();
       $query = strtolower( $this->no_html($query) );
@@ -993,7 +993,7 @@ class albaran_cliente extends \fs_model
     * @param type $obs
     * @return \albaran_cliente
     */
-   public function search_from_cliente($codcliente, $desde, $hasta, $serie, $obs='')
+   public function search_from_cliente($codcliente, $desde, $hasta, $serie, $obs = '')
    {
       $albalist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($codcliente).

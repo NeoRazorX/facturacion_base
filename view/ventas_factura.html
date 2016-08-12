@@ -5,7 +5,9 @@
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('nueva_venta.js')}"></script>
 <script type="text/javascript">
+   {if="$fsc->cliente"}
    all_direcciones = {function="json_encode($fsc->cliente->get_direcciones())"};
+   {/if}
    
    function enviar_email(url)
    {
@@ -425,6 +427,7 @@
                               <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                            </span>
                            <select name="coddir" class="form-control" onchange="usar_direccion();">
+                           {if="$fsc->cliente"}
                               {loop="$fsc->cliente->get_direcciones()"}
                                  {if="$value->id==$fsc->factura->coddir"}
                                  <option value="{$value->id}" selected="">{$value->descripcion}</option>
@@ -434,6 +437,7 @@
                                  <option value="{$value->id}">{$value->descripcion}</option>
                                  {/if}
                               {/loop}
+                           {/if}
                            </select>
                         </div>
                      </div>
@@ -657,13 +661,15 @@
                            <select name="envio_coddir" class="form-control" onchange="usar_direccion_envio();">
                               <option value="">Ninguna</option>
                               <option value="">------</option>
-                              {loop="$fsc->cliente->get_direcciones()"}
-                                 {if="$value->direccion==$fsc->factura->envio_direccion"}
-                                 <option value="{$value->id}" selected="">{$value->descripcion}</option>
-                                 {else}
-                                 <option value="{$value->id}">{$value->descripcion}</option>
-                                 {/if}
-                              {/loop}
+                              {if="$fsc->cliente"}
+                                 {loop="$fsc->cliente->get_direcciones()"}
+                                    {if="$value->direccion==$fsc->factura->envio_direccion"}
+                                    <option value="{$value->id}" selected="">{$value->descripcion}</option>
+                                    {else}
+                                    <option value="{$value->id}">{$value->descripcion}</option>
+                                    {/if}
+                                 {/loop}
+                              {/if}
                            </select>
                         </div>
                      </div>
