@@ -688,6 +688,20 @@ class nueva_venta extends fs_controller
          $albaran->envio_direccion = $_POST['envio_direccion'];
          $albaran->envio_apartado = $_POST['envio_apartado'];
          
+         //transporte
+         $albaran->envio_nombre = $_POST['envio_nombre'];
+         $albaran->envio_apellidos = $_POST['envio_apellidos'];
+         $albaran->envio_codtrans = NULL;
+         if ($_POST['envio_codtrans'] != '')
+         {
+            $albaran->envio_codtrans = $_POST['envio_codtrans'];
+         }
+         $albaran->envio_codigo = $_POST['envio_codigo'];
+         $albaran->envio_provincia = $_POST['envio_provincia'];
+         $albaran->envio_ciudad = $_POST['envio_ciudad'];
+         $albaran->envio_codpostal = $_POST['envio_codpostal'];
+         $albaran->envio_direccion = $_POST['envio_direccion'];
+         
          if( $albaran->save() )
          {
             $art0 = new articulo();
@@ -912,6 +926,20 @@ class nueva_venta extends fs_controller
          $factura->envio_codpostal = $_POST['envio_codpostal'];
          $factura->envio_direccion = $_POST['envio_direccion'];
          $factura->envio_apartado = $_POST['envio_apartado'];
+         
+         //transporte
+         $factura->envio_nombre = $_POST['envio_nombre'];
+         $factura->envio_apellidos = $_POST['envio_apellidos'];
+         $factura->envio_codtrans = NULL;
+         if ($_POST['envio_codtrans'] != '')
+         {
+            $factura->envio_codtrans = $_POST['envio_codtrans'];
+         }
+         $factura->envio_codigo = $_POST['envio_codigo'];
+         $factura->envio_provincia = $_POST['envio_provincia'];
+         $factura->envio_ciudad = $_POST['envio_ciudad'];
+         $factura->envio_codpostal = $_POST['envio_codpostal'];
+         $factura->envio_direccion = $_POST['envio_direccion'];
          
          $regularizacion = new regularizacion_iva();
          if( $regularizacion->get_fecha_inside($factura->fecha) )
@@ -1173,6 +1201,20 @@ class nueva_venta extends fs_controller
          $presupuesto->envio_direccion = $_POST['envio_direccion'];
          $presupuesto->envio_apartado = $_POST['envio_apartado'];
          
+         //transporte
+         $presupuesto->envio_nombre = $_POST['envio_nombre'];
+         $presupuesto->envio_apellidos = $_POST['envio_apellidos'];
+         $presupuesto->envio_codtrans = NULL;
+         if ($_POST['envio_codtrans'] != '')
+         {
+            $presupuesto->envio_codtrans = $_POST['envio_codtrans'];
+         }
+         $presupuesto->envio_codigo = $_POST['envio_codigo'];
+         $presupuesto->envio_provincia = $_POST['envio_provincia'];
+         $presupuesto->envio_ciudad = $_POST['envio_ciudad'];
+         $presupuesto->envio_codpostal = $_POST['envio_codpostal'];
+         $presupuesto->envio_direccion = $_POST['envio_direccion'];
+         
          if( $presupuesto->save() )
          {
             $art0 = new articulo();
@@ -1384,6 +1426,21 @@ class nueva_venta extends fs_controller
          $pedido->envio_direccion = $_POST['envio_direccion'];
          $pedido->envio_apartado = $_POST['envio_apartado'];
          
+         //transporte
+         $pedido->envio_nombre = $_POST['envio_nombre'];
+         $pedido->envio_apellidos = $_POST['envio_apellidos'];
+         $pedido->envio_codtrans = NULL;
+         if ($_POST['envio_codtrans'] != '')
+         {
+            $pedido->envio_codtrans = $_POST['envio_codtrans'];
+         }
+         $pedido->envio_codigo = $_POST['envio_codigo'];
+         $pedido->envio_provincia = $_POST['envio_provincia'];
+         $pedido->envio_ciudad = $_POST['envio_ciudad'];
+         $pedido->envio_codpostal = $_POST['envio_codpostal'];
+         $pedido->envio_direccion = $_POST['envio_direccion'];
+
+
          if( $pedido->save() )
          {
             $art0 = new articulo();

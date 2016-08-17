@@ -427,6 +427,86 @@
                </div>
             </div>
          </div>
+         <div role="tabpanel" class="tab-pane" id="envio">
+            <div class="container-fluid" style="margin-top: 10px;">
+               <div class="row">
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        Direcciones Cliente:
+                        <select id="direnvio" class="form-control" onchange="usar_direccion(f_new_albaran);">
+                           <option value="">Seleccione</option>
+                           <option value="">------</option>
+                           {loop="$fsc->cliente_s->get_direcciones()"}
+                           {if="$value->domenvio"}
+                           <option value="{$value->id}">{$value->descripcion}</option>
+                           {/if}
+                           {/loop}
+                        </select>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        Nombre:
+                        <input type="text" id="envio_nombre" value="" name="envio_nombre" class="form-control" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-4">
+                     <div class="form-group">
+                        Apellidos:
+                        <input type="text" name="envio_apellidos" value="" class="form-control" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        <a href="{$fsc->agencia->url()}">Agencia</a>:
+                        <select name="envio_codtrans" class="form-control">
+                           <option value="">Ninguna</option>
+                           <option value="">------</option>
+                           {loop="$fsc->agencia->all()"}
+                           {if="$fsc->albaran->envio_codtrans==$value->codtrans"}
+                           <option value="{$value->codtrans}" selected="">{$value->nombre}</option>
+                           {else}
+                           <option value="{$value->codtrans}">{$value->nombre}</option>
+                           {/if}
+                           {/loop}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-sm-4">
+                     <div class="form-group">
+                        Código de seguimiento:
+                        <input type="text" name="envio_codigo" value="" class="form-control" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        <span class="text-capitalize">{#FS_PROVINCIA#}</span>:
+                        <input type="text" name="envio_provincia" value="" id="ac_provincia2" class="form-control" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        Ciudad:
+                        <input type="text" name="envio_ciudad" value="" class="form-control" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <div class="form-group">
+                        Código Postal:
+                        <input type="text" name="envio_codpostal" value="" class="form-control" autocomplete="off"/>
+                     </div>
+                  </div>
+                  <div class="col-sm-6">
+                     <div class="form-group">
+                        Dirección:
+                        <input type="text" name="envio_direccion" value="" class="form-control" autocomplete="off"/>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
       </div>
    </div>
    

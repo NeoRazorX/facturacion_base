@@ -82,26 +82,20 @@
                <table class="table table-hover">
                   <thead>
                      <tr>
-                        <th>Referencia + Descripción</th>
-                        <th class="text-right">Vendido</th>
-                        <th class="text-right">Total</th>
+                        <td>
+                           <a href="{$value['articulo']->url()}">{$value['articulo']->referencia}</a>
+                           {$value['articulo']->descripcion()}
+                        </td>
+                        <td class="text-right">{$value['unidades']}</td>
+                        <td class="text-right">{$fsc->show_precio($value['total'])}</td>
                      </tr>
-                  </thead>
-                  {loop="$fsc->top_ventas"}
-                  <tr>
-                     <td>
-                        <a href="{$value['articulo']->url()}">{$value['articulo']->referencia}</a>
-                        {$value['articulo']->descripcion()}
-                     </td>
-                     <td class="text-right">{$value['unidades']}</td>
-                     <td class="text-right">{$fsc->show_precio($value['total'])}</td>
-                  </tr>
-                  {else}
-                  <tr class="warning">
-                     <td colspan="3">Sin resultados.</td>
-                  </tr>
-                  {/loop}
-               </table>
+                     {else}
+                     <tr class="warning">
+                        <td colspan="3">Sin resultados.</td>
+                     </tr>
+                     {/loop}
+                  </table>
+               </div>
             </div>
          </div>
          <div class="panel panel-warning">
@@ -117,9 +111,6 @@
                         {$value->descripcion()}
                         <span class="badge">{$value->stockfis}</span>
                      </div>
-                     {else}
-                     <div class="col-sm-12">Sin resultados.</div>
-                     {/loop}
                   </div>
                </div>
             </div>
@@ -137,9 +128,6 @@
                         {$value[0]->descripcion()}
                         <span class="badge">{$value[1]}</span>
                      </div>
-                     {else}
-                     <div class="col-sm-12">Sin resultados.</div>
-                     {/loop}
                   </div>
                </div>
             </div>
@@ -314,58 +302,59 @@
    {/if}
 </ul>
 
-<div class="modal fade" id="modal_recal_stock" tabindex="-1" role="dialog">
-   <div class="modal-dialog" role="document">
-      <div class="modal-content">
-         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-               <span aria-hidden="true">&times;</span>
-            </button>
-            <h4 class="modal-title">Recalcular stock</h4>
-         </div>
-         <div class="modal-body">
-            <p class='help-block'>
-               Se recalculará el stock de todos los artículos a partir de las
-               regularizaciones (de stock) y los albaranes y facturas de compra
-               y venta.
-            </p>
-            <p class='help-block'>
-               <b>Advertencia</b>: si el artículo no tiene ningún movimiento,
-               ni regularización, el stock resultante <b>será 0</b>.
-            </p>
-         </div>
-         <div class="modal-footer">
-            <a href="{$fsc->url()}&tab=stock&recalcular=TRUE&offset=0" class="btn btn-sm btn-warning">
-               <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Recalcular stock</span>
-            </a>
+   <div class="modal fade" id="modal_recal_stock" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+               </button>
+               <h4 class="modal-title">Recalcular stock</h4>
+            </div>
+            <div class="modal-body">
+               <p class='help-block'>
+                  Se recalculará el stock de todos los artículos a partir de las
+                  regularizaciones (de stock) y los albaranes y facturas de compra
+                  y venta.
+               </p>
+               <p class='help-block'>
+                  <b>Advertencia</b>: si el artículo no tiene ningún movimiento,
+                  ni regularización, el stock resultante <b>será 0</b>.
+               </p>
+            </div>
+            <div class="modal-footer">
+               <a href="{$fsc->url()}&tab=stock&recalcular=TRUE&offset=0" class="btn btn-sm btn-warning">
+                  <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+                  <span class="hidden-xs">&nbsp; Recalcular stock</span>
+               </a>
+            </div>
          </div>
       </div>
    </div>
-</div>
-{elseif="$fsc->pestanya=='impuestos'"}
-<br/>
-<form action="{$fsc->url()}&tab=impuestos" method="post" class="form">
-   <div class="container-fluid">
-      <div class="row">
-         <div class="col-sm-3">
-            <div class="form-group">
-               <a href="{$fsc->impuesto->url()}">Impuesto</a>
-               <select name="codimpuesto" class="form-control" onchange="this.form.submit()">
-                  {loop="$fsc->impuesto->all()"}
+   {elseif="$fsc->pestanya=='impuestos'"}
+   <br/>
+   <form action="{$fsc->url()}&tab=impuestos" method="post" class="form">
+      <div class="container-fluid">
+         <div class="row">
+            <div class="col-sm-3">
+               <div class="form-group">
+                  <a href="{$fsc->impuesto->url()}">Impuesto</a>
+                  <select name="codimpuesto" class="form-control" onchange="this.form.submit()">
+                     {loop="$fsc->impuesto->all()"}
                      {if="$value->codimpuesto==$fsc->codimpuesto"}
                      <option value="{$value->codimpuesto}" selected="">{$value->descripcion}</option>
                      {else}
                      <option value="{$value->codimpuesto}">{$value->descripcion}</option>
                      {/if}
-                  {/loop}
-                  <option value="">------</option>
-                  {if="$fsc->codimpuesto==''"}
-                  <option value="" selected="">Sin impuesto</option>
-                  {else}
-                  <option value="">Sin impuesto</option>
-                  {/if}
-               </select>
+                     {/loop}
+                     <option value="">------</option>
+                     {if="$fsc->codimpuesto==''"}
+                     <option value="" selected="">Sin impuesto</option>
+                     {else}
+                     <option value="">Sin impuesto</option>
+                     {/if}
+                  </select>
+               </div>
             </div>
          </div>
          <div class="col-sm-2">
@@ -388,20 +377,51 @@
             </div>
          </div>
       </div>
-   </div>
-</form>
-<div class="table-responsive">
-   <table class="table table-hover">
-      <thead>
-         <tr>
-            <th class="text-left">Familia</th>
-            <th class="text-left">Fabricante</th>
-            <th class="text-left">Referencia + Descripción</th>
-            <th class="text-right">Precio</th>
-            <th class="text-right">Impuesto</th>
-            <th class="text-right">Precio+{#FS_IVA#}</th>
-            <th class="text-right">Stock</th>
-            <th class="text-right"></th>
+   </form>
+   <div class="table-responsive">
+      <table class="table table-hover">
+         <thead>
+            <tr>
+               <th class="text-left">Familia</th>
+               <th class="text-left">Fabricante</th>
+               <th class="text-left">Referencia + Descripción</th>
+               <th class="text-right">Precio</th>
+               <th class="text-right">Impuesto</th>
+               <th class="text-right">Precio+{#FS_IVA#}</th>
+               <th class="text-right">Stock</th>
+               <th class="text-right"></th>
+            </tr>
+         </thead>
+         {loop="$fsc->resultados"}
+         <tr class='clickableRow{if="$value->bloqueado"} danger{elseif="$value->stockfis<=$value->stockmin"} warning{/if}' href='{$value->url()}'>
+            <td>
+               {if="is_null($value->codfamilia)"}
+               <span>-</span>
+               {else}
+               {$value->codfamilia}
+               <a href="index.php?page=ventas_familia&cod={$value->codfamilia}" class="cancel_clickable" title="Ver más artículos de esta familia">[+]</a>
+               {/if}
+            </td>
+            <td>
+               {if="is_null($value->codfabricante)"}
+               <span>-</span>
+               {else}
+               {$value->codfabricante}
+               <a href="index.php?page=ventas_fabricante&cod={$value->codfabricante}" class="cancel_clickable" title="Ver más artículos de este fabricante">[+]</a>
+               {/if}
+            </td>
+            <td><a href="{$value->url()}">{$value->referencia}</a> {$value->descripcion}</td>
+            <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp)}</span></td>
+            <td class="text-right info">{$value->codimpuesto}</td>
+            <td class="text-right"><span title="actualizado el {$value->factualizado}">{$fsc->show_precio($value->pvp_iva())}</span></td>
+            <td class="text-right">
+               {if="$value->nostock"}-{else}{$value->stockfis}{/if}
+            </td>
+            <td class="text-right">
+               {if="$value->publico"}
+               <span class="glyphicon glyphicon-globe" aria-hidden="true" title="Artículo público"></span>
+               {/if}
+            </td>
          </tr>
       </thead>
       {loop="$fsc->resultados"}
@@ -471,8 +491,7 @@
             }
          }
       });
-   });
-</script>
+   </script>
 
 <br/>
 <div class="container-fluid">
@@ -692,22 +711,34 @@
             </form>
       </div>
    </div>
-</div>
 
-{if="$fsc->resultados"}
-<div class="table-responsive">
-   <table class="table table-hover">
-      <thead>
-         <tr>
-            <th>Referencia</th>
-            <th>Almacén</th>
-            <th>Documento</th>
-            <th>Cliente/Proveedor</th>
-            <th class="text-right">Movimiento</th>
-            <th class="text-right">Precio</th>
-            <th class="text-right">%Dto.</th>
-            <th class="text-right">Cantidad final</th>
-            <th class="text-right">Fecha</th>
+   {if="$fsc->resultados"}
+   <div class="table-responsive">
+      <table class="table table-hover">
+         <thead>
+            <tr>
+               <th>Referencia</th>
+               <th>Almacén</th>
+               <th>Documento</th>
+               <th>Cliente/Proveedor</th>
+               <th class="text-right">Movimiento</th>
+               <th class="text-right">Precio</th>
+               <th class="text-right">%Dto.</th>
+               <th class="text-right">Cantidad final</th>
+               <th class="text-right">Fecha</th>
+            </tr>
+         </thead>
+         {loop="$fsc->resultados"}
+         <tr class="clickableRow" href="{$value['url']}">
+            <td>{$value['referencia']}</td>
+            <td>{$value['codalmacen']}</td>
+            <td><a href="{$value['url']}">{$value['origen']}</a></td>
+            <td>{$value['clipro']}</td>
+            <td class="text-right">{$value['movimiento']}</td>
+            <td class="text-right">{$fsc->show_precio($value['precio'])}</td>
+            <td class="text-right">{$fsc->show_numero($value['dto'])}</td>
+            <td class='text-right{if="$value['final']<0"} danger{/if}'>{$value['final']}</td>
+            <td class="text-right">{$value['fecha']}</td>
          </tr>
       </thead>
       {loop="$fsc->resultados"}
