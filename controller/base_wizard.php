@@ -52,7 +52,7 @@ class base_wizard extends fs_controller
    {
       $this->recargar = FALSE;
       
-      if( floatval($this->version()) >= 2016.011 )
+      if( floatval($this->version()) >= 2016.017 )
       {
          $this->private_core2();
       }

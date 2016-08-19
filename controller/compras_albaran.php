@@ -269,6 +269,12 @@ class compras_albaran extends fs_controller
                      if($value->idlinea == intval($_POST['idlinea_'.$num]))
                      {
                         $encontrada = TRUE;
+                        $regimeniva = 'general';
+                        if($proveedor)
+                        {
+                           $regimeniva = $proveedor->regimeniva;
+                        }
+                        
                         $cantidad_old = $value->cantidad;
                         $lineas[$k]->cantidad = floatval($_POST['cantidad_'.$num]);
                         $lineas[$k]->pvpunitario = floatval($_POST['pvp_'.$num]);
@@ -281,7 +287,7 @@ class compras_albaran extends fs_controller
                         $lineas[$k]->iva = 0;
                         $lineas[$k]->recargo = 0;
                         $lineas[$k]->irpf = floatval($_POST['irpf_'.$num]);
-                        if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
+                        if( !$serie->siniva AND $regimeniva != 'Exento' )
                         {
                            $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$num]);
                            if($imp0)
@@ -317,6 +323,7 @@ class compras_albaran extends fs_controller
                         }
                         else
                            $this->new_error_msg("¡Imposible modificar la línea del artículo ".$value->referencia."!");
+                        
                         break;
                      }
                   }

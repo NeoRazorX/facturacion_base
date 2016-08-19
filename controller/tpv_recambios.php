@@ -472,13 +472,18 @@ class tpv_recambios extends fs_controller
          
          $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$forma_pago->vencimiento));
          
+         $factura->codcliente = $this->cliente_s->codcliente;
+         $factura->cifnif = $_POST['cifnif'];
+         $factura->nombrecliente = $_POST['nombrecliente'];
+         $factura->ciudad = $this->empresa->ciudad;
+         $factura->codpais = $this->empresa->codpais;
+         $factura->codpostal = $this->empresa->codpostal;
+         $factura->provincia = $this->empresa->provincia;
+         
          foreach($this->cliente_s->get_direcciones() as $d)
          {
             if($d->domfacturacion)
             {
-               $factura->codcliente = $this->cliente_s->codcliente;
-               $factura->cifnif = $this->cliente_s->cifnif;
-               $factura->nombrecliente = $this->cliente_s->razonsocial;
                $factura->apartado = $d->apartado;
                $factura->ciudad = $d->ciudad;
                $factura->coddir = $d->id;
@@ -495,10 +500,6 @@ class tpv_recambios extends fs_controller
          {
             $this->new_error_msg("El ".FS_IVA." de ese periodo ya ha sido regularizado."
                     . " No se pueden añadir más facturas en esa fecha.");
-         }
-         else if( is_null($factura->codcliente) )
-         {
-            $this->new_error_msg("No hay ninguna dirección asociada al cliente.");
          }
          else if( $factura->save() )
          {

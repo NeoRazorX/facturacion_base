@@ -151,9 +151,12 @@ class ventas_clientes extends fs_controller
          $cliente->tipoidfiscal = $_POST['tipoidfiscal'];
          $cliente->cifnif = $_POST['cifnif'];
          
-         if($_POST['scodgrupo'] != '')
+         if( isset($_POST['scodgrupo']) )
          {
-            $cliente->codgrupo = $_POST['scodgrupo'];
+            if($_POST['scodgrupo'] != '')
+            {
+               $cliente->codgrupo = $_POST['scodgrupo'];
+            }
          }
          
          if( isset($_POST['telefono1']) )

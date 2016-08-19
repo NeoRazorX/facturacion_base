@@ -348,7 +348,9 @@
             {/if}
          </td>
          <td>{$value->observaciones_resume()}</td>
-         <td class="text-right" title="{$fsc->show_precio($fsc->euro_convert($value->totaleuros))}">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
+         <td class="text-right" title="{$fsc->show_precio($fsc->euro_convert($value->totaleuros, $value->coddivisa, $value->tasaconv))}">
+            {$fsc->show_precio($value->total, $value->coddivisa)}
+         </td>
          <td class="text-right" title="Hora {$value->hora}">
             {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
          </td>

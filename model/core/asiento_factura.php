@@ -113,6 +113,11 @@ class asiento_factura
       {
          $subcuenta_prov = $proveedor->get_subcuenta($factura->codejercicio);
       }
+      else
+      {
+         /// buscamos la cuenta 0 de proveedores
+         $subcuenta_prov = $this->subcuenta->get_cuentaesp('PROVEE', $factura->codejercicio);
+      }
       
       if( !$subcuenta_prov )
       {
@@ -196,7 +201,6 @@ class asiento_factura
                   $partida1->debe = $li->totaliva*$tasaconv;
                   $partida1->idcontrapartida = $subcuenta_prov->idsubcuenta;
                   $partida1->codcontrapartida = $subcuenta_prov->codsubcuenta;
-                  $partida1->cifnif = $proveedor->cifnif;
                   $partida1->documento = $asiento->documento;
                   $partida1->tipodocumento = $asiento->tipodocumento;
                   $partida1->codserie = $factura->codserie;
@@ -205,6 +209,12 @@ class asiento_factura
                   $partida1->iva = $li->iva;
                   $partida1->coddivisa = $this->empresa->coddivisa;
                   $partida1->tasaconv = $tasaconv2;
+                  
+                  if($proveedor)
+                  {
+                     $partida1->cifnif = $proveedor->cifnif;
+                  }
+                  
                   if( !$partida1->save() )
                   {
                      $asiento_correcto = FALSE;
@@ -221,7 +231,6 @@ class asiento_factura
                      $partida11->debe = $li->totalrecargo*$tasaconv;
                      $partida11->idcontrapartida = $subcuenta_prov->idsubcuenta;
                      $partida11->codcontrapartida = $subcuenta_prov->codsubcuenta;
-                     $partida11->cifnif = $proveedor->cifnif;
                      $partida11->documento = $asiento->documento;
                      $partida11->tipodocumento = $asiento->tipodocumento;
                      $partida11->codserie = $factura->codserie;
@@ -230,6 +239,12 @@ class asiento_factura
                      $partida11->recargo = $li->recargo;
                      $partida11->coddivisa = $this->empresa->coddivisa;
                      $partida11->tasaconv = $tasaconv2;
+                     
+                     if($proveedor)
+                     {
+                        $partida11->cifnif = $proveedor->cifnif;
+                     }
+                     
                      if( !$partida11->save() )
                      {
                         $asiento_correcto = FALSE;
@@ -466,6 +481,11 @@ class asiento_factura
       {
          $subcuenta_cli = $cliente->get_subcuenta($factura->codejercicio);
       }
+      else
+      {
+         /// buscamos la cuenta 0 de clientes
+         $subcuenta_cli = $this->subcuenta->get_cuentaesp('CLIENT', $factura->codejercicio);
+      }
       
       if( !$subcuenta_cli )
       {
@@ -549,7 +569,6 @@ class asiento_factura
                   $partida1->haber = $li->totaliva*$tasaconv;
                   $partida1->idcontrapartida = $subcuenta_cli->idsubcuenta;
                   $partida1->codcontrapartida = $subcuenta_cli->codsubcuenta;
-                  $partida1->cifnif = $cliente->cifnif;
                   $partida1->documento = $asiento->documento;
                   $partida1->tipodocumento = $asiento->tipodocumento;
                   $partida1->codserie = $factura->codserie;
@@ -558,6 +577,12 @@ class asiento_factura
                   $partida1->iva = $li->iva;
                   $partida1->coddivisa = $this->empresa->coddivisa;
                   $partida1->tasaconv = $tasaconv2;
+                  
+                  if($cliente)
+                  {
+                     $partida1->cifnif = $cliente->cifnif;
+                  }
+                  
                   if( !$partida1->save() )
                   {
                      $asiento_correcto = FALSE;
@@ -574,7 +599,6 @@ class asiento_factura
                      $partida11->haber = $li->totalrecargo*$tasaconv;
                      $partida11->idcontrapartida = $subcuenta_cli->idsubcuenta;
                      $partida11->codcontrapartida = $subcuenta_cli->codsubcuenta;
-                     $partida11->cifnif = $cliente->cifnif;
                      $partida11->documento = $asiento->documento;
                      $partida11->tipodocumento = $asiento->tipodocumento;
                      $partida11->codserie = $factura->codserie;
@@ -583,6 +607,12 @@ class asiento_factura
                      $partida11->recargo = $li->recargo;
                      $partida11->coddivisa = $this->empresa->coddivisa;
                      $partida11->tasaconv = $tasaconv2;
+                     
+                     if($cliente)
+                     {
+                        $partida11->cifnif = $cliente->cifnif;
+                     }
+                     
                      if( !$partida11->save() )
                      {
                         $asiento_correcto = FALSE;
@@ -808,6 +838,7 @@ class asiento_factura
          $importe = $asiento->importe;
       }
       $importe = abs($importe);
+      $importe2 = abs($asiento->importe);
       
       $nasientop = new \asiento();
       $nasientop->editable = FALSE;
@@ -882,7 +913,7 @@ class asiento_factura
          $encontrada = FALSE;
          foreach($asiento->get_partidas() as $par)
          {
-            if( $nasientop->floatcmp( abs($par->debe), $importe, FS_NF0) )
+            if( $nasientop->floatcmp( abs($par->debe), $importe, FS_NF0) OR $nasientop->floatcmp( abs($par->debe), $importe2, FS_NF0) )
             {
                if(!$subclipro)
                {
@@ -922,7 +953,7 @@ class asiento_factura
                }
                break;
             }
-            else if( $nasientop->floatcmp( abs($par->haber), $importe, FS_NF0) )
+            else if( $nasientop->floatcmp( abs($par->haber), $importe, FS_NF0) OR $nasientop->floatcmp( abs($par->haber), $importe2, FS_NF0) )
             {
                if(!$subclipro)
                {

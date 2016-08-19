@@ -12428,12 +12428,6 @@
       <coddivisa>EUR</coddivisa>
    </subcuenta>
    <subcuenta>
-      <codcuenta>4300</codcuenta>
-      <codsubcuenta>4300000001</codsubcuenta>
-      <descripcion>Q2xpZW50ZXMgKGV1cm9zKQ==</descripcion>
-      <coddivisa>EUR</coddivisa>
-   </subcuenta>
-   <subcuenta>
       <codcuenta>4304</codcuenta>
       <codsubcuenta>4304000000</codsubcuenta>
       <descripcion>Q2xpZW50ZXMgKG1vbmVkYSBleHRyYW5qZXJhKQ==</descripcion>

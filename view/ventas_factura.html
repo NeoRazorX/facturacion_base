@@ -152,7 +152,11 @@
                   {/loop}
                </li>
                <li title="cliente: {$fsc->factura->codcliente}">
-                  <a href="{$fsc->factura->cliente_url()}">{$fsc->factura->nombrecliente}</a>
+                  {if="$fsc->cliente"}
+                     <a href="{$fsc->cliente->url()}">{$fsc->factura->nombrecliente}</a>
+                  {else}
+                     ???
+                  {/if}
                </li>
                {if="$fsc->cliente"}
                   {if="$fsc->cliente->nombre!=$fsc->factura->nombrecliente"}
@@ -336,7 +340,7 @@
                      <td></td>
                      <td class="recargo"></td>
                      <td class="irpf"></td>
-                     <td class="text-right"><b>{$fsc->show_precio($fsc->euro_convert($fsc->factura->totaleuros))}</b></td>
+                     <td class="text-right"><b>{$fsc->show_precio($fsc->euro_convert($fsc->factura->totaleuros, $fsc->factura->coddivisa, $fsc->factura->tasaconv))}</b></td>
                   </tr>
                   {/if}
                </table>

@@ -215,13 +215,19 @@
             </div>
             <ul class="nav nav-tabs nav-justified" role="tablist">
                <li role="presentation" class="active">
-                  <a href="#pago" aria-controls="pago" role="tab" data-toggle="tab">
+                  <a href="#tab_pago" aria-controls="tab_pago" role="tab" data-toggle="tab">
                      <span class="glyphicon glyphicon-usd"></span>
                      <span class="hidden-xs">&nbsp; Pago</span>
                   </a>
                </li>
                <li role="presentation">
-                  <a href="#opciones" aria-controls="opciones" role="tab" data-toggle="tab">
+                  <a href="#tab_cliente" aria-controls="tab_cliente" role="tab" data-toggle="tab">
+                     <span class="glyphicon glyphicon-user"></span>
+                     <span class="hidden-xs">&nbsp; Cliente</span>
+                  </a>
+               </li>
+               <li role="presentation">
+                  <a href="#tab_opciones" aria-controls="tab_opciones" role="tab" data-toggle="tab">
                      <span class="glyphicon glyphicon-cog"></span>
                      <span class="hidden-xs">&nbsp; Opciones</span>
                   </a>
@@ -229,7 +235,7 @@
             </ul>
             <div class="modal-body">
                <div class="tab-content">
-                  <div role="tabpanel" class="tab-pane active" id="pago">
+                  <div role="tabpanel" class="tab-pane active" id="tab_pago">
                      <div class="form-group">
                         <div class="input-group">
                            <span class="input-group-addon">Total</span>
@@ -261,13 +267,25 @@
                         </select>
                      </div>
                   </div>
-                  <div role="tabpanel" class="tab-pane" id="opciones">
+                  <div role="tabpanel" class="tab-pane" id="tab_cliente">
+                     <div class="form-group">
+                        Nombre:
+                        <input class="form-control" type="text" name="nombrecliente" value="{$fsc->cliente_s->razonsocial}" autocomplete="off"/>
+                     </div>
+                     <div class="form-group">
+                        <div class="input-group">
+                           <span class="input-group-addon">{#FS_CIFNIF#}</span>
+                           <input class="form-control" type="text" name="cifnif" value="{$fsc->cliente_s->cifnif}" autocomplete="off"/>
+                        </div>
+                     </div>
                      <div class="form-group">
                         <input class="form-control" type="text" name="numero2" placeholder="{#FS_NUMERO2#}" autocomplete="off"/>
                      </div>
                      <div class="form-group">
-                        <textarea class="form-control" name="observaciones" placeholder="Observaciones"></textarea>
+                        <textarea class="form-control" name="observaciones" placeholder="Observaciones" rows="4"></textarea>
                      </div>
+                  </div>
+                  <div role="tabpanel" class="tab-pane" id="tab_opciones">
                      <div class="form-group">
                         <a href="{$fsc->divisa->url()}">Divisa</a>:
                         <select name="divisa" class="form-control">

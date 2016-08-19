@@ -846,7 +846,13 @@ class factura_cliente extends \fs_model
       $this->envio_ciudad = $this->no_html($this->envio_ciudad);
       $this->envio_provincia = $this->no_html($this->envio_provincia);
       $this->observaciones = $this->no_html($this->observaciones);
-      $this->totaleuros = round($this->total / $this->tasaconv, 2);
+      
+      /**
+       * Usamos el euro como divisa puente a la hora de sumar, comparar
+       * o convertir cantidades en varias divisas. Por este motivo necesimos
+       * muchos decimales.
+       */
+      $this->totaleuros = round($this->total / $this->tasaconv, 5);
       
       if( $this->floatcmp($this->total, $this->neto+$this->totaliva-$this->totalirpf+$this->totalrecargo, FS_NF0, TRUE) )
       {

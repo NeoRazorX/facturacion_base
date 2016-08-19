@@ -364,7 +364,9 @@
             {/if}
          </td>
          <td>{$value->observaciones_resume()}</td>
-         <td class="text-right" title="{$fsc->show_precio($fsc->euro_convert($value->totaleuros))}">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
+         <td class="text-right" title="{$fsc->show_precio($fsc->euro_convert($value->totaleuros, $value->coddivisa, $value->tasaconv))}">
+            {$fsc->show_precio($value->total, $value->coddivisa)}
+         </td>
          {if="$fsc->codagente!==''"}
          <td class="text-right info">
             {$fsc->show_precio($value->neto*$value->porcomision/100, $value->coddivisa)}

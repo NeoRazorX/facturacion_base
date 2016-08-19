@@ -424,12 +424,16 @@ class cliente extends \fs_model
          $ccli = $cuenta->get_cuentaesp('CLIENT', $codejercicio);
          if($ccli)
          {
+            $continuar = FALSE;
+            
             $subc0 = $ccli->new_subcuenta($this->codcliente);
-            $subc0->descripcion = $this->nombre;
-            if( !$subc0->save() )
+            if($subc0)
             {
-               $this->new_error_msg('Imposible crear la subcuenta para el cliente '.$this->codcliente);
-               $continuar = FALSE;
+               $subc0->descripcion = $this->nombre;
+               if( $subc0->save() )
+               {
+                  $continuar = TRUE;
+               }
             }
             
             if($continuar)
@@ -445,6 +449,10 @@ class cliente extends \fs_model
                }
                else
                   $this->new_error_msg('Imposible asociar la subcuenta para el cliente '.$this->codcliente);
+            }
+            else
+            {
+               $this->new_error_msg('Imposible crear la subcuenta para el cliente '.$this->codcliente);
             }
          }
          else

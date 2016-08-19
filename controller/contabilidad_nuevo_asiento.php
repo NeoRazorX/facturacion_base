@@ -62,13 +62,27 @@ class contabilidad_nuevo_asiento extends fs_controller
       }
       else if( isset($_POST['fecha']) AND isset($_POST['concepto']) AND isset($_POST['divisa']) )
       {
-         if( intval($_POST['autonomo']) > 0 )
+         if($_POST['autonomo'] != '0')
          {
-            $this->nuevo_asiento_autonomo();
+            if( floatval($_POST['autonomo']) > 0 )
+            {
+               $this->nuevo_asiento_autonomo();
+            }
+            else
+            {
+               $this->new_error_msg('Importe no válido: '.$_POST['autonomo']);
+            }
          }
-         else if( intval($_POST['modelo130']) > 0 )
+         else if($_POST['modelo130'] != '0')
          {
-            $this->nuevo_asiento_modelo130();
+            if( floatval($_POST['modelo130']) > 0 )
+            {
+               $this->nuevo_asiento_modelo130();
+            }
+            else
+            {
+               $this->new_error_msg('Importe no válido: '.$_POST['modelo130']);
+            }
          }
          else
          {

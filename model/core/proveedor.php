@@ -394,12 +394,16 @@ class proveedor extends \fs_model
          
          if($cpro)
          {
+            $continuar = FALSE;
+            
             $subc0 = $cpro->new_subcuenta($this->codproveedor);
-            $subc0->descripcion = $this->nombre;
-            if( !$subc0->save() )
+            if($subc0)
             {
-               $this->new_error_msg('Imposible crear la subcuenta para el proveedor '.$this->codproveedor);
-               $continuar = FALSE;
+               $subc0->descripcion = $this->nombre;
+               if( $subc0->save() )
+               {
+                  $continuar = TRUE;
+               }
             }
             
             if($continuar)
@@ -415,6 +419,10 @@ class proveedor extends \fs_model
                }
                else
                   $this->new_error_msg('Imposible asociar la subcuenta para el proveedor '.$this->codproveedor);
+            }
+            else
+            {
+               $this->new_error_msg('Imposible crear la subcuenta para el proveedor '.$this->codproveedor);
             }
          }
          else

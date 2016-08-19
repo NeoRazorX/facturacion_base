@@ -172,7 +172,11 @@
                   {/loop}
                </li>
                <li title="proveedor: {$fsc->albaran->codproveedor}">
-                  <a href="{$fsc->albaran->proveedor_url()}">{$fsc->albaran->nombre}</a>
+                  {if="$fsc->proveedor_s"}
+                     <a href="{$fsc->proveedor_s->url()}">{$fsc->albaran->nombre}</a>
+                  {else}
+                     ???
+                  {/if}
                </li>
                {if="$fsc->proveedor_s"}
                   {if="$fsc->proveedor_s->nombre!=$fsc->albaran->nombre"}
@@ -197,7 +201,7 @@
       <div class="row">
          {if="$fsc->albaran->ptefactura"}
          <div class="col-md-3 col-sm-12">
-            <div class="form-group">
+            <div class='form-group{if="!$fsc->proveedor_s"} has-warning{/if}'>
                Proveedor actual:
                <div class="input-group">
                   <input class="form-control" type="text" name="ac_proveedor" id="ac_proveedor" value="{$fsc->albaran->nombre}" placeholder="Buscar" autocomplete="off"/>
@@ -476,7 +480,7 @@
                      <td></td>
                      <td class="recargo"></td>
                      <td class="irpf"></td>
-                     <td class="text-right"><b>{$fsc->show_precio($fsc->euro_convert($fsc->albaran->totaleuros))}</b></td>
+                     <td class="text-right"><b>{$fsc->show_precio($fsc->euro_convert($fsc->albaran->totaleuros, $fsc->albaran->coddivisa, $fsc->albaran->tasaconv))}</b></td>
                   </tr>
                   {/if}
                </table>

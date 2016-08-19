@@ -283,7 +283,11 @@
                Divisa:
                <select name='divisa' class='form-control'>
                {loop="$fsc->divisa->all()"}
-                  <option value='{$value->coddivisa}'{if="$value->is_default()"} selected=""{/if}>{$value->descripcion}</option>
+                  {if="$value->is_default()"}
+                  <option value='{$value->coddivisa}' selected="">{$value->descripcion}</option>
+                  {else}
+                  <option value='{$value->coddivisa}'>{$value->descripcion}</option>
+                  {/if}
                {/loop}
                </select>
             </div>
@@ -429,7 +433,7 @@
                      <div class="panel-body">
                         <div class="form-group">
                            Importe:
-                           <input type="number" name="autonomo" value="0" step="any" class="form-control"/>
+                           <input type="text" name="autonomo" value="0" class="form-control" autocomplete="off" onclick="document.f_asiento.modelo130.value='0';"/>
                         </div>
                         <div class="form-group">
                            Pagar desde:
@@ -455,7 +459,7 @@
                      <div class="panel-body">
                         <div class="form-group">
                            Importe:
-                           <input type="number" name="modelo130" value="0" step="any" class="form-control"/>
+                           <input type="text" name="modelo130" value="0" class="form-control" autocomplete="off" onclick="document.f_asiento.autonomo.value='0';"/>
                         </div>
                         <div class="form-group">
                            Pagar desde:
