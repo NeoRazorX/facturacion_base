@@ -1106,4 +1106,16 @@ class factura_proveedor extends \fs_model
       
       return $faclist;
    }
+   
+   public function cron_job()
+   {
+      /**
+       * Recalculamos totaleuros de facturas antiguas.
+       */
+      foreach($this->all_desde('1-1-2016', '1-9-2016') as $fac)
+      {
+         $fac->save();
+         echo '.';
+      }
+   }
 }

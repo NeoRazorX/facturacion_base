@@ -915,14 +915,35 @@
                <h4 class="modal-title">¿Realmente desea eliminar este {#FS_ALBARAN#}?</h4>
             </div>
             {if="$fsc->albaran->idfactura"}
-            <div class="modal-body bg-warning">
-               Hay una factura asociada que será eliminada junto con este {#FS_ALBARAN#}.
-            </div>
-            {/if}
+               {if="$fsc->allow_delete_fac"}
+               <div class="modal-body bg-warning">
+                  Hay <b>una factura asociada</b> que será eliminada junto con este {#FS_ALBARAN#}.
+               </div>
+               <div class="modal-footer">
+                  <div class="pull-left">
+                     <label>
+                        <input type="checkbox" name="stock" value="TRUE" checked=""/>
+                        Actualizar el stock
+                     </label>
+                  </div>
+                  <button class="btn btn-sm btn-danger" onclick="this.disabled=true;this.form.submit();">
+                     <span class="glyphicon glyphicon-trash"></span>&nbsp; Eliminar
+                  </button>
+               </div>
+               {else}
+               <div class="modal-body bg-danger">
+                  Hay <b>una factura asociada</b> que será eliminada junto con este {#FS_ALBARAN#}.
+                  Pero no tienes permiso para eliminar facturas.
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Cerrar</button>
+               </div>
+               {/if}
+            {else}
             <div class="modal-footer">
                <div class="pull-left">
                   <label>
-                     <input type="checkbox" name="stock" value="TRUE" checked="checked"/>
+                     <input type="checkbox" name="stock" value="TRUE" checked=""/>
                      Actualizar el stock
                   </label>
                </div>
@@ -930,6 +951,7 @@
                   <span class="glyphicon glyphicon-trash"></span>&nbsp; Eliminar
                </button>
             </div>
+            {/if}
          </div>
       </div>
    </div>

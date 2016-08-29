@@ -44,55 +44,16 @@ class informe_albaranes extends fs_controller
       
       if($this->mostrar == 'operaciones')
       {
-         
+         /// nada
       }
       else
       {
          $this->stats = array(
-             'alb_pendientes' => 0,
-             'alb_pendientes_total' => 0,
-             'ped_pendientes' => 0,
-             'ped_pendientes_total' => 0,
-             'pre_pendientes' => 0,
-             'pre_pendientes_total' => 0,
              'media_ventas_dia' => 0,
              'media_compras_dia' => 0,
              'media_ventas_mes' => 0,
              'media_compras_mes' => 0,
          );
-         
-         /// comprobamos los albaranes pendientes
-         $sql = "SELECT COUNT(idalbaran) as num, SUM(total) as total FROM albaranescli WHERE ptefactura = true;";
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            $this->stats['alb_pendientes'] = intval($data[0]['num']);
-            $this->stats['alb_pendientes_total'] = floatval($data[0]['total']);
-         }
-         
-         if( $this->db->table_exists('pedidoscli') )
-         {
-            /// comprobamos los pedidos pendientes
-            $sql = "SELECT COUNT(idpedido) as num, SUM(total) as total FROM pedidoscli WHERE idalbaran IS NULL AND status=0;";
-            $data = $this->db->select($sql);
-            if($data)
-            {
-               $this->stats['ped_pendientes'] = intval($data[0]['num']);
-               $this->stats['ped_pendientes_total'] = floatval($data[0]['total']);
-            }
-         }
-         
-         if( $this->db->table_exists('presupuestoscli') )
-         {
-            /// comprobamos los presupuestos pendientes
-            $sql = "SELECT COUNT(idpresupuesto) as num, SUM(total) as total FROM presupuestoscli WHERE idpedido IS NULL AND status=0;";
-            $data = $this->db->select($sql);
-            if($data)
-            {
-               $this->stats['pre_pendientes'] = intval($data[0]['num']);
-               $this->stats['pre_pendientes_total'] = floatval($data[0]['total']);
-            }
-         }
       }
    }
    
@@ -106,14 +67,14 @@ class informe_albaranes extends fs_controller
       {
          $stats[$i] = array(
              'day' => $value['day'],
-             'total_cli' => $value['total'],
+             'total_cli' => round($value['total'], FS_NF0),
              'total_pro' => 0
          );
       }
       
       foreach($stats_pro as $i => $value)
       {
-         $stats[$i]['total_pro'] = $value['total'];
+         $stats[$i]['total_pro'] = round($value['total'], FS_NF0);
       }
       
       /// leemos para completar $this->stats
@@ -154,7 +115,7 @@ class informe_albaranes extends fs_controller
          $sql_aux = "DATE_FORMAT(fecha, '%d')";
       
       /// consultamos para la divisa de la empresa
-      $data = $this->db->select("SELECT ".$sql_aux." as dia, sum(total) as total FROM ".$table_name
+      $data = $this->db->select("SELECT ".$sql_aux." as dia, sum(neto) as total FROM ".$table_name
               ." WHERE fecha >= ".$this->empresa->var2str($desde)
               ." AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))
               ." AND coddivisa = ".$this->empresa->var2str($this->empresa->coddivisa)
@@ -169,7 +130,7 @@ class informe_albaranes extends fs_controller
       }
       
       /// ahora consultamos para el resto de divisas
-      $data = $this->db->select("SELECT ".$sql_aux." as dia, sum(totaleuros) as total FROM ".$table_name
+      $data = $this->db->select("SELECT ".$sql_aux." as dia, sum(neto/tasaconv) as total FROM ".$table_name
               ." WHERE fecha >= ".$this->empresa->var2str($desde)
               ." AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))
               ." AND coddivisa != ".$this->empresa->var2str($this->empresa->coddivisa)
@@ -210,14 +171,14 @@ class informe_albaranes extends fs_controller
       {
          $stats[$i] = array(
              'month' => $meses[ $value['month'] ],
-             'total_cli' => round($value['total'], 2),
+             'total_cli' => round($value['total'], FS_NF0),
              'total_pro' => 0
          );
       }
       
       foreach($stats_pro as $i => $value)
       {
-         $stats[$i]['total_pro'] = round($value['total'], 2);
+         $stats[$i]['total_pro'] = round($value['total'], FS_NF0);
       }
       
       /// leemos para completar $this->stats
@@ -241,7 +202,7 @@ class informe_albaranes extends fs_controller
    private function stats_last_months_aux($table_name = 'albaranescli', $num = 11)
    {
       $stats = array();
-      $desde = Date('d-m-Y', strtotime( Date('01-m-Y').'-'.$num.' month'));
+      $desde = Date('d-m-Y', strtotime( Date('1-m-Y').'-'.$num.' month'));
       
       /// inicializamos los resultados
       foreach($this->date_range($desde, Date('d-m-Y'), '+1 month', 'm') as $date)
@@ -258,7 +219,7 @@ class informe_albaranes extends fs_controller
          $sql_aux = "DATE_FORMAT(fecha, '%m')";
       
       /// consultamos para la divisa de la empresa
-      $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(total) as total FROM ".$table_name
+      $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(neto) as total FROM ".$table_name
               ." WHERE fecha >= ".$this->empresa->var2str($desde)
               ." AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))
               ." AND coddivisa = ".$this->empresa->var2str($this->empresa->coddivisa)
@@ -273,7 +234,7 @@ class informe_albaranes extends fs_controller
       }
       
       /// ahora consultamos para el resto de divisas
-      $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(totaleuros) as total FROM ".$table_name
+      $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(neto/tasaconv) as total FROM ".$table_name
               ." WHERE fecha >= ".$this->empresa->var2str($desde)
               ." AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))
               ." AND coddivisa != ".$this->empresa->var2str($this->empresa->coddivisa)
@@ -300,14 +261,14 @@ class informe_albaranes extends fs_controller
       {
          $stats[$i] = array(
              'year' => $value['year'],
-             'total_cli' => round($value['total'], 2),
+             'total_cli' => round($value['total'], FS_NF0),
              'total_pro' => 0
          );
       }
       
       foreach($stats_pro as $i => $value)
       {
-         $stats[$i]['total_pro'] = round($value['total'], 2);
+         $stats[$i]['total_pro'] = round($value['total'], FS_NF0);
       }
       
       return $stats;
@@ -333,7 +294,7 @@ class informe_albaranes extends fs_controller
          $sql_aux = "DATE_FORMAT(fecha, '%Y')";
       
       /// consultamos para la divisa de la empresa
-      $data = $this->db->select("SELECT ".$sql_aux." as ano, sum(total) as total FROM ".$table_name
+      $data = $this->db->select("SELECT ".$sql_aux." as ano, sum(neto) as total FROM ".$table_name
               ." WHERE fecha >= ".$this->empresa->var2str($desde)
               ." AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))
               ." AND coddivisa = ".$this->empresa->var2str($this->empresa->coddivisa)
@@ -348,7 +309,7 @@ class informe_albaranes extends fs_controller
       }
       
       /// ahora consultamos el resto de divisas
-      $data = $this->db->select("SELECT ".$sql_aux." as ano, sum(totaleuros) as total FROM ".$table_name
+      $data = $this->db->select("SELECT ".$sql_aux." as ano, sum(neto/tasaconv) as total FROM ".$table_name
               ." WHERE fecha >= ".$this->empresa->var2str($desde)
               ." AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))
               ." AND coddivisa != ".$this->empresa->var2str($this->empresa->coddivisa)

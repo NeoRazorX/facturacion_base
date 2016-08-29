@@ -227,11 +227,6 @@ class ventas_cliente extends fs_controller
          return $this->ppage->url();
    }
    
-   public function this_year($previous = 0)
-   {
-      return intval(Date('Y')) - $previous;
-   }
-   
    /*
     * Devuelve un array con los datos estadísticos de las compras del cliente
     * en los cinco últimos años.
@@ -281,7 +276,7 @@ class ventas_cliente extends fs_controller
                  ." WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))
                  ." AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))
                  ." AND codcliente = ".$this->empresa->var2str($this->cliente->codcliente)
-                 ." GROUP BY ".$sql_aux." ORDER BY mes ASC;";
+                 ." GROUP BY mes ORDER BY mes ASC;";
          
          $data = $this->db->select($sql);
          if($data)
@@ -300,7 +295,7 @@ class ventas_cliente extends fs_controller
                  ." WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))
                  ." AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))
                  ." AND codcliente = ".$this->empresa->var2str($this->cliente->codcliente)
-                 ." GROUP BY ".$sql_aux." ORDER BY mes ASC;";
+                 ." GROUP BY mes ORDER BY mes ASC;";
          $data = $this->db->select($sql);
          if($data)
          {

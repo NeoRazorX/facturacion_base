@@ -2,11 +2,6 @@
 
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript">
-   function acreedores_help()
-   {
-      alert('Los acreedores son todos aquellos proveedores a los que no les compramos mercancias. Por ejemplo: proveedor de internet, teléfono, bancos...');
-      return false;
-   }
    $(document).ready(function() {
       document.f_custom_search.query.focus();
       if(window.location.hash.substring(1) == 'nuevo')
@@ -24,7 +19,7 @@
 
 <div class="container-fluid">
    <div class="row">
-      <div class="col-sm-5 col-xs-6">
+      <div class="col-sm-7 col-xs-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -52,102 +47,130 @@
          </div>
       </div>
       <div class="col-sm-5 col-xs-6 text-right">
-         <h2 style="margin-top: 0px;">Proveedores</h2>
-      </div>
-      <div class="col-sm-2 col-xs-12">
-         <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
-            <div class="input-group">
-               <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
-               <span class="input-group-btn hidden-sm">
-                  <button class="btn btn-primary" type="submit">
-                     <span class="glyphicon glyphicon-search"></span>
-                  </button>
-               </span>
-            </div>
-         </form>
+         <h2 style="margin-top: 0px;">
+            <i class="fa fa-users" aria-hidden="true"></i> Proveedores
+            <span class="hidden-xs hidden-sm">/ Acreedores</span>
+         </h2>
       </div>
    </div>
 </div>
 
-<div class="visible-xs">
-   <br/>
-</div>
-
-<ul class="nav nav-tabs">
-   <li role="presentation"{if="$fsc->mostrar=='todo'"} class="active"{/if}>
-      <a href="{$fsc->url()}&mostrar=todo">
-         {if="$fsc->query==''"}
-         <i class="fa fa-users" aria-hidden="true"></i>&nbsp;
-         Todos <span class="badge">{$fsc->total_proveedores()}</span>
-         {else}
-         <span class="glyphicon glyphicon-search"></span>
-         <span class="hidden-xs">&nbsp; Resultados de "{$fsc->query}"</span>
+<div id="tab_proveedores" role="tabpanel">
+   <ul class="nav nav-tabs">
+      <li role="presentation" class="active">
+         <a href="{$fsc->url()}">
+            <span class="glyphicon glyphicon-search"></span>
+            <span class="hidden-xs">&nbsp; Resultados</span>
+            <span class="badge">{$fsc->num_resultados}</span>
+         </a>
+      </li>
+      {loop="$fsc->extensions"}
+         {if="$value->type=='tab'"}
+         <li role="presentation">
+            <a href="#ext_{$value->name}" aria-controls="ext_{$value->name}" role="tab" data-toggle="tab">{$value->text}</a>
+         </li>
          {/if}
-      </a>
-   </li>
-   <li role="presentation"{if="$fsc->mostrar=='acreedores'"} class="active"{/if}>
-      <a href="{$fsc->url()}&mostrar=acreedores">
-         <span class="glyphicon glyphicon-briefcase"></span>
-         <span class="hidden-xs">&nbsp; Acreedores</span>
-      </a>
-   </li>
-   <li>
-      <a href="{$fsc->url()}&mostrar=acreedores" onclick="return acreedores_help()">
-         <span class="glyphicon glyphicon-question-sign"></span>
-      </a>
-   </li>
-</ul>
-
-<div class="table-responsive">
-   <table class="table table-hover">
-      <thead>
-         <tr>
-            <th class="text-left">Código + Nombre</th>
-            <th class="text-left">{#FS_CIFNIF#}</th>
-            <th class="text-left">email</th>
-            <th class="text-left">Teléfono</th>
-            <th class="text-left">Observaciones</th>
-         </tr>
-      </thead>
-      {loop="$fsc->resultados"}
-      <tr class="clickableRow" href="{$value->url()}">
-         <td>
-            <a href="{$value->url()}">{$value->codproveedor}</a> {$value->nombre}
-            {if="$value->nombre!=$value->razonsocial"}
-            <span class="label label-default">{$value->razonsocial}</span>
-            {/if}
-            {if="$value->acreedor"}
-            &nbsp; <span class="glyphicon glyphicon-briefcase" title="Es un acreedor"></span>
-            {/if}
-         </td>
-         <td>{$value->cifnif}</td>
-         <td>{$value->email}</td>
-         <td>
-            {if="$value->telefono1"}{$value->telefono1}{elseif="$value->telefono2"}{$value->telefono2}{/if}
-         </td>
-         <td>{$value->observaciones_resume()}</td>
-      </tr>
-      {else}
-      <tr class="warning">
-         <td colspan="5">
-            Ningún {if="$fsc->mostrar=='acreedores'"}acreedor{else}proveedor{/if} encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.
-         </td>
-      </tr>
       {/loop}
-   </table>
-</div>
-
-<div class="container-fluid">
-   <div class="row">
-      <div class="col-sm-12 text-center">
-         <ul class="pagination">
-            {loop="$fsc->paginas()"}
-            <li{if="$value['actual']"} class="active"{/if}>
-               <a href="{$value['url']}">{$value['num']}</a>
-            </li>
-            {/loop}
-         </ul>
+   </ul>
+   <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="home">
+         <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
+            <div class="container-fluid" style="margin-top: 15px; margin-bottom: 10px;">
+               <div class="row">
+                  <div class="col-sm-2">
+                     <div class="input-group">
+                        <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
+                        <span class="input-group-btn hidden-sm">
+                           <button class="btn btn-primary" type="submit">
+                              <span class="glyphicon glyphicon-search"></span>
+                           </button>
+                        </span>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <select name="tipo" class="form-control" onchange="this.form.submit()">
+                        <option value="">Todos</option>
+                        <option value="">------</option>
+                        <option value="acreedores"{if="$fsc->tipo=='acreedores'"} selected=""{/if}>Acreedores</option>
+                        <option value="noacreedores"{if="$fsc->tipo=='noacreedores'"} selected=""{/if}>No acreedores</option>
+                     </select>
+                  </div>
+                  <div class="col-sm-6"></div>
+                  <div class="col-sm-2">
+                     <div class="input-group">
+                        <div class="input-group-addon">
+                           <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
+                        </div>
+                        <select name="orden" class="form-control" onchange="this.form.submit()">
+                           <option value="nombre ASC">Orden: nombre</option>
+                           <option value="nombre DESC"{if="$fsc->orden=='nombre DESC'"} selected=""{/if}>Orden: nombre descendente</option>
+                           <option value="cifnif ASC"{if="$fsc->orden=='cifnif ASC'"} selected=""{/if}>Orden: {#FS_CIFNIF#}</option>
+                           <option value="cifnif DESC"{if="$fsc->orden=='cifnif DESC'"} selected=""{/if}>Orden: {#FS_CIFNIF#} descendente</option>
+                        </select>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </form>
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th class="text-left">Código + Nombre</th>
+                     <th class="text-left">{#FS_CIFNIF#}</th>
+                     <th class="text-left">email</th>
+                     <th class="text-left">Teléfono</th>
+                     <th class="text-left">Observaciones</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->resultados"}
+               <tr class="clickableRow" href="{$value->url()}">
+                  <td>
+                     <a href="{$value->url()}">{$value->codproveedor}</a> {$value->nombre}
+                     {if="$value->nombre!=$value->razonsocial"}
+                     <span class="label label-default">{$value->razonsocial}</span>
+                     {/if}
+                     {if="$value->acreedor"}
+                     &nbsp; <span class="glyphicon glyphicon-briefcase" title="Es un acreedor"></span>
+                     {/if}
+                  </td>
+                  <td>{$value->cifnif}</td>
+                  <td>{$value->email}</td>
+                  <td>
+                     {if="$value->telefono1"}{$value->telefono1}{elseif="$value->telefono2"}{$value->telefono2}{/if}
+                  </td>
+                  <td>{$value->observaciones_resume()}</td>
+               </tr>
+               {else}
+               <tr class="warning">
+                  <td colspan="5">
+                     Ningún proveedor encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.
+                  </td>
+               </tr>
+               {/loop}
+            </table>
+         </div>
+         <div class="container-fluid">
+            <div class="row">
+               <div class="col-sm-12 text-center">
+                  <ul class="pagination">
+                     {loop="$fsc->paginas()"}
+                     <li{if="$value['actual']"} class="active"{/if}>
+                        <a href="{$value['url']}">{$value['num']}</a>
+                     </li>
+                     {/loop}
+                  </ul>
+               </div>
+            </div>
+         </div>
       </div>
+      {loop="$fsc->extensions"}
+         {if="$value->type=='tab'"}
+         <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
+            <iframe src="index.php?page={$value->from}{$value->params}" width="100%" height="2000" frameborder="0"></iframe>
+         </div>
+         {/if}
+      {/loop}
    </div>
 </div>
 
@@ -218,6 +241,12 @@
                   <label class="col-sm-2 control-label">Dirección</label>
                   <div class="col-sm-10">
                      <input type="text" name="direccion" class="form-control" autocomplete="off"/>
+                  </div>
+               </div>
+               <div class="form-group">
+                  <label class="col-sm-2 control-label text-capitalize">{#FS_APARTADO#}</label>
+                  <div class="col-sm-10">
+                     <input type="text" name="apartado" class="form-control"/>
                   </div>
                </div>
             </div>

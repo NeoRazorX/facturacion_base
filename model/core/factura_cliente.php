@@ -1491,4 +1491,16 @@ class factura_cliente extends \fs_model
       
       return $huecolist;
    }
+   
+   public function cron_job()
+   {
+      /**
+       * Recalculamos totaleuros de facturas antiguas.
+       */
+      foreach($this->all_desde('1-1-2016', '1-9-2016') as $fac)
+      {
+         $fac->save();
+         echo '.';
+      }
+   }
 }

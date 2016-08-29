@@ -29,7 +29,8 @@
                <span class="hidden-xs">&nbsp; Nuevo</span>
             </a>
             <a class="btn btn-sm btn-default" href="{$fsc->url()}&renumerar=TRUE">
-               <span class="glyphicon glyphicon-sort-by-attributes"></span> &nbsp; Renumerar
+               <span class="glyphicon glyphicon-sort-by-attributes"></span>
+               <span class="hidden-xs">&nbsp; Renumerar</span>
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -48,7 +49,7 @@
    <li{if="$fsc->mostrar=='todo'"} class="active"{/if}>
       <a href="{$fsc->url()}&mostrar=todo">
          <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-         &nbsp; Resultados <span class="badge">{$fsc->total_asientos()}</span>
+         &nbsp; Resultados <span class="badge">{$fsc->num_resultados}</span>
       </a>
    </li>
    <li{if="$fsc->mostrar=='descuadrados'"} class="active"{/if}>
@@ -138,22 +139,14 @@
    </table>
 </div>
 
-<ul class="pager">
-   {if="$fsc->anterior_url()!=''"}
-   <li class="previous">
-      <a href="{$fsc->anterior_url()}">
-         <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
-      </a>
-   </li>
-   {/if}
-   
-   {if="$fsc->siguiente_url()!=''"}
-   <li class="next">
-      <a href="{$fsc->siguiente_url()}">
-         Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
-      </a>
-   </li>
-   {/if}
-</ul>
+<div class="text-center">
+   <ul class="pagination">
+      {loop="$fsc->paginas()"}
+      <li{if="$value['actual']"} class="active"{/if}>
+         <a href="{$value['url']}">{$value['num']}</a>
+      </li>
+      {/loop}
+   </ul>
+</div>
 
 {include="footer"}

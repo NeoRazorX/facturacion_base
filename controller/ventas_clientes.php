@@ -30,6 +30,7 @@ class ventas_clientes extends fs_controller
    public $cliente;
    public $codgrupo;
    public $codpais;
+   public $debaja;
    public $grupo;
    public $grupos;
    public $nocifnif;
@@ -255,6 +256,7 @@ class ventas_clientes extends fs_controller
       }
       
       $this->nocifnif = isset($_REQUEST['nocifnif']);
+      $this->debaja = isset($_REQUEST['debaja']);
       
       $this->buscar();
       $this->grupos = $this->grupo->all();
@@ -267,12 +269,16 @@ class ventas_clientes extends fs_controller
                  ."&provincia=".$this->provincia
                  ."&codpais=".$this->codpais
                  ."&codgrupo=".$this->codgrupo
-                 ."&offset=".($this->offset+FS_ITEM_LIMIT)
                  ."&orden=".$this->orden;
       
       if($this->nocifnif)
       {
          $url .= '&nocifnif=TRUE';
+      }
+      
+      if($this->debaja)
+      {
+         $url .= '&debaja=TRUE';
       }
       
       $paginas = array();
@@ -470,6 +476,12 @@ class ventas_clientes extends fs_controller
       if($this->nocifnif)
       {
          $sql .= $and."cifnif = ''";
+         $and = ' AND ';
+      }
+      
+      if($this->debaja)
+      {
+         $sql .= $and."debaja = true";
          $and = ' AND ';
       }
       

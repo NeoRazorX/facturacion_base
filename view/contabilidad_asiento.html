@@ -229,7 +229,7 @@
 <form id="f_asiento" name="f_asiento" action="{$fsc->url()}" method="post">
    <input type="hidden" name="numlineas" value="0"/>
    <div class="container-fluid">
-      <div class="row" style="margin-bottom: 10px;">
+      <div class="row hidden-print" style="margin-bottom: 10px;">
          <div class="col-xs-6">
             <div class="btn-group">
                <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
@@ -251,6 +251,9 @@
                   {/if}
                {/loop}
             </div>
+            <a class="btn btn-sm btn-default" onclick="window.print();">
+               <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+            </a>
          </div>
          <div class="col-xs-6 text-right">
             <div class="btn-group">
@@ -318,8 +321,8 @@
          <thead>
             <tr>
                <th class="text-left" width="135">Subcuenta</th>
-               <th width="50"></th>
-               <th class="text-left">Descripción</th>
+               <th class="hidden-print" width="50"></th>
+               <th class="text-left hidden-print">Descripción</th>
                <th class="text-right" width="110">Saldo</th>
                <th class="text-right" width="110">Debe</th>
                <th class="text-right" width="110">Haber</th>
@@ -328,7 +331,7 @@
                <th class="text-right contrapartida">{#FS_IVA#}</th>
                <th class="text-right contrapartida" width="110">Base Imp.</th>
                <th class="text-left contrapartida">{#FS_CIFNIF#}</th>
-               <th width="50"></th>
+               <th class="hidden-print" width="50"></th>
             </tr>
          </thead>
          <tbody id="partidas">
@@ -341,12 +344,14 @@
                          onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'
                          autocomplete='off' placeholder='Seleccionar'/>
                </td>
-               <td>
+               <td class="hidden-print">
                   <a href="{$value->subcuenta_url()}" target="_blank" class="btn btn-sm btn-default" title="ver la subcuenta">
                      <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
                   </a>
                </td>
-               <td><input class='form-control' type='text' id='desc_{$counter+1}' name='desc_{$counter+1}' value='{$value->desc_subcuenta}' disabled='disabled'/></td>
+               <td class="hidden-print">
+                  <input class='form-control' type='text' id='desc_{$counter+1}' name='desc_{$counter+1}' value='{$value->desc_subcuenta}' disabled='disabled'/>
+               </td>
                <td>
                   <input class='form-control text-right' type='text' id='saldo_{$counter+1}' name='saldo_{$counter+1}'
                          value='{function="round($value->saldo, FS_NF0)"}' disabled='disabled'/>
@@ -387,7 +392,7 @@
                <td class="contrapartida">
                   <input class='form-control' type='text' id='cifnif_{$counter+1}' name='cifnif_{$counter+1}' value='{$value->cifnif}'{if="!$value->codcontrapartida"} disabled='disabled'{/if}/>
                </td>
-               <td class="text-right">
+               <td class="text-right hidden-print">
                   <button class="btn btn-sm btn-danger" type="button" onclick="clean_partida('{$counter+1}')">
                      <span class="glyphicon glyphicon-trash"></span>
                   </button>
@@ -398,7 +403,7 @@
       </table>
    </div>
    
-   <div class="container-fluid">
+   <div class="container-fluid hidden-print">
       <div class="row">
          <div class="col-xs-6">
             <a href="#" class="btn btn-sm btn-success" onclick="add_partida();return false;">
@@ -408,14 +413,15 @@
          </div>
          <div class="col-xs-6 text-right">
             <button type="button" id="b_guardar_asiento_2" class="btn btn-sm btn-primary" onclick="guardar_asiento()">
-               <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+               <span class="glyphicon glyphicon-floppy-disk"></span>
+               <span class="hidden-xs">&nbsp; Guardar</span>
             </button>
          </div>
       </div>
    </div>
 </form>
 {else}
-<div class="container-fluid" style="margin-bottom: 10px;">
+<div class="container-fluid hidden-print" style="margin-bottom: 10px;">
    <div class="row">
       <div class="col-xs-8">
          <div class="btn-group">
@@ -438,6 +444,9 @@
                {/if}
             {/loop}
          </div>
+         <a class="btn btn-sm btn-default" onclick="window.print();">
+            <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+         </a>
       </div>
       <div class="col-xs-4 text-right">
          <div class="btn-group">
@@ -470,13 +479,17 @@
       </thead>
       <tr>
          <td>{$fsc->asiento->numero}</td>
-         <td><a href="{$fsc->asiento->ejercicio_url()}">{$fsc->asiento->codejercicio}</a></td>
+         <td>
+            <a href="{$fsc->asiento->ejercicio_url()}" class="hidden-print">{$fsc->asiento->codejercicio}</a>
+            <span class="visible-print">{$fsc->asiento->codejercicio}</span>
+         </td>
          <td>{$fsc->asiento->fecha}</td>
          <td>{$fsc->asiento->concepto}</td>
          <td>
             {if="$fsc->asiento->tipodocumento"}{$fsc->asiento->tipodocumento}:{/if}
             {if="$fsc->asiento->documento"}
-            <a href='{$fsc->asiento->factura_url()}'>{$fsc->asiento->documento}</a>
+            <a href='{$fsc->asiento->factura_url()}' class="hidden-print">{$fsc->asiento->documento}</a>
+            <span class="visible-print">{$fsc->asiento->documento}</span>
             {else}
             -
             {/if}
@@ -502,7 +515,11 @@
       <tbody>
          {loop="$fsc->lineas"}
          <tr>
-            <td><a href="{$value->subcuenta_url()}">{$value->codsubcuenta}</a> {$value->desc_subcuenta}</td>
+            <td>
+               <a href="{$value->subcuenta_url()}" class="hidden-print">{$value->codsubcuenta}</a>
+               <span class="visible-print">{$value->codsubcuenta}</span>
+               {$value->desc_subcuenta}
+            </td>
             <td class="text-right"><span title="{$value->debe}">{$fsc->show_precio($value->debe, $value->coddivisa)}</span></td>
             <td class="text-right"><span title="{$value->haber}">{$fsc->show_precio($value->haber, $value->coddivisa)}</span></td>
             <td class="text-right">
@@ -519,7 +536,8 @@
             </td>
             <td class="text-center">
                {if="$value->codcontrapartida"}
-               <a href="{$value->contrapartida_url()}">{$value->codcontrapartida}</a>
+               <a href="{$value->contrapartida_url()}" class="hidden-print">{$value->codcontrapartida}</a>
+               <span class="visible-print">{$value->codcontrapartida}</span>
                {else}
                -
                {/if}
@@ -537,7 +555,7 @@
 
    {if="$fsc->asiento->documento"}
    <br/><br/>
-   <div class="container-fluid">
+   <div class="container-fluid hidden-print">
       <div class="row">
          <div class="col-sm-12">
             <div class="panel panel-default">

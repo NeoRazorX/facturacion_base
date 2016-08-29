@@ -55,113 +55,140 @@
       <div class="col-sm-6 col-xs-6 text-right">
          <h2 style="margin-top: 0px;">
             <i class="fa fa-users" aria-hidden="true"></i> Empleados
-            <span class="badge">{$fsc->total_resultados}</span>
          </h2>
       </div>
    </div>
-   <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
-      <div class="row">
-         <div class="col-sm-2">
-            <div class="input-group">
-               <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
-               <span class="input-group-btn hidden-sm">
-                  <button class="btn btn-primary" type="submit">
-                     <span class="glyphicon glyphicon-search"></span>
-                  </button>
-               </span>
-            </div>
-         </div>
-         <div class="col-sm-2">
-            <select name="provincia" class="form-control" onchange="this.form.submit()">
-               <option value="">Cualquier provincia</option>
-               <option value="">------</option>
-               {loop="$fsc->provincias()"}
-                  {if="$key===$fsc->provincia"}
-                  <option value="{$key}" selected="">{$value}</option>
-                  {else}
-                  <option value="{$key}">{$value}</option>
-                  {/if}
-               {/loop}
-            </select>
-         </div>
-         <div class="col-sm-2">
-            <select name="ciudad" class="form-control" onchange="this.form.submit()">
-               <option value="">Cualquier ciudad</option>
-               <option value="">------</option>
-               {loop="$fsc->ciudades()"}
-                  {if="$key===$fsc->ciudad"}
-                  <option value="{$key}" selected="">{$value}</option>
-                  {else}
-                  <option value="{$key}">{$value}</option>
-                  {/if}
-               {/loop}
-            </select>
-         </div>
-         <div class="col-sm-4"></div>
-         <div class="col-sm-2">
-            <div class="input-group">
-               <div class="input-group-addon">
-                  <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
-               </div>
-               <select name="orden" class="form-control" onchange="this.form.submit()">
-                  <option value="nombre ASC">Orden: nombre</option>
-                  <option value="nombre DESC"{if="$fsc->orden=='nombre DESC'"} selected=""{/if}>Orden: nombre descendente</option>
-                  <option value="f_alta ASC"{if="$fsc->orden=='f_alta ASC'"} selected=""{/if}>Orden: fecha</option>
-                  <option value="f_alta DESC"{if="$fsc->orden=='f_alta DESC'"} selected=""{/if}>Orden: fecha descendente</option>
-               </select>
-            </div>
-         </div>
-      </div>
-   </form>
 </div>
 
-<br/>
-
-<div class="table-responsive">
-   <table class="table table-hover">
-      <thead>
-         <tr>
-            <th class="text-left">Nombre + Apellidos</th>
-            <th class="text-left">{#FS_CIFNIF#}</th>
-            <th class="text-left">Cargo</th>
-            <th class="text-left">Teléfono</th>
-            <th class="text-left">Nacimiento</th>
-            <th class="text-right">Fecha Alta</th>
-         </tr>
-      </thead>
-      {loop="$fsc->resultados"}
-      <tr class='clickableRow{if="$value->f_baja"} danger{/if}' href='{$value->url()}'>
-         <td>
-            {$value->get_fullname()}
-            {if="$value->f_baja"}
-            &nbsp; <span class="label label-danger" title="Empleado dado de baja">Baja</span>
-            {/if}
-         </td>
-         <td>{$value->dnicif}</td>
-         <td>{$value->cargo}</td>
-         <td>{if="$value->telefono==''"}-{else}{$value->telefono}{/if}</td>
-         <td>{$value->f_nacimiento}</td>
-         <td class="text-right">{$value->f_alta}</td>
-      </tr>
-      {else}
-      <tr class="warning">
-         <td colspan="6">Sin resultados.</td>
-      </tr>
+<div id="tab_agentes" role="tabpanel">
+   <ul class="nav nav-tabs">
+      <li role="presentation" class="active">
+         <a href="{$fsc->url()}">
+            <span class="glyphicon glyphicon-search"></span>
+            <span class="hidden-xs">&nbsp; Resultados</span>
+            <span class="badge">{$fsc->total_resultados}</span>
+         </a>
+      </li>
+      {loop="$fsc->extensions"}
+         {if="$value->type=='tab'"}
+         <li role="presentation">
+            <a href="#ext_{$value->name}" aria-controls="ext_{$value->name}" role="tab" data-toggle="tab">{$value->text}</a>
+         </li>
+         {/if}
       {/loop}
-   </table>
-</div>
-
-<div class="container-fluid">
-   <div class="row">
-      <div class="col-sm-12 text-center">
-         <ul class="pagination">
-            {loop="$fsc->paginas()"}
-            <li{if="$value['actual']"} class="active"{/if}>
-               <a href="{$value['url']}">{$value['num']}</a>
-            </li>
-            {/loop}
-         </ul>
+   </ul>
+   <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="home">
+         <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
+            <div class="container-fluid" style="margin-top: 15px; margin-bottom: 10px;">
+               <div class="row">
+                  <div class="col-sm-2">
+                     <div class="input-group">
+                        <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
+                        <span class="input-group-btn hidden-sm">
+                           <button class="btn btn-primary" type="submit">
+                              <span class="glyphicon glyphicon-search"></span>
+                           </button>
+                        </span>
+                     </div>
+                  </div>
+                  <div class="col-sm-2">
+                     <select name="provincia" class="form-control" onchange="this.form.submit()">
+                        <option value="">Cualquier provincia</option>
+                        <option value="">------</option>
+                        {loop="$fsc->provincias()"}
+                           {if="$key===$fsc->provincia"}
+                           <option value="{$key}" selected="">{$value}</option>
+                           {else}
+                           <option value="{$key}">{$value}</option>
+                           {/if}
+                        {/loop}
+                     </select>
+                  </div>
+                  <div class="col-sm-2">
+                     <select name="ciudad" class="form-control" onchange="this.form.submit()">
+                        <option value="">Cualquier ciudad</option>
+                        <option value="">------</option>
+                        {loop="$fsc->ciudades()"}
+                           {if="$key===$fsc->ciudad"}
+                           <option value="{$key}" selected="">{$value}</option>
+                           {else}
+                           <option value="{$key}">{$value}</option>
+                           {/if}
+                        {/loop}
+                     </select>
+                  </div>
+                  <div class="col-sm-4"></div>
+                  <div class="col-sm-2">
+                     <div class="input-group">
+                        <div class="input-group-addon">
+                           <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
+                        </div>
+                        <select name="orden" class="form-control" onchange="this.form.submit()">
+                           <option value="nombre ASC">Orden: nombre</option>
+                           <option value="nombre DESC"{if="$fsc->orden=='nombre DESC'"} selected=""{/if}>Orden: nombre descendente</option>
+                           <option value="f_alta ASC"{if="$fsc->orden=='f_alta ASC'"} selected=""{/if}>Orden: fecha</option>
+                           <option value="f_alta DESC"{if="$fsc->orden=='f_alta DESC'"} selected=""{/if}>Orden: fecha descendente</option>
+                        </select>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </form>
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th class="text-left">Nombre + Apellidos</th>
+                     <th class="text-left">{#FS_CIFNIF#}</th>
+                     <th class="text-left">Cargo</th>
+                     <th class="text-left">Teléfono</th>
+                     <th class="text-left">Nacimiento</th>
+                     <th class="text-right">Fecha Alta</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->resultados"}
+               <tr class='clickableRow{if="$value->f_baja"} danger{/if}' href='{$value->url()}'>
+                  <td>
+                     {$value->get_fullname()}
+                     {if="$value->f_baja"}
+                     &nbsp; <span class="label label-danger" title="Empleado dado de baja">Baja</span>
+                     {/if}
+                  </td>
+                  <td>{$value->dnicif}</td>
+                  <td>{$value->cargo}</td>
+                  <td>{if="$value->telefono==''"}-{else}{$value->telefono}{/if}</td>
+                  <td>{$value->f_nacimiento}</td>
+                  <td class="text-right">{$value->f_alta}</td>
+               </tr>
+               {else}
+               <tr class="warning">
+                  <td colspan="6">Sin resultados.</td>
+               </tr>
+               {/loop}
+            </table>
+         </div>
+         <div class="container-fluid">
+            <div class="row">
+               <div class="col-sm-12 text-center">
+                  <ul class="pagination">
+                     {loop="$fsc->paginas()"}
+                     <li{if="$value['actual']"} class="active"{/if}>
+                        <a href="{$value['url']}">{$value['num']}</a>
+                     </li>
+                     {/loop}
+                  </ul>
+               </div>
+            </div>
+         </div>
       </div>
+      {loop="$fsc->extensions"}
+         {if="$value->type=='tab'"}
+         <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
+            <iframe src="index.php?page={$value->from}{$value->params}" width="100%" height="2000" frameborder="0"></iframe>
+         </div>
+         {/if}
+      {/loop}
    </div>
 </div>
 

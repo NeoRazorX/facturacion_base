@@ -1,16 +1,31 @@
 {if="!$fsc->informe['started']"}
    {include="header"}
-   
-   <br/>
-   <br/>
-   
-   <div class="container">
+   <div class="container-fluid">
       <div class="row">
-         <div class="col-sm-6">
+         <div class="col-sm-12">
+            <div class="page-header">
+               <h1>
+                  <i class="fa fa-bug" aria-hidden="true"></i> Informe de errores
+                  <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                     <span class="glyphicon glyphicon-refresh"></span>
+                  </a>
+                  <span class="btn-group">
+                  {loop="$fsc->extensions"}
+                     {if="$value->type=='button'"}
+                     <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                     {/if}
+                  {/loop}
+                  </span>
+               </h1>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-3">
             <form action="{$fsc->url()}" method="post" class="form">
                <div class="panel panel-info">
                   <div class="panel-heading">
-                     <h3 class="panel-title">Opciones del informe de errores</h3>
+                     <h3 class="panel-title">Opciones</h3>
                   </div>
                   <div class="panel-body">
                      <div class="form-group">
@@ -46,18 +61,18 @@
                   </div>
                   <div class="panel-footer">
                      <button class="btn btn-sm btn-primary" type="submit" onclick="this.form.submit();">
-                        <span class="glyphicon glyphicon-play"></span> &nbsp; Iniciar comprobación
+                        <span class="glyphicon glyphicon-play"></span>&nbsp; Iniciar comprobación
                      </button>
                   </div>
                </div>
             </form>
          </div>
-         <div class="col-sm-6">
+         <div class="col-sm-4">
             <div class="thumbnail">
                <img src="{#FS_PATH#}view/img/help-menu.png" alt="informar..."/>
                <div class="caption">
                   <h3>¿No se soluciona el error?</h3>
-                  <p>
+                  <p class="help-block">
                      Si los errores persisten, es mejor que nos informes.
                      Usa el menú de ayuda, pulsa informar... y después
                      enviar.

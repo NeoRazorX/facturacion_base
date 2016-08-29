@@ -41,7 +41,7 @@ class informe_articulos extends fs_controller
    public $hasta;
    public $impuesto;
    public $minimo;
-   private $offset;
+   public $offset;
    public $pestanya;
    public $referencia;
    public $resultados;
@@ -62,22 +62,32 @@ class informe_articulos extends fs_controller
    {
       $this->agente = new agente();
       $this->almacen = new almacen();
-      $this->desde = Date('1-m-Y');
       $this->documento = 'facturascli';
       $this->familia = new familia();
-      $this->hasta = Date('d-m-Y', mktime(0, 0, 0, date("m")+1, date("1")-1, date("Y")));
       $this->url_recarga = FALSE;
-      $this->codalmacen = FALSE;
-      
-      if( isset ($_REQUEST['codalmacen']))
-      {
-         $this->codalmacen = $_REQUEST['codalmacen'];
-      }
       
       $this->pestanya = 'stats';
       if( isset($_GET['tab']) )
       {
          $this->pestanya = $_GET['tab'];
+      }
+      
+      $this->desde = Date('1-m-Y');
+      if( isset($_POST['desde']) )
+      {
+         $this->desde = $_POST['desde'];
+      }
+      
+      $this->hasta = Date('t-m-Y');
+      if( isset($_POST['hasta']) )
+      {
+         $this->hasta = $_POST['hasta'];
+      }
+      
+      $this->codalmacen = FALSE;
+      if( isset($_REQUEST['codalmacen']) )
+      {
+         $this->codalmacen = $_REQUEST['codalmacen'];
       }
       
       $this->offset = 0;
@@ -92,8 +102,6 @@ class informe_articulos extends fs_controller
       }
       else if($this->pestanya == 'stats')
       {
-         $this->share_extension();
-         
          $this->articulo = new articulo();
          $this->stats = $this->stats();
          
@@ -186,8 +194,6 @@ class informe_articulos extends fs_controller
             {
                $this->referencia = $_POST['referencia'];
                $this->codfamilia = $_POST['codfamilia'];
-               $this->desde = $_POST['desde'];
-               $this->hasta = $_POST['hasta'];
                $this->codagente = $_POST['codagente'];
                
                $this->informe_movimientos();
@@ -195,8 +201,6 @@ class informe_articulos extends fs_controller
             else if($_POST['informe'] == 'facturacion')
             {
                $this->documento = $_POST['documento'];
-               $this->desde = $_POST['desde'];
-               $this->hasta = $_POST['hasta'];
                $this->codfamilia = $_POST['codfamilia'];
                $this->cantidades = ($_POST['cantidades'] == 'TRUE');
                $this->minimo = $_POST['minimo'];
@@ -206,8 +210,6 @@ class informe_articulos extends fs_controller
             else if($_POST['informe'] == 'ventascli')
             {
                $this->referencia = $_POST['referencia'];
-               $this->desde = $_POST['desde'];
-               $this->hasta = $_POST['hasta'];
                $this->codfamilia = $_POST['codfamilia'];
                $this->minimo = $_POST['minimo'];
                
@@ -299,11 +301,13 @@ class informe_articulos extends fs_controller
           'factualizado' => Date('d-m-Y', strtotime(0) )
       );
       
-      $aux = $this->db->select("SELECT GREATEST( COUNT(referencia), 0) as art,
-         GREATEST( SUM(case when stockfis > 0 then 1 else 0 end), 0) as stock,
-         GREATEST( SUM(case when bloqueado then 1 else 0 end), 0) as bloq,
-         GREATEST( SUM(case when publico then 1 else 0 end), 0) as publi,
-         MAX(factualizado) as factualizado FROM articulos;");
+      $sql = "SELECT GREATEST( COUNT(referencia), 0) as art,"
+              ." GREATEST( SUM(case when stockfis > 0 then 1 else 0 end), 0) as stock,"
+              ." GREATEST( SUM(case when bloqueado then 1 else 0 end), 0) as bloq,"
+              ." GREATEST( SUM(case when publico then 1 else 0 end), 0) as publi,"
+              ." MAX(factualizado) as factualizado FROM articulos;";
+      
+      $aux = $this->db->select($sql);
       if($aux)
       {
          $stats['total'] = intval($aux[0]['art']);
@@ -318,14 +322,19 @@ class informe_articulos extends fs_controller
    
    private function top_articulo_faccli()
    {
+      /// buscamos el resultado en caché
       $toplist = $this->cache->get_array('faccli_top_articulos');
-      if( !$toplist )
+      if( !$toplist OR isset($_POST['desde']) )
       {
+         $toplist = array();
          $articulo = new articulo();
-         $desde = date('d-m-Y', strtotime('-1month'));
-         $sql = "SELECT referencia, SUM(cantidad) as unidades, SUM(pvptotal) as total "
-                 . "FROM lineasfacturascli WHERE idfactura IN (SELECT idfactura FROM facturascli WHERE fecha >= "
-                 . $articulo->var2str($desde).") GROUP BY referencia ORDER BY total DESC";
+         $sql = "SELECT l.referencia, SUM(l.cantidad) as unidades, SUM(l.pvptotal/f.tasaconv) as total"
+                 . " FROM lineasfacturascli l, facturascli f"
+                 . " WHERE l.idfactura = f.idfactura AND l.referencia IS NOT NULL"
+                 . " AND f.fecha >= ". $articulo->var2str($this->desde)
+                 . " AND f.fecha <= ". $articulo->var2str($this->hasta)
+                 . " GROUP BY referencia"
+                 . " ORDER BY unidades DESC";
          
          $lineas = $this->db->select_limit($sql, FS_ITEM_LIMIT, 0);
          if($lineas)
@@ -340,27 +349,35 @@ class informe_articulos extends fs_controller
                      $toplist[] = array(
                          'articulo' => $art0,
                          'unidades' => floatval($l['unidades']),
-                         'total' => floatval($l['total'])
+                         'total' => $this->euro_convert( floatval($l['total']) ),
+                         'beneficio' => $this->euro_convert( floatval($l['total']) ) - ( floatval($l['unidades']) * $art0->preciocoste() )
                      );
                   }
                }
             }
          }
-         $this->cache->set('faccli_top_articulos', $toplist);
+         
+         /// guardamos los resultados en caché
+         $this->cache->set('faccli_top_articulos', $toplist, 300);
       }
+      
       return $toplist;
    }
    
    private function sin_vender()
    {
       $toplist = $this->cache->get_array('top_articulos_sin_vender');
-      if( !$toplist )
+      if(!$toplist)
       {
          $articulo = new articulo();
-         $lineas = $this->db->select_limit("SELECT * FROM articulos WHERE stockfis > 0 AND sevende AND
-            referencia NOT IN (SELECT referencia FROM lineasfacturascli
-            WHERE idfactura IN (SELECT idfactura FROM facturascli
-            WHERE fecha >= ".$articulo->var2str(Date('1-m-Y')).")) ORDER BY stockfis DESC", FS_ITEM_LIMIT, 0);
+         $sql = "SELECT * FROM articulos WHERE sevende = true"
+                 . " AND bloqueado = false AND stockfis > 0 AND referencia NOT IN "
+                 . "(SELECT DISTINCT(referencia) FROM lineasfacturascli WHERE referencia IS NOT NULL"
+                 . " AND idfactura IN (SELECT idfactura FROM facturascli"
+                 . " WHERE fecha >= ".$articulo->var2str(Date('1-1-Y'))."))"
+                 . " ORDER BY stockfis DESC";
+         
+         $lineas = $this->db->select_limit($sql, FS_ITEM_LIMIT, 0);
          if($lineas)
          {
             foreach($lineas as $l)
@@ -368,19 +385,28 @@ class informe_articulos extends fs_controller
                $toplist[] = new articulo($l);
             }
          }
+         
+         /// guardamos los resultados en caché
          $this->cache->set('top_articulos_sin_vender', $toplist);
       }
+      
       return $toplist;
    }
    
    private function top_articulo_facpro()
    {
       $toplist = $this->cache->get('facpro_top_articulos');
-      if( !$toplist )
+      if( !$toplist OR isset($_POST['desde']) )
       {
          $articulo = new articulo();
-         $lineas = $this->db->select_limit("SELECT referencia, SUM(cantidad) as compras
-            FROM lineasfacturasprov GROUP BY referencia ORDER BY compras DESC", FS_ITEM_LIMIT, 0);
+         $sql = "SELECT l.referencia, SUM(l.cantidad) as compras FROM lineasfacturasprov l, facturasprov f"
+                 . " WHERE l.idfactura = f.idfactura AND l.referencia IS NOT NULL"
+                 . " AND f.fecha >= ". $articulo->var2str($this->desde)
+                 . " AND f.fecha <= ". $articulo->var2str($this->hasta)
+                 . " GROUP BY referencia"
+                 . " ORDER BY compras DESC";
+         
+         $lineas = $this->db->select_limit($sql, FS_ITEM_LIMIT, 0);
          if($lineas)
          {
             foreach($lineas as $l)
@@ -392,8 +418,11 @@ class informe_articulos extends fs_controller
                }
             }
          }
+         
+         /// guardamos los resultados en caché
          $this->cache->set('facpro_top_articulos', $toplist);
       }
+      
       return $toplist;
    }
    
@@ -424,7 +453,9 @@ class informe_articulos extends fs_controller
       if($data)
       {
          foreach($data as $d)
+         {
             $slist[] = $d;
+         }
       }
       
       return $slist;
@@ -442,7 +473,9 @@ class informe_articulos extends fs_controller
       if($data)
       {
          foreach($data as $d)
+         {
             $slist[] = $d;
+         }
       }
       
       return $slist;
@@ -632,29 +665,6 @@ class informe_articulos extends fs_controller
       }
       
       return $familias;
-   }
-   
-   private function share_extension()
-   {
-      /// añadimos la extensión a artículos
-      $extensiones = array(
-          array(
-              'name' => 'informe_articulo',
-              'page_from' => __CLASS__,
-              'page_to' => 'ventas_articulo',
-              'type' => 'tab_button',
-              'text' => '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> &nbsp; Informe',
-              'params' => '&tab=varios'
-          ),
-      );
-      foreach($extensiones as $ext)
-      {
-         $fsext0 = new fs_extension($ext);
-         if( !$fsext0->save() )
-         {
-            $this->new_error_msg('Imposible guardar los datos de la extensión '.$ext['name'].'.');
-         }
-      }
    }
    
    private function calcular_stock_real(&$articulo)
@@ -967,6 +977,10 @@ class informe_articulos extends fs_controller
                        .number_format($value['final'], FS_NF0, ',', '').';'
                        .$value['fecha']."\n";
             }
+         }
+         else if(!$this->resultados)
+         {
+            $this->new_message('Sin resultados.');
          }
       }
    }

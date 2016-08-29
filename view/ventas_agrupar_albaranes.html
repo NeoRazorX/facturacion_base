@@ -114,9 +114,15 @@
          </div>
          <div class="col-sm-1 text-right">
             <br/>
+            {if="$fsc->resultados"}
+            <button type="submit" class="btn btn-sm btn-default" onclick="this.disabled=true;this.form.submit();">
+               <span class="glyphicon glyphicon-search"></span>
+            </button>
+            {else}
             <button type="submit" class="btn btn-sm btn-primary" onclick="this.disabled=true;this.form.submit();">
                <span class="glyphicon glyphicon-search"></span>
             </button>
+            {/if}
          </div>
       </div>
    </div>
@@ -148,9 +154,15 @@
                         </div>
                      </td>
                      <td>{$value->observaciones_resume()}</td>
-                     <td class="text-right">{$fsc->show_precio($value->neto, $value->coddivisa)}</td>
-                     <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
-                     <td class="text-right">{$value->fecha}</td>
+                     <td class="text-right" title="{$fsc->show_precio($fsc->euro_convert($value->neto/$value->tasaconv, $value->coddivisa, $value->tasaconv))}">
+                        {$fsc->show_precio($value->neto, $value->coddivisa)}
+                     </td>
+                     <td class="text-right" title="{$fsc->show_precio($fsc->euro_convert($value->totaleuros, $value->coddivisa, $value->tasaconv))}">
+                        {$fsc->show_precio($value->total, $value->coddivisa)}
+                     </td>
+                     <td class="text-right" title="Hora {$value->hora}">
+                        {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
+                     </td>
                   </tr>
                   {/loop}
                   <tr>

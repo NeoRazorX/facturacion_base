@@ -107,7 +107,6 @@ class admin_agentes extends fs_controller
       $url = $this->url()."&query=".$this->query
                  ."&ciudad=".$this->ciudad
                  ."&provincia=".$this->provincia
-                 ."&offset=".($this->offset+FS_ITEM_LIMIT)
                  ."&orden=".$this->orden;
       
       $paginas = array();

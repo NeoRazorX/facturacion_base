@@ -98,7 +98,7 @@
                O para generar informes de compras o ventas con múltiples filtros.
             </p>
          </div>
-         <ul class="nav nav-pills">
+         <ul class="nav nav-tabs">
             <li role="presentation"{if="$fsc->mostrar=='general'"} class="active"{/if}>
                <a href="{$fsc->url()}">
                   <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
@@ -130,6 +130,7 @@
                </a>
             </li>
          </ul>
+         <br/>
       </div>
    </div>
 </div>
@@ -163,7 +164,7 @@
       data2.addColumn('number', 'beneficios {$fsc->simbolo_divisa()}');
       data2.addRows([
       {loop="$fsc->stats_last_months()"}
-         ['{$value['month']}', {$value['total_cli']}, {$value['total_pro']}, {$value['beneficios']}],
+         ['{$value['month']}', {$value['neto_cli']}, {$value['neto_pro']}, {$value['beneficios']}],
       {/loop}
       ]);
       
@@ -179,7 +180,7 @@
       data3.addColumn('number', 'beneficios {$fsc->simbolo_divisa()}');
       data3.addRows([
       {loop="$fsc->stats_last_years()"}
-         ['{$value['year']}', {$value['total_cli']}, {$value['total_pro']}, {$value['beneficios']}],
+         ['{$value['year']}', {$value['neto_cli']}, {$value['neto_pro']}, {$value['beneficios']}],
       {/loop}
       ]);
       
@@ -189,7 +190,7 @@
    }
 </script>
 
-<div class="container-fluid" style="margin-top: 10px;">
+<div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
          <div class="panel panel-default">
@@ -197,10 +198,9 @@
                <h3 class="panel-title">Facturación de los últimos días</h3>
             </div>
             <div class="panel-body">
-               <div id="chart_facturas_day"></div>
-            </div>
-            <div class="panel-footer">
+               <div id="chart_facturas_day" style="height: 250px;"></div>
                <p class="help-block">
+                  Los valores son <b>netos</b>, es decir, sin impuestos.
                   Este mes hay {$fsc->stats['facturas_compra']} facturas de compra por un importe total
                   de <b>{$fsc->show_precio($fsc->stats['facturas_compra_importe'])}</b>,
                   además de {$fsc->stats['alb_ptes_compra']} {#FS_ALBARANES#} de compra pendientes
@@ -222,10 +222,9 @@
                <h3 class="panel-title">Facturación de los últimos meses</h3>
             </div>
             <div class="panel-body">
-               <div id="chart_facturas_month" style="height: 400px;"></div>
-            </div>
-            <div class="panel-footer">
+               <div id="chart_facturas_month" style="height: 350px;"></div>
                <p class="help-block">
+                  Los valores son <b>netos</b>, es decir, sin impuestos.
                   La media de ventas es de <b>{$fsc->show_precio($fsc->stats['media_ventas'])}</b>/mes,
                   la media de compras es de <b>{$fsc->show_precio($fsc->stats['media_compras'])}</b>/mes
                   y el benefinicio medio es <b>{$fsc->show_precio($fsc->stats['media_beneficios'])}</b>/mes.
@@ -241,7 +240,8 @@
                <h3 class="panel-title">Facturación de los últimos años</h3>
             </div>
             <div class="panel-body">
-               <div id="chart_facturas_year" style="height: 400px;"></div>
+               <div id="chart_facturas_year" style="height: 350px;"></div>
+               <p class="help-block">Los valores son <b>netos</b>, es decir, sin impuestos.</p>
             </div>
          </div>
       </div>
@@ -339,7 +339,7 @@
    }
 </script>
 
-<div class="container-fluid" style="margin-top: 10px;">
+<div class="container-fluid">
    <div class="row">
       <div class="col-sm-6">
          <div class="panel panel-default">
@@ -626,7 +626,6 @@
 <div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
-         <br/>
          <div class="panel panel-default">
             <div class="panel-heading">
                <h3 class="panel-title">Operaciones de compra</h3>
@@ -657,7 +656,6 @@
    </div>
 </div>
 {elseif="$fsc->mostrar=='compras'"}
-<br/>
 <div class="container-fluid">
    <div class="row">
       <div class="col-md-4 col-sm-6">
@@ -819,7 +817,6 @@
    </div>
 </div>
 {elseif="$fsc->mostrar=='ventas'"}
-<br/>
 <div class="container-fluid">
    <div class="row">
       <div class="col-md-4 col-sm-6">

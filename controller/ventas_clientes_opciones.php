@@ -101,7 +101,8 @@ class ventas_clientes_opciones extends fs_controller
       $fsext->from = __CLASS__;
       $fsext->to = 'ventas_clientes';
       $fsext->type = 'button';
-      $fsext->text = '<span class="glyphicon glyphicon-cog" aria-hidden="true" title="Opciones para nuevos clientes"></span>';
+      $fsext->text = '<span class="glyphicon glyphicon-wrench" aria-hidden="true" title="Opciones para nuevos clientes"></span>'
+              . '<span class="hidden-xs">&nbsp; Opciones</span>';
       $fsext->save();
    }
 }

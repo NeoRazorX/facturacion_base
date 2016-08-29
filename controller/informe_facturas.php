@@ -52,7 +52,7 @@ class informe_facturas extends fs_controller
       $this->desde = Date('1-m-Y');
       $this->factura_cli = new factura_cliente();
       $this->factura_pro = new factura_proveedor();
-      $this->hasta = Date('d-m-Y', mktime(0, 0, 0, date("m")+1, date("1")-1, date("Y")));
+      $this->hasta = Date('t-m-Y');
       $this->pais = new pais();
       $this->serie = new serie();
       $this->stats = array();
@@ -913,14 +913,14 @@ class informe_facturas extends fs_controller
       {
          $stats[$i] = array(
              'day' => $value['day'],
-             'total_cli' => $value['total'],
+             'total_cli' => round($value['total'], FS_NF0),
              'total_pro' => 0
          );
       }
       
       foreach($stats_pro as $i => $value)
       {
-         $stats[$i]['total_pro'] = $value['total'];
+         $stats[$i]['total_pro'] = round($value['total'], FS_NF0);
       }
       
       return $stats;
@@ -946,7 +946,7 @@ class informe_facturas extends fs_controller
          $sql_aux = "DATE_FORMAT(fecha, '%d')";
       
       /// consultamos para la divisa de la empresa
-      $data = $this->db->select("SELECT ".$sql_aux." as dia, sum(total) as total FROM ".$table_name
+      $data = $this->db->select("SELECT ".$sql_aux." as dia, sum(neto) as total FROM ".$table_name
               ." WHERE fecha >= ".$this->empresa->var2str($desde)
               ." AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))
               ." AND coddivisa = ".$this->empresa->var2str($this->empresa->coddivisa)
@@ -961,7 +961,7 @@ class informe_facturas extends fs_controller
       }
       
       /// ahora consultamos el resto de divisas
-      $data = $this->db->select("SELECT ".$sql_aux." as dia, sum(totaleuros) as total FROM ".$table_name
+      $data = $this->db->select("SELECT ".$sql_aux." as dia, sum(neto/tasaconv) as total FROM ".$table_name
               ." WHERE fecha >= ".$this->empresa->var2str($desde)
               ." AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))
               ." AND coddivisa != ".$this->empresa->var2str($this->empresa->coddivisa)
@@ -1003,8 +1003,10 @@ class informe_facturas extends fs_controller
       {
          $stats[$i] = array(
              'month' => $meses[ $value['month'] ],
-             'total_cli' => round($value['total'], 2),
+             'neto_cli' => round($value['neto'], FS_NF0),
+             'total_cli' => $value['total'],
              'impuestos_cli' => $value['totaliva'],
+             'neto_pro' => 0,
              'total_pro' => 0,
              'impuestos_pro' => 0,
              'beneficios' => 0
@@ -1013,7 +1015,8 @@ class informe_facturas extends fs_controller
       
       foreach($stats_pro as $i => $value)
       {
-         $stats[$i]['total_pro'] = round($value['total'], 2);
+         $stats[$i]['neto_pro'] = round($value['neto'], FS_NF0);
+         $stats[$i]['total_pro'] = $value['total'];
          $stats[$i]['impuestos_pro'] = $value['totaliva'];
       }
       
@@ -1026,15 +1029,15 @@ class informe_facturas extends fs_controller
          }
          $impuestos += $value['impuestos'];
          
-         $stats[$i]['beneficios'] = round($stats[$i]['total_cli'] - $stats[$i]['total_pro'] - $impuestos, 2);
+         $stats[$i]['beneficios'] = round($stats[$i]['total_cli'] - $stats[$i]['total_pro'] - $impuestos, FS_NF0);
       }
       
       /// leemos para completar $this->stats
       $num = 0;
       foreach($stats as $st)
       {
-         $this->stats['media_ventas'] += $st['total_cli'];
-         $this->stats['media_compras'] += $st['total_pro'];
+         $this->stats['media_ventas'] += $st['neto_cli'];
+         $this->stats['media_compras'] += $st['neto_pro'];
          $this->stats['media_beneficios'] += $st['beneficios'];
          $num++;
       }
@@ -1052,13 +1055,13 @@ class informe_facturas extends fs_controller
    private function stats_last_months_aux($table_name = 'facturascli', $num = 11)
    {
       $stats = array();
-      $desde = Date('d-m-Y', strtotime( Date('01-m-Y').'-'.$num.' month'));
+      $desde = Date('d-m-Y', strtotime( Date('1-m-Y').'-'.$num.' month'));
       
       /// inicializamos los resultados
       foreach($this->date_range($desde, Date('d-m-Y'), '+1 month', 'm') as $date)
       {
          $i = intval($date);
-         $stats[$i] = array('month' => $i, 'total' => 0, 'totaliva' => 0);
+         $stats[$i] = array('month' => $i, 'neto' => 0, 'total' => 0, 'totaliva' => 0);
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
@@ -1069,7 +1072,7 @@ class informe_facturas extends fs_controller
          $sql_aux = "DATE_FORMAT(fecha, '%m')";
       
       /// primero consultamos la divisa de la empresa
-      $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(total) as total, sum(totaliva) as totaliva FROM ".$table_name
+      $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(neto) as neto, sum(total) as total, sum(totaliva) as totaliva FROM ".$table_name
               ." WHERE fecha >= ".$this->empresa->var2str($desde)
               ." AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))
               ." AND coddivisa = ".$this->empresa->var2str($this->empresa->coddivisa)
@@ -1079,13 +1082,14 @@ class informe_facturas extends fs_controller
          foreach($data as $d)
          {
             $i = intval($d['mes']);
+            $stats[$i]['neto'] = floatval($d['neto']);
             $stats[$i]['total'] = floatval($d['total']);
             $stats[$i]['totaliva'] = floatval($d['totaliva']);
          }
       }
       
       /// ahora consultamos el resto de divisas
-      $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(totaleuros) as total, sum(totaliva/tasaconv) as totaliva FROM ".$table_name
+      $data = $this->db->select("SELECT ".$sql_aux." as mes, sum(neto/tasaconv) as neto, sum(totaleuros) as total, sum(totaliva/tasaconv) as totaliva FROM ".$table_name
               ." WHERE fecha >= ".$this->empresa->var2str($desde)
               ." AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))
               ." AND coddivisa != ".$this->empresa->var2str($this->empresa->coddivisa)
@@ -1095,6 +1099,7 @@ class informe_facturas extends fs_controller
          foreach($data as $d)
          {
             $i = intval($d['mes']);
+            $stats[$i]['neto'] += $this->euro_convert( floatval($d['neto']) );
             $stats[$i]['total'] += $this->euro_convert( floatval($d['total']) );
             $stats[$i]['totaliva'] += $this->euro_convert( floatval($d['totaliva']) );
          }
@@ -1106,7 +1111,7 @@ class informe_facturas extends fs_controller
    private function stats_last_months_impuestos($num = 11)
    {
       $stats = array();
-      $desde = Date('d-m-Y', strtotime( Date('01-m-Y').'-'.$num.' month'));
+      $desde = Date('d-m-Y', strtotime( Date('1-m-Y').'-'.$num.' month'));
       
       /// inicializamos los resultados
       foreach($this->date_range($desde, Date('d-m-Y'), '+1 month', 'm') as $date)
@@ -1163,8 +1168,10 @@ class informe_facturas extends fs_controller
       {
          $stats[$i] = array(
              'year' => $value['year'],
-             'total_cli' => round($value['total'], 2),
+             'neto_cli' => round($value['neto'], FS_NF0),
+             'total_cli' => $value['total'],
              'impuestos_cli' => $value['totaliva'],
+             'neto_pro' => 0,
              'total_pro' => 0,
              'impuestos_pro' => 0,
              'beneficios' => 0
@@ -1173,7 +1180,8 @@ class informe_facturas extends fs_controller
       
       foreach($stats_pro as $i => $value)
       {
-         $stats[$i]['total_pro'] = round($value['total'], 2);
+         $stats[$i]['neto_pro'] = round($value['neto'], FS_NF0);
+         $stats[$i]['total_pro'] = $value['total'];
          $stats[$i]['impuestos_pro'] = $value['totaliva'];
       }
       
@@ -1186,7 +1194,7 @@ class informe_facturas extends fs_controller
          }
          $impuestos += $value['impuestos'];
          
-         $stats[$i]['beneficios'] = round($stats[$i]['total_cli'] - $stats[$i]['total_pro'] - $impuestos, 2);
+         $stats[$i]['beneficios'] = round($stats[$i]['total_cli'] - $stats[$i]['total_pro'] - $impuestos, FS_NF0);
       }
       
       return $stats;
@@ -1201,7 +1209,7 @@ class informe_facturas extends fs_controller
       foreach($this->date_range($desde, Date('d-m-Y'), '+1 year', 'Y') as $date)
       {
          $i = intval($date);
-         $stats[$i] = array('year' => $i, 'total' => 0, 'totaliva' => 0);
+         $stats[$i] = array('year' => $i, 'neto' => 0, 'total' => 0, 'totaliva' => 0);
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
@@ -1212,7 +1220,7 @@ class informe_facturas extends fs_controller
          $sql_aux = "DATE_FORMAT(fecha, '%Y')";
       
       /// consultamos la divisa de la empresa
-      $data = $this->db->select("SELECT ".$sql_aux." as ano, sum(total) as total, sum(totaliva) as totaliva FROM ".$table_name
+      $data = $this->db->select("SELECT ".$sql_aux." as ano, sum(neto) as neto, sum(total) as total, sum(totaliva) as totaliva FROM ".$table_name
               ." WHERE fecha >= ".$this->empresa->var2str($desde)
               ." AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))
               ." AND coddivisa = ".$this->empresa->var2str($this->empresa->coddivisa)
@@ -1222,13 +1230,14 @@ class informe_facturas extends fs_controller
          foreach($data as $d)
          {
             $i = intval($d['ano']);
+            $stats[$i]['neto'] = floatval($d['neto']);
             $stats[$i]['total'] = floatval($d['total']);
             $stats[$i]['totaliva'] = floatval($d['totaliva']);
          }
       }
       
       /// ahpra el resto de divisas
-      $data = $this->db->select("SELECT ".$sql_aux." as ano, sum(totaleuros) as total, sum(totaliva/tasaconv) as totaliva FROM ".$table_name
+      $data = $this->db->select("SELECT ".$sql_aux." as ano, sum(neto/tasaconv) as neto, sum(totaleuros) as total, sum(totaliva/tasaconv) as totaliva FROM ".$table_name
               ." WHERE fecha >= ".$this->empresa->var2str($desde)
               ." AND fecha <= ".$this->empresa->var2str(Date('d-m-Y'))
               ." AND coddivisa != ".$this->empresa->var2str($this->empresa->coddivisa)
@@ -1238,6 +1247,7 @@ class informe_facturas extends fs_controller
          foreach($data as $d)
          {
             $i = intval($d['ano']);
+            $stats[$i]['neto'] += $this->euro_convert( floatval($d['neto']) );
             $stats[$i]['total'] += $this->euro_convert( floatval($d['total']) );
             $stats[$i]['totaliva'] += $this->euro_convert( floatval($d['totaliva']) );
          }
@@ -1377,7 +1387,7 @@ class informe_facturas extends fs_controller
          {
             $stats[] = array(
                 'txt' => $this->empresa->str2bool($d['pagada']) ? 'Pagadas':'Impagadas',
-                'total' => round( abs( $this->euro_convert(  floatval($d['total']) ) ), FS_NF0)
+                'total' => round( abs( $this->euro_convert( floatval($d['total']) ) ), FS_NF0)
             );
          }
       }

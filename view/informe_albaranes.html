@@ -121,7 +121,7 @@
                <h3 class="panel-title">Operaciones de compra</h3>
             </div>
             <div class="panel-body">
-               <div id="chart_operaciones_compra" style="width: 95%; margin-left: auto; margin-right: auto; height: 300px;"></div>
+               <div id="chart_operaciones_compra" style="height: 300px;"></div>
             </div>
             <div class="panel-footer">
                <p class="help-block">
@@ -134,7 +134,7 @@
                <h3 class="panel-title">Operaciones de venta</h3>
             </div>
             <div class="panel-body">
-               <div id="chart_operaciones_venta" style="width: 95%; margin-left: auto; margin-right: auto; height: 300px;"></div>
+               <div id="chart_operaciones_venta" style="height: 300px;"></div>
             </div>
             <div class="panel-footer">
                <p class="help-block">
@@ -152,10 +152,9 @@
                <h3 class="panel-title"><span class="text-capitalize">{#FS_ALBARANES#}</span> de los últimos días</h3>
             </div>
             <div class="panel-body">
-               <div id="chart_facturas_day" style="width: 95%; margin-left: auto; margin-right: auto;"></div>
-            </div>
-            <div class="panel-footer">
+               <div id="chart_facturas_day" style="height: 250px;"></div>
                <p class="help-block">
+                  Los valores son <b>netos</b>, es decir, sin impuestos.
                   La media de ventas es de <b>{$fsc->show_precio($fsc->stats['media_ventas_dia'])}</b>/día,
                   la media de compras es de <b>{$fsc->show_precio($fsc->stats['media_compras_dia'])}</b>/día.
                </p>
@@ -164,55 +163,15 @@
       </div>
    </div>
    <div class="row">
-      <div class="col-sm-4">
-         {if="$fsc->stats['alb_pendientes']>0"}
-         <a href="index.php?page=ventas_albaranes&mostrar=pendientes" class="btn btn-sm btn-block btn-info">
-            {$fsc->stats['alb_pendientes']} {#FS_ALBARANES#} pendientes
-            ({$fsc->show_precio($fsc->stats['alb_pendientes_total'])})
-         </a>
-         {else}
-         <a href="index.php?page=ventas_albaranes&mostrar=pendientes" class="btn btn-sm btn-block btn-default">
-            0 {#FS_ALBARANES#} pendientes
-         </a>
-         {/if}
-      </div>
-      <div class="col-sm-4">
-         {if="$fsc->stats['ped_pendientes']>0"}
-         <a href="index.php?page=ventas_pedidos&mostrar=pendientes" class="btn btn-sm btn-block btn-info">
-            {$fsc->stats['ped_pendientes']} {#FS_PEDIDOS#} pendientes
-            ({$fsc->show_precio($fsc->stats['ped_pendientes_total'])})
-         </a>
-         {else}
-         <a href="index.php?page=ventas_pedidos&mostrar=pendientes" class="btn btn-sm btn-block btn-default">
-            0 {#FS_PEDIDOS#} pendientes
-         </a>
-         {/if}
-      </div>
-      <div class="col-sm-4">
-         {if="$fsc->stats['pre_pendientes']>0"}
-         <a href="index.php?page=ventas_presupuestos&mostrar=pendientes" class="btn btn-sm btn-block btn-info">
-            {$fsc->stats['pre_pendientes']} {#FS_PRESUPUESTOS#} pendientes
-            ({$fsc->show_precio($fsc->stats['pre_pendientes_total'])})
-         </a>
-         {else}
-         <a href="index.php?page=ventas_presupuestos&mostrar=pendientes" class="btn btn-sm btn-block btn-default">
-            0 {#FS_PRESUPUESTOS#} pendientes
-         </a>
-         {/if}
-      </div>
-   </div>
-   <div class="row">
       <div class="col-sm-12">
-         <br/>
          <div class="panel panel-default">
             <div class="panel-heading">
                <h3 class="panel-title"><span class="text-capitalize">{#FS_ALBARANES#}</span> de los últimos meses</h3>
             </div>
             <div class="panel-body">
-               <div id="chart_facturas_month" style="width: 95%; margin-left: auto; margin-right: auto; height: 300px;"></div>
-            </div>
-            <div class="panel-footer">
+               <div id="chart_facturas_month" style="height: 350px;"></div>
                <p class="help-block">
+                  Los valores son <b>netos</b>, es decir, sin impuestos.
                   La media de ventas es de <b>{$fsc->show_precio($fsc->stats['media_ventas_mes'])}</b>/mes,
                   la media de compras es de <b>{$fsc->show_precio($fsc->stats['media_compras_mes'])}</b>/mes.
                </p>
@@ -227,7 +186,8 @@
                <h3 class="panel-title"><span class="text-capitalize">{#FS_ALBARANES#}</span> de los últimos años</h3>
             </div>
             <div class="panel-body">
-               <div id="chart_facturas_year" style="width: 95%; margin-left: auto; margin-right: auto; height: 300px;"></div>
+               <div id="chart_facturas_year" style="height: 350px;"></div>
+               <p class="help-block">Los valores son <b>netos</b>, es decir, sin impuestos.</p>
             </div>
          </div>
       </div>

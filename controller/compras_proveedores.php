@@ -22,11 +22,13 @@ require_model('proveedor.php');
 
 class compras_proveedores extends fs_controller
 {
-   public $mostrar;
+   public $num_resultados;
    public $offset;
+   public $orden;
    public $pais;
    public $proveedor;
    public $resultados;
+   public $tipo;
    
    public function __construct()
    {
@@ -40,6 +42,7 @@ class compras_proveedores extends fs_controller
       
       if( isset($_GET['delete']) )
       {
+         /// eliminar proveedor
          $proveedor = $this->proveedor->get($_GET['delete']);
          if($proveedor)
          {
@@ -60,6 +63,7 @@ class compras_proveedores extends fs_controller
       }
       else if( isset($_POST['cifnif']) )
       {
+         /// nuevo proveedor
          $proveedor = new proveedor();
          $proveedor->codproveedor = $proveedor->get_new_codigo();
          $proveedor->nombre = $_POST['nombre'];
@@ -78,6 +82,8 @@ class compras_proveedores extends fs_controller
             $dirproveedor->ciudad = $_POST['ciudad'];
             $dirproveedor->codpostal = $_POST['codpostal'];
             $dirproveedor->direccion = $_POST['direccion'];
+            $dirproveedor->apartado = $_POST['apartado'];
+            
             if( $dirproveedor->save() )
             {
                /// forzamos crear la subcuenta
@@ -93,37 +99,86 @@ class compras_proveedores extends fs_controller
             $this->new_error_msg("¡Imposible guardar el proveedor!");
       }
       
-      $this->mostrar = 'todo';
-      if( isset($_GET['mostrar']) )
-      {
-         $this->mostrar = $_GET['mostrar'];
-      }
-      
       $this->offset = 0;
       if( isset($_GET['offset']) )
       {
          $this->offset = intval($_GET['offset']);
       }
       
-      if($this->query != '')
+      $this->orden = 'nombre ASC';
+      if( isset($_REQUEST['orden']) )
       {
-         $this->resultados = $this->proveedor->search($this->query, $this->offset);
+         $this->orden = $_REQUEST['orden'];
+      }
+      
+      $this->tipo = '';
+      if( isset($_REQUEST['tipo']) )
+      {
+         $this->tipo = $_REQUEST['tipo'];
+      }
+      
+      $this->buscar();
+   }
+   
+   private function buscar()
+   {
+      $this->total_resultados = 0;
+      $query = mb_strtolower( $this->proveedor->no_html($this->query), 'UTF8' );
+      $sql = " FROM proveedores";
+      $and = ' WHERE ';
+      
+      if( is_numeric($query) )
+      {
+         $sql .= $and."(codproveedor LIKE '%".$query."%'"
+                 . " OR cifnif LIKE '%".$query."%'"
+                 . " OR telefono1 LIKE '".$query."%'"
+                 . " OR telefono2 LIKE '".$query."%'"
+                 . " OR observaciones LIKE '%".$query."%')";
+         $and = ' AND ';
       }
       else
       {
-         if($this->mostrar == 'acreedores')
+         $buscar = str_replace(' ', '%', $query);
+         $sql .= $and."(lower(nombre) LIKE '%".$buscar."%'"
+                 . " OR lower(razonsocial) LIKE '%".$buscar."%'"
+                 . " OR lower(cifnif) LIKE '%".$buscar."%'"
+                 . " OR lower(observaciones) LIKE '%".$buscar."%'"
+                 . " OR lower(email) LIKE '%".$buscar."%')";
+         $and = ' AND ';
+      }
+      
+      if($this->tipo == 'acreedores')
+      {
+         $sql .= $and."acreedor = true";
+         $and = ' AND ';
+      }
+      else if($this->tipo == 'noacreedores')
+      {
+         $sql .= $and."acreedor = false";
+         $and = ' AND ';
+      }
+      
+      $data = $this->db->select("SELECT COUNT(codproveedor) as total".$sql.';');
+      if($data)
+      {
+         $this->num_resultados = intval($data[0]['total']);
+         
+         $data2 = $this->db->select_limit("SELECT *".$sql." ORDER BY ".$this->orden, FS_ITEM_LIMIT, $this->offset);
+         if($data2)
          {
-            $this->resultados = $this->proveedor->all($this->offset, TRUE);
+            foreach($data2 as $d)
+            {
+               $this->resultados[] = new proveedor($d);
+            }
          }
-         else
-            $this->resultados = $this->proveedor->all($this->offset);
       }
    }
    
    public function paginas()
    {
       $url = $this->url()."&query=".$this->query
-                 ."&offset=".($this->offset+FS_ITEM_LIMIT);
+              ."&tipo=".$this->tipo
+              ."&orden=".$this->orden;
       
       $paginas = array();
       $i = 0;
@@ -131,14 +186,7 @@ class compras_proveedores extends fs_controller
       $actual = 1;
       
       $total = 0;
-      if($this->mostrar == 'acreedores')
-      {
-         $total = $this->total_acreedores();
-      }
-      else
-      {
-         $total = $this->total_proveedores();
-      }
+      $total = $this->num_resultados;
       
       /// añadimos todas la página
       while($num < $total)
@@ -181,27 +229,5 @@ class compras_proveedores extends fs_controller
       {
          return array();
       }
-   }
-   
-   public function total_proveedores()
-   {
-      $data = $this->db->select("SELECT COUNT(codproveedor) as total FROM proveedores;");
-      if($data)
-      {
-         return intval($data[0]['total']);
-      }
-      else
-         return 0;
-   }
-   
-   public function total_acreedores()
-   {
-      $data = $this->db->select("SELECT COUNT(codproveedor) as total FROM proveedores WHERE acreedor;");
-      if($data)
-      {
-         return intval($data[0]['total']);
-      }
-      else
-         return 0;
    }
 }

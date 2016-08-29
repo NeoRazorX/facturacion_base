@@ -12,8 +12,10 @@
  */
 class dashboard extends fs_controller
 {
+   public $anterior;
    public $anyo;
    public $mes;
+   public $neto;
    public $noticias;
    public $trimestre;
    
@@ -24,18 +26,49 @@ class dashboard extends fs_controller
    
    protected function private_core()
    {
+      /// cargamos la configuración
+      $fsvar = new fs_var();
+      if( isset($_POST['anterior']) )
+      {
+         $this->anterior = $_POST['anterior'];
+         $fsvar->simple_save('dashboard_anterior', $this->anterior);
+         
+         $this->neto = $_POST['neto'];
+         $fsvar->simple_save('dashboard_neto', $this->neto);
+         
+         $this->new_message('Datos guardados correctamente.');
+      }
+      else
+      {
+         $this->anterior = $fsvar->simple_get('dashboard_anterior');
+         if(!$this->anterior)
+         {
+            $this->anterior = 'periodo';
+         }
+         
+         $this->neto = $fsvar->simple_get('dashboard_neto');
+         if(!$this->neto)
+         {
+            $this->neto = 'FALSE';
+         }
+      }
+      
       $this->mes = array(
           'desde' => date('1-m-Y'),
           'hasta' => date('d-m-Y'),
           'anterior' => '-1 month',
           'compras' => 0,
+          'compras_neto' => 0,
           'compras_anterior' => 0,
+          'compras_anterior_neto' => 0,
           'compras_mejora' => 0,
           'compras_albaranes_pte' => 0,
           'compras_pedidos_pte' => 0,
           'compras_sinpagar' => 0,
           'ventas' => 0,
+          'ventas_neto' => 0,
           'ventas_anterior' => 0,
+          'ventas_anterior_neto' => 0,
           'ventas_mejora' => 0,
           'ventas_albaranes_pte' => 0,
           'ventas_pedidos_pte' => 0,
@@ -53,15 +86,23 @@ class dashboard extends fs_controller
          $this->mes['desde'] = date('1-m-Y', strtotime('-1 month'));
          $this->mes['hasta'] = date('t-m-Y', strtotime('-1 month'));
       }
+      if($this->anterior == 'año')
+      {
+         $this->mes['anterior'] = '-1 year';
+      }
       $this->calcula_periodo($this->mes, TRUE);
       
       $this->trimestre = array(
           'anterior' => '-3 months',
           'compras' => 0,
+          'compras_neto' => 0,
           'compras_anterior' => 0,
+          'compras_anterior_neto' => 0,
           'compras_mejora' => 0,
           'ventas' => 0,
+          'ventas_neto' => 0,
           'ventas_anterior' => 0,
+          'ventas_anterior_neto' => 0,
           'ventas_mejora' => 0,
           'impuestos' => 0,
           'impuestos_anterior' => 0,
@@ -75,29 +116,29 @@ class dashboard extends fs_controller
       switch( date('m') )
       {
          case '1':
-            $this->trimestre['desde'] = date('01-10-Y', strtotime('-1 year'));
+            $this->trimestre['desde'] = date('1-10-Y', strtotime('-1 year'));
             $this->trimestre['hasta'] = date('t-12-Y', strtotime('-1 year'));
             break;
          
          case '2':
          case '3':
          case '4':
-            $this->trimestre['desde'] = date('01-01-Y');
-            $this->trimestre['hasta'] = date('t-03-Y');
+            $this->trimestre['desde'] = date('1-1-Y');
+            $this->trimestre['hasta'] = date('t-3-Y');
             break;
          
          case '5':
          case '6':
          case '7':
-            $this->trimestre['desde'] = date('01-04-Y');
-            $this->trimestre['hasta'] = date('t-06-Y');
+            $this->trimestre['desde'] = date('1-4-Y');
+            $this->trimestre['hasta'] = date('t-6-Y');
             break;
          
          case '8':
          case '9':
          case '10':
-            $this->trimestre['desde'] = date('01-07-Y');
-            $this->trimestre['hasta'] = date('t-09-Y');
+            $this->trimestre['desde'] = date('1-7-Y');
+            $this->trimestre['hasta'] = date('t-9-Y');
             break;
          
          case '11':
@@ -106,17 +147,25 @@ class dashboard extends fs_controller
             $this->trimestre['hasta'] = date('t-12-Y');
             break;
       }
+      if($this->anterior == 'año')
+      {
+         $this->trimestre['anterior'] = '-1 year';
+      }
       $this->calcula_periodo($this->trimestre);
       
       $this->anyo = array(
-          'desde' => date('01-01-Y'),
+          'desde' => date('1-1-Y'),
           'hasta' => date('d-m-Y'),
           'anterior' => '-1 year',
           'compras' => 0,
+          'compras_neto' => 0,
           'compras_anterior' => 0,
+          'compras_anterior_neto' => 0,
           'compras_mejora' => 0,
           'ventas' => 0,
+          'ventas_neto' => 0,
           'ventas_anterior' => 0,
+          'ventas_anterior_neto' => 0,
           'ventas_mejora' => 0,
           'impuestos' => 0,
           'impuestos_anterior' => 0,
@@ -135,7 +184,7 @@ class dashboard extends fs_controller
       if( $this->db->table_exists('facturascli') )
       {
          /// calculamos las ventas de este mes
-         $sql = "select sum(totaleuros) as total from facturascli where"
+         $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from facturascli where"
                  . " fecha >= ".$this->empresa->var2str($stats['desde'])
                  . " and fecha <= ".$this->empresa->var2str($stats['hasta']).";";
          
@@ -143,10 +192,11 @@ class dashboard extends fs_controller
          if($data)
          {
             $stats['ventas'] = $this->euro_convert( floatval($data[0]['total']) );
+            $stats['ventas_neto'] = $this->euro_convert( floatval($data[0]['neto']) );
          }
          
          /// calculamos las ventas del mes pasado
-         $sql = "select sum(totaleuros) as total from facturascli where"
+         $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from facturascli where"
                  . " fecha >= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['desde'].' '.$stats['anterior'])))
                  . " and fecha <= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['hasta'].' '.$stats['anterior']))).";";
          
@@ -154,7 +204,16 @@ class dashboard extends fs_controller
          if($data)
          {
             $stats['ventas_anterior'] = $this->euro_convert( floatval($data[0]['total']) );
-            $stats['ventas_mejora'] = $this->calcular_diff($stats['ventas'], $stats['ventas_anterior']);
+            $stats['ventas_anterior_neto'] = $this->euro_convert( floatval($data[0]['neto']) );
+            
+            if($this->neto)
+            {
+               $stats['ventas_mejora'] = $this->calcular_diff($stats['ventas_neto'], $stats['ventas_anterior_neto']);
+            }
+            else
+            {
+               $stats['ventas_mejora'] = $this->calcular_diff($stats['ventas'], $stats['ventas_anterior']);
+            }
          }
          
          /// calculamos los impuestos de las ventas de este mes
@@ -183,7 +242,7 @@ class dashboard extends fs_controller
       if( $this->db->table_exists('facturasprov') )
       {
          /// calculamos las compras de este mes
-         $sql = "select sum(totaleuros) as total from facturasprov where"
+         $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from facturasprov where"
                  . " fecha >= ".$this->empresa->var2str($stats['desde'])
                  . " and fecha <= ".$this->empresa->var2str($stats['hasta']).";";
          
@@ -191,10 +250,11 @@ class dashboard extends fs_controller
          if($data)
          {
             $stats['compras'] = $this->euro_convert( floatval($data[0]['total']) );
+            $stats['compras_neto'] = $this->euro_convert( floatval($data[0]['neto']) );
          }
          
          /// calculamos las compras del mes pasado
-         $sql = "select sum(totaleuros) as total from facturasprov where"
+         $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from facturasprov where"
                  . " fecha >= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['desde'].' '.$stats['anterior'])))
                  . " and fecha <= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['hasta'].' '.$stats['anterior']))).";";
          
@@ -202,7 +262,16 @@ class dashboard extends fs_controller
          if($data)
          {
             $stats['compras_anterior'] = $this->euro_convert( floatval($data[0]['total']) );
-            $stats['compras_mejora'] = $this->calcular_diff($stats['compras'], $stats['compras_anterior']);
+            $stats['compras_anterior_neto'] = $this->euro_convert( floatval($data[0]['neto']) );
+            
+            if($this->neto)
+            {
+               $stats['compras_mejora'] = $this->calcular_diff($stats['compras_neto'], $stats['compras_anterior_neto']);
+            }
+            else
+            {
+               $stats['compras_mejora'] = $this->calcular_diff($stats['compras'], $stats['compras_anterior']);
+            }
          }
          
          /// calculamos los impuestos de las compras de este mes
@@ -276,79 +345,120 @@ class dashboard extends fs_controller
          if( $this->db->table_exists('facturascli') )
          {
             /// calculamos las facturas de venta vencidas hasta hoy
-            $sql = "select sum(totaleuros) as total from facturascli where"
-                    . " pagada = false"
-                    . " and vencimiento <= ".$this->empresa->var2str($stats['hasta']).";";
+            $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from facturascli"
+                    . " where pagada = false and vencimiento <= ".$this->empresa->var2str($stats['hasta']).";";
             
             $data = $this->db->select($sql);
             if($data)
             {
-               $stats['ventas_sinpagar'] = $this->euro_convert( floatval($data[0]['total']) );
+               if($this->neto)
+               {
+                  $stats['ventas_sinpagar'] = $this->euro_convert( floatval($data[0]['neto']) );
+               }
+               else
+               {
+                  $stats['ventas_sinpagar'] = $this->euro_convert( floatval($data[0]['total']) );
+               }
             }
          }
          
          if( $this->db->table_exists('albaranescli') )
          {
             /// calculamos los albaranes de venta pendientes
-            $sql = "select sum(totaleuros) as total from albaranescli where"
-                    . " idfactura IS NULL;";
+            $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from albaranescli"
+                    . " where idfactura IS NULL;";
             
             $data = $this->db->select($sql);
             if($data)
             {
-               $stats['ventas_albaranes_pte'] = $this->euro_convert( floatval($data[0]['total']) );
+               if($this->neto)
+               {
+                  $stats['ventas_albaranes_pte'] = $this->euro_convert( floatval($data[0]['neto']) );
+               }
+               else
+               {
+                  $stats['ventas_albaranes_pte'] = $this->euro_convert( floatval($data[0]['total']) );
+               }
             }
          }
          
          if( $this->db->table_exists('pedidoscli') )
          {
             /// calculamos los pedidos de venta pendientes
-            $sql = "select sum(totaleuros) as total from pedidoscli where"
-                    . " status = 0;";
+            $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from pedidoscli"
+                    . " where status = 0;";
             
             $data = $this->db->select($sql);
             if($data)
             {
-               $stats['ventas_pedidos_pte'] = $this->euro_convert( floatval($data[0]['total']) );
+               if($this->neto)
+               {
+                  $stats['ventas_pedidos_pte'] = $this->euro_convert( floatval($data[0]['neto']) );
+               }
+               else
+               {
+                  $stats['ventas_pedidos_pte'] = $this->euro_convert( floatval($data[0]['total']) );
+               }
             }
          }
          
          if( $this->db->table_exists('facturasprov') )
          {
             /// calculamos las facturas de compra sin pagar
-            $sql = "select sum(totaleuros) as total from facturasprov where"
-                    . " pagada = false;";
+            $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from facturasprov"
+                    . " where pagada = false;";
             
             $data = $this->db->select($sql);
             if($data)
             {
-               $stats['compras_sinpagar'] = $this->euro_convert( floatval($data[0]['total']) );
+               if($this->neto)
+               {
+                  $stats['compras_sinpagar'] = $this->euro_convert( floatval($data[0]['neto']) );
+               }
+               else
+               {
+                  $stats['compras_sinpagar'] = $this->euro_convert( floatval($data[0]['total']) );
+               }
             }
          }
          
          if( $this->db->table_exists('albaranesprov') )
          {
             /// calculamos los albaranes de compra pendientes
-            $sql = "select sum(totaleuros) as total from albaranesprov where"
-                    . " idfactura IS NULL;";
+            $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from albaranesprov"
+                    . " where idfactura IS NULL;";
             
             $data = $this->db->select($sql);
             if($data)
             {
-               $stats['compras_albaranes_pte'] = $this->euro_convert( floatval($data[0]['total']) );
+               if($this->neto)
+               {
+                  $stats['compras_albaranes_pte'] = $this->euro_convert( floatval($data[0]['neto']) );
+               }
+               else
+               {
+                  $stats['compras_albaranes_pte'] = $this->euro_convert( floatval($data[0]['total']) );
+               }
             }
          }
          
          if( $this->db->table_exists('pedidosprov') )
          {
             /// calculamos los pedidos de compra pendientes
-            $sql = "select sum(totaleuros) as total from pedidosprov where"
-                    . " idalbaran IS NULL;";
+            $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from pedidosprov"
+                    . " where idalbaran IS NULL;";
             
             $data = $this->db->select($sql);
             if($data)
             {
-               $stats['compras_pedidos_pte'] = $this->euro_convert( floatval($data[0]['total']) );
+               if($this->neto)
+               {
+                  $stats['compras_pedidos_pte'] = $this->euro_convert( floatval($data[0]['neto']) );
+               }
+               else
+               {
+                  $stats['compras_pedidos_pte'] = $this->euro_convert( floatval($data[0]['total']) );
+               }
             }
          }
       }
@@ -390,7 +500,7 @@ class dashboard extends fs_controller
       $this->noticias = $this->cache->get_array('community_changelog');
       if(!$this->noticias)
       {
-         $data = file_get_contents(FS_COMMUNITY_URL.'/index.php?page=community_changelog&json=TRUE');
+         $data = $this->curl_get_contents(FS_COMMUNITY_URL.'/index.php?page=community_changelog&json=TRUE');
          if($data)
          {
             $this->noticias = json_decode($data);
@@ -398,6 +508,82 @@ class dashboard extends fs_controller
             /// guardamos en caché
             $this->cache->set('community_changelog', $this->noticias);
          }
+      }
+   }
+   
+   /**
+    * Descarga el contenido con curl o file_get_contents
+    * @param type $url
+    * @param type $timeout
+    * @return type
+    */
+   private function curl_get_contents($url)
+   {
+      if( function_exists('curl_init') )
+      {
+         $ch = curl_init();
+         curl_setopt($ch, CURLOPT_URL, $url);
+         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+         $data = curl_exec($ch);
+         $info = curl_getinfo($ch);
+         
+         if($info['http_code'] == 301 OR $info['http_code'] == 302)
+         {
+            $redirs = 0;
+            return $this->curl_redirect_exec($ch, $redirs);
+         }
+         else
+         {
+            curl_close($ch);
+            return $data;
+         }
+      }
+      else
+         return file_get_contents($url);
+   }
+   
+   /**
+    * Función alternativa para cuando el followlocation falla.
+    * @param type $ch
+    * @param type $redirects
+    * @param type $curlopt_header
+    * @return type
+    */
+   private function curl_redirect_exec($ch, &$redirects, $curlopt_header = false)
+   {
+      curl_setopt($ch, CURLOPT_HEADER, true);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      $data = curl_exec($ch);
+      $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+      
+      if($http_code == 301 || $http_code == 302)
+      {
+         list($header) = explode("\r\n\r\n", $data, 2);
+         $matches = array();
+         preg_match("/(Location:|URI:)[^(\n)]*/", $header, $matches);
+         $url = trim(str_replace($matches[1], "", $matches[0]));
+         $url_parsed = parse_url($url);
+         if( isset($url_parsed) )
+         {
+            curl_setopt($ch, CURLOPT_URL, $url);
+            $redirects++;
+            return $this->curl_redirect_exec($ch, $redirects, $curlopt_header);
+         }
+      }
+      
+      if($curlopt_header)
+      {
+         curl_close($ch);
+         return $data;
+      }
+      else
+      {
+         list(, $body) = explode("\r\n\r\n", $data, 2);
+         curl_close($ch);
+         return $body;
       }
    }
 }

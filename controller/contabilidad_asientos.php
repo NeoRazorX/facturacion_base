@@ -25,11 +25,10 @@ class contabilidad_asientos extends fs_controller
    public $desde;
    public $hasta;
    public $mostrar;
+   public $num_resultados;
    public $offset;
    public $orden;
    public $resultados;
-   
-   private $num_resultados;
    
    public function __construct()
    {
@@ -156,36 +155,60 @@ class contabilidad_asientos extends fs_controller
       }
    }
    
-   public function anterior_url()
+   public function paginas()
    {
-      $url = '';
+      $url = $this->url().'&query='.$this->query
+              .'&desde='.$this->desde
+              .'&hasta='.$this->hasta
+              .'&orden='.$this->orden;
       
-      if($this->query != '' AND $this->offset > 0)
+      $paginas = array();
+      $i = 0;
+      $num = 0;
+      $actual = 1;
+      $total = $this->num_resultados;
+      
+      /// añadimos todas la página
+      while($num < $total)
       {
-         $url = $this->url(TRUE)."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT);
-      }
-      else if($this->query == '' AND $this->offset > 0)
-      {
-         $url = $this->url(TRUE)."&offset=".($this->offset-FS_ITEM_LIMIT);
+         $paginas[$i] = array(
+             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
+             'num' => $i + 1,
+             'actual' => ($num == $this->offset)
+         );
+         
+         if($num == $this->offset)
+         {
+            $actual = $i;
+         }
+         
+         $i++;
+         $num += FS_ITEM_LIMIT;
       }
       
-      return $url;
-   }
-   
-   public function siguiente_url()
-   {
-      $url = '';
-      
-      if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
+      /// ahora descartamos
+      foreach($paginas as $j => $value)
       {
-         $url = $this->url(TRUE)."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT);
-      }
-      else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
-      {
-         $url = $this->url(TRUE)."&offset=".($this->offset+FS_ITEM_LIMIT);
+         $enmedio = intval($i/2);
+         
+         /**
+          * descartamos todo excepto la primera, la última, la de enmedio,
+          * la actual, las 5 anteriores y las 5 siguientes
+          */
+         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
+         {
+            unset($paginas[$j]);
+         }
       }
       
-      return $url;
+      if( count($paginas) > 1 )
+      {
+         return $paginas;
+      }
+      else
+      {
+         return array();
+      }
    }
    
    public function url($busqueda = FALSE)
@@ -200,24 +223,6 @@ class contabilidad_asientos extends fs_controller
       else
       {
          return parent::url();
-      }
-   }
-   
-   public function total_asientos()
-   {
-      if( isset($this->num_resultados) )
-      {
-         return $this->num_resultados;
-      }
-      else
-      {
-         $data = $this->db->select("SELECT COUNT(idasiento) as total FROM co_asientos;");
-         if($data)
-         {
-            return intval($data[0]['total']);
-         }
-         else
-            return 0;
       }
    }
 }

@@ -117,12 +117,18 @@ class ventas_agrupar_albaranes extends fs_controller
             {
                foreach($this->resultados as $alb)
                {
-                  $this->neto += $alb->neto;
-                  $this->total += $alb->total;
+                  $this->neto += $alb->neto/$alb->tasaconv;
+                  $this->total += $alb->totaleuros;
                }
+               
+               /// convertimos a la divisa predeterminada
+               $this->neto = $this->euro_convert($this->neto);
+               $this->total = $this->euro_convert($this->total);
             }
             else
+            {
                $this->new_message("Sin resultados.");
+            }
          }
       }
       else
@@ -437,7 +443,7 @@ class ventas_agrupar_albaranes extends fs_controller
             $encontrado = FALSE;
             foreach($pendientes as $i => $pe)
             {
-               if($alb->codserie != $this->codserie)
+               if( $alb->codserie != $this->codserie OR is_null($alb->codcliente) )
                {
                   /// no lo usamos
                }

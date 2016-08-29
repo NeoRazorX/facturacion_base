@@ -879,5 +879,14 @@ class albaran_proveedor extends \fs_model
        */
       $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura NOT IN"
               . " (SELECT idfactura FROM facturasprov);");
+      
+      /**
+       * Recalculamos totaleuros de albaranes antiguos.
+       */
+      foreach($this->all_desde('1-1-2016', '1-9-2016') as $alb)
+      {
+         $alb->save();
+         echo '.';
+      }
    }
 }

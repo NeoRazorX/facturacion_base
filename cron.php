@@ -21,6 +21,8 @@ require_model('albaran_cliente.php');
 require_model('albaran_proveedor.php');
 require_model('articulo.php');
 require_model('asiento.php');
+require_model('factura_cliente.php');
+require_model('factura_proveedor.php');
 require_once 'plugins/facturacion_base/extras/libromayor.php';
 require_once 'plugins/facturacion_base/extras/inventarios_balances.php';
 
@@ -29,25 +31,33 @@ class facturacion_base_cron
    public function __construct(&$db)
    {
       $alb_cli = new albaran_cliente();
-      echo "Ejecutando tareas para los ".FS_ALBARANES." de cliente...\n";
+      echo "Ejecutando tareas para los ".FS_ALBARANES." de cliente...";
       $alb_cli->cron_job();
       
       $alb_pro = new albaran_proveedor();
-      echo "Ejecutando tareas para los ".FS_ALBARANES." de proveedor...\n";
+      echo "\nEjecutando tareas para los ".FS_ALBARANES." de proveedor...";
       $alb_pro->cron_job();
       
+      $fac_cli = new factura_cliente();
+      echo "\nEjecutando tareas para las facturas de cliente...";
+      $fac_cli->cron_job();
+      
+      $fac_pro = new factura_proveedor();
+      echo "\nEjecutando tareas para las facturas de proveedor...";
+      $fac_pro->cron_job();
+      
       $articulo = new articulo();
-      echo "Ejecutando tareas para los artículos...";
+      echo "\nEjecutando tareas para los artículos...";
       $articulo->cron_job();
       
       $asiento = new asiento();
-      echo "\nEjecutando tareas para los asientos...\n";
+      echo "\nEjecutando tareas para los asientos...";
       $asiento->cron_job();
       
       if(FS_LIBROS_CONTABLES)
       {
          $libro = new libro_mayor();
-         echo "Generamos el libro mayor para cada subcuenta y el libro diario para cada ejercicio...";
+         echo "\nGeneramos el libro mayor para cada subcuenta y el libro diario para cada ejercicio...";
          $libro->cron_job();
          
          $inventarios_balances = new inventarios_balances($db);
@@ -57,7 +67,7 @@ class facturacion_base_cron
       else
       {
          $libro = new libro_mayor();
-         echo "Comprobamos algunas subcuentas...";
+         echo "\nComprobamos algunas subcuentas...";
          $libro->cron_job();
       }
    }

@@ -150,15 +150,14 @@
             {if="$fsc->anterior_url()!=''"}
             <li class="previous">
                <a href="{$fsc->anterior_url()}">
-                  <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriors
+                  <span class="glyphicon glyphicon-chevron-left"></span>&nbsp; Anteriores
                </a>
             </li>
             {/if}
-            
             {if="$fsc->siguiente_url()!=''"}
             <li class="next">
                <a href="{$fsc->siguiente_url()}">
-                  Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
+                  Siguientes &nbsp;<span class="glyphicon glyphicon-chevron-right"></span>
                </a>
             </li>
             {/if}
@@ -167,7 +166,7 @@
       {loop="$fsc->extensions"}
          {if="$value->type=='tab'"}
          <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
-            <iframe src="index.php?page={$value->from}{$value->params}&cod={$fsc->fabricante->codfabricante}" width="100%" height="600" frameborder="0"></iframe>
+            <iframe src="index.php?page={$value->from}{$value->params}&cod={$fsc->fabricante->codfabricante}" width="100%" height="2000" frameborder="0"></iframe>
          </div>
          {/if}
       {/loop}

@@ -423,6 +423,7 @@
          </div>
       </div>
       {/if}
+      {if="$fsc->mostrar_tab_tarifas"}
       <div role="tabpanel" class="tab-pane" id="tarifas">
          <br/>
          <div class="container-fluid">
@@ -603,6 +604,14 @@
             </div>
          </div>
       </div>
+      {/if}
+      {loop="$fsc->extensions"}
+         {if="$value->type=='tab'"}
+         <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
+            <iframe src="index.php?page={$value->from}{$value->params}" width="100%" height="2000" frameborder="0"></iframe>
+         </div>
+         {/if}
+      {/loop}
    </div>
 </div>
 

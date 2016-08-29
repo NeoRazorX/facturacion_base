@@ -197,11 +197,6 @@ class compras_proveedor extends fs_controller
          return $this->ppage->url();
    }
    
-   public function this_year($previous = 0)
-   {
-      return intval(Date('Y')) - $previous;
-   }
-   
    /*
     * Devuelve un array con los datos estadísticos de las compras al proveedor
     * en los cinco últimos años.
@@ -251,7 +246,7 @@ class compras_proveedor extends fs_controller
                  ." WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))
                  ." AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))
                  ." AND codproveedor = ".$this->empresa->var2str($this->proveedor->codproveedor)
-                 ." GROUP BY ".$sql_aux." ORDER BY mes ASC;";
+                 ." GROUP BY mes ORDER BY mes ASC;";
          
          $data = $this->db->select($sql);
          if($data)
@@ -270,7 +265,7 @@ class compras_proveedor extends fs_controller
                  ." WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))
                  ." AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))
                  ." AND codproveedor = ".$this->empresa->var2str($this->proveedor->codproveedor)
-                 ." GROUP BY ".$sql_aux." ORDER BY mes ASC;";
+                 ." GROUP BY mes ORDER BY mes ASC;";
          $data = $this->db->select($sql);
          if($data)
          {
