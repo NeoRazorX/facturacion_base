@@ -466,7 +466,7 @@ class ventas_agrupar_albaranes extends fs_controller
                }
             }
             
-            if( !$encontrado AND $alb->codserie == $this->codserie )
+            if(!$encontrado)
             {
                $pendientes[] = array(
                    'codcliente' => $alb->codcliente,

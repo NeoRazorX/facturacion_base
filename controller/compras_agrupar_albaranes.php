@@ -415,7 +415,7 @@ class compras_agrupar_albaranes extends fs_controller
                }
             }
             
-            if( !$encontrado AND $alb->codserie == $this->codserie )
+            if(!$encontrado)
             {
                $pendientes[] = array(
                    'codproveedor' => $alb->codproveedor,
