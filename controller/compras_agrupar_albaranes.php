@@ -20,6 +20,7 @@
 require_model('albaran_proveedor.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
+require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('factura_proveedor.php');
 require_model('forma_pago.php');
@@ -32,8 +33,10 @@ require_model('subcuenta.php');
 class compras_agrupar_albaranes extends fs_controller
 {
    public $albaran;
+   public $coddivisa;
    public $codserie;
    public $desde;
+   public $divisa;
    public $hasta;
    public $proveedor;
    public $resultados;
@@ -52,15 +55,43 @@ class compras_agrupar_albaranes extends fs_controller
    protected function private_core()
    {
       $this->albaran = new albaran_proveedor();
-      $this->codserie = $this->empresa->codserie;
+      $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
       $this->forma_pago = new forma_pago();
       $this->proveedor = FALSE;
       $this->serie = new serie();
       $this->neto = 0;
       $this->total = 0;
+      
+      $this->coddivisa = $this->empresa->coddivisa;
+      if( isset($_REQUEST['coddivisa']) )
+      {
+         $this->coddivisa = $_REQUEST['coddivisa'];
+      }
+      
+      $this->codserie = $this->empresa->codserie;
+      if( isset($_REQUEST['codserie']) )
+      {
+         $this->codserie = $_REQUEST['codserie'];
+      }
+      
       $this->desde = Date('01-01-Y');
+      if( isset($_REQUEST['desde']) )
+      {
+         $this->desde = $_REQUEST['desde'];
+      }
+      
       $this->hasta = Date('t-m-Y');
+      if( isset($_REQUEST['hasta']) )
+      {
+         $this->hasta = $_REQUEST['hasta'];
+      }
+      
+      /// el desde no puede ser mayor que el hasta
+      if( strtotime($this->desde) > strtotime($this->hasta) )
+      {
+         $this->hasta = $this->desde;
+      }
       
       if( isset($_REQUEST['buscar_proveedor']) )
       {
@@ -76,46 +107,22 @@ class compras_agrupar_albaranes extends fs_controller
          $pr0 = new proveedor();
          $this->proveedor = $pr0->get($_REQUEST['codproveedor']);
          
-         if( isset($_REQUEST['codserie']) )
-         {
-            $this->codserie = $_REQUEST['codserie'];
-         }
-         
-         if( isset($_REQUEST['desde']) )
-         {
-            $this->desde = $_REQUEST['desde'];
-         }
-         
-         if( isset($_REQUEST['hasta']) )
-         {
-            $this->hasta = $_REQUEST['hasta'];
-         }
-         
-         /// el desde no puede ser mayor que el hasta
-         if( strtotime($this->desde) > strtotime($this->hasta) )
-         {
-            $this->hasta = $this->desde;
-         }
-         
          if($this->proveedor)
          {
             $this->resultados = $this->albaran->search_from_proveedor(
                     $this->proveedor->codproveedor,
                     $this->desde,
                     $this->hasta,
-                    $this->codserie
+                    $this->codserie,
+                    $this->coddivisa
             );
             if($this->resultados)
             {
                foreach($this->resultados as $alb)
                {
-                  $this->neto += $alb->neto/$alb->tasaconv;
-                  $this->total += $alb->totaleuros;
+                  $this->neto += $alb->neto;
+                  $this->total += $alb->total;
                }
-               
-               /// convertimos a la divisa predeterminada
-               $this->neto = $this->euro_convert($this->neto);
-               $this->total = $this->euro_convert($this->total);
             }
             else
             {
@@ -136,7 +143,7 @@ class compras_agrupar_albaranes extends fs_controller
       $json = array();
       foreach($proveedor->search($_REQUEST['buscar_proveedor']) as $pro)
       {
-         $json[] = array('value' => $pro->nombre, 'data' => $pro->codproveedor);
+         $json[] = array('value' => $pro->razonsocial, 'data' => $pro->codproveedor);
       }
       
       header('Content-Type: application/json');
@@ -389,42 +396,44 @@ class compras_agrupar_albaranes extends fs_controller
       {
          foreach($albaranes as $alb)
          {
-            $encontrado = FALSE;
-            foreach($pendientes as $i => $pe)
+            if($alb->codproveedor)
             {
-               if( $alb->codserie != $this->codserie OR is_null($alb->codproveedor) )
+               /// Comprobamos si el proveedor ya está en la lista.
+               $encontrado = FALSE;
+               foreach($pendientes as $i => $pe)
                {
-                  /// no lo usamos
+                  if($alb->codproveedor == $pe['codproveedor'] AND $alb->codserie == $pe['codserie'] AND $alb->coddivisa == $pe['coddivisa'])
+                  {
+                     $encontrado = TRUE;
+                     $pendientes[$i]['num']++;
+                     
+                     if( strtotime($alb->fecha) < strtotime($pe['desde']) )
+                     {
+                        $pendientes[$i]['desde'] = $alb->fecha;
+                     }
+                     
+                     if( strtotime($alb->fecha) > strtotime($pe['hasta']) )
+                     {
+                        $pendientes[$i]['hasta'] = $alb->fecha;
+                     }
+                     
+                     break;
+                  }
                }
-               else if($alb->codproveedor == $pe['codproveedor'])
+               
+               /// Añadimos a la lista de pendientes.
+               if(!$encontrado)
                {
-                  $encontrado = TRUE;
-                  $pendientes[$i]['num']++;
-                  
-                  if( strtotime($alb->fecha) < strtotime($pe['desde']) )
-                  {
-                     $pendientes[$i]['desde'] = $alb->fecha;
-                  }
-                  
-                  if( strtotime($alb->fecha) > strtotime($pe['hasta']) )
-                  {
-                     $pendientes[$i]['hasta'] = $alb->fecha;
-                  }
-                  
-                  break;
+                  $pendientes[] = array(
+                      'codproveedor' => $alb->codproveedor,
+                      'nombre' => $alb->nombre,
+                      'codserie' => $alb->codserie,
+                      'coddivisa' => $alb->coddivisa,
+                      'desde' => date('d-m-Y', min( array( strtotime($alb->fecha), strtotime($this->desde) ) )),
+                      'hasta' => date('d-m-Y', max( array( strtotime($alb->fecha), strtotime($this->hasta) ) )),
+                      'num' => 1
+                  );
                }
-            }
-            
-            if(!$encontrado)
-            {
-               $pendientes[] = array(
-                   'codproveedor' => $alb->codproveedor,
-                   'nombre' => $alb->nombre,
-                   'codserie' => $alb->codserie,
-                   'desde' => date('d-m-Y', min( array( strtotime($alb->fecha), strtotime($this->desde) ) )),
-                   'hasta' => date('d-m-Y', max( array( strtotime($alb->fecha), strtotime($this->hasta) ) )),
-                   'num' => 1
-               );
             }
             
             $offset++;

@@ -991,24 +991,35 @@ class albaran_cliente extends \fs_model
    }
    
    /**
-    * Devuelve un array con los albaranes del cliente $codcliente que coinciden con $query
+    * Devuelve un array con los albaranes del cliente $codcliente que coincidan
+    * con los filtros.
     * @param type $codcliente
     * @param type $desde
     * @param type $hasta
-    * @param type $serie
+    * @param type $codserie
     * @param type $obs
+    * @param type $coddivisa
     * @return \albaran_cliente
     */
-   public function search_from_cliente($codcliente, $desde, $hasta, $serie, $obs = '')
+   public function search_from_cliente($codcliente, $desde, $hasta, $codserie = '', $obs = '', $coddivisa = '')
    {
       $albalist = array();
-      $sql = "SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($codcliente).
-         " AND ptefactura AND fecha BETWEEN ".$this->var2str($desde)." AND ".$this->var2str($hasta).
-         " AND codserie = ".$this->var2str($serie);
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codcliente = ".$this->var2str($codcliente)
+              ." AND ptefactura AND fecha BETWEEN ".$this->var2str($desde)." AND ".$this->var2str($hasta);
       
-      if($obs != '')
+      if($codserie)
+      {
+         $sql .= " AND codserie = ".$this->var2str($codserie);
+      }
+      
+      if($obs)
       {
          $sql .= " AND lower(observaciones) = ".$this->var2str( mb_strtolower($obs, 'UTF8') );
+      }
+      
+      if($coddivisa)
+      {
+         $sql .= " AND coddivisa = ".$this->var2str($coddivisa);
       }
       
       $sql .= " ORDER BY fecha DESC, codigo DESC;";

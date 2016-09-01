@@ -163,8 +163,11 @@ class asiento extends \fs_model
          
          foreach($this->get_partidas() as $par)
          {
-            $this->coddivisa = $par->coddivisa;
-            break;
+            if($par->coddivisa)
+            {
+               $this->coddivisa = $par->coddivisa;
+               break;
+            }
          }
       }
       

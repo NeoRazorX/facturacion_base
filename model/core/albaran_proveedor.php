@@ -839,21 +839,33 @@ class albaran_proveedor extends \fs_model
    }
    
    /**
-    * Devuelve un array con los albaranes del proveedor $codproveedor que coinciden con $query
+    * Devuelve un array con los albaranes del proveedor $codproveedor
+    * que coincidan con los filtros.
     * @param type $codproveedor
     * @param type $desde
     * @param type $hasta
-    * @param type $serie
+    * @param type $codserie
+    * @param type $coddivisa
     * @return \albaran_proveedor
     */
-   public function search_from_proveedor($codproveedor, $desde, $hasta, $serie)
+   public function search_from_proveedor($codproveedor, $desde, $hasta, $codserie = '', $coddivisa = '')
    {
       $albalist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codproveedor = "
               .$this->var2str($codproveedor)." AND ptefactura AND fecha BETWEEN "
-              .$this->var2str($desde)." AND ".$this->var2str($hasta)
-              ." AND codserie = ".$this->var2str($serie)
-              ." ORDER BY fecha DESC, codigo DESC";
+              .$this->var2str($desde)." AND ".$this->var2str($hasta);
+      
+      if($codserie)
+      {
+         $sql .= " AND codserie = ".$this->var2str($codserie);
+      }
+      
+      if($coddivisa)
+      {
+         $sql .= " AND coddivisa = ".$this->var2str($coddivisa);
+      }
+      
+      $sql .= " ORDER BY fecha DESC, codigo DESC";
       
       $data = $this->db->select($sql);
       if($data)

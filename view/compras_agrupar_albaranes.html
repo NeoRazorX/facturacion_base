@@ -54,8 +54,10 @@
             </div>
             <div class="page-header">
                <h1>
-                  <span class="glyphicon glyphicon-duplicate"></span>
-                  Agrupar {#FS_ALBARANES#}
+                  <span class="glyphicon glyphicon-duplicate"></span> Agrupar {#FS_ALBARANES#}
+                  {if="$fsc->resultados"}
+                  <span class="badge">{function="count($fsc->resultados)"}</span>
+                  {/if}
                </h1>
                <p class='help-block'>
                   Con esta herramienta puedes buscar y agrupar varios {#FS_ALBARANES#}
@@ -65,12 +67,12 @@
          </div>
       </div>
       <div class="row">
-         <div class="col-sm-4">
+         <div class="col-sm-3">
             <div class="form-group">
                Proveedor:
                <div class="input-group">
                   {if="$fsc->proveedor"}
-                  <input class="form-control" type="text" name="ac_proveedor" value="{$fsc->proveedor->nombre}" id="ac_proveedor" placeholder="Buscar" autocomplete="off"/>
+                  <input class="form-control" type="text" name="ac_proveedor" value="{$fsc->proveedor->razonsocial}" id="ac_proveedor" placeholder="Buscar" autocomplete="off"/>
                   {else}
                   <input class="form-control" type="text" name="ac_proveedor" id="ac_proveedor" placeholder="Buscar" autocomplete="off"/>
                   {/if}
@@ -106,17 +108,27 @@
                <input type="text" name="hasta" class="form-control datepicker" value="{$fsc->hasta}" onchange="this.form.submit()"/>
             </div>
          </div>
-         <div class="col-sm-2 text-right">
+         <div class="col-sm-2">
+            Divisa:
+            <select name="coddivisa" class="form-control" onchange="this.form.submit()">
+            {loop="$fsc->divisa->all()"}
+				   {if="$value->coddivisa==$fsc->coddivisa"}
+				   <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
+				   {else}
+				   <option value="{$value->coddivisa}">{$value->descripcion}</option>
+				   {/if}
+				{/loop}
+            </select>
+         </div>
+         <div class="col-sm-1">
             <br/>
             {if="$fsc->resultados"}
             <button type="submit" class="btn btn-sm btn-default" onclick="this.disabled=true;this.form.submit();">
                <span class="glyphicon glyphicon-search"></span>
-               <span class="hidden-xs">&nbsp; Buscar</span>
             </button>
             {else}
             <button type="submit" class="btn btn-sm btn-primary" onclick="this.disabled=true;this.form.submit();">
                <span class="glyphicon glyphicon-search"></span>
-               <span class="hidden-xs">&nbsp; Buscar</span>
             </button>
             {/if}
          </div>
@@ -163,8 +175,8 @@
                   {/loop}
                   <tr>
                      <td colspan="2"></td>
-                     <td class="text-right"><b>{$fsc->show_precio($fsc->neto)}</b></td>
-                     <td class="text-right"><b>{$fsc->show_precio($fsc->total)}</b></td>
+                     <td class="text-right"><b>{$fsc->show_precio($fsc->neto, $fsc->coddivisa)}</b></td>
+                     <td class="text-right"><b>{$fsc->show_precio($fsc->total, $fsc->coddivisa)}</b></td>
                      <td></td>
                   </tr>
                </table>
@@ -228,7 +240,7 @@
                <h3 class="panel-title">Ayuda</h3>
             </div>
             <div class="panel-body">
-               No se han encontrado resultados para esta búsqueda.
+               No se han encontrado resultados para esta búsqueda. Prueba a cambiar los filtros.
             </div>
          </div>
       </div>
@@ -248,12 +260,15 @@
    <div class="row">
       {loop="$fsc->pendientes()"}
       <div class="col-sm-4 col-md-3">
-         <a href="{$fsc->url()}&codproveedor={$value['codproveedor']}&codserie={$value['codserie']}&desde={$value['desde']}&hasta={$value['hasta']}" class="btn btn-sm btn-block {if="$value['num']>1"}btn-info{else}btn-default{/if}">
+         <a href="{$fsc->url()}&codproveedor={$value['codproveedor']}&codserie={$value['codserie']}&desde={$value['desde']}&hasta={$value['hasta']}&coddivisa={$value['coddivisa']}" class="btn btn-sm btn-block {if="$value['num']>1"}btn-info{else}btn-default{/if}">
             <span class="glyphicon glyphicon-user"></span>
             &nbsp; {$value['nombre']}
             {if="$value['num']>1"}&nbsp; ({$value['num']}){/if}
          </a>
-         <br/>
+         <p class="help-block">
+            <span class="text-capitalize">{#FS_SERIE#}:</span> {$value['codserie']},
+            divisa: {$value['coddivisa']}
+         </p>
       </div>
       {/loop}
    </div>

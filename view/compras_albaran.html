@@ -125,11 +125,13 @@
                         <span class="glyphicon glyphicon-ok"></span>&nbsp; Aprobado
                      </a>
                   </li>
+                  {if="$fsc->user->have_access_to('compras_agrupar_albaranes')"}
                   <li>
-                     <a href="index.php?page=compras_agrupar_albaranes&codproveedor={$fsc->albaran->codproveedor}&codserie={$fsc->albaran->codserie}&desde={$fsc->albaran->fecha}">
+                     <a href="index.php?page=compras_agrupar_albaranes&codproveedor={$fsc->albaran->codproveedor}&codserie={$fsc->albaran->codserie}&desde={$fsc->albaran->fecha}&coddivisa={$fsc->albaran->coddivisa}">
                         <span class="glyphicon glyphicon-duplicate"></span>&nbsp; Agrupar...
                      </a>
                   </li>
+                  {/if}
                </ul>
             </div>
             {else}
@@ -665,7 +667,7 @@
          <div id="kiwimaru_results"></div>
          <div id="nuevo_articulo" class="modal-body" style="display: none;">
             <form name="f_nuevo_articulo" action="{$fsc->url()}" method="post" class="form">
-               <input type="hidden" name="codproveedor" value="{$fsc->proveedor_s->codproveedor}"/>
+               <input type="hidden" name="codproveedor" value="{$fsc->albaran->codproveedor}"/>
                <div class="container-fluid">
                   <div class="row">
                      <div class="col-sm-3">
@@ -832,7 +834,11 @@
                <div class="form-group">
                   <div class="input-group">
                      <span class="input-group-addon">Para</span>
+                     {if="$fsc->proveedor_s"}
                      <input id="ac_email" class="form-control" type="text" name="email" value="{$fsc->proveedor_s->email}" autocomplete="off"/>
+                     {else}
+                     <input id="ac_email" class="form-control" type="text" name="email" autocomplete="off"/>
+                     {/if}
                      <span class="input-group-addon" title="Asignar email al proveedor">
                         <input type="checkbox" name="guardar" value="TRUE"/>
                         <span class="glyphicon glyphicon-floppy-disk"></span>

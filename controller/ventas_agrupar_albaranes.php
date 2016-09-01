@@ -21,6 +21,7 @@ require_model('albaran_cliente.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
 require_model('cliente.php');
+require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('factura_cliente.php');
 require_model('forma_pago.php');
@@ -33,8 +34,10 @@ class ventas_agrupar_albaranes extends fs_controller
 {
    public $albaran;
    public $cliente;
+   public $coddivisa;
    public $codserie;
    public $desde;
+   public $divisa;
    public $hasta;
    public $neto;
    public $observaciones;
@@ -54,15 +57,48 @@ class ventas_agrupar_albaranes extends fs_controller
    {
       $this->albaran = new albaran_cliente();
       $this->cliente = FALSE;
-      $this->codserie = $this->empresa->codserie;
+      $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
       $this->forma_pago = new forma_pago();
       $this->serie = new serie();
       $this->neto = 0;
       $this->total = 0;
+      
+      $this->coddivisa = $this->empresa->coddivisa;
+      if( isset($_REQUEST['coddivisa']) )
+      {
+         $this->coddivisa = $_REQUEST['coddivisa'];
+      }
+      
+      $this->codserie = $this->empresa->codserie;
+      if( isset($_REQUEST['codserie']) )
+      {
+         $this->codserie = $_REQUEST['codserie'];
+      }
+      
       $this->desde = Date('01-01-Y');
+      if( isset($_REQUEST['desde']) )
+      {
+         $this->desde = $_REQUEST['desde'];
+      }
+      
       $this->hasta = Date('t-m-Y');
+      if( isset($_REQUEST['hasta']) )
+      {
+         $this->hasta = $_REQUEST['hasta'];
+      }
+      
+      /// el desde no puede ser mayor que el hasta
+      if( strtotime($this->desde) > strtotime($this->hasta) )
+      {
+         $this->hasta = $this->desde;
+      }
+      
       $this->observaciones = '';
+      if( isset($_REQUEST['observaciones']) )
+      {
+         $this->observaciones = $_REQUEST['observaciones'];
+      }
       
       if( isset($_REQUEST['buscar_cliente']) )
       {
@@ -78,32 +114,6 @@ class ventas_agrupar_albaranes extends fs_controller
          $cli0 = new cliente();
          $this->cliente = $cli0->get($_REQUEST['codcliente']);
          
-         if( isset($_REQUEST['codserie']) )
-         {
-            $this->codserie = $_REQUEST['codserie'];
-         }
-         
-         if( isset($_REQUEST['desde']) )
-         {
-            $this->desde = $_REQUEST['desde'];
-         }
-         
-         if( isset($_REQUEST['hasta']) )
-         {
-            $this->hasta = $_REQUEST['hasta'];
-         }
-         
-         /// el desde no puede ser mayor que el hasta
-         if( strtotime($this->desde) > strtotime($this->hasta) )
-         {
-            $this->hasta = $this->desde;
-         }
-         
-         if( isset($_REQUEST['observaciones']) )
-         {
-            $this->observaciones = $_REQUEST['observaciones'];
-         }
-         
          if($this->cliente)
          {
             $this->resultados = $this->albaran->search_from_cliente(
@@ -111,19 +121,16 @@ class ventas_agrupar_albaranes extends fs_controller
                     $this->desde,
                     $this->hasta,
                     $this->codserie,
-                    $this->observaciones
+                    $this->observaciones,
+                    $this->coddivisa
             );
             if($this->resultados)
             {
                foreach($this->resultados as $alb)
                {
-                  $this->neto += $alb->neto/$alb->tasaconv;
-                  $this->total += $alb->totaleuros;
+                  $this->neto = $alb->neto;
+                  $this->total += $alb->total;
                }
-               
-               /// convertimos a la divisa predeterminada
-               $this->neto = $this->euro_convert($this->neto);
-               $this->total = $this->euro_convert($this->total);
             }
             else
             {
@@ -144,7 +151,7 @@ class ventas_agrupar_albaranes extends fs_controller
       $json = array();
       foreach($cliente->search($_REQUEST['buscar_cliente']) as $cli)
       {
-         $json[] = array('value' => $cli->nombre, 'data' => $cli->codcliente);
+         $json[] = array('value' => $cli->razonsocial, 'data' => $cli->codcliente);
       }
       
       header('Content-Type: application/json');
@@ -440,42 +447,44 @@ class ventas_agrupar_albaranes extends fs_controller
       {
          foreach($albaranes as $alb)
          {
-            $encontrado = FALSE;
-            foreach($pendientes as $i => $pe)
+            if($alb->codcliente)
             {
-               if( $alb->codserie != $this->codserie OR is_null($alb->codcliente) )
+               /// Comprobamos si el cliente ya está en la lista.
+               $encontrado = FALSE;
+               foreach($pendientes as $i => $pe)
                {
-                  /// no lo usamos
+                  if($alb->codcliente == $pe['codcliente'] AND $alb->codserie == $pe['codserie'] AND $alb->coddivisa == $pe['coddivisa'])
+                  {
+                     $encontrado = TRUE;
+                     $pendientes[$i]['num']++;
+                     
+                     if( strtotime($alb->fecha) < strtotime($pe['desde']) )
+                     {
+                        $pendientes[$i]['desde'] = $alb->fecha;
+                     }
+                     
+                     if( strtotime($alb->fecha) > strtotime($pe['hasta']) )
+                     {
+                        $pendientes[$i]['hasta'] = $alb->fecha;
+                     }
+                     
+                     break;
+                  }
                }
-               else if($alb->codcliente == $pe['codcliente'])
+               
+               /// Añadimos a la lista de pendientes.
+               if(!$encontrado)
                {
-                  $encontrado = TRUE;
-                  $pendientes[$i]['num']++;
-                  
-                  if( strtotime($alb->fecha) < strtotime($pe['desde']) )
-                  {
-                     $pendientes[$i]['desde'] = $alb->fecha;
-                  }
-                  
-                  if( strtotime($alb->fecha) > strtotime($pe['hasta']) )
-                  {
-                     $pendientes[$i]['hasta'] = $alb->fecha;
-                  }
-                  
-                  break;
+                  $pendientes[] = array(
+                      'codcliente' => $alb->codcliente,
+                      'nombre' => $alb->nombrecliente,
+                      'codserie' => $alb->codserie,
+                      'coddivisa' => $alb->coddivisa,
+                      'desde' => date('d-m-Y', min( array( strtotime($alb->fecha), strtotime($this->desde) ) )),
+                      'hasta' => date('d-m-Y', max( array( strtotime($alb->fecha), strtotime($this->hasta) ) )),
+                      'num' => 1
+                  );
                }
-            }
-            
-            if(!$encontrado)
-            {
-               $pendientes[] = array(
-                   'codcliente' => $alb->codcliente,
-                   'nombre' => $alb->nombrecliente,
-                   'codserie' => $alb->codserie,
-                   'desde' => date('d-m-Y', min( array( strtotime($alb->fecha), strtotime($this->desde) ) )),
-                   'hasta' => date('d-m-Y', max( array( strtotime($alb->fecha), strtotime($this->hasta) ) )),
-                   'num' => 1
-               );
             }
             
             $offset++;

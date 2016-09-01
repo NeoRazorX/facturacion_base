@@ -764,6 +764,23 @@ class factura_proveedor extends \fs_model
                $this->new_error_msg("Esta factura apunta a un <a href='".$this->asiento_url()."'>asiento incorrecto</a>.");
                $status = FALSE;
             }
+            else if($this->coddivisa == $this->default_items->coddivisa() AND !$this->floatcmp($asiento->importe, abs($this->total)) )
+            {
+               $this->new_error_msg("El importe del asiento es distinto al de la factura.");
+               $status = FALSE;
+            }
+            else
+            {
+               $asientop = $this->get_asiento_pago();
+               if($asientop)
+               {
+                  if( !$this->floatcmp($asiento->importe, $asientop->importe) )
+                  {
+                     $this->new_error_msg('No coinciden los importes de los asientos.');
+                     $status = FALSE;
+                  }
+               }
+            }
          }
          else
          {

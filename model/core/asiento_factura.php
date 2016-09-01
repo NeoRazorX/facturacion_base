@@ -81,6 +81,27 @@ class asiento_factura
       $this->errors[] = $msg;
    }
    
+   private function set_tasasconv(&$factura, &$tasa1, &$tasa2, $compras = FALSE)
+   {
+      if($factura->coddivisa != $this->empresa->coddivisa)
+      {
+         $divisa = $this->divisa->get($this->empresa->coddivisa);
+         if($divisa)
+         {
+            if($compras)
+            {
+               $tasa1 = $divisa->tasaconv_compra / $factura->tasaconv;
+               $tasa2 = $divisa->tasaconv_compra;
+            }
+            else
+            {
+               $tasa1 = $divisa->tasaconv / $factura->tasaconv;
+               $tasa2 = $divisa->tasaconv;
+            }
+         }
+      }
+   }
+   
    /**
     * Genera el asiento contable para una factura de compra.
     * Devuelve TRUE si el asiento se ha generado correctamente, False en caso contrario.
@@ -97,15 +118,7 @@ class asiento_factura
       /// obtenemos las tasas de conversión, para las ocasiones en que la factura está en otra divisa
       $tasaconv = 1;
       $tasaconv2 = $factura->tasaconv;
-      if($factura->coddivisa != $this->empresa->coddivisa)
-      {
-         $divisa = $this->divisa->get($this->empresa->coddivisa);
-         if($divisa)
-         {
-            $tasaconv = $divisa->tasaconv_compra/$factura->tasaconv;
-            $tasaconv2 = $divisa->tasaconv_compra;
-         }
-      }
+      $this->set_tasasconv($factura, $tasaconv, $tasaconv2, TRUE);
       
       /// obtenemos el proveedor de la factura y su subcuenta
       $proveedor = $proveedor0->get($factura->codproveedor);
@@ -148,25 +161,10 @@ class asiento_factura
          $asiento->documento = $factura->codigo;
          $asiento->editable = FALSE;
          $asiento->fecha = $factura->fecha;
-         $asiento->importe = abs($factura->total*$tasaconv);
          $asiento->tipodocumento = "Factura de proveedor";
          if( $asiento->save() )
          {
             $asiento_correcto = TRUE;
-            $partida0 = new \partida();
-            $partida0->idasiento = $asiento->idasiento;
-            $partida0->concepto = $asiento->concepto;
-            $partida0->idsubcuenta = $subcuenta_prov->idsubcuenta;
-            $partida0->codsubcuenta = $subcuenta_prov->codsubcuenta;
-            $partida0->haber = $factura->total*$tasaconv;
-            $partida0->coddivisa = $this->empresa->coddivisa;
-            $partida0->tasaconv = $tasaconv2;
-            $partida0->codserie = $factura->codserie;
-            if( !$partida0->save() )
-            {
-               $asiento_correcto = FALSE;
-               $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida0->codsubcuenta."!");
-            }
             
             /// generamos una partida por cada impuesto
             foreach($factura->get_lineas_iva() as $li)
@@ -198,14 +196,14 @@ class asiento_factura
                   $partida1->concepto = $asiento->concepto;
                   $partida1->idsubcuenta = $subcuenta_iva->idsubcuenta;
                   $partida1->codsubcuenta = $subcuenta_iva->codsubcuenta;
-                  $partida1->debe = $li->totaliva*$tasaconv;
+                  $partida1->debe = round($li->totaliva*$tasaconv, FS_NF0);
                   $partida1->idcontrapartida = $subcuenta_prov->idsubcuenta;
                   $partida1->codcontrapartida = $subcuenta_prov->codsubcuenta;
                   $partida1->documento = $asiento->documento;
                   $partida1->tipodocumento = $asiento->tipodocumento;
                   $partida1->codserie = $factura->codserie;
                   $partida1->factura = $factura->numero;
-                  $partida1->baseimponible = $li->neto*$tasaconv;
+                  $partida1->baseimponible = round($li->neto*$tasaconv, FS_NF0);
                   $partida1->iva = $li->iva;
                   $partida1->coddivisa = $this->empresa->coddivisa;
                   $partida1->tasaconv = $tasaconv2;
@@ -228,14 +226,14 @@ class asiento_factura
                      $partida11->concepto = $asiento->concepto;
                      $partida11->idsubcuenta = $subcuenta_iva->idsubcuenta;
                      $partida11->codsubcuenta = $subcuenta_iva->codsubcuenta;
-                     $partida11->debe = $li->totalrecargo*$tasaconv;
+                     $partida11->debe = round($li->totalrecargo*$tasaconv, FS_NF0);
                      $partida11->idcontrapartida = $subcuenta_prov->idsubcuenta;
                      $partida11->codcontrapartida = $subcuenta_prov->codsubcuenta;
                      $partida11->documento = $asiento->documento;
                      $partida11->tipodocumento = $asiento->tipodocumento;
                      $partida11->codserie = $factura->codserie;
                      $partida11->factura = $factura->numero;
-                     $partida11->baseimponible = $li->neto*$tasaconv;
+                     $partida11->baseimponible = round($li->neto*$tasaconv, FS_NF0);
                      $partida11->recargo = $li->recargo;
                      $partida11->coddivisa = $this->empresa->coddivisa;
                      $partida11->tasaconv = $tasaconv2;
@@ -267,7 +265,7 @@ class asiento_factura
                $partida2->concepto = $asiento->concepto;
                $partida2->idsubcuenta = $subcuenta_compras->idsubcuenta;
                $partida2->codsubcuenta = $subcuenta_compras->codsubcuenta;
-               $partida2->debe = $factura->neto*$tasaconv;
+               $partida2->debe = round($factura->neto*$tasaconv, FS_NF0);
                $partida2->coddivisa = $this->empresa->coddivisa;
                $partida2->tasaconv = $tasaconv2;
                $partida2->codserie = $factura->codserie;
@@ -294,7 +292,7 @@ class asiento_factura
                   $partida3->concepto = $asiento->concepto;
                   $partida3->idsubcuenta = $subcuenta_irpf->idsubcuenta;
                   $partida3->codsubcuenta = $subcuenta_irpf->codsubcuenta;
-                  $partida3->haber = $factura->totalirpf*$tasaconv;
+                  $partida3->haber = round($factura->totalirpf*$tasaconv, FS_NF0);
                   $partida3->coddivisa = $this->empresa->coddivisa;
                   $partida3->tasaconv = $tasaconv2;
                   $partida3->codserie = $factura->codserie;
@@ -407,6 +405,36 @@ class asiento_factura
                }
             }
             
+            /**
+             * Ahora creamos la partida para la subcuenta del proveedor y calculamos
+             * los importes para que todo cuadre.
+             */
+            $debe = $haber = 0;
+            foreach($asiento->get_partidas() as $p)
+            {
+               $debe += $p->debe;
+               $haber += $p->haber;
+            }
+            $partida0 = new \partida();
+            $partida0->idasiento = $asiento->idasiento;
+            $partida0->concepto = $asiento->concepto;
+            $partida0->idsubcuenta = $subcuenta_prov->idsubcuenta;
+            $partida0->codsubcuenta = $subcuenta_prov->codsubcuenta;
+            $partida0->haber = $debe - $haber;
+            $partida0->coddivisa = $this->empresa->coddivisa;
+            $partida0->tasaconv = $tasaconv2;
+            $partida0->codserie = $factura->codserie;
+            if( $partida0->save() )
+            {
+               $asiento->importe = max( array( abs($debe), abs($haber) ) );
+               $asiento->save();
+            }
+            else
+            {
+               $asiento_correcto = FALSE;
+               $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida0->codsubcuenta."!");
+            }
+            
             if($asiento_correcto)
             {
                /// si es una factura rectificativa, invertimos los importes
@@ -465,15 +493,7 @@ class asiento_factura
       /// obtenemos las tasas de conversión, para las ocasiones en que la factura está en otra divisa
       $tasaconv = 1;
       $tasaconv2 = $factura->tasaconv;
-      if($factura->coddivisa != $this->empresa->coddivisa)
-      {
-         $divisa = $this->divisa->get($this->empresa->coddivisa);
-         if($divisa)
-         {
-            $tasaconv = $divisa->tasaconv/$factura->tasaconv;
-            $tasaconv2 = $divisa->tasaconv_compra;
-         }
-      }
+      $this->set_tasasconv($factura, $tasaconv, $tasaconv2);
       
       /// obtenemos el clientes y su subcuenta
       $cliente = $cliente0->get($factura->codcliente);
@@ -516,25 +536,10 @@ class asiento_factura
          $asiento->documento = $factura->codigo;
          $asiento->editable = FALSE;
          $asiento->fecha = $factura->fecha;
-         $asiento->importe = abs($factura->total*$tasaconv);
          $asiento->tipodocumento = 'Factura de cliente';
          if( $asiento->save() )
          {
             $asiento_correcto = TRUE;
-            $partida0 = new \partida();
-            $partida0->idasiento = $asiento->idasiento;
-            $partida0->concepto = $asiento->concepto;
-            $partida0->idsubcuenta = $subcuenta_cli->idsubcuenta;
-            $partida0->codsubcuenta = $subcuenta_cli->codsubcuenta;
-            $partida0->debe = $factura->total*$tasaconv;
-            $partida0->coddivisa = $this->empresa->coddivisa;
-            $partida0->tasaconv = $tasaconv2;
-            $partida0->codserie = $factura->codserie;
-            if( !$partida0->save() )
-            {
-               $asiento_correcto = FALSE;
-               $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida0->codsubcuenta."!");
-            }
             
             /// generamos una partida por cada impuesto
             foreach($factura->get_lineas_iva() as $li)
@@ -566,14 +571,14 @@ class asiento_factura
                   $partida1->concepto = $asiento->concepto;
                   $partida1->idsubcuenta = $subcuenta_iva->idsubcuenta;
                   $partida1->codsubcuenta = $subcuenta_iva->codsubcuenta;
-                  $partida1->haber = $li->totaliva*$tasaconv;
+                  $partida1->haber = round($li->totaliva*$tasaconv, FS_NF0);
                   $partida1->idcontrapartida = $subcuenta_cli->idsubcuenta;
                   $partida1->codcontrapartida = $subcuenta_cli->codsubcuenta;
                   $partida1->documento = $asiento->documento;
                   $partida1->tipodocumento = $asiento->tipodocumento;
                   $partida1->codserie = $factura->codserie;
                   $partida1->factura = $factura->numero;
-                  $partida1->baseimponible = $li->neto*$tasaconv;
+                  $partida1->baseimponible = round($li->neto*$tasaconv, FS_NF0);
                   $partida1->iva = $li->iva;
                   $partida1->coddivisa = $this->empresa->coddivisa;
                   $partida1->tasaconv = $tasaconv2;
@@ -596,14 +601,14 @@ class asiento_factura
                      $partida11->concepto = $asiento->concepto;
                      $partida11->idsubcuenta = $subcuenta_iva->idsubcuenta;
                      $partida11->codsubcuenta = $subcuenta_iva->codsubcuenta;
-                     $partida11->haber = $li->totalrecargo*$tasaconv;
+                     $partida11->haber = round($li->totalrecargo*$tasaconv, FS_NF0);
                      $partida11->idcontrapartida = $subcuenta_cli->idsubcuenta;
                      $partida11->codcontrapartida = $subcuenta_cli->codsubcuenta;
                      $partida11->documento = $asiento->documento;
                      $partida11->tipodocumento = $asiento->tipodocumento;
                      $partida11->codserie = $factura->codserie;
                      $partida11->factura = $factura->numero;
-                     $partida11->baseimponible = $li->neto*$tasaconv;
+                     $partida11->baseimponible = round($li->neto*$tasaconv, FS_NF0);
                      $partida11->recargo = $li->recargo;
                      $partida11->coddivisa = $this->empresa->coddivisa;
                      $partida11->tasaconv = $tasaconv2;
@@ -635,7 +640,7 @@ class asiento_factura
                $partida2->concepto = $asiento->concepto;
                $partida2->idsubcuenta = $subcuenta_ventas->idsubcuenta;
                $partida2->codsubcuenta = $subcuenta_ventas->codsubcuenta;
-               $partida2->haber = $factura->neto*$tasaconv;
+               $partida2->haber = round($factura->neto*$tasaconv, FS_NF0);
                $partida2->coddivisa = $this->empresa->coddivisa;
                $partida2->tasaconv = $tasaconv2;
                $partida2->codserie = $factura->codserie;
@@ -668,7 +673,7 @@ class asiento_factura
                   $partida3->concepto = $asiento->concepto;
                   $partida3->idsubcuenta = $subcuenta_irpf->idsubcuenta;
                   $partida3->codsubcuenta = $subcuenta_irpf->codsubcuenta;
-                  $partida3->debe = $factura->totalirpf*$tasaconv;
+                  $partida3->debe = round($factura->totalirpf*$tasaconv, FS_NF0);
                   $partida3->coddivisa = $this->empresa->coddivisa;
                   $partida3->tasaconv = $tasaconv2;
                   $partida3->codserie = $factura->codserie;
@@ -776,6 +781,37 @@ class asiento_factura
                }
             }
             
+            /**
+             * Ahora calculamos los importes y añadimos la partida a la subcuenta
+             * del cliente.
+             */
+            $debe = $haber = 0;
+            foreach($asiento->get_partidas() as $p)
+            {
+               $debe += $p->debe;
+               $haber += $p->haber;
+            }
+            
+            $partida0 = new \partida();
+            $partida0->idasiento = $asiento->idasiento;
+            $partida0->concepto = $asiento->concepto;
+            $partida0->idsubcuenta = $subcuenta_cli->idsubcuenta;
+            $partida0->codsubcuenta = $subcuenta_cli->codsubcuenta;
+            $partida0->debe = $haber - $debe;
+            $partida0->coddivisa = $this->empresa->coddivisa;
+            $partida0->tasaconv = $tasaconv2;
+            $partida0->codserie = $factura->codserie;
+            if( $partida0->save() )
+            {
+               $asiento->importe = max( array( abs($debe), abs($haber) ) );
+               $asiento->save();
+            }
+            else
+            {
+               $asiento_correcto = FALSE;
+               $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida0->codsubcuenta."!");
+            }
+            
             if($asiento_correcto)
             {
                /// si es una factura rectificativa, invertimos los importes
@@ -831,14 +867,14 @@ class asiento_factura
     * @param type $importe
     * @return type
     */
-   public function generar_asiento_pago(&$asiento, $codpago=FALSE, $fecha=FALSE, $subclipro=FALSE, $importe=NULL)
+   public function generar_asiento_pago(&$asiento, $codpago = FALSE, $fecha = FALSE, $subclipro = FALSE, $importe = NULL)
    {
       if( is_null($importe) )
       {
          $importe = $asiento->importe;
       }
-      $importe = abs($importe);
-      $importe2 = abs($asiento->importe);
+      $importe = abs( round($importe, FS_NF0) );
+      $importe2 = abs( round($asiento->importe, FS_NF0) );
       
       $nasientop = new \asiento();
       $nasientop->editable = FALSE;

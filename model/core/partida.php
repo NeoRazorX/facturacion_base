@@ -93,8 +93,14 @@ class partida extends \fs_model
          $this->idcontrapartida = $p['idcontrapartida'];
          $this->codcontrapartida = $p['codcontrapartida'];
          $this->punteada = $this->str2bool($p['punteada']);
-         $this->tasaconv = $p['tasaconv'];
+         
+         $this->tasaconv = floatval($p['tasaconv']);
          $this->coddivisa = $p['coddivisa'];
+         if( is_null($this->coddivisa) )
+         {
+            $this->coddivisa = $this->default_items->coddivisa();
+         }
+         
          $this->haberme = floatval($p['haberme']);
          $this->debeme = floatval($p['debeme']);
          $this->recargo = floatval($p['recargo']);
@@ -120,7 +126,7 @@ class partida extends \fs_model
          $this->codcontrapartida = NULL;
          $this->punteada = FALSE;
          $this->tasaconv = 1;
-         $this->coddivisa = NULL;
+         $this->coddivisa = $this->default_items->coddivisa();
          $this->haberme = 0;
          $this->debeme = 0;
          $this->recargo = 0;

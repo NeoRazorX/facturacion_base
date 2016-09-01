@@ -798,7 +798,11 @@
                <div class="form-group">
                   <div class="input-group">
                      <span class="input-group-addon">Para</span>
+                     {if="$fsc->cliente"}
                      <input id="ac_email" class="form-control" type="text" name="email" value="{$fsc->cliente->email}" autocomplete="off"/>
+                     {else}
+                     <input id="ac_email" class="form-control" type="text" name="email" autocomplete="off"/>
+                     {/if}
                      <span class="input-group-addon" title="Asignar email al cliente">
                         <input type="checkbox" name="guardar" value="TRUE"/>
                         <span class="glyphicon glyphicon-floppy-disk"></span>
