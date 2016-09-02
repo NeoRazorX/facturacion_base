@@ -1,5 +1,6 @@
 {if="!$fsc->informe['started']"}
    {include="header"}
+   
    <div class="container-fluid">
       <div class="row">
          <div class="col-sm-12">
@@ -67,7 +68,16 @@
                </div>
             </form>
          </div>
-         <div class="col-sm-4">
+         <div class="col-sm-3">
+            <p class="help-block">
+               Inicia una comprobación para encontrar y reparar errores comunes
+               en tablas, asientos, facturas, albaranes y direcciones.
+               <br/><br/>
+               Se aplicarán una serie de parches para problemas conocidos.
+            </p>
+         </div>
+         <div class="col-sm-3"></div>
+         <div class="col-sm-3">
             <div class="thumbnail">
                <img src="{#FS_PATH#}view/img/help-menu.png" alt="informar..."/>
                <div class="caption">
@@ -82,7 +92,6 @@
          </div>
       </div>
    </div>
-   
    
    {include="footer"}
 {elseif="!$fsc->ajax"}

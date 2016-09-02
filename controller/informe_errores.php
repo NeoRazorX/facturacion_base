@@ -445,15 +445,22 @@ class informe_errores extends fs_controller
    {
       $allp = array();
       $show_p = $this->informe['show_page'];
+      
       /// cargamos todas las páginas
       for($i = 0; $i<=$this->informe['pages']; $i++)
+      {
          $allp[] = array('page' => $i, 'num' => $i+1, 'selected' => ($i==$show_p));
+      }
+      
       /// ahora descartamos
       foreach($allp as $j => $value)
       {
          if( ($value['num']>1 AND $j<$show_p-3 AND $value['num']%10) OR ($j>$show_p+3 AND $j<$i-1 AND $value['num']%10) )
+         {
             unset($allp[$j]);
+         }
       }
+      
       return $allp;
    }
    
@@ -666,6 +673,8 @@ class informe_errores extends fs_controller
                $this->informe['offset'] += 1;
             }
          }
+         
+         $this->cache->clean();
       }
       
       if(!$recargar)
