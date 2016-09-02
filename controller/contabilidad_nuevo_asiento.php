@@ -275,6 +275,8 @@ class contabilidad_nuevo_asiento extends fs_controller
             {
                $partida = new partida();
                $partida->idasiento = $asiento->idasiento;
+               $partida->coddivisa = $div0->coddivisa;
+               $partida->tasaconv = $div0->tasaconv;
                $partida->concepto = $asiento->concepto;
                $partida->idsubcuenta = $subc->idsubcuenta;
                $partida->codsubcuenta = $subc->codsubcuenta;
@@ -292,6 +294,8 @@ class contabilidad_nuevo_asiento extends fs_controller
             {
                $partida = new partida();
                $partida->idasiento = $asiento->idasiento;
+               $partida->coddivisa = $div0->coddivisa;
+               $partida->tasaconv = $div0->tasaconv;
                $partida->concepto = $asiento->concepto;
                $partida->idsubcuenta = $subc->idsubcuenta;
                $partida->codsubcuenta = $subc->codsubcuenta;
@@ -322,6 +326,8 @@ class contabilidad_nuevo_asiento extends fs_controller
                   {
                      $partida = new partida();
                      $partida->idasiento = $asiento->idasiento;
+                     $partida->coddivisa = $div0->coddivisa;
+                     $partida->tasaconv = $div0->tasaconv;
                      $partida->concepto = $asiento->concepto;
                      $partida->idsubcuenta = $subc->idsubcuenta;
                      $partida->codsubcuenta = $subc->codsubcuenta;
@@ -334,6 +340,8 @@ class contabilidad_nuevo_asiento extends fs_controller
                   {
                      $partida = new partida();
                      $partida->idasiento = $asiento->idasiento;
+                     $partida->coddivisa = $div0->coddivisa;
+                     $partida->tasaconv = $div0->tasaconv;
                      $partida->concepto = $asiento->concepto;
                      $partida->idsubcuenta = $subc->idsubcuenta;
                      $partida->codsubcuenta = $subc->codsubcuenta;
@@ -417,6 +425,8 @@ class contabilidad_nuevo_asiento extends fs_controller
             {
                $partida = new partida();
                $partida->idasiento = $asiento->idasiento;
+               $partida->coddivisa = $div0->coddivisa;
+               $partida->tasaconv = $div0->tasaconv;
                $partida->concepto = $asiento->concepto;
                $partida->idsubcuenta = $subc->idsubcuenta;
                $partida->codsubcuenta = $subc->codsubcuenta;
@@ -434,6 +444,8 @@ class contabilidad_nuevo_asiento extends fs_controller
             {
                $partida = new partida();
                $partida->idasiento = $asiento->idasiento;
+               $partida->coddivisa = $div0->coddivisa;
+               $partida->tasaconv = $div0->tasaconv;
                $partida->concepto = $asiento->concepto;
                $partida->idsubcuenta = $subc->idsubcuenta;
                $partida->codsubcuenta = $subc->codsubcuenta;

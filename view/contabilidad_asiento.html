@@ -178,6 +178,7 @@
    {
       $("#b_guardar_asiento").prop('disabled', true);
       $("#b_guardar_asiento_2").prop('disabled', true);
+      $("#divisa").prop('disabled', false);
       
       var continuar = true;
       for(var i=1; i<=numlineas; i++)
@@ -216,7 +217,9 @@
       $("#b_eliminar_asiento").click(function(event) {
          event.preventDefault();
          if( confirm("¿Estas seguro de que deseas eliminar este asiento?") )
+         {
             window.location.href = "{$fsc->ppage->url()}&delete={$fsc->asiento->idasiento}";
+         }
       });
       $("#f_buscar_subcuentas").submit(function(event) {
          event.preventDefault();
@@ -290,7 +293,7 @@
          <div class="col-sm-2">
             <div class="form-group">
                Divisa:
-               <select class="form-control" name="divisa">
+               <select id="divisa" class="form-control" name="divisa" disabled="">
                {loop="$fsc->divisa->all()"}
                   {if="$value->coddivisa==$fsc->asiento->coddivisa()"}
                   <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
