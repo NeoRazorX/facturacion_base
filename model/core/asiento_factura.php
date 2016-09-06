@@ -253,7 +253,8 @@ class asiento_factura
                else if(!$subcuenta_iva)
                {
                   $asiento_correcto = FALSE;
-                  $this->new_error_msg('No se encuentra la subcuenta de '.FS_IVA);
+                  $this->new_error_msg('No se encuentra ninguna subcuenta de '.FS_IVA.' para el ejercicio '
+                          .$asiento->codejercicio.' (cuenta especial IVASOP).');
                }
             }
             
@@ -278,7 +279,8 @@ class asiento_factura
             else if(!$subcuenta_compras)
             {
                $asiento_correcto = FALSE;
-               $this->new_error_msg('No se encuentra la subcuenta de compras.');
+               $this->new_error_msg('No se encuentra ninguna subcuenta de compras para el ejercicio '
+                          .$asiento->codejercicio.' (cuenta especial COMPRA).');
             }
             
             /// ¿IRPF?
@@ -305,7 +307,8 @@ class asiento_factura
                else if(!$subcuenta_irpf)
                {
                   $asiento_correcto = FALSE;
-                  $this->new_error_msg('No se encuentra la subcuenta de '.FS_IRPF);
+                  $this->new_error_msg('No se encuentra ninguna subcuenta de '.FS_IRPF.' para el ejercicio '
+                          .$asiento->codejercicio.' (cuenta especial IRPFPR).');
                }
             }
             
@@ -628,7 +631,8 @@ class asiento_factura
                else if(!$subcuenta_iva)
                {
                   $asiento_correcto = FALSE;
-                  $this->new_error_msg('No se encuentra la subcuenta de '.FS_IVA);
+                  $this->new_error_msg('No se encuentra ninguna subcuenta de '.FS_IVA.' para el ejercicio '
+                          .$asiento->codejercicio.' (cuenta especial IVAREP).');
                }
             }
             
@@ -653,7 +657,8 @@ class asiento_factura
             else if(!$subcuenta_ventas)
             {
                $asiento_correcto = FALSE;
-               $this->new_error_msg('No se encuentra la subcuenta de ventas');
+               $this->new_error_msg('No se encuentra ninguna subcuenta de ventas para el ejercicio '
+                          .$asiento->codejercicio.' (cuenta especial VENTAS).');
             }
             
             /// ¿IRPF?
@@ -686,7 +691,8 @@ class asiento_factura
                else if(!$subcuenta_irpf)
                {
                   $asiento_correcto = FALSE;
-                  $this->new_error_msg('No se encuentra la subcuenta de '.FS_IRPF);
+                  $this->new_error_msg('No se encuentra ninguna subcuenta de '.FS_IRPF.' para el ejercicio '
+                          .$asiento->codejercicio.' (cuenta especial IRPF).');
                }
             }
             

@@ -357,8 +357,8 @@ class proveedor extends \fs_model
    }
    
    /**
-    * Devuelve la subcuenta asignada al proveedor para el ejercicio $eje,
-    * si no hay una subcuenta asignada, intenta crearla.  Si falla devuelve FALSE.
+    * Devuelve la subcuenta asignada al proveedor para el ejercicio $codeje,
+    * si no hay una subcuenta asignada, intenta crearla. Si falla devuelve FALSE.
     * @param type $codeje
     * @return subcuenta
     */
@@ -387,6 +387,10 @@ class proveedor extends \fs_model
             if(!$cpro)
             {
                $cpro = $cuenta->get_by_codigo('410', $codeje);
+            }
+            if(!$cpro)
+            {
+               $cpro = $cuenta->get_cuentaesp('PROVEE', $codeje);
             }
          }
          else

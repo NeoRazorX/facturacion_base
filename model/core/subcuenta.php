@@ -284,7 +284,7 @@ class subcuenta extends \fs_model
    }
    
    /**
-    * Devuelve la primera subcuenta del ejercicio $eje cuya cuenta madre
+    * Devuelve la primera subcuenta del ejercicio $codeje cuya cuenta madre
     * está marcada como cuenta especial $id.
     * @param type $id
     * @param type $codeje
@@ -484,7 +484,7 @@ class subcuenta extends \fs_model
    }
    
    /**
-    * Devuelve las subcuentas del ejercicio $eje cuya cuenta madre
+    * Devuelve las subcuentas del ejercicio $codeje cuya cuenta madre
     * está marcada como cuenta especial $id.
     * @param type $id
     * @param type $codeje
@@ -566,14 +566,21 @@ class subcuenta extends \fs_model
       return $sublist;
    }
    
-   public function search_by_ejercicio($ejercicio, $query)
+   /**
+    * Devuelve los resultados de la búsuqeda $query sobre las subcuentas del
+    * ejercicio $codejercicio
+    * @param type $codejercicio
+    * @param type $query
+    * @return \subcuenta
+    */
+   public function search_by_ejercicio($codejercicio, $query)
    {
       $query = $this->escape_string( mb_strtolower( trim($query), 'UTF8' ) );
       
-      $sublist = $this->cache->get_array('search_subcuenta_ejercicio_'.$ejercicio.'_'.$query);
+      $sublist = $this->cache->get_array('search_subcuenta_ejercicio_'.$codejercicio.'_'.$query);
       if( count($sublist) < 1 )
       {
-         $sql = "SELECT * FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($ejercicio)
+         $sql = "SELECT * FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($codejercicio)
                  ." AND (codsubcuenta LIKE '".$query."%' OR codsubcuenta LIKE '%".$query."'"
                  ." OR lower(descripcion) LIKE '%".$query."%') ORDER BY codcuenta ASC;";
          
@@ -586,7 +593,7 @@ class subcuenta extends \fs_model
             }
          }
          
-         $this->cache->set('search_subcuenta_ejercicio_'.$ejercicio.'_'.$query, $sublist, 300);
+         $this->cache->set('search_subcuenta_ejercicio_'.$codejercicio.'_'.$query, $sublist, 300);
       }
       
       return $sublist;

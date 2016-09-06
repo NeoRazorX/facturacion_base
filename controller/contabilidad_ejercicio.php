@@ -387,7 +387,7 @@ class contabilidad_ejercicio extends fs_controller
          }
          else
          {
-            $this->new_message('Importando ejercicio: paso '.$import_step.'.'.($offset/1000).' de 6 ...'
+            $this->new_message('Importando ejercicio: paso '.$import_step.'.'.($offset/500).' de 6 ...'
                     . '<br/>Espera a que termine &nbsp; <i class="fa fa-refresh fa-spin"></i>');
          }
          
@@ -616,6 +616,7 @@ class contabilidad_ejercicio extends fs_controller
             
             if( $import_step == 5 )
             {
+               $error = FALSE;
                $cliente = new cliente();
                $clientes = $cliente->all($offset);
                while($clientes)
@@ -623,14 +624,26 @@ class contabilidad_ejercicio extends fs_controller
                   foreach($clientes as $cli)
                   {
                      /// forzamos la generación y asociación de una subcuenta para el cliente
-                     $cli->get_subcuenta( $this->ejercicio->codejercicio );
-                     
-                     $offset++;
+                     if( $cli->get_subcuenta( $this->ejercicio->codejercicio ) )
+                     {
+                        $offset++;
+                     }
+                     else
+                     {
+                        $error = TRUE;
+                        break;
+                     }
                   }
                   
-                  if( $offset%1000 == 0 )
+                  if( $error OR count($this->get_errors()) > 0 )
                   {
-                     /// cada 1000 clientes volvemos a recargar la página para continuar
+                     $this->new_error_msg('Proceso detenido.');
+                     $this->importar_url = FALSE;
+                     break;
+                  }
+                  else if( $offset%500 == 0 )
+                  {
+                     /// cada 500 clientes volvemos a recargar la página para continuar
                      $this->importar_url = $this->url().'&importar='.$import_step.'&offset='.$offset;
                      break;
                   }
@@ -641,6 +654,7 @@ class contabilidad_ejercicio extends fs_controller
             
             if( $import_step == 6 )
             {
+               $error = FALSE;
                $proveedor = new proveedor();
                $proveedores = $proveedor->all($offset);
                while($proveedores)
@@ -648,14 +662,26 @@ class contabilidad_ejercicio extends fs_controller
                   foreach($proveedores as $pro)
                   {
                      /// forzamos la generación y asociación de una subcuenta para cada proveedor
-                     $pro->get_subcuenta( $this->ejercicio->codejercicio );
-                     
-                     $offset++;
+                     if( $pro->get_subcuenta( $this->ejercicio->codejercicio ) )
+                     {
+                        $offset++;
+                     }
+                     else
+                     {
+                        $error = TRUE;
+                        break;
+                     }
                   }
                   
-                  if( $offset%1000 == 0 )
+                  if( $error OR count($this->get_errors()) > 0 )
                   {
-                     /// cada 1000 proveedores volvemos a recargar la página para continuar
+                     $this->new_error_msg('Proceso detenido.');
+                     $this->importar_url = FALSE;
+                     break;
+                  }
+                  else if( $offset%500 == 0 )
+                  {
+                     /// cada 500 proveedores volvemos a recargar la página para continuar
                      $this->importar_url = $this->url().'&importar='.$import_step.'&offset='.$offset;
                      break;
                   }
