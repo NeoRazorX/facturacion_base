@@ -10,6 +10,11 @@
    {
       $('#f_subcuenta input:checkbox').prop('checked', false);
    }
+   function guardar_subcuenta()
+   {
+      $("#divisa").prop('disabled', false);
+      document.f_subcuenta.submit();
+   }
    $(document).ready(function() {
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
@@ -21,7 +26,7 @@
    });
 </script>
 
-<form id="f_subcuenta" class="form" action="{$fsc->url()}&offset={$fsc->offset}" method="post">
+<form name="f_subcuenta" id="f_subcuenta" class="form" action="{$fsc->url()}&offset={$fsc->offset}" method="post">
    <input type="hidden" name="puntear" value="TRUE"/>
    <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
       <div class="row">
@@ -55,7 +60,7 @@
                   <span class="hidden-sm hidden-xs">&nbsp; Eliminar</span>
                </a>
                {/if}
-               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;guardar_subcuenta();">
                   <span class="glyphicon glyphicon-floppy-disk"></span>
                   <span class="hidden-xs">&nbsp; Guardar</span>
                </button>
@@ -90,9 +95,13 @@
                </div>
             </td>
             <td>
-               <select name="coddivisa" class="form-control">
+               <select name="coddivisa" id="divisa" class="form-control" disabled="">
                {loop="$fsc->divisa->all()"}
-               <option value="{$value->coddivisa}"{if="$fsc->subcuenta->coddivisa==$value->coddivisa"} selected=""{/if}>{$value->descripcion}</option>
+                  {if="$fsc->subcuenta->coddivisa==$value->coddivisa"}
+                  <option value="{$value->coddivisa}" selected="">{$value->descripcion}</option>
+                  {else}
+                  <option value="{$value->coddivisa}">{$value->descripcion}</option>
+                  {/if}
                {/loop}
                </select>
             </td>
