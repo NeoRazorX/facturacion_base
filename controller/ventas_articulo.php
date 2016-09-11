@@ -192,7 +192,7 @@ class ventas_articulo extends fs_controller
       }
       else
       {
-         $this->new_error_msg("Artículo no encontrado.");
+         $this->new_error_msg("Artículo no encontrado.", 'error', FALSE, FALSE);
       }
    }
    

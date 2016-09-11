@@ -88,9 +88,13 @@
                         <div class="form-group">
                            <a href="{$fsc->serie->url()}" target="_parent">Serie</a>:
                            <select name="codserie" class="form-control">
-                              {loop="$fsc->serie->all()"}
+                           {loop="$fsc->serie->all()"}
+                              {if="$value->codserie=='R'"}
+                              <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
+                              {else}
                               <option value="{$value->codserie}">{$value->descripcion}</option>
-                              {/loop}
+                              {/if}
+                           {/loop}
                            </select>
                         </div>
                      </div>

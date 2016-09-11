@@ -157,7 +157,9 @@ class compras_actualiza_arts extends fs_controller
             $this->new_error_msg('Documento no encontrado.');
       }
       else
-         $this->new_error_msg('Faltan datos.');
+      {
+         $this->new_error_msg('Faltan datos.', 'error', FALSE, FALSE);
+      }
    }
    
    private function share_extensions()
@@ -169,7 +171,8 @@ class compras_actualiza_arts extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'compras_pedido',
               'type' => 'tab',
-              'text' => '<span class="glyphicon glyphicon-share" aria-hidden="true"></span><span class="hidden-xs">&nbsp; Actualizar</span>',
+              'text' => '<span class="glyphicon glyphicon-share" aria-hidden="true"></span>'
+              . '<span class="hidden-xs">&nbsp; Actualizar</span>',
               'params' => '&doc=pedido'
           ),
           array(
@@ -177,7 +180,8 @@ class compras_actualiza_arts extends fs_controller
               'page_from' => __CLASS__,
               'page_to' => 'compras_albaran',
               'type' => 'tab',
-              'text' => '<span class="glyphicon glyphicon-share" aria-hidden="true"></span><span class="hidden-xs">&nbsp; Actualizar</span>',
+              'text' => '<span class="glyphicon glyphicon-share" aria-hidden="true"></span>'
+              . '<span class="hidden-xs">&nbsp; Actualizar</span>',
               'params' => '&doc=albaran'
           )
       );

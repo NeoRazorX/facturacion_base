@@ -186,7 +186,9 @@ class contabilidad_ejercicio extends fs_controller
          }
       }
       else
-         $this->new_error_msg('Ejercicio no encontrado.');
+      {
+         $this->new_error_msg('Ejercicio no encontrado.', 'error', FALSE, FALSE);
+      }
    }
    
    public function url()

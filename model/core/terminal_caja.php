@@ -174,35 +174,43 @@ class terminal_caja extends \fs_model
    
    public function abrir_cajon()
    {
-      $aux = explode('.', $this->comandoapertura);
-      if($aux)
+      if($this->sin_comandos)
       {
-         foreach($aux as $a)
-         {
-            $this->tickets .= chr($a);
-         }
+         /// nada
       }
-      
-      if(!$this->sin_comandos)
+      else if($this->comandoapertura)
       {
-         $this->tickets .= "\n";
+         $aux = explode('.', $this->comandoapertura);
+         if($aux)
+         {
+            foreach($aux as $a)
+            {
+               $this->tickets .= chr($a);
+            }
+            
+            $this->tickets .= "\n";
+         }
       }
    }
    
    public function cortar_papel()
    {
-      $aux = explode('.', $this->comandocorte);
-      if($aux)
+      if($this->sin_comandos)
       {
-         foreach($aux as $a)
-         {
-            $this->tickets .= chr($a);
-         }
+         /// nada
       }
-      
-      if(!$this->sin_comandos)
+      else if($this->comandocorte)
       {
-         $this->tickets .= "\n";
+         $aux = explode('.', $this->comandocorte);
+         if($aux)
+         {
+            foreach($aux as $a)
+            {
+               $this->tickets .= chr($a);
+            }
+            
+            $this->tickets .= "\n";
+         }
       }
    }
    

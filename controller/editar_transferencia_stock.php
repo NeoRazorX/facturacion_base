@@ -61,7 +61,7 @@ class editar_transferencia_stock extends fs_controller
       }
       else
       {
-         $this->new_error_msg('Transferencia no encontrada.');
+         $this->new_error_msg('Transferencia no encontrada.', 'error', FALSE, FALSE);
       }
    }
    

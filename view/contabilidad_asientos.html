@@ -116,10 +116,13 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr class="clickableRow{if="$value->importe<=0"} warning{/if}" href="{$value->url()}">
+      <tr class="clickableRow{if="$value->importe<=0"} danger{elseif="$value->editable"} warning{/if}" href="{$value->url()}">
          <td class="text-center">
             {if="$value->editable"}
             <span class="glyphicon glyphicon-pencil" title="editable"></span>
+            {/if}
+            {if="$value->tipodocumento"}
+            <span class="glyphicon glyphicon-paperclip" title="{$value->tipodocumento} {$value->documento}"></span>
             {/if}
          </td>
          <td>{$value->codejercicio} <a href="{$value->url()}">{$value->numero}</a></td>

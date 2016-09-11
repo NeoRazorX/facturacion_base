@@ -210,7 +210,7 @@ class nueva_compra extends fs_controller
       $json = array();
       foreach($this->proveedor->search($_REQUEST['buscar_proveedor']) as $pro)
       {
-         $json[] = array('value' => $pro->nombre, 'data' => $pro->codproveedor);
+         $json[] = array('value' => $pro->razonsocial, 'data' => $pro->codproveedor);
       }
       
       header('Content-Type: application/json');

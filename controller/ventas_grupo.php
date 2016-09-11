@@ -82,7 +82,9 @@ class ventas_grupo extends fs_controller
          }
       }
       else
-         $this->new_error_msg('Grupo no encontrado.');
+      {
+         $this->new_error_msg('Grupo no encontrado.', 'error', FALSE, FALSE);
+      }
    }
    
    private function clientes_from_grupo($cod, $offset)

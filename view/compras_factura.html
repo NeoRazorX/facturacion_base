@@ -520,7 +520,7 @@
                <div class="form-group">
                   <select name="codserie" class="form-control">
                   {loop="$fsc->serie->all()"}
-                     {if="$value->codserie==$fsc->factura->codserie"}
+                     {if="$value->codserie=='R'"}
                      <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
                      {else}
                      <option value="{$value->codserie}">{$value->descripcion}</option>
@@ -534,10 +534,10 @@
             </div>
             <div class="modal-footer">
                <a class="btn btn-sm btn-danger pull-left" href="{$fsc->ppage->url()}&delete={$fsc->factura->idfactura}">
-                  <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+                  <span class="glyphicon glyphicon-trash"></span>&nbsp; Eliminar
                </a>
                <button type="submit" class="btn btn-sm btn-warning">
-                  <span class="glyphicon glyphicon-flag"></span> &nbsp; Anular
+                  <span class="glyphicon glyphicon-flag"></span>&nbsp; Anular
                </button>
             </div>
          </div>

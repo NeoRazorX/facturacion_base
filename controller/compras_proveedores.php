@@ -86,8 +86,11 @@ class compras_proveedores extends fs_controller
             
             if( $dirproveedor->save() )
             {
-               /// forzamos crear la subcuenta
-               $proveedor->get_subcuenta($this->empresa->codejercicio);
+               if($this->empresa->contintegrada)
+               {
+                  /// forzamos crear la subcuenta
+                  $proveedor->get_subcuenta($this->empresa->codejercicio);
+               }
                
                /// redireccionamos a la página del proveedor
                header('location: '.$proveedor->url());

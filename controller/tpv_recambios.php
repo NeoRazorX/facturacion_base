@@ -229,7 +229,7 @@ class tpv_recambios extends fs_controller
       $json = array();
       foreach($this->cliente->search($_REQUEST['buscar_cliente']) as $cli)
       {
-         $json[] = array('value' => $cli->nombre, 'data' => $cli->codcliente);
+         $json[] = array('value' => $cli->razonsocial, 'data' => $cli->codcliente, 'full' => $cli);
       }
       
       header('Content-Type: application/json');

@@ -36,7 +36,6 @@ class ventas_fabricante extends fs_controller
    {
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
-     
       
       $this->fabricante = FALSE;
       if( isset($_REQUEST['cod']) )
@@ -44,7 +43,6 @@ class ventas_fabricante extends fs_controller
          $fab = new fabricante();
          $this->fabricante = $fab->get($_REQUEST['cod']);
       }
-     
       
       if($this->fabricante)
       {
@@ -71,7 +69,9 @@ class ventas_fabricante extends fs_controller
          $this->articulos = $this->fabricante->get_articulos($this->offset);
       }
       else
-         $this->new_error_msg("Fabricante no encontrado.");
+      {
+         $this->new_error_msg("Fabricante no encontrado.", 'error', FALSE, FALSE);
+      }
    }
    
    public function url()

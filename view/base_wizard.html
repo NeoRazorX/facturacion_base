@@ -164,7 +164,7 @@
       <div class="row">
          <div class="col-sm-12 text-right">
             <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-               <span class="glyphicon glyphicon-ok"></span> &nbsp; Continuar
+               <span class="glyphicon glyphicon-ok"></span>&nbsp; Continuar
             </button>
          </div>
       </div>
@@ -252,16 +252,17 @@
       </div>
       <div class="row">
          <div class="col-sm-12">
-            <h2><i class="fa fa-language"></i>&nbsp; Traducciones:</h2>
-            <p class="help-block">
-               Puedes traducir ciertos términos para adaptarlos a tu país o simplemente por comodidad.
-            </p>
-            <p class="help-block">
-               FACTURA y FACTURAS se traducen únicamente en los documentos de ventas.
-               FACTURA_SIMPLIFICADA se utiliza en los tickets.
-               NUMERO2 es un campo disponible en todos los documentos de ventas y
-               que puedes usar como quieras.
-            </p>
+            <div class="page-header">
+               <h2><i class="fa fa-language"></i>&nbsp; Traducciones:</h2>
+               <p class="help-block">
+                  Puedes traducir ciertos términos para adaptarlos a tu país o simplemente por comodidad.
+                  <br/>
+                  FACTURA y FACTURAS se traducen únicamente en los documentos de ventas.
+                  FACTURA_SIMPLIFICADA se utiliza en los tickets.
+                  NUMERO2 es un campo disponible en todos los documentos de ventas y
+                  que puedes usar como quieras.
+               </p>
+            </div>
          </div>
       </div>
       <div class="row">
@@ -273,12 +274,32 @@
             </div>
          </div>
          {/loop}
+         <div class="col-sm-3">
+            <br/>
+            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+               <span class="glyphicon glyphicon-ok"></span>&nbsp; Continuar
+            </button>
+         </div>
       </div>
       <div class="row">
-         <div class="col-sm-12 text-right">
-            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-               <span class="glyphicon glyphicon-ok"></span> &nbsp; Continuar
-            </button>
+         <div class="col-sm-12">
+            <div class="well well-sm">
+               <h3>
+                  <i class="fa fa-question-circle"></i>&nbsp; Presupuesto
+                  <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> Pedido
+                  <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> Albarán
+                  <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> Factura
+               </h3>
+               <p class="help-block">
+                  El <b>presupuesto</b> es cuando simplemente haces un boceto de una compra o venta,
+                  el <b>pedido</b> es cuando realmente se ha encargado esa compra o venta y hay un compromiso.
+                  El <b>albarán</b> es un documento de salida o entrada de mercancía del almaćen
+                  y la <b>factura</b> es un documento oficial que certifica la compra o venta.
+                  <br/>
+                  A los presupuestos también se les conoce como <b>facturas proforma</b>
+                  o <b>cotizaciones</b>. Y a los albaranes como <b>remitos</b>.
+               </p>
+            </div>
          </div>
       </div>
    </div>
@@ -379,7 +400,7 @@
       <div class="row">
          <div class="col-sm-12 text-right">
             <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-               <span class="glyphicon glyphicon-ok"></span> &nbsp; Continuar
+               <span class="glyphicon glyphicon-ok"></span>&nbsp; Continuar
             </button>
          </div>
       </div>

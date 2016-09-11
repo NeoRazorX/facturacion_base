@@ -98,7 +98,9 @@ class contabilidad_asiento extends fs_controller
          $this->lineas = $this->get_lineas_asiento();
       }
       else
-         $this->new_error_msg("Asiento no encontrado.");
+      {
+         $this->new_error_msg("Asiento no encontrado.", 'error', FALSE, FALSE);
+      }
    }
    
    public function url()

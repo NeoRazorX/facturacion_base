@@ -21,6 +21,7 @@ namespace FacturaScripts\model;
 
 require_model('cuenta.php');
 require_model('direccion_cliente.php');
+require_model('ejercicio.php');
 require_model('subcuenta.php');
 require_model('subcuenta_cliente.php');
 
@@ -139,7 +140,7 @@ class cliente extends \fs_model
    
    private static $regimenes_iva;
 
-   public function __construct($c=FALSE)
+   public function __construct($c = FALSE)
    {
       parent::__construct('clientes');
       if($c)
@@ -321,13 +322,12 @@ class cliente extends \fs_model
     * @param type $razon
     * @return boolean|\proveedor
     */
-   public function get_by_cifnif($cifnif, $razon=FALSE)
+   public function get_by_cifnif($cifnif, $razon = FALSE)
    {
       if($cifnif == '' AND $razon)
       {
          $razon = $this->no_html( mb_strtolower($razon, 'UTF8') );
-         $sql = "SELECT * FROM ".$this->table_name." WHERE cifnif = ''"
-                 . " AND lower(razonsocial) = ".$this->var2str($razon).";";
+         $sql = "SELECT * FROM ".$this->table_name." WHERE cifnif = '' AND lower(razonsocial) = ".$this->var2str($razon).";";
       }
       else
       {
@@ -429,7 +429,7 @@ class cliente extends \fs_model
             $subc0 = $ccli->new_subcuenta($this->codcliente);
             if($subc0)
             {
-               $subc0->descripcion = $this->nombre;
+               $subc0->descripcion = $this->razonsocial;
                if( $subc0->save() )
                {
                   $continuar = TRUE;
@@ -456,8 +456,19 @@ class cliente extends \fs_model
             }
          }
          else
-            $this->new_error_msg('No se encuentra ninguna cuenta especial para clientes'
-                    . ' en el ejercicio '.$codejercicio.' ¿Has importado los datos del ejercicio?');
+         {
+            /// obtenemos una url para el mensaje, pero a prueba de errores.
+            $eje_url = '';
+            $eje0 = new \ejercicio();
+            $ejercicio = $eje0->get($codejercicio);
+            if($ejercicio)
+            {
+               $eje_url = $ejercicio->url();
+            }
+            
+            $this->new_error_msg('No se encuentra ninguna cuenta especial para clientes en el ejercicio '
+                    .$codejercicio.' ¿<a href="'.$eje_url.'">Has importado los datos del ejercicio</a>?');
+         }
       }
       
       return $subcuenta;

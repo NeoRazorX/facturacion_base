@@ -130,13 +130,17 @@ class asiento_factura
       {
          /// buscamos la cuenta 0 de proveedores
          $subcuenta_prov = $this->subcuenta->get_cuentaesp('PROVEE', $factura->codejercicio);
+         if(!$subcuenta_prov)
+         {
+            $eje0 = $this->ejercicio->get( $factura->codejercicio );
+            $this->new_error_msg("No se ha podido generar una subcuenta para el proveedor
+               ¿<a href='".$eje0->url()."'>Has importado los datos del ejercicio</a>?");
+         }
       }
       
-      if( !$subcuenta_prov )
+      if(!$subcuenta_prov)
       {
-         $eje0 = $this->ejercicio->get( $factura->codejercicio );
-         $this->new_message("No se ha podido generar una subcuenta para el proveedor
-            <a href='".$eje0->url()."'>¿Has importado los datos del ejercicio?</a>");
+         /// $proveedor->get_subcuenta() ya genera mensajes en caso de error.
          
          if(!$this->soloasiento)
          {
@@ -180,9 +184,16 @@ class asiento_factura
                   }
                }
                
+               /// si no hemos encontrado una subcuenta, usamos la primera de IVASOP
                if(!$subcuenta_iva)
                {
                   $subcuenta_iva = $this->subcuenta->get_cuentaesp('IVASOP', $asiento->codejercicio);
+               }
+               
+               /// si aun así no hemos encontrado una subcuenta, usamos la primera de IVAREP
+               if(!$subcuenta_iva)
+               {
+                  $subcuenta_iva = $this->subcuenta->get_cuentaesp('IVAREP', $asiento->codejercicio);
                }
                
                if($li->totaliva == 0 AND $li->totalrecargo == 0)
@@ -508,13 +519,17 @@ class asiento_factura
       {
          /// buscamos la cuenta 0 de clientes
          $subcuenta_cli = $this->subcuenta->get_cuentaesp('CLIENT', $factura->codejercicio);
+         if(!$subcuenta_cli)
+         {
+            $eje0 = $this->ejercicio->get( $factura->codejercicio );
+            $this->new_error_msg("No se ha podido generar una subcuenta para el cliente
+               ¿<a href='".$eje0->url()."'>Has importado los datos del ejercicio</a>?");
+         }
       }
       
-      if( !$subcuenta_cli )
+      if(!$subcuenta_cli)
       {
-         $eje0 = $this->ejercicio->get($factura->codejercicio);
-         $this->new_message("No se ha podido generar una subcuenta para el cliente
-            <a href='".$eje0->url()."'>¿Has importado los datos del ejercicio?</a>");
+         /// $cliente->get_subcuenta() ya genera mensajes en caso de error
          
          if(!$this->soloasiento)
          {
@@ -558,6 +573,7 @@ class asiento_factura
                   }
                }
                
+               /// si no hemos encontrado una subcuenta, usamos la primera de IVAREP
                if(!$subcuenta_iva)
                {
                   $subcuenta_iva = $this->subcuenta->get_cuentaesp('IVAREP', $asiento->codejercicio);
@@ -871,7 +887,7 @@ class asiento_factura
     * @param type $fecha
     * @param type $subclipro
     * @param type $importe
-    * @return type
+    * @return asiento
     */
    public function generar_asiento_pago(&$asiento, $codpago = FALSE, $fecha = FALSE, $subclipro = FALSE, $importe = NULL)
    {
@@ -884,7 +900,6 @@ class asiento_factura
       
       $nasientop = new \asiento();
       $nasientop->editable = FALSE;
-      $nasientop->importe = $importe;
       $nasientop->tipodocumento = $asiento->tipodocumento;
       $nasientop->documento = $asiento->documento;
       
@@ -959,6 +974,7 @@ class asiento_factura
             {
                if(!$subclipro)
                {
+                  /// si no tenemos una subcuenta de cliente/proveedor, usamos la de la partida
                   $subclipro = $this->subcuenta->get_by_codigo($par->codsubcuenta, $nasientop->codejercicio);
                }
                
@@ -985,6 +1001,8 @@ class asiento_factura
                   $partida2->tasaconv = $par->tasaconv;
                   $partida2->codserie = $par->codserie;
                   $partida2->save();
+                  
+                  $nasientop->importe = $par->debe;
                   $encontrada = TRUE;
                }
                else
@@ -999,6 +1017,7 @@ class asiento_factura
             {
                if(!$subclipro)
                {
+                  /// si no tenemos una subcuenta de cliente/proveedor, usamos la de la partida
                   $subclipro = $this->subcuenta->get_by_codigo($par->codsubcuenta, $nasientop->codejercicio);
                }
                
@@ -1025,6 +1044,8 @@ class asiento_factura
                   $partida2->tasaconv = $par->tasaconv;
                   $partida2->codserie = $par->codserie;
                   $partida2->save();
+                  
+                  $nasientop->importe = $par->haber;
                   $encontrada = TRUE;
                }
                else
@@ -1037,7 +1058,11 @@ class asiento_factura
             }
          }
          
-         if(!$encontrada)
+         if($encontrada)
+         {
+            $nasientop->save();
+         }
+         else
          {
             $this->new_error_msg('No se ha encontrado la partida necesaria para generar el asiento '.$nasientop->concepto);
             $nasientop->delete();

@@ -100,7 +100,9 @@ class admin_agente extends fs_controller
          }
       }
       else
-         $this->new_error_msg("Empleado no encontrado.");
+      {
+         $this->new_error_msg("Empleado no encontrado.", 'error', FALSE, FALSE);
+      }
    }
    
    private function user_can_edit()

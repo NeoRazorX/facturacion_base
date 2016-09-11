@@ -18,6 +18,8 @@
                if(document.f_tpv.cliente.value != suggestion.data && suggestion.data != '')
                {
                   document.f_tpv.cliente.value = suggestion.data;
+                  document.f_tpv.nombrecliente.value = suggestion.full.razonsocial;
+                  document.f_tpv.cifnif.value = suggestion.full.cifnif;
                   usar_cliente(suggestion.data);
                }
             }

@@ -110,7 +110,9 @@ class articulo_trazabilidad extends fs_controller
          $this->trazas = $atraza->all_from_ref($this->articulo->referencia);
       }
       else
-         $this->new_error_msg('Artículo no encontrado.');
+      {
+         $this->new_error_msg('Artículo no encontrado.', 'error', FALSE, FALSE);
+      }
    }
    
    public function url()

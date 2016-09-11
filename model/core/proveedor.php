@@ -21,6 +21,7 @@ namespace FacturaScripts\model;
 
 require_model('cuenta.php');
 require_model('direccion_proveedor.php');
+require_model('ejercicio.php');
 require_model('subcuenta.php');
 require_model('subcuenta_proveedor.php');
 
@@ -403,7 +404,7 @@ class proveedor extends \fs_model
             $subc0 = $cpro->new_subcuenta($this->codproveedor);
             if($subc0)
             {
-               $subc0->descripcion = $this->nombre;
+               $subc0->descripcion = $this->razonsocial;
                if( $subc0->save() )
                {
                   $continuar = TRUE;
@@ -430,8 +431,19 @@ class proveedor extends \fs_model
             }
          }
          else
-            $this->new_error_msg('No se encuentra ninguna cuenta especial para proveedores'
-                    . ' en el ejercicio '.$codeje.' ¿Has importado los datos del ejercicio?');
+         {
+            /// obtenemos una url para el mensaje, pero a prueba de errores.
+            $eje_url = '';
+            $eje0 = new \ejercicio();
+            $ejercicio = $eje0->get($codeje);
+            if($ejercicio)
+            {
+               $eje_url = $ejercicio->url();
+            }
+            
+            $this->new_error_msg('No se encuentra ninguna cuenta especial para proveedores en el ejercicio '
+                    .$codeje.' ¿<a href="'.$eje_url.'">Has importado los datos del ejercicio</a>?');
+         }
       }
       
       return $subcuenta;

@@ -206,8 +206,11 @@ class ventas_clientes extends fs_controller
             
             if( $dircliente->save() )
             {
-               /// forzamos la creación de la subcuenta
-               $cliente->get_subcuenta($this->empresa->codejercicio);
+               if($this->empresa->contintegrada)
+               {
+                  /// forzamos la creación de la subcuenta
+                  $cliente->get_subcuenta($this->empresa->codejercicio);
+               }
                
                /// redireccionamos a la página del cliente
                header('location: '.$cliente->url());

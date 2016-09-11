@@ -107,7 +107,9 @@ class articulo_subcuentas extends fs_controller
          }
       }
       else
-         $this->new_error_msg('Artículo no encontrado.');
+      {
+         $this->new_error_msg('Artículo no encontrado.', 'error', FALSE, FALSE);
+      }
    }
    
    private function share_extension()
@@ -117,7 +119,8 @@ class articulo_subcuentas extends fs_controller
       $fsext->from = __CLASS__;
       $fsext->to = 'ventas_articulo';
       $fsext->type = 'tab';
-      $fsext->text = '<span class="glyphicon glyphicon-book" aria-hidden="true"></span><span class="hidden-xs">&nbsp; Subcuentas</span>';
+      $fsext->text = '<span class="glyphicon glyphicon-book" aria-hidden="true">'
+              . '</span><span class="hidden-xs">&nbsp; Subcuentas</span>';
       $fsext->save();
    }
    

@@ -129,7 +129,9 @@ class compras_albaran extends fs_controller
          }
       }
       else
-         $this->new_error_msg("¡".ucfirst(FS_ALBARAN)." de compra no encontrado!");
+      {
+         $this->new_error_msg("¡".ucfirst(FS_ALBARAN)." de compra no encontrado!", 'error', FALSE, FALSE);
+      }
    }
    
    public function url()
@@ -151,9 +153,8 @@ class compras_albaran extends fs_controller
       $error = FALSE;
       $this->albaran->numproveedor = $_POST['numproveedor'];
       $this->albaran->observaciones = $_POST['observaciones'];
-      $this->albaran->nombre = $_POST['nombre'];
-      $this->albaran->cifnif = $_POST['cifnif'];
       
+      /// ¿El albarán es editable o ya ha sido facturado?
       if($this->albaran->ptefactura)
       {
          $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha'], FALSE);
@@ -178,10 +179,18 @@ class compras_albaran extends fs_controller
                $this->albaran->cifnif = $proveedor->cifnif;
             }
             else
-               die('No se ha encontrado el proveedor');
+            {
+               $this->albaran->codproveedor = NULL;
+               $this->albaran->nombre = $_POST['nombre'];
+               $this->albaran->cifnif = $_POST['cifnif'];
+            }
          }
          else
+         {
+            $this->albaran->nombre = $_POST['nombre'];
+            $this->albaran->cifnif = $_POST['cifnif'];
             $proveedor = $this->proveedor->get($this->albaran->codproveedor);
+         }
          
          $serie = $this->serie->get($this->albaran->codserie);
          
@@ -259,6 +268,12 @@ class compras_albaran extends fs_controller
                }
             }
             
+            $regimeniva = 'general';
+            if($proveedor)
+            {
+               $regimeniva = $proveedor->regimeniva;
+            }
+            
             /// modificamos y/o añadimos las demás líneas
             for($num = 0; $num <= $numlineas; $num++)
             {
@@ -271,12 +286,6 @@ class compras_albaran extends fs_controller
                      if($value->idlinea == intval($_POST['idlinea_'.$num]))
                      {
                         $encontrada = TRUE;
-                        $regimeniva = 'general';
-                        if($proveedor)
-                        {
-                           $regimeniva = $proveedor->regimeniva;
-                        }
-                        
                         $cantidad_old = $value->cantidad;
                         $lineas[$k]->cantidad = floatval($_POST['cantidad_'.$num]);
                         $lineas[$k]->pvpunitario = floatval($_POST['pvp_'.$num]);
@@ -337,7 +346,7 @@ class compras_albaran extends fs_controller
                      $linea->idalbaran = $this->albaran->idalbaran;
                      $linea->descripcion = $_POST['desc_'.$num];
                      
-                     if( !$serie->siniva AND $proveedor->regimeniva != 'Exento' )
+                     if( !$serie->siniva AND $regimeniva != 'Exento' )
                      {
                         $imp0 = $this->impuesto->get_by_iva($_POST['iva_'.$num]);
                         if($imp0)

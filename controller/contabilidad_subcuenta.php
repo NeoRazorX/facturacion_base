@@ -75,8 +75,7 @@ class contabilidad_subcuenta extends fs_controller
          {
             $this->puntear();
          }
-         
-         if( isset($_GET['genlm']) )
+         else if( isset($_GET['genlm']) )
          {
             /// generamos el PDF del libro mayor si no existe
             $libro_mayor = new libro_mayor();
@@ -102,7 +101,7 @@ class contabilidad_subcuenta extends fs_controller
       }
       else
       {
-         $this->new_error_msg("Subcuenta no encontrada.");
+         $this->new_error_msg("Subcuenta no encontrada.", 'error', FALSE, FALSE);
          $this->ppage = $this->page->get('contabilidad_cuentas');
       }
    }

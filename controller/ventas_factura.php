@@ -158,7 +158,9 @@ class ventas_factura extends fs_controller
          $this->factura->full_test();
       }
       else
-         $this->new_error_msg("¡Factura de cliente no encontrada!");
+      {
+         $this->new_error_msg("¡Factura de cliente no encontrada!", 'error', FALSE, FALSE);
+      }
    }
    
    public function url()
@@ -292,6 +294,12 @@ class ventas_factura extends fs_controller
          if( $asiento_factura->generar_asiento_venta($factura) )
          {
             $this->new_message("<a href='".$asiento_factura->asiento->url()."'>Asiento</a> generado correctamente.");
+            
+            if(!$this->empresa->contintegrada)
+            {
+               $this->new_message("¿Quieres que los asientos se generen automáticamente?"
+                       . " Activa la <a href='index.php?page=admin_empresa#facturacion'>Contabilidad integrada</a>.");
+            }
          }
          
          foreach($asiento_factura->errors as $err)
@@ -347,7 +355,7 @@ class ventas_factura extends fs_controller
             /// nos aseguramos que el cliente tenga subcuenta en el ejercicio actual
             $subcli = FALSE;
             $eje = $this->ejercicio->get_by_fecha( $this->today() );
-            if($eje)
+            if($eje AND $this->cliente)
             {
                $subcli = $this->cliente->get_subcuenta($eje->codejercicio);
             }

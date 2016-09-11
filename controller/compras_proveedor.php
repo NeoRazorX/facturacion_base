@@ -63,124 +63,125 @@ class compras_proveedor extends fs_controller
          $this->proveedor = $proveedor->get($_GET['cod']);
       }
       
-      
-      /// ¿Hay que hacer algo más?
-      if( isset($_GET['delete_cuenta']) ) /// eliminar una cuenta bancaria
-      {
-         $cuenta = $this->cuenta_banco->get($_GET['delete_cuenta']);
-         if($cuenta)
-         {
-            if( $cuenta->delete() )
-            {
-               $this->new_message('Cuenta bancaria eliminada correctamente.');
-            }
-            else
-               $this->new_error_msg('Imposible eliminar la cuenta bancaria.');
-         }
-         else
-            $this->new_error_msg('Cuenta bancaria no encontrada.');
-      }
-      else if( isset($_GET['delete_dir']) ) /// eliminar una dirección
-      {
-         $dir = new direccion_proveedor();
-         $dir0 = $dir->get($_GET['delete_dir']);
-         if($dir0)
-         {
-            if( $dir0->delete() )
-            {
-               $this->new_message('Dirección eliminada correctamente.');
-            }
-            else
-               $this->new_error_msg('Imposible eliminar la dirección.');
-         }
-         else
-            $this->new_error_msg('Dirección no encontrada.');
-      }
-      else if( isset($_POST['coddir']) ) /// añadir/modificar una dirección
-      {
-         $direccion = new direccion_proveedor();
-         if($_POST['coddir'] != '')
-         {
-            $direccion = $direccion->get($_POST['coddir']);
-         }
-         $direccion->apartado = $_POST['apartado'];
-         $direccion->ciudad = $_POST['ciudad'];
-         $direccion->codpais = $_POST['pais'];
-         $direccion->codpostal = $_POST['codpostal'];
-         $direccion->codproveedor = $this->proveedor->codproveedor;
-         $direccion->descripcion = $_POST['descripcion'];
-         $direccion->direccion = $_POST['direccion'];
-         $direccion->direccionppal = isset($_POST['direccionppal']);
-         $direccion->provincia = $_POST['provincia'];
-         if( $direccion->save() )
-         {
-            $this->new_message("Dirección guardada correctamente.");
-         }
-         else
-            $this->new_error_msg("¡Imposible guardar la dirección!");
-      }
-      else if( isset($_POST['iban']) ) /// añadir/modificar una cuenta bancaria
-      {
-         if( isset($_POST['codcuenta']) )
-         {
-            $cuentab = $this->cuenta_banco->get($_POST['codcuenta']);
-         }
-         else
-         {
-            $cuentab = new cuenta_banco_proveedor();
-            $cuentab->codproveedor = $this->proveedor->codproveedor;
-         }
-         
-         $cuentab->descripcion = $_POST['descripcion'];
-         $cuentab->iban = $_POST['iban'];
-         $cuentab->swift = $_POST['swift'];
-         $cuentab->principal = isset($_POST['principal']);
-         
-         if( $cuentab->save() )
-         {
-            $this->new_message('Cuenta bancaria guardada correctamente.');
-         }
-         else
-            $this->new_error_msg('Imposible guardar la cuenta bancaria.');
-      }
-      else if( isset($_POST['codproveedor']) ) /// modificar el proveedor
-      {
-         $this->proveedor->nombre = $_POST['nombre'];
-         $this->proveedor->razonsocial = $_POST['razonsocial'];
-         $this->proveedor->tipoidfiscal = $_POST['tipoidfiscal'];
-         $this->proveedor->cifnif = $_POST['cifnif'];
-         $this->proveedor->telefono1 = $_POST['telefono1'];
-         $this->proveedor->telefono2 = $_POST['telefono2'];
-         $this->proveedor->fax = $_POST['fax'];
-         $this->proveedor->email = $_POST['email'];
-         $this->proveedor->web = $_POST['web'];
-         $this->proveedor->observaciones = $_POST['observaciones'];
-         $this->proveedor->codpago = $_POST['codpago'];
-         $this->proveedor->coddivisa = $_POST['coddivisa'];
-         $this->proveedor->regimeniva = $_POST['regimeniva'];
-         $this->proveedor->acreedor = isset($_POST['acreedor']);
-         $this->proveedor->personafisica = isset($_POST['personafisica']);
-         
-         $this->proveedor->codserie = NULL;
-         if($_POST['codserie'] != '')
-         {
-            $this->proveedor->codserie = $_POST['codserie'];
-         }
-         
-         if( $this->proveedor->save() )
-         {
-            $this->new_message('Datos del proveedor modificados correctamente.');
-         }
-         else
-            $this->new_error_msg('¡Imposible modificar los datos del proveedor!');
-      }
-      
       if($this->proveedor)
       {
          $this->page->title = $this->proveedor->codproveedor;
+         
+         /// ¿Hay que hacer algo más?
+         if( isset($_GET['delete_cuenta']) ) /// eliminar una cuenta bancaria
+         {
+            $cuenta = $this->cuenta_banco->get($_GET['delete_cuenta']);
+            if($cuenta)
+            {
+               if( $cuenta->delete() )
+               {
+                  $this->new_message('Cuenta bancaria eliminada correctamente.');
+               }
+               else
+                  $this->new_error_msg('Imposible eliminar la cuenta bancaria.');
+            }
+            else
+               $this->new_error_msg('Cuenta bancaria no encontrada.');
+         }
+         else if( isset($_GET['delete_dir']) ) /// eliminar una dirección
+         {
+            $dir = new direccion_proveedor();
+            $dir0 = $dir->get($_GET['delete_dir']);
+            if($dir0)
+            {
+               if( $dir0->delete() )
+               {
+                  $this->new_message('Dirección eliminada correctamente.');
+               }
+               else
+                  $this->new_error_msg('Imposible eliminar la dirección.');
+            }
+            else
+               $this->new_error_msg('Dirección no encontrada.');
+         }
+         else if( isset($_POST['coddir']) ) /// añadir/modificar una dirección
+         {
+            $direccion = new direccion_proveedor();
+            if($_POST['coddir'] != '')
+            {
+               $direccion = $direccion->get($_POST['coddir']);
+            }
+            $direccion->apartado = $_POST['apartado'];
+            $direccion->ciudad = $_POST['ciudad'];
+            $direccion->codpais = $_POST['pais'];
+            $direccion->codpostal = $_POST['codpostal'];
+            $direccion->codproveedor = $this->proveedor->codproveedor;
+            $direccion->descripcion = $_POST['descripcion'];
+            $direccion->direccion = $_POST['direccion'];
+            $direccion->direccionppal = isset($_POST['direccionppal']);
+            $direccion->provincia = $_POST['provincia'];
+            if( $direccion->save() )
+            {
+               $this->new_message("Dirección guardada correctamente.");
+            }
+            else
+               $this->new_error_msg("¡Imposible guardar la dirección!");
+         }
+         else if( isset($_POST['iban']) ) /// añadir/modificar una cuenta bancaria
+         {
+            if( isset($_POST['codcuenta']) )
+            {
+               $cuentab = $this->cuenta_banco->get($_POST['codcuenta']);
+            }
+            else
+            {
+               $cuentab = new cuenta_banco_proveedor();
+               $cuentab->codproveedor = $this->proveedor->codproveedor;
+            }
+            
+            $cuentab->descripcion = $_POST['descripcion'];
+            $cuentab->iban = $_POST['iban'];
+            $cuentab->swift = $_POST['swift'];
+            $cuentab->principal = isset($_POST['principal']);
+            
+            if( $cuentab->save() )
+            {
+               $this->new_message('Cuenta bancaria guardada correctamente.');
+            }
+            else
+               $this->new_error_msg('Imposible guardar la cuenta bancaria.');
+         }
+         else if( isset($_POST['codproveedor']) ) /// modificar el proveedor
+         {
+            $this->proveedor->nombre = $_POST['nombre'];
+            $this->proveedor->razonsocial = $_POST['razonsocial'];
+            $this->proveedor->tipoidfiscal = $_POST['tipoidfiscal'];
+            $this->proveedor->cifnif = $_POST['cifnif'];
+            $this->proveedor->telefono1 = $_POST['telefono1'];
+            $this->proveedor->telefono2 = $_POST['telefono2'];
+            $this->proveedor->fax = $_POST['fax'];
+            $this->proveedor->email = $_POST['email'];
+            $this->proveedor->web = $_POST['web'];
+            $this->proveedor->observaciones = $_POST['observaciones'];
+            $this->proveedor->codpago = $_POST['codpago'];
+            $this->proveedor->coddivisa = $_POST['coddivisa'];
+            $this->proveedor->regimeniva = $_POST['regimeniva'];
+            $this->proveedor->acreedor = isset($_POST['acreedor']);
+            $this->proveedor->personafisica = isset($_POST['personafisica']);
+            
+            $this->proveedor->codserie = NULL;
+            if($_POST['codserie'] != '')
+            {
+               $this->proveedor->codserie = $_POST['codserie'];
+            }
+            
+            if( $this->proveedor->save() )
+            {
+               $this->new_message('Datos del proveedor modificados correctamente.');
+            }
+            else
+               $this->new_error_msg('¡Imposible modificar los datos del proveedor!');
+         }
       }
       else
-         $this->new_error_msg("¡Proveedor no encontrado!");
+      {
+         $this->new_error_msg("¡Proveedor no encontrado!", 'error', FALSE, FALSE);
+      }
    }
    
    public function url()

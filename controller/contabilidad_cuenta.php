@@ -49,7 +49,9 @@ class contabilidad_cuenta extends fs_controller
          $subc0->idcuenta = $_POST['idcuenta'];
          
          if( $subc0->save() )
+         {
             header( 'Location: '.$subc0->url() );
+         }
          else
             $this->new_error_msg('Error al crear la subcuenta.');
          
@@ -64,7 +66,9 @@ class contabilidad_cuenta extends fs_controller
             $this->cuenta = $subc1->get_cuenta();
             
             if( $subc1->delete() )
+            {
                $this->new_message('Subcuenta eliminada correctamente.');
+            }
             else
                $this->new_error_msg('Error al eliminar la subcuenta.');
          }
@@ -79,12 +83,16 @@ class contabilidad_cuenta extends fs_controller
          {
             $this->cuenta->descripcion = $_POST['descripcion'];
             if($_POST['idcuentaesp'] == '---')
+            {
                $this->cuenta->idcuentaesp = NULL;
+            }
             else
                $this->cuenta->idcuentaesp = $_POST['idcuentaesp'];
             
             if( $this->cuenta->save() )
+            {
                $this->new_message('Cuenta modificada correctamente.');
+            }
             else
                $this->new_error_msg('Error al modificar la cuenta.');
          }
@@ -106,7 +114,7 @@ class contabilidad_cuenta extends fs_controller
       }
       else
       {
-         $this->new_error_msg("Cuenta no encontrada.");
+         $this->new_error_msg("Cuenta no encontrada.", 'error', FALSE, FALSE);
          $this->ppage = $this->page->get('contabilidad_cuentas');
       }
    }
@@ -114,9 +122,13 @@ class contabilidad_cuenta extends fs_controller
    public function url()
    {
       if( !isset($this->cuenta) )
+      {
          return parent::url();
+      }
       else if($this->cuenta)
+      {
          return $this->cuenta->url();
+      }
       else
          return $this->page->url();
    }
