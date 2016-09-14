@@ -975,7 +975,7 @@ class factura_cliente extends \fs_model
                $this->new_error_msg("Esta factura apunta a un <a href='".$this->asiento_url()."'>asiento incorrecto</a>.");
                $status = FALSE;
             }
-            else if($this->coddivisa == $this->default_items->coddivisa() AND !$this->floatcmp($asiento->importe, abs($this->total)) )
+            else if($this->coddivisa == $this->default_items->coddivisa() AND !$this->floatcmp($asiento->importe, abs($this->total+$this->totalirpf)) )
             {
                $this->new_error_msg("El importe del asiento es distinto al de la factura.");
                $status = FALSE;
@@ -985,7 +985,11 @@ class factura_cliente extends \fs_model
                $asientop = $this->get_asiento_pago();
                if($asientop)
                {
-                  if( !$this->floatcmp($asiento->importe, $asientop->importe) )
+                  if($this->totalirpf != 0)
+                  {
+                     /// excluimos la comprobación si la factura tiene IRPF
+                  }
+                  else if( !$this->floatcmp($asiento->importe, $asientop->importe) )
                   {
                      $this->new_error_msg('No coinciden los importes de los asientos.');
                      $status = FALSE;
@@ -1511,13 +1515,6 @@ class factura_cliente extends \fs_model
    
    public function cron_job()
    {
-      /**
-       * Recalculamos totaleuros de facturas antiguas.
-       */
-      foreach($this->all_desde('1-1-2016', '1-9-2016') as $fac)
-      {
-         $fac->save();
-         echo '.';
-      }
+      
    }
 }

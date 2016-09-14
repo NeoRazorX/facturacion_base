@@ -1039,23 +1039,9 @@ class albaran_cliente extends \fs_model
    public function cron_job()
    {
       /**
-       * Ponemos a NULL todos los idfactura = 0
-       */
-      $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura = '0';");
-      
-      /**
        * Ponemos a NULL todos los idfactura que no están en facturascli
        */
       $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura NOT IN"
               . " (SELECT idfactura FROM facturascli);");
-      
-      /**
-       * Recalculamos totaleuros de albaranes antiguos.
-       */
-      foreach($this->all_desde('1-1-2016', '1-9-2016') as $alb)
-      {
-         $alb->save();
-         echo '.';
-      }
    }
 }

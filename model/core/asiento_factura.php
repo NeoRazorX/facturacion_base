@@ -460,7 +460,13 @@ class asiento_factura
                $factura->idasiento = $asiento->idasiento;
                if($factura->pagada)
                {
-                  $factura->idasientop = $this->generar_asiento_pago($asiento, $factura->codpago, $factura->fecha);
+                  $factura->idasientop = $this->generar_asiento_pago(
+                          $asiento,
+                          $factura->codpago,
+                          $factura->fecha,
+                          $subcuenta_prov,
+                          $partida0->haber
+                  );
                }
                
                if( $factura->save() )
@@ -845,7 +851,13 @@ class asiento_factura
                $factura->idasiento = $asiento->idasiento;
                if($factura->pagada)
                {
-                  $factura->idasientop = $this->generar_asiento_pago($asiento, $factura->codpago, $factura->fecha);
+                  $factura->idasientop = $this->generar_asiento_pago(
+                          $asiento,
+                          $factura->codpago,
+                          $factura->fecha,
+                          $subcuenta_cli,
+                          $partida0->debe
+                  );
                }
                
                if( $factura->save() )
@@ -885,7 +897,7 @@ class asiento_factura
     * @param asiento $asiento
     * @param type $codpago
     * @param type $fecha
-    * @param type $subclipro
+    * @param subcuenta $subclipro
     * @param type $importe
     * @return asiento
     */
@@ -1064,7 +1076,8 @@ class asiento_factura
          }
          else
          {
-            $this->new_error_msg('No se ha encontrado la partida necesaria para generar el asiento '.$nasientop->concepto);
+            $this->new_error_msg('No se ha encontrado la partida necesaria para generar el asiento'
+                    . ' de pago de <a href="'.$asiento->url().'">'.$asiento->concepto.'</a>');
             $nasientop->delete();
             $nasientop->idasiento = NULL;
          }

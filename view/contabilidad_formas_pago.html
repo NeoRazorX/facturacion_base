@@ -77,7 +77,7 @@
             </td>
             <td>
                {if="$fsc->button_plazos"}
-                  <input type="hidden" name="vencimiento" value="$value->vencimiento"/>
+                  <input type="hidden" name="vencimiento" value="{$value->vencimiento}"/>
                   {if="$value->genrecibos=='Emitidos'"}
                   <a href="index.php?page={$fsc->button_plazos}&cod={$value->codpago}" class="btn btn-sm btn-block btn-default">
                      <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>&nbsp; Plazos de pago
