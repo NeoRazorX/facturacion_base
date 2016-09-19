@@ -162,42 +162,52 @@
                </div>
                <div class="panel-body">
                   <div class="row">
-                        <div class="col-sm-3">
-                           <div class="form-group">
-                              Permitir stock negativo:
-                              <select name="stock_negativo" class="form-control">
-                                 <option value="1"{if="$GLOBALS['config2']['stock_negativo']==1"} selected=''{/if}>Si</option>
-                                 <option value="0"{if="$GLOBALS['config2']['stock_negativo']==0"} selected=''{/if}>No</option>
-                              </select>
-                           </div>
+                     <div class="col-sm-3">
+                        <div class="form-group">
+                           Permitir stock negativo:
+                           <select name="stock_negativo" class="form-control">
+                              <option value="1"{if="$GLOBALS['config2']['stock_negativo']==1"} selected=''{/if}>Si</option>
+                              <option value="0"{if="$GLOBALS['config2']['stock_negativo']==0"} selected=''{/if}>No</option>
+                           </select>
                         </div>
-                        <div class="col-sm-3">
-                           <div class="form-group">
-                              Permitir ventas sin stock:
-                              <select name="ventas_sin_stock" class="form-control">
-                                 <option value="1"{if="$GLOBALS['config2']['ventas_sin_stock']==1"} selected=''{/if}>Si</option>
-                                 <option value="0"{if="$GLOBALS['config2']['ventas_sin_stock']==0"} selected=''{/if}>No</option>
-                              </select>
-                           </div>
+                     </div>
+                     <div class="col-sm-3">
+                        <div class="form-group">
+                           Permitir ventas sin stock:
+                           <select name="ventas_sin_stock" class="form-control">
+                              <option value="1"{if="$GLOBALS['config2']['ventas_sin_stock']==1"} selected=''{/if}>Si</option>
+                              <option value="0"{if="$GLOBALS['config2']['ventas_sin_stock']==0"} selected=''{/if}>No</option>
+                           </select>
                         </div>
-                        <div class="col-sm-3">
-                           <div class="form-group">
-                              Precio de coste:
-                              <select name="cost_is_average" class="form-control">
-                                 <option value="1"{if="$GLOBALS['config2']['cost_is_average']==1"} selected=''{/if}>Calculado</option>
-                                 <option value="0"{if="$GLOBALS['config2']['cost_is_average']==0"} selected=''{/if}>Editable</option>
-                              </select>
-                           </div>
+                     </div>
+                     <div class="col-sm-3">
+                        <div class="form-group">
+                           Precio de coste:
+                           <select name="cost_is_average" class="form-control">
+                              <option value="1"{if="$GLOBALS['config2']['cost_is_average']==1"} selected=''{/if}>Calculado</option>
+                              <option value="0"{if="$GLOBALS['config2']['cost_is_average']==0"} selected=''{/if}>Manual</option>
+                           </select>
+                           <p class="help-block">
+                              <b>Calculado:</b> se calculará automáticamente el precio de coste de los
+                              artículos como la media de precio de las últimas compras.
+                              <br/>
+                              <b>Manual:</b> el precio de coste será el que indiques manualmente.
+                              Y no se actualizará con cada compra.
+                           </p>
                         </div>
-                        <div class="col-sm-3">
-                           <div class="form-group">
-                              Al comprar, añadir con:
-                              <select name="precio_compra" class="form-control">
-                                 <option value="coste"{if="$GLOBALS['config2']['precio_compra']=='coste'"} selected=''{/if}>Precio de coste</option>
-                                 <option value="pvp"{if="$GLOBALS['config2']['precio_compra']=='pvp'"} selected=''{/if}>PVP</option>
-                              </select>
-                           </div>
+                     </div>
+                     <div class="col-sm-3">
+                        <div class="form-group">
+                           Al comprar, añadir con:
+                           <select name="precio_compra" class="form-control">
+                              <option value="coste"{if="$GLOBALS['config2']['precio_compra']=='coste'"} selected=''{/if}>Precio de compra</option>
+                              <option value="pvp"{if="$GLOBALS['config2']['precio_compra']=='pvp'"} selected=''{/if}>Precio de venta</option>
+                           </select>
+                           <p class="help-block">
+                              El precio de compra es el último precio al que hayas comprado al proveedor.
+                           </p>
                         </div>
+                     </div>
                   </div>
                </div>
                <div class="panel-footer text-right">
@@ -239,10 +249,14 @@
                      <a href="{$fsc->pais->url()}">País</a>:
                   </label>
                   <div class="col-sm-10">
-                     <select name="scodpais" class="form-control col-sm-10">
-                        {loop="$fsc->pais->all()"}
-                        <option value="{$value->codpais}"{if="$value->is_default()"} selected=""{/if}>{$value->nombre}</option>
-                        {/loop}
+                     <select name="scodpais" class="form-control">
+                     {loop="$fsc->pais->all()"}
+                        {if="$value->is_default()"}
+                        <option value="{$value->codpais}" selected="">{$value->nombre}</option>
+                        {else}
+                        <option value="{$value->codpais}">{$value->nombre}</option>
+                        {/if}
+                     {/loop}
                      </select>
                   </div>
                </div>

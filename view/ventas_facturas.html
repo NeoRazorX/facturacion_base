@@ -93,7 +93,7 @@
             </a>
             {if="$fsc->huecos"}
             <button class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_huecos">
-               <span class="glyphicon glyphicon-exclamation-sign"></span> &nbsp; Huecos
+               <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp; Huecos
             </button>
             {/if}
             {loop="$fsc->extensions"}
@@ -105,7 +105,7 @@
       </div>
       <div class="col-sm-4 col-xs-6 text-right">
          <a id="b_buscar_lineas" class="btn btn-sm btn-info" title="Buscar en las líneas">
-            <span class="glyphicon glyphicon-search"></span> &nbsp; Líneas
+            <span class="glyphicon glyphicon-search"></span>&nbsp; Líneas
          </a>
          <div class="btn-group">
             <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
@@ -364,6 +364,7 @@
             {else}
             <span class="label label-danger" title="Cliente desconocido">???</span>
             {/if}
+            {if="!$value->cifnif"}<span class="label label-warning" title="Sin {#FS_CIFNIF#}"><s>{#FS_CIFNIF#}</s></span>{/if}
          </td>
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right" title="{$fsc->show_precio($fsc->euro_convert($value->totaleuros, $value->coddivisa, $value->tasaconv))}">

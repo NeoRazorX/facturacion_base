@@ -31,7 +31,14 @@
          <div class="col-sm-6">
             <h1 style="margin-top: 5px; margin-bottom: 0px;">
                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-               <a href="{$fsc->cliente_s->url()}">{$fsc->cliente_s->nombre}</a>
+               <a href="{$fsc->cliente_s->url()}">{$fsc->cliente_s->razonsocial}</a>
+               {if="$fsc->cliente_s->razonsocial!=$fsc->cliente_s->nombre"}
+               <small>
+                  <a href="#" onclick="alert('Cliente conocido como: {$fsc->cliente_s->nombre}')">
+                     <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                  </a>
+               </small>
+               {/if}
             </h1>
             {loop="$fsc->grupo->all()"}
                {if="$value->codgrupo==$fsc->cliente_s->codgrupo"}
@@ -742,7 +749,7 @@
    </div>
 </div>
 {elseif="!$fsc->user->get_agente()"}
-<div class="container">
+<div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
          <div class="page-header">
@@ -751,15 +758,15 @@
                No tienes un empleado asociado
             </h1>
          </div>
+         <p class="help-block">
+            No tienes un emleado asociado a tu <a href="{$fsc->user->url()}">usuario</a>.
+            Habla con el administrador para que te asigne un empleado.
+         </p>
+         <p class="help-block">
+            Si crees que es un error de FacturaScripts, haz clic en el botón de ayuda,
+            arriba a la derecha, e infórmanos del error.
+         </p>
       </div>
-      <p class="help-block">
-         No tienes un emleado asociado a tu <a href="{$fsc->user->url()}">usuario</a>.
-         Habla con el administrador para que te asigne un empleado.
-      </p>
-      <p class="help-block">
-         Si crees que es un error de FacturaScripts, haz clic en el botón de ayuda,
-         arriba a la derecha, e infórmanos del error.
-      </p>
    </div>
 </div>
 {else}
@@ -945,15 +952,23 @@
    </div>
 </div>
 
-<div class="container" style="margin-top: 10px; margin-bottom: 100px;">
+<div class="container-fluid">
    <div class="row">
-      <div class="col-lg-12">
-         <h1>Paso 1:</h1>
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>Paso 1:</h1>
+         </div>
          <p>Selecciona el cliente al que quieres realizar la venta.</p>
-         <a href="#" class="btn btn-block btn-default" data-toggle="modal" data-target="#modal_cliente">Selecciona el cliente</a>
-         <h2>Paso 2:</h2>
+         <a href="#" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_cliente">
+            <span class="glyphicon glyphicon-search"></span>&nbsp; Selecciona el cliente
+         </a>
+         <div class="page-header">
+            <h2>Paso 2:</h2>
+         </div>
          <p>Introduce línea a línea todos los artículos de la venta.</p>
-         <h2>Paso 3:</h2>
+         <div class="page-header">
+            <h2>Paso 3:</h2>
+         </div>
          <p>Pulsa el botón guardar.</p>
       </div>
    </div>

@@ -166,11 +166,11 @@ class articulo_proveedor extends \fs_model
       }
       else
       {
-         $data = $this->db->select("SELECT nombre FROM proveedores WHERE codproveedor = ".$this->var2str($this->codproveedor).";");
+         $data = $this->db->select("SELECT razonsocial FROM proveedores WHERE codproveedor = ".$this->var2str($this->codproveedor).";");
          if($data)
          {
-            self::$nombres[$this->codproveedor] = $data[0]['nombre'];
-            return $data[0]['nombre'];
+            self::$nombres[$this->codproveedor] = $data[0]['razonsocial'];
+            return $data[0]['razonsocial'];
          }
          else
             return '-';

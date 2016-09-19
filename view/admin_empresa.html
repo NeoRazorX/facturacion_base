@@ -485,51 +485,53 @@
                         <p class="help-block">El {#FS_IRPF#} se define para cada {#FS_SERIE#}.</p>
                      </div>
                   </div>
-                  <div class="col-sm-4">
-                     <div class="checkbox">
-                        <label>
-                           {if="$fsc->empresa->contintegrada"}
-                           <input type="checkbox" name="contintegrada" value="TRUE" checked=""/>
-                           {else}
-                           <input type="checkbox" name="contintegrada" value="TRUE"/>
-                           {/if}
-                           Contabilidad integrada
-                        </label>
+                  <div class="row">
+                     <div class="col-sm-4">
+                        <div class="checkbox">
+                           <label>
+                              {if="$fsc->empresa->contintegrada"}
+                              <input type="checkbox" name="contintegrada" value="TRUE" checked=""/>
+                              {else}
+                              <input type="checkbox" name="contintegrada" value="TRUE"/>
+                              {/if}
+                              Contabilidad integrada
+                           </label>
+                        </div>
+                        <div class="checkbox">
+                           <label>
+                              {if="$fsc->empresa->recequivalencia"}
+                              <input type="checkbox" name="recequivalencia" value="TRUE" checked=""/>
+                              {else}
+                              <input type="checkbox" name="recequivalencia" value="TRUE"/>
+                              {/if}
+                              Aplicar recargo de equivalencia
+                           </label>
+                        </div>
                      </div>
-                     <div class="checkbox">
-                        <label>
-                           {if="$fsc->empresa->recequivalencia"}
-                           <input type="checkbox" name="recequivalencia" value="TRUE" checked=""/>
+                     <div class="col-sm-5">
+                        <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
+                        <select name="codpago" class="form-control">
+                        {loop="$fsc->forma_pago->all()"}
+                           {if="$fsc->empresa->codpago==$value->codpago"}
+                           <option value="{$value->codpago}" selected="">{$value->descripcion}</option>
                            {else}
-                           <input type="checkbox" name="recequivalencia" value="TRUE"/>
+                           <option value="{$value->codpago}">{$value->descripcion}</option>
                            {/if}
-                           Aplicar recargo de equivalencia
-                        </label>
+                        {/loop}
+                        </select>
                      </div>
-                  </div>
-                  <div class="col-sm-5">
-                     <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
-                     <select name="codpago" class="form-control">
-                     {loop="$fsc->forma_pago->all()"}
-                        {if="$fsc->empresa->codpago==$value->codpago"}
-                        <option value="{$value->codpago}" selected="">{$value->descripcion}</option>
-                        {else}
-                        <option value="{$value->codpago}">{$value->descripcion}</option>
-                        {/if}
-                     {/loop}
-                     </select>
-                  </div>
-                  <div class="col-sm-3">
-                     <a href="{$fsc->almacen->url()}">Almacén</a>:
-                     <select name="codalmacen" class="form-control">
-                     {loop="$fsc->almacen->all()"}
-                        {if="$fsc->empresa->codalmacen==$value->codalmacen"}
-                        <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
-                        {else}
-                        <option value="{$value->codalmacen}">{$value->nombre}</option>
-                        {/if}
-                     {/loop}
-                     </select>
+                     <div class="col-sm-3">
+                        <a href="{$fsc->almacen->url()}">Almacén</a>:
+                        <select name="codalmacen" class="form-control">
+                        {loop="$fsc->almacen->all()"}
+                           {if="$fsc->empresa->codalmacen==$value->codalmacen"}
+                           <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
+                           {else}
+                           <option value="{$value->codalmacen}">{$value->nombre}</option>
+                           {/if}
+                        {/loop}
+                        </select>
+                     </div>
                   </div>
                </div>
                <div class="panel-footer" style="text-align: right;">

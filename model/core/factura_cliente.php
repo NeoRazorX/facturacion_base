@@ -606,9 +606,17 @@ class factura_cliente extends \fs_model
                   $diferencia = round( ($this->neto-$t_neto) * 100 );
                   usort($lineasi, function($a, $b) {
                      if($a->totallinea == $b->totallinea)
+                     {
                         return 0;
+                     }
+                     else if($this->total < 0)
+                     {
+                        return ($a->totallinea < $b->totallinea) ? -1 : 1;
+                     }
                      else
+                     {
                         return ($a->totallinea < $b->totallinea) ? 1 : -1;
+                     }
                   });
                   
                   foreach($lineasi as $i => $value)
@@ -637,9 +645,17 @@ class factura_cliente extends \fs_model
                   $diferencia = round( ($this->totaliva-$t_iva) * 100 );
                   usort($lineasi, function($a, $b) {
                      if($a->totaliva == $b->totaliva)
+                     {
                         return 0;
+                     }
+                     else if($this->total < 0)
+                     {
+                        return ($a->totaliva < $b->totaliva) ? -1 : 1;
+                     }
                      else
+                     {
                         return ($a->totaliva < $b->totaliva) ? 1 : -1;
+                     }
                   });
                   
                   foreach($lineasi as $i => $value)

@@ -172,6 +172,14 @@
                      el mismo mes del año anterior hasta este mismo día.
                   {/if}
                </p>
+               {if="$fsc->empresa->codpais='ESP'"}
+               <p class="help-block">
+                  <a href="http://localhost/FS_2015/e/2016/index.php?page=contabilidad_nuevo_asiento#asistente">Cuota de autónomo</a>,
+                  <a href="http://localhost/FS_2015/e/2016/index.php?page=contabilidad_nuevo_asiento#asistente">modelo 130</a>,
+                  <a href="#" data-toggle="modal" data-target="#modal_303">modelos 303 y 390</a>,
+                  <a href="#" data-toggle="modal" data-target="#modal_347">modelo 347</a>.
+               </p>
+               {/if}
             </div>
             <div class="col-sm-3">
                <a href="index.php?page=informe_facturas" class="btn btn-lg btn-block btn-info">
@@ -569,6 +577,40 @@
       </div>
       {/if}
    {/loop}
+</div>
+
+<div class="modal fade" id="modal_303" tabindex="-1" role="dialog">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title">Modelos 303 y 390</h4>
+         </div>
+         <div class="modal-body">
+            Los modelos 303 y 390 para la hacienda española los tienes disponibles en el
+            <b>plugin modelos_303_390</b>.
+         </div>
+      </div>
+   </div>
+</div>
+
+<div class="modal fade" id="modal_347" tabindex="-1" role="dialog">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title">Modelos 303 y 390</h4>
+         </div>
+         <div class="modal-body">
+            El modelo 347 para la hacienda española lo tienes disponible en el
+            <b>plugin modelo_347</b>.
+         </div>
+      </div>
+   </div>
 </div>
 
 {include="footer"}

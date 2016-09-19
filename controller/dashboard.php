@@ -500,7 +500,14 @@ class dashboard extends fs_controller
       }
       else if($nuevo != $anterior)
       {
-         return ($nuevo*100/$anterior) - 100;
+         if($anterior < 0)
+         {
+            return 0 - (($nuevo*100/$anterior) - 100);
+         }
+         else
+         {
+            return ($nuevo*100/$anterior) - 100;
+         }
       }
       else
       {

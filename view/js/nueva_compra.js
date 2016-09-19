@@ -600,10 +600,13 @@ function buscar_articulos()
             {
                $("#search_results").html("<div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>\n\
                   <th class=\"text-left\">Referencia + descripción</th>\n\
-                  <th class=\"text-right\" width=\"80\">Coste</th>\n\
-                  <th class=\"text-right\" width=\"80\">Precio</th>\n\
+                  <th class=\"text-right\" width=\"80\">Compra</th>\n\
+                  <th class=\"text-right\" width=\"80\">Venta</th>\n\
                   <th class=\"text-right\" width=\"80\">Stock</th>\n\
-                  </tr></thead>"+items.join('')+"</table></div>");
+                  </tr></thead>"+items.join('')+"</table></div>\n\
+                  <p class='help-block'>&nbsp; <span class='glyphicon glyphicon-info-sign'></span>\n\
+                  Los precios de compra son los de este proveedor, o bien el precio de coste del artículo.\n\
+                  Puedes modificar esta configuración desde Admin &gt; Almacenes.</p>");
             }
          });
       }

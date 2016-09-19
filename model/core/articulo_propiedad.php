@@ -66,8 +66,10 @@ class articulo_propiedad extends \fs_model
       }
       else
       {
-         return $this->db->select("SELECT * FROM articulo_propiedades WHERE name = ".
-                 $this->var2str($this->name)." AND referencia = ".$this->var2str($this->referencia).";");
+         $sql = "SELECT * FROM ".$this->table_name." WHERE name = ".$this->var2str($this->name)
+                 ." AND referencia = ".$this->var2str($this->referencia).";";
+         
+         return $this->db->select($sql);
       }
    }
    
@@ -79,13 +81,13 @@ class articulo_propiedad extends \fs_model
    {
       if( $this->exists() )
       {
-         $sql = "UPDATE articulo_propiedades SET text = ".$this->var2str($this->text)
+         $sql = "UPDATE ".$this->table_name." SET text = ".$this->var2str($this->text)
                  ." WHERE name = ".$this->var2str($this->name)
                  ." AND referencia = ".$this->var2str($this->referencia).";";
       }
       else
       {
-         $sql = "INSERT INTO articulo_propiedades (name,referencia,text) VALUES
+         $sql = "INSERT INTO ".$this->table_name." (name,referencia,text) VALUES
                    (".$this->var2str($this->name)
                  .",".$this->var2str($this->referencia)
                  .",".$this->var2str($this->text).");";
@@ -100,8 +102,10 @@ class articulo_propiedad extends \fs_model
     */
    public function delete()
    {
-      return $this->db->exec("DELETE FROM articulo_propiedades WHERE name = ".
-                 $this->var2str($this->name)." AND referencia = ".$this->var2str($this->referencia).";");
+      $sql = "DELETE FROM ".$this->table_name." WHERE name = ".$this->var2str($this->name)
+              ." AND referencia = ".$this->var2str($this->referencia).";";
+      
+      return $this->db->exec($sql);
    }
    
    /**
@@ -113,7 +117,7 @@ class articulo_propiedad extends \fs_model
    {
       $vlist = array();
       
-      $data = $this->db->select("SELECT * FROM articulo_propiedades WHERE referencia = ".$this->var2str($ref).";");
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref).";");
       if($data)
       {
          foreach($data as $d)
@@ -151,9 +155,15 @@ class articulo_propiedad extends \fs_model
       return $done;
    }
    
+   /**
+    * Devuelve el valor de la propiedad $name del artículo con referencia $ref
+    * @param type $ref
+    * @param type $name
+    * @return boolean
+    */
    public function simple_get($ref, $name)
    {
-      $sql = "SELECT * FROM articulo_propiedades WHERE referencia = ".$this->var2str($ref)
+      $sql = "SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref)
               ." AND name = ".$this->var2str($name).";";
       $data = $this->db->select($sql);
       if($data)
@@ -164,9 +174,15 @@ class articulo_propiedad extends \fs_model
          return FALSE;
    }
    
+   /**
+    * Devuelve la referencia del artículo que tenga la propiedad $name con valor $text
+    * @param type $name
+    * @param type $text
+    * @return boolean
+    */
    public function simple_get_ref($name, $text)
    {
-      $sql = "SELECT * FROM articulo_propiedades WHERE text = ".$this->var2str($text)
+      $sql = "SELECT * FROM ".$this->table_name." WHERE text = ".$this->var2str($text)
               ." AND name = ".$this->var2str($name).";";
       $data = $this->db->select($sql);
       if($data)
@@ -177,9 +193,33 @@ class articulo_propiedad extends \fs_model
          return FALSE;
    }
    
+   /**
+    * Elimina una propiedad de un artículo.
+    * @param type $ref
+    * @param type $name
+    * @return type
+    */
    public function simple_delete($ref, $name)
    {
-      return $this->db->exec("DELETE FROM articulo_propiedades WHERE referencia = ".$this->var2str($ref)
-              ." AND name = ".$this->var2str($name).";");
+      $sql = "DELETE FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref)
+              ." AND name = ".$this->var2str($name).";";
+      
+      return $this->db->exec($sql);
+   }
+   
+   public function all($offset = 0, $limit = FS_ITEM_LIMIT)
+   {
+      $aplist = array();
+      
+      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY referencia ASC", $limit, $offset);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $aplist[] = new \articulo_propiedad($d);
+         }
+      }
+      
+      return $aplist;
    }
 }

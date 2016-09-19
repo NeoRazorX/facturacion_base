@@ -515,6 +515,13 @@
    </div>
    <div class="row">
       <div class="col-sm-3">
+         <a href="index.php?page=dashboard" class="btn btn-block btn-default">
+            <i class="fa fa-desktop fa-3x" aria-hidden="true"></i>
+            <br/>Inicio
+         </a>
+         <p class="help-block">
+            Página de inicio: resumen de compras, ventas, impuestos, beneficios...
+         </p>
          <a href="https://www.facturascripts.com/documentacion" target="_blank" class="btn btn-block btn-default">
             <i class="fa fa-info-circle fa-3x" aria-hidden="true"></i>
             <br/>Primeros pasos
@@ -525,8 +532,8 @@
             <b>Recargo de equivalencia</b>, traducciones, configuración de decimales, etc...
          </p>
       </div>
-      {if="!$fsc->empresa->can_send_mail()"}
       <div class="col-sm-3">
+         {if="!$fsc->empresa->can_send_mail()"}
          <a href="index.php?page=admin_empresa#email" target="_blank" class="btn btn-block btn-warning">
             <i class="fa fa-envelope fa-3x" aria-hidden="true"></i>
             <br/>Configurar email
@@ -536,8 +543,16 @@
             Puedes usar tu cuenta de <b>gmail</b>, <b>hotmail</b> o tu dominio personalizado
             para enviar documentos cómodamente desde FacturaScripts.
          </p>
+         {/if}
+         <a href="index.php?page=admin_home#descargas" target="_blank" class="btn btn-block btn-default">
+            <i class="fa fa-puzzle-piece fa-3x" aria-hidden="true"></i>
+            <br/>Plugins
+         </a>
+         <p class="help-block">
+            ¿Te falta algo? Revisa la lista de plugins disponibles en la sección
+            descargas del panel de control. Hay de todo, y con un desarrollo constante ;-)
+         </p>
       </div>
-      {/if}
       <div class="col-sm-3">
          <a href="https://www.facturascripts.com/store/producto/plugin-importarexportar-csv/" target="_blank" class="btn btn-block btn-default">
             <i class="fa fa-exchange fa-3x" aria-hidden="true"></i>
@@ -546,6 +561,14 @@
          <p class="help-block">
             Muchos programas permiten exportar datos a archivos <b>CSV o Excel</b>. Si es el caso,
             puedes usar el plugin Importar/Exportar CSV para copiar esos datos a FacturaScripts.
+         </p>
+         <a href="https://www.facturascripts.com/ideas#mejoras" target="_blank" class="btn btn-block btn-default">
+            <i class="fa fa-toggle-off fa-3x" aria-hidden="true"></i>
+            <br/>Mejoras
+         </a>
+         <p class="help-block">
+            Tenemos una serie de mejoras en el horno que te pueden interesar,
+            pero necesitan financiación ¿Te apuntas? Sólo necesitas <b>5 €</b>.
          </p>
       </div>
       <div class="col-sm-3">
@@ -557,29 +580,6 @@
             Si ya tienes facturas en otro programa y quieres empezar por un número
             concreto de factura, puedes modificar la numeración desde <b>Contabilidad &gt; Series</b>.
             Activa la <b>numeración personalizada</b> y elige el número inicial.
-         </p>
-      </div>
-   </div>
-   <div class="row">
-      <div class="col-sm-3"></div>
-      <div class="col-sm-3">
-         <a href="index.php?page=admin_home#descargas" target="_blank" class="btn btn-block btn-default">
-            <i class="fa fa-puzzle-piece fa-3x" aria-hidden="true"></i>
-            <br/>Plugins
-         </a>
-         <p class="help-block">
-            ¿Te falta algo? Revisa la lista de plugins disponibles en la sección
-            descargas del panel de control. Hay de todo, y con un desarrollo constante ;-)
-         </p>
-      </div>
-      <div class="col-sm-3">
-         <a href="https://www.facturascripts.com/ideas#mejoras" target="_blank" class="btn btn-block btn-default">
-            <i class="fa fa-toggle-off fa-3x" aria-hidden="true"></i>
-            <br/>Mejoras
-         </a>
-         <p class="help-block">
-            Tenemos una serie de mejoras en el horno que te pueden interesar,
-            pero necesitan financiación ¿Te apuntas? Sólo necesitas <b>5 €</b>.
          </p>
       </div>
    </div>

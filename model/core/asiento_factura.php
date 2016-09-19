@@ -37,6 +37,12 @@ require_model('proveedor.php');
 class asiento_factura
 {
    public $asiento;
+   public $messages;
+   public $errors;
+   public $soloasiento;
+   
+   private $articulo_propiedad;
+   private $articulo_propiedad_vacio;
    private $cuenta_banco;
    private $divisa;
    private $ejercicio;
@@ -45,20 +51,31 @@ class asiento_factura
    private $impuestos;
    private $subcuenta;
    
-   public $messages;
-   public $errors;
-   public $soloasiento;
-   
    public function __construct()
    {
+      /**
+       * Las subcuentas personalizadas para cada artículo se almacenan en articulo_propiedad.
+       * Para optimizar comprobamos si la tabla está vacía, así no hacemos consultas innecesarias.
+       */
+      $this->articulo_propiedad = new \articulo_propiedad();
+      $this->articulo_propiedad_vacio = TRUE;
+      foreach($this->articulo_propiedad->all() as $ap)
+      {
+         $this->articulo_propiedad_vacio = FALSE;
+         break;
+      }
+      
       $this->asiento = FALSE;
       $this->cuenta_banco = new \cuenta_banco();
       $this->divisa = new \divisa();
       $this->ejercicio = new \ejercicio();
       $this->empresa = new \empresa();
+      $this->errors = array();
       $this->forma_pago = new \forma_pago();
-      $this->subcuenta = new \subcuenta();
       
+      /**
+       * Pre-cargamos todos los impuestos para optimizar.
+       */
       $impuesto = new \impuesto();
       $this->impuestos = array();
       foreach( $impuesto->all() as $imp )
@@ -67,8 +84,8 @@ class asiento_factura
       }
       
       $this->messages = array();
-      $this->errors = array();
       $this->soloasiento = FALSE;
+      $this->subcuenta = new \subcuenta();
    }
    
    private function new_message($msg)
@@ -342,7 +359,13 @@ class asiento_factura
                foreach($factura->get_lineas() as $lin)
                {
                   $subcart = FALSE;
-                  $articulo = $art0->get($lin->referencia);
+                  
+                  $articulo = FALSE;
+                  if($lin->referencia)
+                  {
+                     $articulo = $art0->get($lin->referencia);
+                  }
+                  
                   if($articulo)
                   {
                      if($lin->irpf != 0)
@@ -451,8 +474,8 @@ class asiento_factura
             
             if($asiento_correcto)
             {
-               /// si es una factura rectificativa, invertimos los importes
-               if($factura->idfacturarect)
+               /// si es una factura negativa o rectificativa, invertimos los importes
+               if($factura->idfacturarect OR $factura->total < 0)
                {
                   $this->invertir_asiento($asiento);
                }
@@ -733,15 +756,17 @@ class asiento_factura
                /**
                 * Para cada artículo de la factura, buscamos su subcuenta de compra o compra con irpf
                 */
-               $ap = new \articulo_propiedad();
                foreach($factura->get_lineas() as $lin)
                {
                   $subcart = FALSE;
-                  $aprops = $ap->array_get($lin->referencia);
                   
-                  if( isset($aprops['codsubcuentaventa']) )
+                  if(!$this->articulo_propiedad_vacio)
                   {
-                     $subcart = $this->subcuenta->get_by_codigo($aprops['codsubcuentaventa'], $factura->codejercicio);
+                     $aprops = $this->articulo_propiedad->array_get($lin->referencia);
+                     if( isset($aprops['codsubcuentaventa']) )
+                     {
+                        $subcart = $this->subcuenta->get_by_codigo($aprops['codsubcuentaventa'], $factura->codejercicio);
+                     }
                   }
                   
                   if(!$subcart)
@@ -842,8 +867,8 @@ class asiento_factura
             
             if($asiento_correcto)
             {
-               /// si es una factura rectificativa, invertimos los importes
-               if($factura->idfacturarect)
+               /// si es una factura negativa o rectificativa, invertimos los importes
+               if($factura->idfacturarect OR $factura->total < 0)
                {
                   $this->invertir_asiento($asiento);
                }
@@ -903,6 +928,7 @@ class asiento_factura
     */
    public function generar_asiento_pago(&$asiento, $codpago = FALSE, $fecha = FALSE, $subclipro = FALSE, $importe = NULL)
    {
+      /// necesitamos un importe para asegurarnos de que la partida elegida es la correcta
       if( is_null($importe) )
       {
          $importe = $asiento->importe;
@@ -967,10 +993,6 @@ class asiento_factura
       {
          $this->new_error_msg('Ningún ejercico encontrado.');
       }
-      else if( !$eje->abierto() )
-      {
-         $this->new_error_msg('El ejercicio '.$eje->codejercicio.' está cerrado.');
-      }
       else if(!$subcaja)
       {
          $this->new_error_msg('No se ha encontrado ninguna subcuenta de caja para el ejercicio '
@@ -978,55 +1000,37 @@ class asiento_factura
       }
       else if( $nasientop->save() )
       {
-         /// buscamos la partida que coincida con el importe
+         /// elegimos la partida sobre la que hacer el pago
+         $seleccionar = 0;
          $encontrada = FALSE;
-         foreach($asiento->get_partidas() as $par)
+         foreach($asiento->get_partidas() as $i => $par)
          {
+            if($subclipro)
+            {
+               if($par->codsubcuenta == $subclipro->codsubcuenta)
+               {
+                  $seleccionar = $i;
+                  break;
+               }
+            }
+            
             if( $nasientop->floatcmp( abs($par->debe), $importe, FS_NF0) OR $nasientop->floatcmp( abs($par->debe), $importe2, FS_NF0) )
             {
-               if(!$subclipro)
-               {
-                  /// si no tenemos una subcuenta de cliente/proveedor, usamos la de la partida
-                  $subclipro = $this->subcuenta->get_by_codigo($par->codsubcuenta, $nasientop->codejercicio);
-               }
-               
-               if($subclipro)
-               {
-                  $partida1 = new \partida();
-                  $partida1->idasiento = $nasientop->idasiento;
-                  $partida1->concepto = $nasientop->concepto;
-                  $partida1->idsubcuenta = $subclipro->idsubcuenta;
-                  $partida1->codsubcuenta = $subclipro->codsubcuenta;
-                  $partida1->haber = $par->debe;
-                  $partida1->coddivisa = $par->coddivisa;
-                  $partida1->tasaconv = $par->tasaconv;
-                  $partida1->codserie = $par->codserie;
-                  $partida1->save();
-                  
-                  $partida2 = new \partida();
-                  $partida2->idasiento = $nasientop->idasiento;
-                  $partida2->concepto = $nasientop->concepto;
-                  $partida2->idsubcuenta = $subcaja->idsubcuenta;
-                  $partida2->codsubcuenta = $subcaja->codsubcuenta;
-                  $partida2->debe = $par->debe;
-                  $partida2->coddivisa = $par->coddivisa;
-                  $partida2->tasaconv = $par->tasaconv;
-                  $partida2->codserie = $par->codserie;
-                  $partida2->save();
-                  
-                  $nasientop->importe = $par->debe;
-                  $encontrada = TRUE;
-               }
-               else
-               {
-                  $this->new_error_msg('No se ha encontrado la subcuenta '.$par->codsubcuenta
-                          .' en el ejercicio '.$nasientop->codejercicio);
-                  $nasientop->delete();
-               }
+               $seleccionar = $i;
                break;
             }
             else if( $nasientop->floatcmp( abs($par->haber), $importe, FS_NF0) OR $nasientop->floatcmp( abs($par->haber), $importe2, FS_NF0) )
             {
+               $seleccionar = $i;
+               break;
+            }
+         }
+         
+         /// generamos las partidas
+         foreach($asiento->get_partidas() as $i => $par)
+         {
+            if($i == $seleccionar)
+            {
                if(!$subclipro)
                {
                   /// si no tenemos una subcuenta de cliente/proveedor, usamos la de la partida
@@ -1035,29 +1039,50 @@ class asiento_factura
                
                if($subclipro)
                {
+                  /// 1º partida
                   $partida1 = new \partida();
                   $partida1->idasiento = $nasientop->idasiento;
                   $partida1->concepto = $nasientop->concepto;
                   $partida1->idsubcuenta = $subclipro->idsubcuenta;
                   $partida1->codsubcuenta = $subclipro->codsubcuenta;
-                  $partida1->debe = $par->haber;
+                  
+                  if($par->debe != 0)
+                  {
+                     $partida1->haber = $par->debe;
+                     $nasientop->importe = $par->debe;
+                  }
+                  else
+                  {
+                     $partida1->debe = $par->haber;
+                     $nasientop->importe = $par->haber;
+                  }
+                  
                   $partida1->coddivisa = $par->coddivisa;
                   $partida1->tasaconv = $par->tasaconv;
                   $partida1->codserie = $par->codserie;
                   $partida1->save();
                   
+                  /// 2º partida
                   $partida2 = new \partida();
                   $partida2->idasiento = $nasientop->idasiento;
                   $partida2->concepto = $nasientop->concepto;
                   $partida2->idsubcuenta = $subcaja->idsubcuenta;
                   $partida2->codsubcuenta = $subcaja->codsubcuenta;
-                  $partida2->haber = $par->haber;
+                  
+                  if($par->debe != 0)
+                  {
+                     $partida2->debe = $par->debe;
+                  }
+                  else
+                  {
+                     $partida2->haber = $par->haber;
+                  }
+                  
                   $partida2->coddivisa = $par->coddivisa;
                   $partida2->tasaconv = $par->tasaconv;
                   $partida2->codserie = $par->codserie;
                   $partida2->save();
                   
-                  $nasientop->importe = $par->haber;
                   $encontrada = TRUE;
                }
                else

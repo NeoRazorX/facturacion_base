@@ -346,20 +346,20 @@ class asiento extends \fs_model
    
    public function fix()
    {
-      $debe = 0;
-      $haber = 0;
+      $importe_old = $this->importe;
+      $debe = $haber = 0;
       foreach($this->get_partidas() as $p)
       {
          $debe += $p->debe;
          $haber += $p->haber;
       }
       $total = $debe - $haber;
+      $this->importe = max( array( abs($debe), abs($haber) ) );
       
       /// corregimos descuadres de menos de 0.01
       if( $this->floatcmp($debe, $haber, 2) )
       {
-         $debe = 0;
-         $haber = 0;
+         $debe = $haber = 0;
          $partidas = $this->get_partidas();
          foreach($partidas as $p)
          {
@@ -368,10 +368,11 @@ class asiento extends \fs_model
             $p->haber = bround($p->haber, 2);
             $haber += $p->haber;
          }
+         
          /// si con el redondeo se soluciona el problema, pues genial!
          if( $this->floatcmp($debe, $haber) )
          {
-            $this->importe = max( array($debe, $haber) );
+            $this->importe = max( array( abs($debe), abs($haber) ) );
             foreach($partidas as $p)
             {
                $p->save();
@@ -396,8 +397,7 @@ class asiento extends \fs_model
                $partidas[0]->haber += $total;
             }
             
-            $debe = 0;
-            $haber = 0;
+            $debe = $haber = 0;
             foreach($partidas as $p)
             {
                $debe += $p->debe;
@@ -407,7 +407,7 @@ class asiento extends \fs_model
             /// si hemos resuelto el problema grabamos
             if( $this->floatcmp($debe, $haber) )
             {
-               $this->importe = max( array($debe, $haber) );
+               $this->importe = max( array( abs($debe), abs($haber) ) );
                foreach($partidas as $p)
                {
                   $p->save();
@@ -416,9 +416,14 @@ class asiento extends \fs_model
          }
       }
       
-      $status = TRUE;
+      /// si el importe ha cambiado, lo guardamos
+      if( !$this->floatcmp($this->importe, $importe_old) )
+      {
+         $this->save();
+      }
       
       /// comprobamos la factura asociada
+      $status = TRUE;
       $fac = $this->get_factura();
       if($fac)
       {
@@ -508,7 +513,7 @@ class asiento extends \fs_model
       return $this->db->exec("DELETE FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento).";");
    }
    
-   public function search($query, $offset=0)
+   public function search($query, $offset = 0)
    {
       $alist = array();
       $query = $this->no_html( mb_strtolower($query, 'UTF8') );
@@ -547,7 +552,7 @@ class asiento extends \fs_model
       return $alist;
    }
    
-   public function all($offset=0, $limit=FS_ITEM_LIMIT)
+   public function all($offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $alist = array();
       $sql = "SELECT * FROM ".$this->table_name." ORDER BY fecha DESC, numero DESC";

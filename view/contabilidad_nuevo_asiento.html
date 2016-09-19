@@ -231,6 +231,12 @@
    $(document).ready(function() {
       recalcular();
       document.f_asiento.concepto.focus();
+      
+      if(window.location.hash.substring(1) == 'asistente')
+      {
+         $('#tab_nuevo_asiento a[href="#asistente"]').tab('show');
+      }
+      
       $("#f_buscar_subcuentas").submit(function(event) {
          event.preventDefault();
          buscar_subcuentas();
@@ -319,7 +325,7 @@
       </div>
    </div>
    
-   <ul class="nav nav-tabs" role="tablist">
+   <ul id='tab_nuevo_asiento' class="nav nav-tabs" role="tablist">
       <li role="presentation" class="active">
          <a href="#lineas" aria-controls="lineas" role="tab" data-toggle="tab">
             <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
@@ -436,6 +442,14 @@
       <div role="tabpanel" class="tab-pane" id="asistente">
          <br/>
          <div class="container-fluid">
+            <div class="row">
+               <div class="col-sm-12">
+                  <p class='help-block'>
+                     Aquí dispones de un par de asistentes para generar asientos comunes.
+                     Recuerda que la <b>fecha</b> utilizada es la que tienes más arriba.
+                  </p>
+               </div>
+            </div>
             <div class="row">
                <div class="col-sm-4">
                   <div class="panel panel-default">
