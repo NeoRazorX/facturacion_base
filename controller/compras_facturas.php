@@ -505,22 +505,22 @@ class compras_facturas extends fs_controller
       $fact = $this->factura->get($_GET['delete']);
       if($fact)
       {
-         /// ¿Descontamos stock?
-         $art0 = new articulo();
-         foreach($fact->get_lineas() as $linea)
-         {
-            if( is_null($linea->idalbaran) )
-            {
-               $articulo = $art0->get($linea->referencia);
-               if($articulo)
-               {
-                  $articulo->sum_stock($fact->codalmacen, 0 - $linea->cantidad, TRUE);
-               }
-            }
-         }
-         
          if( $fact->delete() )
          {
+            /// Restauramos el stock
+            $art0 = new articulo();
+            foreach($fact->get_lineas() as $linea)
+            {
+               if( is_null($linea->idalbaran) )
+               {
+                  $articulo = $art0->get($linea->referencia);
+                  if($articulo)
+                  {
+                     $articulo->sum_stock($fact->codalmacen, 0 - $linea->cantidad, TRUE);
+                  }
+               }
+            }
+            
             $this->new_message("Factura de compra ".$fact->codigo." eliminada correctamente.", TRUE);
             $this->clean_last_changes();
          }

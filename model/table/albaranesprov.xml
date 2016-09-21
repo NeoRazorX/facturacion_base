@@ -165,6 +165,12 @@
       ON DELETE RESTRICT ON UPDATE CASCADE</consulta>
    </restriccion>
    <restriccion>
+      <nombre>ca_albaranesprov_facturas</nombre>
+      <consulta>FOREIGN KEY (idfactura)
+      REFERENCES facturasprov (idfactura)
+      ON DELETE SET NULL ON UPDATE CASCADE</consulta>
+   </restriccion>
+   <restriccion>
       <nombre>uniq_codigo_albaranesprov</nombre>
       <consulta>UNIQUE (codigo)</consulta>
    </restriccion>

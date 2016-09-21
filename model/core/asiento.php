@@ -23,6 +23,7 @@ require_model('ejercicio.php');
 require_model('factura_cliente.php');
 require_model('factura_proveedor.php');
 require_model('partida.php');
+require_model('regularizacion_iva.php');
 require_model('secuencia.php');
 
 /**
@@ -174,6 +175,11 @@ class asiento extends \fs_model
       return $this->coddivisa;
    }
    
+   /**
+    * Devuelve el asiento con el $id solicitado.
+    * @param type $id
+    * @return \asiento|boolean
+    */
    public function get($id)
    {
       if( isset($id) )
@@ -258,8 +264,7 @@ class asiento extends \fs_model
        * Comprobamos que el asiento no esté vacío o descuadrado.
        * También comprobamos que las subcuentas pertenezcan al mismo ejercicio.
        */
-      $debe = 0;
-      $haber = 0;
+      $debe = $haber = 0;
       $partidas = $this->get_partidas();
       if($partidas)
       {
@@ -290,7 +295,11 @@ class asiento extends \fs_model
          $this->new_error_msg( "Asiento descuadrado. Descuadre: ".round($debe-$haber, FS_NF0+1) );
          $status = FALSE;
       }
-      
+      else if( !$this->floatcmp($this->importe, max( array( abs($debe), abs($haber) ) ), FS_NF0, TRUE) )
+      {
+         $this->new_error_msg('Importe del asiento incorrecto.');
+         $status = FALSE;
+      }
       
       /// comprobamos que la fecha sea correcta
       $ejercicio = new \ejercicio();
@@ -493,24 +502,54 @@ class asiento extends \fs_model
    
    public function delete()
    {
-      /// desvinculamos la factura
-      $fac = $this->get_factura();
-      if($fac)
+      $bloquear = FALSE;
+      
+      $eje0 = new \ejercicio();
+      $ejercicio = $eje0->get($this->codejercicio);
+      if($ejercicio)
       {
-         if($fac->idasiento == $this->idasiento)
+         if( $ejercicio->abierto() )
          {
-            $fac->idasiento = NULL;
-            $fac->save();
+            $reg0 = new \regularizacion_iva();
+            if( $reg0->get_fecha_inside($this->fecha) )
+            {
+               $this->new_error_msg('El asiento se encuentra dentro de una regularización de '
+                       .FS_IVA.'. No se puede eliminar.');
+               $bloquear = TRUE;
+            }
+         }
+         else
+         {
+            $this->new_error_msg('El ejercicio '.$ejercicio->nombre.' está cerrado.');
+            $bloquear = TRUE;
          }
       }
       
-      /// eliminamos las partidas una a una para forzar la actualización de las subcuentas asociadas
-      foreach($this->get_partidas() as $p)
+      if($bloquear)
       {
-         $p->delete();
+         return FALSE;
       }
-      
-      return $this->db->exec("DELETE FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento).";");
+      else
+      {
+         /// desvinculamos la factura
+         $fac = $this->get_factura();
+         if($fac)
+         {
+            if($fac->idasiento == $this->idasiento)
+            {
+               $fac->idasiento = NULL;
+               $fac->save();
+            }
+         }
+         
+         /// eliminamos las partidas una a una para forzar la actualización de las subcuentas asociadas
+         foreach($this->get_partidas() as $p)
+         {
+            $p->delete();
+         }
+         
+         return $this->db->exec("DELETE FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento).";");
+      }
    }
    
    public function search($query, $offset = 0)
@@ -643,13 +682,31 @@ class asiento extends \fs_model
    
    public function cron_job()
    {
-      /*
-       * Bloqueamos (marcamos como no editables) los asientos de ejercicios
-       * ya cerrados.
+      /**
+       * Bloqueamos asientos de ejercicios cerrados o dentro de regularizaciones.
        */
-      $this->db->exec("UPDATE ".$this->table_name." SET editable = false
-         WHERE codejercicio IN (SELECT codejercicio FROM ejercicios WHERE estado = 'CERRADO');");
+      $eje0 = new \ejercicio();
+      $regiva0 = new \regularizacion_iva();
+      foreach($eje0->all() as $ej)
+      {
+         if( $ej->abierto() )
+         {
+            foreach($regiva0->all_from_ejercicio($ej->codejercicio) as $reg)
+            {
+               $this->db->exec("UPDATE ".$this->table_name." SET editable = false WHERE editable = true"
+                       ." AND codejercicio = ".$this->var2str($ej->codejercicio)
+                       ." AND fecha >= ".$this->var2str($reg->fechainicio)
+                       ." AND fecha <= ".$this->var2str($reg->fechafin).";");
+            }
+         }
+         else
+         {
+            $this->db->exec("UPDATE ".$this->table_name." SET editable = false WHERE editable = true"
+                    ." AND codejercicio = ".$this->var2str($ej->codejercicio).";");
+         }
+      }
       
+      echo "\nRenumerando asientos...";
       $this->renumerar();
    }
 }

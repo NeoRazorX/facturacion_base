@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('agencia_transporte.php');
 require_model('almacen.php');
 require_model('articulo.php');
 require_model('articulo_combinacion.php');
@@ -35,7 +36,6 @@ require_model('presupuesto_cliente.php');
 require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('tarifa.php');
-require_model('agencia_transporte.php');
 
 class nueva_venta extends fs_controller
 {

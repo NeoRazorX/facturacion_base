@@ -23,6 +23,7 @@ require_model('asiento.php');
 require_model('ejercicio.php');
 require_model('linea_iva_factura_proveedor.php');
 require_model('linea_factura_proveedor.php');
+require_model('regularizacion_iva.php');
 require_model('secuencia.php');
 require_model('serie.php');
 
@@ -293,14 +294,70 @@ class factura_proveedor extends \fs_model
    }
    
    /**
-    * Establece la fecha y la hora.
+    * Establece la fecha y la hora, pero respetando el ejercicio y las
+    * regularizaciones de IVA.
+    * Devuelve TRUE si se asigna una fecha u hora distinta a los solicitados.
     * @param type $fecha
     * @param type $hora
+    * @return boolean
     */
    public function set_fecha_hora($fecha, $hora)
    {
-      $this->fecha = $fecha;
-      $this->hora = $hora;
+      $cambio = FALSE;
+      
+      if( is_null($this->numero) ) /// nueva factura
+      {
+         $this->fecha = $fecha;
+         $this->hora = $hora;
+      }
+      else if($fecha != $this->fecha) /// factura existente y cambiamos fecha
+      {
+         $cambio = TRUE;
+         
+         $eje0 = new \ejercicio();
+         $ejercicio = $eje0->get($this->codejercicio);
+         if($ejercicio)
+         {
+            if( !$ejercicio->abierto() )
+            {
+               $this->new_error_msg('El ejercicio '.$ejercicio->nombre.' está cerrado. No se puede modificar la fecha.');
+            }
+            else if( $fecha == $ejercicio->get_best_fecha($fecha) )
+            {
+               $regiva0 = new \regularizacion_iva();
+               if( $regiva0->get_fecha_inside($fecha) )
+               {
+                  $this->new_error_msg('No se puede asignar la fecha '.$fecha.' porque ya hay'
+                          . ' una regularización de '.FS_IVA.' para ese periodo.');
+               }
+               else if( $regiva0->get_fecha_inside($this->fecha) )
+               {
+                  $this->new_error_msg('La factura se encuentra dentro de una regularización de '
+                          .FS_IVA.'. No se puede modificar la fecha.');
+               }
+               else
+               {
+                  $this->fecha = $fecha;
+                  $this->hora = $hora;
+                  $cambio = FALSE;
+               }
+            }
+            else
+            {
+               $this->new_error_msg('La fecha está fuera del rango del ejercicio '.$ejercicio->nombre);
+            }
+         }
+         else
+         {
+            $this->new_error_msg('Ejercicio no encontrado.');
+         }
+      }
+      else if($hora != $this->hora) /// factura existente y cambiamos hora
+      {
+         $this->hora = $hora;
+      }
+      
+      return $cambio;
    }
    
    public function url()
@@ -555,6 +612,11 @@ class factura_proveedor extends \fs_model
       return $devoluciones;
    }
    
+   /**
+    * Devuelve la factura de compra con el id proporcionado.
+    * @param type $id
+    * @return boolean|\factura_proveedor
+    */
    public function get($id)
    {
       $fact = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id).";");
@@ -707,7 +769,8 @@ class factura_proveedor extends \fs_model
          if( strtotime($this->fecha) < strtotime($eje0->fechainicio) OR strtotime($this->fecha) > strtotime($eje0->fechafin) )
          {
             $status = FALSE;
-            $this->new_error_msg("La fecha de esta factura está fuera del rango del <a target='_blank' href='".$eje0->url()."'>ejercicio</a>.");
+            $this->new_error_msg("La fecha de esta factura está fuera del rango del"
+                    . " <a target='_blank' href='".$eje0->url()."'>ejercicio</a>.");
          }
       }
       
@@ -737,27 +800,27 @@ class factura_proveedor extends \fs_model
       
       if( !$this->floatcmp($this->neto, $neto, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Valor neto de la factura incorrecto. Valor correcto: ".$neto);
+         $this->new_error_msg("Valor neto de la factura ".$this->codigo." incorrecto. Valor correcto: ".$neto);
          $status = FALSE;
       }
       else if( !$this->floatcmp($this->totaliva, $iva, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Valor totaliva de la factura incorrecto. Valor correcto: ".$iva);
+         $this->new_error_msg("Valor totaliva de la factura ".$this->codigo." incorrecto. Valor correcto: ".$iva);
          $status = FALSE;
       }
       else if( !$this->floatcmp($this->totalirpf, $irpf, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Valor totalirpf de la factura incorrecto. Valor correcto: ".$irpf);
+         $this->new_error_msg("Valor totalirpf de la factura ".$this->codigo." incorrecto. Valor correcto: ".$irpf);
          $status = FALSE;
       }
       else if( !$this->floatcmp($this->totalrecargo, $recargo, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Valor totalrecargo de la factura incorrecto. Valor correcto: ".$recargo);
+         $this->new_error_msg("Valor totalrecargo de la factura ".$this->codigo." incorrecto. Valor correcto: ".$recargo);
          $status = FALSE;
       }
       else if( !$this->floatcmp($this->total, $total, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Valor total de la factura incorrecto. Valor correcto: ".$total);
+         $this->new_error_msg("Valor total de la factura ".$this->codigo." incorrecto. Valor correcto: ".$total);
          $status = FALSE;
       }
       
@@ -926,9 +989,40 @@ class factura_proveedor extends \fs_model
          return FALSE;
    }
    
+   /**
+    * Elimina la factura de la base de datos.
+    * @return boolean
+    */
    public function delete()
    {
-      if( $this->db->exec("DELETE FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($this->idfactura).";") )
+      $bloquear = FALSE;
+      
+      $eje0 = new \ejercicio();
+      $ejercicio = $eje0->get($this->codejercicio);
+      if($ejercicio)
+      {
+         if( $ejercicio->abierto() )
+         {
+            $reg0 = new \regularizacion_iva();
+            if( $reg0->get_fecha_inside($this->fecha) )
+            {
+               $this->new_error_msg('La factura se encuentra dentro de una regularización de '
+                       .FS_IVA.'. No se puede eliminar.');
+               $bloquear = TRUE;
+            }
+         }
+         else
+         {
+            $this->new_error_msg('El ejercicio '.$ejercicio->nombre.' está cerrado.');
+            $bloquear = TRUE;
+         }
+      }
+      
+      if($bloquear)
+      {
+         return FALSE;
+      }
+      else if( $this->db->exec("DELETE FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($this->idfactura).";") )
       {
          if($this->idasiento)
          {

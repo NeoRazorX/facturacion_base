@@ -254,7 +254,9 @@ class albaran_proveedor extends \fs_model
    
    protected function install()
    {
+      /// nos aseguramos de que se comprueban las tablas de facturas y series antes
       new \serie();
+      new \factura_proveedor();
       
       return '';
    }
@@ -460,27 +462,27 @@ class albaran_proveedor extends \fs_model
       
       if( !$this->floatcmp($this->neto, $neto, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Valor neto de ".FS_ALBARAN." incorrecto. Valor correcto: ".$neto);
+         $this->new_error_msg("Valor neto del ".FS_ALBARAN.' '.$this->codigo." incorrecto. Valor correcto: ".$neto);
          $status = FALSE;
       }
       else if( !$this->floatcmp($this->totaliva, $iva, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Valor totaliva de ".FS_ALBARAN." incorrecto. Valor correcto: ".$iva);
+         $this->new_error_msg("Valor totaliva del ".FS_ALBARAN.' '.$this->codigo." incorrecto. Valor correcto: ".$iva);
          $status = FALSE;
       }
       else if( !$this->floatcmp($this->totalirpf, $irpf, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Valor totalirpf de ".FS_ALBARAN." incorrecto. Valor correcto: ".$irpf);
+         $this->new_error_msg("Valor totalirpf del ".FS_ALBARAN.' '.$this->codigo." incorrecto. Valor correcto: ".$irpf);
          $status = FALSE;
       }
       else if( !$this->floatcmp($this->totalrecargo, $recargo, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Valor totalrecargo de ".FS_ALBARAN." incorrecto. Valor correcto: ".$recargo);
+         $this->new_error_msg("Valor totalrecargo del ".FS_ALBARAN.' '.$this->codigo." incorrecto. Valor correcto: ".$recargo);
          $status = FALSE;
       }
       else if( !$this->floatcmp($this->total, $total, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Valor total de ".FS_ALBARAN." incorrecto. Valor correcto: ".$total);
+         $this->new_error_msg("Valor total del ".FS_ALBARAN.' '.$this->codigo." incorrecto. Valor correcto: ".$total);
          $status = FALSE;
       }
       
@@ -881,10 +883,6 @@ class albaran_proveedor extends \fs_model
    
    public function cron_job()
    {
-      /**
-       * Ponemos a NULL todos los idfactura que no están en facturascli
-       */
-      $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura NOT IN"
-              . " (SELECT idfactura FROM facturasprov);");
+      
    }
 }

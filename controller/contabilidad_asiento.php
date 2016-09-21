@@ -22,6 +22,7 @@ require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('impuesto.php');
 require_model('partida.php');
+require_model('regularizacion_iva.php');
 require_model('subcuenta.php');
 
 class contabilidad_asiento extends fs_controller
@@ -68,26 +69,13 @@ class contabilidad_asiento extends fs_controller
          
          if( isset($_GET['bloquear']) )
          {
-            $this->asiento->editable = FALSE;
-            if( $this->asiento->save() )
-            {
-               $this->new_message('Asiento bloqueado correctamente.');
-            }
-            else
-               $this->new_error_msg('Imposible bloquear el asiento.');
+            $this->bloquear();
          }
          else if( isset($_GET['desbloquear']) )
          {
-            $this->asiento->editable = TRUE;
-            if( $this->asiento->save() )
-            {
-               $this->new_message('Asiento desbloqueado correctamente.');
-            }
-            else
-               $this->new_error_msg('Imposible desbloquear el asiento.');
+            $this->desbloquear();
          }
-         
-         if( isset($_POST['fecha']) AND $this->asiento->editable )
+         else if( isset($_POST['fecha']) AND $this->asiento->editable )
          {
             $this->modificar();
          }
@@ -133,12 +121,90 @@ class contabilidad_asiento extends fs_controller
       }
    }
    
+   private function bloquear()
+   {
+      $this->asiento->editable = FALSE;
+      if( $this->asiento->save() )
+      {
+         $this->new_message('Asiento bloqueado correctamente.');
+      }
+      else
+         $this->new_error_msg('Imposible bloquear el asiento.');
+   }
+   
+   private function desbloquear()
+   {
+      $ejercicio = $this->ejercicio->get($this->asiento->codejercicio);
+      if($ejercicio)
+      {
+         if( $ejercicio->abierto() )
+         {
+            $this->asiento->editable = TRUE;
+            
+            $regiva0 = new regularizacion_iva();
+            if( $regiva0->get_fecha_inside($this->asiento->fecha) )
+            {
+               $this->asiento->editable = FALSE;
+               $this->new_error_msg('El asiento está dentro de una regularización de '
+                       .FS_IVA.'. No se puede modificar.');
+            }
+            else if( $this->asiento->save() )
+            {
+               $this->new_message('Asiento desbloqueado correctamente.');
+            }
+            else
+               $this->new_error_msg('Imposible desbloquear el asiento.');
+         }
+         else
+         {
+            $this->new_error_msg('Imposible desbloquear el asiento: el ejercicio '
+                    .$ejercicio->nombre.' está cerrado.');
+         }
+      }
+   }
+   
    private function modificar()
    {
-      /// obtenemos el ejercicio para poder acotar la fecha
-      $eje0 = $this->ejercicio->get($this->asiento->codejercicio);
-      if($eje0)
+      $bloquear = TRUE;
+      
+      $ejercicio = $this->ejercicio->get($this->asiento->codejercicio);
+      if($ejercicio)
       {
+         if( $ejercicio->abierto() )
+         {
+            $regiva0 = new regularizacion_iva();
+            if( $regiva0->get_fecha_inside($this->asiento->fecha) )
+            {
+               $this->new_error_msg('El asiento está dentro de una regularización de '
+                       .FS_IVA.'. No se puede modificar.');
+            }
+            else
+            {
+               $this->modificar2($ejercicio);
+               $bloquear = FALSE;
+            }
+         }
+         else
+         {
+            $this->new_error_msg('Imposible modificar el asiento: el ejercicio '
+                    .$ejercicio->nombre.' está cerrado.');
+         }
+      }
+      
+      if($bloquear AND $this->asiento->editable)
+      {
+         $this->asiento->editable = FALSE;
+         $this->asiento->save();
+      }
+   }
+   
+   private function modificar2(&$eje0)
+   {
+      if($_POST['fecha'] != $this->asiento->fecha)
+      {
+         /// necesitamos el ejercicio para poder acotar la fecha
+         $regiva0 = new regularizacion_iva();
+         
          if( strtotime($eje0->fechainicio) > strtotime($_POST['fecha']) )
          {
             $this->new_error_msg('La fecha '.$_POST['fecha'].' está fuera del'
@@ -149,13 +215,16 @@ class contabilidad_asiento extends fs_controller
             $this->new_error_msg('La fecha '.$_POST['fecha'].' está fuera del'
                     . ' rango del ejercicio '.$eje0->codejercicio.'.');
          }
+         else if( $regiva0->get_fecha_inside($_POST['fecha']) )
+         {
+            $this->new_error_msg('No se puede asignar la fecha '.$_POST['fecha'].' porque ya hay'
+                    . ' una regularización de '.FS_IVA.' para ese periodo.');
+         }
          else
          {
             $this->asiento->fecha = $_POST['fecha'];
          }
       }
-      else
-         $this->new_error_msg('No se encuentra el ejercicio asociado al asiento.');
       
       $this->asiento->concepto = $_POST['concepto'];
       $this->asiento->importe = floatval($_POST['importe']);

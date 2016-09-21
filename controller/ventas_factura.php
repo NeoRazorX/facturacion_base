@@ -213,15 +213,7 @@ class ventas_factura extends fs_controller
          $this->factura->porcomision = floatval($_POST['porcomision']);
       }
       
-      /// obtenemos el ejercicio para poder acotar la fecha
-      $eje0 = $this->ejercicio->get( $this->factura->codejercicio );
-      if($eje0)
-      {
-         $this->factura->fecha = $eje0->get_best_fecha($_POST['fecha'], TRUE);
-         $this->factura->hora = $_POST['hora'];
-      }
-      else
-         $this->new_error_msg('No se encuentra el ejercicio asociado a la factura.');
+      $this->factura->set_fecha_hora($_POST['fecha'], $_POST['hora']);
       
       /// ¿cambiamos la forma de pago?
       if($this->factura->codpago != $_POST['forma_pago'])

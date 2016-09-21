@@ -52,19 +52,7 @@ class contabilidad_asientos extends fs_controller
       
       if( isset($_GET['delete']) )
       {
-         $asiento = $this->asiento->get($_GET['delete']);
-         if($asiento)
-         {
-            if( $asiento->delete() )
-            {
-               $this->new_message("Asiento eliminado correctamente. (ID: ".$asiento->idasiento.", ".$asiento->fecha.")", TRUE);
-               $this->clean_last_changes();
-            }
-            else
-               $this->new_error_msg("¡Imposible eliminar el asiento!");
-         }
-         else
-            $this->new_error_msg("¡Asiento no encontrado!");
+         $this->eliminar_asiento();
       }
       else if( isset($_GET['renumerar']) )
       {
@@ -224,5 +212,22 @@ class contabilidad_asientos extends fs_controller
       {
          return parent::url();
       }
+   }
+   
+   private function eliminar_asiento()
+   {
+      $asiento = $this->asiento->get($_GET['delete']);
+      if($asiento)
+      {
+         if( $asiento->delete() )
+         {
+            $this->new_message("Asiento eliminado correctamente. (ID: ".$asiento->idasiento.", ".$asiento->fecha.")", TRUE);
+            $this->clean_last_changes();
+         }
+         else
+            $this->new_error_msg("¡Imposible eliminar el asiento!");
+      }
+      else
+         $this->new_error_msg("¡Asiento no encontrado!");
    }
 }

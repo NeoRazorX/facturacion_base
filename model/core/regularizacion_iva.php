@@ -117,12 +117,14 @@ class regularizacion_iva extends \fs_model
          return FALSE;
    }
    
-   /*
+   /**
     * Devuelve la regularización de IVA correspondiente a esa fecha,
     * es decir, la regularización cuya fecha de inicio sea anterior
     * a la fecha proporcionada y su fecha de fin sea posterior a la fecha
     * proporcionada. Así puedes saber si el periodo sigue abierto para poder
     * facturar.
+    * @param type $fecha
+    * @return boolean|\regularizacion_iva
     */
    public function get_fecha_inside($fecha)
    {
@@ -217,11 +219,38 @@ class regularizacion_iva extends \fs_model
       return $this->db->exec("DELETE FROM ".$this->table_name." WHERE idregiva = ".$this->var2str($this->idregiva).";");
    }
    
+   /**
+    * Devuelve todas las regularizaciones.
+    * @return \regularizacion_iva
+    */
    public function all()
    {
       $reglist = array();
       
       $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY fechafin DESC;");
+      if($data)
+      {
+         foreach($data as $r)
+         {
+            $reglist[] = new \regularizacion_iva($r);
+         }
+      }
+      
+      return $reglist;
+   }
+   
+   /**
+    * Devuelve todas las regularizaciones del ejercicio.
+    * @param type $codejercicio
+    * @return \regularizacion_iva
+    */
+   public function all_from_ejercicio($codejercicio)
+   {
+      $reglist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($codejercicio)
+              ." ORDER BY fechafin DESC;";
+      
+      $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $r)

@@ -257,6 +257,12 @@
       ON DELETE RESTRICT ON UPDATE CASCADE</consulta>
    </restriccion>
    <restriccion>
+      <nombre>ca_albaranescli_facturas</nombre>
+      <consulta>FOREIGN KEY (idfactura)
+      REFERENCES facturascli (idfactura)
+      ON DELETE SET NULL ON UPDATE CASCADE</consulta>
+   </restriccion>
+   <restriccion>
       <nombre>uniq_codigo_albaranescli</nombre>
       <consulta>UNIQUE (codigo)</consulta>
    </restriccion>

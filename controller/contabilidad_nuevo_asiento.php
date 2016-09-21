@@ -24,6 +24,7 @@ require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('impuesto.php');
 require_model('partida.php');
+require_model('regularizacion_iva.php');
 require_model('subcuenta.php');
 
 class contabilidad_nuevo_asiento extends fs_controller
@@ -54,6 +55,7 @@ class contabilidad_nuevo_asiento extends fs_controller
       $this->ejercicio = new ejercicio();
       $this->impuesto = new impuesto();
       $this->lineas = array();
+      $this->resultados = array();
       $this->subcuenta = new subcuenta();
       
       if( isset($_POST['fecha']) AND isset($_POST['query']) )
@@ -95,14 +97,36 @@ class contabilidad_nuevo_asiento extends fs_controller
       }
    }
    
+   private function get_ejercicio($fecha)
+   {
+      $ejercicio = FALSE;
+      
+      $ejercicio = $this->ejercicio->get_by_fecha($fecha);
+      if($ejercicio)
+      {
+         $regiva0 = new regularizacion_iva();
+         if( $regiva0->get_fecha_inside($fecha) )
+         {
+            $this->new_error_msg('No se puede usar la fecha '.$_POST['fecha'].' porque ya hay'
+                    . ' una regularización de '.FS_IVA.' para ese periodo.');
+            $ejercicio = FALSE;
+         }
+      }
+      else
+      {
+         $this->new_error_msg('Ejercicio no encontrado.');
+      }
+      
+      return $ejercicio;
+   }
+   
    private function nuevo_asiento()
    {
       $continuar = TRUE;
       
-      $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha']);
+      $eje0 = $this->get_ejercicio($_POST['fecha']);
       if(!$eje0)
       {
-         $this->new_error_msg('Ejercicio no encontrado.');
          $continuar = FALSE;
       }
       
@@ -190,7 +214,7 @@ class contabilidad_nuevo_asiento extends fs_controller
                }
             }
             
-            if( $continuar )
+            if($continuar)
             {
                $this->asiento->concepto = '';
                
@@ -223,10 +247,9 @@ class contabilidad_nuevo_asiento extends fs_controller
    {
       $continuar = TRUE;
       
-      $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha']);
+      $eje0 = $this->get_ejercicio($_POST['fecha']);
       if(!$eje0)
       {
-         $this->new_error_msg('Ejercicio no encontrado.');
          $continuar = FALSE;
       }
       
@@ -308,7 +331,7 @@ class contabilidad_nuevo_asiento extends fs_controller
                $continuar = FALSE;
             }
             
-            if( $continuar )
+            if($continuar)
             {
                $this->new_message("<a href='".$asiento->url()."'>Asiento de autónomo</a> guardado correctamente!");
                
@@ -373,10 +396,9 @@ class contabilidad_nuevo_asiento extends fs_controller
    {
       $continuar = TRUE;
       
-      $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha']);
+      $eje0 = $this->get_ejercicio($_POST['fecha']);
       if(!$eje0)
       {
-         $this->new_error_msg('Ejercicio no encontrado.');
          $continuar = FALSE;
       }
       
@@ -458,7 +480,7 @@ class contabilidad_nuevo_asiento extends fs_controller
                $continuar = FALSE;
             }
             
-            if( $continuar )
+            if($continuar)
             {
                $this->new_message("<a href='".$asiento->url()."'>Asiento de pago</a> guardado correctamente!");
             }
