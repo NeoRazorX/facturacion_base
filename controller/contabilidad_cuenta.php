@@ -19,6 +19,7 @@
 
 require_model('cuenta.php');
 require_model('cuenta_especial.php');
+require_model('ejercicio.php');
 require_model('subcuenta.php');
 
 class contabilidad_cuenta extends fs_controller
@@ -59,21 +60,7 @@ class contabilidad_cuenta extends fs_controller
       }
       else if( isset($_GET['deletes']) )
       {
-         $subc0 = new subcuenta();
-         $subc1 = $subc0->get($_GET['deletes']);
-         if($subc1)
-         {
-            $this->cuenta = $subc1->get_cuenta();
-            
-            if( $subc1->delete() )
-            {
-               $this->new_message('Subcuenta eliminada correctamente.');
-            }
-            else
-               $this->new_error_msg('Error al eliminar la subcuenta.');
-         }
-         else
-            $this->new_error_msg('Subcuenta no encontrada.');
+         $this->delete_subcuenta();
       }
       else if( isset($_GET['id']) )
       {
@@ -137,5 +124,41 @@ class contabilidad_cuenta extends fs_controller
    {
       $cuentae = new cuenta_especial();
       return $cuentae->all();
+   }
+   
+   private function delete_subcuenta()
+   {
+      $subc0 = new subcuenta();
+      $subc1 = $subc0->get($_GET['deletes']);
+      if($subc1)
+      {
+         /// cargamos la cuenta
+         $this->cuenta = $subc1->get_cuenta();
+         
+         $bloquear = FALSE;
+         $ejercicio = $this->cuenta->get_ejercicio();
+         if($ejercicio)
+         {
+            if( !$ejercicio->abierto() )
+            {
+               $this->new_error_msg('No se puede eliminar la subcuenta, el ejercicio '
+                       .$ejercicio->nombre.' está cerrado.');
+               $bloquear = TRUE;
+            }
+         }
+         
+         if($bloquear)
+         {
+            /// bloqueado
+         }
+         else if( $subc1->delete() )
+         {
+            $this->new_message('Subcuenta eliminada correctamente.');
+         }
+         else
+            $this->new_error_msg('Error al eliminar la subcuenta.');
+      }
+      else
+         $this->new_error_msg('Subcuenta no encontrada.');
    }
 }

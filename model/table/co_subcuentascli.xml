@@ -47,4 +47,10 @@
       REFERENCES clientes (codcliente)
       ON DELETE CASCADE ON UPDATE CASCADE</consulta>
    </restriccion>
+   <restriccion>
+      <nombre>ca_co_subcuentascli_subcuentas</nombre>
+      <consulta>FOREIGN KEY (idsubcuenta)
+      REFERENCES co_subcuentas (idsubcuenta)
+      ON DELETE CASCADE ON UPDATE CASCADE</consulta>
+   </restriccion>
 </tabla>

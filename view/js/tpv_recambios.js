@@ -190,6 +190,10 @@ function ajustar_total(i)
       {
          l_total = 0;
       }
+      else if(l_total < 0)
+      {
+         l_total = Math.abs(l_total);
+      }
       
       if( l_total <= l_pvp*l_uds + (l_pvp*l_uds*(l_iva-l_irpf+l_recargo)/100) )
       {

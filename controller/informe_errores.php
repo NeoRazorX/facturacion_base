@@ -30,7 +30,7 @@ require_model('familia.php');
 require_model('forma_pago.php');
 require_model('pais.php');
 require_model('serie.php');
-
+require_model('subcuenta.php');
 
 class informe_errores extends fs_controller
 {
@@ -51,7 +51,7 @@ class informe_errores extends fs_controller
       $this->ejercicio = new ejercicio();
       $this->errores = array();
       $this->informe = array(
-          'model' => 'asiento',
+          'model' => 'tablas',
           'duplicados' => isset($_POST['duplicados']),
           'offset' => 0,
           'pages' => 0,
@@ -135,6 +135,7 @@ class informe_errores extends fs_controller
                {
                   foreach($new_results as $nr)
                   {
+                     $this->errores[] = $nr;
                      fwrite($file, join(';', $nr)."\n" );
                      $numlinea++;
                   }
@@ -199,6 +200,48 @@ class informe_errores extends fs_controller
             $this->test_tablas();
             break;
          
+         case 'ejercicio':
+            $sc0 = new subcuenta();
+            foreach($this->ejercicio->all() as $eje)
+            {
+               if( !$eje->abierto() )
+               {
+                  /// comprobamos que los saldos de las subcuentas estén a 0
+                  foreach($sc0->all_from_ejercicio($eje->codejercicio) as $sc)
+                  {
+                     if( !$sc0->floatcmp($sc->saldo, 0, FS_NF0) )
+                     {
+                        $err = array(
+                            'error' => 'Ejercicio cerrado pero la subcuenta tiene saldo: '
+                              .$this->show_precio($sc->saldo, $sc->coddivisa),
+                            'model' => $this->informe['model'],
+                            'ejercicio' => $sc->codejercicio,
+                            'id' => $sc->codsubcuenta,
+                            'url' => $sc->url(),
+                            'fecha' => $eje->fechafin,
+                            'fix' => FALSE
+                        );
+                        
+                        /// intentamos corregir
+                        $sc->save();
+                        if( $sc0->floatcmp($sc->saldo, 0, FS_NF0) )
+                        {
+                           $err['fix'] = TRUE;
+                        }
+                        
+                        $last_errores[] = $err;
+                     }
+                  }
+               }
+            }
+            $this->informe['offset'] = 0;
+            $this->informe['model'] = 'fin';
+            if($this->informe['all'])
+            {
+               $this->informe['model'] = 'asiento';
+            }
+            break;
+         
          case 'asiento':
             $asiento = new asiento();
             $asientos = $asiento->all($this->informe['offset']);
@@ -216,11 +259,12 @@ class informe_errores extends fs_controller
                {
                   if($asi->codejercicio == $this->informe['ejercicio'])
                   {
-                     if($this->informe['all'])
-                        $this->informe['model'] = 'factura cliente';
-                     else
-                        $this->informe['model'] = 'fin';
                      $this->informe['offset'] = 0;
+                     $this->informe['model'] = 'fin';
+                     if($this->informe['all'])
+                     {
+                        $this->informe['model'] = 'factura cliente';
+                     }
                      break;
                   }
                   else if( !$asi->full_test($this->informe['duplicados']) )
@@ -259,11 +303,12 @@ class informe_errores extends fs_controller
                {
                   if($fac->codejercicio == $this->informe['ejercicio'])
                   {
-                     if($this->informe['all'])
-                        $this->informe['model'] = 'factura proveedor';
-                     else
-                        $this->informe['model'] = 'fin';
                      $this->informe['offset'] = 0;
+                     $this->informe['model'] = 'fin';
+                     if($this->informe['all'])
+                     {
+                        $this->informe['model'] = 'factura proveedor';
+                     }
                      break;
                   }
                   else if( !$fac->full_test($this->informe['duplicados']) )
@@ -302,11 +347,12 @@ class informe_errores extends fs_controller
                {
                   if($fac->codejercicio == $this->informe['ejercicio'])
                   {
-                     if($this->informe['all'])
-                        $this->informe['model'] = 'albaran cliente';
-                     else
-                        $this->informe['model'] = 'fin';
                      $this->informe['offset'] = 0;
+                     $this->informe['model'] = 'fin';
+                     if($this->informe['all'])
+                     {
+                        $this->informe['model'] = 'albaran cliente';
+                     }
                      break;
                   }
                   else if( !$fac->full_test($this->informe['duplicados']) )
@@ -345,11 +391,12 @@ class informe_errores extends fs_controller
                {
                   if($alb->codejercicio == $this->informe['ejercicio'])
                   {
-                     if($this->informe['all'])
-                        $this->informe['model'] = 'albaran proveedor';
-                     else
-                        $this->informe['model'] = 'fin';
                      $this->informe['offset'] = 0;
+                     $this->informe['model'] = 'fin';
+                     if($this->informe['all'])
+                     {
+                        $this->informe['model'] = 'albaran proveedor';
+                     }
                      break;
                   }
                   else if( !$alb->full_test($this->informe['duplicados']) )
@@ -681,7 +728,7 @@ class informe_errores extends fs_controller
       {
          if($this->informe['all'])
          {
-            $this->informe['model'] = 'asiento';
+            $this->informe['model'] = 'ejercicio';
          }
          else
             $this->informe['model'] = 'fin';

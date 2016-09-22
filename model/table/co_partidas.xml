@@ -131,6 +131,12 @@
       ON DELETE CASCADE ON UPDATE CASCADE</consulta>
    </restriccion>
    <restriccion>
+      <nombre>ca_co_partidas_subcuentas</nombre>
+      <consulta>FOREIGN KEY (idsubcuenta)
+      REFERENCES co_subcuentas (idsubcuenta)
+      ON DELETE RESTRICT ON UPDATE CASCADE</consulta>
+   </restriccion>
+   <restriccion>
       <nombre>co_partidas_pkey</nombre>
       <consulta>PRIMARY KEY (idpartida)</consulta>
    </restriccion>

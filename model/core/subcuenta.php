@@ -65,7 +65,7 @@ class subcuenta extends \fs_model
    
    public $iva;
    
-   public function __construct($s=FALSE)
+   public function __construct($s = FALSE)
    {
       parent::__construct('co_subcuentas');
       if($s)
@@ -509,7 +509,16 @@ class subcuenta extends \fs_model
       return $cuentas;
    }
    
-   public function all_from_ejercicio($codejercicio, $random=FALSE, $limit=FALSE)
+   /**
+    * Devuelve las subcuentas de un ejercicio:
+    * - Todas si $random = false.
+    * - $limit si $random = true.
+    * @param type $codejercicio
+    * @param type $random
+    * @param type $limit
+    * @return \subcuenta
+    */
+   public function all_from_ejercicio($codejercicio, $random = FALSE, $limit = FALSE)
    {
       $sublist = array();
       

@@ -229,6 +229,10 @@ function ajustar_neto(i)
       {
          l_neto = 0;
       }
+      else if(l_total < 0)
+      {
+         l_neto = Math.abs(l_neto);
+      }
       
       if( l_neto <= l_pvp*l_uds )
       {
@@ -283,6 +287,10 @@ function ajustar_total(i)
       if( isNaN(l_total) )
       {
          l_total = 0;
+      }
+      else if(l_total < 0)
+      {
+         l_total = Math.abs(l_total);
       }
       
       if( l_total <= l_pvp*l_uds + (l_pvp*l_uds*(l_iva-l_irpf+l_recargo)/100) )
