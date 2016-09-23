@@ -209,7 +209,7 @@ class informe_errores extends fs_controller
                   /// comprobamos que los saldos de las subcuentas estén a 0
                   foreach($sc0->all_from_ejercicio($eje->codejercicio) as $sc)
                   {
-                     if( !$sc0->floatcmp($sc->saldo, 0, FS_NF0) )
+                     if( !$sc0->floatcmp($sc->saldo, 0, FS_NF0, TRUE) )
                      {
                         $err = array(
                             'error' => 'Ejercicio cerrado pero la subcuenta tiene saldo: '
@@ -224,7 +224,7 @@ class informe_errores extends fs_controller
                         
                         /// intentamos corregir
                         $sc->save();
-                        if( $sc0->floatcmp($sc->saldo, 0, FS_NF0) )
+                        if( $sc0->floatcmp($sc->saldo, 0, FS_NF0, TRUE) )
                         {
                            $err['fix'] = TRUE;
                         }
@@ -661,6 +661,22 @@ class informe_errores extends fs_controller
          $this->informe['offset'] += 1;
       }
       else if($this->informe['offset'] == 6)
+      {
+         /**
+          * Ponemos a NULL todos los idfactura que no están en facturascli
+          */
+         $this->db->exec("UPDATE albaranescli SET idfactura = NULL WHERE idfactura IS NOT NULL"
+                 . " AND idfactura NOT IN (SELECT idfactura FROM facturascli);");
+      }
+      else if($this->informe['offset'] == 7)
+      {
+         /**
+          * Ponemos a NULL todos los idfactura que no están en facturasprov
+          */
+         $this->db->exec("UPDATE albaranesprov SET idfactura = NULL WHERE idfactura IS NOT NULL"
+                 . " AND idfactura NOT IN (SELECT idfactura FROM facturasprov);");
+      }
+      else if($this->informe['offset'] == 8)
       {
          $almacen = new almacen();
          if( !$almacen->all() )
