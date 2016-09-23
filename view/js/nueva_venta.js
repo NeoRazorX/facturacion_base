@@ -229,7 +229,7 @@ function ajustar_neto(i)
       {
          l_neto = 0;
       }
-      else if(l_total < 0)
+      else if(l_neto < 0)
       {
          l_neto = Math.abs(l_neto);
       }
