@@ -1279,11 +1279,15 @@ class factura_cliente extends \fs_model
          }
       }
       
+      /// desvincular albaranes asociados y eliminar factura
+      $sql = "UPDATE albaranescli SET idfactura = NULL, ptefactura = TRUE WHERE idfactura = ".$this->var2str($this->idfactura).";"
+              . "DELETE FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($this->idfactura).";";
+      
       if($bloquear)
       {
          return FALSE;
       }
-      else if( $this->db->exec("DELETE FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($this->idfactura).";") )
+      else if( $this->db->exec($sql) )
       {
          $this->clean_cache();
          
@@ -1305,10 +1309,6 @@ class factura_cliente extends \fs_model
                $asi1->delete();
             }
          }
-         
-         /// desvinculamos el/los albaranes asociados
-         $this->db->exec("UPDATE albaranescli SET idfactura = NULL, ptefactura = TRUE WHERE idfactura = "
-                 .$this->var2str($this->idfactura).";");
          
          return TRUE;
       }
