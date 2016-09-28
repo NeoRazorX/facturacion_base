@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'plugins/facturacion_base/extras/fs_pdf.php';
+require_once __DIR__.'/../extras/fs_pdf.php';
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
 require_model('cliente.php');
@@ -36,7 +36,6 @@ class ventas_imprimir extends fs_controller
    public $impresion;
    public $impuesto;
    
-   private $logo;
    private $numpaginas;
    
    public function __construct()
@@ -60,16 +59,6 @@ class ventas_imprimir extends fs_controller
       );
       $fsvar = new fs_var();
       $this->impresion = $fsvar->array_get($this->impresion, FALSE);
-      
-      $this->logo = FALSE;
-      if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
-      {
-         $this->logo = 'tmp/'.FS_TMP_NAME.'logo.png';
-      }
-      else if( file_exists('tmp/'.FS_TMP_NAME.'logo.jpg') )
-      {
-         $this->logo = 'tmp/'.FS_TMP_NAME.'logo.jpg';
-      }
       
       if( isset($_REQUEST['albaran']) AND isset($_REQUEST['id']) )
       {
@@ -168,98 +157,6 @@ class ventas_imprimir extends fs_controller
          {
             $this->new_error_msg('Error al guardar la extensión '.$ext['name']);
          }
-      }
-   }
-   
-   private function generar_pdf_cabecera(&$pdf_doc, &$lppag)
-   {
-      /// ¿Añadimos el logo?
-      if($this->logo)
-      {
-         if( function_exists('imagecreatefromstring') )
-         {
-            $lppag -= 2; /// si metemos el logo, caben menos líneas
-            
-            if( substr( strtolower($this->logo), -4 ) == '.png' )
-            {
-               $pdf_doc->pdf->addPngFromFile($this->logo, 35, 740, 80, 80);
-            }
-            else
-            {
-               $pdf_doc->pdf->addJpegFromFile($this->logo, 35, 740, 80, 80);
-            }
-            
-            $pdf_doc->pdf->ez['rightMargin'] = 40;
-            $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 12, array('justification' => 'right'));
-            $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'right'));
-            
-            $direccion = $this->empresa->direccion . "\n";
-            if($this->empresa->apartado)
-            {
-               $direccion .= ucfirst(FS_APARTADO) . ': ' . $this->empresa->apartado . ' - ';
-            }
-            
-            if($this->empresa->codpostal)
-            {
-               $direccion .= 'CP: ' . $this->empresa->codpostal . ' - ';
-            }
-            
-            if($this->empresa->ciudad)
-            {
-               $direccion .= $this->empresa->ciudad . ' - ';
-            }
-            
-            if($this->empresa->provincia)
-            {
-               $direccion .= '(' . $this->empresa->provincia . ')';
-            }
-            
-            if($this->empresa->telefono)
-            {
-               $direccion .= "\nTeléfono: " . $this->empresa->telefono;
-            }
-            
-            $pdf_doc->pdf->ezText($this->fix_html($direccion)."\n", 9, array('justification' => 'right'));
-            $pdf_doc->set_y(750);
-         }
-         else
-         {
-            die('ERROR: no se encuentra la función imagecreatefromstring(). '
-                    . 'Y por tanto no se puede usar el logotipo en los documentos.');
-         }
-      }
-      else
-      {
-         $pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 16, array('justification' => 'center'));
-         $pdf_doc->pdf->ezText(FS_CIFNIF.": ".$this->empresa->cifnif, 8, array('justification' => 'center'));
-         
-         $direccion = $this->empresa->direccion;
-         if($this->empresa->apartado)
-         {
-            $direccion .= ' - ' . ucfirst(FS_APARTADO) . ': ' . $this->empresa->apartado;
-         }
-         
-         if($this->empresa->codpostal)
-         {
-            $direccion .= ' - CP: ' . $this->empresa->codpostal;
-         }
-         
-         if($this->empresa->ciudad)
-         {
-            $direccion .= ' - ' . $this->empresa->ciudad;
-         }
-         
-         if($this->empresa->provincia)
-         {
-            $direccion .= ' (' . $this->empresa->provincia . ')';
-         }
-         
-         if($this->empresa->telefono)
-         {
-            $direccion .= ' - Teléfono: ' . $this->empresa->telefono;
-         }
-         
-         $pdf_doc->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
       }
    }
    
@@ -460,7 +357,7 @@ class ventas_imprimir extends fs_controller
       
       for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < count($lineas)));)
       {
-         $descripcion = $this->fix_html($lineas[$linea_actual]->descripcion);
+         $descripcion = $pdf_doc->fix_html($lineas[$linea_actual]->descripcion);
          if( !is_null($lineas[$linea_actual]->referencia) )
          {
             $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
@@ -554,7 +451,7 @@ class ventas_imprimir extends fs_controller
                $pdf_doc->pdf->ezNewPage();
             }
             
-            $this->generar_pdf_cabecera($pdf_doc, $lppag);
+            $pdf_doc->generar_pdf_cabecera($this->empresa, $lppag);
             
             /*
              * Esta es la tabla con los datos del cliente:
@@ -570,13 +467,20 @@ class ventas_imprimir extends fs_controller
                    'campo2' => "<b>Fecha:</b> ".$this->albaran->fecha
                )
             );
+            
+            $tipoidfiscal = FS_CIFNIF;
+            if($this->cliente)
+            {
+               $tipoidfiscal = $this->cliente->tipoidfiscal;
+            }
             $pdf_doc->add_table_row(
                array(
                    'campo1' => "<b>Cliente:</b> ",
-                   'dato1' => $this->fix_html($this->albaran->nombrecliente),
-                   'campo2' => "<b>".$this->cliente->tipoidfiscal.":</b> ".$this->albaran->cifnif
+                   'dato1' => $pdf_doc->fix_html($this->albaran->nombrecliente),
+                   'campo2' => "<b>".$tipoidfiscal.":</b> ".$this->albaran->cifnif
                )
             );
+            
             $direccion = $this->albaran->direccion;
             if($this->albaran->apartado)
             {
@@ -589,10 +493,15 @@ class ventas_imprimir extends fs_controller
             $direccion .= ' - '.$this->albaran->ciudad.' ('.$this->albaran->provincia.')';
             $row = array(
                 'campo1' => "<b>Dirección:</b>",
-                'dato1' => $this->fix_html($direccion),
+                'dato1' => $pdf_doc->fix_html($direccion),
                 'campo2' => ''
             );
-            if($this->cliente->telefono1)
+            
+            if(!$this->cliente)
+            {
+               /// nada
+            }
+            else if($this->cliente->telefono1)
             {
                $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono1;
                if($this->cliente->telefono2)
@@ -606,6 +515,7 @@ class ventas_imprimir extends fs_controller
                $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono2;
             }
             $pdf_doc->add_table_row($row);
+            
             if($this->empresa->codpais != 'ESP')
             {
                $pdf_doc->add_table_row(
@@ -637,7 +547,7 @@ class ventas_imprimir extends fs_controller
             {
                if($this->albaran->observaciones != '')
                {
-                  $pdf_doc->pdf->ezText("\n".$this->fix_html($this->albaran->observaciones), 9);
+                  $pdf_doc->pdf->ezText("\n".$pdf_doc->fix_html($this->albaran->observaciones), 9);
                }
             }
             
@@ -727,7 +637,7 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->show(FS_ALBARAN.'_'.$this->albaran->codigo.'.pdf');
    }
    
-   private function generar_pdf_factura($tipo='simple', $archivo=FALSE)
+   private function generar_pdf_factura($tipo = 'simple', $archivo = FALSE)
    {
       if(!$archivo)
       {
@@ -764,7 +674,7 @@ class ventas_imprimir extends fs_controller
              */
             if($tipo == 'carta')
             {
-               $this->generar_pdf_cabecera($pdf_doc, $lppag);
+               $pdf_doc->generar_pdf_cabecera($this->empresa, $lppag);
                
                $direccion = $this->factura->nombrecliente."\n".$this->factura->direccion;
                if($this->factura->apartado)
@@ -787,7 +697,7 @@ class ventas_imprimir extends fs_controller
                   array(
                       'campos' => "<b>".ucfirst(FS_FACTURA).":</b>\n<b>Fecha:</b>\n<b>".$this->cliente->tipoidfiscal.":</b>",
                       'factura' => $this->factura->codigo."\n".$this->factura->fecha."\n".$this->factura->cifnif,
-                      'cliente' => $this->fix_html($direccion)
+                      'cliente' => $pdf_doc->fix_html($direccion)
                   )
                );
                $pdf_doc->save_table(
@@ -805,7 +715,7 @@ class ventas_imprimir extends fs_controller
             }
             else /// esta es la cabecera de la página para el modelo 'simple'
             {
-               $this->generar_pdf_cabecera($pdf_doc, $lppag);
+               $pdf_doc->generar_pdf_cabecera($this->empresa, $lppag);
                
                /*
                 * Esta es la tabla con los datos del cliente:
@@ -843,13 +753,19 @@ class ventas_imprimir extends fs_controller
                   );
                }
                
+               $tipoidfiscal = FS_CIFNIF;
+               if($this->cliente)
+               {
+                  $tipoidfiscal = $this->cliente->tipoidfiscal;
+               }
                $pdf_doc->add_table_row(
                   array(
                       'campo1' => "<b>Cliente:</b> ",
-                      'dato1' => $this->fix_html($this->factura->nombrecliente),
-                      'campo2' => "<b>".$this->cliente->tipoidfiscal.":</b> ".$this->factura->cifnif
+                      'dato1' => $pdf_doc->fix_html($this->factura->nombrecliente),
+                      'campo2' => "<b>".$tipoidfiscal.":</b> ".$this->factura->cifnif
                   )
                );
+               
                $direccion = $this->factura->direccion;
                if($this->factura->apartado)
                {
@@ -862,10 +778,15 @@ class ventas_imprimir extends fs_controller
                $direccion .= ' - '.$this->factura->ciudad.' ('.$this->factura->provincia.')';
                $row = array(
                    'campo1' => "<b>Dirección:</b>",
-                   'dato1' => $this->fix_html($direccion),
+                   'dato1' => $pdf_doc->fix_html($direccion),
                    'campo2' => ''
                );
-               if($this->cliente->telefono1)
+               
+               if(!$this->cliente)
+               {
+                  /// nada
+               }
+               else if($this->cliente->telefono1)
                {
                   $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono1;
                   if($this->cliente->telefono2)
@@ -879,6 +800,7 @@ class ventas_imprimir extends fs_controller
                   $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono2;
                }
                $pdf_doc->add_table_row($row);
+               
                if($this->empresa->codpais != 'ESP')
                {
                   $pdf_doc->add_table_row(
@@ -911,7 +833,7 @@ class ventas_imprimir extends fs_controller
             {
                if($this->factura->observaciones != '')
                {
-                  $pdf_doc->pdf->ezText("\n".$this->fix_html($this->factura->observaciones), 9);
+                  $pdf_doc->pdf->ezText("\n".$pdf_doc->fix_html($this->factura->observaciones), 9);
                }
                
                if( !$this->factura->pagada AND $this->impresion['print_formapago'] )
@@ -1030,7 +952,7 @@ class ventas_imprimir extends fs_controller
             /// pié de página para la factura
             if($this->empresa->pie_factura)
             {
-               $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text($this->fix_html($this->empresa->pie_factura), 180) );
+               $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text($pdf_doc->fix_html($this->empresa->pie_factura), 180) );
             }
             
             $pagina++;
@@ -1054,7 +976,7 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->show(FS_FACTURA.'_'.$this->factura->codigo.'.pdf');
    }
    
-   private function enviar_email($doc, $tipo='simple')
+   private function enviar_email($doc, $tipo = 'simple')
    {
       if( $this->empresa->can_send_mail() )
       {
@@ -1144,15 +1066,6 @@ class ventas_imprimir extends fs_controller
          else
             $this->new_error_msg('Imposible generar el PDF.');
       }
-   }
-   
-   private function fix_html($txt)
-   {
-      $newt = str_replace('&lt;', '<', $txt);
-      $newt = str_replace('&gt;', '>', $newt);
-      $newt = str_replace('&quot;', '"', $newt);
-      $newt = str_replace('&#39;', "'", $newt);
-      return $newt;
    }
    
    private function get_lineas_iva($lineas)

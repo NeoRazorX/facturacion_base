@@ -372,6 +372,11 @@ class linea_albaran_cliente extends \fs_model
       $this->cache->delete('albcli_top_articulos');
    }
    
+   /**
+    * Devuelve las líneas del albarán.
+    * @param type $id
+    * @return \linea_albaran_cliente
+    */
    public function all_from_albaran($id)
    {
       $linealist = array();

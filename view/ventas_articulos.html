@@ -433,6 +433,9 @@
                      Desde aquí puedes configurar las tarifas de venta a clientes.
                      Crea todas las tarifas que necesites, después <b>asígna las tarifas</b>
                      a los <a href="index.php?page=ventas_clientes#grupos">grupos de clientes</a>.
+                     <br/>
+                     Las tarifas son básicamente fórmulas a aplicar al precio de venta o de coste
+                     del artículo.
                   </p>
                   {loop="$fsc->tarifa->all()"}
                   <form action="{$fsc->url()}#tarifas" method="post" class="form">
@@ -461,18 +464,24 @@
                                  </div>
                                  <div class="col-sm-2">
                                     <div class="form-group">
-                                       X%
-                                       <input class="form-control" type="number" step="any" name="dtopor" value="{$value->x()}" autocomplete="off"/>
+                                       <div class="hidden-xs"><br/></div>
+                                       <div class="input-group">
+                                          <span class="input-group-addon">X%</span>
+                                          <input class="form-control" type="number" step="any" name="dtopor" value="{$value->x()}" autocomplete="off"/>
+                                       </div>
                                     </div>
                                  </div>
                                  <div class="col-sm-2">
                                     <div class="form-group">
-                                       Y
-                                       <input class="form-control" type="number" step="any" name="inclineal" value="{$value->y()}" autocomplete="off"/>
+                                       <div class="hidden-xs"><br/></div>
+                                       <div class="input-group">
+                                          <span class="input-group-addon">Y</span>
+                                          <input class="form-control" type="number" step="any" name="inclineal" value="{$value->y()}" autocomplete="off"/>
+                                       </div>
                                     </div>
                                  </div>
                                  <div class="col-sm-2">
-                                    <br/>
+                                    Resultado:
                                     <div class="form-control">{$value->diff()}</div>
                                  </div>
                               </div>
@@ -497,13 +506,7 @@
                                        </label>
                                     </div>
                                  </div>
-                                 <div class="col-sm-7">
-                                    <p class="help-block">
-                                       ¿Buscas <b>Precio de venta + X% + Y</b>? ¿O <b>Precio de coste - X% - Y</b>?
-                                       Puedes usar números negativos, simplemente pon un <b>-</b> delante.
-                                       <mark>1 - -1 = 1 + 1</mark>
-                                    </p>
-                                 </div>
+                                 <div class="col-sm-7"></div>
                                  <div class="col-sm-2 text-right">
                                     <div class="btn-group">
                                        {if="$fsc->allow_delete"}
@@ -558,21 +561,21 @@
                                  </div>
                                  <div class="col-sm-2">
                                     <div class="form-group">
-                                       X%
-                                       <input class="form-control" type="number" step="any" name="dtopor" value="0" autocomplete="off"/>
+                                       <div class="hidden-xs"><br/></div>
+                                       <div class="input-group">
+                                          <span class="input-group-addon">X%</span>
+                                          <input class="form-control" type="number" step="any" name="dtopor" value="0" autocomplete="off"/>
+                                       </div>
                                     </div>
                                  </div>
-                                 <div class="col-sm-1">
+                                 <div class="col-sm-2">
                                     <div class="form-group">
-                                       Y
-                                       <input class="form-control" type="number" step="any" name="inclineal" value="0" autocomplete="off"/>
+                                       <div class="hidden-xs"><br/></div>
+                                       <div class="input-group">
+                                          <span class="input-group-addon">Y</span>
+                                          <input class="form-control" type="number" step="any" name="inclineal" value="0" autocomplete="off"/>
+                                       </div>
                                     </div>
-                                 </div>
-                                 <div class="col-sm-1">
-                                    <br/>
-                                    <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
-                                       <span class="glyphicon glyphicon-floppy-disk"></span>
-                                    </button>
                                  </div>
                               </div>
                               <div class="row">
@@ -588,12 +591,18 @@
                                        </label>
                                     </div>
                                  </div>
-                                 <div class="col-sm-7">
+                                 <div class="col-sm-5">
                                     <p class="help-block">
                                        ¿Buscas <b>Precio de venta + X% + Y</b>? ¿O <b>Precio de coste - X% - Y</b>?
-                                       Puedes usar números negativos, simplemente pon un <b>-</b> delante.
+                                       Puedes usar números negativos, simplemente pon un <b>-</b> delante.<br/>
                                        <mark>1 - -1 = 1 + 1</mark>
                                     </p>
+                                 </div>
+                                 <div class="col-sm-2 text-right">
+                                    <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Guardar">
+                                       <span class="glyphicon glyphicon-plus-sign"></span>
+                                       <span class="hidden-xs">&nbsp; Nueva</span>
+                                    </button>
                                  </div>
                               </div>
                            </div>

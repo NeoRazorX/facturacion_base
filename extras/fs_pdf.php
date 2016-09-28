@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'plugins/facturacion_base/extras/ezpdf/Cezpdf.php';
+require_once __DIR__.'/ezpdf/Cezpdf.php';
 
 /**
  * Permite la generación de PDFs algo más sencilla.
@@ -25,10 +25,17 @@ require_once 'plugins/facturacion_base/extras/ezpdf/Cezpdf.php';
 class fs_pdf
 {
    /**
+    * Ruta al logotipo de la empresa.
+    * @var type 
+    */
+   public $logo;
+   
+   /**
     * Documento Cezpdf
     * @var Cezpdf
     */
    public $pdf;
+   
    public $table_header;
    public $table_rows;
    
@@ -39,25 +46,26 @@ class fs_pdf
          mkdir('tmp/'.FS_TMP_NAME.'pdf');
       }
       
+      $this->cargar_logo();
+      
       $this->pdf = new Cezpdf($paper, $orientation);
-      $this->pdf->selectFont("plugins/facturacion_base/extras/ezpdf/fonts/".$font.".afm");
+      $this->pdf->selectFont(__DIR__."/ezpdf/fonts/".$font.".afm");
    }
    
-   public function get_y()
-   {
-      return $this->pdf->y;
-   }
-   
-   public function set_y($y)
-   {
-      $this->pdf->ezSetY($y);
-   }
-   
+   /**
+    * Vuelca el documento PDF en la salida estándar.
+    * @param type $filename
+    */
    public function show($filename = 'doc.pdf')
    {
       $this->pdf->ezStream( array('Content-Disposition' => $filename) );
    }
    
+   /**
+    * Guarda el documento PDF en el archivo $filename
+    * @param type $filename
+    * @return boolean
+    */
    public function save($filename)
    {
       if($filename)
@@ -81,7 +89,151 @@ class fs_pdf
          return FALSE;
    }
    
-   public function center_text($word='', $tot_width=140)
+   /**
+    * Devuelve la coordenada Y actual en el documento.
+    * @return type
+    */
+   public function get_y()
+   {
+      return $this->pdf->y;
+   }
+   
+   /**
+    * Establece la coordenada Y actual en el documento.
+    * @param type $y
+    */
+   public function set_y($y)
+   {
+      $this->pdf->ezSetY($y);
+   }
+   
+   /**
+    * Carga la ruta del logotipo de la empresa.
+    */
+   private function cargar_logo()
+   {
+      /**
+       * Antes se guardaba el logo en el temporal.
+       * Mala decisión, lo movemos.
+       */
+      if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
+      {
+         rename('tmp/'.FS_TMP_NAME.'logo.png', FS_MYDOCS.'images/logo.png');
+      }
+      else if( file_exists('tmp/'.FS_TMP_NAME.'logo.jpg') )
+      {
+         rename('tmp/'.FS_TMP_NAME.'logo.jpg', FS_MYDOCS.'images/logo.jpg');
+      }
+      
+      $this->logo = FALSE;
+      if( file_exists(FS_MYDOCS.'images/logo.png') )
+      {
+         $this->logo = FS_MYDOCS.'images/logo.png';
+      }
+      else if( file_exists(FS_MYDOCS.'images/logo.jpg') )
+      {
+         $this->logo = FS_MYDOCS.'images/logo.jpg';
+      }
+   }
+   
+   /**
+    * Añade la cabecera al PDF con el logotipo y los datos de la empresa.
+    * @param type $empresa
+    * @param int $lppag
+    */
+   public function generar_pdf_cabecera(&$empresa, &$lppag)
+   {
+      /// ¿Añadimos el logo?
+      if($this->logo)
+      {
+         if( function_exists('imagecreatefromstring') )
+         {
+            $lppag -= 2; /// si metemos el logo, caben menos líneas
+            
+            if( substr( strtolower($this->logo), -4 ) == '.png' )
+            {
+               $this->pdf->addPngFromFile($this->logo, 35, 740, 80, 80);
+            }
+            else
+            {
+               $this->pdf->addJpegFromFile($this->logo, 35, 740, 80, 80);
+            }
+            
+            $this->pdf->ez['rightMargin'] = 40;
+            $this->pdf->ezText("<b>".$empresa->nombre."</b>", 12, array('justification' => 'right'));
+            $this->pdf->ezText(FS_CIFNIF.": ".$empresa->cifnif, 8, array('justification' => 'right'));
+            
+            $direccion = $empresa->direccion . "\n";
+            if($empresa->apartado)
+            {
+               $direccion .= ucfirst(FS_APARTADO) . ': ' . $empresa->apartado . ' - ';
+            }
+            
+            if($empresa->codpostal)
+            {
+               $direccion .= 'CP: ' . $empresa->codpostal . ' - ';
+            }
+            
+            if($empresa->ciudad)
+            {
+               $direccion .= $empresa->ciudad . ' - ';
+            }
+            
+            if($empresa->provincia)
+            {
+               $direccion .= '(' . $empresa->provincia . ')';
+            }
+            
+            if($empresa->telefono)
+            {
+               $direccion .= "\nTeléfono: " . $empresa->telefono;
+            }
+            
+            $this->pdf->ezText($this->fix_html($direccion)."\n", 9, array('justification' => 'right'));
+            $this->set_y(750);
+         }
+         else
+         {
+            die('ERROR: no se encuentra la función imagecreatefromstring(). '
+                    . 'Y por tanto no se puede usar el logotipo en los documentos.');
+         }
+      }
+      else
+      {
+         $this->pdf->ezText("<b>".$empresa->nombre."</b>", 16, array('justification' => 'center'));
+         $this->pdf->ezText(FS_CIFNIF.": ".$empresa->cifnif, 8, array('justification' => 'center'));
+         
+         $direccion = $empresa->direccion;
+         if($empresa->apartado)
+         {
+            $direccion .= ' - ' . ucfirst(FS_APARTADO) . ': ' . $empresa->apartado;
+         }
+         
+         if($empresa->codpostal)
+         {
+            $direccion .= ' - CP: ' . $empresa->codpostal;
+         }
+         
+         if($empresa->ciudad)
+         {
+            $direccion .= ' - ' . $empresa->ciudad;
+         }
+         
+         if($empresa->provincia)
+         {
+            $direccion .= ' (' . $empresa->provincia . ')';
+         }
+         
+         if($empresa->telefono)
+         {
+            $direccion .= ' - Teléfono: ' . $empresa->telefono;
+         }
+         
+         $this->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
+      }
+   }
+   
+   public function center_text($word = '', $tot_width = 140)
    {
       if( strlen($word) == $tot_width )
       {
@@ -127,7 +279,7 @@ class fs_pdf
       }
    }
    
-   private function center_text2($word='', $tot_width=140)
+   private function center_text2($word = '', $tot_width = 140)
    {
       $symbol = " ";
       $middle = round($tot_width / 2);
@@ -170,5 +322,14 @@ class fs_pdf
       }
       
       $this->pdf->ezTable($this->table_rows, $this->table_header, '', $options);
+   }
+   
+   public function fix_html($txt)
+   {
+      $newt = str_replace('&lt;', '<', $txt);
+      $newt = str_replace('&gt;', '>', $newt);
+      $newt = str_replace('&quot;', '"', $newt);
+      $newt = str_replace('&#39;', "'", $newt);
+      return $newt;
    }
 }

@@ -163,21 +163,7 @@ class admin_empresa extends fs_controller
       }
       else if( isset($_POST['logo']) )
       {
-         if( is_uploaded_file($_FILES['fimagen']['tmp_name']) )
-         {
-            $this->delete_logo();
-            
-            if( substr( strtolower($_FILES['fimagen']['name']), -3) == 'png' )
-            {
-               copy($_FILES['fimagen']['tmp_name'], "tmp/".FS_TMP_NAME."logo.png");
-            }
-            else
-            {
-               copy($_FILES['fimagen']['tmp_name'], "tmp/".FS_TMP_NAME."logo.jpg");
-            }
-            
-            $this->new_message('Logotipo guardado correctamente.');
-         }
+         $this->cambiar_logo();
       }
       else if( isset($_GET['delete_logo']) )
       {
@@ -225,16 +211,12 @@ class admin_empresa extends fs_controller
          else
             $this->new_error_msg('Imposible guardar la cuenta bancaria.');
       }
+      else
+      {
+         $this->fix_logo();
+      }
       
-      $this->logo = FALSE;
-      if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
-      {
-         $this->logo = FS_PATH.'tmp/'.FS_TMP_NAME.'logo.png';
-      }
-      else if( file_exists('tmp/'.FS_TMP_NAME.'logo.jpg') )
-      {
-         $this->logo = FS_PATH.'tmp/'.FS_TMP_NAME.'logo.jpg';
-      }
+      $this->logo();
    }
    
    private function mail_test()
@@ -280,16 +262,68 @@ class admin_empresa extends fs_controller
       }
    }
    
-   private function delete_logo()
+   private function fix_logo()
    {
+      /**
+       * Antes se guardaba el logo en el temporal.
+       * Mala decisión, lo movemos.
+       */
       if( file_exists('tmp/'.FS_TMP_NAME.'logo.png') )
       {
-         unlink('tmp/'.FS_TMP_NAME.'logo.png');
-         $this->new_message('Logotipo borrado correctamente.');
+         rename('tmp/'.FS_TMP_NAME.'logo.png', FS_MYDOCS.'images/logo.png');
       }
       else if( file_exists('tmp/'.FS_TMP_NAME.'logo.jpg') )
       {
-         unlink('tmp/'.FS_TMP_NAME.'logo.jpg');
+         rename('tmp/'.FS_TMP_NAME.'logo.jpg', FS_MYDOCS.'images/logo.jpg');
+      }
+   }
+   
+   private function logo()
+   {
+      $this->logo = FALSE;
+      if( file_exists(FS_MYDOCS.'images/logo.png') )
+      {
+         $this->logo = 'images/logo.png';
+      }
+      else if( file_exists(FS_MYDOCS.'images/logo.jpg') )
+      {
+         $this->logo = 'images/logo.jpg';
+      }
+   }
+   
+   private function cambiar_logo()
+   {
+      if( is_uploaded_file($_FILES['fimagen']['tmp_name']) )
+      {
+         if( !file_exists(FS_MYDOCS.'images') )
+         {
+            @mkdir(FS_MYDOCS.'images', 0777, TRUE);
+         }
+         $this->delete_logo();
+         
+         if( substr( strtolower($_FILES['fimagen']['name']), -3) == 'png' )
+         {
+            copy($_FILES['fimagen']['tmp_name'], FS_MYDOCS."images/logo.png");
+         }
+         else
+         {
+            copy($_FILES['fimagen']['tmp_name'], FS_MYDOCS."images/logo.jpg");
+         }
+         
+         $this->new_message('Logotipo guardado correctamente.');
+      }
+   }
+   
+   private function delete_logo()
+   {
+      if( file_exists(FS_MYDOCS.'images/logo.png') )
+      {
+         unlink(FS_MYDOCS.'images/logo.png');
+         $this->new_message('Logotipo borrado correctamente.');
+      }
+      else if( file_exists(FS_MYDOCS.'images/logo.jpg') )
+      {
+         unlink(FS_MYDOCS.'images/logo.jpg');
          $this->new_message('Logotipo borrado correctamente.');
       }
    }

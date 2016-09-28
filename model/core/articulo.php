@@ -249,53 +249,6 @@ class articulo extends \fs_model
          $this->trazabilidad = $this->str2bool($a['trazabilidad']);
          
          $this->imagen = NULL;
-         if( isset($a['imagen']) )
-         {
-            /**
-             * En versiones anteriores se guardaba la imagen en la tabla y en
-             * tmp/articulos, ahora se guarda en images/articulos, así que hay
-             * que moverlas.
-             * 
-             * Pero eneboo las guarda de otra forma, así que hay que discriminar.
-             * RK@ => Eneboo
-             */
-            if( !file_exists('images/articulos') )
-            {
-               if( !mkdir('images/articulos', 0777, TRUE) )
-               {
-                  $this->new_error_msg('Error al crear la carpeta images/articulos.');
-               }
-            }
-            
-            if( substr($a['imagen'], 0, 3) == 'RK@' OR $a['imagen'] == '' )
-            {
-               /// eneboo, no hacemos nada
-               $this->imagen = $a['imagen'];
-            }
-            else if( file_exists('tmp/articulos/'.$this->image_ref().'.png') )
-            {
-               /// si está el archivo, lo movemos
-               if( !rename('tmp/articulos/'.$this->image_ref().'.png', 'images/articulos/'.$this->image_ref().'-1.png') )
-               {
-                  $this->new_error_msg('Error al mover la imagen del artículo.');
-               }
-            }
-            else
-            {
-               /// sino está el archivo, intentamos extraer los datos de la base de datos
-               $f = @fopen('images/articulos/'.$this->image_ref().'-1.png', 'a');
-               if($f)
-               {
-                  fwrite( $f, $this->str2bin($a['imagen']) );
-                  fclose($f);
-               }
-               else
-               {
-                  $this->new_error_msg('Error al extraer la imagen del artículo.');
-               }
-            }
-         }
-         
          $this->exists = TRUE;
       }
       else
@@ -628,11 +581,11 @@ class articulo extends \fs_model
     */
    public function imagen_url()
    {
-      if( file_exists('images/articulos/'.$this->image_ref().'-1.png') )
+      if( file_exists(FS_MYDOCS.'images/articulos/'.$this->image_ref().'-1.png') )
       {
          return 'images/articulos/'.$this->image_ref().'-1.png';
       }
-      else if( file_exists('images/articulos/'.$this->image_ref().'-1.jpg') )
+      else if( file_exists(FS_MYDOCS.'images/articulos/'.$this->image_ref().'-1.jpg') )
       {
          return 'images/articulos/'.$this->image_ref().'-1.jpg';
       }
@@ -649,29 +602,29 @@ class articulo extends \fs_model
    {
       $this->imagen = NULL;
       
-      if( file_exists('images/articulos/'.$this->image_ref().'-1.png') )
+      if( file_exists(FS_MYDOCS.'images/articulos/'.$this->image_ref().'-1.png') )
       {
-         unlink('images/articulos/'.$this->image_ref().'-1.png');
+         unlink(FS_MYDOCS.'images/articulos/'.$this->image_ref().'-1.png');
       }
       else if( file_exists('images/articulos/'.$this->image_ref().'-1.jpg') )
       {
-         unlink('images/articulos/'.$this->image_ref().'-1.jpg');
+         unlink(FS_MYDOCS.'images/articulos/'.$this->image_ref().'-1.jpg');
       }
       
       if($img)
       {
-         if( !file_exists('images/articulos') )
+         if( !file_exists(FS_MYDOCS.'images/articulos') )
          {
-            @mkdir('images/articulos', 0777, TRUE);
+            @mkdir(FS_MYDOCS.'images/articulos', 0777, TRUE);
          }
          
          if($png)
          {
-            $f = @fopen('images/articulos/'.$this->image_ref().'-1.png', 'a');
+            $f = @fopen(FS_MYDOCS.'images/articulos/'.$this->image_ref().'-1.png', 'a');
          }
          else
          {
-            $f = @fopen('images/articulos/'.$this->image_ref().'-1.jpg', 'a');
+            $f = @fopen(FS_MYDOCS.'images/articulos/'.$this->image_ref().'-1.jpg', 'a');
          }
          
          if($f)
@@ -718,9 +671,9 @@ class articulo extends \fs_model
          if( $this->db->exec($sql) )
          {
             /// renombramos la imagen, si la hay
-            if( file_exists('images/articulos/'.$this->image_ref().'-1.png') )
+            if( file_exists(FS_MYDOCS.'images/articulos/'.$this->image_ref().'-1.png') )
             {
-               rename('images/articulos/'.$this->image_ref().'-1.png', 'images/articulos/'.$this->image_ref($ref).'-1.png');
+               rename(FS_MYDOCS.'images/articulos/'.$this->image_ref().'-1.png', FS_MYDOCS.'images/articulos/'.$this->image_ref($ref).'-1.png');
             }
             
             $this->referencia = $ref;

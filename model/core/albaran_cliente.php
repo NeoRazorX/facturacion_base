@@ -413,6 +413,10 @@ class albaran_cliente extends \fs_model
          return "index.php?page=ventas_cliente&cod=".$this->codcliente;
    }
    
+   /**
+    * Devuelve las líneas del albarán.
+    * @return \linea_albaran_cliente
+    */
    public function get_lineas()
    {
       $linea = new \linea_albaran_cliente();
