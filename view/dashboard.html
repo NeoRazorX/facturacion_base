@@ -592,6 +592,16 @@
             Los modelos 303 y 390 para la hacienda española los tienes disponibles en el
             <b>plugin modelos_303_390</b>.
          </div>
+         {if="in_array('modelos_303_390', $GLOBALS['plugins'])"}
+         <div class="panel-footer">
+            <a href="index.php?page=contabilidad_regusiva" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-book"></span>&nbsp; Modelo 303
+            </a>
+            <a href="index.php?page=modelo_390" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-book"></span>&nbsp; Modelo 390
+            </a>
+         </div>
+         {/if}
       </div>
    </div>
 </div>
@@ -609,6 +619,13 @@
             El modelo 347 para la hacienda española lo tienes disponible en el
             <b>plugin modelo_347</b>.
          </div>
+         {if="in_array('modelo_347', $GLOBALS['plugins'])"}
+         <div class="panel-footer">
+            <a href="index.php?page=informe_347" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-book"></span>&nbsp; Modelo 347
+            </a>
+         </div>
+         {/if}
       </div>
    </div>
 </div>

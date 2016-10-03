@@ -112,6 +112,11 @@ class fs_pdf
     */
    private function cargar_logo()
    {
+      if( !file_exists(FS_MYDOCS.'images') )
+      {
+         @mkdir(FS_MYDOCS.'images', 0777, TRUE);
+      }
+      
       /**
        * Antes se guardaba el logo en el temporal.
        * Mala decisión, lo movemos.

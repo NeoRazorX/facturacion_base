@@ -313,6 +313,12 @@
             <div class="container-fluid">
                <div class="row">
                   <div class="col-sm-12">
+                     {if="!in_array('editar_facturas', $GLOBALS['plugins'])"}
+                     <p class="help-block text-right">
+                        Puedes editar las líneas de las facturas usando el plugin
+                        <a href="https://www.facturascripts.com/store/producto/plugin-editar-facturas/" target="_blank">editar facturas</a>.
+                     </p>
+                     {/if}
                      <div class="form-group">
                         Observaciones:
                         <textarea class="form-control" name="observaciones" rows="6">{$fsc->factura->observaciones}</textarea>
@@ -369,14 +375,6 @@
                         Tasa de conversión (1€ = X)
                         <input type="text" name="tasaconv" value="{$fsc->factura->tasaconv}" class="form-control" readonly=""/>
                      </div>
-                  </div>
-               </div>
-               <div class="row">
-                  <div class="col-sm-12">
-                     <p class="help-block">
-                        Puedes editar más detalles de las facturas usando el plugin
-                        <a href="https://www.facturascripts.com/store/producto/plugin-editar-facturas/" target="_blank">editar facturas</a>.
-                     </p>
                   </div>
                </div>
                <div class="row">
@@ -499,10 +497,12 @@
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                <h4 class="modal-title">¿Quiere eliminar o anular esta factura?</h4>
+               {if="!in_array('editar_facturas', $GLOBALS['plugins'])"}
                <p class="help-block">
                   Puedes editar facturas usando el plugin
                   <a href="https://www.facturascripts.com/store/producto/plugin-editar-facturas/" target="_blank">editar facturas</a>.
                </p>
+               {/if}
             </div>
             <div class="modal-body bg-warning">
                {if="$fsc->factura->idasiento"}

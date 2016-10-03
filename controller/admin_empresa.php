@@ -264,6 +264,11 @@ class admin_empresa extends fs_controller
    
    private function fix_logo()
    {
+      if( !file_exists(FS_MYDOCS.'images') )
+      {
+         @mkdir(FS_MYDOCS.'images', 0777, TRUE);
+      }
+      
       /**
        * Antes se guardaba el logo en el temporal.
        * Mala decisión, lo movemos.
