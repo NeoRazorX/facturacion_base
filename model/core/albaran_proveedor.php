@@ -524,10 +524,13 @@ class albaran_proveedor extends \fs_model
       if($status AND $duplicados)
       {
          /// comprobamos si es un duplicado
-         $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE fecha = ".$this->var2str($this->fecha)."
-            AND codproveedor = ".$this->var2str($this->codproveedor)." AND total = ".$this->var2str($this->total)."
-            AND codagente = ".$this->var2str($this->codagente)." AND numproveedor = ".$this->var2str($this->numproveedor)."
-            AND observaciones = ".$this->var2str($this->observaciones)." AND idalbaran != ".$this->var2str($this->idalbaran).";");
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE fecha = ".$this->var2str($this->fecha)
+                 ." AND codproveedor = ".$this->var2str($this->codproveedor)
+                 ." AND total = ".$this->var2str($this->total)
+                 ." AND codagente = ".$this->var2str($this->codagente)
+                 ." AND numproveedor = ".$this->var2str($this->numproveedor)
+                 ." AND observaciones = ".$this->var2str($this->observaciones)
+                 ." AND idalbaran != ".$this->var2str($this->idalbaran).";");
          if($data)
          {
             foreach($data as $alb)

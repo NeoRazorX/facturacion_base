@@ -843,6 +843,9 @@
                   </div>
                   <div class="col-sm-7">
                      <input type="text" name="nuevo_cifnif" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_cifnif_req']"} required=""{/if}/>
+                     <label class="checkbox-inline">
+                        <input type="checkbox" name="personafisica" value="TRUE" checked=""/> Persona física (no empresa)
+                     </label>
                   </div>
                </div>
                {if="$fsc->grupo->all()"}

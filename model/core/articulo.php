@@ -1020,6 +1020,8 @@ class articulo extends \fs_model
       $sql .= "DELETE FROM ".$this->table_name." WHERE referencia = ".$this->var2str($this->referencia).";";
       if( $this->db->exec($sql) )
       {
+         $this->set_imagen(FALSE);
+         
          $this->exists = FALSE;
          return TRUE;
       }

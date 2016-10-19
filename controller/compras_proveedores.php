@@ -71,6 +71,7 @@ class compras_proveedores extends fs_controller
          $proveedor->tipoidfiscal = $_POST['tipoidfiscal'];
          $proveedor->cifnif = $_POST['cifnif'];
          $proveedor->acreedor = isset($_POST['acreedor']);
+         $proveedor->personafisica = isset($_POST['personafisica']);
          
          if( $proveedor->save() )
          {

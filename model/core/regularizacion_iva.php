@@ -205,18 +205,25 @@ class regularizacion_iva extends \fs_model
    
    public function delete()
    {
-      /// si hay un asiento asociado lo eliminamos
-      if( isset($this->idasiento) )
+      if( $this->db->exec("DELETE FROM ".$this->table_name." WHERE idregiva = ".$this->var2str($this->idregiva).";") )
       {
-         $asiento = new \asiento();
-         $as0 = $asiento->get($this->idasiento);
-         if($as0)
+         /// si hay un asiento asociado lo eliminamos
+         if( isset($this->idasiento) )
          {
-            $as0->delete();
+            $asiento = new \asiento();
+            $as0 = $asiento->get($this->idasiento);
+            if($as0)
+            {
+               $as0->delete();
+            }
          }
+         
+         return TRUE;
       }
-      
-      return $this->db->exec("DELETE FROM ".$this->table_name." WHERE idregiva = ".$this->var2str($this->idregiva).";");
+      else
+      {
+         return FALSE;
+      }
    }
    
    /**

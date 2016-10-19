@@ -636,15 +636,16 @@
                </div>
                <div class="row">
                   <div class="col-sm-12">
-                     <div class="checkbox">
-                        <label>
-                           <input type="checkbox" name="acreedor" value="TRUE"/>
-                           Es un <b>acreedor</b>
-                           <a href="#" onclick="return acreedores_help()">
-                              <span class="glyphicon glyphicon-question-sign"></span>
-                           </a>
-                        </label>
-                     </div>
+                     <label class="checkbox-inline">
+                        <input type="checkbox" name="personafisica" value="TRUE"/> Persona física (no empresa)
+                     </label>
+                     <label class="checkbox-inline">
+                        <input type="checkbox" name="acreedor" value="TRUE"/>
+                        Es un <b>acreedor</b>
+                        <a href="#" onclick="return acreedores_help()">
+                           <span class="glyphicon glyphicon-question-sign"></span>
+                        </a>
+                     </label>
                   </div>
                </div>
             </div>

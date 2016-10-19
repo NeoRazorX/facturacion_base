@@ -22,6 +22,7 @@ namespace FacturaScripts\model;
 require_model('cuenta.php');
 require_model('direccion_cliente.php');
 require_model('ejercicio.php');
+require_model('grupo_clientes.php');
 require_model('subcuenta.php');
 require_model('subcuenta_cliente.php');
 
@@ -220,6 +221,10 @@ class cliente extends \fs_model
    protected function install()
    {
       $this->clean_cache();
+      
+      /// cargamos un grupo para forzar la comprobación de su tabla
+      new \grupo_clientes();
+      
       return '';
    }
    

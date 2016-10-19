@@ -128,7 +128,7 @@ class ventas_agrupar_albaranes extends fs_controller
             {
                foreach($this->resultados as $alb)
                {
-                  $this->neto = $alb->neto;
+                  $this->neto += $alb->neto;
                   $this->total += $alb->total;
                }
             }

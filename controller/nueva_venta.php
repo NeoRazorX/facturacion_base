@@ -165,6 +165,7 @@ class nueva_venta extends fs_controller
                   $this->cliente_s->nombre = $this->cliente_s->razonsocial = $_POST['nuevo_cliente'];
                   $this->cliente_s->tipoidfiscal = $_POST['nuevo_tipoidfiscal'];
                   $this->cliente_s->cifnif = $_POST['nuevo_cifnif'];
+                  $this->cliente_s->personafisica = isset($_POST['personafisica']);
                   
                   if( isset($_POST['codgrupo']) )
                   {

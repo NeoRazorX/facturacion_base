@@ -93,7 +93,7 @@ class dashboard extends fs_controller
           'beneficios_anterior' => 0,
           'beneficios_mejora' => 0,
       );
-      if( intval( date('d') ) <= 7 )
+      if( intval( date('d') ) <= 3 )
       {
          /// en los primeros días del mes, mejor comparamos los datos del anterior
          $this->mes['desde'] = date('1-m-Y', strtotime('-1 month'));

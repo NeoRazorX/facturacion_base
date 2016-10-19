@@ -331,8 +331,8 @@ class factura_cliente extends \fs_model
          $this->fecha = Date('d-m-Y');
          $this->hora = Date('H:i:s');
          $this->codcliente = NULL;
-         $this->nombrecliente = NULL;
-         $this->cifnif = NULL;
+         $this->nombrecliente = '';
+         $this->cifnif = '';
          $this->direccion = NULL;
          $this->provincia = NULL;
          $this->ciudad = NULL;
@@ -835,9 +835,10 @@ class factura_cliente extends \fs_model
       $encontrado = FALSE;
       $fecha = $this->fecha;
       $hora = $this->hora;
-      $sql = "SELECT ".$this->db->sql_to_int('numero')." as numero,fecha,hora
-         FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).
-         " AND codserie = ".$this->var2str($this->codserie)." ORDER BY numero ASC;";
+      $sql = "SELECT ".$this->db->sql_to_int('numero')." as numero,fecha,hora FROM ".$this->table_name
+              ." WHERE codejercicio = ".$this->var2str($this->codejercicio)
+              ." AND codserie = ".$this->var2str($this->codserie)
+              ." ORDER BY numero ASC;";
       
       $data = $this->db->select($sql);
       if($data)
@@ -1084,9 +1085,13 @@ class factura_cliente extends \fs_model
       if($status AND $duplicados)
       {
          /// comprobamos si es un duplicado
-         $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE fecha = ".$this->var2str($this->fecha)."
-            AND codcliente = ".$this->var2str($this->codcliente)." AND total = ".$this->var2str($this->total)."
-            AND observaciones = ".$this->var2str($this->observaciones)." AND idfactura != ".$this->var2str($this->idfactura).";");
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE fecha = ".$this->var2str($this->fecha)
+                 ." AND codcliente = ".$this->var2str($this->codcliente)
+                 ." AND total = ".$this->var2str($this->total)
+                 ." AND codagente = ".$this->var2str($this->codagente)
+                 ." AND numero2 = ".$this->var2str($this->numero2)
+                 ." AND observaciones = ".$this->var2str($this->observaciones)
+                 ." AND idfactura != ".$this->var2str($this->idfactura).";");
          if($data)
          {
             foreach($data as $fac)

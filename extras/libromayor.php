@@ -48,7 +48,7 @@ class libro_mayor
       {
          if($num < 2 OR $num == $random)
          {
-            foreach($this->subcuenta->all_from_ejercicio($eje->codejercicio, TRUE, 200) as $sc)
+            foreach($this->subcuenta->all_from_ejercicio($eje->codejercicio, TRUE, 300) as $sc)
             {
                /**
                 * Recalcular los saldos de las subcuentas es un proceso lento,

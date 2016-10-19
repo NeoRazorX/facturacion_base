@@ -281,7 +281,7 @@
             <th class="text-left">Observaciones</th>
             <th class="text-right">Total</th>
             <th class="text-right">Fecha</th>
-            <th class="text-right hidden-sm">Hora</th>
+            <th class="text-right visible-lg">Hora</th>
          </tr>
       </thead>
       {loop="$fsc->resultados"}
@@ -316,7 +316,7 @@
          <td class="text-right" title="Hora {$value->hora}">
             {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
          </td>
-         <td class="text-right hidden-sm">{$value->hora}</td>
+         <td class="text-right visible-lg">{$value->hora}</td>
       </tr>
       {else}
       <tr class="warning">

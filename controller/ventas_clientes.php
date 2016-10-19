@@ -151,6 +151,7 @@ class ventas_clientes extends fs_controller
          $cliente->razonsocial = $_POST['nombre'];
          $cliente->tipoidfiscal = $_POST['tipoidfiscal'];
          $cliente->cifnif = $_POST['cifnif'];
+         $cliente->personafisica = isset($_POST['personafisica']);
          
          if( isset($_POST['scodgrupo']) )
          {
@@ -220,6 +221,11 @@ class ventas_clientes extends fs_controller
          }
          else
             $this->new_error_msg("¡Imposible guardar los datos del cliente!");
+      }
+      else
+      {
+         /// eliminar en la siguiente actualización.
+         $this->fix_db();
       }
       
       $this->offset = 0;
@@ -502,5 +508,14 @@ class ventas_clientes extends fs_controller
             }
          }
       }
+   }
+   
+   private function fix_db()
+   {
+      /**
+       * Ponemos a NULL todos los codgrupo que no están en gruposclientes
+       */
+      $this->db->exec("UPDATE clientes SET codgrupo = NULL WHERE codgrupo IS NOT NULL"
+              . " AND codgrupo NOT IN (SELECT codgrupo FROM gruposclientes);");
    }
 }

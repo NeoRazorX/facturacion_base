@@ -185,4 +185,10 @@
       <nombre>clientes_pkey</nombre>
       <consulta>PRIMARY KEY (codcliente)</consulta>
    </restriccion>
+   <restriccion>
+      <nombre>ca_clientes_grupos</nombre>
+      <consulta>FOREIGN KEY (codgrupo)
+      REFERENCES gruposclientes (codgrupo)
+      ON DELETE SET NULL ON UPDATE CASCADE</consulta>
+   </restriccion>
 </tabla>

@@ -239,7 +239,7 @@ class factura_proveedor extends \fs_model
       else
       {
          $this->anulada = FALSE;
-         $this->cifnif = NULL;
+         $this->cifnif = '';
          $this->codagente = NULL;
          $this->codalmacen = $this->default_items->codalmacen();
          $this->coddivisa = NULL;
@@ -257,7 +257,7 @@ class factura_proveedor extends \fs_model
          $this->idfacturarect = NULL;
          $this->irpf = 0;
          $this->neto = 0;
-         $this->nombre = NULL;
+         $this->nombre = '';
          $this->numero = NULL;
          $this->numproveedor = NULL;
          $this->observaciones = NULL;
@@ -657,11 +657,10 @@ class factura_proveedor extends \fs_model
       /// buscamos un hueco o el siguiente número disponible
       $encontrado = FALSE;
       $num = 1;
-      $fecha = $this->fecha;
-      $hora = $this->hora;
-      $sql = "SELECT ".$this->db->sql_to_int('numero')." as numero,fecha,hora
-         FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio).
-         " AND codserie = ".$this->var2str($this->codserie)." ORDER BY numero ASC;";
+      $sql = "SELECT ".$this->db->sql_to_int('numero')." as numero,fecha,hora FROM ".$this->table_name
+              ." WHERE codejercicio = ".$this->var2str($this->codejercicio)
+              ." AND codserie = ".$this->var2str($this->codserie)
+              ." ORDER BY numero ASC;";
       
       $data = $this->db->select($sql);
       if($data)
@@ -683,10 +682,8 @@ class factura_proveedor extends \fs_model
             }
             else
             {
-               /// Hemos encontrado un hueco y debemos usar el número y la fecha.
+               /// Hemos encontrado un hueco
                $encontrado = TRUE;
-               $fecha = Date('d-m-Y', strtotime($d['fecha']));
-               $hora = Date('H:i:s', strtotime($d['hora']));
                break;
             }
          }
@@ -695,8 +692,6 @@ class factura_proveedor extends \fs_model
       if($encontrado)
       {
          $this->numero = $num;
-         $this->fecha = $fecha;
-         $this->hora = $hora;
       }
       else
       {
@@ -875,9 +870,13 @@ class factura_proveedor extends \fs_model
       if($status AND $duplicados)
       {
          /// comprobamos si es un duplicado
-         $facturas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE fecha = ".$this->var2str($this->fecha)."
-            AND codproveedor = ".$this->var2str($this->codproveedor)." AND total = ".$this->var2str($this->total)."
-            AND observaciones = ".$this->var2str($this->observaciones)." AND idfactura != ".$this->var2str($this->idfactura).";");
+         $facturas = $this->db->select("SELECT * FROM ".$this->table_name." WHERE fecha = ".$this->var2str($this->fecha)
+                 ." AND codproveedor = ".$this->var2str($this->codproveedor)
+                 ." AND total = ".$this->var2str($this->total)
+                 ." AND codagente = ".$this->var2str($this->codagente)
+                 ." AND numproveedor = ".$this->var2str($this->numproveedor)
+                 ." AND observaciones = ".$this->var2str($this->observaciones)
+                 ." AND idfactura != ".$this->var2str($this->idfactura).";");
          if($facturas)
          {
             foreach($facturas as $fac)

@@ -307,8 +307,8 @@ class albaran_cliente extends \fs_model
          $this->codpostal = '';
          $this->numero = NULL;
          $this->numero2 = NULL;
-         $this->nombrecliente = NULL;
-         $this->cifnif = NULL;
+         $this->nombrecliente = '';
+         $this->cifnif = '';
          $this->direccion = NULL;
          $this->ciudad = NULL;
          $this->provincia = NULL;
@@ -645,10 +645,13 @@ class albaran_cliente extends \fs_model
       if($status AND $duplicados)
       {
          /// comprobamos si es un duplicado
-         $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE fecha = ".$this->var2str($this->fecha)."
-            AND codcliente = ".$this->var2str($this->codcliente)." AND total = ".$this->var2str($this->total)."
-            AND codagente = ".$this->var2str($this->codagente)." AND numero2 = ".$this->var2str($this->numero2)."
-            AND observaciones = ".$this->var2str($this->observaciones)." AND idalbaran != ".$this->var2str($this->idalbaran).";");
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE fecha = ".$this->var2str($this->fecha)
+                 ." AND codcliente = ".$this->var2str($this->codcliente)
+                 ." AND total = ".$this->var2str($this->total)
+                 ." AND codagente = ".$this->var2str($this->codagente)
+                 ." AND numero2 = ".$this->var2str($this->numero2)
+                 ." AND observaciones = ".$this->var2str($this->observaciones)
+                 ." AND idalbaran != ".$this->var2str($this->idalbaran).";");
          if($data)
          {
             foreach($data as $alb)

@@ -667,6 +667,9 @@ class informe_errores extends fs_controller
           */
          $this->db->exec("UPDATE albaranescli SET idfactura = NULL WHERE idfactura IS NOT NULL"
                  . " AND idfactura NOT IN (SELECT idfactura FROM facturascli);");
+         
+         $recargar = TRUE;
+         $this->informe['offset'] += 1;
       }
       else if($this->informe['offset'] == 7)
       {
@@ -675,8 +678,22 @@ class informe_errores extends fs_controller
           */
          $this->db->exec("UPDATE albaranesprov SET idfactura = NULL WHERE idfactura IS NOT NULL"
                  . " AND idfactura NOT IN (SELECT idfactura FROM facturasprov);");
+         
+         $recargar = TRUE;
+         $this->informe['offset'] += 1;
       }
       else if($this->informe['offset'] == 8)
+      {
+         /**
+          * Ponemos a NULL todos los codgrupo que no están en gruposclientes
+          */
+         $this->db->exec("UPDATE clientes SET codgrupo = NULL WHERE codgrupo IS NOT NULL"
+                 . " AND codgrupo NOT IN (SELECT codgrupo FROM gruposclientes);");
+         
+         $recargar = TRUE;
+         $this->informe['offset'] += 1;
+      }
+      else if($this->informe['offset'] == 9)
       {
          $almacen = new almacen();
          if( !$almacen->all() )

@@ -123,6 +123,7 @@ class nueva_compra extends fs_controller
                   $this->proveedor_s->tipoidfiscal = $_POST['nuevo_tipoidfiscal'];
                   $this->proveedor_s->cifnif = $_POST['nuevo_cifnif'];
                   $this->proveedor_s->acreedor = isset($_POST['acreedor']);
+                  $this->proveedor_s->personafisica = isset($_POST['personafisica']);
                   $this->proveedor_s->save();
                   
                   if($this->empresa->contintegrada)
