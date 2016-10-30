@@ -17,19 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('articulo.php');
 require_model('asiento.php');
+require_model('caja.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('impuesto.php');
-require_model('partida.php');
 require_model('subcuenta.php');
 require_model('factura_proveedor.php');
+require_model('pago_por_caja.php');
+require_model('partida.php');
 require_once 'plugins/facturacion_base/extras/libromayor.php';
 
 
 class contabilidad_asiento extends fs_controller
 {
    public $allow_delete;
+
+    /**
+     * @var asiento
+     */
    public $asiento;
    public $divisa;
    public $ejercicio;
@@ -44,6 +51,12 @@ class contabilidad_asiento extends fs_controller
    public $saldo;
    public $alias;
    public $resu;
+   public $solapa;
+
+    /**
+     * @var array
+     */
+   public static $partidas = array();
    
    public function __construct()
    {
@@ -72,9 +85,9 @@ class contabilidad_asiento extends fs_controller
       $asiento = new asiento();
       if( isset($_GET['id']) )
       {         
-         $this->asiento = $asiento->get($_GET['id']);		 
+         $this->asiento = $asiento->get($_GET['id']);
       }
-	  
+
 /*	 			 print '<script language="JavaScript">'; 
 				print 'alert(" id partida : '.$this->asiento->codejercicio.'  id asiento '.$this->asiento->idasiento.' ");'; 
 				print '</script>'; 
@@ -219,7 +232,6 @@ class contabilidad_asiento extends fs_controller
 			 $this->saldo = $valores['saldo'];
 	//		 $this->comprobante = $valores['comprobante'];
 	//		 $this->referencia = $valores['referencia'];
-			 
       }
 	  
       else $this->new_error_msg("Asiento no encontrado.");
@@ -238,7 +250,7 @@ class contabilidad_asiento extends fs_controller
       else
          return $this->ppage->url();
    }
-   
+
    public function url_mayorizar()
    {
    return 'index.php?page=mayorizar_subc';
@@ -406,7 +418,18 @@ class contabilidad_asiento extends fs_controller
                   break;
             }
          }
-         
+            // Después de que se hicieron todas las actualizaciones cargo las partidas existentes y actualizo
+            // al array contabilidad_asiento::$partidas para que se actualicen con las generadas por las cajas
+            contabilidad_asiento::cargar_partidas($this->asiento, $div0);
+            if(isset($_POST['importar_caja']) &&
+                filter_var($_POST['importar_caja'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) === true) {
+                if($continuar) {
+                    $continuar = contabilidad_asiento::importar_caja($this->asiento, $div0, $this);
+                } else {
+                    $this->new_error_msg("Hay algún error relacionado a este asiento, imposible importar cajas");
+                }
+            }
+
          if($continuar)
          {
             $this->new_message('Asiento modificado correctamente.');
@@ -447,5 +470,241 @@ class contabilidad_asiento extends fs_controller
       else
          return 0;
    }
-   
+
+    /**
+     * @param asiento $asiento
+     * @param divisa $divisa
+     */
+    public static function cargar_partidas(asiento $asiento, divisa $divisa) {
+        $partidas = $asiento->get_partidas();
+        if(is_array($partidas) && !empty($partidas)) {
+            foreach ($partidas as $partida) {
+                self::add_partida($asiento, $divisa, $partida->codsubcuenta, array(
+                    'debe' => $partida->debe,
+                    'haber' => $partida->haber,
+                    'comprobante' => $partida->comprobante
+                ));
+            }
+        }
+    }
+
+    /**
+     * @param asiento $asiento
+     * @param divisa $divisa
+     * @param fs_controller $controller
+     *
+     * @return bool Status de la importacion de las cajas
+     */
+    public static function importar_caja(asiento $asiento, divisa $divisa, fs_controller $controller) {
+        $art = new articulo();
+        $continuar = true;
+        /** @var caja[] $cajas_importadas */
+        $cajas_importadas = array();
+        foreach ($_POST['cajas'] as $idcaja) {
+            $caja = caja::get($idcaja);
+            // Lo primero que tiene que haber en el asiento es una linea con el monto de la caja importada
+            // Cuando importe muchas, lo que va a haber es una sola linea con el total de cajas
+            contabilidad_asiento::add_partida($asiento, $divisa, '110101001', array(
+                'debe' => $caja->dinero_fin,
+                'haber' => 0,
+                'comprobante' => '<a hreh="'.$caja->url() .'">Caja #' . $caja->id . '</a>,',
+            ));
+            foreach ($caja->get_recibos() as $recibo) {
+                $factura = $recibo->getFactura();
+                // Obtengo las lineas de la factura
+                $lineas = $factura->get_lineas();
+
+                // Después de acuerdo a la forma de pago del recibo tengo que agregar el pago a cada una de las cuentas
+                switch ($recibo->codpago) {
+                    case 'CONT':
+                        // TODO: Cuando es de contado, a que cuenta va?
+                        break;
+                    case 'DBT MACRO':
+                        contabilidad_asiento::add_partida($asiento, $divisa, '110103001', array(
+                            'debe' => 0,
+                            'haber' => $recibo->importe,
+                            'comprobante' => ''
+                        ));
+                        break;
+                    case 'DBT S. RIO':
+                        contabilidad_asiento::add_partida($asiento, $divisa, '110103006', array(
+                            'debe' => 0,
+                            'haber' => $recibo->importe,
+                            'comprobante' => ''
+                        ));
+                        break;
+                    case 'TRF':
+                    case 'CHQ':
+                    case 'DEP':
+                        contabilidad_asiento::add_partida($asiento, $divisa, '110103003', array(
+                            'debe' => 0,
+                            'haber' => $recibo->importe,
+                            'comprobante' => ''
+                        ));
+                        break;
+                    case 'TC':
+                    case 'TD':
+                        contabilidad_asiento::add_partida($asiento, $divisa, '1102010000', array(
+                            'debe' => 0,
+                            'haber' => $recibo->importe,
+                            'comprobante' => ''
+                        ));
+                        break;
+                    default:
+                        $controller->new_error_msg("La forma de pago no está configurada para ser importada!");
+                        break;
+                }
+
+                // Después de eso viene la parte "compleja":
+                // Si la factura del recibo está pagada
+                if($factura->pagada) {
+                    // El monto total de la factura es igual al del recibo?
+                    if($recibo->importe === $factura->total) {
+                        // tomamos todos los articulos y los importamos de acuerdo a la subcuenta de venta
+                        // que está declarada en cada articulo (este es el caso "normal", como por ejemplo
+                        // el de las COMIDAS_PERSONAL
+                        foreach ($lineas as $linea) {
+                            $articulo = $art->get($linea->referencia);
+                            // Si no hay articulo tengo un grave problema
+                            if($articulo && $articulo->codsubcuentaven) {
+                                contabilidad_asiento::add_partida($asiento, $divisa, $articulo->codsubcuentaven, array(
+                                    'debe' => 0,
+                                    'haber' => $linea->pvptotal,
+                                    'comprobante' => ''
+                                ));
+                            } else {
+                                $controller->new_error_msg('La factura: <a href="'.$factura->url().'">#'.
+                                    $factura->numero . '</a> tiene un un artículo inexistente: ' . $linea->referencia .
+                                    'o el artículo no tiene configurada la cuenta a la que deve ser cargada'
+                                );
+                            }
+                        }
+                    } else {
+                        // Si la factura está paga pero los totales difieren
+                        // Eso quiere decir que los pagos están dispersos entre varias cajas, por lo que tengo que
+                        // importar solamente el monto del recibo
+
+                        // si el artículo que tiene soalemente es una reserva
+                        if(count($lineas) === 1 && $lineas[0]->referencia === 'Reserva') {
+                            // se agrega la partida a la subcuenta 210101003
+                            contabilidad_asiento::add_partida($asiento, $divisa, '210101003', array(
+                                'debe' => 0,
+                                'haber' => $recibo->importe,
+                                'comprobante' => ''
+                            ));
+                            // TODO: Me parece que cuando la reserva ya está paga hay que agregarla a otros lugares
+                        } else {
+                            // No se que hacer en estos casos
+                            $controller->new_error_msg('La factura <a href="' . $factura->url() .'">#'. $factura->numero
+                                . '</a> está paga  pero el importe está distribuido y contiene otros articulos que no'
+                                . ', por lo que no puede ser importada en un asiento contable por favor ignore la caja #' . $caja->id);
+                            $continuar = false;
+                        }
+
+                    }
+                } else {
+                    // Si la factura no está paga y el artículo es una reserva
+                    // entonces los recibos van a la subcuenta 210101003
+                    if(count($lineas) === 1 && $lineas[0]->referencia === 'Reserva') {
+                        contabilidad_asiento::add_partida($asiento, $divisa, '210101003', array(
+                            'debe' => 0,
+                            'haber' => $recibo->importe,
+                            'comprobante' => ''
+                        ));
+                    } else {
+                        //No se que hacer en estos casos
+                        $controller->new_error_msg('La factura <a href="' . $factura->url() .'">#'. $factura->numero
+                            . '</a> no está paga y contiene otros articulos que no son una reserva, por lo que no '
+                            . ' puede ser importada en un asiento contable  por favor ignore la caja #' . $caja->id);
+                        $continuar = false;
+                    }
+                }
+            }
+            if($continuar) {
+                $cajas_importadas[] = $caja;
+            }
+        }
+
+        // Si todas las cajas fueron importadas correctamente
+        if ($continuar) {
+            // Guardo las partidas asociadas al asiento en la BBDD
+            foreach(contabilidad_asiento::$partidas as $subcuenta => $partida) {
+                // Creamos una nueva partida
+                $part = new partida();
+                // Cargamos los valores en la partida
+                foreach ($partida as $name => $value) {
+                    if (property_exists($part, $name)) {
+                        $part->$name = $value;
+                    }
+                }
+                $part->referencia = 'Caja importada el ' . date('Y-m-d H:i:s') . ' por ' . $controller->user->get_agente()->get_fullname();
+                // Al guardar la partida se actualiza automáticamente los valores de la subcuenta
+                // Y el monto del asiento
+                if($part->save()) {
+                    $continuar = $continuar && true;
+                } else {
+                    $continuar = false;
+                }
+            }
+
+            if($continuar) {
+                foreach ($cajas_importadas as $caja) {
+                    $caja->setIdAsiento($asiento->idasiento);
+                    if(!$caja->save()) {
+                        $controller->new_error_msg("Error al actualizar la caja #" . $caja->id);
+                        $continuar = $continuar && true;
+                    } else {
+                        $continuar = false;
+                    }
+                }
+                if($continuar) {
+                    $controller->new_message('Cajas importada correctamente');
+                } else {
+                    $controller->new_error_msg('Hubo algún error al vincular el asiento con las cajas');
+                }
+            } else {
+                // Creo que acá tendría que hacer rollback de toda la transacción
+                $controller->new_error_msg("Error al guardar una partida al asiento");
+            }
+        } else {
+            $controller->new_error_msg("Error al importar cajas");
+        }
+
+        return $continuar;
+    }
+
+    /**
+     * @param asiento $asiento
+     * @param divisa $divisa
+     * @param $codsubcuenta
+     * @param array $datos
+     */
+    private static function add_partida(asiento $asiento, divisa $divisa, $codsubcuenta, array $datos) {
+        $subcuenta = subcuenta::fetch($codsubcuenta, $asiento->codejercicio);
+        if(!isset(contabilidad_asiento::$partidas[$codsubcuenta])) {
+            //Si no está en la lista de partidas entonces agrego una partida con la informacion base
+            contabilidad_asiento::$partidas[$codsubcuenta] = array(
+                'idasiento' => $asiento->idasiento,
+                'idsubcuenta' => $subcuenta->idsubcuenta,
+                'codsubcuenta' => $codsubcuenta,
+                'idconcepto' => $asiento->idconcepto,
+                'concepto' => $asiento->concepto,
+                'tasaconv' => $divisa->tasaconv,
+                'coddivisa' => $divisa->coddivisa,
+                'tipodocumento' => $asiento->tipodocumento,
+                'documento' => $asiento->documento,
+                'codejercicio' => $asiento->codejercicio,
+                'debe' => (float) 0.0,
+                'haber' => (float) 0.0,
+                'comprobante' => '',
+                'referencia' => ''
+            );
+        }
+
+        //Agrego los valores en $datos a la partida
+        contabilidad_asiento::$partidas[$codsubcuenta]['debe'] += (float) $datos['debe'];
+        contabilidad_asiento::$partidas[$codsubcuenta]['haber'] += (float) $datos['haber'];
+        contabilidad_asiento::$partidas[$codsubcuenta]['comprobante'] += $datos['comprobante'];
+    }
+
 }

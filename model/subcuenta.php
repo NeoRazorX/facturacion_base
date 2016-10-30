@@ -307,6 +307,16 @@ class subcuenta extends fs_model
 					}
 		return $tipo;			
    }
+
+    /**
+     * @param $cod
+     * @param $ejercicio
+     * @return subcuenta
+     */
+   public static function fetch($cod, $ejercicio) {
+       $subc = new self();
+       return $subc->get_by_codigo($cod, $ejercicio, false);
+   }
    
    public function get($id)
    {

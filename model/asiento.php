@@ -168,7 +168,10 @@ class asiento extends fs_model
       else
          return FALSE;
    }
-   
+
+    /**
+     * @return partida[]
+     */
    public function get_partidas()
    {
       $partida = new partida();
@@ -458,12 +461,12 @@ class asiento extends fs_model
 				$importe_partida = new partida();
 				$importe = $importe_partida->get_idasiento($array_sum_importe[0]['idasiento']);
 
+            if($importe && is_array($importe)) {
+                foreach($importe as $ext) {
+                    $sum_importe = $sum_importe + $ext['debe'];
+                }
+            }
 
-				foreach($importe as $ext)
-     			{
-					$sum_importe = $sum_importe + $ext['debe'];
-      			}
-				
 /*				print '<script language="JavaScript">'; 
 				print 'alert(" id partida '..' ");'; 
 				print '</script>'; 

@@ -57,7 +57,11 @@ class facturascaja extends fs_controller {
         }
 
         $this->caja = caja::get($this->idcaja);
-        $this->facturas = $this->caja->findFacturas();
+        if($this->caja) {
+            $this->facturas = $this->caja->findFacturas();
+        } else {
+            $this->facturas = array();
+        }
 
     }
 

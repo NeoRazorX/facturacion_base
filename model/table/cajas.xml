@@ -49,6 +49,12 @@
       <nulo>YES</nulo>
    </columna>
    <columna>
+      <nombre>idasiento</nombre>
+      <tipo>integer</tipo>
+      <default>NULL</default>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
       <nombre>ip</nombre>
       <tipo>character varying(40)</tipo>
       <nulo>YES</nulo>
@@ -56,5 +62,11 @@
    <restriccion>
       <nombre>cajas_pkey</nombre>
       <consulta>PRIMARY KEY (id)</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>fk_co_asientos</nombre>
+      <consulta>FOREIGN KEY (idasiento)
+         REFERENCES co_asientos(idasiento)
+         ON DELETE RESTRICT ON UPDATE CASCADE</consulta>
    </restriccion>
 </tabla>

@@ -725,8 +725,11 @@ class partida extends fs_model
       }
       return $plist;
    }
-   
-   
+
+    /**
+     * @param $id
+     * @return partida[]
+     */
    public function all_from_asiento($id)
    {
       $plist = array();

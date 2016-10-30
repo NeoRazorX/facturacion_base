@@ -1,260 +1,272 @@
 {include="header"}
 
 <script type="text/javascript">
-   function delete_caja(id)
-   {
-      if( confirm("¿Realmente desea eliminar la caja "+id+"?") )
-         window.location.href = '{$fsc->url()}&delete='+id;
-   }
-   function delete_terminal(id)
-   {
-      if( confirm("¿Realmente desea eliminar el terminal "+id+"?") )
-         window.location.href = '{$fsc->url()}&deletet='+id+'#terminales';
-   }
-   $(document).ready(function() {
-      if(window.location.hash.substring(1) == 'terminales')
+  function delete_caja(id)
+  {
+      if (confirm("¿Realmente desea eliminar la caja " + id + "?"))
+          window.location.href = '{$fsc->url()}&delete=' + id;
+  }
+  function delete_terminal(id)
+  {
+      if (confirm("¿Realmente desea eliminar el terminal " + id + "?"))
+          window.location.href = '{$fsc->url()}&deletet=' + id + '#terminales';
+  }
+  $(document).ready(function () {
+      if (window.location.hash.substring(1) == 'terminales')
       {
-         $('#tab_cajas a[href="#terminales"]').tab('show');
+          $('#tab_cajas a[href="#terminales"]').tab('show');
       }
-   });
+  });
 </script>
 
 <div class="container-fluid" style="margin-top: 10px;">
-   <div class="row">
-      <div class="col-sm-6">
-         <div class="btn-group hidden-xs">
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
-               <span class="glyphicon glyphicon-refresh"></span>
-            </a>
-            {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
-            </a>
-            {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
-            </a>
-            {/if}
-         </div>
-         <div class="btn-group">
-            <a class="btn btn-sm btn-success" href="{$fsc->new_caja_url()}">
-               <span class="glyphicon glyphicon-plus"></span>
-               <span class="hidden-xs">&nbsp; Nueva</span>
-            </a>
-         {loop="$fsc->extensions"}
-            {if="$value->type=='button'"}
-            <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
-            {/if}
-         {/loop}
-         </div>
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="btn-group hidden-xs">
+        <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+          <span class="glyphicon glyphicon-refresh"></span>
+        </a>
+        {if="$fsc->page->is_default()"}
+        <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+          <span class="glyphicon glyphicon-home"></span>
+        </a>
+        {else}
+        <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+          <span class="glyphicon glyphicon-home"></span>
+        </a>
+        {/if}
       </div>
-      <div class="col-sm-6 text-right">
-         <h2 style="margin-top: 0px;">Cajas</h2>
+      <div class="btn-group">
+        <a class="btn btn-sm btn-success" href="{$fsc->new_caja_url()}">
+          <span class="glyphicon glyphicon-plus"></span>
+          <span class="hidden-xs">&nbsp; Nueva</span>
+        </a>
+        {loop="$fsc->extensions"}
+        {if="$value->type=='button'"}
+        <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+        {/if}
+        {/loop}
       </div>
-   </div>
+    </div>
+    <div class="col-sm-6 text-right">
+      <h2 style="margin-top: 0px;">Cajas</h2>
+    </div>
+  </div>
 </div>
 
 <div id="tab_cajas" role="tabpanel">
-   <ul class="nav nav-tabs" role="tablist">
-      <li role="presentation" class="active">
-         <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
-            <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Historial</span>
-         </a>
-      </li>
-      <li role="presentation">
-         <a href="#terminales" aria-controls="terminales" role="tab" data-toggle="tab">
-            <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Terminales</span>
-         </a>
-      </li>
-   </ul>
-   <div class="tab-content">
-      <div role="tabpanel" class="tab-pane active" id="home">
-         <div class="table-responsive">
-            <table class="table table-hover">
-               <thead>
-                  <tr>
-                     <th class="text-left">ID</th>
-                     <th class="text-left">Terminal</th>
-                     <th class="text-left">Empleado</th>
-					           <th class="text-left">Listado de Pagos</th>
-                     <th class="text-center">Fecha inicial</th>
-                     <th class="text-right">Dinero inicial</th>
-                     <th class="text-center">Fecha fin</th>
-                     <th class="text-right">Diferencia</th>
-                     <th class="text-right">Tickets</th>
-                     <th class="text-right">Acciones</th>
-                  </tr>
-               </thead>
-               {loop="$fsc->resultados"}
-               <tr{if="$value->abierta()"} class="bg-warning"{/if}>
-                  <td>{$value->id}</td>
-                  <td>{$value->fs_id}</td>
-                  <td>
-                     {if="$value->agente"}
-                     <a href="{$value->agente->url()}">{$value->agente->get_fullname()}</a>
-                     {else}
-                     -
-                     {/if}
-                  </td>
-				           <td>
-                     <a href="{$fsc->recibos_url($value)}">Ver listado de pagos</a>
-                   </td>
-                  <td class="text-center">{$value->fecha_inicial}</td>
-                  <td class="text-right">{$fsc->show_precio($value->dinero_inicial)}</td>
-                  <td class="text-center">{$value->show_fecha_fin()}</td>
-                  <td class="text-right">{$fsc->show_precio($value->diferencia())}</td>
-                  <td class="text-right">{$value->tickets}</td>
-                  <td class="text-right">
-                     {if="$fsc->allow_delete"}
-                     <div class="btn-group">
-                        {if="$value->abierta()"}
-                        <a href="{$fsc->url()}&cerrar={$value->id}" class="btn btn-xs btn-warning" title="Cerrar caja">
-                           <span class="glyphicon glyphicon-lock"></span>
-                        </a>
-                        {/if}
-                        <a href="#" class="btn btn-xs btn-danger" title="Eliminar" onclick="delete_caja('{$value->id}')">
-                           <span class="glyphicon glyphicon-trash"></span>
-                        </a>
-                     </div>
-                     {/if}
-                  </td>
-               </tr>
-               {else}
-               <tr class="bg-warning">
-                  <td colspan="9">Sin resultados.</td>
-               </tr>
-               {/loop}
-            </table>
-         </div>
-         <ul class="pager">
-            {if="$fsc->anterior_url()!=''"}
-            <li class="previous">
-               <a href="{$fsc->anterior_url()}">
-                  <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
-               </a>
-            </li>
-            {/if}
-            {if="$fsc->siguiente_url()!=''"}
-            <li class="next">
-               <a href="{$fsc->siguiente_url()}">
-                  Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
-               </a>
-            </li>
-            {/if}
-         </ul>
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active">
+      <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
+        <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+        <span class="hidden-xs">&nbsp; Historial</span>
+      </a>
+    </li>
+    <li role="presentation">
+      <a href="#terminales" aria-controls="terminales" role="tab" data-toggle="tab">
+        <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+        <span class="hidden-xs">&nbsp; Terminales</span>
+      </a>
+    </li>
+  </ul>
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="home">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th class="text-left">ID</th>
+              <th class="text-left">Terminal</th>
+              <th class="text-left">Empleado</th>
+              <th class="text-left">Listado de Pagos</th>
+              <th class="text-center">Fecha inicial</th>
+              <th class="text-right">Dinero inicial</th>
+              <th class="text-center">Fecha fin</th>
+              <th class="text-right">Diferencia</th>
+              <th class="text-right">Tickets</th>
+              <th class="text-right">Asiento</th>
+              <th class="text-right">Acciones</th>
+            </tr>
+          </thead>
+          {loop="$fsc->resultados"}
+          <tr{if="$value->abierta()"} class="bg-warning"{/if}>
+            <td>{$value->id}</td>
+            <td>{$value->fs_id}</td>
+            <td>
+              {if="$value->agente"}
+              <a href="{$value->agente->url()}">{$value->agente->get_fullname()}</a>
+              {else}
+              -
+              {/if}
+            </td>
+            <td>
+              <a href="{$fsc->recibos_url($value)}">Ver listado de pagos</a>
+            </td>
+            <td class="text-center">{$value->fecha_inicial}</td>
+            <td class="text-right">{$fsc->show_precio($value->dinero_inicial)}</td>
+            <td class="text-center">{$value->show_fecha_fin()}</td>
+            <td class="text-right">{$fsc->show_precio($value->diferencia())}</td>
+            <td class="text-right">{$value->tickets}</td>
+            <td class="text-right">
+              {if="$value->getIdAsiento()"}
+              <a href="{$fsc->asiento_url($value->getAsiento())}">En Asiento {$value->getAsiento()->numero}</a>
+              {else}
+              -
+              {/if}
+            </td>
+            <td class="text-right">
+              {if="$fsc->allow_delete"}
+              <div class="btn-group">
+                <a href="lalala" class="btn btn-xs btn-default">
+                  <span class="glyphicon glyphicon-list-alt"></span>
+                </a>
+                {if="$value->abierta()"}
+                <a href="{$fsc->url()}&cerrar={$value->id}" class="btn btn-xs btn-warning" title="Cerrar caja">
+                  <span class="glyphicon glyphicon-lock"></span>
+                </a>
+                {/if}
+                <a href="#" class="btn btn-xs btn-danger" title="Eliminar" onclick="delete_caja('{$value->id}')">
+                  <span class="glyphicon glyphicon-trash"></span>
+                </a>
+              </div>
+              {/if}
+            </td>
+          </tr>
+          {else}
+          <tr class="bg-warning">
+            <td colspan="9">Sin resultados.</td>
+          </tr>
+          {/loop}
+        </table>
       </div>
-      <div role="tabpanel" class="tab-pane" id="terminales">
-         <div class="table-responsive">
-            <table class="table table-hover">
-               <thead>
-                  <tr>
-                     <th>ID</th>
-                     <th>Almacén</th>
-                     <th>Serie</th>
-                     <th>Código Cliente</th>
-                     <th>Ancho papel</th>
-                     <th>Comando corte</th>
-                     <th>Comando apertura</th>
-                     <th>nº tickets</th>
-                     <th></th>
-                     <th class="text-right" width="120">Acciones</th>
-                  </tr>
-               </thead>
-               {loop="$fsc->terminales"}
-               <form action="{$fsc->url()}#terminales" method="post" class="form">
-                  <input type="hidden" name="idt" value="{$value->id}">
-                  <tr{if="!$value->disponible()"} class="bg-warning"{/if}>
-                     <td><div class="form-control">{$value->id}</div></td>
-                     <td>
-                        <select name="codalmacen" class="form-control">
-                        {loop="$fsc->almacen->all()"}
-                           {if="$value1->codalmacen==$value2->codalmacen"}
-                           <option value="{$value2->codalmacen}" selected="selected">{$value2->nombre}</option>
-                           {else}
-                           <option value="{$value2->codalmacen}">{$value2->nombre}</option>
-                           {/if}
-                        {/loop}
-                        </select>
-                     </td>
-                     <td>
-                        <select name="codserie" class="form-control">
-                        {loop="$fsc->serie->all()"}
-                           {if="$value1->codserie==$value2->codserie"}
-                           <option value="{$value2->codserie}" selected="selected">{$value2->descripcion}</option>
-                           {else}
-                           <option value="{$value2->codserie}">{$value2->descripcion}</option>
-                           {/if}
-                        {/loop}
-                        </select>
-                     </td>
-                     <td>
-                        <input type="text" name="codcliente" value="{$value->codcliente}" class="form-control" maxlength="6" placeholder="Código" autocomplete="off"/>
-                     </td>
-                     <td><input type="number" name="anchopapel" value="{$value->anchopapel}" class="form-control" autocomplete="off"/></td>
-                     <td><input type="text" name="comandocorte" value="{$value->comandocorte}" class="form-control" autocomplete="off"/></td>
-                     <td><input type="text" name="comandoapertura" value="{$value->comandoapertura}" class="form-control" autocomplete="off"/></td>
-                     <td><input type="number" name="num_tickets" value="{$value->num_tickets}" class="form-control" autocomplete="off"/></td>
-                     <td class="text-center">
-                        {if="!$value->disponible()"}
-                        <a href="#terminales" class="btn btn-sm btn-warning" title="Terminal en uso">
-                           <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-                        </a>
-                        {/if}
-                     </td>
-                     <td class="text-right">
-                        <div class="btn-group">
-                           {if="$fsc->allow_delete"}
-                           <a href="#" class="btn btn-sm btn-danger" title="Eliminar" onclick="delete_terminal('{$value->id}')">
-                              <span class="glyphicon glyphicon-trash"></span>
-                           </a>
-                           {/if}
-                           <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">
-                              <span class="glyphicon glyphicon-floppy-disk"></span>
-                           </button>
-                        </div>
-                     </td>
-                  </tr>
-               </form>
-               {/loop}
-               <form action="{$fsc->url()}#terminales" method="post" class="form">
-                  <input type="hidden" name="nuevot" value="TRUE"/>
-                  <tr class="bg-info">
-                     <td><input type="text" name="idt" class="form-control" autocomplete="off" disabled="disabled"/></td>
-                     <td>
-                        <select name="codalmacen" class="form-control">
-                           {loop="$fsc->almacen->all()"}
-                           <option value="{$value->codalmacen}">{$value->nombre}</option>
-                           {/loop}
-                        </select>
-                     </td>
-                     <td>
-                        <select name="codserie" class="form-control">
-                           {loop="$fsc->serie->all()"}
-                           <option value="{$value->codserie}">{$value->descripcion}</option>
-                           {/loop}
-                        </select>
-                     </td>
-                     <td><input type="text" name="codcliente" class="form-control" maxlength="6" placeholder="Código" autocomplete="off"/></td>
-                     <td><input type="number" name="anchopapel" value="{$fsc->terminal->anchopapel}" class="form-control" autocomplete="off"/></td>
-                     <td><input type="text" name="comandocorte" value="{$fsc->terminal->comandocorte}" class="form-control" autocomplete="off"/></td>
-                     <td><input type="text" name="comandoapertura" value="{$fsc->terminal->comandoapertura}" class="form-control" autocomplete="off"/></td>
-                     <td><input type="number" name="num_tickets" value="{$fsc->terminal->num_tickets}" class="form-control" autocomplete="off"/></td>
-                     <td></td>
-                     <td class="text-right">
-                        <div class="btn-group">
-                           <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">
-                              <span class="glyphicon glyphicon-floppy-disk"></span>
-                           </button>
-                        </div>
-                     </td>
-                  </tr>
-               </form>
-            </table>
-         </div>
+      <ul class="pager">
+        {if="$fsc->anterior_url()!=''"}
+        <li class="previous">
+          <a href="{$fsc->anterior_url()}">
+            <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
+          </a>
+        </li>
+        {/if}
+        {if="$fsc->siguiente_url()!=''"}
+        <li class="next">
+          <a href="{$fsc->siguiente_url()}">
+            Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
+          </a>
+        </li>
+        {/if}
+      </ul>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="terminales">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Almacén</th>
+              <th>Serie</th>
+              <th>Código Cliente</th>
+              <th>Ancho papel</th>
+              <th>Comando corte</th>
+              <th>Comando apertura</th>
+              <th>nº tickets</th>
+              <th></th>
+              <th class="text-right" width="120">Acciones</th>
+            </tr>
+          </thead>
+          {loop="$fsc->terminales"}
+          <form action="{$fsc->url()}#terminales" method="post" class="form">
+            <input type="hidden" name="idt" value="{$value->id}">
+            <tr{if="!$value->disponible()"} class="bg-warning"{/if}>
+              <td><div class="form-control">{$value->id}</div></td>
+              <td>
+                <select name="codalmacen" class="form-control">
+                  {loop="$fsc->almacen->all()"}
+                  {if="$value1->codalmacen==$value2->codalmacen"}
+                  <option value="{$value2->codalmacen}" selected="selected">{$value2->nombre}</option>
+                  {else}
+                  <option value="{$value2->codalmacen}">{$value2->nombre}</option>
+                  {/if}
+                  {/loop}
+                </select>
+              </td>
+              <td>
+                <select name="codserie" class="form-control">
+                  {loop="$fsc->serie->all()"}
+                  {if="$value1->codserie==$value2->codserie"}
+                  <option value="{$value2->codserie}" selected="selected">{$value2->descripcion}</option>
+                  {else}
+                  <option value="{$value2->codserie}">{$value2->descripcion}</option>
+                  {/if}
+                  {/loop}
+                </select>
+              </td>
+              <td>
+                <input type="text" name="codcliente" value="{$value->codcliente}" class="form-control" maxlength="6" placeholder="Código" autocomplete="off"/>
+              </td>
+              <td><input type="number" name="anchopapel" value="{$value->anchopapel}" class="form-control" autocomplete="off"/></td>
+              <td><input type="text" name="comandocorte" value="{$value->comandocorte}" class="form-control" autocomplete="off"/></td>
+              <td><input type="text" name="comandoapertura" value="{$value->comandoapertura}" class="form-control" autocomplete="off"/></td>
+              <td><input type="number" name="num_tickets" value="{$value->num_tickets}" class="form-control" autocomplete="off"/></td>
+              <td class="text-center">
+                {if="!$value->disponible()"}
+                <a href="#terminales" class="btn btn-sm btn-warning" title="Terminal en uso">
+                  <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                </a>
+                {/if}
+              </td>
+              <td class="text-right">
+                <div class="btn-group">
+                  {if="$fsc->allow_delete"}
+                  <a href="#" class="btn btn-sm btn-danger" title="Eliminar" onclick="delete_terminal('{$value->id}')">
+                    <span class="glyphicon glyphicon-trash"></span>
+                  </a>
+                  {/if}
+                  <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled = true;
+                                        this.form.submit();">
+                    <span class="glyphicon glyphicon-floppy-disk"></span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </form>
+          {/loop}
+          <form action="{$fsc->url()}#terminales" method="post" class="form">
+            <input type="hidden" name="nuevot" value="TRUE"/>
+            <tr class="bg-info">
+              <td><input type="text" name="idt" class="form-control" autocomplete="off" disabled="disabled"/></td>
+              <td>
+                <select name="codalmacen" class="form-control">
+                  {loop="$fsc->almacen->all()"}
+                  <option value="{$value->codalmacen}">{$value->nombre}</option>
+                  {/loop}
+                </select>
+              </td>
+              <td>
+                <select name="codserie" class="form-control">
+                  {loop="$fsc->serie->all()"}
+                  <option value="{$value->codserie}">{$value->descripcion}</option>
+                  {/loop}
+                </select>
+              </td>
+              <td><input type="text" name="codcliente" class="form-control" maxlength="6" placeholder="Código" autocomplete="off"/></td>
+              <td><input type="number" name="anchopapel" value="{$fsc->terminal->anchopapel}" class="form-control" autocomplete="off"/></td>
+              <td><input type="text" name="comandocorte" value="{$fsc->terminal->comandocorte}" class="form-control" autocomplete="off"/></td>
+              <td><input type="text" name="comandoapertura" value="{$fsc->terminal->comandoapertura}" class="form-control" autocomplete="off"/></td>
+              <td><input type="number" name="num_tickets" value="{$fsc->terminal->num_tickets}" class="form-control" autocomplete="off"/></td>
+              <td></td>
+              <td class="text-right">
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled = true;this.form.submit();">
+                    <span class="glyphicon glyphicon-floppy-disk"></span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </form>
+        </table>
       </div>
-   </div>
+    </div>
+  </div>
 </div>
 
 {include="footer"}

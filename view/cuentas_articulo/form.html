@@ -1,0 +1,104 @@
+{include="header2"}
+<style type="text/css">
+    .container-fluid {
+        margin-top: 15px;
+    }
+    .row {
+        margin-bottom: 10px;
+    }
+</style>
+<form action="{$fsc->url()}" method="post">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="codsubcuentairpfcom">
+                    codsubcuentairpfcom
+                </label>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="codsubcuentairpfcom" id="codsubcuentairpfcom" class="form-control" value="{$fsc->getArticulo()->codsubcuentairpfcom}">
+            </div>
+            <div class="col-md-3">
+                <label for="codsubcuentacom">
+                    codsubcuentacom
+                </label>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="codsubcuentacom" id="codsubcuentacom" class="form-control" value="{$fsc->getArticulo()->codsubcuentacom}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <label for="subcuentadesccom">
+                    subcuentadesccom
+                </label>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="subcuentadesccom" id="subcuentadesccom" class="form-control" value="{$fsc->getArticulo()->subcuentadesccom}">
+            </div>
+            <div class="col-md-3">
+                <label for="codsubcuentadevcom">
+                    codsubcuentadevcom
+                </label>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="codsubcuentadevcom" id="codsubcuentadevcom" class="form-control" value="{$fsc->getArticulo()->codsubcuentadevcom}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <label for="subcuentadescdevcom">
+                    subcuentadescdevcom
+                </label>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="subcuentadescdevcom" id="subcuentadescdevcom" class="form-control" value="{$fsc->getArticulo()->subcuentadescdevcom}">
+            </div>
+            <div class="col-md-3">
+                <label for="codsubcuentaven">
+                    codsubcuentaven
+                </label>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="codsubcuentaven" id="codsubcuentaven" class="form-control" value="{$fsc->getArticulo()->codsubcuentaven}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <label for="subcuentadescven">
+                    subcuentadescven
+                </label>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="subcuentadescven" id="subcuentadescven" class="form-control" value="{$fsc->getArticulo()->subcuentadescven}">
+            </div>
+            <div class="col-md-3">
+                <label for="codsubcuentadevven">
+                    codsubcuentadevven
+                </label>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="codsubcuentadevven" id="codsubcuentadevven" class="form-control" value="{$fsc->getArticulo()->codsubcuentadevven}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <label for="subcuentadescdevven">
+                    subcuentadescdevven
+                </label>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="subcuentadescdevven" id="subcuentadescdevven" class="form-control" value="{$fsc->getArticulo()->subcuentadescdevven}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-right">
+                <button class="btn btn-primary" type="submit">
+                    <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+{include="footer2"}

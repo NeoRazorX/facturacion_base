@@ -164,7 +164,7 @@ class articulo extends fs_model
 //////////////////////////////////////////////////////////////	
     */
    public $codsubcuentacom;
-   public $subcuentadescom;
+   public $subcuentadesccom;
    
  
    
