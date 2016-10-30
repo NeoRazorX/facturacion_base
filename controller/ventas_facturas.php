@@ -216,7 +216,7 @@ class ventas_facturas extends fs_controller
             if($this->caja) {
                 $this->new_error_msg('Es necesario que <a href="' . $this->cerrar_caja_url() .'">cierre la caja</a> antes de continuar');
             } else {
-                $this->new_advice("No hay ninguna caja abierta, si no se abre manualmente una, al crear una factura, se abrirá una nueva");
+                $this->new_advice("No hay ninguna caja abierta, si no se abre manualmente una, al agregarle un pago a una factura, se abrirá una nueva");
             }
         }
     }

@@ -135,7 +135,7 @@ class pago_por_caja extends fs_model {
 
     /**
      * @param int $idfactura
-     * @return facturascli_por_caja
+     * @return pago_por_caja
      */
     public function setIdFactura($idfactura) {
         $this->idfactura = $idfactura;
@@ -154,7 +154,7 @@ class pago_por_caja extends fs_model {
 
     /**
      * @param factura_cliente $factura
-     * @return facturascli_por_caja
+     * @return pago_por_caja
      */
     public function setFactura(factura_cliente $factura) {
         $this->idfactura = $factura->idfactura;
@@ -207,7 +207,7 @@ class pago_por_caja extends fs_model {
 
     /**
      * @param int $idpago
-     * @return facturascli_por_caja
+     * @return pago_por_caja
      */
     public function setIdPago($idpago) {
         $this->idpago = $idpago;
@@ -223,7 +223,7 @@ class pago_por_caja extends fs_model {
 
     /**
      * @param pago $pago
-     * @return facturascli_por_caja
+     * @return pago_por_caja
      */
     public function setPago(pago $pago) {
         $this->idpago = $pago->id;
@@ -240,7 +240,7 @@ class pago_por_caja extends fs_model {
 
     /**
      * @param int $idcaja
-     * @return facturascli_por_caja
+     * @return pago_por_caja
      */
     public function setIdCaja($idcaja) {
         $this->idcaja = $idcaja;
@@ -275,7 +275,7 @@ class pago_por_caja extends fs_model {
     /**
      * @param int $id
      *
-     * @return bool|facturascli_por_caja
+     * @return bool|pago_por_caja
      */
     public function fetch($id) {
         $pago_por_caja = $this->cache->get(str_replace('{id}',$id,self::CACHE_KEY_SINGLE));
@@ -283,6 +283,25 @@ class pago_por_caja extends fs_model {
             $pago_por_caja = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . (int) $id . ";");
             $this->cache->set(str_replace('{id}',$id,self::CACHE_KEY_SINGLE), $pago_por_caja);
         }
+        if($pago_por_caja) {
+            return new self($pago_por_caja[0]);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param int $idcaja
+     * @param int $idfactura
+     * @param int $idrecibo
+     *
+     * @return bool|pago_por_caja
+     */
+    public function fetchByCajaYFacturaYRecibo($idcaja, $idfactura, $idrecibo) {
+        $pago_por_caja = $this->db->select("SELECT * FROM " . $this->table_name
+            ." WHERE idcaja = ". (int) $idcaja
+            ." AND idfactura = " . (int) $idfactura
+            ." AND idrecibo = ". (int) $idrecibo . ";");
         if($pago_por_caja) {
             return new self($pago_por_caja[0]);
         } else {
@@ -370,7 +389,7 @@ class pago_por_caja extends fs_model {
                 $ret = $this->update();
             } else {
                 $ret = $this->insert();
-                $this->setId(intval($this->db->lastval()));
+                $this->setId( (int) $this->db->lastval());
             }
         }
 
@@ -390,13 +409,18 @@ class pago_por_caja extends fs_model {
      * @return boolean
      */
     public static function save_recibo(caja $caja, recibo_cliente $recibo_cliente) {
-        $obj = new self(array(
-            'idfactura' => $recibo_cliente->idfactura,
-            'idrecibo' => $recibo_cliente->idrecibo,
-            'idcaja' => $caja->id,
-        ));
+        //Si ya se guardó el recibo en la caja no guardarlo de nuevo
+        if(!self::getByCajaYRecibo($caja, $recibo_cliente)) {
+            $obj = new self(array(
+                'idfactura' => $recibo_cliente->idfactura,
+                'idrecibo' => $recibo_cliente->idrecibo,
+                'idcaja' => $caja->id,
+            ));
 
-        return $obj->save() && $caja->sumar_importe(floatval($recibo_cliente->importe));
+            return $obj->save() && $caja->sumar_importe( (float) $recibo_cliente->importe);
+        } else {
+            return true;
+        }
     }
 
     private static function get_factura($idFactura) {
@@ -410,6 +434,14 @@ class pago_por_caja extends fs_model {
 
         return $recibo->get($idRecibo);
     }
+    
+    /**
+     * 
+     */
+    public static function getByCajaYRecibo(caja $caja, recibo_cliente $recibo_cliente) {
+        $obj = new self();
+        return $obj->fetchByCajaYFacturaYRecibo($caja->id, $recibo_cliente->idfactura, $recibo_cliente->idrecibo);
+    }
 
     /**
      * @param int $idcaja
@@ -417,7 +449,7 @@ class pago_por_caja extends fs_model {
      * @return factura_cliente[]
      */
     public static function getFacturasByCaja($idcaja) {
-        if(intval($idcaja) > 0) {
+        if((int) $idcaja > 0) {
             $pago_por_caja = new self();
 
             return $pago_por_caja->fetchFacturasByCaja($idcaja);
@@ -432,7 +464,7 @@ class pago_por_caja extends fs_model {
      * @return recibo_cliente[]
      */
     public static function getRecibosByCaja($idcaja) {
-        if(intval($idcaja) > 0) {
+        if((int) $idcaja > 0) {
             $pago_por_caja = new self();
 
             return $pago_por_caja->fetchRecibosByCaja($idcaja);

@@ -1,0 +1,27 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="table">
+      <table class="table table-responsive">
+        <thead>
+          <tr>
+            <th>&nbsp;</th>
+            <th>Fecha Cierre</th>
+            <th>Monto</th>
+            <th>Agente</th>
+          </tr>
+        </thead>
+        <tbody>
+        {loop="$fsc->cajas"}
+          <tr>
+            <td><input type="checkbox" name="cajas[]" class="caja" value="{$value->id}" /></td>
+            <td>{$value->fecha_fin}</td>
+            <td>{$fsc->show_precio($value->dinero_fin)}</td>
+            <td>{$value->agente->nombre}</td>
+          </tr>
+        {/loop}
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

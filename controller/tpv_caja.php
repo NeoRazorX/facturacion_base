@@ -18,6 +18,7 @@
  */
 
 require_model('almacen.php');
+require_model('asiento.php');
 require_model('caja.php');
 require_model('serie.php');
 require_model('terminal_caja.php');
@@ -101,6 +102,7 @@ class tpv_caja extends fs_controller {
 
     public function indexAction() {
         $terminal = new terminal_caja();
+        $this->template = 'tpv_caja';
         $this->offset = 0;
         if (isset($_GET['offset'])) {
             $this->offset = intval($_GET['offset']);
@@ -246,6 +248,10 @@ class tpv_caja extends fs_controller {
 
     public function new_caja_url() {
         return $this->url() . '&action=addCaja';
+    }
+
+    public function asiento_url(asiento $asiento) {
+        return $asiento->url();
     }
 
     public function anterior_url() {

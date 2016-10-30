@@ -1,5 +1,24 @@
 {include="header"}
 
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-6">
+      <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+        <span class="glyphicon glyphicon-refresh"></span>
+      </a>
+      <a class="btn btn-sm btn-default" href="{$fsc->url_caja()}">
+        <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Cajas
+      </a>
+      <div class="btn-group">
+        {loop="$fsc->extensions"}
+        {if="$value->type=='button'"}
+        <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+        {/if}
+        {/loop}
+      </div>
+    </div>
+  </div>
+</div>
 <div class="container">
   <div class="row">
     <h1>Lista de Recibos en la Caja {$fsc->getCaja()->id}</h1>
@@ -18,13 +37,13 @@
       </thead>
       <tbody>
       {loop="$fsc->getRecibos()"}
-        <tr href="{$value->url()}">
+        <tr>
           <td><a href="{$value->url()}">{$value->codigo}</a></td>
           <td>
             {$value->nombrecliente}
           </td>
           <td>{$value->getFormaPago()}</td>
-          <td class="text-right">{$fsc->show_precio($value->importe, $value->coddivisa)}</td>
+          <td class="text-right">{$fsc->show_precio($value->importe)}</td>
           <td class="text-right">
             {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
           </td>
@@ -32,9 +51,7 @@
         </tr>
         {else}
         <tr class="bg-warning">
-          <td></td>
-          <td></td>
-          <td colspan="6">Ningun recibo encontrado.</td>
+          <td class="text-center" colspan="6">Ningun recibo encontrado.</td>
         </tr>
       {/loop}
       </tbody>

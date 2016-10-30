@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : co_detalle_linea_asiento.xml
+    Description:
+-->
+<tabla>
+   <columna>
+      <nombre>id</nombre>
+      <tipo>serial</tipo>
+      <nulo>NO</nulo>
+      <defecto>nextval('co_detalle_linea_asiento_id_seq'::regclass)</defecto>
+   </columna>
+</tabla>

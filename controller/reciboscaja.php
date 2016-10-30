@@ -57,6 +57,10 @@ class reciboscaja extends fs_controller {
                 break;
         }
     }
+    
+    public function url_caja() {
+        return 'index.php?page=tpv_caja';
+    }
 
     public function indexAction() {
         if(!$this->idcaja) {
@@ -64,7 +68,11 @@ class reciboscaja extends fs_controller {
         }
 
         $this->caja = caja::get($this->idcaja);
-        $this->recibos = $this->caja->findRecibos();
+        if ($this->caja) {
+            $this->recibos = $this->caja->findRecibos();
+        } else { 
+            $this->recibos = array();
+        }
 
     }
 
@@ -103,7 +111,7 @@ class reciboscaja extends fs_controller {
 
         foreach ($this->getRecibos() as $recibo_cliente) {
             if($forma_pago->codpago == $recibo_cliente->codpago) {
-                $total += floatval($recibo_cliente->importe);
+                $total += (float) $recibo_cliente->importe;
             }
         }
 

@@ -27,65 +27,65 @@ class caja extends fs_model {
 
     /**
      * Clave primaria.
-     * @var type
+     * @var int
      */
     public $id;
 
     /**
      * Identificador del terminal. En la tabla cajas_terminales.
-     * @var type
+     * @var int
      */
     public $fs_id;
 
     /**
      * Codigo del agente que abre y usa la caja.
      * El agente asociado al usuario.
-     * @var type
+     * @var string
      */
     public $codagente;
 
     /**
      * Fecha de apertura (inicio) de la caja.
-     * @var type
+     * @var string
      */
     public $fecha_inicial;
 
     /**
-     * @var int
+     * @var float
      */
     public $dinero_inicial;
 
     /**
-     * @var null
+     * @var null|string
      */
     public $fecha_fin;
 
     /**
-     * @var int
+     * @var float
      */
     public $dinero_fin;
 
     /**
      * Numero de tickets emitidos en esta caja.
-     * @var type
+     * @var int
      */
     public $tickets;
 
     /**
      * Ultima IP del usuario de la caja.
-     * @var type
+     * @var string
      */
     public $ip;
 
     /**
      * El objeto agente asignado.
-     * @var type
+     * @var agente
      */
     public $agente;
 
     /**
      * UN array con todos los agentes utilizados, para agilizar la carga.
-     * @var type
+     * @var agente[]
      */
     private static $agentes;
 
@@ -93,6 +93,16 @@ class caja extends fs_model {
      * @var facturascli_por_caja
      */
     protected $facturas;
+
+    /**
+     * @var int
+     */
+    protected $idasiento;
+
+    /**
+     * @var asiento
+     */
+    protected $asiento;
 
     /**
      * @var bool
@@ -133,10 +143,11 @@ class caja extends fs_model {
         $this->dinero_inicial = isset($data['d_inicio']) ? floatval($data['d_inicio']) : 0;
         $this->fecha_fin = (isset($data['f_fin']) && !is_null($data['f_fin'])) ?
             date(self::DATE_FORMAT_FULL, strtotime($data['f_fin'])) : null;
-        $this->dinero_fin = isset($data['d_fin']) ? floatval($data['d_fin']) : 0;
+        $this->dinero_fin = isset($data['d_fin']) && floatval($data['d_fin']) > 0.0 ? $data['d_fin'] : $this->dinero_inicial;
         $this->codagente = isset($data['codagente']) ? $data['codagente'] : null;
         $this->tickets = isset($data['tickets']) ? intval($data['tickets']) : 0;
         $this->ip = isset($data['ip']) ? $data['ip'] : null;
+        $this->idasiento = isset($data['idasiento']) ? intval($data['idasiento']) : null;
 
         if (isset($_SERVER['REMOTE_ADDR'])) {
             $this->ip = $_SERVER['REMOTE_ADDR'];
@@ -166,7 +177,48 @@ class caja extends fs_model {
     }
 
     /**
-     * Return weather a caja should be closed or not according to $info
+     * @return int
+     */
+    public function getIdAsiento() {
+        return $this->idasiento;
+    }
+
+    /**
+     * @param int $idasiento
+     * @return caja
+     */
+    public function setIdAsiento($idasiento) {
+        $this->idasiento = $idasiento;
+        return $this;
+    }
+
+    /**
+     * @return asiento
+     */
+    public function getAsiento() {
+        if(!$this->asiento && $this->idasiento) {
+            $obj = new asiento();
+            $this->asiento = $obj->get($this->getIdAsiento());
+        }
+        return $this->asiento;
+    }
+
+    /**
+     * @param asiento $asiento
+     * @return caja
+     */
+    public function setAsiento(asiento $asiento) {
+        $this->asiento = $asiento;
+        $this->setIdAsiento($asiento->idasiento);
+        return $this;
+    }
+
+    public function url() {
+        return '#';
+    }
+
+    /**
+     * Return weather a caja should be closed or not according to information on configuration page
      * @return bool
      */
     public function is_usable() {
@@ -174,16 +226,11 @@ class caja extends fs_model {
         $dateStart = DateTime::createFromFormat('H:i:s', $info->getStartTime());
         $dateEnd = DateTime::createFromFormat('H:i:s', $info->getEndTime());
         $date2 = (new DateTime('NOW'));
-
-        if($dateStart > $dateEnd && $dateEnd > $date2) {
-            return true;
-        } elseif ($dateStart < $dateEnd && $dateEnd > $date2) {
-            var_dump($dateStart);
-            var_dump($dateEnd);
-            var_dump($date2);
-            return true;
-        } else {
+        
+        if($date2 > $dateEnd && $dateStart < $dateEnd) {
             return false;
+        } else {
+            return true;
         }
     }
 
@@ -240,8 +287,8 @@ class caja extends fs_model {
         if (is_null($this->id)) {
             return FALSE;
         } else {
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) .
-                                     ";");
+            return $this->db->select("SELECT * FROM " . $this->table_name .
+                " WHERE id = " . $this->var2str($this->id) . ";");
         }
     }
 
@@ -322,22 +369,35 @@ class caja extends fs_model {
     }
 
     protected function insert() {
-        $sql = "INSERT INTO " . $this->table_name . " (fs_id,codagente,f_inicio,d_inicio,f_fin,d_fin,tickets,ip) VALUES
-            (" . $this->var2str($this->fs_id) . "," . $this->var2str($this->codagente) . "," .
-               $this->var2str($this->fecha_inicial) . "," . $this->var2str($this->dinero_inicial) . ",
-            " . $this->var2str($this->fecha_fin) . "," . $this->var2str($this->dinero_fin) . ",
-            " . $this->var2str($this->tickets) . "," . $this->var2str($this->ip) . ");";
-
+        $sql = 'INSERT '. $this->table_name .
+               ' SET ' .
+               'fs_id = '. $this->var2str($this->fs_id) . ',' .
+               'codagente = ' . $this->var2str($this->codagente) . ',' .
+               'f_inicio = ' . $this->var2str($this->fecha_inicial) .',' .
+               'd_inicio = ' . $this->var2str($this->dinero_inicial) . ',' .
+               'f_fin = ' . $this->var2str($this->fecha_fin) . ',' .
+               'd_fin = ' . $this->var2str($this->dinero_fin) . ',' .
+               'tickets = ' . $this->var2str($this->tickets) . ',' .
+               'ip = ' . $this->var2str($this->ip) . ',' .
+               'idasiento = ' . $this->var2str($this->getIdAsiento()) .
+               ';';
         return $this->db->exec($sql);
     }
 
     protected function update() {
-        $sql = "UPDATE " . $this->table_name . " SET fs_id = " . $this->var2str($this->fs_id) . ",
-            codagente = " . $this->var2str($this->codagente) . ", ip = " . $this->var2str($this->ip) . ",
-            f_inicio = " . $this->var2str($this->fecha_inicial) . ", d_inicio = " .
-               $this->var2str($this->dinero_inicial) . ",
-            f_fin = " . $this->var2str($this->fecha_fin) . ", d_fin = " . $this->var2str($this->dinero_fin) . ",
-            tickets = " . $this->var2str($this->tickets) . " WHERE id = " . $this->var2str($this->id) . ";";
+        $sql = 'UPDATE '. $this->table_name .
+               ' SET ' .
+                   'fs_id = ' . $this->var2str($this->fs_id) . ',' .
+                   'codagente = ' . $this->var2str($this->codagente) . ',' .
+                   'ip = ' . $this->var2str($this->ip) . ',' .
+                   'f_inicio = ' . $this->var2str($this->fecha_inicial) . ',' .
+                   'd_inicio = ' . $this->var2str($this->dinero_inicial) . ',' .
+                   'f_fin = ' . $this->var2str($this->fecha_fin) . ',' .
+                   'd_fin = ' . $this->var2str($this->dinero_fin) . ',' .
+                   'tickets = ' . $this->var2str($this->tickets) . ',' .
+                   'idasiento = ' . $this->var2str($this->getIdAsiento()) .
+               ' WHERE id = ' . $this->var2str($this->id) .
+               ';';
 
         return $this->db->exec($sql);
     }
@@ -351,7 +411,7 @@ class caja extends fs_model {
                 $this->update();
             } else {
                 $this->insert();
-                $this->id = intval($this->db->lastval());
+                $this->id = (int) $this->db->lastval();
             }
         }
 
@@ -394,6 +454,23 @@ class caja extends fs_model {
     }
 
     /**
+     * @return caja[]
+     */
+    public function findCajasSinAsiento() {
+        $cajalist = array();
+
+        $cajas = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idasiento IS NULL AND f_fin IS NOT NULL ORDER BY f_fin");
+
+        if ($cajas) {
+            foreach ($cajas as $c) {
+                $cajalist[] = new caja($c);
+            }
+        }
+
+        return $cajalist;
+    }
+
+    /**
      * @return caja
      */
     public static function get_caja_activa() {
@@ -406,7 +483,10 @@ class caja extends fs_model {
      *
      * @return factura_cliente[]
      */
-    private function get_facturas($idcaja) {
+    public function get_facturas($idcaja = 0) {
+        if(!$idcaja && $this->id) {
+            $idcaja = $this->id;
+        }
         return pago_por_caja::getFacturasByCaja($idcaja);
     }
 
@@ -415,7 +495,10 @@ class caja extends fs_model {
      *
      * @return recibo_cliente[]
      */
-    private function get_recibos($idcaja) {
+    public function get_recibos($idcaja = 0) {
+        if(!$idcaja && $this->id) {
+            $idcaja = $this->id;
+        }
         return pago_por_caja::getRecibosByCaja($idcaja);
     }
 

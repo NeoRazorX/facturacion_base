@@ -382,7 +382,11 @@ class linea_factura_cliente extends fs_model
    {
       return $this->db->exec("DELETE FROM ".$this->table_name." WHERE idlinea = ".$this->var2str($this->idlinea).";");
    }
-   
+
+    /**
+     * @param $id
+     * @return linea_factura_cliente[]
+     */
    public function all_from_factura($id)
    {
       $linlist = array();

@@ -350,7 +350,10 @@ class factura_cliente extends fs_model
       $asiento = new asiento();
       return $asiento->get($this->idasiento);
    }
-   
+
+    /**
+     * @return linea_factura_cliente[]
+     */
    public function get_lineas()
    {
       $linea = new linea_factura_cliente();
@@ -586,6 +589,15 @@ class factura_cliente extends fs_model
    
    public function test()
    {
+
+       if($this->default_items->getRequirenum2()) {
+           $res = $this->db->select("SELECT idfactura,numero2 FROM " . $this->table_name . " WHERE numero2 = " . $this->var2str($this->numero2));
+           if(is_array($res) && isset($res[0]) && $res[0]['idfactura'] != $this->idfactura) {
+               $this->new_error_msg('El número de factura ya está siendo utilizado en otra factura');
+               return false;
+           }
+       }
+
       $this->observaciones = $this->no_html($this->observaciones);
       $this->totaleuros = $this->total * $this->tasaconv;
       

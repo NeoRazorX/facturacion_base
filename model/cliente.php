@@ -389,8 +389,9 @@ class cliente extends fs_model
                   $this->new_error_msg('Imposible asociar la subcuenta para el cliente '.$this->codcliente);
             }
          }
-         else
-            $this->new_error_msg('No se encuentra ninguna cuenta especial para clientes.');
+         else {
+	         //$this->new_error_msg('No se encuentra ninguna cuenta especial para clientes.');
+         }
       }
       
       return $subcuenta;
