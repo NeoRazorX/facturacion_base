@@ -343,102 +343,11 @@ class asiento_factura
             /// comprobamos si los artículos tienen subcuentas asociadas
             if($asiento_correcto)
             {
-               $partidaA = new \partida();
-               $partidaA->idasiento = $asiento->idasiento;
-               $partidaA->concepto = $asiento->concepto;
-               $partidaA->coddivisa = $this->empresa->coddivisa;
-               $partidaA->tasaconv = $tasaconv2;
+               $this->comprobar_subc_art_compra($factura, $asiento, $partida2, $subcuenta_compras, $asiento_correcto, $tasaconv, $tasaconv2);
                
-               /// importe a restar a la partida2
-               $restar = 0;
-               
-               /**
-                * Para cada artículo de la factura, buscamos su subcuenta de compra o compra con irpf
-                */
-               $art0 = new \articulo();
-               foreach($factura->get_lineas() as $lin)
+               if( isset($partida3) AND $asiento_correcto)
                {
-                  $subcart = FALSE;
-                  
-                  $articulo = FALSE;
-                  if($lin->referencia)
-                  {
-                     $articulo = $art0->get($lin->referencia);
-                  }
-                  
-                  if($articulo)
-                  {
-                     if($lin->irpf != 0)
-                     {
-                        $subcart = $this->subcuenta->get_by_codigo($articulo->codsubcuentairpfcom, $factura->codejercicio);
-                     }
-                     else if($articulo->codsubcuentacom)
-                     {
-                        $subcart = $this->subcuenta->get_by_codigo($articulo->codsubcuentacom, $factura->codejercicio);
-                     }
-                     
-                     if(!$subcart)
-                     {
-                        /// no hay / no se encuentra ninguna subcuenta asignada al artículo
-                     }
-                     else if($subcart->idsubcuenta != $subcuenta_compras->idsubcuenta)
-                     {
-                        if( is_null($partidaA->idsubcuenta) )
-                        {
-                           $partidaA->idsubcuenta = $subcart->idsubcuenta;
-                           $partidaA->codsubcuenta = $subcart->codsubcuenta;
-                           $partidaA->debe = $lin->pvptotal*$tasaconv;
-                        }
-                        else if($partidaA->idsubcuenta == $subcart->idsubcuenta)
-                        {
-                           $partidaA->debe += $lin->pvptotal*$tasaconv;
-                        }
-                        else
-                        {
-                           $partidaA->debe = round($partidaA->debe, FS_NF0);
-                           $restar += $partidaA->debe;
-                           if( !$partidaA->save() )
-                           {
-                              $asiento_correcto = FALSE;
-                              $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo "
-                                      .$lin->referencia."!");
-                           }
-                           
-                           $partidaA = new \partida();
-                           $partidaA->idasiento = $asiento->idasiento;
-                           $partidaA->concepto = $asiento->concepto;
-                           $partidaA->idsubcuenta = $subcart->idsubcuenta;
-                           $partidaA->codsubcuenta = $subcart->codsubcuenta;
-                           $partidaA->debe = $lin->pvptotal*$tasaconv;
-                           $partidaA->coddivisa = $this->empresa->coddivisa;
-                           $partidaA->tasaconv = $tasaconv2;
-                        }
-                     }
-                  }
-               }
-               
-               if($partidaA->idsubcuenta AND $partidaA->codsubcuenta)
-               {
-                  $partidaA->debe = round($partidaA->debe, FS_NF0);
-                  $restar += $partidaA->debe;
-                  if( $partidaA->save() )
-                  {
-                     $partida2->debe -= $restar;
-                     
-                     if($partida2->debe == 0)
-                     {
-                        $partida2->delete();
-                     }
-                     else
-                     {
-                        $partida2->save();
-                     }
-                  }
-                  else
-                  {
-                     $asiento_correcto = FALSE;
-                     $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo ".$lin->referencia."!");
-                  }
+                  $this->comprobar_subc_art_compra_irpf($factura, $asiento, $partida3, $subcuenta_irpf, $asiento_correcto, $tasaconv, $tasaconv2);
                }
             }
             
@@ -518,6 +427,210 @@ class asiento_factura
       }
       
       return $ok;
+   }
+   
+   private function comprobar_subc_art_compra(&$factura, &$asiento, &$partida2, &$subcuenta_compras, &$asiento_correcto, $tasaconv, $tasaconv2)
+   {
+      $partidaA = new \partida();
+      $partidaA->idasiento = $asiento->idasiento;
+      $partidaA->concepto = $asiento->concepto;
+      $partidaA->coddivisa = $this->empresa->coddivisa;
+      $partidaA->tasaconv = $tasaconv2;
+      
+      /// importe a restar a la partida2
+      $restar = 0;
+      
+      /**
+       * Para cada artículo de la factura, buscamos su subcuenta de compra o compra con irpf
+       */
+      $art0 = new \articulo();
+      foreach($factura->get_lineas() as $lin)
+      {
+         $subcart = FALSE;
+         
+         $articulo = FALSE;
+         if($lin->referencia)
+         {
+            $articulo = $art0->get($lin->referencia);
+         }
+         
+         if($articulo)
+         {
+            if($articulo->codsubcuentacom)
+            {
+               $subcart = $this->subcuenta->get_by_codigo($articulo->codsubcuentacom, $factura->codejercicio);
+            }
+            
+            if(!$subcart)
+            {
+               /// no hay / no se encuentra ninguna subcuenta asignada al artículo
+            }
+            else if($subcart->idsubcuenta != $subcuenta_compras->idsubcuenta)
+            {
+               if( is_null($partidaA->idsubcuenta) )
+               {
+                  $partidaA->idsubcuenta = $subcart->idsubcuenta;
+                  $partidaA->codsubcuenta = $subcart->codsubcuenta;
+                  $partidaA->debe = $lin->pvptotal*$tasaconv;
+               }
+               else if($partidaA->idsubcuenta == $subcart->idsubcuenta)
+               {
+                  $partidaA->debe += $lin->pvptotal*$tasaconv;
+               }
+               else
+               {
+                  $partidaA->debe = round($partidaA->debe, FS_NF0);
+                  $restar += $partidaA->debe;
+                  if( !$partidaA->save() )
+                  {
+                     $asiento_correcto = FALSE;
+                     $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo "
+                             .$lin->referencia."!");
+                  }
+                  
+                  $partidaA = new \partida();
+                  $partidaA->idasiento = $asiento->idasiento;
+                  $partidaA->concepto = $asiento->concepto;
+                  $partidaA->idsubcuenta = $subcart->idsubcuenta;
+                  $partidaA->codsubcuenta = $subcart->codsubcuenta;
+                  $partidaA->debe = $lin->pvptotal*$tasaconv;
+                  $partidaA->coddivisa = $this->empresa->coddivisa;
+                  $partidaA->tasaconv = $tasaconv2;
+               }
+            }
+         }
+      }
+      
+      if($partidaA->idsubcuenta AND $partidaA->codsubcuenta)
+      {
+         $partidaA->debe = round($partidaA->debe, FS_NF0);
+         $restar += $partidaA->debe;
+         if( $partidaA->save() )
+         {
+            $partida2->debe -= $restar;
+            
+            if($partida2->debe == 0)
+            {
+               $partida2->delete();
+            }
+            else
+            {
+               $partida2->save();
+            }
+         }
+         else
+         {
+            $asiento_correcto = FALSE;
+            $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo ".$lin->referencia."!");
+         }
+      }
+   }
+   
+   /**
+    * 
+    * @param factura_proveedor $factura
+    * @param asiento $asiento
+    * @param partida $partida3
+    * @param subcuenta $subcuenta_irpf
+    * @param type $asiento_correcto
+    * @param type $tasaconv
+    * @param type $tasaconv2
+    */
+   private function comprobar_subc_art_compra_irpf(&$factura, &$asiento, &$partida3, &$subcuenta_irpf, &$asiento_correcto, $tasaconv, $tasaconv2)
+   {
+      $partidaA = new \partida();
+      $partidaA->idasiento = $asiento->idasiento;
+      $partidaA->concepto = $asiento->concepto;
+      $partidaA->coddivisa = $this->empresa->coddivisa;
+      $partidaA->tasaconv = $tasaconv2;
+      
+      /// importe a restar a la partida2
+      $restar = 0;
+      
+      /**
+       * Para cada artículo de la factura, buscamos su subcuenta de compra o compra con irpf
+       */
+      $art0 = new \articulo();
+      foreach($factura->get_lineas() as $lin)
+      {
+         $subcart = FALSE;
+         
+         $articulo = FALSE;
+         if($lin->referencia)
+         {
+            $articulo = $art0->get($lin->referencia);
+         }
+         
+         if($articulo AND $lin->irpf)
+         {
+            if($articulo->codsubcuentairpfcom)
+            {
+               $subcart = $this->subcuenta->get_by_codigo($articulo->codsubcuentairpfcom, $factura->codejercicio);
+            }
+            
+            if(!$subcart)
+            {
+               /// no hay / no se encuentra ninguna subcuenta asignada al artículo
+            }
+            else if($subcart->idsubcuenta != $subcuenta_irpf->idsubcuenta)
+            {
+               if( is_null($partidaA->idsubcuenta) )
+               {
+                  $partidaA->idsubcuenta = $subcart->idsubcuenta;
+                  $partidaA->codsubcuenta = $subcart->codsubcuenta;
+                  $partidaA->haber = ($lin->pvptotal*$lin->irpf/100)*$tasaconv;
+               }
+               else if($partidaA->idsubcuenta == $subcart->idsubcuenta)
+               {
+                  $partidaA->haber += ($lin->pvptotal*$lin->irpf/100)*$tasaconv;
+               }
+               else
+               {
+                  $partidaA->haber = round($partidaA->haber, FS_NF0);
+                  $restar += $partidaA->haber;
+                  if( !$partidaA->save() )
+                  {
+                     $asiento_correcto = FALSE;
+                     $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo "
+                             .$lin->referencia."!");
+                  }
+                  
+                  $partidaA = new \partida();
+                  $partidaA->idasiento = $asiento->idasiento;
+                  $partidaA->concepto = $asiento->concepto;
+                  $partidaA->idsubcuenta = $subcart->idsubcuenta;
+                  $partidaA->codsubcuenta = $subcart->codsubcuenta;
+                  $partidaA->haber = ($lin->pvptotal*$lin->irpf/100)*$tasaconv;
+                  $partidaA->coddivisa = $this->empresa->coddivisa;
+                  $partidaA->tasaconv = $tasaconv2;
+               }
+            }
+         }
+      }
+      
+      if($partidaA->idsubcuenta AND $partidaA->codsubcuenta)
+      {
+         $partidaA->debe = round($partidaA->debe, FS_NF0);
+         $restar += $partidaA->debe;
+         if( $partidaA->save() )
+         {
+            $partida3->debe -= $restar;
+            
+            if($partida3->debe == 0)
+            {
+               $partida3->delete();
+            }
+            else
+            {
+               $partida3->save();
+            }
+         }
+         else
+         {
+            $asiento_correcto = FALSE;
+            $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo ".$lin->referencia."!");
+         }
+      }
    }
    
    /**

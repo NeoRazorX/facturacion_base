@@ -449,9 +449,6 @@ class factura_cliente extends \fs_model
             if( strtotime($data[0]['hora']) > strtotime($hora) OR $cambio )
             {
                $hora = date('H:i:s', strtotime($data[0]['hora']));
-               
-               $this->new_error_msg('Ya hay facturas posteriores a la hora seleccionada.'
-                       . ' Nueva hora asignada: '.$hora);
                $cambio = TRUE;
             }
          }

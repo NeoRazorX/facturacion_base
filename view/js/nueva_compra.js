@@ -359,7 +359,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto)
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\" value=\""+ref+"\"/>\n\
          <div class=\"form-control\"><small><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></small></div></td>\n\
       <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\">"+desc+"</textarea></td>\n\
-      <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
+      <td><input type=\""+input_number+"\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
          "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
       <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
          <span class=\"glyphicon glyphicon-trash\"></span></button></td>\n\
@@ -411,7 +411,7 @@ function add_linea_libre()
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\"/>\n\
          <div class=\"form-control\"></div></td>\n\
       <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\"></textarea></td>\n\
-      <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
+      <td><input type=\""+input_number+"\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
          "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
       <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
          <span class=\"glyphicon glyphicon-trash\"></span></button></td>\n\
@@ -619,7 +619,13 @@ function buscar_articulos()
          });
       }
       
-      if(kiwimaru_url !== '')
+      if(document.f_buscar_articulos.coddivisa.value != 'EUR')
+      {
+         fin_busqueda2 = false;
+         $("#kiwimaru_results").html("<p class=\"help-block\" style=\"padding: 5px;\"><b>Kiwimaru</b>\n\
+            no dispone de resultados para la divisa seleccionada.</p>");
+      }
+      else if(kiwimaru_url !== '')
       {
          fin_busqueda2 = false;
          $.getJSON(kiwimaru_url, $("form[name=f_buscar_articulos]").serialize(), function(json) {
@@ -653,7 +659,7 @@ function buscar_articulos()
                   los resultados de <b>kiwimaru</b>, el potente buscador de tiendas online integrado en\n\
                   FacturaScripts, para que puedas buscar nuevos proveedores o simplemente comparar precios.\n\
                   Si deseas añadir tus artículos a este buscador y ganar nuevos clientes fácilmente,\n\
-                  <a href=\"https://www.facturascripts.com/comm3/index.php?page=community_feedback&feedback_privado=TRUE\" target=\"_blank\">\n\
+                  <a href=\"https://www.facturascripts.com/feedback?feedback_plugin=46\" target=\"_blank\">\n\
                   contacta con nosotros</a>.</p>\n\
                   <div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>\n\
                   <th class=\"text-left\">Sector / Tienda / Familia</th><th class=\"text-left\">Referencia + descripción</th>\n\

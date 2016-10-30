@@ -101,6 +101,11 @@ class impuesto extends \fs_model
       return ( $this->codimpuesto == $this->default_items->codimpuesto() );
    }
    
+   /**
+    * Devuelve el impuesto con código $cod
+    * @param type $cod
+    * @return boolean|\impuesto
+    */
    public function get($cod)
    {
       $impuesto = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codimpuesto = ".$this->var2str($cod).";");

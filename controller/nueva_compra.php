@@ -1146,7 +1146,7 @@ class nueva_compra extends fs_controller
                  . " OR partnumber LIKE '%".$query."%'"
                  . " OR equivalencia LIKE '%".$query."%'"
                  . " OR descripcion LIKE '%".$query."%'"
-                 . " OR codbarras = '".$query."')";
+                 . " OR codbarras = ".$this->articulo_prov->var2str($query).")";
       }
       else
       {
@@ -1180,6 +1180,7 @@ class nueva_compra extends fs_controller
                     . " OR lower(referencia) LIKE '%".$query."%'"
                     . " OR lower(partnumber) LIKE '%".$query."%'"
                     . " OR lower(equivalencia) LIKE '%".$query."%'"
+                    . " OR lower(codbarras) = ".$this->articulo_prov->var2str($query)
                     . " OR lower(descripcion) LIKE '%".$query."%')";
          }
       }

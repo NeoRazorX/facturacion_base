@@ -41,7 +41,8 @@
          <div class="col-sm-8">
             <div class="btn-group">
                <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
-                  <span class="glyphicon glyphicon-arrow-left"></span>&nbsp; {$fsc->ppage->title}
+                  <span class="glyphicon glyphicon-arrow-left"></span>
+                  <span class="hidden-xs">&nbsp;{$fsc->ppage->title}</span>
                </a>
                <a href="{$fsc->grupo->url()}" class="btn btn-sm btn-default" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
@@ -59,11 +60,13 @@
             <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
-                  <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+                  <span class="glyphicon glyphicon-trash"></span>
+                  <span class="hidden-xs">&nbsp; Eliminar</span>
                </a>
                {/if}
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                  <span class="glyphicon glyphicon-floppy-disk"></span>
+                  <span class="hidden-xs">&nbsp; Guardar</span>
                </button>
             </div>
          </div>
@@ -107,7 +110,9 @@
       {/loop}
       <tr>
          <td colspan="2" class="text-center">
-            <a id="b_nuevo_epigrafe" class="btn btn-sm btn-block btn-success" href="#nuevo_epigrafe">Nuevo epigrafe...</a>
+            <a id="b_nuevo_epigrafe" class="btn btn-sm btn-block btn-success" href="#nuevo_epigrafe">
+               <span class="glyphicon glyphicon-plus"></span> Nuevo epigrafe...
+            </a>
          </td>
       </tr>
    </table>
@@ -119,7 +124,8 @@
          <div class="col-sm-8">
             <div class="btn-group">
                <a href="{$fsc->ppage->url()}" class="btn btn-sm btn-default">
-                  <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; {$fsc->ppage->title}
+                  <span class="glyphicon glyphicon-arrow-left"></span>
+                  <span class="hidden-xs">&nbsp;{$fsc->ppage->title}</span>
                </a>
                <a href="{$fsc->epigrafe->url()}" class="btn btn-sm btn-default" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
@@ -137,11 +143,13 @@
             <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
-                  <span class="glyphicon glyphicon-trash"></span> &nbsp; Eliminar
+                  <span class="glyphicon glyphicon-trash"></span>
+                  <span class="hidden-xs">&nbsp; Eliminar</span>
                </a>
                {/if}
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                  <span class="glyphicon glyphicon-floppy-disk"></span>
+                  <span class="hidden-xs">&nbsp; Guardar</span>
                </button>
             </div>
          </div>
@@ -198,10 +206,14 @@
 <div class="container-fluid">
    <div class="row">
       <div class="col-sm-6">
-         <a id="b_nuevo_epigrafe" class="btn btn-sm btn-block btn-success" href="#">Nuevo Epígrafe...</a>
+         <a id="b_nuevo_epigrafe" class="btn btn-sm btn-block btn-success" href="#">
+            <span class="glyphicon glyphicon-plus"></span> Nuevo Epígrafe...
+         </a>
       </div>
       <div class="col-sm-6">
-         <a id="b_nueva_cuenta" class="btn btn-sm btn-block btn-success" href="#">Nueva Cuenta...</a>
+         <a id="b_nueva_cuenta" class="btn btn-sm btn-block btn-success" href="#">
+            <span class="glyphicon glyphicon-plus"></span> Nueva Cuenta...
+         </a>
       </div>
    </div>
 </div>
@@ -241,7 +253,7 @@
       </div>
       <div class="col-sm-5 col-xs-6 text-right">
          <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_cuentas">
-            Cuentas &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
+            Cuentas &nbsp;<span class="glyphicon glyphicon-chevron-right"></span>
          </a>
       </div>
    </div>

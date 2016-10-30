@@ -325,7 +325,7 @@ class cliente extends \fs_model
     * se devuelve el primer cliente que tenga esa razón social.
     * @param type $cifnif
     * @param type $razon
-    * @return boolean|\proveedor
+    * @return boolean|\cliente
     */
    public function get_by_cifnif($cifnif, $razon = FALSE)
    {

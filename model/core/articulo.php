@@ -196,7 +196,7 @@ class articulo extends \fs_model
    private static $column_list;
 
 
-   public function __construct($a=FALSE)
+   public function __construct($a = FALSE)
    {
       parent::__construct('articulos');
       
@@ -537,13 +537,13 @@ class articulo extends \fs_model
       return $artilist;
    }
    
-   public function get_lineas_albaran_cli($offset=0, $limit=FS_ITEM_LIMIT)
+   public function get_lineas_albaran_cli($offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $linea = new \linea_albaran_cliente();
       return $linea->all_from_articulo($this->referencia, $offset, $limit);
    }
    
-   public function get_lineas_albaran_prov($offset=0, $limit=FS_ITEM_LIMIT)
+   public function get_lineas_albaran_prov($offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $linea = new \linea_albaran_proveedor();
       return $linea->all_from_articulo($this->referencia, $offset, $limit);
@@ -1143,7 +1143,7 @@ class articulo extends \fs_model
     * @param type $bloqueados
     * @return \articulo
     */
-   public function search($query='', $offset=0, $codfamilia='', $con_stock=FALSE, $codfabricante='', $bloqueados=FALSE)
+   public function search($query = '', $offset = 0, $codfamilia = '', $con_stock = FALSE, $codfabricante = '', $bloqueados = FALSE)
    {
       $artilist = array();
       $query = $this->no_html( mb_strtolower($query, 'UTF8') );
@@ -1197,7 +1197,7 @@ class articulo extends \fs_model
                     . " OR partnumber LIKE '%".$query."%'"
                     . " OR equivalencia LIKE '%".$query."%'"
                     . " OR descripcion LIKE '%".$query."%'"
-                    . " OR codbarras = '".$query."')";
+                    . " OR codbarras = ".$this->var2str($query).")";
          }
          else
          {
@@ -1231,6 +1231,7 @@ class articulo extends \fs_model
                        . " OR lower(referencia) LIKE '%".$query."%'"
                        . " OR lower(partnumber) LIKE '%".$query."%'"
                        . " OR lower(equivalencia) LIKE '%".$query."%'"
+                       . " OR lower(codbarras) = ".$this->var2str($query)
                        . " OR lower(descripcion) LIKE '%".$query."%')";
             }
          }
@@ -1264,7 +1265,7 @@ class articulo extends \fs_model
     * @param type $limit
     * @return \articulo
     */
-   public function search_by_codbar($cod, $offset=0, $limit=FS_ITEM_LIMIT)
+   public function search_by_codbar($cod, $offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $artilist = array();
       $sql = "SELECT ".self::$column_list." FROM ".$this->table_name
@@ -1289,7 +1290,7 @@ class articulo extends \fs_model
     * @param integer $limit nº de elementos devuelto
     * @return \articulo
     */
-   public function all($offset=0, $limit=FS_ITEM_LIMIT)
+   public function all($offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $artilist = array();
       $sql = "SELECT ".self::$column_list." FROM ".$this->table_name
@@ -1313,7 +1314,7 @@ class articulo extends \fs_model
     * @param type $limit
     * @return \articulo
     */
-   public function all_publico($offset=0, $limit=FS_ITEM_LIMIT)
+   public function all_publico($offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $artilist = array();
       $sql = "SELECT ".self::$column_list." FROM ".$this->table_name
@@ -1338,7 +1339,7 @@ class articulo extends \fs_model
     * @param type $limit
     * @return \articulo
     */
-   public function all_from_familia($cod, $offset=0, $limit=FS_ITEM_LIMIT)
+   public function all_from_familia($cod, $offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $artilist = array();
       $sql = "SELECT ".self::$column_list." FROM ".$this->table_name." WHERE codfamilia = "
@@ -1363,7 +1364,7 @@ class articulo extends \fs_model
     * @param type $limit
     * @return \articulo
     */
-   public function all_from_fabricante($cod, $offset=0, $limit=FS_ITEM_LIMIT)
+   public function all_from_fabricante($cod, $offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $artilist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codfabricante = "
