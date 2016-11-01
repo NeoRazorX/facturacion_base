@@ -169,19 +169,29 @@
                         {else}
                         <input type="hidden" name="b_codalmacen" value=""/>
                         {/if}
-                        <div class="col-sm-2">
+                        <div class="col-sm-3">
                            <div class='form-group{if="$fsc->b_codfamilia"} has-success{/if}'>
-                              <select class="form-control" name="b_codfamilia" onchange="this.form.submit()">
-                                 <option value="">Todas las familias</option>
-                                 <option value="">-----</option>
-                                 {loop="$fsc->familia->all()"}
-                                    {if="$value->codfamilia==$fsc->b_codfamilia"}
-                                    <option value="{$value->codfamilia}" selected="">{$value->nivel}{$value->descripcion}</option>
+                              <div class="input-group">
+                                 <select class="form-control" name="b_codfamilia" onchange="this.form.submit()">
+                                    <option value="">Todas las familias</option>
+                                    <option value="">-----</option>
+                                    {loop="$fsc->familia->all()"}
+                                       {if="$value->codfamilia==$fsc->b_codfamilia"}
+                                       <option value="{$value->codfamilia}" selected="">{$value->nivel}{$value->descripcion}</option>
+                                       {else}
+                                       <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
+                                       {/if}
+                                    {/loop}
+                                 </select>
+                                 <span class="input-group-addon" title="incluir subfamilias">
+                                    {if="$fsc->b_subfamilias"}
+                                    <input type="checkbox" name="b_subfamilias" value="TRUE" checked="" onchange="this.form.submit()">
                                     {else}
-                                    <option value="{$value->codfamilia}">{$value->nivel}{$value->descripcion}</option>
+                                    <input type="checkbox" name="b_subfamilias" value="TRUE" onchange="this.form.submit()">
                                     {/if}
-                                 {/loop}
-                              </select>
+                                    <i class="fa fa-sitemap" aria-hidden="true"></i>
+                                 </span>
+                              </div>
                            </div>
                         </div>
                         <div class="col-sm-2">
@@ -224,69 +234,69 @@
                         {if="count($fsc->almacenes)<=1"}
                         <div class="col-sm-2"></div>
                         {/if}
-                        <div class="col-sm-2 text-right">
+                        <div class="col-sm-1 text-right">
                            <div class="btn-group">
-                                 <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
-                                    <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-                                 </button>
-                                 <ul class="dropdown-menu dropdown-menu-right">
-                                    <li>
-                                       <a href="{$fsc->b_url}&b_orden=refmin&offset={$fsc->offset}">
-                                          <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-                                          &nbsp; Referencia &nbsp;
-                                          {if="$fsc->b_orden=='refmin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                       </a>
-                                    </li>
-                                    <li>
-                                       <a href="{$fsc->b_url}&b_orden=refmax&offset={$fsc->offset}">
-                                          <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-                                          &nbsp; Referencia &nbsp;
-                                          {if="$fsc->b_orden=='refmax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                       </a>
-                                    </li>
-                                    <li>
-                                       <a href="{$fsc->b_url}&b_orden=descmin&offset={$fsc->offset}">
-                                          <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-                                          &nbsp; Descripción &nbsp;
-                                          {if="$fsc->b_orden=='descmin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                       </a>
-                                    </li>
-                                    <li>
-                                       <a href="{$fsc->b_url}&b_orden=descmax&offset={$fsc->offset}">
-                                          <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-                                          &nbsp; Descripción &nbsp;
-                                          {if="$fsc->b_orden=='descmax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                       </a>
-                                    </li>
-                                    <li>
-                                       <a href="{$fsc->b_url}&b_orden=preciomin&offset={$fsc->offset}">
-                                          <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-                                          &nbsp; Precio &nbsp;
-                                          {if="$fsc->b_orden=='preciomin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                       </a>
-                                    </li>
-                                    <li>
-                                       <a href="{$fsc->b_url}&b_orden=preciomax&offset={$fsc->offset}">
-                                          <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-                                          &nbsp; Precio &nbsp;
-                                          {if="$fsc->b_orden=='preciomax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                       </a>
-                                    </li>
-                                    <li>
-                                       <a href="{$fsc->b_url}&b_orden=stockmin&offset={$fsc->offset}">
-                                          <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-                                          &nbsp; Stock &nbsp;
-                                          {if="$fsc->b_orden=='stockmin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                       </a>
-                                    </li>
-                                    <li>
-                                       <a href="{$fsc->b_url}&b_orden=stockmax&offset={$fsc->offset}">
-                                          <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-                                          &nbsp; Stock &nbsp;
-                                          {if="$fsc->b_orden=='stockmax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                                       </a>
-                                    </li>
-                                 </ul>
+                              <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
+                                 <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-right">
+                                 <li>
+                                    <a href="{$fsc->b_url}&b_orden=refmin&offset={$fsc->offset}">
+                                       <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                                       &nbsp; Referencia &nbsp;
+                                       {if="$fsc->b_orden=='refmin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                    </a>
+                                 </li>
+                                 <li>
+                                    <a href="{$fsc->b_url}&b_orden=refmax&offset={$fsc->offset}">
+                                       <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                                       &nbsp; Referencia &nbsp;
+                                       {if="$fsc->b_orden=='refmax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                    </a>
+                                 </li>
+                                 <li>
+                                    <a href="{$fsc->b_url}&b_orden=descmin&offset={$fsc->offset}">
+                                       <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                                       &nbsp; Descripción &nbsp;
+                                       {if="$fsc->b_orden=='descmin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                    </a>
+                                 </li>
+                                 <li>
+                                    <a href="{$fsc->b_url}&b_orden=descmax&offset={$fsc->offset}">
+                                       <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                                       &nbsp; Descripción &nbsp;
+                                       {if="$fsc->b_orden=='descmax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                    </a>
+                                 </li>
+                                 <li>
+                                    <a href="{$fsc->b_url}&b_orden=preciomin&offset={$fsc->offset}">
+                                       <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                                       &nbsp; Precio &nbsp;
+                                       {if="$fsc->b_orden=='preciomin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                    </a>
+                                 </li>
+                                 <li>
+                                    <a href="{$fsc->b_url}&b_orden=preciomax&offset={$fsc->offset}">
+                                       <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                                       &nbsp; Precio &nbsp;
+                                       {if="$fsc->b_orden=='preciomax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                    </a>
+                                 </li>
+                                 <li>
+                                    <a href="{$fsc->b_url}&b_orden=stockmin&offset={$fsc->offset}">
+                                       <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                                       &nbsp; Stock &nbsp;
+                                       {if="$fsc->b_orden=='stockmin'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                    </a>
+                                 </li>
+                                 <li>
+                                    <a href="{$fsc->b_url}&b_orden=stockmax&offset={$fsc->offset}">
+                                       <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
+                                       &nbsp; Stock &nbsp;
+                                       {if="$fsc->b_orden=='stockmax'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                                    </a>
+                                 </li>
+                              </ul>
                            </div>
                         </div>
                      </div>
@@ -296,15 +306,27 @@
                   <div class="col-sm-12">
                      <div class="form-group">
                         <label class="checkbox-inline">
-                           <input type="checkbox" name="b_constock"{if="$fsc->b_constock"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
+                           {if="$fsc->b_constock"}
+                           <input type="checkbox" name="b_constock" checked="" value="TRUE" onchange="this.form.submit()"/>
+                           {else}
+                           <input type="checkbox" name="b_constock" value="TRUE" onchange="this.form.submit()"/>
+                           {/if}
                            Con stock
                         </label>
                         <label class="checkbox-inline">
-                           <input type="checkbox" name="b_bloqueados"{if="$fsc->b_bloqueados"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
+                           {if="$fsc->b_bloqueados"}
+                           <input type="checkbox" name="b_bloqueados" checked="" value="TRUE" onchange="this.form.submit()"/>
+                           {else}
+                           <input type="checkbox" name="b_bloqueados" value="TRUE" onchange="this.form.submit()"/>
+                           {/if}
                            Bloqueados
                         </label>
                         <label class="checkbox-inline">
-                           <input type="checkbox" name="b_publicos"{if="$fsc->b_publicos"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
+                           {if="$fsc->b_publicos"}
+                           <input type="checkbox" name="b_publicos" checked="" value="TRUE" onchange="this.form.submit()"/>
+                           {else}
+                           <input type="checkbox" name="b_publicos" value="TRUE" onchange="this.form.submit()"/>
+                           {/if}
                            Públicos
                         </label>
                      </div>

@@ -38,6 +38,7 @@ class ventas_articulos extends fs_controller
    public $b_constock;
    public $b_orden;
    public $b_publicos;
+   public $b_subfamilias;
    public $b_url;
    public $familia;
    public $fabricante;
@@ -263,9 +264,11 @@ class ventas_articulos extends fs_controller
       }
       
       $this->b_codfamilia = '';
+      $this->b_subfamilias = FALSE;
       if( isset($_REQUEST['b_codfamilia']) )
       {
          $this->b_codfamilia = $_REQUEST['b_codfamilia'];
+         $this->b_subfamilias = isset($_REQUEST['b_subfamilias']);
       }
       
       $this->b_codfabricante = '';
@@ -305,6 +308,11 @@ class ventas_articulos extends fs_controller
               ."&b_codalmacen=".$this->b_codalmacen
               ."&b_codfamilia=".$this->b_codfamilia
               ."&b_codtarifa=".$this->b_codtarifa;
+      
+      if($this->b_subfamilias)
+      {
+         $this->b_url .= '&b_subfamilias=TRUE';
+      }
       
       if($this->b_constock)
       {
@@ -386,14 +394,21 @@ class ventas_articulos extends fs_controller
       
       if($this->b_codfamilia != '')
       {
-         $sql .= $where."codfamilia IN (";
-         $coma = '';
-         foreach($this->get_subfamilias($this->b_codfamilia) as $fam)
+         if($this->b_subfamilias)
          {
-            $sql .= $coma.$this->empresa->var2str($fam);
-            $coma = ',';
+            $sql .= $where."codfamilia IN (";
+            $coma = '';
+            foreach($this->get_subfamilias($this->b_codfamilia) as $fam)
+            {
+               $sql .= $coma.$this->empresa->var2str($fam);
+               $coma = ',';
+            }
+            $sql .= ")";
          }
-         $sql .= ")";
+         else
+         {
+            $sql .= $where."codfamilia = ".$this->empresa->var2str($this->b_codfamilia);
+         }
          $where = ' AND ';
       }
       

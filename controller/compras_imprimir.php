@@ -731,9 +731,16 @@ class compras_imprimir extends fs_controller
             }
             
             $mail->Subject = $this->empresa->nombre . ': Mi '.FS_ALBARAN.' '.$this->albaran->codigo;
-            $mail->AltBody = $_POST['mensaje'];
-            $mail->msgHTML( nl2br($_POST['mensaje']) );
-            $mail->isHTML(TRUE);
+            if( $this->is_html($_POST['mensaje']) )
+            {
+               $mail->AltBody = strip_tags($_POST['mensaje']);
+               $mail->msgHTML($_POST['mensaje']);
+               $mail->isHTML(TRUE);
+            }
+            else
+            {
+               $mail->Body = $_POST['mensaje'];
+            }
             
             $mail->addAttachment('tmp/'.FS_TMP_NAME.'enviar/'.$filename);
             if( is_uploaded_file($_FILES['adjunto']['tmp_name']) )
@@ -803,5 +810,17 @@ class compras_imprimir extends fs_controller
       }
       
       return $retorno;
+   }
+   
+   public function is_html($txt)
+   {
+      if( stripos($txt, '<html') === FALSE )
+      {
+         return FALSE;
+      }
+      else
+      {
+         return TRUE;
+      }
    }
 }

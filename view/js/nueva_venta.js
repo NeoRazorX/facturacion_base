@@ -150,6 +150,32 @@ function recalcular()
    {
       if($("#linea_"+i).length > 0)
       {
+         /// cambiamos coma por punto
+         if( input_number == 'text' && $("#cantidad_"+i).val().search(",") >= 0 )
+         {
+            $("#cantidad_"+i).val( $("#cantidad_"+i).val().replace(",",".") );
+         }
+         if( $("#pvp_"+i).val().search(",") >= 0 )
+         {
+            $("#pvp_"+i).val( $("#pvp_"+i).val().replace(",",".") );
+         }
+         if( $("#dto_"+i).val().search(",") >= 0 )
+         {
+            $("#dto_"+i).val( $("#dto_"+i).val().replace(",",".") );
+         }
+         if( $("#iva_"+i).val().search(",") >= 0 )
+         {
+            $("#iva_"+i).val( $("#iva_"+i).val().replace(",",".") );
+         }
+         if( $("#irpf_"+i).val().search(",") >= 0 )
+         {
+            $("#irpf_"+i).val( $("#irpf_"+i).val().replace(",",".") );
+         }
+         if( $("#recargo_"+i).val().search(",") >= 0 )
+         {
+            $("#recargo_"+i).val( $("#recargo_"+i).val().replace(",",".") );
+         }
+         
          l_uds = parseFloat( $("#cantidad_"+i).val() );
          l_pvp = parseFloat( $("#pvp_"+i).val() );
          l_dto = parseFloat( $("#dto_"+i).val() );
@@ -221,6 +247,12 @@ function ajustar_neto(i)
    
    if($("#linea_"+i).length > 0)
    {
+      /// cambiamos coma por punto
+      if( $("#neto_"+i).val().search(",") >= 0 )
+      {
+         $("#neto_"+i).val( $("#neto_"+i).val().replace(",",".") );
+      }
+      
       l_uds = parseFloat( $("#cantidad_"+i).val() );
       l_pvp = parseFloat( $("#pvp_"+i).val() );
       l_dto = parseFloat( $("#dto_"+i).val() );
@@ -276,6 +308,12 @@ function ajustar_total(i)
    
    if($("#linea_"+i).length > 0)
    {
+      /// cambiamos coma por punto
+      if( $("#total_"+i).val().search(",") >= 0 )
+      {
+         $("#total_"+i).val( $("#total_"+i).val().replace(",",".") );
+      }
+      
       l_uds = parseFloat( $("#cantidad_"+i).val() );
       l_pvp = parseFloat( $("#pvp_"+i).val() );
       l_dto = parseFloat( $("#dto_"+i).val() );
