@@ -244,6 +244,11 @@
       <tipo>character varying(20)</tipo>
       <nulo>YES</nulo>
    </columna>
+   <columna>
+      <nombre>numdocs</nombre>
+      <tipo>integer</tipo>
+      <defecto>0</defecto>
+   </columna>
    <restriccion>
       <nombre>ca_albaranescli_series2</nombre>
       <consulta>FOREIGN KEY (codserie)

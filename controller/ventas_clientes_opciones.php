@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of FacturaSctipts
+ * This file is part of FacturaScripts
  * Copyright (C) 2015-2016    Carlos Garcia Gomez        neorazorx@gmail.com
  * Copyright (C) 2015         Luis Miguel Pérez Romero   luismipr@gmail.com
  *

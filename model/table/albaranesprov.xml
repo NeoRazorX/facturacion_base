@@ -152,6 +152,11 @@
       <nulo>NO</nulo>
       <defecto>0</defecto>
    </columna>
+   <columna>
+      <nombre>numdocs</nombre>
+      <tipo>integer</tipo>
+      <defecto>0</defecto>
+   </columna>
    <restriccion>
       <nombre>ca_albaranesprov_series2</nombre>
       <consulta>FOREIGN KEY (codserie)

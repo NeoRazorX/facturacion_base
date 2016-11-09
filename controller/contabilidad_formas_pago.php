@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaSctipts
+ * This file is part of FacturaScripts
  * Copyright (C) 2014-2016    Carlos Garcia Gomez  neorazorx@gmail.com
  * Copyright (C) 2014         GISBEL JOSE          gpg841@gmail.com
  *

@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaSctipts
+ * This file is part of FacturaScripts
  * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -238,6 +238,12 @@ class factura_cliente extends \fs_model
     */
    public $idimprenta;
    
+   /**
+    * Número de documentos asjuntos
+    * @var integer 
+    */
+   public $numdocs;
+   
    public function __construct($f = FALSE)
    {
       parent::__construct('facturascli');
@@ -312,6 +318,7 @@ class factura_cliente extends \fs_model
          $this->envio_codpais = $f['codpaisenv'];
          
          $this->idimprenta = $this->intval($f['idimprenta']);
+         $this->numdocs = intval($f['numdocs']);
       }
       else
       {
@@ -368,6 +375,7 @@ class factura_cliente extends \fs_model
          $this->envio_codpais = NULL;
          
          $this->idimprenta = NULL;
+         $this->numdocs = 0;
       }
    }
    
@@ -1170,6 +1178,7 @@ class factura_cliente extends \fs_model
                     ", provinciaenv = ".$this->var2str($this->envio_provincia).
                     ", codpaisenv = ".$this->var2str($this->envio_codpais).
                     ", idimprenta = ".$this->var2str($this->idimprenta).
+                    ", numdocs = ".$this->var2str($this->numdocs).
                     "  WHERE idfactura = ".$this->var2str($this->idfactura).";";
             
             return $this->db->exec($sql);
@@ -1183,7 +1192,7 @@ class factura_cliente extends \fs_model
                codagente,neto,totaliva,total,totaleuros,irpf,totalirpf,porcomision,tasaconv,
                totalrecargo,pagada,anulada,observaciones,hora,numero2,vencimiento,femail,codtrans,
                codigoenv,nombreenv,apellidosenv,apartadoenv,direccionenv,codpostalenv,ciudadenv,provinciaenv,
-               codpaisenv,idimprenta) VALUES (".$this->var2str($this->idasiento).
+               codpaisenv,idimprenta,numdocs) VALUES (".$this->var2str($this->idasiento).
                     ",".$this->var2str($this->idasientop).
                     ",".$this->var2str($this->idfacturarect).
                     ",".$this->var2str($this->codigo).
@@ -1232,7 +1241,8 @@ class factura_cliente extends \fs_model
                     ",".$this->var2str($this->envio_ciudad).
                     ",".$this->var2str($this->envio_provincia).
                     ",".$this->var2str($this->envio_codpais).
-                    ",".$this->var2str($this->idimprenta).");";
+                    ",".$this->var2str($this->idimprenta).
+                    ",".$this->var2str($this->numdocs).");";
             
             if( $this->db->exec($sql) )
             {

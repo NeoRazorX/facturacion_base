@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaSctipts
+ * This file is part of FacturaScripts
  * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -171,6 +171,12 @@ class albaran_proveedor extends \fs_model
     */
    public $ptefactura;
 
+   /**
+    * Número de documentos asjuntos
+    * @var integer 
+    */
+   public $numdocs;
+   
    public function __construct($a = FALSE)
    {
       parent::__construct('albaranesprov');
@@ -220,6 +226,7 @@ class albaran_proveedor extends \fs_model
          $this->tasaconv = floatval($a['tasaconv']);
          $this->totalrecargo = floatval($a['totalrecargo']);
          $this->observaciones = $this->no_html($a['observaciones']);
+         $this->numdocs = intval($a['numdocs']);
       }
       else
       {
@@ -249,6 +256,8 @@ class albaran_proveedor extends \fs_model
          $this->totalrecargo = 0;
          $this->observaciones = '';
          $this->ptefactura = TRUE;
+         
+         $this->numdocs = 0;
       }
    }
    
@@ -589,6 +598,7 @@ class albaran_proveedor extends \fs_model
                     .", observaciones = ".$this->var2str($this->observaciones)
                     .", hora = ".$this->var2str($this->hora)
                     .", ptefactura = ".$this->var2str($this->ptefactura)
+                    .", numdocs = ".$this->var2str($this->numdocs)
                     ."  WHERE idalbaran = ".$this->var2str($this->idalbaran).";";
             
             return $this->db->exec($sql);
@@ -599,7 +609,7 @@ class albaran_proveedor extends \fs_model
             $sql = "INSERT INTO ".$this->table_name." (codigo,numero,numproveedor,
                codejercicio,codserie,coddivisa,codpago,codagente,codalmacen,fecha,codproveedor,
                nombre,cifnif,neto,total,totaliva,totaleuros,irpf,totalirpf,tasaconv,
-               totalrecargo,observaciones,ptefactura,hora) VALUES
+               totalrecargo,observaciones,ptefactura,hora,numdocs) VALUES
                       (".$this->var2str($this->codigo)
                     .",".$this->var2str($this->numero)
                     .",".$this->var2str($this->numproveedor)
@@ -623,7 +633,8 @@ class albaran_proveedor extends \fs_model
                     .",".$this->var2str($this->totalrecargo)
                     .",".$this->var2str($this->observaciones)
                     .",".$this->var2str($this->ptefactura)
-                    .",".$this->var2str($this->hora).");";
+                    .",".$this->var2str($this->hora)
+                    .",".$this->var2str($this->numdocs).");";
             
             if( $this->db->exec($sql) )
             {

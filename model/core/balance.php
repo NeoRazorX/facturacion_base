@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaSctipts
+ * This file is part of FacturaScripts
  * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -90,10 +90,10 @@ class balance extends \fs_model
    {
       if( is_null($this->codbalance) )
       {
-         return 'index.php?page=contabilidad_balances';
+         return 'index.php?page=editar_balances';
       }
       else
-         return 'index.php?page=contabilidad_balance&cod='.$this->codbalance;
+         return 'index.php?page=editar_balances&cod='.$this->codbalance;
    }
    
    public function get($cod)

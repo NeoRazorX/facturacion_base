@@ -278,6 +278,7 @@
             <th></th>
             <th class="text-left">Código + Núm. Proveedor</th>
             <th class="text-left">Proveedor</th>
+            <th class="hidden-sm"></th>
             <th class="text-left">Observaciones</th>
             <th class="text-right">Total</th>
             <th class="text-right">Fecha</th>
@@ -304,6 +305,15 @@
             <span class="label label-danger" title="Proveedor desconocido">???</span>
             {/if}
          </td>
+         <td class="text-right hidden-sm">
+            <span title="{$value->numdocs} documentos adjuntos">
+               {if="$value->numdocs==1"}
+               <i class="fa fa-file" aria-hidden="true"></i>
+               {elseif="$value->numdocs>1"}
+               {$value->numdocs} <i class="fa fa-file" aria-hidden="true"></i>
+               {/if}
+            </span>
+         </td>
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right" title="{$fsc->show_precio($fsc->euro_convert($value->totaleuros, $value->coddivisa, $value->tasaconv))}">
             {$fsc->show_precio($value->total, $value->coddivisa)}
@@ -315,11 +325,12 @@
       {else}
       <tr class="warning">
          <td></td>
-         <td colspan="5">Ningún {#FS_ALBARAN#} encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</td>
+         <td colspan="6">Ningún {#FS_ALBARAN#} encontrado. Pulsa el botón <b>Nuevo</b> para crear uno.</td>
       </tr>
       {/loop}
       {if="$fsc->total_resultados"}
       <tr>
+         <th class="hidden-sm"></th>
          <td colspan="5" class="text-right">
             {$fsc->total_resultados_txt}
             {loop="$fsc->total_resultados"}

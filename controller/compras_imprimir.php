@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaSctipts
+ * This file is part of FacturaScripts
  * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -71,7 +71,7 @@ class compras_imprimir extends fs_controller
          
          if( isset($_POST['email']) )
          {
-            $this->enviar_email('albaran');
+            $this->enviar_email();
          }
          else
             $this->generar_pdf_albaran();
@@ -679,7 +679,9 @@ class compras_imprimir extends fs_controller
       if($archivo)
       {
          if( !file_exists('tmp/'.FS_TMP_NAME.'enviar') )
+         {
             mkdir('tmp/'.FS_TMP_NAME.'enviar');
+         }
          
          $pdf_doc->save('tmp/'.FS_TMP_NAME.'enviar/'.$archivo);
       }
@@ -698,18 +700,22 @@ class compras_imprimir extends fs_controller
          return $ref;
    }
    
-   private function enviar_email($doc)
+   private function enviar_email()
    {
       if( $this->empresa->can_send_mail() )
       {
-         if( $_POST['email'] != $this->proveedor->email AND isset($_POST['guardar']) )
+         if($this->proveedor)
          {
-            $this->proveedor->email = $_POST['email'];
-            $this->proveedor->save();
+            if( $_POST['email'] != $this->proveedor->email AND isset($_POST['guardar']) )
+            {
+               $this->proveedor->email = $_POST['email'];
+               $this->proveedor->save();
+            }
          }
          
          $filename = 'albaran_'.$this->albaran->codigo.'.pdf';
          $this->generar_pdf_albaran($filename);
+         $razonsocial = $this->albaran->nombre;
          
          if( file_exists('tmp/'.FS_TMP_NAME.'enviar/'.$filename) )
          {
@@ -717,16 +723,16 @@ class compras_imprimir extends fs_controller
             $mail->FromName = $this->user->get_agente_fullname();
             $mail->addReplyTo($_POST['de'], $mail->FromName);
             
-            $mail->addAddress($_POST['email'], $this->proveedor->razonsocial);
+            $mail->addAddress($_POST['email'], $razonsocial);
             if($_POST['email_copia'])
             {
                if( isset($_POST['cco']) )
                {
-                  $mail->addBCC($_POST['email_copia'], $this->proveedor->razonsocial);
+                  $mail->addBCC($_POST['email_copia'], $razonsocial);
                }
                else
                {
-                  $mail->addCC($_POST['email_copia'], $this->proveedor->razonsocial);
+                  $mail->addCC($_POST['email_copia'], $razonsocial);
                }
             }
             

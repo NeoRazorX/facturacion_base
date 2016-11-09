@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaSctipts
+ * This file is part of FacturaScripts
  * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -215,6 +215,12 @@ class albaran_cliente extends \fs_model
     */
    public $femail;
    
+   /**
+    * Número de documentos asjuntos
+    * @var integer 
+    */
+   public $numdocs;
+   
    public function __construct($a = FALSE)
    {
       parent::__construct('albaranescli');
@@ -289,6 +295,8 @@ class albaran_cliente extends \fs_model
          $this->envio_ciudad = $a['ciudadenv'];
          $this->envio_provincia = $a['provinciaenv'];
          $this->envio_codpais = $a['codpaisenv'];
+         
+         $this->numdocs = intval($a['numdocs']);
       }
       else
       {
@@ -338,6 +346,8 @@ class albaran_cliente extends \fs_model
          $this->envio_ciudad = NULL;
          $this->envio_provincia = NULL;
          $this->envio_codpais = NULL;
+         
+         $this->numdocs = 0;
       }
    }
    
@@ -729,6 +739,7 @@ class albaran_cliente extends \fs_model
                     .", ciudadenv = ".$this->var2str($this->envio_ciudad)
                     .", provinciaenv = ".$this->var2str($this->envio_provincia)
                     .", codpaisenv = ".$this->var2str($this->envio_codpais)
+                    .", numdocs = ".$this->var2str($this->numdocs)
                     ."  WHERE idalbaran = ".$this->var2str($this->idalbaran).";";
             
             return $this->db->exec($sql);
@@ -740,8 +751,8 @@ class albaran_cliente extends \fs_model
                codserie,codejercicio,codcliente,codpago,coddivisa,codalmacen,codpais,coddir,
                codpostal,numero,numero2,nombrecliente,cifnif,direccion,ciudad,provincia,apartado,
                fecha,hora,neto,total,totaliva,totaleuros,irpf,totalirpf,porcomision,tasaconv,
-               totalrecargo,observaciones,ptefactura,femail,codtrans,codigoenv,nombreenv,
-               apellidosenv,apartadoenv,direccionenv,codpostalenv,ciudadenv,provinciaenv,codpaisenv) VALUES "
+               totalrecargo,observaciones,ptefactura,femail,codtrans,codigoenv,nombreenv,apellidosenv,
+               apartadoenv,direccionenv,codpostalenv,ciudadenv,provinciaenv,codpaisenv,numdocs) VALUES "
                     ."(".$this->var2str($this->idfactura)
                     .",".$this->var2str($this->codigo)
                     .",".$this->var2str($this->codagente)
@@ -785,7 +796,8 @@ class albaran_cliente extends \fs_model
                     .",".$this->var2str($this->envio_codpostal)
                     .",".$this->var2str($this->envio_ciudad)
                     .",".$this->var2str($this->envio_provincia)
-                    .",".$this->var2str($this->envio_codpais).");";
+                    .",".$this->var2str($this->envio_codpais)
+                    .",".$this->var2str($this->numdocs).");";
             
             if( $this->db->exec($sql) )
             {

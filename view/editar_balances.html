@@ -1,0 +1,166 @@
+{include="header"}
+
+{if="$fsc->balance"}
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="btn-group">
+            <a href="{$fsc->url()}" class="btn btn-sm btn-default">
+               <span class="glyphicon glyphicon-chevron-left"></span>
+               <span class="hidden-xs">&nbsp; Todos</span>
+            </a>
+            <a class="btn btn-sm btn-default" href="{$fsc->balance->url()}" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+         </div>
+         <div class="page-header">
+            <h1>
+               <span class="glyphicon glyphicon-wrench"></span>
+               Balance {$fsc->balance->codbalance}
+            </h1>
+            <p class="help-block">
+               {if="$fsc->balance->naturaleza=='A'"}
+               <span class="label label-success">Activo</span>
+               {elseif="$fsc->balance->naturaleza=='P'"}
+               <span class="label label-info">Pasivo</span>
+               {elseif="$fsc->balance->naturaleza=='PG'"}
+               <span class="label label-warning">Pérdidas y ganancias</span>
+               {else}
+               <span class="label label-default">{$fsc->balance->naturaleza}</span>
+               {/if} &nbsp;
+               {$fsc->balance->descripcion1}
+            </p>
+         </div>
+      </div>
+   </div>
+   <form action="{$fsc->balance->url()}" method="post" class="form">
+      <div class="row">
+         <div class="col-sm-6">
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  <h3 class="panel-title">Cuentas en balance</h3>
+               </div>
+               <div class="table-responsive">
+                  <table class="table table-hover">
+                     <thead>
+                        <tr>
+                           <th>Cuenta</th>
+                           <th></th>
+                        </tr>
+                     </thead>
+                     {loop="$fsc->cuentas"}
+                     <tr>
+                        <td>{$value->codcuenta}</td>
+                        <td class="text-right">
+                           <a href="{$fsc->balance->url()}&rm_cuenta={$value->id}">
+                              <span class="glyphicon glyphicon-trash"></span>
+                           </a>
+                        </td>
+                     </tr>
+                     {/loop}
+                     <tr class="info">
+                        <td>
+                           <input type="text" name="nueva_cuenta" class="form-control" placeholder="cuenta" autocomplete="off"/>
+                        </td>
+                        <td class="text-right">
+                           <button type="submit" class="btn btn-sm btn-primary">
+                              <span class="glyphicon glyphicon-plus-sign"></span>
+                              <span class="hidden-xs">&nbsp; Nueva</span>
+                           </button>
+                        </td>
+                     </tr>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div class="col-sm-6">
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  <h3 class="panel-title">Cuentas en balance abreviado</h3>
+               </div>
+               <div class="table-responsive">
+                  <table class="table table-hover">
+                     <thead>
+                        <tr>
+                           <th>Cuenta</th>
+                           <th></th>
+                        </tr>
+                     </thead>
+                     {loop="$fsc->cuentas_a"}
+                     <tr>
+                        <td>{$value->codcuenta}</td>
+                        <td class="text-right">
+                           <a href="{$fsc->balance->url()}&rm_cuenta_a={$value->id}">
+                              <span class="glyphicon glyphicon-trash"></span>
+                           </a>
+                        </td>
+                     </tr>
+                     {/loop}
+                     <tr class="info">
+                        <td>
+                           <input type="text" name="nueva_cuenta_a" class="form-control" placeholder="cuenta" autocomplete="off"/>
+                        </td>
+                        <td class="text-right">
+                           <button type="submit" class="btn btn-sm btn-primary">
+                              <span class="glyphicon glyphicon-plus-sign"></span>
+                              <span class="hidden-xs">&nbsp; Nueva</span>
+                           </button>
+                        </td>
+                     </tr>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+   </form>
+</div>
+{else}
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               <span class="glyphicon glyphicon-wrench"></span> Balances contables
+               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+            </h1>
+            <p class="help-block">
+               Estos son los códigos de balance que definen como FacturaScripts genera
+               los informes contables.
+            </p>
+            <span class="label label-success">A = Activo</span>
+            <span class="label label-info">P = Pasivo</span>
+            <span class="label label-warning">PG = Pérdidas y ganancias</span>
+            <span class="label label-default">IG = Ingresos y gastos</span>
+         </div>
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th>Código</th>
+                     <th>Naturaleza</th>
+                     <th>Descripción</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->all_balances()"}
+               <tr class="clickableRow" href="{$value->url()}">
+                  <td><a href="{$value->url()}">{$value->codbalance}</a></td>
+                  <td{if="$value->naturaleza=='A'"} class="success"{elseif="$value->naturaleza=='P'"} class="info"{elseif="$value->naturaleza=='PG'"} class="warning"{/if}>
+                     {$value->naturaleza}
+                  </td>
+                  <td>{$value->descripcion1}</td>
+               </tr>
+               {else}
+               <tr class="warning">
+                  <td colspan="3">Sin resultados.</td>
+               </tr>
+               {/loop}
+            </table>
+         </div>
+      </div>
+   </div>
+</div>
+{/if}
+
+{include="footer"}

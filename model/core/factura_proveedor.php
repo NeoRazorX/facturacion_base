@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaSctipts
+ * This file is part of FacturaScripts
  * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -194,6 +194,12 @@ class factura_proveedor extends \fs_model
    
    public $anulada;
    
+   /**
+    * Número de documentos asjuntos
+    * @var integer 
+    */
+   public $numdocs;
+   
    public function __construct($f = FALSE)
    {
       parent::__construct('facturasprov');
@@ -235,6 +241,8 @@ class factura_proveedor extends \fs_model
          $this->totalirpf = floatval($f['totalirpf']);
          $this->totaliva = floatval($f['totaliva']);
          $this->totalrecargo = floatval($f['totalrecargo']);
+         
+         $this->numdocs = intval($f['numdocs']);
       }
       else
       {
@@ -268,6 +276,8 @@ class factura_proveedor extends \fs_model
          $this->totalirpf = 0;
          $this->totaliva = 0;
          $this->totalrecargo = 0;
+         
+         $this->numdocs = 0;
       }
    }
 
@@ -935,6 +945,7 @@ class factura_proveedor extends \fs_model
                     .", totalrecargo = ".$this->var2str($this->totalrecargo)
                     .", fecha = ".$this->var2str($this->fecha)
                     .", hora = ".$this->var2str($this->hora)
+                    .", numdocs = ".$this->var2str($this->numdocs)
                     ."  WHERE idfactura = ".$this->var2str($this->idfactura).";";
             
             return $this->db->exec($sql);
@@ -945,7 +956,7 @@ class factura_proveedor extends \fs_model
             $sql = "INSERT INTO ".$this->table_name." (codigo,total,neto,cifnif,pagada,anulada,observaciones,
                codagente,codalmacen,irpf,totaleuros,nombre,codpago,codproveedor,idfacturarect,numproveedor,
                codigorect,codserie,idasiento,idasientop,totalirpf,totaliva,coddivisa,numero,codejercicio,tasaconv,
-               totalrecargo,fecha,hora) VALUES (".$this->var2str($this->codigo)
+               totalrecargo,fecha,hora,numdocs) VALUES (".$this->var2str($this->codigo)
                     .",".$this->var2str($this->total)
                     .",".$this->var2str($this->neto)
                     .",".$this->var2str($this->cifnif)
@@ -973,7 +984,8 @@ class factura_proveedor extends \fs_model
                     .",".$this->var2str($this->tasaconv)
                     .",".$this->var2str($this->totalrecargo)
                     .",".$this->var2str($this->fecha)
-                    .",".$this->var2str($this->hora).");";
+                    .",".$this->var2str($this->hora)
+                    .",".$this->var2str($this->numdocs).");";
             
             if( $this->db->exec($sql) )
             {

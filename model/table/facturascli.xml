@@ -292,6 +292,11 @@
       <tipo>integer</tipo>
       <nulo>YES</nulo>
    </columna>
+   <columna>
+      <nombre>numdocs</nombre>
+      <tipo>integer</tipo>
+      <defecto>0</defecto>
+   </columna>
    <restriccion>
       <nombre>ca_facturascli_series2</nombre>
       <consulta>FOREIGN KEY (codserie)

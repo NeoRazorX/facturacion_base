@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaSctipts
+ * This file is part of FacturaScripts
  * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -980,21 +980,26 @@ class ventas_imprimir extends fs_controller
    {
       if( $this->empresa->can_send_mail() )
       {
-         if( $_POST['email'] != $this->cliente->email AND isset($_POST['guardar']) )
-         {
-            $this->cliente->email = $_POST['email'];
-            $this->cliente->save();
-         }
-         
          if($doc == 'factura')
          {
             $filename = 'factura_'.$this->factura->codigo.'.pdf';
             $this->generar_pdf_factura($tipo, $filename);
+            $razonsocial = $this->factura->nombrecliente;
          }
          else
          {
             $filename = 'albaran_'.$this->albaran->codigo.'.pdf';
             $this->generar_pdf_albaran($filename);
+            $razonsocial = $this->albaran->nombrecliente;
+         }
+         
+         if($this->cliente)
+         {
+            if( $_POST['email'] != $this->cliente->email AND isset($_POST['guardar']) )
+            {
+               $this->cliente->email = $_POST['email'];
+               $this->cliente->save();
+            }
          }
          
          if( file_exists('tmp/'.FS_TMP_NAME.'enviar/'.$filename) )
@@ -1003,16 +1008,16 @@ class ventas_imprimir extends fs_controller
             $mail->FromName = $this->user->get_agente_fullname();
             $mail->addReplyTo($_POST['de'], $mail->FromName);
             
-            $mail->addAddress($_POST['email'], $this->cliente->razonsocial);
+            $mail->addAddress($_POST['email'], $razonsocial);
             if($_POST['email_copia'])
             {
                if( isset($_POST['cco']) )
                {
-                  $mail->addBCC($_POST['email_copia'], $this->cliente->razonsocial);
+                  $mail->addBCC($_POST['email_copia'], $razonsocial);
                }
                else
                {
-                  $mail->addCC($_POST['email_copia'], $this->cliente->razonsocial);
+                  $mail->addCC($_POST['email_copia'], $razonsocial);
                }
             }
             
