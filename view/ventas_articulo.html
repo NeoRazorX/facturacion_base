@@ -569,7 +569,7 @@
                         Precio+{#FS_IVA#}:
                         <div class="input-group">
                            <input type="text" class="form-control" id="pvpi" name="pvpiva" value="{$fsc->articulo->pvp_iva()}" autocomplete="off" onkeyup="cambiar_pvpi()" onclick="this.select()"/>
-                           <span class="input-group-addon" title="precio redondeado">{$fsc->show_precio($fsc->articulo->pvp_iva())}</span>
+                           <span class="input-group-addon" title="precio redondeado">{$fsc->show_precio($fsc->articulo->pvp_iva(), FALSE, TRUE, FS_NF0_ART)}</span>
                         </div>
                         <p class="help-block">Último cambio de precio: {$fsc->articulo->factualizado}</p>
                      </div>
@@ -636,10 +636,10 @@
                               <td><div class="form-control">{$value->tarifa_nombre}</div></td>
                               <td><div class="form-control">{$value->tarifa_diff}</div></td>
                               <td class="text-right">
-                                 <div class="form-control">{$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100)}</div>
+                                 <div class="form-control">{$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100, FALSE, TRUE, FS_NF0_ART)}</div>
                               </td>
                               <td class="text-right">
-                                 <div class="form-control">{$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100*(100 + $value->get_iva())/100)}</div>
+                                 <div class="form-control">{$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100*(100 + $value->get_iva())/100, FALSE, TRUE, FS_NF0_ART)}</div>
                               </td>
                            </tr>
                            {else}

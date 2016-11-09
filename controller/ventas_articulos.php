@@ -613,12 +613,12 @@ class ventas_articulos extends fs_controller
             echo $art->referencia.';';
             echo $art->codfamilia.';';
             echo $art->codfabricante.';';
-            echo $this->fix_html($art->descripcion).';';
-            echo $art->pvp.';';
+            echo $this->fix_html( preg_replace('~[\r\n]+~', ' ', $art->descripcion) ).';';
+            echo round($art->pvp, FS_NF0_ART).';';
             echo $art->get_iva().';';
             echo trim($art->codbarras).';';
             echo $art->stockfis.';';
-            echo $art->preciocoste()."\n";
+            echo round($art->preciocoste(), FS_NF0_ART)."\n";
             
             $offset2++;
          }
