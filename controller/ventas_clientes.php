@@ -222,11 +222,6 @@ class ventas_clientes extends fs_controller
          else
             $this->new_error_msg("¡Imposible guardar los datos del cliente!");
       }
-      else
-      {
-         /// eliminar en la siguiente actualización.
-         $this->fix_db();
-      }
       
       $this->offset = 0;
       if( isset($_GET['offset']) )
@@ -508,14 +503,5 @@ class ventas_clientes extends fs_controller
             }
          }
       }
-   }
-   
-   private function fix_db()
-   {
-      /**
-       * Ponemos a NULL todos los codgrupo que no están en gruposclientes
-       */
-      $this->db->exec("UPDATE clientes SET codgrupo = NULL WHERE codgrupo IS NOT NULL"
-              . " AND codgrupo NOT IN (SELECT codgrupo FROM gruposclientes);");
    }
 }

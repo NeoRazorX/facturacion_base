@@ -127,12 +127,13 @@
             </h1>
             <p class="help-block">
                Estos son los códigos de balance que definen como FacturaScripts genera
-               los informes contables.
+               los informes contables. Puedes hacer clic en cada uno de ellos para añadir
+               o quitar cuentas.
             </p>
-            <span class="label label-success">A = Activo</span>
-            <span class="label label-info">P = Pasivo</span>
-            <span class="label label-warning">PG = Pérdidas y ganancias</span>
-            <span class="label label-default">IG = Ingresos y gastos</span>
+            <a href="#naturaleza_A" class="label label-success">A = Activo</a>
+            <a href="#naturaleza_P" class="label label-info">P = Pasivo</a>
+            <a href="#naturaleza_PG" class="label label-warning">PG = Pérdidas y ganancias</a>
+            <a href="#naturaleza_IG" class="label label-default">IG = Ingresos y gastos</a>
          </div>
          <div class="table-responsive">
             <table class="table table-hover">
@@ -143,9 +144,16 @@
                      <th>Descripción</th>
                   </tr>
                </thead>
+               <!--{$naturaleza=''}-->
                {loop="$fsc->all_balances()"}
                <tr class="clickableRow" href="{$value->url()}">
-                  <td><a href="{$value->url()}">{$value->codbalance}</a></td>
+                  <td>
+                     {if="$value->naturaleza!=$naturaleza"}
+                     <a name="naturaleza_{$value->naturaleza}"></a>
+                     <!--{$naturaleza=$value->naturaleza}-->
+                     {/if}
+                     <a href="{$value->url()}">{$value->codbalance}</a>
+                  </td>
                   <td{if="$value->naturaleza=='A'"} class="success"{elseif="$value->naturaleza=='P'"} class="info"{elseif="$value->naturaleza=='PG'"} class="warning"{/if}>
                      {$value->naturaleza}
                   </td>
