@@ -27,6 +27,7 @@ require_model('balance.php');
  */
 class editar_balances extends fs_controller
 {
+   public $allow_delete;
    public $balance;
    public $cuentas;
    public $cuentas_a;
@@ -38,6 +39,9 @@ class editar_balances extends fs_controller
    
    protected function private_core()
    {
+      /// ¿El usuario tiene permiso para eliminar en esta página?
+      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      
       $this->share_extensions();
       
       $this->balance = FALSE;
