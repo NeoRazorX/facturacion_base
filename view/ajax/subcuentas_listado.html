@@ -16,10 +16,10 @@
       <thead>
          <tr>
             <th></th>
-            <th class="text-left">Código</th>
+            <th class="text-left">C&oacute;digo</th>
 			<th class="text-left">Alias</th>
-            <th class="text-left">Descripción</th>
-            <th class="text-right">Debe</th>
+            <th class="text-left">Descripci&oacute;n</th>
+			<th class="text-right">Debe</th>
             <th class="text-right">Haber</th>
             <th class="text-right">Saldo</th>
          </tr>
@@ -32,19 +32,19 @@
             </a>
          </td>
          <td>
-            <a href="#" onclick="select_subcuenta('{$value->codsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}','{function="base64_encode($value->alias)"}','{$value->idsubcuenta}')">
+            <a href="#" onclick="select_subcuenta('{$value->idsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}','{function="base64_encode($value->alias)"}')">
                {$value->codsubcuenta}
             </a>
          </td>
 		 <td class="text-left">{$value->alias}</td>
          <td>
-            <a href="#" onclick="select_subcuenta('{$value->codsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}','{function="base64_encode($value->alias)"}','{$value->idsubcuenta}')">
+            <a href="#" onclick="select_subcuenta('{$value->idsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}','{function="base64_encode($value->alias)"}')">
                {$value->descripcion}
             </a>
          </td>
-         <td class="text-right">{$fsc->show_precio($value->debe, $value->coddivisa)}</td>
-         <td class="text-right">{$fsc->show_precio($value->haber, $value->coddivisa)}</td>
-         <td class="text-right">{$fsc->show_precio($value->saldo, $value->coddivisa)}</td>
+	  <td class="text-right">{$fsc->show_precio($value->debe, '')}</td>
+      <td class="text-right">{$fsc->show_precio($value->haber, '')}</td>
+      <td class="text-right">{$fsc->show_precio($value->saldo, '')}</td>
       </tr>
       {else}
       <tr class="bg-warning">

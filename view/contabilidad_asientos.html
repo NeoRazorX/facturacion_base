@@ -75,8 +75,11 @@
    </li>
    <li{if="isset($_GET['descuadrados'])"} class="active"{/if}>
       <a href="{$fsc->url()}&descuadrados=TRUE">
-         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-         <span class="hidden-xs">&nbsp; Descuadrados</span>
+        {if="$fsc->total_descuadrados()>0"} <span class="glyphicon glyphicon-exclamation-sign" style="color:#FF0000" aria-hidden="true"></span>
+		{else}
+		<span class="glyphicon  aria-hidden="true"></span>
+		{/if}
+         <span class="hidden-xs">&nbsp; Descuadrados</span><span class="badge">{$fsc->total_descuadrados()}</span>
       </a>
    </li>
    <li{if="isset($_GET['mayorizados'])"} class="active"{/if}>

@@ -18,6 +18,7 @@
  */
 
 require_model('asiento.php');
+require_model('anticipos_proveedor.php');
 
 class contabilidad_asientos extends fs_controller
 {
@@ -33,7 +34,7 @@ class contabilidad_asientos extends fs_controller
    protected function private_core()
    {
       $this->asiento = new asiento();
-      
+      $anticipo = new anticipos_proveedor();
       if( isset($_GET['delete']) )
       {
          $asiento = $this->asiento->get($_GET['delete']);
@@ -41,6 +42,7 @@ class contabilidad_asientos extends fs_controller
          {
             if( $asiento->delete() )
             {
+				$anticipo->modif_anticipo_idasiento($_GET['delete'],0);
                $this->new_message("Asiento eliminado correctamente.");
             }
             else
@@ -139,6 +141,17 @@ class contabilidad_asientos extends fs_controller
       if($data)
       {
          return intval($data[0]['total']);
+      }
+      else
+         return 0;
+   }
+   
+          public function total_descuadrados()
+   {
+      $data = $this->asiento->descuadrados();
+      if($data)
+      {
+         return count($data);
       }
       else
          return 0;

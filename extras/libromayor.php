@@ -199,7 +199,7 @@ class libro_mayor
    }
    
    
-         public function libro_mayor_ver(&$subc,$mes, $echos = FALSE)
+         public function libro_mayor_ver(&$subc,$mes,$codejercicio, $echos = FALSE)
    {
       if($subc)
       {
@@ -217,12 +217,12 @@ class libro_mayor
             $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
             $pdf_doc->pdf->ezStartPageNumbers(590, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
             
-            $partidas = $subc->get_partidas_libros_ver($mes,$offset=0);
+            $partidas = $subc->get_partidas_libros_ver($mes,$codejercicio,$offset=0);
             if($partidas)
             {
                $lineasfact = count($partidas);
                $linea_actual = 0;
-               $lppag = 49;
+               $lppag = $lineasfact;
                
                // Imprimimos las páginas necesarias
                while($linea_actual < $lineasfact)
@@ -267,7 +267,7 @@ class libro_mayor
                          'concepto' => "Saldo Anterior",
 						 'debe' => "",
 						 'haber' => "",
-						 'saldo' => $subc->get_partidas_saldo_anterior_ver($mes),
+						 'saldo' => $subc->get_partidas_saldo_anterior_ver($mes,$codejercicio),
                      )
                   );
                   $pdf_doc->add_table_header(

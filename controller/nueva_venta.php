@@ -33,6 +33,7 @@ require_model('pedido_cliente.php');
 require_model('presupuesto_cliente.php');
 require_model('serie.php');
 require_model('tarifa.php');
+require_model('inventario.php');
 
 class nueva_venta extends fs_controller
 {
@@ -570,6 +571,7 @@ class nueva_venta extends fs_controller
          
          if( $albaran->save() )
          {
+		 	$inventario = new inventario();
             $art0 = new articulo();
             $n = floatval($_POST['numlineas']);
             for($i = 0; $i <= $n; $i++)
@@ -615,6 +617,7 @@ class nueva_venta extends fs_controller
                      {
                         /// descontamos del stock
                         $articulo->sum_stock($albaran->codalmacen, 0 - $linea->cantidad);
+						$inventario->inventario_agregar( $albaran->codalmacen,$linea->referencia,0 - $linea->cantidad,$linea->pvpunitario);
                      }
                      
                      $albaran->neto += $linea->pvptotal;
@@ -777,6 +780,7 @@ class nueva_venta extends fs_controller
          
          if( $factura->save() )
          {
+		 	$inventario = new inventario();
             $art0 = new articulo();
             $n = floatval($_POST['numlineas']);
             for($i = 0; $i <= $n; $i++)
@@ -822,6 +826,7 @@ class nueva_venta extends fs_controller
                      {
                         /// descontamos del stock
                         $articulo->sum_stock($factura->codalmacen, 0 - $linea->cantidad);
+						$inventario->inventario_agregar( $factura->codalmacen,$linea->referencia,0 - $linea->cantidad,$linea->pvpunitario);
                      }
                      
                      $factura->neto += $linea->pvptotal;

@@ -25,6 +25,7 @@ require_model('proveedor.php');
 require_model('recibo_proveedor.php');
 require_model('factura_proveedor.php');
 require_model('valores.php');
+require_model('anticipos_proveedor.php');
 
 /**
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes e imprimir facturas.
@@ -99,6 +100,12 @@ class compras_imprimir extends fs_controller
 		}
 		
       }
+	  else if( isset($_REQUEST['anticipos']))
+      {
+	  
+	  $idanticipo = $_GET['idanticipo'];
+	  $this->imprimir_anticipo($idanticipo);
+	  }
 	  	 
       
       $this->share_extensions();
@@ -332,7 +339,9 @@ class compras_imprimir extends fs_controller
                   'fecha' => '<b>Fecha Fact.</b>',
 				  'facdoc' => '<b>Documento</b>',
                   'factnum' => '<b>Número</b>',
-                  'factimp' => '<b>Importe Fact.</b>'
+				  'recargo' => '<b>Recargo</b>',
+				  'factimp' => '<b>Importe Fact.</b>',  
+				  'total' => '<b>Total</b>'
                )
             );
 			
@@ -357,12 +366,14 @@ class compras_imprimir extends fs_controller
 				  'fecha' => $p->fecha,
 				  'facdoc' => $comp_doc,
                   'factnum' => $numcompr,
-                  'factimp' => $sub_t,
+				  'recargo' =>$p->recargo,
+                  'factimp' => $sub_t ,
+				  'total' => $sub_t + $p->recargo,
                   'valor' => $factura->observaciones,
                   'importe' => $sub_t
 					   )
 					);   
-			$total_facturado +=	$sub_t;		
+			$total_facturado +=	$sub_t + $p->recargo;		
 							
 			}	
 			
@@ -434,6 +445,98 @@ class compras_imprimir extends fs_controller
 				$pdf_doc->pdf->ezText('ACLARACIÓN :  _________________________________________________ ', 8, array('justification' => 'left'));
 				$pdf_doc->pdf->ezText("\n", 10);			
 				$pdf_doc->pdf->ezText('DOMICILIO :  ___________________________________________________ ', 8, array('justification' => 'left'));
+	 $pdf_doc->show();		
+	 
+   }
+   
+      public function imprimir_anticipo($idanticipo)
+   {
+      	$anticipo_ = new anticipos_proveedor();
+//		$anticipo_->idanticipo = $idanticipo;
+		$anticipo = $anticipo_->get($idanticipo);
+		
+	
+			
+
+	   	$pdf_doc = new fs_pdf();
+	
+	
+	
+		$lineas_total = 0;
+		 $cant_lineas = 25;
+         $linea_actual = 0;
+         $pagina = 1;	
+		
+/////  Primer encabezado
+		$pdf_doc->pdf->ezText("Página ".$pagina, 9, array('justification' => 'right'));
+		$pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 16, array('justification' => 'left'));
+		$pdf_doc->pdf->ezText("Fecha: ".$anticipo->fecha."                ", 9, array('justification' => 'right'));
+		$pdf_doc->pdf->ezText($this->empresa->direccion, 10, array('justification' => 'left'));
+		$pdf_doc->pdf->ezText("\n", 10);
+ 		$pdf_doc->pdf->ezText("<b>Anticipos</b>", 16, array('justification' => 'left'));
+		$pdf_doc->pdf->ezText("\n", 10);
+		$pdf_doc->pdf->ezText("<b>Proveedor:  ".$anticipo->nombreproveedor."</b>", 10, array('justification' => 'left'));
+		$pdf_doc->pdf->ezText("<b> Concepto:  ".$anticipo->concepto."</b>", 10, array('justification' => 'left'));	
+
+			$pdf_doc->pdf->ezText("\n", 10);
+			$pdf_doc->pdf->ezText("<b>Anticipo</b>", 12, array('justification' => 'left'));	
+			
+			
+            $pdf_doc->new_table();
+			$pdf_doc->add_table_header(
+               array(
+                  'fecha' => '<b>Fecha </b>',
+				  'concepto' => '<b>Concepto</b>',
+                  'tipo' => '<b>Tipo</b>',
+                  'detalle' => '<b>Detalle</b>',
+				  'importe' => '<b>Importe </b>'
+               )
+            );
+			
+			
+			
+			$pdf_doc->add_table_row(
+				   array(
+				  'fecha' => $anticipo->fecha,
+				  'concepto' => $anticipo->concepto,
+                  'tipo' => $anticipo->tipo,
+				  'detalle' => $anticipo->detalle,
+                  'importe' => $anticipo->importe
+					   )
+					);   
+				
+							
+				
+			
+						$pdf_doc->save_table(
+						   array(
+							   'cols' => array(
+								   'campo1' => array('justification' => 'left'),
+								   'dato1' => array('justification' => 'left'),
+								   'campo2' => array('justification' => 'left'),
+								   'dato2' => array('justification' => 'left')
+							   ),
+							   'showLines' => 3,
+							   'width' => 520,
+							   'shaded' =>1
+							   
+							   )
+							);
+			
+			
+								
+					
+			
+			
+		
+				$pdf_doc->set_y(560);		
+				$pdf_doc->pdf->ezText('FIRMA :  _________________________________________________  DNI: _________________________', 8, array('justification' => 'left'));	
+				$pdf_doc->pdf->ezText("\n", 10);
+				$pdf_doc->pdf->ezText('ACLARACIÓN :  _________________________________________________ ', 8, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("\n", 10);			
+				$pdf_doc->pdf->ezText('DOMICILIO :  ___________________________________________________ ', 8, array('justification' => 'left'));
+				$pdf_doc->set_y(440);
+				$pdf_doc->pdf->ezText('FIRMA RESPONSABLE :  ___________________________________________________ ', 8, array('justification' => 'left'));
 	 $pdf_doc->show();		
 	 
    }

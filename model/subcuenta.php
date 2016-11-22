@@ -208,11 +208,18 @@ class subcuenta extends fs_model
       return $part->libro_subcuenta($this->idsubcuenta,$mes,$saldo_ant, $offset);
    }
    
-   public function get_partidas_libros_ver($mes,$offset=0)
+      public function get_partidas_libros_total($mes)
    {
       $part = new partida();
-	  $saldo_ant = $this->get_partidas_saldo_anterior_ver($mes);
-      return $part->libro_subcuenta_ver($this->idsubcuenta,$mes,$saldo_ant, $offset);
+	  $saldo_ant = $this->get_partidas_saldo_anterior();
+      return $part->libro_subcuenta_total($this->idsubcuenta,$mes,$saldo_ant);
+   }
+   
+   public function get_partidas_libros_ver($mes,$codejercicio,$offset=0)
+   {
+      $part = new partida();
+	  $saldo_ant = $this->get_partidas_saldo_anterior_ver($mes,$codejercicio);
+      return $part->libro_subcuenta_ver($this->idsubcuenta,$mes,$saldo_ant,$codejercicio, $offset);
    }
    
    public function get_partidas_mes($offset=0)
@@ -233,10 +240,10 @@ class subcuenta extends fs_model
       return $part->libro_saldo_anterior_subcuenta($this->idsubcuenta);
    }
    
-    public function get_partidas_saldo_anterior_ver($mes)
+    public function get_partidas_saldo_anterior_ver($mes,$codejercicio)
    {
       $part = new partida();
-      return $part->libro_saldo_anterior_subcuenta_ver($this->idsubcuenta,$mes);
+      return $part->libro_saldo_anterior_subcuenta_ver($this->idsubcuenta,$mes,$codejercicio);
    }
    
    public function get_partidas_full()

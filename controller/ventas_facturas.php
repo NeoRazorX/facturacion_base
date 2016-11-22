@@ -21,6 +21,7 @@ require_model('agente.php');
 require_model('articulo.php');
 require_model('cliente.php');
 require_model('factura_cliente.php');
+require_model('inventario.php');
 
 class ventas_facturas extends fs_controller
 {
@@ -430,6 +431,7 @@ class ventas_facturas extends fs_controller
       {
          /// ¿Sumamos stock?
          $art0 = new articulo();
+		 $inventario = new inventario();
          foreach($fact->get_lineas() as $linea)
          {
             if( is_null($linea->idalbaran) )
@@ -438,6 +440,7 @@ class ventas_facturas extends fs_controller
                if($articulo)
                {
                   $articulo->sum_stock($fact->codalmacen, $linea->cantidad);
+				  $inventario->inventario_agregar( $fact->codalmacen,$linea->referencia,$linea->cantidad,$linea->pvpunitario);
                }
             }
          }

@@ -3,19 +3,45 @@
 <script type="text/javascript" src="plugins/facturacion_base/view/js/calendario_one.js"></script>
 
 <script type="text/javascript">
-      
-   		$(function() {		
-						$('.calendario').datepicker({
-						format: "dd-mm-yyyy",
-						autoclose: true,
-							}).on('changeDate', function (ev) {
-								$(this).datepicker('hide');
-							});
-					});
-     
+   function show_buscar_subcuentas(num, tipo)
+   {
+      $("#subcuentas").html('');
+      document.f_buscar_subcuentas.fecha.value = document.f_asiento.fecha.value;
+      document.f_buscar_subcuentas.tipo.value = tipo;
+      document.f_buscar_subcuentas.numlinea.value = num;
+      document.f_buscar_subcuentas.query.value = '';
+      $("#modal_subcuentas").modal('show');
+      document.f_buscar_subcuentas.query.focus();
+   }
+   
+      function buscar_subcuentas()
+   {
+      if(document.f_buscar_subcuentas.query.value == '')
+      {
+         $("#subcuentas").html('');
+      }
+      else
+      {
+         var datos = 'query='+document.f_buscar_subcuentas.query.value;
+         datos += "&fecha="+document.f_buscar_subcuentas.fecha.value;
+         $.ajax({
+            type: 'POST',
+            url: '{$fsc->url()}',
+            dataType: 'html',
+            data: datos,
+            success: function(datos) {
+               var re = /<!--(.*?)-->/g;
+               var m = re.exec( datos );
+               if( m[1] == document.f_buscar_subcuentas.query.value )
+               {
+                  $("#subcuentas").html(datos);
+               }
+            }
+         });
+      }
+   }
+   
 </script>
-
-
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
       <div class="col-sm-6 col-xs-6">
@@ -99,11 +125,13 @@
                </div>
 			      <div class="row">
 					<div class="col-sm-12">
-                  	<form action="" method="post" target="_blank" name="f_asiento" id="f_asiento" class="form"> 
-			   			<input class="form-control" id='codsubcuenta_text' name='codsubcuenta_text' type='text'
-                         onclick="show_buscar_subcuentas('{$value->codejercicio}')"
-                         onkeyup="show_buscar_subcuentas('{$value->codejercicio}')" style="width:200px"
-                         autocomplete='off' placeholder='Seleccionar Subcuenta'/>
+                  	<form action="" method="post" target="_blank" class="form"> 
+			   			<input type="hidden" name="codejercicio" value="{$value->codejercicio}"/>
+			   			<input type="text" value="{$value->codejercicio}"/>
+						<input class="form-control" id='codsubcuenta_{$counter+1}' name='codsubcuenta_{$counter+1}' type='text'
+                        {if="$value->codsubcuenta"} value="{$value->codsubcuenta}" {/if} onclick="show_buscar_subcuentas('{$counter+1}','subcuenta')"
+                         onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'
+                         autocomplete='off' placeholder='Seleccionar'/>
 			   		</form>
                		</div>
 				</div>
@@ -157,78 +185,5 @@
    </div>
    {/loop}
 </div>
-
-<form class="form" role="form" name="f_buscar_subcuentas">
-   <input type="hidden" name="fecha"/>
-   <input type="hidden" name="tipo"/>
-   <input type="hidden" name="numlinea"/>
-   <input type="hidden" name="codejercicio" id="codejercicio" />
-   <div class="modal" id="modal_subcuentas">
-      <div class="modal-dialog" style="width: 99%; max-width: 1000px;">
-         <div class="modal-content">
-            <div class="modal-header">
-               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-               <h4 class="modal-title">Buscar subcuenta</h4>
-            </div>
-            <div class="modal-body">
-               <div class="input-group">
-                  <input class="form-control" type="text" name="query" onkeyup="buscar_subcuentas();" autocomplete="off" autofocus />
-                  
-               </div>
-            </div>
-            <div id="subcuentas"></div>
-         </div>
-      </div>
-   </div>
-</form>
-
-
-
-
-<script type="text/javascript">
-    function show_buscar_subcuentas(cod_ejer)
-   {
-   		document.f_buscar_subcuentas.codejercicio.value = cod_ejer;
-      $("#subcuentas").html('');
-	  document.f_buscar_subcuentas.query.value = '';
-      $("#modal_subcuentas").modal('show');
-        document.f_buscar_subcuentas.query.focus();
-   }
-   
-
-      function buscar_subcuentas()
-   {
-      if(document.f_buscar_subcuentas.query.value == '')
-      {
-         $("#subcuentas").html('');
-      }
-      else
-      {
-         var datos = 'query='+document.f_buscar_subcuentas.query.value;
-         datos += "&codejer="+document.f_buscar_subcuentas.codejercicio.value;
-         $.ajax({
-            type: 'POST',
-            url: '{$fsc->url()}',
-            dataType: 'html',
-            data: datos,
-            success: function(datos) {
-               var re = /<!--(.*?)-->/g;
-               var m = re.exec( datos );
-               if( m[1] == document.f_buscar_subcuentas.query.value )
-               {
-                  $("#subcuentas").html(datos);
-               }
-            }
-         });
-      }
-   }
-   
-   function select_subcuenta(idsubcuenta, saldo, descripcion,alias)
-   {
-       window.location.href = "{$fsc->ppage->url()}&idsubcuenta="+idsubcuenta+"&modo=0}";
-   }
- 
-   
-   </script>
 
 {include="footer"}

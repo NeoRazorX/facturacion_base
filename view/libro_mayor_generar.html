@@ -114,8 +114,8 @@
 													<h4>Saldo : {$fsc->saldo_anterior}</h4>
 												</div> 
 												
-												<div class="col-sm-1 btn-group text-right">
-												{loop="$fsc->paginas()"}
+												<div class="btn-group">
+												{loop="$fsc->paginas_lib()"}
 													<a class="btn btn-sm btn-default{if="$value.actual"} active{/if}" href="{$value.url}">P&aacute;g.{$value.num}</a>
 												{/loop}								
 												</div>
@@ -177,8 +177,8 @@
 													</div>
 													<div class="col-lg-8 col-md-8 col-sm-8 text-center">
 														<div class="btn-group">
-														{loop="$fsc->paginas()"}
-														<a class="btn btn-sm btn-default{if="$value.actual"} active{/if}" href="{$value.url}">{$value.num}</a>
+														{loop="$fsc->paginas_lib()"}
+														<a class="btn btn-sm btn-default{if="$value.actual"} active{/if}" href="{$value.url}">P&aacute;g.{$value.num}</a>
 														{/loop}
 														</div>
 													</div>

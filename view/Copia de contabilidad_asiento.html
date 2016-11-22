@@ -9,7 +9,6 @@
       $("#partidas").append("<tr id='partida_"+numlineas+"'>\n\
          <td>\n\
             <input type='hidden' name='idpartida_"+numlineas+"' value='-1'/>\n\
-			<input type='hidden' name='idsubcuenta_"+numlineas+"' id='idsubcuenta_"+numlineas+"' />\n\
             <input class='form-control' id='codsubcuenta_"+numlineas+"' name='codsubcuenta_"+numlineas+"' type='text'\n\
                onclick=\"show_buscar_subcuentas('"+numlineas+"','subcuenta')\" onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'\n\
                autocomplete='off' placeholder='Seleccionar'/>\n\
@@ -80,12 +79,11 @@
          });
       }
    }
-   function select_subcuenta(codsubcuenta, saldo, descripcion,alias,idsubc)
+   function select_subcuenta(codsubcuenta, saldo, descripcion,alias)
    {
       var num = document.f_buscar_subcuentas.numlinea.value;
       if(document.f_buscar_subcuentas.tipo.value == 'subcuenta')
       {
-	  	 $("#idsubcuenta_"+num).val(idsubc);
          $("#codsubcuenta_"+num).val(codsubcuenta);
 		 $("#alias_"+num).val( Base64.decode(alias) );
          $("#desc_"+num).val( Base64.decode(descripcion) );
@@ -264,7 +262,7 @@
          <div class="col-sm-2">
             <div class="form-group">
                Fecha:
-               <input class="form-control "   name="fecha" type="text" value="{$fsc->asiento->fecha}" readonly="true"/>
+               <input class="form-control calendario"  data-date-format="dd-mm-yyyy"  name="fecha" type="text" value="{$fsc->asiento->fecha}" readonly="true"/>
             </div>
          </div>
 		 <div class="col-sm-2">
@@ -327,8 +325,6 @@
             <tr id="partida_{$counter+1}">
                <td>
                   <input type="hidden" name="idpartida_{$counter+1}" value="{$value->idpartida}"/>
-				  <input type="hidden" name="idsubcuenta_{$counter+1}" id="idsubcuenta_{$counter+1}" value="{$value->idsubcuenta}"/>
-                 
                   <input class="form-control" id='codsubcuenta_{$counter+1}' name='codsubcuenta_{$counter+1}' type='text'
                         {if="$value->codsubcuenta"} value="{$value->codsubcuenta}" {/if} onclick="show_buscar_subcuentas('{$counter+1}','subcuenta')"
                          onkeyup='document.f_buscar_subcuentas.query.value=$(this).val();buscar_subcuentas()'

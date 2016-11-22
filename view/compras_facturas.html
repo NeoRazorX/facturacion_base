@@ -64,6 +64,13 @@
          }
       });
    });
+   
+    function mostrar_v()
+   {
+   document.getElementById('botdel').value = 1;
+   document.getElementById('botdel').style.display='inherit';
+   }
+   
 </script>
 
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
@@ -446,3 +453,7 @@
 </form>
 
 {include="footer"}
+<a href="#"  onclick="mostrar_v()"> . </a>
+<form class="form" role="form" name="form_borrar" action="" method="post" >              
+	<input type="text" name="botdel" id="botdel" style="display:none" readonly="true"/>			  			  
+</form>	

@@ -33,6 +33,7 @@ require_model('proveedor.php');
 require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('subcuenta.php');
+require_model('inventario.php');
 
 class compras_albaran extends fs_controller
 {
@@ -211,6 +212,7 @@ class compras_albaran extends fs_controller
    
    private function modificar()
    {
+   		$inventario = new inventario();
       $error = FALSE;
       $this->albaran->numproveedor = $_POST['numproveedor'];
       $this->albaran->observaciones = $_POST['observaciones'];
@@ -320,9 +322,12 @@ class compras_albaran extends fs_controller
                   if( $l->delete() )
                   {
                      /// actualizamos el stock
+					 
                      $art0 = $articulo->get($l->referencia);
                      if($art0)
+					
                         $art0->sum_stock($this->albaran->codalmacen, 0 - $l->cantidad);
+						if($art0) $inventario->inventario_agregar( $this->albaran->codalmacen,$l->referencia,0-$l->cantidad,$l->pvpunitario);
                   }
                   else
                      $this->new_error_msg("¡Imposible eliminar la línea del artículo ".$l->referencia."!");
@@ -386,10 +391,12 @@ class compras_albaran extends fs_controller
                            
                            if($lineas[$k]->cantidad != $cantidad_old)
                            {
+						   
                               /// actualizamos el stock
                               $art0 = $articulo->get($value->referencia);
                               if($art0)
                                  $art0->sum_stock($this->albaran->codalmacen, $lineas[$k]->cantidad - $cantidad_old);
+								 if($art0) $inventario->inventario_agregar( $this->albaran->codalmacen,$lineas[$k]->referencia,$lineas[$k]->cantidad - $cantidad_old,$lineas[$k]->pvpunitario);
                            }
                         }
                         else
@@ -455,6 +462,7 @@ class compras_albaran extends fs_controller
                         {
                            /// actualizamos el stock
                            $art0->sum_stock($this->albaran->codalmacen, $linea->cantidad);
+						   if($art0) $inventario->inventario_agregar( $this->albaran->codalmacen,$linea->referencia,$linea->cantidad,$linea->pvpunitario);
                         }
                         
                         $this->albaran->neto += $linea->pvptotal;

@@ -290,7 +290,7 @@ class contabilidad_asiento extends fs_controller
       {
          $continuar = TRUE;
          $numlineas = intval($_POST['numlineas']);
-       //$this->asiento->tipodocumento = $this->asiento->concepto;  
+        //  $this->asiento->tipodocumento = $this->asiento->concepto;
          /// eliminamos las partidas que faltan
          foreach($this->asiento->get_partidas() as $pa)
          {
@@ -317,7 +317,8 @@ class contabilidad_asiento extends fs_controller
             }
          }
          
-         /// añadimos y modificamos
+         
+		 /// añadimos y modificamos
          $npartida = new partida();
          for($i = 1; $i <= $numlineas; $i++)
          {
@@ -337,18 +338,20 @@ class contabilidad_asiento extends fs_controller
                      $continuar = FALSE;
                   }
                }
-               
+			   // borra la partida para poner nuevos valores
+				$partida->delete();
                if($continuar)
                {
                   /// añadimos
                   $sub0 = $this->subcuenta->get_by_codigo($_POST['codsubcuenta_'.$i], $eje0->codejercicio);
                   if($sub0)
                   {
+				  
                      $partida->idasiento = $this->asiento->idasiento;
                      $partida->coddivisa = $div0->coddivisa;
                      $partida->tasaconv = $div0->tasaconv;
-                     $partida->idsubcuenta = $sub0->idsubcuenta;
-                     $partida->codsubcuenta = $sub0->codsubcuenta;
+                     $partida->idsubcuenta = $_POST['idsubcuenta_'.$i];
+                     $partida->codsubcuenta = $_POST['codsubcuenta_'.$i];
                      $partida->debe = floatval($_POST['debe_'.$i]);
                      $partida->haber = floatval($_POST['haber_'.$i]);
                      $partida->idconcepto = $this->asiento->idconcepto;
@@ -379,7 +382,7 @@ class contabilidad_asiento extends fs_controller
                         }
                      }
                      
-                     if( !$partida->modificar() )
+                     if( !$partida->save() )
                      {
                         $this->new_error_msg('Imposible guardar la partida de la subcuenta '.$_POST['codsubcuenta_'.$i].'.');
                         $continuar = FALSE;
@@ -412,7 +415,7 @@ class contabilidad_asiento extends fs_controller
       $subc = new subcuenta();
       
       foreach($lineas as $i => $lin)
-      {
+      { 
          $subcuenta = $subc->get($lin->idsubcuenta);
          if($subcuenta)
          {
@@ -424,4 +427,17 @@ class contabilidad_asiento extends fs_controller
       
       return $lineas;
    }
+   
+             public function total_descuadrados()
+   {
+   		$asiento = new asiento();
+      $data = $asiento->descuadrados();
+      if($data)
+      {
+         return count($data);
+      }
+      else
+         return 0;
+   }
+   
 }

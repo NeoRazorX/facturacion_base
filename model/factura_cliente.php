@@ -23,6 +23,7 @@ require_model('linea_iva_factura_cliente.php');
 require_model('linea_factura_cliente.php');
 require_model('secuencia.php');
 require_model('serie.php');
+require_model('inventario.php');
 
 /**
  * Factura de un cliente.
@@ -1053,6 +1054,7 @@ class factura_cliente extends fs_model
       {
          /// ¿Sumamos stock?
          $art0 = new articulo();
+		 $inventario = new inventario();
          foreach($fact->get_lineas() as $linea)
          {
             if( is_null($linea->idalbaran) )
@@ -1061,6 +1063,7 @@ class factura_cliente extends fs_model
                if($articulo)
                {
                   $articulo->sum_stock($fact->codalmacen, $linea->cantidad);
+				  $inventario->inventario_agregar( $fact->codalmacen,$linea->referencia,$linea->cantidad,$linea->pvpunitario);
                }
             }
          }

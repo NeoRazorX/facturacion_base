@@ -26,6 +26,7 @@ require_model('impuesto.php');
 require_model('regularizacion_stock.php');
 require_model('stock.php');
 require_model('tarifa.php');
+require_model('inventario.php');
 
 class ventas_articulo extends fs_controller
 {
@@ -55,6 +56,7 @@ class ventas_articulo extends fs_controller
       $this->articulo = FALSE;
       $this->impuesto = new impuesto();
       $this->fabricante= new fabricante();
+	  $inventario = new inventario();
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
@@ -104,6 +106,7 @@ class ventas_articulo extends fs_controller
       if( isset($_POST['pvpiva']) )
       {
          $this->articulo = $articulo->get($_POST['referencia']);
+		 
          if($this->articulo)
          {
             $continuar = TRUE;
@@ -114,8 +117,24 @@ class ventas_articulo extends fs_controller
             {
                $this->articulo->preciocoste = floatval($_POST['preciocoste']);
             }
-            
-            if( !$this->articulo->save() )
+            if( $this->articulo->save() )
+			{
+				if(!$this->inventario = $inventario->get_ref($_POST['referencia']))
+				{
+				 $inventario->referencia = $_POST['referencia'];
+				 $inventario->preciocoste = $this->articulo->preciocoste;
+				 $inventario->cantidad = 0;
+				 $inventario->save();
+				 }
+				 else
+				 {
+				$this->inventario->preciocoste = $this->articulo->preciocoste;
+				$this->inventario->cantidad = 0;
+				$this->inventario->inventario_agregar( $this->inventario->codalmacen,$_POST['referencia'],$this->inventario->cantidad,$this->inventario->preciocoste);
+//				$this->inventario->save();
+				}
+			}
+			else
             {
                $this->new_message("Precio modificado correctamente.");
             }
@@ -146,7 +165,13 @@ class ventas_articulo extends fs_controller
                      $regularizacion->codalmacendest = $_POST['almacen'];
                      $regularizacion->motivo = $_POST['motivo'];
                      $regularizacion->nick = $this->user->nick;
-                     $regularizacion->save();
+                     if($regularizacion->save())
+					 {
+					 
+					 $inventario->inventario_agregar( $_POST['almacen'],$_POST['referencia'],floatval($_POST['cantidad']) - floatval($_POST['cantidadini']),$this->articulo->preciocoste);
+					 				
+					}		
+					 
                      break;
                   }
                }
@@ -170,7 +195,7 @@ class ventas_articulo extends fs_controller
          }
       }
       else if( isset($_GET['delete_img']) )
-      {
+      { 
          $this->articulo = $articulo->get($_GET['ref']);
          $this->articulo->set_imagen(NULL);
          if( $this->articulo->save() )
@@ -220,7 +245,7 @@ class ventas_articulo extends fs_controller
                }
             }
          }
-         
+       
          $this->articulo->codbarras = $_POST['codbarras'];
          $this->articulo->equivalencia = $_POST['equivalencia'];
          $this->articulo->bloqueado = isset($_POST['bloqueado']);
@@ -234,6 +259,12 @@ class ventas_articulo extends fs_controller
          $this->articulo->stockmax = floatval($_POST['stockmax']);
          if( $this->articulo->save() )
          {
+		 	
+		 	
+			
+		 		if($this->inventario = $inventario->get_ref($this->articulo->referencia))
+				$this->inventario->guardar_modif_refe($_POST['nreferencia']);
+ 
             $this->new_message("Datos del articulo modificados correctamente");
             $this->articulo->set_referencia($_POST['nreferencia']);
          }
@@ -351,6 +382,9 @@ class ventas_articulo extends fs_controller
          
          if($guardar)
          {
+		 print '<script language="JavaScript">'; 
+				print 'alert(" ref_err 6 ");'; 
+				print '</script>'; 
             $alist[$i]->save();
          }
       }

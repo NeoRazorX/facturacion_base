@@ -19,6 +19,8 @@
 
 require_model('ejercicio.php');
 require_once 'plugins/facturacion_base/extras/inventarios_balances.php';
+require_model('subcuenta.php');
+require_model('recibo_proveedor.php');
 
 class informe_contabilidad extends fs_controller
 {
@@ -31,7 +33,18 @@ class informe_contabilidad extends fs_controller
    
    protected function private_core()
    {
+   		$this->subcuenta = new subcuenta();
       $this->ejercicio = new ejercicio();
+	  $this->ppage = $this->page->get('libro_mayor_generar');
+	if( isset($_REQUEST['buscar_subcuenta'])) 
+      {
+
+  	  $this->buscar_subcuenta();
+      }
+	  if( isset($_POST['codejer']) AND isset($_POST['query']) )
+      {
+         $this->new_search();
+      }
       
       if( isset($_GET['diario']) )
       {
@@ -86,6 +99,26 @@ class informe_contabilidad extends fs_controller
          $partidas = $partida->full_from_ejercicio($codeje, $offset);
       }
    }
+  
+   
+      private function new_search()
+   {
+      /// cambiamos la plantilla HTML
+      $this->template = 'ajax/subcuentas_listado';
+      
+      $this->cod_ejer = $_POST['codejer'];
+         $this->resultados = $this->subcuenta->search_by_ejercicio($this->cod_ejer, $this->query);
+		 
+   
+   }
+   
+   
+    public function url()
+   {
+      
+         return 'index.php?page=informe_contabilidad&hab_subc=1';
+   }
+   
    
    private function balance_sumas_y_saldos()
    {

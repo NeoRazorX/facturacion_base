@@ -33,6 +33,7 @@ require_model('impuesto.php');
 require_model('serie.php');
 require_model('tarifa.php');
 require_model('terminal_caja.php');
+require_model('inventario.php');
 
 class tpv_recambios extends fs_controller
 {
@@ -332,7 +333,7 @@ class tpv_recambios extends fs_controller
    private function nueva_factura_cliente()
    {
       $continuar = TRUE;
-      
+      $inventario = new inventario();
       $ejercicio = $this->ejercicio->get_by_fecha($_POST['fecha']);
       if($ejercicio)
       {
@@ -492,7 +493,7 @@ class tpv_recambios extends fs_controller
                      {
                         /// descontamos del stock
                         $articulo->sum_stock($factura->codalmacen, 0 - $linea->cantidad);
-                        
+                        $inventario->inventario_agregar( $factura->codalmacen,$linea->referencia,0 - $linea->cantidad,$linea->pvpunitario);
                         $factura->neto += $linea->pvptotal;
                         $factura->totaliva += ($linea->pvptotal * $linea->iva/100);
                         $factura->totalirpf += ($linea->pvptotal * $linea->irpf/100);
