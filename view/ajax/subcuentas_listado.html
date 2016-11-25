@@ -32,13 +32,13 @@
             </a>
          </td>
          <td>
-            <a href="#" onclick="select_subcuenta('{$value->idsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}','{function="base64_encode($value->alias)"}')">
+            <a href="#" onclick="select_subcuenta('{$value->idsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}','{function="base64_encode($value->alias)"}','{$value->descripcion}','{$value->codsubcuenta}')">
                {$value->codsubcuenta}
             </a>
          </td>
 		 <td class="text-left">{$value->alias}</td>
          <td>
-            <a href="#" onclick="select_subcuenta('{$value->idsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}','{function="base64_encode($value->alias)"}')">
+            <a href="#" onclick="select_subcuenta('{$value->idsubcuenta}','{$value->saldo}','{function="base64_encode($value->descripcion)"}','{function="base64_encode($value->alias)"}','{$value->descripcion}','{$value->codsubcuenta}')">
                {$value->descripcion}
             </a>
          </td>

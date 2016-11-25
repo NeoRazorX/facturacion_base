@@ -57,7 +57,15 @@ class contabilidad_asiento extends fs_controller
       $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
       $this->impuesto = new impuesto();
-      $this->subcuenta = new subcuenta();
+      $this->subcuenta = new subcuenta();	  
+	  	//// regreso de asiento a la solapa correspondiente
+				  if( isset($_GET['solapa']) )
+				  	{
+						  if($_GET['solapa']=='may') $this->solapa='&mayorizados=TRUE';						  
+						  if($_GET['solapa']=='des') $this->solapa='&descuadrados=TRUE';
+						  if($_GET['solapa']=='all') $this->solapa='';
+					}	
+				///////////////////////////////////////	  
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
