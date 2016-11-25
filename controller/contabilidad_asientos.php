@@ -18,6 +18,7 @@
  */
 
 require_model('asiento.php');
+require_model('anticipos_proveedor.php');
 
 class contabilidad_asientos extends fs_controller
 {
@@ -33,7 +34,7 @@ class contabilidad_asientos extends fs_controller
    protected function private_core()
    {
       $this->asiento = new asiento();
-      
+      $anticipo = new anticipos_proveedor();
       if( isset($_GET['delete']) )
       {
          $asiento = $this->asiento->get($_GET['delete']);
@@ -41,6 +42,7 @@ class contabilidad_asientos extends fs_controller
          {
             if( $asiento->delete() )
             {
+				$anticipo->modif_anticipo_idasiento($_GET['delete'],0);
                $this->new_message("Asiento eliminado correctamente.");
             }
             else
@@ -82,32 +84,95 @@ class contabilidad_asientos extends fs_controller
    public function anterior_url()
    {
       $url = '';
-      
-      if($this->query != '' AND $this->offset > 0)
-      {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT);
+	  
+	  if( !isset($_GET['descuadrados']) && !isset($_GET['mayorizados'])) 
+	  {
+			  if($this->query != '' AND $this->offset > 0)
+			  {
+				 $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT);
+			  }
+			  else if($this->query == '' AND $this->offset > 0)
+			  {
+				 $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT);
+			  }
       }
-      else if($this->query == '' AND $this->offset > 0)
-      {
-         $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT);
+      else if( isset($_GET['descuadrados']) )
+	  {
+	  if($_GET['descuadrados'] == TRUE ) 
+	  		{
+			  if($this->query != '' AND $this->offset > 0)
+			  {
+				 $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT).'&descuadrados=TRUE';
+			  }
+			  else if($this->query == '' AND $this->offset > 0)
+			  {
+				 $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).'&descuadrados=TRUE';
+			  }
+      		}
+	  }			  
+      else if( isset($_GET['mayorizados']) )
+	  {
+	  if($_GET['mayorizados'] == TRUE ) 
+	  		{
+			  if($this->query != '' AND $this->offset > 0)
+			  {
+				 $url = $this->url()."&query=".$this->query."&offset=".($this->offset-FS_ITEM_LIMIT).'&mayorizados=TRUE';
+			  }
+			  else if($this->query == '' AND $this->offset > 0)
+			  {
+				 $url = $this->url()."&offset=".($this->offset-FS_ITEM_LIMIT).'&mayorizados=TRUE';
+			  }
+			 } 
       }
-      
       return $url;
    }
    
    public function siguiente_url()
    {
       $url = '';
-      
-      if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
-      {
-         $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT);
-      }
-      else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
-      {
-         $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT);
-      }
-      
+	 
+	  if( !isset($_GET['descuadrados']) && !isset($_GET['mayorizados']))
+	  {
+	  $this->solapa='all';
+			  if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
+			  {
+				 $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT);
+			  }
+			  else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
+			  {
+				 $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT);
+			  }
+      } 
+	  else if( isset($_GET['descuadrados']) )
+	  {
+	  if($_GET['descuadrados'] == TRUE ) 
+	  	  	{
+			$this->solapa='des';
+			  if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
+			  {
+				 $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT).'&descuadrados=TRUE';
+			  }
+			  else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
+			  {
+				 $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).'&descuadrados=TRUE';
+			  }
+      		}
+		}	
+      else if( isset($_GET['mayorizados']) )
+	  {
+	  if($_GET['mayorizados'] == TRUE ) 
+	  		{
+			$this->solapa='may';
+			  if($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT)
+			  {
+				 $url = $this->url()."&query=".$this->query."&offset=".($this->offset+FS_ITEM_LIMIT).'&mayorizados=TRUE';
+			  }
+			  else if($this->query == '' AND count($this->resultados) == FS_ITEM_LIMIT)
+			  {
+				 $url = $this->url()."&offset=".($this->offset+FS_ITEM_LIMIT).'&mayorizados=TRUE';
+			  }
+      		}
+	   }			
       return $url;
    }
    
@@ -139,6 +204,17 @@ class contabilidad_asientos extends fs_controller
       if($data)
       {
          return intval($data[0]['total']);
+      }
+      else
+         return 0;
+   }
+   
+          public function total_descuadrados()
+   {
+      $data = $this->asiento->descuadrados();
+      if($data)
+      {
+         return count($data);
       }
       else
          return 0;

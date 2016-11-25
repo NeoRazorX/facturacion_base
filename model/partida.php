@@ -571,14 +571,14 @@ class partida extends fs_model
       return $saldo_anterior;
    }
    
-         public function libro_saldo_anterior_subcuenta_ver($id,$mes)
+         public function libro_saldo_anterior_subcuenta_ver($id,$mes,$codejercicio)
    {
    $mes =$mes-0;
    		$saldo_anterior = 0;
       $plist = array();
       $ordenadas = $this->db->select("SELECT a.numero,a.fecha,p.idpartida,p.debe,p.haber
 	  FROM co_asientos a, co_partidas p
-         WHERE a.idasiento = p.idasiento AND p.idsubcuenta = ".$this->var2str($id)." AND libromayor != '0' AND MONTH( fecha ) < ".$mes." 
+         WHERE a.idasiento = p.idasiento AND p.idsubcuenta = ".$this->var2str($id)." AND libromayor != '0' AND MONTH( fecha ) < ".$mes." AND p.codejercicio = ".$this->var2str($codejercicio)." 
           ORDER BY a.numero ASC, p.idpartida ASC;");
 		  
       if( $ordenadas )
@@ -650,13 +650,49 @@ class partida extends fs_model
       return $plist;
    }
    
-   public function libro_subcuenta_ver($id,$mes,$saldo_ant,$offset=0)
+    public function libro_subcuenta_total($id,$mes,$saldo_ant)
    {
       $plist = array();
       $ordenadas = $this->db->select("SELECT a.numero,a.fecha,p.idpartida,p.debe,p.haber
          FROM co_asientos a, co_partidas p
-         WHERE a.idasiento = p.idasiento AND p.idsubcuenta = ".$this->var2str($id)." AND libromayor != '0' AND MONTH( fecha ) = ".$this->var2str($mes)."
+         WHERE a.idasiento = p.idasiento AND p.idsubcuenta = ".$this->var2str($id)." AND libromayor = '0' AND MONTH( fecha ) = ".$this->var2str($mes)."
           ORDER BY a.numero ASC, p.idpartida ASC;");
+      if( $ordenadas )
+      {
+         $partida = new partida();
+         $saldo = $saldo_ant;
+         $sum_debe = 0;
+         $sum_haber = 0;
+         foreach($ordenadas as $po)
+         {
+            $saldo += floatval($po['debe']) - floatval($po['haber']);
+            $sum_debe += floatval($po['debe']);
+            $sum_haber += floatval($po['haber']);
+            
+               $aux = $partida->get($po['idpartida']);
+               if( $aux )
+               {
+                  $aux->numero = intval($po['numero']);
+                  $aux->fecha = Date('d-m-Y', strtotime($po['fecha']));
+                  $aux->saldo = $saldo;
+                  $aux->sum_debe = $sum_debe;
+                  $aux->sum_haber = $sum_haber;
+                  $plist[] = $aux;
+               }
+            
+         }
+      }
+      return $plist;
+   }
+   
+   
+   
+   public function libro_subcuenta_ver($id,$mes,$saldo_ant,$codejercicio,$offset=0)
+   {
+      $plist = array();
+      $ordenadas = $this->db->select("SELECT a.numero,a.fecha,p.idpartida,p.debe,p.haber
+         FROM co_asientos a, co_partidas p
+         WHERE a.idasiento = p.idasiento AND p.idsubcuenta = ".$this->var2str($id)." AND libromayor != '0' AND MONTH( fecha ) = ".$this->var2str($mes)."  AND p.codejercicio = ".$this->var2str($codejercicio)." ORDER BY a.numero ASC, p.idpartida ASC;");
       if( $ordenadas )
       {
          $partida = new partida();
@@ -669,8 +705,9 @@ class partida extends fs_model
             $saldo += floatval($po['debe']) - floatval($po['haber']);
             $sum_debe += floatval($po['debe']);
             $sum_haber += floatval($po['haber']);
-            if( $i >= $offset AND $i < ($offset+FS_ITEM_LIMIT) )
-            {
+/////////////////////////////////////////////////////
+//            if( $i >= $offset AND $i < ($offset+FS_ITEM_LIMIT) )
+//            {
                $aux = $partida->get($po['idpartida']);
                if( $aux )
                {
@@ -681,8 +718,9 @@ class partida extends fs_model
                   $aux->sum_haber = $sum_haber;
                   $plist[] = $aux;
                }
-            }
+//            }
             $i++;
+//////////////////////////////////////////////////////			
          }
       }
       return $plist;
@@ -767,12 +805,14 @@ class partida extends fs_model
       $totales = array( 'debe' => 0, 'haber' => 0, 'saldo' => 0 );
       $resultados = $this->db->select("SELECT COALESCE(SUM(debe), 0) as debe,
          COALESCE(SUM(haber), 0) as haber
-         FROM ".$this->table_name." WHERE idsubcuenta = ".$this->var2str($id).";");
+         FROM ".$this->table_name." WHERE libromayor >0 and idsubcuenta = ".$this->var2str($id).";");
       if( $resultados )
       {
-         $totales['debe'] = floatval($resultados[0]['debe']);
-         $totales['haber'] = floatval($resultados[0]['haber']);
-         $totales['saldo'] = floatval($resultados[0]['debe']) - floatval($resultados[0]['haber']);
+	  	$s_debe = round(floatval($resultados[0]['debe']),2);
+		$s_haber = round(floatval($resultados[0]['haber']),2);
+         $totales['debe'] = $s_debe;
+         $totales['haber'] = $s_haber;
+         $totales['saldo'] = floatval($s_debe) - floatval($s_haber);
       }
       
       return $totales;
@@ -786,9 +826,11 @@ class partida extends fs_model
          FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($idasiento).";");
       if( $resultados )
       {
-         $totales['debe'] = floatval($resultados[0]['debe']);
-         $totales['haber'] = floatval($resultados[0]['haber']);
-         $totales['saldo'] = floatval($resultados[0]['debe']) - floatval($resultados[0]['haber']);
+	  	$v_debe = round(floatval($resultados[0]['debe']),2);
+		$v_haber = round(floatval($resultados[0]['haber']),2);
+         $totales['debe'] = $v_debe;
+         $totales['haber'] = $v_haber;
+         $totales['saldo'] = floatval($v_debe) - floatval($v_haber);
       }
       
       return $totales;
@@ -846,7 +888,7 @@ class partida extends fs_model
       	$totales = array( 'debe' => 0, 'haber' => 0, 'saldo' => 0 );      
         $resultados = $this->db->select("SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
    FROM co_pgruposepigrafes pg, co_gruposepigrafes g, co_epigrafes e, co_cuentas c, co_subcuentas s, co_partidas p, co_asientos a
-   WHERE g.idpgrupo = pg.idpgrupo AND e.idgrupo = g.idgrupo AND c.idepigrafe = e.idepigrafe AND s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND g.codpgrupo = ".$this->var2str($id)."
+   WHERE g.idpgrupo = pg.idpgrupo AND e.idgrupo = g.idgrupo AND c.idepigrafe = e.idepigrafe AND s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND p.libromayor != 0 AND g.codpgrupo = ".$this->var2str($id)."
                AND a.fecha BETWEEN ".$this->var2str($fechaini)." AND ".$this->var2str($fechafin).";");
       
       
@@ -865,7 +907,7 @@ class partida extends fs_model
       	$totales = array( 'debe' => 0, 'haber' => 0, 'saldo' => 0 );      
         $resultados = $this->db->select("SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
    FROM co_gruposepigrafes g, co_epigrafes e, co_cuentas c, co_subcuentas s, co_partidas p, co_asientos a
-   WHERE e.idgrupo = g.idgrupo AND c.idepigrafe = e.idepigrafe AND s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND g.codgrupo = ".$this->var2str($id)."
+   WHERE e.idgrupo = g.idgrupo AND c.idepigrafe = e.idepigrafe AND s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND p.libromayor != 0 AND g.codgrupo = ".$this->var2str($id)."
                AND a.fecha BETWEEN ".$this->var2str($fechaini)." AND ".$this->var2str($fechafin).";");
       
       
@@ -884,7 +926,7 @@ class partida extends fs_model
       	$totales = array( 'debe' => 0, 'haber' => 0, 'saldo' => 0 );      
         $resultados = $this->db->select("SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
    FROM co_epigrafes e, co_cuentas c, co_subcuentas s, co_partidas p, co_asientos a
-   WHERE c.idepigrafe = e.idepigrafe AND s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND e.codepigrafe = ".$this->var2str($id)."
+   WHERE c.idepigrafe = e.idepigrafe AND s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND p.libromayor != 0 AND e.codepigrafe = ".$this->var2str($id)."
                AND a.fecha BETWEEN ".$this->var2str($fechaini)." AND ".$this->var2str($fechafin).";");
       
       
@@ -903,7 +945,7 @@ class partida extends fs_model
       	$totales = array( 'debe' => 0, 'haber' => 0, 'saldo' => 0 );      
         $resultados = $this->db->select("SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
    FROM co_cuentas c, co_subcuentas s, co_partidas p, co_asientos a
-   WHERE s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND s.codcuenta = ".$this->var2str($id)."
+   WHERE s.idcuenta = c.idcuenta AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND p.libromayor != 0 AND s.codcuenta = ".$this->var2str($id)."
                AND a.fecha BETWEEN ".$this->var2str($fechaini)." AND ".$this->var2str($fechafin).";");
       
       
@@ -922,7 +964,7 @@ class partida extends fs_model
       	$totales = array( 'debe' => 0, 'haber' => 0, 'saldo' => 0 );      
         $resultados = $this->db->select("SELECT COALESCE(SUM(p.debe), 0) as debe, COALESCE(SUM(p.haber), 0) as haber 
    FROM co_subcuentas s, co_partidas p, co_asientos a
-   WHERE p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND s.codsubcuenta = ".$this->var2str($id)."
+   WHERE p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND p.libromayor != 0 AND s.codsubcuenta = ".$this->var2str($id)."
                AND a.fecha BETWEEN ".$this->var2str($fechaini)." AND ".$this->var2str($fechafin).";");
       
       

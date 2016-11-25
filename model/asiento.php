@@ -271,7 +271,7 @@ class asiento extends fs_model
       
       if( !$this->floatcmp($debe, $haber, FS_NF0, TRUE) )
       {
-         $this->new_error_msg( "Asiento descuadrado. Descuadre: ".round($debe-$haber, FS_NF0+1) );
+         $this->new_error_msg( "Asiento descuadrado. Descuadre: ".round($debe-$haber, FS_NF0+1)."   - No se puede Mayorizar ");
          $status = FALSE;
       }
       

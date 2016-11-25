@@ -75,8 +75,11 @@
    </li>
    <li{if="isset($_GET['descuadrados'])"} class="active"{/if}>
       <a href="{$fsc->url()}&descuadrados=TRUE">
-         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-         <span class="hidden-xs">&nbsp; Descuadrados</span>
+        {if="$fsc->total_descuadrados()>0"} <span class="glyphicon glyphicon-exclamation-sign" style="color:#FF0000" aria-hidden="true"></span>
+		{else}
+		<span class="glyphicon  aria-hidden="true"></span>
+		{/if}
+         <span class="hidden-xs">&nbsp; Descuadrados</span><span class="badge">{$fsc->total_descuadrados()}</span>
       </a>
    </li>
    <li{if="isset($_GET['mayorizados'])"} class="active"{/if}>
@@ -88,6 +91,23 @@
 </ul>
 {/if}
 
+<ul class="pager">
+   {if="$fsc->anterior_url()!=''"}
+   <li class="previous">
+      <a href="{$fsc->anterior_url()}">
+         <span class="glyphicon glyphicon-chevron-left"></span> &nbsp; Anteriores
+      </a>
+   </li>
+   {/if}
+   
+   {if="$fsc->siguiente_url()!=''"}
+   <li class="next">
+      <a href="{$fsc->siguiente_url()}">
+         Siguientes &nbsp; <span class="glyphicon glyphicon-chevron-right"></span>
+      </a>
+   </li>
+   {/if}
+</ul>
 <div class="table-responsive">
    <table class="table table-hover">
       <thead>
@@ -100,7 +120,7 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-      <tr class="clickableRow{if="$value->importe<=0"} bg-warning{/if}" href="{$value->url()}">
+      <tr class="clickableRow{if="$value->importe<=0"} bg-warning{/if}" href="{$value->url()}&solapa={$fsc->solapa}">
          <td class="text-center">
             {if="$value->editable"}
             <span class="glyphicon glyphicon-pencil" title="editable"></span>

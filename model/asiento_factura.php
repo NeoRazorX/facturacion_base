@@ -20,6 +20,7 @@
 require_model('cliente.php');
 require_model('proveedor.php');
 require_model('orden_prov');
+require_model('anticipos_proveedor.php');
 /**
  * Esta clase permite genera un asiento a partir de una factura.
  *
@@ -33,6 +34,7 @@ class asiento_factura
    public $messages;
    public $errors;
    public $soloasiento;
+   public $importe_anticipo;
    
    public function __construct()
    {
@@ -377,9 +379,19 @@ class asiento_factura
  public function asiento_pago_compra($id)
    {
 
-   
+   		
 	  $varorden = new orden_prov();
 	  $orden =  $varorden->get($id);
+	  $varanticipo = new anticipos_proveedor();
+//	  $anticipo =  $varanticipo->get($id);
+		$this->importe_anticipo = 0;
+	  foreach($varanticipo->get_anticipo_idorden($id) as $valant)
+            {
+			$this->importe_anticipo += $valant->importe;
+			$this->idsubc_antic = $valant->idsubcuenta;
+			
+			}
+			
 
       $ok = FALSE;
       $this->asiento = FALSE;
@@ -412,7 +424,7 @@ class asiento_factura
 		 $asiento->concepto = "Orden de pago  - ".$orden->provorden;
          $asiento->editable = TRUE;
          $asiento->fecha = $orden->fecha;
-         $asiento->importe = $orden->importepagar;
+         $asiento->importe = $orden->importepagar - $this->importe_anticipo;
          $asiento->tipodocumento = "Egreso proveedor";
 	 
          if( $asiento->save() )
@@ -434,19 +446,19 @@ class asiento_factura
                $asiento_correcto = FALSE;
                $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida0->codsubcuenta."!");
             }
-
-		   
-		     $subcuenta_compras = $subcuenta->get_cuentaesp('CAJA',$asiento->codejercicio);
- 
-            if($subcuenta_compras AND $asiento_correcto)
+			
+			
+			if(!$this->importe_anticipo == 0) $subcuenta_anticipo = $subcuenta->get($this->idsubc_antic);
+			
+			if($this->importe_anticipo AND $asiento_correcto)
             {
                $partida2 = new partida();
                $partida2->idasiento = $asiento->idasiento;
                $partida2->concepto = $asiento->concepto;
-               $partida2->idsubcuenta = $subcuenta_compras->idsubcuenta;
-               $partida2->codsubcuenta = $subcuenta_compras->codsubcuenta;
+               $partida2->idsubcuenta = $subcuenta_anticipo->idsubcuenta;
+               $partida2->codsubcuenta = $subcuenta_anticipo->codsubcuenta;
 ///////// Proveedor compra haber  ////////////////////////			   
-               $partida2->haber = $orden->importepagar;
+               $partida2->haber = $this->importe_anticipo;
                $partida2->coddivisa = 0;
                $partida2->tasaconv = 0;
                $partida2->codserie = 0;
@@ -456,6 +468,32 @@ class asiento_factura
                   $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida2->codsubcuenta."!");
                }
             }
+
+		   
+		     $subcuenta_compras = $subcuenta->get_cuentaesp('CAJA',$asiento->codejercicio);
+ 
+            if($subcuenta_compras AND $asiento_correcto)
+            {
+               $partida3 = new partida();
+               $partida3->idasiento = $asiento->idasiento;
+               $partida3->concepto = $asiento->concepto;
+               $partida3->idsubcuenta = $subcuenta_compras->idsubcuenta;
+               $partida3->codsubcuenta = $subcuenta_compras->codsubcuenta;
+///////// Proveedor compra haber  ////////////////////////			   
+               $partida3->haber = $orden->importepagar - $this->importe_anticipo;
+               $partida3->coddivisa = 0;
+               $partida3->tasaconv = 0;
+               $partida3->codserie = 0;
+               if( !$partida3->save() )
+               {
+                  $asiento_correcto = FALSE;
+                  $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida2->codsubcuenta."!");
+               }
+            }
+			
+
+			
+			
             
             if($asiento_correcto)
             {
@@ -483,6 +521,131 @@ class asiento_factura
       return $ok;
    }			
 				 
+  
+   
+ 
+ /////////////////////////////////////
+ /////////////////////////////////////
+   
+
+ public function asiento_pago_anticipo($id)
+   {
+	  $varanticipo = new anticipos_proveedor();
+	  $anticipo =  $varanticipo->get($id);
+
+   		
+//	  $varorden = new orden_prov();
+///	  $orden =  $varorden->get($id);
+//	  $varanticipo = new anticipos_proveedor();
+//	  $anticipo =  $varanticipo->get($id);
+
+			
+
+      $ok = FALSE;
+      $this->asiento = FALSE;
+      $proveedor0 = new proveedor();
+      $subcuenta_prov = FALSE;
+
+      $proveedor = $proveedor0->get($anticipo->codproveedor);
+      if($proveedor)
+      {
+         $subcuenta_prov = $proveedor->get_subcuenta($anticipo->codejercicio);
+      }
+      if( !$subcuenta_prov )
+      {
+         $eje0 = $this->ejercicio->get($anticipo->codejercicio);
+         $this->new_message("No se ha podido generar una subcuenta para el proveedor ");
+         if(!$this->soloasiento)
+         {
+           $this->new_message("Aun así la <a href='".$anticipo->url()."'>anticipo</a> se ha generado correctamente,
+          pero sin asiento contable.");
+         }
+      }
+      else
+      {
+	     $asiento = new asiento();
+         $asiento->codejercicio = $anticipo->codejercicio;
+//         $asiento->concepto = "Orden de pago ".$orden->codigo." - ".$orden->nombre;
+//         $asiento->documento = $orden->codigo;
+		 $asiento->concepto = "Anticipo ".$anticipo->fecha." - ".$anticipo->codproveedor;
+         $asiento->documento = $anticipo->fecha;
+		 $asiento->concepto = "Anticipo  - ".$anticipo->codproveedor;
+         $asiento->editable = TRUE;
+         $asiento->fecha = $anticipo->fecha;
+         $asiento->importe = $anticipo->importe;
+         $asiento->tipodocumento = "Egreso proveedor";
+	 
+         if( $asiento->save() )
+         {
+            $asiento_correcto = TRUE;
+            $subcuenta = new subcuenta();
+            $partida0 = new partida();
+			$subc = $subcuenta->get($anticipo->idsubcuenta);
+			
+            $partida0->idasiento = $asiento->idasiento;
+            $partida0->concepto = $asiento->concepto;
+            $partida0->idsubcuenta = $subc->idsubcuenta;
+            $partida0->codsubcuenta = $subc->codsubcuenta;
+///////////  Proveedor  debe			/////////
+            $partida0->debe = $anticipo->importe;
+            $partida0->coddivisa = 0;
+            $partida0->tasaconv = 0;
+            $partida0->codserie = 0;
+            if( !$partida0->save() )
+            {
+               $asiento_correcto = FALSE;
+               $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida0->codsubcuenta."!");
+            }
+
+		   
+		     $subcuenta_compras = $subcuenta->get_cuentaesp('CAJA',$asiento->codejercicio);
+ 
+            if($subcuenta_compras AND $asiento_correcto)
+            {
+               $partida2 = new partida();
+               $partida2->idasiento = $asiento->idasiento;
+               $partida2->concepto = $asiento->concepto;
+               $partida2->idsubcuenta = $subcuenta_compras->idsubcuenta;
+               $partida2->codsubcuenta = $subcuenta_compras->codsubcuenta;
+///////// Proveedor compra haber  ////////////////////////			   
+               $partida2->haber = $anticipo->importe;
+               $partida2->coddivisa = 0;
+               $partida2->tasaconv = 0;
+               $partida2->codserie = 0;
+               if( !$partida2->save() )
+               {
+                  $asiento_correcto = FALSE;
+                  $this->new_error_msg("¡Imposible generar la partida para la subcuenta ".$partida2->codsubcuenta."!");
+               }
+            }
+            
+            if($asiento_correcto)
+            {
+               $anticipo->idasiento = $asiento->idasiento;
+               if( $anticipo->save() )
+               {
+                  $ok = TRUE;
+                  $this->asiento = $asiento;
+               }
+               else
+                  $this->new_error_msg("¡Imposible añadir el asiento a la factura!");
+            }
+            else
+            {
+               if( $asiento->delete() )
+               {
+                  $this->new_message("El asiento se ha borrado.");
+               }
+               else
+                  $this->new_error_msg("¡Imposible borrar el asiento!");
+            }
+         }
+      }
+      
+      return $ok;
+   }			
+				 
+  
   
   
   

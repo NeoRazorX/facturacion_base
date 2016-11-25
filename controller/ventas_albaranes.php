@@ -22,6 +22,7 @@ require_model('albaran_cliente.php');
 require_model('articulo.php');
 require_model('cliente.php');
 require_model('serie.php');
+require_model('inventario.php');
 
 class ventas_albaranes extends fs_controller
 {
@@ -284,6 +285,7 @@ class ventas_albaranes extends fs_controller
    
    private function delete_albaran()
    {
+   	$inventario = new inventario();
       $alb = new albaran_cliente();
       $alb1 = $alb->get($_POST['delete']);
       if($alb1)
@@ -299,7 +301,8 @@ class ventas_albaranes extends fs_controller
                if($art0)
                {
                   $art0->sum_stock($alb1->codalmacen, $linea->cantidad);
-                  $art0->save();
+                  if( $art0->save()) $inventario->inventario_agregar( $alb1->codalmacen,$linea->referencia,$linea->cantidad,$linea->pvpunitario);
+				  
                }
             }
          }

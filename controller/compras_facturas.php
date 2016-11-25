@@ -22,6 +22,7 @@ require_model('articulo.php');
 require_model('factura_proveedor.php');
 require_model('proveedor.php');
 require_model('albaran_proveedor.php');
+require_model('inventario.php');
 
 class compras_facturas extends fs_controller
 {
@@ -460,6 +461,7 @@ class compras_facturas extends fs_controller
       {
          /// ¿Descontamos stock?
          $art0 = new articulo();
+		 $inventario = new inventario();
          foreach($fact->get_lineas() as $linea)
          {
             if( is_null($linea->idalbaran) )
@@ -468,6 +470,7 @@ class compras_facturas extends fs_controller
                if($articulo)
                {
                   $articulo->sum_stock($fact->codalmacen, 0 - $linea->cantidad, TRUE);
+				   if($articulo) $inventario->inventario_agregar( $fact->codalmacen,$linea->referencia,0 - $linea->cantidad,$linea->pvpunitario);
                }
             }
          }
@@ -494,6 +497,7 @@ class compras_facturas extends fs_controller
          if( isset($_POST['stock']) )
          {
             $articulo = new articulo();
+			$inventario = new inventario();
             
             foreach($alb1->get_lineas() as $linea)
             {
@@ -501,7 +505,9 @@ class compras_facturas extends fs_controller
                if($art0)
                {
                   $art0->sum_stock($alb1->codalmacen, 0 - $linea->cantidad);
-                  $art0->save();
+                  
+				  if($art0->save()) $inventario->inventario_agregar( $alb1->codalmacen,$linea->referencia,0 - $linea->cantidad,$linea->pvpunitario);
+				  
                }
             }
          }

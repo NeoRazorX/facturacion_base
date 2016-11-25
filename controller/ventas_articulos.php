@@ -22,6 +22,7 @@ require_model('familia.php');
 require_model('fabricante.php');
 require_model('impuesto.php');
 require_model('tarifa.php');
+require_model('inventario.php');
 
 class ventas_articulos extends fs_controller
 {
@@ -54,6 +55,7 @@ class ventas_articulos extends fs_controller
       $this->fabricante = new fabricante();
       $this->impuesto = new impuesto();
       $this->tarifa = new tarifa();
+	  $inventario = new inventario();
       
       /**
        * Si hay alguna extensión de tipo config y texto no_tab_tarifas,
@@ -137,6 +139,9 @@ class ventas_articulos extends fs_controller
             $articulo->set_impuesto($_POST['codimpuesto']);
             if( $articulo->save() )
             {
+				 $inventario->codalmacen = $_POST['codfamilia'];
+				 $inventario->referencia = $_POST['referencia'];
+				 $inventario->save();
                header('location: '.$articulo->url());
             }
             else

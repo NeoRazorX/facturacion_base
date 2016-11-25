@@ -107,7 +107,7 @@ class libro_mayor_generar extends fs_controller
          		{
 				$mesver = $_GET['mes'];
 				$libro_mayor = new libro_mayor();
-				$libro_mayor->libro_mayor_ver($this->subcuenta,$mesver);
+				$libro_mayor->libro_mayor_ver($this->subcuenta,$mesver,$this->subcuenta->codejercicio);
 				
 				}
 	  
@@ -136,6 +136,7 @@ class libro_mayor_generar extends fs_controller
       $num = 0;
       $actual = 1;
       $total = $this->subcuenta->count_partidas();
+ 
       /// añadimos todas la página
       while($num < $total)
       {
@@ -144,6 +145,38 @@ class libro_mayor_generar extends fs_controller
              'num' => $i,
              'actual' => ($num == $this->offset)
          );
+		 	  
+         if( $num == $this->offset )
+            $actual = $i;
+         $i++;
+         $num += FS_ITEM_LIMIT;
+      }
+      /// ahora descartamos
+      foreach($paginas as $j => $value)
+      {
+         if( ($j>1 AND $j<$actual-3 AND $j%10) OR ($j>$actual+3 AND $j<$i-1 AND $j%10) )
+            unset($paginas[$j]);
+      }
+      return $paginas;
+   }
+   
+        public function paginas_lib()
+   {
+      $paginas = array();
+      $i = 1;
+      $num = 0;
+      $actual = 1;
+      $total = $this->count_periodo_selecc;
+
+      /// añadimos todas la página
+      while($num < $total)
+      {
+         $paginas[$i] = array(
+             'url' => $this->url().'&offset='.$num,
+             'num' => $i,
+             'actual' => ($num == $this->offset)
+         );
+		 	  
          if( $num == $this->offset )
             $actual = $i;
          $i++;
@@ -217,6 +250,7 @@ class libro_mayor_generar extends fs_controller
 			
 			 
 			 $this->periodo_seleccionado = $this->subcuenta->get_partidas_libros($this->mes,$this->offset);
+			 $this->count_periodo_selecc = count($this->subcuenta->get_partidas_libros_total($this->mes));
 			 $this->periodo_generado = $this->subcuenta->get_partidas_libros_ver($this->mes,$this->offset);
 			 
 			} 

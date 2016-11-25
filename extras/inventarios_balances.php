@@ -290,33 +290,39 @@ class inventarios_balances
 					}
 						foreach($subcuentas as $sc)
 						{
-						   					$debe = 0;
+					$debe = 0;
             		$haber = 0;
+					
+					//////////////////
+	//				if(count($subcuentas)<200)
+	//				{
 					$auxt = $partida->totales_subcuenta($sc->codsubcuenta, $fechaini, $fechafin);
 						   $debe = $auxt['debe'];
 						   $haber = $auxt['haber'];
 					if( $debe!=0 OR $haber!=0)
-            		{
-							if( $debe-$haber > 0)
-						   {
-						   $saldo_d = $debe-$haber;
-						   $saldo_a = 0;
-						   }
-						   else
-						   {
-						   $saldo_d = 0;
-						   $saldo_a = $haber-$debe;
-						   }
-						   $auxlist[] = array(
-							   'cuenta' => FALSE,
-							   'codigo' => $sc->codsubcuenta,
-							   'descripcion' => substr('        '.$sc->descripcion,0,45),
-							   'debe' => $debe,
-							   'haber' => $haber,
-							   'saldo' => $saldo_d,
-						   		'saldoa' => $saldo_a
-								);	
-					}								   
+								{
+										if( $debe-$haber > 0)
+									   {
+									   $saldo_d = $debe-$haber;
+									   $saldo_a = 0;
+									   }
+									   else
+									   {
+									   $saldo_d = 0;
+									   $saldo_a = $haber-$debe;
+									   }
+									   $auxlist[] = array(
+										   'cuenta' => FALSE,
+										   'codigo' => $sc->codsubcuenta,
+										   'descripcion' => substr('        '.$sc->descripcion,0,45),
+										   'debe' => $debe,
+										   'haber' => $haber,
+										   'saldo' => $saldo_d,
+											'saldoa' => $saldo_a
+											);	
+								}	
+		//				}	
+						/////////////////////////////////////								   
 						}	
 					}					
 				}				

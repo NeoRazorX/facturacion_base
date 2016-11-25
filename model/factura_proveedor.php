@@ -23,6 +23,7 @@ require_model('linea_iva_factura_proveedor.php');
 require_model('linea_factura_proveedor.php');
 require_model('secuencia.php');
 require_model('serie.php');
+require_model('inventario.php');
 
 /**
  * Factura de un proveedor.
@@ -714,8 +715,9 @@ class factura_proveedor extends fs_model
          return FALSE;
    }
    
-   public function all($offset=0, $limit=FS_ITEM_LIMIT, $orden)
+   public function all($offset=0, $limit=FS_ITEM_LIMIT, $orden='fecha ASC')
    {
+   
       $faclist = array();
       $facturas = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY ".$orden, $limit, $offset);
       if($facturas)
@@ -750,6 +752,7 @@ class factura_proveedor extends fs_model
 
          /// ¿Descontamos stock?
          $art0 = new articulo();
+		 $inventario = new inventario();
          foreach($fact->get_lineas() as $linea)
          {
             if( is_null($linea->idalbaran) )
@@ -758,6 +761,8 @@ class factura_proveedor extends fs_model
                if($articulo)
                {
                   $articulo->sum_stock($fact->codalmacen, 0 - $linea->cantidad, TRUE);
+				  $inventario->inventario_agregar( $fact->codalmacen,$linea->referencia,0 - $linea->cantidad,$linea->pvpunitario);
+				  
                }
             }
          }
@@ -788,6 +793,7 @@ class factura_proveedor extends fs_model
 
          /// ¿Descontamos stock?
          $art0 = new articulo();
+		 $inventario = new inventario();
          foreach($fact->get_lineas() as $linea)
          {
             if( is_null($linea->idalbaran) )
@@ -796,6 +802,7 @@ class factura_proveedor extends fs_model
                if($articulo)
                {
                   $articulo->sum_stock($fact->codalmacen,  $linea->cantidad, TRUE);
+				  $inventario->inventario_agregar( $fact->codalmacen,$linea->referencia,$linea->cantidad,$linea->pvpunitario);
                }
             }
          }

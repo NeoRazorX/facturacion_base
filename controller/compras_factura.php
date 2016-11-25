@@ -29,6 +29,7 @@ require_model('recibo_proveedor.php');
 require_model('fabricante.php');
 require_model('familia.php');
 require_model('articulo_proveedor.php');
+require_model('inventario.php');
 
 class compras_factura extends fs_controller
 {
@@ -434,7 +435,9 @@ class compras_factura extends fs_controller
                         
                         if( isset($_POST['stock']) )
                         {
+							$inventario = new inventario();
                            $articulo->sum_stock($factura->codalmacen, $linea->cantidad);
+						    if($articulo) $inventario->inventario_agregar( $factura->codalmacen,$linea->referencia,$linea->cantidad,$linea->pvpunitario);
                         }
                         else if( isset($_POST['costemedio']) )
                         {

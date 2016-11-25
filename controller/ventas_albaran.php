@@ -34,6 +34,7 @@ require_model('partida.php');
 require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('subcuenta.php');
+require_model('inventario.php');
 
 class ventas_albaran extends fs_controller
 {
@@ -151,6 +152,7 @@ class ventas_albaran extends fs_controller
    
    private function modificar()
    {
+   		$inventario = new inventario();
       $error = FALSE;
       $this->albaran->numero2 = $_POST['numero2'];
       $this->albaran->observaciones = $_POST['observaciones'];
@@ -276,6 +278,7 @@ class ventas_albaran extends fs_controller
                      $art0 = $articulo->get($l->referencia);
                      if($art0)
                         $art0->sum_stock($this->albaran->codalmacen, $l->cantidad);
+						$inventario->inventario_agregar( $this->albaran->codalmacen,$l->referencia,$l->cantidad,$l->pvpunitario);
                   }
                   else
                      $this->new_error_msg("¡Imposible eliminar la línea del artículo ".$l->referencia."!");
@@ -329,6 +332,7 @@ class ventas_albaran extends fs_controller
                               $art0 = $articulo->get($value->referencia);
                               if($art0)
                                  $art0->sum_stock($this->albaran->codalmacen, $cantidad_old - $lineas[$k]->cantidad);
+								 $inventario->inventario_agregar( $this->albaran->codalmacen,$lineas[$k]->referencia,$cantidad_old - $lineas[$k]->cantidad,$lineas[$k]->pvpunitario);
                            }
                         }
                         else
@@ -373,6 +377,7 @@ class ventas_albaran extends fs_controller
                         {
                            /// actualizamos el stock
                            $art0->sum_stock($this->albaran->codalmacen, 0 - $linea->cantidad);
+						   $inventario->inventario_agregar( $this->albaran->codalmacen,$linea->referencia,0 - $linea->cantidad,$linea->pvpunitario);
                         }
                         
                         $this->albaran->neto += $linea->pvptotal;

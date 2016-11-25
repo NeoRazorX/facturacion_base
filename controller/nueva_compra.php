@@ -27,6 +27,7 @@ require_model('familia.php');
 require_model('forma_pago.php');
 require_model('pedido_proveedor.php');
 require_model('proveedor.php');
+require_model('inventario.php');
 require_model('albaran_proveedor.php');
 
 class nueva_compra extends fs_controller
@@ -725,6 +726,7 @@ class nueva_compra extends fs_controller
          if( $albaran->save() )
          {
             $art0 = new articulo();
+			$inventario = new inventario();
             $n = floatval($_POST['numlineas']);
             for($i = 0; $i < $n; $i++)
             {
@@ -781,6 +783,7 @@ class nueva_compra extends fs_controller
                         if( isset($_POST['stock']) )
                         {
                            $articulo->sum_stock($albaran->codalmacen, $linea->cantidad, isset($_POST['costemedio']) );
+						   if($articulo) $inventario->inventario_agregar( $albaran->codalmacen,$linea->referencia,$linea->cantidad,$linea->pvpunitario);
                         }
                         else if( isset($_POST['costemedio']) )
                         {
@@ -832,7 +835,7 @@ class nueva_compra extends fs_controller
                   if($_POST['redir'] == 'TRUE')
                   {
    //                  header('Location: '.$albaran->url());
-   						header('Location: '.$this->url_list1().'&nueva=1');
+   	//					header('Location: '.$this->url_list1().'&nueva=1');
                   }
                }
                else
@@ -968,6 +971,7 @@ class nueva_compra extends fs_controller
          if( $factura->save() )
          {
             $art0 = new articulo();
+			$inventario = new inventario();
             $n = floatval($_POST['numlineas']);
             for($i = 0; $i < $n; $i++)
             {
@@ -1045,6 +1049,7 @@ class nueva_compra extends fs_controller
                         {
 						
                            $articulo->sum_stock($factura->codalmacen, $linea->cantidad);
+						   if($articulo) $inventario->inventario_agregar( $factura->codalmacen,$linea->referencia,$linea->cantidad,$linea->pvpunitario);
                         }
                         else if( isset($_POST['costemedio']) )
                         {
