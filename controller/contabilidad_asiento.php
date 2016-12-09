@@ -527,6 +527,7 @@ class contabilidad_asiento extends fs_controller
                         ));
                         break;
                     case 'DBT S. RIO':
+                    case 'CTA CTE':
                         contabilidad_asiento::add_partida($asiento, $divisa, '110103006', array(
                             'debe' => 0,
                             'haber' => $recibo->importe,
@@ -592,7 +593,11 @@ class contabilidad_asiento extends fs_controller
                                 'haber' => $recibo->importe,
                                 'comprobante' => ''
                             ));
-                            // TODO: Me parece que cuando la reserva ya está paga hay que agregarla a otros lugares
+                            contabilidad_asiento::add_partida($asiento, $divisa, '410101001', array(
+                                'debe' => 0,
+                                'haber' => $factura->total,
+                                'comprobante' => ''
+                            ));
                         } else {
                             // No se que hacer en estos casos
                             $controller->new_error_msg('La factura <a href="' . $factura->url() .'">#'. $factura->numero
