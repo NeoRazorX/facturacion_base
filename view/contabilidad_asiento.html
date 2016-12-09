@@ -115,6 +115,7 @@
       var iva = 0;
       var t_debe = 0;
       var t_haber = 0;
+	  var tot_sald = 0;
       var show_contrapartidas = false;
       
       for(var i=1; i<=numlineas; i++)
@@ -153,7 +154,8 @@
       document.f_asiento.descuadre.value = fs_round(t_debe - t_haber, {#FS_NF0#});
 	  document.f_asiento.total_debe.value = t_debe.toFixed(2);
 	  document.f_asiento.total_haber.value = t_haber.toFixed(2);
-	  document.f_asiento.total_saldo.value = t_debe.toFixed(2) - t_haber.toFixed(2);
+	  tot_sald = t_debe.toFixed(2) - t_haber.toFixed(2);
+	  document.f_asiento.total_saldo.value = tot_sald.toFixed(2);
       
       if(show_contrapartidas)
       {
@@ -621,7 +623,7 @@
 </div>
 {/if}
 
-{if="($fsc->asiento->tipodocumento=='Ingreso proveedor' or $fsc->asiento->tipodocumento=='Ingreso') AND $fsc->asiento->editable "}
+{if="($fsc->asiento->tipodocumento=='Ingreso proveedor' or $fsc->asiento->tipodocumento=='Ingreso')"}
 <div class="table-responsive">
    <table class="table table-hover">
       <thead>
