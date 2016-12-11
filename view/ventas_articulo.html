@@ -818,19 +818,23 @@
                      {$value['codalmacen']} - <a href="{$value['url']}">{$value['origen']}</a>
                   </td>
                   <td class="text-right">
-                     {if="$value['movimiento']>0"}+{/if}{$value['movimiento']}
+                     {if="$counter==0"}<b>{$fsc->show_numero($value['inicial'])}</b> &nbsp;{/if}
+                     {if="$value['movimiento']=='-'"}
+                        -
+                     {else}
+                        {if="$value['movimiento']>0"}+{/if}{$fsc->show_numero($value['movimiento'])}
+                     {/if}
                   </td>
-                  <td class="text-right">{$value['final']}</td>
+                  <td class="text-right">{$fsc->show_numero($value['final'])}</td>
                   <td class="text-right">{$value['fecha']}</td>
                   <td class="text-right">{$value['hora']}</td>
                </tr>
-               {else}
-               <tr>
-                  <td colspan="5" class="warning">Sin resultados.</td>
-               </tr>
                {/loop}
                <tr>
-                  <td colspan="2"></td>
+                  <td colspan="2">
+                     Ten en cuenta que las cantidades finales de este listado de movimientos
+                     están calculadas desde abajo y son una aproximación.
+                  </td>
                   <td class="text-right"><b>{$fsc->articulo->stockfis}</b></td>
                   <td colspan="2"></td>
                </tr>

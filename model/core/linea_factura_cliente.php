@@ -105,6 +105,8 @@ class linea_factura_cliente extends \fs_model
    public $iva;
    
    public $orden;
+   public $mostrar_cantidad;
+   public $mostrar_precio;
    
    private $codigo;
    private $fecha;
@@ -146,6 +148,8 @@ class linea_factura_cliente extends \fs_model
          $this->recargo = floatval($l['recargo']);
          $this->irpf = floatval($l['irpf']);
          $this->orden = floatval($l['orden']);
+         $this->mostrar_cantidad = $this->str2bool($l['mostrar_cantidad']);
+         $this->mostrar_precio = $this->str2bool($l['mostrar_precio']);
       }
       else
       {
@@ -164,6 +168,8 @@ class linea_factura_cliente extends \fs_model
          $this->recargo = 0;
          $this->irpf = 0;
          $this->orden = 0;
+         $this->mostrar_cantidad = TRUE;
+         $this->mostrar_precio = TRUE;
       }
    }
    
@@ -412,6 +418,8 @@ class linea_factura_cliente extends \fs_model
                     .", recargo = ".$this->var2str($this->recargo)
                     .", irpf = ".$this->var2str($this->irpf)
                     .", orden = ".$this->var2str($this->orden)
+                    .", mostrar_cantidad = ".$this->var2str($this->mostrar_cantidad)
+                    .", mostrar_precio = ".$this->var2str($this->mostrar_precio)
                     ."  WHERE idlinea = ".$this->var2str($this->idlinea).";";
             
             return $this->db->exec($sql);
@@ -419,8 +427,9 @@ class linea_factura_cliente extends \fs_model
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (idfactura,idalbaran,referencia,
-               descripcion,cantidad,pvpunitario,pvpsindto,dtopor,pvptotal,codimpuesto,iva,recargo,irpf,orden)
-               VALUES (".$this->var2str($this->idfactura)
+               descripcion,cantidad,pvpunitario,pvpsindto,dtopor,pvptotal,codimpuesto,iva,
+               recargo,irpf,orden,mostrar_cantidad,mostrar_precio) VALUES 
+                      (".$this->var2str($this->idfactura)
                     .",".$this->var2str($this->idalbaran)
                     .",".$this->var2str($this->referencia)
                     .",".$this->var2str($this->descripcion)
@@ -433,7 +442,9 @@ class linea_factura_cliente extends \fs_model
                     .",".$this->var2str($this->iva)
                     .",".$this->var2str($this->recargo)
                     .",".$this->var2str($this->irpf)
-                    .",".$this->var2str($this->orden).");";
+                    .",".$this->var2str($this->orden)
+                    .",".$this->var2str($this->mostrar_cantidad)
+                    .",".$this->var2str($this->mostrar_precio).");";
             
             if( $this->db->exec($sql) )
             {

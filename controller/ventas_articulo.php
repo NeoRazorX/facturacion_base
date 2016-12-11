@@ -555,7 +555,7 @@ class ventas_articulo extends fs_controller
    
    /**
     * Devuelve un array con los movimientos de stock del artículo.
-    * @return type
+    * @return array
     */
    public function get_movimientos()
    {
@@ -573,6 +573,7 @@ class ventas_articulo extends fs_controller
              'codalmacen' => $reg->codalmacendest,
              'origen' => 'Regularización',
              'url' => '#stock',
+             'inicial' => $reg->cantidadini,
              'movimiento' => '-',
              'final' => $reg->cantidadfin,
              'fecha' => $reg->fecha,
@@ -600,6 +601,7 @@ class ventas_articulo extends fs_controller
                    'codalmacen' => $d['codalmacen'],
                    'origen' => ucfirst(FS_ALBARAN).' compra '.$d['codigo'],
                    'url' => 'index.php?page=compras_albaran&id='.intval($d['idalbaran']),
+                   'inicial' => 0,
                    'movimiento' => floatval($d['cantidad']),
                    'final' => 0,
                    'fecha' => date('d-m-Y', strtotime($d['fecha'])),
@@ -626,6 +628,7 @@ class ventas_articulo extends fs_controller
                    'codalmacen' => $d['codalmacen'],
                    'origen' => 'Factura compra '.$d['codigo'],
                    'url' => 'index.php?page=compras_factura&id='.intval($d['idfactura']),
+                   'inicial' => 0,
                    'movimiento' => floatval($d['cantidad']),
                    'final' => 0,
                    'fecha' => date('d-m-Y', strtotime($d['fecha'])),
@@ -652,6 +655,7 @@ class ventas_articulo extends fs_controller
                    'codalmacen' => $d['codalmacen'],
                    'origen' => ucfirst(FS_ALBARAN).' venta '.$d['codigo'],
                    'url' => 'index.php?page=ventas_albaran&id='.intval($d['idalbaran']),
+                   'inicial' => 0,
                    'movimiento' => 0-floatval($d['cantidad']),
                    'final' => 0,
                    'fecha' => date('d-m-Y', strtotime($d['fecha'])),
@@ -678,6 +682,7 @@ class ventas_articulo extends fs_controller
                    'codalmacen' => $d['codalmacen'],
                    'origen' => 'Factura venta '.$d['codigo'],
                    'url' => 'index.php?page=ventas_factura&id='.intval($d['idfactura']),
+                   'inicial' => 0,
                    'movimiento' => 0-floatval($d['cantidad']),
                    'final' => 0,
                    'fecha' => date('d-m-Y', strtotime($d['fecha'])),
@@ -701,31 +706,20 @@ class ventas_articulo extends fs_controller
             return 1;
       });
       
-      /// recalculamos
-      $inicial = 0;
-      foreach( array_reverse($mlist) as $i => $value)
+      /// recalculamos las cantidades finales hacia atrás
+      $final = $this->articulo->stockfis;
+      for($i = count($mlist) - 1; $i >= 0; $i--)
       {
-         if($value['movimiento'] == '-')
+         if($mlist[$i]['movimiento'] == '-')
          {
-            $inicial = $value['final'];
+            $final = $mlist[$i]['inicial']; /// regularización
          }
          else
          {
-            $inicial -= $value['movimiento'];
+            $mlist[$i]['final'] = $final;
+            $final -= $mlist[$i]['movimiento'];
+            $mlist[$i]['inicial'] = $final;
          }
-      }
-      
-      $total = max( array($inicial, 0) );
-      foreach($mlist as $i => $value)
-      {
-         if($value['movimiento'] == '-')
-         {
-            $total = $value['final'];
-         }
-         else
-            $total += $value['movimiento'];
-         
-         $mlist[$i]['final'] = $total;
       }
       
       return $mlist;
@@ -745,7 +739,14 @@ class ventas_articulo extends fs_controller
          {
             if($mov['codalmacen'] == $alm->codalmacen)
             {
-               $total = $mov['final'];
+               if($mov['movimiento'] == '-')
+               {
+                  $total = $mov['final']; /// regularización
+               }
+               else
+               {
+                  $total += $mov['movimiento'];
+               }
             }
          }
          

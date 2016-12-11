@@ -894,6 +894,9 @@ class articulo extends \fs_model
       if($this->nostock)
       {
          $this->controlstock = TRUE;
+         $this->stockfis = 0;
+         $this->stockmax = 0;
+         $this->stockmin = 0;
       }
       
       if($this->bloqueado)

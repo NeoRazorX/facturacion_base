@@ -877,29 +877,16 @@ class informe_articulos extends fs_controller
       
       /// recalculamos
       $inicial = 0;
-      foreach( array_reverse($mlist) as $i => $value)
+      foreach($mlist as $i => $value)
       {
          if($value['movimiento'] == '-')
          {
             $inicial = $value['final'];
          }
          else
-         {
-            $inicial -= $value['movimiento'];
-         }
-      }
-      
-      $total = max( array($inicial, 0) );
-      foreach($mlist as $i => $value)
-      {
-         if($value['movimiento'] == '-')
-         {
-            $total = $value['final'];
-         }
-         else
-            $total += $value['movimiento'];
+            $inicial += $value['movimiento'];
          
-         $mlist[$i]['final'] = $total;
+         $mlist[$i]['final'] = $inicial;
       }
       
       return $mlist;

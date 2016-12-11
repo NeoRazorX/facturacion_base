@@ -175,6 +175,8 @@ class stock extends \fs_model
    
    public function save()
    {
+      $this->cantidad = round($this->cantidad, 3);
+      
       if( $this->exists() )
       {
          $sql = "UPDATE ".$this->table_name." SET codalmacen = ".$this->var2str($this->codalmacen)
@@ -252,7 +254,7 @@ class stock extends \fs_model
       $data = $this->db->select($sql);
       if($data)
       {
-         $num = floatval($data[0]['total']);
+         $num = round( floatval($data[0]['total']), 3);
       }
       
       return $num;

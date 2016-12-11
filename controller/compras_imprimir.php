@@ -721,7 +721,11 @@ class compras_imprimir extends fs_controller
          {
             $mail = $this->empresa->new_mail();
             $mail->FromName = $this->user->get_agente_fullname();
-            $mail->addReplyTo($_POST['de'], $mail->FromName);
+            
+            if($_POST['de'] != $mail->From)
+            {
+               $mail->addReplyTo($_POST['de'], $mail->FromName);
+            }
             
             $mail->addAddress($_POST['email'], $razonsocial);
             if($_POST['email_copia'])

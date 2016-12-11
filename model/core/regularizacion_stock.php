@@ -19,6 +19,8 @@
 
 namespace FacturaScripts\model;
 
+require_model('stock.php');
+
 /**
  * Regularización del stock de un almacén de un artículos en una fecha concreta.
  *
@@ -92,6 +94,8 @@ class regularizacion_stock extends \fs_model
    
    protected function install()
    {
+      new \stock();
+      
       return '';
    }
    

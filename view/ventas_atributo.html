@@ -19,7 +19,7 @@
    });
 </script>
 
-<div class="container">
+<div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
          <div class="page-header">
@@ -75,7 +75,11 @@
                </a>
             </li>
          </ul>
-         {loop="$fsc->resultados"}
+      </div>
+   </div>
+   <div class="row">
+      {loop="$fsc->resultados"}
+      <div class="col-sm-6">
          <form action="{$fsc->atributo->url()}" method="post" class="form">
             <input type="hidden" name="id" value="{$value->id}"/>
             <div class="form-group">
@@ -96,13 +100,16 @@
                </div>
             </div>
          </form>
-         {/loop}
+      </div>
+      {/loop}
+      <div class="col-sm-6">
          <form action="{$fsc->atributo->url()}" method="post" class="form">
             <div class="input-group">
                <input type="text" name="nuevo_valor" class="form-control" placeholder="Nuevo valor..." autocomplete="off" required=""/>
                <span class="input-group-btn">
                   <button class="btn btn-primary" type="submit">
-                     <span class="glyphicon glyphicon-floppy-disk"></span>
+                     <span class="glyphicon glyphicon-plus-sign"></span>
+                     <span class="hidden-xs">&nbsp; Nuevo</span>
                   </button>
                </span>
             </div>

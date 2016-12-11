@@ -510,6 +510,17 @@
             <div class="container-fluid">
                <div class="row">
                   <div class="col-sm-12">
+                     {if="$fsc->albaran->ptefactura"}
+                     <div class="text-right">
+                        <a href="#" class="label label-default" onclick="cliente.recargo=true;recalcular();" title="Mostrar Recargo de Equivalencia">
+                           <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>&nbsp; RE
+                        </a>
+                        &nbsp;
+                        <a href="#" class="label label-default" onclick="irpf=21;recalcular();" title="Mostrar {#FS_IRPF#}">
+                           <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>&nbsp; {#FS_IRPF#}
+                        </a>
+                     </div>
+                     {/if}
                      <div class="form-group">
                         Observaciones:
                         <textarea class="form-control" name="observaciones" rows="6">{$fsc->albaran->observaciones}</textarea>
