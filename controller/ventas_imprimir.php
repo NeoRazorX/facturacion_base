@@ -535,7 +535,8 @@ class ventas_imprimir extends fs_controller
                   array(
                      'campo1' => "<b>N. Orden:</b>",
                      'dato1' => $this->albaran->numero2,
-                     'campo2' => ''
+                     'campo2' => '<b>N. Proveedor:</b>' .
+                     $this->cliente->numeroproveedor
                   )
                );
             }
