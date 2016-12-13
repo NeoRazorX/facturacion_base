@@ -139,6 +139,9 @@ class cliente extends \fs_model
     */
    public $personafisica;
    
+   public $numeroproveedor;
+
+
    private static $regimenes_iva;
 
    public function __construct($c = FALSE)
@@ -171,6 +174,7 @@ class cliente extends \fs_model
          $this->codagente = $c['codagente'];
          $this->codgrupo = $c['codgrupo'];
          $this->debaja = $this->str2bool($c['debaja']);
+         $this->numeroproveedor = $c['numeroproveedor'];
          
          $this->fechabaja = NULL;
          if($c['fechabaja'])
@@ -196,6 +200,7 @@ class cliente extends \fs_model
          $this->fax = '';
          $this->email = '';
          $this->web = '';
+         $this->numeroproveedor = '';
          
          /**
           * Ponemos por defecto la serie a NULL para que en las nuevas ventas
@@ -581,13 +586,14 @@ class cliente extends \fs_model
                     .", regimeniva = ".$this->var2str($this->regimeniva)
                     .", recargo = ".$this->var2str($this->recargo)
                     .", personafisica = ".$this->var2str($this->personafisica)
+                    .", numeroproveedor = ".$this->var2str($this->numeroproveedor)
                     ."  WHERE codcliente = ".$this->var2str($this->codcliente).";";
          }
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,razonsocial,tipoidfiscal,
                cifnif,telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,
-               debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,personafisica) VALUES
+               debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,numeroproveedor,personafisica) VALUES
                       (".$this->var2str($this->codcliente)
                     .",".$this->var2str($this->nombre)
                     .",".$this->var2str($this->razonsocial)
@@ -609,6 +615,7 @@ class cliente extends \fs_model
                     .",".$this->var2str($this->observaciones)
                     .",".$this->var2str($this->regimeniva)
                     .",".$this->var2str($this->recargo)
+                    .",".$this->var2str($this->numeroproveedor)
                     .",".$this->var2str($this->personafisica).");";
          }
          

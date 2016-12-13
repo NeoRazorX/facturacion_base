@@ -181,6 +181,11 @@
       <tipo>character varying(250)</tipo>
       <nulo>YES</nulo>
    </columna>
+   <columna>
+      <nombre>numeroproveedor</nombre>
+      <tipo>character varying(25)</tipo>
+      <nulo>YES</nulo>
+   </columna>
    <restriccion>
       <nombre>clientes_pkey</nombre>
       <consulta>PRIMARY KEY (codcliente)</consulta>

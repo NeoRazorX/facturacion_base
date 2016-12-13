@@ -181,6 +181,7 @@ class ventas_cliente extends fs_controller
             $this->cliente->recargo = isset($_POST['recargo']);
             $this->cliente->debaja = isset($_POST['debaja']);
             $this->cliente->personafisica = isset($_POST['personafisica']);
+            $this->cliente->numeroproveedor = $_POST['numeroproveedor'];
             
             $this->cliente->codserie = NULL;
             if($_POST['codserie'] != '')
