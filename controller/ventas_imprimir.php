@@ -360,8 +360,14 @@ class ventas_imprimir extends fs_controller
          $descripcion = $pdf_doc->fix_html($lineas[$linea_actual]->descripcion);
          if( !is_null($lineas[$linea_actual]->referencia) )
          {
-            $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
-         }
+            if($lineas[$linea_actual]->pvpunitario == 0 )
+            {
+                $descripcion = '    ' . $descripcion;
+            }else
+            {
+                $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
+            }
+        }
          
          $fila = array(
              'alb' => '-',
@@ -395,6 +401,13 @@ class ventas_imprimir extends fs_controller
             $fila['alb'] = $lineas[$linea_actual]->albaran_numero();
          }
          
+         if($lineas[$linea_actual]->pvpunitario == 0 )
+         {
+             $fila['pvp'] = '';
+             $fila['cantidad'] = '';
+             $fila['importe'] = '';
+         }
+
          $pdf_doc->add_table_row($fila);
          $linea_actual++;
       }
@@ -515,6 +528,17 @@ class ventas_imprimir extends fs_controller
                $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono2;
             }
             $pdf_doc->add_table_row($row);
+
+            if($this->albaran->numero2)
+            {
+               $pdf_doc->add_table_row(
+                  array(
+                     'campo1' => "<b>N. Orden:</b>",
+                     'dato1' => $this->albaran->numero2,
+                     'campo2' => ''
+                  )
+               );
+            }
             
             if($this->empresa->codpais != 'ESP')
             {
@@ -547,7 +571,8 @@ class ventas_imprimir extends fs_controller
             {
                if($this->albaran->observaciones != '')
                {
-                  $pdf_doc->pdf->ezText("\n".$pdf_doc->fix_html($this->albaran->observaciones), 9);
+                  $pdf_doc->pdf->ezText("\n<b>Observaciones:</b>", 9);
+                  $pdf_doc->pdf->ezText($pdf_doc->fix_html($this->albaran->observaciones), 9);
                }
             }
             
