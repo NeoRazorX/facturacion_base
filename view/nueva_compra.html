@@ -321,17 +321,13 @@
                </div>
                <div class="checkbox">
                   <label>
-                     {if="$fsc->proveedor_s->acreedor"}
-                     <input type="checkbox" name="stock" value="TRUE"/>
-                     {else}
                      <input type="checkbox" name="stock" value="TRUE" checked=""/>
-                     {/if}
                      Añadir al stock
                   </label>
                </div>
                <div class="checkbox">
                   <label>
-                     {if="!$fsc->proveedor_s->acreedor AND FS_COST_IS_AVERAGE"}
+                     {if="FS_COST_IS_AVERAGE"}
                      <input type="checkbox" name="costemedio" value="TRUE" checked=""/>
                      {else}
                      <input type="checkbox" name="costemedio" value="TRUE"/>

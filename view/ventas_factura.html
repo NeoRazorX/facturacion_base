@@ -98,6 +98,12 @@
                   {else}
                   <li><a href="{$fsc->url()}&pagada=FALSE"><span class="glyphicon glyphicon-remove"></span> &nbsp; Sin pagar</a></li>
                   {/if}
+                  <li role="separator" class="divider"></li>
+                  <li>
+                     <a href="{$fsc->forma_pago->url()}" target="_blank">
+                        <span class="glyphicon glyphicon-wrench"></span> &nbsp; Configurar
+                     </a>
+                  </li>
                </ul>
             </div>
             {elseif="$fsc->factura->pagada"}
