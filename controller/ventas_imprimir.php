@@ -535,12 +535,24 @@ class ventas_imprimir extends fs_controller
                   array(
                      'campo1' => "<b>N. Orden:</b>",
                      'dato1' => $this->albaran->numero2,
-                     'campo2' => '<b>N. Proveedor:</b>' .
+                     'campo2' => '<b>N. Proveedor: </b>' .
                      $this->cliente->numeroproveedor
                   )
                );
             }
-            
+
+            if($this->albaran->persona_contacto || $this->albaran->actuacion_en)
+            {
+               $pdf_doc->add_table_row(
+                  array(
+                     'campo1' => "<b>Contacto:</b>",
+                     'dato1' => $this->albaran->persona_contacto,
+                     'campo2' => '<b>Actuacion En: </b>' .
+                     $this->albaran->actuacion_en
+                  )
+               );
+            }
+
             if($this->empresa->codpais != 'ESP')
             {
                $pdf_doc->add_table_row(
