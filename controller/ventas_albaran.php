@@ -165,6 +165,8 @@ class ventas_albaran extends fs_controller
    {
       $error = FALSE;
       $this->albaran->numero2 = $_POST['numero2'];
+      $this->albaran->persona_contacto = $_POST['persona_contacto'];
+      $this->albaran->actuacion_en = $_POST['actuacion_en'];
       $this->albaran->observaciones = $_POST['observaciones'];
       
       /// ¿Es editable o ya ha sido facturado?

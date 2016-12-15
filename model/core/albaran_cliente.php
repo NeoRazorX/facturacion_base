@@ -290,6 +290,8 @@ class albaran_cliente extends \fs_model
          $this->tasaconv = floatval($a['tasaconv']);
          $this->totalrecargo = floatval($a['totalrecargo']);
          $this->observaciones = $this->no_html($a['observaciones']);
+         $this->persona_contacto = $a['persona_contacto'];
+         $this->actuacion_en = $a['actuacion_en'];
          
          $this->femail = NULL;
          if( !is_null($a['femail']) )
@@ -307,9 +309,7 @@ class albaran_cliente extends \fs_model
          $this->envio_ciudad = $a['ciudadenv'];
          $this->envio_provincia = $a['provinciaenv'];
          $this->envio_codpais = $a['codpaisenv'];
-         $this->persona_contacto = $a['persona_contacto'];
-         $this->actuacion_en = $a['actuacion_en'];
-         
+
          $this->numdocs = intval($a['numdocs']);
       }
       else
