@@ -154,14 +154,26 @@ class fs_pdf
          if( function_exists('imagecreatefromstring') )
          {
             $lppag -= 2; /// si metemos el logo, caben menos líneas
-            
+            $max_tamaño = 90;
+            list($ancho, $alto) = getimagesize($this->logo);
+            if($ancho>$alto)
+            {
+                $factor = $max_tamaño/$ancho;
+                $tamañox = $max_tamaño;
+                $tamañoy = $alto*$factor;
+            }else
+            {
+                $factor = $max_tamaño/$alto;
+                $tamañoy = $max_tamaño;
+                $tamañox = $alto*$factor;
+            }
             if( substr( strtolower($this->logo), -4 ) == '.png' )
             {
-               $this->pdf->addPngFromFile($this->logo, 35, 740, 80, 80);
+               $this->pdf->addPngFromFile($this->logo, 35, 740, $tamañox, $tamañoy);
             }
             else
             {
-               $this->pdf->addJpegFromFile($this->logo, 35, 740, 80, 80);
+               $this->pdf->addJpegFromFile($this->logo, 35, 740, $tamañox, $tamañoy);
             }
             
             $this->pdf->ez['rightMargin'] = 40;
