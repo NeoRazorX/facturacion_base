@@ -216,6 +216,18 @@ class albaran_cliente extends \fs_model
    public $femail;
    
    /**
+    * Persona de contato en lo referente a este albaran
+    * @var type varchar 45
+    */
+   public $persona_contacto;
+
+   /**
+    * Lugar del cliente donde al que corresponde el albaran
+    * @var type varchar 45
+    */
+   public $actuacion_en;
+
+   /**
     * Número de documentos asjuntos
     * @var integer 
     */
@@ -295,6 +307,8 @@ class albaran_cliente extends \fs_model
          $this->envio_ciudad = $a['ciudadenv'];
          $this->envio_provincia = $a['provinciaenv'];
          $this->envio_codpais = $a['codpaisenv'];
+         $this->persona_contacto = $a['persona_contacto'];
+         $this->actuacion_en = $a['actuacion_en'];
          
          $this->numdocs = intval($a['numdocs']);
       }
@@ -346,6 +360,8 @@ class albaran_cliente extends \fs_model
          $this->envio_ciudad = NULL;
          $this->envio_provincia = NULL;
          $this->envio_codpais = NULL;
+         $this->persona_contacto = NULL;
+         $this->actuacion_en = NULL;
          
          $this->numdocs = 0;
       }
@@ -740,6 +756,8 @@ class albaran_cliente extends \fs_model
                     .", provinciaenv = ".$this->var2str($this->envio_provincia)
                     .", codpaisenv = ".$this->var2str($this->envio_codpais)
                     .", numdocs = ".$this->var2str($this->numdocs)
+                    .", persona_contacto = ".$this->var2str($this->persona_contacto)
+                    .", actuacion_en = ".$this->var2str($this->actuacion_en)
                     ."  WHERE idalbaran = ".$this->var2str($this->idalbaran).";";
             
             return $this->db->exec($sql);
@@ -752,7 +770,8 @@ class albaran_cliente extends \fs_model
                codpostal,numero,numero2,nombrecliente,cifnif,direccion,ciudad,provincia,apartado,
                fecha,hora,neto,total,totaliva,totaleuros,irpf,totalirpf,porcomision,tasaconv,
                totalrecargo,observaciones,ptefactura,femail,codtrans,codigoenv,nombreenv,apellidosenv,
-               apartadoenv,direccionenv,codpostalenv,ciudadenv,provinciaenv,codpaisenv,numdocs) VALUES "
+               apartadoenv,direccionenv,codpostalenv,ciudadenv,provinciaenv,codpaisenv,numdocs,
+               persona_contacto,actuacion_en) VALUES "
                     ."(".$this->var2str($this->idfactura)
                     .",".$this->var2str($this->codigo)
                     .",".$this->var2str($this->codagente)
@@ -797,7 +816,9 @@ class albaran_cliente extends \fs_model
                     .",".$this->var2str($this->envio_ciudad)
                     .",".$this->var2str($this->envio_provincia)
                     .",".$this->var2str($this->envio_codpais)
-                    .",".$this->var2str($this->numdocs).");";
+                    .",".$this->var2str($this->numdocs)
+                    .",".$this->var2str($this->persona_contacto)
+                    .",".$this->var2str($this->actuacion_en).");";
             
             if( $this->db->exec($sql) )
             {

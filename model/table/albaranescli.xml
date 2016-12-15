@@ -249,6 +249,16 @@
       <tipo>integer</tipo>
       <defecto>0</defecto>
    </columna>
+   <columna>
+      <nombre>persona_contacto</nombre>
+      <tipo>character varying(45)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>actuacion_en</nombre>
+      <tipo>character varying(45)</tipo>
+      <nulo>YES</nulo>
+   </columna>
    <restriccion>
       <nombre>ca_albaranescli_series2</nombre>
       <consulta>FOREIGN KEY (codserie)
