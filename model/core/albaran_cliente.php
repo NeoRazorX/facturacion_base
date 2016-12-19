@@ -533,6 +533,7 @@ class albaran_cliente extends \fs_model
       $this->envio_direccion = $this->no_html($this->envio_direccion);
       $this->envio_ciudad = $this->no_html($this->envio_ciudad);
       $this->envio_provincia = $this->no_html($this->envio_provincia);
+      $this->numero2 = $this->no_html($this->numero2);
       $this->observaciones = $this->no_html($this->observaciones);
       
       /**

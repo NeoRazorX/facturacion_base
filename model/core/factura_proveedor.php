@@ -742,6 +742,7 @@ class factura_proveedor extends \fs_model
          $this->nombre = '-';
       }
       
+      $this->numproveedor = $this->no_html($this->numproveedor);
       $this->observaciones = $this->no_html($this->observaciones);
       
       /**
@@ -848,7 +849,7 @@ class factura_proveedor extends \fs_model
                $this->new_error_msg("Esta factura apunta a un <a href='".$this->asiento_url()."'>asiento incorrecto</a>.");
                $status = FALSE;
             }
-            else if($this->coddivisa == $this->default_items->coddivisa() AND !$this->floatcmp($asiento->importe, abs($this->total+$this->totalirpf)) )
+            else if($this->coddivisa == $this->default_items->coddivisa() AND (abs($asiento->importe) - abs($this->total+$this->totalirpf) >= .02) )
             {
                $this->new_error_msg("El importe del asiento es distinto al de la factura.");
                $status = FALSE;
