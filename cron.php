@@ -47,7 +47,7 @@ class facturacion_base_cron
       $fac_pro->cron_job();
       
       $articulo = new articulo();
-      echo "\nEjecutando tareas para los artículos...";
+      echo "\nEjecutando tareas para los articulos...";
       $articulo->cron_job();
       
       $asiento = new asiento();

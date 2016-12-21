@@ -66,6 +66,15 @@ class ventas_maquetar extends fs_controller
                         if($lin->idlinea == $idl)
                         {
                            $lin->orden = $orden;
+                           
+                           $lin->mostrar_cantidad = FALSE;
+                           $lin->mostrar_precio = FALSE;
+                           if( isset($_POST['mostrar_cantidad_'.$idl]) )
+                           {
+                              $lin->mostrar_cantidad = TRUE;
+                              $lin->mostrar_precio = isset($_POST['mostrar_precio_'.$idl]);
+                           }
+                           
                            $lin->save();
                            break;
                         }
@@ -106,6 +115,15 @@ class ventas_maquetar extends fs_controller
                         if($lin->idlinea == $idl)
                         {
                            $lin->orden = $orden;
+                           
+                           $lin->mostrar_cantidad = FALSE;
+                           $lin->mostrar_precio = FALSE;
+                           if( isset($_POST['mostrar_cantidad_'.$idl]) )
+                           {
+                              $lin->mostrar_cantidad = TRUE;
+                              $lin->mostrar_precio = isset($_POST['mostrar_precio_'.$idl]);
+                           }
+                           
                            $lin->save();
                            break;
                         }

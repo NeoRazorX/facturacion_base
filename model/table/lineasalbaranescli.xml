@@ -100,6 +100,16 @@
       <tipo>integer</tipo>
       <defecto>0</defecto>
    </columna>
+   <columna>
+      <nombre>mostrar_cantidad</nombre>
+      <tipo>boolean</tipo>
+      <defecto>true</defecto>
+   </columna>
+   <columna>
+      <nombre>mostrar_precio</nombre>
+      <tipo>boolean</tipo>
+      <defecto>true</defecto>
+   </columna>
    <restriccion>
       <nombre>ca_lineasalbaranescli_albaranescli2</nombre>
       <consulta>FOREIGN KEY (idalbaran)

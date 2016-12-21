@@ -19,13 +19,13 @@
                <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
-               <div class="btn-group">
+               <span class="btn-group">
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
                   <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
                   {/if}
                {/loop}
-               </div>
+               </span>
             </h1>
             <p class="help-block">
                El <b>% Recargo</b> de equivalencia es un impuesto que se aplica a las compras

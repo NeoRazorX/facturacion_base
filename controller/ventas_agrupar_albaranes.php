@@ -342,6 +342,8 @@ class ventas_agrupar_albaranes extends fs_controller
                $n->pvpunitario = $l->pvpunitario;
                $n->recargo = $l->recargo;
                $n->referencia = $l->referencia;
+               $n->mostrar_cantidad = $l->mostrar_cantidad;
+               $n->mostrar_precio = $l->mostrar_precio;
                
                if( !$n->save() )
                {

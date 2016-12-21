@@ -59,20 +59,32 @@
                      <tr>
                         <th></th>
                         <th>Referencia + descripción</th>
-                        <th class="text-right">Cantidad</th>
-                        <th class="text-right">Precio</th>
+                        <th class="text-center">Mostrar cantidad</th>
+                        <th class="text-center">Mostrar precio y total</th>
                      </tr>
                   </thead>
                   <tbody>
                      {loop="$fsc->lineas"}
-                     <tr style="cursor: pointer;">
+                     <tr{if="!$value->mostrar_precio"} class="warning"{/if} style="cursor: pointer;">
                         <td><span class="glyphicon glyphicon-resize-vertical"></span></td>
                         <td>
                            <input type="hidden" name="idlinea[]" value="{$value->idlinea}"/>
                            <b>{$value->referencia}</b> {$value->descripcion()}
                         </td>
-                        <td class="text-right">{$fsc->show_numero($value->cantidad)}</td>
-                        <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->documento->coddivisa, TRUE, FS_NF0_ART)}</td>
+                        <td class="text-center" title="mostrar cantidad">
+                           {if="$value->mostrar_cantidad"}
+                           <input type="checkbox" name="mostrar_cantidad_{$value->idlinea}" value="TRUE" checked=""/>
+                           {else}
+                           <input type="checkbox" name="mostrar_cantidad_{$value->idlinea}" value="TRUE"/>
+                           {/if}
+                        </td>
+                        <td class="text-center" title="mostrar precio y total">
+                           {if="$value->mostrar_precio"}
+                           <input type="checkbox" name="mostrar_precio_{$value->idlinea}" value="TRUE" checked=""/>
+                           {else}
+                           <input type="checkbox" name="mostrar_precio_{$value->idlinea}" value="TRUE"/>
+                           {/if}
+                        </td>
                      </tr>
                      {/loop}
                   </tbody>

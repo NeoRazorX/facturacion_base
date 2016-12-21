@@ -110,6 +110,8 @@ class linea_albaran_cliente extends \fs_model
    public $recargo;
    
    public $orden;
+   public $mostrar_cantidad;
+   public $mostrar_precio;
    
    private $codigo;
    private $fecha;
@@ -143,6 +145,8 @@ class linea_albaran_cliente extends \fs_model
          $this->irpf = floatval($l['irpf']);
          $this->recargo = floatval($l['recargo']);
          $this->orden = intval($l['orden']);
+         $this->mostrar_cantidad = $this->str2bool($l['mostrar_cantidad']);
+         $this->mostrar_precio = $this->str2bool($l['mostrar_precio']);
       }
       else
       {
@@ -162,6 +166,8 @@ class linea_albaran_cliente extends \fs_model
          $this->irpf = 0;
          $this->recargo = 0;
          $this->orden = 0;
+         $this->mostrar_cantidad = TRUE;
+         $this->mostrar_precio = TRUE;
       }
    }
    
@@ -324,6 +330,8 @@ class linea_albaran_cliente extends \fs_model
                     .", irpf = ".$this->var2str($this->irpf)
                     .", recargo = ".$this->var2str($this->recargo)
                     .", orden = ".$this->var2str($this->orden)
+                    .", mostrar_cantidad = ".$this->var2str($this->mostrar_cantidad)
+                    .", mostrar_precio = ".$this->var2str($this->mostrar_precio)
                     ."  WHERE idlinea = ".$this->var2str($this->idlinea).";";
             
             return $this->db->exec($sql);
@@ -331,22 +339,25 @@ class linea_albaran_cliente extends \fs_model
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (idlineapedido,idalbaran,idpedido,referencia,descripcion,
-               cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo,orden) VALUES
-                     (".$this->var2str($this->idlineapedido).
-                    ",".$this->var2str($this->idalbaran).
-                    ",".$this->var2str($this->idpedido).
-                    ",".$this->var2str($this->referencia).
-                    ",".$this->var2str($this->descripcion).
-                    ",".$this->var2str($this->cantidad).
-                    ",".$this->var2str($this->dtopor).
-                    ",".$this->var2str($this->codimpuesto).
-                    ",".$this->var2str($this->iva).
-                    ",".$this->var2str($this->pvptotal).
-                    ",".$this->var2str($this->pvpsindto).
-                    ",".$this->var2str($this->pvpunitario).
-                    ",".$this->var2str($this->irpf).
-                    ",".$this->var2str($this->recargo).
-                    ",".$this->var2str($this->orden).");";
+               cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo,orden,
+               mostrar_cantidad,mostrar_precio) VALUES
+                      (".$this->var2str($this->idlineapedido)
+                    .",".$this->var2str($this->idalbaran)
+                    .",".$this->var2str($this->idpedido)
+                    .",".$this->var2str($this->referencia)
+                    .",".$this->var2str($this->descripcion)
+                    .",".$this->var2str($this->cantidad)
+                    .",".$this->var2str($this->dtopor)
+                    .",".$this->var2str($this->codimpuesto)
+                    .",".$this->var2str($this->iva)
+                    .",".$this->var2str($this->pvptotal)
+                    .",".$this->var2str($this->pvpsindto)
+                    .",".$this->var2str($this->pvpunitario)
+                    .",".$this->var2str($this->irpf)
+                    .",".$this->var2str($this->recargo)
+                    .",".$this->var2str($this->orden)
+                    .",".$this->var2str($this->mostrar_cantidad)
+                    .",".$this->var2str($this->mostrar_precio).");";
             
             if( $this->db->exec($sql) )
             {

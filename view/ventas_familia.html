@@ -160,6 +160,7 @@
                      {$img=$value->imagen_url()}
                      {if="$img"}
                      <a href="{$value->url()}" data-toggle="popover" data-html="true" data-img="{$img}">{$value->referencia}</a>
+                     <span class="glyphicon glyphicon-picture" aria-hidden="true" data-toggle="popover" data-html="true" data-img="{$img}"></span>
                      {else}
                      <a href="{$value->url()}">{$value->referencia}</a>
                      {/if}

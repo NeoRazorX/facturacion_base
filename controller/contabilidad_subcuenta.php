@@ -82,7 +82,7 @@ class contabilidad_subcuenta extends fs_controller
             $libro_mayor->libro_mayor($this->subcuenta);
             if( file_exists('tmp/'.FS_TMP_NAME.'libro_mayor/'.$this->subcuenta->idsubcuenta.'.pdf') )
             {
-               header('Location: tmp/'.FS_TMP_NAME.'libro_mayor/'.$this->subcuenta->idsubcuenta.'.pdf');
+               header('Location: '.FS_PATH.'tmp/'.FS_TMP_NAME.'libro_mayor/'.$this->subcuenta->idsubcuenta.'.pdf');
             }
             else
             {

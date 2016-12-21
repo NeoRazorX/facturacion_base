@@ -43,6 +43,9 @@
                </small>
                {/if}
             </h1>
+            {if="$fsc->proveedor_s->acreedor"}
+            <p class="help-block">{$fsc->proveedor_s->razonsocial} es un acreedor.</p>
+            {/if}
          </div>
          <div class="col-sm-2">
             <div class="form-group">
@@ -316,20 +319,26 @@
                   {/loop}
                   </select>
                </div>
-               {if="!$fsc->proveedor_s->acreedor"}
                <div class="checkbox">
                   <label>
-                     <input type="checkbox" name="stock" value="TRUE" checked="checked"/>
+                     {if="$fsc->proveedor_s->acreedor"}
+                     <input type="checkbox" name="stock" value="TRUE"/>
+                     {else}
+                     <input type="checkbox" name="stock" value="TRUE" checked=""/>
+                     {/if}
                      Añadir al stock
                   </label>
                </div>
                <div class="checkbox">
                   <label>
-                     <input type="checkbox" name="costemedio" value="TRUE"{if="FS_COST_IS_AVERAGE"} checked="checked"{/if}/>
+                     {if="!$fsc->proveedor_s->acreedor AND FS_COST_IS_AVERAGE"}
+                     <input type="checkbox" name="costemedio" value="TRUE" checked=""/>
+                     {else}
+                     <input type="checkbox" name="costemedio" value="TRUE"/>
+                     {/if}
                      Actualizar precio de coste de los artículos
                   </label>
                </div>
-               {/if}
             </div>
             <div class="modal-footer">
                <div class="btn-group">

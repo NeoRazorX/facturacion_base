@@ -8,6 +8,8 @@ var numlineas = 0;
 
 function add_articulo(ref,desc,cantidad)
 {
+   numlineas = parseInt( $("#numlineas").val() );
+   
    desc = Base64.decode(desc);
    $("#lineas_transferencia").append("<tr id=\"linea_"+numlineas+"\">\n\
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
@@ -15,8 +17,8 @@ function add_articulo(ref,desc,cantidad)
          <div class=\"form-control\"><small><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></small></div></td>\n\
       <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\">"+desc+"</textarea></td>\n\
       <td><input type=\"number\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
-         "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\""+cantidad+"\"/></td>\n\
-      <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
+         "\" autocomplete=\"off\" value=\""+cantidad+"\"/></td>\n\
+      <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();\">\n\
          <span class=\"glyphicon glyphicon-trash\"></span></button></td></tr>");
    numlineas += 1;
    $("#numlineas").val(numlineas);

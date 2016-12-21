@@ -98,7 +98,7 @@
                         <div class="row">
                            <div class="col-sm-4">
                               {if="$fsc->existe_libro_diario($value->codejercicio)"}
-                              <a href="tmp/{#FS_TMP_NAME#}libro_diario/{$value->codejercicio}.pdf" target="_blank">
+                              <a href="{#FS_PATH#}tmp/{#FS_TMP_NAME#}libro_diario/{$value->codejercicio}.pdf" target="_blank">
                                  <span class="glyphicon glyphicon-book" aria-hidden="true"></span> Libro diario
                               </a>
                               {else}
@@ -112,7 +112,7 @@
                            </div>
                            <div class="col-sm-4">
                               {if="$fsc->existe_libro_inventarios($value->codejercicio)"}
-                              <a href="tmp/{#FS_TMP_NAME#}inventarios_balances/{$value->codejercicio}.pdf" target="_blank">
+                              <a href="{#FS_PATH#}tmp/{#FS_TMP_NAME#}inventarios_balances/{$value->codejercicio}.pdf" target="_blank">
                                  <span class="glyphicon glyphicon-book" aria-hidden="true"></span> Libro de inventarios y balances
                               </a>
                               {else}
@@ -254,7 +254,8 @@
                               <p class="help-block">
                                  Puedes filtrar por fecha o bien visualizar el
                                  <a href="{$fsc->url()}&balance=sit&eje={$value->codejercicio}" target="_blank">balance completo</a>
-                                 comparado con el año anterior.
+                                 comparado con el año anterior. Si deseas modificar las cuentas a incluir, puedes
+                                 <a href="index.php?page=editar_balances" target="_blank">editar los balances</a>.
                               </p>
                            </div>
                         </div>
@@ -289,7 +290,8 @@
                               <p class="help-block">
                                  Puedes filtrar por fecha o bien visualizar el
                                  <a href="{$fsc->url()}&balance=pyg&eje={$value->codejercicio}" target="_blank">balance completo</a>
-                                 comparado con el año anterior.
+                                 comparado con el año anterior. Si deseas modificar las cuentas a incluir, puedes
+                                 <a href="index.php?page=editar_balances" target="_blank">editar los balances</a>.
                               </p>
                            </div>
                         </div>

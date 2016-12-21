@@ -396,6 +396,21 @@ class ventas_imprimir extends fs_controller
             $fila['irpf'] = '';
          }
          
+         if( !$lineas[$linea_actual]->mostrar_cantidad )
+         {
+            $fila['cantidad'] = '';
+         }
+         
+         if( !$lineas[$linea_actual]->mostrar_precio )
+         {
+            $fila['pvp'] = '';
+            $fila['dto'] = '';
+            $fila['iva'] = '';
+            $fila['re'] = '';
+            $fila['irpf'] = '';
+            $fila['importe'] = '';
+         }
+         
          if( get_class_name($lineas[$linea_actual]) == 'linea_factura_cliente' AND $this->impresion['print_alb'] )
          {
             $fila['alb'] = $lineas[$linea_actual]->albaran_numero();
@@ -1044,7 +1059,11 @@ class ventas_imprimir extends fs_controller
          {
             $mail = $this->empresa->new_mail();
             $mail->FromName = $this->user->get_agente_fullname();
-            $mail->addReplyTo($_POST['de'], $mail->FromName);
+            
+            if($_POST['de'] != $mail->From)
+            {
+               $mail->addReplyTo($_POST['de'], $mail->FromName);
+            }
             
             $mail->addAddress($_POST['email'], $razonsocial);
             if($_POST['email_copia'])

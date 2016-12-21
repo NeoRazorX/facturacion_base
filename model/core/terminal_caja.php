@@ -442,14 +442,14 @@ class terminal_caja extends \fs_model
       {
          if($imprimir_descripciones)
          {
-                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s",
-                          substr($this->sanitize($col->descripcion), 0, $width-1))." ".
-                          sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
+            $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s",
+                    substr($this->sanitize($col->descripcion), 0, $width-1))." ".
+                    sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
          }
          else
          {
-                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", $this->sanitize($col->referencia))
-                          ." ".sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
+            $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", $this->sanitize($col->referencia))
+                    ." ".sprintf("%10s", $this->show_numero($col->total_iva()))."\n";
          }
          
          $this->add_linea($linea);
@@ -543,14 +543,14 @@ class terminal_caja extends \fs_model
       {
          if($imprimir_descripciones)
          {
-                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s",
-                          substr($this->sanitize($col->descripcion), 0, $width-1))." ".
-                          sprintf("%10s", '-')."\n";
+            $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s",
+                    substr($this->sanitize($col->descripcion), 0, $width-1))." ".
+                    sprintf("%10s", '-')."\n";
          }
          else
          {
-                  $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", $this->sanitize($col->referencia))
-                          ." ".sprintf("%10s", '-')."\n";
+            $linea = sprintf("%3s", $col->cantidad)." ".sprintf("%-".$width."s", $this->sanitize($col->referencia))
+                    ." ".sprintf("%10s", '-')."\n";
          }
          
          $this->add_linea($linea);

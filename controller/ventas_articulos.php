@@ -268,7 +268,10 @@ class ventas_articulos extends fs_controller
       if( isset($_REQUEST['b_codfamilia']) )
       {
          $this->b_codfamilia = $_REQUEST['b_codfamilia'];
-         $this->b_subfamilias = isset($_REQUEST['b_subfamilias']);
+         if($_REQUEST['b_codfamilia'])
+         {
+            $this->b_subfamilias = isset($_REQUEST['b_subfamilias']);
+         }
       }
       
       $this->b_codfabricante = '';

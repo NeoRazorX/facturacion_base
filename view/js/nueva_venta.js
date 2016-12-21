@@ -581,7 +581,11 @@ function buscar_articulos()
             var insertar = false;
             $.each(json, function(key, val) {
                var stock = val.stockalm;
-               if(val.stockalm != val.stockfis)
+               if(val.nostock)
+               {
+                  stock = '-';
+               }
+               else if(val.stockalm != val.stockfis)
                {
                   stock += ' <span title="stock general">('+val.stockfis+')</span>';
                }

@@ -52,9 +52,11 @@
                      <tr>
                         <td>{$value->codcuenta}</td>
                         <td class="text-right">
-                           <a href="{$fsc->balance->url()}&rm_cuenta={$value->id}">
+                           {if="$fsc->allow_delete"}
+                           <a href="{$fsc->balance->url()}&rm_cuenta={$value->id}" title="Eliminar">
                               <span class="glyphicon glyphicon-trash"></span>
                            </a>
+                           {/if}
                         </td>
                      </tr>
                      {/loop}
@@ -90,9 +92,11 @@
                      <tr>
                         <td>{$value->codcuenta}</td>
                         <td class="text-right">
-                           <a href="{$fsc->balance->url()}&rm_cuenta_a={$value->id}">
+                           {if="$fsc->allow_delete"}
+                           <a href="{$fsc->balance->url()}&rm_cuenta_a={$value->id}" title="Eliminar">
                               <span class="glyphicon glyphicon-trash"></span>
                            </a>
+                           {/if}
                         </td>
                      </tr>
                      {/loop}
@@ -126,7 +130,7 @@
                </a>
             </h1>
             <p class="help-block">
-               Estos son los códigos de balance que definen como FacturaScripts genera
+               Estos son los códigos de balance que definen cómo FacturaScripts genera
                los informes contables. Puedes hacer clic en cada uno de ellos para añadir
                o quitar cuentas.
             </p>
@@ -161,7 +165,9 @@
                </tr>
                {else}
                <tr class="warning">
-                  <td colspan="3">Sin resultados.</td>
+                  <td colspan="3">
+                     Sin resultados. ¿Has importado el plan contable?
+                  </td>
                </tr>
                {/loop}
             </table>
