@@ -748,6 +748,7 @@ class ventas_imprimir extends fs_controller
             {
                $pdf_doc->generar_pdf_cabecera($this->empresa, $lppag);
                
+               $pdf_doc->pdf->ez['leftMargin'] = 125;
                $direccion = $this->factura->nombrecliente."\n".$this->factura->direccion;
                if($this->factura->apartado)
                {
@@ -780,10 +781,11 @@ class ventas_imprimir extends fs_controller
                           'cliente' => array('justification' => 'right')
                       ),
                       'showLines' => 0,
-                      'width' => 520
+                      'width' => 420
                   )
                );
                $pdf_doc->pdf->ezText("\n\n\n", 14);
+               $pdf_doc->pdf->ez['leftMargin'] = 35;
             }
             else /// esta es la cabecera de la página para el modelo 'simple'
             {
