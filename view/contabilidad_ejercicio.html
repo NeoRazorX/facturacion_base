@@ -7,8 +7,8 @@
       location.href = '{$fsc->url()}&cerrar=TRUE&petid={$fsc->random_string()}';
    }
    $(document).ready(function() {
-      {if="$fsc->importar_url"}
-         setTimeout("location.href = '{$fsc->importar_url}';", 2000);
+      {if="$fsc->url_recarga"}
+         setTimeout("location.href = '{$fsc->url_recarga}';", 2000);
       {elseif="!$fsc->listado"}
          $("#modal_importar").modal('show');
       {/if}

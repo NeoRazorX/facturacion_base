@@ -226,7 +226,7 @@ class subcuenta extends \fs_model
          return FALSE;
    }
    
-   public function get_by_codigo($cod, $codejercicio, $crear=FALSE)
+   public function get_by_codigo($cod, $codejercicio, $crear = FALSE)
    {
       $sql = "SELECT * FROM ".$this->table_name." WHERE codsubcuenta = ".$this->var2str($cod)
               ." AND codejercicio = ".$this->var2str($codejercicio).";";
@@ -239,7 +239,9 @@ class subcuenta extends \fs_model
       else if($crear)
       {
          /// buscamos la subcuenta equivalente en otro ejercicio
-         $subc = $this->db->select("SELECT * FROM ".$this->table_name." WHERE codsubcuenta = ".$this->var2str($cod).";");
+         $sql = "SELECT * FROM ".$this->table_name." WHERE codsubcuenta = ".$this->var2str($cod)
+                 ." ORDER BY idsubcuenta DESC;";
+         $subc = $this->db->select($sql);
          if($subc)
          {
             $old_sc = new \subcuenta($subc[0]);

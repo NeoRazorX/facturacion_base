@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -35,10 +35,10 @@ class contabilidad_ejercicio extends fs_controller
    public $asiento_cierre_url;
    public $asiento_pyg_url;
    public $ejercicio;
-   public $importar_url;
    public $listado;
    public $listar;
    public $offset;
+   public $url_recarga;
    
    public function __construct()
    {
@@ -101,40 +101,18 @@ class contabilidad_ejercicio extends fs_controller
                else
                   $this->cerrar_ejercicio();
             }
+            else if( isset($_GET['cerrar2']) )
+            {
+               $this->cerrar_ejercicio2();
+            }
             else
+            {
                $this->ejercicio->full_test();
-            
-            $asiento = new asiento();
-            $this->asiento_apertura_url = FALSE;
-            if( $this->ejercicio->idasientoapertura )
-            {
-               $asiento_a = $asiento->get( $this->ejercicio->idasientoapertura );
-               if($asiento_a)
-               {
-                  $this->asiento_apertura_url = $asiento_a->url();
-               }
+               $this->check_asientos();
+               
+               /// comprobamos el proceso de importación
+               $this->importar_xml();
             }
-            $this->asiento_cierre_url = FALSE;
-            if( $this->ejercicio->idasientocierre )
-            {
-               $asiento_c = $asiento->get( $this->ejercicio->idasientocierre );
-               if($asiento_c)
-               {
-                  $this->asiento_cierre_url = $asiento_c->url();
-               }
-            }
-            $this->asiento_pyg_url = FALSE;
-            if( $this->ejercicio->idasientopyg )
-            {
-               $asiento_pyg = $asiento->get( $this->ejercicio->idasientopyg );
-               if($asiento_pyg)
-               {
-                  $this->asiento_pyg_url = $asiento_pyg->url();
-               }
-            }
-            
-            /// comprobamos el proceso de importación
-            $this->importar_xml();
             
             $this->offset = 0;
             if( isset($_GET['offset']) )
@@ -203,6 +181,41 @@ class contabilidad_ejercicio extends fs_controller
       }
       else
          return parent::url();
+   }
+   
+   private function check_asientos()
+   {
+      $asiento = new asiento();
+      
+      $this->asiento_apertura_url = FALSE;
+      if( $this->ejercicio->idasientoapertura )
+      {
+         $asiento_a = $asiento->get( $this->ejercicio->idasientoapertura );
+         if($asiento_a)
+         {
+            $this->asiento_apertura_url = $asiento_a->url();
+         }
+      }
+      
+      $this->asiento_cierre_url = FALSE;
+      if( $this->ejercicio->idasientocierre )
+      {
+         $asiento_c = $asiento->get( $this->ejercicio->idasientocierre );
+         if($asiento_c)
+         {
+            $this->asiento_cierre_url = $asiento_c->url();
+         }
+      }
+      
+      $this->asiento_pyg_url = FALSE;
+      if( $this->ejercicio->idasientopyg )
+      {
+         $asiento_pyg = $asiento->get( $this->ejercicio->idasientopyg );
+         if($asiento_pyg)
+         {
+            $this->asiento_pyg_url = $asiento_pyg->url();
+         }
+      }
    }
    
    private function exportar_xml()
@@ -325,7 +338,7 @@ class contabilidad_ejercicio extends fs_controller
    private function importar_xml()
    {
       $import_step = 0;
-      $this->importar_url = FALSE;
+      $this->url_recarga = FALSE;
       
       if( isset($_POST['fuente']) )
       {
@@ -339,7 +352,7 @@ class contabilidad_ejercicio extends fs_controller
             if( copy($_FILES['farchivo']['tmp_name'], 'tmp/'.FS_TMP_NAME.'ejercicio.xml') )
             {
                $import_step = 1;
-               $this->importar_url = $this->url().'&importar='.(1 + $import_step);
+               $this->url_recarga = $this->url().'&importar='.(1 + $import_step);
             }
             else
                $this->new_error_msg('Error al copiar el archivo.');
@@ -349,7 +362,7 @@ class contabilidad_ejercicio extends fs_controller
             if( copy($_POST['fuente'], 'tmp/'.FS_TMP_NAME.'ejercicio.xml') )
             {
                $import_step = 1;
-               $this->importar_url = $this->url().'&importar='.(1 + $import_step);
+               $this->url_recarga = $this->url().'&importar='.(1 + $import_step);
             }
             else
                $this->new_error_msg('Error al copiar el archivo.');
@@ -365,7 +378,7 @@ class contabilidad_ejercicio extends fs_controller
          $import_step = intval($_GET['importar']);
          if( $import_step < 7 )
          {
-            $this->importar_url = $this->url().'&importar='.(1 + $import_step);
+            $this->url_recarga = $this->url().'&importar='.(1 + $import_step);
          }
          else
          {
@@ -417,7 +430,7 @@ class contabilidad_ejercicio extends fs_controller
                      $balance->descripcion4ba = base64_decode($b->descripcion4ba);
                      
                      if( !$balance->save() )
-                        $this->importar_url = FALSE;
+                        $this->url_recarga = FALSE;
                   }
                }
                
@@ -444,7 +457,7 @@ class contabilidad_ejercicio extends fs_controller
                         $new_bc->desccuenta = base64_decode($bc->descripcion);
                         
                         if( !$new_bc->save() )
-                           $this->importar_url = FALSE;
+                           $this->url_recarga = FALSE;
                      }
                   }
                }
@@ -472,7 +485,7 @@ class contabilidad_ejercicio extends fs_controller
                         $new_bc->desccuenta = base64_decode($bc->descripcion);
                         
                         if( !$new_bc->save() )
-                           $this->importar_url = FALSE;
+                           $this->url_recarga = FALSE;
                      }
                   }
                }
@@ -491,7 +504,7 @@ class contabilidad_ejercicio extends fs_controller
                         $cuenta_especial->descripcion = base64_decode($ce->descripcion);
                         
                         if( !$cuenta_especial->save() )
-                           $this->importar_url = FALSE;
+                           $this->url_recarga = FALSE;
                      }
                   }
                }
@@ -508,7 +521,7 @@ class contabilidad_ejercicio extends fs_controller
                         $grupo_epigrafes->descripcion = base64_decode($ge->descripcion);
                         
                         if( !$grupo_epigrafes->save() )
-                           $this->importar_url = FALSE;
+                           $this->url_recarga = FALSE;
                      }
                   }
                }
@@ -533,7 +546,7 @@ class contabilidad_ejercicio extends fs_controller
                            
                            if( !$epigrafe->save() )
                            {
-                              $this->importar_url = FALSE;
+                              $this->url_recarga = FALSE;
                            }
                         }
                         else if($ep->codpadre)
@@ -549,7 +562,7 @@ class contabilidad_ejercicio extends fs_controller
                               
                               if( !$epigrafe->save() )
                               {
-                                 $this->importar_url = FALSE;
+                                 $this->url_recarga = FALSE;
                               }
                            }
                         }
@@ -578,7 +591,7 @@ class contabilidad_ejercicio extends fs_controller
                         
                         if( !$cuenta->save() )
                         {
-                           $this->importar_url = FALSE;
+                           $this->url_recarga = FALSE;
                         }
                      }
                   }
@@ -609,7 +622,7 @@ class contabilidad_ejercicio extends fs_controller
                         
                         if( !$subcuenta->save() )
                         {
-                           $this->importar_url = FALSE;
+                           $this->url_recarga = FALSE;
                         }
                      }
                   }
@@ -640,13 +653,13 @@ class contabilidad_ejercicio extends fs_controller
                   if( $error OR count($this->get_errors()) > 0 )
                   {
                      $this->new_error_msg('Proceso detenido.');
-                     $this->importar_url = FALSE;
+                     $this->url_recarga = FALSE;
                      break;
                   }
                   else if( $offset%500 == 0 )
                   {
                      /// cada 500 clientes volvemos a recargar la página para continuar
-                     $this->importar_url = $this->url().'&importar='.$import_step.'&offset='.$offset;
+                     $this->url_recarga = $this->url().'&importar='.$import_step.'&offset='.$offset;
                      break;
                   }
                   else
@@ -678,13 +691,13 @@ class contabilidad_ejercicio extends fs_controller
                   if( $error OR count($this->get_errors()) > 0 )
                   {
                      $this->new_error_msg('Proceso detenido.');
-                     $this->importar_url = FALSE;
+                     $this->url_recarga = FALSE;
                      break;
                   }
                   else if( $offset%500 == 0 )
                   {
                      /// cada 500 proveedores volvemos a recargar la página para continuar
-                     $this->importar_url = $this->url().'&importar='.$import_step.'&offset='.$offset;
+                     $this->url_recarga = $this->url().'&importar='.$import_step.'&offset='.$offset;
                      break;
                   }
                   else
@@ -704,6 +717,9 @@ class contabilidad_ejercicio extends fs_controller
       
       $continuar = TRUE;
       
+      /**
+       * Eliminamos los asientos de cierre, pérdidas y ganancias y apertura del siguiente ejercicio
+       */
       if( isset($this->ejercicio->idasientopyg) )
       {
          $aspyg = $asiento->get( $this->ejercicio->idasientopyg );
@@ -716,7 +732,10 @@ class contabilidad_ejercicio extends fs_controller
             }
          }
          else
-            $this->ejercicio->save(); /// al guardar ya comprueba los asientos especiales
+         {
+            $this->ejercicio->idasientopyg = NULL;
+            $this->ejercicio->save();
+         }
       }
       
       if( isset($this->ejercicio->idasientocierre) )
@@ -731,12 +750,19 @@ class contabilidad_ejercicio extends fs_controller
             }
          }
          else
-            $this->ejercicio->save(); /// al guardar ya comprueba los asientos especiales
+         {
+            $this->ejercicio->idasientocierre = NULL;
+            $this->ejercicio->save();
+         }
       }
       
       $siguiente_ejercicio = $this->ejercicio->get_by_fecha( Date('d-m-Y', strtotime($this->ejercicio->fechafin)+24*3600) );
-      
-      if( isset($siguiente_ejercicio->idasientoapertura) )
+      if(!$siguiente_ejercicio)
+      {
+         $this->new_error_msg('Imposible obtener el siguiente ejercicio.');
+         $continuar = FALSE;
+      }
+      else if( isset($siguiente_ejercicio->idasientoapertura) )
       {
          $asap = $asiento->get( $siguiente_ejercicio->idasientoapertura );
          if( $asap )
@@ -748,9 +774,15 @@ class contabilidad_ejercicio extends fs_controller
             }
          }
          else
-            $this->ejercicio->save(); /// al guardar ya comprueba los asientos especiales
+         {
+            $siguiente_ejercicio->idasientoapertura = NULL;
+            $siguiente_ejercicio->save();
+         }
       }
       
+      /**
+       * Ahora creamos de nuevo los asientos de pyg, cierre y apertura del siguiente
+       */
       if( $continuar )
       {
          $asiento_pyg = new asiento();
@@ -758,8 +790,14 @@ class contabilidad_ejercicio extends fs_controller
          $asiento_pyg->concepto = 'Regularización ejercicio '.$this->ejercicio->nombre;
          $asiento_pyg->editable = FALSE;
          $asiento_pyg->fecha = $this->ejercicio->fechafin;
-         if( !$asiento_pyg->save() )
+         if( $asiento_pyg->save() )
          {
+            $this->ejercicio->idasientopyg = $asiento_pyg->idasiento;
+            $this->ejercicio->save();
+         }
+         else
+         {
+            $this->new_error_msg('Error al crear el asiento de regularización.');
             $continuar = FALSE;
          }
       }
@@ -771,22 +809,33 @@ class contabilidad_ejercicio extends fs_controller
          $asiento_cierre->concepto = 'Asiento de cierre del ejercicio '.$this->ejercicio->nombre;
          $asiento_cierre->editable = FALSE;
          $asiento_cierre->fecha = $this->ejercicio->fechafin;
-         if( !$asiento_cierre->save() )
+         if( $asiento_cierre->save() )
          {
+            $this->ejercicio->idasientocierre = $asiento_cierre->idasiento;
+            $this->ejercicio->save();
+         }
+         else
+         {
+            $this->new_error_msg('Error al crear el asiento de cierre.');
             $continuar = FALSE;
          }
       }
       
       if( $continuar )
       {
-         
          $asiento_apertura = new asiento();
          $asiento_apertura->codejercicio = $siguiente_ejercicio->codejercicio;
          $asiento_apertura->concepto = 'Asiento de apertura del ejercicio '.$siguiente_ejercicio->nombre;
          $asiento_apertura->editable = FALSE;
          $asiento_apertura->fecha = $siguiente_ejercicio->fechainicio;
-         if( !$asiento_apertura->save() )
+         if( $asiento_apertura->save() )
          {
+            $siguiente_ejercicio->idasientoapertura = $asiento_apertura->idasiento;
+            $siguiente_ejercicio->save();
+         }
+         else
+         {
+            $this->new_error_msg('Error al crear el asiento de apertura.');
             $continuar = FALSE;
          }
       }
@@ -800,10 +849,60 @@ class contabilidad_ejercicio extends fs_controller
             $sc->save();
          }
          
+         $this->new_message('Recargando... &nbsp; <i class="fa fa-refresh fa-spin"></i>');
+         $this->url_recarga = $this->url().'&cerrar2=TRUE';
+      }
+      else
+      {
+         $this->new_error_msg('Se han producido errores al comprobar el ejercicio. Proceso abortado.');
+      }
+   }
+   
+   private function cerrar_ejercicio2()
+   {
+      $this->new_message('Cerrando ejercicio...');
+      $asiento = new asiento();
+      
+      $continuar = TRUE;
+      
+      /// cargamos los asientos de cierre, pyg y apertura del siguiente
+      $asiento_pyg = $asiento->get( $this->ejercicio->idasientopyg );
+      if( !$asiento_pyg )
+      {
+         $this->new_error_msg('Asiento de regularización no encontrado.');
+         $continuar = FALSE;
+      }
+      
+      $asiento_cierre = $asiento->get( $this->ejercicio->idasientocierre );
+      if( !$asiento_cierre )
+      {
+         $this->new_error_msg('Asiento de cierre no encontrado.');
+         $continuar = FALSE;
+      }
+      
+      $siguiente_ejercicio = $this->ejercicio->get_by_fecha( Date('d-m-Y', strtotime($this->ejercicio->fechafin)+24*3600) );
+      if($siguiente_ejercicio)
+      {
+         $asiento_apertura = $asiento->get( $siguiente_ejercicio->idasientoapertura );
+         if( !$asiento_apertura )
+         {
+            $this->new_error_msg('Asiento de apertura no encontrado.');
+            $continuar = FALSE;
+         }
+      }
+      else
+      {
+         $this->new_error_msg('Imposible obtener el siguiente ejercicio.');
+         $continuar = FALSE;
+      }
+      
+      if( $continuar )
+      {
+         $subcuenta = new subcuenta();
          
          /*
           * Abonamos y cargamos los saldos de las cuentas de los grupos 6 y 7,
-          * la diferencia la enviamos a la cuenta 129.
+          * la diferencia la enviamos a la cuenta PYG.
           */
          $diferencia = 0;
          foreach($subcuenta->all_from_ejercicio($this->ejercicio->codejercicio) as $sc)
@@ -834,7 +933,7 @@ class contabilidad_ejercicio extends fs_controller
          }
          
          $cuenta = new cuenta();
-         $cuenta_pyg = $cuenta->get_by_codigo('129', $this->ejercicio->codejercicio);
+         $cuenta_pyg = $cuenta->get_cuentaesp('PYG', $this->ejercicio->codejercicio);
          if($cuenta_pyg)
          {
             $subcuenta_pyg = FALSE;
@@ -860,16 +959,15 @@ class contabilidad_ejercicio extends fs_controller
             }
             else
             {
-               $this->new_error_msg('No se encuentra una subcuenta para la cuenta 129.');
+               $this->new_error_msg('No se encuentra una subcuenta para la cuenta especial PYG (pérdidas y ganancias).');
                $continuar = FALSE;
             }
          }
          else
          {
-            $this->new_error_msg('No se encuentra la cuenta 129.');
+            $this->new_error_msg('No se encuentra la cuenta especial PYG (pérdidas y ganancias).');
             $continuar = FALSE;
          }
-         
          
          /*
           * Generamos los asientos de cierre y apertura
@@ -897,7 +995,7 @@ class contabilidad_ejercicio extends fs_controller
                   $continuar = FALSE;
                }
                
-               if($sc->codcuenta == '129')
+               if($sc->codcuenta == $cuenta_pyg->codcuenta)
                {
                   $nsc = $subcuenta->get_by_codigo('1200000000', $siguiente_ejercicio->codejercicio, TRUE);
                }
@@ -994,7 +1092,7 @@ class contabilidad_ejercicio extends fs_controller
             $this->ejercicio->idasientocierre = $asiento_cierre->idasiento;
             if( $this->ejercicio->save() )
             {
-               $this->new_message('Ejercicio cerrado correctamente.');
+               $this->new_message('Ejercicio cerrado correctamente &nbsp; <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
             }
             else
                $this->new_error_msg('Error al cerrar el ejercicio.');

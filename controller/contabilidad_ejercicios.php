@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -32,44 +32,73 @@ class contabilidad_ejercicios extends fs_controller
    {
       $this->ejercicio = new ejercicio();
       
-      if( isset($_GET['delete']) ) /// eliminar
+      if( isset($_GET['delete']) )
       {
-         $eje0 = $this->ejercicio->get($_GET['delete']);
-         if($eje0)
+         $this->delete_ejercicio();
+      }
+      else if( isset($_POST['codejercicio']) )
+      {
+         $this->new_ejercico();
+      }
+      else if( isset($_POST['predeterminado']) )
+      {
+         $this->predeterminado();
+      }
+   }
+   
+   private function new_ejercico()
+   {
+      /// ¿Existe ya el ejercicio?
+      $eje0 = $this->ejercicio->get($_POST['codejercicio']);
+      if($eje0)
+      {
+         header('Location: '.$eje0->url());
+      }
+      else
+      {
+         $this->ejercicio->codejercicio = $_POST['codejercicio'];
+         $this->ejercicio->nombre = $_POST['nombre'];
+         $this->ejercicio->fechainicio = $_POST['fechainicio'];
+         $this->ejercicio->fechafin = $_POST['fechafin'];
+         $this->ejercicio->estado = $_POST['estado'];
+         if( $this->ejercicio->save() )
          {
-            if( $eje0->delete() )
-            {
-               $this->new_message('Ejercicio eliminado correctamente.');
-            }
-            else
-               $this->new_error_msg("¡Imposible eliminar el ejercicio!");
+            $this->new_message("Ejercicio ".$this->ejercicio->codejercicio." guardado correctamente.");
+            header('location: '.$this->ejercicio->url());
          }
          else
-            $this->new_error_msg("Ejercicio no encontrado");
+            $this->new_error_msg("¡Imposible guardar el ejercicio!");
       }
-      else if( isset($_POST['codejercicio']) ) /// nuevo/modificar
+   }
+   
+   private function predeterminado()
+   {
+      $this->empresa->codejercicio = $_POST['predeterminado'];
+      
+      if( $this->empresa->save() )
       {
-         /// ¿Existe ya el ejercicio?
-         $eje0 = $this->ejercicio->get($_POST['codejercicio']);
-         if($eje0)
+         $this->default_items->set_codejercicio($this->empresa->codejercicio);
+         $this->new_message('Datos guardados correctamente.');
+      }
+      else
+      {
+         $this->new_error_msg('Error al guardar los cambios.');
+      }
+   }
+   
+   private function delete_ejercicio()
+   {
+      $eje0 = $this->ejercicio->get($_GET['delete']);
+      if($eje0)
+      {
+         if( $eje0->delete() )
          {
-            header('Location: '.$eje0->url());
+            $this->new_message('Ejercicio eliminado correctamente.');
          }
          else
-         {
-            $this->ejercicio->codejercicio = $_POST['codejercicio'];
-            $this->ejercicio->nombre = $_POST['nombre'];
-            $this->ejercicio->fechainicio = $_POST['fechainicio'];
-            $this->ejercicio->fechafin = $_POST['fechafin'];
-            $this->ejercicio->estado = $_POST['estado'];
-            if( $this->ejercicio->save() )
-            {
-               $this->new_message("Ejercicio ".$this->ejercicio->codejercicio." guardado correctamente.");
-               header('location: '.$this->ejercicio->url());
-            }
-            else
-               $this->new_error_msg("¡Imposible guardar el ejercicio!");
-         }
+            $this->new_error_msg("¡Imposible eliminar el ejercicio!");
       }
+      else
+         $this->new_error_msg("Ejercicio no encontrado");
    }
 }
