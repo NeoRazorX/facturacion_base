@@ -162,7 +162,7 @@ class contabilidad_asiento extends fs_controller
 			{ 
 			$this->asiento->mayorizado = 0;
 			$this->asiento->editable = 1;
-			if( $this->asiento->save()) $this->new_message('Mayorizado Anulado.');
+			if( $this->asiento->elimina_mayor()) $this->new_message('Mayorizado Anulado.');
 			}
 			else 
 			{

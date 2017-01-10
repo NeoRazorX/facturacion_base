@@ -153,6 +153,11 @@ class inventarios_balances
    
    	public function sumas_y_saldos_all(&$pdf_doc, &$eje, $titulo, $fechaini, $fechafin, $excluir=FALSE, $np=TRUE)
    {
+   
+      $tdebe = 0;
+      $thaber = 0;
+	  $tsaldod = 0;
+	  $tsaldoa = 0;
       $pgrupo = new pgrupo_epigrafes();
       $partida = new partida();
       
@@ -193,6 +198,11 @@ class inventarios_balances
 						   'saldo' => $saldo_d,
 						   'saldoa' => $saldo_a
 							);	
+							
+						$tdebe += $debe;
+					   	$thaber += $haber;
+						$tsaldod += $saldo_d;
+						$tsaldoa += $saldo_a;
 				}				
 							
 			foreach($grupo as $g)
@@ -335,10 +345,7 @@ class inventarios_balances
  		        
       /// a partir de la lista generamos el documento
       $linea = 0;
-      $tdebe = 0;
-      $thaber = 0;
-	  $tsaldod = 0;
-	  $tsaldoa = 0;
+     
       while( $linea < count($auxlist) )
       {/////
          if($linea > 0 OR $np)
@@ -360,7 +367,7 @@ class inventarios_balances
 			 );
 			 
 			 
-			 for($i=$linea; $i<min( array($linea+48, count($auxlist)) ); $i++)
+			 for($i=$linea; $i < min( array($linea+48, count($auxlist)) ); $i++)
 				 {
 					if( $auxlist[$i]['cuenta'] )
 					{
@@ -372,10 +379,7 @@ class inventarios_balances
 					   $a = $b = '';
 
 					}
-						$tdebe += $auxlist[$i]['debe'];
-					   	$thaber += $auxlist[$i]['haber'];
-						$tsaldod += $auxlist[$i]['saldo'];
-						$tsaldoa += $auxlist[$i]['saldoa'];
+						
 					if( $this->show_numero($auxlist[$i]['debe']) == 0 ) $num_debe = '';
 					else $num_debe = $this->show_numero($auxlist[$i]['debe']);
 					if( $this->show_numero($auxlist[$i]['haber']) == 0 ) $num_haber = '';
@@ -409,8 +413,8 @@ class inventarios_balances
 							'descripcion' => '<b>   Totales  </b>',
 							'debe' => '<b>'.$this->show_numero($tdebe).'</b>',
 							'haber' => '<b>'.$this->show_numero($thaber).'</b>',
-							'saldo' => '<b>'.$tsaldod.'</b>',
-							'saldoa' => '<b>'.$tsaldoa.'</b>',							
+							'saldo' => '<b>'.$this->show_numero($tsaldod).'</b>',
+							'saldoa' => '<b>'.$this->show_numero($tsaldoa).'</b>',							
 								)
 							 );
 				}				 

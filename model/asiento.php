@@ -234,6 +234,24 @@ class asiento extends fs_model
          return TRUE;
    }
    
+   public function test_mayor()
+   {
+   
+   	  		$mayor_existe= $this->db->select("SELECT numero FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio)." AND fecha=".$this->var2str($this->fecha)." AND tipodocumento=".$this->var2str($this->tipodocumento)." AND mayorizado = 1 ;");
+	
+		
+		  if( $mayor_existe )
+		  { 
+		  	$this->new_error_msg("No se generó el asiento porque está mayorizado");
+			 return FALSE;
+		  }
+		  else
+		  {
+			return TRUE;	
+		  }
+	}
+		  
+   
    public function full_test($duplicados = TRUE)
    {
       $status = TRUE;
@@ -447,51 +465,53 @@ class asiento extends fs_model
       {
          if( $this->exists() )
          {				
-
+		if($this->test_mayor())
+		{
  
 
-				$array_sum_importe= $this->db->select("SELECT importe,idasiento,editable FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio)." AND fecha=".$this->var2str($this->fecha)." AND tipodocumento=".$this->var2str($this->tipodocumento)." ;");
-
-				$sum_importe=0;
+					$array_sum_importe= $this->db->select("SELECT importe,idasiento,editable FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio)." AND fecha=".$this->var2str($this->fecha)." AND tipodocumento=".$this->var2str($this->tipodocumento)." ;");
+	
+					$sum_importe=0;
+					
+					///// Saca de las partidas los DEBE para sumarlos
+					$importe_partida = new partida();
+					$importe = $importe_partida->get_idasiento($array_sum_importe[0]['idasiento']);
+	
+	
+					foreach($importe as $ext)
+					{
+						$sum_importe = $sum_importe + $ext['debe'];
+					}
+					
+	/*				print '<script language="JavaScript">'; 
+					print 'alert(" id partida '..' ");'; 
+					print '</script>'; 
+	*/
+			 
+			   $sql = "UPDATE ".$this->table_name." SET numero = ".$this->exists().",
+				   idconcepto = ".$this->var2str($this->idconcepto).",
+				   concepto = ".$this->var2str($this->concepto).", fecha = ".$this->var2str($this->fecha).",
+				   codejercicio = ".$this->var2str($this->codejercicio).",
+				   codplanasiento = ".$this->var2str($this->codplanasiento).",
+				   documento = ".$this->var2str($this->documento).",
+				   tipodocumento = ".$this->var2str($this->tipodocumento).",
+				   importe = ".$this->var2str($sum_importe).",
+				   editable = ".$this->var2str($this->editable).",
+				   mayorizado = ".$this->var2str($this->mayorizado)."
+				   WHERE codejercicio = ".$this->var2str($this->codejercicio)." AND fecha=".$this->var2str($this->fecha)." AND tipodocumento=".$this->var2str($this->tipodocumento).";";
+	 
+				////  De acá sale el idasiento para partida
 				
-				///// Saca de las partidas los DEBE para sumarlos
-				$importe_partida = new partida();
-				$importe = $importe_partida->get_idasiento($array_sum_importe[0]['idasiento']);
-
-
-				foreach($importe as $ext)
-     			{
-					$sum_importe = $sum_importe + $ext['debe'];
-      			}
-				
-/*				print '<script language="JavaScript">'; 
-				print 'alert(" id partida '..' ");'; 
-				print '</script>'; 
-*/
-		 
-           $sql = "UPDATE ".$this->table_name." SET numero = ".$this->exists().",
-               idconcepto = ".$this->var2str($this->idconcepto).",
-               concepto = ".$this->var2str($this->concepto).", fecha = ".$this->var2str($this->fecha).",
-               codejercicio = ".$this->var2str($this->codejercicio).",
-               codplanasiento = ".$this->var2str($this->codplanasiento).",
-               documento = ".$this->var2str($this->documento).",
-               tipodocumento = ".$this->var2str($this->tipodocumento).",
-               importe = ".$this->var2str($sum_importe).",
-			   editable = ".$this->var2str($this->editable).",
-			   mayorizado = ".$this->var2str($this->mayorizado)."
-               WHERE codejercicio = ".$this->var2str($this->codejercicio)." AND fecha=".$this->var2str($this->fecha)." AND tipodocumento=".$this->var2str($this->tipodocumento).";";
- 
- 			////  De acá sale el idasiento para partida
-			
-			 if( $this->db->exec($sql) )
-            {
-               $this->idasiento = $array_sum_importe[0]['idasiento'];
-               return TRUE;
-            }
-            else
+				 if( $this->db->exec($sql) )
+				{
+				   $this->idasiento = $array_sum_importe[0]['idasiento'];
+				   return TRUE;
+				}
+				else
+				   return FALSE;
+         }
+			else
                return FALSE;
-         
-			
 			
          }
          else
@@ -517,6 +537,54 @@ class asiento extends fs_model
       }
       else
          return FALSE;
+   }
+   
+   public function elimina_mayor()
+   {
+   if( $this->exists() )
+         {				
+				$array_sum_importe= $this->db->select("SELECT importe,idasiento,editable FROM ".$this->table_name." WHERE codejercicio = ".$this->var2str($this->codejercicio)." AND fecha=".$this->var2str($this->fecha)." AND tipodocumento=".$this->var2str($this->tipodocumento)." ;");
+
+				$sum_importe=0;
+				
+				///// Saca de las partidas los DEBE para sumarlos
+				$importe_partida = new partida();
+				$importe = $importe_partida->get_idasiento($array_sum_importe[0]['idasiento']);
+
+
+				foreach($importe as $ext)
+     			{
+					$sum_importe = $sum_importe + $ext['debe'];
+      			}
+				
+           $sql = "UPDATE ".$this->table_name." SET numero = ".$this->exists().",
+               idconcepto = ".$this->var2str($this->idconcepto).",
+               concepto = ".$this->var2str($this->concepto).", fecha = ".$this->var2str($this->fecha).",
+               codejercicio = ".$this->var2str($this->codejercicio).",
+               codplanasiento = ".$this->var2str($this->codplanasiento).",
+               documento = ".$this->var2str($this->documento).",
+               tipodocumento = ".$this->var2str($this->tipodocumento).",
+               importe = ".$this->var2str($sum_importe).",
+			   editable = ".$this->var2str($this->editable).",
+			   mayorizado = ".$this->var2str($this->mayorizado)."
+               WHERE codejercicio = ".$this->var2str($this->codejercicio)." AND fecha=".$this->var2str($this->fecha)." AND tipodocumento=".$this->var2str($this->tipodocumento).";";
+ 
+ 			////  De acá sale el idasiento para partida
+			
+			 if( $this->db->exec($sql) )
+            {
+               $this->idasiento = $array_sum_importe[0]['idasiento'];
+               return TRUE;
+            }
+            else
+               return FALSE;			
+         }
+		 else 
+		 {
+		 $this->new_error_msg("No eliminar el mayorizado");
+		 FALSE;
+		 }
+        
    }
    
    	public function ultimo_asiento()

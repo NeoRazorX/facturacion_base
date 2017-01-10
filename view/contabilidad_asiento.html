@@ -224,7 +224,7 @@
                </a>
             </div>
             <div class="btn-group">
-               <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos{$fsc->solapa}">
+               <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos&{$fsc->solapa}">
                   <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Asientos
                </a>
 			   {if="$fsc->saldo == 0"}
@@ -430,7 +430,7 @@
          </div>
          
          <div class="btn-group">
-            <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos{$fsc->solapa}">
+            <a id="b_nuevo_almacen" class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos&{$fsc->solapa}">
                <span class="glyphicon glyphicon-arrow-left"></span> &nbsp; Asientos
             </a>
 			{if="$fsc->allow_delete"}
