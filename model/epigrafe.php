@@ -77,7 +77,7 @@ class pgrupo_epigrafes extends fs_model
    public function get_grupo()
    {
       $epigrafe = new grupo_epigrafes();
-      return $epigrafe->all_from_grupo($this->idpgrupo);
+      return $epigrafe->all_from_grupo($this->idpgrupo,$this->codejercicio);
    }
    
      public function get_pgrupo()
@@ -297,11 +297,11 @@ $grupo = $this->db->select("SELECT * FROM co_pgruposepigrafes WHERE idpgrupo = "
      
    }
    
-      public function all_from_grupo($id)
+      public function all_from_grupo($id,$codejercicio)
    {
    		$epilist = array();
    	  $epigrafes = $this->db->select("SELECT * FROM ".$this->table_name.
-         " WHERE idpgrupo = ".$this->var2str($id)." ORDER BY codpgrupo ASC;");
+         " WHERE idpgrupo = ".$this->var2str($id)." AND codejercicio = ".$this->var2str($codejercicio)." ORDER BY codpgrupo ASC;");
       if($epigrafes)
       {
          foreach($epigrafes as $ep)
