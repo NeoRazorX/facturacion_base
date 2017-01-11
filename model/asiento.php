@@ -637,8 +637,9 @@ class asiento extends fs_model
 //				$fact_data = $fact_prov->get($d->idfactura);
 //				$fact_data->pagada = 0;
 //				$fact_data->save();
-			$idorden = $d->idorden; 
-			$orden->cambio_estado($idorden,'Proceso');
+			$idasiento = $d->idasiento; 
+			$idorden = $d->idorden;
+			$orden->cambio_estado_asiento($idasiento,'Proceso');
 			/// pone idasiento en recibos 
 			$recibo->guardar_asiento_idorden($idorden,NULL);
 			/// pone idasiento en valores
@@ -663,25 +664,29 @@ class asiento extends fs_model
       return $this->db->exec("DELETE FROM ".$this->table_name." WHERE idasiento = ".$this->var2str($this->idasiento).";");
    }
    
-   public function search($query, $offset=0)
+   public function search($desde,$hasta,$query, $offset=0)
    {
       $alist = array();
       $query = strtolower( $this->no_html($query) );
-      
+         
       $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
+	  if($desde <> "99"  and $hasta <> "99" )
+	  {
+	  $consulta .= "fecha BETWEEN ".$this->var2str($desde)." AND ".$this->var2str($hasta)." AND ";
+	  }
       if( is_numeric($query) )
       {
          $aux_sql = '';
          if( strtolower(FS_DB_TYPE) == 'postgresql' )
             $aux_sql = '::TEXT';
          
-         $consulta .= "numero".$aux_sql." LIKE '%".$query."%' OR concepto LIKE '%".$query."%'
+         $consulta .= " numero".$aux_sql." LIKE '%".$query."%' OR tipodocumento LIKE '%".$query."%'
             OR importe BETWEEN ".($query-.01)." AND ".($query+.01);
       }
       else if( preg_match('/^([0-9]{1,2})-([0-9]{1,2})-([0-9]{4})$/i', $query) )
-         $consulta .= "fecha = ".$this->var2str($query)." OR concepto LIKE '%".$query."%'";
+         $consulta .= "fecha = ".$this->var2str($query)." OR tipodocumento LIKE '%".$query."%'";
       else
-         $consulta .= "lower(concepto) LIKE '%".$buscar = str_replace(' ', '%', $query)."%'";
+         $consulta .= "lower(tipodocumento) LIKE '%".$buscar = str_replace(' ', '%', $query)."%'";
       $consulta .= " ORDER BY fecha DESC";
       
       $asientos = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);

@@ -4,11 +4,22 @@
    $(document).ready(function() {
       document.f_custom_search.query.focus();
    });
+   
+   $(function() {		
+						$('.calendario').datepicker({
+						format: "dd-mm-yyyy",
+						autoclose: true,
+							}).on('changeDate', function (ev) {
+								$(this).datepicker('hide');
+							});
+					});
+     
+   
 </script>
 
 <div class="container-fluid" style="margin-top: 10px;">
    <div class="row">
-      <div class="col-sm-6 col-xs-6">
+      <div class="col-sm-3 col-xs-6">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -38,19 +49,29 @@
             {/loop}
          </div>
       </div>
-      <div class="col-sm-4 col-xs-6 text-right">
-         <h2 style="margin-top: 0px;">Asientos</h2>
+	  <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
+      <div class="col-sm-2 col-xs-6 text-left">
+         <h2 style="margin-top: 0px; margin-left:0px">Asientos</h2>
       </div>
-      <div class="col-sm-2 col-xs-12">
-         <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
-            <div class="input-group">
-               <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
+	  <div class="col-sm-2 col-xs-6 text-left">
+        <input type="text" name="desde"  class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" placeholder="Desde"/> 
+      </div>
+	  <div class="col-sm-2 col-xs-6 text-left">
+        <input type="text" name="hasta"  class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" placeholder="Hasta"/> 
+      </div>
+	   <div class="col-sm-2 col-xs-4">
+	   
+         <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
+		</div>
+		<div class="col-sm-1 col-xs-1 "> 
                <span class="input-group-btn">
                   <button class="btn btn-primary hidden-sm" type="submit">
                      <span class="glyphicon glyphicon-search"></span>
                   </button>
                </span>
-            </div>
+      </div>
+	  
+		
          </form>
          <div class="visible-xs"><br/></div>
       </div>
