@@ -426,7 +426,12 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->add_table_row($fila);
          $linea_actual++;
       }
-      
+
+      // Relleno azulito para cabecera de la tabla
+      $pdf_doc->pdf->setColor(0.898, 0.976, 1);
+      $pdf_doc->pdf->filledrectangle(30,650,530,15);
+      $pdf_doc->pdf->setColor(0, 0, 0);
+
       $pdf_doc->save_table(
               array(
                   'fontSize' => 8,
