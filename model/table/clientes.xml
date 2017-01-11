@@ -186,6 +186,16 @@
       <tipo>character varying(25)</tipo>
       <nulo>YES</nulo>
    </columna>
+   <columna>
+      <nombre>diapago</nombre>
+      <tipo>integer</tipo>
+      <defecto>0</defecto>
+   </columna>
+   <columna>
+      <nombre>diapago2</nombre>
+      <tipo>integer</tipo>
+      <defecto>0</defecto>
+   </columna>
    <restriccion>
       <nombre>clientes_pkey</nombre>
       <consulta>PRIMARY KEY (codcliente)</consulta>
