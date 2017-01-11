@@ -545,7 +545,7 @@ class ventas_albaran extends fs_controller
             $factura->pagada = TRUE;
          }
          
-         $factura->vencimiento = $formapago->calculavencimiento_2dias($factura->fecha, $formapago->vencimiento, $this->cliente->diapago, $this->cliente->diapago2);
+         $factura->vencimiento = $formapago->calculavencimiento_final($factura->fecha, $formapago->vencimiento, $this->cliente->diapago, $this->cliente->diapago2);
       }
       
       $regularizacion = new regularizacion_iva();

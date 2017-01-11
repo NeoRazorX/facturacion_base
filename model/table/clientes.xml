@@ -187,14 +187,9 @@
       <nulo>YES</nulo>
    </columna>
    <columna>
-      <nombre>diapago</nombre>
-      <tipo>integer</tipo>
-      <defecto>0</defecto>
-   </columna>
-   <columna>
-      <nombre>diapago2</nombre>
-      <tipo>integer</tipo>
-      <defecto>0</defecto>
+      <nombre>diaspago</nombre>
+      <tipo>character varying(45)</tipo>
+      <defecto>NULL</defecto>
    </columna>
    <restriccion>
       <nombre>clientes_pkey</nombre>

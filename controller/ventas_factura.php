@@ -219,7 +219,7 @@ class ventas_factura extends fs_controller
       if($this->factura->codpago != $_POST['forma_pago'])
       {
          $this->factura->codpago = $_POST['forma_pago'];
-         $this->factura->vencimiento = $this->nuevo_vencimiento($this->factura->fecha, $this->factura->codpago);
+         $this->factura->vencimiento = $this->nuevo_vencimiento($this->factura->fecha, $this->factura->codpago, $this->cliente->diaspago);
       }
       else
       {
@@ -381,7 +381,7 @@ class ventas_factura extends fs_controller
       }
    }
    
-   private function nuevo_vencimiento($fecha, $codpago)
+   private function nuevo_vencimiento($fecha, $codpago, $diaspago)
    {
       $vencimiento = $fecha;
       

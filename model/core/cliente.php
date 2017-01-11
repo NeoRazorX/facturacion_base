@@ -140,8 +140,7 @@ class cliente extends \fs_model
    public $personafisica;
    
    public $numeroproveedor;
-   public $diapago;
-   public $diapago2;
+   public $diaspago;
 
    private static $regimenes_iva;
 
@@ -176,8 +175,7 @@ class cliente extends \fs_model
          $this->codgrupo = $c['codgrupo'];
          $this->debaja = $this->str2bool($c['debaja']);
          $this->numeroproveedor = $c['numeroproveedor'];
-         $this->diapago = $c['diapago'];
-         $this->diapago2 = $c['diapago2'];
+         $this->diaspago = $c['diaspago'];
          $this->fechabaja = NULL;
          if($c['fechabaja'])
          {
@@ -203,8 +201,7 @@ class cliente extends \fs_model
          $this->email = '';
          $this->web = '';
          $this->numeroproveedor = '';
-         $this->diapago = 0;
-         $this->diapago2 = 0;
+         $this->diaspago = '';
          
          /**
           * Ponemos por defecto la serie a NULL para que en las nuevas ventas
@@ -591,15 +588,14 @@ class cliente extends \fs_model
                     .", recargo = ".$this->var2str($this->recargo)
                     .", personafisica = ".$this->var2str($this->personafisica)
                     .", numeroproveedor = ".$this->var2str($this->numeroproveedor)
-                    .", diapago = ".$this->var2str($this->diapago)
-                    .", diapago2 = ".$this->var2str($this->diapago2)
+                    .", diaspago = ".$this->var2str($this->diaspago)
                     ."  WHERE codcliente = ".$this->var2str($this->codcliente).";";
          }
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,razonsocial,tipoidfiscal,
                cifnif,telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,
-               debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,numeroproveedor,diapago,diapago2,personafisica) VALUES
+               debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,numeroproveedor,diaspago,personafisica) VALUES
                       (".$this->var2str($this->codcliente)
                     .",".$this->var2str($this->nombre)
                     .",".$this->var2str($this->razonsocial)
@@ -622,8 +618,7 @@ class cliente extends \fs_model
                     .",".$this->var2str($this->regimeniva)
                     .",".$this->var2str($this->recargo)
                     .",".$this->var2str($this->numeroproveedor)
-                    .",".$this->var2str($this->diapago)
-                    .",".$this->var2str($this->diapago2)
+                    .",".$this->var2str($this->diaspago)
                     .",".$this->var2str($this->personafisica).");";
          }
          
