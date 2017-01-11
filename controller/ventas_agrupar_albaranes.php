@@ -301,7 +301,7 @@ class ventas_agrupar_albaranes extends fs_controller
             $factura->pagada = TRUE;
          }
          
-         $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$formapago->vencimiento));
+         $factura->vencimiento = $formapago->calculavencimiento_2dias($factura->fecha, $formapago->vencimiento, $this->cliente->diapago, $this->cliente->diapago2);
       }
       
       $regularizacion = new regularizacion_iva();

@@ -388,7 +388,7 @@ class ventas_factura extends fs_controller
       $formap = $this->forma_pago->get($codpago);
       if($formap)
       {
-         $vencimiento = Date('d-m-Y', strtotime($fecha.' '.$formap->vencimiento));
+         $vencimiento = $formap->calculavencimiento_2dias($fecha, $formap->vencimiento, $this->cliente->diapago, $this->cliente->diapago2);
       }
       
       return $vencimiento;

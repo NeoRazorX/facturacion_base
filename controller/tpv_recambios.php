@@ -470,7 +470,7 @@ class tpv_recambios extends fs_controller
             $factura->pagada = TRUE;
          }
          
-         $factura->vencimiento = Date('d-m-Y', strtotime($factura->fecha.' '.$forma_pago->vencimiento));
+         $factura->vencimiento = $formapago->calculavencimiento_2dias($factura->fecha, $forma_pago->vencimiento, $this->cliente_s->diapago, $this->cliente_s->diapago2);
          
          $factura->codcliente = $this->cliente_s->codcliente;
          $factura->cifnif = $_POST['cifnif'];
