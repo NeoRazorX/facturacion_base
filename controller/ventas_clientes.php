@@ -145,82 +145,94 @@ class ventas_clientes extends fs_controller
       }
       else if( isset($_POST['cifnif']) ) /// añadir un nuevo cliente
       {
-         $cliente = new cliente();
-         $cliente->codcliente = $cliente->get_new_codigo();
-         $cliente->nombre = $_POST['nombre'];
-         $cliente->razonsocial = $_POST['nombre'];
-         $cliente->tipoidfiscal = $_POST['tipoidfiscal'];
-         $cliente->cifnif = $_POST['cifnif'];
-         $cliente->personafisica = isset($_POST['personafisica']);
-         
-         if( isset($_POST['scodgrupo']) )
-         {
-            if($_POST['scodgrupo'] != '')
+            $this->cliente_s = FALSE;
+            if($_POST['cifnif'] != '')
             {
-               $cliente->codgrupo = $_POST['scodgrupo'];
-            }
-         }
-         
-         if( isset($_POST['telefono1']) )
-         {
-            $cliente->telefono1 = $_POST['telefono1'];
-         }
-         
-         if( isset($_POST['telefono2']) )
-         {
-            $cliente->telefono2 = $_POST['telefono2'];
-         }
-         
-         if( $cliente->save() )
-         {
-            $dircliente = new direccion_cliente();
-            $dircliente->codcliente = $cliente->codcliente;
-            $dircliente->codpais = $this->empresa->codpais;
-            $dircliente->provincia = $this->empresa->provincia;
-            $dircliente->ciudad = $this->empresa->ciudad;
-            $dircliente->descripcion = 'Principal';
-            
-            if( isset($_POST['pais']) )
-            {
-               $dircliente->codpais = $_POST['pais'];
-            }
-            
-            if( isset($_POST['provincia']) )
-            {
-               $dircliente->provincia = $_POST['provincia'];
-            }
-            
-            if( isset($_POST['ciudad']) )
-            {
-               $dircliente->ciudad = $_POST['ciudad'];
-            }
-            
-            if( isset($_POST['codpostal']) )
-            {
-               $dircliente->codpostal = $_POST['codpostal'];
-            }
-            
-            if( isset($_POST['direccion']) )
-            {
-               $dircliente->direccion = $_POST['direccion'];
-            }
-            
-            if( $dircliente->save() )
-            {
-               if($this->empresa->contintegrada)
+               $this->cliente_s = $this->cliente->get_by_cifnif($_POST['cifnif']);
+               if($this->cliente_s)
                {
-                  /// forzamos la creación de la subcuenta
-                  $cliente->get_subcuenta($this->empresa->codejercicio);
+                  $this->new_advice('Ya existe un cliente con ese '.FS_CIFNIF.'. Se ha seleccionado.');
                }
-               
-               /// redireccionamos a la página del cliente
-               header('location: '.$cliente->url());
             }
-            else
-               $this->new_error_msg("¡Imposible guardar la dirección del cliente!");
-         }
-         else
-            $this->new_error_msg("¡Imposible guardar los datos del cliente!");
+            if(!$this->cliente_s)
+            {
+                $cliente = new cliente();
+                $cliente->codcliente = $cliente->get_new_codigo();
+                $cliente->nombre = $_POST['nombre'];
+                $cliente->razonsocial = $_POST['nombre'];
+                $cliente->tipoidfiscal = $_POST['tipoidfiscal'];
+                $cliente->cifnif = $_POST['cifnif'];
+                $cliente->personafisica = isset($_POST['personafisica']);
+         
+                if( isset($_POST['scodgrupo']) )
+                {
+                   if($_POST['scodgrupo'] != '')
+                   {
+                      $cliente->codgrupo = $_POST['scodgrupo'];
+                   }
+                }
+
+                if( isset($_POST['telefono1']) )
+                {
+                   $cliente->telefono1 = $_POST['telefono1'];
+                }
+
+                if( isset($_POST['telefono2']) )
+                {
+                   $cliente->telefono2 = $_POST['telefono2'];
+                }
+
+                if( $cliente->save() )
+                {
+                   $dircliente = new direccion_cliente();
+                   $dircliente->codcliente = $cliente->codcliente;
+                   $dircliente->codpais = $this->empresa->codpais;
+                   $dircliente->provincia = $this->empresa->provincia;
+                   $dircliente->ciudad = $this->empresa->ciudad;
+                   $dircliente->descripcion = 'Principal';
+
+                   if( isset($_POST['pais']) )
+                   {
+                      $dircliente->codpais = $_POST['pais'];
+                   }
+
+                   if( isset($_POST['provincia']) )
+                   {
+                      $dircliente->provincia = $_POST['provincia'];
+                   }
+
+                   if( isset($_POST['ciudad']) )
+                   {
+                      $dircliente->ciudad = $_POST['ciudad'];
+                   }
+
+                   if( isset($_POST['codpostal']) )
+                   {
+                      $dircliente->codpostal = $_POST['codpostal'];
+                   }
+
+                   if( isset($_POST['direccion']) )
+                   {
+                      $dircliente->direccion = $_POST['direccion'];
+                   }
+
+                   if( $dircliente->save() )
+                   {
+                      if($this->empresa->contintegrada)
+                      {
+                         /// forzamos la creación de la subcuenta
+                         $cliente->get_subcuenta($this->empresa->codejercicio);
+                      }
+
+                      /// redireccionamos a la página del cliente
+                      header('location: '.$cliente->url());
+                   }
+                   else
+                      $this->new_error_msg("¡Imposible guardar la dirección del cliente!");
+                }
+                else
+                   $this->new_error_msg("¡Imposible guardar los datos del cliente!");
+            }
       }
       
       $this->offset = 0;
