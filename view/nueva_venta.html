@@ -7,6 +7,7 @@
    fs_nf0 = {#FS_NF0#};
    fs_nf0_art = {#FS_NF0_ART#};
    all_impuestos = {function="json_encode($fsc->impuesto->all())"};
+   default_impuesto = '{$fsc->default_items->codimpuesto()}';
    all_series = {function="json_encode($fsc->serie->all())"};
    all_direcciones = {function="json_encode($fsc->cliente_s->get_direcciones())"};
    cliente = {function="json_encode($fsc->cliente_s)"};
@@ -108,19 +109,19 @@
          <li role="presentation" class="active">
             <a href="#lineas" aria-controls="lineas" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Líneas</span>
+               <span class="hidden-xs">&nbsp;Líneas</span>
             </a>
          </li>
          <li role="presentation">
             <a href="#detalles" aria-controls="detalles" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Detalles</span>
+               <span class="hidden-xs">&nbsp;Detalles</span>
             </a>
          </li>
          <li role="presentation">
             <a href="#envio" aria-controls="envio" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-road" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Envío</span>
+               <span class="hidden-xs">&nbsp;Envío</span>
             </a>
          </li>
          {loop="$fsc->extensions"}
@@ -195,7 +196,7 @@
                   <div class="col-sm-2">
                      <div class="form-group">
                         {$fsc->cliente_s->tipoidfiscal}:
-                        <input class="form-control" type="text" name="cifnif" value="{$fsc->cliente_s->cifnif}" autocomplete="off"/>
+                        <input class="form-control" type="text" name="cifnif" value="{$fsc->cliente_s->cifnif}" maxlength="20" autocomplete="off"/>
                      </div>
                   </div>
                   <div class="col-sm-2"></div>
@@ -296,9 +297,9 @@
                      <div class="form-group">
                         Código Postal:
                         {if="$fsc->direccion"}
-                        <input class="form-control" type="text" name="codpostal" value="{$fsc->direccion->codpostal}"/>
+                        <input class="form-control" type="text" name="codpostal" value="{$fsc->direccion->codpostal}" maxlength="10" autocomplete="off"/>
                         {else}
-                        <input class="form-control" type="text" name="codpostal" value="{$fsc->empresa->codpostal}"/>
+                        <input class="form-control" type="text" name="codpostal" value="{$fsc->empresa->codpostal}" maxlength="10" autocomplete="off"/>
                         {/if}
                      </div>
                   </div>
@@ -316,9 +317,9 @@
                      <div class="form-group">
                         <span class="text-capitalize">{#FS_APARTADO#}</span>:
                         {if="$fsc->direccion"}
-                        <input class="form-control" type="text" name="apartado" value="{$fsc->direccion->apartado}"/>
+                        <input class="form-control" type="text" name="apartado" value="{$fsc->direccion->apartado}" maxlength="10" autocomplete="off"/>
                         {else}
-                        <input class="form-control" type="text" name="apartado" value="{$fsc->empresa->apartado}"/>
+                        <input class="form-control" type="text" name="apartado" value="{$fsc->empresa->apartado}" maxlength="10" autocomplete="off"/>
                         {/if}
                      </div>
                   </div>
@@ -510,7 +511,7 @@
                <h4 class="modal-title">Guardar como...</h4>
                <p class="help-block">
                   Puedes programar ventas usando el plugin
-                  <a href="https://www.facturascripts.com/store/producto/plugin-para-programar-albaranes/" target="_blank">albaranes programados</a>.
+                  <a href="https://www.facturascripts.com/plugin/albaranes_programados" target="_blank">albaranes programados</a>.
                </p>
             </div>
             <div class="modal-body">
@@ -862,7 +863,11 @@
                      </select>
                   </div>
                   <div class="col-sm-7">
-                     <input type="text" name="nuevo_cifnif" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_cifnif_req']"} required=""{/if}/>
+                     {if="$fsc->nuevocli_setup['nuevocli_cifnif_req']"}
+                     <input type="text" name="nuevo_cifnif" class="form-control" maxlength="20" autocomplete="off" required=""/>
+                     {else}
+                     <input type="text" name="nuevo_cifnif" class="form-control" maxlength="20" autocomplete="off"/>
+                     {/if}
                      <label class="checkbox-inline">
                         <input type="checkbox" name="personafisica" value="TRUE" checked=""/> Persona física (no empresa)
                      </label>

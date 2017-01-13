@@ -24,7 +24,7 @@ require_model('grupo_clientes.php');
 /**
  * Description of opciones_servicios
  *
- * @author carlos
+ * @author Carlos Garcia Gomez
  */
 class ventas_clientes_opciones extends fs_controller
 {

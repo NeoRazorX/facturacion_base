@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -140,6 +140,11 @@ class cliente extends \fs_model
    public $personafisica;
    
    public $numeroproveedor;
+   /**
+    * Dias de pago preferidos a la hora de calcular el vencimiento de las facturas.
+    * Días separados por comas: 1,15,31
+    * @var type 
+    */
    public $diaspago;
 
    private static $regimenes_iva;
@@ -187,6 +192,7 @@ class cliente extends \fs_model
          $this->regimeniva = $c['regimeniva'];
          $this->recargo = $this->str2bool($c['recargo']);
          $this->personafisica = $this->str2bool($c['personafisica']);
+         $this->diaspago = $c['diaspago'];
       }
       else
       {
@@ -221,6 +227,7 @@ class cliente extends \fs_model
          $this->regimeniva = 'General';
          $this->recargo = FALSE;
          $this->personafisica = TRUE;
+         $this->diaspago = NULL;
       }
    }
    
@@ -540,6 +547,21 @@ class cliente extends \fs_model
          $this->fechabaja = NULL;
       }
       
+      /// validamos los dias de pago
+      $array_dias = array();
+      foreach( str_getcsv($this->diaspago) as $d )
+      {
+         if( intval($d) >= 1 AND intval($d) <= 31 )
+         {
+            $array_dias[] = intval($d);
+         }
+      }
+      $this->diaspago = NULL;
+      if($array_dias)
+      {
+         $this->diaspago = join(',', $array_dias);
+      }
+      
       if( !preg_match("/^[A-Z0-9]{1,6}$/i", $this->codcliente) )
       {
          $this->new_error_msg("Código de cliente no válido: ".$this->codcliente);
@@ -639,7 +661,7 @@ class cliente extends \fs_model
       $this->cache->delete('m_cliente_all');
    }
    
-   public function all($offset=0)
+   public function all($offset = 0)
    {
       $clientlist = array();
       
@@ -682,7 +704,7 @@ class cliente extends \fs_model
       return $clientlist;
    }
    
-   public function search($query, $offset=0)
+   public function search($query, $offset = 0)
    {
       $clilist = array();
       $query = mb_strtolower( $this->no_html($query), 'UTF8' );
@@ -721,7 +743,7 @@ class cliente extends \fs_model
     * @param type $offset
     * @return \cliente
     */
-   public function search_by_dni($dni, $offset=0)
+   public function search_by_dni($dni, $offset = 0)
    {
       $clilist = array();
       $query = mb_strtolower( $this->no_html($dni), 'UTF8' );

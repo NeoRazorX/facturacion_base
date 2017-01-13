@@ -26,7 +26,7 @@ require_model('tarifa.php');
 /**
  * Description of ventas_grupo
  *
- * @author carlos
+ * @author Carlos Garcia Gomez
  */
 class ventas_grupo extends fs_controller
 {

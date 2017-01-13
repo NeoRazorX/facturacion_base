@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -545,7 +545,14 @@ class ventas_albaran extends fs_controller
             $factura->pagada = TRUE;
          }
          
-         $factura->vencimiento = $formapago->calculavencimiento_final($factura->fecha, $formapago->vencimiento, $this->cliente->diapago, $this->cliente->diapago2);
+         if($this->cliente_s)
+         {
+            $factura->vencimiento = $formapago->calcular_vencimiento($factura->fecha, $this->cliente_s->diaspago);
+         }
+         else
+         {
+            $factura->vencimiento = $formapago->calcular_vencimiento($factura->fecha);
+         }
       }
       
       $regularizacion = new regularizacion_iva();

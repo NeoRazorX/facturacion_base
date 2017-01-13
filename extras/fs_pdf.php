@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -211,6 +211,26 @@ class fs_pdf
          die('ERROR: no se encuentra la función imagecreatefromstring(). '
                  . 'Y por tanto no se puede usar el logotipo en los documentos.');
       }
+   }
+   
+   private function calcular_tamanyo_logo()
+   {
+      $tamanyo = $size = getimagesize($this->logo);
+      if($size[0] > 200)
+      {
+         $tamanyo[0] = 200;
+         $tamanyo[1] = $tamanyo[1] * $tamanyo[0]/$size[0];
+         $size[0] = $tamanyo[0];
+         $size[1] = $tamanyo[1];
+      }
+      
+      if($size[1] > 80)
+      {
+         $tamanyo[1] = 80;
+         $tamanyo[0] = $tamanyo[0] * $tamanyo[1]/$size[1];
+      }
+      
+      return $tamanyo;
    }
    
    public function center_text($word = '', $tot_width = 140)

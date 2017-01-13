@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -112,7 +112,7 @@ class linea_factura_proveedor extends \fs_model
    private static $facturas;
    private static $albaranes;
 
-   public function __construct($l=FALSE)
+   public function __construct($l = FALSE)
    {
       parent::__construct('lineasfacturasprov');
       
@@ -167,6 +167,9 @@ class linea_factura_proveedor extends \fs_model
       return '';
    }
    
+   /**
+    * Completa con los datos de la factura.
+    */
    private function fill()
    {
       $encontrado = FALSE;
@@ -440,7 +443,7 @@ class linea_factura_proveedor extends \fs_model
       return $linlist;
    }
    
-   public function all_from_articulo($ref, $offset=0)
+   public function all_from_articulo($ref, $offset = 0)
    {
       $linealist = array();
       $sql = "SELECT * FROM ".$this->table_name.
@@ -459,7 +462,7 @@ class linea_factura_proveedor extends \fs_model
       return $linealist;
    }
    
-   public function search($query='', $offset=0)
+   public function search($query = '', $offset = 0)
    {
       $linealist = array();
       $query = mb_strtolower( $this->no_html($query), 'UTF8' );

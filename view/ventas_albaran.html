@@ -10,6 +10,7 @@
    fs_nf0 = {#FS_NF0#};
    fs_nf0_art = {#FS_NF0_ART#};
    all_impuestos = {function="json_encode($fsc->impuesto->all())"};
+   default_impuesto = '{$fsc->default_items->codimpuesto()}';
    all_series = {function="json_encode($fsc->serie->all())"};
    cliente = {function="json_encode($fsc->cliente_s)"};
    nueva_venta_url = '{$fsc->nuevo_albaran_url}';
@@ -94,15 +95,15 @@
             <div class="btn-group">
                <a id="b_imprimir" class="btn btn-sm btn-default">
                   <span class="glyphicon glyphicon-print"></span>
-                  <span class="hidden-xs">&nbsp; Imprimir</span>
+                  <span class="hidden-xs">&nbsp;Imprimir</span>
                </a>
                {if="$fsc->empresa->can_send_mail()"}
                <a id="b_enviar" class="btn btn-sm btn-default" href="#">
                   <span class="glyphicon glyphicon-envelope"></span>
                   {if="$fsc->albaran->femail"}
-                  <span class="hidden-xs">&nbsp; Reenviar</span>
+                  <span class="hidden-xs">&nbsp;Reenviar</span>
                   {else}
-                  <span class="hidden-xs">&nbsp; Enviar</span>
+                  <span class="hidden-xs">&nbsp;Enviar</span>
                   {/if}
                </a>
                {/if}
@@ -119,7 +120,7 @@
             {if="$fsc->albaran->idfactura"}
             <a class="btn btn-sm btn-info" href="{$fsc->albaran->factura_url()}">
                <span class="glyphicon glyphicon-eye-open"></span>
-               <span class="hidden-xs">&nbsp; Ver Factura</span>
+               <span class="hidden-xs">&nbsp;Ver Factura</span>
             </a>
             {elseif="$fsc->albaran->ptefactura"}
             <div class="btn-group">
@@ -146,7 +147,7 @@
             {else}
             <a class="btn btn-sm btn-warning" href="#">
                <span class="glyphicon glyphicon-lock"></span>
-               <span class="hidden-xs">&nbsp; Bloqueado</span>
+               <span class="hidden-xs">&nbsp;Bloqueado</span>
             </a>
             {/if}
          </div>
@@ -158,12 +159,12 @@
                {if="$fsc->allow_delete"}
                <a id="b_eliminar" class="btn btn-sm btn-danger" href="#">
                   <span class="glyphicon glyphicon-trash"></span>
-                  <span class="hidden-sm hidden-xs">&nbsp; Eliminar</span>
+                  <span class="hidden-sm hidden-xs">&nbsp;Eliminar</span>
                </a>
                {/if}
                <button class="btn btn-sm btn-primary" type="button" onclick="this.disabled=true;this.form.submit();">
                   <span class="glyphicon glyphicon-floppy-disk"></span>
-                  <span class="hidden-xs">&nbsp; Guardar</span>
+                  <span class="hidden-xs">&nbsp;Guardar</span>
                </button>
             </div>
          </div>
@@ -298,19 +299,19 @@
          <li role="presentation" class="active">
             <a href="#lineas_a" aria-controls="lineas_a" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Líneas</span>
+               <span class="hidden-xs">&nbsp;Líneas</span>
             </a>
          </li>
          <li role="presentation">
             <a href="#detalles" aria-controls="detalles" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Detalles</span>
+               <span class="hidden-xs">&nbsp;Detalles</span>
             </a>
          </li>
          <li role="presentation">
             <a href="#envio" aria-controls="envio" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-road" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Envío</span>
+               <span class="hidden-xs">&nbsp;Envío</span>
             </a>
          </li>
          {loop="$fsc->extensions"}
@@ -561,7 +562,7 @@
                   <div class="col-sm-2">
                      <div class="form-group">
                         {#FS_CIFNIF#}:
-                        <input class="form-control" type="text" name="cifnif" value="{$fsc->albaran->cifnif}" autocomplete="off"/>
+                        <input class="form-control" type="text" name="cifnif" value="{$fsc->albaran->cifnif}" maxlength="20" autocomplete="off"/>
                      </div>
                   </div>
                   <div class="col-sm-2">
@@ -674,7 +675,7 @@
                   <div class="col-sm-3">
                      <div class="form-group">
                         Código Postal:
-                        <input class="form-control" type="text" name="codpostal" value="{$fsc->albaran->codpostal}"/>
+                        <input class="form-control" type="text" name="codpostal" value="{$fsc->albaran->codpostal}" maxlength="10" autocomplete="off"/>
                      </div>
                   </div>
                   <div class="col-sm-6">
@@ -686,7 +687,7 @@
                   <div class="col-sm-3">
                      <div class="form-group">
                         <span class="text-capitalize">{#FS_APARTADO#}</span>:
-                        <input class="form-control" type="text" name="apartado" value="{$fsc->albaran->apartado}"/>
+                        <input class="form-control" type="text" name="apartado" value="{$fsc->albaran->apartado}" maxlength="10" autocomplete="off"/>
                      </div>
                   </div>
                </div>
@@ -1050,7 +1051,7 @@
                {elseif="!in_array('CRM',$GLOBALS['plugins'])"}
                <p class="help-block">
                   Gestiona los contactos del cliente y comunícate con ellos con el
-                  <a href="https://www.facturascripts.com/store/producto/plugin-crm/" target="_blank">plugin CRM</a>.
+                  <a href="https://www.facturascripts.com/plugin/CRM" target="_blank">plugin CRM</a>.
                </p>
                {/if}
             </div>

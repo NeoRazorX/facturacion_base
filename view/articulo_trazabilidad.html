@@ -18,11 +18,6 @@
    });
 </script>
 
-<div class="alert alert-warning">
-   <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
-   Esta sección está en desarrollo y se desaconseja su uso por ahora.
-</div>
-
 <div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
@@ -68,6 +63,15 @@
                   Lote:
                   <input class="form-control" type="text" name="lote" placeholder="opcional" maxlength="50" autocomplete="off"/>
                </div>
+               <div class="form-group">
+                  Fecha de entrada:
+                  <div class="input-group">
+                     <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                     </span>
+                     <input class="form-control datepicker" type="text" name="fecha_entrada" value="{$fsc->today()}" autocomplete="off"/>
+                  </div>
+               </div>
             </div>
             <div class="modal-footer">
                <button class="btn btn-sm btn-primary" type="submit">
@@ -85,14 +89,16 @@
          <tr>
             <th>Número de serie</th>
             <th>Lote</th>
-            <th>Compra</th>
-            <th>Venta</th>
+            <th></th>
+            <th>Entrada</th>
+            <th></th>
+            <th>Salida</th>
             <th width="120" class="text-right">Acciones</th>
          </tr>
       </thead>
       {loop="$fsc->trazas"}
       <form action="{$fsc->url()}" method="post" class="form">
-         <tr>
+         <tr{if="$value->fecha_entrada AND $value->fecha_salida"} class="success"{/if}>
             <td>
                <input type="hidden" name="id" value="{$value->id}"/>
                <input class="form-control" type="text" name="numserie" value="{$value->numserie}" maxlength="50" autocomplete="off"/>
@@ -100,17 +106,37 @@
             <td>
                <input class="form-control" type="text" name="lote" value="{$value->lote}" maxlength="50" autocomplete="off"/>
             </td>
-            <td>
-               <div class="form-control"></div>
+            <td class="text-right">
+               {if="$value->idlalbcompra OR $value->idlalbcompra"}
+               <a href="{$value->documento_compra_url()}" target="_blank" class="btn btn-sm btn-default" title="Ver documento de entrada">
+                  <span class="glyphicon glyphicon-eye-open"></span>
+               </a>
+               {/if}
             </td>
             <td>
-               <div class="form-control"></div>
+               {if="$value->idlalbcompra OR $value->idlalbcompra"}
+               <div class="form-control">{$value->fecha_entrada}</div>
+               {else}
+               <input type="text" name="fecha_entrada" value="{$value->fecha_entrada}" class="form-control datepicker" autocomplete="off"/>
+               {/if}
+            </td>
+            <td class="text-right">
+               {if="$value->idlalbventa OR $value->idlalbventa"}
+               <a href="{$value->documento_venta_url()}" target="_blank" class="btn btn-sm btn-default" title="Ver documento de salida">
+                  <span class="glyphicon glyphicon-eye-open"></span>
+               </a>
+               {/if}
+            </td>
+            <td>
+               <div class="form-control">{$value->fecha_salida}</div>
             </td>
             <td class="text-right">
                <div class="btn-group">
+                  {if="$fsc->allow_delete"}
                   <a class="btn btn-sm btn-danger" title="Eliminar" onclick="delete_traza('{$value->id}')">
                      <span class="glyphicon glyphicon-trash"></span>
                   </a>
+                  {/if}
                   <button class="btn btn-sm btn-primary" type="submit" title="Guardar" onclick="this.disabled=true;this.form.submit();">
                      <span class="glyphicon glyphicon-floppy-disk"></span>
                   </button>
@@ -120,7 +146,7 @@
       </form>
       {else}
       <tr class="warning">
-         <td colspan="5">Sin resultados.</td>
+         <td colspan="7">Sin resultados.</td>
       </tr>
       {/loop}
    </table>

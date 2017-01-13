@@ -84,7 +84,7 @@
          <div class="col-sm-4">
             <div class="form-group">
                {#FS_CIFNIF#}:
-               <input class="form-control" type="text" name="cifnif" value="{$fsc->empresa->cifnif}" autocomplete="off"/>
+               <input class="form-control" type="text" name="cifnif" value="{$fsc->empresa->cifnif}" maxlength="20" autocomplete="off"/>
                <p class="help-block">
                   {#FS_CIFNIF#} es el identificador fiscal. Si en tu país se llama de otra forma, puedes traducirlo más adelante.
                </p>
@@ -117,7 +117,7 @@
          <div class="col-sm-3">
             <div class="form-group">
                Código Postal:
-               <input class="form-control" type="text" name="codpostal" value="{$fsc->empresa->codpostal}" autocomplete="off"/>
+               <input class="form-control" type="text" name="codpostal" value="{$fsc->empresa->codpostal}" maxlength="10" autocomplete="off"/>
             </div>
          </div>
       </div>
@@ -131,7 +131,7 @@
          <div class="col-sm-3">
             <div class="form-group">
                <span class="text-capitalize">{#FS_APARTADO#}</span>:
-               <input class="form-control" type="text" name="apartado" value="{$fsc->empresa->apartado}" autocomplete="off"/>
+               <input class="form-control" type="text" name="apartado" value="{$fsc->empresa->apartado}" maxlength="10" autocomplete="off"/>
             </div>
          </div>
          <div class="col-sm-3">
@@ -522,6 +522,9 @@
          <p class="help-block">
             Página de inicio: resumen de compras, ventas, impuestos, beneficios...
          </p>
+         <br/>
+      </div>
+      <div class="col-sm-3">
          <a href="https://www.facturascripts.com/documentacion" target="_blank" class="btn btn-block btn-default">
             <i class="fa fa-info-circle fa-3x" aria-hidden="true"></i>
             <br/>Primeros pasos
@@ -531,30 +534,10 @@
             cualquier duda que tengas: presupuestos y pedidos, IVA, IRPF,
             <b>Recargo de equivalencia</b>, traducciones, configuración de decimales, etc...
          </p>
+         <br/>
       </div>
       <div class="col-sm-3">
-         {if="!$fsc->empresa->can_send_mail()"}
-         <a href="index.php?page=admin_empresa#email" target="_blank" class="btn btn-block btn-warning">
-            <i class="fa fa-envelope fa-3x" aria-hidden="true"></i>
-            <br/>Configurar email
-         </a>
-         <p class="help-block">
-            ¿Quieres enviar emails desde FacturaScripts?
-            Puedes usar tu cuenta de <b>gmail</b>, <b>hotmail</b> o tu dominio personalizado
-            para enviar documentos cómodamente desde FacturaScripts.
-         </p>
-         {/if}
-         <a href="index.php?page=admin_home#descargas" target="_blank" class="btn btn-block btn-default">
-            <i class="fa fa-puzzle-piece fa-3x" aria-hidden="true"></i>
-            <br/>Plugins
-         </a>
-         <p class="help-block">
-            ¿Te falta algo? Revisa la lista de plugins disponibles en la sección
-            descargas del panel de control. Hay de todo, y con un desarrollo constante ;-)
-         </p>
-      </div>
-      <div class="col-sm-3">
-         <a href="https://www.facturascripts.com/store/producto/plugin-importarexportar-csv/" target="_blank" class="btn btn-block btn-default">
+         <a href="https://www.facturascripts.com/plugin/import_export_csv" target="_blank" class="btn btn-block btn-default">
             <i class="fa fa-exchange fa-3x" aria-hidden="true"></i>
             <br/>Transferir datos
          </a>
@@ -562,14 +545,7 @@
             Muchos programas permiten exportar datos a archivos <b>CSV o Excel</b>. Si es el caso,
             puedes usar el plugin Importar/Exportar CSV para copiar esos datos a FacturaScripts.
          </p>
-         <a href="https://www.facturascripts.com/ideas#mejoras" target="_blank" class="btn btn-block btn-default">
-            <i class="fa fa-trophy fa-3x" aria-hidden="true"></i>
-            <br/>Mejoras
-         </a>
-         <p class="help-block">
-            Tenemos una serie de mejoras en el horno que te pueden interesar,
-            pero necesitan financiación ¿Te apuntas? Sólo necesitas <b>5 €</b>.
-         </p>
+         <br/>
       </div>
       <div class="col-sm-3">
          <a href="index.php?page=contabilidad_series" target="_blank" class="btn btn-block btn-default">
@@ -581,6 +557,33 @@
             concreto de factura, puedes modificar la numeración desde <b>Contabilidad &gt; Series</b>.
             Activa la <b>numeración personalizada</b> y elige el número inicial.
          </p>
+         <br/>
+      </div>
+      {if="!$fsc->empresa->can_send_mail()"}
+      <div class="col-sm-3"></div>
+      <div class="col-sm-3">
+         <a href="index.php?page=admin_empresa#email" target="_blank" class="btn btn-block btn-warning">
+            <i class="fa fa-envelope fa-3x" aria-hidden="true"></i>
+            <br/>Configurar email
+         </a>
+         <p class="help-block">
+            ¿Quieres enviar emails desde FacturaScripts?
+            Puedes usar tu cuenta de <b>gmail</b>, <b>hotmail</b> o tu dominio personalizado
+            para enviar documentos cómodamente desde FacturaScripts.
+         </p>
+         <br/>
+      </div>
+      {/if}
+      <div class="col-sm-3">
+         <a href="index.php?page=admin_home#descargas" target="_blank" class="btn btn-block btn-default">
+            <i class="fa fa-puzzle-piece fa-3x" aria-hidden="true"></i>
+            <br/>Plugins
+         </a>
+         <p class="help-block">
+            ¿Te falta algo? Revisa la lista de plugins disponibles en la sección
+            descargas del panel de control. Hay de todo, y con un desarrollo constante ;-)
+         </p>
+         <br/>
       </div>
    </div>
 </div>

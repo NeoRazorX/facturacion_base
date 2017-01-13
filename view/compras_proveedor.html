@@ -204,7 +204,7 @@
                            <div class="col-sm-2">
                               <div class="form-group">
                                  {#FS_CIFNIF#}:
-                                 <input class="form-control" type="text" name="cifnif" value="{$fsc->proveedor->cifnif}" autocomplete="off"/>
+                                 <input class="form-control" type="text" name="cifnif" value="{$fsc->proveedor->cifnif}" maxlength="20" autocomplete="off"/>
                               </div>
                            </div>
                         </div>
@@ -456,7 +456,7 @@
                         <div class="col-sm-3">
                            <div class="form-group">
                               Código Postal:
-                              <input class="form-control" type="text" name="codpostal" value="{$value->codpostal}" autocomplete="off"/>
+                              <input class="form-control" type="text" name="codpostal" value="{$value->codpostal}" maxlength="10" autocomplete="off"/>
                            </div>
                         </div>
                         <div class="col-sm-6">
@@ -476,7 +476,7 @@
                         <div class="col-sm-3">
                            <div class="form-group">
                               <span class="text-capitalize">{#FS_APARTADO#}</span>:
-                              <input class="form-control" type="text" name="apartado" value="{$value->apartado}" autocomplete="off"/>
+                              <input class="form-control" type="text" name="apartado" value="{$value->apartado}" maxlength="10" autocomplete="off"/>
                            </div>
                         </div>
                         <div class="col-sm-3">
@@ -662,7 +662,7 @@
                </div>
                <div class="form-group">
                   Código Postal:
-                  <input class="form-control" type="text" name="codpostal"/>
+                  <input class="form-control" type="text" name="codpostal" maxlength="10" autocomplete="off"/>
                </div>
                <div class="form-group">
                   Dirección:
@@ -670,7 +670,7 @@
                </div>
                <div class="form-group">
                   <span class="text-capitalize">{#FS_APARTADO#}:</span>
-                  <input class="form-control" type="text" name="apartado" autocomplete="off"/>
+                  <input class="form-control" type="text" name="apartado" maxlength="10" autocomplete="off"/>
                </div>
                <div class="form-group">
                   Descripción:

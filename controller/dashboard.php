@@ -2,7 +2,7 @@
 
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2016-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,12 +21,13 @@
 /**
  * Description of dashboard
  *
- * @author carlos
+ * @author Carlos Garcia Gomez
  */
 class dashboard extends fs_controller
 {
    public $anterior;
    public $anyo;
+   public $consejos;
    public $mes;
    public $neto;
    public $noticias;
@@ -189,6 +190,7 @@ class dashboard extends fs_controller
       );
       $this->calcula_periodo($this->anyo);
       
+      $this->elegir_consejos();
       $this->leer_noticias();
    }
    
@@ -515,6 +517,77 @@ class dashboard extends fs_controller
       }
    }
    
+   private function elegir_consejos()
+   {
+      $this->consejos = array(
+          array(
+              'titulo' => '¡Vota por tus ideas favoritas!',
+              'html' => '<p class="help-block">Nos interesa conocer tus ideas para FacturaScripts.
+                 Comparte y <b>vota</b> las ideas que te parezcan más interesantes y necesarias.
+                 Tu participación es imprescindible.</p>
+                 <a href="https://www.facturascripts.com/ideas" target="_blank" class="btn btn-sm btn-default">
+                    <i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp; Ideas para FacturaScripts
+                 </a>',
+              'icono' => '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>'
+          ),
+      );
+      
+      /// ¿Presupuestos y pedidos?
+      if( in_array('presupuestos_y_pedidos', $GLOBALS['plugins']) )
+      {
+         $this->consejos[] = array(
+              'titulo' => 'Copia '.FS_PRESUPUESTOS.' y '.FS_PEDIDOS.' con dos clics',
+              'html' => '<p class="help-block">¿Quieres reutilizar un '.FS_PRESUPUESTO
+             .' o un '.FS_PEDIDO.'? Simplemente pulsa el botón <i class="fa fa-retweet" aria-hidden="true"></i>'
+             .' al lado de eliminar. Se crea una copia automáticamente que puedes modificar libremente.</p>',
+              'icono' => '<i class="fa fa-retweet" aria-hidden="true"></i>'
+         );
+      }
+      else
+      {
+         $this->consejos[] = array(
+              'titulo' => '¿Necesitas gestionar '.FS_PRESUPUESTOS.' y '.FS_PEDIDOS.'?',
+              'html' => '<p class="help-block">Instala el plugin <b>presupuestos_y_pedidos</b>
+                 para añadirlos a FacturaScripts.</p>
+                 <a href="index.php?page=admin_home#descargas" class="btn btn-sm btn-default">
+                    <i class="fa fa-puzzle-piece" aria-hidden="true"></i>&nbsp; Plugins
+                 </a>',
+              'icono' => '<i class="fa fa-puzzle-piece" aria-hidden="true"></i>'
+         );
+      }
+      
+      /// ¿Principios de año?
+      if( date('m') == '01' )
+      {
+         $this->consejos[] = array(
+              'titulo' => '¡Feliz cambio de año fiscal!',
+              'html' => '<p class="help-block">Recuerda que cuando hayas terminado con las facturas del año anterior
+                 debes cerrar el ejercicio para traspasar los saldos contables al nuevo. Ve a Contabilidad &gt; Ejercicios,
+                 haz clic en el año anterior y pulsa el botón cerrar.</p>
+                 <a href="index.php?page=contabilidad_ejercicios" class="btn btn-sm btn-default">
+                    <i class="fa fa-balance-scale" aria-hidden="true"></i>&nbsp; Ejercicios contables
+                 </a>',
+              'icono' => '<i class="fa fa-birthday-cake" aria-hidden="true"></i>'
+         );
+      }
+      
+      if( !in_array('megacopiador', $GLOBALS['plugins']) )
+      {
+         $this->consejos[] = array(
+              'titulo' => 'Copia '.FS_ALBARANES.' y '.FS_FACTURAS.' con dos clics',
+              'html' => '<p class="help-block">¿Quieres reutilizar un '.FS_ALBARAN
+             .' o una '.FS_FACTURA.'? Instala el plugin megacopiador para hacer copias'
+             .' de cualquier documentos con dos clics.</p>
+                 <a href="index.php?page=admin_home#descargas" class="btn btn-sm btn-default">
+                    <i class="fa fa-puzzle-piece" aria-hidden="true"></i>&nbsp; Plugins
+                 </a>',
+              'icono' => '<i class="fa fa-puzzle-piece" aria-hidden="true"></i>'
+         );
+      }
+      
+      shuffle($this->consejos);
+   }
+   
    private function leer_noticias()
    {
       $this->noticias = $this->cache->get_array('community_changelog');
@@ -547,6 +620,12 @@ class dashboard extends fs_controller
          curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
          curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
          curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+         if( defined('FS_PROXY_TYPE') )
+         {
+            curl_setopt($ch, CURLOPT_PROXYTYPE, FS_PROXY_TYPE);
+            curl_setopt($ch, CURLOPT_PROXY, FS_PROXY_HOST);
+            curl_setopt($ch, CURLOPT_PROXYPORT, FS_PROXY_PORT);
+         }
          $data = curl_exec($ch);
          $info = curl_getinfo($ch);
          
@@ -576,6 +655,12 @@ class dashboard extends fs_controller
    {
       curl_setopt($ch, CURLOPT_HEADER, true);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      if( defined('FS_PROXY_TYPE') )
+      {
+         curl_setopt($ch, CURLOPT_PROXYTYPE, FS_PROXY_TYPE);
+         curl_setopt($ch, CURLOPT_PROXY, FS_PROXY_HOST);
+         curl_setopt($ch, CURLOPT_PROXYPORT, FS_PROXY_PORT);
+      }
       $data = curl_exec($ch);
       $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
       

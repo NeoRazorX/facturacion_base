@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -114,12 +114,14 @@ class linea_albaran_proveedor extends \fs_model
    
    private static $albaranes;
    
-   public function __construct($l=FALSE)
+   public function __construct($l = FALSE)
    {
       parent::__construct('lineasalbaranesprov');
       
       if( !isset(self::$albaranes) )
+      {
          self::$albaranes = array();
+      }
       
       if($l)
       {
@@ -164,6 +166,9 @@ class linea_albaran_proveedor extends \fs_model
       return '';
    }
    
+   /**
+    * Completa con los datos del albarán.
+    */
    private function fill()
    {
       $encontrado = FALSE;
@@ -214,14 +219,18 @@ class linea_albaran_proveedor extends \fs_model
    public function show_codigo()
    {
       if( !isset($this->codigo) )
+      {
          $this->fill();
+      }
       return $this->codigo;
    }
    
    public function show_fecha()
    {
       if( !isset($this->fecha) )
+      {
          $this->fill();
+      }
       return $this->fecha;
    }
    
@@ -256,6 +265,24 @@ class linea_albaran_proveedor extends \fs_model
          return "index.php?page=ventas_articulo&ref=".urlencode($this->referencia);
    }
    
+   /**
+    * Devuelve los datos de una linea
+    * @param type $idlinea
+    * @return boolean|\linea_albaran_proveedor
+    */
+   public function get($idlinea)
+   {
+      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idlinea = ".$this->var2str($idlinea).";");
+      if($data)
+      {
+         return new \linea_albaran_proveedor($data[0]);
+      }
+      else
+      {
+         return FALSE;
+      }
+   }
+   
    public function exists()
    {
       if( is_null($this->idlinea) )
@@ -274,12 +301,14 @@ class linea_albaran_proveedor extends \fs_model
       
       if( !$this->floatcmp($this->pvptotal, $total, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Error en el valor de pvptotal de la línea ".$this->referencia." del ".FS_ALBARAN.". Valor correcto: ".$total);
+         $this->new_error_msg("Error en el valor de pvptotal de la línea ".$this->referencia
+                 ." del ".FS_ALBARAN.". Valor correcto: ".$total);
          return FALSE;
       }
       else if( !$this->floatcmp($this->pvpsindto, $totalsindto, FS_NF0, TRUE) )
       {
-         $this->new_error_msg("Error en el valor de pvpsindto de la línea ".$this->referencia." del ".FS_ALBARAN.". Valor correcto: ".$totalsindto);
+         $this->new_error_msg("Error en el valor de pvpsindto de la línea ".$this->referencia
+                 ." del ".FS_ALBARAN.". Valor correcto: ".$totalsindto);
          return FALSE;
       }
       else
@@ -358,8 +387,10 @@ class linea_albaran_proveedor extends \fs_model
    public function all_from_albaran($id)
    {
       $linealist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($id)
+              ." ORDER BY idlinea ASC;";
       
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($id)." ORDER BY idlinea ASC;");
+      $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $l)
@@ -371,7 +402,7 @@ class linea_albaran_proveedor extends \fs_model
       return $linealist;
    }
    
-   public function all_from_articulo($ref, $offset=0, $limit=FS_ITEM_LIMIT)
+   public function all_from_articulo($ref, $offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $linealist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref)
@@ -389,7 +420,7 @@ class linea_albaran_proveedor extends \fs_model
       return $linealist;
    }
    
-   public function search($query='', $offset=0)
+   public function search($query = '', $offset = 0)
    {
       $linealist = array();
       $query = mb_strtolower( $this->no_html($query), 'UTF8' );
@@ -418,7 +449,7 @@ class linea_albaran_proveedor extends \fs_model
       return $linealist;
    }
    
-   public function search_from_proveedor($codproveedor, $query='', $offset=0)
+   public function search_from_proveedor($codproveedor, $query = '', $offset = 0)
    {
       $linealist = array();
       $query = mb_strtolower( $this->no_html($query), 'UTF8' );
@@ -457,23 +488,5 @@ class linea_albaran_proveedor extends \fs_model
       }
       else
          return 0;
-   }
-   
-   /**
-    * Devuelve los datos de una linea
-    * @param type $idlinea
-    * @return boolean|\linea_albaran_proveedor
-    */
-   public function get($idlinea)
-   {
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idlinea = ".$this->var2str($idlinea).";");
-      if($data)
-      {
-         return new \linea_albaran_proveedor($data[0]);
-      }
-      else
-      {
-         return FALSE;
-      }
    }
 }

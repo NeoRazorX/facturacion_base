@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  * Copyright (C) 2014-2015  Francesc Pineda Segarra  shawe.ewahs@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -691,6 +691,8 @@ class nueva_venta extends fs_controller
          
          if( $albaran->save() )
          {
+            $trazabilidad = FALSE;
+            
             $art0 = new articulo();
             $n = floatval($_POST['numlineas']);
             for($i = 0; $i <= $n; $i++)
@@ -728,6 +730,10 @@ class nueva_venta extends fs_controller
                   if($articulo)
                   {
                      $linea->referencia = $articulo->referencia;
+                     if($articulo->trazabilidad)
+                     {
+                        $trazabilidad = TRUE;
+                     }
                   }
                   
                   if( $linea->save() )
@@ -776,7 +782,11 @@ class nueva_venta extends fs_controller
                   $this->new_message("<a href='".$albaran->url()."'>".ucfirst(FS_ALBARAN)."</a> guardado correctamente.");
                   $this->new_change(ucfirst(FS_ALBARAN).' Cliente '.$albaran->codigo, $albaran->url(), TRUE);
                   
-                  if($_POST['redir'] == 'TRUE')
+                  if($trazabilidad)
+                  {
+                     header('Location: index.php?page=ventas_trazabilidad&doc=albaran&id='.$albaran->idalbaran);
+                  }
+                  else if($_POST['redir'] == 'TRUE')
                   {
                      header('Location: '.$albaran->url());
                   }
@@ -887,8 +897,7 @@ class nueva_venta extends fs_controller
             $factura->pagada = TRUE;
          }
          
-         $factura->vencimiento = $forma_pago->calculavencimiento_final($factura->fecha, $forma_pago->vencimiento, $cliente->diaspago);
-
+         $factura->vencimiento = $forma_pago->calcular_vencimiento($factura->fecha, $cliente->diaspago);
          $factura->codcliente = $cliente->codcliente;
          $factura->cifnif = $_POST['cifnif'];
          $factura->nombrecliente = $_POST['nombrecliente'];
@@ -917,10 +926,13 @@ class nueva_venta extends fs_controller
          $regularizacion = new regularizacion_iva();
          if( $regularizacion->get_fecha_inside($factura->fecha) )
          {
-            $this->new_error_msg("El ".FS_IVA." de ese periodo ya ha sido regularizado. No se pueden añadir más facturas en esa fecha.");
+            $this->new_error_msg("El ".FS_IVA." de ese periodo ya ha sido regularizado."
+                    . " No se pueden añadir más facturas en esa fecha.");
          }
          else if( $factura->save() )
          {
+            $trazabilidad = FALSE;
+            
             $art0 = new articulo();
             $n = floatval($_POST['numlineas']);
             for($i = 0; $i <= $n; $i++)
@@ -958,6 +970,10 @@ class nueva_venta extends fs_controller
                   if($articulo)
                   {
                      $linea->referencia = $articulo->referencia;
+                     if($articulo->trazabilidad)
+                     {
+                        $trazabilidad = TRUE;
+                     }
                   }
                   
                   if( $linea->save() )
@@ -1007,7 +1023,11 @@ class nueva_venta extends fs_controller
                   $this->new_message("<a href='".$factura->url()."'>Factura</a> guardada correctamente.");
                   $this->new_change('Factura Cliente '.$factura->codigo, $factura->url(), TRUE);
                   
-                  if($_POST['redir'] == 'TRUE')
+                  if($trazabilidad)
+                  {
+                     header('Location: index.php?page=ventas_trazabilidad&doc=factura&id='.$factura->idfactura);
+                  }
+                  else if($_POST['redir'] == 'TRUE')
                   {
                      header('Location: '.$factura->url());
                   }

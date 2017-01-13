@@ -26,7 +26,7 @@ require_model('serie.php');
 /**
  * Description of ventas_factura_devolucion
  *
- * @author carlos
+ * @author Carlos Garcia Gomez
  */
 class ventas_factura_devolucion extends fs_controller
 {

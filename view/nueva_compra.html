@@ -6,6 +6,7 @@
    fs_nf0 = {#FS_NF0#};
    fs_nf0_art = {#FS_NF0_ART#};
    all_impuestos = {function="json_encode($fsc->impuesto->all())"};
+   default_impuesto = '{$fsc->default_items->codimpuesto()}';
    all_series = {function="json_encode($fsc->serie->all())"};
    proveedor = {function="json_encode($fsc->proveedor_s)"};
    nueva_compra_url = '{$fsc->url()}';
@@ -99,13 +100,13 @@
          <li role="presentation" class="active">
             <a href="#lineas" aria-controls="lineas" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Líneas</span>
+               <span class="hidden-xs">&nbsp;Líneas</span>
             </a>
          </li>
          <li role="presentation">
             <a href="#detalles" aria-controls="detalles" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Detalles</span>
+               <span class="hidden-xs">&nbsp;Detalles</span>
             </a>
          </li>
          {loop="$fsc->extensions"}
@@ -176,7 +177,7 @@
                   <div class="col-sm-2">
                      <div class="form-group">
                         {#FS_CIFNIF#}:
-                        <input class="form-control" type="text" name="cifnif" value="{$fsc->proveedor_s->cifnif}" autocomplete="off"/>
+                        <input class="form-control" type="text" name="cifnif" value="{$fsc->proveedor_s->cifnif}" maxlength="20" autocomplete="off"/>
                      </div>
                   </div>
                   <div class="col-sm-2"></div>
@@ -266,7 +267,7 @@
                <h4 class="modal-title">Guardar como...</h4>
                <p class="help-block">
                   Puedes programar compras usando el plugin
-                  <a href="https://www.facturascripts.com/store/producto/plugin-para-programar-albaranes/" target="_blank">albaranes programados</a>.
+                  <a href="https://www.facturascripts.com/plugin/albaranes_programados" target="_blank">albaranes programados</a>.
                </p>
             </div>
             <div class="modal-body">
@@ -321,17 +322,13 @@
                </div>
                <div class="checkbox">
                   <label>
-                     {if="$fsc->proveedor_s->acreedor"}
-                     <input type="checkbox" name="stock" value="TRUE"/>
-                     {else}
                      <input type="checkbox" name="stock" value="TRUE" checked=""/>
-                     {/if}
                      Añadir al stock
                   </label>
                </div>
                <div class="checkbox">
                   <label>
-                     {if="!$fsc->proveedor_s->acreedor AND FS_COST_IS_AVERAGE"}
+                     {if="FS_COST_IS_AVERAGE"}
                      <input type="checkbox" name="costemedio" value="TRUE" checked=""/>
                      {else}
                      <input type="checkbox" name="costemedio" value="TRUE"/>
@@ -653,7 +650,7 @@
                   </div>
                   <div class="col-sm-9">
                      <div class="form-group">
-                        <input type="text" name="nuevo_cifnif" class="form-control" autocomplete="off"/>
+                        <input type="text" name="nuevo_cifnif" maxlength="20" class="form-control" autocomplete="off"/>
                      </div>
                   </div>
                </div>

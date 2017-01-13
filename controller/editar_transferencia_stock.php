@@ -28,7 +28,7 @@ require_model('transferencia_stock.php');
 /**
  * Description of editar_transferencia_stock
  *
- * @author carlos
+ * @author Carlos Garcia Gomez
  */
 class editar_transferencia_stock extends fs_controller
 {
