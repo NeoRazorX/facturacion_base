@@ -20,6 +20,7 @@ var numlineas = 0;
 var fs_nf0 = 2;
 var fs_nf0_art = 2;
 var all_impuestos = [];
+var default_impuesto = 'IVA21';
 var all_series = [];
 var proveedor = false;
 var nueva_compra_url = '';
@@ -437,13 +438,6 @@ function add_articulo_atributos(ref,desc,pvp,dto,codimpuesto)
 
 function add_linea_libre()
 {
-   codimpuesto = false;
-   for(var i=0; i<all_impuestos.length; i++)
-   {
-      codimpuesto = all_impuestos[i].codimpuesto;
-      break;
-   }
-   
    $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\"/>\n\
@@ -459,7 +453,7 @@ function add_linea_libre()
           onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"neto_"+numlineas+"\" name=\"neto_"+numlineas+
          "\" onchange=\"ajustar_neto("+numlineas+")\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
-      "+aux_all_impuestos(numlineas,codimpuesto)+"\n\
+      "+aux_all_impuestos(numlineas,default_impuesto)+"\n\
       <td class=\"warning\" title=\"Cálculo aproximado del total de la linea\">\n\
          <input type=\"text\" class=\"form-control text-right\" id=\"total_"+numlineas+"\" name=\"total_"+numlineas+
          "\" onchange=\"ajustar_total("+numlineas+")\" onclick=\"this.select()\" autocomplete=\"off\"/></td></tr>");

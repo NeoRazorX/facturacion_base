@@ -9,6 +9,7 @@
    fs_nf0 = {#FS_NF0#};
    fs_nf0_art = {#FS_NF0_ART#};
    all_impuestos = {function="json_encode($fsc->impuesto->all())"};
+   default_impuesto = '{$fsc->default_items->codimpuesto()}';
    all_series = {function="json_encode($fsc->serie->all())"};
    proveedor = {function="json_encode($fsc->proveedor_s)"};
    nueva_compra_url = '{$fsc->nuevo_albaran_url}';
