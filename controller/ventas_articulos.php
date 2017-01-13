@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -85,170 +85,28 @@ class ventas_articulos extends fs_controller
       
       if( isset($_POST['codtarifa']) )
       {
-         /// crear/editar tarifa
-         $tar0 = $this->tarifa->get($_POST['codtarifa']);
-         if( !$tar0 )
-         {
-            $tar0 = new tarifa();
-            $tar0->codtarifa = $_POST['codtarifa'];
-         }
-         $tar0->nombre = $_POST['nombre'];
-         $tar0->aplicar_a = $_POST['aplicar_a'];
-         $tar0->set_x( floatval($_POST['dtopor']) );
-         $tar0->set_y( floatval($_POST['inclineal']) );
-         $tar0->mincoste = isset($_POST['mincoste']);
-         $tar0->maxpvp = isset($_POST['maxpvp']);
-         if( $tar0->save() )
-         {
-            $this->new_message("Tarifa guardada correctamente.");
-         }
-         else
-            $this->new_error_msg("¡Imposible guardar la tarifa!");
+         $this->edit_tarifa();
       }
       else if( isset($_GET['delete_tarifa']) )
       {
-         /// eliminar tarifa
-         $tar0 = $this->tarifa->get($_GET['delete_tarifa']);
-         if($tar0)
-         {
-            if( $tar0->delete() )
-            {
-               $this->new_message("Tarifa ".$tar0->codtarifa." eliminada correctamente.", TRUE);
-            }
-            else
-               $this->new_error_msg("¡Imposible eliminar la tarifa!");
-         }
-         else
-            $this->new_error_msg("¡La tarifa no existe!");
+         $this->delete_tarifa();
       }
       else if( isset($_POST['referencia']) AND isset($_POST['codfamilia']) AND isset($_POST['codimpuesto']) )
       {
-         /// nuevo artículo
-         $this->save_codimpuesto( $_POST['codimpuesto'] );
-         
-         $art0 = $articulo->get($_POST['referencia']);
-         if($art0)
-         {
-            $this->new_error_msg('Ya existe el artículo <a href="'.$art0->url().'">'.$art0->referencia.'</a>');
-         }
-         else
-         {
-            if($_POST['referencia'] == '')
-            {
-               $articulo->referencia = $articulo->get_new_referencia();
-            }
-            else
-            {
-               $articulo->referencia = $_POST['referencia'];
-            }
-            $articulo->descripcion = $_POST['descripcion'];
-            $articulo->nostock = isset($_POST['nostock']);
-            
-            if($_POST['codfamilia'] != '')
-            {
-               $articulo->codfamilia = $_POST['codfamilia'];
-            }
-            
-            if($_POST['codfabricante'] != '')
-            {
-               $articulo->codfabricante = $_POST['codfabricante'];
-            }
-            
-            $articulo->set_impuesto($_POST['codimpuesto']);
-            if( isset($_POST['coniva']) )
-            {
-               $articulo->set_pvp_iva( floatval($_POST['pvp']) );
-            }
-            else
-            {
-               $articulo->set_pvp( floatval($_POST['pvp']) );
-            }
-            
-            if( $articulo->save() )
-            {
-               header('location: '.$articulo->url());
-            }
-            else
-               $this->new_error_msg("¡Error al crear el articulo!");
-         }
+         $this->new_articulo($articulo);
       }
       else if( isset($_GET['delete']) )
       {
-         /// eliminar artículo
-         $art = $articulo->get($_GET['delete']);
-         if($art)
-         {
-            if( $art->delete() )
-            {
-               $this->new_message("Articulo ".$art->referencia." eliminado correctamente.", TRUE);
-            }
-            else
-               $this->new_error_msg("¡Error al eliminarl el articulo!");
-         }
+         $this->delete_articulo($articulo);
       }
       else if( isset($_POST['origen']) )
       {
-         /// nueva transferencia de stock
-         $this->transferencia_stock->usuario = $this->user->nick;
-         $this->transferencia_stock->codalmaorigen = $_POST['origen'];
-         $this->transferencia_stock->codalmadestino = $_POST['destino'];
-         
-         if( $this->transferencia_stock->save() )
-         {
-            $this->new_message('Datos guardados correctamente.');
-            header('Location: '.$this->transferencia_stock->url());
-         }
-         else
-         {
-            $this->new_error_msg('Error al guardar los datos.');
-         }
+         $this->new_transferencia();
       }
       else if( isset($_GET['delete_transf']) )
       {
-         $transf = $this->transferencia_stock->get($_GET['delete_transf']);
-         if($transf)
-         {
-            $ok = TRUE;
-            
-            /// eliminamos las líneas
-            $ltf = new linea_transferencia_stock();
-            foreach($ltf->all_from_transferencia($transf->idtrans) as $lin)
-            {
-               if( $lin->delete() )
-               {
-                  /// movemos el stock
-                  $art = $articulo->get($lin->referencia);
-                  if($art)
-                  {
-                     $art->sum_stock($transf->codalmadestino, 0 - $lin->cantidad);
-                     $art->sum_stock($transf->codalmaorigen, $lin->cantidad);
-                  }
-               }
-               else
-               {
-                  $this->new_error_msg('Error al eliminar la línea con referencia '.$lin->referencia);
-                  $ok = FALSE;
-               }
-            }
-            
-            if($ok)
-            {
-               if( $transf->delete() )
-               {
-                  $this->new_message('Transferencia eliminada correctamente.');
-               }
-               else
-               {
-                  $this->new_error_msg('Error al eliminar la transferencia.');
-               }
-            }
-         }
-         else
-         {
-            $this->new_error_msg('Transferencia no encontrada.');
-         }
+         $this->delete_transferencia($articulo);
       }
-      
       
       /// obtenemos los datos para la búsqueda
       $this->offset = 0;
@@ -333,6 +191,178 @@ class ventas_articulos extends fs_controller
       }
       
       $this->search_articulos();
+   }
+   
+   private function edit_tarifa()
+   {
+      $tar0 = $this->tarifa->get($_POST['codtarifa']);
+      if( !$tar0 )
+      {
+         $tar0 = new tarifa();
+         $tar0->codtarifa = $_POST['codtarifa'];
+      }
+      $tar0->nombre = $_POST['nombre'];
+      $tar0->aplicar_a = $_POST['aplicar_a'];
+      $tar0->set_x( floatval($_POST['dtopor']) );
+      $tar0->set_y( floatval($_POST['inclineal']) );
+      $tar0->mincoste = isset($_POST['mincoste']);
+      $tar0->maxpvp = isset($_POST['maxpvp']);
+      if( $tar0->save() )
+      {
+         $this->new_message("Tarifa guardada correctamente.");
+      }
+      else
+         $this->new_error_msg("¡Imposible guardar la tarifa!");
+   }
+   
+   private function delete_tarifa()
+   {
+      $tar0 = $this->tarifa->get($_GET['delete_tarifa']);
+      if($tar0)
+      {
+         if( $tar0->delete() )
+         {
+            $this->new_message("Tarifa ".$tar0->codtarifa." eliminada correctamente.", TRUE);
+         }
+         else
+            $this->new_error_msg("¡Imposible eliminar la tarifa!");
+      }
+      else
+         $this->new_error_msg("¡La tarifa no existe!");
+   }
+   
+   private function new_articulo(&$articulo)
+   {
+      $this->save_codimpuesto( $_POST['codimpuesto'] );
+      
+      $art0 = $articulo->get($_POST['referencia']);
+      if($art0)
+      {
+         $this->new_error_msg('Ya existe el artículo <a href="'.$art0->url().'">'.$art0->referencia.'</a>');
+      }
+      else
+      {
+         if($_POST['referencia'] == '')
+         {
+            $articulo->referencia = $articulo->get_new_referencia();
+         }
+         else
+         {
+            $articulo->referencia = $_POST['referencia'];
+         }
+         $articulo->descripcion = $_POST['descripcion'];
+         $articulo->nostock = isset($_POST['nostock']);
+         
+         if($_POST['codfamilia'] != '')
+         {
+            $articulo->codfamilia = $_POST['codfamilia'];
+         }
+         
+         if($_POST['codfabricante'] != '')
+         {
+            $articulo->codfabricante = $_POST['codfabricante'];
+         }
+         
+         $articulo->set_impuesto($_POST['codimpuesto']);
+         
+         $pvp = floatval( str_replace(',', '.', $_POST['pvp']) );
+         if( isset($_POST['coniva']) )
+         {
+            $articulo->set_pvp_iva($pvp);
+         }
+         else
+         {
+            $articulo->set_pvp($pvp);
+         }
+         
+         if( $articulo->save() )
+         {
+            header('location: '.$articulo->url());
+         }
+         else
+            $this->new_error_msg("¡Error al crear el articulo!");
+      }
+   }
+   
+   private function delete_articulo(&$articulo)
+   {
+      $art = $articulo->get($_GET['delete']);
+      if($art)
+      {
+         if( $art->delete() )
+         {
+            $this->new_message("Articulo ".$art->referencia." eliminado correctamente.", TRUE);
+         }
+         else
+            $this->new_error_msg("¡Error al eliminarl el articulo!");
+      }
+      else
+      {
+         $this->new_error_msg("Articulo no encontrado.");
+      }
+   }
+   
+   private function new_transferencia()
+   {
+      $this->transferencia_stock->usuario = $this->user->nick;
+      $this->transferencia_stock->codalmaorigen = $_POST['origen'];
+      $this->transferencia_stock->codalmadestino = $_POST['destino'];
+      
+      if( $this->transferencia_stock->save() )
+      {
+         $this->new_message('Datos guardados correctamente.');
+         header('Location: '.$this->transferencia_stock->url());
+      }
+      else
+      {
+         $this->new_error_msg('Error al guardar los datos.');
+      }
+   }
+   
+   private function delete_transferencia(&$articulo)
+   {
+      $transf = $this->transferencia_stock->get($_GET['delete_transf']);
+      if($transf)
+      {
+         $ok = TRUE;
+         
+         /// eliminamos las líneas
+         $ltf = new linea_transferencia_stock();
+         foreach($ltf->all_from_transferencia($transf->idtrans) as $lin)
+         {
+            if( $lin->delete() )
+            {
+               /// movemos el stock
+               $art = $articulo->get($lin->referencia);
+               if($art)
+               {
+                  $art->sum_stock($transf->codalmadestino, 0 - $lin->cantidad);
+                  $art->sum_stock($transf->codalmaorigen, $lin->cantidad);
+               }
+            }
+            else
+            {
+               $this->new_error_msg('Error al eliminar la línea con referencia '.$lin->referencia);
+               $ok = FALSE;
+            }
+         }
+         
+         if($ok)
+         {
+            if( $transf->delete() )
+            {
+               $this->new_message('Transferencia eliminada correctamente.');
+            }
+            else
+            {
+               $this->new_error_msg('Error al eliminar la transferencia.');
+            }
+         }
+      }
+      else
+      {
+         $this->new_error_msg('Transferencia no encontrada.');
+      }
    }
 
    private function search_articulos()
@@ -610,6 +640,16 @@ class ventas_articulos extends fs_controller
             }
          }
          
+         /**
+          * libreoffice y excel toman el punto y 3 decimales como millares,
+          * así que si el usuario ha elegido 3 decimales, mejor usamos 4.
+          */
+         $nf0 = FS_NF0_ART;
+         if($nf0 == 3)
+         {
+            $nf0 = 4;
+         }
+         
          /// escribimos los datos de los artículos
          foreach($resultados as $art)
          {
@@ -617,11 +657,11 @@ class ventas_articulos extends fs_controller
             echo $art->codfamilia.';';
             echo $art->codfabricante.';';
             echo $this->fix_html( preg_replace('~[\r\n]+~', ' ', $art->descripcion) ).';';
-            echo round($art->pvp, FS_NF0_ART).';';
+            echo number_format($art->pvp, $nf0, '.', '').';';
             echo $art->get_iva().';';
             echo trim($art->codbarras).';';
             echo $art->stockfis.';';
-            echo round($art->preciocoste(), FS_NF0_ART)."\n";
+            echo number_format($art->preciocoste(), $nf0, '.', '')."\n";
             
             $offset2++;
          }

@@ -59,7 +59,7 @@
          <div class="btn-group">
             <a href="#" id="b_nuevo_cliente" class="btn btn-sm btn-success">
                <span class="glyphicon glyphicon-plus"></span>
-               <span class="hidden-xs">&nbsp; Nuevo</span>
+               <span class="hidden-xs">&nbsp;Nuevo</span>
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -392,7 +392,7 @@
                      </select>
                   </div>
                   <div class="col-sm-7">
-                     <input type="text" name="cifnif" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_cifnif_req']"} required=""{/if}/>
+                     <input type="text" name="cifnif" class="form-control" maxlength="20" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_cifnif_req']"} required=""{/if}/>
                      <label class="checkbox-inline">
                         <input type="checkbox" name="personafisica" value="TRUE" checked=""/> persona física (no empresa)
                      </label>
@@ -475,9 +475,9 @@
                   <label class="col-sm-2 control-label">Cód. Postal</label>
                   <div class="col-sm-10">
                      {if="$fsc->nuevocli_setup['nuevocli_codpostal_req']"}
-                     <input type="text" name="codpostal" class="form-control" required=""/>
+                     <input type="text" name="codpostal" class="form-control" maxlength="10" autocomplete="off" required=""/>
                      {else}
-                     <input type="text" name="codpostal" class="form-control"/>
+                     <input type="text" name="codpostal" class="form-control" maxlength="10" autocomplete="off"/>
                      {/if}
                   </div>
                </div>
@@ -496,7 +496,7 @@
                {/if}
                <p class="help-block">
                   Puedes importar, exportar o actualizar masivamente clientes usando el plugin
-                  <a href="https://www.facturascripts.com/store/producto/plugin-importarexportar-csv/" target="_blank">
+                  <a href="https://www.facturascripts.com/plugin/import_export_csv" target="_blank">
                      Importar/Exportar CSV
                   </a>
                </p>

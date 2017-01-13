@@ -2,7 +2,8 @@
 
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2016 Luismipr <luismipr@gmail.com>.
+ * Copyright (C) 2016      Luismipr               <luismipr@gmail.com>.
+ * Copyright (C) 2016-2017 Carlos García Gómez    <neorazorx@gmail.com>.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -24,8 +25,8 @@ namespace FacturaScripts\model;
  * Esta clase sirve para guardar la información de trazabilidad del artículo.
  * Números de serie, de lote y albaranes y facturas relacionadas.
  *
- * @author Luismipr <luismipr@gmail.com>
- * @author Carlos García Gómez <neorazorx@gmail.com>
+ * @author Luismipr              <luismipr@gmail.com>
+ * @author Carlos García Gómez   <neorazorx@gmail.com>
  */
 class articulo_traza extends \fs_model
 {
@@ -78,6 +79,9 @@ class articulo_traza extends \fs_model
     */
    public $idlfaccompra;
    
+   public $fecha_entrada;
+   public $fecha_salida;
+   
    public function __construct($n = FALSE)
    {
       parent::__construct('articulo_trazas');
@@ -91,6 +95,18 @@ class articulo_traza extends \fs_model
          $this->idlfacventa = $this->intval($n['idlfacventa']);
          $this->idlalbcompra = $this->intval($n['idlalbcompra']);
          $this->idlfaccompra = $this->intval($n['idlfaccompra']);
+         
+         $this->fecha_entrada = NULL;
+         if( isset($n['fecha_entrada']) )
+         {
+            $this->fecha_entrada = date('d-m-Y', strtotime($n['fecha_entrada']));
+         }
+         
+         $this->fecha_salida = NULL;
+         if( isset($n['fecha_salida']) )
+         {
+            $this->fecha_salida = date('d-m-Y', strtotime($n['fecha_salida']));
+         }
       }
       else
       {
@@ -102,12 +118,66 @@ class articulo_traza extends \fs_model
          $this->idlfacventa = NULL;
          $this->idlalbcompra = NULL;
          $this->idlfaccompra = NULL;
+         $this->fecha_entrada = NULL;
+         $this->fecha_salida = NULL;
       }
    }
    
    protected function install()
    {
       return '';
+   }
+   
+   public function documento_compra_url()
+   {
+      if($this->idlalbcompra)
+      {
+         $lin0 = new \linea_albaran_proveedor();
+         $linea = $lin0->get($this->idlalbcompra);
+         if($linea)
+         {
+            return $linea->url();
+         }
+      }
+      else if($this->idlfaccompra)
+      {
+         $lin0 = new \linea_factura_proveedor();
+         $linea = $lin0->get($this->idlfaccompra);
+         if($linea)
+         {
+            return $linea->url();
+         }
+      }
+      else
+      {
+         return '#';
+      }
+   }
+   
+   public function documento_venta_url()
+   {
+      if($this->idlalbventa)
+      {
+         $lin0 = new \linea_albaran_cliente();
+         $linea = $lin0->get($this->idlalbventa);
+         if($linea)
+         {
+            return $linea->url();
+         }
+      }
+      else if($this->idlfaccompra)
+      {
+         $lin0 = new \linea_factura_proveedor();
+         $linea = $lin0->get($this->idlfaccompra);
+         if($linea)
+         {
+            return $linea->url();
+         }
+      }
+      else
+      {
+         return '#';
+      }
    }
    
    public function get($id)
@@ -159,6 +229,8 @@ class articulo_traza extends \fs_model
                  . ", idlfacventa = ".$this->var2str($this->idlfacventa)
                  . ", idlalbcompra = ".$this->var2str($this->idlalbcompra)
                  . ", idlfaccompra = ".$this->var2str($this->idlfaccompra)
+                 . ", fecha_entrada = ".$this->var2str($this->fecha_entrada)
+                 . ", fecha_salida = ".$this->var2str($this->fecha_salida)
                  . "  WHERE id = ".$this->var2str($this->id).";";
          
          return $this->db->exec($sql);
@@ -166,14 +238,16 @@ class articulo_traza extends \fs_model
       else
       {
          $sql = "INSERT INTO ".$this->table_name." (referencia,numserie,lote,idlalbventa,"
-                 . "idlfacventa,idlalbcompra,idlfaccompra) VALUES "
+                 . "idlfacventa,idlalbcompra,idlfaccompra,fecha_entrada,fecha_salida) VALUES "
                  . "(".$this->var2str($this->referencia)
                  . ",".$this->var2str($this->numserie)
                  . ",".$this->var2str($this->lote)
                  . ",".$this->var2str($this->idlalbventa)
                  . ",".$this->var2str($this->idlfacventa)
                  . ",".$this->var2str($this->idlalbcompra)
-                 . ",".$this->var2str($this->idlfaccompra).");";
+                 . ",".$this->var2str($this->idlfaccompra)
+                 . ",".$this->var2str($this->fecha_entrada)
+                 . ",".$this->var2str($this->fecha_salida).");";
          
          if( $this->db->exec($sql) )
          {
@@ -190,22 +264,6 @@ class articulo_traza extends \fs_model
    public function delete()
    {
       return $this->db->exec("DELETE FROM ".$this->table_name." WHERE id = ".$this->var2str($this->id).";");
-   }
-   
-   public function all()
-   {
-      $lista = array();
-      
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY id DESC;");
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $lista[] = new \articulo_traza($d);
-         }
-      }
-      
-      return $lista;
    }
    
    public function all_from_ref($ref, $sololibre = FALSE)
@@ -231,31 +289,11 @@ class articulo_traza extends \fs_model
       return $lista;
    }
    
-   public function search($query)
-   {
-      $numlist = array();
-      $query = mb_strtolower( $this->no_html($query), 'UTF8' );
-      
-      $consulta = "SELECT * FROM ".$this->table_name." WHERE numserie LIKE '%".$query."%'"
-              . " OR lote LIKE '%".$query."%' ORDER BY id DESC;";
-      
-      $data = $this->db->select($consulta);
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $numlist[] = new \articulo_traza($d);
-         }
-      }
-      
-      return $numlist;
-   }
-   
-   public function all_from_linea($documento, $idlinea)
+   public function all_from_linea($tipo, $idlinea)
    {
       $lista = array();
       
-      $sql = "SELECT * FROM ".$this->table_name." WHERE ".$documento." = ".$idlinea." ORDER BY id DESC;";
+      $sql = "SELECT * FROM ".$this->table_name." WHERE ".$tipo." = ". $this->var2str($idlinea)." ORDER BY id DESC;";
       $data = $this->db->select($sql);
       if($data)
       {
@@ -266,43 +304,5 @@ class articulo_traza extends \fs_model
       }
       
       return $lista;
-   }
-   
-   public function total_por_linea($documento, $idlinea)
-   {
-      $data = $this->db->select("SELECT COUNT(numserie) as total FROM ".$this->table_name." WHERE ".$documento." = ".$idlinea.";");
-      if ($data)
-      {
-         return intval($data[0]['total']);
-      }
-      else
-         return 0;
-   }
-   
-   public function delete_idlinea($documento, $idlinea)
-   {
-      return $this->db->exec("DELETE FROM ".$this->table_name." WHERE $documento = ".$idlinea.";");
-   }
-   
-   public function can_delete($documento, $idlinea)
-   {
-      $data = $this->db->select("SELECT count(vendido) as total FROM ".$this->table_name." WHERE ".$documento." = ".$idlinea.";");
-      if($data)
-      {
-         if( intval($data[0]['total']) > 0)
-         {
-            return FALSE;
-         }
-         else
-            return TRUE;
-      }
-      else
-         return TRUE;
-   }
-   
-   public function limpiar_linea($documento, $idlinea)
-   {
-      $sql = "UPDATE ".$this->table_name." SET $documento = NULL WHERE ".$documento." = ".$idlinea.";";
-      return $this->db->exec($sql);
    }
 }

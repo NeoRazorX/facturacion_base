@@ -176,6 +176,8 @@ class stock extends \fs_model
    public function save()
    {
       $this->cantidad = round($this->cantidad, 3);
+      $this->reservada = round($this->reservada, 3);
+      $this->disponible = $this->cantidad - $this->reservada;
       
       if( $this->exists() )
       {

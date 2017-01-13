@@ -23,7 +23,7 @@ require_model('balance.php');
 /**
  * Description of editar_balances
  *
- * @author carlos
+ * @author Carlos Garcia Gomez
  */
 class editar_balances extends fs_controller
 {

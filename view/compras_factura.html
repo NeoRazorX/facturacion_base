@@ -31,13 +31,13 @@
             <div class="btn-group">
                <a id="b_imprimir" class="btn btn-sm btn-default" href="#">
                   <span class="glyphicon glyphicon-print"></span>
-                  <span class="hidden-xs">&nbsp; Imprimir</span>
+                  <span class="hidden-xs">&nbsp;Imprimir</span>
                </a>
                {if="$fsc->factura->idasiento"}
                <div class="btn-group">
                   <button class="btn btn-sm btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true">
                      <span class="glyphicon glyphicon-eye-open"></span>
-                     <span class="hidden-xs">&nbsp; Asientos</span>
+                     <span class="hidden-xs">&nbsp;Asientos</span>
                   </button>
                   <ul class="dropdown-menu">
                      <li><a href="{$fsc->factura->asiento_url()}">Asiento principal</a></li>
@@ -106,12 +106,12 @@
                {if="$fsc->allow_delete"}
                <a id="b_eliminar" class="btn btn-sm btn-danger" href="#">
                   <span class="glyphicon glyphicon-trash"></span>
-                  <span class="hidden-sm hidden-xs">&nbsp; Eliminar</span>
+                  <span class="hidden-sm hidden-xs">&nbsp;Eliminar</span>
                </a>
                {/if}
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
                   <span class="glyphicon glyphicon-floppy-disk"></span>
-                  <span class="hidden-xs">&nbsp; Guardar</span>
+                  <span class="hidden-xs">&nbsp;Guardar</span>
                </button>
             </div>
          </div>
@@ -226,13 +226,13 @@
          <li role="presentation" class="active">
             <a href="#lineas_f" aria-controls="lineas_f" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Líneas</span>
+               <span class="hidden-xs">&nbsp;Líneas</span>
             </a>
          </li>
          <li role="presentation">
             <a href="#detalles" aria-controls="detalles" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Detalles</span>
+               <span class="hidden-xs">&nbsp;Detalles</span>
             </a>
          </li>
          {loop="$fsc->extensions"}
@@ -322,7 +322,7 @@
                      {if="!in_array('editar_facturas', $GLOBALS['plugins'])"}
                      <p class="help-block text-right">
                         Puedes editar las líneas de las facturas usando el plugin
-                        <a href="https://www.facturascripts.com/store/producto/plugin-editar-facturas/" target="_blank">editar facturas</a>.
+                        <a href="https://www.facturascripts.com/plugin/editar_facturas" target="_blank">editar facturas</a>.
                      </p>
                      {/if}
                      <div class="form-group">
@@ -345,7 +345,7 @@
                   <div class="col-sm-2">
                      <div class="form-group">
                         {#FS_CIFNIF#}:
-                        <input class="form-control" type="text" name="cifnif" value="{$fsc->factura->cifnif}" autocomplete="off"/>
+                        <input class="form-control" type="text" name="cifnif" value="{$fsc->factura->cifnif}" maxlength="20" autocomplete="off"/>
                      </div>
                   </div>
                   <div class="col-sm-2">
@@ -506,7 +506,7 @@
                {if="!in_array('editar_facturas', $GLOBALS['plugins'])"}
                <p class="help-block">
                   Puedes editar facturas usando el plugin
-                  <a href="https://www.facturascripts.com/store/producto/plugin-editar-facturas/" target="_blank">editar facturas</a>.
+                  <a href="https://www.facturascripts.com/plugin/editar_facturas" target="_blank">editar facturas</a>.
                </p>
                {/if}
             </div>

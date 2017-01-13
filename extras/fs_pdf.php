@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -155,13 +155,14 @@ class fs_pdf
          {
             $lppag -= 2; /// si metemos el logo, caben menos líneas
             
+            $tamanyo = $this->calcular_tamanyo_logo();
             if( substr( strtolower($this->logo), -4 ) == '.png' )
             {
-               $this->pdf->addPngFromFile($this->logo, 35, 740, 80, 80);
+               $this->pdf->addPngFromFile($this->logo, 35, 740, $tamanyo[0], $tamanyo[1]);
             }
             else
             {
-               $this->pdf->addJpegFromFile($this->logo, 35, 740, 80, 80);
+               $this->pdf->addJpegFromFile($this->logo, 35, 740, $tamanyo[0], $tamanyo[1]);
             }
             
             $this->pdf->ez['rightMargin'] = 40;
@@ -236,6 +237,26 @@ class fs_pdf
          
          $this->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
       }
+   }
+   
+   private function calcular_tamanyo_logo()
+   {
+      $tamanyo = $size = getimagesize($this->logo);
+      if($size[0] > 200)
+      {
+         $tamanyo[0] = 200;
+         $tamanyo[1] = $tamanyo[1] * $tamanyo[0]/$size[0];
+         $size[0] = $tamanyo[0];
+         $size[1] = $tamanyo[1];
+      }
+      
+      if($size[1] > 80)
+      {
+         $tamanyo[1] = 80;
+         $tamanyo[0] = $tamanyo[0] * $tamanyo[1]/$size[1];
+      }
+      
+      return $tamanyo;
    }
    
    public function center_text($word = '', $tot_width = 140)

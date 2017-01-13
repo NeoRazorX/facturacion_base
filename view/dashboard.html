@@ -478,6 +478,8 @@
    </div>
 </div>
 
+<br/>
+
 <ul class="nav nav-tabs" role="tablist">
    <li role="presentation" class="active">
       <a href="#comunidad" aria-controls="comunidad" role="tab" data-toggle="tab">
@@ -497,34 +499,8 @@
       <br/>
       <div class="container-fluid">
          <div class="row">
-            <div class="col-sm-9">
-               <div class="table-responsive">
-                  <table class="table table-hover">
-                     <thead>
-                        <tr>
-                           <th class="text-left">Novedades</th>
-                        </tr>
-                     </thead>
-                     {loop="$fsc->noticias"}
-                     <tr class="info clickableRow" href="{$value->url}" target="_blank">
-                        <td>
-                           <p><i class="fa fa-user"></i> {$value->autor}</p>
-                           <p>
-                              {$value->texto}<br/>
-                              <small>{$value->fecha}</small>
-                           </p>
-                        </td>
-                     </tr>
-                     {else}
-                     <tr class="warning">
-                        <td>Sin resultados.</td>
-                     </tr>
-                     {/loop}
-                  </table>
-               </div>
-            </div>
             <div class="col-sm-3">
-               <form action="https://www.facturascripts.com/comm3/index.php?page=community_search" method="post" target="_blank" class="form">
+               <form action="https://www.facturascripts.com/buscar" method="post" target="_blank" class="form">
                   <div class="form-group">
                      ¿Tienes dudas?
                      <div class="input-group">
@@ -537,6 +513,18 @@
                      </div>
                   </div>
                </form>
+               {if="$fsc->anyo['ventas_neto']==0"}
+               <a href="https://www.facturascripts.com/documentacion" target="_blank" class="btn btn-block btn-default">
+                  <i class="fa fa-info-circle fa-3x" aria-hidden="true"></i>
+                  <br/>Primeros pasos
+               </a>
+               <p class="help-block">
+                  En la web de FacturaScripts encontrarás la documentación para resolver
+                  cualquier duda que tengas: presupuestos y pedidos, IVA, IRPF,
+                  <b>Recargo de equivalencia</b>, traducciones, configuración de decimales, etc...
+               </p>
+               <br/>
+               {/if}
                {if="!$fsc->empresa->can_send_mail()"}
                <a href="index.php?page=admin_empresa#email" class="btn btn-block btn-warning">
                   <i class="fa fa-envelope fa-3x" aria-hidden="true"></i>
@@ -549,15 +537,6 @@
                </p>
                <br/>
                {/if}
-               <a href="https://www.facturascripts.com/ideas#mejoras" target="_blank" class="btn btn-block btn-default">
-                  <i class="fa fa-trophy fa-3x" aria-hidden="true"></i>
-                  <br/>Mejoras
-               </a>
-               <p class="help-block">
-                  Tenemos una serie de mejoras en el horno que te pueden interesar,
-                  pero necesitan financiación ¿Te apuntas? Sólo necesitas <b>5 €</b>.
-               </p>
-               <br/>
                <a href="index.php?page=admin_home#descargas" class="btn btn-block btn-default">
                   <i class="fa fa-puzzle-piece fa-3x" aria-hidden="true"></i>
                   <br/>Plugins
@@ -566,6 +545,47 @@
                   ¿Te falta algo? Revisa la lista de plugins disponibles en la sección
                   descargas del panel de control. Hay de todo, y con un desarrollo constante ;-)
                </p>
+               <br/>
+               <a href="https://www.facturascripts.com/ideas#mejoras" target="_blank" class="btn btn-block btn-default">
+                  <i class="fa fa-trophy fa-3x" aria-hidden="true"></i>
+                  <br/>Mejoras
+               </a>
+               <p class="help-block">
+                  Tenemos una serie de mejoras en el horno que te pueden interesar,
+                  pero necesitan financiación ¿Te apuntas? Sólo necesitas <b>5 €</b>.
+               </p>
+            </div>
+            <div class="col-sm-4">
+               {loop="$fsc->consejos"}
+               <blockquote class="bg-success">
+                  <div class="row">
+                     <div class="col-sm-11">
+                        <b>{$value['titulo']}</b>
+                        <br/>{$value['html']}
+                     </div>
+                     <div class="col-sm-1 text-right">{$value['icono']}</div>
+                  </div>
+               </blockquote>
+               {/loop}
+            </div>
+            <div class="col-sm-5">
+               {loop="$fsc->noticias"}
+               <blockquote class="bg-info">
+                  <div class="row">
+                     <div class="col-sm-11">
+                        <p class="help-block">
+                           <a href="{$value->url}" target="_blank">{$value->texto}</a><br/>
+                           <small>
+                              {$value->fecha} &nbsp; <i class="fa fa-user"></i> {$value->autor}
+                           </small>
+                        </p>
+                     </div>
+                     <div class="col-sm-1 text-right">
+                        <i class="fa fa-newspaper-o fa-2x" aria-hidden="true"></i>
+                     </div>
+                  </div>
+               </blockquote>
+               {/loop}
             </div>
          </div>
       </div>

@@ -28,7 +28,7 @@ require_model('serie.php');
 /**
  * Description of base_wizard
  *
- * @author carlos
+ * @author Carlos Garcia Gomez
  */
 class base_wizard extends fs_controller
 {
@@ -281,7 +281,7 @@ class base_wizard extends fs_controller
          /// leemos todos los controladores del plugin
          foreach( scandir(__DIR__) as $f)
          {
-            if( is_string($f) AND strlen($f) > 0 AND !is_dir($f) AND $f != __CLASS__.'.php' )
+            if( $f != '.' AND $f != '..' AND is_string($f) AND strlen($f) > 4 AND !is_dir($f) AND $f != __CLASS__.'.php' )
             {
                /// obtenemos el nombre
                $page_name = substr($f, 0, -4);

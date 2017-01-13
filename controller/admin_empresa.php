@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -200,7 +200,8 @@ class admin_empresa extends fs_controller
          $cuentab->iban = $_POST['iban'];
          $cuentab->swift = $_POST['swift'];
          
-         if( isset($_POST['codsubcuenta']) )
+         $cuentab->codsubcuenta = NULL;
+         if($_POST['codsubcuenta'])
          {
             $cuentab->codsubcuenta = $_POST['codsubcuenta'];
          }

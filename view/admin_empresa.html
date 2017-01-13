@@ -167,7 +167,7 @@
                      <div class="col-sm-4">
                         <div class="form-group">
                            {#FS_CIFNIF#}:
-                           <input class="form-control" type="text" name="cifnif" value="{$fsc->empresa->cifnif}" autocomplete="off"/>
+                           <input class="form-control" type="text" name="cifnif" value="{$fsc->empresa->cifnif}" maxlength="20" autocomplete="off"/>
                         </div>
                      </div>
                   </div>
@@ -209,7 +209,7 @@
                      <div class="col-sm-3">
                         <div class="form-group">
                            Código Postal:
-                           <input class="form-control" type="text" name="codpostal" value="{$fsc->empresa->codpostal}" autocomplete="off"/>
+                           <input class="form-control" type="text" name="codpostal" value="{$fsc->empresa->codpostal}" maxlength="10" autocomplete="off"/>
                         </div>
                      </div>
                      <div class="col-sm-6">
@@ -221,7 +221,7 @@
                      <div class="col-sm-3">
                         <div class="form-group">
                            <span class="text-capitalize">{#FS_APARTADO#}</span>:
-                           <input class="form-control" type="text" name="apartado" value="{$fsc->empresa->apartado}" autocomplete="off"/>
+                           <input class="form-control" type="text" name="apartado" value="{$fsc->empresa->apartado}" maxlength="10" autocomplete="off"/>
                         </div>
                      </div>
                   </div>
@@ -693,7 +693,7 @@
                                  <span class="input-group-addon">
                                     <i class="fa fa-balance-scale" aria-hidden="true"></i>
                                  </span>
-                                 <input type="text" name="codsubcuenta" value="{$value->codsubcuenta}" class="form-control" placeholder="subcuenta" autocomplete="off"/>
+                                 <input type="text" name="codsubcuenta" value="{$value->codsubcuenta}" class="form-control" maxlength="15" placeholder="subcuenta" autocomplete="off"/>
                               </div>
                               <p class="help-block">
                                  Subcuenta asociada para esta cuenta bancaria.
@@ -780,6 +780,18 @@
                <div class="form-group">
                   <a target="_blank" href="http://es.wikipedia.org/wiki/Society_for_Worldwide_Interbank_Financial_Telecommunication">SWIFT</a> o BIC:
                   <input class="form-control" type="text" name="swift" maxlength="11" autocomplete="off"/>
+               </div>
+               <div class="form-group">
+                  Contabilidad:
+                  <div class="input-group">
+                     <span class="input-group-addon">
+                        <i class="fa fa-balance-scale" aria-hidden="true"></i>
+                     </span>
+                     <input type="text" name="codsubcuenta" class="form-control" maxlength="15" placeholder="subcuenta" autocomplete="off"/>
+                  </div>
+                  <p class="help-block">
+                     Subcuenta asociada para esta cuenta bancaria.
+                  </p>
                </div>
             </div>
             <div class="modal-footer">

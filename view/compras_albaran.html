@@ -89,12 +89,12 @@
             <div class="btn-group">
                <a id="b_imprimir" class="btn btn-sm btn-default">
                   <span class="glyphicon glyphicon-print"></span>
-                  <span class="hidden-xs">&nbsp; Imprimir</span>
+                  <span class="hidden-xs">&nbsp;Imprimir</span>
                </a>
                {if="$fsc->empresa->can_send_mail()"}
                <a id="b_enviar" class="btn btn-sm btn-default" href="#">
                   <span class="glyphicon glyphicon-envelope"></span>
-                  <span class="hidden-xs">&nbsp; Enviar</span>
+                  <span class="hidden-xs">&nbsp;Enviar</span>
                </a>
                {/if}
                {loop="$fsc->extensions"}
@@ -110,7 +110,7 @@
             {if="$fsc->albaran->idfactura"}
             <a class="btn btn-sm btn-info" href="{$fsc->albaran->factura_url()}">
                <span class="glyphicon glyphicon-eye-open"></span>
-               <span class="hidden-xs">&nbsp; Ver Factura</span>
+               <span class="hidden-xs">&nbsp;Ver Factura</span>
             </a>
             {elseif="$fsc->albaran->ptefactura"}
             <div class="btn-group">
@@ -137,7 +137,7 @@
             {else}
             <a class="btn btn-sm btn-warning" href="#">
                <span class="glyphicon glyphicon-lock"></span>
-               <span class="hidden-xs">&nbsp; Bloqueado</span>
+               <span class="hidden-xs">&nbsp;Bloqueado</span>
             </a>
             {/if}
          </div>
@@ -149,12 +149,12 @@
                {if="$fsc->allow_delete"}
                <a id="b_eliminar" class="btn btn-sm btn-danger" href="#">
                   <span class="glyphicon glyphicon-trash"></span>
-                  <span class="hidden-sm hidden-xs">&nbsp; Eliminar</span>
+                  <span class="hidden-sm hidden-xs">&nbsp;Eliminar</span>
                </a>
                {/if}
                <button class="btn btn-sm btn-primary" type="button" onclick="this.disabled=true;this.form.submit();">
                   <span class="glyphicon glyphicon-floppy-disk"></span>
-                  <span class="hidden-xs">&nbsp; Guardar</span>
+                  <span class="hidden-xs">&nbsp;Guardar</span>
                </button>
             </div>
          </div>
@@ -276,13 +276,13 @@
          <li role="presentation" class="active">
             <a href="#lineas_a" aria-controls="lineas_a" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Líneas</span>
+               <span class="hidden-xs">&nbsp;Líneas</span>
             </a>
          </li>
          <li role="presentation">
             <a href="#detalles" aria-controls="detalles" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Detalles</span>
+               <span class="hidden-xs">&nbsp;Detalles</span>
             </a>
          </li>
          {loop="$fsc->extensions"}
@@ -519,7 +519,7 @@
                   <div class="col-sm-2">
                      <div class="form-group">
                         {#FS_CIFNIF#}:
-                        <input class="form-control" type="text" name="cifnif" value="{$fsc->albaran->cifnif}" autocomplete="off"/>
+                        <input class="form-control" type="text" name="cifnif" value="{$fsc->albaran->cifnif}" maxlength="20" autocomplete="off"/>
                      </div>
                   </div>
                   <div class="col-sm-2">

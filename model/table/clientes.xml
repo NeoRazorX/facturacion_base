@@ -181,6 +181,10 @@
       <tipo>character varying(250)</tipo>
       <nulo>YES</nulo>
    </columna>
+   <columna>
+      <nombre>diaspago</nombre>
+      <tipo>character varying(10)</tipo>
+   </columna>
    <restriccion>
       <nombre>clientes_pkey</nombre>
       <consulta>PRIMARY KEY (codcliente)</consulta>

@@ -25,24 +25,28 @@
       <tipo>character varying(50)</tipo>
    </columna>
    <columna>
+      <nombre>fecha_entrada</nombre>
+      <tipo>date</tipo>
+   </columna>
+   <columna>
+      <nombre>fecha_salida</nombre>
+      <tipo>date</tipo>
+   </columna>
+   <columna>
       <nombre>idlalbventa</nombre>
       <tipo>integer</tipo>
-      <nulo>YES</nulo>
    </columna>
    <columna>
       <nombre>idlfacventa</nombre>
       <tipo>integer</tipo>
-      <nulo>YES</nulo>
    </columna>
    <columna>
       <nombre>idlalbcompra</nombre>
       <tipo>integer</tipo>
-      <nulo>YES</nulo>
    </columna>
    <columna>
       <nombre>idlfaccompra</nombre>
       <tipo>integer</tipo>
-      <nulo>YES</nulo>
    </columna>
    <restriccion>
       <nombre>articulo_trazas_pkey</nombre>

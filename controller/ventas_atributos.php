@@ -24,7 +24,7 @@ require_model('atributo_valor.php');
 /**
  * Description of ventas_atributos
  *
- * @author carlos
+ * @author Carlos Garcia Gomez
  */
 class ventas_atributos extends fs_controller
 {
