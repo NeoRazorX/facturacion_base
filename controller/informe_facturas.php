@@ -446,11 +446,12 @@ class informe_facturas extends fs_controller
             }
             
             /// encabezado
-            $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de ventas del ".$_POST['desde']." al ".$_POST['hasta']);
+            $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de venta del ".$_POST['desde']." al ".$_POST['hasta']);
 
             if($codserie)
             {
                $pdf_doc->pdf->ezText("Serie: ".$codserie);
+               $lppag--;
             }
             
             if($codagente)
@@ -460,6 +461,7 @@ class informe_facturas extends fs_controller
                $agente = $agente->get($codagente);
                $nombre_agente = $agente->nombre;
                $pdf_doc->pdf->ezText("Agente: ". $nombre_agente);
+               $lppag--;
             }
 
             if($codcliente)
@@ -469,10 +471,12 @@ class informe_facturas extends fs_controller
                $cliente = $cliente->get($codcliente);
                $nombre = $cliente->nombre;
                $pdf_doc->pdf->ezText("Cliente: ".$nombre);
+               $lppag--;
             }
             
             if($estado)
             {
+               $lppag--;
                if($estado == 'pagada')
                {
                   $pdf_doc->pdf->ezText("Estado: Pagadas");
@@ -483,7 +487,7 @@ class informe_facturas extends fs_controller
                }
             }
             
-            $pdf_doc->pdf->ezText("\n", 14);
+            $pdf_doc->pdf->ezText("\n", 8);
             
             /// tabla principal
             $pdf_doc->new_table();
@@ -601,16 +605,17 @@ class informe_facturas extends fs_controller
                    'width' => 780
                )
             );
-            $pdf_doc->pdf->ezText("\n", 10);
             
             
             /// Rellenamos la última tabla
+            $pdf_doc->set_y(70);
             $pdf_doc->new_table();
             $titulo = array('pagina' => '<b>Suma y sigue</b>');
-            $fila = array('pagina' => $pagina . '/' . ceil($total_lineas / $lppag));
+            $fila = array('pagina' => $pagina . '/' . ($pagina + ceil( ($total_lineas-$linea_actual) / $lppag)));
             $opciones = array(
+                'fontSize' => 8,
                 'cols' => array('base' => array('justification' => 'right')),
-                'showLines' => 0,
+                'showLines' => 1,
                 'width' => 780
             );
             foreach($impuestos as $i => $value)
@@ -641,7 +646,7 @@ class informe_facturas extends fs_controller
       }
       else
       {
-         $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de ventas del ".$_POST['desde']." al ".$_POST['hasta'].":\n\n", 14);
+         $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de venta del ".$_POST['desde']." al ".$_POST['hasta'].":\n\n", 14);
          $pdf_doc->pdf->ezText("Ninguna.\n\n", 14);
       }
       
@@ -701,11 +706,12 @@ class informe_facturas extends fs_controller
             }
             
             /// encabezado
-            $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de compras del ".$_POST['desde']." al ".$_POST['hasta']);
+            $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de compra del ".$_POST['desde']." al ".$_POST['hasta']);
             
             if($codserie)
             {
                $pdf_doc->pdf->ezText("Serie: ".$codserie);
+               $lppag--;
             }
             
             if($codagente)
@@ -715,6 +721,7 @@ class informe_facturas extends fs_controller
                $agente = $agente->get($codagente);
                $nombre_agente = $agente->nombre;
                $pdf_doc->pdf->ezText("Agente: ". $nombre_agente);
+               $lppag--;
             }
             
             if($codproveedor)
@@ -724,10 +731,12 @@ class informe_facturas extends fs_controller
                $proveedor = $proveedor->get($codproveedor);
                $proveedor = $proveedor->nombre;
                $pdf_doc->pdf->ezText("Proveedor: ".$proveedor);
+               $lppag--;
             }
             
             if($estado)
             {
+               $lppag--;
                if($estado == 'pagada')
                {
                   $pdf_doc->pdf->ezText("Estado: Pagadas");
@@ -738,7 +747,7 @@ class informe_facturas extends fs_controller
                }
             }
             
-            $pdf_doc->pdf->ezText("\n", 14);
+            $pdf_doc->pdf->ezText("\n", 8);
             
             /// tabla principal
             $pdf_doc->new_table();
@@ -856,16 +865,17 @@ class informe_facturas extends fs_controller
                    'width' => 780
                )
             );
-            $pdf_doc->pdf->ezText("\n", 10);
             
             
             /// Rellenamos la última tabla
+            $pdf_doc->set_y(70);
             $pdf_doc->new_table();
             $titulo = array('pagina' => '<b>Suma y sigue</b>');
-            $fila = array('pagina' => $pagina . '/' . ceil($total_lineas / $lppag));
+            $fila = array('pagina' => $pagina . '/' . ($pagina + ceil( ($total_lineas-$linea_actual) / $lppag)));
             $opciones = array(
+                'fontSize' => 8,
                 'cols' => array('base' => array('justification' => 'right')),
-                'showLines' => 0,
+                'showLines' => 1,
                 'width' => 780
             );
             foreach($impuestos as $i => $value)
@@ -896,7 +906,7 @@ class informe_facturas extends fs_controller
       }
       else
       {
-         $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de compras del ".$_POST['desde'].' al '.$_POST['hasta'].":\n\n", 14);
+         $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de compra del ".$_POST['desde'].' al '.$_POST['hasta'].":\n\n", 14);
          $pdf_doc->pdf->ezText("Ninguna.\n\n", 14);
       }
       
