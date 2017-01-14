@@ -25,6 +25,7 @@ require_model('ejercicio.php');
 require_model('grupo_clientes.php');
 require_model('subcuenta.php');
 require_model('subcuenta_cliente.php');
+require_model('nif-nie-cif.php');
 
 /**
  * El cliente. Puede tener una o varias direcciones y subcuentas asociadas.
