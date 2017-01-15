@@ -57,13 +57,14 @@
             url: '{$fsc->url()}',
             async: false,
             data: 'accion=checkCIFNIF&cifnif=' + cifnif,
-            dataType: 'json',
             success: function (datos) {
-                if(datos.success){
+                var n = datos.search('"success":');
+                datos = datos.substr(n+10,1);
+                if(datos === 't'){
                     document.getElementById('lblavisosNIF').innerHTML = 'CIF/NIF OK!';
                 } else
                 {
-                    document.getElementById('lblavisosNIF').innerHTML = 'CIF/NIF NOK!' + datos.mensaje;
+                    document.getElementById('lblavisosNIF').innerHTML = 'CIF/NIF NOK!';
                 }
             },
              error: function () {
