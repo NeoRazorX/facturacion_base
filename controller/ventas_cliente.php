@@ -27,6 +27,8 @@ require_model('grupo_clientes.php');
 require_model('pais.php');
 require_model('serie.php');
 
+include(dirname(__FILE__).'/../model/core/nif-nie-cif.php');
+
 class ventas_cliente extends fs_controller
 {
    public $agente;
@@ -69,7 +71,29 @@ class ventas_cliente extends fs_controller
       {
          $this->cliente = $cliente->get($_GET['cod']);
       }
-      
+
+      $accion = filter_input(INPUT_POST, 'accion');
+      if ($accion) {
+         switch ($accion) {
+            case "checkCIFNIF":
+               $cifnif = filter_input(INPUT_POST, 'cifnif');
+               $retorna = isValidIdNumber($cifnif);
+               if($retorna)
+               {
+                  $return['success'] = true;
+                  $return['mensaje'] = 'Success!';
+               }else
+               {
+                  $return['success'] = false;
+                  $return['mensaje'] = 'Failed!';
+               }
+               echo json_encode($return);
+               break;
+            default:
+               break;
+         }
+      }
+
       if($this->cliente)
       {
          $this->page->title = $this->cliente->codcliente;

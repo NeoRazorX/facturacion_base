@@ -49,6 +49,28 @@
          window.location.href = '{$fsc->url()}&delete_cuenta='+id+'#cuentasb';
       }
    }
+   function verificaCIF()
+   {
+        var cifnif = document.getElementById('cifnif').value;
+        $.ajax({
+            type: 'POST',
+            url: '{$fsc->url()}',
+            async: false,
+            data: 'accion=checkCIFNIF&cifnif=' + cifnif,
+            dataType: 'json',
+            success: function (datos) {
+                if(datos.success){
+                    document.getElementById('lblavisosNIF').innerHTML = 'CIF/NIF OK!';
+                } else
+                {
+                    document.getElementById('lblavisosNIF').innerHTML = 'CIF/NIF NOK!' + datos.mensaje;
+                }
+            },
+             error: function () {
+                document.getElementById('lblavisosNIF').innerHTML = 'FALLO AL VERIFICAR!';
+            }
+        });
+   }
    $(document).ready(function() {
       comprobar_url();
       $("#b_eliminar").click(function(event) {
@@ -204,7 +226,8 @@
                            <div class="col-sm-2">
                               <div class="form-group">
                                  {#FS_CIFNIF#}:
-                                 <input class="form-control" type="text" name="cifnif" value="{$fsc->cliente->cifnif}" maxlength="20" autocomplete="off"/>
+                                 <input class="form-control" type="text" name="cifnif" id="cifnif" value="{$fsc->cliente->cifnif}" onchange="verificaCIF()" maxlength="20" autocomplete="off"/>
+                                 <label for="cifnif" id="lblavisosNIF">CIF Cliente.</label>
                               </div>
                            </div>
                         </div>
