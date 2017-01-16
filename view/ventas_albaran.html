@@ -1130,6 +1130,18 @@
                      los {#FS_ALBARANES#} pendientes, puedes usar el plugin <b>megafacturador</b>.
                   </p>
                </div>
+                  <div class="form-group">
+                     <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
+                        <select name="codigopago" class="form-control">
+                        {loop="$fsc->forma_pago->all()"}
+                           {if="$value->codpago==$fsc->albaran->codpago"}
+                           <option value="{$value->codpago}" selected="">{$value->descripcion}</option>
+                           {else}
+                           <option value="{$value->codpago}">{$value->descripcion}</option>
+                           {/if}
+                        {/loop}
+                        </select>
+                  </div>
                <div class="text-right">
                   <button class="btn btn-sm btn-primary" onclick="this.disabled=true;this.form.submit();">
                      <span class="glyphicon glyphicon-paperclip"></span>&nbsp; Aprobar
