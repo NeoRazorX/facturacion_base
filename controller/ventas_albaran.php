@@ -493,7 +493,6 @@ class ventas_albaran extends fs_controller
       $factura->coddir = $this->albaran->coddir;
       $factura->coddivisa = $this->albaran->coddivisa;
       $factura->tasaconv = $this->albaran->tasaconv;
-      $factura->codpago = $this->albaran->codpago;
       $factura->codpais = $this->albaran->codpais;
       $factura->codpostal = $this->albaran->codpostal;
       $factura->codserie = $this->albaran->codserie;
@@ -519,6 +518,12 @@ class ventas_albaran extends fs_controller
       $factura->totalirpf = $this->albaran->totalirpf;
       $factura->totalrecargo = $this->albaran->totalrecargo;
       $factura->porcomision = $this->albaran->porcomision;
+      
+      //comprobamos si se ha cambiado la forma de pago:
+      if(isset($_REQUEST['codigopago']))
+      {
+         $factura->codpago = $_REQUEST['codigopago'];
+      }
       
       if( is_null($factura->codagente) )
       {
