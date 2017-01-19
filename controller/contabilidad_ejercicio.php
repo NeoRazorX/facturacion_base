@@ -321,7 +321,8 @@ class contabilidad_ejercicio extends fs_controller
       foreach($subcuenta->all_from_ejercicio($this->ejercicio->codejercicio) as $sc)
       {
          $aux = $archivo_xml->addChild("subcuenta");
-         $aux->addChild("codcuenta", $sc->codcuenta);
+		 $aux->addChild("codcuenta", $sc->codcuenta);
+         $aux->addChild("alias", base64_encode($sc->alias));
          $aux->addChild("codsubcuenta", $sc->codsubcuenta);
          $aux->addChild("descripcion", base64_encode($sc->descripcion) );
          $aux->addChild("coddivisa", $sc->coddivisa);
@@ -626,6 +627,7 @@ class contabilidad_ejercicio extends fs_controller
                         }
                         $subcuenta->codejercicio = $this->ejercicio->codejercicio;
                         $subcuenta->codsubcuenta = $sc->codsubcuenta;
+						$subcuenta->alias = base64_decode($sc->alias);
                         $subcuenta->descripcion = base64_decode($sc->descripcion);
                         
                         if( !$subcuenta->save() )

@@ -757,6 +757,7 @@ class asiento_factura
 							$partida0->coddivisa = $factura->coddivisa;
 							$partida0->tasaconv = $factura->tasaconv;
 							$partida0->codserie = $factura->codserie;
+							
 							if( !$partida0->save() )
 							{
 							   $asiento_correcto = FALSE;
