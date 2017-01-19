@@ -25,6 +25,8 @@ class contabilidad_asientos extends fs_controller
    public $asiento;
    public $resultados;
    public $offset;
+   public $desde;
+   public $hasta;
    
    public function __construct()
    {
@@ -35,6 +37,18 @@ class contabilidad_asientos extends fs_controller
    {
       $this->asiento = new asiento();
       $anticipo = new anticipos_proveedor();
+	   if(isset($_POST['desde']))
+	   {
+	    $this->desde = $_POST['desde'];
+		if(!preg_match('/^([0-9]{1,2})-([0-9]{1,2})-([0-9]{4})$/i',$this->desde) ) $this->desde ="99";
+		}
+	 
+	  	if(isset($_POST['hasta']))
+	   {
+	    $this->hasta = $_POST['hasta'];
+		if(!preg_match('/^([0-9]{1,2})-([0-9]{1,2})-([0-9]{4})$/i',$this->hasta) ) $this->hasta ="99";
+		}
+	 
       if( isset($_GET['delete']) )
       {
          $asiento = $this->asiento->get($_GET['delete']);
@@ -72,11 +86,12 @@ class contabilidad_asientos extends fs_controller
 	  else if( isset($_GET['mayorizados']) )
       {
          $this->resultados = $this->asiento->all_mayorizados($this->offset);
-      }
-      else if($this->query)
+      }	  
+      else if($this->query or $this->desde or $this->hasta )
       {
-         $this->resultados = $this->asiento->search($this->query, $this->offset);
+         $this->resultados = $this->asiento->search($this->desde,$this->hasta,$this->query, $this->offset);
       }
+
       else
          $this->resultados = $this->asiento->all_sin_mayorizar($this->offset);
    }

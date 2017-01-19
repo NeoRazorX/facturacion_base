@@ -272,11 +272,13 @@ class partida extends fs_model
          if( $this->db->exec($sql) )
          {
 		 	$this->actualiza_importe($this->idasiento); //No suma sinó actualiza el asiento sumando debe de las partidas
-            $subc = $this->get_subcuenta();
+ /*           $subc = $this->get_subcuenta();
+			
+			// Esta graba en debe haber saldo de la tabla subcuentas y se anula porque debe hacerlo al mayorizar
             if($subc)
             {
                $subc->save(); /// guardamos la subcuenta para actualizar su saldo
-            }
+            }  */
             return TRUE;
          }
          else
@@ -305,12 +307,12 @@ class partida extends fs_model
          {
 		 $this->actualiza_importe($this->idasiento);   //No suma sinó actualiza el asiento sumando debe de las partidas
             $this->idpartida = $this->db->lastval();
-            
-            $subc = $this->get_subcuenta();
+         // Esta graba en debe haber saldo de la tabla subcuentas y se anula porque debe hacerlo al mayorizar   
+  /*          $subc = $this->get_subcuenta();
             if($subc)
             {
                $subc->save(); /// guardamos la subcuenta para actualizar su saldo
-            }
+            }     */
             return TRUE;
          }
          else
@@ -356,11 +358,13 @@ class partida extends fs_model
          if( $this->db->exec($sql) )
          {	$this->actualiza_importe($this->idasiento);
 		 	$this->idpartida = $this->var2str($this->idpartida);
-            $subc = $this->get_subcuenta();
+			
+			// Esta graba en debe haber saldo de la tabla subcuentas y se anula porque debe hacerlo al mayorizar
+ /*           $subc = $this->get_subcuenta();
             if($subc)
             {
                $subc->save(); /// guardamos la subcuenta para actualizar su saldo
-            }
+            }     */
             return TRUE;
          }
          else
@@ -384,11 +388,12 @@ class partida extends fs_model
 		 	$this->actualiza_importe($this->idasiento);
             $this->idpartida = $this->db->lastval();
             
-            $subc = $this->get_subcuenta();
+			// Esta graba en debe haber saldo de la tabla subcuentas y se anula porque debe hacerlo al mayorizar
+/*            $subc = $this->get_subcuenta();
             if($subc)
             {
                $subc->save(); /// guardamos la subcuenta para actualizar su saldo
-            }
+            }      */
             return TRUE;
          }
          else
@@ -781,6 +786,20 @@ class partida extends fs_model
       $data = $this->db->select_limit("SELECT a.numero,a.fecha,s.codsubcuenta,s.descripcion,
          p.concepto,p.debe,p.haber FROM co_asientos a, co_subcuentas s, co_partidas p
          WHERE a.codejercicio = ".$this->var2str($eje)." AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta
+         ORDER BY a.numero ASC, p.codsubcuenta ASC", $limit, $offset);
+      if($data)
+      {
+         return $data;
+      }
+      else
+         return array();
+   }
+   
+      public function subcuentas_por_fecha($eje,$desde,$hasta, $offset=0, $limit=FS_ITEM_LIMIT)
+   {
+      $data = $this->db->select_limit("SELECT a.numero,a.fecha,s.codsubcuenta,s.descripcion,
+         p.concepto,p.debe,p.haber FROM co_asientos a, co_subcuentas s, co_partidas p
+         WHERE a.codejercicio = ".$this->var2str($eje)." AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND a.fecha BETWEEN ".$this->var2str($desde)." AND ".$this->var2str($hasta)."
          ORDER BY a.numero ASC, p.codsubcuenta ASC", $limit, $offset);
       if($data)
       {
