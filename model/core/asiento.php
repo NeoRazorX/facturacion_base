@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -508,7 +508,19 @@ class asiento extends \fs_model
       $ejercicio = $eje0->get($this->codejercicio);
       if($ejercicio)
       {
-         if( $ejercicio->abierto() )
+         if($this->idasiento == $ejercicio->idasientoapertura)
+         {
+            /// permitimos eliminar el asiento de apertura
+         }
+         else if($this->idasiento == $ejercicio->idasientocierre)
+         {
+            /// permitimos eliminar el asiento de cierre
+         }
+         else if($this->idasiento == $ejercicio->idasientopyg)
+         {
+            /// permitimos eliminar el asiento de pérdidas y ganancias
+         }
+         else if( $ejercicio->abierto() )
          {
             $reg0 = new \regularizacion_iva();
             if( $reg0->get_fecha_inside($this->fecha) )

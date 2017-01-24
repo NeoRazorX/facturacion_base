@@ -3,9 +3,10 @@
 {if="$fsc->albaran"}
 <script type="text/javascript" src="{$fsc->get_js_location('ac_email_proveedor.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('nueva_compra.js')}"></script>
+<!--{$lineas=$fsc->albaran->get_lineas()}-->
 {if="$fsc->albaran->ptefactura"}
 <script type="text/javascript">
-   numlineas = {function="count($fsc->albaran->get_lineas())"};
+   numlineas = {function="count($lineas)"};
    fs_nf0 = {#FS_NF0#};
    fs_nf0_art = {#FS_NF0_ART#};
    all_impuestos = {function="json_encode($fsc->impuesto->all())"};
@@ -278,6 +279,7 @@
             <a href="#lineas_a" aria-controls="lineas_a" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
                <span class="hidden-xs">&nbsp;Líneas</span>
+               <span class='badge'>{function="count($lineas)"}</span>
             </a>
          </li>
          <li role="presentation">
@@ -315,7 +317,7 @@
                      </tr>
                   </thead>
                   <tbody id="lineas_albaran">
-                  {loop="$fsc->albaran->get_lineas()"}
+                  {loop="$lineas"}
                      <tr id="linea_{$counter}">
                         <td>
                            <input type="hidden" name="idlinea_{$counter}" value="{$value->idlinea}"/>
@@ -437,7 +439,7 @@
                         <th class="text-right" width="90">Total</th>
                      </tr>
                   </thead>
-                  {loop="$fsc->albaran->get_lineas()"}
+                  {loop="$lineas"}
                   <tr{if="$value->cantidad<=0"} class="warning"{/if}>
                      <td>
                         {if="$value->idlineapedido"}

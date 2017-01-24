@@ -4,9 +4,10 @@
 <script type="text/javascript" src="{$fsc->get_js_location('ac_email_cliente.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('nueva_venta.js')}"></script>
+<!--{$lineas=$fsc->albaran->get_lineas()}-->
 {if="$fsc->albaran->ptefactura"}
 <script type="text/javascript">
-   numlineas = {function="count($fsc->albaran->get_lineas())"};
+   numlineas = {function="count($lineas)"};
    fs_nf0 = {#FS_NF0#};
    fs_nf0_art = {#FS_NF0_ART#};
    all_impuestos = {function="json_encode($fsc->impuesto->all())"};
@@ -288,6 +289,7 @@
             <a href="#lineas_a" aria-controls="lineas_a" role="tab" data-toggle="tab">
                <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
                <span class="hidden-xs">&nbsp;Líneas</span>
+               <span class='badge'>{function="count($lineas)"}</span>
             </a>
          </li>
          <li role="presentation">
@@ -331,7 +333,7 @@
                      </tr>
                   </thead>
                   <tbody id="lineas_albaran">
-                     {loop="$fsc->albaran->get_lineas()"}
+                     {loop="$lineas"}
                      <tr id="linea_{$counter}">
                         <td>
                            <input type="hidden" name="idlinea_{$counter}" value="{$value->idlinea}"/>
@@ -454,7 +456,7 @@
                         <th class="text-right" width="90">Total</th>
                      </tr>
                   </thead>
-                  {loop="$fsc->albaran->get_lineas()"}
+                  {loop="$lineas"}
                   <tr{if="$value->cantidad<=0"} class="warning"{/if}>
                      <td>
                         {if="$value->idlineapedido"}
@@ -1130,18 +1132,18 @@
                      los {#FS_ALBARANES#} pendientes, puedes usar el plugin <b>megafacturador</b>.
                   </p>
                </div>
-                  <div class="form-group">
-                     <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
-                        <select name="codigopago" class="form-control">
-                        {loop="$fsc->forma_pago->all()"}
-                           {if="$value->codpago==$fsc->albaran->codpago"}
-                           <option value="{$value->codpago}" selected="">{$value->descripcion}</option>
-                           {else}
-                           <option value="{$value->codpago}">{$value->descripcion}</option>
-                           {/if}
-                        {/loop}
-                        </select>
-                  </div>
+               <div class="form-group">
+                  <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
+                  <select name="codpago" class="form-control">
+                     {loop="$fsc->forma_pago->all()"}
+                        {if="$value->codpago==$fsc->albaran->codpago"}
+                        <option value="{$value->codpago}" selected="">{$value->descripcion}</option>
+                        {else}
+                        <option value="{$value->codpago}">{$value->descripcion}</option>
+                        {/if}
+                     {/loop}
+                  </select>
+               </div>
                <div class="text-right">
                   <button class="btn btn-sm btn-primary" onclick="this.disabled=true;this.form.submit();">
                      <span class="glyphicon glyphicon-paperclip"></span>&nbsp; Aprobar

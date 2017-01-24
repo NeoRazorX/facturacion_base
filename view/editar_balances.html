@@ -1,38 +1,90 @@
 {include="header"}
 
 {if="$fsc->balance"}
+<script type="text/javascript">
+   $(document).ready(function() {
+      $("#b_eliminar_balance").click(function(event) {
+         event.preventDefault();
+         if( confirm("¿Estas seguro de que deseas eliminar este balance?") )
+         {
+            window.location.href = '{$fsc->url()}&delete={function="urlencode($fsc->balance->codbalance)"}';
+         }
+      });
+   });
+</script>
+
 <div class="container-fluid">
-   <div class="row">
-      <div class="col-sm-12">
-         <div class="btn-group">
-            <a href="{$fsc->url()}" class="btn btn-sm btn-default">
-               <span class="glyphicon glyphicon-chevron-left"></span>
-               <span class="hidden-xs">&nbsp; Todos</span>
-            </a>
-            <a class="btn btn-sm btn-default" href="{$fsc->balance->url()}" title="Recargar la página">
-               <span class="glyphicon glyphicon-refresh"></span>
-            </a>
+   <form action="{$fsc->balance->url()}" method="post" class="form">
+      <div class="row">
+         <div class="col-sm-6">
+            <div class="btn-group">
+               <a href="{$fsc->url()}" class="btn btn-sm btn-default">
+                  <span class="glyphicon glyphicon-chevron-left"></span>
+                  <span class="hidden-xs">&nbsp;Todos</span>
+               </a>
+               <a class="btn btn-sm btn-default" href="{$fsc->balance->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+            </div>
          </div>
-         <div class="page-header">
-            <h1>
-               <span class="glyphicon glyphicon-wrench"></span>
-               Balance {$fsc->balance->codbalance}
-            </h1>
-            <p class="help-block">
-               {if="$fsc->balance->naturaleza=='A'"}
-               <span class="label label-success">Activo</span>
-               {elseif="$fsc->balance->naturaleza=='P'"}
-               <span class="label label-info">Pasivo</span>
-               {elseif="$fsc->balance->naturaleza=='PG'"}
-               <span class="label label-warning">Pérdidas y ganancias</span>
-               {else}
-               <span class="label label-default">{$fsc->balance->naturaleza}</span>
-               {/if} &nbsp;
-               {$fsc->balance->descripcion1}
-            </p>
+         <div class="col-sm-6 text-right">
+            <div class="btn-group">
+               {if="$fsc->allow_delete"}
+               <a id="b_eliminar_balance" class="btn btn-sm btn-danger" href="#">
+                  <span class="glyphicon glyphicon-trash"></span>
+                  <span class="hidden-sm hidden-xs">&nbsp;Eliminar</span>
+               </a>
+               {/if}
+               <button class="btn btn-sm btn-primary" type="button" onclick="this.disabled=true;this.form.submit();">
+                  <span class="glyphicon glyphicon-floppy-disk"></span>
+                  <span class="hidden-xs">&nbsp;Guardar</span>
+               </button>
+            </div>
          </div>
       </div>
-   </div>
+      <div class="row">
+         <div class="col-sm-12">
+            <div class="page-header">
+               <h1>
+                  <span class="glyphicon glyphicon-wrench"></span>
+                  Balance {$fsc->balance->codbalance}
+               </h1>
+               <p class="help-block">
+                  {if="$fsc->balance->naturaleza=='A'"}
+                  <span class="label label-success">Activo</span>
+                  {elseif="$fsc->balance->naturaleza=='P'"}
+                  <span class="label label-info">Pasivo</span>
+                  {elseif="$fsc->balance->naturaleza=='PG'"}
+                  <span class="label label-warning">Pérdidas y ganancias</span>
+                  {else}
+                  <span class="label label-default">{$fsc->balance->naturaleza}</span>
+                  {/if} &nbsp;
+                  {$fsc->balance->descripcion1}
+               </p>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-3">
+            <div class="form-group">
+               <select name="naturaleza" class="form-control">
+                  {loop="$fsc->all_naturalezas()"}
+                     {if="$key==$fsc->balance->naturaleza"}
+                     <option value="{$key}" selected="">{$value}</option>
+                     {else}
+                     <option value="{$key}">{$value}</option>
+                     {/if}
+                  {/loop}
+               </select>
+            </div>
+         </div>
+         <div class="col-sm-9">
+            <div class="form-group">
+               <input type="text" name="descripcion" value="{$fsc->balance->descripcion1}" class="form-control" autocomplete="off"/>
+            </div>
+         </div>
+      </div>
+   </form>
    <form action="{$fsc->balance->url()}" method="post" class="form">
       <div class="row">
          <div class="col-sm-6">
@@ -128,6 +180,16 @@
                <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
+               <a href="#" class="btn btn-xs btn-success" data-toggle="modal" data-target="#modal_nuevo_balance">
+                  <span class="glyphicon glyphicon-plus"></span> Nuevo
+               </a>
+               <span class="btn-group">
+                  {loop="$fsc->extensions"}
+                     {if="$value->type=='button'"}
+                     <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                     {/if}
+                  {/loop}
+               </span>
             </h1>
             <p class="help-block">
                Estos son los códigos de balance que definen cómo FacturaScripts genera
@@ -175,6 +237,42 @@
       </div>
    </div>
 </div>
+
+<form action="{$fsc->url()}" method="post" class="form">
+   <div class="modal fade" id="modal_nuevo_balance">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">Nuevo balance contable</h4>
+            </div>
+            <div class="modal-body">
+               <div class="form-group">
+                  Código:
+                  <input type="text" name="ncodbalance" class="form-control" maxlength="15" required="" autocomplete="off" autofocus=""/>
+               </div>
+               <div class="form-group">
+                  Naturaleza:
+                  <select name="naturaleza" class="form-control">
+                     {loop="$fsc->all_naturalezas()"}
+                        <option value="{$key}">{$value}</option>
+                     {/loop}
+                  </select>
+               </div>
+               <div class="form-group">
+                  Descripción:
+                  <input type="text" name="descripcion" class="form-control" required="" autocomplete="off"/>
+               </div>
+            </div>
+            <div class="modal-footer">
+               <button type="submit" class="btn btn-sm btn-primary">
+                  <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+               </button>
+            </div>
+         </div>
+      </div>
+   </div>
+</form>
 {/if}
 
 {include="footer"}

@@ -353,6 +353,10 @@ class cierre_ejercicio
             $continuar = FALSE;
             $this->new_error_msg('Asiento de pérdidas y ganancias descuadrado.');
          }
+         else
+         {
+            $asiento_pyg->fix();
+         }
          
          $total = 0;
          foreach($asiento_cierre->get_partidas() as $part)
@@ -364,6 +368,10 @@ class cierre_ejercicio
             $continuar = FALSE;
             $this->new_error_msg('Asiento de cierre descuadrado.');
          }
+         else
+         {
+            $asiento_cierre->fix();
+         }
          
          $total = 0;
          foreach($asiento_apertura->get_partidas() as $part)
@@ -372,8 +380,15 @@ class cierre_ejercicio
          }
          if( abs($total) >= 0.01 )
          {
-            $subcuenta_redondeo = $subcuenta->get_by_codigo('6780000000', $asiento_apertura->codejercicio);
-            if($subcuenta)
+            /// buscamos la subcuenta de redondeo
+            $subcuenta_redondeo = $subcuenta->get_cuentaesp('REDOND', $asiento_apertura->codejercicio);
+            if(!$subcuenta_redondeo)
+            {
+               /// si no está usamos la específica para España
+               $subcuenta_redondeo = $subcuenta->get_by_codigo('6780000000', $asiento_apertura->codejercicio);
+            }
+            
+            if($subcuenta_redondeo)
             {
                $npaa = new partida();
                $npaa->idasiento = $asiento_apertura->idasiento;
@@ -390,12 +405,17 @@ class cierre_ejercicio
                   $npaa->debe = $total;
                
                $npaa->save();
+               $asiento_apertura->fix();
             }
             else
             {
                $continuar = FALSE;
                $this->new_error_msg('Asiento de apertura descuadrado.');
             }
+         }
+         else
+         {
+            $asiento_apertura->fix();
          }
          
          /// cerramos el ejercicio

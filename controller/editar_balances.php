@@ -2,7 +2,7 @@
 
 /**
  * This file is part of FacturaScripts
- * Copyright (C) 2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2016-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -49,6 +49,47 @@ class editar_balances extends fs_controller
       {
          $balance = new balance();
          $this->balance = $balance->get($_REQUEST['cod']);
+      }
+      else if( isset($_POST['ncodbalance']) )
+      {
+         $balance = new balance();
+         $this->balance = $balance->get($_POST['ncodbalance']);
+         if(!$this->balance)
+         {
+            $this->balance = new balance();
+            $this->balance->codbalance = $_POST['ncodbalance'];
+            $this->balance->naturaleza = $_POST['naturaleza'];
+            $this->balance->descripcion1 = $_POST['descripcion'];
+            
+            if( $this->balance->save() )
+            {
+               $this->new_message('Datos guardados correctamente.');
+            }
+            else
+            {
+               $this->new_error_msg('Error al guardar los datos.');
+            }
+         }
+      }
+      else if( isset($_GET['delete']) )
+      {
+         $balance = new balance();
+         $balance2 = $balance->get($_REQUEST['delete']);
+         if($balance2)
+         {
+            if( $balance2->delete() )
+            {
+               $this->new_message('Balance '.$balance2->codbalance.' eliminado correctamente.', TRUE);
+            }
+            else
+            {
+               $this->new_error_msg('Error al eliminar el balance');
+            }
+         }
+         else
+         {
+            $this->new_error_msg('Balance no encontrado.');
+         }
       }
       
       if($this->balance)
@@ -122,6 +163,20 @@ class editar_balances extends fs_controller
                $this->new_error_msg('datos no encontrados.');
             }
          }
+         else if( isset($_POST['descripcion']) )
+         {
+            $this->balance->naturaleza = $_POST['naturaleza'];
+            $this->balance->descripcion1 = $_POST['descripcion'];
+            
+            if( $this->balance->save() )
+            {
+               $this->new_message('Datos guardados correctamente.');
+            }
+            else
+            {
+               $this->new_error_msg('Error al guardar los datos.');
+            }
+         }
          
          $this->cuentas = $bc0->all_from_codbalance($this->balance->codbalance);
          $this->cuentas_a = $bca0->all_from_codbalance($this->balance->codbalance);
@@ -144,5 +199,15 @@ class editar_balances extends fs_controller
    {
       $balance = new balance();
       return $balance->all();
+   }
+   
+   public function all_naturalezas()
+   {
+      return array(
+          'A' => 'A = Activo',
+          'P' => 'P = Pasivo',
+          'PG' => 'PG = Pérdidas y ganancias',
+          'IG' => 'IG = Ingresos y gastos',
+      );
    }
 }

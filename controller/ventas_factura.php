@@ -346,7 +346,7 @@ class ventas_factura extends fs_controller
          {
             /// nos aseguramos que el cliente tenga subcuenta en el ejercicio actual
             $subcli = FALSE;
-            $eje = $this->ejercicio->get_by_fecha( $this->today() );
+            $eje = $this->ejercicio->get_by_fecha($_POST['fpagada']);
             if($eje AND $this->cliente)
             {
                $subcli = $this->cliente->get_subcuenta($eje->codejercicio);
@@ -355,7 +355,7 @@ class ventas_factura extends fs_controller
             $importe = $this->euro_convert($this->factura->totaleuros, $this->factura->coddivisa, $this->factura->tasaconv);
             
             $asiento_factura = new asiento_factura();
-            $this->factura->idasientop = $asiento_factura->generar_asiento_pago($asiento, $this->factura->codpago, $this->today(), $subcli, $importe);
+            $this->factura->idasientop = $asiento_factura->generar_asiento_pago($asiento, $this->factura->codpago, $_POST['fpagada'], $subcli, $importe);
             if($this->factura->idasientop)
             {
                $this->factura->pagada = TRUE;

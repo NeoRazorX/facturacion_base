@@ -122,6 +122,12 @@ class balance extends \fs_model
    
    public function save()
    {
+      $this->descripcion1 = $this->no_html($this->descripcion1);
+      $this->descripcion2 = $this->no_html($this->descripcion2);
+      $this->descripcion3 = $this->no_html($this->descripcion3);
+      $this->descripcion4 = $this->no_html($this->descripcion4);
+      $this->descripcion4ba = $this->no_html($this->descripcion4ba);
+      
       if( $this->exists() )
       {
          $sql = "UPDATE ".$this->table_name." SET naturaleza = ".$this->var2str($this->naturaleza).
@@ -160,7 +166,7 @@ class balance extends \fs_model
    
    public function delete()
    {
-      return $this->db->select("DELETE FROM ".$this->table_name." WHERE codbalance = ".$this->var2str($this->codbalance).";");
+      return $this->db->exec("DELETE FROM ".$this->table_name." WHERE codbalance = ".$this->var2str($this->codbalance).";");
    }
    
    public function all()

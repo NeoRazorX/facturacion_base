@@ -62,14 +62,14 @@
                   <form action="{$fsc->url()}" method="post" class="form">
                      <tr class="info">
                         <td>
-                           <input class="form-control" type="text" name="idcuentaesp" placeholder="Nuevo código" autocomplete="off"/>
+                           <input class="form-control" type="text" name="idcuentaesp" placeholder="Nuevo código" maxlength="6" required="" autocomplete="off"/>
                         </td>
                         <td>
-                           <input class="form-control" type="text" name="descripcion" placeholder="Nueva cuenta especial..." autocomplete="off"/>
+                           <input class="form-control" type="text" name="descripcion" placeholder="Nueva cuenta especial..." required="" autocomplete="off"/>
                         </td>
                         <td></td>
                         <td class="text-right">
-                           <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Nueva">
+                           <button class="btn btn-sm btn-primary" type="submit" title="Nueva">
                               <span class="glyphicon glyphicon-plus-sign"></span>
                               <span class="hidden-sm">&nbsp; Nueva</span>
                            </button>

@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -124,28 +124,7 @@ class informe_articulos extends fs_controller
          }
          else if( isset($_GET['recalcular']) AND isset($_GET['offset']) )
          {
-            $articulo = new articulo();
-            $continuar = FALSE;
-            $offset = intval($_GET['offset']);
-            
-            $this->new_message('Recalculando stock de artículos... '.$offset);
-            
-            foreach($articulo->all($offset, 30) as $art)
-            {
-               $this->calcular_stock_real($art);
-               
-               $continuar = TRUE;
-               $offset++;
-            }
-            
-            if($continuar)
-            {
-               $this->url_recarga = $this->url().'&tab=stock&recalcular=TRUE&offset='.$offset;
-            }
-            else
-            {
-               $this->new_advice('Finalizado &nbsp; <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
-            }
+            $this->recalcular_stock();
          }
          
          if($this->tipo_stock == 'reg')
@@ -215,6 +194,39 @@ class informe_articulos extends fs_controller
                
                $this->informe_ventascli();
             }
+         }
+      }
+   }
+   
+   private function recalcular_stock()
+   {
+      $almacenes = $this->almacen->all();
+      if( count($almacenes) > 1 )
+      {
+         $this->new_error_msg('El cálculo de stock con más de un almaćen está temporalmente desactivado.');
+      }
+      else
+      {
+         $articulo = new articulo();
+         $continuar = FALSE;
+         $offset = intval($_GET['offset']);
+         
+         $this->new_message('Recalculando stock de artículos... '.$offset);
+         
+         foreach($articulo->all($offset, 30) as $art)
+         {
+            $this->calcular_stock_real($art);
+            $continuar = TRUE;
+            $offset++;
+         }
+         
+         if($continuar)
+         {
+            $this->url_recarga = $this->url().'&tab=stock&recalcular=TRUE&offset='.$offset;
+         }
+         else
+         {
+            $this->new_advice('Finalizado &nbsp; <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
          }
       }
    }

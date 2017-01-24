@@ -1,6 +1,6 @@
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -398,7 +398,7 @@ function aux_all_impuestos(num,codimpuesto)
    {
       for(var i=0; i<all_impuestos.length; i++)
       {
-         if(all_impuestos[i].codimpuesto == codimpuesto)
+         if(all_impuestos[i].codimpuesto == codimpuesto || codimpuesto == '')
          {
             iva = all_impuestos[i].iva;
             if(cliente.recargo)

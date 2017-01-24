@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -130,7 +130,7 @@ class ventas_articulo extends fs_controller
       
       if($this->articulo)
       {
-         $this->modificar();
+         $this->modificar(); /// todas las modificaciones van aquí
          $this->page->title = $this->articulo->referencia;
          
          if($this->articulo->bloqueado)
@@ -210,6 +210,7 @@ class ventas_articulo extends fs_controller
    {
       if( isset($_POST['pvpiva']) )
       {
+         /// modificar precio
          $continuar = TRUE;
          $this->articulo->set_impuesto( $_POST['codimpuesto'] );
          $this->articulo->set_pvp_iva( floatval($_POST['pvpiva']) );
@@ -230,6 +231,7 @@ class ventas_articulo extends fs_controller
       }
       else if( isset($_POST['almacen']) )
       {
+         /// cambiamos el stock
          if($_POST['cantidadini'] == $_POST['cantidad'])
          {
             /// sin cambios de stock, pero aún así guardamos la ubicación
@@ -285,6 +287,7 @@ class ventas_articulo extends fs_controller
       }
       else if( isset($_GET['deletereg']) )
       {
+         /// eliminar regularización
          $reg = new regularizacion_stock();
          $regularizacion = $reg->get($_GET['deletereg']);
          if($regularizacion)
@@ -305,6 +308,7 @@ class ventas_articulo extends fs_controller
       }
       else if( isset($_POST['imagen']) )
       {
+         /// añadir imagen
          if( is_uploaded_file($_FILES['fimagen']['tmp_name']) )
          {
             $png = ( substr( strtolower($_FILES['fimagen']['name']), -3) == 'png' );
@@ -319,6 +323,7 @@ class ventas_articulo extends fs_controller
       }
       else if( isset($_GET['delete_img']) )
       {
+         /// eliminar imagen
          $this->articulo->set_imagen(NULL);
          if( $this->articulo->save() )
          {
@@ -329,6 +334,7 @@ class ventas_articulo extends fs_controller
       }
       else if( isset($_POST['referencia']) )
       {
+         /// modificar artículo
          $this->articulo->descripcion = $_POST['descripcion'];
          
          $this->articulo->tipo = NULL;
@@ -437,6 +443,7 @@ class ventas_articulo extends fs_controller
       }
       else if( isset($_POST['nueva_combi']) )
       {
+         /// nueva combinación (atributos)
          $comb1 = new articulo_combinacion();
          $comb1->referencia = $this->articulo->referencia;
          $comb1->impactoprecio = floatval($_POST['impactoprecio']);
@@ -482,6 +489,7 @@ class ventas_articulo extends fs_controller
       }
       else if( isset($_POST['editar_combi']) )
       {
+         /// modificar combinación
          $comb1 = new articulo_combinacion();
          foreach($comb1->all_from_codigo($_POST['editar_combi']) as $com)
          {
@@ -493,6 +501,7 @@ class ventas_articulo extends fs_controller
       }
       else if( isset($_GET['delete_combi']) )
       {
+         /// eliminar combinación
          $comb1 = new articulo_combinacion();
          foreach($comb1->all_from_codigo($_GET['delete_combi']) as $com)
          {
@@ -730,39 +739,47 @@ class ventas_articulo extends fs_controller
     */
    private function calcular_stock_real()
    {
+      $almacenes = $this->almacen->all();
       $movimientos = $this->get_movimientos();
       
-      foreach($this->almacen->all() as $alm)
+      if( count($almacenes) > 1 )
       {
-         $total = 0;
-         foreach($movimientos as $mov)
+         $this->new_error_msg('El cálculo de stock con más de un almaćen está temporalmente desactivado.');
+      }
+      else
+      {
+         foreach($almacenes as $alm)
          {
-            if($mov['codalmacen'] == $alm->codalmacen)
+            $total = 0;
+            foreach($movimientos as $mov)
             {
-               if($mov['movimiento'] == '-')
+               if($mov['codalmacen'] == $alm->codalmacen)
                {
-                  $total = $mov['final']; /// regularización
+                  if($mov['movimiento'] == '-')
+                  {
+                     $total = $mov['final']; /// regularización
+                  }
+                  else
+                  {
+                     $total += $mov['movimiento'];
+                  }
                }
-               else
-               {
-                  $total += $mov['movimiento'];
-               }
+            }
+            
+            if( $this->articulo->set_stock($alm->codalmacen, $total) )
+            {
+               $this->new_message('Recarculado el stock del almacén '.$alm->codalmacen.'.');
+            }
+            else
+            {
+               $this->new_error_msg('Error al recarcular el stock del almacén '.$alm->codalmacen.'.');
             }
          }
          
-         if( $this->articulo->set_stock($alm->codalmacen, $total) )
-         {
-            $this->new_message('Recarculado el stock del almacén '.$alm->codalmacen.'.');
-         }
-         else
-         {
-            $this->new_error_msg('Error al recarcular el stock del almacén '.$alm->codalmacen.'.');
-         }
+         $this->new_message("Stock actualizado.");
+         $this->new_message("Puedes recalcular el stock de todos los artículos desde"
+                 . " <b>Informes &gt; Artículos &gt; Stock</b>");
       }
-      
-      $this->new_message("Stock actualizado.");
-      $this->new_message("Puedes recalcular el stock de todos los artículos desde"
-              . " <b>Informes &gt; Artículos &gt; Stock</b>");
    }
    
    public function combinaciones()
