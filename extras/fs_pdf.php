@@ -148,94 +148,68 @@ class fs_pdf
     */
    public function generar_pdf_cabecera(&$empresa, &$lppag)
    {
-      /// ¿Añadimos el logo?
-      if($this->logo)
+      if( function_exists('imagecreatefromstring') )
       {
-         if( function_exists('imagecreatefromstring') )
+         // Rectangulo correspondiente al nombre de la Empresa
+         $this->pdf->rectangle(30,760,250,65);
+
+         /// ¿Añadimos el logo?
+         if($this->logo)
          {
             $lppag -= 2; /// si metemos el logo, caben menos líneas
-            
-            $tamanyo = $this->calcular_tamanyo_logo();
+            $max_tamaño = 85;
+            list($ancho, $alto) = getimagesize($this->logo);
+            $factor = $max_tamaño/$alto;
+            $tamañoy = $max_tamaño;
+            $tamañox = $ancho*$factor;
             if( substr( strtolower($this->logo), -4 ) == '.png' )
             {
-               $this->pdf->addPngFromFile($this->logo, 35, 740, $tamanyo[0], $tamanyo[1]);
+               $this->pdf->addPngFromFile($this->logo, 35, 670, $tamañox, $tamañoy);
             }
             else
             {
-               $this->pdf->addJpegFromFile($this->logo, 35, 740, $tamanyo[0], $tamanyo[1]);
+               $this->pdf->addJpegFromFile($this->logo, 35, 670, $tamañox, $tamañoy);
             }
-            
-            $this->pdf->ez['rightMargin'] = 40;
-            $this->pdf->ezText("<b>".$empresa->nombre."</b>", 12, array('justification' => 'right'));
-            $this->pdf->ezText(FS_CIFNIF.": ".$empresa->cifnif, 8, array('justification' => 'right'));
-            
-            $direccion = $empresa->direccion . "\n";
-            if($empresa->apartado)
-            {
-               $direccion .= ucfirst(FS_APARTADO) . ': ' . $empresa->apartado . ' - ';
-            }
-            
-            if($empresa->codpostal)
-            {
-               $direccion .= 'CP: ' . $empresa->codpostal . ' - ';
-            }
-            
-            if($empresa->ciudad)
-            {
-               $direccion .= $empresa->ciudad . ' - ';
-            }
-            
-            if($empresa->provincia)
-            {
-               $direccion .= '(' . $empresa->provincia . ')';
-            }
-            
-            if($empresa->telefono)
-            {
-               $direccion .= "\nTeléfono: " . $empresa->telefono;
-            }
-            
-            $this->pdf->ezText($this->fix_html($direccion)."\n", 9, array('justification' => 'right'));
-            $this->set_y(750);
          }
-         else
+
+         $this->pdf->ez['rightMargin'] = 40;
+         $this->set_y(825);
+         $this->pdf->ezText("<b>".$empresa->nombre."</b>", 12, array('justification' => 'left'));
+         $this->pdf->ezText(FS_CIFNIF.": ".$empresa->cifnif, 8, array('justification' => 'left'));
+
+         $direccion = $empresa->direccion . "\n";
+         if($empresa->apartado)
          {
-            die('ERROR: no se encuentra la función imagecreatefromstring(). '
-                    . 'Y por tanto no se puede usar el logotipo en los documentos.');
+            $direccion .= ucfirst(FS_APARTADO) . ': ' . $empresa->apartado . ' - ';
          }
+
+         if($empresa->codpostal)
+         {
+            $direccion .= 'CP: ' . $empresa->codpostal . ' - ';
+         }
+
+         if($empresa->ciudad)
+         {
+            $direccion .= $empresa->ciudad . ' - ';
+         }
+
+         if($empresa->provincia)
+         {
+            $direccion .= '(' . $empresa->provincia . ')';
+         }
+
+         if($empresa->telefono)
+         {
+            $direccion .= "\nTeléfono: " . $empresa->telefono;
+         }
+
+         $this->pdf->ezText($this->fix_html($direccion)."\n", 9, array('justification' => 'left'));
+         $this->set_y(750);
       }
       else
       {
-         $this->pdf->ezText("<b>".$empresa->nombre."</b>", 16, array('justification' => 'center'));
-         $this->pdf->ezText(FS_CIFNIF.": ".$empresa->cifnif, 8, array('justification' => 'center'));
-         
-         $direccion = $empresa->direccion;
-         if($empresa->apartado)
-         {
-            $direccion .= ' - ' . ucfirst(FS_APARTADO) . ': ' . $empresa->apartado;
-         }
-         
-         if($empresa->codpostal)
-         {
-            $direccion .= ' - CP: ' . $empresa->codpostal;
-         }
-         
-         if($empresa->ciudad)
-         {
-            $direccion .= ' - ' . $empresa->ciudad;
-         }
-         
-         if($empresa->provincia)
-         {
-            $direccion .= ' (' . $empresa->provincia . ')';
-         }
-         
-         if($empresa->telefono)
-         {
-            $direccion .= ' - Teléfono: ' . $empresa->telefono;
-         }
-         
-         $this->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
+         die('ERROR: no se encuentra la función imagecreatefromstring(). '
+                 . 'Y por tanto no se puede usar el logotipo en los documentos.');
       }
    }
    

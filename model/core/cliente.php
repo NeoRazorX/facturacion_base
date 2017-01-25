@@ -33,6 +33,7 @@ require_model('subcuenta_cliente.php');
  */
 class cliente extends \fs_model
 {
+
    /**
     * Clave primaria. Varchar (6).
     * @var type 
@@ -139,13 +140,14 @@ class cliente extends \fs_model
     */
    public $personafisica;
    
+   public $numeroproveedor;
    /**
     * Dias de pago preferidos a la hora de calcular el vencimiento de las facturas.
     * Días separados por comas: 1,15,31
     * @var type 
     */
    public $diaspago;
-   
+
    private static $regimenes_iva;
 
    public function __construct($c = FALSE)
@@ -178,7 +180,8 @@ class cliente extends \fs_model
          $this->codagente = $c['codagente'];
          $this->codgrupo = $c['codgrupo'];
          $this->debaja = $this->str2bool($c['debaja']);
-         
+         $this->numeroproveedor = $c['numeroproveedor'];
+         $this->diaspago = $c['diaspago'];
          $this->fechabaja = NULL;
          if($c['fechabaja'])
          {
@@ -204,6 +207,8 @@ class cliente extends \fs_model
          $this->fax = '';
          $this->email = '';
          $this->web = '';
+         $this->numeroproveedor = '';
+         $this->diaspago = '';
          
          /**
           * Ponemos por defecto la serie a NULL para que en las nuevas ventas
@@ -605,6 +610,7 @@ class cliente extends \fs_model
                     .", regimeniva = ".$this->var2str($this->regimeniva)
                     .", recargo = ".$this->var2str($this->recargo)
                     .", personafisica = ".$this->var2str($this->personafisica)
+                    .", numeroproveedor = ".$this->var2str($this->numeroproveedor)
                     .", diaspago = ".$this->var2str($this->diaspago)
                     ."  WHERE codcliente = ".$this->var2str($this->codcliente).";";
          }
@@ -612,7 +618,7 @@ class cliente extends \fs_model
          {
             $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,razonsocial,tipoidfiscal,
                cifnif,telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,
-               debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,personafisica,diaspago) VALUES
+               debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,numeroproveedor,diaspago,personafisica) VALUES
                       (".$this->var2str($this->codcliente)
                     .",".$this->var2str($this->nombre)
                     .",".$this->var2str($this->razonsocial)
@@ -634,8 +640,9 @@ class cliente extends \fs_model
                     .",".$this->var2str($this->observaciones)
                     .",".$this->var2str($this->regimeniva)
                     .",".$this->var2str($this->recargo)
-                    .",".$this->var2str($this->personafisica)
-                    .",".$this->var2str($this->diaspago).");";
+                    .",".$this->var2str($this->numeroproveedor)
+                    .",".$this->var2str($this->diaspago)
+                    .",".$this->var2str($this->personafisica).");";
          }
          
          return $this->db->exec($sql);

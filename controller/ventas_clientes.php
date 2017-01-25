@@ -44,6 +44,7 @@ class ventas_clientes extends fs_controller
    public $tarifa;
    public $tarifas;
    public $total_resultados;
+   public $numeroproveedor;
    
    public function __construct()
    {
@@ -81,6 +82,8 @@ class ventas_clientes extends fs_controller
             'nuevocli_telefono1_req' => 0,
             'nuevocli_telefono2' => 0,
             'nuevocli_telefono2_req' => 0,
+            'nuevocli_numeroproveedor' => 0,
+            'nuevocli_numeroproveedor_req' => 0,
             'nuevocli_codgrupo' => '',
          ),
          FALSE
@@ -169,6 +172,11 @@ class ventas_clientes extends fs_controller
          if( isset($_POST['telefono2']) )
          {
             $cliente->telefono2 = $_POST['telefono2'];
+         }
+
+         if( isset($_POST['numeroproveedor']) )
+         {
+            $cliente->numeroproveedor = $_POST['numeroproveedor'];
          }
          
          if( $cliente->save() )

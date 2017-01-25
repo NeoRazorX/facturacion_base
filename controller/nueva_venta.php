@@ -898,7 +898,6 @@ class nueva_venta extends fs_controller
          }
          
          $factura->vencimiento = $forma_pago->calcular_vencimiento($factura->fecha, $cliente->diaspago);
-         
          $factura->codcliente = $cliente->codcliente;
          $factura->cifnif = $_POST['cifnif'];
          $factura->nombrecliente = $_POST['nombrecliente'];
