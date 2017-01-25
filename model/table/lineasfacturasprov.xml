@@ -52,6 +52,10 @@
       <defecto>nextval('lineasfacturasprov_idlinea_seq'::regclass)</defecto>
    </columna>
    <columna>
+      <nombre>idlineaalbaran</nombre>
+      <tipo>integer</tipo>
+   </columna>
+   <columna>
       <nombre>idsubcuenta</nombre>
       <tipo>integer</tipo>
       <nulo>YES</nulo>

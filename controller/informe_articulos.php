@@ -356,15 +356,12 @@ class informe_articulos extends fs_controller
                $art0 = $articulo->get($l['referencia']);
                if($art0)
                {
-                  if( floatval($l['unidades']) > 1 )
-                  {
-                     $toplist[] = array(
-                         'articulo' => $art0,
-                         'unidades' => floatval($l['unidades']),
-                         'total' => $this->euro_convert( floatval($l['total']) ),
-                         'beneficio' => $this->euro_convert( floatval($l['total']) ) - ( floatval($l['unidades']) * $art0->preciocoste() )
-                     );
-                  }
+                  $toplist[] = array(
+                      'articulo' => $art0,
+                      'unidades' => floatval($l['unidades']),
+                      'total' => $this->euro_convert( floatval($l['total']) ),
+                      'beneficio' => $this->euro_convert( floatval($l['total']) ) - ( floatval($l['unidades']) * $art0->preciocoste() )
+                  );
                }
             }
          }

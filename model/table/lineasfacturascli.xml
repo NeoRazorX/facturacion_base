@@ -47,6 +47,10 @@
       <defecto>nextval('lineasfacturascli_idlinea_seq'::regclass)</defecto>
    </columna>
    <columna>
+      <nombre>idlineaalbaran</nombre>
+      <tipo>integer</tipo>
+   </columna>
+   <columna>
       <nombre>irpf</nombre>
       <tipo>double precision</tipo>
       <nulo>YES</nulo>

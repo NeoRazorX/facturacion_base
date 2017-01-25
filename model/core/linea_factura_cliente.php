@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -34,6 +34,12 @@ class linea_factura_cliente extends \fs_model
     * @var type 
     */
    public $idlinea;
+   
+   /**
+    * ID de la linea del albarán relacionado, si lo hay.
+    * @var type 
+    */
+   public $idlineaalbaran;
    
    /**
     * ID de la factura de esta línea.
@@ -134,6 +140,7 @@ class linea_factura_cliente extends \fs_model
       if($l)
       {
          $this->idlinea = $this->intval($l['idlinea']);
+         $this->idlineaalbaran = $this->intval($l['idlineaalbaran']);
          $this->idfactura = $this->intval($l['idfactura']);
          $this->idalbaran = $this->intval($l['idalbaran']);
          $this->referencia = $l['referencia'];
@@ -154,6 +161,7 @@ class linea_factura_cliente extends \fs_model
       else
       {
          $this->idlinea = NULL;
+         $this->idlineaalbaran = NULL;
          $this->idfactura = NULL;
          $this->idalbaran = NULL;
          $this->referencia = NULL;
@@ -406,6 +414,7 @@ class linea_factura_cliente extends \fs_model
          {
             $sql = "UPDATE ".$this->table_name." SET idfactura = ".$this->var2str($this->idfactura)
                     .", idalbaran = ".$this->var2str($this->idalbaran)
+                    .", idlineaalbaran = ".$this->var2str($this->idlineaalbaran)
                     .", referencia = ".$this->var2str($this->referencia)
                     .", descripcion = ".$this->var2str($this->descripcion)
                     .", cantidad = ".$this->var2str($this->cantidad)
@@ -426,11 +435,12 @@ class linea_factura_cliente extends \fs_model
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (idfactura,idalbaran,referencia,
+            $sql = "INSERT INTO ".$this->table_name." (idfactura,idalbaran,idlineaalbaran,referencia,
                descripcion,cantidad,pvpunitario,pvpsindto,dtopor,pvptotal,codimpuesto,iva,
                recargo,irpf,orden,mostrar_cantidad,mostrar_precio) VALUES 
                       (".$this->var2str($this->idfactura)
                     .",".$this->var2str($this->idalbaran)
+                    .",".$this->var2str($this->idlineaalbaran)
                     .",".$this->var2str($this->referencia)
                     .",".$this->var2str($this->descripcion)
                     .",".$this->var2str($this->cantidad)
@@ -482,7 +492,7 @@ class linea_factura_cliente extends \fs_model
       return $linlist;
    }
    
-   public function all_from_articulo($ref, $offset=0)
+   public function all_from_articulo($ref, $offset = 0)
    {
       $linealist = array();
       $sql = "SELECT * FROM ".$this->table_name.
@@ -501,7 +511,7 @@ class linea_factura_cliente extends \fs_model
       return $linealist;
    }
    
-   public function search($query='', $offset=0)
+   public function search($query = '', $offset = 0)
    {
       $linealist = array();
       $query = mb_strtolower( $this->no_html($query), 'UTF8' );
@@ -530,7 +540,7 @@ class linea_factura_cliente extends \fs_model
       return $linealist;
    }
    
-   public function search_from_cliente($codcliente, $query='', $offset=0)
+   public function search_from_cliente($codcliente, $query = '', $offset = 0)
    {
       $linealist = array();
       $query = mb_strtolower( $this->no_html($query), 'UTF8' );
@@ -560,7 +570,7 @@ class linea_factura_cliente extends \fs_model
       return $linealist;
    }
    
-   public function search_from_cliente2($codcliente, $ref='', $obs='', $offset=0)
+   public function search_from_cliente2($codcliente, $ref = '', $obs = '', $offset = 0)
    {
       $linealist = array();
       $ref = mb_strtolower( $this->no_html($ref), 'UTF8' );
@@ -595,8 +605,10 @@ class linea_factura_cliente extends \fs_model
    public function facturas_from_albaran($id)
    {
       $facturalist = array();
+      $sql = "SELECT DISTINCT idfactura FROM ".$this->table_name
+              ." WHERE idalbaran = ".$this->var2str($id).";";
       
-      $data = $this->db->select("SELECT DISTINCT idfactura FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($id).";");
+      $data = $this->db->select($sql);
       if($data)
       {
          $factura = new \factura_cliente();

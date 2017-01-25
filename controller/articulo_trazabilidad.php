@@ -164,9 +164,12 @@ class articulo_trazabilidad extends fs_controller
               ." ORDER BY id DESC";
       
       $data = $this->db->select($sql);
-      foreach($data as $d)
+      if($data)
       {
-         $this->trazas[] = new articulo_traza($d);
+         foreach($data as $d)
+         {
+            $this->trazas[] = new articulo_traza($d);
+         }
       }
    }
 }

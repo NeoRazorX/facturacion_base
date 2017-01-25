@@ -21,6 +21,12 @@
 
 namespace FacturaScripts\model;
 
+require_model('articulo.php');
+require_model('linea_albaran_cliente.php');
+require_model('linea_albaran_proveedor.php');
+require_model('linea_factura_cliente.php');
+require_model('linea_factura_proveedor.php');
+
 /**
  * Esta clase sirve para guardar la información de trazabilidad del artículo.
  * Números de serie, de lote y albaranes y facturas relacionadas.
@@ -103,7 +109,7 @@ class articulo_traza extends \fs_model
          }
          
          $this->fecha_salida = NULL;
-         if( isset($n['fecha_salida']) )
+         if( isset($n['fecha_salida']) AND ($this->idlalbventa OR $this->idlfacventa) )
          {
             $this->fecha_salida = date('d-m-Y', strtotime($n['fecha_salida']));
          }
@@ -125,9 +131,20 @@ class articulo_traza extends \fs_model
    
    protected function install()
    {
+      /// forzamos la comprobación de las tablas necesarias
+      new \articulo();
+      new \linea_albaran_cliente();
+      new \linea_albaran_proveedor();
+      new \linea_factura_cliente();
+      new \linea_factura_proveedor();
+      
       return '';
    }
    
+   /**
+    * Devuelve la url del albarán o la factura de compra.
+    * @return string
+    */
    public function documento_compra_url()
    {
       if($this->idlalbcompra)
@@ -154,6 +171,10 @@ class articulo_traza extends \fs_model
       }
    }
    
+   /**
+    * Devuelve la url del albarán o factura de venta.
+    * @return string
+    */
    public function documento_venta_url()
    {
       if($this->idlalbventa)
@@ -180,6 +201,11 @@ class articulo_traza extends \fs_model
       }
    }
    
+   /**
+    * Devuelve una traza a partir de un $id.
+    * @param type $id
+    * @return boolean|\articulo_traza
+    */
    public function get($id)
    {
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE id = ".$this->var2str($id).";");
@@ -193,6 +219,11 @@ class articulo_traza extends \fs_model
       }
    }
    
+   /**
+    * Devuelve la traza correspondiente al número de serie $numserie.
+    * @param type $numserie
+    * @return boolean|\articulo_traza
+    */
    public function get_by_numserie($numserie)
    {
       $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE numserie = ".$this->var2str($numserie).";");
@@ -266,6 +297,12 @@ class articulo_traza extends \fs_model
       return $this->db->exec("DELETE FROM ".$this->table_name." WHERE id = ".$this->var2str($this->id).";");
    }
    
+   /**
+    * Devuelve todas las trazas de un artículo.
+    * @param type $ref
+    * @param type $sololibre
+    * @return \articulo_traza
+    */
    public function all_from_ref($ref, $sololibre = FALSE)
    {
       $lista = array();
@@ -289,6 +326,12 @@ class articulo_traza extends \fs_model
       return $lista;
    }
    
+   /**
+    * Devuelve todas las trazas cuya columna $tipo tenga valor $idlinea
+    * @param type $tipo
+    * @param type $idlinea
+    * @return \articulo_traza
+    */
    public function all_from_linea($tipo, $idlinea)
    {
       $lista = array();

@@ -580,6 +580,7 @@ class ventas_albaran extends fs_controller
          {
             $n = new linea_factura_cliente();
             $n->idalbaran = $l->idalbaran;
+            $n->idlineaalbaran = $l->idlinea;
             $n->idfactura = $factura->idfactura;
             $n->cantidad = $l->cantidad;
             $n->codimpuesto = $l->codimpuesto;

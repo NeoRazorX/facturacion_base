@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -493,6 +493,7 @@ class compras_albaran extends fs_controller
             $linea->descripcion = $l->descripcion;
             $linea->dtopor = $l->dtopor;
             $linea->idalbaran = $l->idalbaran;
+            $linea->idlineaalbaran = $l->idlinea;
             $linea->idfactura = $factura->idfactura;
             $linea->irpf = $l->irpf;
             $linea->iva = $l->iva;
@@ -507,8 +508,8 @@ class compras_albaran extends fs_controller
                $this->new_error_msg("¡Imposible guardar la línea el artículo ".$linea->referencia."! ");
                break;
             }
-                     }
-
+         }
+         
          if( $continuar )
          {
             $this->albaran->idfactura = $factura->idfactura;

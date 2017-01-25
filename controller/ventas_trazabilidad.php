@@ -31,6 +31,7 @@ class ventas_trazabilidad extends fs_controller
    public $disponibles;
    public $documento;
    public $lineas;
+   public $tab;
    public $tipo;
    
    public function __construct()
@@ -57,6 +58,8 @@ class ventas_trazabilidad extends fs_controller
          }
       }
       
+      $this->tab = isset($_GET['tab']);
+      
       if($this->documento)
       {
          if( isset($_POST['asignar']) )
@@ -65,6 +68,12 @@ class ventas_trazabilidad extends fs_controller
          }
          
          $this->get_lineas();
+         
+         /**
+          * Cargamos las extensiones solamente si se usa trazabilidad,
+          * hasta entonces no aparecerá la pestaña.
+          */
+         $this->share_extensions();
       }
       else
       {
@@ -72,16 +81,45 @@ class ventas_trazabilidad extends fs_controller
       }
    }
    
+   private function share_extensions()
+   {
+      $fsext = new fs_extension();
+      $fsext->name = 'tab_ventas_trazabilidad_fac';
+      $fsext->from = __CLASS__;
+      $fsext->to = 'ventas_factura';
+      $fsext->type = 'tab';
+      $fsext->text = '<i class="fa fa-code-fork" aria-hidden="true"></i>'
+              . '<span class="hidden-xs">&nbsp;Trazabilidad</span>';
+      $fsext->params = '&doc=factura&tab=TRUE';
+      $fsext->save();
+      
+      $fsext2 = new fs_extension();
+      $fsext2->name = 'tab_ventas_trazabilidad_alb';
+      $fsext2->from = __CLASS__;
+      $fsext2->to = 'ventas_albaran';
+      $fsext2->type = 'tab';
+      $fsext2->text = '<i class="fa fa-code-fork" aria-hidden="true"></i>'
+              . '<span class="hidden-xs">&nbsp;Trazabilidad</span>';
+      $fsext2->params = '&doc=albaran&tab=TRUE';
+      $fsext2->save();
+   }
+   
    public function url()
    {
       if($this->documento)
       {
+         $extra = '';
+         if($this->tab)
+         {
+            $extra = '&tab=TRUE';
+         }
+         
          if( get_class_name($this->documento) == 'albaran_cliente' )
          {
-            return parent::url().'&doc=albaran&id='.$this->documento->idalbaran;
+            return parent::url().'&doc=albaran&id='.$this->documento->idalbaran.$extra;
          }
          else
-            return parent::url().'&doc=factura&id='.$this->documento->idfactura;
+            return parent::url().'&doc=factura&id='.$this->documento->idfactura.$extra;
       }
       else
          return parent::url();
@@ -91,10 +129,13 @@ class ventas_trazabilidad extends fs_controller
    {
       $art0 = new articulo();
       $at0 = new articulo_traza();
-      
       $ok = TRUE;
+      
+      /// añadimos números de serie
       foreach($this->documento->get_lineas() as $lindoc)
       {
+         $cantidad = 0;
+         
          if( isset($_POST['idtraza_'.$lindoc->idlinea]) )
          {
             foreach($_POST['idtraza_'.$lindoc->idlinea] as $id)
@@ -113,7 +154,15 @@ class ventas_trazabilidad extends fs_controller
                      $traza->idlfacventa = $lindoc->idlinea;
                   }
                   
-                  if( !$traza->save() )
+                  if($cantidad >= $lindoc->cantidad)
+                  {
+                     break; /// no se pueden asignar más números de serie que cantidad tiene la línea
+                  }
+                  else if( $traza->save() )
+                  {
+                     $cantidad++;
+                  }
+                  else
                   {
                      $this->new_error_msg('Error al asignar el lote o número de serie.');
                      $ok = FALSE;
@@ -128,9 +177,38 @@ class ventas_trazabilidad extends fs_controller
          }
       }
       
+      /// eliminamos números de serie
+      if( isset($_POST['delete_traza']) )
+      {
+         foreach($_POST['delete_traza'] as $id)
+         {
+            $at = $at0->get($id);
+            if($at)
+            {
+               $at->fecha_salida = NULL;
+               if( get_class_name($this->documento) == 'albaran_cliente' )
+               {
+                  $at->idlalbventa = NULL;
+               }
+               else
+               {
+                  $at->idlfacventa = NULL;
+               }
+               $at->save();
+            }
+         }
+      }
+      
       if($ok)
       {
-         header('Location: '.$this->documento->url());
+         if($this->tab)
+         {
+            $this->new_message('Datos guardados correctamente.');
+         }
+         else
+         {
+            header('Location: '.$this->documento->url());
+         }
       }
    }
    
@@ -162,6 +240,20 @@ class ventas_trazabilidad extends fs_controller
                   }
                   else
                   {
+                     /// primero comprobamos albaranes previos
+                     if($lindoc->idlineaalbaran)
+                     {
+                        foreach($at0->all_from_linea('idlalbventa', $lindoc->idlineaalbaran) as $traza)
+                        {
+                           if( is_null($traza->idlfacventa) )
+                           {
+                              $traza->idlfacventa = $lindoc->idlinea;
+                              $traza->save();
+                           }
+                        }
+                     }
+                     
+                     /// ahora comprobamos la factura
                      foreach($at0->all_from_linea('idlfacventa', $lindoc->idlinea) as $traza)
                      {
                         $this->lineas[] = $traza;

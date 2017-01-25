@@ -1,6 +1,8 @@
-{include="header"}
+{if="$fsc->tab"}{include="header2"}{else}{include="header"}{/if}
 
 {if="$fsc->documento"}
+
+{if="!$fsc->tab"}
 <div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
@@ -13,6 +15,9 @@
       </div>
    </div>
 </div>
+{elseif="$fsc->disponibles"}
+<br/>
+{/if}
 
 <form action="{$fsc->url()}" method="post" class="form">
    <input type="hidden" name="asignar" value="TRUE"/>
@@ -62,6 +67,38 @@
             {/loop}
          </div>
       </div>
+   </div>
+   
+   {if="$fsc->lineas"}
+   <div class="table-responsive">
+      <table class="table table-hover">
+         <thead>
+            <tr>
+               <th>Referencia</th>
+               <th>Número de serie</th>
+               <th>Lote</th>
+               <th></th>
+            </tr>
+         </thead>
+         {loop="$fsc->lineas"}
+         <tr>
+            <td>{$value->referencia}</td>
+            <td>{$value->numserie}</td>
+            <td>{$value->lote}</td>
+            <td class="text-right">
+               <label title="Eliminar">
+                  <span class="glyphicon glyphicon-trash"></span>
+                  &nbsp;
+                  <input type="checkbox" name="delete_traza[]" value="{$value->id}"/>
+               </label>
+            </td>
+         </tr>
+         {/loop}
+      </table>
+   </div>
+   {/if}
+   
+   <div class="container-fluid">
       <div class="row">
          <div class="col-sm-12 text-right">
             <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
@@ -77,4 +114,4 @@
 </div>
 {/if}
 
-{include="footer"}
+{if="$fsc->tab"}{include="footer2"}{else}{include="footer"}{/if}

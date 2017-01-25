@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,6 +20,7 @@
 require_once __DIR__.'/../extras/fs_pdf.php';
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
+require_model('articulo_traza.php');
 require_model('cliente.php');
 require_model('cuenta_banco.php');
 require_model('cuenta_banco_cliente.php');
@@ -36,6 +37,7 @@ class ventas_imprimir extends fs_controller
    public $impresion;
    public $impuesto;
    
+   private $articulo_traza;
    private $numpaginas;
    
    public function __construct()
@@ -46,6 +48,7 @@ class ventas_imprimir extends fs_controller
    protected function private_core()
    {
       $this->albaran = FALSE;
+      $this->articulo_traza = new articulo_traza();
       $this->cliente = FALSE;
       $this->factura = FALSE;
       $this->impuesto = new impuesto();
@@ -363,6 +366,9 @@ class ventas_imprimir extends fs_controller
             $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
          }
          
+         /// ¿El articulo tiene trazabilidad?
+         $descripcion .= $this->generar_trazabilidad($lineas[$linea_actual]);
+         
          $fila = array(
              'alb' => '-',
              'cantidad' => $this->show_numero($lineas[$linea_actual]->cantidad, $dec_cantidad),
@@ -432,6 +438,36 @@ class ventas_imprimir extends fs_controller
                   'lineCol' => array(0.3, 0.3, 0.3),
               )
       );
+   }
+   
+   private function generar_trazabilidad($linea)
+   {
+      $lineast = array();
+      if( get_class_name($linea) == 'linea_albaran_cliente' )
+      {
+         $lineast = $this->articulo_traza->all_from_linea('idlalbventa', $linea->idlinea);
+      }
+      else
+      {
+         $lineast = $this->articulo_traza->all_from_linea('idlfacventa', $linea->idlinea);
+      }
+      
+      $txt = '';
+      foreach($lineast as $lt)
+      {
+         $txt .= "\n";
+         if($lt->numserie)
+         {
+            $txt .= 'N/S: '.$lt->numserie.' ';
+         }
+         
+         if($lt->lote)
+         {
+            $txt .= 'Lote: '.$lt->lote;
+         }
+      }
+      
+      return $txt;
    }
    
    private function generar_pdf_albaran($archivo = FALSE)

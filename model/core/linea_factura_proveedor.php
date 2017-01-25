@@ -36,6 +36,12 @@ class linea_factura_proveedor extends \fs_model
    public $idlinea;
    
    /**
+    * ID de la linea del albarán relacionado, si lo hay.
+    * @var type 
+    */
+   public $idlineaalbaran;
+   
+   /**
     * ID de la factura de esta línea.
     * @var type 
     */
@@ -129,6 +135,7 @@ class linea_factura_proveedor extends \fs_model
       if($l)
       {
          $this->idlinea = $this->intval($l['idlinea']);
+         $this->idlineaalbaran = $this->intval($l['idlineaalbaran']);
          $this->idfactura = $this->intval($l['idfactura']);
          $this->idalbaran = $this->intval($l['idalbaran']);
          $this->referencia = $l['referencia'];
@@ -146,6 +153,7 @@ class linea_factura_proveedor extends \fs_model
       else
       {
          $this->idlinea = NULL;
+         $this->idlineaalbaran = NULL;
          $this->idfactura = NULL;
          $this->idalbaran = NULL;
          $this->referencia = NULL;
@@ -384,6 +392,7 @@ class linea_factura_proveedor extends \fs_model
                     .", pvpunitario = ".$this->var2str($this->pvpunitario)
                     .", idfactura = ".$this->var2str($this->idfactura)
                     .", idalbaran = ".$this->var2str($this->idalbaran)
+                    .", idlineaalbaran = ".$this->var2str($this->idlineaalbaran)
                     .", descripcion = ".$this->var2str($this->descripcion)
                     .", referencia = ".$this->var2str($this->referencia)
                     .", iva = ".$this->var2str($this->iva)
@@ -394,7 +403,7 @@ class linea_factura_proveedor extends \fs_model
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (pvptotal,dtopor,recargo,irpf,pvpsindto,cantidad,
-               codimpuesto,pvpunitario,idfactura,idalbaran,descripcion,referencia,iva) VALUES 
+               codimpuesto,pvpunitario,idfactura,idalbaran,idlineaalbaran,descripcion,referencia,iva) VALUES 
                       (".$this->var2str($this->pvptotal)
                     .",".$this->var2str($this->dtopor)
                     .",".$this->var2str($this->recargo)
@@ -405,6 +414,7 @@ class linea_factura_proveedor extends \fs_model
                     .",".$this->var2str($this->pvpunitario)
                     .",".$this->var2str($this->idfactura)
                     .",".$this->var2str($this->idalbaran)
+                    .",".$this->var2str($this->idlineaalbaran)
                     .",".$this->var2str($this->descripcion)
                     .",".$this->var2str($this->referencia)
                     .",".$this->var2str($this->iva).");";
@@ -430,8 +440,10 @@ class linea_factura_proveedor extends \fs_model
    public function all_from_factura($id)
    {
       $linlist = array();
+      $sql = "SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id)
+              ." ORDER BY idlinea ASC;";
       
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idfactura = ".$this->var2str($id)." ORDER BY idlinea ASC;");
+      $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $l)
@@ -494,8 +506,10 @@ class linea_factura_proveedor extends \fs_model
    public function facturas_from_albaran($id)
    {
       $facturalist = array();
+      $sql = "SELECT DISTINCT idfactura FROM ".$this->table_name
+              ." WHERE idalbaran = ".$this->var2str($id).";";
       
-      $data = $this->db->select("SELECT DISTINCT idfactura FROM ".$this->table_name." WHERE idalbaran = ".$this->var2str($id).";");
+      $data = $this->db->select($sql);
       if($data)
       {
          $factura = new \factura_proveedor();

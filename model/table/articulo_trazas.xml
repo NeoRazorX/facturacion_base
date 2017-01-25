@@ -59,6 +59,30 @@
       ON DELETE CASCADE ON UPDATE CASCADE</consulta>
    </restriccion>
    <restriccion>
+      <nombre>ca_articulo_trazas_linalbcli</nombre>
+      <consulta>FOREIGN KEY (idlalbventa)
+      REFERENCES lineasalbaranescli (idlinea)
+      ON DELETE SET NULL ON UPDATE CASCADE</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>ca_articulo_trazas_linfaccli</nombre>
+      <consulta>FOREIGN KEY (idlfacventa)
+      REFERENCES lineasfacturascli (idlinea)
+      ON DELETE SET NULL ON UPDATE CASCADE</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>ca_articulo_trazas_linalbprov</nombre>
+      <consulta>FOREIGN KEY (idlalbcompra)
+      REFERENCES lineasalbaranesprov (idlinea)
+      ON DELETE SET NULL ON UPDATE CASCADE</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>ca_articulo_trazas_linfacprov</nombre>
+      <consulta>FOREIGN KEY (idlfaccompra)
+      REFERENCES lineasfacturasprov (idlinea)
+      ON DELETE SET NULL ON UPDATE CASCADE</consulta>
+   </restriccion>
+   <restriccion>
       <nombre>uniq_codigo_articulo_trazas</nombre>
       <consulta>UNIQUE (numserie)</consulta>
    </restriccion>

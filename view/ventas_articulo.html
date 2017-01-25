@@ -121,7 +121,7 @@
          <div class="btn-group">
             <a href="index.php?page=ventas_articulos" class="btn btn-sm btn-default">
                <span class="glyphicon glyphicon-arrow-left"></span>
-               <span class="hidden-xs">&nbsp; Todos</span>
+               <span class="hidden-xs">&nbsp;Todos</span>
             </a>
             <a href="{$fsc->url()}" class="btn btn-sm btn-default hidden-xs" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -130,12 +130,12 @@
          <div class="btn-group">
             <a href="#" id="b_imagen" class="btn btn-sm btn-default">
                <span class="glyphicon glyphicon-picture"></span>
-               <span class="hidden-xs">&nbsp; Imagen</span>
+               <span class="hidden-xs">&nbsp;Imagen</span>
             </a>
             {if="$fsc->articulo->trazabilidad"}
             <a href='index.php?page=articulo_trazabilidad&ref={function="urlencode($fsc->articulo->referencia)"}' class="btn btn-sm btn-default">
                <i class="fa fa-code-fork" aria-hidden="true"></i>
-               <span class="hidden-xs">&nbsp; Trazabilidad</span>
+               <span class="hidden-xs">&nbsp;Trazabilidad</span>
             </a>
             {/if}
          </div>

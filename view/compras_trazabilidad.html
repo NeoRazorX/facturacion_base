@@ -1,6 +1,8 @@
-{include="header"}
+{if="$fsc->tab"}{include="header2"}{else}{include="header"}{/if}
 
 {if="$fsc->documento"}
+
+{if="!$fsc->tab"}
 <div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
@@ -18,6 +20,7 @@
       </div>
    </div>
 </div>
+{/if}
 
 <form action="{$fsc->url()}" method="post" class="form">
    <div class="table-responsive">
@@ -43,8 +46,8 @@
             </td>
          </tr>
          {else}
-         <tr class="danger">
-            <td>Sin resultados</td>
+         <tr class="warning">
+            <td colspan="3">Ningún producto del documento tiene trazabilidad activada.</td>
          </tr>
          {/loop}
       </table>
@@ -65,4 +68,4 @@
 </div>
 {/if}
 
-{include="footer"}
+{if="$fsc->tab"}{include="footer2"}{else}{include="footer"}{/if}

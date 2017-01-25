@@ -337,6 +337,7 @@ class ventas_agrupar_albaranes extends fs_controller
             {
                $n = new linea_factura_cliente();
                $n->idalbaran = $alb->idalbaran;
+               $n->idlineaalbaran = $l->idlinea;
                $n->idfactura = $factura->idfactura;
                $n->cantidad = $l->cantidad;
                $n->codimpuesto = $l->codimpuesto;

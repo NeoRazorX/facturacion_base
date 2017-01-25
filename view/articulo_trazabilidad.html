@@ -33,7 +33,7 @@
                </a>
                <a id="b_nueva_traza" class="btn btn-xs btn-success" href="#">
                   <span class="glyphicon glyphicon-plus"></span>
-                  <span class="hidden-xs">&nbsp; Nuevo</span>
+                  <span class="hidden-xs">&nbsp;Nuevo</span>
                </a>
             </h1>
             <p class="help-block">{$fsc->articulo->descripcion}</p>
@@ -107,7 +107,7 @@
                <input class="form-control" type="text" name="lote" value="{$value->lote}" maxlength="50" autocomplete="off"/>
             </td>
             <td class="text-right">
-               {if="$value->idlalbcompra OR $value->idlalbcompra"}
+               {if="$value->idlalbcompra OR $value->idlfaccompra"}
                <a href="{$value->documento_compra_url()}" target="_blank" class="btn btn-sm btn-default" title="Ver documento de entrada">
                   <span class="glyphicon glyphicon-eye-open"></span>
                </a>

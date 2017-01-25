@@ -30,7 +30,11 @@ class compras_trazabilidad extends fs_controller
 {
    public $documento;
    public $lineas;
+   public $tab;
    public $tipo;
+   
+   private $articulo;
+   private $articulo_traza;
    
    public function __construct()
    {
@@ -56,14 +60,25 @@ class compras_trazabilidad extends fs_controller
          }
       }
       
+      $this->tab = isset($_GET['tab']);
+      
       if($this->documento)
       {
+         $this->articulo = new articulo();
+         $this->articulo_traza = new articulo_traza();
+         
          if( isset($_POST['id_0']) )
          {
             $this->modificar();
          }
          
          $this->get_lineas();
+         
+         /**
+          * Cargamos las extensiones solamente si se usa trazabilidad,
+          * hasta entonces no aparecerá la pestaña.
+          */
+         $this->share_extensions();
       }
       else
       {
@@ -71,16 +86,45 @@ class compras_trazabilidad extends fs_controller
       }
    }
    
+   private function share_extensions()
+   {
+      $fsext = new fs_extension();
+      $fsext->name = 'tab_compras_trazabilidad_fac';
+      $fsext->from = __CLASS__;
+      $fsext->to = 'compras_factura';
+      $fsext->type = 'tab';
+      $fsext->text = '<i class="fa fa-code-fork" aria-hidden="true"></i>'
+              . '<span class="hidden-xs">&nbsp;Trazabilidad</span>';
+      $fsext->params = '&doc=factura&tab=TRUE';
+      $fsext->save();
+      
+      $fsext2 = new fs_extension();
+      $fsext2->name = 'tab_compras_trazabilidad_alb';
+      $fsext2->from = __CLASS__;
+      $fsext2->to = 'compras_albaran';
+      $fsext2->type = 'tab';
+      $fsext2->text = '<i class="fa fa-code-fork" aria-hidden="true"></i>'
+              . '<span class="hidden-xs">&nbsp;Trazabilidad</span>';
+      $fsext2->params = '&doc=albaran&tab=TRUE';
+      $fsext2->save();
+   }
+   
    public function url()
    {
       if($this->documento)
       {
+         $extra = '';
+         if($this->tab)
+         {
+            $extra = '&tab=TRUE';
+         }
+         
          if( get_class_name($this->documento) == 'albaran_proveedor' )
          {
-            return parent::url().'&doc=albaran&id='.$this->documento->idalbaran;
+            return parent::url().'&doc=albaran&id='.$this->documento->idalbaran.$extra;
          }
          else
-            return parent::url().'&doc=factura&id='.$this->documento->idfactura;
+            return parent::url().'&doc=factura&id='.$this->documento->idfactura.$extra;
       }
       else
          return parent::url();
@@ -88,17 +132,18 @@ class compras_trazabilidad extends fs_controller
    
    private function get_lineas()
    {
-      $art0 = new articulo();
-      $at0 = new articulo_traza();
       $this->lineas = array();
       
-      /// ¿Existen ya las lineas de trazabilidad para este documento?
+      /**
+       * ¿Existen ya las lineas de trazabilidad para este documento?
+       * Miramos linea a linea para ver si hay que crear o eliminar.
+       */
       $nuevas = FALSE;
       foreach($this->documento->get_lineas() as $lindoc)
       {
          if($lindoc->referencia)
          {
-            $articulo = $art0->get($lindoc->referencia);
+            $articulo = $this->articulo->get($lindoc->referencia);
             if($articulo)
             {
                if($articulo->trazabilidad)
@@ -106,18 +151,47 @@ class compras_trazabilidad extends fs_controller
                   $num = 0;
                   if( get_class_name($this->documento) == 'albaran_proveedor' )
                   {
-                     foreach($at0->all_from_linea('idlalbcompra', $lindoc->idlinea) as $traza)
+                     foreach($this->articulo_traza->all_from_linea('idlalbcompra', $lindoc->idlinea) as $traza)
                      {
-                        $this->lineas[] = $traza;
-                        $num++;
+                        if($num > $lindoc->cantidad)
+                        {
+                           /// si hay más líneas de trazabilidad que cantidad, las eliminamos
+                           $traza->delete();
+                        }
+                        else
+                        {
+                           $this->lineas[] = $traza;
+                           $num++;
+                        }
                      }
                   }
                   else
                   {
-                     foreach($at0->all_from_linea('idlfaccompra', $lindoc->idlinea) as $traza)
+                     /// primero comprobamos albaranes previos
+                     if($lindoc->idlineaalbaran)
                      {
-                        $this->lineas[] = $traza;
-                        $num++;
+                        foreach($this->articulo_traza->all_from_linea('idlalbcompra', $lindoc->idlineaalbaran) as $traza)
+                        {
+                           if( is_null($traza->idlfaccompra) )
+                           {
+                              $traza->idlfaccompra = $lindoc->idlinea;
+                              $traza->save();
+                           }
+                        }
+                     }
+                     
+                     /// ahora comprobamos de la factura
+                     foreach($this->articulo_traza->all_from_linea('idlfaccompra', $lindoc->idlinea) as $traza)
+                     {
+                        if($num > $lindoc->cantidad)
+                        {
+                           $traza->delete();
+                        }
+                        else
+                        {
+                           $this->lineas[] = $traza;
+                           $num++;
+                        }
                      }
                   }
                   
@@ -214,7 +288,14 @@ class compras_trazabilidad extends fs_controller
       
       if($ok)
       {
-         header('Location: '.$this->documento->url());
+         if($this->tab)
+         {
+            $this->new_message('Datos guardados correctamente.');
+         }
+         else
+         {
+            header('Location: '.$this->documento->url());
+         }
       }
    }
 }
