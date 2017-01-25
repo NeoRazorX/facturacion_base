@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -73,7 +73,7 @@ class contabilidad_subcuenta extends fs_controller
          
          if( isset($_POST['puntear']) )
          {
-            $this->puntear();
+            $this->modificar();
          }
          else if( isset($_GET['genlm']) )
          {
@@ -158,7 +158,7 @@ class contabilidad_subcuenta extends fs_controller
       return $paginas;
    }
    
-   private function puntear()
+   private function modificar()
    {
       if($_POST['descripcion'] != $this->subcuenta->descripcion)
       {

@@ -270,6 +270,7 @@ class contabilidad_asiento extends fs_controller
          }
          
          /// añadimos y modificamos
+         $subcuentas_recalcular = array();
          $npartida = new partida();
          for($i = 1; $i <= $numlineas; $i++)
          {
@@ -283,7 +284,15 @@ class contabilidad_asiento extends fs_controller
                else
                {
                   $partida = $npartida->get( $_POST['idpartida_'.$i] );
-                  if( !$partida )
+                  if($partida)
+                  {
+                     if($partida->codsubcuenta != $_POST['codsubcuenta_'.$i])
+                     {
+                        /// si hemos cambiado de subcuenta, hay que recalcular el saldo de la anterior
+                        $subcuentas_recalcular[] = $partida->get_subcuenta();
+                     }
+                  }
+                  else
                   {
                      $this->new_error_msg('Partida de '.$_POST['codsubcuenta_'.$i].' no encontrada.');
                      $continuar = FALSE;
@@ -349,6 +358,12 @@ class contabilidad_asiento extends fs_controller
                else
                   break;
             }
+         }
+         
+         /// recalculamos el saldo de las subcuentas cambiadas
+         foreach($subcuentas_recalcular as $scr)
+         {
+            $scr->save();
          }
          
          if($continuar)
