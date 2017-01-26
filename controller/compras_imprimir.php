@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,6 +21,7 @@ require_once __DIR__.'/../extras/fs_pdf.php';
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
 require_model('articulo_proveedor.php');
+require_model('articulo_traza.php');
 require_model('proveedor.php');
 
 /**
@@ -35,6 +36,7 @@ class compras_imprimir extends fs_controller
    public $impresion;
    public $impuesto;
    
+   private $articulo_traza;
    private $numpaginas;
    
    public function __construct()
@@ -61,6 +63,8 @@ class compras_imprimir extends fs_controller
       
       if( isset($_REQUEST['albaran']) AND isset($_REQUEST['id']) )
       {
+         $this->articulo_traza = new articulo_traza();
+         
          $alb = new albaran_proveedor();
          $this->albaran = $alb->get($_REQUEST['id']);
          if($this->albaran)
@@ -78,6 +82,8 @@ class compras_imprimir extends fs_controller
       }
       else if( isset($_REQUEST['factura']) AND isset($_REQUEST['id']) )
       {
+         $this->articulo_traza = new articulo_traza();
+         
          $fac = new factura_proveedor();
          $this->factura = $fac->get($_REQUEST['id']);
          if($this->factura)
@@ -298,6 +304,9 @@ class compras_imprimir extends fs_controller
                     .'</b> '.$descripcion;
          }
          
+         /// ¿El articulo tiene trazabilidad?
+         $descripcion .= $this->generar_trazabilidad($lineas[$linea_actual]);
+         
          $fila = array(
              'cantidad' => $this->show_numero($lineas[$linea_actual]->cantidad, $dec_cantidad),
              'descripcion' => $descripcion,
@@ -354,6 +363,36 @@ class compras_imprimir extends fs_controller
             $pdf_doc->pdf->ezText("\n".$pdf_doc->fix_html($documento->observaciones), 9);
          }
       }
+   }
+   
+   private function generar_trazabilidad($linea)
+   {
+      $lineast = array();
+      if( get_class_name($linea) == 'linea_albaran_proveedor' )
+      {
+         $lineast = $this->articulo_traza->all_from_linea('idlalbcompra', $linea->idlinea);
+      }
+      else
+      {
+         $lineast = $this->articulo_traza->all_from_linea('idlfaccompra', $linea->idlinea);
+      }
+      
+      $txt = '';
+      foreach($lineast as $lt)
+      {
+         $txt .= "\n";
+         if($lt->numserie)
+         {
+            $txt .= 'N/S: '.$lt->numserie.' ';
+         }
+         
+         if($lt->lote)
+         {
+            $txt .= 'Lote: '.$lt->lote;
+         }
+      }
+      
+      return $txt;
    }
    
    private function generar_pdf_albaran($archivo = FALSE)

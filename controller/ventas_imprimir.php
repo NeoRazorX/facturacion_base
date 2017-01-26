@@ -48,7 +48,6 @@ class ventas_imprimir extends fs_controller
    protected function private_core()
    {
       $this->albaran = FALSE;
-      $this->articulo_traza = new articulo_traza();
       $this->cliente = FALSE;
       $this->factura = FALSE;
       $this->impuesto = new impuesto();
@@ -65,6 +64,8 @@ class ventas_imprimir extends fs_controller
       
       if( isset($_REQUEST['albaran']) AND isset($_REQUEST['id']) )
       {
+         $this->articulo_traza = new articulo_traza();
+         
          $alb = new albaran_cliente();
          $this->albaran = $alb->get($_REQUEST['id']);
          if($this->albaran)
@@ -82,6 +83,8 @@ class ventas_imprimir extends fs_controller
       }
       else if( isset($_REQUEST['factura']) AND isset($_REQUEST['id']) )
       {
+         $this->articulo_traza = new articulo_traza();
+         
          $fac = new factura_cliente();
          $this->factura = $fac->get($_REQUEST['id']);
          if($this->factura)
