@@ -278,8 +278,7 @@
                         {/if}
                      </td>
                      <td>
-                        <a href="{$value->articulo_url()}">{$value->referencia}</a>
-                        {$value->descripcion}
+                        <a href="{$value->articulo_url()}">{$value->referencia}</a> {$value->descripcion()}
                      </td>
                      <td class="text-right">{$value->cantidad}</td>
                      <td class="text-right">{$fsc->show_precio($value->pvpunitario, $fsc->factura->coddivisa, TRUE, FS_NF0_ART)}</td>

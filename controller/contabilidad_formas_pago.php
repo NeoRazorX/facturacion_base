@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2014-2016    Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2017    Carlos Garcia Gomez  neorazorx@gmail.com
  * Copyright (C) 2014         GISBEL JOSE          gpg841@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -72,6 +72,7 @@ class contabilidad_formas_pago extends fs_controller
          $fp0->descripcion = $_POST['descripcion'];
          $fp0->genrecibos = $_POST['genrecibos'];
          $fp0->vencimiento = $_POST['vencimiento'];
+         $fp0->imprimir = isset($_POST['imprimir']);
          
          $fp0->codcuenta = NULL;
          if($_POST['codcuenta'] != '')

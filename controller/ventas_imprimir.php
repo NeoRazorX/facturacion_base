@@ -31,9 +31,8 @@ require_model('forma_pago.php');
  */
 class ventas_imprimir extends fs_controller
 {
-   public $albaran;
    public $cliente;
-   public $factura;
+   public $documento;
    public $impresion;
    public $impuesto;
    
@@ -47,9 +46,8 @@ class ventas_imprimir extends fs_controller
    
    protected function private_core()
    {
-      $this->albaran = FALSE;
       $this->cliente = FALSE;
-      $this->factura = FALSE;
+      $this->documento = FALSE;
       $this->impuesto = new impuesto();
       
       /// obtenemos los datos de configuración de impresión
@@ -67,11 +65,11 @@ class ventas_imprimir extends fs_controller
          $this->articulo_traza = new articulo_traza();
          
          $alb = new albaran_cliente();
-         $this->albaran = $alb->get($_REQUEST['id']);
-         if($this->albaran)
+         $this->documento = $alb->get($_REQUEST['id']);
+         if($this->documento)
          {
             $cliente = new cliente();
-            $this->cliente = $cliente->get($this->albaran->codcliente);
+            $this->cliente = $cliente->get($this->documento->codcliente);
          }
          
          if( isset($_POST['email']) )
@@ -86,11 +84,11 @@ class ventas_imprimir extends fs_controller
          $this->articulo_traza = new articulo_traza();
          
          $fac = new factura_cliente();
-         $this->factura = $fac->get($_REQUEST['id']);
-         if($this->factura)
+         $this->documento = $fac->get($_REQUEST['id']);
+         if($this->documento)
          {
             $cliente = new cliente();
-            $this->cliente = $cliente->get($this->factura->codcliente);
+            $this->cliente = $cliente->get($this->documento->codcliente);
          }
          
          if( isset($_POST['email']) )
@@ -166,7 +164,7 @@ class ventas_imprimir extends fs_controller
       }
    }
    
-   private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, $lppag, $documento)
+   private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag)
    {
       /// calculamos el número de páginas
       if( !isset($this->numpaginas) )
@@ -300,11 +298,11 @@ class ventas_imprimir extends fs_controller
           'alb' => '<b>'.ucfirst(FS_ALBARAN).'</b>',
           'descripcion' => '<b>Ref. + Descripción</b>',
           'cantidad' => '<b>Cant.</b>',
-          'pvp' => '<b>PVP</b>',
+          'pvp' => '<b>Precio</b>',
       );
       
       /// ¿Desactivamos la columna de albaran?
-      if( get_class_name($documento) == 'factura_cliente' )
+      if( get_class_name($this->documento) == 'factura_cliente' )
       {
          if($this->impresion['print_alb'])
          {
@@ -376,12 +374,12 @@ class ventas_imprimir extends fs_controller
              'alb' => '-',
              'cantidad' => $this->show_numero($lineas[$linea_actual]->cantidad, $dec_cantidad),
              'descripcion' => $descripcion,
-             'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $documento->coddivisa, TRUE, FS_NF0_ART),
+             'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $this->documento->coddivisa, TRUE, FS_NF0_ART),
              'dto' => $this->show_numero($lineas[$linea_actual]->dtopor) . " %",
              'iva' => $this->show_numero($lineas[$linea_actual]->iva) . " %",
              're' => $this->show_numero($lineas[$linea_actual]->recargo) . " %",
              'irpf' => $this->show_numero($lineas[$linea_actual]->irpf) . " %",
-             'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $documento->coddivisa)
+             'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $this->documento->coddivisa)
          );
          
          if($lineas[$linea_actual]->dtopor == 0)
@@ -441,8 +439,22 @@ class ventas_imprimir extends fs_controller
                   'lineCol' => array(0.3, 0.3, 0.3),
               )
       );
+      
+      /// ¿Última página?
+      if( $linea_actual == count($lineas) )
+      {
+         if($this->documento->observaciones != '')
+         {
+            $pdf_doc->pdf->ezText("\n".$pdf_doc->fix_html($this->documento->observaciones), 9);
+         }
+      }
    }
    
+   /**
+    * Devuelve el texto con los números de serie o lotes de la $linea
+    * @param linea_albaran_compra $linea
+    * @return string
+    */
    private function generar_trazabilidad($linea)
    {
       $lineast = array();
@@ -473,6 +485,190 @@ class ventas_imprimir extends fs_controller
       return $txt;
    }
    
+   private function generar_pdf_datos_cliente(&$pdf_doc, &$lppag)
+   {
+      $tipo_doc = ucfirst(FS_ALBARAN);
+      $rectificativa = FALSE;
+      if( get_class_name($this->documento) == 'factura_cliente' )
+      {
+         if($this->documento->idfacturarect)
+         {
+            $tipo_doc = ucfirst(FS_FACTURA_RECTIFICATIVA);
+            $rectificativa = TRUE;
+         }
+         else
+         {
+            $tipo_doc = 'Factura';
+         }
+      }
+      
+      $tipoidfiscal = FS_CIFNIF;
+      if($this->cliente)
+      {
+         $tipoidfiscal = $this->cliente->tipoidfiscal;
+      }
+      
+      /*
+       * Esta es la tabla con los datos del cliente:
+       * Albarán:                 Fecha:
+       * Cliente:               CIF/NIF:
+       * Dirección:           Teléfonos:
+       */
+      $pdf_doc->new_table();
+      $pdf_doc->add_table_row(
+              array(
+                  'campo1' => "<b>".$tipo_doc.":</b>",
+                  'dato1' => $this->documento->codigo,
+                  'campo2' => "<b>Fecha:</b> ".$this->documento->fecha
+              )
+      );
+      
+      if($rectificativa)
+      {
+         $pdf_doc->add_table_row(
+                 array(
+                     'campo1' => "<b>Original:</b>",
+                     'dato1' => $this->documento->codigorect,
+                     'campo2' => '',
+                 )
+         );
+      }
+      
+      $pdf_doc->add_table_row(
+              array(
+                  'campo1' => "<b>Cliente:</b> ",
+                  'dato1' => $pdf_doc->fix_html($this->documento->nombrecliente),
+                  'campo2' => "<b>".$tipoidfiscal.":</b> ".$this->documento->cifnif
+              )
+      );
+      
+      $direccion = $this->documento->direccion;
+      if($this->documento->apartado)
+      {
+         $direccion .= ' - '.ucfirst(FS_APARTADO).': '.$this->documento->apartado;
+      }
+      if($this->documento->codpostal)
+      {
+         $direccion .= ' - CP: '.$this->documento->codpostal;
+      }
+      $direccion .= ' - '.$this->documento->ciudad.' ('.$this->documento->provincia.')';
+      $row = array(
+          'campo1' => "<b>Dirección:</b>",
+          'dato1' => $pdf_doc->fix_html($direccion),
+          'campo2' => ''
+      );
+      
+      if(!$this->cliente)
+      {
+         /// nada
+      }
+      else if($this->cliente->telefono1)
+      {
+         $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono1;
+         if($this->cliente->telefono2)
+         {
+            $row['campo2'] .= "\n".$this->cliente->telefono2;
+            $lppag -= 2;
+         }
+      }
+      else if($this->cliente->telefono2)
+      {
+         $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono2;
+      }
+      $pdf_doc->add_table_row($row);
+      
+      if($this->empresa->codpais != 'ESP')
+      {
+         $pdf_doc->add_table_row(
+            array(
+                'campo1' => "<b>Régimen ".FS_IVA.":</b> ",
+                'dato1' => $this->cliente->regimeniva,
+                'campo2' => ''
+            )
+         );
+      }
+      
+      $pdf_doc->save_table(
+         array(
+            'cols' => array(
+                'campo1' => array('width' => 90, 'justification' => 'right'),
+                'dato1' => array('justification' => 'left'),
+                'campo2' => array('justification' => 'right')
+            ),
+            'showLines' => 0,
+            'width' => 520,
+            'shaded' => 0
+         )
+      );
+      $pdf_doc->pdf->ezText("\n", 10);
+   }
+   
+   private function generar_pdf_totales(&$pdf_doc, &$lineas_iva, $pagina)
+   {
+      if( isset($_GET['noval']) )
+      {
+         $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text('Página '.$pagina.'/'.$this->numpaginas, 250) );
+      }
+      else
+      {
+         /*
+          * Rellenamos la última tabla de la página:
+          * 
+          * Página            Neto    IVA   Total
+          */
+         $pdf_doc->new_table();
+         $titulo = array('pagina' => '<b>Página</b>', 'neto' => '<b>Neto</b>',);
+         $fila = array(
+             'pagina' => $pagina . '/' . $this->numpaginas,
+             'neto' => $this->show_precio($this->documento->neto, $this->documento->coddivisa),
+         );
+         $opciones = array(
+             'cols' => array(
+                 'neto' => array('justification' => 'right'),
+             ),
+             'showLines' => 3,
+             'shaded' => 2,
+             'shadeCol2' => array(0.95, 0.95, 0.95),
+             'lineCol' => array(0.3, 0.3, 0.3),
+             'width' => 520
+         );
+         foreach($lineas_iva as $li)
+         {
+            $imp = $this->impuesto->get($li['codimpuesto']);
+            if($imp)
+            {
+               $titulo['iva'.$li['iva']] = '<b>'.$imp->descripcion.'</b>';
+            }
+            else
+               $titulo['iva'.$li['iva']] = '<b>'.FS_IVA.' '.$li['iva'].'%</b>';
+            
+            $fila['iva'.$li['iva']] = $this->show_precio($li['totaliva'], $this->documento->coddivisa);
+            
+            if($li['totalrecargo'] != 0)
+            {
+               $fila['iva'.$li['iva']] .= "\nR.E. ".$li['recargo']."%: ".$this->show_precio($li['totalrecargo'], $this->documento->coddivisa);
+            }
+               
+            $opciones['cols']['iva'.$li['iva']] = array('justification' => 'right');
+         }
+         
+         if($this->documento->totalirpf != 0)
+         {
+            $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->documento->irpf.'%</b>';
+            $fila['irpf'] = $this->show_precio($this->documento->totalirpf);
+            $opciones['cols']['irpf'] = array('justification' => 'right');
+         }
+         
+         $titulo['liquido'] = '<b>Total</b>';
+         $fila['liquido'] = $this->show_precio($this->documento->total, $this->documento->coddivisa);
+         $opciones['cols']['liquido'] = array('justification' => 'right');
+         
+         $pdf_doc->add_table_header($titulo);
+         $pdf_doc->add_table_row($fila);
+         $pdf_doc->save_table($opciones);
+      }
+   }
+   
    private function generar_pdf_albaran($archivo = FALSE)
    {
       if(!$archivo)
@@ -483,12 +679,12 @@ class ventas_imprimir extends fs_controller
       
       /// Creamos el PDF y escribimos sus metadatos
       $pdf_doc = new fs_pdf();
-      $pdf_doc->pdf->addInfo('Title', ucfirst(FS_ALBARAN).' '. $this->albaran->codigo);
-      $pdf_doc->pdf->addInfo('Subject', ucfirst(FS_ALBARAN).' de cliente ' . $this->albaran->codigo);
+      $pdf_doc->pdf->addInfo('Title', ucfirst(FS_ALBARAN).' '. $this->documento->codigo);
+      $pdf_doc->pdf->addInfo('Subject', ucfirst(FS_ALBARAN).' de cliente ' . $this->documento->codigo);
       $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
       
-      $lineas = $this->albaran->get_lineas();
-      $lineas_iva = $this->get_lineas_iva($lineas);
+      $lineas = $this->documento->get_lineas();
+      $lineas_iva = $pdf_doc->get_lineas_iva($lineas);
       if($lineas)
       {
          $linea_actual = 0;
@@ -506,170 +702,11 @@ class ventas_imprimir extends fs_controller
             }
             
             $pdf_doc->generar_pdf_cabecera($this->empresa, $lppag);
-            
-            /*
-             * Esta es la tabla con los datos del cliente:
-             * Albarán:                 Fecha:
-             * Cliente:               CIF/NIF:
-             * Dirección:           Teléfonos:
-             */
-            $pdf_doc->new_table();
-            $pdf_doc->add_table_row(
-               array(
-                   'campo1' => "<b>".ucfirst(FS_ALBARAN).":</b>",
-                   'dato1' => $this->albaran->codigo,
-                   'campo2' => "<b>Fecha:</b> ".$this->albaran->fecha
-               )
-            );
-            
-            $tipoidfiscal = FS_CIFNIF;
-            if($this->cliente)
-            {
-               $tipoidfiscal = $this->cliente->tipoidfiscal;
-            }
-            $pdf_doc->add_table_row(
-               array(
-                   'campo1' => "<b>Cliente:</b> ",
-                   'dato1' => $pdf_doc->fix_html($this->albaran->nombrecliente),
-                   'campo2' => "<b>".$tipoidfiscal.":</b> ".$this->albaran->cifnif
-               )
-            );
-            
-            $direccion = $this->albaran->direccion;
-            if($this->albaran->apartado)
-            {
-               $direccion .= ' - '.ucfirst(FS_APARTADO).': '.$this->albaran->apartado;
-            }
-            if($this->albaran->codpostal)
-            {
-               $direccion .= ' - CP: '.$this->albaran->codpostal;
-            }
-            $direccion .= ' - '.$this->albaran->ciudad.' ('.$this->albaran->provincia.')';
-            $row = array(
-                'campo1' => "<b>Dirección:</b>",
-                'dato1' => $pdf_doc->fix_html($direccion),
-                'campo2' => ''
-            );
-            
-            if(!$this->cliente)
-            {
-               /// nada
-            }
-            else if($this->cliente->telefono1)
-            {
-               $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono1;
-               if($this->cliente->telefono2)
-               {
-                  $row['campo2'] .= "\n".$this->cliente->telefono2;
-                  $lppag -= 2;
-               }
-            }
-            else if($this->cliente->telefono2)
-            {
-               $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono2;
-            }
-            $pdf_doc->add_table_row($row);
-            
-            if($this->empresa->codpais != 'ESP')
-            {
-               $pdf_doc->add_table_row(
-                  array(
-                      'campo1' => "<b>Régimen ".FS_IVA.":</b> ",
-                      'dato1' => $this->cliente->regimeniva,
-                      'campo2' => ''
-                  )
-               );
-            }
-            
-            $pdf_doc->save_table(
-               array(
-                   'cols' => array(
-                       'campo1' => array('width' => 90, 'justification' => 'right'),
-                       'dato1' => array('justification' => 'left'),
-                       'campo2' => array('justification' => 'right')
-                   ),
-                   'showLines' => 0,
-                   'width' => 520,
-                   'shaded' => 0
-               )
-            );
-            $pdf_doc->pdf->ezText("\n", 10);
-            
-            $this->generar_pdf_lineas($pdf_doc, $lineas, $linea_actual, $lppag, $this->albaran);
-            
-            if( $linea_actual == count($lineas) )
-            {
-               if($this->albaran->observaciones != '')
-               {
-                  $pdf_doc->pdf->ezText("\n".$pdf_doc->fix_html($this->albaran->observaciones), 9);
-               }
-            }
+            $this->generar_pdf_datos_cliente($pdf_doc, $lppag);
+            $this->generar_pdf_lineas($pdf_doc, $lineas, $linea_actual, $lppag);
             
             $pdf_doc->set_y(80);
-            
-            /*
-             * Rellenamos la última tabla de la página:
-             * 
-             * Página            Neto    IVA   Total
-             */
-            $pdf_doc->new_table();
-            $titulo = array('pagina' => '<b>Página</b>', 'neto' => '<b>Neto</b>',);
-            $fila = array(
-                'pagina' => $pagina . '/' . $this->numpaginas,
-                'neto' => $this->show_precio($this->albaran->neto, $this->albaran->coddivisa),
-            );
-            $opciones = array(
-                'cols' => array(
-                    'neto' => array('justification' => 'right'),
-                ),
-                'showLines' => 3,
-                'shaded' => 2,
-                'shadeCol2' => array(0.95, 0.95, 0.95),
-                'lineCol' => array(0.3, 0.3, 0.3),
-                'width' => 520
-            );
-            foreach($lineas_iva as $li)
-            {
-               $imp = $this->impuesto->get($li['codimpuesto']);
-               if($imp)
-               {
-                  $titulo['iva'.$li['iva']] = '<b>'.$imp->descripcion.'</b>';
-               }
-               else
-                  $titulo['iva'.$li['iva']] = '<b>'.FS_IVA.' '.$li['iva'].'%</b>';
-               
-               $fila['iva'.$li['iva']] = $this->show_precio($li['totaliva'], $this->albaran->coddivisa);
-               
-               if($li['totalrecargo'] != 0)
-               {
-                  $fila['iva'.$li['iva']] .= "\nR.E. ".$li['recargo']."%: ".$this->show_precio($li['totalrecargo'], $this->albaran->coddivisa);
-               }
-               
-               $opciones['cols']['iva'.$li['iva']] = array('justification' => 'right');
-            }
-            
-            if($this->albaran->totalirpf != 0)
-            {
-               $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->albaran->irpf.'%</b>';
-               $fila['irpf'] = $this->show_precio($this->albaran->totalirpf);
-               $opciones['cols']['irpf'] = array('justification' => 'right');
-            }
-            
-            $titulo['liquido'] = '<b>Total</b>';
-            $fila['liquido'] = $this->show_precio($this->albaran->total, $this->albaran->coddivisa);
-            $opciones['cols']['liquido'] = array('justification' => 'right');
-            
-            if( isset($_GET['noval']) )
-            {
-               $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text('Página '.$pagina.'/'.$this->numpaginas, 250) );
-            }
-            else
-            {
-               $pdf_doc->add_table_header($titulo);
-               $pdf_doc->add_table_row($fila);
-               $pdf_doc->save_table($opciones);
-            }
-            
+            $this->generar_pdf_totales($pdf_doc, $lineas_iva, $pagina);
             $pagina++;
          }
       }
@@ -688,7 +725,7 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->save('tmp/'.FS_TMP_NAME.'enviar/'.$archivo);
       }
       else
-         $pdf_doc->show(FS_ALBARAN.'_'.$this->albaran->codigo.'.pdf');
+         $pdf_doc->show(FS_ALBARAN.'_'.$this->documento->codigo.'.pdf');
    }
    
    private function generar_pdf_factura($tipo = 'simple', $archivo = FALSE)
@@ -701,12 +738,12 @@ class ventas_imprimir extends fs_controller
       
       /// Creamos el PDF y escribimos sus metadatos
       $pdf_doc = new fs_pdf();
-      $pdf_doc->pdf->addInfo('Title', ucfirst(FS_FACTURA).' '. $this->factura->codigo);
-      $pdf_doc->pdf->addInfo('Subject', ucfirst(FS_FACTURA).' ' . $this->factura->codigo);
+      $pdf_doc->pdf->addInfo('Title', ucfirst(FS_FACTURA).' '. $this->documento->codigo);
+      $pdf_doc->pdf->addInfo('Subject', ucfirst(FS_FACTURA).' ' . $this->documento->codigo);
       $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
       
-      $lineas = $this->factura->get_lineas();
-      $lineas_iva = $this->get_lineas_iva($lineas);
+      $lineas = $this->documento->get_lineas();
+      $lineas_iva = $pdf_doc->get_lineas_iva($lineas);
       if($lineas)
       {
          $linea_actual = 0;
@@ -730,27 +767,27 @@ class ventas_imprimir extends fs_controller
             {
                $pdf_doc->generar_pdf_cabecera($this->empresa, $lppag);
                
-               $direccion = $this->factura->nombrecliente."\n".$this->factura->direccion;
-               if($this->factura->apartado)
+               $direccion = $this->documento->nombrecliente."\n".$this->documento->direccion;
+               if($this->documento->apartado)
                {
-                  $direccion .= "\n " . ucfirst(FS_APARTADO) . ": " . $this->factura->apartado;
+                  $direccion .= "\n " . ucfirst(FS_APARTADO) . ": " . $this->documento->apartado;
                }
                
-               if($this->factura->codpostal)
+               if($this->documento->codpostal)
                {
-                  $direccion .= "\n CP: " . $this->factura->codpostal . ' - ';
+                  $direccion .= "\n CP: " . $this->documento->codpostal . ' - ';
                }
                else
                {
                   $direccion .= "\n";
                }
-               $direccion .= $this->factura->ciudad . "\n(" . $this->factura->provincia . ")";
+               $direccion .= $this->documento->ciudad . "\n(" . $this->documento->provincia . ")";
                
                $pdf_doc->new_table();
                $pdf_doc->add_table_row(
                   array(
                       'campos' => "<b>".ucfirst(FS_FACTURA).":</b>\n<b>Fecha:</b>\n<b>".$this->cliente->tipoidfiscal.":</b>",
-                      'factura' => $this->factura->codigo."\n".$this->factura->fecha."\n".$this->factura->cifnif,
+                      'factura' => $this->documento->codigo."\n".$this->documento->fecha."\n".$this->documento->cifnif,
                       'cliente' => $pdf_doc->fix_html($direccion)
                   )
                );
@@ -770,139 +807,30 @@ class ventas_imprimir extends fs_controller
             else /// esta es la cabecera de la página para el modelo 'simple'
             {
                $pdf_doc->generar_pdf_cabecera($this->empresa, $lppag);
-               
-               /*
-                * Esta es la tabla con los datos del cliente:
-                * Factura:                 Fecha:
-                * Cliente:               CIF/NIF:
-                * Dirección:           Teléfonos:
-                */
-               $pdf_doc->new_table();
-               
-               if($this->factura->idfacturarect)
-               {
-                  $pdf_doc->add_table_row(
-                     array(
-                        'campo1' => "<b>".ucfirst(FS_FACTURA_RECTIFICATIVA).":</b> ",
-                        'dato1' => $this->factura->codigo,
-                        'campo2' => "<b>Fecha:</b> ".$this->factura->fecha
-                     )
-                  );
-                  $pdf_doc->add_table_row(
-                     array(
-                        'campo1' => "<b>Original:</b> ",
-                        'dato1' => $this->factura->codigorect,
-                        'campo2' => ''
-                     )
-                  );
-               }
-               else
-               {
-                  $pdf_doc->add_table_row(
-                     array(
-                         'campo1' => "<b>".ucfirst(FS_FACTURA).":</b>",
-                         'dato1' => $this->factura->codigo,
-                         'campo2' => "<b>Fecha:</b> ".$this->factura->fecha
-                     )
-                  );
-               }
-               
-               $tipoidfiscal = FS_CIFNIF;
-               if($this->cliente)
-               {
-                  $tipoidfiscal = $this->cliente->tipoidfiscal;
-               }
-               $pdf_doc->add_table_row(
-                  array(
-                      'campo1' => "<b>Cliente:</b> ",
-                      'dato1' => $pdf_doc->fix_html($this->factura->nombrecliente),
-                      'campo2' => "<b>".$tipoidfiscal.":</b> ".$this->factura->cifnif
-                  )
-               );
-               
-               $direccion = $this->factura->direccion;
-               if($this->factura->apartado)
-               {
-                  $direccion .= ' - '.ucfirst(FS_APARTADO).': '.$this->factura->apartado;
-               }
-               if($this->factura->codpostal)
-               {
-                  $direccion .= ' - CP: '.$this->factura->codpostal;
-               }
-               $direccion .= ' - '.$this->factura->ciudad.' ('.$this->factura->provincia.')';
-               $row = array(
-                   'campo1' => "<b>Dirección:</b>",
-                   'dato1' => $pdf_doc->fix_html($direccion),
-                   'campo2' => ''
-               );
-               
-               if(!$this->cliente)
-               {
-                  /// nada
-               }
-               else if($this->cliente->telefono1)
-               {
-                  $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono1;
-                  if($this->cliente->telefono2)
-                  {
-                     $row['campo2'] .= "\n".$this->cliente->telefono2;
-                     $lppag -= 2;
-                  }
-               }
-               else if($this->cliente->telefono2)
-               {
-                  $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono2;
-               }
-               $pdf_doc->add_table_row($row);
-               
-               if($this->empresa->codpais != 'ESP')
-               {
-                  $pdf_doc->add_table_row(
-                     array(
-                         'campo1' => "<b>Régimen ".FS_IVA.":</b> ",
-                         'dato1' => $this->cliente->regimeniva,
-                         'campo2' => ''
-                     )
-                  );
-               }
-               
-               $pdf_doc->save_table(
-                  array(
-                      'cols' => array(
-                          'campo1' => array('width' => 90, 'justification' => 'right'),
-                          'dato1' => array('justification' => 'left'),
-                          'campo2' => array('justification' => 'right'),
-                      ),
-                      'showLines' => 0,
-                      'width' => 520,
-                      'shaded' => 0
-                  )
-               );
-               $pdf_doc->pdf->ezText("\n", 10);
+               $this->generar_pdf_datos_cliente($pdf_doc, $lppag);
             }
             
-            $this->generar_pdf_lineas($pdf_doc, $lineas, $linea_actual, $lppag, $this->factura);
+            $this->generar_pdf_lineas($pdf_doc, $lineas, $linea_actual, $lppag, $this->documento);
             
             if( $linea_actual == count($lineas) )
             {
-               if($this->factura->observaciones != '')
-               {
-                  $pdf_doc->pdf->ezText("\n".$pdf_doc->fix_html($this->factura->observaciones), 9);
-               }
-               
-               if( !$this->factura->pagada AND $this->impresion['print_formapago'] )
+               if( !$this->documento->pagada AND $this->impresion['print_formapago'] )
                {
                   $fp0 = new forma_pago();
-                  $forma_pago = $fp0->get($this->factura->codpago);
+                  $forma_pago = $fp0->get($this->documento->codpago);
                   if($forma_pago)
                   {
                      $texto_pago = "\n<b>Forma de pago</b>: ".$forma_pago->descripcion;
                      
-                     if($forma_pago->domiciliado)
+                     if(!$forma_pago->imprimir)
+                     {
+                        /// nada
+                     }
+                     else if($forma_pago->domiciliado)
                      {
                         $cbc0 = new cuenta_banco_cliente();
                         $encontrada = FALSE;
-                        foreach($cbc0->all_from_cliente($this->factura->codcliente) as $cbc)
+                        foreach($cbc0->all_from_cliente($this->documento->codcliente) as $cbc)
                         {
                            $texto_pago .= "\n<b>Domiciliado en</b>: ";
                            if($cbc->iban)
@@ -940,68 +868,14 @@ class ventas_imprimir extends fs_controller
                         }
                      }
                      
-                     $texto_pago .= "\n<b>Vencimiento</b>: ".$this->factura->vencimiento;
+                     $texto_pago .= "\n<b>Vencimiento</b>: ".$this->documento->vencimiento;
                      $pdf_doc->pdf->ezText($texto_pago, 9);
                   }
                }
             }
             
             $pdf_doc->set_y(80);
-            
-            /*
-             * Rellenamos la última tabla de la página:
-             * 
-             * Página            Neto    IVA   Total
-             */
-            $pdf_doc->new_table();
-            $titulo = array('pagina' => '<b>Página</b>', 'neto' => '<b>Neto</b>',);
-            $fila = array(
-                'pagina' => $pagina . '/' . $this->numpaginas,
-                'neto' => $this->show_precio($this->factura->neto, $this->factura->coddivisa),
-            );
-            $opciones = array(
-                'cols' => array(
-                    'neto' => array('justification' => 'right'),
-                ),
-                'showLines' => 3,
-                'shaded' => 2,
-                'shadeCol2' => array(0.95, 0.95, 0.95),
-                'lineCol' => array(0.3, 0.3, 0.3),
-                'width' => 520
-            );
-            foreach($lineas_iva as $li)
-            {
-               $imp = $this->impuesto->get($li['codimpuesto']);
-               if($imp)
-               {
-                  $titulo['iva'.$li['iva']] = '<b>'.$imp->descripcion.'</b>';
-               }
-               else
-                  $titulo['iva'.$li['iva']] = '<b>'.FS_IVA.' '.$li['iva'].'%</b>';
-               
-               $fila['iva'.$li['iva']] = $this->show_precio($li['totaliva'], $this->factura->coddivisa);
-               
-               if($li['totalrecargo'] != 0)
-               {
-                  $fila['iva'.$li['iva']] .= "\nR.E. ".$li['recargo']."%: ".$this->show_precio($li['totalrecargo'], $this->factura->coddivisa);
-               }
-               
-               $opciones['cols']['iva'.$li['iva']] = array('justification' => 'right');
-            }
-            
-            if($this->factura->totalirpf != 0)
-            {
-               $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->factura->irpf.'%</b>';
-               $fila['irpf'] = $this->show_precio($this->factura->totalirpf);
-               $opciones['cols']['irpf'] = array('justification' => 'right');
-            }
-            
-            $titulo['liquido'] = '<b>Total</b>';
-            $fila['liquido'] = $this->show_precio($this->factura->total, $this->factura->coddivisa);
-            $opciones['cols']['liquido'] = array('justification' => 'right');
-            $pdf_doc->add_table_header($titulo);
-            $pdf_doc->add_table_row($fila);
-            $pdf_doc->save_table($opciones);
+            $this->generar_pdf_totales($pdf_doc, $lineas_iva, $pagina);
             
             /// pié de página para la factura
             if($this->empresa->pie_factura)
@@ -1027,7 +901,7 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->save('tmp/'.FS_TMP_NAME.'enviar/'.$archivo);
       }
       else
-         $pdf_doc->show(FS_FACTURA.'_'.$this->factura->codigo.'.pdf');
+         $pdf_doc->show(FS_FACTURA.'_'.$this->documento->codigo.'.pdf');
    }
    
    private function enviar_email($doc, $tipo = 'simple')
@@ -1036,17 +910,16 @@ class ventas_imprimir extends fs_controller
       {
          if($doc == 'factura')
          {
-            $filename = 'factura_'.$this->factura->codigo.'.pdf';
+            $filename = 'factura_'.$this->documento->codigo.'.pdf';
             $this->generar_pdf_factura($tipo, $filename);
-            $razonsocial = $this->factura->nombrecliente;
          }
          else
          {
-            $filename = 'albaran_'.$this->albaran->codigo.'.pdf';
+            $filename = 'albaran_'.$this->documento->codigo.'.pdf';
             $this->generar_pdf_albaran($filename);
-            $razonsocial = $this->albaran->nombrecliente;
          }
          
+         $razonsocial = $this->documento->nombrecliente;
          if($this->cliente)
          {
             if( $_POST['email'] != $this->cliente->email AND isset($_POST['guardar']) )
@@ -1081,11 +954,11 @@ class ventas_imprimir extends fs_controller
             
             if($doc == 'factura')
             {
-               $mail->Subject = $this->empresa->nombre . ': Su factura '.$this->factura->codigo;
+               $mail->Subject = $this->empresa->nombre . ': Su factura '.$this->documento->codigo;
             }
             else
             {
-               $mail->Subject = $this->empresa->nombre . ': Su '.FS_ALBARAN.' '.$this->albaran->codigo;
+               $mail->Subject = $this->empresa->nombre . ': Su '.FS_ALBARAN.' '.$this->documento->codigo;
             }
             
             if( $this->is_html($_POST['mensaje']) )
@@ -1112,16 +985,8 @@ class ventas_imprimir extends fs_controller
                   $this->new_message('Mensaje enviado correctamente.');
                   
                   /// nos guardamos la fecha de envío
-                  if($doc == 'factura')
-                  {
-                     $this->factura->femail = $this->today();
-                     $this->factura->save();
-                  }
-                  else
-                  {
-                     $this->albaran->femail = $this->today();
-                     $this->albaran->save();
-                  }
+                  $this->documento->femail = $this->today();
+                  $this->documento->save();
                   
                   $this->empresa->save_mail($mail);
                }
@@ -1136,50 +1001,6 @@ class ventas_imprimir extends fs_controller
          else
             $this->new_error_msg('Imposible generar el PDF.');
       }
-   }
-   
-   private function get_lineas_iva($lineas)
-   {
-      $retorno = array();
-      $lineasiva = array();
-      
-      foreach($lineas as $lin)
-      {
-         if( isset($lineasiva[$lin->codimpuesto]) )
-         {
-            if($lin->recargo > $lineasiva[$lin->codimpuesto]['recargo'])
-            {
-               $lineasiva[$lin->codimpuesto]['recargo'] = $lin->recargo;
-            }
-            
-            $lineasiva[$lin->codimpuesto]['neto'] += $lin->pvptotal;
-            $lineasiva[$lin->codimpuesto]['totaliva'] += ($lin->pvptotal*$lin->iva)/100;
-            $lineasiva[$lin->codimpuesto]['totalrecargo'] += ($lin->pvptotal*$lin->recargo)/100;
-            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto']
-                    + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
-         }
-         else
-         {
-            $lineasiva[$lin->codimpuesto] = array(
-                'codimpuesto' => $lin->codimpuesto,
-                'iva' => $lin->iva,
-                'recargo' => $lin->recargo,
-                'neto' => $lin->pvptotal,
-                'totaliva' => ($lin->pvptotal*$lin->iva)/100,
-                'totalrecargo' => ($lin->pvptotal*$lin->recargo)/100,
-                'totallinea' => 0
-            );
-            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto']
-                    + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
-         }
-      }
-      
-      foreach($lineasiva as $lin)
-      {
-         $retorno[] = $lin;
-      }
-      
-      return $retorno;
    }
    
    public function is_html($txt)

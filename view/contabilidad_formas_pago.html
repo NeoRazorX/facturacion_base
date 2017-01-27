@@ -58,6 +58,7 @@
                </a>
             </th>
             <th class="text-center">Domiciliado</th>
+            <th class="text-center">Imprimir</th>
             <th class="text-right" width="120">Acciones</th>
          </tr>
       </thead>
@@ -111,7 +112,14 @@
             <td class="text-center">
                <div class="checkbox">
                   <label title="¿Domiciliado?">
-                     <input type="checkbox" name="domiciliado" value="TRUE"{if="$value->domiciliado"} checked="checked"{/if}/>
+                     <input type="checkbox" name="domiciliado" value="TRUE"{if="$value->domiciliado"} checked=""{/if}/>
+                  </label>
+               </div>
+            </td>
+            <td class="text-center">
+               <div class="checkbox">
+                  <label title="¿Mostrar desglose al imprimir documentos de venta?">
+                     <input type="checkbox" name="imprimir" value="TRUE"{if="$value->imprimir"} checked=""{/if}/>
                   </label>
                </div>
             </td>
@@ -174,6 +182,13 @@
                <div class="checkbox">
                   <label title="¿Domiciliado?">
                      <input type="checkbox" name="domiciliado" value="TRUE"/>
+                  </label>
+               </div>
+            </td>
+            <td class="text-center">
+               <div class="checkbox">
+                  <label title="¿Mostrar desglose al imprimir documentos de venta?">
+                     <input type="checkbox" name="imprimir" value="TRUE"/>
                   </label>
                </div>
             </td>

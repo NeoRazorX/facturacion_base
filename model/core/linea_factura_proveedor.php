@@ -249,6 +249,11 @@ class linea_factura_proveedor extends \fs_model
       return $this->pvptotal*(100+$this->iva-$this->irpf+$this->recargo)/100;
    }
    
+   public function descripcion()
+   {
+      return nl2br($this->descripcion);
+   }
+   
    public function show_codigo()
    {
       if( !isset($this->codigo) )

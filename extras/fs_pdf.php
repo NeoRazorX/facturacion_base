@@ -358,4 +358,48 @@ class fs_pdf
       $newt = str_replace('&#39;', "'", $newt);
       return $newt;
    }
+   
+   public function get_lineas_iva($lineas)
+   {
+      $retorno = array();
+      $lineasiva = array();
+      
+      foreach($lineas as $lin)
+      {
+         if( isset($lineasiva[$lin->codimpuesto]) )
+         {
+            if($lin->recargo > $lineasiva[$lin->codimpuesto]['recargo'])
+            {
+               $lineasiva[$lin->codimpuesto]['recargo'] = $lin->recargo;
+            }
+            
+            $lineasiva[$lin->codimpuesto]['neto'] += $lin->pvptotal;
+            $lineasiva[$lin->codimpuesto]['totaliva'] += ($lin->pvptotal*$lin->iva)/100;
+            $lineasiva[$lin->codimpuesto]['totalrecargo'] += ($lin->pvptotal*$lin->recargo)/100;
+            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto']
+                    + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
+         }
+         else
+         {
+            $lineasiva[$lin->codimpuesto] = array(
+                'codimpuesto' => $lin->codimpuesto,
+                'iva' => $lin->iva,
+                'recargo' => $lin->recargo,
+                'neto' => $lin->pvptotal,
+                'totaliva' => ($lin->pvptotal*$lin->iva)/100,
+                'totalrecargo' => ($lin->pvptotal*$lin->recargo)/100,
+                'totallinea' => 0
+            );
+            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto']
+                    + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
+         }
+      }
+      
+      foreach($lineasiva as $lin)
+      {
+         $retorno[] = $lin;
+      }
+      
+      return $retorno;
+   }
 }

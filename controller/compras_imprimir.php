@@ -25,17 +25,17 @@ require_model('articulo_traza.php');
 require_model('proveedor.php');
 
 /**
- * Esta clase agrupa los procedimientos de imprimir/enviar albaranes e imprimir facturas.
+ * Esta clase agrupa los procedimientos de imprimir/enviar albaranes de proveedor
+ * e imprimir facturas de proveedor.
  */
 class compras_imprimir extends fs_controller
 {
-   public $albaran;
-   public $articulo_proveedor;
-   public $proveedor;
-   public $factura;
+   public $documento;
    public $impresion;
    public $impuesto;
+   public $proveedor;
    
+   private $articulo_proveedor;
    private $articulo_traza;
    private $numpaginas;
    
@@ -46,11 +46,10 @@ class compras_imprimir extends fs_controller
    
    protected function private_core()
    {
-      $this->albaran = FALSE;
       $this->articulo_proveedor = new articulo_proveedor();
-      $this->proveedor = FALSE;
-      $this->factura = FALSE;
+      $this->documento = FALSE;
       $this->impuesto = new impuesto();
+      $this->proveedor = FALSE;
       
       /// obtenemos los datos de configuración de impresión
       $this->impresion = array(
@@ -66,11 +65,11 @@ class compras_imprimir extends fs_controller
          $this->articulo_traza = new articulo_traza();
          
          $alb = new albaran_proveedor();
-         $this->albaran = $alb->get($_REQUEST['id']);
-         if($this->albaran)
+         $this->documento = $alb->get($_REQUEST['id']);
+         if($this->documento)
          {
             $proveedor = new proveedor();
-            $this->proveedor = $proveedor->get($this->albaran->codproveedor);
+            $this->proveedor = $proveedor->get($this->documento->codproveedor);
          }
          
          if( isset($_POST['email']) )
@@ -85,11 +84,11 @@ class compras_imprimir extends fs_controller
          $this->articulo_traza = new articulo_traza();
          
          $fac = new factura_proveedor();
-         $this->factura = $fac->get($_REQUEST['id']);
-         if($this->factura)
+         $this->documento = $fac->get($_REQUEST['id']);
+         if($this->documento)
          {
             $proveedor = new proveedor();
-            $this->proveedor = $proveedor->get($this->factura->codproveedor);
+            $this->proveedor = $proveedor->get($this->documento->codproveedor);
          }
          
          $this->generar_pdf_factura();
@@ -136,7 +135,7 @@ class compras_imprimir extends fs_controller
       }
    }
    
-   private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, $lppag, $documento)
+   private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag)
    {
       /// calculamos el número de páginas
       if( !isset($this->numpaginas) )
@@ -269,7 +268,7 @@ class compras_imprimir extends fs_controller
       $table_header = array(
           'cantidad' => '<b>Cant.</b>',
           'descripcion' => '<b>Ref. Prov. + Descripción</b>',
-          'pvp' => '<b>PVP</b>',
+          'pvp' => '<b>Precio</b>',
       );
       
       if($this->impresion['print_dto'])
@@ -300,7 +299,7 @@ class compras_imprimir extends fs_controller
          $descripcion = $pdf_doc->fix_html($lineas[$linea_actual]->descripcion);
          if( !is_null($lineas[$linea_actual]->referencia) )
          {
-            $descripcion = '<b>'.$this->get_referencia_proveedor($lineas[$linea_actual]->referencia, $documento->codproveedor)
+            $descripcion = '<b>'.$this->get_referencia_proveedor($lineas[$linea_actual]->referencia)
                     .'</b> '.$descripcion;
          }
          
@@ -310,12 +309,12 @@ class compras_imprimir extends fs_controller
          $fila = array(
              'cantidad' => $this->show_numero($lineas[$linea_actual]->cantidad, $dec_cantidad),
              'descripcion' => $descripcion,
-             'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $documento->coddivisa, TRUE, FS_NF0_ART),
+             'pvp' => $this->show_precio($lineas[$linea_actual]->pvpunitario, $this->documento->coddivisa, TRUE, FS_NF0_ART),
              'dto' => $this->show_numero($lineas[$linea_actual]->dtopor) . " %",
              'iva' => $this->show_numero($lineas[$linea_actual]->iva) . " %",
              're' => $this->show_numero($lineas[$linea_actual]->recargo) . " %",
              'irpf' => $this->show_numero($lineas[$linea_actual]->irpf) . " %",
-             'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $documento->coddivisa)
+             'importe' => $this->show_precio($lineas[$linea_actual]->pvptotal, $this->documento->coddivisa)
          );
          
          if($lineas[$linea_actual]->dtopor == 0)
@@ -356,15 +355,34 @@ class compras_imprimir extends fs_controller
               )
       );
       
+      /// ¿Última página?
       if( $linea_actual == count($lineas) )
       {
-         if($documento->observaciones != '')
+         if($this->documento->observaciones != '')
          {
-            $pdf_doc->pdf->ezText("\n".$pdf_doc->fix_html($documento->observaciones), 9);
+            $pdf_doc->pdf->ezText("\n".$pdf_doc->fix_html($this->documento->observaciones), 9);
          }
       }
+      
+      $pdf_doc->set_y(80);
    }
    
+   private function get_referencia_proveedor($ref)
+   {
+      $artprov = $this->articulo_proveedor->get_by($ref, $this->documento->codproveedor);
+      if($artprov)
+      {
+         return $artprov->refproveedor;
+      }
+      else
+         return $ref;
+   }
+   
+   /**
+    * Devuelve el texto con los números de serie o lotes de la $linea
+    * @param linea_albaran_compra $linea
+    * @return string
+    */
    private function generar_trazabilidad($linea)
    {
       $lineast = array();
@@ -395,6 +413,135 @@ class compras_imprimir extends fs_controller
       return $txt;
    }
    
+   private function generar_pdf_datos_proveedor(&$pdf_doc)
+   {
+      $tipo_doc = ucfirst(FS_ALBARAN);
+      $rectificativa = FALSE;
+      if( get_class_name($this->documento) == 'factura_proveedor' )
+      {
+         if($this->documento->idfacturarect)
+         {
+            $tipo_doc = ucfirst(FS_FACTURA_RECTIFICATIVA);
+            $rectificativa = TRUE;
+         }
+         else
+         {
+            $tipo_doc = 'Factura';
+         }
+      }
+      
+      $tipoidfiscal = FS_CIFNIF;
+      if($this->proveedor)
+      {
+         $tipoidfiscal = $this->proveedor->tipoidfiscal;
+      }
+      
+      /*
+       * Esta es la tabla con los datos del proveedor:
+       * Documento:               Fecha:
+       * Proveedor:             CIF/NIF:
+       */
+      $pdf_doc->new_table();
+      $pdf_doc->add_table_row(
+              array(
+                  'campo1' => "<b>".$tipo_doc.":</b>",
+                  'dato1' => $this->documento->codigo,
+                  'campo2' => "<b>Fecha:</b> ".$this->documento->fecha
+              )
+      );
+      
+      if($rectificativa)
+      {
+         $pdf_doc->add_table_row(
+                 array(
+                     'campo1' => "<b>Original:</b>",
+                     'dato1' => $this->documento->codigorect,
+                     'campo2' => '',
+                 )
+         );
+      }
+      
+      $pdf_doc->add_table_row(
+              array(
+                  'campo1' => "<b>Proveedor:</b>",
+                  'dato1' => $pdf_doc->fix_html($this->documento->nombre),
+                  'campo2' => "<b>".$tipoidfiscal.":</b> ".$this->documento->cifnif
+              )
+      );
+      
+      $pdf_doc->save_table(
+              array(
+                  'cols' => array(
+                      'campo1' => array('width' => 90, 'justification' => 'right'),
+                      'dato1' => array('justification' => 'left'),
+                      'campo2' => array('justification' => 'right'),
+                  ),
+                  'showLines' => 0,
+                  'width' => 520,
+                  'shaded' => 0
+              )
+      );
+      $pdf_doc->pdf->ezText("\n", 10);
+   }
+   
+   private function generar_pdf_totales(&$pdf_doc, &$lineas_iva, $pagina)
+   {
+      /*
+       * Rellenamos la última tabla de la página:
+       * 
+       * Página            Neto    IVA   Total
+       */
+      $pdf_doc->new_table();
+      $titulo = array('pagina' => '<b>Página</b>', 'neto' => '<b>Neto</b>',);
+      $fila = array(
+          'pagina' => $pagina . '/' . $this->numpaginas,
+          'neto' => $this->show_precio($this->documento->neto, $this->documento->coddivisa),
+      );
+      $opciones = array(
+          'cols' => array(
+                    'neto' => array('justification' => 'right'),
+          ),
+          'showLines' => 3,
+          'shaded' => 2,
+          'shadeCol2' => array(0.95, 0.95, 0.95),
+          'lineCol' => array(0.3, 0.3, 0.3),
+          'width' => 520
+      );
+      foreach($lineas_iva as $li)
+      {
+         $imp = $this->impuesto->get($li['codimpuesto']);
+         if($imp)
+         {
+            $titulo['iva'.$li['iva']] = '<b>'.$imp->descripcion.'</b>';
+         }
+         else
+            $titulo['iva'.$li['iva']] = '<b>'.FS_IVA.' '.$li['iva'].'%</b>';
+         
+         $fila['iva'.$li['iva']] = $this->show_precio($li['totaliva'], $this->documento->coddivisa);
+         
+         if($li['totalrecargo'] != 0)
+         {
+            $fila['iva'.$li['iva']] .= "\nR.E. ".$li['recargo']."%: ".$this->show_precio($li['totalrecargo'], $this->documento->coddivisa);
+         }
+         
+         $opciones['cols']['iva'.$li['iva']] = array('justification' => 'right');
+      }
+      
+      if($this->documento->totalirpf != 0)
+      {
+         $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->documento->irpf.'%</b>';
+         $fila['irpf'] = $this->show_precio($this->documento->totalirpf);
+         $opciones['cols']['irpf'] = array('justification' => 'right');
+      }
+      
+      $titulo['liquido'] = '<b>Total</b>';
+      $fila['liquido'] = $this->show_precio($this->documento->total, $this->documento->coddivisa);
+      $opciones['cols']['liquido'] = array('justification' => 'right');
+      $pdf_doc->add_table_header($titulo);
+      $pdf_doc->add_table_row($fila);
+      $pdf_doc->save_table($opciones);
+   }
+   
    private function generar_pdf_albaran($archivo = FALSE)
    {
       if(!$archivo)
@@ -405,12 +552,12 @@ class compras_imprimir extends fs_controller
       
       /// Creamos el PDF y escribimos sus metadatos
       $pdf_doc = new fs_pdf();
-      $pdf_doc->pdf->addInfo('Title', ucfirst(FS_ALBARAN).' '. $this->albaran->codigo);
-      $pdf_doc->pdf->addInfo('Subject', ucfirst(FS_ALBARAN).' de proveedor ' . $this->albaran->codigo);
+      $pdf_doc->pdf->addInfo('Title', ucfirst(FS_ALBARAN).' '. $this->documento->codigo);
+      $pdf_doc->pdf->addInfo('Subject', ucfirst(FS_ALBARAN).' de proveedor ' . $this->documento->codigo);
       $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
       
-      $lineas = $this->albaran->get_lineas();
-      $lineas_iva = $this->get_lineas_iva($lineas);
+      $lineas = $this->documento->get_lineas();
+      $lineas_iva = $pdf_doc->get_lineas_iva($lineas);
       if($lineas)
       {
          $linea_actual = 0;
@@ -428,108 +575,9 @@ class compras_imprimir extends fs_controller
             }
             
             $pdf_doc->generar_pdf_cabecera($this->empresa, $lppag);
-            
-            /*
-             * Esta es la tabla con los datos del proveedor:
-             * Albarán:                 Fecha:
-             * Proveedor:             CIF/NIF:
-             */
-            $pdf_doc->new_table();
-            $pdf_doc->add_table_row(
-               array(
-                   'campo1' => "<b>".ucfirst(FS_ALBARAN).":</b>",
-                   'dato1' => $this->albaran->codigo,
-                   'campo2' => "<b>Fecha:</b> ".$this->albaran->fecha
-               )
-            );
-            
-            $tipoidfiscal = FS_CIFNIF;
-            if($this->proveedor)
-            {
-               $tipoidfiscal = $this->proveedor->tipoidfiscal;
-            }
-            $pdf_doc->add_table_row(
-               array(
-                   'campo1' => "<b>Proveedor:</b>",
-                   'dato1' => $pdf_doc->fix_html($this->albaran->nombre),
-                   'campo2' => "<b>".$tipoidfiscal.":</b> ".$this->albaran->cifnif
-               )
-            );
-            
-            $pdf_doc->save_table(
-               array(
-                   'cols' => array(
-                       'campo1' => array('width' => 90, 'justification' => 'right'),
-                       'dato1' => array('justification' => 'left'),
-                       'campo2' => array('justification' => 'right'),
-                   ),
-                   'showLines' => 0,
-                   'width' => 520,
-                   'shaded' => 0
-               )
-            );
-            $pdf_doc->pdf->ezText("\n", 10);
-            
-            /// lineas + observaciones
-            $this->generar_pdf_lineas($pdf_doc, $lineas, $linea_actual, $lppag, $this->albaran);
-            
-            $pdf_doc->set_y(80);
-            
-            /*
-             * Rellenamos la última tabla de la página:
-             * 
-             * Página            Neto    IVA   Total
-             */
-            $pdf_doc->new_table();
-            $titulo = array('pagina' => '<b>Página</b>', 'neto' => '<b>Neto</b>',);
-            $fila = array(
-                'pagina' => $pagina . '/' . $this->numpaginas,
-                'neto' => $this->show_precio($this->albaran->neto, $this->albaran->coddivisa),
-            );
-            $opciones = array(
-                'cols' => array(
-                    'neto' => array('justification' => 'right'),
-                ),
-                'showLines' => 3,
-                'shaded' => 2,
-                'shadeCol2' => array(0.95, 0.95, 0.95),
-                'lineCol' => array(0.3, 0.3, 0.3),
-                'width' => 520
-            );
-            foreach($lineas_iva as $li)
-            {
-               $imp = $this->impuesto->get($li['codimpuesto']);
-               if($imp)
-               {
-                  $titulo['iva'.$li['iva']] = '<b>'.$imp->descripcion.'</b>';
-               }
-               else
-                  $titulo['iva'.$li['iva']] = '<b>'.FS_IVA.' '.$li['iva'].'%</b>';
-               
-               $fila['iva'.$li['iva']] = $this->show_precio($li['totaliva'], $this->albaran->coddivisa);
-               
-               if($li['totalrecargo'] != 0)
-               {
-                  $fila['iva'.$li['iva']] .= "\nR.E. ".$li['recargo']."%: ".$this->show_precio($li['totalrecargo'], $this->albaran->coddivisa);
-               }
-               
-               $opciones['cols']['iva'.$li['iva']] = array('justification' => 'right');
-            }
-            
-            if($this->albaran->totalirpf != 0)
-            {
-               $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->albaran->irpf.'%</b>';
-               $fila['irpf'] = $this->show_precio($this->albaran->totalirpf);
-               $opciones['cols']['irpf'] = array('justification' => 'right');
-            }
-            
-            $titulo['liquido'] = '<b>Total</b>';
-            $fila['liquido'] = $this->show_precio($this->albaran->total, $this->albaran->coddivisa);
-            $opciones['cols']['liquido'] = array('justification' => 'right');
-            $pdf_doc->add_table_header($titulo);
-            $pdf_doc->add_table_row($fila);
-            $pdf_doc->save_table($opciones);
-            
+            $this->generar_pdf_datos_proveedor($pdf_doc);
+            $this->generar_pdf_lineas($pdf_doc, $lineas, $linea_actual, $lppag);
+            $this->generar_pdf_totales($pdf_doc, $lineas_iva, $pagina);
             $pagina++;
          }
       }
@@ -548,7 +596,7 @@ class compras_imprimir extends fs_controller
          $pdf_doc->save('tmp/'.FS_TMP_NAME.'enviar/'.$archivo);
       }
       else
-         $pdf_doc->show(FS_ALBARAN.'_compra_'.$this->albaran->codigo.'.pdf');
+         $pdf_doc->show(FS_ALBARAN.'_compra_'.$this->documento->codigo.'.pdf');
    }
    
    private function generar_pdf_factura($archivo = FALSE)
@@ -561,12 +609,12 @@ class compras_imprimir extends fs_controller
       
       /// Creamos el PDF y escribimos sus metadatos
       $pdf_doc = new fs_pdf();
-      $pdf_doc->pdf->addInfo('Title', 'Factura ' . $this->factura->codigo);
-      $pdf_doc->pdf->addInfo('Subject', 'Factura de proveedor ' . $this->factura->codigo);
+      $pdf_doc->pdf->addInfo('Title', 'Factura ' . $this->documento->codigo);
+      $pdf_doc->pdf->addInfo('Subject', 'Factura de proveedor ' . $this->documento->codigo);
       $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
       
-      $lineas = $this->factura->get_lineas();
-      $lineas_iva = $this->factura->get_lineas_iva();
+      $lineas = $this->documento->get_lineas();
+      $lineas_iva = $pdf_doc->get_lineas_iva($lineas);
       if($lineas)
       {
          $lineasfact = count($lineas);
@@ -585,128 +633,9 @@ class compras_imprimir extends fs_controller
             }
             
             $pdf_doc->generar_pdf_cabecera($this->empresa, $lppag);
-            
-            /*
-             * Esta es la tabla con los datos del proveedor:
-             * Factura:                 Fecha:
-             * Proveedor:             CIF/NIF:
-             */
-            $pdf_doc->new_table();
-            
-            if($this->factura->idfacturarect)
-            {
-               $pdf_doc->add_table_row(
-                       array(
-                           'campo1' => "<b>".ucfirst(FS_FACTURA_RECTIFICATIVA).":</b>",
-                           'dato1' => $this->factura->codigo,
-                           'campo2' => "<b>Fecha:</b> ".$this->factura->fecha
-                       )
-               );
-               $pdf_doc->add_table_row(
-                       array(
-                           'campo1' => "<b>Original:</b>",
-                           'dato1' => $this->factura->codigorect,
-                           'campo2' => '',
-                       )
-               );
-            }
-            else
-            {
-               $pdf_doc->add_table_row(
-                     array(
-                        'campo1' => "<b>Factura:</b>",
-                        'dato1' => $this->factura->codigo,
-                        'campo2' => "<b>Fecha:</b> ".$this->factura->fecha
-                     )
-               );
-            }
-            
-            $tipoidfiscal = FS_CIFNIF;
-            if($this->proveedor)
-            {
-               $tipoidfiscal = $this->proveedor->tipoidfiscal;
-            }
-            $pdf_doc->add_table_row(
-               array(
-                  'campo1' => "<b>Proveedor:</b>",
-                  'dato1' => $pdf_doc->fix_html($this->factura->nombre),
-                  'campo2' => "<b>".$tipoidfiscal.":</b> ".$this->factura->cifnif
-               )
-            );
-            $pdf_doc->save_table(
-               array(
-                  'cols' => array(
-                     'campo1' => array('width' => 90, 'justification' => 'right'),
-                     'dato1' => array('justification' => 'left'),
-                     'campo2' => array('justification' => 'right'),
-                  ),
-                  'showLines' => 0,
-                  'width' => 520,
-                  'shaded' => 0
-               )
-            );
-            $pdf_doc->pdf->ezText("\n", 10);
-            
-            /// lineas + observaciones
-            $this->generar_pdf_lineas($pdf_doc, $lineas, $linea_actual, $lppag, $this->factura);
-            
-            $pdf_doc->set_y(80);
-            
-            /*
-             * Rellenamos la última tabla de la página:
-             * 
-             * Página            Neto    IVA   Total
-             */
-            $pdf_doc->new_table();
-            $titulo = array('pagina' => '<b>Página</b>', 'neto' => '<b>Neto</b>',);
-            $fila = array(
-                'pagina' => $pagina . '/' . $this->numpaginas,
-                'neto' => $this->show_precio($this->factura->neto, $this->factura->coddivisa),
-            );
-            $opciones = array(
-                'cols' => array(
-                    'neto' => array('justification' => 'right'),
-                ),
-                'showLines' => 3,
-                'shaded' => 2,
-                'shadeCol2' => array(0.95, 0.95, 0.95),
-                'lineCol' => array(0.3, 0.3, 0.3),
-                'width' => 520
-            );
-            foreach($lineas_iva as $li)
-            {
-               $imp = $this->impuesto->get($li->codimpuesto);
-               if($imp)
-               {
-                  $titulo['iva'.$li->iva] = '<b>'.$imp->descripcion.'</b>';
-               }
-               else
-                  $titulo['iva'.$li->iva] = '<b>'.FS_IVA.' '.$li->iva.'%</b>';
-               
-               $fila['iva'.$li->iva] = $this->show_precio($li->totaliva, $this->factura->coddivisa);
-               
-               if($li->totalrecargo != 0)
-               {
-                  $fila['iva'.$li->iva] .= "\nR.E. ".$li->recargo."%: ".$this->show_precio($li->totalrecargo, $this->factura->coddivisa);
-               }
-               
-               $opciones['cols']['iva'.$li->iva] = array('justification' => 'right');
-            }
-            
-            if($this->factura->totalirpf != 0)
-            {
-               $titulo['irpf'] = '<b>'.FS_IRPF.' '.$this->factura->irpf.'%</b>';
-               $fila['irpf'] = $this->show_precio($this->factura->totalirpf);
-               $opciones['cols']['irpf'] = array('justification' => 'right');
-            }
-            
-            $titulo['liquido'] = '<b>Total</b>';
-            $fila['liquido'] = $this->show_precio($this->factura->total, $this->factura->coddivisa);
-            $opciones['cols']['liquido'] = array('justification' => 'right');
-            $pdf_doc->add_table_header($titulo);
-            $pdf_doc->add_table_row($fila);
-            $pdf_doc->save_table($opciones);
-            
+            $this->generar_pdf_datos_proveedor($pdf_doc);
+            $this->generar_pdf_lineas($pdf_doc, $lineas, $linea_actual, $lppag);
+            $this->generar_pdf_totales($pdf_doc, $lineas_iva, $pagina);
             $pagina++;
          }
       }
@@ -725,18 +654,7 @@ class compras_imprimir extends fs_controller
          $pdf_doc->save('tmp/'.FS_TMP_NAME.'enviar/'.$archivo);
       }
       else
-         $pdf_doc->show('factura_compra_'.$this->factura->codigo.'.pdf');
-   }
-   
-   private function get_referencia_proveedor($ref, $codproveedor)
-   {
-      $artprov = $this->articulo_proveedor->get_by($ref, $codproveedor);
-      if($artprov)
-      {
-         return $artprov->refproveedor;
-      }
-      else
-         return $ref;
+         $pdf_doc->show('factura_compra_'.$this->documento->codigo.'.pdf');
    }
    
    private function enviar_email()
@@ -752,9 +670,9 @@ class compras_imprimir extends fs_controller
             }
          }
          
-         $filename = 'albaran_'.$this->albaran->codigo.'.pdf';
+         $filename = 'albaran_'.$this->documento->codigo.'.pdf';
          $this->generar_pdf_albaran($filename);
-         $razonsocial = $this->albaran->nombre;
+         $razonsocial = $this->documento->nombre;
          
          if( file_exists('tmp/'.FS_TMP_NAME.'enviar/'.$filename) )
          {
@@ -779,7 +697,7 @@ class compras_imprimir extends fs_controller
                }
             }
             
-            $mail->Subject = $this->empresa->nombre . ': Mi '.FS_ALBARAN.' '.$this->albaran->codigo;
+            $mail->Subject = $this->empresa->nombre . ': Mi '.FS_ALBARAN.' '.$this->documento->codigo;
             if( $this->is_html($_POST['mensaje']) )
             {
                $mail->AltBody = strip_tags($_POST['mensaje']);
@@ -815,50 +733,6 @@ class compras_imprimir extends fs_controller
          else
             $this->new_error_msg('Imposible generar el PDF.');
       }
-   }
-   
-   private function get_lineas_iva($lineas)
-   {
-      $retorno = array();
-      $lineasiva = array();
-      
-      foreach($lineas as $lin)
-      {
-         if( isset($lineasiva[$lin->codimpuesto]) )
-         {
-            if($lin->recargo > $lineasiva[$lin->codimpuesto]['recargo'])
-            {
-               $lineasiva[$lin->codimpuesto]['recargo'] = $lin->recargo;
-            }
-            
-            $lineasiva[$lin->codimpuesto]['neto'] += $lin->pvptotal;
-            $lineasiva[$lin->codimpuesto]['totaliva'] += ($lin->pvptotal*$lin->iva)/100;
-            $lineasiva[$lin->codimpuesto]['totalrecargo'] += ($lin->pvptotal*$lin->recargo)/100;
-            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto']
-                    + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
-         }
-         else
-         {
-            $lineasiva[$lin->codimpuesto] = array(
-                'codimpuesto' => $lin->codimpuesto,
-                'iva' => $lin->iva,
-                'recargo' => $lin->recargo,
-                'neto' => $lin->pvptotal,
-                'totaliva' => ($lin->pvptotal*$lin->iva)/100,
-                'totalrecargo' => ($lin->pvptotal*$lin->recargo)/100,
-                'totallinea' => 0
-            );
-            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto']
-                    + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
-         }
-      }
-      
-      foreach($lineasiva as $lin)
-      {
-         $retorno[] = $lin;
-      }
-      
-      return $retorno;
    }
    
    public function is_html($txt)

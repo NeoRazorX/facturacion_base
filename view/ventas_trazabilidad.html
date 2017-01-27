@@ -98,6 +98,7 @@
    </div>
    {/if}
    
+   {if="$fsc->lineas OR $fsc->disponibles"}
    <div class="container-fluid">
       <div class="row">
          <div class="col-sm-12 text-right">
@@ -107,6 +108,17 @@
          </div>
       </div>
    </div>
+   {else}
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-sm-12">
+            <div class="alert alert-warning">
+               Ninguno de los artículos de este documento tiene trazabilidad.
+            </div>
+         </div>
+      </div>
+   </div>
+   {/if}
 </form>
 {else}
 <div class="thumbnail">
