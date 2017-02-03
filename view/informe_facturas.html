@@ -880,6 +880,15 @@
                      </select>
                   </div>
                   <div class="form-group">
+                     <a href="{$fsc->forma_pago->url()}">Forma de pago</a>:
+                     <select name="codpago" class="form-control">
+                        <option value="">Todas</option>
+                     {loop="$fsc->forma_pago->all()"}
+                        <option value="{$value->codpago}">{$value->descripcion}</option>
+                     {/loop}
+                     </select>
+                  </div>
+                  <div class="form-group">
                      Generar:
                      <select name="generar" class="form-control">
                         <option value="pdf">PDF</option>
