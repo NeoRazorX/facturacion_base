@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -120,10 +120,10 @@ class cuenta extends \fs_model
          return FALSE;
    }
    
-   public function get_by_codigo($cod, $ejercicio)
+   public function get_by_codigo($cod, $codejercicio)
    {
       $sql = "SELECT * FROM ".$this->table_name." WHERE codcuenta = ".$this->var2str($cod).
-              " AND codejercicio = ".$this->var2str($ejercicio).";";
+              " AND codejercicio = ".$this->var2str($codejercicio).";";
       
       $data = $this->db->select($sql);
       if($data)
@@ -137,13 +137,13 @@ class cuenta extends \fs_model
    /**
     * Obtiene la primera cuenta especial seleccionada.
     * @param type $id
-    * @param type $ejercicio
+    * @param type $codejercicio
     * @return boolean|\cuenta
     */
-   public function get_cuentaesp($id, $ejercicio)
+   public function get_cuentaesp($id, $codejercicio)
    {
       $sql = "SELECT * FROM ".$this->table_name." WHERE idcuentaesp = ".$this->var2str($id).
-              " AND codejercicio = ".$this->var2str($ejercicio)." ORDER BY codcuenta ASC;";
+              " AND codejercicio = ".$this->var2str($codejercicio)." ORDER BY codcuenta ASC;";
       
       $data = $this->db->select($sql);
       if($data)
@@ -295,11 +295,11 @@ class cuenta extends \fs_model
       return $cuenlist;
    }
    
-   public function all_from_cuentaesp($id, $ejercicio)
+   public function all_from_cuentaesp($id, $codejercicio)
    {
       $cuenlist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE idcuentaesp = ".$this->var2str($id)
-              ." AND codejercicio = ".$this->var2str($ejercicio)." ORDER BY codcuenta ASC;";
+              ." AND codejercicio = ".$this->var2str($codejercicio)." ORDER BY codcuenta ASC;";
       
       $data = $this->db->select($sql);
       if($data)

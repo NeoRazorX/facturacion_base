@@ -237,7 +237,7 @@
             <div class="btn-group">
                <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
                   <span class="glyphicon glyphicon-arrow-left"></span>
-                  <span class="hidden-xs">&nbsp; Asientos</span>
+                  <span class="hidden-xs">&nbsp;Asientos</span>
                </a>
                <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
@@ -246,7 +246,7 @@
             <div class="btn-group">
                <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_nuevo_asiento&copy={$fsc->asiento->idasiento}">
                   <span class="glyphicon glyphicon-scissors"></span>
-                  <span class="hidden-xs">&nbsp; Copiar</span>
+                  <span class="hidden-xs">&nbsp;Copiar</span>
                </a>
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
@@ -263,16 +263,16 @@
                {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar_asiento" class="btn btn-sm btn-danger">
                   <span class="glyphicon glyphicon-trash"></span>
-                  <span class="hidden-sm hidden-xs">&nbsp; Eliminar</span>
+                  <span class="hidden-sm hidden-xs">&nbsp;Eliminar</span>
                </a>
                {/if}
                <a href="{$fsc->url()}&bloquear=TRUE" class="btn btn-sm btn-default">
                   <span class="glyphicon glyphicon-lock"></span>
-                  <span class="hidden-sm hidden-xs">&nbsp; Bloquear</span>
+                  <span class="hidden-sm hidden-xs">&nbsp;Bloquear</span>
                </a>
                <button type="button" id="b_guardar_asiento" class="btn btn-sm btn-primary" onclick="guardar_asiento()">
                   <span class="glyphicon glyphicon-floppy-disk"></span>
-                  <span class="hidden-xs">&nbsp; Guardar</span>
+                  <span class="hidden-xs">&nbsp;Guardar</span>
                </button>
             </div>
          </div>
@@ -430,7 +430,7 @@
          <div class="btn-group">
             <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_asientos">
                <span class="glyphicon glyphicon-arrow-left"></span>
-               <span class="hidden-xs">&nbsp; Asientos</span>
+               <span class="hidden-xs">&nbsp;Asientos</span>
             </a>
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -439,7 +439,7 @@
          <div class="btn-group">
             <a class="btn btn-sm btn-default" href="index.php?page=contabilidad_nuevo_asiento&copy={$fsc->asiento->idasiento}">
                <span class="glyphicon glyphicon-scissors"></span>
-               <span class="hidden-xs">&nbsp; Copiar</span>
+               <span class="hidden-xs">&nbsp;Copiar</span>
             </a>
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
@@ -455,12 +455,12 @@
          <div class="btn-group">
             <a href="{$fsc->url()}&desbloquear=TRUE" class="btn btn-sm btn-default">
                <span class="glyphicon glyphicon-lock"></span>
-               <span class="hidden-xs">&nbsp; Desbloquear</span>
+               <span class="hidden-xs">&nbsp;Desbloquear</span>
             </a>
             {if="$fsc->allow_delete"}
             <a href="#" id="b_eliminar_asiento" class="btn btn-sm btn-danger">
                <span class="glyphicon glyphicon-trash"></span>
-               <span class="hidden-xs">&nbsp; Eliminar</span>
+               <span class="hidden-xs">&nbsp;Eliminar</span>
             </a>
             {/if}
          </div>

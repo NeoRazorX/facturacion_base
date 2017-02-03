@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -294,7 +294,7 @@ class factura_cliente extends \fs_model
          $this->pagada = $this->str2bool($f['pagada']);
          $this->anulada = $this->str2bool($f['anulada']);
          
-         $this->vencimiento = Date('d-m-Y', strtotime($f['fecha'].' +1month'));
+         $this->vencimiento = Date('d-m-Y', strtotime($f['fecha'].' +1 day'));
          if( !is_null($f['vencimiento']) )
          {
             $this->vencimiento = Date('d-m-Y', strtotime($f['vencimiento']));
@@ -360,7 +360,7 @@ class factura_cliente extends \fs_model
          $this->observaciones = NULL;
          $this->pagada = FALSE;
          $this->anulada = FALSE;
-         $this->vencimiento = Date('d-m-Y', strtotime('+1month'));
+         $this->vencimiento = Date('d-m-Y', strtotime('+1 day'));
          $this->femail = NULL;
          
          $this->envio_codtrans = NULL;
@@ -1462,7 +1462,7 @@ class factura_cliente extends \fs_model
       {
          if($estado == 'pagada')
          {
-            $sql .= " AND pagada";
+            $sql .= " AND pagada = true";
          }
          else
          {

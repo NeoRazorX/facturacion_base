@@ -247,13 +247,16 @@
                se recalcula el descuento para ajustarse al precio final de la línea.
             </p>
             <p class="help-block">
-               <b>{#FS_IRPF#}</b>: si quieres añadir {#FS_IRPF#} a un {#FS_PEDIDO#},
-               {#FS_ALBARAN#} o factura, usa una serie que tenga {#FS_IRPF#}.
+               <a href="#" class="label label-default" onclick="irpf=21;recalcular();" title="Mostrar {#FS_IRPF#}">
+                  <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>&nbsp; {#FS_IRPF#}
+               </a>&nbsp;
+               pulsa este botón para añadir {#FS_IRPF#} al documento, o bien usa una serie que tenga {#FS_IRPF#}.
             </p>
             <p class="help-block">
-               <b>RE</b>: si quieres añadir recargo de equivalencia a un {#FS_PEDIDO#},
-               {#FS_ALBARAN#} o factura de compra, debes activar el recargo de
-               equivalencia en Admin &gt; Empresa &gt; Facturación.
+               <a href="#" class="label label-default" onclick="tiene_recargo=true;recalcular();" title="Mostrar Recargo de Equivalencia">
+                  <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>&nbsp; RE
+               </a>&nbsp;
+               pulsa este botón para añadir recargo de equivalencia al documento, o bien actívalo en la configuración de la empresa.
             </p>
          </div>
       </div>
@@ -615,7 +618,7 @@
                   &nbsp; Selecciona el proveedor o acreedor
                </h4>
                <p class="help-block">
-                  Busca y selecciona el proveedor o acrredor. Si lo deseas puedes crear uno nuevo usando el recuadro en azul.
+                  Busca y selecciona el proveedor o acreedor. Si lo deseas puedes crear uno nuevo usando el recuadro en azul.
                </p>
             </div>
             <div class="modal-body">

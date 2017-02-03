@@ -621,7 +621,13 @@ class contabilidad_ejercicio extends fs_controller
                         $subcuenta->codsubcuenta = $sc->codsubcuenta;
                         $subcuenta->descripcion = base64_decode($sc->descripcion);
                         
-                        if( !$subcuenta->save() )
+                        if( strlen($sc->codsubcuenta) != $this->ejercicio->longsubcuenta )
+                        {
+                           $this->new_error_msg('La subcuenta tiene una longitud distinta a la definida en el ejercicio.');
+                           $this->url_recarga = FALSE;
+                           break;
+                        }
+                        else if( !$subcuenta->save() )
                         {
                            $this->url_recarga = FALSE;
                         }

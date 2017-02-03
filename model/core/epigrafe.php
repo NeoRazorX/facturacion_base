@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -88,10 +88,10 @@ class grupo_epigrafes extends \fs_model
          return FALSE;
    }
    
-   public function get_by_codigo($cod, $eje)
+   public function get_by_codigo($cod, $codejercicio)
    {
       $sql = "SELECT * FROM ".$this->table_name." WHERE codgrupo = ".$this->var2str($cod)
-              ." AND codejercicio = ".$this->var2str($eje).";";
+              ." AND codejercicio = ".$this->var2str($codejercicio).";";
       
       $grupo = $this->db->select($sql);
       if($grupo)
@@ -188,7 +188,7 @@ class grupo_epigrafes extends \fs_model
 
 
 /**
- * Segundo novel del plan contable.
+ * Segundo nivel del plan contable.
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
@@ -327,10 +327,10 @@ class epigrafe extends \fs_model
          return FALSE;
    }
    
-   public function get_by_codigo($cod, $eje)
+   public function get_by_codigo($cod, $codejercicio)
    {
       $sql = "SELECT * FROM ".$this->table_name." WHERE codepigrafe = ".$this->var2str($cod)
-              ." AND codejercicio = ".$this->var2str($eje).";";
+              ." AND codejercicio = ".$this->var2str($codejercicio).";";
       
       $data = $this->db->select($sql);
       if($data)

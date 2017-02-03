@@ -21,6 +21,12 @@
    all_direcciones = {function="json_encode($fsc->cliente_s->get_direcciones())"};
    {/if}
    
+   function cambiar_cliente() {
+      $("#p_cambiar_cliente").removeClass('hidden');
+      document.f_albaran.ac_cliente.readOnly = false;
+      document.f_albaran.ac_cliente.value = '';
+      document.f_albaran.ac_cliente.focus();
+   }
    $(document).ready(function() {
       $("#numlineas").val(numlineas);
       usar_serie();
@@ -218,13 +224,16 @@
             <div class='form-group{if="!$fsc->cliente_s"} has-warning{/if}'>
                Cliente actual:
                <div class="input-group">
-                  <input class="form-control" type="text" name="ac_cliente" id="ac_cliente" value="{$fsc->albaran->nombrecliente}" placeholder="Buscar" autocomplete="off"/>
-                  <span class="input-group-btn">
-                     <button class="btn btn-default" type="button" onclick="document.f_albaran.ac_cliente.value=''; document.f_albaran.ac_cliente.focus();">
+                  <input class="form-control" type="text" name="ac_cliente" id="ac_cliente" value="{$fsc->albaran->nombrecliente}" placeholder="Buscar" readonly="" autocomplete="off"/>
+                  <span class="input-group-btn" title="Cambiar cliente">
+                     <button class="btn btn-default" type="button" onclick="cambiar_cliente()">
                         <span class="glyphicon glyphicon-edit"></span>
                      </button>
                   </span>
                </div>
+               <p id="p_cambiar_cliente" class="help-block hidden">
+                  Para cambiar el nombre o el {#FS_CIFNIF#}, pero no el cliente, ve a la pestaña detalles.
+               </p>
             </div>
          </div>
          {/if}

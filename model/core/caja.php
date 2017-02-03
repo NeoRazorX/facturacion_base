@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -80,7 +80,7 @@ class caja extends \fs_model
     */
    private static $agentes;
    
-   public function __construct($c=FALSE)
+   public function __construct($c = FALSE)
    {
       parent::__construct('cajas');
       
@@ -244,7 +244,7 @@ class caja extends \fs_model
       return $this->db->exec("DELETE FROM ".$this->table_name." WHERE id = ".$this->var2str($this->id).";");
    }
    
-   public function all($offset=0, $limit=FS_ITEM_LIMIT)
+   public function all($offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $cajalist = array();
       
@@ -260,7 +260,7 @@ class caja extends \fs_model
       return $cajalist;
    }
    
-   public function all_by_agente($codagente, $offset=0, $limit=FS_ITEM_LIMIT)
+   public function all_by_agente($codagente, $offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $cajalist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE codagente = "

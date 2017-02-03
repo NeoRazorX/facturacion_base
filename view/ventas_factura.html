@@ -113,7 +113,7 @@
             {elseif="$fsc->factura->pagada"}
             <a class="btn btn-sm btn-info" href="#">
                <span class="glyphicon glyphicon-ok"></span>
-               <span class="hidden-xs">&nbsp; Pagada</span>
+               <span class="hidden-xs">&nbsp;Pagada</span>
             </a>
             {/if}
             
@@ -251,7 +251,11 @@
          <div class="col-sm-2">
             <div class='form-group{if="$fsc->factura->vencida()"} has-warning{/if}'>
                Vencimiento:
-               <input class="form-control datepicker" type="text" name="vencimiento" value="{$fsc->factura->vencimiento}" autocomplete="off"/>
+               {if="$fsc->factura->pagada OR !$fsc->mostrar_boton_pagada"}
+               <input type="text" name="vencimiento" value="{$fsc->factura->vencimiento}" class="form-control datepicker" readonly=""/>
+               {else}
+               <input type="text" name="vencimiento" value="{$fsc->factura->vencimiento}" class="form-control datepicker" autocomplete="off"/>
+               {/if}
             </div>
          </div>
       </div>
