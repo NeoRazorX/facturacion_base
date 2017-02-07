@@ -29,6 +29,7 @@ class compras_proveedores extends fs_controller
    public $proveedor;
    public $resultados;
    public $tipo;
+   public $debaja;
    
    public function __construct()
    {
@@ -121,6 +122,8 @@ class compras_proveedores extends fs_controller
          $this->tipo = $_REQUEST['tipo'];
       }
       
+      $this->debaja = isset($_REQUEST['debaja']);
+      
       $this->buscar();
    }
    
@@ -162,6 +165,12 @@ class compras_proveedores extends fs_controller
          $and = ' AND ';
       }
       
+      if($this->debaja)
+      {
+         $sql .= $and."debaja = true";
+         $and = ' AND ';
+      }
+      
       $data = $this->db->select("SELECT COUNT(codproveedor) as total".$sql.';');
       if($data)
       {
@@ -183,6 +192,11 @@ class compras_proveedores extends fs_controller
       $url = $this->url()."&query=".$this->query
               ."&tipo=".$this->tipo
               ."&orden=".$this->orden;
+      
+      if($this->debaja)
+      {
+         $url .= '&debaja=TRUE';
+      }
       
       $paginas = array();
       $i = 0;

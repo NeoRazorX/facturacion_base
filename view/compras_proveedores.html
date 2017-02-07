@@ -110,6 +110,21 @@
                      </div>
                   </div>
                </div>
+                
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="checkbox-inline">
+                        <label>
+                           {if="$fsc->debaja"}
+                           <input type="checkbox" name="debaja" value="TRUE" checked="" onchange="this.form.submit()"/>
+                           {else}
+                           <input type="checkbox" name="debaja" value="TRUE" onchange="this.form.submit()"/>
+                           {/if}
+                           de baja
+                        </label>
+                     </div>
+                  </div>
+               </div>
             </div>
          </form>
          <div class="table-responsive">
@@ -124,7 +139,7 @@
                   </tr>
                </thead>
                {loop="$fsc->resultados"}
-               <tr class="clickableRow" href="{$value->url()}">
+               <tr class='clickableRow{if="$value->debaja"} danger{elseif="$value->fechaalta==$fsc->today()"} success{/if}' href='{$value->url()}'>
                   <td>
                      <a href="{$value->url()}">{$value->codproveedor}</a> {$value->nombre}
                      {if="$value->nombre!=$value->razonsocial"}
@@ -132,6 +147,11 @@
                      {/if}
                      {if="$value->acreedor"}
                      &nbsp; <span class="glyphicon glyphicon-briefcase" title="Es un acreedor"></span>
+                     {/if}
+                     {if="$value->debaja"}
+                     &nbsp; <span class="label label-danger hidden-sm" title="proveedor dado de baja">Baja</span>
+                     {elseif="$value->fechaalta==$fsc->today()"}
+                     &nbsp; <span class="label label-success hidden-sm" title="Nuevo cliente">Nuevo</span>
                      {/if}
                   </td>
                   <td>{$value->cifnif}</td>

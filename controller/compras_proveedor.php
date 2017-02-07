@@ -169,6 +169,8 @@ class compras_proveedor extends fs_controller
             {
                $this->proveedor->codserie = $_POST['codserie'];
             }
+
+            $this->proveedor->debaja = isset($_POST['debaja']);
             
             if( $this->proveedor->save() )
             {

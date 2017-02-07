@@ -130,6 +130,16 @@
       <nombre>personafisica</nombre>
       <tipo>boolean</tipo>
       <defecto>true</defecto>
+   </columna>   
+   <columna>
+      <nombre>debaja</nombre>
+      <tipo>boolean</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>fechabaja</nombre>
+      <tipo>date</tipo>
+      <nulo>YES</nulo>
    </columna>
    <restriccion>
       <nombre>proveedores_pkey</nombre>
