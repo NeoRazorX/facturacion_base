@@ -196,128 +196,25 @@ class dashboard extends fs_controller
    
    private function calcula_periodo(&$stats, $pendiente = FALSE)
    {
+      $desde_anterior = date('d-m-Y', strtotime($stats['desde'].' '.$stats['anterior']));
+      $hasta_anterior = date('d-m-Y', strtotime($stats['hasta'].' '.$stats['anterior']));
+      
       if( $this->db->table_exists('facturascli') )
       {
-         /// calculamos las ventas de este mes
-         $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from facturascli where"
-                 . " fecha >= ".$this->empresa->var2str($stats['desde'])
-                 . " and fecha <= ".$this->empresa->var2str($stats['hasta']).";";
+         /// calculamos las ventas e impuestos de este mes
+         $this->calcular_facturas($stats, $stats['desde'], $stats['hasta']);
          
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            $stats['ventas'] = $this->euro_convert( floatval($data[0]['total']) );
-            $stats['ventas_neto'] = $this->euro_convert( floatval($data[0]['neto']) );
-         }
-         
-         /// calculamos las ventas del mes pasado
-         $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from facturascli where"
-                 . " fecha >= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['desde'].' '.$stats['anterior'])))
-                 . " and fecha <= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['hasta'].' '.$stats['anterior']))).";";
-         
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            $stats['ventas_anterior'] = $this->euro_convert( floatval($data[0]['total']) );
-            $stats['ventas_anterior_neto'] = $this->euro_convert( floatval($data[0]['neto']) );
-            
-            if($this->neto)
-            {
-               $stats['ventas_mejora'] = $this->calcular_diff($stats['ventas_neto'], $stats['ventas_anterior_neto']);
-            }
-            else
-            {
-               $stats['ventas_mejora'] = $this->calcular_diff($stats['ventas'], $stats['ventas_anterior']);
-            }
-         }
-         
-         /// calculamos los impuestos de las ventas de este mes
-         $sql = "select sum((totaliva+totalrecargo-totalirpf)/tasaconv) as total from facturascli where"
-                 . " fecha >= ".$this->empresa->var2str($stats['desde'])
-                 . " and fecha <= ".$this->empresa->var2str($stats['hasta']).";";
-         
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            $stats['impuestos'] = $this->euro_convert( floatval($data[0]['total']) );
-         }
-         
-         /// calculamos los impuestos de las ventas del mes anterior
-         $sql = "select sum((totaliva+totalrecargo-totalirpf)/tasaconv) as total from facturascli where"
-                 . " fecha >= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['desde'].' '.$stats['anterior'])))
-                 . " and fecha <= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['hasta'].' '.$stats['anterior']))).";";
-         
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            $stats['impuestos_anterior'] = $this->euro_convert( floatval($data[0]['total']) );
-         }
+         /// calculamos las ventas e impuestos del mes pasado
+         $this->calcular_facturas($stats, $desde_anterior, $hasta_anterior, TRUE);
       }
       
       if( $this->db->table_exists('facturasprov') )
       {
-         /// calculamos las compras de este mes
-         $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from facturasprov where"
-                 . " fecha >= ".$this->empresa->var2str($stats['desde'])
-                 . " and fecha <= ".$this->empresa->var2str($stats['hasta']).";";
+         /// calculamos las compras e impuestos de este mes
+         $this->calcular_facturas($stats, $stats['desde'], $stats['hasta'], FALSE, 'facturasprov');
          
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            $stats['compras'] = $this->euro_convert( floatval($data[0]['total']) );
-            $stats['compras_neto'] = $this->euro_convert( floatval($data[0]['neto']) );
-         }
-         
-         /// calculamos las compras del mes pasado
-         $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from facturasprov where"
-                 . " fecha >= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['desde'].' '.$stats['anterior'])))
-                 . " and fecha <= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['hasta'].' '.$stats['anterior']))).";";
-         
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            $stats['compras_anterior'] = $this->euro_convert( floatval($data[0]['total']) );
-            $stats['compras_anterior_neto'] = $this->euro_convert( floatval($data[0]['neto']) );
-            
-            if($this->neto)
-            {
-               $stats['compras_mejora'] = $this->calcular_diff($stats['compras_neto'], $stats['compras_anterior_neto']);
-            }
-            else
-            {
-               $stats['compras_mejora'] = $this->calcular_diff($stats['compras'], $stats['compras_anterior']);
-            }
-         }
-         
-         /// calculamos los impuestos de las compras de este mes
-         $sql = "select sum((totaliva+totalrecargo-totalirpf)/tasaconv) as total from facturasprov where"
-                 . " fecha >= ".$this->empresa->var2str($stats['desde'])
-                 . " and fecha <= ".$this->empresa->var2str($stats['hasta']).";";
-         
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            $stats['impuestos'] -= $this->euro_convert( floatval($data[0]['total']) );
-            if($stats['impuestos'] < 0)
-            {
-               $stats['impuestos'] = 0;
-            }
-         }
-         
-         /// calculamos los impuestos de las compras del mes anterior
-         $sql = "select sum((totaliva+totalrecargo-totalirpf)/tasaconv) as total from facturasprov where"
-                 . " fecha >= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['desde'].' '.$stats['anterior'])))
-                 . " and fecha <= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['hasta'].' '.$stats['anterior']))).";";
-         
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            $stats['impuestos_anterior'] -= $this->euro_convert( floatval($data[0]['total']) );
-            if($stats['impuestos_anterior'] < 0)
-            {
-               $stats['impuestos_anterior'] = 0;
-            }
-         }
+         /// calculamos las compras e impuestos del mes pasado
+         $this->calcular_facturas($stats, $desde_anterior, $hasta_anterior, TRUE, 'facturasprov');
       }
       
       if( $this->db->table_exists('co_partidas') AND $this->empresa->codpais == 'ESP' )
@@ -341,8 +238,8 @@ class dashboard extends fs_controller
          /// calculamos el saldo de todos aquellos asientos que afecten a caja y no se correspondan con facturas
          $sql = "select sum(debe-haber) as total from co_partidas where codsubcuenta LIKE '57%' and idasiento"
                  . " in (select idasiento from co_asientos where tipodocumento IS NULL"
-                 . " and fecha >= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['desde'].' '.$stats['anterior'])))
-                 . " and fecha <= ".$this->empresa->var2str(date('d-m-Y', strtotime($stats['hasta'].' '.$stats['anterior']))).");";
+                 . " and fecha >= ".$this->empresa->var2str($desde_anterior)
+                 . " and fecha <= ".$this->empresa->var2str($hasta_anterior).");";
          
          $data = $this->db->select($sql);
          if($data)
@@ -483,6 +380,75 @@ class dashboard extends fs_controller
       $stats['beneficios'] = $stats['ventas'] - $stats['compras'] - $stats['impuestos'];
       $stats['beneficios_anterior'] = $stats['ventas_anterior'] - $stats['compras_anterior'] - $stats['impuestos_anterior'];
       $stats['beneficios_mejora'] = $this->calcular_diff($stats['beneficios'], $stats['beneficios_anterior']);
+   }
+   
+   private function calcular_facturas(&$stats, $desde, $hasta, $anterior = FALSE, $tabla = 'facturascli')
+   {
+      /// utilizamos campo y extra para construir el nombre del campo, así la función es más versátil
+      $campo = 'ventas';
+      if($tabla != 'facturascli')
+      {
+         $campo = 'compras';
+      }
+      
+      $extra = '';
+      if($anterior)
+      {
+         $extra = '_anterior';
+      }
+      
+      /// primero consultamos en la divisa de la empresa
+      $sql = "select sum(total) as total, sum(neto) as neto, sum(totaliva+totalrecargo-totalirpf) as impuestos"
+              . " from ".$tabla." where coddivisa = ".$this->empresa->var2str($this->empresa->coddivisa)
+              . " and fecha >= ".$this->empresa->var2str($desde)
+              . " and fecha <= ".$this->empresa->var2str($hasta).";";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $stats[$campo.$extra] = floatval($data[0]['total']);
+         $stats[$campo.$extra.'_neto'] = floatval($data[0]['neto']);
+         
+         if($tabla == 'facturascli')
+         {
+            $stats['impuestos'.$extra] = floatval($data[0]['impuestos']);
+         }
+         else
+         {
+            $stats['impuestos'.$extra] -= floatval($data[0]['impuestos']);
+         }
+      }
+      
+      /// ahora consultamos en el resto de divisas y convertimos los valores
+      $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto, sum((totaliva+totalrecargo-totalirpf)/tasaconv) as impuestos"
+              . " from ".$tabla." where coddivisa != ".$this->empresa->var2str($this->empresa->coddivisa)
+              . " and fecha >= ".$this->empresa->var2str($desde)
+              . " and fecha <= ".$this->empresa->var2str($hasta).";";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         $stats[$campo.$extra] += $this->euro_convert( floatval($data[0]['total']) );
+         $stats[$campo.$extra.'_neto'] += $this->euro_convert( floatval($data[0]['neto']) );
+         
+         if($tabla == 'facturascli')
+         {
+            $stats['impuestos'.$extra] += $this->euro_convert( floatval($data[0]['impuestos']) );
+         }
+         else
+         {
+            $stats['impuestos'.$extra] -= $this->euro_convert( floatval($data[0]['impuestos']) );
+         }
+      }
+      
+      if($this->neto)
+      {
+         $stats[$campo.'_mejora'] = $this->calcular_diff($stats[$campo.'_neto'], $stats[$campo.'_anterior_neto']);
+      }
+      else
+      {
+         $stats[$campo.'_mejora'] = $this->calcular_diff($stats[$campo], $stats[$campo.'_anterior']);
+      }
    }
    
    private function calcular_diff($nuevo, $anterior)
