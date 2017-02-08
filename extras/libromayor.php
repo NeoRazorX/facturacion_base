@@ -126,8 +126,8 @@ class libro_mayor
                   $pdf_doc->new_table();
 				  $pdf_doc->add_table_row(
                      array(
-                         'asiento' => "",
-						 'fecha' =>"",
+                         'fecha' => "",
+						 'asiento' =>"",
                          'concepto' => "Saldo Anterior",
 						 'debe' => "",
 						 'haber' => "",
@@ -136,8 +136,8 @@ class libro_mayor
                   );
                   $pdf_doc->add_table_header(
                      array(
-                         'asiento' => '<b>Asiento</b>',
-                         'fecha' => '<b>Fecha</b>',
+					 	'fecha' => '<b>Fecha</b>',
+                         'asiento' => '<b>Asiento</b>',      
                          'concepto' => '<b>Concepto</b>',
                          'debe' => '<b>Debe</b>',
                          'haber' => '<b>Haber</b>',
@@ -148,8 +148,8 @@ class libro_mayor
                   {
                      $pdf_doc->add_table_row(
                         array(
+							'fecha' => $partidas[$linea_actual]->fecha,
                             'asiento' => $partidas[$linea_actual]->numero,
-                            'fecha' => $partidas[$linea_actual]->fecha,
                             'concepto' => substr($partidas[$linea_actual]->concepto, 0, 60),
                             'debe' => $this->show_numero($partidas[$linea_actual]->debe),
                             'haber' => $this->show_numero($partidas[$linea_actual]->haber),
@@ -162,8 +162,8 @@ class libro_mayor
                   /// añadimos las sumas de la línea actual
                   $pdf_doc->add_table_row(
                         array(
+							'fecha' => '',
                             'asiento' => '',
-                            'fecha' => '',
                             'concepto' => '',
                             'debe' => '<b>'.$this->show_numero($partidas[$linea_actual-1]->sum_debe).'</b>',
                             'haber' => '<b>'.$this->show_numero($partidas[$linea_actual-1]->sum_haber).'</b>',
@@ -211,7 +211,7 @@ class libro_mayor
  */           if($echos)
                echo '.';
             
-            $pdf_doc = new fs_pdf();
+            $pdf_doc = new fs_pdf('A4','portrait', 'Helvetica');
             $pdf_doc->pdf->addInfo('Title', 'Libro mayor de ' . $subc->codsubcuenta);
             $pdf_doc->pdf->addInfo('Subject', 'Libro mayor de ' . $subc->codsubcuenta);
             $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
@@ -262,8 +262,8 @@ class libro_mayor
                   $pdf_doc->new_table();
 				  $pdf_doc->add_table_row(
                      array(
+					 	'fecha' =>"",
                          'asiento' => "",
-						 'fecha' =>"",
                          'concepto' => "Saldo Anterior",
 						 'debe' => "",
 						 'haber' => "",
@@ -272,8 +272,8 @@ class libro_mayor
                   );
                   $pdf_doc->add_table_header(
                      array(
+					 	'fecha' => '<b>Fecha</b>',
                          'asiento' => '<b>Asiento</b>',
-                         'fecha' => '<b>Fecha</b>',
                          'concepto' => '<b>Concepto</b>',
                          'debe' => '<b>Debe</b>',
                          'haber' => '<b>Haber</b>',
@@ -284,8 +284,8 @@ class libro_mayor
                   {
                      $pdf_doc->add_table_row(
                         array(
+							'fecha' => $partidas[$linea_actual]->fecha,
                             'asiento' => $partidas[$linea_actual]->numero,
-                            'fecha' => $partidas[$linea_actual]->fecha,
                             'concepto' => substr($partidas[$linea_actual]->concepto, 0, 60),
                             'debe' => $this->show_numero($partidas[$linea_actual]->debe),
                             'haber' => $this->show_numero($partidas[$linea_actual]->haber),
@@ -298,8 +298,8 @@ class libro_mayor
                   /// añadimos las sumas de la línea actual
                   $pdf_doc->add_table_row(
                         array(
-                            'asiento' => '',
                             'fecha' => '',
+							'asiento' => '',
                             'concepto' => '',
                             'debe' => '<b>'.$this->show_numero($partidas[$linea_actual-1]->sum_debe).'</b>',
                             'haber' => '<b>'.$this->show_numero($partidas[$linea_actual-1]->sum_haber).'</b>',
@@ -397,8 +397,8 @@ class libro_mayor
                   $pdf_doc->new_table();
 				  $pdf_doc->add_table_row(
                      array(
+					 	'fecha' =>"",
                          'asiento' => "",
-						 'fecha' =>"",
                          'concepto' => "Saldo Anterior",
 						 'debe' => "",
 						 'haber' => "",
@@ -407,8 +407,8 @@ class libro_mayor
                   );
                   $pdf_doc->add_table_header(
                      array(
-                         'asiento' => '<b>Asiento</b>',
                          'fecha' => '<b>Fecha</b>',
+                         'asiento' => '<b>Asiento</b>',
                          'concepto' => '<b>Concepto</b>',
                          'debe' => '<b>Debe</b>',
                          'haber' => '<b>Haber</b>',
@@ -419,8 +419,8 @@ class libro_mayor
                   {
                      $pdf_doc->add_table_row(
                         array(
-                            'asiento' => $partidas[$linea_actual]->numero,
                             'fecha' => $partidas[$linea_actual]->fecha,
+							'asiento' => $partidas[$linea_actual]->numero,
                             'concepto' => substr($partidas[$linea_actual]->concepto, 0, 60),
                             'debe' => $this->show_numero($partidas[$linea_actual]->debe),
                             'haber' => $this->show_numero($partidas[$linea_actual]->haber),
@@ -433,8 +433,8 @@ class libro_mayor
                   /// añadimos las sumas de la línea actual
                   $pdf_doc->add_table_row(
                         array(
+							'fecha' => '',
                             'asiento' => '',
-                            'fecha' => '',
                             'concepto' => '',
                             'debe' => '<b>'.$this->show_numero($partidas[$linea_actual-1]->sum_debe).'</b>',
                             'haber' => '<b>'.$this->show_numero($partidas[$linea_actual-1]->sum_haber).'</b>',
@@ -479,7 +479,7 @@ class libro_mayor
          {
             echo ' '.$eje->codejercicio;
             
-            $pdf_doc = new fs_pdf('a4', 'landscape', 'Courier');
+            $pdf_doc = new fs_pdf('a4', 'portrait', 'Courier');
             $pdf_doc->pdf->addInfo('Title', 'Libro diario de ' . $eje->codejercicio);
             $pdf_doc->pdf->addInfo('Subject', 'Libro mayor de ' . $eje->codejercicio);
             $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
@@ -507,7 +507,7 @@ class libro_mayor
                $pdf_doc->new_table();
                $pdf_doc->add_table_header(
                   array(
-                      'asiento' => '<b>Asiento</b>',
+                      'asiento' => '<b>Asiento1</b>',
                       'fecha' => '<b>Fecha</b>',
                       'subcuenta' => '<b>Subcuenta</b>',
                       'concepto' => '<b>Concepto</b>',

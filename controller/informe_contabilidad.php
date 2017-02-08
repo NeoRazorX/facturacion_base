@@ -48,7 +48,9 @@ class informe_contabilidad extends fs_controller
       
       if( isset($_GET['diario']) )
       {
-         $this->libro_diario_csv($_GET['diario']);
+ //        $this->libro_diario_csv($_GET['diario']);
+ //			$this->libro_diario_pdf($_GET['diario']);
+ 
       }
       else if( isset($_GET['balance']) AND isset($_GET['eje']) )
       {
@@ -68,7 +70,7 @@ class informe_contabilidad extends fs_controller
       }
 	  else if( isset($_POST['libro_diario']) )
       {
-         if(isset($_POST['codejercicio'])) $this->libro_diario_csv($_POST['codejercicio'],$_POST['desde'],$_POST['hasta']);
+         if(isset($_POST['codejercicio'])) $this->libro_diario_pdf($_POST['codejercicio'],$_POST['desde'],$_POST['hasta']);
       }
    }
    
@@ -135,7 +137,39 @@ class informe_contabilidad extends fs_controller
 	  echo ' ; ; ;Total diario  ;'. $debD.';'.$habD."\n\n";
 	  
 	  echo ' ;  ; ;Totales ;'. $debT.';'.$habT;
-   }
+
+}
+
+private function libro_diario_pdf($codeje,$desde,$hasta)
+   {
+ 	 $eje = $this->ejercicio->get($codeje);
+      if($eje)
+      {
+         if( strtotime($desde) < strtotime($eje->fechainicio) OR strtotime($hasta) > strtotime($eje->fechafin) )
+         {
+            $this->new_error_msg('La fecha está fuera del rango del ejercicio.');
+         }
+         else
+         {
+            $this->template = FALSE;
+            $pdf_doc = new fs_pdf('A4','portrait', 'Courier');
+            $pdf_doc->pdf->addInfo('Title', 'Libro Diario de  ' . $this->empresa->nombre);
+            $pdf_doc->pdf->addInfo('Subject', 'Libro Diario de ' . $this->empresa->nombre);
+            $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
+ //           $pdf_doc->pdf->ezStartPageNumbers(570, 800, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
+			
+			$iba = new inventarios_balances();
+          
+               $iba->libro_diario($pdf_doc, $eje, 'de '.$desde.' a '.$hasta, $desde, $hasta);
+          
+            
+            $pdf_doc->show();
+         }
+      }
+ }
+
+
+
   
    
       private function new_search()
