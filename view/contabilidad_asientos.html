@@ -91,7 +91,7 @@
 <ul class="nav nav-tabs" role="tablist">
    <li{if="!isset($_GET['descuadrados']) && !isset($_GET['mayorizados'])"} class="active"{/if}>
       <a href="{$fsc->url()}">
-         Todos <span class="badge">{$fsc->total_asientos_no_mayor()}</span>
+         No Mayorizados <span class="badge">{$fsc->total_asientos_no_mayor()}</span>
       </a>
    </li>
    <li{if="isset($_GET['descuadrados'])"} class="active"{/if}>
@@ -133,7 +133,7 @@
    <table class="table table-hover">
       <thead>
          <tr>
-            <th></th>
+            <th class="text-left" style="width:20px">Mayor</th>
             <th class="text-left">Ejercicio + Número</th>
             <th class="text-left">Concepto</th>
             <th class="text-right">Importe</th>
@@ -142,9 +142,11 @@
       </thead>
       {loop="$fsc->resultados"}
       <tr class="clickableRow{if="$value->importe<=0"} bg-warning{/if}" href="{$value->url()}&solapa={$fsc->solapa}">
-         <td class="text-center">
+         <td class="text-left">
             {if="$value->editable"}
-            <span class="glyphicon glyphicon-pencil" title="editable"></span>
+            <span class="glyphicon glyphicon-pencil" title="Editable - No Mayorizado"></span>
+			{else}
+			<span class="glyphicon glyphicon-ok" title="Mayorizado"></span>
             {/if}
          </td>
          <td>{$value->codejercicio}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="{$value->url()}">{$value->numero}</a></td>

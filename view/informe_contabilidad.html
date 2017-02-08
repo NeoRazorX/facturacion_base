@@ -59,7 +59,12 @@
          <div class="panel-body">
             <div class="container-fluid">
                <div class="row">
-      
+                  <div class="col-sm-3">
+    
+                     <a href="{$fsc->url()}&diario={$value->codejercicio}" target="_blank">
+                        <span class="glyphicon glyphicon-file" aria-hidden="true"></span> Libro diario (CSV)
+                     </a>
+                  </div>
                   <div class="col-sm-3">
                      {if="$fsc->existe_libro_inventarios($value->codejercicio)"}
                      <a href="tmp/{#FS_TMP_NAME#}inventarios_balances/{$value->codejercicio}.pdf" target="_blank">

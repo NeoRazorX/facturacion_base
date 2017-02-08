@@ -794,10 +794,10 @@ class partida extends fs_model
    
       public function subcuentas_por_fecha($eje,$desde,$hasta, $offset=0, $limit=FS_ITEM_LIMIT)
    {
-      $data = $this->db->select_limit("SELECT a.numero,a.fecha,s.codsubcuenta,s.descripcion,
-         p.concepto,p.debe,p.haber FROM co_asientos a, co_subcuentas s, co_partidas p
-         WHERE a.codejercicio = ".$this->var2str($eje)." AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND a.fecha BETWEEN ".$this->var2str($desde)." AND ".$this->var2str($hasta)."
-         ORDER BY a.numero ASC, p.codsubcuenta ASC", $limit, $offset);
+      $data = $this->db->select("SELECT a.numero,a.fecha,s.codsubcuenta,s.descripcion,
+         p.concepto,p.debe,p.haber,a.tipodocumento FROM co_asientos a, co_subcuentas s, co_partidas p
+         WHERE a.codejercicio = ".$this->var2str($eje)." AND p.idasiento = a.idasiento AND p.idsubcuenta = s.idsubcuenta AND a.mayorizado = 1 AND a.fecha BETWEEN ".$this->var2str($desde)." AND ".$this->var2str($hasta)."
+         ORDER BY a.numero ASC, p.codsubcuenta ASC");
       if($data)
       {
          return $data;
