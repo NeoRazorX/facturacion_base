@@ -318,7 +318,7 @@ class inventarios_balances
 								'shaded' => 0
 									)
 								 );
-//				$pdf_doc->pdf->ezNewPage();
+				$pdf_doc->pdf->ezNewPage();
 				//			$pdf_doc->pdf->ezNewPage();
 //				if($linea = $cat_lin ) $pdf_doc->pdf->ezText("\n", 10);
 							$pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 14, array('justification' => 'left'));
