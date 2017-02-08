@@ -46,7 +46,7 @@ class ventas_agrupar_albaranes extends fs_controller
    public $total;
    
    private $ejercicio;
-   private $forma_pago;
+   public $forma_pago;
    
    public function __construct()
    {
@@ -213,7 +213,13 @@ class ventas_agrupar_albaranes extends fs_controller
       $factura->codalmacen = $albaranes[0]->codalmacen;
       $factura->coddivisa = $albaranes[0]->coddivisa;
       $factura->tasaconv = $albaranes[0]->tasaconv;
-      $factura->codpago = $albaranes[0]->codpago;
+      /// comprobamos si se ha cambiado la forma de pago
+      if(isset($_REQUEST['codpago']))
+      {
+         $factura->codpago = $_REQUEST['codpago'];
+      }
+      else
+         $factura->codpago = $albaranes[0]->codpago;
       $factura->codserie = $albaranes[0]->codserie;
       $factura->irpf = $albaranes[0]->irpf;
       $factura->numero2 = $albaranes[0]->numero2;
