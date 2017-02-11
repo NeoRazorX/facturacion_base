@@ -78,7 +78,7 @@
               <th class="text-left">ID</th>
               <th class="text-left">Terminal</th>
               <th class="text-left">Empleado</th>
-              <th class="text-left">Listado de Pagos</th>
+              <th class="text-left">Reporte de Caja</th>
               <th class="text-center">Fecha inicial</th>
               <th class="text-right">Dinero inicial</th>
               <th class="text-center">Fecha fin</th>
@@ -100,7 +100,7 @@
               {/if}
             </td>
             <td>
-              <a href="{$fsc->recibos_url($value)}">Ver listado de pagos</a>
+              <a href="{$fsc->recibos_url($value)}">Ver reporte de caja</a>
             </td>
             <td class="text-center">{$value->fecha_inicial}</td>
             <td class="text-right">{$fsc->show_precio($value->dinero_inicial)}</td>

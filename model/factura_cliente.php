@@ -24,6 +24,7 @@ require_model('linea_factura_cliente.php');
 require_model('secuencia.php');
 require_model('serie.php');
 require_model('inventario.php');
+require_model('forma_pago.php');
 
 /**
  * Factura de un cliente.
@@ -270,8 +271,47 @@ class factura_cliente extends fs_model
          $this->vencimiento = Date('d-m-Y', strtotime('+1month'));
       }
    }
-   
-   protected function install()
+
+	/**
+	 * @var recibo_cliente[]
+	 */
+    protected $recibos;
+
+    public function getRecibos() {
+    	if(!$this->recibos) {
+    		$this->recibos = pago_por_caja::getRecibosByFactura($this->idfactura);
+	    }
+    	return $this->recibos;
+    }
+
+	/**
+	 * @return float
+	 */
+    public function getMontoPago() {
+	    $total_pago = 0.0;
+	    $recibos = $this->getRecibos();
+	    if($recibos) {
+		    foreach ($recibos as $recibo) {
+		        if(is_a($recibo, "recibo_cliente")) {
+                    $total_pago += (float) $recibo->importe;
+                } else {
+		            //Ni idea que pasa
+                    var_dump($recibo);
+                }
+		    }
+	    }
+		return $total_pago;
+    }
+
+	/**
+	 * @return float
+	 */
+	public function getSaldo() {
+		$saldo = ((float) $this->total) - $this->getMontoPago();
+		return ($saldo < 0) ? 0 : $saldo;
+	}
+
+	protected function install()
    {
       new serie();
       new asiento();
@@ -520,8 +560,14 @@ class factura_cliente extends fs_model
       else
          return FALSE;
    }
-   
-   public function exists()
+
+    public function getFormaPago() {
+        $formapago = new forma_pago();
+
+        return $formapago->get($this->codpago)->descripcion;
+    }
+
+    public function exists()
    {
       if( is_null($this->idfactura) )
       {
@@ -590,7 +636,7 @@ class factura_cliente extends fs_model
    public function test()
    {
 
-       if($this->default_items->getRequirenum2()) {
+       if($this->default_items->getRequirenum2() && $this->numero2 != '') {
            $res = $this->db->select("SELECT idfactura,numero2 FROM " . $this->table_name . " WHERE numero2 = " . $this->var2str($this->numero2));
            if(is_array($res) && isset($res[0]) && $res[0]['idfactura'] != $this->idfactura) {
                $this->new_error_msg('El número de factura ya está siendo utilizado en otra factura');

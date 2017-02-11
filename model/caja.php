@@ -45,6 +45,16 @@ class caja extends fs_model {
     public $codagente;
 
     /**
+     * @var int
+     */
+    public $idconf_caja;
+
+    /**
+     * @var conf_caja
+     */
+    protected $conf_caja;
+
+    /**
      * Fecha de apertura (inicio) de la caja.
      * @var string
      */
@@ -90,9 +100,19 @@ class caja extends fs_model {
     private static $agentes;
 
     /**
-     * @var facturascli_por_caja
+     * @var factura_cliente[]
      */
     protected $facturas;
+
+    /**
+     * @var recibo_cliente[]
+     */
+    protected $recibos;
+
+    /**
+     * @var pago_por_caja[]
+     */
+    protected $pagos;
 
     /**
      * @var int
@@ -147,6 +167,7 @@ class caja extends fs_model {
         $this->codagente = isset($data['codagente']) ? $data['codagente'] : null;
         $this->tickets = isset($data['tickets']) ? intval($data['tickets']) : 0;
         $this->ip = isset($data['ip']) ? $data['ip'] : null;
+        $this->idconf_caja = isset($data['idconf_caja']) ? (int) $data['idconf_caja'] : null;
         $this->idasiento = isset($data['idasiento']) ? intval($data['idasiento']) : null;
 
         if (isset($_SERVER['REMOTE_ADDR'])) {
@@ -175,6 +196,51 @@ class caja extends fs_model {
     public function setEdit($edit = true) {
         $this->edit = $edit;
     }
+
+    /**
+     * @return int
+     */
+    public function getIdConfCaja()
+    {
+        return $this->idconf_caja;
+    }
+
+    /**
+     * @param int $idconf_caja
+     *
+     * @return caja
+     */
+    public function setIdConfCaja($idconf_caja)
+    {
+        $this->idconf_caja = $idconf_caja;
+
+        return $this;
+    }
+
+    /**
+     * @return conf_caja
+     */
+    public function getConfCaja()
+    {
+        if (!$this->conf_caja && $this->idconf_caja) {
+            $this->conf_caja = $this->get_conf_caja($this->idconf_caja);
+        }
+        return $this->conf_caja;
+    }
+
+    /**
+     * @param conf_caja $conf_caja
+     *
+     * @return caja
+     */
+    public function setConfCaja(conf_caja $conf_caja)
+    {
+        $this->conf_caja = $conf_caja;
+        $this->idconf_caja = $conf_caja->getId();
+        return $this;
+    }
+
+
 
     /**
      * @return int
@@ -223,14 +289,27 @@ class caja extends fs_model {
      */
     public function is_usable() {
         $info = conf_caja::get_info();
-        $dateStart = DateTime::createFromFormat('H:i:s', $info->getStartTime());
-        $dateEnd = DateTime::createFromFormat('H:i:s', $info->getEndTime());
-        $date2 = (new DateTime('NOW'));
-        
-        if($date2 > $dateEnd && $dateStart < $dateEnd) {
-            return false;
-        } else {
+        $confDateStart =  DateTime::createFromFormat('H:i:s', $info->getStartTime());
+        $confDateEnd = DateTime::createFromFormat('H:i:s', $info->getEndTime());
+        $cajaStart = DateTime::createFromFormat('d-m-Y H:i:s', $this->fecha_inicial);
+        $now = new DateTime();
+
+        if($confDateEnd < $confDateStart && $now > $confDateEnd) {
+            // Si la hora de fin es menor a la hora de apertura y ahora es mayor a la hora de cierre le agrego un día
+            // de esa forma siempre va a fallar cuando se cambie el día al siguente
+            // por ejemplo $confDateStart = 6PM $confDateEnd = 7AM y $now = 8PM
+        	$confDateEnd->modify("+1 day");
+        } elseif ($now < $confDateStart) {
+            // En cambio si la hora de apertura de caja no ocurrio todavía es porque la configuracion cambia de día
+            // y el start en realidad es de ayer
+            // por ejemplo $confDateStart = 6PM $confDateEnd = 7AM y $now = 3AM
+            $confDateStart->modify("-1 day");
+        }
+
+        if($cajaStart > $confDateStart && $cajaStart < $confDateEnd) {
             return true;
+        } else {
+        	return false;
         }
     }
 
@@ -345,11 +424,22 @@ class caja extends fs_model {
      * @return recibo_cliente[]
      */
     public function findRecibos() {
-        if (!$this->facturas) {
-            $this->facturas = $this->get_recibos($this->id);
+        if (!$this->recibos) {
+            $this->recibos = $this->get_recibos($this->id);
         }
 
-        return $this->facturas;
+        return $this->recibos;
+    }
+
+    /**
+     * @return pago_por_caja[]
+     */
+    public function findPagos() {
+        if (!$this->pagos) {
+            $this->pagos= $this->get_pagos($this->id);
+        }
+
+        return $this->pagos;
     }
 
     public function test() {
@@ -358,6 +448,10 @@ class caja extends fs_model {
 
         if ($this->findActiva() && !$this->edit) {
             $this->new_error_msg("Imposible agregar una nueva caja cuando hay una abierta");
+        }
+
+        if (!$this->getIdConfCaja()) {
+            $this->new_error_msg("La caja no tiene una asignacion del turno en el que fue abierta");
         }
 
 
@@ -379,6 +473,7 @@ class caja extends fs_model {
                'd_fin = ' . $this->var2str($this->dinero_fin) . ',' .
                'tickets = ' . $this->var2str($this->tickets) . ',' .
                'ip = ' . $this->var2str($this->ip) . ',' .
+               'idconf_caja = ' . $this->var2str($this->getIdConfCaja()) . ',' .
                'idasiento = ' . $this->var2str($this->getIdAsiento()) .
                ';';
         return $this->db->exec($sql);
@@ -395,6 +490,7 @@ class caja extends fs_model {
                    'f_fin = ' . $this->var2str($this->fecha_fin) . ',' .
                    'd_fin = ' . $this->var2str($this->dinero_fin) . ',' .
                    'tickets = ' . $this->var2str($this->tickets) . ',' .
+                   'idconf_caja = ' . $this->var2str($this->getIdConfCaja()) . ',' .
                    'idasiento = ' . $this->var2str($this->getIdAsiento()) .
                ' WHERE id = ' . $this->var2str($this->id) .
                ';';
@@ -408,15 +504,11 @@ class caja extends fs_model {
         if ($this->test()) {
             $this->clean_cache();
             if ($this->exists()) {
-                $this->update();
+                $ret = $this->update();
             } else {
-                $this->insert();
+                $ret = $this->insert();
                 $this->id = (int) $this->db->lastval();
             }
-        }
-
-        if (!$this->get_errors()) {
-            $ret = true;
         }
 
         return $ret;
@@ -500,6 +592,22 @@ class caja extends fs_model {
             $idcaja = $this->id;
         }
         return pago_por_caja::getRecibosByCaja($idcaja);
+    }
+
+    /**
+     * @param int $idcaja
+     *
+     * @return pago_por_caja[]
+     */
+    public function get_pagos($idcaja = 0) {
+        if(!$idcaja && $this->id) {
+            $idcaja = $this->id;
+        }
+        return pago_por_caja::getPagosByCaja($idcaja);
+    }
+
+    public function get_conf_caja($idconf_caja = 0) {
+        return conf_caja::get($idconf_caja);
     }
 
 }

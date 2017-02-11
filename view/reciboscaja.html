@@ -11,9 +11,9 @@
       </a>
       <div class="btn-group">
         {loop="$fsc->extensions"}
-        {if="$value->type=='button'"}
-        <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
-        {/if}
+          {if="$value->type=='button'"}
+          <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+          {/if}
         {/loop}
       </div>
     </div>
@@ -21,7 +21,22 @@
 </div>
 <div class="container">
   <div class="row">
-    <h1>Lista de Recibos en la Caja {$fsc->getCaja()->id}</h1>
+    <h1>Reporte Caja {$fsc->getCaja()->id}</h1>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <p>Apertura: {$fsc->getCaja()->fecha_inicial}</p>
+      <p>Turno: {$fsc->getCaja()->getConfCaja()->getNombre()}</p>
+      <p>Responsable: {$fsc->getCaja()->agente->get_fullname()}</p>
+    </div>
+    <div class="col-md-6">
+      <p>Estado: {if="$fsc->getCaja()->abierta()"}Abierta{else}Cerrada{/if}</p>
+      <p>En Asiento Contable: {if="$fsc->getCaja()->getIdAsiento()"}Si{else}No{/if}</p>
+      <p>Generado el {$fsc->getFecha(true)} por el usuario: {$fsc->user->nick}</p>
+    </div>
+  </div>
+  <div class="row">
+    <h2>Ingresos</h2>
   </div>
   <div class="table-responsive">
     <table class="table table-hover">
@@ -36,33 +51,117 @@
         </tr>
       </thead>
       <tbody>
-      {loop="$fsc->getRecibos()"}
+      {loop="$fsc->getIngresos()"}
+        {if="$value->getReciboCliente()"}
         <tr>
-          <td><a href="{$value->url()}">{$value->codigo}</a></td>
+          <td><a href="{$value->getReciboCliente()->url()}">{$value->getReciboCliente()->codigo}</a></td>
           <td>
-            {$value->nombrecliente}
+            {$value->getReciboCliente()->nombrecliente}
           </td>
-          <td>{$value->getFormaPago()}</td>
-          <td class="text-right">{$fsc->show_precio($value->importe)}</td>
+          <td>{$value->getReciboCliente()->getFormaPago()}</td>
+          <td class="text-right">{$fsc->show_precio($value->getReciboCliente()->importe)}</td>
           <td class="text-right">
-            {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
+            {if="$value->getReciboCliente()->fecha==$fsc->today()"}<b>{$value->getReciboCliente()->fecha}</b>{else}{$value->getReciboCliente()->fecha}{/if}
           </td>
-          <td class="text-right">{$value->fechav}</td>
+          <td class="text-right">{$value->getReciboCliente()->fechav}</td>
         </tr>
         {else}
+        <tr>
+          <td><a href="{$value->getFactura()->url()}">{$value->getFactura()->codigo}</a></td>
+          <td>
+            {$value->getFactura()->nombrecliente}
+          </td>
+          <td>{$value->getFactura()->getFormaPago()}</td>
+          <td class="text-right">{$fsc->show_precio($value->getFactura()->total)}</td>
+          <td class="text-right">
+            {if="$value->getFactura()->fecha==$fsc->today()"}<b>{$value->getFactura()->fecha}</b>{else}{$value->getFactura()->fecha}{/if}
+          </td>
+          <td class="text-right">--</td>
+        </tr>
+        {/if}
+      {else}
         <tr class="bg-warning">
           <td class="text-center" colspan="6">Ningun recibo encontrado.</td>
         </tr>
       {/loop}
       </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="6" class="text-right">Total Ingresos: {$fsc->getTotalIngresos()}</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="row">
+    <h2>Egresos</h2>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th class="text-left">Código</th>
+        <th class="text-left">Cliente</th>
+        <th class="text-left">Forma de Pago</th>
+        <th class="text-right">Total</th>
+        <th class="text-right">Fecha</th>
+        <th class="text-right">Vencimiento</th>
+      </tr>
+      </thead>
+      <tbody>
+      {loop="$fsc->getEgresos()"}
+        {if="$value->getIdRecibo()"}
+        <tr>
+          <td><a href="{$value->getReciboCliente()->url()}">{$value->getReciboCliente()->codigo}</a></td>
+          <td>
+            {$value->getReciboCliente()->nombrecliente}
+          </td>
+          <td>{$value->getReciboCliente()->getFormaPago()}</td>
+          <td class="text-right">{$fsc->show_precio($value->getReciboCliente()->importe)}</td>
+          <td class="text-right">
+            {if="$value->getReciboCliente()->fecha==$fsc->today()"}<b>{$value->getReciboCliente()->fecha}</b>{else}{$value->getReciboCliente()->fecha}{/if}
+          </td>
+          <td class="text-right">{$value->getReciboCliente()->fechav}</td>
+        </tr>
+        {else}
+        <tr>
+          <td><a href="{$value->getFactura()->url()}">{$value->getFactura()->codigo}</a></td>
+          <td>
+            {$value->getFactura()->nombrecliente}
+          </td>
+          <td>{$value->getFactura()->getFormaPago()}</td>
+          <td class="text-right">{$fsc->show_precio($value->getFactura()->total)}</td>
+          <td class="text-right">
+            {if="$value->getFactura()->fecha==$fsc->today()"}<b>{$value->getFactura()->fecha}</b>{else}{$value->getFactura()->fecha}{/if}
+          </td>
+          <td class="text-right">--</td>
+        </tr>
+        {/if}
+      {else}
+        <tr class="bg-warning">
+          <td class="text-center" colspan="6">Ningun recibo encontrado.</td>
+        </tr>
+      {/loop}
+      </tbody>
+      <tfoot>
+      <tr>
+        <th colspan="6" class="text-right">Total Egresos: {$fsc->getTotalEgresos()}</th>
+      </tr>
+      </tfoot>
     </table>
   </div>
   <hr />
   <div class="row">
-    {loop="$fsc->getFormaPago()->all()"}
-    <p>Total {$value->descripcion}: {$fsc->getTotal($value)}</p>
-    {/loop}
+    <div class="col-md-6">
+      <p>Monto de Apertura: {$fsc->show_precio($fsc->getCaja()->dinero_inicial)}</p>
+      <p>Ingresos: {$fsc->show_precio($fsc->getTotalIngresos())}</p>
+    </div>
+    <div class="col-md-6">
+      <p>Egresos: {$fsc->show_precio($fsc->getTotalEgresos())}</p>
+      <p>Saldo Tuno: {$fsc->show_precio($fsc->getCaja()->dinero_fin)}</p>
+    </div>
   </div>
-</div>
 
-  {include="footer"}
+
+</div>
+{include="footer"}

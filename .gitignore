@@ -1,1 +1,8 @@
-/nbproject/
+nbproject
+
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+*.ids
+.idea

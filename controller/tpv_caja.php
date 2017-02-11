@@ -124,6 +124,7 @@ class tpv_caja extends fs_controller {
             if ($this->terminal) {
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $this->caja->setValues($_POST);
+                    $this->caja->setConfCaja(conf_caja::get_info());
                     if ($this->caja->save()) {
                         $this->new_message("Caja iniciada con " . $this->show_precio($this->caja->dinero_inicial));
                         $this->indexAction();
