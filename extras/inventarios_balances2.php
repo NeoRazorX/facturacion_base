@@ -161,10 +161,10 @@ class inventarios_balances
 	  	$asien_fecha = $partidas[0]['fecha'];
 		
 		$pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 14, array('justification' => 'left'));
-				$pdf_doc->pdf->ezText("<b>Libro Diario General</b>", 14, array('justification' => 'center'));
-				$pdf_doc->pdf->ezText("\n", 8);
-//	  			$pdf_doc->pdf->ezText("Fecha/Hora impresión: ".Date('d-m-Y - H:i:s'), 10, array('justification' => 'left'));
-//				$pdf_doc->pdf->ezText("\n", 10);
+				$pdf_doc->pdf->ezText("<b>Libro Diario</b>", 12, array('justification' => 'center'));
+				$pdf_doc->pdf->ezText("\n", 10);
+				$pdf_doc->pdf->ezText("Fecha/Hora impresión: ".Date('d-m-Y - H:i:s'), 10, array('justification' => 'left'));
+				$pdf_doc->pdf->ezText("\n", 10);
 	
 	      /// Creamos la tabla con las lineas
          $pdf_doc->new_table();
@@ -173,19 +173,17 @@ class inventarios_balances
 				'fecha' => '<b>Fecha</b>',
 				'asiento' => '<b>Asiento</b>',
                 'codsubcuenta' => '<b>SubCuenta</b>',
-                'descripcion' => '<b>Denominación</b>',
+                'descripcion' => '<b>Descripción</b>',
 				'concepto' => '<b>Concepto</b>',
                 'debe' => '<b>Debe</b>',
                 'haber' => '<b>Haber</b>'				
 				)
 			 );
 	
-		  $linea = 0;
-		  $cat_lin = 57;
+		  
 			 foreach($partidas as $par)
 			 {
-				 if($linea < $cat_lin)
-				 {
+				 
 						 if ( $asien_fecha == $par['fecha'])
 						 {
 			//				echo $par['numero'].';'.$par['fecha'].';'.$par['codsubcuenta'].';'.$par['concepto'].';'.$par['debe'].';'.$par['haber']."\n";
@@ -199,8 +197,8 @@ class inventarios_balances
 								   'fecha' => Date('d-m-Y', strtotime($par['fecha'])),
 								   'asiento' => $par['numero'],
 								   'codsubcuenta' => $par['codsubcuenta'],
-								   'descripcion' => substr($par['descripcion'],0,26),
-								   'concepto' => substr($par['concepto'],0,21),
+								   'descripcion' => substr($par['descripcion'],0,34),
+								   'concepto' => $par['tipodocumento'],
 								   'debe' => $par['debe'],
 								   'haber' => $par['haber']
 									)
@@ -215,12 +213,11 @@ class inventarios_balances
 								   'asiento' => '',
 								   'codsubcuenta' => '',
 								   'descripcion' => '',
-								   'concepto' => '<b>Total Diario</b>',
+								   'concepto' => 'Total Diario',
 								   'debe' => '<b>'.$this->show_numero($debD).'</b>',
 								   'haber' => '<b>'.$this->show_numero($habD).'</b>'
 									) );
-							if($linea < $cat_lin - 1)
-							{		
+									
 									$pdf_doc->add_table_row(
 									array(
 										'fecha' => '',
@@ -232,54 +229,15 @@ class inventarios_balances
 										'haber' => ''				
 										)
 									 );
-									 $linea++; // Le sumo una linea mas que esta vacia siempre que no este en la linea 53
-							}
-						
-					////////////////////////////////////////////////////////////////////////////
-					
-/*				  	   $pdf_doc->save_table(
-						array(
-							'fontSize' => 8,
-							'cols' => array(
-								'fecha' => array('justification' => 'right'),
-								'asiento' => array('justification' => 'right'),
-								'codsucuenta' => array('justification' => 'right'),
-								'descripcion' => array('justification' => 'left'),
-								'concepto' => array('justification' => 'right'),
-								'debe' => array('justification' => 'right'),
-								'haber' => array('justification' => 'right')							
-								),
-								'width' => 545,
-								'shaded' => 0
-									)
-								 );
-*/				
-//							$pdf_doc->pdf->ezNewPage();
-//							$pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 14, array('justification' => 'left'));
-//							$pdf_doc->pdf->ezText("<b>Libro Diario</b>", 12, array('justification' => 'center'));
-//							$pdf_doc->pdf->ezText("\n", 10);
-//							$pdf_doc->pdf->ezText("\n", 10);
-//				         $pdf_doc->new_table();
-/*						 $pdf_doc->add_table_header(
-							array(
-								'fecha' => '<b>Fecha</b>',
-								'asiento' => '<b>Asiento</b>',
-								'codsubcuenta' => '<b>SubCuenta</b>',
-								'descripcion' => '<b>Descripción</b>',
-								'concepto' => '<b>Concepto</b>',
-								'debe' => '<b>Debe</b>',
-								'haber' => '<b>Haber</b>'				
-								)
-							 );
-*/							 
-							 			$debD = 0;
+								
+									$debD = 0;
 									$habD = 0;		
 									$debD = $debD + $par['debe'];
 									$habD = $habD + $par['haber'];
 									$debT = $debT + $par['debe'];
 									$habT = $habT + $par['haber'];
 									$asien_fecha = $par['fecha'];
-/*									$pdf_doc->add_table_row(
+									$pdf_doc->add_table_row(
 									array(
 										   'fecha' => Date('d-m-Y', strtotime($par['fecha'])),
 										   'asiento' => $par['numero'],
@@ -290,56 +248,15 @@ class inventarios_balances
 										   'haber' => $par['haber']
 											)
 										);
-*/
-//				$linea = 0;
+						
 					
 					////////////////////////////////////////////////////////////////////////////
 								
 								
 						}	
 					
-				$linea++;
-	  			}
-				else
-				{
-				  	   $pdf_doc->save_table(
-						array(
-							'fontSize' => 8,
-							'cols' => array(
-								'fecha' => array('justification' => 'right'),
-								'asiento' => array('justification' => 'right'),
-								'codsucuenta' => array('justification' => 'right'),
-								'descripcion' => array('justification' => 'left'),
-								'concepto' => array('justification' => 'left'),
-								'debe' => array('justification' => 'right'),
-								'haber' => array('justification' => 'right')							
-								),
-								'width' => 545,
-								'shaded' => 0
-									)
-								 );
-				$pdf_doc->pdf->ezNewPage();
-				//			$pdf_doc->pdf->ezNewPage();
-//				if($linea = $cat_lin ) $pdf_doc->pdf->ezText("\n", 10);
-							$pdf_doc->pdf->ezText("<b>".$this->empresa->nombre."</b>", 14, array('justification' => 'left'));
-							$pdf_doc->pdf->ezText("<b>Libro Diario General</b>", 14, array('justification' => 'center'));
-							$pdf_doc->pdf->ezText("\n", 8);
-//							$pdf_doc->pdf->ezText("\n", 10);
-				         $pdf_doc->new_table();
-						 $pdf_doc->add_table_header(
-							array(
-								'fecha' => '<b>Fecha</b>',
-								'asiento' => '<b>Asiento</b>',
-								'codsubcuenta' => '<b>SubCuenta</b>',
-								'descripcion' => '<b>Denominación</b>',
-								'concepto' => '<b>Concepto</b>',
-								'debe' => '<b>Debe</b>',
-								'haber' => '<b>Haber</b>'				
-								)
-							 );
-				$linea = 0;
 				
-				}
+				
 	  
 	 		}
 				
@@ -354,7 +271,7 @@ class inventarios_balances
 							   'haber' => '<b>'.$this->show_numero($habD).'</b>'
 								)
 							);
-/*							$pdf_doc->add_table_row(
+							$pdf_doc->add_table_row(
 								array(
 									'fecha' => '',
 									'asiento' => '',
@@ -376,7 +293,7 @@ class inventarios_balances
 							   'haber' => '<b>'.$this->show_numero($habT).'</b>'
 								)
 							);
-*/	  
+	  
 	  	   $pdf_doc->save_table(
 						array(
 							'fontSize' => 8,
@@ -384,8 +301,8 @@ class inventarios_balances
 								'fecha' => array('justification' => 'right'),
 								'asiento' => array('justification' => 'right'),
 								'codsucuenta' => array('justification' => 'right'),
-								'descripcion' => array('justification' => 'left'),
-								'concepto' => array('justification' => 'left'),
+								'descripcion' => array('justification' => 'right'),
+								'concepto' => array('justification' => 'right'),
 								'debe' => array('justification' => 'right'),
 								'haber' => array('justification' => 'right')							
 								),

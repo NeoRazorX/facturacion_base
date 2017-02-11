@@ -49,6 +49,12 @@
       <nulo>YES</nulo>
    </columna>
    <columna>
+      <nombre>idconf_caja</nombre>
+      <tipo>integer</tipo>
+      <default>NULL</default>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
       <nombre>idasiento</nombre>
       <tipo>integer</tipo>
       <default>NULL</default>
@@ -62,6 +68,12 @@
    <restriccion>
       <nombre>cajas_pkey</nombre>
       <consulta>PRIMARY KEY (id)</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>fk_idconf_caja</nombre>
+      <consulta>FOREIGN KEY (idconf_caja)
+         REFERENCES conf_caja(id)
+         ON DELETE RESTRICT ON UPDATE CASCADE</consulta>
    </restriccion>
    <restriccion>
       <nombre>fk_co_asientos</nombre>

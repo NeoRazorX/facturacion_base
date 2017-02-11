@@ -132,6 +132,13 @@ class contabilidad_asiento extends fs_controller
 				 	$libro_mes = substr( $ext->fecha,3,2);
 					if( $partida->marca_libro_idasiento($ext->idasiento,$libro_mes,$this->asiento->codejercicio))
 					{
+							
+					foreach($partida->all_from_asiento($this->asiento->idasiento) as $par)
+					{
+					$subcuenta = new subcuenta();
+					$subc = $subcuenta->get($par->idsubcuenta);
+					$subc->save();
+					}
 					$may_corr = 1;
 					}
 					else 	$may_inco = 0;	
@@ -163,6 +170,12 @@ class contabilidad_asiento extends fs_controller
 							$libro_mes = substr( $ext->fecha,3,2);
 							if( $partida->marca_libro_idasiento($idasiento,'0','0'))
 							{
+							foreach($partida->all_from_asiento($this->asiento->idasiento) as $par)
+								{
+								$subcuenta = new subcuenta();
+								$subc = $subcuenta->get($par->idsubcuenta);
+								$subc->save();
+								}
 							$may_corr = 1;
 							}
 							else 	$may_inco = 0;	

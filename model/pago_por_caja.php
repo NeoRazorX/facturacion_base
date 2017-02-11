@@ -197,7 +197,7 @@ class pago_por_caja extends fs_model {
         $this->idrecibo = $recibo_cliente->idrecibo;
         return $this;
     }
-    
+
     /**
      * @return int
      */
@@ -248,9 +248,32 @@ class pago_por_caja extends fs_model {
     }
 
     /**
+     * @return caja
+     */
+    public function getCaja() {
+        if(!$this->caja) {
+            $this->caja = self::get_caja($this->getIdCaja());
+        }
+        return $this->caja;
+    }
+
+    /**
+     * @param caja $caja
+     *
+     * @return pago_por_caja
+     */
+    public function setCaja(caja $caja) {
+        $this->idcaja = $caja->id;
+        $this->caja = $caja;
+        return $this;
+    }
+
+    /**
      * @return void
      */
     private function clean_cache() {
+        $this->cache->delete(str_replace('{id}','byc'.$this->getIdCaja(),self::CACHE_KEY_SINGLE));
+        $this->cache->delete(str_replace('{id}',$this->getId(),self::CACHE_KEY_SINGLE));
         $this->cache->delete(self::CACHE_KEY_ALL);
     }
 
@@ -307,6 +330,61 @@ class pago_por_caja extends fs_model {
         } else {
             return false;
         }
+    }
+
+    /**
+     * @param int $idfactura
+     *
+     * @return bool|pago_por_caja[]
+     */
+    public function fetchAllByFactura($idfactura) {
+        $res = array();
+        $pagos = $this->db->select("SELECT * FROM " . $this->table_name ." WHERE idfactura = " . (int) $idfactura . ";");
+        if($pagos) {
+            foreach ($pagos as $pago) {
+                $res[] = new pago_por_caja($pago);
+            }
+        } else {
+            return false;
+        }
+        return $res;
+    }
+
+    /**
+     * @param int $idrecibo
+     *
+     * @return bool|pago_por_caja[]
+     */
+    public function fetchAllByRecibo($idrecibo) {
+        $res = array();
+        $pagos = $this->db->select("SELECT * FROM " . $this->table_name ." WHERE idrecibo = " . (int) $idrecibo . ";");
+        if($pagos) {
+            foreach ($pagos as $pago) {
+                $res[] = new pago_por_caja($pago);
+            }
+        } else {
+            return false;
+        }
+        return $res;
+    }
+
+    /**
+     * @param int $idcaja
+     *
+     * @return pago_por_caja[]
+     */
+    public function fetchAllByCaja($idcaja) {
+        $facporcajlist = $this->cache->get_array(str_replace('{id}','byc'.$idcaja,self::CACHE_KEY_SINGLE));
+        if(!$idcaja || !$facporcajlist) {
+            $facsporcaj = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcaja = " . (int)$idcaja . " ORDER BY id ASC;");
+            if ($facsporcaj) {
+                foreach ($facsporcaj as $facporcaj) {
+                    $facporcajlist[] = new self($facporcaj);
+                }
+                $this->cache->set(str_replace('{id}','byc'.$idcaja,self::CACHE_KEY_SINGLE), $facporcajlist);
+            }
+        }
+        return $facporcajlist;
     }
 
     /**
@@ -400,7 +478,9 @@ class pago_por_caja extends fs_model {
      * @return mixed
      */
     public function delete() {
-        // TODO: Implement delete() method.
+        $this->clean_cache();
+
+        return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . (int)$this->id . ";");
     }
 
     /**
@@ -409,18 +489,56 @@ class pago_por_caja extends fs_model {
      * @return boolean
      */
     public static function save_recibo(caja $caja, recibo_cliente $recibo_cliente) {
-        //Si ya se guardó el recibo en la caja no guardarlo de nuevo
-        if(!self::getByCajaYRecibo($caja, $recibo_cliente)) {
-            $obj = new self(array(
-                'idfactura' => $recibo_cliente->idfactura,
-                'idrecibo' => $recibo_cliente->idrecibo,
-                'idcaja' => $caja->id,
-            ));
+        //Obtenemos la factura
+        $factura = $recibo_cliente->getFactura();
 
-            return $obj->save() && $caja->sumar_importe( (float) $recibo_cliente->importe);
-        } else {
+        //Si el recibo ya está en alguna caja no guardarlo de nuevo
+        //Si la factura ya está marcada como paga no guardar el recibo en una caja
+        if($factura->pagada || self::getByCajaYRecibo($caja, $recibo_cliente)) {
             return true;
         }
+
+        //Si el saldo de la factura es pagado por el valor de este recibo
+        if($recibo_cliente->importe >= $factura->getSaldo()) {
+            //Ahora agreo un recibo a la caja como valor negativo
+            $monto_rec = (float) - $factura->getMontoPago();
+            //TODO: HARCODED FORMA DE PAGO
+            $fake_recibo = self::create_recibo('ANT', $monto_rec, $factura);
+            $ret = $fake_recibo->save();
+            $obj = new self( array(
+                'idfactura' => $recibo_cliente->idfactura,
+                'idrecibo'  => $fake_recibo->idrecibo,
+                'idcaja'    => $caja->id,
+            ));
+            $ret = $ret && $obj->save() && $caja->sumar_importe($monto_rec);
+
+            //Agrego un recibo con el total de la factura a la caja
+            $obj = new self( array(
+                'idfactura' => $recibo_cliente->idfactura,
+                'idcaja'    => $caja->id,
+            ));
+            //Sumo el total de la factura a la caja
+            $ret = $ret && $obj->save() && $caja->sumar_importe($factura->total);
+            //Le pongo la fecha y hora de cuando se está pagando
+            $factura->fecha = date('d-m-Y');
+            $factura->hora = date('h:i:s');
+            //Marco la factura como pagada
+            $factura->pagada = true;
+            //Le cambio la forma de pago al recibo que obtuve
+            $factura->codpago = $recibo_cliente->codpago;
+            $ret = $ret && $factura->save();
+        } else {
+            //El sando no alcanza para pagar el saldo
+            //Agrego el recibo actual a la caja
+            $obj = new self( array(
+                'idfactura' => $recibo_cliente->idfactura,
+                'idrecibo'  => $recibo_cliente->idrecibo,
+                'idcaja'    => $caja->id,
+            ));
+            //Sumo el valor del recibo a la caja
+            $ret = $obj->save() && $caja->sumar_importe($recibo_cliente->importe);
+        }
+        return $ret;
     }
 
     private static function get_factura($idFactura) {
@@ -434,9 +552,36 @@ class pago_por_caja extends fs_model {
 
         return $recibo->get($idRecibo);
     }
-    
+
     /**
-     * 
+     * @param int $id_factura_cliente
+     *
+     * @return bool|recibo_cliente[]
+     */
+    public static function getRecibosByFactura($id_factura_cliente) {
+        $obj = new self();
+
+        return $obj->fetchRecibosByFactura($id_factura_cliente);
+    }
+
+    /**
+     * @param recibo_cliente $recibo_cliente
+     *
+     * @return bool
+     */
+    public static function delete_all_by_recibo(recibo_cliente $recibo_cliente) {
+        $ret = true;
+        $pagos = self::getByRecibo($recibo_cliente->idrecibo);
+        if($pagos) {
+            foreach ($pagos as $pago) {
+                $ret = $ret && $pago->delete();
+            }
+        }
+        return $ret;
+    }
+
+    /**
+     *
      */
     public static function getByCajaYRecibo(caja $caja, recibo_cliente $recibo_cliente) {
         $obj = new self();
@@ -474,22 +619,26 @@ class pago_por_caja extends fs_model {
     }
 
     /**
-     * @param int $idcaja
+     * @param $idrecibo
      *
      * @return pago_por_caja[]
      */
-    private function fetchAllByCaja($idcaja) {
-        $facporcajlist = $this->cache->get_array(str_replace('{id}','r'.$idcaja,self::CACHE_KEY_SINGLE));
-        if(!$idcaja || !$facporcajlist) {
-            $facsporcaj = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcaja = " . (int)$idcaja . " ORDER BY id ASC;");
-            if ($facsporcaj) {
-                foreach ($facsporcaj as $facporcaj) {
-                    $facporcajlist[] = new self($facporcaj);
-                }
-                $this->cache->set(str_replace('{id}','r'.$idcaja,self::CACHE_KEY_SINGLE), $facporcajlist);
-            }
-        }
-        return $facporcajlist;
+    public static function getByRecibo($idrecibo) {
+        $obj = new self();
+
+        return $obj->fetchAllByRecibo($idrecibo);
+
+    }
+
+    /**
+     * @param $idcaja
+     *
+     * @return pago_por_caja[]
+     */
+    public static function getPagosByCaja($idcaja) {
+        $obj = new self();
+
+        return $obj->fetchAllByCaja($idcaja);
     }
 
     /**
@@ -518,5 +667,54 @@ class pago_por_caja extends fs_model {
         return $recibos;
     }
 
+    /**
+     * @param int $id_factura_cliente
+     *
+     * @return recibo_cliente[]|array
+     */
+    private function fetchRecibosByFactura($id_factura_cliente) {
+        $recibos = array();
+        $pagos = $this->fetchAllByFactura($id_factura_cliente);
+        if ($pagos) {
+            foreach($pagos as $pago_por_caja) {
+                $recibos[] = $pago_por_caja->getReciboCliente();
+            }
+        }
+        return $recibos;
+    }
+
+    //TODO: NEGRADA WARNING
+    /**
+     * @param $forma_pago
+     * @param $importe
+     * @param factura_cliente $factura_cliente
+     *
+     * @return recibo_cliente
+     */
+    private static function create_recibo($forma_pago, $importe, factura_cliente $factura_cliente) {
+        $recibo = new recibo_cliente();
+        $recibo->idfactura = $factura_cliente->idfactura;
+        $recibo->codpago = $forma_pago;
+        $recibo->apartado = $factura_cliente->apartado;
+        $recibo->cifnif = $factura_cliente->cifnif;
+        $recibo->ciudad = $factura_cliente->ciudad;
+        $recibo->codcliente = $factura_cliente->codcliente;
+        $recibo->coddir = $factura_cliente->coddir;
+        $recibo->coddivisa = $factura_cliente->coddivisa;
+        $recibo->numero = $recibo->new_numero($factura_cliente->idfactura);
+        $recibo->codigo = $factura_cliente->codigo.'-'.sprintf('%02s', $recibo->numero);
+        $recibo->codpais = $factura_cliente->codpais;
+        $recibo->codpostal = $factura_cliente->codpostal;
+        $recibo->direccion = $factura_cliente->direccion;
+        $recibo->estado = 'Pagado';
+        $recibo->fecha = date('d-m-Y');
+        $recibo->fechav = date('d-m-Y');
+        $recibo->importe = (float) $importe;
+        $recibo->importeeuros = $recibo->importe * $factura_cliente->tasaconv;
+        $recibo->nombrecliente = $factura_cliente->nombrecliente;
+        $recibo->provincia = $factura_cliente->provincia;
+
+        return $recibo;
+    }
 
 }

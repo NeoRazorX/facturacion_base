@@ -60,14 +60,7 @@
             <div class="container-fluid">
                <div class="row">
                   <div class="col-sm-3">
-                     {if="$fsc->existe_libro_diario($value->codejercicio)"}
-                     <a href="tmp/{#FS_TMP_NAME#}libro_diario/{$value->codejercicio}.pdf" target="_blank">
-                        <span class="glyphicon glyphicon-book" aria-hidden="true"></span> Libro diario
-                     </a>
-                     {else}
-                     <a href="#"><s>Libro diario</s></a>
-                     {/if}
-                     <br/>
+    
                      <a href="{$fsc->url()}&diario={$value->codejercicio}" target="_blank">
                         <span class="glyphicon glyphicon-file" aria-hidden="true"></span> Libro diario (CSV)
                      </a>
@@ -92,6 +85,40 @@
                      </a>
                   </div>
                </div>
+			   
+			<div class="row">
+                  <div class="col-sm-12">
+                     <h3>Libro Diario:</h3>
+                  </div>
+               </div>   
+			<div class="row">
+                  <form action="{$fsc->url()}" method="post" target="_blank" class="form">
+                     <input type="hidden" name="codejercicio" value="{$value->codejercicio}"/>
+					 <input type="hidden" name="libro_diario" value="1"/>
+                     <div class="col-sm-2">
+                        <div class="form-group">
+                           Desde:
+                           <input type="text" name="desde" value="{$value->fechainicio}" class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" maxlength="10"/>
+                        </div>
+                     </div>
+                     <div class="col-sm-2">
+                        <div class="form-group">
+                           Hasta:
+                           <input type="text" name="hasta" value="{$value->fechafin}" class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" maxlength="10"/>
+                        </div>
+                     </div>
+                     <div class="col-sm-2">
+                        <br/>
+                        <button type="submit" class="btn btn-sm btn-primary">
+                           <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> &nbsp; Mostrar
+                        </button>
+                     </div>
+                  </form>
+             </div>
+            
+			   
+			   
+			   
 			   <div class="row">
                   <div class="col-sm-12">
                      <h3>Libro Mayor:</h3>
@@ -119,6 +146,8 @@
                <div class="row">
                   <form action="{$fsc->url()}" method="post" target="_blank" class="form">
                      <input type="hidden" name="codejercicio" value="{$value->codejercicio}"/>
+					 <input type="hidden" name="balance_ss" value="1"/>
+					 <input type="hidden" name="tipo" value="4"/>
                      <div class="col-sm-2">
                         <div class="form-group">
                            Desde:
@@ -131,16 +160,7 @@
                            <input type="text" name="hasta" value="{$value->fechafin}" class='form-control calendario' style="background:#FFFFFF" readonly="readonly" autocomplete="off" maxlength="10"/>
                         </div>
                      </div>
-                     <div class="col-sm-2">
-                        <div class="form-group">
-                           Tipo:
-                           <select name="tipo" class="form-control">
-						   	<option value="4">Normal</option>
-							  
-                              
-                           </select>
-                        </div>
-                     </div>
+                    
                      <div class="col-sm-2">
                         <br/>
                         <button type="submit" class="btn btn-sm btn-primary">

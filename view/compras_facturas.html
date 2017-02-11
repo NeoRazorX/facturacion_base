@@ -71,6 +71,18 @@
    document.getElementById('botdel').style.display='inherit';
    }
    
+   
+   $(function() {		
+						$('.calendario').datepicker({
+						format: "dd-mm-yyyy",
+						autoclose: true,
+							}).on('changeDate', function (ev) {
+								$(this).datepicker('hide');
+							});
+					});
+     
+   
+   
 </script>
 
 <div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px;">
@@ -311,7 +323,7 @@
             <div class="form-group">
                <div class="input-group">
                   {if="$fsc->proveedor"}
-                  <input class="form-control" type="text" name="ac_proveedor" value="{$fsc->proveedor->nombre}" id="ac_proveedor" placeholder="Cualquier proveedor" autocomplete="off"/>
+                  <input class="form-control" type="text" name="ac_proveedor" value="{$fsc->proveedor->nombre}" id="ac_proveedor" placeholder="Cualquier proveedor"  autocomplete="off"/>
                   {else}
                   <input class="form-control" type="text" name="ac_proveedor" id="ac_proveedor" placeholder="Cualquier proveedor" autocomplete="off"/>
                   {/if}
@@ -325,12 +337,12 @@
          </div>
          <div class="col-sm-2">
             <div class="form-group">
-               <input type="text" name="desde" value="{$fsc->desde}" class="form-control datepicker" placeholder="Desde" autocomplete="off" onchange="this.form.submit()"/>
+               <input type="text" name="desde" value="{$fsc->desde}" class="form-control datepicker" style="background:#FFFFFF" readonly="readonly"  placeholder="Desde" autocomplete="off" onchange="this.form.submit()"/>
             </div>
          </div>
          <div class="col-sm-2">
             <div class="form-group">
-               <input type="text" name="hasta" value="{$fsc->hasta}" class="form-control datepicker" placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
+               <input type="text" name="hasta" value="{$fsc->hasta}" class="form-control datepicker" style="background:#FFFFFF" readonly="readonly"  placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
             </div>
          </div>
       </div>

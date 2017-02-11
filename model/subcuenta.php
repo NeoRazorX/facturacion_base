@@ -419,7 +419,7 @@ class subcuenta extends fs_model
          return FALSE;
       }
       else
-         return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idsubcuenta = ".$this->var2str($this->idsubcuenta).";");
+         return TRUE;
    }
    
    public function test()
@@ -462,6 +462,7 @@ class subcuenta extends fs_model
          return FALSE;
       }
    }
+   
    
    public function save()
    {

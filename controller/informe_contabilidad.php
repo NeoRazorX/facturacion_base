@@ -48,7 +48,9 @@ class informe_contabilidad extends fs_controller
       
       if( isset($_GET['diario']) )
       {
-         $this->libro_diario_csv($_GET['diario']);
+ //        $this->libro_diario_csv($_GET['diario']);
+ //			$this->libro_diario_pdf($_GET['diario']);
+ 
       }
       else if( isset($_GET['balance']) AND isset($_GET['eje']) )
       {
@@ -62,9 +64,13 @@ class informe_contabilidad extends fs_controller
          else
             $iba->generar_sit($_GET['eje']);
       }
-      else if( isset($_POST['codejercicio']) )
+      else if( isset($_POST['balance_ss']) )
       {
-         $this->balance_sumas_y_saldos();
+         if(isset($_POST['codejercicio'])) $this->balance_sumas_y_saldos();
+      }
+	  else if( isset($_POST['libro_diario']) )
+      {
+         if(isset($_POST['codejercicio'])) $this->libro_diario_pdf($_POST['codejercicio'],$_POST['desde'],$_POST['hasta']);
       }
    }
    
@@ -78,7 +84,7 @@ class informe_contabilidad extends fs_controller
       return file_exists('tmp/'.FS_TMP_NAME.'inventarios_balances/'.$codeje.'.pdf');
    }
    
-   private function libro_diario_csv($codeje)
+   private function libro_diario_csv($codeje,$desde,$hasta)
    {
       $this->template = FALSE;
       header("content-type:application/csv;charset=UTF-8");
@@ -87,18 +93,83 @@ class informe_contabilidad extends fs_controller
       
       $partida = new partida();
       $offset = 0;
-      $partidas = $partida->full_from_ejercicio($codeje, $offset);
+	  $debD = 0;
+	  $habD = 0;
+	  $debT = 0;
+	  $habT = 0;
+      $partidas = $partida->subcuentas_por_fecha($codeje,$desde,$hasta, $offset);
+	  
+	  $asien_fecha = $partidas[0]['fecha'];
       while( count($partidas) > 0 )
       {
+	  
          foreach($partidas as $par)
          {
+		 if ( $asien_fecha == $par['fecha'])
+		 {
             echo $par['numero'].';'.$par['fecha'].';'.$par['codsubcuenta'].';'.$par['concepto'].';'.$par['debe'].';'.$par['haber']."\n";
             $offset++;
+			$debD = $debD + $par['debe'];
+			$habD = $habD + $par['haber'];
+			$debT = $debT + $par['debe'];
+			$habT = $habT + $par['haber'];
+		 }	
+		else
+		{
+			echo ' ; ; ;Total diario  ;'. $debD.';'.$habD."\n\n";
+			
+			$debD = 0;
+	  		$habD = 0;
+			echo $par['numero'].';'.$par['fecha'].';'.$par['codsubcuenta'].';'.$par['concepto'].';'.$par['debe'].';'.$par['haber']."\n";
+            $offset++;
+			$debD = $debD + $par['debe'];
+			$habD = $habD + $par['haber'];
+			$debT = $debT + $par['debe'];
+			$habT = $habT + $par['haber'];
+			$asien_fecha = $par['fecha'];
+		}	
+			
          }
          
-         $partidas = $partida->full_from_ejercicio($codeje, $offset);
+         $partidas = $partida->subcuentas_por_fecha($codeje,$desde,$hasta, $offset);
+		 
       }
-   }
+	  echo ' ; ; ;Total diario  ;'. $debD.';'.$habD."\n\n";
+	  
+	  echo ' ;  ; ;Totales ;'. $debT.';'.$habT;
+
+}
+
+private function libro_diario_pdf($codeje,$desde,$hasta)
+   {
+ 	 $eje = $this->ejercicio->get($codeje);
+      if($eje)
+      {
+         if( strtotime($desde) < strtotime($eje->fechainicio) OR strtotime($hasta) > strtotime($eje->fechafin) )
+         {
+            $this->new_error_msg('La fecha está fuera del rango del ejercicio.');
+         }
+         else
+         {
+            $this->template = FALSE;
+            $pdf_doc = new fs_pdf('A4','portrait', 'Courier');
+            $pdf_doc->pdf->addInfo('Title', 'Libro Diario de  ' . $this->empresa->nombre);
+            $pdf_doc->pdf->addInfo('Subject', 'Libro Diario de ' . $this->empresa->nombre);
+            $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
+ //           $pdf_doc->pdf->ezStartPageNumbers(570, 800, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
+			
+			$iba = new inventarios_balances();
+          
+               $iba->libro_diario($pdf_doc, $eje, 'de '.$desde.' a '.$hasta, $desde, $hasta);
+          
+            
+            $pdf_doc->show();
+         }
+      }
+ }
+
+
+
   
    
       private function new_search()

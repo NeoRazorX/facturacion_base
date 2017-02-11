@@ -46,6 +46,11 @@ class ventas_facturas extends fs_controller
    public $total_resultados;
    public $total_resultados_comision;
    public $total_resultados_txt;
+
+	/**
+	 * @var caja
+	 */
+   protected $caja;
    
    public function __construct()
    {

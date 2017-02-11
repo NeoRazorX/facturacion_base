@@ -322,7 +322,7 @@ class conf_caja extends fs_model {
      */
     public function findByTime($time = '') {
         if(!$time) {
-            $time = date("H:i:s");
+            $time = date('H:i:s');
         }
 
         $sql = <<<SQL
@@ -336,7 +336,7 @@ SQL;
 
         $conf_cajas = $this->db->select($sql);
 
-        if($conf_cajas && count($conf_cajas) == 1) {
+        if($conf_cajas && count($conf_cajas) === 1) {
             return new self($conf_cajas[0]);
         } else {
             return false;
@@ -427,12 +427,13 @@ SQL;
     }
 
     /**
+     * @param string $time Time to use instead of now
      * @return bool|conf_caja
      */
-    public static function get_info() {
+    public static function get_info($time = '') {
         $conf_caja = new self();
 
-        return $conf_caja->findByTime();
+        return $conf_caja->findByTime($time);
     }
 
 }
