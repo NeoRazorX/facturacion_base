@@ -50,6 +50,8 @@ class fs_pdf
       
       $this->pdf = new Cezpdf($paper, $orientation);
       $this->pdf->selectFont(__DIR__."/ezpdf/fonts/".$font.".afm");
+      $this->pdf->addInfo('Creator', 'FacturaScripts');
+      $this->pdf->addInfo('Producer', 'FacturaScripts');
    }
    
    /**
