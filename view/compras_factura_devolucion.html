@@ -13,7 +13,7 @@
       </thead>
       {loop="$fsc->factura->get_rectificativas()"}
       <tr>
-         <td><a href="{$value->url()}" target="_parent">{$value->codigo}</a> {$value->numero2}</td>
+         <td><a href="{$value->url()}" target="_parent">{$value->codigo}</a> {$value->numproveedor}</td>
          <td>{$value->observaciones_resume()}</td>
          <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
          <td class="text-right" title="Hora {$value->hora}">
