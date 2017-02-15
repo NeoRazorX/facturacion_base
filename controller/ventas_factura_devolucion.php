@@ -145,7 +145,7 @@ class ventas_factura_devolucion extends fs_controller
                   $frec->totalirpf = round($frec->totalirpf, FS_NF0);
                   $frec->totalrecargo = round($frec->totalrecargo, FS_NF0);
                   $frec->total = $frec->neto + $frec->totaliva - $frec->totalirpf + $frec->totalrecargo;
-                  
+                  $frec->pagada = TRUE;
                   if( $frec->save() )
                   {
                      $this->generar_asiento($frec);
