@@ -100,17 +100,17 @@
             {if="$fsc->cliente->debaja"}
             <a href="#" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modal_debaja">
                <span class="glyphicon glyphicon-lock"></span>
-               <span class="hidden-xs">&nbsp; De baja</span>
+               <span class="hidden-xs">&nbsp;De baja</span>
             </a>
             {elseif="$fsc->tiene_facturas()"}
             <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_debaja">
                <span class="glyphicon glyphicon-lock"></span>
-               <span class="hidden-xs">&nbsp; Dar de baja</span>
+               <span class="hidden-xs">&nbsp;Dar de baja</span>
             </a>
             {else}
             <a href="#" id="b_eliminar" class="btn btn-sm btn-danger">
                <span class="glyphicon glyphicon-trash"></span>
-               <span class="hidden-xs">&nbsp; Eliminar</span>
+               <span class="hidden-xs">&nbsp;Eliminar</span>
             </a>
             {/if}
          {/if}

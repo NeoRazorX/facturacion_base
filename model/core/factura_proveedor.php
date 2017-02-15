@@ -1209,7 +1209,7 @@ class factura_proveedor extends \fs_model
             $sql .= " AND pagada = false";
          }
       }
-      if ($forma_pago)
+      if($forma_pago)
       {
          $sql .= " AND codpago = ".$this->var2str($forma_pago);
       }

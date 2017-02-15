@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     Document   : articulos.xml
+    Author     : Carlos Garcia Gomez
     Description:
         Estructura de la tabla articulos.
         Algunas columnas de la tabla no se utilizan en FacturaScripts,
-        pero las añado para dar compatiilidad con Abanq/Eneboo.
+        pero las añado para dar compatilidad con Abanq/Eneboo.
 -->
 <tabla>
    <columna>

@@ -214,6 +214,7 @@ class informe_facturas extends fs_controller
       {
          $estado = $_POST['estado'];
       }
+      
       $forma_pago = FALSE;
       if($_POST['codpago'])
       {
@@ -331,7 +332,7 @@ class informe_facturas extends fs_controller
          $forma_pago = $_POST['codpago'];
       }
       
-      $facturas = $this->factura_pro->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codproveedor, $estado);
+      $facturas = $this->factura_pro->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codproveedor, $estado, $forma_pago);
       if($facturas)
       {
          foreach($facturas as $fac)

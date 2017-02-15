@@ -95,7 +95,18 @@
                         <option value="noacreedores"{if="$fsc->tipo=='noacreedores'"} selected=""{/if}>No acreedores</option>
                      </select>
                   </div>
-                  <div class="col-sm-6"></div>
+                  <div class="col-sm-6">
+                     <div class="checkbox">
+                        <label>
+                           {if="$fsc->debaja"}
+                           <input type="checkbox" name="debaja" value="TRUE" checked="" onchange="this.form.submit()"/>
+                           {else}
+                           <input type="checkbox" name="debaja" value="TRUE" onchange="this.form.submit()"/>
+                           {/if}
+                           de baja
+                        </label>
+                     </div>
+                  </div>
                   <div class="col-sm-2">
                      <div class="input-group">
                         <div class="input-group-addon">
@@ -107,21 +118,6 @@
                            <option value="cifnif ASC"{if="$fsc->orden=='cifnif ASC'"} selected=""{/if}>Orden: {#FS_CIFNIF#}</option>
                            <option value="cifnif DESC"{if="$fsc->orden=='cifnif DESC'"} selected=""{/if}>Orden: {#FS_CIFNIF#} descendente</option>
                         </select>
-                     </div>
-                  </div>
-               </div>
-                
-               <div class="row">
-                  <div class="col-sm-12">
-                     <div class="checkbox-inline">
-                        <label>
-                           {if="$fsc->debaja"}
-                           <input type="checkbox" name="debaja" value="TRUE" checked="" onchange="this.form.submit()"/>
-                           {else}
-                           <input type="checkbox" name="debaja" value="TRUE" onchange="this.form.submit()"/>
-                           {/if}
-                           de baja
-                        </label>
                      </div>
                   </div>
                </div>
@@ -139,7 +135,7 @@
                   </tr>
                </thead>
                {loop="$fsc->resultados"}
-               <tr class='clickableRow{if="$value->debaja"} danger{elseif="$value->fechaalta==$fsc->today()"} success{/if}' href='{$value->url()}'>
+               <tr class='clickableRow{if="$value->debaja"} danger{/if}' href='{$value->url()}'>
                   <td>
                      <a href="{$value->url()}">{$value->codproveedor}</a> {$value->nombre}
                      {if="$value->nombre!=$value->razonsocial"}
@@ -150,8 +146,6 @@
                      {/if}
                      {if="$value->debaja"}
                      &nbsp; <span class="label label-danger hidden-sm" title="proveedor dado de baja">Baja</span>
-                     {elseif="$value->fechaalta==$fsc->today()"}
-                     &nbsp; <span class="label label-success hidden-sm" title="Nuevo cliente">Nuevo</span>
                      {/if}
                   </td>
                   <td>{$value->cifnif}</td>
