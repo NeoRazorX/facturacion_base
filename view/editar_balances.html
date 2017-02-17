@@ -67,6 +67,7 @@
       <div class="row">
          <div class="col-sm-3">
             <div class="form-group">
+               Naturaleza:
                <select name="naturaleza" class="form-control">
                   {loop="$fsc->all_naturalezas()"}
                      {if="$key==$fsc->balance->naturaleza"}
@@ -78,9 +79,22 @@
                </select>
             </div>
          </div>
-         <div class="col-sm-9">
+         <div class="col-sm-3">
             <div class="form-group">
+               Descripción:
                <input type="text" name="descripcion" value="{$fsc->balance->descripcion1}" class="form-control" autocomplete="off"/>
+            </div>
+         </div>
+         <div class="col-sm-3">
+            <div class="form-group">
+               Descripción 2:
+               <input type="text" name="descripcion2" value="{$fsc->balance->descripcion2}" class="form-control" autocomplete="off"/>
+            </div>
+         </div>
+         <div class="col-sm-3">
+            <div class="form-group">
+               Descripción 3:
+               <input type="text" name="descripcion3" value="{$fsc->balance->descripcion3}" class="form-control" autocomplete="off"/>
             </div>
          </div>
       </div>
@@ -208,6 +222,8 @@
                      <th>Código</th>
                      <th>Naturaleza</th>
                      <th>Descripción</th>
+                     <th>Descripción 2</th>
+                     <th>Descripción 3</th>
                   </tr>
                </thead>
                <!--{$naturaleza=''}-->
@@ -224,10 +240,12 @@
                      {$value->naturaleza}
                   </td>
                   <td>{$value->descripcion1}</td>
+                  <td>{$value->descripcion2}</td>
+                  <td>{$value->descripcion3}</td>
                </tr>
                {else}
                <tr class="warning">
-                  <td colspan="3">
+                  <td colspan="5">
                      Sin resultados. ¿Has importado el plan contable?
                   </td>
                </tr>

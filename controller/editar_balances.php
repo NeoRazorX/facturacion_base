@@ -52,44 +52,11 @@ class editar_balances extends fs_controller
       }
       else if( isset($_POST['ncodbalance']) )
       {
-         $balance = new balance();
-         $this->balance = $balance->get($_POST['ncodbalance']);
-         if(!$this->balance)
-         {
-            $this->balance = new balance();
-            $this->balance->codbalance = $_POST['ncodbalance'];
-            $this->balance->naturaleza = $_POST['naturaleza'];
-            $this->balance->descripcion1 = $_POST['descripcion'];
-            
-            if( $this->balance->save() )
-            {
-               $this->new_message('Datos guardados correctamente.');
-            }
-            else
-            {
-               $this->new_error_msg('Error al guardar los datos.');
-            }
-         }
+         $this->nuevo_balance();
       }
       else if( isset($_GET['delete']) )
       {
-         $balance = new balance();
-         $balance2 = $balance->get($_REQUEST['delete']);
-         if($balance2)
-         {
-            if( $balance2->delete() )
-            {
-               $this->new_message('Balance '.$balance2->codbalance.' eliminado correctamente.', TRUE);
-            }
-            else
-            {
-               $this->new_error_msg('Error al eliminar el balance');
-            }
-         }
-         else
-         {
-            $this->new_error_msg('Balance no encontrado.');
-         }
+         $this->delete_balance();
       }
       
       if($this->balance)
@@ -165,17 +132,7 @@ class editar_balances extends fs_controller
          }
          else if( isset($_POST['descripcion']) )
          {
-            $this->balance->naturaleza = $_POST['naturaleza'];
-            $this->balance->descripcion1 = $_POST['descripcion'];
-            
-            if( $this->balance->save() )
-            {
-               $this->new_message('Datos guardados correctamente.');
-            }
-            else
-            {
-               $this->new_error_msg('Error al guardar los datos.');
-            }
+            $this->editar_balance();
          }
          
          $this->cuentas = $bc0->all_from_codbalance($this->balance->codbalance);
@@ -209,5 +166,65 @@ class editar_balances extends fs_controller
           'PG' => 'PG = Pérdidas y ganancias',
           'IG' => 'IG = Ingresos y gastos',
       );
+   }
+   
+   private function nuevo_balance()
+   {
+      $balance = new balance();
+      $this->balance = $balance->get($_POST['ncodbalance']);
+      if(!$this->balance)
+      {
+         $this->balance = new balance();
+         $this->balance->codbalance = $_POST['ncodbalance'];
+         $this->balance->naturaleza = $_POST['naturaleza'];
+         $this->balance->descripcion1 = $_POST['descripcion'];
+         
+         if( $this->balance->save() )
+         {
+            $this->new_message('Datos guardados correctamente.');
+         }
+         else
+         {
+            $this->new_error_msg('Error al guardar los datos.');
+         }
+      }
+   }
+   
+   private function editar_balance()
+   {
+      $this->balance->naturaleza = $_POST['naturaleza'];
+      $this->balance->descripcion1 = $_POST['descripcion'];
+      $this->balance->descripcion2 = $_POST['descripcion2'];
+      $this->balance->descripcion3 = $_POST['descripcion3'];
+      
+      if( $this->balance->save() )
+      {
+         $this->new_message('Datos guardados correctamente.');
+      }
+      else
+      {
+         $this->new_error_msg('Error al guardar los datos.');
+      }
+   }
+   
+   private function delete_balance()
+   {
+      $balance = new balance();
+      $balance2 = $balance->get($_REQUEST['delete']);
+      if($balance2)
+      {
+         if( $balance2->delete() )
+         {
+            $this->new_message('Balance '.$balance2->codbalance.' eliminado correctamente.', TRUE);
+         }
+         else
+         {
+            $this->new_error_msg('Error al eliminar el balance');
+         }
+      }
+      else
+      {
+         $this->new_error_msg('Balance no encontrado.');
+      }
    }
 }
