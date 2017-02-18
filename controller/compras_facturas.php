@@ -521,7 +521,6 @@ class compras_facturas extends fs_controller
                }
             }
             
-            $this->new_message("Factura de compra ".$fact->codigo." eliminada correctamente.", TRUE);
             $this->clean_last_changes();
          }
          else

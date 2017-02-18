@@ -671,7 +671,7 @@ class albaran_proveedor extends \fs_model
                $factura0->delete();
             }
          }
-         
+         $this->new_message(ucfirst(FS_ALBARAN). " de compra ".$this->codigo." eliminado correctamente.", TRUE);
          return TRUE;
       }
       else

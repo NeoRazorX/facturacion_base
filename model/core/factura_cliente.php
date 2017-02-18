@@ -1322,7 +1322,7 @@ class factura_cliente extends \fs_model
                $asi1->delete();
             }
          }
-         
+         $this->new_message(ucfirst(FS_FACTURA). " de venta ".$this->codigo." eliminada correctamente.", TRUE);
          return TRUE;
       }
       else

@@ -830,7 +830,7 @@ class albaran_cliente extends \fs_model
                $factura0->delete();
             }
          }
-         
+         $this->new_message(ucfirst(FS_ALBARAN) ." de venta ".$this->codigo. " eliminado correctamente", TRUE);
          return TRUE;
       }
       else
