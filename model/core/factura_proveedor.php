@@ -1067,7 +1067,7 @@ class factura_proveedor extends \fs_model
                $asi1->delete();
             }
          }
-         
+         $this->new_message(ucfirst(FS_FACTURA). " de compra ".$this->codigo." eliminada correctamente.", TRUE);
          return TRUE;
       }
       else

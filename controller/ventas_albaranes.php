@@ -367,7 +367,6 @@ class ventas_albaranes extends fs_controller
          
          if( $alb1->delete() )
          {
-            $this->new_message( ucfirst(FS_ALBARAN)." de venta ".$alb1->codigo." eliminado correctamente.", TRUE);
             $this->clean_last_changes();
          }
          else
