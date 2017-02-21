@@ -262,21 +262,21 @@ class nueva_venta extends fs_controller
          
          if( isset($_POST['tipo']) )
          {
-            if($_POST['tipo'] == 'albaran')
-            {
-               $this->nuevo_albaran_cliente();
-            }
-            else if($_POST['tipo'] == 'factura')
+            if($_POST['tipo'] == 'factura')
             {
                $this->nueva_factura_cliente();
             }
-            else if($_POST['tipo'] == 'presupuesto' AND class_exists('presupuesto_cliente') )
+            else if($_POST['tipo'] == 'albaran')
             {
-               $this->nuevo_presupuesto_cliente();
+               $this->nuevo_albaran_cliente();
             }
             else if($_POST['tipo'] == 'pedido' AND class_exists('pedido_cliente') )
             {
                $this->nuevo_pedido_cliente();
+            }
+            else if($_POST['tipo'] == 'presupuesto' AND class_exists('presupuesto_cliente') )
+            {
+               $this->nuevo_presupuesto_cliente();
             }
             
             /// si el cliente no tiene cifnif nos guardamos el que indique
@@ -738,10 +738,18 @@ class nueva_venta extends fs_controller
                   
                   if( $linea->save() )
                   {
-                     if( $articulo AND isset($_POST['stock']) )
+                     if($articulo)
                      {
-                        /// descontamos del stock
-                        $articulo->sum_stock($albaran->codalmacen, 0 - $linea->cantidad);
+                        if( !$articulo->controlstock AND $linea->cantidad > $articulo->stockfis )
+                        {
+                           $this->new_error_msg("No hay suficiente stock del artículo <b>".$linea->referencia.'</b>.');
+                           $continuar = FALSE;
+                        }
+                        else if( isset($_POST['stock']) )
+                        {
+                           /// descontamos del stock
+                           $articulo->sum_stock($albaran->codalmacen, 0 - $linea->cantidad);
+                        }
                      }
                      
                      $albaran->neto += $linea->pvptotal;
@@ -794,12 +802,10 @@ class nueva_venta extends fs_controller
                else
                   $this->new_error_msg("¡Imposible actualizar el <a href='".$albaran->url()."'>".FS_ALBARAN."</a>!");
             }
-            else if( $albaran->delete() )
+            else if( !$albaran->delete() )
             {
-               $this->new_message(FS_ALBARAN." eliminado correctamente.");
-            }
-            else
                $this->new_error_msg("¡Imposible eliminar el <a href='".$albaran->url()."'>".FS_ALBARAN."</a>!");
+            }
          }
          else
             $this->new_error_msg("¡Imposible guardar el ".FS_ALBARAN."!");
@@ -979,10 +985,18 @@ class nueva_venta extends fs_controller
                   
                   if( $linea->save() )
                   {
-                     if( $articulo AND isset($_POST['stock']) )
+                     if($articulo)
                      {
-                        /// descontamos del stock
-                        $articulo->sum_stock($factura->codalmacen, 0 - $linea->cantidad);
+                        if( !$articulo->controlstock AND $linea->cantidad > $articulo->stockfis )
+                        {
+                           $this->new_error_msg("No hay suficiente stock del artículo <b>".$linea->referencia.'</b>.');
+                           $continuar = FALSE;
+                        }
+                        else if( isset($_POST['stock']) )
+                        {
+                           /// descontamos del stock
+                           $articulo->sum_stock($factura->codalmacen, 0 - $linea->cantidad);
+                        }
                      }
                      
                      $factura->neto += $linea->pvptotal;
@@ -1036,12 +1050,10 @@ class nueva_venta extends fs_controller
                else
                   $this->new_error_msg("¡Imposible actualizar la <a href='".$factura->url()."'>Factura</a>!");
             }
-            else if( $factura->delete() )
+            else if( !$factura->delete() )
             {
-               $this->new_message("Factura eliminada correctamente.");
-            }
-            else
                $this->new_error_msg("¡Imposible eliminar la <a href='".$factura->url()."'>Factura</a>!");
+            }
          }
          else
             $this->new_error_msg("¡Imposible guardar la Factura!");
