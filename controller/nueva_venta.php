@@ -39,6 +39,7 @@ require_model('tarifa.php');
 
 class nueva_venta extends fs_controller
 {
+   public $agencia;
    public $agente;
    public $almacen;
    public $articulo;
@@ -56,7 +57,6 @@ class nueva_venta extends fs_controller
    public $results;
    public $serie;
    public $tipo;
-   public $agencia;
    
    public function __construct()
    {

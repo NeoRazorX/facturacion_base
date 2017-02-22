@@ -96,15 +96,25 @@
                               {/if}
                            {/loop}
                            </select>
+                           {if="$fsc->empresa->codpais=='ESP'"}
+                           <p class="help-block">
+                              En España la {#FS_FACTURA_RECTIFICATIVA#} debe ir en una serie distinta.
+                           </p>
+                           {/if}
                         </div>
                      </div>
-                     <div class="col-sm-6">
-                        <br/>
-                        <p class="help-block">
-                           En España la {#FS_FACTURA_RECTIFICATIVA#} debe ir en una serie distinta.
-                        </p>
+                     <div class="col-sm-2">
+                        <div class="form-group">
+                           Fecha:
+                           <div class="input-group">
+                              <span class="input-group-addon">
+                                 <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+                              </span>
+                              <input type="text" name="fecha" value="{$fsc->today()}" class="form-control datepicker" autocomplete="off"/>
+                           </div>
+                        </div>
                      </div>
-                     <div class="col-sm-3 text-right">
+                     <div class="col-sm-7 text-right">
                         <br/>
                         <button type="submit" class="btn btn-sm btn-primary">
                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>&nbsp; Guardar

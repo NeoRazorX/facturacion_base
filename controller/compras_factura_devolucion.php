@@ -65,100 +65,114 @@ class compras_factura_devolucion extends fs_controller
 
    private function nueva_rectificativa()
    {
-      $frec = clone $this->factura;
-      $frec->idfactura = NULL;
-      $frec->numero = NULL;
-      $frec->numproveedor = $_POST['numproveedor'];
-      $frec->codigo = NULL;
-      $frec->idasiento = NULL;
-      $frec->idfacturarect = $this->factura->idfactura;
-      $frec->codigorect = $this->factura->codigo;
-      $frec->codserie = $_POST['codserie'];
-      $frec->fecha = $this->today();
-      $frec->hora = $this->hour();
-      $frec->observaciones = $_POST['motivo'];
-
-      $frec->irpf = 0;
-      $frec->neto = 0;
-      $frec->total = 0;
-      $frec->totalirpf = 0;
-      $frec->totaliva = 0;
-      $frec->totalrecargo = 0;
-
-      $guardar = FALSE;
-      foreach($this->factura->get_lineas() as $value)
+      $continuar = TRUE;
+      
+      $eje0 = new ejercicio();
+      $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
+      if(!$ejercicio)
       {
-         if( isset($_POST['devolver_'.$value->idlinea]) )
+         $this->new_error_msg('Ejercicio no encontrado o está cerrado.');
+         $continuar = FALSE;
+      }
+      
+      if($continuar)
+      {
+         $frec = clone $this->factura;
+         $frec->idfactura = NULL;
+         $frec->numero = NULL;
+         $frec->numproveedor = $_POST['numproveedor'];
+         $frec->codigo = NULL;
+         $frec->idasiento = NULL;
+         $frec->idfacturarect = $this->factura->idfactura;
+         $frec->codigorect = $this->factura->codigo;
+         $frec->codejercicio = $ejercicio->codejercicio;
+         $frec->codserie = $_POST['codserie'];
+         $frec->set_fecha_hora($_POST['fecha'], $this->hour());
+         $frec->observaciones = $_POST['motivo'];
+         $frec->numdocs = NULL;
+         
+         $frec->irpf = 0;
+         $frec->neto = 0;
+         $frec->total = 0;
+         $frec->totalirpf = 0;
+         $frec->totaliva = 0;
+         $frec->totalrecargo = 0;
+         
+         $guardar = FALSE;
+         foreach($this->factura->get_lineas() as $value)
          {
-            if( floatval($_POST['devolver_'.$value->idlinea]) > 0 )
+            if( isset($_POST['devolver_'.$value->idlinea]) )
             {
-               $guardar = TRUE;
+               if( floatval($_POST['devolver_'.$value->idlinea]) > 0 )
+               {
+                  $guardar = TRUE;
+               }
             }
          }
-      }
-
-      if($guardar)
-      {
-         if( $frec->save() )
+         
+         if($guardar)
          {
-            $art0 = new articulo();
-
-            foreach($this->factura->get_lineas() as $value)
+            if( $frec->save() )
             {
-               if( isset($_POST['devolver_'.$value->idlinea]) )
+               $art0 = new articulo();
+               
+               foreach($this->factura->get_lineas() as $value)
                {
-                  if( floatval($_POST['devolver_'.$value->idlinea]) > 0 )
+                  if( isset($_POST['devolver_'.$value->idlinea]) )
                   {
-                     $linea = clone $value;
-                     $linea->idlinea = NULL;
-                     $linea->idfactura = $frec->idfactura;
-                     $linea->idalbaran = NULL;
-                     $linea->cantidad = 0 - floatval($_POST['devolver_'.$value->idlinea]);
-                     $linea->pvpsindto = $linea->cantidad * $linea->pvpunitario;
-                     $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * (100 - $linea->dtopor) / 100;
-                     if( $linea->save() )
+                     if( floatval($_POST['devolver_'.$value->idlinea]) > 0 )
                      {
-                        $articulo = $art0->get($linea->referencia);
-                        if($articulo)
+                        $linea = clone $value;
+                        $linea->idlinea = NULL;
+                        $linea->idfactura = $frec->idfactura;
+                        $linea->idalbaran = NULL;
+                        $linea->cantidad = 0 - floatval($_POST['devolver_'.$value->idlinea]);
+                        $linea->pvpsindto = $linea->cantidad * $linea->pvpunitario;
+                        $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * (100 - $linea->dtopor) / 100;
+                        if( $linea->save() )
                         {
-                           $articulo->sum_stock($frec->codalmacen, 0 - $linea->cantidad);
-                        }
-
-                        $frec->neto += $linea->pvptotal;
-                        $frec->totaliva += ($linea->pvptotal * $linea->iva/100);
-                        $frec->totalirpf += ($linea->pvptotal * $linea->irpf/100);
-                        $frec->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
-
-                        if($linea->irpf > $frec->irpf)
-                        {
-                           $frec->irpf = $linea->irpf;
+                           $articulo = $art0->get($linea->referencia);
+                           if($articulo)
+                           {
+                              $articulo->sum_stock($frec->codalmacen, 0 - $linea->cantidad);
+                           }
+                           
+                           $frec->neto += $linea->pvptotal;
+                           $frec->totaliva += ($linea->pvptotal * $linea->iva/100);
+                           $frec->totalirpf += ($linea->pvptotal * $linea->irpf/100);
+                           $frec->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
+                           
+                           if($linea->irpf > $frec->irpf)
+                           {
+                              $frec->irpf = $linea->irpf;
+                           }
                         }
                      }
                   }
                }
+               
+               /// redondeamos
+               $frec->neto = round($frec->neto, FS_NF0);
+               $frec->totaliva = round($frec->totaliva, FS_NF0);
+               $frec->totalirpf = round($frec->totalirpf, FS_NF0);
+               $frec->totalrecargo = round($frec->totalrecargo, FS_NF0);
+               $frec->total = $frec->neto + $frec->totaliva - $frec->totalirpf + $frec->totalrecargo;
+               $frec->pagada = TRUE;
+               if( $frec->save() )
+               {
+                  $this->generar_asiento($frec);
+                  $this->new_message(FS_FACTURA_RECTIFICATIVA.' creada correctamente.');
+               }
             }
-
-            /// redondeamos
-            $frec->neto = round($frec->neto, FS_NF0);
-            $frec->totaliva = round($frec->totaliva, FS_NF0);
-            $frec->totalirpf = round($frec->totalirpf, FS_NF0);
-            $frec->totalrecargo = round($frec->totalrecargo, FS_NF0);
-            $frec->total = $frec->neto + $frec->totaliva - $frec->totalirpf + $frec->totalrecargo;
-            $frec->pagada = TRUE;
-            if( $frec->save() )
+            else
             {
-               $this->generar_asiento($frec);
-               $this->new_message(FS_FACTURA_RECTIFICATIVA.' creada correctamente.');
+               $this->new_error_msg('Error al guardar la '.FS_FACTURA_RECTIFICATIVA);
             }
          }
          else
          {
-            $this->new_error_msg('Error al guardar la '.FS_FACTURA_RECTIFICATIVA);
+            $this->new_advice('Todas las cantidades a devolver están a 0.');
          }
-      }
-      else
-      {
-         $this->new_advice('Todas las cantidades a devolver están a 0.');
       }
    }
 
