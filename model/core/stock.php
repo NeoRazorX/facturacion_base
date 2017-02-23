@@ -131,6 +131,7 @@ class stock extends \fs_model
    
    public function sum_cantidad($c = 0)
    {
+      /// convertimos a flot por si acaso nos ha llegado un string
       $this->cantidad += floatval($c);
       
       if($this->cantidad < 0 AND !FS_STOCK_NEGATIVO)

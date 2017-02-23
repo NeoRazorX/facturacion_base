@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,6 +20,7 @@
 require_model('agente.php');
 require_model('albaran_proveedor.php');
 require_model('articulo.php');
+require_model('factura_proveedor.php');
 require_model('proveedor.php');
 require_model('serie.php');
 
@@ -352,13 +353,47 @@ class compras_albaranes extends fs_controller
          {
             $articulo = new articulo();
             
-            foreach($alb1->get_lineas() as $linea)
+            if($alb1->idfactura)
             {
-               $art0 = $articulo->get($linea->referencia);
-               if($art0)
+               /// descontamos los artículos de la factura del albarán
+               $fac = new factura_proveedor();
+               $fac1 = $fac->get($alb1->idfactura);
+               if($fac1)
                {
-                  $art0->sum_stock($alb1->codalmacen, 0 - $linea->cantidad);
-                  $art0->save();
+                  foreach($fac1->get_lineas() as $linea)
+                  {
+                     /**
+                      * Solamente descontamos de la factura las lineas de este albarán
+                      * y las que no pertenezcan a ninguno. Las que pertenecen a otro
+                      * no tocamos, porque sigue estando ese otro albarán.
+                      * (las facturas pueden agrupar albaranes).
+                      */
+                     if($linea->referencia AND (is_null($linea->idalbaran) OR $linea->idalbaran == $alb1->idalbaran) )
+                     {
+                        $art0 = $articulo->get($linea->referencia);
+                        if($art0)
+                        {
+                           $art0->sum_stock($alb1->codalmacen, 0 - $linea->cantidad, TRUE);
+                           $art0->save();
+                        }
+                     }
+                  }
+               }
+            }
+            else
+            {
+               /// descontamos todos los artículos del albarán
+               foreach($alb1->get_lineas() as $linea)
+               {
+                  if($linea->referencia)
+                  {
+                     $art0 = $articulo->get($linea->referencia);
+                     if($art0)
+                     {
+                        $art0->sum_stock($alb1->codalmacen, 0 - $linea->cantidad, TRUE);
+                        $art0->save();
+                     }
+                  }
                }
             }
          }

@@ -20,6 +20,7 @@
 require_model('albaran_proveedor.php');
 require_model('almacen.php');
 require_model('articulo.php');
+require_model('articulo_proveedor.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
 require_model('divisa.php');
@@ -260,9 +261,9 @@ class compras_albaran extends fs_controller
                      $art0 = $articulo->get($l->referencia);
                      if($art0)
                      {
-                        $art0->sum_stock($this->albaran->codalmacen, 0 - $l->cantidad);
+                        $art0->sum_stock($this->albaran->codalmacen, 0 - $l->cantidad, TRUE);
                      }
-                        }
+                  }
                   else
                      $this->new_error_msg("¡Imposible eliminar la línea del artículo ".$l->referencia."!");
                }
@@ -328,7 +329,7 @@ class compras_albaran extends fs_controller
                               $art0 = $articulo->get($value->referencia);
                               if($art0)
                               {
-                                 $art0->sum_stock($this->albaran->codalmacen, $lineas[$k]->cantidad - $cantidad_old);
+                                 $art0->sum_stock($this->albaran->codalmacen, $lineas[$k]->cantidad - $cantidad_old, TRUE);
                               }
                            }
                         }
@@ -376,7 +377,8 @@ class compras_albaran extends fs_controller
                         if($art0)
                         {
                            /// actualizamos el stock
-                           $art0->sum_stock($this->albaran->codalmacen, $linea->cantidad);
+                           $art0->sum_stock($this->albaran->codalmacen, $linea->cantidad, TRUE);
+                           $this->actualizar_precio_proveedor($this->albaran->codproveedor, $linea);
                         }
                         
                         $this->albaran->neto += $linea->pvptotal;
@@ -569,5 +571,27 @@ class compras_albaran extends fs_controller
       }
       
       $this->new_change('Factura Proveedor '.$factura->codigo, $factura->url(), TRUE);
+   }
+   
+   private function actualizar_precio_proveedor($codproveedor, $linea)
+   {
+      if( !is_null($linea->referencia) )
+      {
+         $artp0 = new articulo_proveedor();
+         $artp = $artp0->get_by($linea->referencia, $codproveedor);
+         if(!$artp)
+         {
+            $artp = new articulo_proveedor();
+            $artp->codproveedor = $codproveedor;
+            $artp->referencia = $linea->referencia;
+            $artp->refproveedor = $linea->referencia;
+            $artp->codimpuesto = $linea->codimpuesto;
+            $artp->descripcion = $linea->descripcion;
+         }
+         
+         $artp->precio = $linea->pvpunitario;
+         $artp->dto = $linea->dtopor;
+         $artp->save();
+      }
    }
 }

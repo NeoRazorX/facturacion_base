@@ -174,14 +174,14 @@
       <li role="presentation" class="active">
          <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
             <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; {$fsc->articulo->referencia}</span>
+            <span class="hidden-xs">&nbsp;{$fsc->articulo->referencia}</span>
          </a>
       </li>
       {if="$fsc->mostrar_tab_atributos"}
       <li role="presentation">
          <a href="#atributos" aria-controls="atributos" role="tab" data-toggle="tab">
             <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Atributos</span>
+            <span class="hidden-xs">&nbsp;Atributos</span>
          </a>
       </li>
       {/if}
@@ -189,7 +189,7 @@
       <li role="presentation">
          <a href="#precios" aria-controls="precios" role="tab" data-toggle="tab">
             <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Precios</span>
+            <span class="hidden-xs">&nbsp;Precios</span>
          </a>
       </li>
       {/if}
@@ -197,7 +197,7 @@
       <li role="presentation">
          <a href="#stock" aria-controls="stock" role="tab" data-toggle="tab">
             <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Stock</span>
+            <span class="hidden-xs">&nbsp;Stock</span>
          </a>
       </li>
       {/if}
@@ -205,7 +205,7 @@
       <li role="presentation">
          <a href="#equivalentes" aria-controls="equivalentes" role="tab" data-toggle="tab">
             <span class="glyphicon glyphicon-random" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Equivalentes</span>
+            <span class="hidden-xs">&nbsp;Equivalentes</span>
          </a>
       </li>
       {/if}
@@ -219,7 +219,7 @@
       <li class="dropdown">
          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Buscar en...</span>
+            <span class="hidden-xs">&nbsp;Buscar en...</span>
             <span class="caret"></span>
          </a>
          <ul class="dropdown-menu" role="menu">
@@ -581,13 +581,14 @@
                         Precio de Coste:
                         {if="$fsc->articulo->secompra AND FS_COST_IS_AVERAGE"}
                         <input type="text" name="coste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" disabled="disabled">
+                        <p class="help-block">
+                           El precio de compra se calcula automáticamente. Si quieres editarlo puedes
+                           desmarcar <b>se compra</b> en la primera pestaña, o bien cambiar la configuración
+                           de precio de coste desde la configuración del <a href="index.php?page=admin_almacenes">almacén</a>.
+                        </p>
                         {else}
                         <input type="text" name="preciocoste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" onclick="this.select()" autocomplete="off">
                         {/if}
-                        <p class="help-block">
-                           Puede cambiar la configuración de precio de coste desde
-                           la configuración del <a href="index.php?page=admin_almacenes">almacén</a>.
-                        </p>
                      </div>
                   </div>
                   <div class="col-sm-4">
