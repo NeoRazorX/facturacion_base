@@ -549,39 +549,52 @@
             </div>
             <div class="modal-body bg-warning">
                {if="$fsc->factura->idasiento"}
-               Si decide <b>eliminar</b>, hay asociado un asiento contable que será eliminado
-               junto con la factura. Además, si no hay asociado un {#FS_ALBARAN#} o {#FS_ALBARANES#},
-               se restaurará el stock de los artículos.
+                  Si decide <b>eliminar</b>, hay asociado un asiento contable que será eliminado
+                  junto con la factura. Además, si no hay asociado un {#FS_ALBARAN#} o {#FS_ALBARANES#},
+                  se restaurará el stock de los artículos.
                {else}
-               Si decide <b>eliminar</b>, se restaurará el stock de los artículos si no hay asociado un
-               {#FS_ALBARAN#} o {#FS_ALBARANES#}.
+                  Si decide <b>eliminar</b>, se restaurará el stock de los artículos si no hay asociado un
+                  {#FS_ALBARAN#} o {#FS_ALBARANES#}.
                {/if}
-               <br/><br/>
-               Si decide <b>anular</b>, se generará una <b>{#FS_FACTURA_RECTIFICATIVA#}</b>
-               y se restaurará el stock de los artículos, aunque primero debe elegir
-               la serie para la {#FS_FACTURA_RECTIFICATIVA#}:
-               <div class="form-group">
-                  <select name="codserie" class="form-control">
-                  {loop="$fsc->serie->all()"}
-                     {if="$value->codserie=='R'"}
-                     <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
-                     {else}
-                     <option value="{$value->codserie}">{$value->descripcion}</option>
-                     {/if}
-                  {/loop}
-                  </select>
-               </div>
-               <div class="form-group">
-                  <textarea name="motivo" class="form-control" placeholder="Motivo de la anulación"></textarea>
-               </div>
+               {if="!$fsc->factura->anulada"}
+                  <br/><br/>
+                  Si decide <b>anular</b> la factura se restaurará el stock, a menos que haya asociado
+                  un {#FS_ALBARAN#} o {#FS_ALBARANES#}.
+                  <br/><br/>
+                  Y si decide generarar una <b>{#FS_FACTURA_RECTIFICATIVA#}</b>, se anulará esta
+                  y se restaurará el stock de los artículos, aunque primero debe elegir la serie
+                  para la nueva {#FS_FACTURA_RECTIFICATIVA#}:
+                  <div class="form-group">
+                     <select name="codserie" class="form-control">
+                     {loop="$fsc->serie->all()"}
+                        {if="$value->codserie=='R'"}
+                        <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
+                        {else}
+                        <option value="{$value->codserie}">{$value->descripcion}</option>
+                        {/if}
+                     {/loop}
+                     </select>
+                  </div>
+                  <div class="form-group">
+                     <textarea name="motivo" class="form-control" placeholder="Motivo de la anulación"></textarea>
+                  </div>
+               {/if}
             </div>
             <div class="modal-footer">
                <a class="btn btn-sm btn-danger pull-left" href="{$fsc->ppage->url()}&delete={$fsc->factura->idfactura}">
-                  <span class="glyphicon glyphicon-trash"></span>&nbsp; Eliminar
+                  <span class="glyphicon glyphicon-trash"></span>
+                  <span class='hidden-xs'>&nbsp;Eliminar</span>
                </a>
-               <button type="submit" class="btn btn-sm btn-warning">
-                  <span class="glyphicon glyphicon-flag"></span>&nbsp; Anular
-               </button>
+               {if="!$fsc->factura->anulada"}
+               <div class="btn-group">
+                  <button type="submit" name="rectificativa" value="FALSE" class="btn btn-sm btn-warning">
+                     Anular
+                  </button>
+                  <button type="submit" name="rectificativa" value="TRUE" class="btn btn-sm btn-warning text-capitalize">
+                     {#FS_FACTURA_RECTIFICATIVA#}
+                  </button>
+               </div>
+               {/if}
             </div>
          </div>
       </div>

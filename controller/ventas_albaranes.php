@@ -376,7 +376,6 @@ class ventas_albaranes extends fs_controller
                         if($art0)
                         {
                            $art0->sum_stock($alb1->codalmacen, $linea->cantidad);
-                           $art0->save();
                         }
                      }
                   }
@@ -393,7 +392,6 @@ class ventas_albaranes extends fs_controller
                      if($art0)
                      {
                         $art0->sum_stock($alb1->codalmacen, $linea->cantidad);
-                        $art0->save();
                      }
                   }
                }

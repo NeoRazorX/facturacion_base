@@ -510,17 +510,20 @@ class compras_facturas extends fs_controller
          
          if( $fact->delete() )
          {
-            /// Restauramos el stock
-            $art0 = new articulo();
-            foreach($lineas as $linea)
+            if(!$fact->anulada)
             {
-               /// si la línea pertenece a un albarán no descontamos stock
-               if( is_null($linea->idalbaran) )
+               /// Restauramos el stock
+               $art0 = new articulo();
+               foreach($lineas as $linea)
                {
-                  $articulo = $art0->get($linea->referencia);
-                  if($articulo)
+                  /// si la línea pertenece a un albarán no descontamos stock
+                  if( is_null($linea->idalbaran) )
                   {
-                     $articulo->sum_stock($fact->codalmacen, 0 - $linea->cantidad, TRUE);
+                     $articulo = $art0->get($linea->referencia);
+                     if($articulo)
+                     {
+                        $articulo->sum_stock($fact->codalmacen, 0 - $linea->cantidad, TRUE);
+                     }
                   }
                }
             }
