@@ -195,7 +195,7 @@ class factura_proveedor extends \fs_model
    public $anulada;
    
    /**
-    * Número de documentos asjuntos
+    * Número de documentos adjuntos.
     * @var integer 
     */
    public $numdocs;

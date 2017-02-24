@@ -528,6 +528,17 @@ class compras_facturas extends fs_controller
                }
             }
             
+            /// ¿Esta factura es rectificativa de otra?
+            if($fact->idfacturarect)
+            {
+               $original = $this->factura->get($fact->idfacturarect);
+               if($original)
+               {
+                  $original->anulada = FALSE;
+                  $original->save();
+               }
+            }
+            
             $this->clean_last_changes();
          }
          else

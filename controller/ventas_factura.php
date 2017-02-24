@@ -509,7 +509,11 @@ class ventas_factura extends fs_controller
             else
             {
                $this->new_message( '<a href="'.$factura->url().'">'.ucfirst(FS_FACTURA_RECTIFICATIVA).'</a> creada correctamenmte.' );
-               $this->generar_asiento($factura);
+               
+               if($this->empresa->contintegrada)
+               {
+                  $this->generar_asiento($factura);
+               }
                
                $this->factura->anulada = TRUE;
                $this->factura->save();

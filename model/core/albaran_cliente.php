@@ -216,7 +216,7 @@ class albaran_cliente extends \fs_model
    public $femail;
    
    /**
-    * Número de documentos asjuntos
+    * Número de documentos adjuntos.
     * @var integer 
     */
    public $numdocs;

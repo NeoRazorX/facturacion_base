@@ -239,7 +239,7 @@ class factura_cliente extends \fs_model
    public $idimprenta;
    
    /**
-    * Número de documentos asjuntos
+    * Número de documentos adjuntos.
     * @var integer 
     */
    public $numdocs;

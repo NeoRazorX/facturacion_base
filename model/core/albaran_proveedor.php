@@ -172,7 +172,7 @@ class albaran_proveedor extends \fs_model
    public $ptefactura;
 
    /**
-    * Número de documentos asjuntos
+    * Número de documentos adjuntos.
     * @var integer 
     */
    public $numdocs;
