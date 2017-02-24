@@ -134,6 +134,7 @@ class contabilidad_formas_pago extends fs_controller
    public function vencimientos()
    {
       return array(
+          '+0day' => 'mismo día',
           '+1day' => '1 día',
           '+1week' => '1 semana',
           '+2week' => '2 semanas',

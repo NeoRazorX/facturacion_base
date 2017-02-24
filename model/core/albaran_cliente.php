@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -216,7 +216,7 @@ class albaran_cliente extends \fs_model
    public $femail;
    
    /**
-    * Número de documentos asjuntos
+    * Número de documentos adjuntos.
     * @var integer 
     */
    public $numdocs;
@@ -830,7 +830,8 @@ class albaran_cliente extends \fs_model
                $factura0->delete();
             }
          }
-         $this->new_message(ucfirst(FS_ALBARAN) ." de venta ".$this->codigo. " eliminado correctamente", TRUE);
+         
+         $this->new_message(ucfirst(FS_ALBARAN) ." de venta ".$this->codigo. " eliminado correctamente.");
          return TRUE;
       }
       else

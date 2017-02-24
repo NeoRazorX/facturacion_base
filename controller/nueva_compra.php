@@ -241,6 +241,7 @@ class nueva_compra extends fs_controller
       {
          $art0->referencia = $art0->get_new_referencia();
       }
+      
       if( $art0->exists() )
       {
          $this->results[] = $art0->get($_REQUEST['referencia']);
@@ -547,20 +548,12 @@ class nueva_compra extends fs_controller
                      {
                         if( isset($_POST['costemedio']) )
                         {
-                           if($articulo->costemedio == 0)
+                           if($articulo->costemedio == 0 AND $linea->cantidad > 0)
                            {
                               $articulo->costemedio = $linea->pvptotal/$linea->cantidad;
-                           }
-                           else
-                           {
-                              $articulo->costemedio = $articulo->get_costemedio();
-                              if($articulo->costemedio == 0)
-                              {
-                                 $articulo->costemedio = $linea->pvptotal/$linea->cantidad;
-                              }
+                              $articulo->save();
                            }
                            
-                           $articulo->save();
                            $this->actualizar_precio_proveedor($pedido->codproveedor, $linea);
                         }
                      }
@@ -768,6 +761,7 @@ class nueva_compra extends fs_controller
                         }
                         else if( isset($_POST['costemedio']) )
                         {
+                           /// modificamos virtualmente el stock para que se recalcule el coste medio
                            $articulo->stockfis += $linea->cantidad;
                            $articulo->costemedio = $articulo->get_costemedio();
                            $articulo->stockfis -= $linea->cantidad;
@@ -992,31 +986,22 @@ class nueva_compra extends fs_controller
                   {
                      if($articulo)
                      {
-                        if( isset($_POST['costemedio']) )
-                        {
-                           if($articulo->costemedio == 0)
-                           {
-                              $articulo->costemedio = $linea->pvptotal/$linea->cantidad;
-                           }
-                           else
-                           {
-                              $articulo->costemedio = $articulo->get_costemedio();
-                              if($articulo->costemedio == 0)
-                              {
-                                 $articulo->costemedio = $linea->pvptotal/$linea->cantidad;
-                              }
-                           }
-                           
-                           $this->actualizar_precio_proveedor($factura->codproveedor, $linea);
-                        }
-                        
                         if( isset($_POST['stock']) )
                         {
-                           $articulo->sum_stock($factura->codalmacen, $linea->cantidad);
+                           $articulo->sum_stock($factura->codalmacen, $linea->cantidad, isset($_POST['costemedio']) );
                         }
                         else if( isset($_POST['costemedio']) )
                         {
+                           /// modificamos virtualmente el stock para que se recalcule el coste medio
+                           $articulo->stockfis += $linea->cantidad;
+                           $articulo->costemedio = $articulo->get_costemedio();
+                           $articulo->stockfis -= $linea->cantidad;
                            $articulo->save();
+                        }
+                        
+                        if( isset($_POST['costemedio']) )
+                        {
+                           $this->actualizar_precio_proveedor($factura->codproveedor, $linea);
                         }
                      }
                      

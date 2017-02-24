@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2012-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2012-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,11 +19,12 @@
 
 namespace FacturaScripts\model;
 
-require_model('albaran_cliente.php');
-require_model('albaran_proveedor.php');
 require_model('fabricante.php');
 require_model('familia.php');
 require_model('impuesto.php');
+require_model('linea_albaran_cliente.php');
+require_model('linea_albaran_proveedor.php');
+require_model('linea_factura_proveedor.php');
 require_model('stock.php');
 
 /**
@@ -323,21 +324,12 @@ class articulo extends \fs_model
    }
    
    /**
-    * @deprecated since version 50
-    * @return type
-    */
-   public function costemedio_iva()
-   {
-      return $this->costemedio * (100+$this->get_iva()) / 100;
-   }
-   
-   /**
     * Devuelve el precio de coste, ya esté configurado como calculado o editable.
     * @return type
     */
    public function preciocoste()
    {
-      if(FS_COST_IS_AVERAGE)
+      if($this->secompra AND FS_COST_IS_AVERAGE)
       {
          return $this->costemedio;
       }
@@ -537,12 +529,26 @@ class articulo extends \fs_model
       return $artilist;
    }
    
+   /**
+    * Devuelve las últimas líneas de albaranes de clientes con este artículo.
+    * @deprecated since version 106
+    * @param type $offset
+    * @param type $limit
+    * @return linea_albaran_cliente
+    */
    public function get_lineas_albaran_cli($offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $linea = new \linea_albaran_cliente();
       return $linea->all_from_articulo($this->referencia, $offset, $limit);
    }
    
+   /**
+    * Devuelve las últimas líneas de albaranes de proveedores con este artículo.
+    * @deprecated since version 106
+    * @param type $offset
+    * @param type $limit
+    * @return linea_albaran_proveedor
+    */
    public function get_lineas_albaran_prov($offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $linea = new \linea_albaran_proveedor();
@@ -550,7 +556,7 @@ class articulo extends \fs_model
    }
    
    /**
-    * Devuelve la media del precio de compra del artículo
+    * Devuelve la media del precio de compra del artículo en los últimos albaranes o facturas.
     * @return type
     */
    public function get_costemedio()
@@ -558,12 +564,72 @@ class articulo extends \fs_model
       $coste = 0;
       $stock = 0;
       
-      foreach($this->get_lineas_albaran_prov() as $linea)
+      /// obtenemos las últimas líneas de facturas con este artículo
+      $lfp = new \linea_factura_proveedor();
+      $lineasfac = $lfp->all_from_articulo($this->referencia);
+      
+      /// obtenemos las últimas líneas de albaranes con este artículo
+      $lap = new \linea_albaran_proveedor();
+      $lineasalb = $lap->all_from_articulo($this->referencia);
+      
+      /**
+       * Ahora comprobamos la fecha del primer elemento de una y otra lista
+       * para ver cual usamos.
+       */
+      if($lineasfac AND $lineasalb)
       {
-         if($stock < $this->stockfis)
+         if( strtotime($lineasalb[0]->show_fecha()) > strtotime($lineasfac[0]->show_fecha()) )
          {
-            $coste += $linea->pvptotal;
-            $stock += $linea->cantidad;
+            /**
+             * la fecha del último albarán es posterior a la de la última factura.
+             * Usamos los albaranes para el cálculo.
+             */
+            foreach($lineasalb as $linea)
+            {
+               if($stock < $this->stockfis)
+               {
+                  $coste += $linea->pvptotal;
+                  $stock += $linea->cantidad;
+               }
+               else
+               {
+                  break;
+               }
+            }
+         }
+      }
+      
+      if($lineasfac)
+      {
+         /// usamos las facturas para el cálculo.
+         foreach($lineasfac as $linea)
+         {
+            if($stock < $this->stockfis)
+            {
+               $coste += $linea->pvptotal;
+               $stock += $linea->cantidad;
+            }
+            else
+            {
+               break;
+            }
+         }
+      }
+      
+      if($lineasalb)
+      {
+         /// usamos los albaranes para el cálculo.
+         foreach($lineasalb as $linea)
+         {
+            if($stock < $this->stockfis)
+            {
+               $coste += $linea->pvptotal;
+               $stock += $linea->cantidad;
+            }
+            else
+            {
+               break;
+            }
          }
       }
       
@@ -659,7 +725,7 @@ class articulo extends \fs_model
     */
    public function set_referencia($ref)
    {
-      $ref = str_replace(' ', '_', trim($ref));
+      $ref = trim($ref);
       if( is_null($ref) OR strlen($ref) < 1 OR strlen($ref) > 18 )
       {
          $this->new_error_msg("¡Referencia de artículo no válida! Debe tener entre 1 y 18 caracteres.");
@@ -839,8 +905,10 @@ class articulo extends \fs_model
                if($this->exists)
                {
                   $this->clean_cache();
-                  $result = $this->db->exec("UPDATE ".$this->table_name." SET stockfis = ".$this->var2str($this->stockfis).",
-                     costemedio = ".$this->var2str($this->costemedio)." WHERE referencia = ".$this->var2str($this->referencia).";");
+                  $result = $this->db->exec("UPDATE ".$this->table_name
+                          ." SET stockfis = ".$this->var2str($this->stockfis)
+                          .", costemedio = ".$this->var2str($this->costemedio)
+                          ."  WHERE referencia = ".$this->var2str($this->referencia).";");
                }
                else if( !$this->save() )
                {
@@ -849,7 +917,9 @@ class articulo extends \fs_model
             }
          }
          else
+         {
             $this->new_error_msg("¡Error al guardar el stock!");
+         }
          
          return $result;
       }

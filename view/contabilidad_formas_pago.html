@@ -63,29 +63,28 @@
          </tr>
       </thead>
       {loop="$fsc->forma_pago->all()"}
-      <form action="{$fsc->url()}" method="post" class="form" role="form">
+      <form action="{$fsc->url()}#{$value->codpago}" method="post" class="form" role="form">
          <tr{if="$value->genrecibos=='Pagados'"} class="success"{/if}>
             <td>
+               <a name="{$value->codpago}"></a>
                <input type="hidden" name="codpago" value="{$value->codpago}"/>
                <div class="form-control">{$value->codpago}</div>
             </td>
             <td><input class="form-control" type="text" name="descripcion" value="{$value->descripcion}" autocomplete="off"/></td>
             <td>
-               <select name="genrecibos" class="form-control">
+               <select name="genrecibos" class="form-control" onchange="this.form.submit()">
                   <option value="Emitidos"{if="$value->genrecibos=='Emitidos'"} selected=""{/if}>Sin pagar</option>
                   <option value="Pagados"{if="$value->genrecibos=='Pagados'"} selected=""{/if}>Pagadas</option>
                </select>
             </td>
             <td>
-               {if="$fsc->button_plazos"}
+               {if="$fsc->button_plazos AND $value->genrecibos=='Emitidos'"}
                   <input type="hidden" name="vencimiento" value="{$value->vencimiento}"/>
-                  {if="$value->genrecibos=='Emitidos'"}
                   <a href="index.php?page={$fsc->button_plazos}&cod={$value->codpago}" class="btn btn-sm btn-block btn-default">
                      <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>&nbsp; Plazos de pago
                   </a>
-                  {/if}
                {else}
-                  <select name="vencimiento" class="form-control">
+                  <select name="vencimiento" class="form-control" onchange="this.form.submit()">
                   {loop="$fsc->vencimientos()"}
                      {if="$value1->vencimiento==$key2"}
                      <option value="{$key2}" selected="">{$value2}</option>

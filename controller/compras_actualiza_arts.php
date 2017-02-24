@@ -88,6 +88,10 @@ class compras_actualiza_arts extends fs_controller
                $articulo = $art0->get($value->referencia);
                if($articulo)
                {
+                  /**
+                   * añadimos a la línea el código de barras y el precio de venta del artículo.
+                   * Así procesamos todo con las líneas.
+                   */
                   $this->lineas[$i]->codbarras = $articulo->codbarras;
                   $this->lineas[$i]->precio_venta = $articulo->pvp;
                }
@@ -141,6 +145,7 @@ class compras_actualiza_arts extends fs_controller
                         }
                      }
                      
+                     $articulo->costemedio = $articulo->get_costemedio();
                      $articulo->save();
                   }
                   

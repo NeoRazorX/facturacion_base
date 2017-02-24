@@ -217,7 +217,7 @@ class ventas_articulo extends fs_controller
          
          if( isset($_POST['preciocoste']) )
          {
-            $this->articulo->costemedio = $this->articulo->preciocoste = floatval($_POST['preciocoste']);
+            $this->articulo->preciocoste = floatval($_POST['preciocoste']);
          }
          
          if( $this->articulo->save() )

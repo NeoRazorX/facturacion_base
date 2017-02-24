@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -527,21 +527,40 @@ class ventas_facturas extends fs_controller
       $fact = $this->factura->get($_GET['delete']);
       if($fact)
       {
+         /// obtenemos las líneas de la factura antes de eliminar
+         $lineas = $fact->get_lineas();
+         
          if( $fact->delete() )
          {
-            /// Restauramos el stock
-            $art0 = new articulo();
-            foreach($fact->get_lineas() as $linea)
+            if(!$fact->anulada)
             {
-               if( is_null($linea->idalbaran) )
+               /// Restauramos el stock
+               $art0 = new articulo();
+               foreach($lineas as $linea)
                {
-                  $articulo = $art0->get($linea->referencia);
-                  if($articulo)
+                  /// si la línea pertenece a un albarán no descontamos stock
+                  if( is_null($linea->idalbaran) )
                   {
-                     $articulo->sum_stock($fact->codalmacen, $linea->cantidad);
+                     $articulo = $art0->get($linea->referencia);
+                     if($articulo)
+                     {
+                        $articulo->sum_stock($fact->codalmacen, $linea->cantidad);
+                     }
                   }
                }
             }
+            
+            /// ¿Esta factura es rectificativa de otra?
+            if($fact->idfacturarect)
+            {
+               $original = $this->factura->get($fact->idfacturarect);
+               if($original)
+               {
+                  $original->anulada = FALSE;
+                  $original->save();
+               }
+            }
+            
             $this->clean_last_changes();
          }
          else
