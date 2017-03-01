@@ -551,7 +551,11 @@ class ventas_imprimir extends fs_controller
       {
          $direccion .= ' - CP: '.$this->documento->codpostal;
       }
-      $direccion .= ' - '.$this->documento->ciudad.' ('.$this->documento->provincia.')';
+      $direccion .= ' - '.$this->documento->ciudad;
+      if($this->documento->provincia)
+      {
+         $direccion .= ' ('.$this->documento->provincia.')';
+      }
       $row = array(
           'campo1' => "<b>Dirección:</b>",
           'dato1' => $pdf_doc->fix_html($direccion),

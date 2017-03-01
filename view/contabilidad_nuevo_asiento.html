@@ -230,11 +230,14 @@
    }
    $(document).ready(function() {
       recalcular();
-      document.f_asiento.concepto.focus();
       
       if(window.location.hash.substring(1) == 'asistente')
       {
          $('#tab_nuevo_asiento a[href="#asistente"]').tab('show');
+      }
+      else
+      {
+         document.f_asiento.concepto.focus();
       }
       
       $("#f_buscar_subcuentas").submit(function(event) {
@@ -329,13 +332,13 @@
       <li role="presentation" class="active">
          <a href="#lineas" aria-controls="lineas" role="tab" data-toggle="tab">
             <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Líneas</span>
+            <span class="hidden-xs">&nbsp;Líneas</span>
          </a>
       </li>
       <li role="presentation">
          <a href="#asistente" aria-controls="asistente" role="tab" data-toggle="tab">
             <i class="fa fa-magic"></i>
-            <span class="hidden-xs">&nbsp; Asistente</span>
+            <span class="hidden-xs">&nbsp;Asistente</span>
          </a>
       </li>
    </ul>
@@ -452,7 +455,7 @@
             </div>
             <div class="row">
                <div class="col-sm-4">
-                  <div class="panel panel-default">
+                  <div class="panel panel-info">
                      <div class="panel-heading">
                         <h3 class="panel-title">Cuota de autónomos</h3>
                      </div>
@@ -478,7 +481,7 @@
                   </div>
                </div>
                <div class="col-sm-4">
-                  <div class="panel panel-default">
+                  <div class="panel panel-info">
                      <div class="panel-heading">
                         <h3 class="panel-title">Pago modelo 130</h3>
                      </div>

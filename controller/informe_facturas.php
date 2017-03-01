@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -439,6 +439,7 @@ class informe_facturas extends fs_controller
       {
          $estado = $_POST['estado'];
       }
+      
       $forma_pago = FALSE;
       if($_POST['codpago'])
       {
@@ -464,8 +465,8 @@ class informe_facturas extends fs_controller
             }
             
             /// encabezado
-            $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de venta del ".$_POST['desde']." al ".$_POST['hasta']);
-
+            $pdf_doc->pdf->ezText( $this->fix_html($this->empresa->nombre)." - Facturas de venta del ".$_POST['desde']." al ".$_POST['hasta'] );
+            
             if($codserie)
             {
                $pdf_doc->pdf->ezText("Serie: ".$codserie);
@@ -474,22 +475,24 @@ class informe_facturas extends fs_controller
             
             if($codagente)
             {
-               $agente = '';
                $agente = new agente();
                $agente = $agente->get($codagente);
-               $nombre_agente = $agente->nombre;
-               $pdf_doc->pdf->ezText("Agente: ". $nombre_agente);
-               $lppag--;
+               if($agente)
+               {
+                  $pdf_doc->pdf->ezText( "Agente: ".$this->fix_html($agente->nombre) );
+                  $lppag--;
+               }
             }
 
             if($codcliente)
             {
-               $nombre = '';
                $cliente = new cliente();
                $cliente = $cliente->get($codcliente);
-               $nombre = $cliente->nombre;
-               $pdf_doc->pdf->ezText("Cliente: ".$nombre);
-               $lppag--;
+               if($cliente)
+               {
+                  $pdf_doc->pdf->ezText( "Cliente: ".$this->fix_html($cliente->nombre) );
+                  $lppag--;
+               }
             }
             
             if($estado)
@@ -504,13 +507,16 @@ class informe_facturas extends fs_controller
                   $pdf_doc->pdf->ezText("Estado: Sin Pagar");
                }
             }
-            if ($forma_pago)
+            
+            if($forma_pago)
             {
-               $formapago = '';
                $pago = new forma_pago();
                $pago = $pago->get($forma_pago);
-               $formapago = $pago->descripcion;
-               $pdf_doc->pdf->ezText("Forma de pago: ".$formapago);
+               if($pago)
+               {
+                  $pdf_doc->pdf->ezText( "Forma de pago: ".$this->fix_html($pago->descripcion) );
+                  $lppag--;
+               }
             }
             
             $pdf_doc->pdf->ezText("\n", 8);
@@ -542,7 +548,7 @@ class informe_facturas extends fs_controller
                    'asiento' => '-',
                    'fecha' => $facturas[$linea_actual]->fecha,
                    'subcuenta' => '-',
-                   'descripcion' => $facturas[$linea_actual]->nombrecliente,
+                   'descripcion' => $this->fix_html($facturas[$linea_actual]->nombrecliente),
                    'cifnif' => $facturas[$linea_actual]->cifnif,
                    'base' => 0,
                    'iva' => 0,
@@ -738,7 +744,7 @@ class informe_facturas extends fs_controller
             }
             
             /// encabezado
-            $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de compra del ".$_POST['desde']." al ".$_POST['hasta']);
+            $pdf_doc->pdf->ezText( $this->fix_html($this->empresa->nombre)." - Facturas de compra del ".$_POST['desde']." al ".$_POST['hasta'] );
             
             if($codserie)
             {
@@ -748,22 +754,24 @@ class informe_facturas extends fs_controller
             
             if($codagente)
             {
-               $agente = '';
                $agente = new agente();
                $agente = $agente->get($codagente);
-               $nombre_agente = $agente->nombre;
-               $pdf_doc->pdf->ezText("Agente: ". $nombre_agente);
-               $lppag--;
+               if($agente)
+               {
+                  $pdf_doc->pdf->ezText( "Agente: ".$this->fix_html($agente->nombre) );
+                  $lppag--;
+               }
             }
             
             if($codproveedor)
             {
-               $nombre = '';
                $proveedor = new proveedor();
                $proveedor = $proveedor->get($codproveedor);
-               $proveedor = $proveedor->nombre;
-               $pdf_doc->pdf->ezText("Proveedor: ".$proveedor);
-               $lppag--;
+               if($proveedor)
+               {
+                  $pdf_doc->pdf->ezText( "Proveedor: ".$this->fix_html($proveedor->nombre) );
+                  $lppag--;
+               }
             }
             
             if($estado)
@@ -778,13 +786,16 @@ class informe_facturas extends fs_controller
                   $pdf_doc->pdf->ezText("Estado: Sin Pagar");
                }
             }
-            if ($forma_pago)
+            
+            if($forma_pago)
             {
-               $formapago = '';
                $pago = new forma_pago();
                $pago = $pago->get($forma_pago);
-               $formapago = $pago->descripcion;
-               $pdf_doc->pdf->ezText("Forma de pago: ".$formapago);
+               if($pago)
+               {
+                  $pdf_doc->pdf->ezText( "Forma de pago: ".$this->fix_html($pago->descripcion) );
+                  $lppag--;
+               }
             }
             
             $pdf_doc->pdf->ezText("\n", 8);
@@ -816,7 +827,7 @@ class informe_facturas extends fs_controller
                    'asiento' => '-',
                    'fecha' => $facturas[$linea_actual]->fecha,
                    'subcuenta' => '-',
-                   'descripcion' => $facturas[$linea_actual]->nombre,
+                   'descripcion' => $this->fix_html($facturas[$linea_actual]->nombre),
                    'cifnif' => $facturas[$linea_actual]->cifnif,
                    'base' => 0,
                    'iva' => 0,

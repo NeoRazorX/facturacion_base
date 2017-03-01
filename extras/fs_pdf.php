@@ -168,7 +168,7 @@ class fs_pdf
             }
             
             $this->pdf->ez['rightMargin'] = 40;
-            $this->pdf->ezText("<b>".$empresa->nombre."</b>", 12, array('justification' => 'right'));
+            $this->pdf->ezText("<b>".$this->fix_html($empresa->nombre)."</b>", 12, array('justification' => 'right'));
             $this->pdf->ezText(FS_CIFNIF.": ".$empresa->cifnif, 8, array('justification' => 'right'));
             
             $direccion = $empresa->direccion . "\n";
@@ -208,7 +208,7 @@ class fs_pdf
       }
       else
       {
-         $this->pdf->ezText("<b>".$empresa->nombre."</b>", 16, array('justification' => 'center'));
+         $this->pdf->ezText("<b>".$this->fix_html($empresa->nombre)."</b>", 16, array('justification' => 'center'));
          $this->pdf->ezText(FS_CIFNIF.": ".$empresa->cifnif, 8, array('justification' => 'center'));
          
          $direccion = $empresa->direccion;
