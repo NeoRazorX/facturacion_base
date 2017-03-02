@@ -931,9 +931,11 @@
                {/if}
                {if="!$fsc->factura->anulada"}
                   <br/><br/>
+                  {if="$fsc->empresa->codpais!='ESP'"}
                   Si decide <b>anular</b> la factura se restaurará el stock, a menos que haya asociado
                   un {#FS_ALBARAN#} o {#FS_ALBARANES#}.
                   <br/><br/>
+                  {/if}
                   Y si decide generarar una <b>{#FS_FACTURA_RECTIFICATIVA#}</b>, se anulará esta
                   y se restaurará el stock de los artículos, aunque primero debe elegir la serie
                   para la nueva {#FS_FACTURA_RECTIFICATIVA#}:
@@ -960,9 +962,11 @@
                </a>
                {if="!$fsc->factura->anulada"}
                <div class="btn-group">
+                  {if="$fsc->empresa->codpais!='ESP'"}
                   <button type="submit" name="rectificativa" value="FALSE" class="btn btn-sm btn-warning">
                      Anular
                   </button>
+                  {/if}
                   <button type="submit" name="rectificativa" value="TRUE" class="btn btn-sm btn-warning text-capitalize">
                      {#FS_FACTURA_RECTIFICATIVA#}
                   </button>
