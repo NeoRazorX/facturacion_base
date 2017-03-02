@@ -18,6 +18,7 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
+require_once 'plugins/facturacion_base/extras/xlsxwriter.class.php';
 require_model('cliente.php');
 require_model('factura_cliente.php');
 require_model('factura_proveedor.php');
@@ -81,6 +82,10 @@ class informe_facturas extends fs_controller
             {
                $this->pdf_facturas_cli();
             }
+            elseif ($_POST['generar'] == 'xls') 
+            {
+               $this->xls_facturas_cli();
+            }
             else
                $this->csv_facturas_cli();
          }
@@ -89,6 +94,10 @@ class informe_facturas extends fs_controller
             if($_POST['generar'] == 'pdf')
             {
                $this->pdf_facturas_prov();
+            }
+            elseif ($_POST['generar'] == 'xls') 
+            {
+               $this->xls_facturas_prov();
             }
             else
                $this->csv_facturas_prov();
@@ -182,7 +191,289 @@ class informe_facturas extends fs_controller
       
       return $final;
    }
+
+   private function xls_facturas_cli()
+   {
+      $this->template = FALSE;
+      
+      header("Content-Disposition: attachment; filename=\"facturas_cli.xlsx\"");
+      header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      header('Content-Transfer-Encoding: binary');
+      header('Cache-Control: must-revalidate');
+      header('Pragma: public');
+      
+      $header = array(
+         'factura'=>'string',
+         'serie'=>'string',
+         'num_factura'=>'integer',
+         'asiento'=>'integer',
+         'fecha'=>'string',
+         'subcuenta'=>'integer',
+         'descripcion'=>'string',
+         'cifnif'=>'string',
+         'base'=>'#,##0.00',
+         'iva'=>'#,##0.00',
+         'totaliva'=>'#,##0.00',
+         'totalrecargo'=>'#,##0.00',
+         'totalirpf'=>'#,##0.00',
+         'total'=>'#,##0.00 [$€-407];[RED]-#,##0.00 [$€-407]',
+      );
+
+      $data = Array();
+
+      $codserie = FALSE;
+      if($_POST['codserie'] != '')
+      {
+         $codserie = $_POST['codserie'];
+      }
+      
+      $codagente = FALSE;     
+      if($_POST['codagente'] != '')
+      {
+         $codagente = $_POST['codagente'];
+      }
+      
+      $codcliente = FALSE;     
+      if($_POST['codcliente'] != '')
+      {
+         $codcliente = $_POST['codcliente'];
+      }
+      
+      $estado = FALSE;
+      if($_POST['estado'] != '')
+      {
+         $estado = $_POST['estado'];
+      }
+      
+      $forma_pago = FALSE;
+      if($_POST['codpago'])
+      {
+         $forma_pago = $_POST['codpago'];
+      }
+      
+      $facturas = $this->factura_cli->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codcliente, $estado, $forma_pago);
+      if($facturas)
+      {
+         foreach($facturas as $fac)
+         {
+            $linea = array(
+                'codigo' => $fac->codigo,
+                'serie' => $fac->codserie,
+                'factura' => $fac->numero,
+                'asiento' => '-',
+                'fecha' => $fac->fecha,
+                'subcuenta' => '-',
+                'descripcion' => $fac->nombrecliente,
+                'cifnif' => $fac->cifnif,
+                'base' => 0,
+                'iva' => 0,
+                'totaliva' => 0,
+                'totalrecargo' => 0,
+                'totalirpf' => 0,
+                'total' => 0
+            );
+            
+            $asiento = $fac->get_asiento();
+            if($asiento)
+            {
+               $linea['asiento'] = $asiento->numero;
+               $partidas = $asiento->get_partidas();
+               if($partidas)
+               {
+                  $linea['subcuenta'] = $partidas[0]->codsubcuenta;
+               }
+            }
+            
+            if($fac->totalirpf != 0)
+            {
+               $linea['totalirpf'] = $fac->totalirpf;
+               $linea['total'] = $fac->total;
+
+               //$linea['totalirpf'] = 0;
+            }
+            
+            $linivas = $fac->get_lineas_iva();
+            if($linivas)
+            {
+               foreach($linivas as $liva)
+               {
+                  /// acumulamos la base
+                  if( !isset($impuestos[$liva->iva]['base']) )
+                  {
+                     $impuestos[$liva->iva]['base'] = $liva->neto;
+                  }
+                  else
+                     $impuestos[$liva->iva]['base'] += $liva->neto;
+                     
+                  /// acumulamos el iva
+                  if( !isset($impuestos[$liva->iva]['iva']) )
+                  {
+                     $impuestos[$liva->iva]['iva'] = $liva->totaliva;
+                  }
+                  else
+                     $impuestos[$liva->iva]['iva'] += $liva->totaliva;
+                     
+                  /// completamos y añadimos la línea al EXCEL
+                  $linea['base'] = $liva->neto;
+                  $linea['iva'] = $liva->iva;
+                  $linea['totaliva'] = $liva->totaliva;
+                  $linea['totalrecargo'] = $liva->totalrecargo;
+                  $linea['total'] = $liva->totallinea;
+
+                  $data[] = $linea;
+               }
+            }
+         }
+      }
+
+      $writer = new XLSXWriter();
+      $writer->setAuthor('Generador Excel FS');
+      $writer->writeSheetHeader('Fact_Clientes', $header );
+      $styles = array( ['halign'=>'left'],['halign'=>'center'],['halign'=>'center'],['halign'=>'center'], ['halign'=>'center'], ['halign'=>'right'], ['halign'=>'left'], ['halign'=>'center']);
+      foreach($data as $row)
+         $writer->writeSheetRow('Fact_Clientes', $row, $styles );
+      $writer->writeToStdOut();
+   }
    
+   private function xls_facturas_prov()
+   {
+      $this->template = FALSE;
+      
+      header("Content-Disposition: attachment; filename=\"facturas_prov.xlsx\"");
+      header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      header('Content-Transfer-Encoding: binary');
+      header('Cache-Control: must-revalidate');
+      header('Pragma: public');
+      
+      $header = array(
+         'factura'=>'string',
+         'serie'=>'string',
+         'num_factura'=>'integer',
+         'asiento'=>'integer',
+         'fecha'=>'string',
+         'subcuenta'=>'integer',
+         'descripcion'=>'string',
+         'cifnif'=>'string',
+         'base'=>'#,##0.00',
+         'iva'=>'#,##0.00',
+         'totaliva'=>'#,##0.00',
+         'totalrecargo'=>'#,##0.00',
+         'totalirpf'=>'#,##0.00',
+         'total'=>'#,##0.00 [$€-407];[RED]-#,##0.00 [$€-407]',
+      );
+
+      $data = Array();
+
+      $codserie = FALSE;
+      if($_POST['codserie'] != '')
+      {
+         $codserie = $_POST['codserie'];
+      }
+      
+      $codagente = FALSE;     
+      if($_POST['codagente'] != '')
+      {
+         $codagente = $_POST['codagente'];
+      }
+      
+      $codproveedor = FALSE;     
+      if($_POST['codproveedor'] != '')
+      {
+         $codproveedor = $_POST['codproveedor'];
+      }
+      
+      $estado = FALSE;
+      if($_POST['estado'] != '')
+      {
+         $estado = $_POST['estado'];
+      }
+      
+      if($_POST['codpago'])
+      {
+         $forma_pago = $_POST['codpago'];
+      }
+      
+      $facturas = $this->factura_pro->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codproveedor, $estado, $forma_pago);
+      if($facturas)
+      {
+         foreach($facturas as $fac)
+         {
+            $linea = array(
+                'codigo' => $fac->codigo, 
+                'serie' => $fac->codserie,
+                'factura' => $fac->numero,
+                'asiento' => '-',
+                'fecha' => $fac->fecha,
+                'subcuenta' => '-',
+                'descripcion' => $fac->nombre,
+                'cifnif' => $fac->cifnif,
+                'base' => 0,
+                'iva' => 0,
+                'totaliva' => 0,
+                'totalrecargo' => 0,
+                'totalirpf' => 0,
+                'total' => 0
+            );
+            
+            $asiento = $fac->get_asiento();
+            if($asiento)
+            {
+               $linea['asiento'] = $asiento->numero;
+               $partidas = $asiento->get_partidas();
+               if($partidas)
+               {
+                  $linea['subcuenta'] = $partidas[0]->codsubcuenta;
+               }
+            }
+            
+            if($fac->totalirpf != 0)
+            {
+               $linea['totalirpf'] = $fac->totalirpf;
+               $linea['total'] = $fac->total;
+            }
+            
+            $linivas = $fac->get_lineas_iva();
+            if($linivas)
+            {
+               foreach($linivas as $liva)
+               {
+                  /// acumulamos la base
+                  if( !isset($impuestos[$liva->iva]['base']) )
+                  {
+                     $impuestos[$liva->iva]['base'] = $liva->neto;
+                  }
+                  else
+                     $impuestos[$liva->iva]['base'] += $liva->neto;
+                  
+                  /// acumulamos el iva
+                  if( !isset($impuestos[$liva->iva]['iva']) )
+                  {
+                     $impuestos[$liva->iva]['iva'] = $liva->totaliva;
+                  }
+                  else
+                     $impuestos[$liva->iva]['iva'] += $liva->totaliva;
+                  
+                  /// completamos y añadimos la línea al CSV
+                  $linea['base'] = $liva->neto;
+                  $linea['iva'] = $liva->iva;
+                  $linea['totaliva'] = $liva->totaliva;
+                  $linea['totalrecargo'] = $liva->totalrecargo;
+                  $linea['total'] = $liva->totallinea;
+                  
+                  $data[] = $linea;
+               }
+            }
+         }
+      }
+
+      $writer = new XLSXWriter();
+      $writer->setAuthor('Generador Excel FS');
+      $writer->writeSheetHeader('Fact_Proveedores', $header );
+      $styles = array( ['halign'=>'left'],['halign'=>'center'],['halign'=>'center'],['halign'=>'center'], ['halign'=>'center'], ['halign'=>'right'], ['halign'=>'left'], ['halign'=>'center']);
+      foreach($data as $row)
+         $writer->writeSheetRow('Fact_Proveedores', $row, $styles );
+      $writer->writeToStdOut();
+   }
    private function csv_facturas_cli()
    {
       $this->template = FALSE;
