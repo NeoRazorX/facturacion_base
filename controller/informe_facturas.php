@@ -196,7 +196,7 @@ class informe_facturas extends fs_controller
    {
       $this->template = FALSE;
       
-      header("Content-Disposition: attachment; filename=\"facturas_cli.xlsx\"");
+      header("Content-Disposition: attachment; filename=\"facturas_cli_".time().".xlsx\"");
       header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       header('Content-Transfer-Encoding: binary');
       header('Cache-Control: must-revalidate');
@@ -288,8 +288,6 @@ class informe_facturas extends fs_controller
             {
                $linea['totalirpf'] = $fac->totalirpf;
                $linea['total'] = $fac->total;
-
-               //$linea['totalirpf'] = 0;
             }
             
             $linivas = $fac->get_lineas_iva();
@@ -328,10 +326,11 @@ class informe_facturas extends fs_controller
 
       $writer = new XLSXWriter();
       $writer->setAuthor('Generador Excel FS');
-      $writer->writeSheetHeader('Fact_Clientes', $header );
-      $styles = array( ['halign'=>'left'],['halign'=>'center'],['halign'=>'center'],['halign'=>'center'], ['halign'=>'center'], ['halign'=>'right'], ['halign'=>'left'], ['halign'=>'center']);
+      $writer->writeSheetHeader('Fact_Clientes', $header);
       foreach($data as $row)
-         $writer->writeSheetRow('Fact_Clientes', $row, $styles );
+      {
+         $writer->writeSheetRow('Fact_Clientes', $row);
+      }
       $writer->writeToStdOut();
    }
    
@@ -339,7 +338,7 @@ class informe_facturas extends fs_controller
    {
       $this->template = FALSE;
       
-      header("Content-Disposition: attachment; filename=\"facturas_prov.xlsx\"");
+      header("Content-Disposition: attachment; filename=\"facturas_prov_".time().".xlsx\"");
       header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       header('Content-Transfer-Encoding: binary');
       header('Cache-Control: must-revalidate');
@@ -388,6 +387,7 @@ class informe_facturas extends fs_controller
          $estado = $_POST['estado'];
       }
       
+      $forma_pago = FALSE;
       if($_POST['codpago'])
       {
          $forma_pago = $_POST['codpago'];
@@ -468,12 +468,14 @@ class informe_facturas extends fs_controller
 
       $writer = new XLSXWriter();
       $writer->setAuthor('Generador Excel FS');
-      $writer->writeSheetHeader('Fact_Proveedores', $header );
-      $styles = array( ['halign'=>'left'],['halign'=>'center'],['halign'=>'center'],['halign'=>'center'], ['halign'=>'center'], ['halign'=>'right'], ['halign'=>'left'], ['halign'=>'center']);
+      $writer->writeSheetHeader('Fact_Proveedores', $header);
       foreach($data as $row)
-         $writer->writeSheetRow('Fact_Proveedores', $row, $styles );
+      {
+         $writer->writeSheetRow('Fact_Proveedores', $row);
+      }
       $writer->writeToStdOut();
    }
+   
    private function csv_facturas_cli()
    {
       $this->template = FALSE;
