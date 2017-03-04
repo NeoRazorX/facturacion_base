@@ -12,7 +12,6 @@
    all_direcciones = {function="json_encode($fsc->cliente_s->get_direcciones())"};
    cliente = {function="json_encode($fsc->cliente_s)"};
    nueva_venta_url = '{$fsc->url()}';
-   kiwimaru_url = '{#FS_COMMUNITY_URL#}/index.php?page=kiwimaru';
    
    $(document).ready(function() {
       usar_serie();
@@ -645,11 +644,6 @@
             <li id="li_mis_articulos">
                <a href="#" id="b_mis_articulos">Mi catálogo</a>
             </li>
-            <li id="li_kiwimaru">
-               <a href="#" id="b_kiwimaru">
-                  <span class="glyphicon glyphicon-globe"></span>
-               </a>
-            </li>
             <li id="li_nuevo_articulo">
                <a href="#" id="b_nuevo_articulo">
                   <span class="glyphicon glyphicon-plus"></span>&nbsp; Nuevo
@@ -657,7 +651,6 @@
             </li>
          </ul>
          <div id="search_results"></div>
-         <div id="kiwimaru_results"></div>
          <div id="nuevo_articulo" class="modal-body" style="display: none;">
             <form name="f_nuevo_articulo" action="{$fsc->url()}" method="post" class="form">
                <div class="container-fluid">

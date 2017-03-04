@@ -205,5 +205,14 @@ class compras_factura_devolucion extends fs_controller
       $fsxet->text = '<span class="glyphicon glyphicon-share" aria-hidden="true"></span>'
               . '<span class="hidden-xs">&nbsp; Devoluciones</span>';
       $fsxet->save();
+      
+      $fsxet2 = new fs_extension();
+      $fsxet2->name = 'tab_editar_factura';
+      $fsxet2->from = __CLASS__;
+      $fsxet2->to = 'editar_factura_prov';
+      $fsxet2->type = 'tab';
+      $fsxet2->text = '<span class="glyphicon glyphicon-share" aria-hidden="true"></span>'
+              . '<span class="hidden-xs">&nbsp; Devoluciones</span>';
+      $fsxet2->save();
    }
 }
