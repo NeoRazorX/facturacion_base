@@ -342,6 +342,10 @@
                         </div>
                      </div>
                      <div class="panel-footer text-right">
+                        <a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal_convertir">
+ 			               <span class="glyphicon glyphicon-random"></span>
+ 			               <span class="hidden-xs">&nbsp;Convertir en cliente</span>
+ 			            </a>
                         <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
                            <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
                         </button>
@@ -395,7 +399,41 @@
                               </div>
                            </div>
                         </div>
-                    </div>                  
+                    </div>
+                    <div class="modal fade" id="modal_convertir" tabindex="-1" role="dialog">
+                     <div class="modal-dialog" role="document">
+                       <div class="modal-content">
+                           <div class="modal-header">
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                 <span aria-hidden="true">&times;</span>
+                              </button>                              
+                              <h4 class="modal-title">
+                                 <span class="glyphicon glyphicon-lock"></span>
+                                 &nbsp; ¿Convertir en cliente?
+                              </h4>
+                              <p class="help-block">
+                                 Se insertará un nuevo cliente en el sistema con los mismos datos
+                              </p>
+                           </div>
+                           <div class="modal-body">
+                              <div class="form-group">                                 
+                                 <p class="help-block">
+                                    El nuevo cliente y el proveedor actual quedarán asociados internamente.
+                                 </p>
+                                 <p class="help-block">
+                                    No se clonarán los datos que no se hayan guardado previamente con el botón "Guardar".
+                                 </p>
+                              </div>
+                              <input type="hidden" name="convertir" value="TRUE"/>
+                              <div class="text-right">
+                                 <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;window.location.href = '{$fsc->url()}&cod={$fsc->proveedor->codproveedor}&convertir=1';">
+                                    <span class="glyphicon glyphicon-random"></span>&nbsp; Convertir
+                                 </button>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>                  
                   
                </form>
             </div>
