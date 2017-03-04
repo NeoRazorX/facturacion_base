@@ -212,7 +212,7 @@ class ventas_cliente extends fs_controller
             else
                $this->new_error_msg("¡Imposible modificar los datos del cliente!");
          }
-         else if( isset($_GET['convertir']) ) /// eliminar dirección
+         else if( isset($_GET['convertir']) ) 
          {
          	$proveedor = new proveedor();
          	
