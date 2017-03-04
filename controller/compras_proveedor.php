@@ -270,7 +270,7 @@ class compras_proveedor extends fs_controller
       }
       else
       {
-         $this->new_error_msg("¡->proveedor no encontrado!", 'error', FALSE, FALSE);
+         $this->new_error_msg("¡Proveedor no encontrado!", 'error', FALSE, FALSE);
       }
    }
    
