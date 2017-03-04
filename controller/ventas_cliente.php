@@ -1,7 +1,4 @@
 <?php
-use FacturaScripts\model\proveedor;
-use FacturaScripts\model\direccion_proveedor;
-
 /*
  * This file is part of FacturaScripts
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
