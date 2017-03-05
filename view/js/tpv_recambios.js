@@ -159,11 +159,11 @@ function recalcular()
    total_iva = fs_round(total_iva, fs_nf0);
    total_irpf = fs_round(total_irpf, fs_nf0);
    total_recargo = fs_round(total_recargo, fs_nf0);
-   $("#aneto").html( show_numero(neto) );
-   $("#aiva").html( show_numero(total_iva) );
-   $("#are").html( show_numero(total_recargo) );
-   $("#airpf").html( show_numero(total_irpf) );
-   $("#atotal").html( neto + total_iva - total_irpf + total_recargo );
+   $("#aneto").html(neto);
+   $("#aiva").html(total_iva);
+   $("#are").html(total_recargo);
+   $("#airpf").html(total_irpf);
+   $("#atotal").html(neto + total_iva - total_irpf + total_recargo);
    
    if(total_recargo == 0 && !cliente.recargo)
    {
@@ -183,7 +183,7 @@ function recalcular()
       $(".irpf").show();
    }
    
-   $("#tpv_total").val( show_precio(neto + total_iva - total_irpf + total_recargo) );
+   $("#tpv_total").val( fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0) );
    $("#tpv_total2").val( fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0) );
    $("#tpv_total3").val( fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0) );
    
