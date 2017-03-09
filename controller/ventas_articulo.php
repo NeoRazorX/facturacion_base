@@ -47,7 +47,8 @@ class ventas_articulo extends fs_controller
    public $stocks;
    public $equivalentes;
    public $regularizaciones;
-   
+   public $agrupar;
+   public $mgrupo;
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Articulo', 'ventas', FALSE, FALSE);
@@ -63,7 +64,8 @@ class ventas_articulo extends fs_controller
       $this->articulo = FALSE;
       $this->fabricante = new fabricante();
       $this->impuesto = new impuesto();
-      
+      //Inicializamos la variable agrupar vacia
+      $this->agrupar = '';
       /**
        * Si hay alguna extensión de tipo config y texto no_button_publicar,
        * desactivamos el botón publicar.
@@ -77,6 +79,10 @@ class ventas_articulo extends fs_controller
             break;
          }
       }
+      
+      //Si nos llega la variable agrupar de un GET lo asignamos
+      $agrupar = \filter_input(INPUT_GET, 'agrupar');
+      $this->agrupar = ($agrupar)?$agrupar:$this->agrupar;
       
       /**
        * Si hay atributos, mostramos el tab atributos.
@@ -566,7 +572,7 @@ class ventas_articulo extends fs_controller
     * Devuelve un array con los movimientos de stock del artículo.
     * @return array
     */
-   public function get_movimientos()
+   public function get_movimientos($codalmacen)
    {
       $mlist = array();
       
@@ -578,16 +584,20 @@ class ventas_articulo extends fs_controller
       
       foreach($this->regularizaciones as $reg)
       {
-         $mlist[] = array(
-             'codalmacen' => $reg->codalmacendest,
-             'origen' => 'Regularización',
-             'url' => '#stock',
-             'inicial' => $reg->cantidadini,
-             'movimiento' => '-',
-             'final' => $reg->cantidadfin,
-             'fecha' => $reg->fecha,
-             'hora' => $reg->hora
-         );
+         //Solo tomamos las regularizaciones del almacén actual
+         if ($reg->codalmacendest == $codalmacen)
+         {
+            $mlist[] = array(
+               'codalmacen' => $reg->codalmacendest,
+               'origen' => 'Regularización',
+               'url' => '#stock',
+               'inicial' => $reg->cantidadini,
+               'movimiento' => '-',
+               'final' => $reg->cantidadfin,
+               'fecha' => $reg->fecha,
+               'hora' => $reg->hora
+            );
+         }
       }
       
       /// nos guardamos la lista de tablas para agilizar
@@ -599,9 +609,10 @@ class ventas_articulo extends fs_controller
          $sql = "SELECT a.idalbaran,a.codigo,l.cantidad,a.fecha,a.hora,a.codalmacen
             FROM albaranesprov a, lineasalbaranesprov l
             WHERE a.idalbaran = l.idalbaran
+            AND a.codalmacen = ".$this->empresa->var2str($codalmacen)." 
             AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
          
-         $data = $this->db->select_limit($sql, 500, 0);
+         $data = $this->db->select_limit($sql, 5000, 0);
          if($data)
          {
             foreach($data as $d)
@@ -626,9 +637,10 @@ class ventas_articulo extends fs_controller
          $sql = "SELECT f.idfactura,f.codigo,l.cantidad,f.fecha,f.hora,f.codalmacen
             FROM facturasprov f, lineasfacturasprov l
             WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL
+            AND f.codalmacen = ".$this->empresa->var2str($codalmacen)." 
             AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
          
-         $data = $this->db->select_limit($sql, 500, 0);
+         $data = $this->db->select_limit($sql, 5000, 0);
          if($data)
          {
             foreach($data as $d)
@@ -653,9 +665,10 @@ class ventas_articulo extends fs_controller
          $sql = "SELECT a.idalbaran,a.codigo,l.cantidad,a.fecha,a.hora,a.codalmacen
             FROM albaranescli a, lineasalbaranescli l
             WHERE a.idalbaran = l.idalbaran
+            AND a.codalmacen = ".$this->empresa->var2str($codalmacen)." 
             AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
          
-         $data = $this->db->select_limit($sql, 500, 0);
+         $data = $this->db->select_limit($sql, 5000, 0);
          if($data)
          {
             foreach($data as $d)
@@ -680,9 +693,10 @@ class ventas_articulo extends fs_controller
          $sql = "SELECT f.idfactura,f.codigo,l.cantidad,f.fecha,f.hora,f.codalmacen
             FROM facturascli f, lineasfacturascli l
             WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL
+            AND f.codalmacen = ".$this->empresa->var2str($codalmacen)." 
             AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
          
-         $data = $this->db->select_limit($sql, 500, 0);
+         $data = $this->db->select_limit($sql, 5000, 0);
          if($data)
          {
             foreach($data as $d)
@@ -714,22 +728,35 @@ class ventas_articulo extends fs_controller
          else
             return 1;
       });
-      
+            
       /// recalculamos las cantidades finales hacia atrás
       $final = $this->articulo->stockfis;
       for($i = count($mlist) - 1; $i >= 0; $i--)
       {
          if($mlist[$i]['movimiento'] == '-')
          {
-            $final = $mlist[$i]['inicial']; /// regularización
+            //El resultado del stock final anterior y el valor de la regularización se agrega como salida o ingreso
+            $mlist[$i]['movimiento'] = $mlist[$i]['inicial']-$mlist[$i]['final'];
          }
-         else
-         {
-            $mlist[$i]['final'] = $final;
-            $final -= $mlist[$i]['movimiento'];
-            $mlist[$i]['inicial'] = $final;
-         }
+         $mlist[$i]['final'] = $final;
+         $final -= $mlist[$i]['movimiento'];
+         $mlist[$i]['inicial'] = $final;
       }
+      
+      //Si esta el agrupar con un valor se agrupan los datos
+      if($this->agrupar){
+         foreach($mlist as $item){
+            if(!isset($this->mgrupo[$item['fecha']])){
+                $this->mgrupo[$item['fecha']]['ingreso'] = false;
+                $this->mgrupo[$item['fecha']]['salida'] = false;
+            }
+            if($item['movimiento']>0){
+                $this->mgrupo[$item['fecha']]['ingreso']+=$item['movimiento'];
+            }elseif($item['movimiento']<0){
+                $this->mgrupo[$item['fecha']]['salida']+=$item['movimiento'];
+            }
+         }
+      }      
       
       return $mlist;
    }
@@ -740,46 +767,53 @@ class ventas_articulo extends fs_controller
    private function calcular_stock_real()
    {
       $almacenes = $this->almacen->all();
-      $movimientos = $this->get_movimientos();
-      
+      /**
+       * 
       if( count($almacenes) > 1 )
       {
          $this->new_error_msg('El cálculo de stock con más de un almaćen está temporalmente desactivado.');
       }
       else
       {
-         foreach($almacenes as $alm)
+         
+      }
+      */
+      foreach($almacenes as $alm)
+      {
+         $movimientos = $this->get_movimientos($alm->codalmacen);
+         $total = 0;
+         foreach($movimientos as $mov)
          {
-            $total = 0;
-            foreach($movimientos as $mov)
+            if($mov['codalmacen'] == $alm->codalmacen)
             {
-               if($mov['codalmacen'] == $alm->codalmacen)
+               //El movimiento de regularización ya tiene una cantidad de movimiento
+               //no es necesario este arbol if
+               /*
+               if($mov['movimiento'] == '-')
                {
-                  if($mov['movimiento'] == '-')
-                  {
-                     $total = $mov['final']; /// regularización
-                  }
-                  else
-                  {
-                     $total += $mov['movimiento'];
-                  }
+                  $total = $mov['final']; /// regularización
                }
-            }
-            
-            if( $this->articulo->set_stock($alm->codalmacen, $total) )
-            {
-               $this->new_message('Recarculado el stock del almacén '.$alm->codalmacen.'.');
-            }
-            else
-            {
-               $this->new_error_msg('Error al recarcular el stock del almacén '.$alm->codalmacen.'.');
+               else
+               {
+                  $total += $mov['movimiento'];
+               }
+                * 
+                */
+                $total += $mov['movimiento'];
             }
          }
-         
-         $this->new_message("Stock actualizado.");
-         $this->new_message("Puedes recalcular el stock de todos los artículos desde"
-                 . " <b>Informes &gt; Artículos &gt; Stock</b>");
+          if( $this->articulo->set_stock($alm->codalmacen, $total) )
+         {
+            $this->new_message('Recarculado el stock del almacén '.$alm->codalmacen.'.');
+         }
+         else
+         {
+            $this->new_error_msg('Error al recarcular el stock del almacén '.$alm->codalmacen.'.');
+         }
       }
+      $this->new_message("Stock actualizado correctamente para el artículo ".$this->articulo->descripcion);
+      $this->new_message("Puedes recalcular el stock de todos los artículos desde"
+               . " <b>Informes &gt; Artículos &gt; Stock</b>");
    }
    
    public function combinaciones()
