@@ -503,6 +503,7 @@ class tpv_recambios extends fs_controller
          }
          else if( $factura->save() )
          {
+            $trazabilidad = FALSE;
             $n = floatval($_POST['numlineas']);
             for($i = 1; $i <= $n; $i++)
             {
@@ -534,6 +535,10 @@ class tpv_recambios extends fs_controller
                      {
                         /// descontamos del stock
                         $articulo->sum_stock($factura->codalmacen, 0 - $linea->cantidad);
+                        if($articulo->trazabilidad)
+                        {
+                           $trazabilidad = TRUE;
+                        }
                         
                         $factura->neto += $linea->pvptotal;
                         $factura->totaliva += ($linea->pvptotal * $linea->iva/100);
@@ -593,7 +598,15 @@ class tpv_recambios extends fs_controller
                   $this->caja->dinero_fin += $factura->total;
                   $this->caja->tickets += 1;
                   $this->caja->ip = $_SERVER['REMOTE_ADDR'];
-                  if( !$this->caja->save() )
+                  if( $this->caja->save() )
+                  {
+                     if($trazabilidad)
+                     {
+                        header('Location: index.php?page=ventas_trazabilidad&doc=factura&id='.$factura->idfactura
+                                .'&volver='.urlencode($this->url()));
+                     }
+                  }
+                  else
                   {
                      $this->new_error_msg("¡Imposible actualizar la caja!");
                   }

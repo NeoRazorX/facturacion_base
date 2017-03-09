@@ -593,6 +593,10 @@ function buscar_articulos()
                   descripcion_visible += ' <span class="label label-default" title="Fabricante: '+val.codfabricante+'">'
                           +val.codfabricante+'</span>';
                }
+               if(val.trazabilidad)
+               {
+                  descripcion_visible += ' &nbsp; <i class="fa fa-code-fork" aria-hidden="true" title="Trazabilidad activada"></i>';
+               }
                
                var tr_aux = '<tr>';
                if(val.bloqueado)
