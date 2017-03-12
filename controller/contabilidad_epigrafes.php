@@ -38,6 +38,8 @@ class contabilidad_epigrafes extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extensions();
+      
       $this->codejercicio = $this->empresa->codejercicio;
       $this->ejercicio = new ejercicio();
       $grupo0 = new grupo_epigrafes();
@@ -241,6 +243,25 @@ class contabilidad_epigrafes extends fs_controller
          $this->epigrafe = FALSE;
          $this->resultados = $grupo0->all_from_ejercicio($this->empresa->codejercicio);
          $this->super_epigrafes = $epi0->super_from_ejercicio($this->empresa->codejercicio);
+      }
+   }
+   
+   private function share_extensions()
+   {
+      $extensions = array(
+          array(
+              'name' => 'bootbox.min.js',
+              'page_from' => __CLASS__,
+              'page_to' => __CLASS__,
+              'type' => 'head',
+              'text' => '<script type="text/javascript" src="view/js/bootbox.min.js"></script>',
+              'params' => ''
+          ),
+      );
+      foreach($extensions as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         $fsext->save();
       }
    }
 }

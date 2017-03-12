@@ -41,6 +41,8 @@ class compras_proveedor extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extensions();
+      
       $this->ppage = $this->page->get('compras_proveedores');
       $this->cuenta_banco = new cuenta_banco_proveedor();
       $this->divisa = new divisa();
@@ -313,5 +315,24 @@ class compras_proveedor extends fs_controller
       }
       
       return $tiene;
+   }
+   
+   private function share_extensions()
+   {
+      $extensions = array(
+          array(
+              'name' => 'bootbox.min.js',
+              'page_from' => __CLASS__,
+              'page_to' => __CLASS__,
+              'type' => 'head',
+              'text' => '<script type="text/javascript" src="view/js/bootbox.min.js"></script>',
+              'params' => ''
+          ),
+      );
+      foreach($extensions as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         $fsext->save();
+      }
    }
 }

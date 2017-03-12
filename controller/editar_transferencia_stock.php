@@ -46,6 +46,8 @@ class editar_transferencia_stock extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extensions();
+      
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       $this->almacen = new almacen();
       $this->fabricante = new fabricante();
@@ -221,6 +223,25 @@ class editar_transferencia_stock extends fs_controller
       else
       {
          $this->new_error_msg('Error al guardar los datos.');
+      }
+   }
+   
+   private function share_extensions()
+   {
+      $extensions = array(
+          array(
+              'name' => 'bootbox.min.js',
+              'page_from' => __CLASS__,
+              'page_to' => __CLASS__,
+              'type' => 'head',
+              'text' => '<script type="text/javascript" src="view/js/bootbox.min.js"></script>',
+              'params' => ''
+          ),
+      );
+      foreach($extensions as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         $fsext->save();
       }
    }
 }

@@ -46,6 +46,8 @@ class ventas_cliente extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extensions();
+      
       $this->ppage = $this->page->get('ventas_clientes');
       $this->agente = new agente();
       $this->cuenta_banco = new cuenta_banco_cliente();
@@ -363,6 +365,25 @@ class ventas_cliente extends fs_controller
                  ." WHERE codcliente = ".$this->cliente->var2str($this->cliente->codcliente)
                  ." AND cifnif = '';";
          $this->db->exec($sql);
+      }
+   }
+   
+   private function share_extensions()
+   {
+      $extensions = array(
+          array(
+              'name' => 'bootbox.min.js',
+              'page_from' => __CLASS__,
+              'page_to' => __CLASS__,
+              'type' => 'head',
+              'text' => '<script type="text/javascript" src="view/js/bootbox.min.js"></script>',
+              'params' => ''
+          ),
+      );
+      foreach($extensions as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         $fsext->save();
       }
    }
 }

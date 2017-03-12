@@ -4,10 +4,24 @@
 <script type="text/javascript">
    function delete_almacen(url)
    {
-      if( confirm("¿Realmente desea eliminar este almacén?") )
-      {
-         window.location.href = url;
-      }
+      bootbox.setLocale("es");
+      bootbox.confirm({
+         message: "¿Realmente desea eliminar este almacén?",
+         title: "<b>Atención</b>",
+         callback: function(result) {
+            if (result) {
+               window.location.href = url;
+            }
+         }
+      });
+   }
+   function cannot_delete()
+   {
+      bootbox.setLocale("es");
+      bootbox.alert({
+         message: 'No puedes eliminar el almacén predeterminado de la empresa.',
+         title: "<b>Atención</b>"
+      });
    }
    $(document).ready(function() {
       $("#b_nuevo_almacen").click(function(event) {
@@ -127,7 +141,7 @@
                <div class="panel-footer text-right">
                   {if="$fsc->allow_delete"}
                      {if="$value->codalmacen==$fsc->empresa->codalmacen"}
-                     <a class="btn btn-sm btn-warning pull-left" onclick="alert('No puedes eliminar el almacén predeterminado de la empresa.')">
+                     <a class="btn btn-sm btn-warning pull-left" onclick="cannot_delete()">
                         <span class="glyphicon glyphicon-lock"></span>&nbsp; Eliminar
                      </a>
                      {else}

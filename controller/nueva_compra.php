@@ -52,6 +52,8 @@ class nueva_compra extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extensions();
+      
       $this->articulo_prov = new articulo_proveedor();
       $this->fabricante = new fabricante();
       $this->familia = new familia();
@@ -1210,5 +1212,24 @@ class nueva_compra extends fs_controller
       }
       
       return $artilist;
+   }
+   
+   private function share_extensions()
+   {
+      $extensions = array(
+          array(
+              'name' => 'bootbox.min.js',
+              'page_from' => __CLASS__,
+              'page_to' => __CLASS__,
+              'type' => 'head',
+              'text' => '<script type="text/javascript" src="view/js/bootbox.min.js"></script>',
+              'params' => ''
+          ),
+      );
+      foreach($extensions as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         $fsext->save();
+      }
    }
 }

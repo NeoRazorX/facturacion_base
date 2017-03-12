@@ -31,6 +31,8 @@ class admin_divisas extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extensions();
+      
       $this->divisa = new divisa();
       
       /// ¿El usuario tiene permiso para eliminar en esta página?
@@ -74,6 +76,25 @@ class admin_divisas extends fs_controller
          }
          else
             $this->new_error_msg('Divisa no encontrada.');
+      }
+   }
+   
+   private function share_extensions()
+   {
+      $extensions = array(
+          array(
+              'name' => 'bootbox.min.js',
+              'page_from' => __CLASS__,
+              'page_to' => __CLASS__,
+              'type' => 'head',
+              'text' => '<script type="text/javascript" src="view/js/bootbox.min.js"></script>',
+              'params' => ''
+          ),
+      );
+      foreach($extensions as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         $fsext->save();
       }
    }
 }

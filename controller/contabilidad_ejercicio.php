@@ -48,6 +48,8 @@ class contabilidad_ejercicio extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extensions();
+      
       /// cargamos las putas secuencias para que se actualicen.
       /// Abanq/Eneboo, yo te maldigooooo!!!!!!!!!!!!!!!!!!!!!!
       $sec0 = new secuencia_ejercicio();
@@ -766,6 +768,25 @@ class contabilidad_ejercicio extends fs_controller
          {
             $this->new_error_msg($err);
          }
+      }
+   }
+   
+   private function share_extensions()
+   {
+      $extensions = array(
+          array(
+              'name' => 'bootbox.min.js',
+              'page_from' => __CLASS__,
+              'page_to' => __CLASS__,
+              'type' => 'head',
+              'text' => '<script type="text/javascript" src="view/js/bootbox.min.js"></script>',
+              'params' => ''
+          ),
+      );
+      foreach($extensions as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         $fsext->save();
       }
    }
 }

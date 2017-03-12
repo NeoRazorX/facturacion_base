@@ -96,14 +96,29 @@ class ventas_atributos extends fs_controller
    
    private function share_extensions()
    {
-      $fsext = new fs_extension();
-      $fsext->name = 'btn_atributos';
-      $fsext->from = __CLASS__;
-      $fsext->to = 'ventas_articulos';
-      $fsext->type = 'button';
-      $fsext->text = '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>'
-              . '<span class="hidden-xs"> &nbsp; Atributos</span>';
-      $fsext->save();
+      $extensions = array(
+          array(
+              'name' => 'btn_atributos',
+              'page_from' => __CLASS__,
+              'page_to' => 'ventas_articulos',
+              'type' => 'button',
+              'text' => '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span><span class="hidden-xs"> &nbsp; Atributos</span>',
+              'params' => ''
+          ),
+          array(
+              'name' => 'bootbox.min.js',
+              'page_from' => __CLASS__,
+              'page_to' => __CLASS__,
+              'type' => 'head',
+              'text' => '<script type="text/javascript" src="view/js/bootbox.min.js"></script>',
+              'params' => ''
+          ),
+      );
+      foreach($extensions as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         $fsext->save();
+      }
    }
    
    private function modificar()

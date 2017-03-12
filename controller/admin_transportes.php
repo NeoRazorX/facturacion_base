@@ -52,7 +52,7 @@ class admin_transportes extends fs_controller
          
          if( $agencia2->save() )
          {
-            $this->new_message('Datos guardaddos correctamente.');
+            $this->new_message('Datos guardados correctamente.');
          }
          else
          {

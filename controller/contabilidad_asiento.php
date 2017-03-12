@@ -43,6 +43,8 @@ class contabilidad_asiento extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extensions();
+      
       $this->asiento = FALSE;
       $this->ppage = $this->page->get('contabilidad_asientos');
       $this->divisa = new divisa();
@@ -397,5 +399,24 @@ class contabilidad_asiento extends fs_controller
       }
       
       return $lineas;
+   }
+   
+   private function share_extensions()
+   {
+      $extensions = array(
+          array(
+              'name' => 'bootbox.min.js',
+              'page_from' => __CLASS__,
+              'page_to' => __CLASS__,
+              'type' => 'head',
+              'text' => '<script type="text/javascript" src="view/js/bootbox.min.js"></script>',
+              'params' => ''
+          ),
+      );
+      foreach($extensions as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         $fsext->save();
+      }
    }
 }
