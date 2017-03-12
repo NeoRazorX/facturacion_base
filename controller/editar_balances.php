@@ -142,14 +142,29 @@ class editar_balances extends fs_controller
    
    private function share_extensions()
    {
-      $fsext = new fs_extension();
-      $fsext->name = 'btn_balances';
-      $fsext->from = __CLASS__;
-      $fsext->to = 'informe_contabilidad';
-      $fsext->type = 'button';
-      $fsext->text = '<span class="glyphicon glyphicon-wrench"></span>'
-              . '<span class="hidden-xs">&nbsp; Balances</a>';
-      $fsext->save();
+      $extensions = array(
+          array(
+              'name' => 'btn_balances',
+              'page_from' => __CLASS__,
+              'page_to' => 'informe_contabilidad',
+              'type' => 'button',
+              'text' => '<span class="glyphicon glyphicon-wrench"></span><span class="hidden-xs">&nbsp; Balances</a>',
+              'params' => ''
+          ),
+          array(
+              'name' => 'bootbox.min.js',
+              'page_from' => __CLASS__,
+              'page_to' => __CLASS__,
+              'type' => 'head',
+              'text' => '<script type="text/javascript" src="view/js/bootbox.min.js"></script>',
+              'params' => ''
+          ),
+      );
+      foreach($extensions as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         $fsext->save();
+      }
    }
    
    public function all_balances()

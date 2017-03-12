@@ -772,11 +772,28 @@ class tpv_recambios extends fs_controller
    
    private function share_extensions()
    {
-      $fsext = new fs_extension();
-      $fsext->name = 'api_remote_printer';
-      $fsext->from = __CLASS__;
-      $fsext->type = 'api';
-      $fsext->text = 'remote_printer';
-      $fsext->save();
+      $extensions = array(
+          array(
+              'name' => 'api_remote_printer',
+              'page_from' => __CLASS__,
+              'page_to' => '',
+              'type' => 'api',
+              'text' => 'remote_printer',
+              'params' => ''
+          ),
+          array(
+              'name' => 'bootbox.min.js',
+              'page_from' => __CLASS__,
+              'page_to' => __CLASS__,
+              'type' => 'head',
+              'text' => '<script type="text/javascript" src="view/js/bootbox.min.js"></script>',
+              'params' => ''
+          ),
+      );
+      foreach($extensions as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         $fsext->save();
+      }
    }
 }

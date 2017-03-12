@@ -64,6 +64,8 @@ class ventas_albaran extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extensions();
+      
       $this->ppage = $this->page->get('ventas_albaranes');
       $this->agente = FALSE;
       
@@ -664,5 +666,24 @@ class ventas_albaran extends fs_controller
       }
       
       $this->new_change('Factura '.$factura->codigo, $factura->url(), TRUE);
+   }
+   
+   private function share_extensions()
+   {
+      $extensions = array(
+          array(
+              'name' => 'bootbox.min.js',
+              'page_from' => __CLASS__,
+              'page_to' => __CLASS__,
+              'type' => 'head',
+              'text' => '<script type="text/javascript" src="view/js/bootbox.min.js"></script>',
+              'params' => ''
+          ),
+      );
+      foreach($extensions as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         $fsext->save();
+      }
    }
 }

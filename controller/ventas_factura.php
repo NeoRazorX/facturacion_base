@@ -58,6 +58,8 @@ class ventas_factura extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extensions();
+      
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
@@ -552,5 +554,24 @@ class ventas_factura extends fs_controller
       }
       
       return $cuentas;
+   }
+   
+   private function share_extensions()
+   {
+      $extensions = array(
+          array(
+              'name' => 'bootbox.min.js',
+              'page_from' => __CLASS__,
+              'page_to' => __CLASS__,
+              'type' => 'head',
+              'text' => '<script type="text/javascript" src="view/js/bootbox.min.js"></script>',
+              'params' => ''
+          ),
+      );
+      foreach($extensions as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         $fsext->save();
+      }
    }
 }

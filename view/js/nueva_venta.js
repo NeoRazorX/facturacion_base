@@ -366,14 +366,22 @@ function ajustar_iva(num)
          $("#iva_"+num).val(0);
          $("#recargo_"+num).val(0);
          
-         alert('El cliente tiene regimen de IVA: '+cliente.regimeniva);
+         bootbox.setLocale("es");
+         bootbox.alert({
+            message: 'El cliente tiene regimen de IVA: '+cliente.regimeniva,
+            title: "<b>Atención</b>"
+         });
       }
       else if(siniva && $("#iva_"+num).val() != 0)
       {
          $("#iva_"+num).val(0);
          $("#recargo_"+num).val(0);
          
-         alert('La serie selecciona es sin IVA.');
+         bootbox.setLocale("es");
+         bootbox.alert({
+            message: 'La serie selecciona es sin IVA.',
+            title: "<b>Atención</b>"
+         });
       }
       else if(cliente.recargo)
       {
@@ -626,7 +634,7 @@ function buscar_articulos()
                   }
                   else
                   {
-                     var funcion = "alert('Sin stock.')";
+                     var funcion = "bootbox.setLocale('es');bootbox.alert({message: 'Sin stock.',title: '<b>Atención</b>'});";
                   }
                   
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\

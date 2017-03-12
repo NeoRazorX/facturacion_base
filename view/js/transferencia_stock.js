@@ -98,10 +98,16 @@ function buscar_articulos()
 
 function eliminar_transferencia(id)
 {
-   if( confirm("¿Realmente desea eliminar la transferencia "+id+"?") )
-   {
-      window.location.href = 'index.php?page=ventas_articulos&delete_transf='+id+'#transferencias';
-   }
+      bootbox.setLocale("es");
+      bootbox.confirm({
+         message: "¿Realmente desea eliminar la transferencia "+id+"?",
+         title: "<b>Atención</b>",
+         callback: function(result) {
+            if (result) {
+               window.location.href = 'index.php?page=ventas_articulos&delete_transf='+id+'#transferencias';
+            }
+         }
+      });
 }
 
 $(document).ready(function() {

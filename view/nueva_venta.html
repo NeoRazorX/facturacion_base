@@ -20,6 +20,15 @@
       usar_divisa();
       recalcular();
    });
+   
+   function cliente(nombre)
+   {
+      bootbox.setLocale("es");
+      bootbox.alert({
+         message: 'Cliente conocido como: ' + nombre,
+         title: "<b>Atención</b>"
+      });
+   }
 </script>
 
 <form id="f_new_albaran" class="form" name="f_new_albaran" action="{$fsc->url()}" method="post">
@@ -35,7 +44,7 @@
                <a href="{$fsc->cliente_s->url()}">{$fsc->cliente_s->razonsocial}</a>
                {if="$fsc->cliente_s->razonsocial!=$fsc->cliente_s->nombre"}
                <small>
-                  <a href="#" onclick="alert('Cliente conocido como: {$fsc->cliente_s->nombre}')">
+                  <a href="#" onclick="cliente({$fsc->cliente_s->nombre})">
                      <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                   </a>
                </small>

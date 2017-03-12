@@ -65,6 +65,8 @@ class nueva_venta extends fs_controller
    
    protected function private_core()
    {
+      $this->share_extensions();
+      
       $this->agencia = new agencia_transporte();
       $this->cliente = new cliente();
       $this->cliente_s = FALSE;
@@ -1516,6 +1518,25 @@ class nueva_venta extends fs_controller
          }
          else
             $this->new_error_msg("¡Imposible guardar el ".FS_PEDIDO."!");
+      }
+   }
+   
+   private function share_extensions()
+   {
+      $extensions = array(
+          array(
+              'name' => 'bootbox.min.js',
+              'page_from' => __CLASS__,
+              'page_to' => __CLASS__,
+              'type' => 'head',
+              'text' => '<script type="text/javascript" src="view/js/bootbox.min.js"></script>',
+              'params' => ''
+          ),
+      );
+      foreach($extensions as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         $fsext->save();
       }
    }
 }

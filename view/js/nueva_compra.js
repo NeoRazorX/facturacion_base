@@ -325,14 +325,22 @@ function ajustar_iva(num)
          $("#iva_"+num).val(0);
          $("#recargo_"+num).val(0);
          
-         alert('El proveedor tiene regimen de IVA: '+proveedor.regimeniva);
+         bootbox.setLocale("es");
+         bootbox.alert({
+            message: 'El proveedor tiene regimen de IVA: '+proveedor.regimeniva,
+            title: "<b>Atención</b>"
+         });
       }
       else if(siniva && $("#iva_"+num).val() != 0)
       {
          $("#iva_"+num).val(0);
          $("#recargo_"+num).val(0);
          
-         alert('La serie selecciona es sin IVA.');
+         bootbox.setLocale("es");
+         bootbox.alert({
+            message: 'La serie selecciona es sin IVA.',
+            title: "<b>Atención</b>"
+         });
       }
       else if(tiene_recargo)
       {
@@ -496,11 +504,19 @@ function new_articulo()
             {
                if(document.f_nuevo_articulo.referencia.value == '')
                {
-                  alert('Debes escribir una referencia.');
+                  bootbox.setLocale("es");
+                  bootbox.alert({
+                     message: 'Debes escribir una referencia.',
+                     title: "<b>Atención</b>"
+                  });
                }
                else
                {
-                  alert('Se ha producido un error al crear el artículo.');
+                  bootbox.setLocale("es");
+                  bootbox.alert({
+                     message: 'Se ha producido un error al crear el artículo.',
+                     title: "<b>Atención</b>"
+                  });
                }
             }
             else
