@@ -3,24 +3,39 @@
 <script type="text/javascript">
    function cerrar_caja(id)
    {
-      if( confirm("¿Realmente desea cerrar el arqueo "+id+"?") )
-      {
-         window.location.href = '{$fsc->url()}&cerrar='+id;
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea cerrar el arqueo '+id+'?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&cerrar='+id;
+            }
+         }
+      });
    }
    function delete_caja(id)
    {
-      if( confirm("¿Realmente desea eliminar el arqueo "+id+"?") )
-      {
-         window.location.href = '{$fsc->url()}&delete='+id;
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar el arqueo '+id+'?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&delete='+id;
+            }
+         }
+      });
    }
    function delete_terminal(id)
    {
-      if( confirm("¿Realmente desea eliminar el terminal "+id+"?") )
-      {
-         window.location.href = '{$fsc->url()}&deletet='+id+'#terminales';
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar el terminal '+id+'?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&deletet='+id+'#terminales';
+            }
+         }
+      });
    }
    $(document).ready(function() {
       if(window.location.hash.substring(1) == 'terminales')
@@ -203,7 +218,7 @@
                      <td><input type="number" name="num_tickets" value="{$value->num_tickets}" class="form-control" autocomplete="off"/></td>
                      <td class="text-center">
                         {if="!$value->disponible()"}
-                        <a href="#terminales" class="btn btn-sm btn-warning" onclick="alert('Terminal en uso. Puedes cerrarlo desde la pestaña arqueos.')">
+                        <a href="#terminales" class="btn btn-sm btn-warning" onclick="bootbox.alert({message: 'Terminal en uso. Puedes cerrarlo desde la pestaña historial.',title: '<b>Atención</b>'});">
                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                         </a>
                         {/if}

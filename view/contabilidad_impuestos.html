@@ -3,10 +3,15 @@
 <script type="text/javascript">
    function delete_impuesto(cod)
    {
-      if( confirm("¿Realmente desea eliminar el impuesto "+cod+"?") )
-      {
-         window.location.href = '{$fsc->url()}&delete='+cod;
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar el impuesto '+cod+'?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&delete='+cod;
+            }
+         }
+      });
    }
 </script>
 

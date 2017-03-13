@@ -12,10 +12,15 @@
       });
       $("#b_eliminar_familia").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Estas seguro de que deseas eliminar esta familia?") )
-         {
-            window.location.href = 'index.php?page=ventas_familias&delete={function="urlencode($fsc->familia->codfamilia)"}';
-         }
+         bootbox.confirm({
+            message: '¿Estas seguro de que deseas eliminar esta familia?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = 'index.php?page=ventas_familias&delete={function="urlencode($fsc->familia->codfamilia)"}';
+               }
+            }
+         });
       });
    });
 </script>

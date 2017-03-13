@@ -19,10 +19,15 @@
       });
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Realmente desea eliminar este ejercicio?") )
-         {
-            window.location.href = 'index.php?page=contabilidad_ejercicios&delete={$fsc->ejercicio->codejercicio}';
-         }
+         bootbox.confirm({
+            message: '¿Realmente desea eliminar este ejercicio?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = 'index.php?page=contabilidad_ejercicios&delete={$fsc->ejercicio->codejercicio}';
+               }
+            }
+         });
       });
    });
 </script>

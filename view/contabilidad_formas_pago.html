@@ -3,10 +3,22 @@
 <script type="text/javascript">
    function eliminar_fp(cod)
    {
-      if( confirm("¿Realmente desea eliminar la forma de pago "+cod+"?") )
-      {
-         window.location.href = '{$fsc->url()}&delete='+cod;
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar la forma de pago '+cod+'?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&delete='+cod;
+            }
+         }
+      });
+   }
+   function cannot_delete()
+   {
+      bootbox.alert({
+         message: 'No puedes eliminar la forma de pago predeterminada.',
+         title: "<b>Atención</b>"
+      });
    }
 </script>
 
@@ -126,7 +138,7 @@
                <div class="btn-group">
                   {if="$fsc->allow_delete"}
                      {if="$value->codpago==$fsc->empresa->codpago"}
-                     <a href="#" class="btn btn-sm btn-warning" title="Bloqueado" onclick="alert('No puedes eliminar la forma de pago predeterminada.')">
+                     <a href="#" class="btn btn-sm btn-warning" title="Bloqueado" onclick="bootbox.alert({message: 'No puedes eliminar la forma de pago predeterminada.',title: '<b>Atención</b>'});">
                         <span class="glyphicon glyphicon-lock"></span>
                      </a>
                      {else}

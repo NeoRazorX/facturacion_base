@@ -12,10 +12,15 @@
       });
       $("#b_eliminar_fabricante").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Estas seguro de que deseas eliminar este fabricante?") )
-         {
-            window.location.href = 'index.php?page=ventas_fabricantes&delete={function="urlencode($fsc->fabricante->codfabricante)"}';
-         }
+         bootbox.confirm({
+            message: '¿Estas seguro de que deseas eliminar este fabricante?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = 'index.php?page=ventas_fabricantes&delete={function="urlencode($fsc->fabricante->codfabricante)"}';
+               }
+            }
+         });
       });
    });
 </script>

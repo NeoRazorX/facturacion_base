@@ -3,18 +3,28 @@
 <script type="text/javascript">
    function eliminar_valor(id)
    {
-      if( confirm("¿Estas seguro de que deseas eliminar este valor?") )
-      {
-         window.location.href = "{$fsc->atributo->url()}&delete_val="+id;
-      }
+      bootbox.confirm({
+         message: '¿Estas seguro de que deseas eliminar este valor?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = "{$fsc->atributo->url()}&delete_val="+id;
+            }
+         }
+      });
    }
    $(document).ready(function() {
       $("#b_eliminar_atributo").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Estas seguro de que deseas eliminar este atributo?") )
-         {
-            window.location.href = "{$fsc->url()}&delete={$fsc->atributo->codatributo}";
-         }
+         bootbox.confirm({
+            message: '¿Estas seguro de que deseas eliminar este atributo?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = "{$fsc->url()}&delete={$fsc->atributo->codatributo}";
+               }
+            }
+         });
       });
    });
 </script>
