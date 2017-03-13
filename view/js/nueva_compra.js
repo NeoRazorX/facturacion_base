@@ -389,7 +389,7 @@ function aux_all_impuestos(num,codimpuesto)
    return html;
 }
 
-function add_articulo(ref,desc,pvp,dto,codimpuesto,codcombinacion)
+function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad,codcombinacion)
 {
    if(typeof codcombinacion == 'undefined')
    {
