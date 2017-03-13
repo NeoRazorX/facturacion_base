@@ -430,12 +430,18 @@ function aux_all_impuestos(num,codimpuesto)
    return html;
 }
 
-function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
+function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad,codcombinacion)
 {
+   if(typeof codcombinacion == 'undefined')
+   {
+      codcombinacion = '';
+   }
+   
    desc = Base64.decode(desc);
    $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\" value=\""+ref+"\"/>\n\
+         <input type=\"hidden\" name=\"codcombinacion_"+numlineas+"\" value=\""+codcombinacion+"\"/>\n\
          <div class=\"form-control\"><small><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></small></div></td>\n\
       <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\">"+desc+"</textarea></td>\n\
       <td><input type=\""+input_number+"\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
@@ -482,6 +488,7 @@ function add_linea_libre()
    $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\"/>\n\
+         <input type=\"hidden\" name=\"codcombinacion_"+numlineas+"\"/>\n\
          <div class=\"form-control\"></div></td>\n\
       <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\"></textarea></td>\n\
       <td><input type=\""+input_number+"\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+

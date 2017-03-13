@@ -35,15 +35,6 @@
                </a>
             </div>
             <div class="btn-group">
-            {loop="$fsc->extensions"}
-               {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
-               {/if}
-            {/loop}
-            </div>
-         </div>
-         <div class="col-sm-5 text-right">
-            <div class="btn-group">
                <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   <span class="glyphicon glyphicon-plus"></span>
                   <span class="caret"></span>
@@ -55,10 +46,19 @@
                </ul>
             </div>
             <div class="btn-group">
+            {loop="$fsc->extensions"}
+               {if="$value->type=='button'"}
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+               {/if}
+            {/loop}
+            </div>
+         </div>
+         <div class="col-sm-5 text-right">
+            <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar_fabricante" class="btn btn-sm btn-danger">
                   <span class="glyphicon glyphicon-trash"></span>
-                  <span class="hidden-xs hidden-sm">&nbsp; Eliminar</span>
+                  <span class="hidden-xs hidden-sm">&nbsp;Eliminar</span>
                </a>
                {/if}
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">

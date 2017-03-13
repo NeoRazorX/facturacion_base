@@ -42,32 +42,6 @@
                </a>
             </div>
             <div class="btn-group">
-               <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                  Subfamilias <span class="caret"></span>
-               </button>
-               <ul class="dropdown-menu" role="menu">
-                  {loop="$fsc->familia->hijas()"}
-                  <li><a href="{$value->url()}">{$value->descripcion}</a></li>
-                  {else}
-                  <li><a href="#">Ninguna</a></li>
-                  {/loop}
-                  <li role="presentation" class="divider"></li>
-                  <li><a href="index.php?page=ventas_familias&madre={$fsc->familia->codfamilia}">Nueva subfamilia</a></li>
-                  {if="$fsc->familia->madre"}
-                  <li><a href="index.php?page=ventas_familias&madre={$fsc->familia->madre}">Nueva familia hermana</a></li>
-                  {/if}
-               </ul>
-            </div>
-            <div class="btn-group">
-            {loop="$fsc->extensions"}
-               {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
-               {/if}
-            {/loop}
-            </div>
-         </div>
-         <div class="col-sm-5 text-right">
-            <div class="btn-group">
                <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   <span class="glyphicon glyphicon-plus"></span>
                   <span class="caret"></span>
@@ -83,14 +57,23 @@
                </ul>
             </div>
             <div class="btn-group">
+            {loop="$fsc->extensions"}
+               {if="$value->type=='button'"}
+               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+               {/if}
+            {/loop}
+            </div>
+         </div>
+         <div class="col-sm-5 text-right">
+            <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar_familia" class="btn btn-sm btn-danger">
                   <span class="glyphicon glyphicon-trash"></span>
-                  <span class="hidden-xs hidden-sm">&nbsp; Eliminar</span>
+                  <span class="hidden-xs hidden-sm">&nbsp;Eliminar</span>
                </a>
                {/if}
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                  <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
                </button>
             </div>
          </div>
@@ -127,9 +110,15 @@
 <div role="tabpanel">
    <ul class="nav nav-tabs" role="tablist">
       <li role="presentation" class="active">
-         <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
+         <a href="#articulos" aria-controls="articulos" role="tab" data-toggle="tab">
             Artículos
             <span class="hidden-xs badge">{$fsc->total_familia()}</span>
+         </a>
+      </li>
+      <li role="presentation">
+         <a href="#subfamilias" aria-controls="subfamilias" role="tab" data-toggle="tab">
+            Subfamilias
+            <span class="hidden-xs badge">{function="count($fsc->subfamilias)"}</span>
          </a>
       </li>
       {loop="$fsc->extensions"}
@@ -141,7 +130,7 @@
       {/loop}
    </ul>
    <div class="tab-content">
-      <div role="tabpanel" class="tab-pane active" id="home">
+      <div role="tabpanel" class="tab-pane active" id="articulos">
          <div class="table-responsive">
             <table class="table table-hover">
                <thead>
@@ -210,6 +199,27 @@
             </li>
             {/if}
          </ul>
+      </div>
+      <div role="tabpanel" class="tab-pane" id="subfamilias">
+         <br/>
+         <div class="container-fluid">
+            <div class="row">
+               <div class="col-sm-3 col-lg-2" style="margin-bottom: 5px;">
+                  <a class="btn btn-block btn-success" href="index.php?page=ventas_familias&madre={$fsc->familia->codfamilia}">
+                     <span class="glyphicon glyphicon-plus-sign"></span>
+                     &nbsp;Nueva...
+                  </a>
+               </div>
+               {loop="$fsc->subfamilias"}
+               <div class="col-sm-3 col-lg-2" style="margin-bottom: 5px;">
+                  <a class="btn btn-block btn-default" href="{$value->url()}">
+                     <span class="glyphicon glyphicon-folder-open"></span>
+                     &nbsp; {$value->descripcion()}
+                  </a>
+               </div>
+               {/loop}
+            </div>
+         </div>
       </div>
       {loop="$fsc->extensions"}
          {if="$value->type=='tab'"}

@@ -265,8 +265,13 @@ function get_precios(ref)
    });
 }
 
-function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
+function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad,codcombinacion)
 {
+   if(typeof codcombinacion == 'undefined')
+   {
+      codcombinacion = '';
+   }
+   
    numlineas += 1;
    $("#numlineas").val(numlineas);
    desc = Base64.decode(desc);
@@ -290,6 +295,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
    
    $("#lineas_albaran").prepend("<tr id=\"linea_"+numlineas+"\">\n\
          <td><input type=\"hidden\" name=\"referencia_"+numlineas+"\" value=\""+ref+"\"/>\n\
+            <input type=\"hidden\" name=\"codcombinacion_"+numlineas+"\" value=\""+codcombinacion+"\"/>\n\
             <input type=\"hidden\" id=\"iva_"+numlineas+"\" name=\"iva_"+numlineas+"\" value=\""+iva+"\"/>\n\
             <input type=\"hidden\" id=\"recargo_"+numlineas+"\" name=\"recargo_"+numlineas+"\" value=\""+recargo+"\"/>\n\
             <input type=\"hidden\" id=\"irpf_"+numlineas+"\" name=\"irpf_"+numlineas+"\" value=\""+irpf+"\"/>\n\

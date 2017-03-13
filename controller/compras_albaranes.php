@@ -373,7 +373,7 @@ class compras_albaranes extends fs_controller
                         $art0 = $articulo->get($linea->referencia);
                         if($art0)
                         {
-                           $art0->sum_stock($alb1->codalmacen, 0 - $linea->cantidad, TRUE);
+                           $art0->sum_stock($alb1->codalmacen, 0 - $linea->cantidad, TRUE, $linea->codcombinacion);
                         }
                      }
                   }
@@ -389,7 +389,7 @@ class compras_albaranes extends fs_controller
                      $art0 = $articulo->get($linea->referencia);
                      if($art0)
                      {
-                        $art0->sum_stock($alb1->codalmacen, 0 - $linea->cantidad, TRUE);
+                        $art0->sum_stock($alb1->codalmacen, 0 - $linea->cantidad, TRUE, $linea->codcombinacion);
                      }
                   }
                }

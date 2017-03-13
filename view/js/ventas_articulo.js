@@ -99,11 +99,3 @@ function calcular_margen()
 
    $("#margen").val(margen);
 }
-
-function delete_combinacion(cod)
-{
-   if( confirm("¿Realmente desea eliminar la combinacion " + cod + "?") )
-   {
-      window.location.href = '{$fsc->url()}&delete_combi=' + cod + '#atributos';
-   }
-}

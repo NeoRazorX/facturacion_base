@@ -522,7 +522,7 @@ class compras_facturas extends fs_controller
                      $articulo = $art0->get($linea->referencia);
                      if($articulo)
                      {
-                        $articulo->sum_stock($fact->codalmacen, 0 - $linea->cantidad, TRUE);
+                        $articulo->sum_stock($fact->codalmacen, 0 - $linea->cantidad, TRUE, $linea->codcombinacion);
                      }
                   }
                }

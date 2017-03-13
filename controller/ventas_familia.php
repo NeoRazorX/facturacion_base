@@ -27,6 +27,7 @@ class ventas_familia extends fs_controller
    public $familia;
    public $madre;
    public $offset;
+   public $subfamilias;
 
    public function __construct()
    {
@@ -79,6 +80,7 @@ class ventas_familia extends fs_controller
          
          $this->madre = $this->familia->get($this->familia->madre);
          $this->articulos = $this->familia->get_articulos($this->offset);
+         $this->subfamilias = $this->familia->hijas();
       }
       else
       {

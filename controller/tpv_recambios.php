@@ -349,7 +349,9 @@ class tpv_recambios extends fs_controller
                 'dto' => floatval($_POST['dto']),
                 'codimpuesto' => $_POST['codimpuesto'],
                 'cantidad' => floatval($_POST['cantidad']),
-                'txt' => $com->nombreatributo.' - '.$com->valor
+                'txt' => $com->nombreatributo.' - '.$com->valor,
+                'codigo' => $com->codigo,
+                'stockfis' => $com->stockfis,
             );
          }
       }
@@ -531,14 +533,23 @@ class tpv_recambios extends fs_controller
                      $linea->pvpsindto = ($linea->pvpunitario * $linea->cantidad);
                      $linea->pvptotal = floatval($_POST['neto_'.$i]);
                      
-                     if( $linea->save() )
+                     if($articulo)
                      {
-                        /// descontamos del stock
-                        $articulo->sum_stock($factura->codalmacen, 0 - $linea->cantidad);
                         if($articulo->trazabilidad)
                         {
                            $trazabilidad = TRUE;
                         }
+                        
+                        if($_POST['codcombinacion_'.$i])
+                        {
+                           $linea->codcombinacion = $_POST['codcombinacion_'.$i];
+                        }
+                     }
+                     
+                     if( $linea->save() )
+                     {
+                        /// descontamos del stock
+                        $articulo->sum_stock($factura->codalmacen, 0 - $linea->cantidad, FALSE, $linea->codcombinacion);
                         
                         $factura->neto += $linea->pvptotal;
                         $factura->totaliva += ($linea->pvptotal * $linea->iva/100);

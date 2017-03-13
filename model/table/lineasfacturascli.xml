@@ -91,6 +91,10 @@
       <tipo>character varying(18)</tipo>
    </columna>
    <columna>
+      <nombre>codcombinacion</nombre>
+      <tipo>character varying(18)</tipo>
+   </columna>
+   <columna>
       <nombre>orden</nombre>
       <tipo>integer</tipo>
       <defecto>0</defecto>
