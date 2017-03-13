@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -431,7 +431,9 @@ class contabilidad_ejercicio extends fs_controller
                      $balance->descripcion4ba = base64_decode($b->descripcion4ba);
                      
                      if( !$balance->save() )
+                     {
                         $this->url_recarga = FALSE;
+                     }
                   }
                }
                
@@ -458,7 +460,9 @@ class contabilidad_ejercicio extends fs_controller
                         $new_bc->desccuenta = base64_decode($bc->descripcion);
                         
                         if( !$new_bc->save() )
+                        {
                            $this->url_recarga = FALSE;
+                        }
                      }
                   }
                }
@@ -486,7 +490,9 @@ class contabilidad_ejercicio extends fs_controller
                         $new_bc->desccuenta = base64_decode($bc->descripcion);
                         
                         if( !$new_bc->save() )
+                        {
                            $this->url_recarga = FALSE;
+                        }
                      }
                   }
                }
@@ -505,7 +511,9 @@ class contabilidad_ejercicio extends fs_controller
                         $cuenta_especial->descripcion = base64_decode($ce->descripcion);
                         
                         if( !$cuenta_especial->save() )
+                        {
                            $this->url_recarga = FALSE;
+                        }
                      }
                   }
                }
@@ -522,7 +530,9 @@ class contabilidad_ejercicio extends fs_controller
                         $grupo_epigrafes->descripcion = base64_decode($ge->descripcion);
                         
                         if( !$grupo_epigrafes->save() )
+                        {
                            $this->url_recarga = FALSE;
+                        }
                      }
                   }
                }
@@ -535,20 +545,16 @@ class contabilidad_ejercicio extends fs_controller
                      $epigrafe = new epigrafe();
                      if( !$epigrafe->get_by_codigo($ep->codepigrafe, $this->ejercicio->codejercicio) )
                      {
+                        $epigrafe->codejercicio = $this->ejercicio->codejercicio;
+                        $epigrafe->codepigrafe = $ep->codepigrafe;
+                        $epigrafe->descripcion = base64_decode($ep->descripcion);
+                        
                         $ge = $grupo_epigrafes->get_by_codigo($ep->codgrupo, $this->ejercicio->codejercicio);
                         if($ge)
                         {
                            /// si encuentra el grupo, lo añade con el grupo
                            $epigrafe->idgrupo = $ge->idgrupo;
                            $epigrafe->codgrupo = $ge->codgrupo;
-                           $epigrafe->codejercicio = $this->ejercicio->codejercicio;
-                           $epigrafe->codepigrafe = $ep->codepigrafe;
-                           $epigrafe->descripcion = base64_decode($ep->descripcion);
-                           
-                           if( !$epigrafe->save() )
-                           {
-                              $this->url_recarga = FALSE;
-                           }
                         }
                         else if($ep->codpadre)
                         {
@@ -557,15 +563,12 @@ class contabilidad_ejercicio extends fs_controller
                            {
                               /// si encuentra al padre, lo añade con el padre
                               $epigrafe->idpadre = $padre->idepigrafe;
-                              $epigrafe->codejercicio = $this->ejercicio->codejercicio;
-                              $epigrafe->codepigrafe = $ep->codepigrafe;
-                              $epigrafe->descripcion = base64_decode($ep->descripcion);
-                              
-                              if( !$epigrafe->save() )
-                              {
-                                 $this->url_recarga = FALSE;
-                              }
                            }
+                        }
+                        
+                        if( !$epigrafe->save() )
+                        {
+                           $this->url_recarga = FALSE;
                         }
                      }
                   }

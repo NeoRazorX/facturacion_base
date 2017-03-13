@@ -91,6 +91,10 @@
       <nombre>referencia</nombre>
       <tipo>character varying(18)</tipo>
    </columna>
+   <columna>
+      <nombre>codcombinacion</nombre>
+      <tipo>character varying(18)</tipo>
+   </columna>
    <restriccion>
       <nombre>ca_lineasalbaranesprov_albaranesprov2</nombre>
       <consulta>FOREIGN KEY (idalbaran)

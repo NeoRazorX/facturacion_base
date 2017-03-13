@@ -1,7 +1,7 @@
 <?php
 /*
- * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * This file is part of facturacion_base
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -93,7 +93,7 @@ class libro_mayor
             $pdf_doc = new fs_pdf();
             $pdf_doc->pdf->addInfo('Title', 'Libro mayor de ' . $subc->codsubcuenta);
             $pdf_doc->pdf->addInfo('Subject', 'Libro mayor de ' . $subc->codsubcuenta);
-            $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
+            $pdf_doc->pdf->addInfo('Author', $pdf_doc->fix_html($this->empresa->nombre) );
             $pdf_doc->pdf->ezStartPageNumbers(590, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
             
             $partidas = $subc->get_partidas_full();
@@ -117,7 +117,9 @@ class libro_mayor
                   $pdf_doc->add_table_row(
                      array(
                          'campos' => "<b>Empresa:</b>\n<b>Subcuenta:</b>\n<b>Fecha:</b>",
-                         'factura' => $this->empresa->nombre."\n".$subc->codsubcuenta."\n".Date('d-m-Y')
+                         'factura' => $pdf_doc->fix_html($this->empresa->nombre)."\n"
+                           .$subc->codsubcuenta.' - '.$pdf_doc->fix_html($subc->descripcion)."\n"
+                           .Date('d-m-Y')
                      )
                   );
                   $pdf_doc->save_table(
@@ -150,7 +152,7 @@ class libro_mayor
                         array(
                             'asiento' => $partidas[$linea_actual]->numero,
                             'fecha' => $partidas[$linea_actual]->fecha,
-                            'concepto' => substr($partidas[$linea_actual]->concepto, 0, 60),
+                            'concepto' => mb_substr( $pdf_doc->fix_html($partidas[$linea_actual]->concepto), 0, 60 ),
                             'debe' => $this->show_numero($partidas[$linea_actual]->debe),
                             'haber' => $this->show_numero($partidas[$linea_actual]->haber),
                             'saldo' => $this->show_numero($partidas[$linea_actual]->saldo)
@@ -191,9 +193,11 @@ class libro_mayor
                $pdf_doc->add_table_row(
                      array(
                          'campos' => "<b>Empresa:</b>\n<b>Subcuenta:</b>\n<b>Fecha:</b>",
-                         'factura' => $this->empresa->nombre."\n".$subc->codsubcuenta."\n".Date('d-m-Y')
+                         'factura' => $pdf_doc->fix_html($this->empresa->nombre)."\n"
+                           .$subc->codsubcuenta.' - '.$pdf_doc->fix_html($subc->descripcion)."\n"
+                           .Date('d-m-Y')
                      )
-               );
+                  );
                $pdf_doc->save_table(
                      array(
                          'cols' => array(
@@ -264,7 +268,7 @@ class libro_mayor
             $pdf_doc = new fs_pdf('a4', 'landscape', 'Courier');
             $pdf_doc->pdf->addInfo('Title', 'Libro diario de ' . $eje->codejercicio);
             $pdf_doc->pdf->addInfo('Subject', 'Libro mayor de ' . $eje->codejercicio);
-            $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
+            $pdf_doc->pdf->addInfo('Author', $pdf_doc->fix_html($this->empresa->nombre) );
             $pdf_doc->pdf->ezStartPageNumbers(800, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
             
             $partida = new partida();
@@ -283,7 +287,7 @@ class libro_mayor
                   echo '+';
                }
                
-               $pdf_doc->pdf->ezText($this->empresa->nombre." - libro diario ".$eje->year()."\n\n", 12);
+               $pdf_doc->pdf->ezText($pdf_doc->fix_html($this->empresa->nombre)." - libro diario ".$eje->year()."\n\n", 12);
                
                /// Creamos la tabla con las lineas
                $pdf_doc->new_table();
@@ -304,8 +308,8 @@ class libro_mayor
                      array(
                          'asiento' => $linea['numero'],
                          'fecha' => $linea['fecha'],
-                         'subcuenta' => $linea['codsubcuenta'].' '.substr($linea['descripcion'], 0, 35),
-                         'concepto' => substr($linea['concepto'], 0, 45),
+                         'subcuenta' => $linea['codsubcuenta'].' '.mb_substr( $pdf_doc->fix_html($linea['descripcion']), 0, 35 ),
+                         'concepto' => mb_substr( $pdf_doc->fix_html($linea['concepto']), 0, 45 ),
                          'debe' => $this->show_numero($linea['debe']),
                          'haber' => $this->show_numero($linea['haber'])
                      )

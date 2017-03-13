@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -205,5 +205,14 @@ class compras_factura_devolucion extends fs_controller
       $fsxet->text = '<span class="glyphicon glyphicon-share" aria-hidden="true"></span>'
               . '<span class="hidden-xs">&nbsp; Devoluciones</span>';
       $fsxet->save();
+      
+      $fsxet2 = new fs_extension();
+      $fsxet2->name = 'tab_editar_factura';
+      $fsxet2->from = __CLASS__;
+      $fsxet2->to = 'editar_factura_prov';
+      $fsxet2->type = 'tab';
+      $fsxet2->text = '<span class="glyphicon glyphicon-share" aria-hidden="true"></span>'
+              . '<span class="hidden-xs">&nbsp; Devoluciones</span>';
+      $fsxet2->save();
    }
 }

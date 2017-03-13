@@ -555,19 +555,6 @@
                   pero necesitan financiación ¿Te apuntas? Sólo necesitas <b>5 €</b>.
                </p>
             </div>
-            <div class="col-sm-4">
-               {loop="$fsc->consejos"}
-               <blockquote class="bg-success">
-                  <div class="row">
-                     <div class="col-sm-11">
-                        <b>{$value['titulo']}</b>
-                        <br/>{$value['html']}
-                     </div>
-                     <div class="col-sm-1 text-right">{$value['icono']}</div>
-                  </div>
-               </blockquote>
-               {/loop}
-            </div>
             <div class="col-sm-5">
                {loop="$fsc->noticias"}
                <blockquote class="bg-info">
@@ -583,6 +570,19 @@
                      <div class="col-sm-1 text-right">
                         <i class="fa fa-newspaper-o" aria-hidden="true"></i>
                      </div>
+                  </div>
+               </blockquote>
+               {/loop}
+            </div>
+            <div class="col-sm-4">
+               {loop="$fsc->consejos"}
+               <blockquote class="bg-success">
+                  <div class="row">
+                     <div class="col-sm-11">
+                        <b>{$value['titulo']}</b>
+                        <br/>{$value['html']}
+                     </div>
+                     <div class="col-sm-1 text-right">{$value['icono']}</div>
                   </div>
                </blockquote>
                {/loop}
@@ -621,6 +621,12 @@
                <span class="glyphicon glyphicon-book"></span>&nbsp; Modelo 390
             </a>
          </div>
+         {else}
+         <div class="panel-footer">
+            <a href="index.php?page=admin_home#descargas" class="btn btn-sm btn-default">
+               <i class="fa fa-puzzle-piece" aria-hidden="true"></i>&nbsp; Plugins
+            </a>
+         </div>
          {/if}
       </div>
    </div>
@@ -643,6 +649,12 @@
          <div class="panel-footer">
             <a href="index.php?page=informe_347" class="btn btn-sm btn-default">
                <span class="glyphicon glyphicon-book"></span>&nbsp; Modelo 347
+            </a>
+         </div>
+         {else}
+         <div class="panel-footer">
+            <a href="index.php?page=admin_home#descargas" class="btn btn-sm btn-default">
+               <i class="fa fa-puzzle-piece" aria-hidden="true"></i>&nbsp; Plugins
             </a>
          </div>
          {/if}

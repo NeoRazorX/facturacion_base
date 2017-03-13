@@ -1,6 +1,6 @@
 /*
- * This file is part of FacturaScripts
- * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * This file is part of facturacion_base
+ * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -159,11 +159,11 @@ function recalcular()
    total_iva = fs_round(total_iva, fs_nf0);
    total_irpf = fs_round(total_irpf, fs_nf0);
    total_recargo = fs_round(total_recargo, fs_nf0);
-   $("#aneto").html( show_numero(neto) );
-   $("#aiva").html( show_numero(total_iva) );
-   $("#are").html( show_numero(total_recargo) );
-   $("#airpf").html( show_numero(total_irpf) );
-   $("#atotal").html( neto + total_iva - total_irpf + total_recargo );
+   $("#aneto").html(neto);
+   $("#aiva").html(total_iva);
+   $("#are").html(total_recargo);
+   $("#airpf").html(total_irpf);
+   $("#atotal").html(neto + total_iva - total_irpf + total_recargo);
    
    if(total_recargo == 0 && !cliente.recargo)
    {
@@ -183,7 +183,7 @@ function recalcular()
       $(".irpf").show();
    }
    
-   $("#tpv_total").val( show_precio(neto + total_iva - total_irpf + total_recargo) );
+   $("#tpv_total").val( fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0) );
    $("#tpv_total2").val( fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0) );
    $("#tpv_total3").val( fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0) );
    
@@ -265,8 +265,13 @@ function get_precios(ref)
    });
 }
 
-function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
+function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad,codcombinacion)
 {
+   if(typeof codcombinacion == 'undefined')
+   {
+      codcombinacion = '';
+   }
+   
    numlineas += 1;
    $("#numlineas").val(numlineas);
    desc = Base64.decode(desc);
@@ -290,6 +295,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
    
    $("#lineas_albaran").prepend("<tr id=\"linea_"+numlineas+"\">\n\
          <td><input type=\"hidden\" name=\"referencia_"+numlineas+"\" value=\""+ref+"\"/>\n\
+            <input type=\"hidden\" name=\"codcombinacion_"+numlineas+"\" value=\""+codcombinacion+"\"/>\n\
             <input type=\"hidden\" id=\"iva_"+numlineas+"\" name=\"iva_"+numlineas+"\" value=\""+iva+"\"/>\n\
             <input type=\"hidden\" id=\"recargo_"+numlineas+"\" name=\"recargo_"+numlineas+"\" value=\""+recargo+"\"/>\n\
             <input type=\"hidden\" id=\"irpf_"+numlineas+"\" name=\"irpf_"+numlineas+"\" value=\""+irpf+"\"/>\n\
@@ -368,6 +374,10 @@ function buscar_articulos()
             {
                descripcion_visible += ' <span class="label label-default" title="Fabricante: '+val.codfabricante+'">'
                        +val.codfabricante+'</span>';
+            }
+            if(val.trazabilidad)
+            {
+               descripcion_visible += ' &nbsp; <i class="fa fa-code-fork" aria-hidden="true" title="Trazabilidad activada"></i>';
             }
             
             var tr_aux = '<tr>';

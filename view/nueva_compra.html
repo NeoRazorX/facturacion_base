@@ -10,7 +10,6 @@
    all_series = {function="json_encode($fsc->serie->all())"};
    proveedor = {function="json_encode($fsc->proveedor_s)"};
    nueva_compra_url = '{$fsc->url()}';
-   kiwimaru_url = '{#FS_COMMUNITY_URL#}/index.php?page=kiwimaru';
    precio_compra = '{#FS_PRECIO_COMPRA#}';
    
    {if="$fsc->empresa->recequivalencia"}
@@ -423,11 +422,6 @@
             <li id="li_mis_articulos">
                <a href="#" id="b_mis_articulos">Mi catálogo</a>
             </li>
-            <li id="li_kiwimaru">
-               <a href="#" id="b_kiwimaru">
-                  <span class="glyphicon glyphicon-globe"></span>
-               </a>
-            </li>
             <li id="li_nuevo_articulo">
                <a href="#" id="b_nuevo_articulo">
                   <span class="glyphicon glyphicon-plus"></span>&nbsp; Nuevo
@@ -435,7 +429,6 @@
             </li>
          </ul>
          <div id="search_results"></div>
-         <div id="kiwimaru_results"></div>
          <div id="nuevo_articulo" class="modal-body" style="display: none;">
             <form name="f_nuevo_articulo" action="{$fsc->url()}" method="post" class="form">
                <input type="hidden" name="codproveedor" value="{$fsc->proveedor_s->codproveedor}"/>

@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -431,7 +431,7 @@ class ventas_factura extends fs_controller
                $art = $articulo->get($linea->referencia);
                if($art)
                {
-                  $art->sum_stock($this->factura->codalmacen, $linea->cantidad);
+                  $art->sum_stock($this->factura->codalmacen, $linea->cantidad, FALSE, $linea->codcombinacion);
                }
             }
          }
@@ -491,7 +491,7 @@ class ventas_factura extends fs_controller
                      $art = $articulo->get($lin->referencia);
                      if($art)
                      {
-                        $art->sum_stock($factura->codalmacen, 0 - $lin->cantidad);
+                        $art->sum_stock($factura->codalmacen, 0 - $lin->cantidad, FALSE, $lin->codcombinacion);
                      }
                   }
                }

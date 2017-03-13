@@ -27,12 +27,18 @@
 <div class="container-fluid">
    <div class="row">
       <div class="col-md-10 col-sm-9">
-         <a class="btn btn-sm btn-default" href="index.php?page=ventas_articulos">
-            <span class="glyphicon glyphicon-arrow-left"></span>
-         </a>
+         <div class="btn-group">
+            <a class="btn btn-sm btn-default" href="index.php?page=ventas_articulos">
+               <span class="glyphicon glyphicon-arrow-left"></span>
+               <span class="hidden-xs">&nbsp;Artículos</span>
+            </a>
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+         </div>
          <a id="b_nueva_familia" class="btn btn-sm btn-success" href="#">
             <span class="glyphicon glyphicon-plus"></span>
-            <span class="hidden-xs">&nbsp; Nueva</span>
+            <span class="hidden-xs">&nbsp;Nueva</span>
          </a>
          <div class="btn-group">
             {loop="$fsc->extensions"}
@@ -67,15 +73,12 @@
             <h1>
                {if="$fsc->query==''"}
                <span class="glyphicon glyphicon-folder-open"></span>
-               &nbsp; Familias de artículos
+               &nbsp;Familias de artículos
                <small>{$fsc->total_familias()}</small>
                {else}
                <span class="glyphicon glyphicon-search"></span>
-               &nbsp; Resultados de '{$fsc->query}'
+               &nbsp;Resultados de '{$fsc->query}'
                {/if}
-               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
-                  <span class="glyphicon glyphicon-refresh"></span>
-               </a>
             </h1>
             <p class="help-block">
                Las familias son una forma sencilla de agrupar artículos. Además

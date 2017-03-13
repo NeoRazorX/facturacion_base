@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -58,6 +58,13 @@ class linea_albaran_proveedor extends \fs_model
     * @var type 
     */
    public $referencia;
+   
+   /**
+    * Código de la combinación seleccionada, en el caso de los artículos con atributos.
+    * @var type 
+    */
+   public $codcombinacion;
+   
    public $descripcion;
    public $cantidad;
    
@@ -68,13 +75,13 @@ class linea_albaran_proveedor extends \fs_model
    public $dtopor;
    
    /**
-    * Impuesto relacionado.
+    * Código del impuesto relacionado.
     * @var type 
     */
    public $codimpuesto;
    
    /**
-    * % de IVA del artículo, el que corresponde al impuesto.
+    * % del impuesto relacionado.
     * @var type 
     */
    public $iva;
@@ -130,6 +137,7 @@ class linea_albaran_proveedor extends \fs_model
          $this->idalbaran = $this->intval($l['idalbaran']);
          $this->idpedido = $this->intval($l['idpedido']);
          $this->referencia = $l['referencia'];
+         $this->codcombinacion = $l['codcombinacion'];
          $this->descripcion = $l['descripcion'];
          $this->cantidad = floatval($l['cantidad']);
          $this->dtopor = floatval($l['dtopor']);
@@ -148,6 +156,7 @@ class linea_albaran_proveedor extends \fs_model
          $this->idalbaran = NULL;
          $this->idpedido = NULL;
          $this->referencia = NULL;
+         $this->codcombinacion = NULL;
          $this->descripcion = '';
          $this->cantidad = 0;
          $this->dtopor = 0;
@@ -332,6 +341,7 @@ class linea_albaran_proveedor extends \fs_model
                     .", idpedido = ".$this->var2str($this->idpedido)
                     .", idlineapedido = ".$this->var2str($this->idlineapedido)
                     .", referencia = ".$this->var2str($this->referencia)
+                    .", codcombinacion = ".$this->var2str($this->codcombinacion)
                     .", descripcion = ".$this->var2str($this->descripcion)
                     .", cantidad = ".$this->var2str($this->cantidad)
                     .", dtopor = ".$this->var2str($this->dtopor)
@@ -348,12 +358,13 @@ class linea_albaran_proveedor extends \fs_model
          }
          else
          {
-            $sql = "INSERT INTO ".$this->table_name." (idlineapedido,idalbaran,idpedido,referencia,descripcion,
-               cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo) VALUES
+            $sql = "INSERT INTO ".$this->table_name." (idlineapedido,idalbaran,idpedido,referencia,codcombinacion,
+               descripcion,cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo) VALUES
                      (".$this->var2str($this->idlineapedido).
                     ",".$this->var2str($this->idalbaran).
                     ",".$this->var2str($this->idpedido).
                     ",".$this->var2str($this->referencia).
+                    ",".$this->var2str($this->codcombinacion).
                     ",".$this->var2str($this->descripcion).
                     ",".$this->var2str($this->cantidad).
                     ",".$this->var2str($this->dtopor).

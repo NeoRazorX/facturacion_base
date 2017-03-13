@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2015         Pablo Peralta
  * Copyright (C) 2015-2016    Carlos Garcia Gomez  neorazorx@gmail.com
  *

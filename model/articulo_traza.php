@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2016 Luismipr <luismipr@gmail.com>.
  *
  * This program is free software: you can redistribute it and/or modify

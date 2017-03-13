@@ -1,8 +1,8 @@
 <?php
 
 /*
- * This file is part of FacturaScripts
- * Copyright (C) 2015-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * This file is part of facturacion_base
+ * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -28,16 +28,65 @@ namespace FacturaScripts\model;
 class articulo_combinacion extends \fs_model
 {
    /**
-    * Clave primaria.
+    * Clave primaria. Identificador de este par atributo-valor, no de la combinación.
     * @var type 
     */
    public $id;
+   
+   /**
+    * Identificador de la combinación.
+    * Ten en cuenta que la combinación es la suma de todos los pares atributo-valor.
+    * @var type 
+    */
    public $codigo;
+   
+   /**
+    * Referencia del artículos relacionado.
+    * @var type 
+    */
    public $referencia;
+   
+   /**
+    * ID del valor del atributo.
+    * @var type 
+    */
    public $idvalor;
+   
+   /**
+    * Nombre del atributo.
+    * @var type 
+    */
    public $nombreatributo;
+   
+   /**
+    * Valor del atributo.
+    * @var type 
+    */
    public $valor;
+   
+   /**
+    * Referencia de la propia combinación.
+    * @var type 
+    */
+   public $refcombinacion;
+   
+   /**
+    * Código de barras de la combinación.
+    * @var type 
+    */
+   public $codbarras;
+   
+   /**
+    * Impacto en el precio del artículo.
+    * @var type 
+    */
    public $impactoprecio;
+   
+   /**
+    * Stock físico de la combinación.
+    * @var type 
+    */
+   public $stockfis;
    
    public function __construct($c = FALSE)
    {
@@ -50,7 +99,10 @@ class articulo_combinacion extends \fs_model
          $this->idvalor = $this->intval($c['idvalor']);
          $this->nombreatributo = $c['nombreatributo'];
          $this->valor = $c['valor'];
+         $this->refcombinacion = $c['refcombinacion'];
+         $this->codbarras = $c['codbarras'];
          $this->impactoprecio = floatval($c['impactoprecio']);
+         $this->stockfis = floatval($c['stockfis']);
       }
       else
       {
@@ -60,7 +112,10 @@ class articulo_combinacion extends \fs_model
          $this->idvalor = NULL;
          $this->nombreatributo = NULL;
          $this->valor = NULL;
+         $this->refcombinacion = NULL;
+         $this->codbarras = NULL;
          $this->impactoprecio = 0;
+         $this->stockfis = 0;
       }
    }
    
@@ -149,7 +204,10 @@ class articulo_combinacion extends \fs_model
                  .", idvalor = ".$this->var2str($this->idvalor)
                  .", nombreatributo = ".$this->var2str($this->nombreatributo)
                  .", valor = ".$this->var2str($this->valor)
+                 .", refcombinacion = ".$this->var2str($this->refcombinacion)
+                 .", codbarras = ".$this->var2str($this->codbarras)
                  .", impactoprecio = ".$this->var2str($this->impactoprecio)
+                 .", stockfis = ".$this->var2str($this->stockfis)
                  ."  WHERE id = ".$this->var2str($this->id).";";
          
          return $this->db->exec($sql);
@@ -161,13 +219,17 @@ class articulo_combinacion extends \fs_model
             $this->codigo = $this->get_new_codigo();
          }
          
-         $sql = "INSERT INTO articulo_combinaciones (codigo,referencia,idvalor,nombreatributo,valor,impactoprecio) VALUES "
+         $sql = "INSERT INTO articulo_combinaciones (codigo,referencia,idvalor,nombreatributo,valor"
+                 . ",refcombinacion,codbarras,impactoprecio,stockfis) VALUES "
                  . "(".$this->var2str($this->codigo)
                  . ",".$this->var2str($this->referencia)
                  . ",".$this->var2str($this->idvalor)
                  . ",".$this->var2str($this->nombreatributo)
                  . ",".$this->var2str($this->valor)
-                 . ",".$this->var2str($this->impactoprecio).");";
+                 . ",".$this->var2str($this->refcombinacion)
+                 . ",".$this->var2str($this->codbarras)
+                 . ",".$this->var2str($this->impactoprecio)
+                 . ",".$this->var2str($this->stockfis).");";
          
          if( $this->db->exec($sql) )
          {

@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -657,11 +657,11 @@ class ventas_articulos extends fs_controller
             echo $art->codfamilia.';';
             echo $art->codfabricante.';';
             echo $this->fix_html( preg_replace('~[\r\n]+~', ' ', $art->descripcion) ).';';
-            echo number_format($art->pvp, $nf0, '.', '').';';
-            echo $art->get_iva().';';
+            echo number_format($art->pvp, $nf0, FS_NF1, '').';';
+            echo number_format($art->get_iva(), 2, FS_NF1, '').';';
             echo trim($art->codbarras).';';
-            echo $art->stockfis.';';
-            echo number_format($art->preciocoste(), $nf0, '.', '')."\n";
+            echo number_format($art->stockfis, 2, FS_NF1, '').';';
+            echo number_format($art->preciocoste(), $nf0, FS_NF1, '')."\n";
             
             $offset2++;
          }

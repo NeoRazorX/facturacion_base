@@ -18,12 +18,18 @@
 <div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
-         <a class="btn btn-sm btn-default" href="index.php?page=ventas_articulos">
-            <span class="glyphicon glyphicon-arrow-left"></span>
-         </a>
+         <div class="btn-group">
+            <a class="btn btn-sm btn-default" href="index.php?page=ventas_articulos">
+               <span class="glyphicon glyphicon-arrow-left"></span>
+               <span class="hidden-xs">&nbsp;Artículos</span>
+            </a>
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+         </div>
          <a id="b_nuevo_atributo" class="btn btn-sm btn-success" href="#">
             <span class="glyphicon glyphicon-plus"></span>
-            <span class="hidden-xs">&nbsp; Nuevo</span>
+            <span class="hidden-xs">&nbsp;Nuevo</span>
          </a>
          <div class="btn-group">
             {loop="$fsc->extensions"}
@@ -44,14 +50,11 @@
                <span class="glyphicon glyphicon-list-alt"></span>
                Atributos y valores
                <small>{function="count($fsc->resultados)"}</small>
-               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
-                  <span class="glyphicon glyphicon-refresh"></span>
-               </a>
             </h1>
             <p class="help-block">
                Desde aquí puedes crear atributos como talla, color, etc... para
                usar en los artículos. <b>Recuerda</b> que para poder elegir los
-               atributos de un artículo debes modificar su tipo a
+               atributos de un artículo debes modificar su <b>tipo</b> a
                <b>producto con atributos</b>.
             </p>
          </div>
