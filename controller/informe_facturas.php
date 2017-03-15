@@ -1,7 +1,7 @@
 <?php
 /*
- * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * This file is part of facturacion_base
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -18,6 +18,7 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
+require_once 'plugins/facturacion_base/extras/xlsxwriter.class.php';
 require_model('cliente.php');
 require_model('factura_cliente.php');
 require_model('factura_proveedor.php');
@@ -81,6 +82,10 @@ class informe_facturas extends fs_controller
             {
                $this->pdf_facturas_cli();
             }
+            elseif ($_POST['generar'] == 'xls') 
+            {
+               $this->xls_facturas_cli();
+            }
             else
                $this->csv_facturas_cli();
          }
@@ -89,6 +94,10 @@ class informe_facturas extends fs_controller
             if($_POST['generar'] == 'pdf')
             {
                $this->pdf_facturas_prov();
+            }
+            elseif ($_POST['generar'] == 'xls') 
+            {
+               $this->xls_facturas_prov();
             }
             else
                $this->csv_facturas_prov();
@@ -181,6 +190,290 @@ class informe_facturas extends fs_controller
       }
       
       return $final;
+   }
+
+   private function xls_facturas_cli()
+   {
+      $this->template = FALSE;
+      
+      header("Content-Disposition: attachment; filename=\"facturas_cli_".time().".xlsx\"");
+      header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      header('Content-Transfer-Encoding: binary');
+      header('Cache-Control: must-revalidate');
+      header('Pragma: public');
+      
+      $header = array(
+         'factura'=>'string',
+         'serie'=>'string',
+         'num_factura'=>'integer',
+         'asiento'=>'integer',
+         'fecha'=>'string',
+         'subcuenta'=>'integer',
+         'descripcion'=>'string',
+         'cifnif'=>'string',
+         'base'=>'#,##0.00',
+         'iva'=>'#,##0.00',
+         'totaliva'=>'#,##0.00',
+         'totalrecargo'=>'#,##0.00',
+         'totalirpf'=>'#,##0.00',
+         'total'=>'#,##0.00 [$€-407];[RED]-#,##0.00 [$€-407]',
+      );
+
+      $data = Array();
+
+      $codserie = FALSE;
+      if($_POST['codserie'] != '')
+      {
+         $codserie = $_POST['codserie'];
+      }
+      
+      $codagente = FALSE;     
+      if($_POST['codagente'] != '')
+      {
+         $codagente = $_POST['codagente'];
+      }
+      
+      $codcliente = FALSE;     
+      if($_POST['codcliente'] != '')
+      {
+         $codcliente = $_POST['codcliente'];
+      }
+      
+      $estado = FALSE;
+      if($_POST['estado'] != '')
+      {
+         $estado = $_POST['estado'];
+      }
+      
+      $forma_pago = FALSE;
+      if($_POST['codpago'])
+      {
+         $forma_pago = $_POST['codpago'];
+      }
+      
+      $facturas = $this->factura_cli->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codcliente, $estado, $forma_pago);
+      if($facturas)
+      {
+         foreach($facturas as $fac)
+         {
+            $linea = array(
+                'codigo' => $fac->codigo,
+                'serie' => $fac->codserie,
+                'factura' => $fac->numero,
+                'asiento' => '-',
+                'fecha' => $fac->fecha,
+                'subcuenta' => '-',
+                'descripcion' => $fac->nombrecliente,
+                'cifnif' => $fac->cifnif,
+                'base' => 0,
+                'iva' => 0,
+                'totaliva' => 0,
+                'totalrecargo' => 0,
+                'totalirpf' => 0,
+                'total' => 0
+            );
+            
+            $asiento = $fac->get_asiento();
+            if($asiento)
+            {
+               $linea['asiento'] = $asiento->numero;
+               $partidas = $asiento->get_partidas();
+               if($partidas)
+               {
+                  $linea['subcuenta'] = $partidas[0]->codsubcuenta;
+               }
+            }
+            
+            if($fac->totalirpf != 0)
+            {
+               $linea['totalirpf'] = $fac->totalirpf;
+               $linea['total'] = $fac->total;
+            }
+            
+            $linivas = $fac->get_lineas_iva();
+            if($linivas)
+            {
+               foreach($linivas as $liva)
+               {
+                  /// acumulamos la base
+                  if( !isset($impuestos[$liva->iva]['base']) )
+                  {
+                     $impuestos[$liva->iva]['base'] = $liva->neto;
+                  }
+                  else
+                     $impuestos[$liva->iva]['base'] += $liva->neto;
+                     
+                  /// acumulamos el iva
+                  if( !isset($impuestos[$liva->iva]['iva']) )
+                  {
+                     $impuestos[$liva->iva]['iva'] = $liva->totaliva;
+                  }
+                  else
+                     $impuestos[$liva->iva]['iva'] += $liva->totaliva;
+                     
+                  /// completamos y añadimos la línea al EXCEL
+                  $linea['base'] = $liva->neto;
+                  $linea['iva'] = $liva->iva;
+                  $linea['totaliva'] = $liva->totaliva;
+                  $linea['totalrecargo'] = $liva->totalrecargo;
+                  $linea['total'] = $liva->totallinea;
+
+                  $data[] = $linea;
+               }
+            }
+         }
+      }
+
+      $writer = new XLSXWriter();
+      $writer->setAuthor('Generador Excel FS');
+      $writer->writeSheetHeader('Fact_Clientes', $header);
+      foreach($data as $row)
+      {
+         $writer->writeSheetRow('Fact_Clientes', $row);
+      }
+      $writer->writeToStdOut();
+   }
+   
+   private function xls_facturas_prov()
+   {
+      $this->template = FALSE;
+      
+      header("Content-Disposition: attachment; filename=\"facturas_prov_".time().".xlsx\"");
+      header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      header('Content-Transfer-Encoding: binary');
+      header('Cache-Control: must-revalidate');
+      header('Pragma: public');
+      
+      $header = array(
+         'factura'=>'string',
+         'serie'=>'string',
+         'num_factura'=>'integer',
+         'asiento'=>'integer',
+         'fecha'=>'string',
+         'subcuenta'=>'integer',
+         'descripcion'=>'string',
+         'cifnif'=>'string',
+         'base'=>'#,##0.00',
+         'iva'=>'#,##0.00',
+         'totaliva'=>'#,##0.00',
+         'totalrecargo'=>'#,##0.00',
+         'totalirpf'=>'#,##0.00',
+         'total'=>'#,##0.00 [$€-407];[RED]-#,##0.00 [$€-407]',
+      );
+
+      $data = Array();
+
+      $codserie = FALSE;
+      if($_POST['codserie'] != '')
+      {
+         $codserie = $_POST['codserie'];
+      }
+      
+      $codagente = FALSE;     
+      if($_POST['codagente'] != '')
+      {
+         $codagente = $_POST['codagente'];
+      }
+      
+      $codproveedor = FALSE;     
+      if($_POST['codproveedor'] != '')
+      {
+         $codproveedor = $_POST['codproveedor'];
+      }
+      
+      $estado = FALSE;
+      if($_POST['estado'] != '')
+      {
+         $estado = $_POST['estado'];
+      }
+      
+      $forma_pago = FALSE;
+      if($_POST['codpago'])
+      {
+         $forma_pago = $_POST['codpago'];
+      }
+      
+      $facturas = $this->factura_pro->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codproveedor, $estado, $forma_pago);
+      if($facturas)
+      {
+         foreach($facturas as $fac)
+         {
+            $linea = array(
+                'codigo' => $fac->codigo, 
+                'serie' => $fac->codserie,
+                'factura' => $fac->numero,
+                'asiento' => '-',
+                'fecha' => $fac->fecha,
+                'subcuenta' => '-',
+                'descripcion' => $fac->nombre,
+                'cifnif' => $fac->cifnif,
+                'base' => 0,
+                'iva' => 0,
+                'totaliva' => 0,
+                'totalrecargo' => 0,
+                'totalirpf' => 0,
+                'total' => 0
+            );
+            
+            $asiento = $fac->get_asiento();
+            if($asiento)
+            {
+               $linea['asiento'] = $asiento->numero;
+               $partidas = $asiento->get_partidas();
+               if($partidas)
+               {
+                  $linea['subcuenta'] = $partidas[0]->codsubcuenta;
+               }
+            }
+            
+            if($fac->totalirpf != 0)
+            {
+               $linea['totalirpf'] = $fac->totalirpf;
+               $linea['total'] = $fac->total;
+            }
+            
+            $linivas = $fac->get_lineas_iva();
+            if($linivas)
+            {
+               foreach($linivas as $liva)
+               {
+                  /// acumulamos la base
+                  if( !isset($impuestos[$liva->iva]['base']) )
+                  {
+                     $impuestos[$liva->iva]['base'] = $liva->neto;
+                  }
+                  else
+                     $impuestos[$liva->iva]['base'] += $liva->neto;
+                  
+                  /// acumulamos el iva
+                  if( !isset($impuestos[$liva->iva]['iva']) )
+                  {
+                     $impuestos[$liva->iva]['iva'] = $liva->totaliva;
+                  }
+                  else
+                     $impuestos[$liva->iva]['iva'] += $liva->totaliva;
+                  
+                  /// completamos y añadimos la línea al CSV
+                  $linea['base'] = $liva->neto;
+                  $linea['iva'] = $liva->iva;
+                  $linea['totaliva'] = $liva->totaliva;
+                  $linea['totalrecargo'] = $liva->totalrecargo;
+                  $linea['total'] = $liva->totallinea;
+                  
+                  $data[] = $linea;
+               }
+            }
+         }
+      }
+
+      $writer = new XLSXWriter();
+      $writer->setAuthor('Generador Excel FS');
+      $writer->writeSheetHeader('Fact_Proveedores', $header);
+      foreach($data as $row)
+      {
+         $writer->writeSheetRow('Fact_Proveedores', $row);
+      }
+      $writer->writeToStdOut();
    }
    
    private function csv_facturas_cli()
@@ -439,6 +732,7 @@ class informe_facturas extends fs_controller
       {
          $estado = $_POST['estado'];
       }
+      
       $forma_pago = FALSE;
       if($_POST['codpago'])
       {
@@ -464,8 +758,8 @@ class informe_facturas extends fs_controller
             }
             
             /// encabezado
-            $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de venta del ".$_POST['desde']." al ".$_POST['hasta']);
-
+            $pdf_doc->pdf->ezText( $this->fix_html($this->empresa->nombre)." - Facturas de venta del ".$_POST['desde']." al ".$_POST['hasta'] );
+            
             if($codserie)
             {
                $pdf_doc->pdf->ezText("Serie: ".$codserie);
@@ -474,22 +768,24 @@ class informe_facturas extends fs_controller
             
             if($codagente)
             {
-               $agente = '';
                $agente = new agente();
                $agente = $agente->get($codagente);
-               $nombre_agente = $agente->nombre;
-               $pdf_doc->pdf->ezText("Agente: ". $nombre_agente);
-               $lppag--;
+               if($agente)
+               {
+                  $pdf_doc->pdf->ezText( "Agente: ".$this->fix_html($agente->nombre) );
+                  $lppag--;
+               }
             }
 
             if($codcliente)
             {
-               $nombre = '';
                $cliente = new cliente();
                $cliente = $cliente->get($codcliente);
-               $nombre = $cliente->nombre;
-               $pdf_doc->pdf->ezText("Cliente: ".$nombre);
-               $lppag--;
+               if($cliente)
+               {
+                  $pdf_doc->pdf->ezText( "Cliente: ".$this->fix_html($cliente->nombre) );
+                  $lppag--;
+               }
             }
             
             if($estado)
@@ -504,13 +800,16 @@ class informe_facturas extends fs_controller
                   $pdf_doc->pdf->ezText("Estado: Sin Pagar");
                }
             }
-            if ($forma_pago)
+            
+            if($forma_pago)
             {
-               $formapago = '';
                $pago = new forma_pago();
                $pago = $pago->get($forma_pago);
-               $formapago = $pago->descripcion;
-               $pdf_doc->pdf->ezText("Forma de pago: ".$formapago);
+               if($pago)
+               {
+                  $pdf_doc->pdf->ezText( "Forma de pago: ".$this->fix_html($pago->descripcion) );
+                  $lppag--;
+               }
             }
             
             $pdf_doc->pdf->ezText("\n", 8);
@@ -542,7 +841,7 @@ class informe_facturas extends fs_controller
                    'asiento' => '-',
                    'fecha' => $facturas[$linea_actual]->fecha,
                    'subcuenta' => '-',
-                   'descripcion' => $facturas[$linea_actual]->nombrecliente,
+                   'descripcion' => $this->fix_html($facturas[$linea_actual]->nombrecliente),
                    'cifnif' => $facturas[$linea_actual]->cifnif,
                    'base' => 0,
                    'iva' => 0,
@@ -738,7 +1037,7 @@ class informe_facturas extends fs_controller
             }
             
             /// encabezado
-            $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de compra del ".$_POST['desde']." al ".$_POST['hasta']);
+            $pdf_doc->pdf->ezText( $this->fix_html($this->empresa->nombre)." - Facturas de compra del ".$_POST['desde']." al ".$_POST['hasta'] );
             
             if($codserie)
             {
@@ -748,22 +1047,24 @@ class informe_facturas extends fs_controller
             
             if($codagente)
             {
-               $agente = '';
                $agente = new agente();
                $agente = $agente->get($codagente);
-               $nombre_agente = $agente->nombre;
-               $pdf_doc->pdf->ezText("Agente: ". $nombre_agente);
-               $lppag--;
+               if($agente)
+               {
+                  $pdf_doc->pdf->ezText( "Agente: ".$this->fix_html($agente->nombre) );
+                  $lppag--;
+               }
             }
             
             if($codproveedor)
             {
-               $nombre = '';
                $proveedor = new proveedor();
                $proveedor = $proveedor->get($codproveedor);
-               $proveedor = $proveedor->nombre;
-               $pdf_doc->pdf->ezText("Proveedor: ".$proveedor);
-               $lppag--;
+               if($proveedor)
+               {
+                  $pdf_doc->pdf->ezText( "Proveedor: ".$this->fix_html($proveedor->nombre) );
+                  $lppag--;
+               }
             }
             
             if($estado)
@@ -778,13 +1079,16 @@ class informe_facturas extends fs_controller
                   $pdf_doc->pdf->ezText("Estado: Sin Pagar");
                }
             }
-            if ($forma_pago)
+            
+            if($forma_pago)
             {
-               $formapago = '';
                $pago = new forma_pago();
                $pago = $pago->get($forma_pago);
-               $formapago = $pago->descripcion;
-               $pdf_doc->pdf->ezText("Forma de pago: ".$formapago);
+               if($pago)
+               {
+                  $pdf_doc->pdf->ezText( "Forma de pago: ".$this->fix_html($pago->descripcion) );
+                  $lppag--;
+               }
             }
             
             $pdf_doc->pdf->ezText("\n", 8);
@@ -816,7 +1120,7 @@ class informe_facturas extends fs_controller
                    'asiento' => '-',
                    'fecha' => $facturas[$linea_actual]->fecha,
                    'subcuenta' => '-',
-                   'descripcion' => $facturas[$linea_actual]->nombre,
+                   'descripcion' => $this->fix_html($facturas[$linea_actual]->nombre),
                    'cifnif' => $facturas[$linea_actual]->cifnif,
                    'base' => 0,
                    'iva' => 0,

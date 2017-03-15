@@ -1,5 +1,5 @@
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,6 @@ var default_impuesto = '';
 var all_series = [];
 var cliente = false;
 var nueva_venta_url = '';
-var kiwimaru_url = '';
 var fin_busqueda1 = true;
 var fin_busqueda2 = true;
 var siniva = false;
@@ -214,10 +213,10 @@ function recalcular()
    total_iva = fs_round(total_iva, fs_nf0);
    total_irpf = fs_round(total_irpf, fs_nf0);
    total_recargo = fs_round(total_recargo, fs_nf0);
-   $("#aneto").html( show_numero(neto) );
-   $("#aiva").html( show_numero(total_iva) );
-   $("#are").html( show_numero(total_recargo) );
-   $("#airpf").html( show_numero(total_irpf) );
+   $("#aneto").html(neto);
+   $("#aiva").html(total_iva);
+   $("#are").html(total_recargo);
+   $("#airpf").html(total_irpf);
    $("#atotal").val( fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0) );
    
    if(total_recargo == 0 && !cliente.recargo)
@@ -431,12 +430,18 @@ function aux_all_impuestos(num,codimpuesto)
    return html;
 }
 
-function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad)
+function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad,codcombinacion)
 {
+   if(typeof codcombinacion == 'undefined')
+   {
+      codcombinacion = '';
+   }
+   
    desc = Base64.decode(desc);
    $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\" value=\""+ref+"\"/>\n\
+         <input type=\"hidden\" name=\"codcombinacion_"+numlineas+"\" value=\""+codcombinacion+"\"/>\n\
          <div class=\"form-control\"><small><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></small></div></td>\n\
       <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\">"+desc+"</textarea></td>\n\
       <td><input type=\""+input_number+"\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
@@ -483,6 +488,7 @@ function add_linea_libre()
    $("#lineas_albaran").append("<tr id=\"linea_"+numlineas+"\">\n\
       <td><input type=\"hidden\" name=\"idlinea_"+numlineas+"\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_"+numlineas+"\"/>\n\
+         <input type=\"hidden\" name=\"codcombinacion_"+numlineas+"\"/>\n\
          <div class=\"form-control\"></div></td>\n\
       <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\"></textarea></td>\n\
       <td><input type=\""+input_number+"\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
@@ -540,7 +546,6 @@ function new_articulo()
             });
             $("#li_mis_articulos").addClass('active');
             $("#search_results").show();
-            $("#kiwimaru_results").hide();
             $("#nuevo_articulo").hide();
             
             add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].pvp, 0, datos[0].codimpuesto, 1);
@@ -557,7 +562,6 @@ function buscar_articulos()
    {
       $("#nav_articulos").hide();
       $("#search_results").html('');
-      $("#kiwimaru_results").html('');
       $("#nuevo_articulo").hide();
       
       fin_busqueda1 = true;
@@ -595,6 +599,10 @@ function buscar_articulos()
                {
                   descripcion_visible += ' <span class="label label-default" title="Fabricante: '+val.codfabricante+'">'
                           +val.codfabricante+'</span>';
+               }
+               if(val.trazabilidad)
+               {
+                  descripcion_visible += ' &nbsp; <i class="fa fa-code-fork" aria-hidden="true" title="Trazabilidad activada"></i>';
                }
                
                var tr_aux = '<tr>';
@@ -665,55 +673,6 @@ function buscar_articulos()
             }
          });
       }
-      
-      if(document.f_buscar_articulos.coddivisa.value != 'EUR')
-      {
-         fin_busqueda2 = false;
-         $("#kiwimaru_results").html("<p class=\"help-block\" style=\"padding: 5px;\"><b>Kiwimaru</b>\n\
-            no dispone de resultados para la divisa seleccionada.</p>");
-      }
-      else if(kiwimaru_url !== '')
-      {
-         fin_busqueda2 = false;
-         $.getJSON(kiwimaru_url, $("form[name=f_buscar_articulos]").serialize(), function(json) {
-            var items = [];
-            var insertar = false;
-            $.each(json, function(key, val) {
-               items.push( "<tr><td>"+val.sector+" / <a href=\""+val.link+"\" target=\"_blank\">"
-                       +val.tienda+"</a> / "+val.familia+"</td>\n\
-                  <td><a href=\""+val.link+"\" target=\"_blank\"><span class=\"glyphicon glyphicon-eye-open\"></span></a>\n\
-                  <a href=\"#\" onclick=\"kiwi_import('"+val.referencia+"','"+val.descripcion+"','"+val.precio+"')\">"
-                       +val.referencia+'</a> '+val.descripcion+"</td>\n\
-                  <td class=\"text-right\"><a href=\"#\" onclick=\"kiwi_import('"
-                       +val.referencia+"','"+val.descripcion+"','"+val.precio+"')\">"+show_precio(val.precio)+"</a></td></tr>" );
-               
-               if(val.query == document.f_buscar_articulos.query.value)
-               {
-                  insertar = true;
-                  fin_busqueda2 = true;
-               }
-            });
-            
-            if(items.length == 0 && !fin_busqueda2)
-            {
-               items.push("<tr><td colspan=\"3\" class=\"warning\">Sin resultados.</td></tr>");
-               insertar = true;
-            }
-            
-            if(insertar)
-            {
-               $("#kiwimaru_results").html("<p class=\"help-block\" style=\"padding: 5px;\">Estos son\n\
-                  los resultados de <b>kiwimaru</b>, el potente buscador de tiendas online integrado en\n\
-                  FacturaScripts, para que puedas buscar nuevos proveedores o simplemente comparar precios.\n\
-                  Si deseas añadir tus artículos a este buscador y ganar nuevos clientes fácilmente,\n\
-                  <a href=\"https://www.facturascripts.com/feedback?feedback_plugin=46\" target=\"_blank\">\n\
-                  contacta con nosotros</a>.</p>\n\
-                  <div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>\n\
-                  <th class=\"text-left\">Sector / Tienda / Familia</th><th class=\"text-left\">Referencia + descripción</th>\n\
-                  <th class=\"text-right\">Precio+IVA</th></tr></thead>"+items.join('')+"</table></div>");
-            }
-         });
-      }
    }
 }
 
@@ -735,21 +694,6 @@ function show_pvp_iva(pvp,codimpuesto,coddivisa)
    return show_precio(pvp + pvp*iva/100, coddivisa);
 }
 
-function kiwi_import(ref,desc,pvp)
-{
-   $("#nav_articulos li").each(function() {
-      $(this).removeClass("active");
-   });
-   $("#li_nuevo_articulo").addClass('active');
-   $("#search_results").hide();
-   $("#kiwimaru_results").hide();
-   $("#nuevo_articulo").show();
-   document.f_nuevo_articulo.referencia.value = ref;
-   document.f_nuevo_articulo.descripcion.value = desc;
-   document.f_nuevo_articulo.pvp.value = pvp;
-   document.f_nuevo_articulo.referencia.select();
-}
-
 $(document).ready(function() {
    $("#i_new_line").click(function() {
       $("#i_new_line").val("");
@@ -758,8 +702,6 @@ $(document).ready(function() {
       });
       $("#li_mis_articulos").addClass('active');
       $("#search_results").show();
-      $("#kiwimaru_results").html('');
-      $("#kiwimaru_results").hide();
       $("#nuevo_articulo").hide();
       $("#modal_articulos").modal('show');
       document.f_buscar_articulos.query.select();
@@ -774,8 +716,6 @@ $(document).ready(function() {
       $("#li_mis_articulos").addClass('active');
       $("#search_results").html('');
       $("#search_results").show();
-      $("#kiwimaru_results").html('');
-      $("#kiwimaru_results").hide();
       $("#nuevo_articulo").hide();
       $("#modal_articulos").modal('show');
       document.f_buscar_articulos.query.select();
@@ -797,21 +737,8 @@ $(document).ready(function() {
          $(this).removeClass("active");
       });
       $("#li_mis_articulos").addClass('active');
-      $("#kiwimaru_results").hide();
       $("#nuevo_articulo").hide();
       $("#search_results").show();
-      document.f_buscar_articulos.query.focus();
-   });
-   
-   $("#b_kiwimaru").click(function(event) {
-      event.preventDefault();
-      $("#nav_articulos li").each(function() {
-         $(this).removeClass("active");
-      });
-      $("#li_kiwimaru").addClass('active');
-      $("#nuevo_articulo").hide();
-      $("#search_results").hide();
-      $("#kiwimaru_results").show();
       document.f_buscar_articulos.query.focus();
    });
    
@@ -822,7 +749,6 @@ $(document).ready(function() {
       });
       $("#li_nuevo_articulo").addClass('active');
       $("#search_results").hide();
-      $("#kiwimaru_results").hide();
       $("#nuevo_articulo").show();
       document.f_nuevo_articulo.referencia.select();
    });

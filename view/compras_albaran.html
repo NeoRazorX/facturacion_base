@@ -14,7 +14,6 @@
    all_series = {function="json_encode($fsc->serie->all())"};
    proveedor = {function="json_encode($fsc->proveedor_s)"};
    nueva_compra_url = '{$fsc->nuevo_albaran_url}';
-   kiwimaru_url = '{#FS_COMMUNITY_URL#}/index.php?page=kiwimaru';
    precio_compra = '{#FS_PRECIO_COMPRA#}';
    
    {if="$fsc->empresa->recequivalencia"}
@@ -331,6 +330,7 @@
                         <td>
                            <input type="hidden" name="idlinea_{$counter}" value="{$value->idlinea}"/>
                            <input type="hidden" name="referencia_{$counter}" value="{$value->referencia}"/>
+                           <input type="hidden" name="codcombinacion_{$counter}" value="{$value->codcombinacion}"/>
                            {if="$value->idlineapedido"}
                            <div class="input-group">
                               <a target="_blank" href="index.php?page=compras_pedido&id={$value->idpedido}" class="input-group-addon" title="ver {#FS_PEDIDO#}">P</a>
@@ -421,7 +421,7 @@
                                   value="0" onchange="recalcular()" autocomplete="off"/>
                         </td>
                      </tr>
-                     {if="$fsc->user->admin"}
+                     {if="$fsc->user->admin AND FS_DB_HISTORY"}
                      <tr>
                         <td colspan="6"></td>
                         <td class="text-right">{$fsc->show_precio($fsc->albaran->neto, $fsc->albaran->coddivisa)}</td>
@@ -675,11 +675,6 @@
             <li id="li_mis_articulos">
                <a href="#" id="b_mis_articulos">Mi catálogo</a>
             </li>
-            <li id="li_kiwimaru">
-               <a href="#" id="b_kiwimaru">
-                  <span class="glyphicon glyphicon-globe"></span>
-               </a>
-            </li>
             <li id="li_nuevo_articulo">
                <a href="#" id="b_nuevo_articulo">
                   <span class="glyphicon glyphicon-plus"></span>&nbsp; Nuevo
@@ -687,7 +682,6 @@
             </li>
          </ul>
          <div id="search_results"></div>
-         <div id="kiwimaru_results"></div>
          <div id="nuevo_articulo" class="modal-body" style="display: none;">
             <form name="f_nuevo_articulo" action="{$fsc->url()}" method="post" class="form">
                <input type="hidden" name="codproveedor" value="{$fsc->albaran->codproveedor}"/>

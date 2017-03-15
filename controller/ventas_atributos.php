@@ -1,8 +1,8 @@
 <?php
 
 /*
- * This file is part of FacturaScripts
- * Copyright (C) 2015-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * This file is part of facturacion_base
+ * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -102,7 +102,7 @@ class ventas_atributos extends fs_controller
       $fsext->to = 'ventas_articulos';
       $fsext->type = 'button';
       $fsext->text = '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>'
-              . '<span class="hidden-xs"> &nbsp; Atributos</span>';
+              . '<span class="hidden-xs">&nbsp; Atributos</span>';
       $fsext->save();
    }
    

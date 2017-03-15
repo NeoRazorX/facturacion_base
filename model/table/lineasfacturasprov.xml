@@ -95,6 +95,10 @@
       <nombre>referencia</nombre>
       <tipo>character varying(18)</tipo>
    </columna>
+   <columna>
+      <nombre>codcombinacion</nombre>
+      <tipo>character varying(18)</tipo>
+   </columna>
    <restriccion>
       <nombre>ca_linea_facturasprov2</nombre>
       <consulta>FOREIGN KEY (idfactura)

@@ -22,98 +22,101 @@
 <div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
+         <div class="btn-group">
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}">
+               <span class="glyphicon glyphicon-arrow-left"></span>
+               <span class="hidden-xs">&nbsp;Todos</span>
+            </a>
+            <a class="btn btn-sm btn-default" href="{$fsc->atributo->url()}" title="Recargar la página">
+               <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+         </div>
+         <a class="btn btn-sm btn-success" href="{$fsc->url()}#nuevo" title="Nuevo atributo">
+            <span class="glyphicon glyphicon-plus"></span>
+         </a>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-sm-12">
          <div class="page-header">
             <h1>
-               <a class="btn btn-xs btn-default" href="{$fsc->url()}">
-                  <span class="glyphicon glyphicon-arrow-left"></span>
-               </a>
                <span class="glyphicon glyphicon-edit"></span>
                Atributo
                <small>{$fsc->atributo->codatributo}</small>
-               <a class="btn btn-xs btn-default" href="{$fsc->atributo->url()}" title="Recargar la página">
-                  <span class="glyphicon glyphicon-refresh"></span>
-               </a>
             </h1>
             <p class="help-block">
                Desde aquí puedes definir los valores posibles para este atributo.
                <b>Recuerda</b> que para poder elegir los atributos de un artículo
-               debes modificar su tipo a <b>producto con atributos</b>.
+               debes modificar su <b>tipo</b> a <b>producto con atributos</b>.
             </p>
          </div>
       </div>
    </div>
-   <form action="{$fsc->atributo->url()}" method="post" class="form">
-      <div class="row">
+   <div class="row">
+      <form action="{$fsc->atributo->url()}" method="post" class="form">
          <div class="col-sm-6">
-            <input type="text" name="nombre" value="{$fsc->atributo->nombre}" class="form-control" autocomplete="off"/>
-         </div>
-         <div class="col-sm-6 text-right">
-            <a class="btn btn-sm btn-success" href="{$fsc->url()}#nuevo" title="Nuevo fabricante">
-               <span class="glyphicon glyphicon-plus"></span>
-            </a>
+            <div class="form-group">
+               <input type="text" name="nombre" value="{$fsc->atributo->nombre}" class="form-control" autocomplete="off"/>
+            </div>
             <div class="btn-group">
                {if="$fsc->allow_delete"}
                <a href="#" id="b_eliminar_atributo" class="btn btn-sm btn-danger">
                   <span class="glyphicon glyphicon-trash"></span>
-                  <span class="hidden-xs hidden-sm">&nbsp; Eliminar</span>
                </a>
                {/if}
                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp; Guardar
+                  <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
                </button>
             </div>
          </div>
-      </div>
-   </form>
-   <div class="row">
-      <div class="col-sm-12">
-         <ul class="nav nav-tabs" style="margin-top: 10px; margin-bottom: 10px;">
-            <li role="presentation" class="active">
-               <a href="#">
-                  <span class="glyphicon glyphicon-list"></span> &nbsp; Valores
-                  <span class="badge">{function="count($fsc->resultados)"}</span>
-               </a>
-            </li>
-         </ul>
-      </div>
-   </div>
-   <div class="row">
-      {loop="$fsc->resultados"}
+      </form>
       <div class="col-sm-6">
-         <form action="{$fsc->atributo->url()}" method="post" class="form">
-            <input type="hidden" name="id" value="{$value->id}"/>
-            <div class="form-group">
-               <div class="input-group">
-                  {if="$fsc->allow_delete"}
-                  <span class="input-group-btn">
-                     <button class="btn btn-danger" type="button" title="Eliminar este valor" onclick="eliminar_valor('{$value->id}')">
-                        <span class="glyphicon glyphicon-trash"></span>
-                     </button>
-                  </span>
-                  {/if}
-                  <input type="text" name="valor" value="{$value->valor}" class="form-control" placeholder="Search for...">
-                  <span class="input-group-btn">
-                     <button class="btn btn-primary" type="submit">
-                        <span class="glyphicon glyphicon-floppy-disk"></span>
-                     </button>
-                  </span>
-               </div>
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <h3 class="panel-title">
+                  Valores <span class="badge">{function="count($fsc->resultados)"}</span>
+               </h3>
             </div>
-         </form>
-      </div>
-      {/loop}
-      <div class="col-sm-6">
-         <form action="{$fsc->atributo->url()}" method="post" class="form">
+            <div class="panel-body">
+               {loop="$fsc->resultados"}
+               <form action="{$fsc->atributo->url()}" method="post" class="form">
+                  <input type="hidden" name="id" value="{$value->id}"/>
+                  <div class="form-group">
+                     <div class="input-group">
+                        {if="$fsc->allow_delete"}
+                        <span class="input-group-btn">
+                           <button class="btn btn-danger" type="button" title="Eliminar este valor" onclick="eliminar_valor('{$value->id}')">
+                              <span class="glyphicon glyphicon-trash"></span>
+                           </button>
+                        </span>
+                        {/if}
+                        <input type="text" name="valor" value="{$value->valor}" class="form-control" placeholder="Search for...">
+                        <span class="input-group-btn">
+                           <button class="btn btn-primary" type="submit">
+                              <span class="glyphicon glyphicon-floppy-disk"></span>
+                           </button>
+                        </span>
+                     </div>
+                  </div>
+               </form>
+               {else}
+               <div class="alert alert-warning">No hay valores creados.</div>
+               {/loop}
+            </div>
+            <div class="panel-footer">
+               <form action="{$fsc->atributo->url()}" method="post" class="form">
             <div class="input-group">
                <input type="text" name="nuevo_valor" class="form-control" placeholder="Nuevo valor..." autocomplete="off" required=""/>
                <span class="input-group-btn">
                   <button class="btn btn-primary" type="submit">
                      <span class="glyphicon glyphicon-plus-sign"></span>
-                     <span class="hidden-xs">&nbsp; Nuevo</span>
+                     <span class="hidden-xs">&nbsp;Nuevo</span>
                   </button>
                </span>
             </div>
          </form>
+            </div>
+         </div>
       </div>
    </div>
 </div>

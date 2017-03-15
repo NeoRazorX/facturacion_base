@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -448,20 +448,30 @@ class ventas_articulo extends fs_controller
          $comb1->referencia = $this->articulo->referencia;
          $comb1->impactoprecio = floatval($_POST['impactoprecio']);
          
+         if($_POST['refcombinacion'])
+         {
+            $comb1->refcombinacion = $_POST['refcombinacion'];
+         }
+         
+         if($_POST['codbarras'])
+         {
+            $comb1->codbarras = $_POST['codbarras'];
+         }
+         
          $error = TRUE;
          $valor0 = new atributo_valor();
          for($i = 0; $i < 10; $i++)
          {
             if( isset($_POST['idvalor_'.$i]) )
             {
-               if($i == 0)
-               {
-                  $error = FALSE;
-               }
-               
                $valor = $valor0->get($_POST['idvalor_'.$i]);
                if($valor)
                {
+                  if($i == 0)
+                  {
+                     $error = FALSE;
+                  }
+                  
                   $comb1->id = NULL;
                   $comb1->idvalor = $valor->id;
                   $comb1->nombreatributo = $valor->nombre();
@@ -493,6 +503,18 @@ class ventas_articulo extends fs_controller
          $comb1 = new articulo_combinacion();
          foreach($comb1->all_from_codigo($_POST['editar_combi']) as $com)
          {
+            $com->refcombinacion = NULL;
+            if($_POST['refcombinacion'])
+            {
+               $com->refcombinacion = $_POST['refcombinacion'];
+            }
+            
+            $com->codbarras = NULL;
+            if($_POST['codbarras'])
+            {
+               $com->codbarras = $_POST['codbarras'];
+            }
+            
             $com->impactoprecio = floatval($_POST['impactoprecio']);
             $com->save();
          }

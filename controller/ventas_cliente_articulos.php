@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of FacturaScripts
- * Copyright (C) 2016 Joe Nilson             <joenilson at gmail.com>
- * Copyright (C) 2016 Carlos García Gómez    <neorazorx at gmail.com>
+ * This file is part of facturacion_base
+ * Copyright (C) 2016 Joe Nilson                <joenilson at gmail.com>
+ * Copyright (C) 2016-2017 Carlos García Gómez  <neorazorx at gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -81,7 +81,7 @@ class ventas_cliente_articulos extends fs_controller
       $fsxet->from = __CLASS__;
       $fsxet->to = 'ventas_cliente';
       $fsxet->type = 'tab';
-      $fsxet->text = '<span class="glyphicon glyphicon-list" aria-hidden="true"></span> &nbsp; Artículos';
+      $fsxet->text = '<i class="fa fa-cubes" aria-hidden="true"></i>&nbsp; Artículos';
       $fsxet->save();
    }
    

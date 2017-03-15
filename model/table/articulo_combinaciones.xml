@@ -38,9 +38,25 @@
       <nulo>NO</nulo>
    </columna>
    <columna>
+      <nombre>refcombinacion</nombre>
+      <tipo>character varying(18)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>codbarras</nombre>
+      <tipo>character varying(18)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
       <nombre>impactoprecio</nombre>
       <tipo>double precision</tipo>
       <nulo>NO</nulo>
+      <defecto>0</defecto>
+   </columna>
+   <columna>
+      <nombre>stockfis</nombre>
+      <tipo>double precision</tipo>
+      <nulo>YES</nulo>
       <defecto>0</defecto>
    </columna>
    <restriccion>

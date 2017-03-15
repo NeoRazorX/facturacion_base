@@ -21,14 +21,18 @@
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
          if( confirm("¿Realmente desea eliminar este grupo?") )
+         {
             window.location.href = '{$fsc->page->url()}&deleteg={$fsc->grupo->idgrupo}';
+         }
       });
       {/if}
       {if="$fsc->epigrafe"}
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
          if( confirm("¿Realmente desea eliminar este epígrafe?") )
+         {
             window.location.href = '{$fsc->page->url()}&deletee={$fsc->epigrafe->idepigrafe}';
+         }
       });
       {/if}
    });
@@ -281,11 +285,12 @@
                   <td><a href="{$value->url()}">{$value->codgrupo}</a></td>
                   <td>{$value->descripcion}</td>
                </tr>
-               {else}
+               {/loop}
+               {if="!$fsc->super_epigrafes AND !$fsc->resultados"}
                <tr class="warning">
                   <td colspan="2">Sin resultados.</td>
                </tr>
-               {/loop}
+               {/if}
             </table>
          </div>
       </div>

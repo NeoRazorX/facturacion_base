@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -261,7 +261,7 @@ class compras_albaran extends fs_controller
                      $art0 = $articulo->get($l->referencia);
                      if($art0)
                      {
-                        $art0->sum_stock($this->albaran->codalmacen, 0 - $l->cantidad, TRUE);
+                        $art0->sum_stock($this->albaran->codalmacen, 0 - $l->cantidad, TRUE, $l->codcombinacion);
                      }
                   }
                   else
@@ -329,7 +329,7 @@ class compras_albaran extends fs_controller
                               $art0 = $articulo->get($value->referencia);
                               if($art0)
                               {
-                                 $art0->sum_stock($this->albaran->codalmacen, $lineas[$k]->cantidad - $cantidad_old, TRUE);
+                                 $art0->sum_stock($this->albaran->codalmacen, $lineas[$k]->cantidad - $cantidad_old, TRUE, $lineas[$k]->codcombinacion);
                               }
                            }
                         }
@@ -370,6 +370,10 @@ class compras_albaran extends fs_controller
                      if($art0)
                      {
                         $linea->referencia = $art0->referencia;
+                        if($_POST['codcombinacion_' . $num])
+                        {
+                           $linea->codcombinacion = $_POST['codcombinacion_' . $num];
+                        }
                      }
                      
                      if( $linea->save() )
@@ -377,7 +381,7 @@ class compras_albaran extends fs_controller
                         if($art0)
                         {
                            /// actualizamos el stock
-                           $art0->sum_stock($this->albaran->codalmacen, $linea->cantidad, TRUE);
+                           $art0->sum_stock($this->albaran->codalmacen, $linea->cantidad, TRUE, $linea->codcombinacion);
                            $this->actualizar_precio_proveedor($this->albaran->codproveedor, $linea);
                         }
                         
@@ -504,6 +508,8 @@ class compras_albaran extends fs_controller
             $linea->pvpunitario = $l->pvpunitario;
             $linea->recargo = $l->recargo;
             $linea->referencia = $l->referencia;
+            $linea->codcombinacion = $l->codcombinacion;
+            
             if( !$linea->save() )
             {
                $continuar = FALSE;

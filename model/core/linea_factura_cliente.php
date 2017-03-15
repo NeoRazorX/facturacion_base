@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -105,13 +105,33 @@ class linea_factura_cliente extends \fs_model
    public $referencia;
    
    /**
+    * Código de la combinación seleccionada, en el caso de los artículos con atributos.
+    * @var type 
+    */
+   public $codcombinacion;
+   
+   /**
     * % de IVA de la línea, el que corresponde al impuesto.
     * @var type 
     */
    public $iva;
    
+   /**
+    * Posición de la linea en el documento. Cuanto más alto más abajo.
+    * @var type 
+    */
    public $orden;
+   
+   /**
+    * False -> no se muestra la columna cantidad al imprimir.
+    * @var type 
+    */
    public $mostrar_cantidad;
+   
+   /**
+    * False -> no se muestran las columnas precio, descuento, impuestos y total al imprimir.
+    * @var type 
+    */
    public $mostrar_precio;
    
    private $codigo;
@@ -144,6 +164,7 @@ class linea_factura_cliente extends \fs_model
          $this->idfactura = $this->intval($l['idfactura']);
          $this->idalbaran = $this->intval($l['idalbaran']);
          $this->referencia = $l['referencia'];
+         $this->codcombinacion = $l['codcombinacion'];
          $this->descripcion = $l['descripcion'];
          $this->cantidad = floatval($l['cantidad']);
          $this->pvpunitario = floatval($l['pvpunitario']);
@@ -154,7 +175,7 @@ class linea_factura_cliente extends \fs_model
          $this->iva = floatval($l['iva']);
          $this->recargo = floatval($l['recargo']);
          $this->irpf = floatval($l['irpf']);
-         $this->orden = floatval($l['orden']);
+         $this->orden = intval($l['orden']);
          $this->mostrar_cantidad = $this->str2bool($l['mostrar_cantidad']);
          $this->mostrar_precio = $this->str2bool($l['mostrar_precio']);
       }
@@ -165,6 +186,7 @@ class linea_factura_cliente extends \fs_model
          $this->idfactura = NULL;
          $this->idalbaran = NULL;
          $this->referencia = NULL;
+         $this->codcombinacion = NULL;
          $this->descripcion = '';
          $this->cantidad = 0;
          $this->pvpunitario = 0;
@@ -416,6 +438,7 @@ class linea_factura_cliente extends \fs_model
                     .", idalbaran = ".$this->var2str($this->idalbaran)
                     .", idlineaalbaran = ".$this->var2str($this->idlineaalbaran)
                     .", referencia = ".$this->var2str($this->referencia)
+                    .", codcombinacion = ".$this->var2str($this->codcombinacion)
                     .", descripcion = ".$this->var2str($this->descripcion)
                     .", cantidad = ".$this->var2str($this->cantidad)
                     .", pvpunitario = ".$this->var2str($this->pvpunitario)
@@ -436,12 +459,13 @@ class linea_factura_cliente extends \fs_model
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (idfactura,idalbaran,idlineaalbaran,referencia,
-               descripcion,cantidad,pvpunitario,pvpsindto,dtopor,pvptotal,codimpuesto,iva,
+               codcombinacion,descripcion,cantidad,pvpunitario,pvpsindto,dtopor,pvptotal,codimpuesto,iva,
                recargo,irpf,orden,mostrar_cantidad,mostrar_precio) VALUES 
                       (".$this->var2str($this->idfactura)
                     .",".$this->var2str($this->idalbaran)
                     .",".$this->var2str($this->idlineaalbaran)
                     .",".$this->var2str($this->referencia)
+                    .",".$this->var2str($this->codcombinacion)
                     .",".$this->var2str($this->descripcion)
                     .",".$this->var2str($this->cantidad)
                     .",".$this->var2str($this->pvpunitario)

@@ -1,6 +1,13 @@
 {include="header"}
 
 <script type="text/javascript">
+   function cerrar_caja(id)
+   {
+      if( confirm("¿Realmente desea cerrar el arqueo "+id+"?") )
+      {
+         window.location.href = '{$fsc->url()}&cerrar='+id;
+      }
+   }
    function delete_caja(id)
    {
       if( confirm("¿Realmente desea eliminar el arqueo "+id+"?") )
@@ -57,13 +64,13 @@
       <li role="presentation" class="active">
          <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
             <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-            <span class="hidden-xs">&nbsp; Arqueos</span>
+            <span class="hidden-xs">&nbsp;Arqueos</span>
          </a>
       </li>
       <li role="presentation">
          <a href="#terminales" aria-controls="terminales" role="tab" data-toggle="tab">
             <i class="fa fa-desktop" aria-hidden="true"></i>
-            <span class="hidden-xs">&nbsp; Terminales</span>
+            <span class="hidden-xs">&nbsp;Terminales</span>
          </a>
       </li>
    </ul>
@@ -88,13 +95,7 @@
                <tr{if="$value->abierta()"} class="warning"{/if}>
                   <td>{$value->id}</td>
                   <td>{$value->fs_id}</td>
-                  <td>
-                     {if="$value->agente"}
-                     <a href="{$value->agente->url()}">{$value->agente->get_fullname()}</a>
-                     {else}
-                     -
-                     {/if}
-                  </td>
+                  <td>{if="$value->agente"}{$value->agente->get_fullname()}{else}-{/if}</td>
                   <td class="text-center">{$value->fecha_inicial}</td>
                   <td class="text-right">{$fsc->show_precio($value->dinero_inicial)}</td>
                   <td class="text-center">{$value->show_fecha_fin()}</td>
@@ -104,7 +105,7 @@
                      {if="$fsc->allow_delete"}
                      <div class="btn-group">
                         {if="$value->abierta()"}
-                        <a href="{$fsc->url()}&cerrar={$value->id}" class="btn btn-xs btn-warning" title="Cerrar arqueo">
+                        <a href="#" class="btn btn-xs btn-warning" title="Cerrar arqueo" onclick="cerrar_caja('{$value->id}')">
                            <span class="glyphicon glyphicon-lock"></span>
                         </a>
                         {/if}
@@ -202,7 +203,7 @@
                      <td><input type="number" name="num_tickets" value="{$value->num_tickets}" class="form-control" autocomplete="off"/></td>
                      <td class="text-center">
                         {if="!$value->disponible()"}
-                        <a href="#terminales" class="btn btn-sm btn-warning" onclick="alert('Terminal en uso. Puedes cerrarlo desde la pestaña historial.')">
+                        <a href="#terminales" class="btn btn-sm btn-warning" onclick="alert('Terminal en uso. Puedes cerrarlo desde la pestaña arqueos.')">
                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                         </a>
                         {/if}

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2016-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -136,7 +136,7 @@ class ventas_factura_devolucion extends fs_controller
                            $articulo = $art0->get($linea->referencia);
                            if($articulo)
                            {
-                              $articulo->sum_stock($frec->codalmacen, 0 - $linea->cantidad);
+                              $articulo->sum_stock($frec->codalmacen, 0 - $linea->cantidad, FALSE, $linea->codcombinacion);
                            }
                            
                            $frec->neto += $linea->pvptotal;

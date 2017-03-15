@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -33,6 +33,7 @@ class ventas_trazabilidad extends fs_controller
    public $lineas;
    public $tab;
    public $tipo;
+   public $volver;
    
    public function __construct()
    {
@@ -59,6 +60,12 @@ class ventas_trazabilidad extends fs_controller
       }
       
       $this->tab = isset($_GET['tab']);
+      
+      $this->volver = FALSE;
+      if( isset($_REQUEST['volver']) )
+      {
+         $this->volver = $_REQUEST['volver'];
+      }
       
       if($this->documento)
       {
@@ -112,6 +119,10 @@ class ventas_trazabilidad extends fs_controller
          if($this->tab)
          {
             $extra = '&tab=TRUE';
+         }
+         if($this->volver)
+         {
+            $extra .= '&volver='.urlencode($this->volver);
          }
          
          if( get_class_name($this->documento) == 'albaran_cliente' )
@@ -204,6 +215,10 @@ class ventas_trazabilidad extends fs_controller
          if($this->tab)
          {
             $this->new_message('Datos guardados correctamente.');
+         }
+         else if($this->volver)
+         {
+            header('Location: '.$this->volver);
          }
          else
          {

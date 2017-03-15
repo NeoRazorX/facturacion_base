@@ -5,18 +5,20 @@
          <tr>
             <th>Combinación</th>
             <th class="text-right">Precio</th>
+            <th class="text-right">Stock</th>
          </tr>
       </thead>
       {loop="$fsc->results"}
-      <tr>
+      <tr{if="$value['stockfis']>0"} class="success"{/if}>
          <td>
-            <a href="#" onclick="add_articulo('{$value['ref']}','{function="base64_encode($value['desc'])"}','{$value['pvp']}','{$value['dto']}','{$value['codimpuesto']}','{$value['cantidad']}')">{$value['txt']}</a>
+            <a href="#" onclick="add_articulo('{$value['ref']}','{function="base64_encode($value['desc'])"}','{$value['pvp']}','{$value['dto']}','{$value['codimpuesto']}','{$value['cantidad']}','{$value['codigo']}')">{$value['txt']}</a>
          </td>
          <td class="text-right">{$fsc->show_precio($value['pvp'])}</td>
+         <td class="text-right">{$value['stockfis']}</td>
       </tr>
       {else}
       <tr class="danger">
-         <td colspan="2">No hay combinaciones definidas.</td>
+         <td colspan="3">No hay combinaciones definidas.</td>
       </tr>
       {/loop}
    </table>

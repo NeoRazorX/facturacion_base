@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2012-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 
 namespace FacturaScripts\model;
 
+require_model('articulo_combinacion.php');
 require_model('fabricante.php');
 require_model('familia.php');
 require_model('impuesto.php');
@@ -855,12 +856,13 @@ class articulo extends \fs_model
    /**
     * Suma la cantidad especificada al stock del artículo en el almacén especificado.
     * Ya se encarga de ejecutar save() si es necesario.
-    * @param type $almacen
+    * @param type $codalmacen
     * @param type $cantidad
     * @param type $recalcula_coste
+    * @param type $codcombinacion
     * @return boolean
     */
-   public function sum_stock($almacen, $cantidad = 1, $recalcula_coste = FALSE)
+   public function sum_stock($codalmacen, $cantidad = 1, $recalcula_coste = FALSE, $codcombinacion = NULL)
    {
       if($this->nostock)
       {
@@ -875,7 +877,7 @@ class articulo extends \fs_model
          $stocks = $stock->all_from_articulo($this->referencia);
          foreach($stocks as $k => $value)
          {
-            if($value->codalmacen == $almacen)
+            if($value->codalmacen == $codalmacen)
             {
                $stocks[$k]->sum_cantidad($cantidad);
                $result = $stocks[$k]->save();
@@ -886,7 +888,7 @@ class articulo extends \fs_model
          if( !$encontrado )
          {
             $stock->referencia = $this->referencia;
-            $stock->codalmacen = $almacen;
+            $stock->codalmacen = $codalmacen;
             $stock->set_cantidad($cantidad);
             $result = $stock->save();
          }
@@ -906,13 +908,24 @@ class articulo extends \fs_model
                {
                   $this->clean_cache();
                   $result = $this->db->exec("UPDATE ".$this->table_name
-                          ." SET stockfis = ".$this->var2str($this->stockfis)
+                          ."  SET stockfis = ".$this->var2str($this->stockfis)
                           .", costemedio = ".$this->var2str($this->costemedio)
                           ."  WHERE referencia = ".$this->var2str($this->referencia).";");
                }
                else if( !$this->save() )
                {
                   $this->new_error_msg("¡Error al actualizar el stock del artículo!");
+               }
+               
+               /// ¿Alguna combinación?
+               if($codcombinacion)
+               {
+                  $com0 = new \articulo_combinacion();
+                  foreach($com0->all_from_codigo($codcombinacion) as $combi)
+                  {
+                     $combi->stockfis += $cantidad;
+                     $combi->save();
+                  }
                }
             }
          }

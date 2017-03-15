@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2016-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -496,6 +496,15 @@ class dashboard extends fs_controller
                  </a>',
               'icono' => '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>'
           ),
+          array(
+              'titulo' => '¿Quieres cambiar el logotipo?',
+              'html' => '<p class="help-block">Puedes cambiar el logotipo cuando quieras. Simplemente va a las
+                 opciones de impresión de la empresa.</p>
+                 <a href="index.php?page=admin_empresa#impresion" target="_blank" class="btn btn-sm btn-default">
+                    <i class="fa fa-picture-o" aria-hidden="true"></i>&nbsp; Logotipo
+                 </a>',
+              'icono' => '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>'
+          ),
       );
       
       /// ¿Presupuestos y pedidos?
@@ -559,7 +568,7 @@ class dashboard extends fs_controller
       $this->noticias = $this->cache->get_array('community_changelog');
       if(!$this->noticias)
       {
-         $data = $this->curl_get_contents(FS_COMMUNITY_URL.'/index.php?page=community_changelog&json=TRUE');
+         $data = fs_file_get_contents(FS_COMMUNITY_URL.'/index.php?page=community_changelog&json=TRUE', 5);
          if($data)
          {
             $this->noticias = json_decode($data);
@@ -567,97 +576,6 @@ class dashboard extends fs_controller
             /// guardamos en caché
             $this->cache->set('community_changelog', $this->noticias);
          }
-      }
-   }
-   
-   /**
-    * Descarga el contenido con curl o file_get_contents
-    * @param type $url
-    * @param type $timeout
-    * @return type
-    */
-   private function curl_get_contents($url)
-   {
-      if( function_exists('curl_init') )
-      {
-         $ch = curl_init();
-         curl_setopt($ch, CURLOPT_URL, $url);
-         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-         if( is_null( ini_get('open_basedir') ) )
-         {
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-         }
-         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-         if( defined('FS_PROXY_TYPE') )
-         {
-            curl_setopt($ch, CURLOPT_PROXYTYPE, FS_PROXY_TYPE);
-            curl_setopt($ch, CURLOPT_PROXY, FS_PROXY_HOST);
-            curl_setopt($ch, CURLOPT_PROXYPORT, FS_PROXY_PORT);
-         }
-         $data = curl_exec($ch);
-         $info = curl_getinfo($ch);
-         
-         if($info['http_code'] == 301 OR $info['http_code'] == 302)
-         {
-            $redirs = 0;
-            return $this->curl_redirect_exec($ch, $redirs);
-         }
-         else
-         {
-            curl_close($ch);
-            return $data;
-         }
-      }
-      else
-         return file_get_contents($url);
-   }
-   
-   /**
-    * Función alternativa para cuando el followlocation falla.
-    * @param type $ch
-    * @param type $redirects
-    * @param type $curlopt_header
-    * @return type
-    */
-   private function curl_redirect_exec($ch, &$redirects, $curlopt_header = false)
-   {
-      curl_setopt($ch, CURLOPT_HEADER, true);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-      if( defined('FS_PROXY_TYPE') )
-      {
-         curl_setopt($ch, CURLOPT_PROXYTYPE, FS_PROXY_TYPE);
-         curl_setopt($ch, CURLOPT_PROXY, FS_PROXY_HOST);
-         curl_setopt($ch, CURLOPT_PROXYPORT, FS_PROXY_PORT);
-      }
-      $data = curl_exec($ch);
-      $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-      
-      if($http_code == 301 || $http_code == 302)
-      {
-         list($header) = explode("\r\n\r\n", $data, 2);
-         $matches = array();
-         preg_match("/(Location:|URI:)[^(\n)]*/", $header, $matches);
-         $url = trim(str_replace($matches[1], "", $matches[0]));
-         $url_parsed = parse_url($url);
-         if( isset($url_parsed) )
-         {
-            curl_setopt($ch, CURLOPT_URL, $url);
-            $redirects++;
-            return $this->curl_redirect_exec($ch, $redirects, $curlopt_header);
-         }
-      }
-      
-      if($curlopt_header)
-      {
-         curl_close($ch);
-         return $data;
-      }
-      else
-      {
-         list(, $body) = explode("\r\n\r\n", $data, 2);
-         curl_close($ch);
-         return $body;
       }
    }
 }

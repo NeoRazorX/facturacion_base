@@ -543,7 +543,7 @@
          </a>
          <p class="help-block">
             Muchos programas permiten exportar datos a archivos <b>CSV o Excel</b>. Si es el caso,
-            puedes usar el plugin Importar/Exportar CSV para copiar esos datos a FacturaScripts.
+            puedes usar el plugin Import/Export CSV para copiar esos datos a FacturaScripts.
          </p>
          <br/>
       </div>
@@ -559,8 +559,17 @@
          </p>
          <br/>
       </div>
+      <div class="col-sm-3">
+         <a href="index.php?page=admin_empresa#impresion" target="_blank" class="btn btn-block btn-default">
+            <i class="fa fa-picture-o fa-3x" aria-hidden="true"></i>
+            <br/>Cambiar logo
+         </a>
+         <p class="help-block">
+            Puedes cambiar el logotipo muy fácilmente desde las opciones de impresión de la empresa.
+         </p>
+         <br/>
+      </div>
       {if="!$fsc->empresa->can_send_mail()"}
-      <div class="col-sm-3"></div>
       <div class="col-sm-3">
          <a href="index.php?page=admin_empresa#email" target="_blank" class="btn btn-block btn-warning">
             <i class="fa fa-envelope fa-3x" aria-hidden="true"></i>

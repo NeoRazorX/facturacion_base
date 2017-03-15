@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -105,6 +105,12 @@ class linea_factura_proveedor extends \fs_model
    public $referencia;
    
    /**
+    * Código de la combinación seleccionada, en el caso de los artículos con atributos.
+    * @var type 
+    */
+   public $codcombinacion;
+   
+   /**
     * % de iva, el que corresponde al impuesto.
     * @var type 
     */
@@ -139,6 +145,7 @@ class linea_factura_proveedor extends \fs_model
          $this->idfactura = $this->intval($l['idfactura']);
          $this->idalbaran = $this->intval($l['idalbaran']);
          $this->referencia = $l['referencia'];
+         $this->codcombinacion = $l['codcombinacion'];
          $this->descripcion = $l['descripcion'];
          $this->cantidad = floatval($l['cantidad']);
          $this->pvpunitario = floatval($l['pvpunitario']);
@@ -157,6 +164,7 @@ class linea_factura_proveedor extends \fs_model
          $this->idfactura = NULL;
          $this->idalbaran = NULL;
          $this->referencia = NULL;
+         $this->codcombinacion = NULL;
          $this->descripcion = '';
          $this->cantidad = 0;
          $this->pvpunitario = 0;
@@ -400,6 +408,7 @@ class linea_factura_proveedor extends \fs_model
                     .", idlineaalbaran = ".$this->var2str($this->idlineaalbaran)
                     .", descripcion = ".$this->var2str($this->descripcion)
                     .", referencia = ".$this->var2str($this->referencia)
+                    .", codcombinacion = ".$this->var2str($this->codcombinacion)
                     .", iva = ".$this->var2str($this->iva)
                     ."  WHERE idlinea = ".$this->var2str($this->idlinea).";";
             
@@ -408,7 +417,8 @@ class linea_factura_proveedor extends \fs_model
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (pvptotal,dtopor,recargo,irpf,pvpsindto,cantidad,
-               codimpuesto,pvpunitario,idfactura,idalbaran,idlineaalbaran,descripcion,referencia,iva) VALUES 
+               codimpuesto,pvpunitario,idfactura,idalbaran,idlineaalbaran,descripcion,referencia,
+               codcombinacion,iva) VALUES 
                       (".$this->var2str($this->pvptotal)
                     .",".$this->var2str($this->dtopor)
                     .",".$this->var2str($this->recargo)
@@ -422,6 +432,7 @@ class linea_factura_proveedor extends \fs_model
                     .",".$this->var2str($this->idlineaalbaran)
                     .",".$this->var2str($this->descripcion)
                     .",".$this->var2str($this->referencia)
+                    .",".$this->var2str($this->codcombinacion)
                     .",".$this->var2str($this->iva).");";
             
             if( $this->db->exec($sql) )
