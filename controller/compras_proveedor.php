@@ -23,6 +23,9 @@ require_model('forma_pago.php');
 require_model('pais.php');
 require_model('proveedor.php');
 require_model('serie.php');
+require_model('cliente.php');
+require_model('cuenta_banco_cliente.php');
+require_model('direccion_cliente.php');
 
 class compras_proveedor extends fs_controller
 {
@@ -179,6 +182,91 @@ class compras_proveedor extends fs_controller
             else
                $this->new_error_msg('¡Imposible modificar los datos del proveedor!');
          }
+         else if( isset($_GET['convertir']) ) /// convertir a cliente
+         {
+	         	$cliente = new cliente();
+	         	
+	         	/* datos generales */
+	         	$cliente->nombre = $this->proveedor->nombre;
+	         	$cliente->razonsocial = $this->proveedor->razonsocial;
+	         	$cliente->tipoidfiscal = $this->proveedor->tipoidfiscal;
+	         	$cliente->cifnif = $this->proveedor->cifnif;
+	         	$cliente->telefono1 = $this->proveedor->telefono1;
+	         	$cliente->telefono2 = $this->proveedor->telefono2;
+	         	$cliente->fax = $this->proveedor->fax;
+	         	$cliente->web = $this->proveedor->web;
+	         	$cliente->email = $this->proveedor->email;
+	         	$cliente->observaciones = $this->proveedor->observaciones;
+	         	$cliente->codpago = $this->proveedor->codpago;
+	         	$cliente->coddivisa = $this->proveedor->coddivisa;
+	         	$cliente->regimeniva = $this->proveedor->regimeniva;
+	         	$cliente->recargo = $this->proveedor->recargo;
+	         	$cliente->debaja = $this->proveedor->debaja;
+	         	$cliente->fechabaja = $this->proveedor->fechabaja;
+	         	$cliente->personafisica = $this->proveedor->personafisica;
+	         	$cliente->diaspago = $this->proveedor->diaspago;
+	         	$cliente->codserie = $this->proveedor->codserie;
+	         	$cliente->codagente = $this->proveedor->codagente;
+	         	$cliente->codgrupo = $this->proveedor->codgrupo;
+	         	$cliente->codproveedor = $this->proveedor->codproveedor;
+	
+	         	/* salvamos el cliente */
+	         	$cliente_ok = true;
+	         	if( $cliente->save() )
+	         	{
+	         		$this->proveedor->codcliente = $cliente->codcliente;
+	         		$cliente_ok = $cliente_ok && $this->proveedor->save();
+	         	}
+	         	else
+	         		$cliente_ok = false;
+	         			
+	         		/* sólo si fue bien el salvado */
+	         	if ($cliente_ok)
+	         	{
+	         		/* cuentas de banco */
+	         		$cuentas_banco_pro = $this->cuenta_banco->all_from_proveedor($this->proveedor->codproveedor);
+	         		$cbancos_ok = true;
+	         		foreach ($cuentas_banco_pro as $c)
+	         		{
+         					$c_banco_cliente = new cuenta_banco_cliente();
+         					$c_banco_cliente->codcuenta = $c->codcuenta;
+         					$c_banco_cliente->codcliente = $cliente->codcliente;
+         					$c_banco_cliente->descripcion = $c->descripcion;
+         					$c_banco_cliente->iban = $c->iban;
+         					$c_banco_cliente->swift = $c->swift;
+         					$c_banco_cliente->principal = $c->principal;
+         					$cbancos_ok = $cbancos_ok && $c_banco_cliente->save();
+	         		}
+	         					
+	         		/* direcciones */
+	         		$direcc_pro = $this->proveedor->get_direcciones();
+	         		$direcc_ok = true;
+	         		foreach ($direcc_pro as $d)
+	         		{
+         					$direcc_cli = new direccion_cliente();
+         					$direcc_cli->codcliente = $cliente->codcliente;
+         					$direcc_cli->codpais = $d->codpais;
+         					$direcc_cli->apartado = $d->apartado;
+         					$direcc_cli->provincia = $d->provincia;
+         					$direcc_cli->ciudad = $d->ciudad;
+         					$direcc_cli->codpostal = $d->codpostal;
+         					$direcc_cli->direccion = $d->direccion;
+         					$direcc_cli->direccionppal = $d->direccionppal;
+         					$direcc_cli->descripcion = $d->descripcion;
+         					$direcc_cli = $direcc_ok && $direcc_cli->save();
+	         		}
+	         	}
+	         				
+	         	/* resultado */
+	         	if( $cliente_ok )
+	         	{
+	         		$txtadded = $cbancos_ok ? "" : ". No se pudieron copiar todas las cuentas bancarias";
+	         		$txtadded .= $direcc_ok ? "" : ". No se pudieron copiar todas las direcciones";
+	         		$this->new_message("Conversión correcta. Cliente ".$cliente->codcliente.$txtadded);
+	         	}
+	         	else
+	         		$this->new_error_msg("¡Imposible realizar la conversión!");
+		 }
       }
       else
       {

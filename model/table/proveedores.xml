@@ -142,6 +142,11 @@
       <tipo>date</tipo>
       <nulo>YES</nulo>
    </columna>
+   <columna>
+      <nombre>codcliente</nombre>
+      <tipo>character varying(6)</tipo>
+      <nulo>YES</nulo>
+   </columna>
    <restriccion>
       <nombre>proveedores_pkey</nombre>
       <consulta>PRIMARY KEY (codproveedor)</consulta>
