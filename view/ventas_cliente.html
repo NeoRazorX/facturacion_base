@@ -383,6 +383,36 @@
                      </div>
                   </div>
                   
+                  {if="$fsc->cliente->codproveedor"}
+                  <div class="panel panel-success">
+                     <div class="panel-heading">
+                        <h3 class="panel-title">Este cliente también es proveedor</h3>
+                     </div>
+                     <div class="panel-body">
+                        <a href="index.php?page=compras_proveedor&cod={$fsc->cliente->codproveedor}" class="btn btn-sm btn-default">
+                           <span class="glyphicon glyphicon-user"></span>&nbsp; ver proveedor
+                        </a>
+                     </div>
+                  </div>
+                  {else}
+                  <div class="panel panel-warning">
+                     <div class="panel-heading">
+                        <h3 class="panel-title">Convertir <b>también</b> en proveedor</h3>
+                     </div>
+                     <div class="panel-body">
+                        <p class="help-block">
+                           Si lo deseas puedes convertir a este cliente también en proveedor,
+                           para poder comprar productos y servicios.
+                        </p>
+                     </div>
+                     <div class="panel-footer">
+                        <a href="{$fsc->cliente->url()}&convertir=TRUE" class="btn btn-sm btn-warning">
+                           <span class="glyphicon glyphicon-random"></span>&nbsp; Convertir
+                        </a>
+                     </div>
+                  </div>
+                  {/if}
+                  
                   <div class="modal fade" id="modal_debaja" tabindex="-1" role="dialog">
                      <div class="modal-dialog" role="document">
                         <div class="modal-content">
