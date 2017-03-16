@@ -121,6 +121,12 @@ class proveedor extends \fs_model
     */
    public $fechabaja;
    
+   /**
+    * Cliente asociado equivalente
+    * @var type
+    */
+   public $codcliente;
+   
    private static $regimenes_iva;
    
    public function __construct($p=FALSE)
@@ -157,6 +163,7 @@ class proveedor extends \fs_model
 
          $this->debaja = $this->str2bool($p['debaja']);
          $this->fechabaja = date('d-m-Y');
+         $this->codcliente = $p['codcliente'];
       }
       else
       {
@@ -188,6 +195,7 @@ class proveedor extends \fs_model
 
          $this->debaja = FALSE;
          $this->fechabaja = NULL;
+         $this->codcliente = NULL;
       }
    }
    
@@ -504,6 +512,7 @@ class proveedor extends \fs_model
       $this->razonsocial = $this->no_html($this->razonsocial);
       $this->cifnif = $this->no_html($this->cifnif);
       $this->observaciones = $this->no_html($this->observaciones);
+      $this->codcliente = trim($this->codcliente);
       
       if( !preg_match("/^[A-Z0-9]{1,6}$/i", $this->codproveedor) )
       {
@@ -549,13 +558,14 @@ class proveedor extends \fs_model
                     ", personafisica = ".$this->var2str($this->personafisica).
                     ", debaja = ".$this->var2str($this->debaja).
                     ", fechabaja = ".$this->var2str($this->fechabaja).
+                    ", codcliente = ".$this->var2str($this->codcliente).
                     " WHERE codproveedor = ".$this->var2str($this->codproveedor).";";
          }
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (codproveedor,nombre,razonsocial,tipoidfiscal,cifnif,
                telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,observaciones,
-               regimeniva,acreedor,personafisica,debaja,fechabaja) VALUES (".$this->var2str($this->codproveedor).
+               regimeniva,acreedor,personafisica,debaja,fechabaja,codcliente) VALUES (".$this->var2str($this->codproveedor).
                     ",".$this->var2str($this->nombre).
                     ",".$this->var2str($this->razonsocial).
                     ",".$this->var2str($this->tipoidfiscal).
@@ -573,7 +583,8 @@ class proveedor extends \fs_model
                     ",".$this->var2str($this->acreedor).
                     ",".$this->var2str($this->personafisica).
                     ",".$this->var2str($this->debaja).
-                    ",".$this->var2str($this->fechabaja).");";
+                    ",".$this->var2str($this->fechabaja).
+                    ",".$this->var2str($this->codcliente).");";
          }
          
          return $this->db->exec($sql);
