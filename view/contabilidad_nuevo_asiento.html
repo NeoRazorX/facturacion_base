@@ -188,7 +188,10 @@
          {
             if( $("#codsubcuenta_"+i).val() == '' )
             {
-               alert('No has seleccionado ninguna subcuenta en la línea '+i);
+               bootbox.alert({
+                  message: 'No has seleccionado ninguna subcuenta en la línea '+i,
+                  title: "<b>Atención</b>"
+               });
                continuar = false;
                break;
             }
@@ -202,7 +205,10 @@
       }
       else if(numlineas == 0)
       {
-         alert('No has añadido ninguna línea.');
+         bootbox.alert({
+            message: 'No has añadido ninguna línea.',
+            title: "<b>Atención</b>"
+         });
          $("#b_guardar_asiento").prop('disabled', false);
          $("#b_guardar_asiento_r").prop('disabled', false);
       }
@@ -218,7 +224,10 @@
       }
       else
       {
-         alert('¡Asiento descuadrado!');
+         bootbox.alert({
+            message: '¡Asiento descuadrado!',
+            title: "<b>Atención</b>"
+         });
          $("#b_guardar_asiento").prop('disabled', false);
          $("#b_guardar_asiento_r").prop('disabled', false);
       }

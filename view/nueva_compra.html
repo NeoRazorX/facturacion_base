@@ -37,7 +37,7 @@
                <a href="{$fsc->proveedor_s->url()}">{$fsc->proveedor_s->razonsocial}</a>
                {if="$fsc->proveedor_s->razonsocial!=$fsc->proveedor_s->nombre"}
                <small>
-                  <a href="#" onclick="alert('Proveedor conocido como: {$fsc->proveedor_s->nombre}')">
+                  <a href="#" onclick="bootbox.alert({message: 'Proveedor conocido como: {$fsc->proveedor_s->nombre}',title: '<b>Atención</b>'});">
                      <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                   </a>
                </small>
@@ -575,7 +575,10 @@
 <script type="text/javascript">
    function acreedores_help()
    {
-      alert('Los acreedores son todos aquellos proveedores a los que no les compramos mercancias. Por ejemplo: proveedor de internet, teléfono, bancos...');
+      bootbox.alert({
+         message: 'Los acreedores son todos aquellos proveedores a los que no les compramos mercancias. Por ejemplo: proveedor de internet, teléfono, bancos...',
+         title: "<b>Atención</b>"
+      });
       return false;
    }
    $(document).ready(function() {

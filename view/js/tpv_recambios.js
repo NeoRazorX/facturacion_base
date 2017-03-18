@@ -409,7 +409,7 @@ function buscar_articulos()
                }
                else
                {
-                  var funcion = "alert('Sin stock.')";
+                  var funcion = "bootbox.alert({message: 'Sin stock.',title: '<b>Atención</b>'});";
                }
                
                items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\
@@ -472,7 +472,10 @@ function buscar_codbarras()
             }
             else if(val.sevende)
             {
-               alert('Sin stock.');
+               bootbox.alert({
+                  message: 'Sin stock.',
+                  title: '<b>Atención</b>'
+               });
             }
          }
       });
@@ -521,10 +524,15 @@ $(document).ready(function() {
       window.location.href = tpv_url+"&reticket="+prompt('Introduce el código del ticket (o déjalo en blanco para re-imprimir el último):');
    });
    $("#b_cerrar_caja").click(function() {
-      if( confirm("¿Realmente deseas cerrar la caja?") )
-      {
-         window.location.href = tpv_url+"&cerrar_caja=TRUE";
-      }
+      bootbox.confirm({
+         message: '¿Realmente deseas cerrar la caja?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = tpv_url+"&cerrar_caja=TRUE";
+            }
+         }
+      });
    });
    
    $("#i_new_line").click(function() {

@@ -44,24 +44,37 @@
    }
    function delete_cuenta(id)
    {
-      if( confirm('¿Realmente desea eliminar la cuenta bancaria #'+id+'?') )
-      {
-         window.location.href = '{$fsc->url()}&delete_cuenta='+id+'#cuentasb';
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar la cuenta bancaria #'+id+'?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&delete_cuenta='+id+'#cuentasb';
+            }
+         }
+      });
    }
    function acreedores_help()
    {
-      alert('Los acreedores son todos aquellos proveedores a los que no les compramos mercancias. Por ejemplo: proveedor de internet, teléfono, bancos...');
+      bootbox.alert({
+         message: 'Los acreedores son todos aquellos proveedores a los que no les compramos mercancias. Por ejemplo: proveedor de internet, teléfono, bancos...',
+         title: "<b>Atención</b>"
+      });
       return false;
    }
    $(document).ready(function() {
       comprobar_url();
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Realmente desea eliminar este proveedor?") )
-         {
-            window.location.href = '{$fsc->ppage->url()}&delete={$fsc->proveedor->codproveedor}';
-         }
+         bootbox.confirm({
+            message: '¿Realmente desea eliminar este proveedor?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = '{$fsc->ppage->url()}&delete={$fsc->proveedor->codproveedor}';
+               }
+            }
+         });
       });
       $("#b_nueva_cuenta").click(function(event) {
          event.preventDefault();

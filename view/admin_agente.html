@@ -6,10 +6,15 @@
    $(document).ready(function () {
       $("#b_delete_agente").click(function (event) {
          event.preventDefault();
-         if( confirm("¿Realmente desea eliminar el agente?") )
-         {
-            window.location.href = '{$fsc->ppage->url()}&delete={$fsc->agente->codagente}';
-         }
+         bootbox.confirm({
+            message: '¿Realmente desea eliminar el agente?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = '{$fsc->ppage->url()}&delete={$fsc->agente->codagente}';
+               }
+            }
+         });
       });
    });
 </script>
