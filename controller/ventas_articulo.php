@@ -206,236 +206,34 @@ class ventas_articulo extends fs_controller
          return $this->page->url();
    }
    
+   /**
+    * Decide qué modificación hacer en función de los parametros del formulario.
+    */
    private function modificar()
    {
       if( isset($_POST['pvpiva']) )
       {
-         /// modificar precio
-         $continuar = TRUE;
-         $this->articulo->set_impuesto( $_POST['codimpuesto'] );
-         $this->articulo->set_pvp_iva( floatval($_POST['pvpiva']) );
-         
-         if( isset($_POST['preciocoste']) )
-         {
-            $this->articulo->preciocoste = floatval($_POST['preciocoste']);
-         }
-         
-         if( $this->articulo->save() )
-         {
-            $this->new_message("Precio modificado correctamente.");
-         }
-         else
-         {
-            $this->new_error_msg("Error al modificar el precio.");
-         }
+         $this->edit_precio();
       }
       else if( isset($_POST['almacen']) )
       {
-         /// cambiamos el stock
-         if($_POST['cantidadini'] == $_POST['cantidad'])
-         {
-            /// sin cambios de stock, pero aún así guardamos la ubicación
-            foreach($this->articulo->get_stock() as $stock)
-            {
-               if($stock->codalmacen == $_POST['almacen'])
-               {
-                  /// forzamos que se asigne el nombre del almacén
-                  $stock->nombre();
-                  
-                  $stock->ubicacion = $_POST['ubicacion'];
-                  if( $stock->save() )
-                  {
-                     $this->new_message('Cambios guardados correctamente.');
-                  }
-               }
-            }
-         }
-         else if( $this->articulo->set_stock($_POST['almacen'], $_POST['cantidad']) )
-         {
-            $this->new_message("Stock guardado correctamente.");
-            
-            /// añadimos la regularización
-            foreach($this->articulo->get_stock() as $stock)
-            {
-               if($stock->codalmacen == $_POST['almacen'])
-               {
-                  /// forzamos que se asigne el nombre del almacén
-                  $stock->nombre();
-                  
-                  $stock->ubicacion = $_POST['ubicacion'];
-                  $stock->save();
-                  
-                  $regularizacion = new regularizacion_stock();
-                  $regularizacion->idstock = $stock->idstock;
-                  $regularizacion->cantidadini = floatval($_POST['cantidadini']);
-                  $regularizacion->cantidadfin = floatval($_POST['cantidad']);
-                  $regularizacion->codalmacendest = $_POST['almacen'];
-                  $regularizacion->motivo = $_POST['motivo'];
-                  $regularizacion->nick = $this->user->nick;
-                  if( $regularizacion->save() )
-                  {
-                     $this->new_message('Cambios guardados correctamente.');
-                  }
-                  break;
-               }
-            }
-         }
-         else
-         {
-            $this->new_error_msg("Error al guardar el stock.");
-         }
+         $this->edit_stock();
       }
       else if( isset($_GET['deletereg']) )
       {
-         /// eliminar regularización
-         $reg = new regularizacion_stock();
-         $regularizacion = $reg->get($_GET['deletereg']);
-         if($regularizacion)
-         {
-            if( $regularizacion->delete() )
-            {
-               $this->new_message('Regularización eliminada correctamente.');
-            }
-            else
-            {
-               $this->new_error_msg('Error al eliminar la regularización.');
-            }
-         }
-         else
-         {
-            $this->new_error_msg('Regularización no encontrada.');
-         }
+         $this->eliminar_regulacion();
       }
       else if( isset($_POST['imagen']) )
       {
-         /// añadir imagen
-         if( is_uploaded_file($_FILES['fimagen']['tmp_name']) )
-         {
-            $png = ( substr( strtolower($_FILES['fimagen']['name']), -3) == 'png' );
-            $this->articulo->set_imagen( file_get_contents($_FILES['fimagen']['tmp_name']), $png );
-            if( $this->articulo->save() )
-            {
-               $this->new_message("Imagen del articulo modificada correctamente");
-            }
-            else
-               $this->new_error_msg("¡Error al guardar la imagen del articulo!");
-         }
+         $this->edit_imagen();
       }
       else if( isset($_GET['delete_img']) )
       {
-         /// eliminar imagen
-         $this->articulo->set_imagen(NULL);
-         if( $this->articulo->save() )
-         {
-            $this->new_message("Imagen del articulo eliminada correctamente");
-         }
-         else
-            $this->new_error_msg("¡Error al eliminar la imagen del articulo!");
+         $this->eliminar_imagen();
       }
       else if( isset($_POST['referencia']) )
       {
-         /// modificar artículo
-         $this->articulo->descripcion = $_POST['descripcion'];
-         
-         $this->articulo->tipo = NULL;
-         if($_POST['tipo'] != '')
-         {
-            $this->articulo->tipo = $_POST['tipo'];
-         }
-         
-         $this->articulo->codfamilia = NULL;
-         if($_POST['codfamilia'] != '')
-         {
-            $this->articulo->codfamilia = $_POST['codfamilia'];
-         }
-         
-         $this->articulo->codfabricante = NULL;
-         if($_POST['codfabricante'] != '')
-         {
-            $this->articulo->codfabricante = $_POST['codfabricante'];
-         }
-         
-         /// ¿Existe ya ese código de barras?
-         if($_POST['codbarras'] != '')
-         {
-            $arts = $this->articulo->search_by_codbar($_POST['codbarras']);
-            if($arts)
-            {
-               foreach($arts as $art2)
-               {
-                  if($art2->referencia != $this->articulo->referencia)
-                  {
-                     $this->new_advice('Ya hay un artículo con este mismo código de barras. '
-                             . 'En concreto, el artículo <a href="'.$art2->url().'">'.$art2->referencia.'</a>.');
-                     break;
-                  }
-               }
-            }
-         }
-         
-         $this->articulo->codbarras = $_POST['codbarras'];
-         $this->articulo->partnumber = $_POST['partnumber'];
-         $this->articulo->equivalencia = $_POST['equivalencia'];
-         $this->articulo->bloqueado = isset($_POST['bloqueado']);
-         $this->articulo->controlstock = isset($_POST['controlstock']);
-         $this->articulo->nostock = isset($_POST['nostock']);
-         $this->articulo->secompra = isset($_POST['secompra']);
-         $this->articulo->sevende = isset($_POST['sevende']);
-         $this->articulo->publico = isset($_POST['publico']);
-         $this->articulo->observaciones = $_POST['observaciones'];
-         $this->articulo->stockmin = floatval($_POST['stockmin']);
-         $this->articulo->stockmax = floatval($_POST['stockmax']);
-         $this->articulo->trazabilidad = isset($_POST['trazabilidad']);
-         
-         if( $this->articulo->save() )
-         {
-            $this->new_message("Datos del articulo modificados correctamente");
-            
-            $img = $this->articulo->imagen_url();
-            $this->articulo->set_referencia($_POST['nreferencia']);
-            
-            /// ¿Renombramos la imagen?
-            if($img)
-            {
-               @rename($img, $this->articulo->imagen_url());
-            }
-            
-            /**
-             * Renombramos la referencia en el resto de tablas: lineasalbaranes, lineasfacturas...
-             */
-            if( $this->db->table_exists('lineasalbaranescli') )
-            {
-               $this->db->exec("UPDATE lineasalbaranescli SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
-                       ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
-            }
-            
-            if( $this->db->table_exists('lineasalbaranesprov') )
-            {
-               $this->db->exec("UPDATE lineasalbaranesprov SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
-                       ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
-            }
-            
-            if( $this->db->table_exists('lineasfacturascli') )
-            {
-               $this->db->exec("UPDATE lineasfacturascli SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
-                       ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
-            }
-            
-            if( $this->db->table_exists('lineasfacturasprov') )
-            {
-               $this->db->exec("UPDATE lineasfacturasprov SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
-                       ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
-            }
-            
-            /// esto es una personalización del plugin producción, será eliminado este código en futuras versiones.
-            if( $this->db->table_exists('lineasfabricados') )
-            {
-               $this->db->exec("UPDATE lineasfabricados SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
-                       ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
-            }
-         }
-         else
-            $this->new_error_msg("¡Error al guardar el articulo!");
+         $this->modificar_articulo();
       }
       else if( isset($_GET['recalcular_stock']) )
       {
@@ -443,95 +241,336 @@ class ventas_articulo extends fs_controller
       }
       else if( isset($_POST['nueva_combi']) )
       {
-         /// nueva combinación (atributos)
-         $comb1 = new articulo_combinacion();
-         $comb1->referencia = $this->articulo->referencia;
-         $comb1->impactoprecio = floatval($_POST['impactoprecio']);
-         
-         if($_POST['refcombinacion'])
-         {
-            $comb1->refcombinacion = $_POST['refcombinacion'];
-         }
-         
-         if($_POST['codbarras'])
-         {
-            $comb1->codbarras = $_POST['codbarras'];
-         }
-         
-         $error = TRUE;
-         $valor0 = new atributo_valor();
-         for($i = 0; $i < 10; $i++)
-         {
-            if( isset($_POST['idvalor_'.$i]) )
-            {
-               $valor = $valor0->get($_POST['idvalor_'.$i]);
-               if($valor)
-               {
-                  if($i == 0)
-                  {
-                     $error = FALSE;
-                  }
-                  
-                  $comb1->id = NULL;
-                  $comb1->idvalor = $valor->id;
-                  $comb1->nombreatributo = $valor->nombre();
-                  $comb1->valor = $valor->valor;
-                  if( !$comb1->save() )
-                  {
-                     $error = TRUE;
-                  }
-               }
-            }
-            else
-            {
-               break;
-            }
-         }
-         
-         if($error)
-         {
-            $this->new_error_msg('Error al guardar la combinación.');
-         }
-         else
-         {
-            $this->new_message('Combinación guardada correctamente.');
-         }
+         $this->nueva_combinacion();
       }
       else if( isset($_POST['editar_combi']) )
       {
-         /// modificar combinación
-         $comb1 = new articulo_combinacion();
-         foreach($comb1->all_from_codigo($_POST['editar_combi']) as $com)
-         {
-            $com->refcombinacion = NULL;
-            if($_POST['refcombinacion'])
-            {
-               $com->refcombinacion = $_POST['refcombinacion'];
-            }
-            
-            $com->codbarras = NULL;
-            if($_POST['codbarras'])
-            {
-               $com->codbarras = $_POST['codbarras'];
-            }
-            
-            $com->impactoprecio = floatval($_POST['impactoprecio']);
-            $com->save();
-         }
-         
-         $this->new_message('Combinación modificada.');
+         $this->edit_combinacion();
       }
       else if( isset($_GET['delete_combi']) )
       {
-         /// eliminar combinación
-         $comb1 = new articulo_combinacion();
-         foreach($comb1->all_from_codigo($_GET['delete_combi']) as $com)
+         $this->eliminar_combinacion();
+      }
+   }
+   
+   private function edit_precio()
+   {
+      $this->articulo->set_impuesto( $_POST['codimpuesto'] );
+      $this->articulo->set_pvp_iva( floatval($_POST['pvpiva']) );
+      
+      if( isset($_POST['preciocoste']) )
+      {
+         $this->articulo->preciocoste = floatval($_POST['preciocoste']);
+      }
+      
+      if( $this->articulo->save() )
+      {
+         $this->new_message("Precio modificado correctamente.");
+      }
+      else
+      {
+         $this->new_error_msg("Error al modificar el precio.");
+      }
+   }
+   
+   private function edit_stock()
+   {
+      if($_POST['cantidadini'] == $_POST['cantidad'])
+      {
+         /// sin cambios de stock, pero aún así guardamos la ubicación
+         foreach($this->articulo->get_stock() as $stock)
          {
-            $com->delete();
+            if($stock->codalmacen == $_POST['almacen'])
+            {
+               /// forzamos que se asigne el nombre del almacén
+               $stock->nombre();
+               
+               $stock->ubicacion = $_POST['ubicacion'];
+               if( $stock->save() )
+               {
+                  $this->new_message('Cambios guardados correctamente.');
+               }
+            }
+         }
+      }
+      else if( $this->articulo->set_stock($_POST['almacen'], $_POST['cantidad']) )
+      {
+         $this->new_message("Stock guardado correctamente.");
+         
+         /// añadimos la regularización
+         foreach($this->articulo->get_stock() as $stock)
+         {
+            if($stock->codalmacen == $_POST['almacen'])
+            {
+               /// forzamos que se asigne el nombre del almacén
+               $stock->nombre();
+               
+               $stock->ubicacion = $_POST['ubicacion'];
+               $stock->save();
+               
+               $regularizacion = new regularizacion_stock();
+               $regularizacion->idstock = $stock->idstock;
+               $regularizacion->cantidadini = floatval($_POST['cantidadini']);
+               $regularizacion->cantidadfin = floatval($_POST['cantidad']);
+               $regularizacion->codalmacendest = $_POST['almacen'];
+               $regularizacion->motivo = $_POST['motivo'];
+               $regularizacion->nick = $this->user->nick;
+               if( $regularizacion->save() )
+               {
+                  $this->new_message('Cambios guardados correctamente.');
+               }
+               break;
+            }
+         }
+      }
+      else
+      {
+         $this->new_error_msg("Error al guardar el stock.");
+      }
+   }
+   
+   private function eliminar_regulacion()
+   {
+      $reg = new regularizacion_stock();
+      $regularizacion = $reg->get($_GET['deletereg']);
+      if($regularizacion)
+      {
+         if( $regularizacion->delete() )
+         {
+            $this->new_message('Regularización eliminada correctamente.');
+         }
+         else
+         {
+            $this->new_error_msg('Error al eliminar la regularización.');
+         }
+      }
+      else
+      {
+         $this->new_error_msg('Regularización no encontrada.');
+      }
+   }
+   
+   private function edit_imagen()
+   {
+      if( is_uploaded_file($_FILES['fimagen']['tmp_name']) )
+      {
+         $png = ( substr( strtolower($_FILES['fimagen']['name']), -3) == 'png' );
+         $this->articulo->set_imagen( file_get_contents($_FILES['fimagen']['tmp_name']), $png );
+         if( $this->articulo->save() )
+         {
+            $this->new_message("Imagen del articulo modificada correctamente");
+         }
+         else
+            $this->new_error_msg("¡Error al guardar la imagen del articulo!");
+      }
+   }
+   
+   private function eliminar_imagen()
+   {
+      $this->articulo->set_imagen(NULL);
+      if( $this->articulo->save() )
+      {
+         $this->new_message("Imagen del articulo eliminada correctamente");
+      }
+      else
+         $this->new_error_msg("¡Error al eliminar la imagen del articulo!");
+   }
+   
+   private function modificar_articulo()
+   {
+      $this->articulo->descripcion = $_POST['descripcion'];
+      
+      $this->articulo->tipo = NULL;
+      if($_POST['tipo'] != '')
+      {
+         $this->articulo->tipo = $_POST['tipo'];
+      }
+      
+      $this->articulo->codfamilia = NULL;
+      if($_POST['codfamilia'] != '')
+      {
+         $this->articulo->codfamilia = $_POST['codfamilia'];
+      }
+      
+      $this->articulo->codfabricante = NULL;
+      if($_POST['codfabricante'] != '')
+      {
+         $this->articulo->codfabricante = $_POST['codfabricante'];
+      }
+      
+      /// ¿Existe ya ese código de barras?
+      if($_POST['codbarras'] != '')
+      {
+         $arts = $this->articulo->search_by_codbar($_POST['codbarras']);
+         if($arts)
+         {
+            foreach($arts as $art2)
+            {
+               if($art2->referencia != $this->articulo->referencia)
+               {
+                  $this->new_advice('Ya hay un artículo con este mismo código de barras. '
+                          . 'En concreto, el artículo <a href="'.$art2->url().'">'.$art2->referencia.'</a>.');
+                  break;
+               }
+            }
+         }
+      }
+      
+      $this->articulo->codbarras = $_POST['codbarras'];
+      $this->articulo->partnumber = $_POST['partnumber'];
+      $this->articulo->equivalencia = $_POST['equivalencia'];
+      $this->articulo->bloqueado = isset($_POST['bloqueado']);
+      $this->articulo->controlstock = isset($_POST['controlstock']);
+      $this->articulo->nostock = isset($_POST['nostock']);
+      $this->articulo->secompra = isset($_POST['secompra']);
+      $this->articulo->sevende = isset($_POST['sevende']);
+      $this->articulo->publico = isset($_POST['publico']);
+      $this->articulo->observaciones = $_POST['observaciones'];
+      $this->articulo->stockmin = floatval($_POST['stockmin']);
+      $this->articulo->stockmax = floatval($_POST['stockmax']);
+      $this->articulo->trazabilidad = isset($_POST['trazabilidad']);
+      
+      if( $this->articulo->save() )
+      {
+         $this->new_message("Datos del articulo modificados correctamente");
+         
+         $img = $this->articulo->imagen_url();
+         $this->articulo->set_referencia($_POST['nreferencia']);
+         
+         /// ¿Renombramos la imagen?
+         if($img)
+         {
+            @rename($img, $this->articulo->imagen_url());
          }
          
-         $this->new_message('Combinación eliminada.');
+         /**
+          * Renombramos la referencia en el resto de tablas: lineasalbaranes, lineasfacturas...
+          */
+         if( $this->db->table_exists('lineasalbaranescli') )
+         {
+            $this->db->exec("UPDATE lineasalbaranescli SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
+                    ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
+         }
+         
+         if( $this->db->table_exists('lineasalbaranesprov') )
+         {
+            $this->db->exec("UPDATE lineasalbaranesprov SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
+                    ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
+         }
+         
+         if( $this->db->table_exists('lineasfacturascli') )
+         {
+            $this->db->exec("UPDATE lineasfacturascli SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
+                    ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
+         }
+         
+         if( $this->db->table_exists('lineasfacturasprov') )
+         {
+            $this->db->exec("UPDATE lineasfacturasprov SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
+                    ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
+         }
+         
+         /// esto es una personalización del plugin producción, será eliminado este código en futuras versiones.
+         if( $this->db->table_exists('lineasfabricados') )
+         {
+            $this->db->exec("UPDATE lineasfabricados SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
+                    ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
+         }
       }
+      else
+         $this->new_error_msg("¡Error al guardar el articulo!");
+   }
+   
+   private function nueva_combinacion()
+   {
+      $comb1 = new articulo_combinacion();
+      $comb1->referencia = $this->articulo->referencia;
+      $comb1->impactoprecio = floatval($_POST['impactoprecio']);
+      
+      if($_POST['refcombinacion'])
+      {
+         $comb1->refcombinacion = $_POST['refcombinacion'];
+      }
+      
+      if($_POST['codbarras'])
+      {
+         $comb1->codbarras = $_POST['codbarras'];
+      }
+      
+      $error = TRUE;
+      $valor0 = new atributo_valor();
+      for($i = 0; $i < 10; $i++)
+      {
+         if( isset($_POST['idvalor_'.$i]) )
+         {
+            $valor = $valor0->get($_POST['idvalor_'.$i]);
+            if($valor)
+            {
+               if($i == 0)
+               {
+                  $error = FALSE;
+               }
+               
+               $comb1->id = NULL;
+               $comb1->idvalor = $valor->id;
+               $comb1->nombreatributo = $valor->nombre();
+               $comb1->valor = $valor->valor;
+               if( !$comb1->save() )
+               {
+                  $error = TRUE;
+               }
+            }
+         }
+         else
+         {
+            break;
+         }
+      }
+      
+      if($error)
+      {
+         $this->new_error_msg('Error al guardar la combinación.');
+      }
+      else
+      {
+         $this->new_message('Combinación guardada correctamente.');
+      }
+   }
+   
+   private function edit_combinacion()
+   {
+      $comb1 = new articulo_combinacion();
+      foreach($comb1->all_from_codigo($_POST['editar_combi']) as $com)
+      {
+         $com->refcombinacion = NULL;
+         if($_POST['refcombinacion'])
+         {
+            $com->refcombinacion = $_POST['refcombinacion'];
+         }
+         
+         $com->codbarras = NULL;
+         if($_POST['codbarras'])
+         {
+            $com->codbarras = $_POST['codbarras'];
+         }
+         
+         $com->impactoprecio = floatval($_POST['impactoprecio']);
+         $com->stockfis = floatval($_POST['stockcombinacion']);
+         $com->save();
+      }
+      
+      $this->new_message('Combinación modificada.');
+   }
+   
+   private function eliminar_combinacion()
+   {
+      $comb1 = new articulo_combinacion();
+      foreach($comb1->all_from_codigo($_GET['delete_combi']) as $com)
+      {
+         $com->delete();
+      }
+      
+      $this->new_message('Combinación eliminada.');
    }
    
    public function get_tarifas()
