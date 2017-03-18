@@ -34,7 +34,7 @@
                <a href="{$fsc->cliente_s->url()}">{$fsc->cliente_s->razonsocial}</a>
                {if="$fsc->cliente_s->razonsocial!=$fsc->cliente_s->nombre"}
                <small>
-                  <a href="#" onclick="alert('Cliente conocido como: {$fsc->cliente_s->nombre}')">
+                  <a href="#" onclick="bootbox.alert({message: 'Cliente conocido como: {$fsc->cliente_s->nombre}',title: '<b>Atención</b>'});">
                      <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                   </a>
                </small>

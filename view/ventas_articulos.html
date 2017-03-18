@@ -13,10 +13,15 @@
    }
    function eliminar_tarifa(cod)
    {
-      if( confirm("¿Realmente desea eliminar la tarifa "+cod+"?") )
-      {
-         window.location.href = '{$fsc->url()}&delete_tarifa='+cod+'#tarifas';
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar la tarifa '+cod+'?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&delete_tarifa='+cod+'#tarifas';
+            }
+         }
+      });
    }
    $(document).ready(function() {
       document.f_custom_search.query.focus();

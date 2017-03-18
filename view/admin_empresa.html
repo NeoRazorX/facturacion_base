@@ -70,10 +70,15 @@
    }
    function delete_cuenta(id)
    {
-      if( confirm('¿Realmente desea eliminar la cuenta bancaria #'+id+'?') )
-      {
-         window.location.href = '{$fsc->url()}&delete_cuenta='+id+'#cuentasb';
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar la cuenta bancaria #'+id+'?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&delete_cuenta='+id+'#cuentasb';
+            }
+         }
+      });
    }
    $(document).ready(function() {
       comprobar_url();

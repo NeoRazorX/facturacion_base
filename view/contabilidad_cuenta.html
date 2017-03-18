@@ -8,10 +8,15 @@
       });
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Realmente desea eliminar esta cuenta?") )
-         {
-            window.location.href = 'index.php?page=contabilidad_epigrafes&deletec={$fsc->cuenta->idcuenta}';
-         }
+         bootbox.confirm({
+            message: '¿Realmente desea eliminar esta cuenta?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = 'index.php?page=contabilidad_epigrafes&deletec={$fsc->cuenta->idcuenta}';
+               }
+            }
+         });
       });
    });
 </script>

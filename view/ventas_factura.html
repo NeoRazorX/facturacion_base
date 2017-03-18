@@ -171,7 +171,7 @@
                {if="$fsc->cliente"}
                   {if="$fsc->cliente->nombre!=$fsc->factura->nombrecliente"}
                   <li>
-                     <a href="#" onclick="alert('Cliente conocido como: {$fsc->cliente->nombre}')">
+                     <a href="#" onclick="bootbox.alert({message: 'Cliente conocido como: {$fsc->cliente->nombre}',title: '<b>Atención</b>'});">
                         <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                      </a>
                   </li>
