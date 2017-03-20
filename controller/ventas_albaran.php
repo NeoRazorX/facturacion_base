@@ -477,12 +477,47 @@ class ventas_albaran extends fs_controller
          if(!$error)
          {
             $this->new_message(ucfirst(FS_ALBARAN)." modificado correctamente.");
+            $this->propagar_cifnif();
          }
          
          $this->new_change(ucfirst(FS_ALBARAN).' Cliente '.$this->albaran->codigo, $this->albaran->url());
       }
       else
          $this->new_error_msg("¡Imposible modificar el ".FS_ALBARAN."!");
+   }
+   
+   /**
+    * Actualizamos el cif/nif en el cliente y los albaranes de este cliente que no tenga cif/nif
+    */
+   private function propagar_cifnif()
+   {
+      if($this->albaran->cifnif)
+      {
+         /// buscamos el cliente
+         $cliente = $this->cliente->get($this->albaran->codcliente);
+         if($cliente)
+         {
+            if(!$cliente->cifnif)
+            {
+               /// actualizamos el cliente
+               $cliente->cifnif = $this->albaran->cifnif;
+               if( $cliente->save() )
+               {
+                  /// actualizamos albaranes
+                  $sql = "UPDATE albaranescli SET cifnif = ".$cliente->var2str($this->albaran->cifnif)
+                          ." WHERE codcliente = ".$cliente->var2str($this->albaran->codcliente)
+                          ." AND cifnif = '';";
+                  $this->db->exec($sql);
+                  
+                  /// actualizamos facturas
+                  $sql = "UPDATE facturascli SET cifnif = ".$cliente->var2str($this->albaran->cifnif)
+                          ." WHERE codcliente = ".$cliente->var2str($this->albaran->codcliente)
+                          ." AND cifnif = '';";
+                  $this->db->exec($sql);
+               }
+            }
+         }
+      }
    }
    
    private function generar_factura()
