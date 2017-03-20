@@ -450,13 +450,13 @@ class ventas_cliente extends fs_controller
          /// actualizamos albaranes
          $sql = "UPDATE albaranescli SET cifnif = ".$this->cliente->var2str($this->cliente->cifnif)
                  ." WHERE codcliente = ".$this->cliente->var2str($this->cliente->codcliente)
-                 ." AND cifnif = '';";
+                 ." AND cifnif = '' AND fecha >= ".$this->cliente->var2str( date('01-01-Y') ).";";
          $this->db->exec($sql);
          
          /// actualizamos facturas
          $sql = "UPDATE facturascli SET cifnif = ".$this->cliente->var2str($this->cliente->cifnif)
                  ." WHERE codcliente = ".$this->cliente->var2str($this->cliente->codcliente)
-                 ." AND cifnif = '';";
+                 ." AND cifnif = '' AND fecha >= ".$this->cliente->var2str( date('01-01-Y') ).";";
          $this->db->exec($sql);
       }
    }
