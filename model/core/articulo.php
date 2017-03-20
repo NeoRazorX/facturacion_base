@@ -585,17 +585,16 @@ class articulo extends \fs_model
              * la fecha del último albarán es posterior a la de la última factura.
              * Usamos los albaranes para el cálculo.
              */
+            
             foreach($lineasalb as $linea)
             {
-               if($stock < $this->stockfis)
-               {
-                  $coste += $linea->pvptotal;
-                  $stock += $linea->cantidad;
-               }
-               else
-               {
-                  break;
-               }
+              /**
+                * Cuando no hay stock o el stock es negativo, el coste medio no se calculaba
+                * Se entiende que ya está en el rango de fechas adecuado
+              */ 
+              $coste += $linea->pvptotal;
+              $stock += $linea->cantidad;
+               
             }
          }
       }
@@ -605,15 +604,14 @@ class articulo extends \fs_model
          /// usamos las facturas para el cálculo.
          foreach($lineasfac as $linea)
          {
-            if($stock < $this->stockfis)
-            {
-               $coste += $linea->pvptotal;
-               $stock += $linea->cantidad;
-            }
-            else
-            {
-               break;
-            }
+            
+            /**
+              * Cuando no hay stock o el stock es negativo, el coste medio no se calculaba
+              * Se entiende que ya está en el rango de fechas adecuado
+            */ 
+            $coste += $linea->pvptotal;
+            $stock += $linea->cantidad;
+           
          }
       }
       
@@ -622,15 +620,14 @@ class articulo extends \fs_model
          /// usamos los albaranes para el cálculo.
          foreach($lineasalb as $linea)
          {
-            if($stock < $this->stockfis)
-            {
-               $coste += $linea->pvptotal;
-               $stock += $linea->cantidad;
-            }
-            else
-            {
-               break;
-            }
+            /**
+              * Cuando no hay stock o el stock es negativo, el coste medio no se calculaba
+              * Se entiende que ya está en el rango de fechas adecuado
+            */ 
+            
+            $coste += $linea->pvptotal;
+            $stock += $linea->cantidad;
+            
          }
       }
       
