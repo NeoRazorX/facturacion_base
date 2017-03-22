@@ -587,7 +587,7 @@ class articulo extends \fs_model
              */
             foreach($lineasalb as $linea)
             {
-               if($stock < $this->stockfis OR $this->nostock)
+               if($stock < $this->stockfis OR $this->stockfis <= 0)
                {
                   $coste += $linea->pvptotal;
                   $stock += $linea->cantidad;
@@ -605,7 +605,7 @@ class articulo extends \fs_model
          /// usamos las facturas para el cálculo.
          foreach($lineasfac as $linea)
          {
-            if($stock < $this->stockfis OR $this->nostock)
+            if($stock < $this->stockfis OR $this->stockfis <= 0)
             {
                $coste += $linea->pvptotal;
                $stock += $linea->cantidad;
@@ -622,7 +622,7 @@ class articulo extends \fs_model
          /// usamos los albaranes para el cálculo.
          foreach($lineasalb as $linea)
          {
-            if($stock < $this->stockfis OR $this->nostock)
+            if($stock < $this->stockfis OR $this->stockfis <= 0)
             {
                $coste += $linea->pvptotal;
                $stock += $linea->cantidad;
