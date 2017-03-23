@@ -365,12 +365,12 @@ class articulo extends \fs_model
       if( strtolower(FS_DB_TYPE) == 'postgresql' )
       {
          $sql = "SELECT referencia from ".$this->table_name." where referencia ~ '^\d+$'"
-                 . " ORDER BY referencia::integer DESC";
+                 . " ORDER BY referencia::bigint DESC";
       }
       else
       {
          $sql = "SELECT referencia from ".$this->table_name." where referencia REGEXP '^[0-9]+$'"
-                 . " ORDER BY CAST(`referencia` AS decimal) DESC";
+                 . " ORDER BY referencia DESC";
       }
       
       $ref = 1;

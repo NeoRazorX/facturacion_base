@@ -80,6 +80,19 @@ class atributo extends \fs_model
       }
    }
    
+   public function get_by_nombre($nombre)
+   {
+      $data = $this->db->select("SELECT * FROM atributos WHERE nombre = ".$this->var2str($nombre).";");
+      if($data)
+      {
+         return new \atributo($data[0]);
+      }
+      else
+      {
+         return FALSE;
+      }
+   }
+   
    public function exists()
    {
       if( is_null($this->codatributo) )
