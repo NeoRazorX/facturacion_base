@@ -95,7 +95,7 @@
                         <input id="checked_codpostal" type="checkbox" name="nuevocli_codpostal_req" value="TRUE"{if="$fsc->nuevocli_setup['nuevocli_codpostal_req']"} checked="checked"{/if}{if="!$fsc->nuevocli_setup['nuevocli_codpostal']"} disabled{/if}/>
                         Código postal imprescindible
                      </label>
-                  </div> 
+                  </div>
                </div>
             </div>
          </div>
@@ -114,7 +114,7 @@
                         <input id="checked_pais" type="checkbox" name="nuevocli_pais_req" value="TRUE"{if="$fsc->nuevocli_setup['nuevocli_pais_req']"} checked="checked"{/if}{if="!$fsc->nuevocli_setup['nuevocli_pais']"} disabled{/if}/>
                         País imprescindible
                      </label>
-                  </div> 
+                  </div>
                </div>
             </div>
          </div>
@@ -135,7 +135,7 @@
                         <input id="checked_ciudad" type="checkbox" name="nuevocli_ciudad_req" value="TRUE"{if="$fsc->nuevocli_setup['nuevocli_ciudad_req']"} checked="checked"{/if}{if="!$fsc->nuevocli_setup['nuevocli_ciudad']"} disabled{/if}/>
                         Ciudad imprescindible
                      </label>
-                  </div> 
+                  </div>
                </div>
             </div>
          </div>
@@ -173,7 +173,7 @@
                         <input id="checked_telefono1" type="checkbox" name="nuevocli_telefono1_req" value="TRUE"{if="$fsc->nuevocli_setup['nuevocli_telefono1_req']"} checked="checked"{/if}{if="!$fsc->nuevocli_setup['nuevocli_telefono1']"} disabled{/if}/>
                         Teléfono 1 imprescindible
                      </label>
-                  </div> 
+                  </div>
                </div>
             </div>
          </div>
@@ -196,6 +196,7 @@
                </div>
             </div>
          </div>
+
       </div>
       <div class="row">
          <div class="col-sm-3">
@@ -214,6 +215,25 @@
                         {/if}
                      {/loop}
                   </select>
+               </div>
+            </div>
+         </div>
+         <div class="col-sm-3">
+            <div class="panel panel-default">
+               <div class="panel-heading text-center">E-mail</div>
+               <div class="panel-body">
+                  <div class="checkbox">
+                     <label>
+                        <input id="email" onclick="check(this.id)" type="checkbox" name="nuevocli_email" value="TRUE"{if="$fsc->nuevocli_setup['nuevocli_email']"} checked="checked"{/if}/>
+                        Mostrar E-mail
+                     </label>
+                  </div>
+                  <div class="checkbox">
+                     <label>
+                        <input id="checked_email" type="checkbox" name="nuevocli_email_req" value="TRUE"{if="$fsc->nuevocli_setup['nuevocli_email_req']"} checked="checked"{/if}{if="!$fsc->nuevocli_setup['nuevocli_email']"} disabled{/if}/>
+                        Email imprescindible
+                     </label>
+                  </div>
                </div>
             </div>
          </div>
