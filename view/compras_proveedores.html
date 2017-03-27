@@ -19,7 +19,7 @@
 
 <div class="container-fluid">
    <div class="row">
-      <div class="col-sm-7 col-xs-6">
+      <div class="col-sm-7 col-xs-12">
          <div class="btn-group hidden-xs">
             <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
                <span class="glyphicon glyphicon-refresh"></span>
@@ -46,9 +46,9 @@
             {/loop}
          </div>
       </div>
-      <div class="col-sm-5 col-xs-6 text-right">
+      <div class="col-sm-5 col-xs-12 text-right">
          <h2 style="margin-top: 0px;">
-            <i class="fa fa-users" aria-hidden="true"></i> Proveedores
+            <i class="fa fa-users hidden-xs" aria-hidden="true"></i> Proveedores
             <span class="hidden-xs hidden-sm">/ Acreedores</span>
          </h2>
       </div>
@@ -60,7 +60,7 @@
       <li role="presentation" class="active">
          <a href="{$fsc->url()}">
             <span class="glyphicon glyphicon-search"></span>
-            <span class="hidden-xs">&nbsp; Resultados</span>
+            <span class="hidden-xs">&nbsp;Resultados</span>
             <span class="badge">{$fsc->num_resultados}</span>
          </a>
       </li>
