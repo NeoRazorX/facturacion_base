@@ -90,140 +90,19 @@ class ventas_clientes extends fs_controller
 
       if( isset($_GET['delete_grupo']) ) /// eliminar un grupo
       {
-         $grupo = $this->grupo->get($_GET['delete_grupo']);
-         if($grupo)
-         {
-            if( $grupo->delete() )
-            {
-               $this->new_message('Grupo eliminado correctamente.');
-            }
-            else
-               $this->new_error_msg('Imposible eliminar el grupo.');
-         }
-         else
-            $this->new_error_msg('Grupo no encontrado.');
+         $this->eliminar_grupo();
       }
       else if( isset($_POST['codgrupo']) ) /// añadir/modificar un grupo
       {
-         $grupo = $this->grupo->get($_POST['codgrupo']);
-         if(!$grupo)
-         {
-            $grupo = new grupo_clientes();
-            $grupo->codgrupo = $_POST['codgrupo'];
-         }
-         $grupo->nombre = $_POST['nombre'];
-
-         $grupo->codtarifa = NULL;
-         if($_POST['codtarifa'] != '---')
-         {
-            $grupo->codtarifa = $_POST['codtarifa'];
-         }
-
-         if( $grupo->save() )
-         {
-            $this->new_message('Grupo guardado correctamente.');
-         }
-         else
-            $this->new_error_msg('Imposible guardar el grupo.');
+         $this->nuevo_grupo();
       }
       else if( isset($_GET['delete']) ) /// eliminar un cliente
       {
-         $cliente = $this->cliente->get($_GET['delete']);
-         if($cliente)
-         {
-            if(FS_DEMO)
-            {
-               $this->new_error_msg('En el modo demo no se pueden eliminar clientes. Otros usuarios podrían necesitarlos.');
-            }
-            else if( $cliente->delete() )
-            {
-               $this->new_message('Cliente eliminado correctamente.');
-            }
-            else
-               $this->new_error_msg('Ha sido imposible eliminar el cliente.');
-         }
-         else
-            $this->new_error_msg('Cliente no encontrado.');
+         $this->eliminar_cliente();
       }
       else if( isset($_POST['cifnif']) ) /// añadir un nuevo cliente
       {
-         $cliente = new cliente();
-         $cliente->codcliente = $cliente->get_new_codigo();
-         $cliente->nombre = $_POST['nombre'];
-         $cliente->razonsocial = $_POST['nombre'];
-         $cliente->tipoidfiscal = $_POST['tipoidfiscal'];
-         $cliente->cifnif = $_POST['cifnif'];
-          $cliente->email = $_POST['email'];
-         $cliente->personafisica = isset($_POST['personafisica']);
-
-         if( isset($_POST['scodgrupo']) )
-         {
-            if($_POST['scodgrupo'] != '')
-            {
-               $cliente->codgrupo = $_POST['scodgrupo'];
-            }
-         }
-
-         if( isset($_POST['telefono1']) )
-         {
-            $cliente->telefono1 = $_POST['telefono1'];
-         }
-
-         if( isset($_POST['telefono2']) )
-         {
-            $cliente->telefono2 = $_POST['telefono2'];
-         }
-
-         if( $cliente->save() )
-         {
-            $dircliente = new direccion_cliente();
-            $dircliente->codcliente = $cliente->codcliente;
-            $dircliente->codpais = $this->empresa->codpais;
-            $dircliente->provincia = $this->empresa->provincia;
-            $dircliente->ciudad = $this->empresa->ciudad;
-            $dircliente->descripcion = 'Principal';
-
-            if( isset($_POST['pais']) )
-            {
-               $dircliente->codpais = $_POST['pais'];
-            }
-
-            if( isset($_POST['provincia']) )
-            {
-               $dircliente->provincia = $_POST['provincia'];
-            }
-
-            if( isset($_POST['ciudad']) )
-            {
-               $dircliente->ciudad = $_POST['ciudad'];
-            }
-
-            if( isset($_POST['codpostal']) )
-            {
-               $dircliente->codpostal = $_POST['codpostal'];
-            }
-
-            if( isset($_POST['direccion']) )
-            {
-               $dircliente->direccion = $_POST['direccion'];
-            }
-
-            if( $dircliente->save() )
-            {
-               if($this->empresa->contintegrada)
-               {
-                  /// forzamos la creación de la subcuenta
-                  $cliente->get_subcuenta($this->empresa->codejercicio);
-               }
-
-               /// redireccionamos a la página del cliente
-               header('location: '.$cliente->url());
-            }
-            else
-               $this->new_error_msg("¡Imposible guardar la dirección del cliente!");
-         }
-         else
-            $this->new_error_msg("¡Imposible guardar los datos del cliente!");
+         $this->nuevo_cliente();
       }
 
       $this->offset = 0;
@@ -506,5 +385,154 @@ class ventas_clientes extends fs_controller
             }
          }
       }
+   }
+   
+   private function nuevo_cliente()
+   {
+      $cliente = new cliente();
+      $cliente->codcliente = $cliente->get_new_codigo();
+      $cliente->nombre = $_POST['nombre'];
+      $cliente->razonsocial = $_POST['nombre'];
+      $cliente->tipoidfiscal = $_POST['tipoidfiscal'];
+      $cliente->cifnif = $_POST['cifnif'];
+      $cliente->email = $_POST['email'];
+      $cliente->personafisica = isset($_POST['personafisica']);
+      
+      if( isset($_POST['scodgrupo']) )
+      {
+         if($_POST['scodgrupo'] != '')
+         {
+            $cliente->codgrupo = $_POST['scodgrupo'];
+         }
+      }
+      
+      if( isset($_POST['telefono1']) )
+      {
+         $cliente->telefono1 = $_POST['telefono1'];
+      }
+      
+      if( isset($_POST['telefono2']) )
+      {
+         $cliente->telefono2 = $_POST['telefono2'];
+      }
+      
+      if( $cliente->save() )
+      {
+         $dircliente = new direccion_cliente();
+         $dircliente->codcliente = $cliente->codcliente;
+         $dircliente->codpais = $this->empresa->codpais;
+         $dircliente->provincia = $this->empresa->provincia;
+         $dircliente->ciudad = $this->empresa->ciudad;
+         $dircliente->descripcion = 'Principal';
+         
+         if( isset($_POST['pais']) )
+         {
+            $dircliente->codpais = $_POST['pais'];
+         }
+         
+         if( isset($_POST['provincia']) )
+         {
+            $dircliente->provincia = $_POST['provincia'];
+         }
+         
+         if( isset($_POST['ciudad']) )
+         {
+            $dircliente->ciudad = $_POST['ciudad'];
+         }
+         
+         if( isset($_POST['codpostal']) )
+         {
+            $dircliente->codpostal = $_POST['codpostal'];
+         }
+         
+         if( isset($_POST['direccion']) )
+         {
+            $dircliente->direccion = $_POST['direccion'];
+         }
+         
+         if( $dircliente->save() )
+         {
+            if($this->empresa->contintegrada)
+            {
+               /// forzamos la creación de la subcuenta
+               $cliente->get_subcuenta($this->empresa->codejercicio);
+            }
+            
+            /// redireccionamos a la página del cliente
+            header('location: '.$cliente->url());
+         }
+         else
+            $this->new_error_msg("¡Imposible guardar la dirección del cliente!");
+      }
+      else
+         $this->new_error_msg("¡Imposible guardar los datos del cliente!");
+   }
+   
+   private function eliminar_cliente()
+   {
+      $cliente = $this->cliente->get($_GET['delete']);
+      if($cliente)
+      {
+         if(FS_DEMO)
+         {
+            $this->new_error_msg('En el modo demo no se pueden eliminar clientes. Otros usuarios podrían necesitarlos.');
+         }
+         else if(!$this->allow_delete)
+         {
+            $this->new_error_msg('No tienes permiso para eliminar en esta página.');
+         }
+         else if( $cliente->delete() )
+         {
+            $this->new_message('Cliente eliminado correctamente.');
+         }
+         else
+            $this->new_error_msg('Ha sido imposible eliminar el cliente.');
+      }
+      else
+         $this->new_error_msg('Cliente no encontrado.');
+   }
+   
+   private function nuevo_grupo()
+   {
+      $grupo = $this->grupo->get($_POST['codgrupo']);
+      if(!$grupo)
+      {
+         $grupo = new grupo_clientes();
+         $grupo->codgrupo = $_POST['codgrupo'];
+      }
+      $grupo->nombre = $_POST['nombre'];
+      
+      $grupo->codtarifa = NULL;
+      if($_POST['codtarifa'] != '---')
+      {
+         $grupo->codtarifa = $_POST['codtarifa'];
+      }
+      
+      if( $grupo->save() )
+      {
+         $this->new_message('Grupo guardado correctamente.');
+      }
+      else
+         $this->new_error_msg('Imposible guardar el grupo.');
+   }
+   
+   private function eliminar_grupo()
+   {
+      $grupo = $this->grupo->get($_GET['delete_grupo']);
+      if($grupo)
+      {
+         if(!$this->allow_delete)
+         {
+            $this->new_error_msg('No tienes permiso para eliminar en esta página.');
+         }
+         else if( $grupo->delete() )
+         {
+            $this->new_message('Grupo eliminado correctamente.');
+         }
+         else
+            $this->new_error_msg('Imposible eliminar el grupo.');
+      }
+      else
+         $this->new_error_msg('Grupo no encontrado.');
    }
 }
