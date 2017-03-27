@@ -395,8 +395,12 @@ class ventas_clientes extends fs_controller
       $cliente->razonsocial = $_POST['nombre'];
       $cliente->tipoidfiscal = $_POST['tipoidfiscal'];
       $cliente->cifnif = $_POST['cifnif'];
-      $cliente->email = $_POST['email'];
       $cliente->personafisica = isset($_POST['personafisica']);
+      
+      if( isset($_POST['email']) )
+      {
+         $cliente->email = $_POST['email'];
+      }
       
       if( isset($_POST['scodgrupo']) )
       {

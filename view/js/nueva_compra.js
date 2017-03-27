@@ -440,16 +440,25 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad,codcombinacion)
 
 function add_articulo_atributos(ref,desc,pvp,dto,codimpuesto)
 {
-   $.ajax({
-      type: 'POST',
-      url: nueva_compra_url,
-      dataType: 'html',
-      data: "referencia4combi="+ref+"&desc="+desc+"&pvp="+pvp+"&dto="+dto+"&codimpuesto="+codimpuesto,
-      success: function(datos) {
-         $("#nav_articulos").hide();
-         $("#search_results").html(datos);
-      }
-   });
+   if(nueva_compra_url !== '')
+   {
+      $.ajax({
+         type: 'POST',
+         url: nueva_compra_url,
+         dataType: 'html',
+         data: "referencia4combi="+ref+"&desc="+desc+"&pvp="+pvp+"&dto="+dto+"&codimpuesto="+codimpuesto,
+         success: function(datos) {
+            $("#nav_articulos").hide();
+            $("#search_results").html(datos);
+         },
+         error: function() {
+            bootbox.alert({
+               message: 'Se ha producido un error al obtener los atributos.',
+               title: "<b>Atención</b>"
+            });
+         }
+      });
+   }
 }
 
 function add_linea_libre()
@@ -494,6 +503,12 @@ function get_precios(ref)
          success: function(datos) {
             $("#nav_articulos").hide();
             $("#search_results").html(datos);
+         },
+         error: function() {
+            bootbox.alert({
+               message: 'Se ha producido un error al obtener los precios.',
+               title: "<b>Atención</b>"
+            });
          }
       });
    }
@@ -511,20 +526,10 @@ function new_articulo()
          success: function(datos) {
             if(typeof datos[0] == 'undefined')
             {
-               if(document.f_nuevo_articulo.referencia.value == '')
-               {
-                  bootbox.alert({
-                     message: 'Debes escribir una referencia.',
-                     title: "<b>Atención</b>"
-                  });
-               }
-               else
-               {
-                  bootbox.alert({
-                     message: 'Se ha producido un error al crear el artículo.',
-                     title: "<b>Atención</b>"
-                  });
-               }
+               bootbox.alert({
+                  message: 'Se ha producido un error al crear el artículo.',
+                  title: "<b>Atención</b>"
+               });
             }
             else
             {
@@ -545,6 +550,12 @@ function new_articulo()
                   add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].pvp, 0, datos[0].codimpuesto);
                }
             }
+         },
+         error: function() {
+            bootbox.alert({
+               message: 'Se ha producido un error al crear el artículo.',
+               title: "<b>Atención</b>"
+            });
          }
       });
    }

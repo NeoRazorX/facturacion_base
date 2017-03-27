@@ -167,9 +167,13 @@ class nueva_venta extends fs_controller
                   $this->cliente_s->nombre = $this->cliente_s->razonsocial = $_POST['nuevo_cliente'];
                   $this->cliente_s->tipoidfiscal = $_POST['nuevo_tipoidfiscal'];
                   $this->cliente_s->cifnif = $_POST['nuevo_cifnif'];
-                  $this->cliente_s->email = $_POST['nuevo_email'];
                   $this->cliente_s->personafisica = isset($_POST['personafisica']);
-
+                  
+                  if( isset($_POST['nuevo_email']) )
+                  {
+                     $this->cliente_s->email = $_POST['nuevo_email'];
+                  }
+                  
                   if( isset($_POST['codgrupo']) )
                   {
                      if($_POST['codgrupo'] != '')
@@ -398,7 +402,7 @@ class nueva_venta extends fs_controller
 
       if( $art0->exists() )
       {
-         $this->results[] = $art0->get($_REQUEST['referencia']);
+         $this->results[] = $art0->get($art0->referencia);
       }
       else
       {

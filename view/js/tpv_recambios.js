@@ -254,15 +254,24 @@ function ajustar_total(i)
 
 function get_precios(ref)
 {
-   $.ajax({
-      type: 'POST',
-      url: tpv_url,
-      dataType: 'html',
-      data: "referencia4precios="+ref+"&codcliente="+document.f_tpv.cliente.value,
-      success: function(datos) {
-         $("#search_results").html(datos);
-      }
-   });
+   if(tpv_url !== '')
+   {
+      $.ajax({
+         type: 'POST',
+         url: tpv_url,
+         dataType: 'html',
+         data: "referencia4precios="+ref+"&codcliente="+document.f_tpv.cliente.value,
+         success: function(datos) {
+            $("#search_results").html(datos);
+         },
+         error: function() {
+            bootbox.alert({
+               message: 'Se ha producido un error al obtener los precios.',
+               title: "<b>Atención</b>"
+            });
+         }
+      });
+   }
 }
 
 function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad,codcombinacion)
@@ -325,17 +334,26 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad,codcombinacion)
 
 function add_articulo_atributos(ref,desc,pvp,dto,codimpuesto,cantidad)
 {
-   $.ajax({
-      type: 'POST',
-      url: 'index.php?page=tpv_recambios',
-      dataType: 'html',
-      data: "referencia4combi="+ref+"&desc="+desc+"&pvp="+pvp+"&dto="+dto
-              +"&codimpuesto="+codimpuesto+"&cantidad="+cantidad,
-      success: function(datos) {
-         $("#nav_articulos").hide();
-         $("#search_results").html(datos);
-      }
-   });
+   if(tpv_url !== '')
+   {
+      $.ajax({
+         type: 'POST',
+         url: 'index.php?page=tpv_recambios',
+         dataType: 'html',
+         data: "referencia4combi="+ref+"&desc="+desc+"&pvp="+pvp+"&dto="+dto
+                 +"&codimpuesto="+codimpuesto+"&cantidad="+cantidad,
+         success: function(datos) {
+            $("#nav_articulos").hide();
+            $("#search_results").html(datos);
+         },
+         error: function() {
+            bootbox.alert({
+               message: 'Se ha producido un error al obtener los atributos.',
+               title: "<b>Atención</b>"
+            });
+         }
+      });
+   }
 }
 
 function buscar_articulos()
@@ -344,7 +362,7 @@ function buscar_articulos()
    {
       $("#search_results").html('');
    }
-   else
+   else if(tpv_url !== '')
    {
       document.f_buscar_articulos.codcliente.value = document.f_tpv.cliente.value;
       
@@ -450,39 +468,42 @@ function buscar_articulos()
 
 function buscar_codbarras()
 {
-   var url = tpv_url+'&codcliente='+document.f_tpv.cliente.value+'&codalmacen='+document.f_tpv.almacen.value
-           +'&query='+document.f_tpv.codbar.value;
-   
-   $.getJSON(url, function(json) {
-      $.each(json, function(key, val) {
-         if(val.codbarras == document.f_tpv.codbar.value)
-         {
-            if( val.sevende && (val.stockalm > 0 || val.controlstock) )
-            {
-               var funcion = "add_articulo('"+val.referencia+"','"+Base64.encode(val.descripcion)+"','"+val.pvp+"','"
-                  +val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
-                  
-               if(val.tipo)
-               {
-                  funcion = "add_articulo_"+val.tipo+"('"+val.referencia+"','"+Base64.encode(val.descripcion)+"','"
-                     +val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
-               }
-               
-               eval(funcion);
-            }
-            else if(val.sevende)
-            {
-               bootbox.alert({
-                  message: 'Sin stock.',
-                  title: '<b>Atención</b>'
-               });
-            }
-         }
-      });
+   if(tpv_url !== '')
+   {
+      var url = tpv_url+'&codcliente='+document.f_tpv.cliente.value+'&codalmacen='+document.f_tpv.almacen.value
+              +'&query='+document.f_tpv.codbar.value;
       
-      document.f_tpv.codbar.value = '';
-      document.f_tpv.codbar.focus();
-   });
+      $.getJSON(url, function(json) {
+         $.each(json, function(key, val) {
+            if(val.codbarras == document.f_tpv.codbar.value)
+            {
+               if( val.sevende && (val.stockalm > 0 || val.controlstock) )
+               {
+                  var funcion = "add_articulo('"+val.referencia+"','"+Base64.encode(val.descripcion)+"','"+val.pvp+"','"
+                     +val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
+             
+                 if(val.tipo)
+                  {
+                     funcion = "add_articulo_"+val.tipo+"('"+val.referencia+"','"+Base64.encode(val.descripcion)+"','"
+                        +val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
+                  }
+                  
+                  eval(funcion);
+               }
+               else if(val.sevende)
+               {
+                  bootbox.alert({
+                     message: 'Sin stock.',
+                     title: '<b>Atención</b>'
+                  });
+               }
+            }
+         });
+         
+         document.f_tpv.codbar.value = '';
+         document.f_tpv.codbar.focus();
+      });
+   }
 }
 
 function show_pvp_iva(pvp,codimpuesto)
