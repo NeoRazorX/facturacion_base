@@ -201,6 +201,7 @@ class informe_articulos extends fs_controller
    private function recalcular_stock()
    {
       $almacenes = $this->almacen->all();
+      /*
       if( count($almacenes) > 1 )
       {
          $this->new_error_msg('El cálculo de stock con más de un almaćen está temporalmente desactivado.');
@@ -228,6 +229,29 @@ class informe_articulos extends fs_controller
          {
             $this->new_advice('Finalizado &nbsp; <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
          }
+      }
+       * 
+       */
+      $articulo = new articulo();
+      $continuar = FALSE;
+      $offset = intval($_GET['offset']);
+
+      $this->new_message('Recalculando stock de artículos... '.$offset);
+
+      foreach($articulo->all($offset, 30) as $art)
+      {
+         $this->calcular_stock_real($art);
+         $continuar = TRUE;
+         $offset++;
+      }
+
+      if($continuar)
+      {
+         $this->url_recarga = $this->url().'&tab=stock&recalcular=TRUE&offset='.$offset.'&codalmacen='.$this->codalmacen;
+      }
+      else
+      {
+         $this->new_advice('Finalizado &nbsp; <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
       }
    }
    
@@ -493,7 +517,7 @@ class informe_articulos extends fs_controller
    public function anterior_url()
    {
       $url = '';
-      $extra = '&tab=stock&tipo='.$this->tipo_stock;
+      $extra = '&tab=stock&tipo='.$this->tipo_stock.'&codalmacen='.$this->codalmacen;
       
       if($this->offset>'0')
       {
@@ -506,7 +530,7 @@ class informe_articulos extends fs_controller
    public function siguiente_url()
    {
       $url = '';
-      $extra = '&tab=stock&tipo='.$this->tipo_stock;
+      $extra = '&tab=stock&tipo='.$this->tipo_stock.'&codalmacen='.$this->codalmacen;
       
       if(count($this->resultados) == FS_ITEM_LIMIT)
       {
@@ -678,20 +702,24 @@ class informe_articulos extends fs_controller
    
    private function calcular_stock_real(&$articulo)
    {
-      foreach($this->almacen->all() as $alm)
-      {
-         $total = 0;
-         foreach($this->get_movimientos($articulo->referencia) as $mov)
-         {
-            if($mov['codalmacen'] == $alm->codalmacen)
-            {
-               $total = $mov['final'];
-            }
-         }
+      if($this->codalmacen){
          
-         if( !$articulo->set_stock($alm->codalmacen, $total) )
+      }else{
+         foreach($this->almacen->all() as $alm)
          {
-            $this->new_error_msg('Error al recarcular el stock del almacén '.$alm->codalmacen.'.');
+            $total = 0;
+            foreach($this->get_movimientos($articulo->referencia) as $mov)
+            {
+               if($mov['codalmacen'] == $alm->codalmacen)
+               {
+                  $total = $mov['final'];
+               }
+            }
+
+            if( !$articulo->set_stock($alm->codalmacen, $total) )
+            {
+               $this->new_error_msg('Error al recarcular el stock del almacén '.$alm->codalmacen.'.');
+            }
          }
       }
    }

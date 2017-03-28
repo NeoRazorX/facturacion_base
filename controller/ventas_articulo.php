@@ -791,7 +791,7 @@ class ventas_articulo extends fs_controller
       });
             
       /// recalculamos las cantidades finales hacia atrás
-      $final = $this->articulo->stockfis;
+      $final = $this->stocks->total_from_articulo($this->articulo->referencia);
       for($i = count($mlist) - 1; $i >= 0; $i--)
       {
          if($mlist[$i]['movimiento'] == '-')

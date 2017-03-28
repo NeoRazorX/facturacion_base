@@ -18,6 +18,7 @@
  */
 
 require_model('agente.php');
+require_model('almacen.php');
 require_model('articulo.php');
 require_model('factura_proveedor.php');
 require_model('proveedor.php');
@@ -25,9 +26,11 @@ require_model('proveedor.php');
 class compras_facturas extends fs_controller
 {
    public $agente;
+   public $almacenes;
    public $articulo;
    public $buscar_lineas;
    public $codagente;
+   public $codalmacen;
    public $codserie;
    public $desde;
    public $estado;
@@ -52,6 +55,7 @@ class compras_facturas extends fs_controller
    protected function private_core()
    {
       $this->agente = new agente();
+      $this->almacenes = new almacen();
       $this->factura = new factura_proveedor();
       $this->serie = new serie();
       
@@ -126,6 +130,7 @@ class compras_facturas extends fs_controller
          $this->share_extension();
          $this->proveedor = FALSE;
          $this->codagente = '';
+         $this->codalmacen = '';
          $this->codserie = '';
          $this->desde = '';
          $this->estado = '';
@@ -234,6 +239,7 @@ class compras_facturas extends fs_controller
                  ."&query=".$this->query
                  ."&codserie=".$this->codserie
                  ."&codagente=".$this->codagente
+                 ."&codalmacen=".$this->codalmacen
                  ."&codproveedor=".$codproveedor
                  ."&desde=".$this->desde
                  ."&estado=".$this->estado
@@ -427,6 +433,12 @@ class compras_facturas extends fs_controller
       if($this->codagente != '')
       {
          $sql .= $where."codagente = ".$this->agente->var2str($this->codagente);
+         $where = ' AND ';
+      }
+      
+      if($this->codalmacen != '')
+      {
+         $sql .= $where."codalmacen = ".$this->agente->var2str($this->codalmacen);
          $where = ' AND ';
       }
       

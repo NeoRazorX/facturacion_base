@@ -254,6 +254,21 @@
                <input type="text" name="hasta" value="{$fsc->hasta}" class="form-control datepicker" placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
             </div>
          </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               <select name="codalmacen" class="form-control" onchange="this.form.submit()">
+                  <option value="">Cualquier almacén</option>
+                  <option value="">------</option>
+                  {loop="$fsc->almacenes->all()"}
+                     {if="$value->codalmacen==$fsc->codalmacen"}
+                     <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
+                     {else}
+                     <option value="{$value->codalmacen}">{$value->nombre}</option>
+                     {/if}
+                  {/loop}
+               </select>
+            </div>
+         </div>          
       </div>
       <div class="row">
          <div class="col-sm-12">
