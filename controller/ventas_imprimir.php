@@ -37,7 +37,7 @@ class ventas_imprimir extends fs_controller
    public $impresion;
    public $impuesto;
    
-   private $articulo_traza;
+   public $articulo_traza;
    private $numpaginas;
    
    public function __construct()
