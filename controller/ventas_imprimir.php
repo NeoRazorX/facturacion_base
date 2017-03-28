@@ -683,7 +683,7 @@ class ventas_imprimir extends fs_controller
       }
    }
    
-   private function generar_pdf_albaran($archivo = FALSE)
+   public function generar_pdf_albaran($archivo = FALSE)
    {
       if(!$archivo)
       {
@@ -742,7 +742,7 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->show(FS_ALBARAN.'_'.$this->documento->codigo.'.pdf');
    }
    
-   private function generar_pdf_factura($tipo = 'simple', $archivo = FALSE)
+   public function generar_pdf_factura($tipo = 'simple', $archivo = FALSE)
    {
       if(!$archivo)
       {

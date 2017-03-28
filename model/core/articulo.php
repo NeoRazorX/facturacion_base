@@ -197,7 +197,6 @@ class articulo extends \fs_model
    private static $cleaned_cache;
    private static $column_list;
 
-
    public function __construct($a = FALSE)
    {
       parent::__construct('articulos');
@@ -370,7 +369,7 @@ class articulo extends \fs_model
       else
       {
          $sql = "SELECT referencia from ".$this->table_name." where referencia REGEXP '^[0-9]+$'"
-                 . " ORDER BY referencia DESC";
+                 . " ORDER BY ABS(referencia) DESC";
       }
       
       $ref = 1;

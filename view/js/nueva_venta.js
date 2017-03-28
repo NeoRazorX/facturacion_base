@@ -476,17 +476,26 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad,codcombinacion)
 
 function add_articulo_atributos(ref,desc,pvp,dto,codimpuesto,cantidad)
 {
-   $.ajax({
-      type: 'POST',
-      url: nueva_venta_url,
-      dataType: 'html',
-      data: "referencia4combi="+ref+"&desc="+desc+"&pvp="+pvp+"&dto="+dto
-              +"&codimpuesto="+codimpuesto+"&cantidad="+cantidad,
-      success: function(datos) {
-         $("#nav_articulos").hide();
-         $("#search_results").html(datos);
-      }
-   });
+   if(nueva_venta_url !== '')
+   {
+      $.ajax({
+         type: 'POST',
+         url: nueva_venta_url,
+         dataType: 'html',
+         data: "referencia4combi="+ref+"&desc="+desc+"&pvp="+pvp+"&dto="+dto
+                 +"&codimpuesto="+codimpuesto+"&cantidad="+cantidad,
+         success: function(datos) {
+            $("#nav_articulos").hide();
+            $("#search_results").html(datos);
+         },
+         error: function() {
+            bootbox.alert({
+               message: 'Se ha producido un error al obtener los atributos.',
+               title: "<b>Atención</b>"
+            });
+         }
+      });
+   }
 }
 
 function add_linea_libre()
@@ -531,6 +540,12 @@ function get_precios(ref)
          success: function(datos) {
             $("#nav_articulos").hide();
             $("#search_results").html(datos);
+         },
+         error: function() {
+            bootbox.alert({
+               message: 'Se ha producido un error al obtener los precios.',
+               title: "<b>Atención</b>"
+            });
          }
       });
    }
@@ -538,7 +553,7 @@ function get_precios(ref)
 
 function new_articulo()
 {
-   if( nueva_venta_url != '' )
+   if(nueva_venta_url !== '')
    {
       $.ajax({
          type: 'POST',
@@ -546,15 +561,31 @@ function new_articulo()
          dataType: 'json',
          data: $("form[name=f_nuevo_articulo]").serialize(),
          success: function(datos) {
-            document.f_buscar_articulos.query.value = document.f_nuevo_articulo.referencia.value;
-            $("#nav_articulos li").each(function() {
-               $(this).removeClass("active");
+            if(typeof datos[0] == 'undefined')
+            {
+               bootbox.alert({
+                  message: 'Se ha producido un error al crear el artículo.',
+                  title: "<b>Atención</b>"
+               });
+            }
+            else
+            {
+               document.f_buscar_articulos.query.value = document.f_nuevo_articulo.referencia.value;
+               $("#nav_articulos li").each(function() {
+                  $(this).removeClass("active");
+               });
+               $("#li_mis_articulos").addClass('active');
+               $("#search_results").show();
+               $("#nuevo_articulo").hide();
+               
+               add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].pvp, 0, datos[0].codimpuesto, 1);
+            }
+         },
+         error: function() {
+            bootbox.alert({
+               message: 'Se ha producido un error al crear el artículo.',
+               title: "<b>Atención</b>"
             });
-            $("#li_mis_articulos").addClass('active');
-            $("#search_results").show();
-            $("#nuevo_articulo").hide();
-            
-            add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].pvp, 0, datos[0].codimpuesto, 1);
          }
       });
    }

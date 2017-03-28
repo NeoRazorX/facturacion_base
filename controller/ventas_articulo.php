@@ -509,21 +509,16 @@ class ventas_articulo extends fs_controller
       {
          if( isset($_POST['idvalor_'.$i]) )
          {
-            $valor = $valor0->get($_POST['idvalor_'.$i]);
-            if($valor)
+            if($_POST['idvalor_'.$i])
             {
-               if($i == 0)
+               $valor = $valor0->get($_POST['idvalor_'.$i]);
+               if($valor)
                {
-                  $error = FALSE;
-               }
-               
-               $comb1->id = NULL;
-               $comb1->idvalor = $valor->id;
-               $comb1->nombreatributo = $valor->nombre();
-               $comb1->valor = $valor->valor;
-               if( !$comb1->save() )
-               {
-                  $error = TRUE;
+                  $comb1->id = NULL;
+                  $comb1->idvalor = $valor->id;
+                  $comb1->nombreatributo = $valor->nombre();
+                  $comb1->valor = $valor->valor;
+                  $error = !$comb1->save();
                }
             }
          }

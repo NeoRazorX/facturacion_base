@@ -36,7 +36,7 @@
       {
          document.f_custom_search.query.focus();
       }
-      
+
       $("#b_nuevo_cliente").click(function(event) {
          event.preventDefault();
          show_nuevo_cliente();
@@ -75,7 +75,7 @@
       </div>
       <div class="col-sm-5 col-xs-6 text-right">
          <h2 style="margin-top: 0px;">
-            <i class="fa fa-users" aria-hidden="true"></i> Clientes
+            <i class="fa fa-users hidden-xs" aria-hidden="true"></i> Clientes
          </h2>
       </div>
    </div>
@@ -86,7 +86,7 @@
       <li role="presentation" class="active">
          <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
             <span class="glyphicon glyphicon-search"></span>
-            <span class="hidden-xs">&nbsp; Resultados</span>
+            <span class="hidden-xs">&nbsp;Resultados</span>
             <span class="badge">{$fsc->total_resultados}</span>
          </a>
       </li>
@@ -214,7 +214,7 @@
                </div>
             </div>
          </form>
-         
+
          <div class="table-responsive">
             <table class="table table-hover">
                <thead>
@@ -434,6 +434,14 @@
                   <label class="col-sm-2 control-label">Teléfono 2</label>
                   <div class="col-sm-10">
                      <input type="text" name="telefono2" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_telefono2_req']"} required=""{/if}/>
+                  </div>
+               </div>
+               {/if}
+               {if="$fsc->nuevocli_setup['nuevocli_email']"}
+               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_email_req']"} has-warning{/if}">
+                  <label class="col-sm-2 control-label">E-Mail</label>
+                  <div class="col-sm-10">
+                     <input type="text" name="email" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_email_req']"} required=""{/if}/>
                   </div>
                </div>
                {/if}
