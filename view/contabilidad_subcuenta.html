@@ -18,10 +18,15 @@
    $(document).ready(function() {
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Realmente desea eliminar esta subcuenta?") )
-         {
-            window.location.href = '{$fsc->ppage->url()}&deletes={$fsc->subcuenta->idsubcuenta}';
-         }
+         bootbox.confirm({
+            message: '¿Realmente desea eliminar esta subcuenta?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = '{$fsc->ppage->url()}&deletes={$fsc->subcuenta->idsubcuenta}';
+               }
+            }
+         });
       });
    });
 </script>

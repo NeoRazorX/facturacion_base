@@ -19,10 +19,15 @@
       });
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Realmente desea eliminar este ejercicio?") )
-         {
-            window.location.href = 'index.php?page=contabilidad_ejercicios&delete={$fsc->ejercicio->codejercicio}';
-         }
+         bootbox.confirm({
+            message: '¿Realmente desea eliminar este ejercicio?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = 'index.php?page=contabilidad_ejercicios&delete={$fsc->ejercicio->codejercicio}';
+               }
+            }
+         });
       });
    });
 </script>
@@ -252,7 +257,7 @@
                   Se importarán grupos, epígrafes, cuentas, subcuentas, etc.
                   <br/>
                   ¿No está el plan contable de tu país?
-                  <a href="https://www.youtube.com/watch?v=LtnbPTLCiJY" target="_blank">Créalo</a>.
+                  <a href="https://www.facturascripts.com/foro/como-adaptar-facturascripts-a-tu-pais-este-pretende-250.html" target="_blank">Créalo</a>.
                </p>
             </div>
             <div class="modal-body">

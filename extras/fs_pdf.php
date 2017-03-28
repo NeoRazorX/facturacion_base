@@ -162,6 +162,21 @@ class fs_pdf
             {
                $this->pdf->addPngFromFile($this->logo, 35, 740, $tamanyo[0], $tamanyo[1]);
             }
+            else if( function_exists('imagepng') )
+            {
+               /**
+                * La librería ezpdf tiene problemas al redimensionar jpegs,
+                * así que hacemos la conversión a png para evitar estos problemas.
+                */
+               if( imagepng( imagecreatefromstring( file_get_contents($this->logo) ), FS_MYDOCS.'images/logo.png') )
+               {
+                  $this->pdf->addPngFromFile(FS_MYDOCS.'images/logo.png', 35, 740, $tamanyo[0], $tamanyo[1]);
+               }
+               else
+               {
+                  $this->pdf->addJpegFromFile($this->logo, 35, 740, $tamanyo[0], $tamanyo[1]);
+               }
+            }
             else
             {
                $this->pdf->addJpegFromFile($this->logo, 35, 740, $tamanyo[0], $tamanyo[1]);

@@ -5,10 +5,15 @@
    $(document).ready(function() {
       $("#b_eliminar_balance").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Estas seguro de que deseas eliminar este balance?") )
-         {
-            window.location.href = '{$fsc->url()}&delete={function="urlencode($fsc->balance->codbalance)"}';
-         }
+         bootbox.confirm({
+            message: '¿Estas seguro de que deseas eliminar este balance?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = '{$fsc->url()}&delete={function="urlencode($fsc->balance->codbalance)"}';
+               }
+            }
+         });
       });
    });
 </script>

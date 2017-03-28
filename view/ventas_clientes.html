@@ -13,10 +13,15 @@
    }
    function eliminar_grupo(cod)
    {
-      if( confirm("¿Realmente desea eliminar el grupo "+cod+"?") )
-      {
-         window.location.href = '{$fsc->url()}&delete_grupo='+cod+'#grupos';
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar el grupo '+cod+'?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&delete_grupo='+cod+'#grupos';
+            }
+         }
+      });
    }
    $(document).ready(function() {
       if(window.location.hash.substring(1) == 'nuevo')

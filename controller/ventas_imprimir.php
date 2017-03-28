@@ -25,6 +25,7 @@ require_model('cliente.php');
 require_model('cuenta_banco.php');
 require_model('cuenta_banco_cliente.php');
 require_model('forma_pago.php');
+require_model('pais.php');
 
 /**
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes y facturas.
@@ -556,6 +557,15 @@ class ventas_imprimir extends fs_controller
       {
          $direccion .= ' ('.$this->documento->provincia.')';
       }
+      if($this->documento->codpais != $this->empresa->codpais)
+      {
+         $pais0 = new pais();
+         $pais = $pais0->get($this->documento->codpais);
+         if($pais)
+         {
+            $direccion .= ' '.$pais->nombre;
+         }
+      }
       $row = array(
           'campo1' => "<b>Dirección:</b>",
           'dato1' => $pdf_doc->fix_html($direccion),
@@ -786,7 +796,15 @@ class ventas_imprimir extends fs_controller
                   $direccion .= "\n";
                }
                $direccion .= $this->documento->ciudad . "\n(" . $this->documento->provincia . ")";
-               
+               if($this->documento->codpais != $this->empresa->codpais)
+               {
+                  $pais0 = new pais();
+                  $pais = $pais0->get($this->documento->codpais);
+                  if($pais)
+                  {
+                     $direccion .= ' '.$pais->nombre;
+                  }
+               }
                $pdf_doc->new_table();
                $pdf_doc->add_table_row(
                   array(

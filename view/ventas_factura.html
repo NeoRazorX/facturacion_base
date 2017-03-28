@@ -171,7 +171,7 @@
                {if="$fsc->cliente"}
                   {if="$fsc->cliente->nombre!=$fsc->factura->nombrecliente"}
                   <li>
-                     <a href="#" onclick="alert('Cliente conocido como: {$fsc->cliente->nombre}')">
+                     <a href="#" onclick="bootbox.alert({message: 'Cliente conocido como: {$fsc->cliente->nombre}',title: '<b>Atención</b>'});">
                         <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                      </a>
                   </li>
@@ -774,7 +774,9 @@
          {/loop}
          </div>
          <div class="modal-footer">
-            <a href="index.php?page=admin_empresa#impresion" target="_blank">Opciones de impresión</a>
+            <a href="index.php?page=admin_empresa#impresion" target="_blank">
+               <span class="glyphicon glyphicon-wrench"></span>&nbsp; Opciones de impresión
+            </a>
          </div>
       </div>
    </div>

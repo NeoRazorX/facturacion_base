@@ -4,10 +4,15 @@
 <script type="text/javascript">
    function delete_traza(id)
    {
-      if( confirm("¿Realmente desea eliminarlo?") )
-      {
-         window.location.href = '{$fsc->url()}&delete='+id;
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminarlo?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&delete='+id;
+            }
+         }
+      });
    }
    $(document).ready(function() {   
       $("#b_nueva_traza").click(function(event) {

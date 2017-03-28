@@ -134,7 +134,7 @@ class compras_factura_devolucion extends fs_controller
                            $articulo = $art0->get($linea->referencia);
                            if($articulo)
                            {
-                              $articulo->sum_stock($frec->codalmacen, 0 - $linea->cantidad);
+                              $articulo->sum_stock($frec->codalmacen, 0 - $linea->cantidad, TRUE, $linea->codcombinacion);
                            }
                            
                            $frec->neto += $linea->pvptotal;

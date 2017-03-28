@@ -44,24 +44,37 @@
    }
    function delete_cuenta(id)
    {
-      if( confirm('¿Realmente desea eliminar la cuenta bancaria #'+id+'?') )
-      {
-         window.location.href = '{$fsc->url()}&delete_cuenta='+id+'#cuentasb';
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar la cuenta bancaria #'+id+'?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&delete_cuenta='+id+'#cuentasb';
+            }
+         }
+      });
    }
    function acreedores_help()
    {
-      alert('Los acreedores son todos aquellos proveedores a los que no les compramos mercancias. Por ejemplo: proveedor de internet, teléfono, bancos...');
+      bootbox.alert({
+         message: 'Los acreedores son todos aquellos proveedores a los que no les compramos mercancias. Por ejemplo: proveedor de internet, teléfono, bancos...',
+         title: "<b>Atención</b>"
+      });
       return false;
    }
    $(document).ready(function() {
       comprobar_url();
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Realmente desea eliminar este proveedor?") )
-         {
-            window.location.href = '{$fsc->ppage->url()}&delete={$fsc->proveedor->codproveedor}';
-         }
+         bootbox.confirm({
+            message: '¿Realmente desea eliminar este proveedor?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = '{$fsc->ppage->url()}&delete={$fsc->proveedor->codproveedor}';
+               }
+            }
+         });
       });
       $("#b_nueva_cuenta").click(function(event) {
          event.preventDefault();
@@ -346,57 +359,85 @@
                            <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
                         </button>
                      </div>
-                  </div>                  
+                  </div>
+                  {if="$fsc->proveedor->codcliente"}
+                  <div class="panel panel-success">
+                     <div class="panel-heading">
+                        <h3 class="panel-title">Este proveedor también es cliente</h3>
+                     </div>
+                     <div class="panel-body">
+                        <a href="index.php?page=ventas_cliente&cod={$fsc->proveedor->codcliente}" class="btn btn-sm btn-default">
+                           <span class="glyphicon glyphicon-user"></span>&nbsp; ver cliente
+                        </a>
+                     </div>
+                  </div>
+                  {else}
+                  <div class="panel panel-warning">
+                     <div class="panel-heading">
+                        <h3 class="panel-title">Convertir <b>también</b> en cliente</h3>
+                     </div>
+                     <div class="panel-body">
+                        <p class="help-block">
+                           Si lo deseas puedes convertir a este proveedor también en cliente,
+                           para poder venderle productos y servicios.
+                        </p>
+                     </div>
+                     <div class="panel-footer">
+                        <a href="{$fsc->proveedor->url()}&convertir=TRUE" class="btn btn-sm btn-warning">
+                           <span class="glyphicon glyphicon-random"></span>&nbsp; Convertir
+                        </a>
+                     </div>
+                  </div>
+                  {/if}
                   
-                    <div class="modal fade" id="modal_debaja" tabindex="-1" role="dialog">
-                        <div class="modal-dialog" role="document">
-                           <div class="modal-content">
-                              <div class="modal-header">
-                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                 </button>
-                                 {if="$fsc->proveedor->debaja"}
-                                 <h4 class="modal-title">
-                                    <span class="glyphicon glyphicon-lock"></span>
-                                    &nbsp; Este proveedor ha sido dado de baja
-                                 </h4>
-                                 <p class="help-block">Concretamente el día {$fsc->proveedor->fechabaja}</p>
-                                 {else}
-                                 <h4 class="modal-title">
-                                    <span class="glyphicon glyphicon-lock"></span>
-                                    &nbsp; ¿Deseas dar de baja al proveedor?
-                                 </h4>
+                  <div class="modal fade" id="modal_debaja" tabindex="-1" role="dialog">
+                     <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                           <div class="modal-header">
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                 <span aria-hidden="true">&times;</span>
+                              </button>
+                              {if="$fsc->proveedor->debaja"}
+                              <h4 class="modal-title">
+                                 <span class="glyphicon glyphicon-lock"></span>
+                                 &nbsp; Este proveedor ha sido dado de baja
+                              </h4>
+                              <p class="help-block">Concretamente el día {$fsc->proveedor->fechabaja}</p>
+                              {else}
+                              <h4 class="modal-title">
+                                 <span class="glyphicon glyphicon-lock"></span>
+                                 &nbsp; ¿Deseas dar de baja al proveedor?
+                              </h4>
+                              <p class="help-block">
+                                 Este proveedor ya tiene facturas o {#FS_ALBARANES#} relacionados,
+                                 por lo que no es recomendable eliminarlo.
+                              </p>
+                              {/if}
+                           </div>
+                           <div class="modal-body">
+                              <div class="form-group">
+                                 <label class="checkbox-inline">
+                                    {if="$fsc->proveedor->debaja"}
+                                    <input type="checkbox" name="debaja" value="TRUE" checked=""/>
+                                    {else}
+                                    <input type="checkbox" name="debaja" value="TRUE"/>
+                                    {/if}
+                                    Dar de baja al proveedor.
+                                 </label>
                                  <p class="help-block">
-                                    Este proveedor ya tiene facturas o {#FS_ALBARANES#} relacionados,
-                                    por lo que no es recomendable eliminarlo.
+                                    Desaparecerá de las búsquedas en facturas, {#FS_ALBARANES#}, etc.
+                                    Pero seguirá en el listado de proveedores por si cambias de idea.
                                  </p>
-                                 {/if}
                               </div>
-                              <div class="modal-body">
-                                 <div class="form-group">
-                                    <label class="checkbox-inline">
-                                       {if="$fsc->proveedor->debaja"}
-                                       <input type="checkbox" name="debaja" value="TRUE" checked=""/>
-                                       {else}
-                                       <input type="checkbox" name="debaja" value="TRUE"/>
-                                       {/if}
-                                       Dar de baja al proveedor.
-                                    </label>
-                                    <p class="help-block">
-                                       Desaparecerá de las búsquedas en facturas, {#FS_ALBARANES#}, etc.
-                                       Pero seguirá en el listado de proveedores por si cambias de idea.
-                                    </p>
-                                 </div>
-                                 <div class="text-right">
-                                    <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-                                       <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
-                                    </button>
-                                 </div>
+                              <div class="text-right">
+                                 <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                                    <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                                 </button>
                               </div>
                            </div>
                         </div>
-                    </div>                  
-                  
+                     </div>
+                  </div>
                </form>
             </div>
             <div role="tabpanel" class="tab-pane" id="cuentasb">

@@ -20,19 +20,28 @@
       {if="$fsc->grupo"}
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Realmente desea eliminar este grupo?") )
-         {
-            window.location.href = '{$fsc->page->url()}&deleteg={$fsc->grupo->idgrupo}';
-         }
-      });
+         bootbox.confirm({
+            message: '¿Realmente desea eliminar este grupo?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = '{$fsc->page->url()}&deleteg={$fsc->grupo->idgrupo}';
+               }
+            }
+         });
       {/if}
       {if="$fsc->epigrafe"}
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Realmente desea eliminar este epígrafe?") )
-         {
-            window.location.href = '{$fsc->page->url()}&deletee={$fsc->epigrafe->idepigrafe}';
-         }
+         bootbox.confirm({
+            message: '¿Realmente desea eliminar este epígrafe?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = '{$fsc->page->url()}&deletee={$fsc->epigrafe->idepigrafe}';
+               }
+            }
+         });
       });
       {/if}
    });
@@ -270,7 +279,7 @@
             <table class="table table-hover">
                <thead>
                   <tr>
-                     <th class="text-left">Código</td>
+                     <th class="text-left">Código</th>
                      <th class="text-left">Descripción</th>
                   </tr>
                </thead>

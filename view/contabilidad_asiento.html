@@ -187,7 +187,10 @@
          {
             if( $("#codsubcuenta_"+i).val() == '' )
             {
-               alert('No has seleccionado ninguna subcuenta en la línea '+i);
+               bootbox.alert({
+                  message: 'No has seleccionado ninguna subcuenta en la línea '+i,
+                  title: "<b>Atención</b>"
+               });
                continuar = false;
                break;
             }
@@ -207,7 +210,10 @@
       }
       else
       {
-         alert('¡Asiento descuadrado!');
+         bootbox.alert({
+            message: '¡Asiento descuadrado!',
+            title: "<b>Atención</b>"
+         });
          $("#b_guardar_asiento").prop('disabled', false);
          $("#b_guardar_asiento_2").prop('disabled', false);
       }
@@ -216,10 +222,15 @@
       {if="$fsc->asiento->editable"}recalcular();{/if}
       $("#b_eliminar_asiento").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Estas seguro de que deseas eliminar este asiento?") )
-         {
-            window.location.href = "{$fsc->ppage->url()}&delete={$fsc->asiento->idasiento}";
-         }
+         bootbox.confirm({
+            message: '¿Estas seguro de que deseas eliminar este asiento?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = "{$fsc->ppage->url()}&delete={$fsc->asiento->idasiento}";
+               }
+            }
+         });
       });
       $("#f_buscar_subcuentas").submit(function(event) {
          event.preventDefault();
@@ -588,7 +599,7 @@
                      </li>
                      <li>
                         Y si con todo no tienes suficiente, puedes modificar las
-                        <a href="index.php?page=cuentas_especiales">cuentas espaciales</a>.
+                        <a href="index.php?page=cuentas_especiales">cuentas especiales</a>.
                      </li>
                   </ul>
                </div>

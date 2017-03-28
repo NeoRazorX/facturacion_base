@@ -3,10 +3,15 @@
 <script type="text/javascript">
    function delete_serie(cod)
    {
-      if( confirm("¿Realmente desea eliminar {#FS_SERIE#} "+cod+"?") )
-      {
-         window.location.href = '{$fsc->url()}&delete='+cod;
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar {#FS_SERIE#} '+cod+'?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&delete='+cod;
+            }
+         }
+      });
    }
 </script>
 
@@ -97,7 +102,7 @@
                         <div class="btn-group">
                            {if="$fsc->allow_delete"}
                               {if="$value->codserie==$fsc->empresa->codserie"}
-                              <a href="#" class="btn btn-sm btn-warning" title="Bloqueado" onclick="alert('No puedes eliminar la {#FS_SERIE#} predeterminada.')">
+                              <a href="#" class="btn btn-sm btn-warning" title="Bloqueado" onclick="bootbox.alert({message: 'No puedes eliminar la {#FS_SERIE#} predeterminada.',title: '<b>Atención</b>'});">
                                  <span class="glyphicon glyphicon-lock"></span>
                               </a>
                               {else}

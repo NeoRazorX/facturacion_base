@@ -3,10 +3,15 @@
 <script type="text/javascript">
    function delete_pais(url)
    {
-      if( confirm("¿Realmente desea eliminar este país?") )
-      {
-         window.location.href = url;
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar este país?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = url;
+            }
+         }
+      });
    }
 </script>
 
@@ -59,7 +64,7 @@
                         <div class="btn-group">
                            {if="$fsc->allow_delete"}
                               {if="$value->codpais==$fsc->empresa->codpais"}
-                              <a class="btn btn-sm btn-warning" onclick="alert('No puedes eliminar el pais de la empresa.')" title="Eliminar">
+                              <a class="btn btn-sm btn-warning" onclick="bootbox.alert({message: 'No puedes eliminar el pais de la empresa.',title: '<b>Atención</b>'});" title="Eliminar">
                                  <span class="glyphicon glyphicon-lock"></span>
                               </a>
                               {else}

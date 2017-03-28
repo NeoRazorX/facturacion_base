@@ -186,6 +186,11 @@
       <nombre>diaspago</nombre>
       <tipo>character varying(10)</tipo>
    </columna>
+   <columna>
+      <nombre>codproveedor</nombre>
+      <tipo>character varying(6)</tipo>
+      <nulo>YES</nulo>
+   </columna>
    <restriccion>
       <nombre>clientes_pkey</nombre>
       <consulta>PRIMARY KEY (codcliente)</consulta>
