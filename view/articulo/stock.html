@@ -81,10 +81,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <div class="row">
          <div class="col-sm-6">
             <div class="btn-group">
+               <!-- Desactivado por joenilson despues de facturacion_base 111 !-->
+               <!--
                <button type="button" id="b_movimientos" class="btn btn-sm btn-default active">
                   <span class="glyphicon glyphicon-transfer"></span>&nbsp; Movimientos
                </button>
+               
                <button type="button" id="b_regularizaciones" class="btn btn-sm btn-default">Regularizaciones</button>
+               !-->
             </div>
          </div>
          <div class="col-sm-6 text-right">
@@ -94,130 +98,149 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
          </div>
       </div>
    </div>
-   <div class="table-responsive" style="margin-top: 10px;">
-      <table id="table_movimientos" class="table table-hover">
-         {loop="$fsc->stocks"}
-         <thead>
-            <tr>
-               <th colspan="3" class="text-left"><b>Movimientos del Almacén: {$value->nombre}</b></th>
-               <th>&nbsp;</th>
-               <th colspan="2" class="text-right">
-                  <div class="btn-group">
-                     <a href="{$fsc->url()}#stock" class="btn btn-sm btn-default"><span class="fa fa-calendar-minus-o"></span>&nbsp;Desagrupar fecha</a>
-                     <a href="{$fsc->url()}&agrupar=fecha#stock" class="btn btn-sm {if="$fsc->agrupar=='fecha'"}btn-success{else}btn-default{/if}"><span class="fa fa-calendar"></span>&nbsp;Agrupar por fecha</a>
-                  </div>
-               </th>
-            </tr>
-            <tr>
-               <th>Documento</th>
-               <th class="text-right">Ingreso</th>
-               <th class="text-right">Salida</th>
-               <th class="text-right">Cantidad final</th>
-               <th class="text-right">
-                  Fecha
-                  <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-               </th>
-               <th class="text-right">Hora</th>
-            </tr>
-         </thead>
-         <!-- {$totalIngreso=0} !-->
-         <!-- {$totalSalida=0} !-->
+    <div class="container-fluid">
+      <!-- Nav tabs -->
+      <ul class="nav nav-tabs" role="tablist">      
+      {loop="$fsc->stocks"}
+         <li role="presentation" {if="$counter==0"}class="active"{/if}><a href="#{$value->codalmacen}" aria-controls="{$value->codalmacen}" role="tab" data-toggle="tab">{$value->nombre}</a></li>
+      {/loop}
+      <li role="presentation"><a href="#table_regularizaciones" aria-controls="table_regularizaciones" role="tab" data-toggle="tab">Regularizaciones</a></li>
+      </ul>      
+      <div class="tab-content">
+          {loop="$fsc->stocks"}
+          <div role="tabpanel" class="tab-pane fade in {if="$counter==0"}active{/if}" id="{$value->codalmacen}">
+            <div class="table-responsive" style="margin-top: 10px;">
+               <table id="table_movimientos" class="table table-hover">
+                  <thead>
+                     <tr>
+                        <th colspan="3" class="text-left"><b>Movimientos del Almacén: {$value->nombre}</b></th>
+                        <th>&nbsp;</th>
+                        <th colspan="2" class="text-right">
+                           <div class="btn-group">
+                              <a href="{$fsc->url()}#stock" class="btn btn-sm btn-default"><span class="fa fa-calendar-minus-o"></span>&nbsp;Desagrupar fecha</a>
+                              <a href="{$fsc->url()}&agrupar=fecha#stock" class="btn btn-sm {if="$fsc->agrupar=='fecha'"}btn-success{else}btn-default{/if}"><span class="fa fa-calendar"></span>&nbsp;Agrupar por fecha</a>
+                           </div>
+                        </th>
+                     </tr>
+                     <tr>
+                        <th>Documento</th>
+                        <th class="text-right">Ingreso</th>
+                        <th class="text-right">Salida</th>
+                        <th class="text-right">Cantidad final</th>
+                        <th class="text-right">
+                           Fecha
+                           <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                        </th>
+                        <th class="text-right">Hora</th>
+                     </tr>
+                  </thead>
+                  <!-- {$totalIngreso=0} !-->
+                  <!-- {$totalSalida=0} !-->
+                  {loop="$fsc->get_movimientos($value->codalmacen)"}
+                  {if="$counter==0"}
+                  <!-- {$ultimaFecha=$value['fecha']} !-->
+                  {/if}
+                  {if="$fsc->agrupar=='fecha'"}
+                  {if="$ultimaFecha!=$value['fecha']"}
+                  <tr>
+                     <th>Movimientos del {$ultimaFecha}</th>
+                     <th class='text-right'>{$fsc->show_numero($fsc->mgrupo[$ultimaFecha]['ingreso'])}</th>
+                     <th class='text-right'>{$fsc->show_numero($fsc->mgrupo[$ultimaFecha]['salida'])}</th>
+                     <th class='text-right'>{$fsc->show_numero($fsc->mgrupo[$ultimaFecha]['ingreso']+$fsc->mgrupo[$ultimaFecha]['salida'])}</th>
+                     <th colspan='2'></th>
+                  </tr>
+                  {/if}
+                  <!-- {$ultimaFecha=$value['fecha']} !-->
+                  {/if}
+                  <tr class='clickableRow{if="$value['origen']=='Regularización'"} warning{elseif="$value['movimiento']>0"} success{else} danger{/if}' href='{$value['url']}'>
+                      <td>
+                        {$value['codalmacen']} - <a href="{$value['url']}">{$value['origen']}</a>
+                     </td>
+                     <td class="text-right">
+                        {if="$counter==0"}
+                        <b>{$fsc->show_numero($value['inicial'])}</b> &nbsp;
+                        {/if}
+                        {if="$value['movimiento']>0"}
+                        {$fsc->show_numero($value['movimiento'])}
+                        <!-- {$totalIngreso+=$value['movimiento']} !-->
+                        {/if}
+                     </td>
+                     <td class="text-right">
+                        {if="$value['movimiento']<0"}
+                        {$fsc->show_numero($value['movimiento'])}
+                        <!-- {$totalSalida+=$value['movimiento']} !-->
+                        {/if}                               
+                     </td>
+                     <td class="text-right">{$fsc->show_numero($value['final'])}</td>
+                     <td class="text-right">{$value['fecha']}</td>
+                     <td class="text-right">{$value['hora']}</td>
+                  </tr>
+                  {/loop}
 
-         {loop="$fsc->get_movimientos($value->codalmacen)"}
-         {if="$counter==0"}
-         <!-- {$ultimaFecha=$value['fecha']} !-->
-         {/if}
-         {if="$fsc->agrupar=='fecha'"}
-         {if="$ultimaFecha!=$value['fecha']"}
-         <tr>
-            <th>Movimientos del {$ultimaFecha}</th>
-            <th class='text-right'>{$fsc->show_numero($fsc->mgrupo[$ultimaFecha]['ingreso'])}</th>
-            <th class='text-right'>{$fsc->show_numero($fsc->mgrupo[$ultimaFecha]['salida'])}</th>
-            <th class='text-right'>{$fsc->show_numero($fsc->mgrupo[$ultimaFecha]['ingreso']+$fsc->mgrupo[$ultimaFecha]['salida'])}</th>
-            <th colspan='2'></th>
-         </tr>
-         {/if}
-         <!-- {$ultimaFecha=$value['fecha']} !-->
-         {/if}
-         <tr class='clickableRow{if="$value['origen']=='Regularización'"} warning{elseif="$value['movimiento']>0"} success{else} danger{/if}' href='{$value['url']}'>
-             <td>
-               {$value['codalmacen']} - <a href="{$value['url']}">{$value['origen']}</a>
-            </td>
-            <td class="text-right">
-               {if="$counter==0"}
-               <b>{$fsc->show_numero($value['inicial'])}</b> &nbsp;
-               {/if}
-               {if="$value['movimiento']>0"}
-               {$fsc->show_numero($value['movimiento'])}
-               <!-- {$totalIngreso+=$value['movimiento']} !-->
-               {/if}
-            </td>
-            <td class="text-right">
-               {if="$value['movimiento']<0"}
-               {$fsc->show_numero($value['movimiento'])}
-               <!-- {$totalSalida+=$value['movimiento']} !-->
-               {/if}                               
-            </td>
-            <td class="text-right">{$fsc->show_numero($value['final'])}</td>
-            <td class="text-right">{$value['fecha']}</td>
-            <td class="text-right">{$value['hora']}</td>
-         </tr>
-         {/loop}
-         {/loop}
-         {if="$fsc->agrupar=='fecha'"}
-         <tr>
-            <th>Movimientos del {$ultimaFecha}</th>
-            <th class='text-right'>{$fsc->show_numero($fsc->mgrupo[$ultimaFecha]['ingreso'])}</th>
-            <th class='text-right'>{$fsc->show_numero($fsc->mgrupo[$ultimaFecha]['salida'])}</th>
-            <th class='text-right'>{$fsc->show_numero($fsc->mgrupo[$ultimaFecha]['ingreso']+$fsc->mgrupo[$ultimaFecha]['salida'])}</th>
-            <th colspan='2'></th>
-         </tr>
-         {/if}
-         <tr>
-            <td>
-               Ten en cuenta que las cantidades finales de este listado de movimientos
-               están calculadas desde abajo y son una aproximación.
-            </td>
-            <td class="text-right"><b>{$totalIngreso}</b></td>
-            <td class="text-right"><b>{$totalSalida}</b></td>
-            <td class="text-right"><b>{$fsc->articulo->stockfis}</b></td>
-            <td colspan="2"></td>
-         </tr>
-      </table>
-      <table id="table_regularizaciones" class="table table-hover" style="display: none;">
-         <thead>
-            <tr>
-               <th class="text-left">Usuario</th>
-               <th class="text-left">Motivo</th>
-               <th class="text-right">Cantidad inicial</th>
-               <th class="text-right">Cantidad final</th>
-               <th class="text-right">Fecha</th>
-               <th class="text-right">Hora</th>
-               <th></th>
-            </tr>
-         </thead>
-         {loop="$fsc->regularizaciones"}
-         <tr{if="$value->cantidadfin<$value->cantidadini"} class="danger"{/if}>
-            <td>{$value->nick}</td>
-            <td>{$value->motivo}</td>
-            <td class="text-right">{$value->cantidadini}</td>
-            <td class="text-right">{$value->cantidadfin}</td>
-            <td class="text-right">{$value->fecha}</td>
-            <td class="text-right">{$value->hora}</td>
-            <td>
-               {if="$fsc->allow_delete"}
-               <a href="{$fsc->url()}&deletereg={$value->id}#stock" title="Eliminar la regularización">
-                  <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-               </a>
-               {/if}
-            </td>
-         </tr>
-         {else}
-         <tr class="warning">
-            <td colspan="7">Sin resultados.</td>
-         </tr>
-         {/loop}
-      </table>
+                  {if="$fsc->agrupar=='fecha'"}
+                  <tr>
+                     <th>Movimientos del {$ultimaFecha}</th>
+                     <th class='text-right'>{$fsc->show_numero($fsc->mgrupo[$ultimaFecha]['ingreso'])}</th>
+                     <th class='text-right'>{$fsc->show_numero($fsc->mgrupo[$ultimaFecha]['salida'])}</th>
+                     <th class='text-right'>{$fsc->show_numero($fsc->mgrupo[$ultimaFecha]['ingreso']+$fsc->mgrupo[$ultimaFecha]['salida'])}</th>
+                     <th colspan='2'></th>
+                  </tr>
+                  {/if}
+                  <tr>
+                     <td>
+                        Ten en cuenta que las cantidades finales de este listado de movimientos
+                        están calculadas desde abajo y son una aproximación.
+                     </td>
+                     <td class="text-right"><b>{$totalIngreso}</b></td>
+                     <td class="text-right"><b>{$totalSalida}</b></td>
+                             <td class="text-right"><b>{$fsc->stock->total_from_articulo($fsc->articulo->referencia,$value->codalmacen)}</b></td>
+                     <td colspan="2"></td>
+                  </tr>
+               </table>
+            </div>
+          </div>
+          {/loop}
+          <div role="tabpanel" class="tab-pane fade in" id="table_regularizaciones">
+            <div class="table-responsive" style="margin-top: 10px;">
+              <table class="table table-hover">
+                 <thead>
+                    <tr>
+                       <th class="text-left">Almacén</th>
+                       <th class="text-left">Usuario</th>
+                       <th class="text-left">Motivo</th>
+                       <th class="text-right">Cantidad inicial</th>
+                       <th class="text-right">Cantidad final</th>
+                       <th class="text-right">Fecha</th>
+                       <th class="text-right">Hora</th>
+                       <th></th>
+                    </tr>
+                 </thead>
+                 {loop="$fsc->regularizaciones"}
+                 <tr{if="$value->cantidadfin<$value->cantidadini"} class="danger"{/if}>
+                    <td>{$value->codalmacendest}</td>
+                    <td>{$value->nick}</td>
+                    <td>{$value->motivo}</td>
+                    <td class="text-right">{$value->cantidadini}</td>
+                    <td class="text-right">{$value->cantidadfin}</td>
+                    <td class="text-right">{$value->fecha}</td>
+                    <td class="text-right">{$value->hora}</td>
+                    <td>
+                       {if="$fsc->allow_delete"}
+                       <a href="{$fsc->url()}&deletereg={$value->id}#stock" title="Eliminar la regularización">
+                          <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                       </a>
+                       {/if}
+                    </td>
+                 </tr>
+                 {else}
+                 <tr class="warning">
+                    <td colspan="7">Sin resultados.</td>
+                 </tr>
+                 {/loop}
+              </table>
+           </div>
+        </div>
+      </div> 
    </div>
    <div class="modal fade" id="modal_recal_stock" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">

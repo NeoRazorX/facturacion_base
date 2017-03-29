@@ -174,6 +174,11 @@ class ventas_facturas extends fs_controller
                $this->codagente = $_REQUEST['codagente'];
             }
             
+            if( isset($_REQUEST['codalmacen']) )
+            {
+               $this->codalmacen = $_REQUEST['codalmacen'];
+            }
+
             if( isset($_REQUEST['codserie']) )
             {
                $this->codserie = $_REQUEST['codserie'];
