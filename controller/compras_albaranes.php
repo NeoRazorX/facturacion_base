@@ -18,6 +18,7 @@
  */
 
 require_model('agente.php');
+require_model('almacen.php');
 require_model('albaran_proveedor.php');
 require_model('articulo.php');
 require_model('factura_proveedor.php');
@@ -27,9 +28,11 @@ require_model('serie.php');
 class compras_albaranes extends fs_controller
 {
    public $agente;
+   public $almacenes;
    public $articulo;
    public $buscar_lineas;
    public $codagente;
+   public $codalmacen;
    public $codserie;
    public $desde;
    public $hasta;
@@ -53,6 +56,7 @@ class compras_albaranes extends fs_controller
    {
       $albaran = new albaran_proveedor();
       $this->agente = new agente();
+      $this->almacenes = new almacen();
       $this->serie = new serie();
       
       $this->mostrar = 'todo';
@@ -125,6 +129,7 @@ class compras_albaranes extends fs_controller
       {
          $this->share_extension();
          $this->codagente = '';
+         $this->codalmacen = '';
          $this->codserie = '';
          $this->desde = '';
          $this->hasta = '';
@@ -163,6 +168,10 @@ class compras_albaranes extends fs_controller
                $this->codagente = $_REQUEST['codagente'];
             }
             
+            if( isset($_REQUEST['codalmacen']) )
+            {
+               $this->codalmacen = $_REQUEST['codalmacen'];
+            }              
             if( isset($_REQUEST['codserie']) )
             {
                $this->codserie = $_REQUEST['codserie'];
@@ -232,6 +241,7 @@ class compras_albaranes extends fs_controller
                  ."&query=".$this->query
                  ."&codserie=".$this->codserie
                  ."&codagente=".$this->codagente
+                 ."&codalmacen=".$this->codalmacen               
                  ."&codproveedor=".$codproveedor
                  ."&desde=".$this->desde
                  ."&hasta=".$this->hasta;
@@ -494,6 +504,12 @@ class compras_albaranes extends fs_controller
       if($this->codagente != '')
       {
          $sql .= $where."codagente = ".$this->agente->var2str($this->codagente);
+         $where = ' AND ';
+      }
+      
+      if($this->codalmacen != '')
+      {
+         $sql .= $where."codalmacen = ".$this->agente->var2str($this->codalmacen);
          $where = ' AND ';
       }
       
