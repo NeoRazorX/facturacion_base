@@ -233,23 +233,25 @@ class ventas_articulos extends fs_controller
    
    private function new_articulo(&$articulo)
    {
-      $this->save_codimpuesto( $_POST['codimpuesto'] );
+      $this->save_codimpuesto($_POST['codimpuesto']);
       
-      $art0 = $articulo->get($_POST['referencia']);
+      if($_POST['referencia'] == '')
+      {
+         $referencia = $articulo->get_new_referencia();
+      }
+      else
+      {
+         $referencia = $_POST['referencia'];
+      }
+      
+      $art0 = $articulo->get($referencia);
       if($art0)
       {
          $this->new_error_msg('Ya existe el artículo <a href="'.$art0->url().'">'.$art0->referencia.'</a>');
       }
       else
       {
-         if($_POST['referencia'] == '')
-         {
-            $articulo->referencia = $articulo->get_new_referencia();
-         }
-         else
-         {
-            $articulo->referencia = $_POST['referencia'];
-         }
+         $articulo->referencia = $referencia;
          $articulo->descripcion = $_POST['descripcion'];
          $articulo->nostock = isset($_POST['nostock']);
          

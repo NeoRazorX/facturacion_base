@@ -5,10 +5,15 @@
 <script type="text/javascript">
    function delete_combinacion(cod)
    {
-      if( confirm("¿Realmente desea eliminar la combinacion " + cod + "?") )
-      {
-         window.location.href = '{$fsc->url()}&delete_combi=' + cod + '#atributos';
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar la combinacion ' + cod + '?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&delete_combi=' + cod + '#atributos';
+            }
+         }
+      });
    }
    $(document).ready(function() {
       calcular_margen();
@@ -29,12 +34,20 @@
       $("#b_eliminar_articulo").click(function(event) {
          event.preventDefault();
          {if="$fsc->articulo->publico"}
-         alert('Este artículo es público. Si estas seguro de que quieres eliminarlo, desmarcalo como público, guarda y pulsa eliminar.');
+         bootbox.alert({
+            message: 'Este artículo es público. Si estas seguro de que quieres eliminarlo, desmarcalo como público, guarda y pulsa eliminar.',
+            title: "<b>Atención</b>"
+         });
          {else}
-         if( confirm("¿Estas seguro de que deseas eliminar este articulo?") )
-         {
-            window.location.href = "index.php?page=ventas_articulos&delete={function="urlencode($fsc->articulo->referencia)"}";
-         }
+         bootbox.confirm({
+            message: '¿Estas seguro de que deseas eliminar este articulo?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = "index.php?page=ventas_articulos&delete={function="urlencode($fsc->articulo->referencia)"}";
+               }
+            }
+         });
          {/if}
       });
       $("#b_imagen").click(function(event) {
@@ -411,7 +424,7 @@
                                  </div>
                               </td>
                               <td>
-                                 <input type="text" name="stockfis" value="{$value->stockfis}" class="form-control text-right" readonly=""/>
+                                 <input type="text" name="stockcombinacion" value="{$value->stockfis}" class="form-control text-right" autocomplete="off"/>
                               </td>
                               <td class="text-right">
                                  <div class="btn-group">

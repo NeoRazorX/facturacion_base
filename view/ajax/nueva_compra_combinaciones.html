@@ -11,7 +11,7 @@
       {loop="$fsc->results"}
       <tr>
          <td>
-            <a href="#" onclick="add_articulo('{$value['ref']}','{function="base64_encode($value['desc'])"}','{$value['pvp']}','{$value['dto']}','{$value['codimpuesto']}','{$value['codigo']}')">{$value['txt']}</a>
+            <a href="#" onclick="add_articulo('{$value['ref']}','{function="base64_encode($value['desc'])"}','{$value['pvp']}','{$value['dto']}','{$value['codimpuesto']}','1','{$value['codigo']}')">{$value['txt']}</a>
          </td>
          <td class="text-right">{$fsc->show_precio($value['pvp'])}</td>
          <td class="text-right">{$value['stockfis']}</td>

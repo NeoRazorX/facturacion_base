@@ -21,7 +21,17 @@
 namespace FacturaScripts\model;
 
 /**
- * Combinación atributo-valor de un artículo.
+ * Este modelo representa el par atributo => valor de la combinación de un artículo con atributos.
+ * Ten en cuenta que lo que se almacena son estos pares atributo => valor,
+ * pero la combinación del artículo es el conjunto, que comparte el mismo código.
+ * 
+ * Ejemplo de combinación:
+ * talla => l
+ * color => blanco
+ * 
+ * Esto se traduce en dos objetos articulo_combinación, ambos con el mismo código,
+ * pero uno con nombreatributo talla y valor l, y el otro con nombreatributo color
+ * y valor blanco.
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
@@ -39,6 +49,13 @@ class articulo_combinacion extends \fs_model
     * @var type 
     */
    public $codigo;
+   
+   /**
+    * Segundo identificador para la combinación, para facilitar la sincronización
+    * con woocommerce o prestashop.
+    * @var type 
+    */
+   public $codigo2;
    
    /**
     * Referencia del artículos relacionado.
@@ -95,6 +112,7 @@ class articulo_combinacion extends \fs_model
       {
          $this->id = $this->intval($c['id']);
          $this->codigo = $c['codigo'];
+         $this->codigo2 = $c['codigo2'];
          $this->referencia = $c['referencia'];
          $this->idvalor = $this->intval($c['idvalor']);
          $this->nombreatributo = $c['nombreatributo'];
@@ -108,6 +126,7 @@ class articulo_combinacion extends \fs_model
       {
          $this->id = NULL;
          $this->codigo = NULL;
+         $this->codigo2 = NULL;
          $this->referencia = NULL;
          $this->idvalor = NULL;
          $this->nombreatributo = NULL;
@@ -127,7 +146,7 @@ class articulo_combinacion extends \fs_model
    /**
     * Devuelve la combinación del artículo con id = $id
     * @param type $id
-    * @return \FacturaScripts\model\articulo_combinacion|boolean
+    * @return \articulo_combinacion|boolean
     */
    public function get($id)
    {
@@ -144,8 +163,9 @@ class articulo_combinacion extends \fs_model
    
    /**
     * Devuelve la combinación de artículo con codigo = $cod
+    * @deprecated since version 110
     * @param type $cod
-    * @return \FacturaScripts\model\articulo_combinacion|boolean
+    * @return \articulo_combinacion|boolean
     */
    public function get_by_codigo($cod)
    {
@@ -200,6 +220,7 @@ class articulo_combinacion extends \fs_model
       if( $this->exists() )
       {
          $sql = "UPDATE articulo_combinaciones SET codigo = ".$this->var2str($this->codigo)
+                 .", codigo2 = ".$this->var2str($this->codigo2)
                  .", referencia = ".$this->var2str($this->referencia)
                  .", idvalor = ".$this->var2str($this->idvalor)
                  .", nombreatributo = ".$this->var2str($this->nombreatributo)
@@ -219,9 +240,10 @@ class articulo_combinacion extends \fs_model
             $this->codigo = $this->get_new_codigo();
          }
          
-         $sql = "INSERT INTO articulo_combinaciones (codigo,referencia,idvalor,nombreatributo,valor"
-                 . ",refcombinacion,codbarras,impactoprecio,stockfis) VALUES "
+         $sql = "INSERT INTO articulo_combinaciones (codigo,codigo2,referencia,idvalor,nombreatributo,"
+                 . "valor,refcombinacion,codbarras,impactoprecio,stockfis) VALUES "
                  . "(".$this->var2str($this->codigo)
+                 . ",".$this->var2str($this->codigo2)
                  . ",".$this->var2str($this->referencia)
                  . ",".$this->var2str($this->idvalor)
                  . ",".$this->var2str($this->nombreatributo)
@@ -265,7 +287,7 @@ class articulo_combinacion extends \fs_model
    /**
     * Devuelve un array con todas las combinaciones del artículo con referencia = $ref
     * @param type $ref
-    * @return \FacturaScripts\model\articulo_combinacion
+    * @return \articulo_combinacion
     */
    public function all_from_ref($ref)
    {
@@ -286,9 +308,10 @@ class articulo_combinacion extends \fs_model
    }
    
    /**
-    * Devuelve un array con todas las combinaciones con código = $cod
+    * Devuelve un array con todos los datos de la combinación con código = $cod,
+    * ten en cuenta que lo que se almacenan son los pares atributo => valor.
     * @param type $cod
-    * @return \FacturaScripts\model\articulo_combinacion
+    * @return \articulo_combinacion
     */
    public function all_from_codigo($cod)
    {
@@ -302,6 +325,60 @@ class articulo_combinacion extends \fs_model
          foreach($data as $d)
          {
             $lista[] = new \articulo_combinacion($d);
+         }
+      }
+      
+      return $lista;
+   }
+   
+   /**
+    * Devuelve un array con todos los datos de la combinación con codigo2 = $cod,
+    * ten en cuenta que lo que se almacena son los pares atrubuto => valor.
+    * @param type $cod
+    * @return \articulo_combinacion
+    */
+   public function all_from_codigo2($cod)
+   {
+      $lista = array();
+      
+      $sql = "SELECT * FROM articulo_combinaciones WHERE codigo2 = ".$this->var2str($cod)
+              ." ORDER BY nombreatributo ASC;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $lista[] = new \articulo_combinacion($d);
+         }
+      }
+      
+      return $lista;
+   }
+   
+   /**
+    * Devuelve las combinaciones del artículos $ref agrupadas por código.
+    * @param type $ref
+    * @return \articulo_combinacion
+    */
+   public function combinaciones_from_ref($ref)
+   {
+      $lista = array();
+      
+      $sql = "SELECT * FROM articulo_combinaciones WHERE referencia = ".$this->var2str($ref)
+              ." ORDER BY codigo ASC, nombreatributo ASC;";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            if( isset($lista[$d['codigo']]) )
+            {
+               $lista[$d['codigo']][] = new \articulo_combinacion($d);
+            }
+            else
+            {
+               $lista[$d['codigo']] = array( new \articulo_combinacion($d) );
+            }
          }
       }
       

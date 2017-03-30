@@ -1,12 +1,16 @@
 {include="header"}
 
 <script type="text/javascript">
-   function delete_agencia(cod)
-   {
-      if( confirm("¿Realmente desea eliminar la agencia "+cod+"?") )
-      {
-         window.location.href = '{$fsc->url()}&delete='+cod;
-      }
+   function delete_agencia(cod) {
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar la agencia ' + cod + '?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&delete=' + cod;
+            }
+         }
+      });
    }
 </script>
 

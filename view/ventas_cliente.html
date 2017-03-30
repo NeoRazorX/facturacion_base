@@ -44,19 +44,29 @@
    }
    function delete_cuenta(id)
    {
-      if( confirm('¿Realmente desea eliminar la cuenta bancaria #'+id+'?') )
-      {
-         window.location.href = '{$fsc->url()}&delete_cuenta='+id+'#cuentasb';
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar la cuenta bancaria #'+id+'?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = '{$fsc->url()}&delete_cuenta='+id+'#cuentasb';
+            }
+         }
+      });
    }
    $(document).ready(function() {
       comprobar_url();
       $("#b_eliminar").click(function(event) {
          event.preventDefault();
-         if( confirm("¿Realmente desea eliminar este cliente?") )
-         {
-            window.location.href = '{$fsc->ppage->url()}&delete={$fsc->cliente->codcliente}';
-         }
+         bootbox.confirm({
+            message: '¿Realmente desea eliminar este cliente?',
+            title: '<b>Atención</b>',
+            callback: function(result) {
+               if (result) {
+                  window.location.href = '{$fsc->ppage->url()}&delete={$fsc->cliente->codcliente}';
+               }
+            }
+         });
       });
       $("#b_nueva_cuenta").click(function(event) {
          event.preventDefault();
@@ -379,6 +389,36 @@
                      </div>
                   </div>
                   
+                  {if="$fsc->cliente->codproveedor"}
+                  <div class="panel panel-success">
+                     <div class="panel-heading">
+                        <h3 class="panel-title">Este cliente también es proveedor</h3>
+                     </div>
+                     <div class="panel-body">
+                        <a href="index.php?page=compras_proveedor&cod={$fsc->cliente->codproveedor}" class="btn btn-sm btn-default">
+                           <span class="glyphicon glyphicon-user"></span>&nbsp; ver proveedor
+                        </a>
+                     </div>
+                  </div>
+                  {else}
+                  <div class="panel panel-warning">
+                     <div class="panel-heading">
+                        <h3 class="panel-title">Convertir <b>también</b> en proveedor</h3>
+                     </div>
+                     <div class="panel-body">
+                        <p class="help-block">
+                           Si lo deseas puedes convertir a este cliente también en proveedor,
+                           para poder comprar productos y servicios.
+                        </p>
+                     </div>
+                     <div class="panel-footer">
+                        <a href="{$fsc->cliente->url()}&convertir=TRUE" class="btn btn-sm btn-warning">
+                           <span class="glyphicon glyphicon-random"></span>&nbsp; Convertir
+                        </a>
+                     </div>
+                  </div>
+                  {/if}
+                  
                   <div class="modal fade" id="modal_debaja" tabindex="-1" role="dialog">
                      <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -421,6 +461,40 @@
                               <div class="text-right">
                                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
                                     <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                                 </button>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="modal fade" id="modal_convertir" tabindex="-1" role="dialog">
+                     <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                           <div class="modal-header">
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                 <span aria-hidden="true">&times;</span>
+                              </button>                              
+                              <h4 class="modal-title">
+                                 <span class="glyphicon glyphicon-lock"></span>
+                                 &nbsp; ¿Convertir en proveedor?
+                              </h4>
+                              <p class="help-block">
+                                 Se insertará un nuevo proveedor en el sistema con los mismos datos
+                              </p>
+                           </div>
+                           <div class="modal-body">
+                              <div class="form-group">                                 
+                                 <p class="help-block">
+                                    El nuevo proveedor y el cliente actual quedarán asociados internamente.
+                                 </p>
+                                 <p class="help-block">
+                                    No se clonarán los datos que no se hayan guardado previamente con el botón "Guardar".
+                                 </p>
+                              </div>
+                              <input type="hidden" name="convertir" value="TRUE"/>
+                              <div class="text-right">
+                                 <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;window.location.href = '{$fsc->url()}&cod={$fsc->cliente->codcliente}&convertir=1';">
+                                    <span class="glyphicon glyphicon-random"></span>&nbsp; Convertir
                                  </button>
                               </div>
                            </div>

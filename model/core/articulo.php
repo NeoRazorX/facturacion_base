@@ -197,7 +197,6 @@ class articulo extends \fs_model
    private static $cleaned_cache;
    private static $column_list;
 
-
    public function __construct($a = FALSE)
    {
       parent::__construct('articulos');
@@ -365,12 +364,12 @@ class articulo extends \fs_model
       if( strtolower(FS_DB_TYPE) == 'postgresql' )
       {
          $sql = "SELECT referencia from ".$this->table_name." where referencia ~ '^\d+$'"
-                 . " ORDER BY referencia::integer DESC";
+                 . " ORDER BY referencia::bigint DESC";
       }
       else
       {
          $sql = "SELECT referencia from ".$this->table_name." where referencia REGEXP '^[0-9]+$'"
-                 . " ORDER BY CAST(`referencia` AS decimal) DESC";
+                 . " ORDER BY ABS(referencia) DESC";
       }
       
       $ref = 1;
@@ -587,7 +586,7 @@ class articulo extends \fs_model
              */
             foreach($lineasalb as $linea)
             {
-               if($stock < $this->stockfis)
+               if($stock < $this->stockfis OR $this->stockfis <= 0)
                {
                   $coste += $linea->pvptotal;
                   $stock += $linea->cantidad;
@@ -605,7 +604,7 @@ class articulo extends \fs_model
          /// usamos las facturas para el cálculo.
          foreach($lineasfac as $linea)
          {
-            if($stock < $this->stockfis)
+            if($stock < $this->stockfis OR $this->stockfis <= 0)
             {
                $coste += $linea->pvptotal;
                $stock += $linea->cantidad;
@@ -622,7 +621,7 @@ class articulo extends \fs_model
          /// usamos los albaranes para el cálculo.
          foreach($lineasalb as $linea)
          {
-            if($stock < $this->stockfis)
+            if($stock < $this->stockfis OR $this->stockfis <= 0)
             {
                $coste += $linea->pvptotal;
                $stock += $linea->cantidad;
@@ -792,26 +791,26 @@ class articulo extends \fs_model
    /**
     * Modifica el stock del artículo en un almacén concreto.
     * Ya se encarga de ejecutar save() si es necesario.
-    * @param type $almacen
+    * @param type $codalmacen
     * @param type $cantidad
     * @return boolean
     */
-   public function set_stock($almacen, $cantidad = 1)
+   public function set_stock($codalmacen, $cantidad = 1)
    {
+      $result = FALSE;
+      
       if($this->nostock)
       {
-         return TRUE;
+         $result = TRUE;
       }
       else
       {
-         $result = FALSE;
          $stock = new \stock();
          $encontrado = FALSE;
-         
          $stocks = $stock->all_from_articulo($this->referencia);
          foreach($stocks as $k => $value)
          {
-            if($value->codalmacen == $almacen)
+            if($value->codalmacen == $codalmacen)
             {
                $stocks[$k]->set_cantidad($cantidad);
                $result = $stocks[$k]->save();
@@ -822,13 +821,16 @@ class articulo extends \fs_model
          if( !$encontrado )
          {
             $stock->referencia = $this->referencia;
-            $stock->codalmacen = $almacen;
+            $stock->codalmacen = $codalmacen;
             $stock->set_cantidad($cantidad);
             $result = $stock->save();
          }
          
          if($result)
          {
+            /// $result es TRUE
+            /// este código está muy optimizado para guardar solamente los cambios
+            
             $nuevo_stock = $stock->total_from_articulo($this->referencia);
             if($this->stockfis != $nuevo_stock)
             {
@@ -837,8 +839,9 @@ class articulo extends \fs_model
                if($this->exists)
                {
                   $this->clean_cache();
-                  $result = $this->db->exec("UPDATE ".$this->table_name." SET stockfis = ".
-                          $this->var2str($this->stockfis)." WHERE referencia = ".$this->var2str($this->referencia).";");
+                  $result = $this->db->exec("UPDATE ".$this->table_name
+                          ." SET stockfis = ".$this->var2str($this->stockfis)
+                          ." WHERE referencia = ".$this->var2str($this->referencia).";");
                }
                else if( !$this->save() )
                {
@@ -848,9 +851,9 @@ class articulo extends \fs_model
          }
          else
             $this->new_error_msg("Error al guardar el stock");
-         
-         return $result;
       }
+      
+      return $result;
    }
    
    /**
@@ -864,16 +867,38 @@ class articulo extends \fs_model
     */
    public function sum_stock($codalmacen, $cantidad = 1, $recalcula_coste = FALSE, $codcombinacion = NULL)
    {
+      $result = FALSE;
+      
+      if($recalcula_coste)
+      {
+         $this->costemedio = $this->get_costemedio();
+      }
+      
       if($this->nostock)
       {
-         return TRUE;
+         $result = TRUE;
+         
+         if($recalcula_coste)
+         {
+            /// este código está muy optimizado para guardar solamente los cambios
+            if($this->exists)
+            {
+               $this->clean_cache();
+               $result = $this->db->exec("UPDATE ".$this->table_name
+                       ."  SET costemedio = ".$this->var2str($this->costemedio)
+                       ."  WHERE referencia = ".$this->var2str($this->referencia).";");
+            }
+            else if( !$this->save() )
+            {
+               $this->new_error_msg("¡Error al actualizar el stock del artículo!");
+               $result = FALSE;
+            }
+         }
       }
       else
       {
-         $result = FALSE;
          $stock = new \stock();
          $encontrado = FALSE;
-         
          $stocks = $stock->all_from_articulo($this->referencia);
          foreach($stocks as $k => $value)
          {
@@ -895,14 +920,12 @@ class articulo extends \fs_model
          
          if($result)
          {
+            /// este código está muy optimizado para guardar solamente los cambios
+            
             $nuevo_stock = $stock->total_from_articulo($this->referencia);
             if($this->stockfis != $nuevo_stock)
             {
                $this->stockfis =  $nuevo_stock;
-               if($recalcula_coste)
-               {
-                  $this->costemedio = $this->get_costemedio();
-               }
                
                if($this->exists)
                {
@@ -915,10 +938,11 @@ class articulo extends \fs_model
                else if( !$this->save() )
                {
                   $this->new_error_msg("¡Error al actualizar el stock del artículo!");
+                  $result = FALSE;
                }
                
                /// ¿Alguna combinación?
-               if($codcombinacion)
+               if($codcombinacion AND $result)
                {
                   $com0 = new \articulo_combinacion();
                   foreach($com0->all_from_codigo($codcombinacion) as $combi)
@@ -933,9 +957,9 @@ class articulo extends \fs_model
          {
             $this->new_error_msg("¡Error al guardar el stock!");
          }
-         
-         return $result;
       }
+      
+      return $result;
    }
    
    /**

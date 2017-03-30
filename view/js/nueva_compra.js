@@ -324,14 +324,20 @@ function ajustar_iva(num)
          $("#iva_"+num).val(0);
          $("#recargo_"+num).val(0);
          
-         alert('El proveedor tiene regimen de IVA: '+proveedor.regimeniva);
+         bootbox.alert({
+            message: 'El proveedor tiene regimen de IVA: '+proveedor.regimeniva,
+            title: "<b>Atención</b>"
+         });
       }
       else if(siniva && $("#iva_"+num).val() != 0)
       {
          $("#iva_"+num).val(0);
          $("#recargo_"+num).val(0);
          
-         alert('La serie selecciona es sin IVA.');
+         bootbox.alert({
+            message: 'La serie selecciona es sin IVA.',
+            title: "<b>Atención</b>"
+         });
       }
       else if(tiene_recargo)
       {
@@ -391,6 +397,11 @@ function aux_all_impuestos(num,codimpuesto)
 
 function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad,codcombinacion)
 {
+   if(typeof cantidad == 'undefined')
+   {
+      cantidad = 1;
+   }
+   
    if(typeof codcombinacion == 'undefined')
    {
       codcombinacion = '';
@@ -404,7 +415,7 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad,codcombinacion)
          <div class=\"form-control\"><small><a target=\"_blank\" href=\"index.php?page=ventas_articulo&ref="+ref+"\">"+ref+"</a></small></div></td>\n\
       <td><textarea class=\"form-control\" id=\"desc_"+numlineas+"\" name=\"desc_"+numlineas+"\" rows=\"1\">"+desc+"</textarea></td>\n\
       <td><input type=\""+input_number+"\" step=\"any\" id=\"cantidad_"+numlineas+"\" class=\"form-control text-right\" name=\"cantidad_"+numlineas+
-         "\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
+         "\" value=\""+cantidad+"\" onchange=\"recalcular()\" onkeyup=\"recalcular()\" autocomplete=\"off\" value=\"1\"/></td>\n\
       <td><button class=\"btn btn-sm btn-danger\" type=\"button\" onclick=\"$('#linea_"+numlineas+"').remove();recalcular();\">\n\
          <span class=\"glyphicon glyphicon-trash\"></span></button></td>\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"pvp_"+numlineas+"\" name=\"pvp_"+numlineas+"\" value=\""+pvp+
@@ -429,16 +440,25 @@ function add_articulo(ref,desc,pvp,dto,codimpuesto,cantidad,codcombinacion)
 
 function add_articulo_atributos(ref,desc,pvp,dto,codimpuesto)
 {
-   $.ajax({
-      type: 'POST',
-      url: nueva_compra_url,
-      dataType: 'html',
-      data: "referencia4combi="+ref+"&desc="+desc+"&pvp="+pvp+"&dto="+dto+"&codimpuesto="+codimpuesto,
-      success: function(datos) {
-         $("#nav_articulos").hide();
-         $("#search_results").html(datos);
-      }
-   });
+   if(nueva_compra_url !== '')
+   {
+      $.ajax({
+         type: 'POST',
+         url: nueva_compra_url,
+         dataType: 'html',
+         data: "referencia4combi="+ref+"&desc="+desc+"&pvp="+pvp+"&dto="+dto+"&codimpuesto="+codimpuesto,
+         success: function(datos) {
+            $("#nav_articulos").hide();
+            $("#search_results").html(datos);
+         },
+         error: function() {
+            bootbox.alert({
+               message: 'Se ha producido un error al obtener los atributos.',
+               title: "<b>Atención</b>"
+            });
+         }
+      });
+   }
 }
 
 function add_linea_libre()
@@ -483,6 +503,12 @@ function get_precios(ref)
          success: function(datos) {
             $("#nav_articulos").hide();
             $("#search_results").html(datos);
+         },
+         error: function() {
+            bootbox.alert({
+               message: 'Se ha producido un error al obtener los precios.',
+               title: "<b>Atención</b>"
+            });
          }
       });
    }
@@ -500,14 +526,10 @@ function new_articulo()
          success: function(datos) {
             if(typeof datos[0] == 'undefined')
             {
-               if(document.f_nuevo_articulo.referencia.value == '')
-               {
-                  alert('Debes escribir una referencia.');
-               }
-               else
-               {
-                  alert('Se ha producido un error al crear el artículo.');
-               }
+               bootbox.alert({
+                  message: 'Se ha producido un error al crear el artículo.',
+                  title: "<b>Atención</b>"
+               });
             }
             else
             {
@@ -528,6 +550,12 @@ function new_articulo()
                   add_articulo(datos[0].referencia, Base64.encode(datos[0].descripcion), datos[0].pvp, 0, datos[0].codimpuesto);
                }
             }
+         },
+         error: function() {
+            bootbox.alert({
+               message: 'Se ha producido un error al crear el artículo.',
+               title: "<b>Atención</b>"
+            });
          }
       });
    }

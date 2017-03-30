@@ -190,7 +190,7 @@
                {if="$fsc->proveedor_s"}
                   {if="$fsc->proveedor_s->nombre!=$fsc->albaran->nombre"}
                   <li>
-                     <a href="#" onclick="alert('Proveedor conocido como: {$fsc->proveedor_s->nombre}')">
+                     <a href="#" onclick="bootbox.alert({message: 'Proveedor conocido como: {$fsc->proveedor_s->nombre}',title: '<b>Atención</b>'});">
                         <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                      </a>
                   </li>
@@ -819,6 +819,11 @@
                </a>
                {/if}
             {/loop}
+         </div>
+         <div class="modal-footer">
+            <a href="index.php?page=admin_empresa#impresion" target="_blank">
+               <span class="glyphicon glyphicon-wrench"></span>&nbsp; Opciones de impresión
+            </a>
          </div>
       </div>
    </div>

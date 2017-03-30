@@ -48,7 +48,7 @@ class ventas_atributos extends fs_controller
       $atr1 = new atributo();
       if( isset($_POST['nuevo']) )
       {
-         $atr1->codatributo = substr($_POST['nuevo'], 0, 8);
+         $atr1->codatributo = substr($_POST['nuevo'], 0, 20);
          $atr1->nombre = $_POST['nuevo'];
          if( $atr1->save() )
          {
