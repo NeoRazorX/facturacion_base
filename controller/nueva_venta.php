@@ -36,6 +36,7 @@ require_model('presupuesto_cliente.php');
 require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('tarifa.php');
+require_model('stock.php');
 
 class nueva_venta extends fs_controller
 {
@@ -56,6 +57,7 @@ class nueva_venta extends fs_controller
    public $pais;
    public $results;
    public $serie;
+   public $stock;
    public $tipo;
 
    public function __construct()
@@ -266,7 +268,8 @@ class nueva_venta extends fs_controller
          $this->serie = new serie();
          $this->forma_pago = new forma_pago();
          $this->divisa = new divisa();
-
+         $this->stock = new stock();
+         
          if( isset($_POST['tipo']) )
          {
             if($_POST['tipo'] == 'factura')
@@ -701,7 +704,7 @@ class nueva_venta extends fs_controller
          if( $albaran->save() )
          {
             $trazabilidad = FALSE;
-
+            $lista_errores = array();
             $art0 = new articulo();
             $n = floatval($_POST['numlineas']);
             for($i = 0; $i <= $n; $i++)
@@ -754,10 +757,12 @@ class nueva_venta extends fs_controller
                   {
                      if($articulo)
                      {
-                        if( !$articulo->controlstock AND $linea->cantidad > $articulo->stockfis )
+                        $articulo_stock = $this->stock->total_from_articulo($articulo->referencia, $albaran->codalmacen);
+                        if( !$articulo->controlstock AND $linea->cantidad > $articulo_stock )
                         {
                            $this->new_error_msg("No hay suficiente stock del artículo <b>".$linea->referencia.'</b>.');
                            $continuar = FALSE;
+                           $lista_errores[$articulo->referencia]=$articulo->referencia;
                         }
                         else if( isset($_POST['stock']) )
                         {
@@ -816,9 +821,21 @@ class nueva_venta extends fs_controller
                else
                   $this->new_error_msg("¡Imposible actualizar el <a href='".$albaran->url()."'>".FS_ALBARAN."</a>!");
             }
-            else if( !$albaran->delete() )
+            else 
             {
-               $this->new_error_msg("¡Imposible eliminar el <a href='".$albaran->url()."'>".FS_ALBARAN."</a>!");
+               //Corregimos el stock si es que los articulos tienen control de stock
+               foreach($albaran->get_lineas() as $linea){
+                  if($linea->referencia){
+                     $art1 = $this->articulos->get($linea->referencia);
+                     $articulo_stock = $this->stock->total_from_articulo($articulo->referencia, $albaran->codalmacen);
+                     if(!isset($lista_errores[$linea->referencia])){
+                        $art1->sum_stock($albaran->codalmacen, $linea->cantidad, FALSE, $linea->codcombinacion); 
+                     }
+                  }
+               }
+               if( !$albaran->delete() ){
+                  $this->new_error_msg("¡Imposible eliminar el <a href='".$albaran->url()."'>".FS_ALBARAN."</a>!");
+               }
             }
          }
          else
@@ -953,7 +970,7 @@ class nueva_venta extends fs_controller
          else if( $factura->save() )
          {
             $trazabilidad = FALSE;
-
+            $lista_errores = array();
             $art0 = new articulo();
             $n = floatval($_POST['numlineas']);
             for($i = 0; $i <= $n; $i++)
@@ -1006,10 +1023,12 @@ class nueva_venta extends fs_controller
                   {
                      if($articulo)
                      {
-                        if( !$articulo->controlstock AND $linea->cantidad > $articulo->stockfis )
+                        $articulo_stock = $this->stock->total_from_articulo($articulo->referencia, $factura->codalmacen);
+                        if( !$articulo->controlstock AND $articulo_stock >= $linea->cantidad AND $articulo_stock > 0 )
                         {
                            $this->new_error_msg("No hay suficiente stock del artículo <b>".$linea->referencia.'</b>.');
                            $continuar = FALSE;
+                           $lista_errores[$articulo->referencia]=$articulo->referencia;
                         }
                         else if( isset($_POST['stock']) )
                         {
@@ -1069,9 +1088,21 @@ class nueva_venta extends fs_controller
                else
                   $this->new_error_msg("¡Imposible actualizar la <a href='".$factura->url()."'>Factura</a>!");
             }
-            else if( !$factura->delete() )
+            else
             {
-               $this->new_error_msg("¡Imposible eliminar la <a href='".$factura->url()."'>Factura</a>!");
+               //Corregimos el stock si es que los articulos tienen control de stock
+               foreach($factura->get_lineas() as $linea){
+                  if($linea->referencia){
+                     $art1 = $this->articulos->get($linea->referencia);
+                     $articulo_stock = $this->stock->total_from_articulo($articulo->referencia, $factura->codalmacen);
+                     if(!isset($lista_errores[$linea->referencia])){
+                        $art1->sum_stock($factura->codalmacen, $linea->cantidad, FALSE, $linea->codcombinacion); 
+                     }
+                  }
+               }
+               if( !$factura->delete() ){
+                  $this->new_error_msg("¡Imposible eliminar la <a href='".$factura->url()."'>Factura</a>!");
+               }
             }
          }
          else
