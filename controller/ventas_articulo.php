@@ -801,20 +801,27 @@ class ventas_articulo extends fs_controller
          $mlist[$i]['inicial'] = $final;
       }
       
-      //Si esta el agrupar con un valor se agrupan los datos
-      if($this->agrupar){
-         foreach($mlist as $item){
-            if(!isset($this->mgrupo[$item['fecha']])){
-                $this->mgrupo[$item['fecha']]['ingreso'] = false;
-                $this->mgrupo[$item['fecha']]['salida'] = false;
+      /// Si esta el agrupar con un valor se agrupan los datos
+      if($this->agrupar)
+      {
+         foreach($mlist as $item)
+         {
+            if( !isset($this->mgrupo[$item['fecha']]) )
+            {
+               $this->mgrupo[$item['fecha']]['ingreso'] = FALSE;
+               $this->mgrupo[$item['fecha']]['salida'] = FALSE;
             }
-            if($item['movimiento']>0){
-                $this->mgrupo[$item['fecha']]['ingreso']+=$item['movimiento'];
-            }elseif($item['movimiento']<0){
-                $this->mgrupo[$item['fecha']]['salida']+=$item['movimiento'];
+            
+            if($item['movimiento'] > 0)
+            {
+               $this->mgrupo[$item['fecha']]['ingreso'] += $item['movimiento'];
+            }
+            else if($item['movimiento'] < 0)
+            {
+               $this->mgrupo[$item['fecha']]['salida'] += $item['movimiento'];
             }
          }
-      }      
+      }
       
       return $mlist;
    }
@@ -836,7 +843,8 @@ class ventas_articulo extends fs_controller
                $total += $mov['movimiento'];
             }
          }
-          if( $this->articulo->set_stock($alm->codalmacen, $total) )
+         
+         if( $this->articulo->set_stock($alm->codalmacen, $total) )
          {
             $this->new_message('Recarculado el stock del almacén '.$alm->codalmacen.'.');
          }

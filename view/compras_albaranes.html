@@ -265,6 +265,7 @@
                <input type="text" name="hasta" value="{$fsc->hasta}" class="form-control datepicker" placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
             </div>
          </div>
+         {if="$fsc->multi_almacen"}
          <div class="col-sm-2">
             <div class="form-group">
                <select name="codalmacen" class="form-control" onchange="this.form.submit()">
@@ -279,7 +280,10 @@
                   {/loop}
                </select>
             </div>
-         </div>          
+         </div>
+         {else}
+         <input type="hidden" name="codalmacen" value=""/>
+         {/if}
       </div>
    </div>
 </form>

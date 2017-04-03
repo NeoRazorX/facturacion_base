@@ -371,12 +371,12 @@ class ventas_articulos extends fs_controller
    {
       $this->resultados = array();
       $this->num_resultados = 0;
-      $query = $this->empresa->no_html( mb_strtolower($this->query, 'UTF8') );
       $sql = ' FROM articulos ';
       $where = ' WHERE ';
       
-      if($this->query != '')
+      if($this->query)
       {
+         $query = $this->empresa->no_html( mb_strtolower($this->query, 'UTF8') );
          $sql .= $where;
          if( is_numeric($query) )
          {
@@ -427,7 +427,7 @@ class ventas_articulos extends fs_controller
          $where = ' AND ';
       }
       
-      if($this->b_codfamilia != '')
+      if($this->b_codfamilia)
       {
          if($this->b_subfamilias)
          {
@@ -447,7 +447,7 @@ class ventas_articulos extends fs_controller
          $where = ' AND ';
       }
       
-      if($this->b_codfabricante != '')
+      if($this->b_codfabricante)
       {
          $sql .= $where."codfabricante = ".$this->empresa->var2str($this->b_codfabricante);
          $where = ' AND ';
