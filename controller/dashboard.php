@@ -130,35 +130,35 @@ class dashboard extends fs_controller
       switch( date('m') )
       {
          case '1':
-            $this->trimestre['desde'] = date('1-10-Y', strtotime('-1 year'));
-            $this->trimestre['hasta'] = date('t-12-Y', strtotime('-1 year'));
+            $this->trimestre['desde'] = date('01-10-Y', strtotime('-1 year'));
+            $this->trimestre['hasta'] = date('31-12-Y', strtotime('-1 year'));
             break;
          
          case '2':
          case '3':
          case '4':
-            $this->trimestre['desde'] = date('1-1-Y');
-            $this->trimestre['hasta'] = date('t-3-Y');
+            $this->trimestre['desde'] = date('01-01-Y');
+            $this->trimestre['hasta'] = date('31-03-Y');
             break;
          
          case '5':
          case '6':
          case '7':
-            $this->trimestre['desde'] = date('1-4-Y');
-            $this->trimestre['hasta'] = date('t-6-Y');
+            $this->trimestre['desde'] = date('01-04-Y');
+            $this->trimestre['hasta'] = date('30-06-Y');
             break;
          
          case '8':
          case '9':
          case '10':
-            $this->trimestre['desde'] = date('1-7-Y');
-            $this->trimestre['hasta'] = date('t-9-Y');
+            $this->trimestre['desde'] = date('01-07-Y');
+            $this->trimestre['hasta'] = date('30-09-Y');
             break;
          
          case '11':
          case '12':
-            $this->trimestre['desde'] = date('1-10-Y');
-            $this->trimestre['hasta'] = date('t-12-Y');
+            $this->trimestre['desde'] = date('01-10-Y');
+            $this->trimestre['hasta'] = date('31-12-Y');
             break;
       }
       if($this->anterior == 'año')

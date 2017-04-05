@@ -309,7 +309,9 @@ class ventas_clientes extends fs_controller
 
       if( is_numeric($query) )
       {
-         $sql .= $and."(codcliente LIKE '%".$query."%'"
+         $sql .= $and."(nombre LIKE '%".$query."%'"
+                 . " OR razonsocial LIKE '%".$query."%'"
+                 . " OR codcliente LIKE '%".$query."%'"
                  . " OR cifnif LIKE '%".$query."%'"
                  . " OR telefono1 LIKE '".$query."%'"
                  . " OR telefono2 LIKE '".$query."%'"

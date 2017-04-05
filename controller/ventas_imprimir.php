@@ -32,12 +32,12 @@ require_model('pais.php');
  */
 class ventas_imprimir extends fs_controller
 {
+   public $articulo_traza;
    public $cliente;
    public $documento;
    public $impresion;
    public $impuesto;
    
-   public $articulo_traza;
    private $numpaginas;
    
    public function __construct()
