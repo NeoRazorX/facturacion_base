@@ -136,7 +136,9 @@ class compras_proveedores extends fs_controller
       
       if( is_numeric($query) )
       {
-         $sql .= $and."(codproveedor LIKE '%".$query."%'"
+         $sql .= $and."(nombre LIKE '%".$query."%'"
+                 . " OR razonsocial LIKE '%".$query."%'"
+                 . " OR codproveedor LIKE '%".$query."%'"
                  . " OR cifnif LIKE '%".$query."%'"
                  . " OR telefono1 LIKE '".$query."%'"
                  . " OR telefono2 LIKE '".$query."%'"

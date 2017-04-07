@@ -524,6 +524,8 @@ class contabilidad_nuevo_asiento extends fs_controller
             
             $this->lineas[] = $part;
          }
+         
+         $this->new_advice('Copiando asiento '.$copia->numero.'. Pulsa <b>guardar</b> para terminar.');
       }
       else
       {
