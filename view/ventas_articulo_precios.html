@@ -1,0 +1,195 @@
+<div role="tabpanel" class="tab-pane" id="precios">
+   <form action="{$fsc->url()}#precios" method="post" class="form">
+      <input type="hidden" name="referencia" value="{$fsc->articulo->referencia}"/>
+      <input type="hidden" id="iva" name="iva" value="{$fsc->articulo->get_iva()}"/>
+      <div class="container-fluid" style="margin-top: 10px;">
+         <div class="row">
+            <div class="col-sm-4">
+               <div class="form-group">
+                  Precio:
+                  <div class="input-group">
+                     <span class="input-group-addon">{$fsc->simbolo_divisa()}</span>
+                     <input type="text" class="form-control" id="pvp" name="pvp" value="{$fsc->articulo->pvp}" autocomplete="off" onkeyup="cambiar_pvp()" onclick="this.select()"/>
+                  </div>
+                  <p class="help-block">
+                     El precio se guarda con <b>{#FS_NF0_ART#} decimales</b>.
+                     Puedes cambiarlo desde el <a href="index.php?page=admin_home#avanzado">panel de control</a>.
+                  </p>
+               </div>
+            </div>
+            <div class="col-sm-4">
+               <div class="form-group">
+                  <a href="{$fsc->impuesto->url()}">{#FS_IVA#}</a>:
+                  <select class="form-control" name="codimpuesto" onchange="this.form.submit()">
+                     {loop="$fsc->impuesto->all()"}
+                     {if="$value->codimpuesto==$fsc->articulo->codimpuesto"}
+                     <option value="{$value->codimpuesto}" selected="">{$value->descripcion}</option>
+                     {else}
+                     <option value="{$value->codimpuesto}">{$value->descripcion}</option>
+                     {/if}
+                     {/loop}
+                  </select>
+               </div>
+            </div>
+            <div class="col-sm-4">
+               <div class="form-group">
+                  Precio+{#FS_IVA#}:
+                  <div class="input-group">
+                     <input type="text" class="form-control" id="pvpi" name="pvpiva" value="{$fsc->articulo->pvp_iva()}" autocomplete="off" onkeyup="cambiar_pvpi()" onclick="this.select()"/>
+                     <span class="input-group-addon" title="precio redondeado">{$fsc->show_precio($fsc->articulo->pvp_iva(), FALSE, TRUE, FS_NF0_ART)}</span>
+                  </div>
+                  <p class="help-block">Último cambio de precio: {$fsc->articulo->factualizado}</p>
+               </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-sm-4">
+               <div class="form-group">
+                  Precio de Coste:
+                  {if="$fsc->articulo->secompra AND FS_COST_IS_AVERAGE"}
+                  <input type="text" name="coste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" disabled="disabled">
+                  <p class="help-block">
+                     El precio de compra se calcula automáticamente. Si quieres editarlo puedes
+                     desmarcar <b>se compra</b> en la primera pestaña, o bien cambiar la configuración
+                     de precio de coste desde la configuración del <a href="index.php?page=admin_almacenes">almacén</a>.
+                  </p>
+                  {else}
+                  <input type="text" name="preciocoste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" onclick="this.select()" autocomplete="off">
+                  {/if}
+               </div>
+            </div>
+            <div class="col-sm-4">
+               <div class="form-group">
+                  Margen sobre precio de coste
+                  <div class="input-group">
+                     <span class="input-group-addon">%</span>
+                     <input type="text" class="form-control" id="margen" name="margen" value="0" autocomplete="off" onkeyup="cambiar_margen()" onclick="this.select()"/>
+                  </div>
+                  <p class="help-block">Sirve para calcular el Precio, pero no se almacena (todavía).</p>
+               </div>
+            </div>
+            <div class="col-sm-4">
+               <div class="hidden-xs"><br/></div>
+               <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true;this.form.submit();">
+                  <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+               </button>
+               <div class="visible-xs"><br/></div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-sm-12">
+               <br/>
+               <ul class="nav nav-pills" role="tablist">
+                  <li role="presentation" class="active">
+                     <a href="#tarifas" aria-controls="tarifas" role="tab" data-toggle="tab">Tarifas</a>
+                  </li>
+                  <li role="presentation">
+                     <a href="#proveedores" aria-controls="proveedores" role="tab" data-toggle="tab">
+                        <i class="fa fa-users" aria-hidden="true"></i> Proveedores
+                     </a>
+                  </li>
+               </ul>
+            </div>
+         </div>
+         <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="tarifas">
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="table-responsive">
+                        <table class="table table-hover">
+                           <thead>
+                              <tr>
+                                 <th colspan="2" class="text-left">Tarifa</th>
+                                 <th class="text-left">Aplicar</th>
+                                 <th class="text-right">Nuevo Precio</th>
+                                 <th class="text-right">Nuevo Precio+{#FS_IVA#}</th>
+                              </tr>
+                           </thead>
+                           {loop="$fsc->get_tarifas()"}
+                           <tr>
+                              <td width="120"><div class="form-control"><a href="{$value->tarifa_url}">{$value->codtarifa}</a></div></td>
+                              <td><div class="form-control">{$value->tarifa_nombre}</div></td>
+                              <td><div class="form-control">{$value->tarifa_diff}</div></td>
+                              <td class="text-right">
+                                 <div class="form-control">{$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100, FALSE, TRUE, FS_NF0_ART)}</div>
+                              </td>
+                              <td class="text-right">
+                                 <div class="form-control">{$fsc->show_precio($value->pvp*(100 - $value->dtopor)/100*(100 + $value->get_iva())/100, FALSE, TRUE, FS_NF0_ART)}</div>
+                              </td>
+                           </tr>
+                           {else}
+                           <tr class="warning">
+                              <td colspan="5">No hay tarifas definidas.</td>
+                           </tr>
+                           {/loop}
+                        </table>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-sm-2">
+                     <a class="btn btn-sm btn-success" href="index.php?page=ventas_articulos#tarifas">
+                        <span class="glyphicon glyphicon-plus-sign"></span>&nbsp; Nueva tarifa
+                     </a>
+                  </div>
+                  <div class="col-sm-10">
+                     <p class='help-block text-right'>
+                        <span class="glyphicon glyphicon-exclamation-sign"></span>
+                        <b>Importante</b>: ten en cuenta que si la tarifa tiene marcado
+                        <b>precio mínimo</b>, por mucho que cambies no podrás poner un precio
+                        inferior al precio de coste. De la misma manera, si la tarifa tiene
+                        marcado <b>precio máximo</b>, nunca podrás superar el precio de venta
+                        del artículo.
+                     </p>
+                  </div>
+               </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="proveedores">
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="table-responsive">
+                        <table class="table table-hover">
+                           <thead>
+                              <tr>
+                                 <th>Proveedor</th>
+                                 <th>Ref. Proveedor</th>
+                                 <th class="text-right">Precio</th>
+                                 <th class="text-right">Descuento</th>
+                                 <th class="text-right">Total+{#FS_IVA#}</th>
+                                 <th class="text-right">Stock</th>
+                              </tr>
+                           </thead>
+                           {loop="$fsc->get_articulo_proveedores()"}
+                           <tr>
+                              <td><a href="{$value->url_proveedor()}">{$value->nombre_proveedor()}</a></td>
+                              <td>{$value->refproveedor}</td>
+                              <td class="text-right">{$fsc->show_precio($value->precio)}</td>
+                              <td class="text-right">{$fsc->show_numero($value->dto)} %</td>
+                              <td class="text-right">{$fsc->show_precio($value->total_iva())}</td>
+                              <td class="text-right">
+                                 {if="$value->nostock"}-{else}{$value->stock}{/if}
+                              </td>
+                           </tr>
+                           {else}
+                           <tr><td colspan="6" class="warning">Sin resultados.</td></tr>
+                           {/loop}
+                        </table>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-sm-12">
+                     <p class="help-block">
+                        <span class="glyphicon glyphicon-exclamation-sign"></span>
+                        Estos son los proveedores a los que <b>has comprado</b> este producto,
+                        sus referencias, su último precio, descuento y su stock, si lo ofrecen.
+                        Si quieres que un proveedor aparezca aquí, crea un {#FS_PEDIDO#}
+                        o {#FS_ALBARAN#} de compra con ese proveedor y este artículo.
+                     </p>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </form>
+</div>

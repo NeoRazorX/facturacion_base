@@ -660,7 +660,8 @@ class proveedor extends \fs_model
       $consulta = "SELECT * FROM ".$this->table_name." WHERE ";
       if( is_numeric($query) )
       {
-         $consulta .= "codproveedor LIKE '%".$query."%' OR cifnif LIKE '%".$query."%'"
+         $consulta .= "nombre LIKE '%".$query."%' OR razonsocial LIKE '%".$query."%'"
+                 . " OR codproveedor LIKE '%".$query."%' OR cifnif LIKE '%".$query."%'"
                  . " OR telefono1 LIKE '".$query."%' OR telefono2 LIKE '".$query."%'"
                  . " OR observaciones LIKE '%".$query."%'";
       }

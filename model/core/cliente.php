@@ -717,7 +717,8 @@ class cliente extends \fs_model
       $consulta = "SELECT * FROM ".$this->table_name." WHERE debaja = FALSE AND ";
       if( is_numeric($query) )
       {
-         $consulta .= "(codcliente LIKE '%".$query."%' OR cifnif LIKE '%".$query."%'"
+         $consulta .= "(nombre LIKE '%".$query."%' OR razonsocial LIKE '%".$query."%'"
+                 . " OR codcliente LIKE '%".$query."%' OR cifnif LIKE '%".$query."%'"
                  . " OR telefono1 LIKE '".$query."%' OR telefono2 LIKE '".$query."%'"
                  . " OR observaciones LIKE '%".$query."%')";
       }

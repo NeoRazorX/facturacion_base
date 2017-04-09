@@ -30,13 +30,13 @@ require_model('proveedor.php');
  */
 class compras_imprimir extends fs_controller
 {
+   public $articulo_traza;
    public $documento;
    public $impresion;
    public $impuesto;
    public $proveedor;
    
    private $articulo_proveedor;
-   private $articulo_traza;
    private $numpaginas;
    
    public function __construct()
