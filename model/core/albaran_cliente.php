@@ -1046,7 +1046,7 @@ class albaran_cliente extends \fs_model
          $sql .= " AND coddivisa = ".$this->var2str($coddivisa);
       }
       
-      $sql .= " ORDER BY fecha DESC, codigo DESC;";
+      $sql .= " ORDER BY fecha ASC, codigo ASC;";
       
       $data = $this->db->select($sql);
       if($data)

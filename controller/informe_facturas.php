@@ -482,7 +482,8 @@ class informe_facturas extends fs_controller
       
       header("content-type:application/csv;charset=UTF-8");
       header("Content-Disposition: attachment; filename=\"facturas_cli.csv\"");
-      echo "serie,factura,asiento,fecha,subcuenta,descripcion,cifnif,base,iva,totaliva,totalrecargo,totalirpf,total\n";
+      echo "serie,factura,asiento,fecha,subcuenta,descripcion,".FS_CIFNIF.",base,".FS_IVA
+              .",total".FS_IVA.",totalrecargo,total".FS_IRPF.",total\n";
       
       $codserie = FALSE;
       if($_POST['codserie'] != '')
@@ -594,7 +595,8 @@ class informe_facturas extends fs_controller
       
       header("content-type:application/csv;charset=UTF-8");
       header("Content-Disposition: attachment; filename=\"facturas_prov.csv\"");
-      echo "serie,factura,asiento,fecha,subcuenta,descripcion,cifnif,base,iva,totaliva,totalrecargo,totalirpf,total\n";
+      echo "serie,factura,asiento,fecha,subcuenta,descripcion,".FS_CIFNIF.",base,"
+              .FS_IVA.",total".FS_IVA.",totalrecargo,total".FS_IRPF.",total\n";
       
       $codserie = FALSE;
       if($_POST['codserie'] != '')
@@ -826,10 +828,10 @@ class informe_facturas extends fs_controller
                    'descripcion' => '<b>Descripción</b>',
                    'cifnif' => '<b>'.FS_CIFNIF.'</b>',
                    'base' => '<b>Base Im.</b>',
-                   'iva' => '<b>% IVA</b>',
-                   'totaliva' => '<b>IVA</b>',
+                   'iva' => '<b>% '.FS_IVA.'</b>',
+                   'totaliva' => '<b>'.FS_IVA.'</b>',
                    'totalrecargo' => '<b>RE</b>',
-                   'totalirpf' => '<b>IRPF</b>',
+                   'totalirpf' => '<b>'.FS_IRPF.'</b>',
                    'total' => '<b>Total</b>'
                )
             );
@@ -950,13 +952,13 @@ class informe_facturas extends fs_controller
                $opciones['cols']['base'.$i] = array('justification' => 'right');
                if($i != 0)
                {
-                  $titulo['iva'.$i] = '<b>IVA '.$i.'%</b>';
+                  $titulo['iva'.$i] = '<b>'.FS_IVA.' '.$i.'%</b>';
                   $fila['iva'.$i] = $this->show_precio($value['iva']);
                   $opciones['cols']['iva'.$i] = array('justification' => 'right');
                }
             }
             $titulo['totalrecargo'] = '<b>RE</b>';
-            $titulo['totalirpf'] = '<b>IRPF</b>';
+            $titulo['totalirpf'] = '<b>'.FS_IRPF.'</b>';
             $titulo['total'] = '<b>Total</b>';
             $fila['totalrecargo'] = $this->show_precio($totalrecargo);
             $fila['totalirpf'] = $this->show_precio($totalirpf);
@@ -1105,10 +1107,10 @@ class informe_facturas extends fs_controller
                    'descripcion' => '<b>Descripción</b>',
                    'cifnif' => '<b>'.FS_CIFNIF.'</b>',
                    'base' => '<b>Base Im.</b>',
-                   'iva' => '<b>% IVA</b>',
-                   'totaliva' => '<b>IVA</b>',
+                   'iva' => '<b>% '.FS_IVA.'</b>',
+                   'totaliva' => '<b>'.FS_IVA.'</b>',
                    'totalrecargo' => '<b>RE</b>',
-                   'totalirpf' => '<b>IRPF</b>',
+                   'totalirpf' => '<b>'.FS_IRPF.'</b>',
                    'total' => '<b>Total</b>'
                )
             );
@@ -1229,13 +1231,13 @@ class informe_facturas extends fs_controller
                $opciones['cols']['base'.$i] = array('justification' => 'right');
                if($i != 0)
                {
-                  $titulo['iva'.$i] = '<b>IVA '.$i.'%</b>';
+                  $titulo['iva'.$i] = '<b>'.FS_IVA.' '.$i.'%</b>';
                   $fila['iva'.$i] = $this->show_precio($value['iva']);
                   $opciones['cols']['iva'.$i] = array('justification' => 'right');
                }
             }
             $titulo['totalrecargo'] = '<b>RE</b>';
-            $titulo['totalirpf'] = '<b>IRPF</b>';
+            $titulo['totalirpf'] = '<b>'.FS_IRPF.'</b>';
             $titulo['total'] = '<b>Total</b>';
             $fila['totalrecargo'] = $this->show_precio($totalrecargo);
             $fila['totalirpf'] = $this->show_precio($totalirpf);

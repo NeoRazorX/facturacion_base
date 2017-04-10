@@ -276,18 +276,17 @@
                         {if="$fsc->direccion"}
                         <input id="ac_provincia" class="form-control" type="text" name="provincia" value="{$fsc->direccion->provincia}"/>
                         {else}
-                        <input id="ac_provincia" class="form-control" type="text" name="provincia" value="{$fsc->empresa->provincia}"/>
+                        <input id="ac_provincia" class="form-control" type="text" name="provincia"/>
                         {/if}
                      </div>
                   </div>
-
                   <div class="col-sm-3">
                      <div class="form-group">
                         Ciudad:
                         {if="$fsc->direccion"}
                         <input class="form-control" type="text" name="ciudad" value="{$fsc->direccion->ciudad}"/>
                         {else}
-                        <input class="form-control" type="text" name="ciudad" value="{$fsc->empresa->ciudad}"/>
+                        <input class="form-control" type="text" name="ciudad"/>
                         {/if}
                      </div>
                   </div>
@@ -299,7 +298,7 @@
                         {if="$fsc->direccion"}
                         <input class="form-control" type="text" name="codpostal" value="{$fsc->direccion->codpostal}" maxlength="10" autocomplete="off"/>
                         {else}
-                        <input class="form-control" type="text" name="codpostal" value="{$fsc->empresa->codpostal}" maxlength="10" autocomplete="off"/>
+                        <input class="form-control" type="text" name="codpostal" maxlength="10" autocomplete="off"/>
                         {/if}
                      </div>
                   </div>
@@ -309,7 +308,7 @@
                         {if="$fsc->direccion"}
                         <input class="form-control" type="text" name="direccion" value="{$fsc->direccion->direccion}" autocomplete="off"/>
                         {else}
-                        <input class="form-control" type="text" name="direccion" value="Calle ..." autocomplete="off"/>
+                        <input class="form-control" type="text" name="direccion" placeholder="Calle ..." autocomplete="off"/>
                         {/if}
                      </div>
                   </div>
@@ -319,7 +318,7 @@
                         {if="$fsc->direccion"}
                         <input class="form-control" type="text" name="apartado" value="{$fsc->direccion->apartado}" maxlength="10" autocomplete="off"/>
                         {else}
-                        <input class="form-control" type="text" name="apartado" value="{$fsc->empresa->apartado}" maxlength="10" autocomplete="off"/>
+                        <input class="form-control" type="text" name="apartado" maxlength="10" autocomplete="off"/>
                         {/if}
                      </div>
                   </div>
