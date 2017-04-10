@@ -793,16 +793,16 @@ class ventas_articulo extends fs_controller
       {
          if($mlist[$i]['movimiento'] == '-')
          {
-             if ($mlist[$i]['inicial'] < $mlist[$i]['final']){ // entrada de stock SYK360
-
-                 $mlist[$i]['movimiento'] =  $mlist[$i]['final'] - $mlist[$i]['inicial'];
-
-
-             }else //salida de stock SYK360
-                 {
-            //El resultado del stock final anterior y el valor de la regularización se agrega como salida o ingreso
-            $mlist[$i]['movimiento'] = $mlist[$i]['final'] - $mlist[$i]['inicial'];
-             }
+            if($mlist[$i]['inicial'] < $mlist[$i]['final'])
+            {
+               /// entrada de stock
+               $mlist[$i]['movimiento'] =  $mlist[$i]['final'] - $mlist[$i]['inicial'];
+            }
+            else
+            {
+               //El resultado del stock final anterior y el valor de la regularización se agrega como salida o ingreso
+               $mlist[$i]['movimiento'] = $mlist[$i]['final'] - $mlist[$i]['inicial'];
+            }
          }
          $mlist[$i]['final'] = $final;
          $final -= $mlist[$i]['movimiento'];
