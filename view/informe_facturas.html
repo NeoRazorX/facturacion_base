@@ -678,6 +678,24 @@
                      Hasta:
                      <input class="form-control datepicker" type="text" name="hasta" value="{$fsc->hasta}" autocomplete="off"/>
                   </div>
+                  {if="$fsc->multi_almacen"}
+                  <div class="form-group">
+                     <a href="{$fsc->almacenes->url()}" class="text-capitalize">Almacén</a>:
+                     <select name="codalmacen" class="form-control">
+                        <option value="">Cualquier almacén</option>
+                        <option value="">------</option>
+                        {loop="$fsc->almacenes->all()"}
+                           {if="$value->codalmacen==$fsc->codalmacen"}
+                           <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
+                           {else}
+                           <option value="{$value->codalmacen}">{$value->nombre}</option>
+                           {/if}
+                        {/loop}
+                     </select>
+                  </div>
+                  {else}
+                  <input type="hidden" name="codalmacen" value=""/>
+                  {/if}                   
                   <div class="form-group">
                      <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
                      <select class="form-control" name="codserie">
@@ -767,6 +785,24 @@
                      Hasta:
                      <input class="form-control datepicker" type="text" name="hasta" value="{$fsc->hasta}" autocomplete="off"/>
                   </div>
+                  {if="$fsc->multi_almacen"}
+                  <div class="form-group">
+                     <a href="{$fsc->almacenes->url()}" class="text-capitalize">Almacén</a>:
+                     <select name="codalmacen" class="form-control">
+                        <option value="">Cualquier almacén</option>
+                        <option value="">------</option>
+                        {loop="$fsc->almacenes->all()"}
+                           {if="$value->codalmacen==$fsc->codalmacen"}
+                           <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
+                           {else}
+                           <option value="{$value->codalmacen}">{$value->nombre}</option>
+                           {/if}
+                        {/loop}
+                     </select>
+                  </div>
+                  {else}
+                  <input type="hidden" name="codalmacen" value=""/>
+                  {/if}                  
                   <div class="form-group">
                      <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
                      <select class="form-control" name="codserie">
@@ -815,6 +851,14 @@
                      Mínimo:
                      <input type="text" name="minimo" class="form-control" autocomplete="off" placeholder="importe o  unidades (opcional)"/>
                   </div>
+                  <div class="form-group hidden">
+                     Generar:
+                     <select name="generar" class="form-control">
+                        <option value="pdf">PDF</option>
+                        <option value="csv">CSV</option>
+                        <option value="xls">EXCEL</option>
+                     </select>
+                  </div>
                </div>
                <div class="panel-footer">
                   <button class="btn btn-sm btn-primary" type="submit">
@@ -849,6 +893,24 @@
                      Hasta:
                      <input class="form-control datepicker" type="text" name="hasta" value="{$fsc->hasta}" autocomplete="off"/>
                   </div>
+                  {if="$fsc->multi_almacen"}
+                  <div class="form-group">
+                     <a href="{$fsc->almacenes->url()}" class="text-capitalize">Almacén</a>:
+                     <select name="codalmacen" class="form-control">
+                        <option value="">Cualquier almacén</option>
+                        <option value="">------</option>
+                        {loop="$fsc->almacenes->all()"}
+                           {if="$value->codalmacen==$fsc->codalmacen"}
+                           <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
+                           {else}
+                           <option value="{$value->codalmacen}">{$value->nombre}</option>
+                           {/if}
+                        {/loop}
+                     </select>
+                  </div>
+                  {else}
+                  <input type="hidden" name="codalmacen" value=""/>
+                  {/if}
                   <div class="form-group">
                      <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
                      <select class="form-control" name="codserie">
@@ -938,6 +1000,24 @@
                      Hasta:
                      <input class="form-control datepicker" type="text" name="hasta" value="{$fsc->hasta}" autocomplete="off"/>
                   </div>
+                  {if="$fsc->multi_almacen"}
+                  <div class="form-group">
+                     <a href="{$fsc->almacenes->url()}" class="text-capitalize">Almacén</a>:
+                     <select name="codalmacen" class="form-control">
+                        <option value="">Cualquier almacén</option>
+                        <option value="">------</option>
+                        {loop="$fsc->almacenes->all()"}
+                           {if="$value->codalmacen==$fsc->codalmacen"}
+                           <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
+                           {else}
+                           <option value="{$value->codalmacen}">{$value->nombre}</option>
+                           {/if}
+                        {/loop}
+                     </select>
+                  </div>
+                  {else}
+                  <input type="hidden" name="codalmacen" value=""/>
+                  {/if}
                   <div class="form-group">
                      <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
                      <select class="form-control" name="codserie">
@@ -1005,6 +1085,14 @@
                   <div class="form-group">
                      Importe mínimo:
                      <input type="text" name="minimo" class="form-control" autocomplete="off" placeholder="opcional"/>
+                  </div>
+                  <div class="form-group hidden">
+                     Generar:
+                     <select name="generar" class="form-control">
+                        <option value="pdf">PDF</option>
+                        <option value="csv">CSV</option>
+                        <option value="xls">EXCEL</option>
+                     </select>
                   </div>
                </div>
                <div class="panel-footer">
