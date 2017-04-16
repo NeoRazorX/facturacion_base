@@ -42,7 +42,7 @@
                <div class="page-header">
                   <h1>
                      <i class="fa fa-desktop" aria-hidden="true"></i>&nbsp;
-                     Terminal {$fsc->terminal->id}
+                      {$fsc->terminal->nombre}
                   </h1>
                   <p class="help-block">
                      El TPV imprime tickets y por tanto necesitas una impresora
@@ -109,7 +109,7 @@
          {loop="$fsc->results"}
          <div class="col-sm-4">
             <a href="{$fsc->url()}&terminal={$value->id}" class="btn btn-block btn-default">
-               <i class="fa fa-desktop" aria-hidden="true"></i>&nbsp; Terminal {$value->id}
+               <i class="fa fa-desktop" aria-hidden="true"></i>&nbsp; {$fsc->terminal->nombre}
             </a>
          </div>
          {else}
