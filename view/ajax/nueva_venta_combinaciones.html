@@ -5,6 +5,7 @@
          <tr>
             <th>Combinación</th>
             <th class="text-right">Precio</th>
+            <th class="text-right">Precio+{#FS_IVA#}</th>
             <th class="text-right">Stock</th>
          </tr>
       </thead>
@@ -14,11 +15,12 @@
             <a href="#" onclick="add_articulo('{$value['ref']}','{function="base64_encode($value['desc'])"}','{$value['pvp']}','{$value['dto']}','{$value['codimpuesto']}','{$value['cantidad']}','{$value['codigo']}')">{$value['txt']}</a>
          </td>
          <td class="text-right">{$fsc->show_precio($value['pvp'])}</td>
+         <td class="text-right">{$fsc->show_precio($value['pvp']*(100+$value['iva'])/100)}</td>
          <td class="text-right">{$value['stockfis']}</td>
       </tr>
       {else}
       <tr class="danger">
-         <td colspan="3">No hay combinaciones definidas.</td>
+         <td colspan="4">No hay combinaciones definidas.</td>
       </tr>
       {/loop}
    </table>
