@@ -2,6 +2,7 @@
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2017  Francesc Pineda Segarra  shawe.ewahs@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -590,6 +591,54 @@ class ventas_imprimir extends fs_controller
          $row['campo2'] = "<b>Teléfonos:</b> ".$this->cliente->telefono2;
       }
       $pdf_doc->add_table_row($row);
+      
+      /* Si tenemos dirección de envío y es diferente a la de facturación */
+      if($this->documento->envio_direccion && $this->documento->direccion != $this->documento->envio_direccion)
+      {
+         $direccionenv = '';
+         if($this->documento->envio_codigo)
+         {
+            $direccionenv .= 'Cod. Seg.: "'.$this->documento->envio_codigo.'" - ';
+         }
+         if($this->documento->envio_nombre)
+         {
+            $direccionenv .= $this->documento->envio_nombre.' '. $this->documento->envio_apellidos.' - ';
+         }
+         $direccionenv .= $this->documento->envio_direccion;
+         if($this->documento->envio_apartado)
+         {
+            $direccionenv .= ' - '.ucfirst(FS_APARTADO).': '.$this->documento->envio_apartado;
+         }
+         if($this->documento->envio_codpostal)
+         {
+            $direccionenv .= ' - CP: '.$this->documento->envio_codpostal;
+         }
+         $direccionenv .= ' - '.$this->documento->envio_ciudad;
+         if($this->documento->envio_provincia)
+         {
+            $direccionenv .= ' ('.$this->documento->envio_provincia.')';
+         }
+         if($this->documento->envio_codpais != $this->empresa->codpais)
+         {
+            $pais0 = new pais();
+            $pais = $pais0->get($this->documento->envio_codpais);
+            if($pais)
+            {
+               $direccionenv .= ' '.$pais->nombre;
+            }
+         }
+         /* Tal y como está la plantilla actualmente:
+          * Cada 54 caracteres es una línea en la dirección y no sabemos cuantas líneas tendrá,
+          * a partir de ahí es una linea a restar por cada 54 caracteres
+          */
+         $lppag -= ceil(strlen($direccionenv)/54);
+         $row_dir_env = array(
+            'campo1' => "<b>Enviar a:</b>",
+            'dato1' => $pdf_doc->fix_html($direccionenv),
+            'campo2' => ''
+         );
+         $pdf_doc->add_table_row($row_dir_env);
+      }
       
       if($this->empresa->codpais != 'ESP')
       {
