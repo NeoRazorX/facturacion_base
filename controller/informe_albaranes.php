@@ -131,13 +131,18 @@ class informe_albaranes extends fs_controller
 
 		if($this->codalmacen)
       {
-			$this->where .= " AND coddivisa = ".$this->empresa->var2str($this->coddivisa);
+			$this->where .= " AND codalmacen = ".$this->empresa->var2str($this->codalmacen);
       }
       
 		if($this->coddivisa)
       {
          $this->where .= " AND coddivisa = ".$this->empresa->var2str($this->coddivisa);
 		}
+      
+      if($this->codpago)
+      {
+			$this->where .= " AND codpago = ".$this->empresa->var2str($this->codpago);
+      }
    }
 
    public function stats_months()
