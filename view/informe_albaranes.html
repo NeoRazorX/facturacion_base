@@ -6,8 +6,7 @@
          <div class="col-sm-12">
 	         <div class="page-header">
 	            <h1>
-	               <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-	               Informe de {#FS_ALBARANES#}
+                  <i class="fa fa-area-chart" aria-hidden="true"></i> Informe de {#FS_ALBARANES#}
 	               <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
 	                  <span class="glyphicon glyphicon-refresh"></span>
 	               </a>
@@ -159,11 +158,11 @@
                <div class="panel panel-default">
                   <div class="panel-heading">
                      <h3 class="panel-title">
-                        <span class="text-capitalize">{#FS_ALBARANES#}</span> de compras por {#FS_SERIE#}
+                        <span class="text-capitalize">{#FS_ALBARANES#}</span> de compras por estado
                      </h3>
                   </div>
                   <div class="panel-body">
-                     <canvas id="chart_compras_series"></canvas>
+                     <canvas id="chart_compras_estados"></canvas>
                   </div>
                   <div class="table-responsive">
                      <table class="table table-hover">
@@ -173,7 +172,7 @@
                               <th class="text-right">Total</th>
                            </tr>
                         </thead>
-                        {loop="$fsc->stats_series()"}
+                        {loop="$fsc->stats_estados()"}
                         <tr>
                            <td>{$value['txt']}</td>
                            <td class="text-right">{$fsc->show_precio($value['total'])}</td>
@@ -191,11 +190,11 @@
                <div class="panel panel-default">
                   <div class="panel-heading">
                      <h3 class="panel-title">
-                        <span class="text-capitalize">{#FS_ALBARANES#}</span> de ventas por {#FS_SERIE#}
+                        <span class="text-capitalize">{#FS_ALBARANES#}</span> de ventas por estado
                      </h3>
                   </div>
                   <div class="panel-body">
-                     <canvas id="chart_ventas_series"></canvas>
+                     <canvas id="chart_ventas_estados"></canvas>
                   </div>
                   <div class="table-responsive">
                      <table class="table table-hover">
@@ -205,7 +204,7 @@
                               <th class="text-right">Total</th>
                            </tr>
                         </thead>
-                        {loop="$fsc->stats_series('albaranescli')"}
+                        {loop="$fsc->stats_estados('albaranescli')"}
                         <tr>
                            <td>{$value['txt']}</td>
                            <td class="text-right">{$fsc->show_precio($value['total'])}</td>
@@ -293,6 +292,72 @@
                <div class="panel panel-default">
                   <div class="panel-heading">
                      <h3 class="panel-title">
+                        <span class="text-capitalize">{#FS_ALBARANES#}</span> de compras por {#FS_SERIE#}
+                     </h3>
+                  </div>
+                  <div class="panel-body">
+                     <canvas id="chart_compras_series"></canvas>
+                  </div>
+                  <div class="table-responsive">
+                     <table class="table table-hover">
+                        <thead>
+                           <tr>
+                              <th>Campo</th>
+                              <th class="text-right">Total</th>
+                           </tr>
+                        </thead>
+                        {loop="$fsc->stats_series()"}
+                        <tr>
+                           <td>{$value['txt']}</td>
+                           <td class="text-right">{$fsc->show_precio($value['total'])}</td>
+                        </tr>
+                        {else}
+                        <tr class="warning">
+                           <td colspan="2">Sin resultados.</td>
+                        </tr>
+                        {/loop}
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="col-sm-6">
+               <div class="panel panel-default">
+                  <div class="panel-heading">
+                     <h3 class="panel-title">
+                        <span class="text-capitalize">{#FS_ALBARANES#}</span> de ventas por {#FS_SERIE#}
+                     </h3>
+                  </div>
+                  <div class="panel-body">
+                     <canvas id="chart_ventas_series"></canvas>
+                  </div>
+                  <div class="table-responsive">
+                     <table class="table table-hover">
+                        <thead>
+                           <tr>
+                              <th>Campo</th>
+                              <th class="text-right">Total</th>
+                           </tr>
+                        </thead>
+                        {loop="$fsc->stats_series('albaranescli')"}
+                        <tr>
+                           <td>{$value['txt']}</td>
+                           <td class="text-right">{$fsc->show_precio($value['total'])}</td>
+                        </tr>
+                        {else}
+                        <tr class="warning">
+                           <td colspan="2">Sin resultados.</td>
+                        </tr>
+                        {/loop}
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-sm-6">
+               <div class="panel panel-default">
+                  <div class="panel-heading">
+                     <h3 class="panel-title">
                         <span class="text-capitalize">{#FS_ALBARANES#}</span> de compras por formas de pago
                      </h3>
                   </div>
@@ -340,72 +405,6 @@
                            </tr>
                         </thead>
                         {loop="$fsc->stats_formas_pago('albaranescli')"}
-                        <tr>
-                           <td>{$value['txt']}</td>
-                           <td class="text-right">{$fsc->show_precio($value['total'])}</td>
-                        </tr>
-                        {else}
-                        <tr class="warning">
-                           <td colspan="2">Sin resultados.</td>
-                        </tr>
-                        {/loop}
-                     </table>
-                  </div>
-               </div>
-            </div>
-         </div>
-         <div class="row">
-            <div class="col-sm-6">
-               <div class="panel panel-default">
-                  <div class="panel-heading">
-                     <h3 class="panel-title">
-                        <span class="text-capitalize">{#FS_ALBARANES#}</span> de compras por estado
-                     </h3>
-                  </div>
-                  <div class="panel-body">
-                     <canvas id="chart_compras_estados"></canvas>
-                  </div>
-                  <div class="table-responsive">
-                     <table class="table table-hover">
-                        <thead>
-                           <tr>
-                              <th>Campo</th>
-                              <th class="text-right">Total</th>
-                           </tr>
-                        </thead>
-                        {loop="$fsc->stats_estados()"}
-                        <tr>
-                           <td>{$value['txt']}</td>
-                           <td class="text-right">{$fsc->show_precio($value['total'])}</td>
-                        </tr>
-                        {else}
-                        <tr class="warning">
-                           <td colspan="2">Sin resultados.</td>
-                        </tr>
-                        {/loop}
-                     </table>
-                  </div>
-               </div>
-            </div>
-            <div class="col-sm-6">
-               <div class="panel panel-default">
-                  <div class="panel-heading">
-                     <h3 class="panel-title">
-                        <span class="text-capitalize">{#FS_ALBARANES#}</span> de ventas por estado
-                     </h3>
-                  </div>
-                  <div class="panel-body">
-                     <canvas id="chart_ventas_estados"></canvas>
-                  </div>
-                  <div class="table-responsive">
-                     <table class="table table-hover">
-                        <thead>
-                           <tr>
-                              <th>Campo</th>
-                              <th class="text-right">Total</th>
-                           </tr>
-                        </thead>
-                        {loop="$fsc->stats_estados('albaranescli')"}
                         <tr>
                            <td>{$value['txt']}</td>
                            <td class="text-right">{$fsc->show_precio($value['total'])}</td>
