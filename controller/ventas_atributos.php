@@ -34,7 +34,7 @@ class ventas_atributos extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Atributod de artículos', 'ventas', FALSE, FALSE);
+      parent::__construct(__CLASS__, 'Atributos de artículos', 'ventas', FALSE, FALSE);
    }
    
    protected function private_core()

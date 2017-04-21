@@ -159,14 +159,20 @@ class compras_albaran extends fs_controller
       if($this->albaran->ptefactura)
       {
          $eje0 = $this->ejercicio->get_by_fecha($_POST['fecha'], FALSE);
-         if(!$eje0)
-         {
-            $this->new_error_msg('Ningún ejercicio encontrado.');
-         }
-         else
+         if($eje0)
          {
             $this->albaran->fecha = $_POST['fecha'];
             $this->albaran->hora = $_POST['hora'];
+            
+            if($this->albaran->codejercicio != $eje0->codejercicio)
+            {
+               $this->albaran->codejercicio = $eje0->codejercicio;
+               $this->albaran->new_codigo();
+            }
+         }
+         else
+         {
+            $this->new_error_msg('Ningún ejercicio encontrado.');
          }
          
          /// ¿Cambiamos el proveedor?

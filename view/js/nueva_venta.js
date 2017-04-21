@@ -643,7 +643,7 @@ function buscar_articulos()
                }
                
                var tr_aux = '<tr>';
-               if(val.bloqueado)
+               if( val.bloqueado || (val.stockalm < 1 && !val.controlstock) )
                {
                   tr_aux = "<tr class=\"danger\">";
                }
@@ -658,20 +658,13 @@ function buscar_articulos()
                
                if(val.sevende)
                {
-                  if(val.stockalm > 0 || val.controlstock)
+                  var funcion = "add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"
+                          +val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
+                  
+                  if(val.tipo)
                   {
-                     var funcion = "add_articulo('"+val.referencia+"','"+descripcion+"','"+val.pvp+"','"
-                             +val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
-                     
-                     if(val.tipo)
-                     {
-                        funcion = "add_articulo_"+val.tipo+"('"+val.referencia+"','"+descripcion+"','"
-                                +val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
-                     }
-                  }
-                  else
-                  {
-                     var funcion = "bootbox.alert({message: 'Sin stock.',title: '<b>Atención</b>'});";
+                     funcion = "add_articulo_"+val.tipo+"('"+val.referencia+"','"+descripcion+"','"
+                             +val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
                   }
                   
                   items.push(tr_aux+"<td><a href=\"#\" onclick=\"get_precios('"+val.referencia+"')\" title=\"más detalles\">\n\

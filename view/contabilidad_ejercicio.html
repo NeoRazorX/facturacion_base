@@ -9,7 +9,7 @@
    $(document).ready(function() {
       {if="$fsc->url_recarga"}
          setTimeout("location.href = '{$fsc->url_recarga}';", 2000);
-      {elseif="!$fsc->listado"}
+      {elseif="!$fsc->listado AND $fsc->ejercicio->estado == 'ABIERTO'"}
          $("#modal_importar").modal('show');
       {/if}
       
@@ -278,55 +278,6 @@
                            </label>
                         </div>
                         {/if}
-                     {else}
-                     <div class="radio">
-                        <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
-                           <input type="radio" name="fuente" value="" disabled="disabled"/>
-                           Plan contable de <b>Argentina</b> (Requiere instalar plugin argentina)
-                        </label>
-                     </div>
-                     <div class="radio">
-                        <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
-                           <input type="radio" name="fuente" value="" disabled="disabled"/>
-                           Plan contable de <b>Chile</b> (Requiere instalar plugin chile)
-                        </label>
-                     </div>
-                     <div class="radio">
-                        <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
-                           <input type="radio" name="fuente" value="" disabled="disabled"/>
-                           PUC de <b>Colombia</b> (Requiere instalar plugin colombia)
-                        </label>
-                     </div>
-                     <div class="radio">
-                        <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
-                           <input type="radio" name="fuente" value="" disabled="disabled"/>
-                           Plan contable de <b>Ecuador</b> (Requiere instalar plugin ecuador)
-                        </label>
-                     </div>
-                     <div class="radio">
-                        <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
-                           <input type="radio" name="fuente" value="" disabled="disabled"/>
-                           Plan contable de <b>Panamá</b> (Requiere instalar plugin panama)
-                        </label>
-                     </div>
-                     <div class="radio">
-                        <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
-                           <input type="radio" name="fuente" value="" disabled="disabled"/>
-                           PCGE de <b>Perú</b> (Requiere instalar plugin peru)
-                        </label>
-                     </div>
-                     <div class="radio">
-                        <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
-                           <input type="radio" name="fuente" value="" disabled="disabled"/>
-                           Plan contable de <b>República Dominicana</b> (Requiere instalar plugin republica_dominicana)
-                        </label>
-                     </div>
-                     <div class="radio">
-                        <label onclick="window.location.href = 'index.php?page=admin_home#descargas';">
-                           <input type="radio" name="fuente" value="" disabled="disabled"/>
-                           Plan contable de <b>Venezuela</b> (Requiere instalar plugin venezuela)
-                        </label>
-                     </div>
                      {/loop}
                   </div>
                   <div class="col-sm-6">

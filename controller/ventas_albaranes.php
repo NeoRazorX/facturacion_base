@@ -83,25 +83,10 @@ class ventas_albaranes extends fs_controller
       $this->order = 'fecha DESC';
       if( isset($_GET['order']) )
       {
-         if($_GET['order'] == 'fecha_desc')
+         $orden_l = $this->orden();
+         if( isset($orden_l[$_GET['order']]) )
          {
-            $this->order = 'fecha DESC';
-         }
-         else if($_GET['order'] == 'fecha_asc')
-         {
-            $this->order = 'fecha ASC';
-         }
-         else if($_GET['order'] == 'codigo_desc')
-         {
-            $this->order = 'codigo DESC';
-         }
-         else if($_GET['order'] == 'codigo_asc')
-         {
-            $this->order = 'codigo ASC';
-         }
-         else if($_GET['order'] == 'total_desc')
-         {
-            $this->order = 'total DESC';
+            $this->order = $orden_l[$_GET['order']]['orden'];
          }
          
          setcookie('ventas_alb_order', $this->order, time()+FS_COOKIES_EXPIRE);
@@ -572,5 +557,36 @@ class ventas_albaranes extends fs_controller
             }
          }
       }
+   }
+   
+   public function orden()
+   {
+      return array(
+          'fecha_desc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>',
+              'texto' => 'Fecha',
+              'orden' => 'fecha DESC'
+          ),
+          'fecha_asc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>',
+              'texto' => 'Fecha',
+              'orden' => 'fecha ASC'
+          ),
+          'codigo_desc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>',
+              'texto' => 'Código',
+              'orden' => 'codigo DESC'
+          ),
+          'codigo_asc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>',
+              'texto' => 'Código',
+              'orden' => 'codigo ASC'
+          ),
+          'total_desc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>',
+              'texto' => 'Total',
+              'orden' => 'total DESC'
+          )
+      );
    }
 }
