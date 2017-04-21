@@ -26,7 +26,7 @@ if( !function_exists('fs_tipos_id_fiscal') )
     */
    function fs_tipos_id_fiscal()
    {
-      return array(FS_CIFNIF,'Pasaporte','DNI','NIF','CIF','CUIT');
+      return array(FS_CIFNIF,'Pasaporte','DNI','NIF','CIF','VAT','CUIT');
    }
 }
 

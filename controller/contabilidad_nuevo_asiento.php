@@ -95,6 +95,10 @@ class contabilidad_nuevo_asiento extends fs_controller
       {
          $this->copiar_asiento();
       }
+      else
+      {
+         $this->check_datos_contables();
+      }
    }
    
    private function get_ejercicio($fecha)
@@ -547,6 +551,30 @@ class contabilidad_nuevo_asiento extends fs_controller
       {
          $this->resultados = array();
          $this->new_error_msg('Ningún ejercicio encontrado para la fecha '.$_POST['fecha']);
+      }
+   }
+   
+   private function check_datos_contables()
+   {
+      $eje = $this->ejercicio->get_by_fecha( $this->today() );
+      if($eje)
+      {
+         $ok = FALSE;
+         foreach($this->subcuenta->all_from_ejercicio($eje->codejercicio, TRUE, 5) as $subc)
+         {
+            $ok = TRUE;
+            break;
+         }
+         
+         if(!$ok)
+         {
+            $this->new_error_msg('No se encuentran subcuentas para el ejercicio '.$eje->nombre
+                    .' ¿<a href="'.$eje->url().'">Has importado los datos de contabilidad</a>?');
+         }
+      }
+      else
+      {
+         $this->new_error_msg('No se encuentra ningún ejercicio abierto para la fecha '.$this->today());
       }
    }
 }
