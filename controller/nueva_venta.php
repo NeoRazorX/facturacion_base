@@ -538,7 +538,9 @@ class nueva_venta extends fs_controller
    {
       /// cambiamos la plantilla HTML
       $this->template = 'ajax/nueva_venta_combinaciones';
-
+      
+      $impuestos = $this->impuesto->all();
+      
       $this->results = array();
       $comb1 = new articulo_combinacion();
       foreach($comb1->all_from_ref($_POST['referencia4combi']) as $com)
@@ -550,12 +552,23 @@ class nueva_venta extends fs_controller
          }
          else
          {
+            $iva = 0;
+            foreach($impuestos as $imp)
+            {
+               if($imp->codimpuesto == $_POST['codimpuesto'])
+               {
+                  $iva = $imp->iva;
+                  break;
+               }
+            }
+            
             $this->results[$com->codigo] = array(
                 'ref' => $_POST['referencia4combi'],
                 'desc' => base64_decode($_POST['desc'])."\n".$com->nombreatributo.' - '.$com->valor,
                 'pvp' => floatval($_POST['pvp']) + $com->impactoprecio,
                 'dto' => floatval($_POST['dto']),
                 'codimpuesto' => $_POST['codimpuesto'],
+                'iva' => $iva,
                 'cantidad' => floatval($_POST['cantidad']),
                 'txt' => $com->nombreatributo.' - '.$com->valor,
                 'codigo' => $com->codigo,

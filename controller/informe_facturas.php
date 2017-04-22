@@ -140,34 +140,40 @@ class informe_facturas extends fs_controller
    
    private function filtros()
    {
-      $this->codagente = '';
+      $this->codagente = FALSE;
       if( isset($_REQUEST['codagente']) )
       {
          $this->codagente = $_REQUEST['codagente'];
       }
       
-      $this->codalmacen = '';
+      $this->codalmacen = FALSE;
       if( isset($_REQUEST['codalmacen']) )
       {
          $this->codalmacen = $_REQUEST['codalmacen'];
       }
       
-      $this->codcliente = '';
+      $this->codcliente = FALSE;
       if( isset($_REQUEST['codcliente']) )
       {
          $this->codcliente = $_REQUEST['codcliente'];
       }
       
-      $this->codpago = '';
+      $this->codpago = FALSE;
       if( isset($_REQUEST['codpago']) )
       {
          $this->codpago = $_REQUEST['codpago'];
       }
       
-      $this->codproveedor = '';
+      $this->codproveedor = FALSE;
       if( isset($_REQUEST['codproveedor']) )
       {
          $this->codproveedor = $_REQUEST['codproveedor'];
+      }
+      
+      $this->codserie = FALSE;
+      if( isset($_REQUEST['codserie']) )
+      {
+         $this->codserie = $_REQUEST['codserie'];
       }
       
       $this->desde = Date('01-m-Y');
@@ -176,7 +182,7 @@ class informe_facturas extends fs_controller
          $this->desde = $_REQUEST['desde'];
       }
       
-      $this->estado = '';
+      $this->estado = FALSE;
       if( isset($_REQUEST['estado']) )
       {
          $this->estado = $_REQUEST['estado'];

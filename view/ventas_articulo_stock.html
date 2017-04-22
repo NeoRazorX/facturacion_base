@@ -97,6 +97,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                      </a>
                   </li>
                   {/if}
+               {else}
+               <li role="presentation" class="active" title="Movimientos del almacén">
+                  <a href="#{$fsc->empresa->codalmacen}" aria-controls="{$fsc->empresa->codalmacen}" role="tab" data-toggle="tab">
+                     <span class="glyphicon glyphicon-transfer"></span> {$fsc->empresa->codalmacen}
+                  </a>
+               </li>
                {/loop}
                <li role="presentation">
                   <a href="#table_regularizaciones" aria-controls="table_regularizaciones" role="tab" data-toggle="tab">
@@ -106,9 +112,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </ul>
             <div class="tab-content">
                {loop="$fsc->stocks"}
-               <div role="tabpanel" class='tab-pane fade in {if="$counter==0"}active{/if}' id="{$value->codalmacen}">
+               <div role="tabpanel" class='tab-pane {if="$counter==0"}active{/if}' id="{$value->codalmacen}">
                   <div class="table-responsive">
-                     <table id="table_movimientos" class="table table-hover">
+                     <table class="table table-hover">
                         <thead>
                            <tr>
                               <th colspan="3" class="text-left"><b>Movimientos del Almacén: {$value->nombre}</b></th>
@@ -203,8 +209,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                      </table>
                   </div>
                </div>
+               {else}
+               <div role="tabpanel" class='tab-pane active' id="{$fsc->empresa->codalmacen}">
+                  <div class="table-responsive" style="margin-top: 10px;">
+                     <table class="table table-hover">
+                        <thead>
+                           <tr>
+                              <th>Documento</th>
+                              <th class="text-right">Ingreso</th>
+                              <th class="text-right">Salida</th>
+                              <th class="text-right">Cantidad final</th>
+                              <th class="text-right">
+                                 Fecha
+                                 <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
+                              </th>
+                              <th class="text-right">Hora</th>
+                           </tr>
+                        </thead>
+                        <tr class="warning">
+                           <td colspan="6">Sin resultados.</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
                {/loop}
-               <div role="tabpanel" class="tab-pane fade in" id="table_regularizaciones">
+               <div role="tabpanel" class="tab-pane" id="table_regularizaciones">
                   <div class="table-responsive" style="margin-top: 10px;">
                      <table class="table table-hover">
                         <thead>
