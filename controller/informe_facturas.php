@@ -41,6 +41,7 @@ class informe_facturas extends fs_controller
    public $pais;
    public $serie;
    public $stats;
+   public $asiento;
    
    private $codagente;
    private $codcliente;
@@ -199,6 +200,11 @@ class informe_facturas extends fs_controller
       {
          $this->mostrar = $_REQUEST['mostrar'];
       }
+      $this->asiento = FALSE;
+      if (isset($_REQUEST['asiento']))
+      {
+         $this->asiento = $_REQUEST['asiento'];
+      }
    }
    
    private function buscar_facturas($tabla = 'facturascli')
@@ -208,12 +214,12 @@ class informe_facturas extends fs_controller
       if($tabla == 'facturascli')
       {
          $fcli = new factura_cliente();
-         $facturas = $fcli->all_desde($this->desde, $this->hasta, $this->codserie, $this->codagente, $this->codcliente, $this->estado, $this->codpago);
+         $facturas = $fcli->all_desde($this->desde, $this->hasta, $this->codserie, $this->codagente, $this->codcliente, $this->estado, $this->codpago, $this->asiento);
       }
       else if($tabla == 'facturasprov')
       {
          $fpro = new factura_proveedor();
-         $facturas = $fpro->all_desde($this->desde, $this->hasta, $this->codserie, $this->codagente, $this->codproveedor, $this->estado, $this->codpago);
+         $facturas = $fpro->all_desde($this->desde, $this->hasta, $this->codserie, $this->codagente, $this->codproveedor, $this->estado, $this->codpago, $this->asiento);
       }
       
       if($this->codalmacen)
@@ -758,21 +764,34 @@ class informe_facturas extends fs_controller
                $pago = $pago->get($this->codpago);
                if($pago)
                {
-                  $pdf_doc->pdf->ezText( "Forma de pago: ".$this->fix_html($pago->descripcion) );
+                  $pdf_doc->pdf->ezText("Forma de pago: " . $this->fix_html($pago->descripcion));
                   $lppag--;
                }
             }
-            
+
+            if($this->asiento)
+            {
+               $lppag--;
+               if($this->asiento == 'NULL')
+               {
+                  $pdf_doc->pdf->ezText("Facturas sin asiento contable");
+               }
+               else
+               {
+                  $pdf_doc->pdf->ezText("Facturas con asiento contable");
+               }
+            }
+
             $pdf_doc->pdf->ezText("\n", 8);
-            
+
             /// tabla principal
             $pdf_doc->new_table();
             $pdf_doc->add_table_header(
-               array(
-                   'almacen' => '<b>Alm</b>',
-                   'serie' => '<b>S</b>',
-                   'factura' => '<b>Fact.</b>',
-                   'numero2' => '<b>'.FS_NUMERO2.'</b>',
+                    array(
+                        'almacen' => '<b>Alm</b>',
+                        'serie' => '<b>S</b>',
+                        'factura' => '<b>Fact.</b>',
+                        'numero2' => '<b>'.FS_NUMERO2.'</b>',
                    'asiento' => '<b>Asi.</b>',
                    'fecha' => '<b>Fecha</b>',
                    'subcuenta' => '<b>Subcuenta</b>',
@@ -1012,6 +1031,19 @@ class informe_facturas extends fs_controller
                {
                   $pdf_doc->pdf->ezText( "Forma de pago: ".$this->fix_html($pago->descripcion) );
                   $lppag--;
+               }
+            }
+            
+            if($this->asiento)
+            {
+               $lppag--;
+               if($this->asiento == 'NULL')
+               {
+                  $pdf_doc->pdf->ezText("Facturas sin asiento contable");
+               }
+               else
+               {
+                  $pdf_doc->pdf->ezText("Facturas con asiento contable");
                }
             }
             

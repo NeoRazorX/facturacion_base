@@ -725,7 +725,7 @@ class cliente extends \fs_model
       else
       {
          $buscar = str_replace(' ', '%', $query);
-         $consulta .= "(lower(nombre) LIKE '%".$buscar."%' OR lower(razonsocial) LIKE '%".$buscar."%'"
+         $consulta .= "(TO_ASCII((lower(nombre)) LIKE '%".$buscar."%' OR TO_ASCII(lower(razonsocial)) LIKE '%".$buscar."%'"
                  . " OR lower(cifnif) LIKE '%".$buscar."%' OR lower(observaciones) LIKE '%".$buscar."%'"
                  . " OR lower(email) LIKE '%".$buscar."%')";
       }

@@ -1443,7 +1443,7 @@ class factura_cliente extends \fs_model
     * @param type $estado
     * @return \factura_cliente
     */
-   public function all_desde($desde, $hasta, $codserie = FALSE, $codagente = FALSE, $codcliente = FALSE, $estado = FALSE, $forma_pago = FALSE)
+   public function all_desde($desde, $hasta, $codserie = FALSE, $codagente = FALSE, $codcliente = FALSE, $estado = FALSE, $forma_pago = FALSE, $asiento = FALSE)
    {
       $faclist = array();
       $sql = "SELECT * FROM ".$this->table_name." WHERE fecha >= ".$this->var2str($desde)." AND fecha <= ".$this->var2str($hasta);
@@ -1474,6 +1474,11 @@ class factura_cliente extends \fs_model
       {
          $sql .= " AND codpago = ".$this->var2str($forma_pago);
       }
+      if($asiento)
+      {
+         $sql .= " AND idasiento IS ".$asiento;
+      }
+      
       $sql .= " ORDER BY fecha ASC, codigo ASC;";
       
       $data = $this->db->select($sql);

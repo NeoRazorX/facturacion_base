@@ -124,7 +124,7 @@
             {if="$fsc->albaran->idfactura"}
             <a class="btn btn-sm btn-info" href="{$fsc->albaran->factura_url()}">
                <span class="glyphicon glyphicon-eye-open"></span>
-               <span class="hidden-xs">&nbsp;Ver Factura</span>
+               <span class="hidden-xs">&nbsp;Ver Factura {$fsc->codfactura}</span>
             </a>
             {elseif="$fsc->albaran->ptefactura"}
             <div class="btn-group">
@@ -152,6 +152,12 @@
             <a class="btn btn-sm btn-warning" href="#">
                <span class="glyphicon glyphicon-lock"></span>
                <span class="hidden-xs">&nbsp;Bloqueado</span>
+            </a>
+            {/if}
+            {if="$fsc->historico"}
+            <a href="#" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_historico">
+               <span class="fa fa-history"></span>
+               <span class="hidden-xs hidden-sm">&nbsp;Histórico</span>
             </a>
             {/if}
          </div>
@@ -1177,6 +1183,73 @@
       </div>
    </div>
 </form>
+
+<div class="modal" id="modal_historico">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h4 class="modal-title">Histórico del {#FS_ALBARAN#} {$fsc->albaran->codigo}</h4>
+         </div>
+         <div class="modal-body">
+            <div class="panel panel-info">
+               <div class="panel-heading">
+                  Facturación
+               </div>
+               <div class="table-responsive">
+                  <table class="table table-hover">
+                     <thead>
+                        <tr>
+                           <td width="200px">Documento</td>
+                           <td>Fecha</td>
+                           <td>Importe</td>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        {loop="$fsc->historico"}
+                        {if="$value['documento'] != 'contabilidad_asiento'"}
+                        <tr>
+                           <td width="200px"><a href="index.php?page={$value['documento']}&id={$value['id']}" target="_blank">{$value['codigo']}</td>
+                           <td>{$value['fecha']}</td>
+                           <td>{$fsc->show_precio($value['importe'], $value['divisa'])}</a></td>
+                        </tr>
+                        {/if}
+                        {/loop}
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+            <br>
+            <div class="panel panel-warning">
+               <div class="panel-heading">
+                  Contabilidad
+               </div>
+               <div class="table-responsive">
+                  <table class="table table-hover">
+                     <thead>
+                        <tr>
+                           <td width="200px">Documento</td>
+                           <td>Fecha</td>
+                           <td>Importe</td>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        {loop="$fsc->historico"}
+                        {if="$value['documento'] == 'contabilidad_asiento'"}
+                        <tr>
+                           <td width="200px"><a href="index.php?page={$value['documento']}&id={$value['id']}" target="_blank">Asiento {$value['codigo']}</td>
+                           <td>{$value['fecha']}</td>
+                           <td>{$fsc->show_precio($value['importe'], $value['divisa'])}</a></td>
+                        </tr>
+                        {/if}
+                        {/loop}
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
 
 <form action="{$fsc->ppage->url()}" method="post">
    <input type="hidden" name="delete" value="{$fsc->albaran->idalbaran}"/>
