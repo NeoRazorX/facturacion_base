@@ -746,6 +746,14 @@
                      </select>
                   </div>
                   <div class="form-group">
+                     Asiento contable:
+                     <select class="form-control" name="asiento">
+                        <option value="">Todas</option>
+                        <option value="NOT NULL">Asigando</option>
+                        <option value="NULL">Sin asignar</option>
+                     </select>
+                  </div>
+                  <div class="form-group">
                      Generar:
                      <select name="generar" class="form-control">
                         <option value="pdf">PDF</option>
@@ -958,6 +966,14 @@
                      {loop="$fsc->forma_pago->all()"}
                         <option value="{$value->codpago}">{$value->descripcion}</option>
                      {/loop}
+                     </select>
+                  </div>
+                  <div class="form-group">
+                     Asiento contable:
+                     <select class="form-control" name="asiento">
+                        <option value="">Todas</option>
+                        <option value="NOT NULL">Asigando</option>
+                        <option value="NULL">Sin asignar</option>
                      </select>
                   </div>
                   <div class="form-group">
