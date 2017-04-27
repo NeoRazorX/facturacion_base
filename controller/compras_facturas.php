@@ -470,6 +470,11 @@ class compras_facturas extends fs_controller
          $sql .= $where."anulada = true";
          $where = ' AND ';
       }
+      else if($this->estado == 'sinasiento')
+      {
+         $sql .= $where."idasiento IS NULL";
+         $where = ' AND ';
+      }
       
       $data = $this->db->select("SELECT COUNT(idfactura) as total".$sql);
       if($data)

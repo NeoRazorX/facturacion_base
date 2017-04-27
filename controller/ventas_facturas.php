@@ -491,6 +491,11 @@ class ventas_facturas extends fs_controller
          $sql .= $where."anulada = true";
          $where = ' AND ';
       }
+      else if($this->estado == 'sinasiento')
+      {
+         $sql .= $where."idasiento IS NULL";
+         $where = ' AND ';
+      }
       
       if($this->idasiento == 'null')
       {
