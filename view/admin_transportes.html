@@ -17,13 +17,6 @@
 <div class="container-fluid">
    <div class="row">
       <div class="col-sm-12">
-         <div class="btn-group">
-            {loop="$fsc->extensions"}
-               {if="$value->type=='button'"}
-               <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
-               {/if}
-            {/loop}
-         </div>
          <div class="page-header">
             <h1>
                <span class="glyphicon glyphicon-plane"></span>
@@ -31,6 +24,13 @@
                <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
+               <span class="btn-group">
+               {loop="$fsc->extensions"}
+                  {if="$value->type=='button'"}
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                  {/if}
+               {/loop}
+               </span>
             </h1>
             <p class="help-block">
                Aquí puedes dar de alta las agencias que uses para los envíos.

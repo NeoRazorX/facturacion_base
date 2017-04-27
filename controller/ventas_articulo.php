@@ -642,15 +642,15 @@ class ventas_articulo extends fs_controller
       
       foreach($this->regularizaciones as $reg)
       {
-         //Solo tomamos las regularizaciones del almacén actual
-         if ($reg->codalmacendest == $codalmacen)
+         /// Solo tomamos las regularizaciones del almacén actual
+         if($reg->codalmacendest == $codalmacen)
          {
             $mlist[] = array(
                'codalmacen' => $reg->codalmacendest,
                'origen' => 'Regularización',
                'url' => '#stock',
                'inicial' => $reg->cantidadini,
-               'movimiento' => '-',
+               'movimiento' => $reg->cantidadfin - $reg->cantidadini,
                'final' => $reg->cantidadfin,
                'fecha' => $reg->fecha,
                'hora' => $reg->hora
@@ -788,22 +788,9 @@ class ventas_articulo extends fs_controller
       });
             
       /// recalculamos las cantidades finales hacia atrás
-      $final = $this->stock->total_from_articulo($this->articulo->referencia,$codalmacen);
+      $final = $this->stock->total_from_articulo($this->articulo->referencia, $codalmacen);
       for($i = count($mlist) - 1; $i >= 0; $i--)
       {
-         if($mlist[$i]['movimiento'] == '-')
-         {
-            if($mlist[$i]['inicial'] < $mlist[$i]['final'])
-            {
-               /// entrada de stock
-               $mlist[$i]['movimiento'] =  $mlist[$i]['final'] - $mlist[$i]['inicial'];
-            }
-            else
-            {
-               //El resultado del stock final anterior y el valor de la regularización se agrega como salida o ingreso
-               $mlist[$i]['movimiento'] = $mlist[$i]['final'] - $mlist[$i]['inicial'];
-            }
-         }
          $mlist[$i]['final'] = $final;
          $final -= $mlist[$i]['movimiento'];
          $mlist[$i]['inicial'] = $final;

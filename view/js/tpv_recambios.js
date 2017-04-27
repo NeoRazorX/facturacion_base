@@ -486,6 +486,8 @@ function buscar_codbarras()
                   {
                      funcion = "add_articulo_"+val.tipo+"('"+val.referencia+"','"+Base64.encode(val.descripcion)+"','"
                         +val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
+                     
+                     $("#modal_articulos").modal('show');
                   }
                   
                   eval(funcion);

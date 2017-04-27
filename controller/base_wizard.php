@@ -313,7 +313,7 @@ class base_wizard extends fs_controller
                   {
                      $max--;
                   }
-                  else
+                  else if( !$this->get_errors() )
                   {
                      $this->recargar = TRUE;
                      $this->new_message('Instalando el menú... &nbsp; <i class="fa fa-refresh fa-spin"></i>');

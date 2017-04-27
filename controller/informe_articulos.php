@@ -807,7 +807,7 @@ class informe_articulos extends fs_controller
          $sql_regstocks = "select l.idtrans, fecha, hora, referencia, sum(cantidad) as cantidad "
                  ." FROM lineastransstock AS ls "
                  ." JOIN transstock as l ON (ls.idtrans = l.idtrans) "
-                 ." WHERE codalmadestino = " . $this->empresa->var2str($this->codalmacen).$rango_fecha
+                 ." WHERE codalmadestino = " . $this->empresa->var2str($this->codalmacen) . $rango_fecha
                  ." GROUP by l.idtrans, fecha, hora, referencia "
                  ." ORDER by l.idtrans;";
          $data = $this->db->select($sql_regstocks);
@@ -852,7 +852,7 @@ class informe_articulos extends fs_controller
                    'origen' => 'Transferencia por salida '.$d['idtrans'],
                    'url' => 'index.php?page=editar_transferencia_stock&id='.$d['idtrans'],
                    'clipro' => '',
-                   'movimiento' => 0-floatval($d['cantidad']),
+                   'movimiento' => 0 - floatval($d['cantidad']),
                    'precio' => 0,
                    'dto' => 0,
                    'inicial' => 0,
@@ -938,7 +938,7 @@ class informe_articulos extends fs_controller
                 'origen' => 'Albaran venta '.$d['codigo'],
                 'url' => 'index.php?page=ventas_albaran&id='.$d['idalbaran'],
                 'clipro' => $d['codcliente'].' - '.$d['nombrecliente'],
-                'movimiento' => 0-floatval($d['cantidad']),
+                'movimiento' => 0 - floatval($d['cantidad']),
                 'precio' => floatval($d['pvpunitario']),
                 'dto' => floatval($d['dtopor']),
                 'inicial' => 0,
@@ -967,7 +967,7 @@ class informe_articulos extends fs_controller
                 'origen' => 'Factura venta '.$d['codigo'],
                 'url' => 'index.php?page=ventas_factura&id='.$d['idfactura'],
                 'clipro' => $d['codcliente'].' - '.$d['nombrecliente'],
-                'movimiento' => 0-floatval($d['cantidad']),
+                'movimiento' => 0 - floatval($d['cantidad']),
                 'precio' => floatval($d['pvpunitario']),
                 'dto' => floatval($d['dtopor']),
                 'inicial' => 0,
@@ -998,7 +998,7 @@ class informe_articulos extends fs_controller
       {
          if($value['movimiento'] == '-')
          {
-            $inicial += $value['final']-$value['inicial'];
+            $inicial += $value['final'] - $value['inicial'];
          }
          else
          {

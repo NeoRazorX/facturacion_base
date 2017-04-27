@@ -20,6 +20,9 @@
 
 namespace FacturaScripts\model;
 
+require_model('atributo.php');
+require_model('atributo_valor.php');
+
 /**
  * Este modelo representa el par atributo => valor de la combinación de un artículo con atributos.
  * Ten en cuenta que lo que se almacena son estos pares atributo => valor,
@@ -140,6 +143,10 @@ class articulo_combinacion extends \fs_model
    
    protected function install()
    {
+      /// nos aseguramos de que existan las tablas necesarias
+      new \atributo();
+      new \atributo_valor();
+      
       return '';
    }
    
