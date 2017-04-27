@@ -256,7 +256,7 @@
          {else}
          <input type="hidden" name="codalmacen" value=""/>
          {/if}
-         <div class="col-sm-10">
+         <div class="col-sm-4">
             <div class="radio-inline">
                <label>
                   {if="$fsc->estado==''"}
@@ -295,6 +295,38 @@
                   <input type="radio" name="estado" value="anuladas" onchange="this.form.submit()"/>
                   {/if}
                   Anuladas
+               </label>
+            </div>
+         </div>
+         <div class="col-sm-6">
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->idasiento==''"}
+                  <input type="radio" name="idasiento" value="" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="idasiento" value="" onchange="this.form.submit()"/>
+                  {/if}
+                  Todas
+               </label>
+            </div>
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->idasiento=='null'"}
+                  <input type="radio" name="idasiento" value="null" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="idasiento" value="null" onchange="this.form.submit()"/>
+                  {/if}
+                  Sin asiento contable
+               </label>
+            </div>
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->idasiento=='notnull'"}
+                  <input type="radio" name="idasiento" value="notnull" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="idasiento" value="notnull" onchange="this.form.submit()"/>
+                  {/if}
+                  Con asiento contable
                </label>
             </div>
          </div>

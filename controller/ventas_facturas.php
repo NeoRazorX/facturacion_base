@@ -49,6 +49,7 @@ class ventas_facturas extends fs_controller
    public $total_resultados;
    public $total_resultados_comision;
    public $total_resultados_txt;
+   public $idasiento;
    
    public function __construct()
    {
@@ -127,6 +128,7 @@ class ventas_facturas extends fs_controller
          $this->codserie = '';
          $this->desde = '';
          $this->estado = '';
+         $this->idasiento = '';
          $this->hasta = '';
          $this->num_resultados = '';
          $this->total_resultados = array();
@@ -178,6 +180,7 @@ class ventas_facturas extends fs_controller
                $this->desde = $_REQUEST['desde'];
                $this->hasta = $_REQUEST['hasta'];
                $this->estado = $_REQUEST['estado'];
+               $this->idasiento = $_REQUEST['idasiento'];
             }
          }
          
@@ -242,6 +245,7 @@ class ventas_facturas extends fs_controller
                  ."&codcliente=".$codcliente
                  ."&desde=".$this->desde
                  ."&estado=".$this->estado
+                 ."&idasiento=".$this->idasiento
                  ."&hasta=".$this->hasta;
          
          return $url;
@@ -485,6 +489,17 @@ class ventas_facturas extends fs_controller
       else if($this->estado == 'anuladas')
       {
          $sql .= $where."anulada = true";
+         $where = ' AND ';
+      }
+      
+      if($this->idasiento == 'null')
+      {
+         $sql .= $where."idasiento IS NULL";
+         $where = ' AND ';
+      }
+      else if($this->idasiento == 'notnull')
+      {
+         $sql .=$where."idasiento IS NOT NULL";
          $where = ' AND ';
       }
       
