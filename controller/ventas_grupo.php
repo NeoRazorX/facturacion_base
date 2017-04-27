@@ -18,9 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_model('agente.php');
 require_model('cliente.php');
 require_model('factura_cliente.php');
 require_model('grupo_clientes.php');
+require_model('forma_pago.php');
 require_model('tarifa.php');
 
 /**
@@ -30,14 +32,23 @@ require_model('tarifa.php');
  */
 class ventas_grupo extends fs_controller
 {
+   public $agentes;
+   public $clientes;
    public $grupo;
+   public $grupos;
+   public $forma_pago;
    public $mostrar;
    public $offset;
    public $resultados;
    public $tarifa;
    public $total_clientes;
+   public $total_clientes_agregar;
    public $total_facturas;
-   
+   public $codgrupo;
+   public $codpago;
+   public $codagente;
+   public $direccion;
+   public $nombre;
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Grupo', 'ventas', FALSE, FALSE);
@@ -45,6 +56,10 @@ class ventas_grupo extends fs_controller
    
    protected function private_core()
    {
+      $this->agentes = new agente();
+      $this->clientes = new cliente();
+      $this->grupos = new grupo_clientes();
+      $this->forma_pago = new forma_pago();
       $this->mostrar = 'clientes';
       if( isset($_REQUEST['mostrar']) )
       {
@@ -65,6 +80,15 @@ class ventas_grupo extends fs_controller
          $this->grupo = $grupo->get($_REQUEST['cod']);
       }
       
+      $accion = \filter_input(INPUT_POST, 'accion');
+      switch($accion){
+         case "agregar_clientes":
+            $this->agregar_clientes();
+            break;
+         default:
+            break;
+      }
+      
       if($this->grupo)
       {
          $tar0 = new tarifa();
@@ -76,6 +100,10 @@ class ventas_grupo extends fs_controller
          {
             $this->resultados = $this->clientes_from_grupo($this->grupo->codgrupo, $this->offset);
          }
+         elseif($this->mostrar == 'agregar_clientes')
+         {
+            $this->resultados = $this->buscar_clientes();
+         }
          else
          {
             $this->resultados = $this->facturas_from_grupo($this->grupo->codgrupo, $this->offset);
@@ -85,6 +113,95 @@ class ventas_grupo extends fs_controller
       {
          $this->new_error_msg('Grupo no encontrado.', 'error', FALSE, FALSE);
       }
+   }
+   
+   public function url(){
+      if($this->grupo){
+         return parent::url().'&cod='.$this->grupo->codgrupo;
+      }else{
+         return parent::url();
+      }
+   }
+   
+   public function agregar_clientes(){
+      $codigos_clientes = \filter_input(INPUT_POST, 'clientes');
+      $array_clientes = explode(",", $codigos_clientes);
+      $correcto = 0;
+      $error = 0;
+      foreach($array_clientes as $cod)
+      {
+         $cliente = $this->clientes->get($cod);
+         if($cliente)
+         {
+            $cliente->codgrupo = $this->grupo->codgrupo;
+            if($cliente->save())
+            {
+               $correcto++;
+            }
+            else
+            {
+               $error++;
+            }
+         }
+      }
+      $mensaje = "De ".count($array_clientes)." recibidos, se agregaron: ".$correcto." y se tuvieron problemas con ".$error;
+      $this->template = FALSE;
+      header('Content-Type: application/json');
+      $data['mensaje']=$mensaje;
+      echo json_encode($data);
+   }
+   
+   private function buscar_clientes()
+   {
+      $this->codgrupo = \filter_input(INPUT_POST, 'b_codgrupo');
+      $this->codpago = \filter_input(INPUT_POST, 'b_codpago');
+      $this->codagente = \filter_input(INPUT_POST, 'b_codagente');
+      $this->direccion = \filter_input(INPUT_POST, 'b_direccion');
+      $this->nombre = \filter_input(INPUT_POST, 'b_nombre');
+      $query = "clientes.codcliente = dirclientes.codcliente";
+      $query.= " AND clientes.codgrupo != ".$this->grupos->var2str($this->grupo->codgrupo);
+      if($this->codgrupo){
+         $query.= (!empty($query))?" AND ":"";
+         $query.= "codgrupo = ".$this->clientes->var2str($this->codgrupo);               
+      }
+      if($this->codpago){
+         $query.= (!empty($query))?" AND ":"";
+         $query.= "codpago = ".$this->clientes->var2str($this->codpago);
+      }
+      if($this->codagente){
+         $query.= (!empty($query))?" AND ":"";
+         $query.= "codagente = ".$this->clientes->var2str($this->codagente);
+      }
+      if($this->direccion){
+         $query.= (!empty($query))?" AND ":"";
+         $query.= "lower(direccion) like '%". strtolower($this->direccion)."%'";
+      }
+      if($this->nombre){
+         $query.= (!empty($query))?" AND ":"";
+         $query.= "(lower(nombre) like '%". strtolower($this->nombre)."%' OR ";
+         $query.= "lower(razonsocial) like '%". strtolower($this->nombre)."%')";
+      }
+      
+      $sql_cantidad = "SELECT count(clientes.*) as total FROM clientes, dirclientes WHERE ".$query.
+            ";";
+      $cantidad = $this->db->select($sql_cantidad);
+      
+      $this->total_clientes_agregar = $cantidad[0]['total'];
+      
+      $sql_datos = "SELECT clientes.*, dirclientes.direccion FROM clientes, dirclientes WHERE ".$query.
+            " ORDER BY razonsocial,nombre,clientes.codcliente";
+      //$this->new_advice($sql_datos);
+      $data = $this->db->select_limit($sql_datos, FS_ITEM_LIMIT, $this->offset);
+      $lista = array();
+      if($data){
+         foreach($data as $d){
+            $item = new cliente($d);
+            $item->direccion = $d['direccion'];
+            $lista[] = $item;
+         }
+      }
+
+      return $lista;
    }
    
    private function clientes_from_grupo($cod, $offset)
@@ -131,7 +248,7 @@ class ventas_grupo extends fs_controller
    
    public function paginas()
    {
-      $url = $this->url()."&cod=".$this->grupo->codgrupo."&mostrar=".$this->mostrar;
+      $url = $this->url()."&mostrar=".$this->mostrar;
       
       $paginas = array();
       $i = 0;
@@ -141,6 +258,10 @@ class ventas_grupo extends fs_controller
       if($this->mostrar == 'clientes')
       {
          $total = $this->total_clientes;
+      }
+      elseif($this->mostrar == 'agregar_clientes')
+      {
+         $total = $this->total_clientes_agregar;
       }
       else
       {
