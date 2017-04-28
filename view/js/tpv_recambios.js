@@ -474,6 +474,10 @@ function buscar_codbarras()
               +'&query='+document.f_tpv.codbar.value;
       
       $.getJSON(url, function(json) {
+         if( jQuery.isEmptyObject(json) )
+         {
+            bootbox.alert('Ningún artículo encontrado.');
+         }
          $.each(json, function(key, val) {
             if(val.codbarras == document.f_tpv.codbar.value)
             {
