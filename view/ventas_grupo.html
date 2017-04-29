@@ -153,7 +153,7 @@
             <td class="col-sm-2">
                <select name="b_codgrupo" class="form-control input-sm" onchange='this.form.submit();'>
                   <option value="">Elije un grupo origen</option>
-                  {loop="$fsc->grupos->all()"}
+                  {loop="$fsc->grupo_clientes->all()"}
                      {if="$fsc->grupo->codgrupo!=$value->codgrupo"}
                      <option value="{$value->codgrupo}" {if="$value->codgrupo==$fsc->codgrupo"}selected{/if}>{$value->nombre}</option>
                      {/if}
@@ -171,8 +171,8 @@
             <td class="col-sm-2">
                <select name="b_codagente" class="form-control input-sm" onchange='this.form.submit();'>
                   <option value="">Elije un empleado</option>
-                  {loop="$fsc->agentes->all()"}
-                     <option value="{$value->codagente}" {if="$value->codagente==$fsc->codagente"}selected{/if}>{$value->nombreap}</option>
+                  {loop="$fsc->agente->all()"}
+                     <option value="{$value->codagente}" {if="$value->codagente==$fsc->codagente"}selected{/if}>{$value->nombre} {$value->apellidos}</option>
                   {/loop}
                </select>
             </td>
@@ -200,7 +200,7 @@
                   Agregar Seleccionados
                </button>
             </th>
-         </tr>         
+         </tr>
          <tr>
             <th><input id="marcartodo" type="checkbox" name="check" onclick=""></th>
             <th class="text-left">Código + Nombre</th>
@@ -264,7 +264,7 @@ $(document).ready(function() {
     $('#agregar_clientes').find('input:checkbox').prop('checked', checked);
   });
   /**
-   * Con esta funcion si le dan click al boton de agregar clientes se verifica que hayan 
+   * Con esta funcion si le dan click al boton de agregar clientes se verifica que hayan
    * elegido algo para procesar y asignar a este grupo
    */
    $("#agregar_seleccionados").click(function(event){
@@ -308,8 +308,8 @@ $(document).ready(function() {
        }else{
           bootbox.alert('Debes seleccionar un cliente como mínimo para transferirlo.');
        }
-       
-   });  
+
+   });
 });
 </script>
 {else}
