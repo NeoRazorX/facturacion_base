@@ -501,25 +501,30 @@ class ventas_clientes extends fs_controller
    private function nuevo_grupo()
    {
       $grupo = $this->grupo->get($_POST['codgrupo']);
-      if(!$grupo)
+      if($grupo)
+      {
+         $this->new_error_msg('El grupo con código '.$_POST['codgrupo'].' ya existe.');
+      }
+      else
       {
          $grupo = new grupo_clientes();
          $grupo->codgrupo = $_POST['codgrupo'];
+         $grupo->nombre = $_POST['nombre'];
+         
+         $grupo->codtarifa = NULL;
+         if($_POST['codtarifa'] != '---')
+         {
+            $grupo->codtarifa = $_POST['codtarifa'];
+         }
+         
+         if( $grupo->save() )
+         {
+            $this->new_message('Grupo guardado correctamente.');
+            header('Location: '.$grupo->url());
+         }
+         else
+            $this->new_error_msg('Imposible guardar el grupo.');
       }
-      $grupo->nombre = $_POST['nombre'];
-      
-      $grupo->codtarifa = NULL;
-      if($_POST['codtarifa'] != '---')
-      {
-         $grupo->codtarifa = $_POST['codtarifa'];
-      }
-      
-      if( $grupo->save() )
-      {
-         $this->new_message('Grupo guardado correctamente.');
-      }
-      else
-         $this->new_error_msg('Imposible guardar el grupo.');
    }
    
    private function eliminar_grupo()

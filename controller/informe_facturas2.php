@@ -2,8 +2,7 @@
 
 /*
  * This file is part of facturacion_base
- * Copyright (C) 2015-2017    Carlos Garcia Gomez  neorazorx@gmail.com
- * Copyright (C) 2017         Itaca Software Libre contacta@itacaswl.com
+ * Copyright (C) 2013-2017    Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,17 +18,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('albaran_cliente.php');
-require_model('albaran_proveedor.php');
 require_model('almacen.php');
 require_model('cliente.php');
 require_model('divisa.php');
+require_model('factura_cliente.php');
+require_model('factura_proveedor.php');
 require_model('forma_pago.php');
 require_model('proveedor.php');
 require_model('serie.php');
 
 
-class informe_albaranes extends fs_controller
+class informe_facturas2 extends fs_controller
 {
    public $agente;
    public $almacen;
@@ -49,14 +48,14 @@ class informe_albaranes extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, ucfirst(FS_ALBARANES), 'informes');
+      parent::__construct(__CLASS__, 'Facturas', 'informes');
    }
    
    protected function private_core()
    {
       /// declaramos los objetos sólo para asegurarnos de que existen las tablas
-      $albaran_cli = new albaran_cliente();
-      $albaran_pro = new albaran_proveedor();
+      $factura_cli = new factura_cliente();
+      $factura_pro = new factura_proveedor();
       
       $this->agente = new agente();
       $this->almacen = new almacen();
@@ -146,8 +145,8 @@ class informe_albaranes extends fs_controller
    public function stats_months()
    {
       $stats = array();
-      $stats_cli = $this->stats_months_aux('albaranescli');
-      $stats_pro = $this->stats_months_aux('albaranesprov');
+      $stats_cli = $this->stats_months_aux('facturascli');
+      $stats_pro = $this->stats_months_aux('facturasprov');
       $meses = array(
           1 => 'ene',
           2 => 'feb',
@@ -189,7 +188,7 @@ class informe_albaranes extends fs_controller
       return $stats;
    }
    
-   private function stats_months_aux($table_name = 'albaranescli')
+   private function stats_months_aux($table_name = 'facturascli')
    {
       $stats = array();
       
@@ -229,8 +228,8 @@ class informe_albaranes extends fs_controller
    public function stats_years()
    {
       $stats = array();
-      $stats_cli = $this->stats_years_aux('albaranescli');
-      $stats_pro = $this->stats_years_aux('albaranesprov');
+      $stats_cli = $this->stats_years_aux('facturascli');
+      $stats_pro = $this->stats_years_aux('facturasprov');
       
       foreach($stats_cli as $i => $value)
       {
@@ -249,7 +248,7 @@ class informe_albaranes extends fs_controller
       return $stats;
    }
    
-   private function stats_years_aux($table_name = 'albaranescli', $num = 4)
+   private function stats_years_aux($table_name = 'facturascli', $num = 4)
    {
       $stats = array();
       
@@ -297,7 +296,7 @@ class informe_albaranes extends fs_controller
       return $dates;
    } 
 
-   public function stats_series($tabla = 'albaranesprov')
+   public function stats_series($tabla = 'facturasprov')
    {
       $stats = array();
       
@@ -331,7 +330,7 @@ class informe_albaranes extends fs_controller
       return $stats;
    }
 
-   public function stats_agentes($tabla = 'albaranesprov')
+   public function stats_agentes($tabla = 'facturasprov')
    {
       $stats = array();
       
@@ -375,7 +374,7 @@ class informe_albaranes extends fs_controller
       return $stats;
    }
    
-   public function stats_almacenes($tabla = 'albaranesprov')
+   public function stats_almacenes($tabla = 'facturasprov')
    {
       $stats = array();
       
@@ -409,7 +408,7 @@ class informe_albaranes extends fs_controller
       return $stats;
    }
 
-   public function stats_formas_pago($tabla = 'albaranesprov')
+   public function stats_formas_pago($tabla = 'facturasprov')
    {
       $stats = array();
       
@@ -443,7 +442,7 @@ class informe_albaranes extends fs_controller
       return $stats;
    }
    
-   public function stats_estados($tabla = 'albaranesprov')
+   public function stats_estados($tabla = 'facturasprov')
    {
       $stats = array();
       
@@ -485,6 +484,8 @@ class informe_albaranes extends fs_controller
       
       return $stats;
    }
+   
+
    
    /**
     * Esta función sirve para generar el javascript necesario para que la vista genere
