@@ -135,7 +135,7 @@ class ventas_clientes extends fs_controller
          $this->codgrupo = $_REQUEST['bcodgrupo'];
       }
 
-      $this->orden = 'nombre ASC';
+      $this->orden = 'lower(nombre) ASC';
       if( isset($_REQUEST['orden']) )
       {
          $this->orden = $_REQUEST['orden'];
@@ -298,6 +298,18 @@ class ventas_clientes extends fs_controller
       }
 
       return $final;
+   }
+   
+   public function orden()
+   {
+      return array(
+          'lower(nombre) ASC' => 'Orden: nombre',
+          'lower(nombre) DESC' => 'Orden: nombre descendente',
+          'cifnif ASC' => 'Orden: '.FS_CIFNIF,
+          'cifnif DESC' => 'Orden: '.FS_CIFNIF.' descendente',
+          'fechaalta ASC' => 'Orden: fecha',
+          'fechaalta DESC' => 'Orden: fecha descendente'
+      );
    }
 
    private function buscar()
@@ -538,7 +550,7 @@ class ventas_clientes extends fs_controller
          }
          else if( $grupo->delete() )
          {
-            $this->new_message('Grupo eliminado correctamente.');
+            $this->new_message('Grupo '.$grupo->codgrupo.' eliminado correctamente.');
          }
          else
             $this->new_error_msg('Imposible eliminar el grupo.');

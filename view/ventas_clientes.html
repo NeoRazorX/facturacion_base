@@ -11,18 +11,6 @@
    {
       $('#tab_clientes a[href="#grupos"]').tab('show');
    }
-   function eliminar_grupo(cod)
-   {
-      bootbox.confirm({
-         message: '¿Realmente desea eliminar el grupo '+cod+'?',
-         title: '<b>Atención</b>',
-         callback: function(result) {
-            if (result) {
-               window.location.href = '{$fsc->url()}&delete_grupo='+cod+'#grupos';
-            }
-         }
-      });
-   }
    $(document).ready(function() {
       if(window.location.hash.substring(1) == 'nuevo')
       {
@@ -177,12 +165,13 @@
                         <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
                      </div>
                      <select name="orden" class="form-control" onchange="this.form.submit()">
-                        <option value="nombre ASC">Orden: nombre</option>
-                        <option value="nombre DESC"{if="$fsc->orden=='nombre DESC'"} selected=""{/if}>Orden: nombre descendente</option>
-                        <option value="cifnif ASC"{if="$fsc->orden=='cifnif ASC'"} selected=""{/if}>Orden: {#FS_CIFNIF#}</option>
-                        <option value="cifnif DESC"{if="$fsc->orden=='cifnif DESC'"} selected=""{/if}>Orden: {#FS_CIFNIF#} descendente</option>
-                        <option value="fechaalta ASC"{if="$fsc->orden=='fechaalta ASC'"} selected=""{/if}>Orden: fecha</option>
-                        <option value="fechaalta DESC"{if="$fsc->orden=='fechaalta DESC'"} selected=""{/if}>Orden: fecha descendente</option>
+                        {loop="$fsc->orden()"}
+                           {if="$fsc->orden==$key"}
+                           <option value="{$key}" selected="">{$value}</option>
+                           {else}
+                           <option value="{$key}">{$value}</option>
+                           {/if}
+                        {/loop}
                      </select>
                   </div>
                </div>

@@ -113,10 +113,13 @@
                            <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
                         </div>
                         <select name="orden" class="form-control" onchange="this.form.submit()">
-                           <option value="nombre ASC">Orden: nombre</option>
-                           <option value="nombre DESC"{if="$fsc->orden=='nombre DESC'"} selected=""{/if}>Orden: nombre descendente</option>
-                           <option value="cifnif ASC"{if="$fsc->orden=='cifnif ASC'"} selected=""{/if}>Orden: {#FS_CIFNIF#}</option>
-                           <option value="cifnif DESC"{if="$fsc->orden=='cifnif DESC'"} selected=""{/if}>Orden: {#FS_CIFNIF#} descendente</option>
+                           {loop="$fsc->orden()"}
+                              {if="$fsc->orden==$key"}
+                              <option value="{$key}" selected="">{$value}</option>
+                              {else}
+                              <option value="{$key}">{$value}</option>
+                              {/if}
+                           {/loop}
                         </select>
                      </div>
                   </div>

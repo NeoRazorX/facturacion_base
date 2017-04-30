@@ -1,57 +1,115 @@
 {include="header"}
 
 {if="$fsc->grupo"}
+<script type="text/javascript">
+   function eliminar_grupo(cod)
+   {
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar el grupo '+cod+'?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = 'index.php?page=ventas_clientes&delete_grupo='+cod+'#grupos';
+            }
+         }
+      });
+   }
+   $(document).ready(function() {
+      /**
+       * Con esta opcion marcamos y desmarcamos el grupo de clientes que se visualizan actualmente
+       */
+      $('#marcartodo').click(function() {
+         var checked = $(this).prop('checked');
+         $('#agregar_clientes').find('input:checkbox').prop('checked', checked);
+      });
+   });
+</script>
+
 <div class="container-fluid">
-   <div class="row">
-      <div class="col-xs-6">
-         <div class="btn-group">
-            <a class="btn btn-sm btn-default" href="index.php?page=ventas_clientes#grupos">
-               <span class="glyphicon glyphicon-arrow-left"></span>
-               <span class="hidden-xs">&nbsp; Grupos</span>
-            </a>
-            <a class="btn btn-sm btn-default" href="{$fsc->grupo->url()}" title="Recargar la página">
-               <span class="glyphicon glyphicon-refresh"></span>
-            </a>
-         </div>
-         <div class="btn-group">
-            {if="$fsc->tarifa"}
-            <a class="btn btn-sm btn-default" href="{$fsc->tarifa->url()}">
-               <span class="glyphicon glyphicon-usd"></span>
-               <span class="hidden-xs">&nbsp; Tarifa</span>
-            </a>
-            {/if}
+   <form action="{$fsc->url()}" method="post" class="form">
+      <div class="row">
+         <div class="col-xs-6">
+            <div class="btn-group">
+               <a class="btn btn-sm btn-default" href="index.php?page=ventas_clientes#grupos">
+                  <span class="glyphicon glyphicon-arrow-left"></span>
+                  <span class="hidden-xs">&nbsp;Todos</span>
+               </a>
+               <a class="btn btn-sm btn-default" href="{$fsc->grupo->url()}" title="Recargar la página">
+                  <span class="glyphicon glyphicon-refresh"></span>
+               </a>
+            </div>
+            <div class="btn-group">
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
                {/if}
             {/loop}
+            </div>
+         </div>
+         <div class="col-xs-6 text-right">
+            <div class="btn-group">
+               {if="$fsc->allow_delete"}
+               <a href="#" class="btn btn-sm btn-danger" onclick="eliminar_grupo('{$fsc->grupo->codgrupo}')">
+                  <span class="glyphicon glyphicon-trash"></span>
+                  <span class="hidden-xs">&nbsp;Eliminar</span>
+               </a>
+               {/if}
+               <button type="submit" class="btn btn-sm btn-primary">
+                  <span class="glyphicon glyphicon-floppy-disk"></span>
+                  <span class="hidden-xs">&nbsp;Guardar</span>
+               </button>
+            </div>
          </div>
       </div>
-      <div class="col-xs-6 text-right">
-         <h2 style="margin-top: 0px;">Grupo {$fsc->grupo->nombre}</h2>
+      <div class="row">
+         <div class="col-sm-12">
+            <div class="page-header">
+               <h1>
+                  <span class="glyphicon glyphicon-folder-open"></span>&nbsp;
+                  Grupo <small>{$fsc->grupo->codgrupo}</small>
+               </h1>
+            </div>
+         </div>
       </div>
-   </div>
+      <div class="row">
+         <div class="col-sm-8">
+            <div class="form-group">
+               <input type="text" name="nombre" value="{$fsc->grupo->nombre}" class="form-control" autocomplete="off"/>
+            </div>
+         </div>
+         <div class="col-sm-4">
+            <div class="form-group">
+               <select name="codtarifa" class="form-control">
+                  <option value="---">Ninguna tarifa</option>
+                  <option value="---">---</option>
+                  {loop="$fsc->tarifa->all()"}
+                     {if="$value->codtarifa==$fsc->grupo->codtarifa"}
+                     <option value="{$value->codtarifa}" selected="">{$value->nombre}</option>
+                     {else}
+                     <option value="{$value->codtarifa}">{$value->nombre}</option>
+                     {/if}
+                  {/loop}
+               </select>
+            </div>
+         </div>
+      </div>
+   </form>
 </div>
+
+<br/>
 
 <ul class="nav nav-tabs">
    <li role="presentation"{if="$fsc->mostrar=='clientes'"} class="active"{/if}>
       <a href="{$fsc->grupo->url()}">
-         <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-         <span class="hidden-xs">&nbsp; Clientes</span>
+         <span class="fa fa-users" aria-hidden="true"></span>
+         <span class="hidden-xs">&nbsp;Clientes</span>
          <span class="badge">{$fsc->total_clientes}</span>
-      </a>
-   </li>
-   <li role="presentation"{if="$fsc->mostrar=='facturas'"} class="active"{/if}>
-      <a href="{$fsc->grupo->url()}&mostrar=facturas">
-         <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-         <span class="hidden-xs">&nbsp; Facturas</span>
-         <span class="badge">{$fsc->total_facturas}</span>
       </a>
    </li>
    <li role="presentation" {if="$fsc->mostrar=='agregar_clientes'"} class="active"{/if}">
       <a href="{$fsc->grupo->url()}&mostrar=agregar_clientes">
          <span class="fa fa-user-plus" aria-hidden="true"></span>
-         <span class="hidden-xs">&nbsp; Agregar Clientes</span>
+         <span class="hidden-xs">&nbsp;Añadir Clientes</span>
       </a>
    </li>
 </ul>
@@ -61,6 +119,7 @@
    <table class="table table-hover">
       <thead>
          <tr>
+            <th></th>
             <th class="text-left">Código + Nombre</th>
             <th class="text-left">{#FS_CIFNIF#}</th>
             <th class="text-left">email</th>
@@ -68,8 +127,15 @@
             <th class="text-left">Observaciones</th>
          </tr>
       </thead>
-      {loop="$fsc->resultados"}
+      {loop="$fsc->clientes"}
       <tr class='clickableRow{if="$value->debaja"} danger{elseif="$value->fechaalta==$fsc->today()"} success{/if}' href='{$value->url()}'>
+         <td class="text-center" title="quitar cliente {$value->codcliente} del grupo">
+            {if="$fsc->allow_delete"}
+            <a href="{$fsc->url()}&quitar={$value->codcliente}" class="cancel_clickable">
+               <span class="glyphicon glyphicon-trash"></span>
+            </a>
+            {/if}
+         </td>
          <td>
             <a href="{$value->url()}">{$value->codcliente}</a> {$value->nombre}
             {if="$value->debaja"}
@@ -90,228 +156,146 @@
       {/loop}
    </table>
 </div>
-{elseif="$fsc->mostrar=='facturas'"}
-<div class="table-responsive">
-   <table class="table table-hover">
-      <thead>
-         <tr>
-            <th></th>
-            <th></th>
-            <th class="text-left">Código + {#FS_NUMERO2#}</th>
-            <th class="text-left">Cliente</th>
-            <th class="text-left">Observaciones</th>
-            <th class="text-right">Total</th>
-            <th class="text-right">Fecha</th>
-            <th class="text-right visible-lg">Hora</th>
-         </tr>
-      </thead>
-      {loop="$fsc->resultados"}
-      <tr class="clickableRow{if="$value->vencida()"} danger{elseif="$value->pagada"} success{elseif="$value->total<=0"} warning{/if}" href="{$value->url()}">
-         <td class="text-center">
-            {if="$value->pagada"}
-            <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
-            {/if}
-            {if="$value->femail"}
-            <span class="glyphicon glyphicon-send" title="La factura fue enviada por email el {$value->femail}"></span>
-            {/if}
-         </td>
-         <td class="text-center">
-            {if="$value->idasiento"}
-            <span class="glyphicon glyphicon-paperclip" title="La factura tiene vinculado un asiento contable"></span>
-            {/if}
-         </td>
-         <td>
-            <a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}
-            {if="$value->idfacturarect"}
-            <span class="label label-danger" title="{#FS_FACTURA_RECTIFICATIVA#} de {$value->codigorect}">
-               <span class="glyphicon glyphicon-flag"></span>
-            </span>
-            {/if}
-         </td>
-         <td>{$value->nombrecliente}</td>
-         <td>{$value->observaciones_resume()}</td>
-         <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
-         <td class="text-right">{$value->fecha}</td>
-         <td class="text-right visible-lg">{$value->hora}</td>
-      </tr>
-      {else}
-      <tr class="warning">
-         <td></td>
-         <td></td>
-         <td colspan="6">Ninguna factura encontrada. Pulsa <b>Nueva</b> para crear una.</td>
-      </tr>
-      {/loop}
-   </table>
-</div>
 {elseif="$fsc->mostrar=='agregar_clientes'"}
-<div class="table-responsive">
-   <form class='form' role='form' method='POST' action='{$fsc->url()}&mostrar=agregar_clientes'>
-   <table class="table table-condensed">
-      <tbody>
-         <tr class="bg-info">
-            <td class="col-sm-1" style="vertical-align: middle;"><b>Buscar por:</b></td>
-            <td class="col-sm-2">
-               <select name="b_codgrupo" class="form-control input-sm" onchange='this.form.submit();'>
-                  <option value="">Elije un grupo origen</option>
-                  {loop="$fsc->grupo_clientes->all()"}
-                     {if="$fsc->grupo->codgrupo!=$value->codgrupo"}
-                     <option value="{$value->codgrupo}" {if="$value->codgrupo==$fsc->codgrupo"}selected{/if}>{$value->nombre}</option>
+<div class="container-fluid" style="margin-top: 15px; margin-bottom: 15px;">
+   <form class='form' role='form' method='post' action='{$fsc->url()}&mostrar=agregar_clientes'>
+      <div class="row">
+         <div class="col-sm-2">
+            <div class="input-group">
+               <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
+               <span class="input-group-btn hidden-sm">
+                  <button class="btn btn-primary" type="submit">
+                     <span class="glyphicon glyphicon-search"></span>
+                  </button>
+               </span>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="input-group">
+               <input class="form-control" type="text" name="direccion" value="{$fsc->direccion}" autocomplete="off" placeholder="Dirección">
+               <span class="input-group-btn hidden-sm">
+                  <button class="btn btn-default" type="submit">
+                     <span class="glyphicon glyphicon-search"></span>
+                  </button>
+               </span>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <select name="codpais" class="form-control" onchange="this.form.submit()">
+               <option value="">Cualquier pais</option>
+               <option value="">------</option>
+               {loop="$fsc->pais->all()"}
+                  {if="$value->codpais==$fsc->codpais"}
+                  <option value="{$value->codpais}" selected="">{$value->nombre}</option>
+                  {else}
+                  <option value="{$value->codpais}">{$value->nombre}</option>
+                  {/if}
+               {/loop}
+            </select>
+         </div>
+         <div class="col-sm-2">
+            <select name="provincia" class="form-control" onchange="this.form.submit()">
+               <option value="">Cualquier provincia</option>
+               <option value="">------</option>
+               {loop="$fsc->provincias()"}
+                  {if="$key===$fsc->provincia"}
+                  <option value="{$key}" selected="">{$value}</option>
+                  {else}
+                  <option value="{$key}">{$value}</option>
+                  {/if}
+               {/loop}
+            </select>
+         </div>
+         <div class="col-sm-2">
+            <select name="ciudad" class="form-control" onchange="this.form.submit()">
+               <option value="">Cualquier ciudad</option>
+               <option value="">------</option>
+               {loop="$fsc->ciudades()"}
+                  {if="$key===$fsc->ciudad"}
+                  <option value="{$key}" selected="">{$value}</option>
+                  {else}
+                  <option value="{$key}">{$value}</option>
+                  {/if}
+               {/loop}
+            </select>
+         </div>
+         <div class="col-sm-2">
+            <div class="input-group">
+               <div class="input-group-addon">
+                  <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
+               </div>
+               <select name="orden" class="form-control" onchange="this.form.submit()">
+                  {loop="$fsc->orden()"}
+                     {if="$fsc->orden==$key"}
+                     <option value="{$key}" selected="">{$value}</option>
+                     {else}
+                     <option value="{$key}">{$value}</option>
                      {/if}
                   {/loop}
                </select>
-            </td>
-            <td class="col-sm-2">
-               <select name="b_codpago" class="form-control input-sm" onchange='this.form.submit();'>
-                  <option value="">Elije una forma de pago</option>
-                  {loop="$fsc->forma_pago->all()"}
-                     <option value="{$value->codpago}" {if="$value->codpago==$fsc->codpago"}selected{/if}>{$value->descripcion}</option>
-                  {/loop}
-               </select>
-            </td>
-            <td class="col-sm-2">
-               <select name="b_codagente" class="form-control input-sm" onchange='this.form.submit();'>
-                  <option value="">Elije un empleado</option>
-                  {loop="$fsc->agente->all()"}
-                     <option value="{$value->codagente}" {if="$value->codagente==$fsc->codagente"}selected{/if}>{$value->nombre} {$value->apellidos}</option>
-                  {/loop}
-               </select>
-            </td>
-            <td class="col-sm-2">
-               <span class="input-group">
-                  <input class="form-control input-sm" name="b_direccion" autocomplete="off" placeholder="Buscalo por dirección">
-                  <span class="input-group-btn"><button class="btn btn-sm btn-default" type="submit"><span class="fa fa-search"></span></button></span>
-               </span>
-            </td>
-            <td class="col-sm-2">
-               <span class="input-group">
-                  <input class="form-control input-sm" name="b_nombre" autocomplete="off" placeholder="Buscalo por nombre">
-                  <span class="input-group-btn"><button class="btn btn-sm btn-default" type="submit"><span class="fa fa-search"></span></button></span>
-               </span>
-            </td>
-         </tr>
-      </tbody>
-   </table>
+            </div>
+         </div>
+      </div>
    </form>
-   <table class="table table-hover">
-      <thead>
-         <tr>
-            <th colspan="2">
-               <button type="button" id="agregar_seleccionados" class="btn btn-sm btn-success">
-                  Agregar Seleccionados
-               </button>
-            </th>
-         </tr>
-         <tr>
-            <th><input id="marcartodo" type="checkbox" name="check" onclick=""></th>
-            <th class="text-left">Código + Nombre</th>
-            <th class="text-left">{#FS_CIFNIF#}</th>
-            <th class="text-left">Dirección</th>
-            <th class="text-left">email</th>
-            <th class="text-left">Teléfono</th>
-            <th class="text-left">Observaciones</th>
-         </tr>
-      </thead>
-      <tbody id="agregar_clientes">
-      {loop="$fsc->resultados"}
-      <tr class='{if="$value->debaja"}danger{elseif="$value->fechaalta==$fsc->today()"}success{/if}'>
-         <td>
-            <input type="checkbox" name="importar[]" value="{$value->codcliente}">
-         </td>
-         <td>
-            <a href="{$value->url()}">{$value->codcliente}</a> {$value->nombre}
-            {if="$value->debaja"}
-            &nbsp; <span class="label label-danger" title="cliente dado de baja">Baja</span>
-            {elseif="$value->fechaalta==$fsc->today()"}
-            &nbsp; <span class="label label-success" title="Nuevo cliente">Nuevo</span>
-            {/if}
-         </td>
-         <td>{$value->cifnif}</td>
-         <td>{$value->direccion}</td>
-         <td>{$value->email}</td>
-         <td>{$value->telefono1}</td>
-         <td>{$value->observaciones_resume()}</td>
-      </tr>
-      {else}
-      <tr class="warning">
-         <td colspan="7">Ningún cliente encontrado. Utilice la barra de busqueda superior para encontrar uno.</td>
-      </tr>
-      {/loop}
-      </tbody>
-   </table>
 </div>
-{/if}
-
-<div class="container-fluid">
-   <div class="row">
-      <div class="col-sm-12 text-center">
-         <ul class="pagination">
-            {loop="$fsc->paginas()"}
-            <li{if="$value['actual']"} class="active"{/if}>
-               <a href="{$value['url']}">{$value['num']}</a>
-            </li>
-            {/loop}
-         </ul>
+<form class='form' role='form' method='post' action='{$fsc->url()}&mostrar=agregar_clientes'>
+   <div class="container-fluid" style="margin-bottom: 10px;">
+      <div class="row">
+         <div class="col-sm-12">
+            <button type="submit" class="btn btn-xs btn-success">
+               <span class="glyphicon glyphicon-plus"></span> Añadir clientes seleccionados
+            </button>
+         </div>
       </div>
    </div>
-</div>
-<script>
-$(document).ready(function() {
-  /**
-   * Con esta opcion marcamos y desmarcamos el grupo de clientes que se visualizan actualmente
-   */
-  $('#marcartodo').click(function() {
-    var checked = $(this).prop('checked');
-    $('#agregar_clientes').find('input:checkbox').prop('checked', checked);
-  });
-  /**
-   * Con esta funcion si le dan click al boton de agregar clientes se verifica que hayan
-   * elegido algo para procesar y asignar a este grupo
-   */
-   $("#agregar_seleccionados").click(function(event){
-       event.preventDefault();
-       var codigosElegidos = $("#agregar_clientes input:checkbox:checked").map(function(){
-         return $(this).val();
-       }).get();
-       if(codigosElegidos.length>0){
-          bootbox.confirm({
-            message: "¿Esta seguro que quiere agregar estos "+codigosElegidos.length+" clientes seleccionados?",
-            buttons: {
-                confirm: {
-                    label: 'Si',
-                    className: 'btn-success'
-                },
-                cancel: {
-                    label: 'No',
-                    className: 'btn-danger'
-                }
-            },
-            callback: function (result) {
-                if(result)
-                {
-                   $.ajax({
-                     type: 'POST',
-                     url: '{$fsc->url()}',
-                     async: false,
-                     data: 'accion=agregar_clientes&clientes='+codigosElegidos,
-                     success : function(datos) {
-                          bootbox.alert(datos.mensaje, function() {
-                             window.location.assign("{$fsc->url()}&mostrar={$fsc->mostrar}");
-                          });
-                     },
-                     error: function() {
-                         bootbox.alert("Ocurrio un error no contemplado en el plugin, por favor envie un mensaje en el foro de soporte de FacturaScripts para verificar el problema, gracias.");
-                     }
-                   });
-                }
-            }
-          });
-       }else{
-          bootbox.alert('Debes seleccionar un cliente como mínimo para transferirlo.');
-       }
+   <div class="table-responsive">
+      <table class="table table-hover">
+         <thead>
+            <tr>
+               <th class="text-center">
+                  <input id="marcartodo" type="checkbox" name="check">
+               </th>
+               <th class="text-left">Código + Nombre</th>
+               <th class="text-left">{#FS_CIFNIF#}</th>
+               <th class="text-left">email</th>
+               <th class="text-left">Teléfono</th>
+               <th class="text-left">Observaciones</th>
+            </tr>
+         </thead>
+         <tbody id="agregar_clientes">
+            {loop="$fsc->resultados"}
+            <tr class='{if="$value->debaja"}danger{elseif="$value->fechaalta==$fsc->today()"}success{/if}'>
+               <td class="text-center">
+                  {if="$value->codgrupo==$fsc->grupo->codgrupo"}
+                  <span class="glyphicon glyphicon-check" title="ya pertenece al grupo"></span>
+                  {else}
+                  <input type="checkbox" name="anyadir[]" value="{$value->codcliente}">
+                  {/if}
+               </td>
+               <td>
+                  <a href="{$value->url()}">{$value->codcliente}</a> {$value->nombre}
+                  {if="$value->debaja"}
+                  &nbsp; <span class="label label-danger" title="cliente dado de baja">Baja</span>
+                  {elseif="$value->fechaalta==$fsc->today()"}
+                  &nbsp; <span class="label label-success" title="Nuevo cliente">Nuevo</span>
+                  {/if}
+               </td>
+               <td>{$value->cifnif}</td>
+               <td>{$value->email}</td>
+               <td>{$value->telefono1}</td>
+               <td>{$value->observaciones_resume()}</td>
+            </tr>
+            {else}
+            <tr class="warning">
+               <td colspan="7">Ningún cliente encontrado. Utilice la barra de busqueda superior para encontrar uno.</td>
+            </tr>
+            {/loop}
+         </tbody>
+      </table>
+   </div>
+</form>
+{/if}
 
-   });
-});
-</script>
 {else}
 <div class="thumbnail">
    <img src="{#FS_PATH#}view/img/fuuu_face.png" alt="fuuuuu"/>

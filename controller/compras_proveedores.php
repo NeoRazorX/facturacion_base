@@ -33,7 +33,7 @@ class compras_proveedores extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Proveedores / Acreedores', 'compras', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Proveedores / Acreedores', 'compras');
    }
    
    protected function private_core()
@@ -43,65 +43,11 @@ class compras_proveedores extends fs_controller
       
       if( isset($_GET['delete']) )
       {
-         /// eliminar proveedor
-         $proveedor = $this->proveedor->get($_GET['delete']);
-         if($proveedor)
-         {
-            if(FS_DEMO)
-            {
-               $this->new_error_msg('En el modo demo no se pueden eliminar proveedores.
-                  Otros usuarios podrían necesitarlos.');
-            }
-            else if( $proveedor->delete() )
-            {
-               $this->new_message('Proveedor eliminado correctamente.');
-            }
-            else
-               $this->new_error_msg('Ha sido imposible borrar el proveedor.');
-         }
-         else
-            $this->new_message('Proveedor no encontrado.');
+         $this->eliminar_proveedor();
       }
       else if( isset($_POST['cifnif']) )
       {
-         /// nuevo proveedor
-         $proveedor = new proveedor();
-         $proveedor->codproveedor = $proveedor->get_new_codigo();
-         $proveedor->nombre = $_POST['nombre'];
-         $proveedor->razonsocial = $_POST['nombre'];
-         $proveedor->tipoidfiscal = $_POST['tipoidfiscal'];
-         $proveedor->cifnif = $_POST['cifnif'];
-         $proveedor->acreedor = isset($_POST['acreedor']);
-         $proveedor->personafisica = isset($_POST['personafisica']);
-         
-         if( $proveedor->save() )
-         {
-            $dirproveedor = new direccion_proveedor();
-            $dirproveedor->codproveedor = $proveedor->codproveedor;
-            $dirproveedor->descripcion = "Principal";
-            $dirproveedor->codpais = $_POST['pais'];
-            $dirproveedor->provincia = $_POST['provincia'];
-            $dirproveedor->ciudad = $_POST['ciudad'];
-            $dirproveedor->codpostal = $_POST['codpostal'];
-            $dirproveedor->direccion = $_POST['direccion'];
-            $dirproveedor->apartado = $_POST['apartado'];
-            
-            if( $dirproveedor->save() )
-            {
-               if($this->empresa->contintegrada)
-               {
-                  /// forzamos crear la subcuenta
-                  $proveedor->get_subcuenta($this->empresa->codejercicio);
-               }
-               
-               /// redireccionamos a la página del proveedor
-               header('location: '.$proveedor->url());
-            }
-            else
-               $this->new_error_msg("¡Imposible guardar la dirección el proveedor!");
-         }
-         else
-            $this->new_error_msg("¡Imposible guardar el proveedor!");
+         $this->nuevo_proveedor();
       }
       
       $this->offset = 0;
@@ -110,7 +56,7 @@ class compras_proveedores extends fs_controller
          $this->offset = intval($_GET['offset']);
       }
       
-      $this->orden = 'nombre ASC';
+      $this->orden = 'lower(nombre) ASC';
       if( isset($_REQUEST['orden']) )
       {
          $this->orden = $_REQUEST['orden'];
@@ -125,6 +71,68 @@ class compras_proveedores extends fs_controller
       $this->debaja = isset($_REQUEST['debaja']);
       
       $this->buscar();
+   }
+   
+   private function nuevo_proveedor()
+   {
+      $proveedor = new proveedor();
+      $proveedor->codproveedor = $proveedor->get_new_codigo();
+      $proveedor->nombre = $_POST['nombre'];
+      $proveedor->razonsocial = $_POST['nombre'];
+      $proveedor->tipoidfiscal = $_POST['tipoidfiscal'];
+      $proveedor->cifnif = $_POST['cifnif'];
+      $proveedor->acreedor = isset($_POST['acreedor']);
+      $proveedor->personafisica = isset($_POST['personafisica']);
+      
+      if( $proveedor->save() )
+      {
+         $dirproveedor = new direccion_proveedor();
+         $dirproveedor->codproveedor = $proveedor->codproveedor;
+         $dirproveedor->descripcion = "Principal";
+         $dirproveedor->codpais = $_POST['pais'];
+         $dirproveedor->provincia = $_POST['provincia'];
+         $dirproveedor->ciudad = $_POST['ciudad'];
+         $dirproveedor->codpostal = $_POST['codpostal'];
+         $dirproveedor->direccion = $_POST['direccion'];
+         $dirproveedor->apartado = $_POST['apartado'];
+         
+         if( $dirproveedor->save() )
+         {
+            if($this->empresa->contintegrada)
+            {
+               /// forzamos crear la subcuenta
+               $proveedor->get_subcuenta($this->empresa->codejercicio);
+            }
+            
+            /// redireccionamos a la página del proveedor
+            header('location: '.$proveedor->url());
+         }
+         else
+            $this->new_error_msg("¡Imposible guardar la dirección el proveedor!");
+      }
+      else
+         $this->new_error_msg("¡Imposible guardar el proveedor!");
+   }
+   
+   private function eliminar_proveedor()
+   {
+      $proveedor = $this->proveedor->get($_GET['delete']);
+      if($proveedor)
+      {
+         if(FS_DEMO)
+         {
+            $this->new_error_msg('En el modo demo no se pueden eliminar proveedores.
+               Otros usuarios podrían necesitarlos.');
+         }
+         else if( $proveedor->delete() )
+         {
+            $this->new_message('Proveedor eliminado correctamente.');
+         }
+         else
+            $this->new_error_msg('Ha sido imposible borrar el proveedor.');
+      }
+      else
+         $this->new_message('Proveedor no encontrado.');
    }
    
    private function buscar()
@@ -189,6 +197,16 @@ class compras_proveedores extends fs_controller
       }
    }
    
+   public function orden()
+   {
+      return array(
+          'lower(nombre) ASC' => 'Orden: nombre',
+          'lower(nombre) DESC' => 'Orden: nombre descendente',
+          'cifnif ASC' => 'Orden: '.FS_CIFNIF,
+          'cifnif DESC' => 'Orden: '.FS_CIFNIF.' descendente'
+      );
+   }
+
    public function paginas()
    {
       $url = $this->url()."&query=".$this->query

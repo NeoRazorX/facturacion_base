@@ -670,7 +670,7 @@ class cliente extends \fs_model
    {
       $clientlist = array();
       
-      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC", FS_ITEM_LIMIT, $offset);
+      $data = $this->db->select_limit("SELECT * FROM ".$this->table_name." ORDER BY lower(nombre) ASC", FS_ITEM_LIMIT, $offset);
       if($data)
       {
          foreach($data as $d)
@@ -693,7 +693,7 @@ class cliente extends \fs_model
       if(!$clientlist)
       {
          /// si no la encontramos en la caché, leemos de la base de datos
-         $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY lower(nombre) ASC;");
          if($data)
          {
             foreach($data as $d)
@@ -729,7 +729,7 @@ class cliente extends \fs_model
                  . " OR lower(cifnif) LIKE '%".$buscar."%' OR lower(observaciones) LIKE '%".$buscar."%'"
                  . " OR lower(email) LIKE '%".$buscar."%')";
       }
-      $consulta .= " ORDER BY nombre ASC";
+      $consulta .= " ORDER BY lower(nombre) ASC";
       
       $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
       if($data)
@@ -754,7 +754,7 @@ class cliente extends \fs_model
       $clilist = array();
       $query = mb_strtolower( $this->no_html($dni), 'UTF8' );
       $consulta = "SELECT * FROM ".$this->table_name." WHERE debaja = FALSE "
-              . "AND lower(cifnif) LIKE '".$query."%' ORDER BY nombre ASC";
+              . "AND lower(cifnif) LIKE '".$query."%' ORDER BY lower(nombre) ASC";
       
       $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
       if($data)
