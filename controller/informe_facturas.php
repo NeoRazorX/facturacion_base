@@ -19,6 +19,7 @@
 
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_once 'plugins/facturacion_base/extras/xlsxwriter.class.php';
+require_model('almacen.php');
 require_model('cliente.php');
 require_model('factura_cliente.php');
 require_model('factura_proveedor.php');
@@ -30,18 +31,23 @@ require_model('serie.php');
 class informe_facturas extends fs_controller
 {
    public $agente;
-   public $cliente;
+   public $almacen;
+   public $codalmacen;
    public $desde;
-   public $factura_cli;
-   public $factura_pro;
+   public $forma_pago;
    public $hasta;
    public $mostrar;
-   public $pagada;
+   public $multi_almacen;
    public $pais;
-   public $proveedor;
    public $serie;
    public $stats;
-   public $forma_pago;
+   
+   private $codagente;
+   private $codcliente;
+   private $codpago;
+   private $codproveedor;
+   private $codserie;
+   private $estado;
    
    public function __construct()
    {
@@ -51,20 +57,16 @@ class informe_facturas extends fs_controller
    protected function private_core()
    {
       $this->agente = new agente();
-      $this->desde = Date('1-m-Y');
-      $this->factura_cli = new factura_cliente();
-      $this->factura_pro = new factura_proveedor();
-      $this->hasta = Date('t-m-Y');
+      $this->almacen = new almacen();
+      $this->forma_pago = new forma_pago();
       $this->pais = new pais();
       $this->serie = new serie();
       $this->stats = array();
-      $this->forma_pago = new forma_pago();
       
-      $this->mostrar = 'general';
-      if( isset($_GET['mostrar']) )
-      {
-         $this->mostrar = $_GET['mostrar'];
-      }
+      $fsvar = new fs_var();
+      $this->multi_almacen = $fsvar->simple_get('multi_almacen');
+      
+      $this->filtros();
       
       if( isset($_REQUEST['buscar_cliente']) )
       {
@@ -76,31 +78,33 @@ class informe_facturas extends fs_controller
       }
       else if( isset($_POST['listado']) )
       {
+         $facturas = $this->buscar_facturas($_POST['listado']);
+         
          if($_POST['listado'] == 'facturascli')
          {
             if($_POST['generar'] == 'pdf')
             {
-               $this->pdf_facturas_cli();
+               $this->pdf_facturas_cli($facturas);
             }
-            elseif ($_POST['generar'] == 'xls') 
+            else if($_POST['generar'] == 'xls') 
             {
-               $this->xls_facturas_cli();
+               $this->xls_facturas_cli($facturas);
             }
             else
-               $this->csv_facturas_cli();
+               $this->csv_facturas_cli($facturas);
          }
          else
          {
             if($_POST['generar'] == 'pdf')
             {
-               $this->pdf_facturas_prov();
+               $this->pdf_facturas_prov($facturas);
             }
-            elseif ($_POST['generar'] == 'xls') 
+            else if($_POST['generar'] == 'xls') 
             {
-               $this->xls_facturas_prov();
+               $this->xls_facturas_prov($facturas);
             }
             else
-               $this->csv_facturas_prov();
+               $this->csv_facturas_prov($facturas);
          }
       }
       else if( isset($_POST['informe']) )
@@ -134,6 +138,99 @@ class informe_facturas extends fs_controller
       }
    }
    
+   private function filtros()
+   {
+      $this->codagente = FALSE;
+      if( isset($_REQUEST['codagente']) )
+      {
+         $this->codagente = $_REQUEST['codagente'];
+      }
+      
+      $this->codalmacen = FALSE;
+      if( isset($_REQUEST['codalmacen']) )
+      {
+         $this->codalmacen = $_REQUEST['codalmacen'];
+      }
+      
+      $this->codcliente = FALSE;
+      if( isset($_REQUEST['codcliente']) )
+      {
+         $this->codcliente = $_REQUEST['codcliente'];
+      }
+      
+      $this->codpago = FALSE;
+      if( isset($_REQUEST['codpago']) )
+      {
+         $this->codpago = $_REQUEST['codpago'];
+      }
+      
+      $this->codproveedor = FALSE;
+      if( isset($_REQUEST['codproveedor']) )
+      {
+         $this->codproveedor = $_REQUEST['codproveedor'];
+      }
+      
+      $this->codserie = FALSE;
+      if( isset($_REQUEST['codserie']) )
+      {
+         $this->codserie = $_REQUEST['codserie'];
+      }
+      
+      $this->desde = Date('01-m-Y');
+      if( isset($_REQUEST['desde']) )
+      {
+         $this->desde = $_REQUEST['desde'];
+      }
+      
+      $this->estado = FALSE;
+      if( isset($_REQUEST['estado']) )
+      {
+         $this->estado = $_REQUEST['estado'];
+      }
+      
+      $this->hasta = Date('t-m-Y');
+      if( isset($_REQUEST['hasta']) )
+      {
+         $this->hasta = $_REQUEST['hasta'];
+      }
+      
+      $this->mostrar = 'general';
+      if( isset($_REQUEST['mostrar']) )
+      {
+         $this->mostrar = $_REQUEST['mostrar'];
+      }
+   }
+   
+   private function buscar_facturas($tabla = 'facturascli')
+   {
+      $facturas = array();
+      
+      if($tabla == 'facturascli')
+      {
+         $fcli = new factura_cliente();
+         $facturas = $fcli->all_desde($this->desde, $this->hasta, $this->codserie, $this->codagente, $this->codcliente, $this->estado, $this->codpago);
+      }
+      else if($tabla == 'facturasprov')
+      {
+         $fpro = new factura_proveedor();
+         $facturas = $fpro->all_desde($this->desde, $this->hasta, $this->codserie, $this->codagente, $this->codproveedor, $this->estado, $this->codpago);
+      }
+      
+      if($this->codalmacen)
+      {
+         /// Se debe agregar en la funcion all_desde la variable codalmacen para eliminar esta linea
+         foreach($facturas as $x => $fac)
+         {
+            if($fac->codalmacen != $this->codalmacen)
+            {
+               unset($facturas[$x]);
+            }
+         }
+      }
+      
+      return $facturas;
+   }
+   
    private function buscar_cliente()
    {
       /// desactivamos la plantilla HTML
@@ -150,7 +247,7 @@ class informe_facturas extends fs_controller
       echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
    }
    
-    private function buscar_proveedor()
+   private function buscar_proveedor()
    {
       /// desactivamos la plantilla HTML
       $this->template = FALSE;
@@ -192,10 +289,9 @@ class informe_facturas extends fs_controller
       return $final;
    }
 
-   private function xls_facturas_cli()
+   private function xls_facturas_cli(&$facturas)
    {
       $this->template = FALSE;
-      
       header("Content-Disposition: attachment; filename=\"facturas_cli_".time().".xlsx\"");
       header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       header('Content-Transfer-Encoding: binary');
@@ -203,76 +299,48 @@ class informe_facturas extends fs_controller
       header('Pragma: public');
       
       $header = array(
-         'factura'=>'string',
-         'serie'=>'string',
-         'num_factura'=>'integer',
-         'asiento'=>'integer',
-         'fecha'=>'string',
-         'subcuenta'=>'integer',
-         'descripcion'=>'string',
-         'cifnif'=>'string',
-         'base'=>'#,##0.00',
-         'iva'=>'#,##0.00',
-         'totaliva'=>'#,##0.00',
-         'totalrecargo'=>'#,##0.00',
-         'totalirpf'=>'#,##0.00',
-         'total'=>'#,##0.00 [$€-407];[RED]-#,##0.00 [$€-407]',
+         'almacen' => 'string',
+         'factura' => 'string',
+         'serie' => 'string',
+         FS_NUMERO2 => 'string',
+         'num_factura' => 'integer',
+         'asiento' => 'integer',
+         'fecha' => 'string',
+         'subcuenta' => 'integer',
+         'descripcion' => 'string',
+         FS_CIFNIF => 'string',
+         'base' => '#,##0.00',
+         FS_IVA => '#,##0.00',
+         'total'.FS_IVA => '#,##0.00',
+         'totalrecargo' => '#,##0.00',
+         'totalirpf' => '#,##0.00',
+         'total' => '#,##0.00;[RED]-#,##0.00',
       );
-
+      
       $data = Array();
-
-      $codserie = FALSE;
-      if($_POST['codserie'] != '')
-      {
-         $codserie = $_POST['codserie'];
-      }
-      
-      $codagente = FALSE;     
-      if($_POST['codagente'] != '')
-      {
-         $codagente = $_POST['codagente'];
-      }
-      
-      $codcliente = FALSE;     
-      if($_POST['codcliente'] != '')
-      {
-         $codcliente = $_POST['codcliente'];
-      }
-      
-      $estado = FALSE;
-      if($_POST['estado'] != '')
-      {
-         $estado = $_POST['estado'];
-      }
-      
-      $forma_pago = FALSE;
-      if($_POST['codpago'])
-      {
-         $forma_pago = $_POST['codpago'];
-      }
-      
-      $facturas = $this->factura_cli->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codcliente, $estado, $forma_pago);
       if($facturas)
       {
          foreach($facturas as $fac)
          {
             $linea = array(
+                'almacen' => $fac->codalmacen,
                 'codigo' => $fac->codigo,
                 'serie' => $fac->codserie,
+                FS_NUMERO2 => $fac->numero2,
                 'factura' => $fac->numero,
                 'asiento' => '-',
                 'fecha' => $fac->fecha,
                 'subcuenta' => '-',
                 'descripcion' => $fac->nombrecliente,
-                'cifnif' => $fac->cifnif,
+                FS_CIFNIF => $fac->cifnif,
                 'base' => 0,
-                'iva' => 0,
-                'totaliva' => 0,
+                FS_IVA => 0,
+                'total'.FS_IVA => 0,
                 'totalrecargo' => 0,
                 'totalirpf' => 0,
                 'total' => 0
             );
-            
+
             $asiento = $fac->get_asiento();
             if($asiento)
             {
@@ -283,13 +351,13 @@ class informe_facturas extends fs_controller
                   $linea['subcuenta'] = $partidas[0]->codsubcuenta;
                }
             }
-            
+
             if($fac->totalirpf != 0)
             {
                $linea['totalirpf'] = $fac->totalirpf;
                $linea['total'] = $fac->total;
             }
-            
+
             $linivas = $fac->get_lineas_iva();
             if($linivas)
             {
@@ -302,7 +370,7 @@ class informe_facturas extends fs_controller
                   }
                   else
                      $impuestos[$liva->iva]['base'] += $liva->neto;
-                     
+
                   /// acumulamos el iva
                   if( !isset($impuestos[$liva->iva]['iva']) )
                   {
@@ -310,11 +378,11 @@ class informe_facturas extends fs_controller
                   }
                   else
                      $impuestos[$liva->iva]['iva'] += $liva->totaliva;
-                     
+
                   /// completamos y añadimos la línea al EXCEL
                   $linea['base'] = $liva->neto;
-                  $linea['iva'] = $liva->iva;
-                  $linea['totaliva'] = $liva->totaliva;
+                  $linea[FS_IVA] = $liva->iva;
+                  $linea['total'.FS_IVA] = $liva->totaliva;
                   $linea['totalrecargo'] = $liva->totalrecargo;
                   $linea['total'] = $liva->totallinea;
 
@@ -334,10 +402,9 @@ class informe_facturas extends fs_controller
       $writer->writeToStdOut();
    }
    
-   private function xls_facturas_prov()
+   private function xls_facturas_prov(&$facturas)
    {
       $this->template = FALSE;
-      
       header("Content-Disposition: attachment; filename=\"facturas_prov_".time().".xlsx\"");
       header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       header('Content-Transfer-Encoding: binary');
@@ -345,76 +412,48 @@ class informe_facturas extends fs_controller
       header('Pragma: public');
       
       $header = array(
-         'factura'=>'string',
-         'serie'=>'string',
-         'num_factura'=>'integer',
-         'asiento'=>'integer',
-         'fecha'=>'string',
-         'subcuenta'=>'integer',
-         'descripcion'=>'string',
-         'cifnif'=>'string',
-         'base'=>'#,##0.00',
-         'iva'=>'#,##0.00',
-         'totaliva'=>'#,##0.00',
-         'totalrecargo'=>'#,##0.00',
-         'totalirpf'=>'#,##0.00',
-         'total'=>'#,##0.00 [$€-407];[RED]-#,##0.00 [$€-407]',
+         'almacen' => 'string',
+         'factura' => 'string',
+         'serie' => 'string',
+         FS_NUMERO2 => 'string',
+         'num_factura' => 'integer',
+         'asiento' => 'integer',
+         'fecha' => 'string',
+         'subcuenta' => 'integer',
+         'descripcion' => 'string',
+         FS_CIFNIF => 'string',
+         'base' => '#,##0.00',
+         FS_IVA => '#,##0.00',
+         'total'.FS_IVA => '#,##0.00',
+         'totalrecargo' => '#,##0.00',
+         'totalirpf' => '#,##0.00',
+         'total' => '#,##0.00;[RED]-#,##0.00',
       );
 
       $data = Array();
-
-      $codserie = FALSE;
-      if($_POST['codserie'] != '')
-      {
-         $codserie = $_POST['codserie'];
-      }
-      
-      $codagente = FALSE;     
-      if($_POST['codagente'] != '')
-      {
-         $codagente = $_POST['codagente'];
-      }
-      
-      $codproveedor = FALSE;     
-      if($_POST['codproveedor'] != '')
-      {
-         $codproveedor = $_POST['codproveedor'];
-      }
-      
-      $estado = FALSE;
-      if($_POST['estado'] != '')
-      {
-         $estado = $_POST['estado'];
-      }
-      
-      $forma_pago = FALSE;
-      if($_POST['codpago'])
-      {
-         $forma_pago = $_POST['codpago'];
-      }
-      
-      $facturas = $this->factura_pro->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codproveedor, $estado, $forma_pago);
       if($facturas)
       {
          foreach($facturas as $fac)
          {
             $linea = array(
+                'almacen' => $fac->codalmacen, 
                 'codigo' => $fac->codigo, 
                 'serie' => $fac->codserie,
+                FS_NUMERO2 => $fac->numproveedor,
                 'factura' => $fac->numero,
                 'asiento' => '-',
                 'fecha' => $fac->fecha,
                 'subcuenta' => '-',
                 'descripcion' => $fac->nombre,
-                'cifnif' => $fac->cifnif,
+                FS_CIFNIF => $fac->cifnif,
                 'base' => 0,
-                'iva' => 0,
-                'totaliva' => 0,
+                FS_IVA => 0,
+                'total'.FS_IVA => 0,
                 'totalrecargo' => 0,
                 'totalirpf' => 0,
                 'total' => 0
             );
-            
+
             $asiento = $fac->get_asiento();
             if($asiento)
             {
@@ -425,13 +464,13 @@ class informe_facturas extends fs_controller
                   $linea['subcuenta'] = $partidas[0]->codsubcuenta;
                }
             }
-            
+
             if($fac->totalirpf != 0)
             {
                $linea['totalirpf'] = $fac->totalirpf;
                $linea['total'] = $fac->total;
             }
-            
+
             $linivas = $fac->get_lineas_iva();
             if($linivas)
             {
@@ -444,7 +483,7 @@ class informe_facturas extends fs_controller
                   }
                   else
                      $impuestos[$liva->iva]['base'] += $liva->neto;
-                  
+
                   /// acumulamos el iva
                   if( !isset($impuestos[$liva->iva]['iva']) )
                   {
@@ -452,14 +491,14 @@ class informe_facturas extends fs_controller
                   }
                   else
                      $impuestos[$liva->iva]['iva'] += $liva->totaliva;
-                  
+
                   /// completamos y añadimos la línea al CSV
                   $linea['base'] = $liva->neto;
-                  $linea['iva'] = $liva->iva;
-                  $linea['totaliva'] = $liva->totaliva;
+                  $linea[FS_IVA] = $liva->iva;
+                  $linea['total'.FS_IVA] = $liva->totaliva;
                   $linea['totalrecargo'] = $liva->totalrecargo;
                   $linea['total'] = $liva->totallinea;
-                  
+
                   $data[] = $linea;
                }
             }
@@ -476,51 +515,22 @@ class informe_facturas extends fs_controller
       $writer->writeToStdOut();
    }
    
-   private function csv_facturas_cli()
+   private function csv_facturas_cli(&$facturas)
    {
       $this->template = FALSE;
-      
       header("content-type:application/csv;charset=UTF-8");
       header("Content-Disposition: attachment; filename=\"facturas_cli.csv\"");
-      echo "serie,factura,asiento,fecha,subcuenta,descripcion,cifnif,base,iva,totaliva,totalrecargo,totalirpf,total\n";
+      echo "almacen,serie,".FS_NUMERO2.",factura,asiento,fecha,subcuenta,descripcion,".FS_CIFNIF
+              .",base,".FS_IVA.",total".FS_IVA.",totalrecargo,total".FS_IRPF.",total\n";
       
-      $codserie = FALSE;
-      if($_POST['codserie'] != '')
-      {
-         $codserie = $_POST['codserie'];
-      }
-      
-      $codagente = FALSE;     
-      if($_POST['codagente'] != '')
-      {
-         $codagente = $_POST['codagente'];
-      }
-      
-      $codcliente = FALSE;     
-      if($_POST['codcliente'] != '')
-      {
-         $codcliente = $_POST['codcliente'];
-      }
-      
-      $estado = FALSE;
-      if($_POST['estado'] != '')
-      {
-         $estado = $_POST['estado'];
-      }
-      
-      $forma_pago = FALSE;
-      if($_POST['codpago'])
-      {
-         $forma_pago = $_POST['codpago'];
-      }
-      
-      $facturas = $this->factura_cli->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codcliente, $estado, $forma_pago);
       if($facturas)
       {
          foreach($facturas as $fac)
          {
             $linea = array(
+                'almacen' => $fac->codalmacen,
                 'serie' => $fac->codserie,
+                'numero2' => $fac->numero2,
                 'factura' => $fac->numero,
                 'asiento' => '-',
                 'fecha' => $fac->fecha,
@@ -588,51 +598,23 @@ class informe_facturas extends fs_controller
       }
    }
    
-   private function csv_facturas_prov()
+   private function csv_facturas_prov(&$facturas)
    {
       $this->template = FALSE;
-      
       header("content-type:application/csv;charset=UTF-8");
       header("Content-Disposition: attachment; filename=\"facturas_prov.csv\"");
-      echo "serie,factura,asiento,fecha,subcuenta,descripcion,cifnif,base,iva,totaliva,totalrecargo,totalirpf,total\n";
+      echo "almacen,serie,factura,".FS_NUMERO2.",asiento,fecha,subcuenta,descripcion,".FS_CIFNIF
+              .",base,".FS_IVA.",total".FS_IVA.",totalrecargo,total".FS_IRPF.",total\n";
       
-      $codserie = FALSE;
-      if($_POST['codserie'] != '')
-      {
-         $codserie = $_POST['codserie'];
-      }
-      
-      $codagente = FALSE;     
-      if($_POST['codagente'] != '')
-      {
-         $codagente = $_POST['codagente'];
-      }
-      
-      $codproveedor = FALSE;     
-      if($_POST['codproveedor'] != '')
-      {
-         $codproveedor = $_POST['codproveedor'];
-      }
-      
-      $estado = FALSE;
-      if($_POST['estado'] != '')
-      {
-         $estado = $_POST['estado'];
-      }
-      
-      if($_POST['codpago'])
-      {
-         $forma_pago = $_POST['codpago'];
-      }
-      
-      $facturas = $this->factura_pro->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codproveedor, $estado, $forma_pago);
       if($facturas)
       {
          foreach($facturas as $fac)
          {
             $linea = array(
+                'almacen' => $fac->codalmacen,
                 'serie' => $fac->codserie,
                 'factura' => $fac->numero,
+                'numero2' => $fac->numproveedor,
                 'asiento' => '-',
                 'fecha' => $fac->fecha,
                 'subcuenta' => '-',
@@ -699,47 +681,16 @@ class informe_facturas extends fs_controller
       }
    }
    
-   private function pdf_facturas_cli()
+   private function pdf_facturas_cli(&$facturas)
    {
       /// desactivamos el motor de plantillas
       $this->template = FALSE;
       
       $pdf_doc = new fs_pdf('a4', 'landscape', 'Courier');
-      $pdf_doc->pdf->addInfo('Title', 'Facturas emitidas del '.$_POST['desde'].' al '.$_POST['hasta'] );
-      $pdf_doc->pdf->addInfo('Subject', 'Facturas emitidas del '.$_POST['desde'].' al '.$_POST['hasta'] );
+      $pdf_doc->pdf->addInfo('Title', 'Facturas emitidas del '.$this->desde.' al '.$this->hasta );
+      $pdf_doc->pdf->addInfo('Subject', 'Facturas emitidas del '.$this->desde.' al '.$this->hasta );
       $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
       
-      $codserie = FALSE;
-      if($_POST['codserie'] != '')
-      {
-         $codserie = $_POST['codserie'];
-      }
-      
-      $codagente = FALSE;     
-      if($_POST['codagente'] != '')
-      {
-         $codagente = $_POST['codagente'];
-      }
-      
-      $codcliente = FALSE;     
-      if($_POST['codcliente'] != '')
-      {
-         $codcliente = $_POST['codcliente'];
-      }
-      
-      $estado = FALSE;
-      if($_POST['estado'] != '')
-      {
-         $estado = $_POST['estado'];
-      }
-      
-      $forma_pago = FALSE;
-      if($_POST['codpago'])
-      {
-         $forma_pago = $_POST['codpago'];
-      }
-      
-      $facturas = $this->factura_cli->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codcliente, $estado, $forma_pago);
       if($facturas)
       {
          $total_lineas = count($facturas);
@@ -758,18 +709,18 @@ class informe_facturas extends fs_controller
             }
             
             /// encabezado
-            $pdf_doc->pdf->ezText( $this->fix_html($this->empresa->nombre)." - Facturas de venta del ".$_POST['desde']." al ".$_POST['hasta'] );
+            $pdf_doc->pdf->ezText( $this->fix_html($this->empresa->nombre)." - Facturas de venta del ".$this->desde." al ".$this->hasta );
             
-            if($codserie)
+            if($this->codserie)
             {
-               $pdf_doc->pdf->ezText("Serie: ".$codserie);
+               $pdf_doc->pdf->ezText("Serie: ".$this->codserie);
                $lppag--;
             }
             
-            if($codagente)
+            if($this->codagente)
             {
                $agente = new agente();
-               $agente = $agente->get($codagente);
+               $agente = $agente->get($this->codagente);
                if($agente)
                {
                   $pdf_doc->pdf->ezText( "Agente: ".$this->fix_html($agente->nombre) );
@@ -777,10 +728,10 @@ class informe_facturas extends fs_controller
                }
             }
 
-            if($codcliente)
+            if($this->codcliente)
             {
                $cliente = new cliente();
-               $cliente = $cliente->get($codcliente);
+               $cliente = $cliente->get($this->codcliente);
                if($cliente)
                {
                   $pdf_doc->pdf->ezText( "Cliente: ".$this->fix_html($cliente->nombre) );
@@ -788,10 +739,10 @@ class informe_facturas extends fs_controller
                }
             }
             
-            if($estado)
+            if($this->estado)
             {
                $lppag--;
-               if($estado == 'pagada')
+               if($this->estado == 'pagada')
                {
                   $pdf_doc->pdf->ezText("Estado: Pagadas");
                }
@@ -801,10 +752,10 @@ class informe_facturas extends fs_controller
                }
             }
             
-            if($forma_pago)
+            if($this->codpago)
             {
                $pago = new forma_pago();
-               $pago = $pago->get($forma_pago);
+               $pago = $pago->get($this->codpago);
                if($pago)
                {
                   $pdf_doc->pdf->ezText( "Forma de pago: ".$this->fix_html($pago->descripcion) );
@@ -818,26 +769,30 @@ class informe_facturas extends fs_controller
             $pdf_doc->new_table();
             $pdf_doc->add_table_header(
                array(
+                   'almacen' => '<b>Alm</b>',
                    'serie' => '<b>S</b>',
                    'factura' => '<b>Fact.</b>',
+                   'numero2' => '<b>'.FS_NUMERO2.'</b>',
                    'asiento' => '<b>Asi.</b>',
                    'fecha' => '<b>Fecha</b>',
                    'subcuenta' => '<b>Subcuenta</b>',
                    'descripcion' => '<b>Descripción</b>',
                    'cifnif' => '<b>'.FS_CIFNIF.'</b>',
                    'base' => '<b>Base Im.</b>',
-                   'iva' => '<b>% IVA</b>',
-                   'totaliva' => '<b>IVA</b>',
+                   'iva' => '<b>% '.FS_IVA.'</b>',
+                   'totaliva' => '<b>'.FS_IVA.'</b>',
                    'totalrecargo' => '<b>RE</b>',
-                   'totalirpf' => '<b>IRPF</b>',
+                   'totalirpf' => '<b>'.FS_IRPF.'</b>',
                    'total' => '<b>Total</b>'
                )
             );
             for($i = 0; $i < $lppag AND $linea_actual < $total_lineas; $i++)
             {
                $linea = array(
+                   'almacen' => $facturas[$linea_actual]->codalmacen,
                    'serie' => $facturas[$linea_actual]->codserie,
                    'factura' => $facturas[$linea_actual]->codigo,
+                   'numero2' => $facturas[$linea_actual]->numero2,
                    'asiento' => '-',
                    'fecha' => $facturas[$linea_actual]->fecha,
                    'subcuenta' => '-',
@@ -921,9 +876,9 @@ class informe_facturas extends fs_controller
                    'cols' => array(
                        'base' => array('justification' => 'right'),
                        'iva' => array('justification' => 'right'),
-                       'totaliva' => array('justification' => 'right'),
+                       'total'.strtolower(FS_IVA) => array('justification' => 'right'),
                        'totalrecargo' => array('justification' => 'right'),
-                       'totalirpf' => array('justification' => 'right'),
+                       'total'.strtolower(FS_IRPF) => array('justification' => 'right'),
                        'total' => array('justification' => 'right')
                    ),
                    'shaded' => 0,
@@ -950,13 +905,13 @@ class informe_facturas extends fs_controller
                $opciones['cols']['base'.$i] = array('justification' => 'right');
                if($i != 0)
                {
-                  $titulo['iva'.$i] = '<b>IVA '.$i.'%</b>';
+                  $titulo['iva'.$i] = '<b>'.FS_IVA.' '.$i.'%</b>';
                   $fila['iva'.$i] = $this->show_precio($value['iva']);
                   $opciones['cols']['iva'.$i] = array('justification' => 'right');
                }
             }
             $titulo['totalrecargo'] = '<b>RE</b>';
-            $titulo['totalirpf'] = '<b>IRPF</b>';
+            $titulo['totalirpf'] = '<b>'.FS_IRPF.'</b>';
             $titulo['total'] = '<b>Total</b>';
             $fila['totalrecargo'] = $this->show_precio($totalrecargo);
             $fila['totalirpf'] = $this->show_precio($totalirpf);
@@ -971,54 +926,23 @@ class informe_facturas extends fs_controller
       }
       else
       {
-         $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de venta del ".$_POST['desde']." al ".$_POST['hasta'].":\n\n", 14);
+         $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de venta del ".$this->desde." al ".$this->hasta.":\n\n", 14);
          $pdf_doc->pdf->ezText("Ninguna.\n\n", 14);
       }
       
       $pdf_doc->show();
    }
    
-   private function pdf_facturas_prov()
+   private function pdf_facturas_prov(&$facturas)
    {
       /// desactivamos el motor de plantillas
       $this->template = FALSE;
       
       $pdf_doc = new fs_pdf('a4', 'landscape', 'Courier');
-      $pdf_doc->pdf->addInfo('Title', 'Facturas recibidas del '.$_POST['desde'].' al '.$_POST['hasta'] );
-      $pdf_doc->pdf->addInfo('Subject', 'Facturas recibidas del '.$_POST['desde'].' al '.$_POST['hasta'] );
+      $pdf_doc->pdf->addInfo('Title', 'Facturas recibidas del '.$this->desde.' al '.$this->hasta );
+      $pdf_doc->pdf->addInfo('Subject', 'Facturas recibidas del '.$this->desde.' al '.$this->hasta );
       $pdf_doc->pdf->addInfo('Author', $this->empresa->nombre);
       
-      $codserie = FALSE;
-      if($_POST['codserie'] != '')
-      {
-         $codserie = $_POST['codserie'];
-      }
-      
-      $codagente = FALSE;     
-      if($_POST['codagente'] != '')
-      {
-         $codagente = $_POST['codagente'];
-      }
-      
-      $codproveedor = FALSE;     
-      if($_POST['codproveedor'] != '')
-      {
-         $codproveedor = $_POST['codproveedor'];
-      }
-      
-      $estado = FALSE;
-      if($_POST['estado'] != '')
-      {
-         $estado = $_POST['estado'];
-      }
-      
-      $forma_pago = FALSE;
-      if($_POST['codpago'])
-      {
-         $forma_pago = $_POST['codpago'];
-      }
-      
-      $facturas = $this->factura_pro->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codproveedor, $estado, $forma_pago);
       if($facturas)
       {
          $total_lineas = count($facturas);
@@ -1037,18 +961,18 @@ class informe_facturas extends fs_controller
             }
             
             /// encabezado
-            $pdf_doc->pdf->ezText( $this->fix_html($this->empresa->nombre)." - Facturas de compra del ".$_POST['desde']." al ".$_POST['hasta'] );
+            $pdf_doc->pdf->ezText( $this->fix_html($this->empresa->nombre)." - Facturas de compra del ".$this->desde." al ".$this->hasta );
             
-            if($codserie)
+            if($this->codserie)
             {
-               $pdf_doc->pdf->ezText("Serie: ".$codserie);
+               $pdf_doc->pdf->ezText("Serie: ".$this->codserie);
                $lppag--;
             }
             
-            if($codagente)
+            if($this->codagente)
             {
                $agente = new agente();
-               $agente = $agente->get($codagente);
+               $agente = $agente->get($this->codagente);
                if($agente)
                {
                   $pdf_doc->pdf->ezText( "Agente: ".$this->fix_html($agente->nombre) );
@@ -1056,10 +980,10 @@ class informe_facturas extends fs_controller
                }
             }
             
-            if($codproveedor)
+            if($this->codproveedor)
             {
                $proveedor = new proveedor();
-               $proveedor = $proveedor->get($codproveedor);
+               $proveedor = $proveedor->get($this->codproveedor);
                if($proveedor)
                {
                   $pdf_doc->pdf->ezText( "Proveedor: ".$this->fix_html($proveedor->nombre) );
@@ -1067,10 +991,10 @@ class informe_facturas extends fs_controller
                }
             }
             
-            if($estado)
+            if($this->estado)
             {
                $lppag--;
-               if($estado == 'pagada')
+               if($this->estado == 'pagada')
                {
                   $pdf_doc->pdf->ezText("Estado: Pagadas");
                }
@@ -1080,10 +1004,10 @@ class informe_facturas extends fs_controller
                }
             }
             
-            if($forma_pago)
+            if($this->codpago)
             {
                $pago = new forma_pago();
-               $pago = $pago->get($forma_pago);
+               $pago = $pago->get($this->codpago);
                if($pago)
                {
                   $pdf_doc->pdf->ezText( "Forma de pago: ".$this->fix_html($pago->descripcion) );
@@ -1097,26 +1021,30 @@ class informe_facturas extends fs_controller
             $pdf_doc->new_table();
             $pdf_doc->add_table_header(
                array(
+                   'almacen' => '<b>Alm.</b>',
                    'serie' => '<b>S</b>',
                    'factura' => '<b>Fact.</b>',
+                   'numero2' => '<b>'.FS_NUMERO2.'</b>',
                    'asiento' => '<b>Asi.</b>',
                    'fecha' => '<b>Fecha</b>',
                    'subcuenta' => '<b>Subcuenta</b>',
                    'descripcion' => '<b>Descripción</b>',
                    'cifnif' => '<b>'.FS_CIFNIF.'</b>',
                    'base' => '<b>Base Im.</b>',
-                   'iva' => '<b>% IVA</b>',
-                   'totaliva' => '<b>IVA</b>',
+                   'iva' => '<b>% '.FS_IVA.'</b>',
+                   'totaliva' => '<b>'.FS_IVA.'</b>',
                    'totalrecargo' => '<b>RE</b>',
-                   'totalirpf' => '<b>IRPF</b>',
+                   'totalirpf' => '<b>'.FS_IRPF.'</b>',
                    'total' => '<b>Total</b>'
                )
             );
             for($i = 0; $i < $lppag AND $linea_actual < $total_lineas; $i++)
             {
                $linea = array(
+                   'almacen' => $facturas[$linea_actual]->codalmacen,
                    'serie' => $facturas[$linea_actual]->codserie,
                    'factura' => $facturas[$linea_actual]->codigo,
+                   'numero2' => $facturas[$linea_actual]->numproveedor,
                    'asiento' => '-',
                    'fecha' => $facturas[$linea_actual]->fecha,
                    'subcuenta' => '-',
@@ -1229,13 +1157,13 @@ class informe_facturas extends fs_controller
                $opciones['cols']['base'.$i] = array('justification' => 'right');
                if($i != 0)
                {
-                  $titulo['iva'.$i] = '<b>IVA '.$i.'%</b>';
+                  $titulo['iva'.$i] = '<b>'.FS_IVA.' '.$i.'%</b>';
                   $fila['iva'.$i] = $this->show_precio($value['iva']);
                   $opciones['cols']['iva'.$i] = array('justification' => 'right');
                }
             }
             $titulo['totalrecargo'] = '<b>RE</b>';
-            $titulo['totalirpf'] = '<b>IRPF</b>';
+            $titulo['totalirpf'] = '<b>'.FS_IRPF.'</b>';
             $titulo['total'] = '<b>Total</b>';
             $fila['totalrecargo'] = $this->show_precio($totalrecargo);
             $fila['totalirpf'] = $this->show_precio($totalirpf);
@@ -1250,7 +1178,7 @@ class informe_facturas extends fs_controller
       }
       else
       {
-         $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de compra del ".$_POST['desde'].' al '.$_POST['hasta'].":\n\n", 14);
+         $pdf_doc->pdf->ezText($this->empresa->nombre." - Facturas de compra del ".$this->desde.' al '.$this->hasta.":\n\n", 14);
          $pdf_doc->pdf->ezText("Ninguna.\n\n", 14);
       }
       
@@ -1889,25 +1817,25 @@ class informe_facturas extends fs_controller
    private function informe_compras()
    {
       $sql = "SELECT codproveedor,fecha,SUM(neto) as total FROM facturasprov"
-              . " WHERE fecha >= ".$this->empresa->var2str($_POST['desde'])
-              . " AND fecha <= ".$this->empresa->var2str($_POST['hasta']);
+              . " WHERE fecha >= ".$this->empresa->var2str($this->desde)
+              . " AND fecha <= ".$this->empresa->var2str($this->hasta);
       
-      if($_POST['codserie'] != '')
+      if($this->codserie)
       {
-         $sql .= " AND codserie = ".$this->empresa->var2str($_POST['codserie']);
+         $sql .= " AND codserie = ".$this->empresa->var2str($this->codserie);
       }
       
-      if($_POST['codagente'] != '')
+      if($this->codagente)
       {
-         $sql .= " AND codagente = ".$this->empresa->var2str($_POST['codagente']);
+         $sql .= " AND codagente = ".$this->empresa->var2str($this->codagente);
       }
       
-      if($_POST['codproveedor'] != '')
+      if($this->codproveedor)
       {
-         $sql .= " AND codproveedor = ".$this->empresa->var2str($_POST['codproveedor']);
+         $sql .= " AND codproveedor = ".$this->empresa->var2str($this->codproveedor);
       }
       
-      if($_POST['minimo'] != '')
+      if($_POST['minimo'])
       {
          $sql .= " AND neto > ".$this->empresa->var2str($_POST['minimo']);
       }
@@ -2025,51 +1953,56 @@ class informe_facturas extends fs_controller
    
    private function informe_ventas()
    {
-      $sql = "SELECT codcliente,fecha,SUM(neto) as total FROM facturascli"
-              . " WHERE fecha >= ".$this->empresa->var2str($_POST['desde'])
-              . " AND fecha <= ".$this->empresa->var2str($_POST['hasta']);
+      $sql = "SELECT codalmacen,codcliente,fecha,SUM(neto) as total FROM facturascli"
+              . " WHERE fecha >= ".$this->empresa->var2str($this->desde)
+              . " AND fecha <= ".$this->empresa->var2str($this->hasta);
       
-      if($_POST['codpais'] != '')
+      if($_POST['codpais'])
       {
          $sql .= " AND codpais = ".$this->empresa->var2str($_POST['codpais']);
       }
       
-      if($_POST['provincia'] != '')
+      if($_POST['provincia'])
       {
          $sql .= " AND lower(provincia) = lower(".$this->empresa->var2str($_POST['provincia']).")";
       }
       
-      if($_POST['codcliente'] != '')
+      if($this->codcliente)
       {
-         $sql .= " AND codcliente = ".$this->empresa->var2str($_POST['codcliente']);
+         $sql .= " AND codcliente = ".$this->empresa->var2str($this->codcliente);
       }
       
-      if($_POST['codserie'] != '')
+      if($this->codserie)
       {
-         $sql .= " AND codserie = ".$this->empresa->var2str($_POST['codserie']);
+         $sql .= " AND codserie = ".$this->empresa->var2str($this->codserie);
       }
       
-      if($_POST['codagente'] != '')
+      if($this->codalmacen)
       {
-         $sql .= " AND codagente = ".$this->empresa->var2str($_POST['codagente']);
+         $sql .= " AND codalmacen = ".$this->empresa->var2str($this->codalmacen);
       }
       
-      if($_POST['minimo'] != '')
+      if($this->codagente)
+      {
+         $sql .= " AND codagente = ".$this->empresa->var2str($this->codagente);
+      }
+      
+      if($_POST['minimo'])
       {
          $sql .= " AND neto > ".$this->empresa->var2str($_POST['minimo']);
       }
       
-      $sql .= " GROUP BY codcliente,fecha ORDER BY codcliente ASC, fecha DESC;";
+      $sql .= " GROUP BY codalmacen,codcliente,fecha ORDER BY codcliente ASC, fecha DESC;";
       
       $data = $this->db->select($sql);
       if($data)
       {
          $this->template = FALSE;
-         
+
          header("content-type:application/csv;charset=UTF-8");
          header("Content-Disposition: attachment; filename=\"informe_ventas.csv\"");
-         echo "codcliente;nombre;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
-         
+         echo "almacen;codcliente;nombre;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
+
          $cliente = new cliente();
          $stats = array();
          foreach($data as $d)
@@ -2092,7 +2025,8 @@ class informe_facturas extends fs_controller
                    11 => 0,
                    12 => 0,
                    13 => 0,
-                   14 => 0
+                   14 => 0,
+                   15 => $d['codalmacen']
                );
             }
             
@@ -2132,36 +2066,37 @@ class informe_facturas extends fs_controller
             {
                if($cli)
                {
-                  echo '"'.$i.'";'.$this->fix_html($cli->nombre).';'.$j;
+                  echo '"'.$value[$j][15].'";'.'"'.$i.'";'.$this->fix_html($cli->nombre).';'.$j;
                }
                else
                {
-                  echo '"'.$i.'";-;'.$j;
+                  echo '"'.$value[$j][15].'";'.'"'.$i.'";-;'.$j;
                }
                
-               foreach($value2 as $value3)
+               foreach($value2 as $x => $value3)
                {
-                  echo ';'.number_format($value3, FS_NF0, ',', '');
+                  if($x < 15)
+                  {
+                     echo ';'.$this->show_numero($value3, FS_NF0);
+                  }
                }
-               
                echo "\n";
             }
             echo ";;;;;;;;;;;;;;;\n";
          }
-         
          foreach( array_reverse($totales, TRUE) as $i => $value)
          {
+
             echo ";TOTALES;".$i;
             $l_total = 0;
             foreach($value as $j => $value3)
             {
                if($j < 13)
                {
-                  echo ';'.number_format($value3, FS_NF0, ',', '');
-                  $l_total += $value3;
+                  echo ';'.$this->show_numero($value3, FS_NF0);
                }
             }
-            echo ";".number_format($l_total, FS_NF0, ',', '').";\n";
+            echo ";".$this->show_numero($l_total, FS_NF0).";\n";
          }
       }
       else
@@ -2172,47 +2107,54 @@ class informe_facturas extends fs_controller
    
    private function informe_compras_unidades()
    {
-      $sql = "SELECT f.codproveedor,f.fecha,l.referencia,SUM(l.cantidad) as total"
+      $sql = "SELECT f.codalmacen,f.codproveedor,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
               . " FROM facturasprov f, lineasfacturasprov l"
               . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
-              . " AND f.fecha >= ".$this->empresa->var2str($_POST['desde'])
-              . " AND f.fecha <= ".$this->empresa->var2str($_POST['hasta']);
+              . " AND f.fecha >= ".$this->empresa->var2str($this->desde)
+              . " AND f.fecha <= ".$this->empresa->var2str($this->hasta);
       
-      if($_POST['codserie'] != '')
+      if($this->codserie)
       {
-         $sql .= " AND f.codserie = ".$this->empresa->var2str($_POST['codserie']);
+         $sql .= " AND f.codserie = ".$this->empresa->var2str($this->codserie);
       }
       
-      if($_POST['codagente'] != '')
+      if($this->codalmacen)
       {
-         $sql .= " AND f.codagente = ".$this->empresa->var2str($_POST['codagente']);
+         $sql .= " AND f.codalmacen = ".$this->empresa->var2str($this->codalmacen);
       }
       
-      if($_POST['codproveedor'] != '')
+      if($this->codagente)
       {
-         $sql .= " AND codproveedor = ".$this->empresa->var2str($_POST['codproveedor']);
+         $sql .= " AND f.codagente = ".$this->empresa->var2str($this->codagente);
       }
       
-      if($_POST['minimo'] != '')
+      if($this->codproveedor)
+      {
+         $sql .= " AND codproveedor = ".$this->empresa->var2str($this->codproveedor);
+      }
+      
+      if($_POST['minimo'])
       {
          $sql .= " AND l.cantidad > ".$this->empresa->var2str($_POST['minimo']);
       }
       
-      $sql .= " GROUP BY f.codproveedor,f.fecha,l.referencia ORDER BY f.codproveedor ASC, l.referencia ASC, f.fecha DESC;";
+      $sql .= " GROUP BY f.codalmacen,f.codproveedor,f.fecha,l.referencia,l.descripcion ORDER BY f.codproveedor ASC, l.referencia ASC, f.fecha DESC;";
       
       $data = $this->db->select($sql);
       if($data)
       {
          $this->template = FALSE;
-         
+
          header("content-type:application/csv;charset=UTF-8");
          header("Content-Disposition: attachment; filename=\"informe_compras_unidades.csv\"");
-         echo "codproveedor;nombre;referencia;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
+         echo "almacen;codproveedor;nombre;referencia;descripcion;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
          
          $proveedor = new proveedor();
          $stats = array();
+         
          foreach($data as $d)
          {
+            $lineas = 1;
             $anyo = date('Y', strtotime($d['fecha']));
             $mes = date('n', strtotime($d['fecha']));
             if( !isset($stats[ $d['codproveedor'] ][ $d['referencia'] ][ $anyo ]) )
@@ -2231,7 +2173,9 @@ class informe_facturas extends fs_controller
                    11 => 0,
                    12 => 0,
                    13 => 0,
-                   14 => 0
+                   14 => 0,
+                   15 => $d['codalmacen'],
+                   16 => $d['descripcion'],
                );
             }
             
@@ -2241,6 +2185,8 @@ class informe_facturas extends fs_controller
          
          foreach($stats as $i => $value)
          {
+            $lineas++;
+            
             $pro = $proveedor->get($i);
             foreach($value as $j => $value2)
             {
@@ -2252,7 +2198,6 @@ class informe_facturas extends fs_controller
                   {
                      $value2[$k][14] = ($value3[13]*100/$anterior) - 100;
                   }
-                  
                   $anterior = $value3[13];
                }
                
@@ -2260,18 +2205,20 @@ class informe_facturas extends fs_controller
                {
                   if($pro)
                   {
-                     echo '"'.$i.'";'.$this->fix_html($pro->nombre).';"'.$j.'";'.$k;
+                     echo '"'.$value2[$k][15].'";'.'"'.$i.'";'.$this->fix_html($pro->nombre).';"'.$j.'";'.'"'.$value2[$k][16].'"'.';'.$k;
                   }
                   else
                   {
-                     echo '"'.$i.'";-;"'.$j.'";'.$k;
+                     echo '"'.$value2[$k][15].'";'.'"'.$i.'";-;"'.$j.'";'.'"'.$value2[$k][16].'"'.';'.$k;
                   }
                   
-                  foreach($value3 as $value4)
+                  foreach($value3 as $x=>$value4)
                   {
-                     echo ';'.number_format($value4, FS_NF0, ',', '');
+                     if($x < 15)
+                     {
+                        echo ';'.$this->show_numero($value4, FS_NF0);
+                     }
                   }
-                  
                   echo "\n";
                }
                echo ";;;;;;;;;;;;;;;\n";
@@ -2287,43 +2234,48 @@ class informe_facturas extends fs_controller
    
    private function informe_ventas_unidades()
    {
-      $sql = "SELECT f.codcliente,f.fecha,l.referencia,SUM(l.cantidad) as total"
+      $sql = "SELECT f.codalmacen,f.codcliente,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
               . " FROM facturascli f, lineasfacturascli l"
               . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
-              . " AND f.fecha >= ".$this->empresa->var2str($_POST['desde'])
-              . " AND f.fecha <= ".$this->empresa->var2str($_POST['hasta']);
+              . " AND f.fecha >= ".$this->empresa->var2str($this->desde)
+              . " AND f.fecha <= ".$this->empresa->var2str($this->hasta);
       
-      if($_POST['codpais'] != '')
+      if($_POST['codpais'])
       {
          $sql .= " AND f.codpais = ".$this->empresa->var2str($_POST['codpais']);
       }
       
-      if($_POST['provincia'] != '')
+      if($_POST['provincia'])
       {
          $sql .= " AND lower(f.provincia) = lower(".$this->empresa->var2str($_POST['provincia']).")";
       }
       
-      if($_POST['codcliente'] != '')
+      if($this->codcliente)
       {
-         $sql .= " AND codcliente = ".$this->empresa->var2str($_POST['codcliente']);
+         $sql .= " AND codcliente = ".$this->empresa->var2str($this->codcliente);
       }
       
-      if($_POST['codserie'] != '')
+      if($this->codalmacen)
       {
-         $sql .= " AND f.codserie = ".$this->empresa->var2str($_POST['codserie']);
+         $sql .= " AND f.codalmacen = ".$this->empresa->var2str($this->codalmacen);
       }
       
-      if($_POST['codagente'] != '')
+      if($this->codserie)
       {
-         $sql .= " AND f.codagente = ".$this->empresa->var2str($_POST['codagente']);
+         $sql .= " AND f.codserie = ".$this->empresa->var2str($this->codserie);
       }
       
-      if($_POST['minimo'] != '')
+      if($this->codagente)
+      {
+         $sql .= " AND f.codagente = ".$this->empresa->var2str($this->codagente);
+      }
+      
+      if($_POST['minimo'])
       {
          $sql .= " AND l.cantidad > ".$this->empresa->var2str($_POST['minimo']);
       }
       
-      $sql .= " GROUP BY f.codcliente,f.fecha,l.referencia ORDER BY f.codcliente ASC, l.referencia ASC, f.fecha DESC;";
+      $sql .= " GROUP BY f.codalmacen,f.codcliente,f.fecha,l.referencia,l.descripcion ORDER BY f.codcliente ASC, l.referencia ASC, f.fecha DESC;";
       
       $data = $this->db->select($sql);
       if($data)
@@ -2332,7 +2284,7 @@ class informe_facturas extends fs_controller
          
          header("content-type:application/csv;charset=UTF-8");
          header("Content-Disposition: attachment; filename=\"informe_ventas_unidades.csv\"");
-         echo "codcliente;nombre;referencia;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
+         echo "almacen;codcliente;nombre;referencia;descripcion;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
          
          $cliente = new cliente();
          $stats = array();
@@ -2356,7 +2308,9 @@ class informe_facturas extends fs_controller
                    11 => 0,
                    12 => 0,
                    13 => 0,
-                   14 => 0
+                   14 => 0,
+                   15 => $d['codalmacen'],
+                   16 => $d['descripcion'],
                );
             }
             
@@ -2385,23 +2339,26 @@ class informe_facturas extends fs_controller
                {
                   if($cli)
                   {
-                     echo '"'.$i.'";'.$this->fix_html($cli->nombre).';"'.$j.'";'.$k;
+                     echo '"'.$value2[$k][15].'";'.'"'.$i.'";'.$this->fix_html($cli->nombre).';"'.$j.'";'.'"'.$value2[$k][16].'"'.';'.$k;
                   }
                   else
                   {
-                     echo '"'.$i.'";-;"'.$j.'";'.$k;
+                     echo '"'.$value2[$k][15].'";'.'"'.$i.'";-;"'.$j.'";'.'"'.$value2[$k][16].'"'.';'.$k;
                   }
                   
-                  foreach($value3 as $value4)
+                  foreach($value3 as $x=>$value4)
                   {
-                     echo ';'.number_format($value4, FS_NF0, ',', '');
+                     if($x < 15)
+                     {
+                        echo ';'.$this->show_numero($value4, FS_NF0);
+                     }
                   }
                   
                   echo "\n";
                }
-               echo ";;;;;;;;;;;;;;;\n";
+               echo ";;;;;;;;;;;;;;;;\n";
             }
-            echo ";;;;;;;;;;;;;;;\n";
+            echo ";;;;;;;;;;;;;;;;\n";
          }
       }
       else

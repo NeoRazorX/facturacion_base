@@ -85,12 +85,12 @@
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="Marcada como página de inicio (pulsa de nuevo para desmarcar)">
+               <i class="fa fa-bookmark" aria-hidden="true"></i>
             </a>
             {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="Marcar como página de inicio">
+               <i class="fa fa-bookmark-o" aria-hidden="true"></i>
             </a>
             {/if}
          </div>
@@ -115,41 +115,14 @@
                <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-right">
+               {loop="$fsc->orden()"}
                <li>
-                  <a href="{$fsc->url(TRUE)}&order=fecha_desc">
-                     <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-                     &nbsp; Fecha &nbsp;
-                     {if="$fsc->order=='fecha DESC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
+                  <a href="{$fsc->url(TRUE)}&order={$key}">
+                     {$value.icono} &nbsp; {$value.texto} &nbsp;
+                     {if="$fsc->order==$value.orden"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
                   </a>
                </li>
-               <li>
-                  <a href="{$fsc->url(TRUE)}&order=fecha_asc">
-                     <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-                     &nbsp; Fecha &nbsp;
-                     {if="$fsc->order=='fecha ASC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                  </a>
-               </li>
-               <li>
-                  <a href="{$fsc->url(TRUE)}&order=codigo_desc">
-                     <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-                     &nbsp; Código &nbsp;
-                     {if="$fsc->order=='codigo DESC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                  </a>
-               </li>
-               <li>
-                  <a href="{$fsc->url(TRUE)}&order=codigo_asc">
-                     <span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-                     &nbsp; Código &nbsp;
-                     {if="$fsc->order=='codigo ASC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                  </a>
-               </li>
-               <li>
-                  <a href="{$fsc->url(TRUE)}&order=total_desc">
-                     <span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>
-                     &nbsp; Total &nbsp;
-                     {if="$fsc->order=='total DESC'"}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{/if}
-                  </a>
-               </li>
+               {/loop}
             </ul>
          </div>
       </div>

@@ -328,33 +328,49 @@ class factura_proveedor extends \fs_model
          $ejercicio = $eje0->get($this->codejercicio);
          if($ejercicio)
          {
-            if( !$ejercicio->abierto() )
+            /// ¿El ejercicio actual está abierto?
+            if( $ejercicio->abierto() )
             {
-               $this->new_error_msg('El ejercicio '.$ejercicio->nombre.' está cerrado. No se puede modificar la fecha.');
-            }
-            else if( $fecha == $ejercicio->get_best_fecha($fecha) )
-            {
-               $regiva0 = new \regularizacion_iva();
-               if( $regiva0->get_fecha_inside($fecha) )
+               $eje2 = $eje0->get_by_fecha($fecha);
+               if($eje2)
                {
-                  $this->new_error_msg('No se puede asignar la fecha '.$fecha.' porque ya hay'
-                          . ' una regularización de '.FS_IVA.' para ese periodo.');
-               }
-               else if( $regiva0->get_fecha_inside($this->fecha) )
-               {
-                  $this->new_error_msg('La factura se encuentra dentro de una regularización de '
-                          .FS_IVA.'. No se puede modificar la fecha.');
-               }
-               else
-               {
-                  $this->fecha = $fecha;
-                  $this->hora = $hora;
-                  $cambio = FALSE;
+                  if( $eje2->abierto() )
+                  {
+                     /// ¿La factura está dentro de alguna regularización?
+                     $regiva0 = new \regularizacion_iva();
+                     if( $regiva0->get_fecha_inside($this->fecha) )
+                     {
+                        $this->new_error_msg('La factura se encuentra dentro de una regularización de '
+                                .FS_IVA.'. No se puede modificar la fecha.');
+                     }
+                     else if( $regiva0->get_fecha_inside($fecha) )
+                     {
+                        $this->new_error_msg('No se puede asignar la fecha '.$fecha.' porque ya hay'
+                                . ' una regularización de '.FS_IVA.' para ese periodo.');
+                     }
+                     else
+                     {
+                        $cambio = FALSE;
+                        $this->fecha = $fecha;
+                        $this->hora = $hora;
+                        
+                        /// ¿El ejercicio es distinto?
+                        if($this->codejercicio != $eje2->codejercicio)
+                        {
+                           $this->codejercicio = $eje2->codejercicio;
+                           $this->new_codigo();
+                        }
+                     }
+                  }
+                  else
+                  {
+                     $this->new_error_msg('El ejercicio '.$eje2->nombre.' está cerrado. No se puede modificar la fecha.');
+                  }
                }
             }
             else
             {
-               $this->new_error_msg('La fecha está fuera del rango del ejercicio '.$ejercicio->nombre);
+               $this->new_error_msg('El ejercicio '.$ejercicio->nombre.' está cerrado. No se puede modificar la fecha.');
             }
          }
          else

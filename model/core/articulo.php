@@ -1269,31 +1269,36 @@ class articulo extends \fs_model
       
       if( count($artilist) <= 1 )
       {
-         $sql = "SELECT ".self::$column_list." FROM ".$this->table_name.' WHERE bloqueado = false';
-         $separador = ' AND';
+         $sql = "SELECT ".self::$column_list." FROM ".$this->table_name;
+         $separador = ' WHERE';
          
          if($codfamilia != '')
          {
             $sql .= $separador." codfamilia = ".$this->var2str($codfamilia);
+            $separador = ' AND';
          }
          
          if($codfabricante != '')
          {
             $sql .= $separador." codfabricante = ".$this->var2str($codfabricante);
+            $separador = ' AND';
          }
          
          if($con_stock)
          {
             $sql .= $separador." stockfis > 0";
+            $separador = ' AND';
          }
          
          if($bloqueados)
          {
-            $sql .= $separador." bloqueado";
+            $sql .= $separador." bloqueado = TRUE";
+            $separador = ' AND';
          }
          else
          {
             $sql .= $separador." bloqueado = FALSE";
+            $separador = ' AND';
          }
          
          if($query == '')
@@ -1308,6 +1313,7 @@ class articulo extends \fs_model
                     . " OR equivalencia LIKE '%".$query."%'"
                     . " OR descripcion LIKE '%".$query."%'"
                     . " OR codbarras = ".$this->var2str($query).")";
+            $separador = ' AND';
          }
          else
          {

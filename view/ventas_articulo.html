@@ -35,7 +35,7 @@
          event.preventDefault();
          {if="$fsc->articulo->publico"}
          bootbox.alert({
-            message: 'Este artículo es público. Si estas seguro de que quieres eliminarlo, desmarcalo como público, guarda y pulsa eliminar.',
+            message: 'Este artículo <b>es público</b>. Si estas seguro de que quieres eliminarlo, desmarcalo como público, guarda y pulsa eliminar.',
             title: "<b>Atención</b>"
          });
          {else}
@@ -53,20 +53,6 @@
       $("#b_imagen").click(function(event) {
          event.preventDefault();
          $("#modal_articulo_imagen").modal('show');
-      });
-      $('#b_regularizaciones').click(function(event) {
-         event.preventDefault();
-         $("#b_movimientos").removeClass('active');
-         $("#b_regularizaciones").addClass('active');
-         $("#table_movimientos").hide();
-         $("#table_regularizaciones").show();
-      });
-      $('#b_movimientos').click(function(event) {
-         event.preventDefault();
-         $("#b_movimientos").addClass('active');
-         $("#b_regularizaciones").removeClass('active');
-         $("#table_movimientos").show();
-         $("#table_regularizaciones").hide();
       });
    });
 </script>
