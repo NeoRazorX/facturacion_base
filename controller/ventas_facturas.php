@@ -22,6 +22,7 @@ require_model('almacen.php');
 require_model('articulo.php');
 require_model('cliente.php');
 require_model('factura_cliente.php');
+require_model('forma_pago.php');
 
 class ventas_facturas extends fs_controller
 {
@@ -46,6 +47,8 @@ class ventas_facturas extends fs_controller
    public $order;
    public $resultados;
    public $serie;
+   public $fpago;
+   public $codpago;
    public $total_resultados;
    public $total_resultados_comision;
    public $total_resultados_txt;
@@ -62,6 +65,7 @@ class ventas_facturas extends fs_controller
       $this->factura = new factura_cliente();
       $this->huecos = array();
       $this->serie = new serie();
+      $this->fpago = new forma_pago();
       
       $this->mostrar = 'todo';
       if( isset($_GET['mostrar']) )
@@ -125,6 +129,7 @@ class ventas_facturas extends fs_controller
          $this->codagente = '';
          $this->codalmacen = '';
          $this->codserie = '';
+         $this->codpago = '';
          $this->desde = '';
          $this->estado = '';
          $this->hasta = '';
@@ -171,6 +176,11 @@ class ventas_facturas extends fs_controller
             if( isset($_REQUEST['codserie']) )
             {
                $this->codserie = $_REQUEST['codserie'];
+            }
+            
+            if( isset($_REQUEST['codpago']) )
+            {
+               $this->codpago = $_REQUEST['codpago'];
             }
             
             if( isset($_REQUEST['desde']) )
@@ -239,6 +249,7 @@ class ventas_facturas extends fs_controller
                  ."&codserie=".$this->codserie
                  ."&codagente=".$this->codagente
                  ."&codalmacen=".$this->codalmacen
+                 ."&codpago=".$this->codpago
                  ."&codcliente=".$codcliente
                  ."&desde=".$this->desde
                  ."&estado=".$this->estado
@@ -459,6 +470,13 @@ class ventas_facturas extends fs_controller
          $sql .= $where."codserie = ".$this->agente->var2str($this->codserie);
          $where = ' AND ';
       }
+      
+   if($this->codpago)
+      {
+         $sql .= $where."codpago= ".$this->agente->var2str($this->codpago);
+         $where = ' AND ';
+      } 
+      
       
       if($this->desde)
       {
