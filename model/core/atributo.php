@@ -80,9 +80,17 @@ class atributo extends \fs_model
       }
    }
    
-   public function get_by_nombre($nombre)
+   public function get_by_nombre($nombre, $minusculas = FALSE)
    {
-      $data = $this->db->select("SELECT * FROM atributos WHERE nombre = ".$this->var2str($nombre).";");
+      if($minusculas)
+      {
+         $data = $this->db->select("SELECT * FROM atributos WHERE lower(nombre) = ".$this->var2str( mb_strtolower($nombre, 'UTF8') ).";");
+      }
+      else
+      {
+         $data = $this->db->select("SELECT * FROM atributos WHERE nombre = ".$this->var2str($nombre).";");
+      }
+      
       if($data)
       {
          return new \atributo($data[0]);

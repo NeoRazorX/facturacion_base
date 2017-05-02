@@ -50,7 +50,6 @@
                   <span class="glyphicon glyphicon-print"></span>
                   <span class="hidden-xs">&nbsp;Imprimir</span>
                </a>
-               {if="$fsc->empresa->can_send_mail()"}
                <a id="b_enviar" class="btn btn-sm btn-default" href="#">
                   <span class="glyphicon glyphicon-envelope"></span>
                   {if="$fsc->factura->femail"}
@@ -59,7 +58,6 @@
                   <span class="hidden-xs">&nbsp;Enviar</span>
                   {/if}
                </a>
-               {/if}
                {if="$fsc->factura->idasiento"}
                <div class="btn-group">
                   <button class="btn btn-sm btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true">
@@ -782,6 +780,7 @@
    </div>
 </div>
 
+{if="$fsc->empresa->can_send_mail()"}
 <form class="form" role="form" name="f_enviar_email" action="{$fsc->url()}" method="post" enctype="multipart/form-data">
    <input type="hidden" name="codcliente" value="{$fsc->factura->codcliente}"/>
    <div class="modal" id="modal_enviar">
@@ -874,6 +873,25 @@
       </div>
    </div>
 </form>
+{else}
+<div class="modal" id="modal_enviar">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">
+               <span class="glyphicon glyphicon-envelope"></span>&nbsp; Enviar por email
+            </h4>
+         </div>
+         <div class="modal-body">
+            <a href='index.php?page=admin_empresa#email' class="btn btn-sm btn-warning">
+               <span class="glyphicon glyphicon-wrench"></span>&nbsp; Configurar
+            </a>
+         </div>
+      </div>
+   </div>
+</div>
+{/if}
 
 <form action="{$fsc->url()}&pagada=TRUE" method="post" class="form">
    <div class="modal fade" id="modal_pagar">
