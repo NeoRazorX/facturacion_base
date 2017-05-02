@@ -45,11 +45,31 @@ class informe_albaranes extends fs_controller
    public $multi_almacen;
    public $serie;
    
-	private $where;
+	protected $where;
    
-   public function __construct()
+   /**
+    * Este controlador lo usaremos de ejemplo en otros, así que debemos permitir usar su constructor.
+    * @param system $name
+    * @param type $title
+    * @param string $folder
+    * @param type $admin
+    * @param type $shmenu
+    * @param type $important
+    */
+   public function __construct($name = '', $title = 'home', $folder = '', $admin = FALSE, $shmenu = TRUE, $important = FALSE)
    {
-      parent::__construct(__CLASS__, ucfirst(FS_ALBARANES), 'informes');
+      if($name == '')
+      {
+         /**
+          * si no se proporciona un $name es que estamos usando este mismo controlador,
+          * por lo que establecemos los valores.
+          */
+         $name = __CLASS__;
+         $title = ucfirst(FS_ALBARANES);
+         $folder = 'informes';
+      }
+      
+      parent::__construct($name, $title, $folder, $admin, $shmenu, $important);
    }
    
    protected function private_core()
@@ -112,7 +132,7 @@ class informe_albaranes extends fs_controller
       $this->set_where();
    }
    
-   private function set_where()
+   protected function set_where()
    {
       $this->where = " WHERE fecha >= ".$this->empresa->var2str($this->desde)
               ." AND fecha <= ".$this->empresa->var2str($this->hasta);
@@ -189,7 +209,7 @@ class informe_albaranes extends fs_controller
       return $stats;
    }
    
-   private function stats_months_aux($table_name = 'albaranescli')
+   protected function stats_months_aux($table_name = 'albaranescli')
    {
       $stats = array();
       
@@ -249,7 +269,7 @@ class informe_albaranes extends fs_controller
       return $stats;
    }
    
-   private function stats_years_aux($table_name = 'albaranescli', $num = 4)
+   protected function stats_years_aux($table_name = 'albaranescli', $num = 4)
    {
       $stats = array();
       
@@ -282,7 +302,7 @@ class informe_albaranes extends fs_controller
       return $stats;
    }
    
-   private function date_range($first, $last, $step = '+1 day', $format = 'd-m-Y' )
+   protected function date_range($first, $last, $step = '+1 day', $format = 'd-m-Y' )
    {
       $dates = array();
       $current = strtotime($first);
@@ -447,7 +467,6 @@ class informe_albaranes extends fs_controller
    {
       $stats = array();
       
-
       /// aprobados
       $sql  = "select sum(neto) as total from ".$tabla;
 		$sql .= $this->where;
@@ -481,7 +500,6 @@ class informe_albaranes extends fs_controller
             );
          }
       }
-   
       
       return $stats;
    }
