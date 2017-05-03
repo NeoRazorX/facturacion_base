@@ -144,10 +144,10 @@ class ventas_facturas extends fs_controller
          }
          else
          {
-            if( !isset($_GET['mostrar']) AND (isset($_REQUEST['codagente']) OR isset($_REQUEST['codcliente']) OR isset($_REQUEST['codserie'])) )
+            if( !isset($_GET['mostrar']) AND (isset($_REQUEST['codagente']) OR isset($_REQUEST['codcliente']) OR isset($_REQUEST['codserie']) OR isset($_REQUEST['codpago'])) )
             {
                /**
-                * si obtenermos un codagente, un codcliente o un codserie pasamos direcatemente
+                * si obtenermos un codagente, un codcliente,un codserie o codpago pasamos direcatemente
                 * a la pestaña de búsqueda, a menos que tengamos un mostrar, que
                 * entonces nos indica donde tenemos que estar.
                 */

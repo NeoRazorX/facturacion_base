@@ -23,7 +23,9 @@ require_model('albaran_cliente.php');
 require_model('articulo.php');
 require_model('cliente.php');
 require_model('factura_cliente.php');
+require_model('forma_pago.php');
 require_model('serie.php');
+
 
 class ventas_albaranes extends fs_controller
 {
@@ -45,6 +47,8 @@ class ventas_albaranes extends fs_controller
    public $order;
    public $resultados;
    public $serie;
+   public $fpago;
+   public $codpago;
    public $total_resultados;
    public $total_resultados_txt;
    
@@ -59,6 +63,7 @@ class ventas_albaranes extends fs_controller
       $this->almacenes = new almacen();
       $this->agente = new agente();
       $this->serie = new serie();
+      $this->fpago = new forma_pago();
       
       $this->mostrar = 'todo';
       if( isset($_GET['mostrar']) )
@@ -121,6 +126,7 @@ class ventas_albaranes extends fs_controller
          $this->codagente = '';
          $this->codalmacen = '';
          $this->codserie = '';
+         $this->codpago = '';
          $this->desde = '';
          $this->hasta = '';
          $this->num_resultados = '';
@@ -133,10 +139,10 @@ class ventas_albaranes extends fs_controller
          }
          else
          {
-            if( !isset($_GET['mostrar']) AND (isset($_REQUEST['codagente']) OR isset($_REQUEST['codcliente']) OR isset($_REQUEST['codserie'])) )
+            if( !isset($_GET['mostrar']) AND (isset($_REQUEST['codagente']) OR isset($_REQUEST['codcliente']) OR isset($_REQUEST['codserie']) OR isset($_REQUEST['codpago'])) )
             {
                /**
-                * si obtenermos un codagente, un codcliente o un codserie pasamos direcatemente
+                * si obtenermos un codagente, un codcliente ,un codserie o un codpago pasamos direcatemente
                 * a la pestaña de búsqueda, a menos que tengamos un mostrar, que
                 * entonces nos indica donde tenemos que estar.
                 */
@@ -166,6 +172,12 @@ class ventas_albaranes extends fs_controller
             {
                $this->codserie = $_REQUEST['codserie'];
             }
+            
+           if( isset($_REQUEST['codpago']) )
+            {
+               $this->codpago = $_REQUEST['codpago'];
+            }
+            
             
             if( isset($_REQUEST['desde']) )
             {
@@ -234,6 +246,7 @@ class ventas_albaranes extends fs_controller
                  ."&codserie=".$this->codserie
                  ."&codagente=".$this->codagente
                  ."&codalmacen=".$this->codalmacen
+                 ."&codpago=".$this->codpago
                  ."&codcliente=".$codcliente
                  ."&desde=".$this->desde
                  ."&hasta=".$this->hasta;
@@ -516,6 +529,13 @@ class ventas_albaranes extends fs_controller
          $sql .= $where."codserie = ".$this->agente->var2str($this->codserie);
          $where = ' AND ';
       }
+      
+            
+      if($this->codpago)
+      {
+         $sql .= $where."codpago= ".$this->agente->var2str($this->codpago);
+         $where = ' AND ';
+      } 
       
       if($this->desde)
       {
