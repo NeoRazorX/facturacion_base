@@ -1,7 +1,60 @@
 {include="header"}
 
+<script type="text/javascript">
+   function clean_cliente()
+   {
+      document.listado_general.codcliente.value = '';
+      document.listado_general.submit();
+   }
+   function clean_proveedor()
+   {
+      document.listado_general.codproveedor.value = '';
+      document.listado_general.submit();
+   }
+   $(document).ready(function() {
+      $("#ac_cliente").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_cliente',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if(document.listado_general.codcliente.value != suggestion.data && suggestion.data != '')
+               {
+                  document.listado_general.codcliente.value = suggestion.data;
+                  document.listado_general.submit();
+               }
+            }
+         }
+      });
+      $("#ac_proveedor").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_proveedor',
+         onSelect: function (suggestion) {
+            if(suggestion)
+            {
+               if(document.listado_general.codproveedor.value != suggestion.data && suggestion.data != '')
+               {
+                  document.listado_general.codproveedor.value = suggestion.data;
+                  document.listado_general.submit();
+               }
+            }
+         }
+      });
+   });
+</script>
+
 <div class="container-fluid">
    <form name="listado_general" action="{$fsc->url()}" method="post" class="form">
+      {if="$fsc->cliente"}
+      <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
+      {else}
+      <input type="hidden" name="codcliente"/>
+      {/if}
+      {if="$fsc->proveedor"}
+      <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
+      {else}
+      <input type="hidden" name="codproveedor"/>
+      {/if}
       <div class="row">
          <div class="col-sm-12">
 	         <div class="page-header">
@@ -109,6 +162,60 @@
          {else}
          <input type="hidden" name="codalmacen" value=""/>
          {/if}
+         <div class="col-sm-3">
+            Cliente:
+            <div class="input-group">
+               {if="$fsc->cliente"}
+               <input class="form-control" type="text" name="ac_cliente" value="{$fsc->cliente->nombre}" id="ac_cliente" placeholder="Cualquier cliente" autocomplete="off"/>
+               {else}
+               <input class="form-control" type="text" name="ac_cliente" id="ac_cliente" placeholder="Cualquier cliente" autocomplete="off"/>
+               {/if}
+               <span class="input-group-btn">
+                  <button class="btn btn-default" type="button" onclick="clean_cliente()">
+                     <span class="glyphicon glyphicon-remove"></span>
+                  </button>
+               </span>
+            </div>
+         </div>
+         <div class="col-sm-3">
+            Proveedor:
+            <div class="input-group">
+               {if="$fsc->proveedor"}
+               <input class="form-control" type="text" name="ac_proveedor" value="{$fsc->proveedor->nombre}" id="ac_proveedor" placeholder="Cualquier Proveedor" autocomplete="off"/>
+               {else}
+               <input class="form-control" type="text" name="ac_proveedor" id="ac_proveedor" placeholder="Cualquier proveedor" autocomplete="off"/>
+               {/if}
+               <span class="input-group-btn">
+                  <button class="btn btn-default" type="button" onclick="clean_proveedor()">
+                     <span class="glyphicon glyphicon-remove"></span>
+                  </button>
+               </span>
+            </div>
+         </div>
+         {if="$fsc->multi_almacen"}
+         <div class="col-sm-2"></div>
+         {else}
+         <div class="col-sm-4"></div>
+         {/if}
+         <div class="col-sm-2">
+            <div class="form-group">
+               Descargar:
+               <div class="input-group">
+                  <span class="input-group-addon">
+                     <span class="glyphicon glyphicon-download-alt"></span>
+                  </span>
+                  <select class="form-control" name="generar" onchange="this.form.submit()">
+                     <option value="">-----</option>
+                     <option value="pdf_cli">PDF &gt; Clientes</option>
+                     <option value="xls_cli">XLS &gt; Clientes</option>
+                     <option value="csv_cli">CSV &gt; Clientes</option>
+                     <option value="pdf_prov">PDF &gt; Proveedores</option>
+                     <option value="xls_prov">XLS &gt; Proveedores</option>
+                     <option value="csv_prov">CSV &gt; Proveedores</option>  
+                  </select>
+               </div>
+            </div>
+         </div>
       </div>
    </form>
    <div class="row">
@@ -172,7 +279,7 @@
                               <th class="text-right">Total</th>
                            </tr>
                         </thead>
-                        {loop="$fsc->stats_estados()"}
+                        {loop="$fsc->stats_estados('albaranesprov')"}
                         <tr>
                            <td>{$value['txt']}</td>
                            <td class="text-right">{$fsc->show_precio($value['total'])}</td>
@@ -239,7 +346,7 @@
                               <th class="text-right">Total</th>
                            </tr>
                         </thead>
-                        {loop="$fsc->stats_almacenes()"}
+                        {loop="$fsc->stats_almacenes('albaranesprov')"}
                         <tr>
                            <td>{$value['txt']}</td>
                            <td class="text-right">{$fsc->show_precio($value['total'])}</td>
@@ -306,7 +413,7 @@
                               <th class="text-right">Total</th>
                            </tr>
                         </thead>
-                        {loop="$fsc->stats_series()"}
+                        {loop="$fsc->stats_series('albaranesprov')"}
                         <tr>
                            <td>{$value['txt']}</td>
                            <td class="text-right">{$fsc->show_precio($value['total'])}</td>
@@ -372,7 +479,7 @@
                               <th class="text-right">Total</th>
                            </tr>
                         </thead>
-                        {loop="$fsc->stats_formas_pago()"}
+                        {loop="$fsc->stats_formas_pago('albaranesprov')"}
                         <tr>
                            <td>{$value['txt']}</td>
                            <td class="text-right">{$fsc->show_precio($value['total'])}</td>
@@ -440,7 +547,7 @@
                               <th class="text-right">Total</th>
                            </tr>
                         </thead>
-                        {loop="$fsc->stats_agentes()"}
+                        {loop="$fsc->stats_agentes('albaranesprov')"}
                         <tr>
                            {if="$value['txt']=='Ninguno'"}
                               <td class="warning">Ninguno</td>
@@ -584,7 +691,7 @@
       );
       
       /// cargamos el queso del desglose por serie de las compras
-      <!--{$data=$fsc->stats_series()}-->
+      <!--{$data=$fsc->stats_series('albaranesprov')}-->
       {$fsc->generar_chart_pie_js($data, 'chart_compras_series')}
       
       /// cargamos el queso del desglose por serie de las ventas
@@ -593,7 +700,7 @@
       
       {if="$fsc->multi_almacen"}
       /// cargamos el queso del desglose por almacén de las compras
-      <!--{$data=$fsc->stats_almacenes()}-->
+      <!--{$data=$fsc->stats_almacenes('albaranesprov')}-->
       {$fsc->generar_chart_pie_js($data, 'chart_compras_almacenes')}
       
       /// cargamos el queso del desglose por almacén de las ventas
@@ -602,7 +709,7 @@
       {/if}
       
       /// cargamos el queso del desglose por forma de pago de las compras
-      <!--{$data=$fsc->stats_formas_pago()}-->
+      <!--{$data=$fsc->stats_formas_pago('albaranesprov')}-->
       {$fsc->generar_chart_pie_js($data, 'chart_compras_formas_pago')}
       
       /// cargamos el queso del desglose por forma de pago de las ventas
@@ -610,7 +717,7 @@
       {$fsc->generar_chart_pie_js($data, 'chart_ventas_formas_pago')}
       
       /// cargamos el queso del desglose por estado de las compras
-      <!--{$data=$fsc->stats_estados()}-->
+      <!--{$data=$fsc->stats_estados('albaranesprov')}-->
       {$fsc->generar_chart_pie_js($data, 'chart_compras_estados')}
       
       /// cargamos el queso del desglose por estado de las ventas
@@ -618,7 +725,7 @@
       {$fsc->generar_chart_pie_js($data, 'chart_ventas_estados')}
       
       /// cargamos el queso del desglose por empleado de las compras
-      <!--{$data=$fsc->stats_agentes()}-->
+      <!--{$data=$fsc->stats_agentes('albaranesprov')}-->
       {$fsc->generar_chart_pie_js($data, 'chart_compras_agentes')}
       
       /// cargamos el queso del desglose por empleado de las ventas
