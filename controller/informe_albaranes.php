@@ -140,8 +140,17 @@ class informe_albaranes extends fs_controller
             {
                $this->generar_csv('compra');
             }
+            else
+            {
+               $this->generar_extra();
+            }
          }
       }
+   }
+   
+   protected function generar_extra()
+   {
+      /// a completar en el informe de facturas
    }
    
    private function buscar_cliente()
@@ -795,7 +804,7 @@ class informe_albaranes extends fs_controller
          $linea_actual = 0;
          $lppag = 72;
          $pagina = 1;
-         $neto = $total = 0;
+         $neto = $totaliva = $totalre = $totalirpf = $total = 0;
          
          while($linea_actual < $total_lineas)
          {
@@ -818,7 +827,10 @@ class informe_albaranes extends fs_controller
                         'fecha' => '<b>Fecha</b>',
                         'cliente' => '<b>' . $cliente . '</b>',
                         'cifnif' => '<b>' . FS_CIFNIF . '</b>',
-                        'neto' => '<b>Neto.</b>',
+                        'neto' => '<b>Neto</b>',
+                        'iva' => '<b>' . FS_IVA . '</b>',
+                        're' => '<b>RE</b>',
+                        'irpf' => '<b>' . FS_IRPF . '</b>',
                         'total' => '<b>Total</b>'
                     )
             );
@@ -833,6 +845,9 @@ class informe_albaranes extends fs_controller
                    'cliente' => '',
                    'cifnif' => $documentos[$linea_actual]->cifnif,
                    'neto' => $this->show_numero($documentos[$linea_actual]->neto),
+                   'iva' => $this->show_numero($documentos[$linea_actual]->totaliva),
+                   're' => $this->show_numero($documentos[$linea_actual]->totalrecargo),
+                   'irpf' => $this->show_numero($documentos[$linea_actual]->totalirpf),
                    'total' => $this->show_numero($documentos[$linea_actual]->total),
                );
                
@@ -850,6 +865,9 @@ class informe_albaranes extends fs_controller
                $pdf_doc->add_table_row($linea);
                
                $neto += $documentos[$linea_actual]->neto;
+               $totaliva += $documentos[$linea_actual]->totaliva;
+               $totalre += $documentos[$linea_actual]->totalrecargo;
+               $totalirpf += $documentos[$linea_actual]->totalirpf;
                $total += $documentos[$linea_actual]->total;
                $i++;
                $linea_actual++;
@@ -864,6 +882,9 @@ class informe_albaranes extends fs_controller
                 'cliente' => '',
                 'cifnif' => '',
                 'neto' => '<b>'.$this->show_numero($neto).'</b>',
+                'iva' => '<b>'.$this->show_numero($totaliva).'</b>',
+                're' => '<b>'.$this->show_numero($totalre).'</b>',
+                'irpf' => '<b>'.$this->show_numero($totalirpf).'</b>',
                 'total' => '<b>'.$this->show_numero($total).'</b>',
             );
             $pdf_doc->add_table_row($linea);
@@ -873,6 +894,9 @@ class informe_albaranes extends fs_controller
                         'fontSize' => 8,
                         'cols' => array(
                             'neto' => array('justification' => 'right'),
+                            'iva' => array('justification' => 'right'),
+                            're' => array('justification' => 'right'),
+                            'irpf' => array('justification' => 'right'),
                             'total' => array('justification' => 'right')
                         ),
                         'shaded' => 0,
@@ -880,6 +904,8 @@ class informe_albaranes extends fs_controller
                     )
             );
          }
+         
+         $this->desglose_impuestos_pdf($pdf_doc, $tipo);
       }
       else
       {
@@ -888,6 +914,16 @@ class informe_albaranes extends fs_controller
       }
       
       $pdf_doc->show();
+   }
+   
+   /**
+    * Añade el desglose de impuestos al documento PDF.
+    * @param fs_pdf $pdf_doc
+    * @param type $tipo
+    */
+   protected function desglose_impuestos_pdf(&$pdf_doc, $tipo)
+   {
+      /// a completar en el informe de facturas
    }
    
    protected function generar_xls($tipo = 'compra')
@@ -911,6 +947,9 @@ class informe_albaranes extends fs_controller
           'proveedor' => 'string',
           FS_CIFNIF => 'string',
           'neto' => '#,##0.00;[RED]-#,##0.00',
+          'iva' => '#,##0.00;[RED]-#,##0.00',
+          're' => '#,##0.00;[RED]-#,##0.00',
+          'irpf' => '#,##0.00;[RED]-#,##0.00',
           'total' => '#,##0.00;[RED]-#,##0.00',
       );
       
@@ -943,6 +982,9 @@ class informe_albaranes extends fs_controller
              'proveedor' => '',
              'cifnif' => $doc->cifnif,
              'neto' => $doc->neto,
+             'iva' => $doc->totaliva,
+             're' => $doc->totalrecargo,
+             'irpf' => $doc->totalirpf,
              'total' => $doc->total,
          );
          
@@ -978,12 +1020,12 @@ class informe_albaranes extends fs_controller
       if($tipo == 'compra')
       {
          $tabla = $this->table_compras;
-         echo "serie,documento,num.proveedor,fecha,proveedor,".FS_CIFNIF.",neto,total\n";
+         echo "serie,documento,num.proveedor,fecha,proveedor,".FS_CIFNIF.",neto,".FS_IVA.",re,".FS_IRPF.",total\n";
       }
       else
       {
          $tabla = $this->table_ventas;
-         echo "serie,documento,".FS_NUMERO2.",fecha,cliente,".FS_CIFNIF.",neto,total\n";
+         echo "serie,documento,".FS_NUMERO2.",fecha,cliente,".FS_CIFNIF.",neto,".FS_IVA.",re,".FS_IRPF.",total\n";
       }
       
       foreach($this->get_documentos($tabla) as $doc)
@@ -996,21 +1038,33 @@ class informe_albaranes extends fs_controller
              'cliente' => '',
              'cifnif' => $doc->cifnif,
              'neto' => $doc->neto,
+             'iva' => $doc->totaliva,
+             're' => $doc->totalrecargo,
+             'irpf' => $doc->totalirpf,
              'total' => $doc->total,
          );
          
          if($tipo == 'compra')
          {
             $linea['num2'] = $doc->numproveedor;
-            $linea['cliente'] = $doc->nombre;
+            $linea['cliente'] = $this->fix_html($doc->nombre);
          }
          else
          {
             $linea['num2'] = $doc->numero2;
-            $linea['cliente'] = $doc->nombrecliente;
+            $linea['cliente'] = $this->fix_html($doc->nombrecliente);
          }
          
          echo '"' . join('","', $linea) . "\"\n";
       }
+   }
+   
+   public function fix_html($txt)
+   {
+      $newt = str_replace('&lt;', '<', $txt);
+      $newt = str_replace('&gt;', '>', $newt);
+      $newt = str_replace('&quot;', '"', $newt);
+      $newt = str_replace('&#39;', "'", $newt);
+      return $newt;
    }
 }

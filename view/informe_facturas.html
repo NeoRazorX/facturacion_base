@@ -230,6 +230,9 @@
             <li role="presentation">
                <a href="#empleados" aria-controls="empleados" role="tab" data-toggle="tab">Empleados</a>
             </li>
+            <li role="presentation">
+               <a href="#mas_inf" aria-controls="mas_inf" role="tab" data-toggle="tab">Más...</a>
+            </li>
          </ul>
          <br/>
       </div>
@@ -602,6 +605,128 @@
                      </table>
                   </div>
                </div>
+            </div>
+         </div>
+      </div>
+      <div role="tabpanel" class="tab-pane" id="mas_inf">
+         <div class="row">
+            <div class="col-sm-4">
+               <form name="informe_proveedor" action="{$fsc->url()}" method="post" target="_blank" class="form">
+                  <input type="hidden" name="generar" value="informe_compras"/>
+                  <input type="hidden" name="desde" value="{$fsc->desde}"/>
+                  <input type="hidden" name="hasta" value="{$fsc->hasta}"/>
+                  <input type="hidden" name="codalmacen" value="{$fsc->codalmacen}"/>
+                  <input type="hidden" name="codserie" value="{$fsc->codserie}"/>
+                  <input type="hidden" name="codagente" value="{$fsc->codagente}"/>
+                  {if="$fsc->cliente"}
+                  <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
+                  {else}
+                  <input type="hidden" name="codcliente"/>
+                  {/if}
+                  <div class="panel panel-default">
+                     <div class="panel-heading">
+                        <h3 class="panel-title">
+                           <span class="glyphicon glyphicon-signal" aria-hidden="true"></span>
+                           &nbsp; Informe de compras
+                        </h3>
+                     </div>
+                     <div class="panel-body">
+                        <p class="help-block">
+                           Obtén un informe de compras desglosado por proveedor, año y mes.
+                        </p>
+                        <div class="radio">
+                           <label>
+                              <input type="radio" name="unidades" value="FALSE" checked=""/>
+                              Importes
+                           </label>
+                        </div>
+                        <div class="radio">
+                           <label>
+                              <input type="radio" name="unidades" value="TRUE"/>
+                              Unidades
+                           </label>
+                        </div>
+                        <div class="form-group">
+                           Mínimo:
+                           <input type="text" name="minimo" class="form-control" autocomplete="off" placeholder="importe o unidades (opcional)"/>
+                        </div>
+                     </div>
+                     <div class="panel-footer">
+                        <button class="btn btn-sm btn-primary" type="submit">
+                           <span class="glyphicon glyphicon-eye-open"></span>&nbsp; Mostrar
+                        </button>
+                     </div>
+                  </div>
+               </form>
+            </div>
+            <div class="col-sm-4">
+               <form name="informe_facturas" action="{$fsc->url()}" method="post" target="_blank" class="form">
+                  <input type="hidden" name="generar" value="informe_ventas"/>
+                  <input type="hidden" name="desde" value="{$fsc->desde}"/>
+                  <input type="hidden" name="hasta" value="{$fsc->hasta}"/>
+                  <input type="hidden" name="codalmacen" value="{$fsc->codalmacen}"/>
+                  <input type="hidden" name="codserie" value="{$fsc->codserie}"/>
+                  <input type="hidden" name="codagente" value="{$fsc->codagente}"/>
+                  {if="$fsc->proveedor"}
+                  <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
+                  {else}
+                  <input type="hidden" name="codproveedor"/>
+                  {/if}
+                  <div class="panel panel-default">
+                     <div class="panel-heading">
+                        <h3 class="panel-title">
+                           <span class="glyphicon glyphicon-signal" aria-hidden="true"></span>
+                           &nbsp; Informe de ventas
+                        </h3>
+                     </div>
+                     <div class="panel-body">
+                        <p class="help-block">
+                           Obtén un informe de ventas desglosado por cliente, año y mes.
+                        </p>
+                        <div class="form-group">
+                           <a href="{$fsc->pais->url()}">Pais</a>:
+                           <select class="form-control" name="codpais">
+                              <option value="">Todos</option>
+                              <option value="">-----</option>
+                              {loop="$fsc->pais->all()"}
+                              <option value="{$value->codpais}">{$value->nombre}</option>
+                              {/loop}
+                           </select>
+                        </div>
+                        <div class="form-group">
+                           <span class="text-capitalize">{#FS_PROVINCIA#}:</span>
+                           <select name="provincia" class="form-control">
+                              <option value="">Todas</option>
+                              <option value="">------</option>
+                              {loop="$fsc->provincias()"}
+                              <option value="{$key}">{$value}</option>
+                              {/loop}
+                           </select>
+                        </div>
+                        <div class="radio">
+                           <label>
+                              <input type="radio" name="unidades" value="FALSE" checked=""/>
+                              Importes
+                           </label>
+                        </div>
+                        <div class="radio">
+                           <label>
+                              <input type="radio" name="unidades" value="TRUE"/>
+                              Unidades
+                           </label>
+                        </div>
+                        <div class="form-group">
+                           Importe mínimo:
+                           <input type="text" name="minimo" class="form-control" autocomplete="off" placeholder="opcional"/>
+                        </div>
+                     </div>
+                     <div class="panel-footer">
+                        <button class="btn btn-sm btn-primary" type="submit">
+                           <span class="glyphicon glyphicon-eye-open"></span>&nbsp; Mostrar
+                        </button>
+                     </div>
+                  </div>
+               </form>
             </div>
          </div>
       </div>
