@@ -45,8 +45,12 @@
                         <td class="text-right">
                            <input type="checkbox" name="idtraza_{$value1['id']}[]" value="{$value2->id}"/>
                         </td>
-                        <td>{$value2->numserie}</td>
-                        <td>{$value2->lote}</td>
+                        <td>
+                           {if="$value2->numserie"}{$value2->numserie}{else}-{/if}
+                        </td>
+                        <td>
+                           {if="$value2->lote"}{$value2->lote}{else}-{/if}
+                        </td>
                         <td class="text-right">
                            {if="$value2->idlalbcompra OR $value2->idlfaccompra"}
                            <a href="{$value2->documento_compra_url()}" target="_blank" title="Ver documento de entrada">

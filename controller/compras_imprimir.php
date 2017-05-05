@@ -390,23 +390,26 @@ class compras_imprimir extends fs_controller
       {
          $lineast = $this->articulo_traza->all_from_linea('idlalbcompra', $linea->idlinea);
       }
-      else
+      else if( get_class_name($linea) == 'linea_factura_proveedor' )
       {
          $lineast = $this->articulo_traza->all_from_linea('idlfaccompra', $linea->idlinea);
       }
       
+      $lote = FALSE;
       $txt = '';
       foreach($lineast as $lt)
       {
-         $txt .= "\n";
+         $salto = "\n";
          if($lt->numserie)
          {
-            $txt .= 'N/S: '.$lt->numserie.' ';
+            $txt .= $salto.'N/S: '.$lt->numserie.' ';
+            $salto = '';
          }
          
-         if($lt->lote)
+         if($lt->lote AND $lt->lote != $lote)
          {
-            $txt .= 'Lote: '.$lt->lote;
+            $txt .= $salto.'Lote: '.$lt->lote;
+            $lote = $lt->lote;
          }
       }
       
@@ -416,6 +419,7 @@ class compras_imprimir extends fs_controller
    private function generar_pdf_datos_proveedor(&$pdf_doc)
    {
       $tipo_doc = ucfirst(FS_ALBARAN);
+      $width_campo1 = 90;
       $rectificativa = FALSE;
       if( get_class_name($this->documento) == 'factura_proveedor' )
       {
@@ -423,6 +427,7 @@ class compras_imprimir extends fs_controller
          {
             $tipo_doc = ucfirst(FS_FACTURA_RECTIFICATIVA);
             $rectificativa = TRUE;
+            $width_campo1 = 110;
          }
          else
          {
@@ -472,7 +477,7 @@ class compras_imprimir extends fs_controller
       $pdf_doc->save_table(
               array(
                   'cols' => array(
-                      'campo1' => array('width' => 90, 'justification' => 'right'),
+                      'campo1' => array('width' => $width_campo1, 'justification' => 'right'),
                       'dato1' => array('justification' => 'left'),
                       'campo2' => array('justification' => 'right'),
                   ),

@@ -1,8 +1,8 @@
 <?php
 /*
  * This file is part of facturacion_base
- * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
- * Copyright (C) 2017  Francesc Pineda Segarra  shawe.ewahs@gmail.com
+ * Copyright (C) 2014-2017    Carlos Garcia Gomez     neorazorx@gmail.com
+ * Copyright (C) 2017         Francesc Pineda Segarra shawe.ewahs@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -464,23 +464,26 @@ class ventas_imprimir extends fs_controller
       {
          $lineast = $this->articulo_traza->all_from_linea('idlalbventa', $linea->idlinea);
       }
-      else
+      else if( get_class_name($linea) == 'linea_factura_cliente' )
       {
          $lineast = $this->articulo_traza->all_from_linea('idlfacventa', $linea->idlinea);
       }
       
+      $lote = FALSE;
       $txt = '';
       foreach($lineast as $lt)
       {
-         $txt .= "\n";
+         $salto = "\n";
          if($lt->numserie)
          {
-            $txt .= 'N/S: '.$lt->numserie.' ';
+            $txt .= $salto.'N/S: '.$lt->numserie.' ';
+            $salto = '';
          }
          
-         if($lt->lote)
+         if($lt->lote AND $lt->lote != $lote)
          {
-            $txt .= 'Lote: '.$lt->lote;
+            $txt .= $salto.'Lote: '.$lt->lote;
+            $lote = $lt->lote;
          }
       }
       
@@ -490,6 +493,7 @@ class ventas_imprimir extends fs_controller
    private function generar_pdf_datos_cliente(&$pdf_doc, &$lppag)
    {
       $tipo_doc = ucfirst(FS_ALBARAN);
+      $width_campo1 = 90;
       $rectificativa = FALSE;
       if( get_class_name($this->documento) == 'factura_cliente' )
       {
@@ -497,6 +501,7 @@ class ventas_imprimir extends fs_controller
          {
             $tipo_doc = ucfirst(FS_FACTURA_RECTIFICATIVA);
             $rectificativa = TRUE;
+            $width_campo1 = 110;
          }
          else
          {
@@ -654,7 +659,7 @@ class ventas_imprimir extends fs_controller
       $pdf_doc->save_table(
          array(
             'cols' => array(
-                'campo1' => array('width' => 90, 'justification' => 'right'),
+                'campo1' => array('width' => $width_campo1, 'justification' => 'right'),
                 'dato1' => array('justification' => 'left'),
                 'campo2' => array('justification' => 'right')
             ),
