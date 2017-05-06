@@ -899,11 +899,15 @@ class factura_cliente extends \fs_model
       
       if(FS_NEW_CODIGO == 'eneboo')
       {
-         $this->codigo = $this->codejercicio.sprintf('%02s', $this->codserie).sprintf('%06s', $this->numero);
+        $this->codigo = $this->codejercicio.sprintf('%02s', $this->codserie).sprintf('%06s', $this->numero);
       }
-      else
+      elseif (FS_NEW_CODIGO == 'new') 
       {
-         $this->codigo = 'FAC'.$this->codejercicio.$this->codserie.$this->numero;
+        $this->codigo = 'FAC'.$this->codejercicio.$this->codserie.$this->numero;
+      }
+      elseif (FS_NEW_CODIGO == 'number_year')
+      {         
+        $this->codigo = $this->codserie.$this->numero.'/'.$this->codejercicio;
       }
    }
    
