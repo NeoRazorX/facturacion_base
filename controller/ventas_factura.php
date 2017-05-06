@@ -50,6 +50,7 @@ class ventas_factura extends fs_controller
    public $rectificada;
    public $rectificativa;
    public $serie;
+   public $historico;
    
    public function __construct()
    {
@@ -76,6 +77,8 @@ class ventas_factura extends fs_controller
       $this->rectificada = FALSE;
       $this->rectificativa = FALSE;
       $this->serie = new serie();
+     
+      $this->historico = FALSE;
       
       /**
        * Si hay alguna extensión de tipo config y texto no_button_pagada,
@@ -108,6 +111,7 @@ class ventas_factura extends fs_controller
       if($this->factura)
       {
          $this->page->title = $this->factura->codigo;
+         $this->get_historico();
          
          /// cargamos el agente
          $agente = new agente();
@@ -553,4 +557,123 @@ class ventas_factura extends fs_controller
       
       return $cuentas;
    }
+   
+   /*
+    * Devuelve un array con el histórico de documentos.
+    */
+
+   private function get_historico()
+   {
+      $this->historico = array();
+
+      //albaran
+
+      $sql = "SELECT idalbaran,fecha,codigo,total,coddivisa FROM albaranescli WHERE idfactura =" . $this->factura->idfactura . ";";
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $this->historico[] = array(
+                'orden' => '3',
+                'documento' => 'ventas_albaran',
+                'id' => $d['idalbaran'],
+                'codigo' => $d['codigo'],
+                'fecha' => Date('d-m-Y', strtotime($d['fecha'])),
+                'importe' => $d['total'],
+                'divisa' => $d['coddivisa']
+            );
+
+            //pedido
+            if($d['idalbaran'])
+            {
+               $sql1 = "SELECT idpedido,fecha,codigo,total,coddivisa FROM pedidoscli WHERE idalbaran =" . $d['idalbaran'] . ";";
+               $data1 = $this->db->select($sql1);
+               if($data1)
+               {
+                  foreach($data1 as $d1)
+                  {
+                     $this->historico[] = array(
+                         'orden' => '2',
+                         'documento' => 'ventas_pedido',
+                         'id' => $d1['idpedido'],
+                         'codigo' => $d1['codigo'],
+                         'fecha' => Date('d-m-Y', strtotime($d1['fecha'])),
+                         'importe' => $d1['total'],
+                         'divisa' => $d1['coddivisa']
+                     );
+                  }
+                  
+
+                  //presupuesto
+                  if($d1['idpedido'])
+                  {
+                     $sql3 = "SELECT idpresupuesto,fecha,codigo,total,coddivisa FROM presupuestoscli WHERE idpedido =" . $d1['idpedido'] . ";";
+                     $data3 = $this->db->select($sql3);
+                     if($data3)
+                     {
+                        foreach($data3 as $d3)
+                        {
+                           $this->historico[] = array(
+                               'orden' => '1',
+                               'documento' => 'ventas_presupuesto',
+                               'id' => $d3['idpresupuesto'],
+                               'codigo' => $d3['codigo'],
+                               'fecha' => Date('d-m-Y', strtotime($d3['fecha'])),
+                               'importe' => $d3['total'],
+                               'divisa' => $d3['coddivisa']
+                           );
+                        }
+                     }
+                  }
+
+                  //Servicio
+                  $sql2 = "SELECT idservicio,fecha,codigo,total,coddivisa FROM servicioscli WHERE idalbaran =" . $d['idalbaran'] . ";";
+                  $data2 = $this->db->select($sql2);
+                  if($data2)
+                  {
+                     foreach($data2 as $d2)
+                     {
+                        $this->historico[] = array(
+                            'orden' => '4',
+                            'documento' => 'ventas_servicio',
+                            'id' => $d2['idservicio'],
+                            'codigo' => $d2['codigo'],
+                            'fecha' => Date('d-m-Y', strtotime($d2['fecha'])),
+                            'importe' => $d2['total'],
+                            'divisa' => $d2['coddivisa']
+                        );
+                     }
+                  }
+               }
+            }
+         }
+      }
+      
+      $sql4 = "SELECT idasiento,fecha,importe FROM co_asientos WHERE documento = " . $this->empresa->var2str($this->factura->codigo) . ";";
+      $data4 = $this->db->select($sql4);
+      if($data4)
+      {
+         foreach($data4 as $d4)
+         {
+            $this->historico[] = array(
+                'orden' => '10',
+                'documento' => 'contabilidad_asiento',
+                'id' => $d4['idasiento'],
+                'codigo' => $d4['idasiento'],
+                'fecha' => Date('d-m-Y', strtotime($d4['fecha'])),
+                'importe' => $d4['importe'],
+                'divisa' => $d['coddivisa']
+            );
+         }
+      }
+
+      foreach($this->historico as $key => $row)
+      {
+         $aux[$key] = $row['orden'];
+      }
+
+      return array_multisort($aux, SORT_ASC, $this->historico);
+   }
+
 }
