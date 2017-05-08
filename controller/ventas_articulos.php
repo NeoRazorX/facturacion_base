@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('almacen.php');
 require_model('articulo.php');
 require_model('familia.php');
@@ -26,9 +27,8 @@ require_model('linea_transferencia_stock.php');
 require_model('tarifa.php');
 require_model('transferencia_stock.php');
 
-class ventas_articulos extends fs_controller
+class ventas_articulos extends fbase_controller
 {
-   public $allow_delete;
    public $almacenes;
    public $b_bloqueados;
    public $b_codalmacen;
@@ -52,13 +52,12 @@ class ventas_articulos extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Artículos', 'ventas', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Artículos', 'ventas');
    }
    
    protected function private_core()
    {
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      parent::private_core();
       
       $almacen = new almacen();
       $this->almacenes = $almacen->all();
@@ -108,7 +107,12 @@ class ventas_articulos extends fs_controller
          $this->delete_transferencia($articulo);
       }
       
-      /// obtenemos los datos para la búsqueda
+      $this->ini_filters();
+      $this->search_articulos();
+   }
+   
+   private function ini_filters()
+   {
       $this->offset = 0;
       if( isset($_REQUEST['offset']) )
       {
@@ -189,8 +193,6 @@ class ventas_articulos extends fs_controller
       {
          $this->b_url .= '&b_publicos=TRUE';
       }
-      
-      $this->search_articulos();
    }
    
    private function edit_tarifa()
@@ -220,7 +222,11 @@ class ventas_articulos extends fs_controller
       $tar0 = $this->tarifa->get($_GET['delete_tarifa']);
       if($tar0)
       {
-         if( $tar0->delete() )
+         if( !$this->allow_delete )
+         {
+            $this->new_error_msg('No tienes permiso para eliminar en esta página.');
+         }
+         else if( $tar0->delete() )
          {
             $this->new_message("Tarifa ".$tar0->codtarifa." eliminada correctamente.", TRUE);
          }
@@ -291,7 +297,11 @@ class ventas_articulos extends fs_controller
       $art = $articulo->get($_GET['delete']);
       if($art)
       {
-         if( $art->delete() )
+         if( !$this->allow_delete )
+         {
+            $this->new_error_msg('No tienes permiso para eliminar en esta página.');
+         }
+         else if( $art->delete() )
          {
             $this->new_message("Articulo ".$art->referencia." eliminado correctamente.", TRUE);
          }
@@ -324,7 +334,12 @@ class ventas_articulos extends fs_controller
    private function delete_transferencia(&$articulo)
    {
       $transf = $this->transferencia_stock->get($_GET['delete_transf']);
-      if($transf)
+      
+      if( !$this->allow_delete )
+      {
+         $this->new_error_msg('No tienes permiso para eliminar en esta página.');
+      }
+      else if($transf)
       {
          $ok = TRUE;
          
@@ -658,7 +673,7 @@ class ventas_articulos extends fs_controller
             echo $art->referencia.';';
             echo $art->codfamilia.';';
             echo $art->codfabricante.';';
-            echo $this->fix_html( preg_replace('~[\r\n]+~', ' ', $art->descripcion) ).';';
+            echo fs_fix_html( preg_replace('~[\r\n]+~', ' ', $art->descripcion) ).';';
             echo number_format($art->pvp, $nf0, FS_NF1, '').';';
             echo number_format($art->get_iva(), 2, FS_NF1, '').';';
             echo trim($art->codbarras).';';
@@ -675,64 +690,7 @@ class ventas_articulos extends fs_controller
    public function paginas()
    {
       $url = $this->b_url.'&b_orden='.$this->b_orden;
-      
-      $paginas = array();
-      $i = 0;
-      $num = 0;
-      $actual = 1;
-      $total = $this->total_resultados;
-      
-      /// añadimos todas la página
-      while($num < $total)
-      {
-         $paginas[$i] = array(
-             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
-             'num' => $i + 1,
-             'actual' => ($num == $this->offset)
-         );
-         
-         if($num == $this->offset)
-         {
-            $actual = $i;
-         }
-         
-         $i++;
-         $num += FS_ITEM_LIMIT;
-      }
-      
-      /// ahora descartamos
-      foreach($paginas as $j => $value)
-      {
-         $enmedio = intval($i/2);
-         
-         /**
-          * descartamos todo excepto la primera, la última, la de enmedio,
-          * la actual, las 5 anteriores y las 5 siguientes
-          */
-         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
-         {
-            unset($paginas[$j]);
-         }
-      }
-      
-      if( count($paginas) > 1 )
-      {
-         return $paginas;
-      }
-      else
-      {
-         return array();
-      }
-   }
-   
-   private function fix_html($txt)
-   {
-      $newt = str_replace('&lt;', '<', $txt);
-      $newt = str_replace('&gt;', '>', $newt);
-      $newt = str_replace('&quot;', "'", $newt);
-      $newt = str_replace('&#39;', "'", $newt);
-      $newt = str_replace(';', '.', $newt);
-      return trim($newt);
+      return $this->fbase_paginas($url, $this->total_resultados, $this->offset);
    }
    
    private function get_subfamilias($cod)

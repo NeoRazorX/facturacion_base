@@ -17,9 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('agente.php');
 
-class admin_agentes extends fs_controller
+class admin_agentes extends fbase_controller
 {
    public $agente;
    public $ciudad;
@@ -36,45 +37,25 @@ class admin_agentes extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
+      
       $this->agente = new agente();
       
       if( isset($_POST['sdnicif']) )
       {
-         $age0 = new agente();
-         $age0->codagente = $age0->get_new_codigo();
-         $age0->nombre = $_POST['snombre'];
-         $age0->apellidos = $_POST['sapellidos'];
-         $age0->dnicif = $_POST['sdnicif'];
-         $age0->telefono = $_POST['stelefono'];
-         $age0->email = $_POST['semail'];
-         if( $age0->save() )
-         {
-            $this->new_message("Empleado ".$age0->codagente." guardado correctamente.");
-            header('location: '.$age0->url());
-         }
-         else
-            $this->new_error_msg("¡Imposible guardar el empleado!");
+         $this->nuevo_agente();
       }
       else if( isset($_GET['delete']) )
       {
-         $age0 = $this->agente->get($_GET['delete']);
-         if($age0)
-         {
-            if( FS_DEMO )
-            {
-               $this->new_error_msg('En el modo <b>demo</b> no se pueden eliminar empleados. Otro usuario podría estar usándolo.');
-            }
-            else if( $age0->delete() )
-            {
-               $this->new_message("Empleado ".$age0->codagente." eliminado correctamente.");
-            }
-            else
-               $this->new_error_msg("¡Imposible eliminar el empleado!");
-         }
-         else
-            $this->new_error_msg("¡Empleado no encontrado!");
+         $this->eliminar_agente();
       }
       
+      $this->ini_filters();
+      $this->buscar();
+   }
+   
+   private function ini_filters()
+   {
       $this->offset = 0;
       if( isset($_GET['offset']) )
       {
@@ -98,8 +79,49 @@ class admin_agentes extends fs_controller
       {
          $this->orden = $_REQUEST['orden'];
       }
+   }
+   
+   private function nuevo_agente()
+   {
+      $age0 = new agente();
+      $age0->codagente = $age0->get_new_codigo();
+      $age0->nombre = $_POST['snombre'];
+      $age0->apellidos = $_POST['sapellidos'];
+      $age0->dnicif = $_POST['sdnicif'];
+      $age0->telefono = $_POST['stelefono'];
+      $age0->email = $_POST['semail'];
       
-      $this->buscar();
+      if( $age0->save() )
+      {
+         $this->new_message("Empleado ".$age0->codagente." guardado correctamente.");
+         header('location: '.$age0->url());
+      }
+      else
+         $this->new_error_msg("¡Imposible guardar el empleado!");
+   }
+   
+   private function eliminar_agente()
+   {
+      $age0 = $this->agente->get($_GET['delete']);
+      if($age0)
+      {
+         if( FS_DEMO )
+         {
+            $this->new_error_msg('En el modo <b>demo</b> no se pueden eliminar empleados. Otro usuario podría estar usándolo.');
+         }
+         else if( !$this->allow_delete )
+         {
+            $this->new_error_msg('No tienes permiso para eliminar en esta página.');
+         }
+         else if( $age0->delete() )
+         {
+            $this->new_message("Empleado ".$age0->codagente." eliminado correctamente.");
+         }
+         else
+            $this->new_error_msg("¡Imposible eliminar el empleado!");
+      }
+      else
+         $this->new_error_msg("¡Empleado no encontrado!");
    }
    
    public function paginas()
@@ -109,118 +131,17 @@ class admin_agentes extends fs_controller
                  ."&provincia=".$this->provincia
                  ."&orden=".$this->orden;
       
-      $paginas = array();
-      $i = 0;
-      $num = 0;
-      $actual = 1;
-      
-      /// añadimos todas la página
-      while($num < $this->total_resultados)
-      {
-         $paginas[$i] = array(
-             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
-             'num' => $i + 1,
-             'actual' => ($num == $this->offset)
-         );
-         
-         if($num == $this->offset)
-         {
-            $actual = $i;
-         }
-         
-         $i++;
-         $num += FS_ITEM_LIMIT;
-      }
-      
-      /// ahora descartamos
-      foreach($paginas as $j => $value)
-      {
-         $enmedio = intval($i/2);
-         
-         /**
-          * descartamos todo excepto la primera, la última, la de enmedio,
-          * la actual, las 5 anteriores y las 5 siguientes
-          */
-         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
-         {
-            unset($paginas[$j]);
-         }
-      }
-      
-      if( count($paginas) > 1 )
-      {
-         return $paginas;
-      }
-      else
-      {
-         return array();
-      }
+      return $this->fbase_paginas($url, $this->total_resultados, $this->offset);
    }
    
    public function ciudades()
    {
-      $final = array();
-      
-      if( $this->db->table_exists('agentes') )
-      {
-         $ciudades = array();
-         $sql = "SELECT DISTINCT ciudad FROM agentes ORDER BY ciudad ASC;";
-         if($this->provincia != '')
-         {
-            $sql = "SELECT DISTINCT ciudad FROM agentes WHERE lower(provincia) = "
-                    .$this->agente->var2str($this->provincia)." ORDER BY ciudad ASC;";
-         }
-         
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            foreach($data as $d)
-            {
-               $ciudades[] = $d['ciudad'];
-            }
-         }
-         
-         /// usamos las minúsculas para filtrar
-         foreach($ciudades as $ciu)
-         {
-            if($ciu != '')
-            {
-               $final[ mb_strtolower($ciu, 'UTF8') ] = $ciu;
-            }
-         }
-      }
-      
-      return $final;
+      return $this->fbase_sql_distinct('agentes', 'ciudad', 'provincia', $this->provincia);
    }
    
    public function provincias()
    {
-      $final = array();
-      
-      if( $this->db->table_exists('agentes') )
-      {
-         $provincias = array();
-         $sql = "SELECT DISTINCT provincia FROM agentes ORDER BY provincia ASC;";
-         
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            foreach($data as $d)
-            {
-               $provincias[] = $d['provincia'];
-            }
-         }
-         
-         foreach($provincias as $pro)
-         {
-            if($pro != '')
-            {
-               $final[ mb_strtolower($pro, 'UTF8') ] = $pro;
-            }
-         }
-      }
-      
-      return $final;
+      return $this->fbase_sql_distinct('agentes', 'provincia');
    }
    
    private function buscar()

@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('asiento.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
@@ -25,9 +26,8 @@ require_model('partida.php');
 require_model('regularizacion_iva.php');
 require_model('subcuenta.php');
 
-class contabilidad_asiento extends fs_controller
+class contabilidad_asiento extends fbase_controller
 {
-   public $allow_delete;
    public $asiento;
    public $divisa;
    public $ejercicio;
@@ -43,15 +43,14 @@ class contabilidad_asiento extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
+      
       $this->asiento = FALSE;
       $this->ppage = $this->page->get('contabilidad_asientos');
       $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
       $this->impuesto = new impuesto();
       $this->subcuenta = new subcuenta();
-      
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       if( isset($_GET['id']) )
       {

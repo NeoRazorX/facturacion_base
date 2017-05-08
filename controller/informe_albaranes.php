@@ -19,18 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_once 'plugins/facturacion_base/extras/xlsxwriter.class.php';
 require_model('albaran_cliente.php');
 require_model('albaran_proveedor.php');
 require_model('almacen.php');
-require_model('cliente.php');
 require_model('divisa.php');
 require_model('forma_pago.php');
-require_model('proveedor.php');
 require_model('serie.php');
 
-class informe_albaranes extends fs_controller
+class informe_albaranes extends fbase_controller
 {
    public $agente;
    public $almacen;
@@ -44,7 +43,6 @@ class informe_albaranes extends fs_controller
    public $divisa;
 	public $forma_pago;
    public $hasta;
-   public $multi_almacen;
    public $proveedor;
    public $serie;
    
@@ -81,6 +79,8 @@ class informe_albaranes extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
+      
       /// declaramos los objetos sólo para asegurarnos de que existen las tablas
       $albaran_cli = new albaran_cliente();
       $albaran_pro = new albaran_proveedor();
@@ -91,9 +91,6 @@ class informe_albaranes extends fs_controller
 		$this->forma_pago = new forma_pago();
       $this->serie = new serie();
       
-      $fsvar = new fs_var();
-      $this->multi_almacen = $fsvar->simple_get('multi_almacen');
-      
       if( !isset($this->nombre_docs) )
       {
          $this->nombre_docs = FS_ALBARANES;
@@ -103,11 +100,11 @@ class informe_albaranes extends fs_controller
       
       if( isset($_REQUEST['buscar_cliente']) )
       {
-         $this->buscar_cliente();
+         $this->fbase_buscar_cliente($_REQUEST['buscar_cliente']);
       }
-      else if (isset($_REQUEST['buscar_proveedor']))
+      else if( isset($_REQUEST['buscar_proveedor']) )
       {
-         $this->buscar_proveedor();
+         $this->fbase_buscar_proveedor($_REQUEST['buscar_proveedor']);
       }
       else
       {
@@ -151,38 +148,6 @@ class informe_albaranes extends fs_controller
    protected function generar_extra()
    {
       /// a completar en el informe de facturas
-   }
-   
-   private function buscar_cliente()
-   {
-      /// desactivamos la plantilla HTML
-      $this->template = FALSE;
-      
-      $cli = new cliente();
-      $json = array();
-      foreach($cli->search($_REQUEST['buscar_cliente']) as $cli)
-      {
-         $json[] = array('value' => $cli->nombre, 'data' => $cli->codcliente);
-      }
-      
-      header('Content-Type: application/json');
-      echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
-   }
-   
-   private function buscar_proveedor()
-   {
-      /// desactivamos la plantilla HTML
-      $this->template = FALSE;
-      
-      $prov = new proveedor();
-      $json = array();
-      foreach($prov->search($_REQUEST['buscar_proveedor']) as $prov)
-      {
-         $json[] = array('value' => $prov->nombre, 'data' => $prov->codproveedor);
-      }
-      
-      header('Content-Type: application/json');
-      echo json_encode( array('query' => $_REQUEST['buscar_proveedor'], 'suggestions' => $json) );
    }
    
    protected function ini_filters()
@@ -757,7 +722,7 @@ class informe_albaranes extends fs_controller
       $pdf_doc = new fs_pdf('a4', 'landscape', 'Courier');
       $pdf_doc->pdf->addInfo('Title', $this->nombre_docs . ' de ' . $tipo . ' del ' . $this->desde . ' al ' . $this->hasta);
       $pdf_doc->pdf->addInfo('Subject', $this->nombre_docs . ' de ' . $tipo . ' del ' . $this->desde . ' al ' . $this->hasta);
-      $pdf_doc->pdf->addInfo('Author', $pdf_doc->fix_html($this->empresa->nombre) );
+      $pdf_doc->pdf->addInfo('Author', fs_fix_html($this->empresa->nombre) );
       
       $cliente = 'Proveedor';
       $num2 = 'Num. proveedor';
@@ -769,7 +734,7 @@ class informe_albaranes extends fs_controller
          $tabla = $this->table_ventas;
       }
       
-      $encabezado = $pdf_doc->fix_html($this->empresa->nombre).' - '.$this->nombre_docs
+      $encabezado = fs_fix_html($this->empresa->nombre).' - '.$this->nombre_docs
               .' de '.$tipo.' del '.$this->desde.' al '.$this->hasta;
       
       if($this->codagente)
@@ -853,13 +818,13 @@ class informe_albaranes extends fs_controller
                
                if($tipo == 'compra')
                {
-                  $linea['num2'] = $pdf_doc->fix_html($documentos[$linea_actual]->numproveedor);
-                  $linea['cliente'] = $pdf_doc->fix_html($documentos[$linea_actual]->nombre);
+                  $linea['num2'] = fs_fix_html($documentos[$linea_actual]->numproveedor);
+                  $linea['cliente'] = fs_fix_html($documentos[$linea_actual]->nombre);
                }
                else
                {
-                  $linea['num2'] = $pdf_doc->fix_html($documentos[$linea_actual]->numero2);
-                  $linea['cliente'] = $pdf_doc->fix_html($documentos[$linea_actual]->nombrecliente);
+                  $linea['num2'] = fs_fix_html($documentos[$linea_actual]->numero2);
+                  $linea['cliente'] = fs_fix_html($documentos[$linea_actual]->nombrecliente);
                }
                
                $pdf_doc->add_table_row($linea);
@@ -1047,24 +1012,15 @@ class informe_albaranes extends fs_controller
          if($tipo == 'compra')
          {
             $linea['num2'] = $doc->numproveedor;
-            $linea['cliente'] = $this->fix_html($doc->nombre);
+            $linea['cliente'] = fs_fix_html($doc->nombre);
          }
          else
          {
             $linea['num2'] = $doc->numero2;
-            $linea['cliente'] = $this->fix_html($doc->nombrecliente);
+            $linea['cliente'] = fs_fix_html($doc->nombrecliente);
          }
          
          echo '"' . join('","', $linea) . "\"\n";
       }
-   }
-   
-   public function fix_html($txt)
-   {
-      $newt = str_replace('&lt;', '<', $txt);
-      $newt = str_replace('&gt;', '>', $newt);
-      $newt = str_replace('&quot;', '"', $newt);
-      $newt = str_replace('&#39;', "'", $newt);
-      return $newt;
    }
 }

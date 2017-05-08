@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('almacen.php');
 require_model('articulo.php');
 require_model('articulo_combinacion.php');
@@ -30,9 +31,8 @@ require_model('regularizacion_stock.php');
 require_model('stock.php');
 require_model('tarifa.php');
 
-class ventas_articulo extends fs_controller
+class ventas_articulo extends fbase_controller
 {
-   public $allow_delete;
    public $almacen;
    public $articulo;
    public $fabricante;
@@ -50,6 +50,7 @@ class ventas_articulo extends fs_controller
    public $regularizaciones;
    public $agrupar;
    public $mgrupo;
+   
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Articulo', 'ventas', FALSE, FALSE);
@@ -57,8 +58,7 @@ class ventas_articulo extends fs_controller
    
    protected function private_core()
    {
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      parent::private_core();
       
       $articulo = new articulo();
       $this->almacen = new almacen();
@@ -66,8 +66,7 @@ class ventas_articulo extends fs_controller
       $this->fabricante = new fabricante();
       $this->impuesto = new impuesto();
       $this->stock = new stock();
-      //Inicializamos la variable agrupar vacia
-      $this->agrupar = '';
+      
       /**
        * Si hay alguna extensión de tipo config y texto no_button_publicar,
        * desactivamos el botón publicar.
@@ -82,9 +81,9 @@ class ventas_articulo extends fs_controller
          }
       }
       
-      //Si nos llega la variable agrupar de un GET lo asignamos
+      // Si nos llega la variable agrupar de un GET lo asignamos
       $agrupar = \filter_input(INPUT_GET, 'agrupar');
-      $this->agrupar = ($agrupar)?$agrupar:$this->agrupar;
+      $this->agrupar = ($agrupar) ? $agrupar : '';
       
       /**
        * Si hay atributos, mostramos el tab atributos.
@@ -175,6 +174,7 @@ class ventas_articulo extends fs_controller
          }
          
          $this->stocks = $this->articulo->get_stock();
+         
          /// metemos en un array los almacenes que no tengan stock de este producto
          $this->nuevos_almacenes = array();
          foreach($this->almacen->all() as $a)
@@ -182,11 +182,13 @@ class ventas_articulo extends fs_controller
             $encontrado = FALSE;
             foreach($this->stocks as $s)
             {
-               if( $a->codalmacen == $s->codalmacen )
+               if($a->codalmacen == $s->codalmacen)
                {
                   $encontrado = TRUE;
+                  break;
                }
             }
+            
             if( !$encontrado )
             {
                $this->nuevos_almacenes[] = $a;
@@ -343,7 +345,11 @@ class ventas_articulo extends fs_controller
       $regularizacion = $reg->get($_GET['deletereg']);
       if($regularizacion)
       {
-         if( $regularizacion->delete() )
+         if( !$this->allow_delete )
+         {
+            $this->new_error_msg('No tienes permiso para eliminar en esta página.');
+         }
+         else if( $regularizacion->delete() )
          {
             $this->new_message('Regularización eliminada correctamente.');
          }

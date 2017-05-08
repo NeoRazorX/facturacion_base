@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/informe_albaranes.php';
+require_once 'plugins/facturacion_base/controller/informe_albaranes.php';
 require_model('factura_cliente.php');
 require_model('factura_proveedor.php');
 require_model('pais.php');
@@ -77,28 +77,7 @@ class informe_facturas extends informe_albaranes
    
    public function provincias()
    {
-      $final = array();
-      
-      $provincias = array();
-      $sql = "SELECT DISTINCT provincia FROM dirclientes ORDER BY provincia ASC;";
-      $data = $this->db->select($sql);
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $provincias[] = $d['provincia'];
-         }
-      }
-      
-      foreach($provincias as $pro)
-      {
-         if($pro != '')
-         {
-            $final[ mb_strtolower($pro, 'UTF8') ] = $pro;
-         }
-      }
-      
-      return $final;
+      return $this->fbase_sql_distinct('dirclientes', 'provincia');
    }
    
    public function stats_series($tabla = 'facturasprov')
@@ -391,7 +370,7 @@ class informe_facturas extends informe_albaranes
             {
                if($pro)
                {
-                  echo '"'.$i.'";'.$this->fix_html($pro->nombre).';'.$j;
+                  echo '"'.$i.'";'.fs_fix_html($pro->nombre).';'.$j;
                }
                else
                {
@@ -542,7 +521,7 @@ class informe_facturas extends informe_albaranes
             {
                if($cli)
                {
-                  echo '"'.$value[$j][15].'";'.'"'.$i.'";'.$this->fix_html($cli->nombre).';'.$j;
+                  echo '"'.$value[$j][15].'";'.'"'.$i.'";'.fs_fix_html($cli->nombre).';'.$j;
                }
                else
                {
@@ -679,7 +658,7 @@ class informe_facturas extends informe_albaranes
                {
                   if($pro)
                   {
-                     echo '"'.$value2[$k][15].'";'.'"'.$i.'";'.$this->fix_html($pro->nombre).';"'.$j.'";'.'"'.$value2[$k][16].'"'.';'.$k;
+                     echo '"'.$value2[$k][15].'";'.'"'.$i.'";'.fs_fix_html($pro->nombre).';"'.$j.'";'.'"'.$value2[$k][16].'"'.';'.$k;
                   }
                   else
                   {
@@ -813,7 +792,7 @@ class informe_facturas extends informe_albaranes
                {
                   if($cli)
                   {
-                     echo '"'.$value2[$k][15].'";'.'"'.$i.'";'.$this->fix_html($cli->nombre).';"'.$j.'";'.'"'.$value2[$k][16].'"'.';'.$k;
+                     echo '"'.$value2[$k][15].'";'.'"'.$i.'";'.fs_fix_html($cli->nombre).';"'.$j.'";'.'"'.$value2[$k][16].'"'.';'.$k;
                   }
                   else
                   {

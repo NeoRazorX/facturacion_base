@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('almacen.php');
 require_model('articulo.php');
 require_model('cliente.php');
@@ -27,7 +28,7 @@ require_model('linea_factura_proveedor.php');
 require_model('regularizacion_stock.php');
 require_model('stock.php');
 
-class informe_articulos extends fs_controller
+class informe_articulos extends fbase_controller
 {
    public $agente;
    public $almacen;
@@ -59,11 +60,13 @@ class informe_articulos extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Artículos', 'informes', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Artículos', 'informes');
    }
    
    protected function private_core()
    {
+      parent::private_core();
+      
       $this->agente = new agente();
       $this->almacen = new almacen();
       $this->documento = 'facturascli';
@@ -634,7 +637,7 @@ class informe_articulos extends fs_controller
                $articulo = $art0->get($i);
                if($articulo)
                {
-                  echo '"'.$i.'";"'.$this->fix_html($articulo->descripcion()).'";'.$j;
+                  echo '"'.$i.'";"'.fs_fix_html($articulo->descripcion()).'";'.$j;
                }
                else
                {
@@ -655,15 +658,6 @@ class informe_articulos extends fs_controller
       {
          $this->new_message('Sin resultados.');
       }
-   }
-   
-   private function fix_html($txt)
-   {
-      $newt = str_replace('&lt;', '<', $txt);
-      $newt = str_replace('&gt;', '>', $newt);
-      $newt = str_replace('&quot;', '"', $newt);
-      $newt = str_replace('&#39;', "'", $newt);
-      return $newt;
    }
    
    private function get_subfamilias($cod)
@@ -1066,7 +1060,7 @@ class informe_articulos extends fs_controller
                echo $value['referencia'].';'
                        .$value['codalmacen'].';'
                        .$value['origen'].';'
-                       .$this->fix_html($value['clipro']).';';
+                       .fs_fix_html($value['clipro']).';';
                
                if( is_numeric($value['movimiento']) )
                {
@@ -1182,7 +1176,7 @@ class informe_articulos extends fs_controller
                {
                   if($cli)
                   {
-                     echo '"'.$i.'";"'.$j.'";'.$this->fix_html($cli->nombre).';'.$k;
+                     echo '"'.$i.'";"'.$j.'";'.fs_fix_html($cli->nombre).';'.$k;
                   }
                   else
                   {

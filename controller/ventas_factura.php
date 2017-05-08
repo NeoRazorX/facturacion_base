@@ -17,12 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('agencia_transporte.php');
 require_model('almacen.php');
 require_model('articulo.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
-require_model('cliente.php');
 require_model('cuenta_banco_cliente.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
@@ -33,12 +33,11 @@ require_model('partida.php');
 require_model('serie.php');
 require_model('subcuenta.php');
 
-class ventas_factura extends fs_controller
+class ventas_factura extends fbase_controller
 {
    public $agencia;
    public $agente;
    public $agentes;
-   public $allow_delete;
    public $almacen;
    public $cliente;
    public $divisa;
@@ -58,8 +57,7 @@ class ventas_factura extends fs_controller
    
    protected function private_core()
    {
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      parent::private_core();
       
       $this->ppage = $this->page->get('ventas_facturas');
       

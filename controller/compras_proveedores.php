@@ -17,10 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('pais.php');
-require_model('proveedor.php');
 
-class compras_proveedores extends fs_controller
+class compras_proveedores extends fbase_controller
 {
    public $num_resultados;
    public $offset;
@@ -38,6 +38,8 @@ class compras_proveedores extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
+      
       $this->pais = new pais();
       $this->proveedor = new proveedor();
       
@@ -50,6 +52,12 @@ class compras_proveedores extends fs_controller
          $this->nuevo_proveedor();
       }
       
+      $this->ini_filters();
+      $this->buscar();
+   }
+   
+   private function ini_filters()
+   {
       $this->offset = 0;
       if( isset($_GET['offset']) )
       {
@@ -69,8 +77,6 @@ class compras_proveedores extends fs_controller
       }
       
       $this->debaja = isset($_REQUEST['debaja']);
-      
-      $this->buscar();
    }
    
    private function nuevo_proveedor()
@@ -123,6 +129,10 @@ class compras_proveedores extends fs_controller
          {
             $this->new_error_msg('En el modo demo no se pueden eliminar proveedores.
                Otros usuarios podrían necesitarlos.');
+         }
+         else if( !$this->allow_delete )
+         {
+            $this->new_error_msg('No tienes permiso para eliminar en esta página.');
          }
          else if( $proveedor->delete() )
          {
@@ -218,54 +228,6 @@ class compras_proveedores extends fs_controller
          $url .= '&debaja=TRUE';
       }
       
-      $paginas = array();
-      $i = 0;
-      $num = 0;
-      $actual = 1;
-      
-      $total = 0;
-      $total = $this->num_resultados;
-      
-      /// añadimos todas la página
-      while($num < $total)
-      {
-         $paginas[$i] = array(
-             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
-             'num' => $i + 1,
-             'actual' => ($num == $this->offset)
-         );
-         
-         if($num == $this->offset)
-         {
-            $actual = $i;
-         }
-         
-         $i++;
-         $num += FS_ITEM_LIMIT;
-      }
-      
-      /// ahora descartamos
-      foreach($paginas as $j => $value)
-      {
-         $enmedio = intval($i/2);
-         
-         /**
-          * descartamos todo excepto la primera, la última, la de enmedio,
-          * la actual, las 5 anteriores y las 5 siguientes
-          */
-         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
-         {
-            unset($paginas[$j]);
-         }
-      }
-      
-      if( count($paginas) > 1 )
-      {
-         return $paginas;
-      }
-      else
-      {
-         return array();
-      }
+      return $this->fbase_paginas($url, $this->num_resultados, $this->offset);
    }
 }

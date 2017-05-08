@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/../extras/fs_pdf.php';
+require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
 require_model('articulo_proveedor.php');
@@ -296,7 +296,7 @@ class compras_imprimir extends fs_controller
       
       for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < count($lineas)));)
       {
-         $descripcion = $pdf_doc->fix_html($lineas[$linea_actual]->descripcion);
+         $descripcion = fs_fix_html($lineas[$linea_actual]->descripcion);
          if( !is_null($lineas[$linea_actual]->referencia) )
          {
             $descripcion = '<b>'.$this->get_referencia_proveedor($lineas[$linea_actual]->referencia)
@@ -360,7 +360,7 @@ class compras_imprimir extends fs_controller
       {
          if($this->documento->observaciones != '')
          {
-            $pdf_doc->pdf->ezText("\n".$pdf_doc->fix_html($this->documento->observaciones), 9);
+            $pdf_doc->pdf->ezText("\n".fs_fix_html($this->documento->observaciones), 9);
          }
       }
       
@@ -469,7 +469,7 @@ class compras_imprimir extends fs_controller
       $pdf_doc->add_table_row(
               array(
                   'campo1' => "<b>Proveedor:</b>",
-                  'dato1' => $pdf_doc->fix_html($this->documento->nombre),
+                  'dato1' => fs_fix_html($this->documento->nombre),
                   'campo2' => "<b>".$tipoidfiscal.":</b> ".$this->documento->cifnif
               )
       );

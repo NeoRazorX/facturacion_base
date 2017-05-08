@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,73 +18,84 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('fabricante.php');
 
-class ventas_fabricantes extends fs_controller
+class ventas_fabricantes extends fbase_controller
 {
    public $fabricante;
    public $resultados;
-   
+
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Fabricantes', 'ventas', FALSE, FALSE);
    }
-   
+
    protected function private_core()
    {
+      parent::private_core();
+
       $this->share_extensions();
       $this->fabricante = new fabricante();
 
-      if( isset($_POST['ncodfabricante']) )
+      if(isset($_POST['ncodfabricante']))
       {
-         $fab = $this->fabricante->get($_POST['ncodfabricante']);
-         if($fab)
-         {
-            $this->new_error_msg('El fabricante <a href="'.$fab->url().'">'.$fab->codfabricante.'</a> ya existe.');
-         }
-         else
-         {
-            $fab = new fabricante();
-            $fab->codfabricante = $_POST['ncodfabricante'];
-            $fab->nombre = $_POST['nnombre'];
-            if( $fab->save() )
-            {
-               Header('location: ' . $fab->url());
-            }
-            else
-               $this->new_error_msg("¡Imposible guardar el fabricante!");
-         }
+         $this->nuevo_fabricante();
       }
-      else if( isset($_GET['delete']) )
+      else if(isset($_GET['delete']))
       {
-         $fab = $this->fabricante->get($_GET['delete']);
-         if($fab)
-         {
-            if( $fab->delete() )
-            {
-               $this->new_message("Fabricante ".$_GET['delete']." eliminado correctamente");
-            }
-            else
-               $this->new_error_msg("¡Imposible eliminar el fabricante ".$_GET['delete']."!");
-         }
-         else
-            $this->new_error_msg("Fabricante ".$_GET['delete']." no encontrado.");
+         $this->eliminar_fabricante();
       }
-      
+
       $this->resultados = $this->fabricante->search($this->query);
    }
-   
-   public function total_fabricantes()
+
+   private function nuevo_fabricante()
    {
-      $data = $this->db->select("SELECT COUNT(codfabricante) as total FROM fabricantes;");
-      if($data)
+      $fab = $this->fabricante->get($_POST['ncodfabricante']);
+      if($fab)
       {
-         return intval($data[0]['total']);
+         $this->new_error_msg('El fabricante <a href="' . $fab->url() . '">' . $fab->codfabricante . '</a> ya existe.');
       }
       else
-         return 0;
+      {
+         $fab = new fabricante();
+         $fab->codfabricante = $_POST['ncodfabricante'];
+         $fab->nombre = $_POST['nnombre'];
+         if($fab->save())
+         {
+            Header('location: ' . $fab->url());
+         }
+         else
+            $this->new_error_msg("¡Imposible guardar el fabricante!");
+      }
    }
-   
+
+   private function eliminar_fabricante()
+   {
+      $fab = $this->fabricante->get($_GET['delete']);
+      if($fab)
+      {
+         if( !$this->allow_delete )
+         {
+            $this->new_message("No tienes permiso para eliminar en esta página.");
+         }
+         else if( $fab->delete() )
+         {
+            $this->new_message("Fabricante " . $_GET['delete'] . " eliminado correctamente");
+         }
+         else
+            $this->new_error_msg("¡Imposible eliminar el fabricante " . $_GET['delete'] . "!");
+      }
+      else
+         $this->new_error_msg("Fabricante " . $_GET['delete'] . " no encontrado.");
+   }
+
+   public function total_fabricantes()
+   {
+      return $this->fbase_sql_total('fabricantes', 'codfabricante');
+   }
+
    private function share_extensions()
    {
       /// añadimos la extensión para ventas_artículos

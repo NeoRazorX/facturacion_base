@@ -17,14 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('cuenta.php');
 require_model('cuenta_especial.php');
 require_model('ejercicio.php');
 require_model('subcuenta.php');
 
-class contabilidad_cuenta extends fs_controller
+class contabilidad_cuenta extends fbase_controller
 {
-   public $allow_delete;
    public $cuenta;
    public $ejercicio;
    public $nuevo_codsubcuenta;
@@ -36,27 +36,12 @@ class contabilidad_cuenta extends fs_controller
    
    protected function private_core()
    {
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      parent::private_core();
       
       $this->cuenta = FALSE;
       if( isset($_POST['nsubcuenta']) )
       {
-         $subc0 = new subcuenta();
-         $subc0->codcuenta = $_POST['codcuenta'];
-         $subc0->codejercicio = $_POST['ejercicio'];
-         $subc0->codsubcuenta = $_POST['nsubcuenta'];
-         $subc0->descripcion = $_POST['descripcion'];
-         $subc0->idcuenta = $_POST['idcuenta'];
-         
-         if( $subc0->save() )
-         {
-            header( 'Location: '.$subc0->url() );
-         }
-         else
-            $this->new_error_msg('Error al crear la subcuenta.');
-         
-         $this->cuenta = $subc0->get_cuenta();
+         $this->nueva_subcuenta();
       }
       else if( isset($_GET['deletes']) )
       {
@@ -64,25 +49,7 @@ class contabilidad_cuenta extends fs_controller
       }
       else if( isset($_GET['id']) )
       {
-         $cuenta = new cuenta();
-         $this->cuenta = $cuenta->get($_GET['id']);
-         if($this->cuenta AND isset($_POST['descripcion']))
-         {
-            $this->cuenta->descripcion = $_POST['descripcion'];
-            if($_POST['idcuentaesp'] == '---')
-            {
-               $this->cuenta->idcuentaesp = NULL;
-            }
-            else
-               $this->cuenta->idcuentaesp = $_POST['idcuentaesp'];
-            
-            if( $this->cuenta->save() )
-            {
-               $this->new_message('Cuenta modificada correctamente.');
-            }
-            else
-               $this->new_error_msg('Error al modificar la cuenta.');
-         }
+         $this->cargar_cuenta();
       }
       
       if($this->cuenta)
@@ -124,6 +91,48 @@ class contabilidad_cuenta extends fs_controller
    {
       $cuentae = new cuenta_especial();
       return $cuentae->all();
+   }
+   
+   private function cargar_cuenta()
+   {
+      $cuenta = new cuenta();
+      $this->cuenta = $cuenta->get($_GET['id']);
+      if($this->cuenta AND isset($_POST['descripcion']))
+      {
+         $this->cuenta->descripcion = $_POST['descripcion'];
+         if($_POST['idcuentaesp'] == '---')
+         {
+            $this->cuenta->idcuentaesp = NULL;
+         }
+         else
+            $this->cuenta->idcuentaesp = $_POST['idcuentaesp'];
+            
+         if( $this->cuenta->save() )
+         {
+            $this->new_message('Cuenta modificada correctamente.');
+         }
+         else
+            $this->new_error_msg('Error al modificar la cuenta.');
+      }
+   }
+   
+   private function nueva_subcuenta()
+   {
+      $subc0 = new subcuenta();
+      $subc0->codcuenta = $_POST['codcuenta'];
+      $subc0->codejercicio = $_POST['ejercicio'];
+      $subc0->codsubcuenta = $_POST['nsubcuenta'];
+      $subc0->descripcion = $_POST['descripcion'];
+      $subc0->idcuenta = $_POST['idcuenta'];
+      
+      if( $subc0->save() )
+      {
+         header( 'Location: '.$subc0->url() );
+      }
+      else
+         $this->new_error_msg('Error al crear la subcuenta.');
+      
+      $this->cuenta = $subc0->get_cuenta();
    }
    
    private function delete_subcuenta()
