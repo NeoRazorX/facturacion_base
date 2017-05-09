@@ -3,6 +3,7 @@
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017    Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2017         Francesc Pineda Segarra francesc.pìneda@x-netdigital.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -29,6 +30,7 @@ require_model('pais.php');
 class informe_facturas extends informe_albaranes
 {
    public $pais;
+   public $estado;
    
    public function __construct()
    {
@@ -817,6 +819,29 @@ class informe_facturas extends informe_albaranes
       else
       {
          $this->new_error_msg('Sin resultados.');
+      }
+   }
+   
+   protected function ini_filters()
+   {
+      parent::ini_filters();
+      
+      $this->estado = FALSE;
+      if( isset($_REQUEST['estado']) )
+      {
+         $this->estado = $_REQUEST['estado'];
+      }
+   }
+   
+   protected function set_where()
+   {
+      parent::set_where();
+      
+      if($this->estado)
+      {
+         $estado = $this->estado =='pagada' ? TRUE : FALSE;
+         $this->where_compras .= " AND pagada = ".$this->empresa->var2str($estado);
+         $this->where_ventas .= " AND pagada = ".$this->empresa->var2str($estado);
       }
    }
 }
