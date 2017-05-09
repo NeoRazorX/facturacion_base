@@ -367,6 +367,17 @@ class fs_pdf
       $this->pdf->ezTable($this->table_rows, $this->table_header, '', $options);
    }
    
+   /**
+    * Revierte los cambios producidos por fs_model::no_html()
+    * @deprecated since version 2017.012
+    * @param type $txt
+    * @return type
+    */
+   public function fix_html($txt)
+   {
+      return fs_fix_html($txt);
+   }
+   
    public function get_lineas_iva($lineas)
    {
       $retorno = array();
