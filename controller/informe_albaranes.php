@@ -4,6 +4,7 @@
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017    Carlos Garcia Gomez  neorazorx@gmail.com
  * Copyright (C) 2017         Itaca Software Libre contacta@itacaswl.com
+ * Copyright (C) 2017         Francesc Pineda Segarra francesc.pìneda@x-netdigital.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -41,7 +42,7 @@ class informe_albaranes extends fbase_controller
    public $codserie;
    public $desde;
    public $divisa;
-	public $forma_pago;
+   public $forma_pago;
    public $hasta;
    public $proveedor;
    public $serie;
@@ -49,7 +50,7 @@ class informe_albaranes extends fbase_controller
    protected $nombre_docs;
    protected $table_compras;
    protected $table_ventas;
-	protected $where_compras;
+   protected $where_compras;
    protected $where_ventas;
    
    /**
@@ -87,8 +88,8 @@ class informe_albaranes extends fbase_controller
       
       $this->agente = new agente();
       $this->almacen = new almacen();
-		$this->divisa = new divisa();
-		$this->forma_pago = new forma_pago();
+      $this->divisa = new divisa();
+      $this->forma_pago = new forma_pago();
       $this->serie = new serie();
       
       if( !isset($this->nombre_docs) )
@@ -220,29 +221,29 @@ class informe_albaranes extends fbase_controller
       $this->where_compras = " WHERE fecha >= ".$this->empresa->var2str($this->desde)
               ." AND fecha <= ".$this->empresa->var2str($this->hasta);
       
-		if($this->codserie)
+      if($this->codserie)
       {
-			$this->where_compras .= " AND codserie = ".$this->empresa->var2str($this->codserie);
-      }
-
-		if($this->codagente)
-      {
-			$this->where_compras .= " AND codagente = ".$this->empresa->var2str($this->codagente);
-      }
-
-		if($this->codalmacen)
-      {
-			$this->where_compras .= " AND codalmacen = ".$this->empresa->var2str($this->codalmacen);
+         $this->where_compras .= " AND codserie = ".$this->empresa->var2str($this->codserie);
       }
       
-		if($this->coddivisa)
+      if($this->codagente)
+      {
+         $this->where_compras .= " AND codagente = ".$this->empresa->var2str($this->codagente);
+      }
+
+      if($this->codalmacen)
+      {
+         $this->where_compras .= " AND codalmacen = ".$this->empresa->var2str($this->codalmacen);
+      }
+      
+      if($this->coddivisa)
       {
          $this->where_compras .= " AND coddivisa = ".$this->empresa->var2str($this->coddivisa);
-		}
+      }
       
       if($this->codpago)
       {
-			$this->where_compras .= " AND codpago = ".$this->empresa->var2str($this->codpago);
+         $this->where_compras .= " AND codpago = ".$this->empresa->var2str($this->codpago);
       }
       
       $this->where_ventas = $this->where_compras;
@@ -280,14 +281,14 @@ class informe_albaranes extends fbase_controller
       
       foreach($stats_cli as $i => $value)
       {
-      	$mesletra = "";
-      	$ano = "";
-      	
-      	if( !empty($value['month']) )
-      	{
-	      	$mesletra = $meses[intval(substr((string)$value['month'], 0, strlen((string)$value['month'])-2))];
-	      	$ano = substr((string)$value['month'], -2);
-      	}
+         $mesletra = "";
+         $ano = "";
+         
+         if( !empty($value['month']) )
+         {
+            $mesletra = $meses[intval(substr((string)$value['month'], 0, strlen((string)$value['month'])-2))];
+            $ano = substr((string)$value['month'], -2);
+         }
 	
          $stats[$i] = array(
              'month' => $mesletra.$ano , 
@@ -340,6 +341,78 @@ class informe_albaranes extends fbase_controller
          foreach($data as $d)
          {
             $i = intval($d['mes']);
+            $stats[$i]['total'] = floatval($d['total']);
+         }
+      }
+      
+      return $stats;
+   }
+   
+   public function stats_current_month()
+   {
+      $stats = array();
+      $stats_cli = $this->stats_current_month_aux($this->table_ventas);
+      $stats_pro = $this->stats_current_month_aux($this->table_compras);
+            
+      foreach($stats_cli as $i => $value)
+      {
+         $stats[$i] = array(
+             'day' => $value['day'],
+             'total_cli' => round($value['total'], FS_NF0),
+             'total_pro' => 0
+         );
+      }
+      
+      foreach($stats_pro as $i => $value)
+      {
+         $stats[$i]['total_pro'] = round($value['total'], FS_NF0);
+         if (!isset($stats[$i]['total_cli']))
+         {
+            $stats[$i]['total_cli'] = round(0, FS_NF0);
+         }
+      }
+
+      return $stats;
+   }
+   
+   protected function stats_current_month_aux($table_name)
+   {
+      $stats = array();
+      $desde = date('01-m-Y');
+      $hasta = date('t-m-Y');
+      
+      /// inicializamos los resultados
+      foreach($this->date_range($desde, $hasta) as $date)
+      {
+         $i = intval($date);
+         $stats[$i] = array('day' => $i, 'total' => 0);
+      }
+      
+      if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
+         $sql_aux = "to_char(fecha,'DD')";
+      }
+      else
+      {
+         $sql_aux = "DATE_FORMAT(fecha, '%d')";
+      }
+      
+      $where = $this->where_compras;
+      if($table_name == $this->table_ventas)
+      {
+         $where = $this->where_ventas;
+      }
+      
+      $sql = "SELECT ".$sql_aux." as dia, SUM(neto) as total FROM ".$table_name
+              .$where." GROUP BY ".$sql_aux." ORDER BY dia ASC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $i = intval($d['dia']);
+            $stats[$i]['day'] = intval($d['dia']);
             $stats[$i]['total'] = floatval($d['total']);
          }
       }
@@ -525,8 +598,8 @@ class informe_albaranes extends fbase_controller
       }
       
       $sql  = "select codalmacen,sum(neto) as total from ".$tabla;
-		$sql .= $where;
-		$sql .= " group by codalmacen order by total desc;";
+      $sql .= $where;
+      $sql .= " group by codalmacen order by total desc;";
       
       $data = $this->db->select($sql);
       if($data)
@@ -606,8 +679,8 @@ class informe_albaranes extends fbase_controller
       
       /// aprobados
       $sql  = "select sum(neto) as total from ".$tabla;
-		$sql .= $where;
-   	$sql .=" and idfactura is not null order by total desc;";
+      $sql .= $where;
+      $sql .=" and idfactura is not null order by total desc;";
       
       $data = $this->db->select($sql);
       if($data)
@@ -623,8 +696,8 @@ class informe_albaranes extends fbase_controller
       
       /// pendientes
       $sql  = "select sum(neto) as total from ".$tabla;
-		$sql .= $where;
-   	$sql .=" and idfactura is null order by total desc;";
+      $sql .= $where;
+      $sql .=" and idfactura is null order by total desc;";
       
       $data = $this->db->select($sql);
       if($data)
