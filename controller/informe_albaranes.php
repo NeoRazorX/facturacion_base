@@ -402,7 +402,7 @@ class informe_albaranes extends fbase_controller
       $stats = array();
       $hasta = date('Y-m-d');
       $desde = date("Y-m-d", strtotime($hasta . "-1 months") );
-      
+
       /// inicializamos los resultados
       foreach($this->date_range($desde, $hasta) as $date)
       {
