@@ -1,7 +1,6 @@
 {include="header"}
-
-{if="$fsc->url_recarga"}
 <script type="text/javascript">
+   {if="$fsc->url_recarga"}
    function recargar()
    {
       window.location.href = '{$fsc->url_recarga}';
@@ -10,8 +9,60 @@
    {
       setTimeout(recargar, 1000);
    });
+   {/if}
+$(document).ready(function(){
+      $('#b_calcular_inventario').click(function (event) {
+         $("#modal_calcular_inventario").modal('show');
+      });
+
+   $('#b_ejecutar_calculo').click(function (event) {
+      $("#modal_calcular_inventario").modal('hide');
+      ejecutar_inventario();
+   });
+});
+
+   function ejecutar_inventario() {
+        var inv_desde = $('#inv_desde').val();
+        var inv_hasta = $('#inv_hasta').val();
+        var icodalmacen = $('#icodalmacen').val();
+        if (!window.XMLHttpRequest) {
+            bootbox.alert("Tu navegador no soporta tecnología XMLHttpRequest.");
+            return;
+        }
+        try {
+            var xhr = new XMLHttpRequest();
+            xhr.previous_text = '';
+            xhr.onerror = function () {
+                alert("Ocurrió un error inesperado en la llamada [XHR].");
+            };
+            xhr.onreadystatechange = function () {
+                try {
+                    if (xhr.readyState === 4) {
+                        bootbox.alert({ message: '¡Inventario actualizado correctamente!', callback:function(){
+                              window.location.assign("{$fsc->url()}&tab=inventario");
+                           }
+                        });
+                        $('#modal_proceso_inventario').modal('hide');
+                    } else if (xhr.readyState > 2) {
+                        var new_response = xhr.responseText.substring(xhr.previous_text.length);
+                        var result = JSON.parse(new_response);
+                        $('#modal_proceso_inventario').modal('show');
+                        document.getElementById("divProgress").innerHTML = result.message;
+                        document.getElementById("progressor").innerHTML = result.progress + "%";
+                        document.getElementById('progressor').style.width = result.progress + "%";
+                        xhr.previous_text = xhr.responseText;
+                    }
+                } catch (e) {
+                    alert("[XHR STATECHANGE] Exception: " + e);
+                }
+            };
+            xhr.open('GET', '{$fsc->url()}&tab=inventario&accion=calcular&icodalmacen='+icodalmacen+'&inv_desde='+inv_desde+'&inv_hasta='+inv_hasta, true);
+            xhr.send();
+        } catch (e) {
+            alert("[XHR REQUEST] Exception: " + e);
+        }
+    }
 </script>
-{/if}
 
 <div class="container-fluid">
    <div class="row">
@@ -54,6 +105,12 @@
                <a href="{$fsc->url()}&tab=varios">
                   <span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span>
                   <span class="hidden-xs">&nbsp;Varios</span>
+               </a>
+            </li>
+            <li role="presentation"{if="$fsc->pestanya=='inventario'"} class="active"{/if}>
+               <a href="{$fsc->url()}&tab=inventario">
+                  <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
+                  <span class="hidden-xs">&nbsp;Inventario</span>
                </a>
             </li>
          </ul>
@@ -256,7 +313,7 @@
                      {/if}
                   {/loop}
                {else}
-                  Todos los almacenes&nbsp; <span class="caret"></span>               
+                  Todos los almacenes&nbsp; <span class="caret"></span>
                {/if}
             </button>
             <ul class="dropdown-menu">
@@ -804,6 +861,120 @@
          </form>
       </div>
    </div>
+</div>
+{elseif="$fsc->pestanya=='inventario'"}
+<div class="container-fluid">
+   <div class="row">
+      <form action="{$fsc->url()}&tab=inventario" method="post" class="form">
+         <input type="hidden" name="accion" value="">
+         <div class="panel-body">
+            <div class="row">
+               <div class="col-sm-2">
+                  <div class="input-group">
+                     <span class="input-group-addon">Desde</span>
+                     <input type="text" idesde="idesde" name="idesde" value="{$fsc->idesde}" class="form-control input-sm datepicker" autocomplete="off" onchange="this.form.submit()"/>
+                  </div>
+               </div>
+               <div class="col-sm-2">
+                  <div class="input-group">
+                     <span class="input-group-addon">Hasta</span>
+                     <input type="text" id="ihasta" name="ihasta" value="{$fsc->ihasta}" class="form-control input-sm datepicker" autocomplete="off" onchange="this.form.submit()"/>
+                  </div>
+               </div>
+               <div class="col-sm-2">
+                  <div class="form-group">
+                     <select class="form-control input-sm" required id="icodalmacen" name="icodalmacen">
+                      {if="count($fsc->almacen->all())>1"}
+                      <option value="TODOS">Todos los almacenes</option>
+                      {/if}
+                     {loop="$fsc->almacen->all()"}
+                        <option value="{$value->codalmacen}" {if="$value->codalmacen==$fsc->icodalmacen"}selected{/if}>{$value->nombre}</option>
+                     {/loop}
+                     </select>
+                  </div>
+               </div>
+               <div class="col-sm-6 text-right">
+                  <button type="button" id="b_calcular_inventario" class="btn btn-sm btn-warning" onclick="this.form.accion.value='calcular';">
+                     <span class="fa fa-cogs" aria-hidden="true"></span>
+                     <span class="hidden-xs">&nbsp; Calcular</span>
+                  </button>
+                  <button type="submit" class="btn btn-sm btn-primary" onclick="this.form.accion.value='buscar';">
+                     <span class="fa fa-search" aria-hidden="true"></span>
+                     <span class="hidden-xs">&nbsp; Buscar</span>
+                  </button>
+               </div>
+            </div>
+         </div>
+      </form>
+   </div>
+   <div class="row">
+      <div class="col-sm-12">
+         {if="$fsc->inventario->ultimo_proceso()"}
+            La última vez que se procesó el inventario fue el {$fsc->inventario->ultimo_proceso()}
+         {else}
+            No se ha calculado nunca el inventario, se debe calcular este para poder traer la información final.
+         {/if}
+         {loop="$fsc->inventario_resultado"}
+
+         {else}
+         <div class="alert alert-warning">No hay registros de inventario en el intervalo de fechas o almacén indicados. Puedes darle al boton <b>Calcular</b> para que se generé el calculo del mismo.</div>
+         {/loop}
+      </div>
+   </div>
+</div>
+<div class="modal fade" id="modal_calcular_inventario">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Calcular Inventario</h4>
+         </div>
+         <div class="modal-body bg-info">
+            {if="$fsc->inventario->ultimo_proceso()"}
+            <p align="justify">
+               Inventario ejecutado por ultima vez el: <b>{$fsc->inventario->ultimo_proceso()}</b>.
+            </p>
+            {else}
+            <p align="justify">
+               Nunca se ha ejecutado el inventario, se procesará desde el {$fsc->inventario->fecha_inicio}.
+            </p>
+            {/if}
+            <div class="col-sm-5">
+               <div class="input-group">
+                  <span class="input-group-addon">Desde</span>
+                  <input type="text" id="inv_desde" name="inv_desde" value="" class="form-control input-sm datepicker" autocomplete="off"/>
+               </div>
+            </div>
+            <div class="col-sm-5">
+               <div class="input-group">
+                  <span class="input-group-addon">Hasta</span>
+                  <input type="text" id="inv_hasta" name="inv_hasta" value="" class="form-control input-sm datepicker" autocomplete="off"/>
+               </div>
+            </div>
+            <p align="justify">
+               Opcionalmente puede indicar una fecha de inicio y fin específicos para procesar el kardex.
+            </p>
+            <hr/>
+         </div>
+         <div class="modal-footer">
+            <button type="button" id="b_ejecutar_calculo" data-disable="true" class="btn btn-sm btn-warning">
+               <span class='glyphicon glyphicon-equalizer'></span>&nbsp;Calcular
+            </button>
+         </div>
+      </div>
+   </div>
+</div>
+<div class="modal" id="modal_proceso_inventario">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body" id='modal_proceso_inventario_body'>
+                <div id="divProgress" class="text-left"></div>
+                <div class="progress progress-popup">
+                    <div class="progress-bar progress-bar-striped active" id="progressor"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {/if}
 

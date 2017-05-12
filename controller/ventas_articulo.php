@@ -12,7 +12,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -54,12 +54,12 @@ class ventas_articulo extends fs_controller
    {
       parent::__construct(__CLASS__, 'Articulo', 'ventas', FALSE, FALSE);
    }
-   
+
    protected function private_core()
    {
       /// ¿El usuario tiene permiso para eliminar en esta página?
       $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
-      
+
       $articulo = new articulo();
       $this->almacen = new almacen();
       $this->articulo = FALSE;
@@ -81,11 +81,11 @@ class ventas_articulo extends fs_controller
             break;
          }
       }
-      
+
       //Si nos llega la variable agrupar de un GET lo asignamos
       $agrupar = \filter_input(INPUT_GET, 'agrupar');
       $this->agrupar = ($agrupar)?$agrupar:$this->agrupar;
-      
+
       /**
        * Si hay atributos, mostramos el tab atributos.
        */
@@ -98,7 +98,7 @@ class ventas_articulo extends fs_controller
          $this->hay_atributos = TRUE;
          break;
       }
-      
+
       /**
        * Si hay alguna extensión de tipo config y texto no_tab_recios,
        * desactivamos la pestaña precios.
@@ -112,7 +112,7 @@ class ventas_articulo extends fs_controller
             break;
          }
       }
-      
+
       /**
        * Si hay alguna extensión de tipo config y texto no_tab_stock,
        * desactivamos la pestaña stock.
@@ -126,7 +126,7 @@ class ventas_articulo extends fs_controller
             break;
          }
       }
-      
+
       if( isset($_POST['referencia']) )
       {
          $this->articulo = $articulo->get($_POST['referencia']);
@@ -135,17 +135,17 @@ class ventas_articulo extends fs_controller
       {
          $this->articulo = $articulo->get($_GET['ref']);
       }
-      
+
       if($this->articulo)
       {
          $this->modificar(); /// todas las modificaciones van aquí
          $this->page->title = $this->articulo->referencia;
-         
+
          if($this->articulo->bloqueado)
          {
             $this->new_advice("Este artículo está bloqueado / obsoleto.");
          }
-         
+
          /**
           * Si no es un artículo con atributos, ocultamos la pestaña
           */
@@ -153,7 +153,7 @@ class ventas_articulo extends fs_controller
          {
             $this->mostrar_tab_atributos = FALSE;
          }
-         
+
          /**
           * Si está desactivado el control de stok en el artículo, ocultamos la pestaña
           */
@@ -161,19 +161,19 @@ class ventas_articulo extends fs_controller
          {
             $this->mostrar_tab_stock = FALSE;
          }
-         
+
          $this->familia = $this->articulo->get_familia();
          if(!$this->familia)
          {
             $this->familia = new familia();
          }
-         
+
          $this->fabricante = $this->articulo->get_fabricante();
          if(!$this->fabricante)
          {
             $this->fabricante = new fabricante();
          }
-         
+
          $this->stocks = $this->articulo->get_stock();
          /// metemos en un array los almacenes que no tengan stock de este producto
          $this->nuevos_almacenes = array();
@@ -192,10 +192,10 @@ class ventas_articulo extends fs_controller
                $this->nuevos_almacenes[] = $a;
             }
          }
-         
+
          $reg = new regularizacion_stock();
          $this->regularizaciones = $reg->all_from_articulo($this->articulo->referencia);
-         
+
          $this->equivalentes = $this->articulo->get_equivalentes();
       }
       else
@@ -203,7 +203,7 @@ class ventas_articulo extends fs_controller
          $this->new_error_msg("Artículo no encontrado.", 'error', FALSE, FALSE);
       }
    }
-   
+
    public function url()
    {
       if($this->articulo)
@@ -213,7 +213,7 @@ class ventas_articulo extends fs_controller
       else
          return $this->page->url();
    }
-   
+
    /**
     * Decide qué modificación hacer en función de los parametros del formulario.
     */
@@ -260,17 +260,17 @@ class ventas_articulo extends fs_controller
          $this->eliminar_combinacion();
       }
    }
-   
+
    private function edit_precio()
    {
       $this->articulo->set_impuesto( $_POST['codimpuesto'] );
       $this->articulo->set_pvp_iva( floatval($_POST['pvpiva']) );
-      
+
       if( isset($_POST['preciocoste']) )
       {
          $this->articulo->preciocoste = floatval($_POST['preciocoste']);
       }
-      
+
       if( $this->articulo->save() )
       {
          $this->new_message("Precio modificado correctamente.");
@@ -280,7 +280,7 @@ class ventas_articulo extends fs_controller
          $this->new_error_msg("Error al modificar el precio.");
       }
    }
-   
+
    private function edit_stock()
    {
       if($_POST['cantidadini'] == $_POST['cantidad'])
@@ -292,7 +292,7 @@ class ventas_articulo extends fs_controller
             {
                /// forzamos que se asigne el nombre del almacén
                $stock->nombre();
-               
+
                $stock->ubicacion = $_POST['ubicacion'];
                if( $stock->save() )
                {
@@ -304,7 +304,7 @@ class ventas_articulo extends fs_controller
       else if( $this->articulo->set_stock($_POST['almacen'], $_POST['cantidad']) )
       {
          $this->new_message("Stock guardado correctamente.");
-         
+
          /// añadimos la regularización
          foreach($this->articulo->get_stock() as $stock)
          {
@@ -312,10 +312,10 @@ class ventas_articulo extends fs_controller
             {
                /// forzamos que se asigne el nombre del almacén
                $stock->nombre();
-               
+
                $stock->ubicacion = $_POST['ubicacion'];
                $stock->save();
-               
+
                $regularizacion = new regularizacion_stock();
                $regularizacion->idstock = $stock->idstock;
                $regularizacion->cantidadini = floatval($_POST['cantidadini']);
@@ -336,7 +336,7 @@ class ventas_articulo extends fs_controller
          $this->new_error_msg("Error al guardar el stock.");
       }
    }
-   
+
    private function eliminar_regulacion()
    {
       $reg = new regularizacion_stock();
@@ -357,7 +357,7 @@ class ventas_articulo extends fs_controller
          $this->new_error_msg('Regularización no encontrada.');
       }
    }
-   
+
    private function edit_imagen()
    {
       if( is_uploaded_file($_FILES['fimagen']['tmp_name']) )
@@ -372,7 +372,7 @@ class ventas_articulo extends fs_controller
             $this->new_error_msg("¡Error al guardar la imagen del articulo!");
       }
    }
-   
+
    private function eliminar_imagen()
    {
       $this->articulo->set_imagen(NULL);
@@ -383,29 +383,29 @@ class ventas_articulo extends fs_controller
       else
          $this->new_error_msg("¡Error al eliminar la imagen del articulo!");
    }
-   
+
    private function modificar_articulo()
    {
       $this->articulo->descripcion = $_POST['descripcion'];
-      
+
       $this->articulo->tipo = NULL;
       if($_POST['tipo'] != '')
       {
          $this->articulo->tipo = $_POST['tipo'];
       }
-      
+
       $this->articulo->codfamilia = NULL;
       if($_POST['codfamilia'] != '')
       {
          $this->articulo->codfamilia = $_POST['codfamilia'];
       }
-      
+
       $this->articulo->codfabricante = NULL;
       if($_POST['codfabricante'] != '')
       {
          $this->articulo->codfabricante = $_POST['codfabricante'];
       }
-      
+
       /// ¿Existe ya ese código de barras?
       if($_POST['codbarras'] != '')
       {
@@ -423,7 +423,7 @@ class ventas_articulo extends fs_controller
             }
          }
       }
-      
+
       $this->articulo->codbarras = $_POST['codbarras'];
       $this->articulo->partnumber = $_POST['partnumber'];
       $this->articulo->equivalencia = $_POST['equivalencia'];
@@ -437,20 +437,20 @@ class ventas_articulo extends fs_controller
       $this->articulo->stockmin = floatval($_POST['stockmin']);
       $this->articulo->stockmax = floatval($_POST['stockmax']);
       $this->articulo->trazabilidad = isset($_POST['trazabilidad']);
-      
+
       if( $this->articulo->save() )
       {
          $this->new_message("Datos del articulo modificados correctamente");
-         
+
          $img = $this->articulo->imagen_url();
          $this->articulo->set_referencia($_POST['nreferencia']);
-         
+
          /// ¿Renombramos la imagen?
          if($img)
          {
             @rename($img, $this->articulo->imagen_url());
          }
-         
+
          /**
           * Renombramos la referencia en el resto de tablas: lineasalbaranes, lineasfacturas...
           */
@@ -459,25 +459,25 @@ class ventas_articulo extends fs_controller
             $this->db->exec("UPDATE lineasalbaranescli SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
                     ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
          }
-         
+
          if( $this->db->table_exists('lineasalbaranesprov') )
          {
             $this->db->exec("UPDATE lineasalbaranesprov SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
                     ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
          }
-         
+
          if( $this->db->table_exists('lineasfacturascli') )
          {
             $this->db->exec("UPDATE lineasfacturascli SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
                     ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
          }
-         
+
          if( $this->db->table_exists('lineasfacturasprov') )
          {
             $this->db->exec("UPDATE lineasfacturasprov SET referencia = ".$this->empresa->var2str($_POST['nreferencia'])
                     ." WHERE referencia = ".$this->empresa->var2str($_POST['referencia']).";");
          }
-         
+
          /// esto es una personalización del plugin producción, será eliminado este código en futuras versiones.
          if( $this->db->table_exists('lineasfabricados') )
          {
@@ -488,23 +488,23 @@ class ventas_articulo extends fs_controller
       else
          $this->new_error_msg("¡Error al guardar el articulo!");
    }
-   
+
    private function nueva_combinacion()
    {
       $comb1 = new articulo_combinacion();
       $comb1->referencia = $this->articulo->referencia;
       $comb1->impactoprecio = floatval($_POST['impactoprecio']);
-      
+
       if($_POST['refcombinacion'])
       {
          $comb1->refcombinacion = $_POST['refcombinacion'];
       }
-      
+
       if($_POST['codbarras'])
       {
          $comb1->codbarras = $_POST['codbarras'];
       }
-      
+
       $error = TRUE;
       $valor0 = new atributo_valor();
       for($i = 0; $i < 10; $i++)
@@ -529,7 +529,7 @@ class ventas_articulo extends fs_controller
             break;
          }
       }
-      
+
       if($error)
       {
          $this->new_error_msg('Error al guardar la combinación.');
@@ -539,7 +539,7 @@ class ventas_articulo extends fs_controller
          $this->new_message('Combinación guardada correctamente.');
       }
    }
-   
+
    private function edit_combinacion()
    {
       $comb1 = new articulo_combinacion();
@@ -550,21 +550,21 @@ class ventas_articulo extends fs_controller
          {
             $com->refcombinacion = $_POST['refcombinacion'];
          }
-         
+
          $com->codbarras = NULL;
          if($_POST['codbarras'])
          {
             $com->codbarras = $_POST['codbarras'];
          }
-         
+
          $com->impactoprecio = floatval($_POST['impactoprecio']);
          $com->stockfis = floatval($_POST['stockcombinacion']);
          $com->save();
       }
-      
+
       $this->new_message('Combinación modificada.');
    }
-   
+
    private function eliminar_combinacion()
    {
       $comb1 = new articulo_combinacion();
@@ -572,15 +572,15 @@ class ventas_articulo extends fs_controller
       {
          $com->delete();
       }
-      
+
       $this->new_message('Combinación eliminada.');
    }
-   
+
    public function get_tarifas()
    {
       $tarlist = array();
       $tarifa = new tarifa();
-      
+
       foreach($tarifa->all() as $tar)
       {
          $articulo = $this->articulo->get($this->articulo->referencia);
@@ -592,15 +592,15 @@ class ventas_articulo extends fs_controller
             $tarlist[] = $aux[0];
          }
       }
-      
+
       return $tarlist;
    }
-   
+
    public function get_articulo_proveedores()
    {
       $artprov = new articulo_proveedor();
       $alist = $artprov->all_from_ref($this->articulo->referencia);
-      
+
       /// revismos el impuesto y la descripción
       foreach($alist as $i => $value)
       {
@@ -610,22 +610,22 @@ class ventas_articulo extends fs_controller
             $alist[$i]->codimpuesto = $this->articulo->codimpuesto;
             $guardar = TRUE;
          }
-         
+
          if( is_null($value->descripcion) )
          {
             $alist[$i]->descripcion = $this->articulo->descripcion;
             $guardar = TRUE;
          }
-         
+
          if($guardar)
          {
             $alist[$i]->save();
          }
       }
-      
+
       return $alist;
    }
-   
+
    /**
     * Devuelve un array con los movimientos de stock del artículo.
     * @return array
@@ -633,13 +633,13 @@ class ventas_articulo extends fs_controller
    public function get_movimientos($codalmacen)
    {
       $mlist = array();
-      
+
       if( !isset($this->regularizaciones) )
       {
          $reg = new regularizacion_stock();
          $this->regularizaciones = $reg->all_from_articulo($this->articulo->referencia);
       }
-      
+
       foreach($this->regularizaciones as $reg)
       {
          //Solo tomamos las regularizaciones del almacén actual
@@ -657,19 +657,74 @@ class ventas_articulo extends fs_controller
             );
          }
       }
-      
+
       /// nos guardamos la lista de tablas para agilizar
       $tablas = $this->db->list_tables();
-      
+
+      if( $this->db->table_exists('transstock', $tablas) AND $this->db->table_exists('lineastransstock', $tablas) )
+      {
+         //Buscamos los ingresos por transferencia
+         $sql = "select codalmadestino as codalmacen, l.idtrans, fecha, hora, referencia, cantidad "
+                 ." FROM lineastransstock AS ls "
+                 ." JOIN transstock as l ON (ls.idtrans = l.idtrans) "
+                 ." WHERE codalmadestino = " . $this->empresa->var2str($codalmacen)
+                 ." AND ls.referencia = ".$this->articulo->var2str($this->articulo->referencia)
+                 ." GROUP by l.idtrans, fecha, hora, referencia "
+                 ." ORDER by l.idtrans;";
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $mlist[] = array(
+                   'codalmacen' => $d['codalmacen'],
+                   'origen' => 'Ingreso por transferencia '.$d['idtrans'],
+                   'url' => 'index.php?page=editar_transferencia_stock&id='.intval($d['idtrans']),
+                   'inicial' => 0,
+                   'movimiento' => floatval($d['cantidad']),
+                   'final' => 0,
+                   'fecha' => date('d-m-Y', strtotime($d['fecha'])),
+                   'hora' => date('H:i:s', strtotime($d['hora']))
+               );
+            }
+         }
+
+         //Buscamos las salidas por transferencia
+         $sql = "select codalmaorigen as codalmacen, l.idtrans, fecha, hora, referencia, cantidad "
+                 ." FROM lineastransstock AS ls "
+                 ." JOIN transstock as l ON (ls.idtrans = l.idtrans) "
+                 ." WHERE codalmaorigen = " . $this->empresa->var2str($codalmacen)
+                 ." AND ls.referencia = ".$this->articulo->var2str($this->articulo->referencia)
+                 ." GROUP by l.idtrans, fecha, hora, referencia "
+                 ." ORDER by l.idtrans;";
+         $data = $this->db->select($sql);
+         if($data)
+         {
+            foreach($data as $d)
+            {
+               $mlist[] = array(
+                   'codalmacen' => $d['codalmacen'],
+                   'origen' => 'Salida por transferencia '.$d['idtrans'],
+                   'url' => 'index.php?page=editar_transferencia_stock&id='.intval($d['idtrans']),
+                   'inicial' => 0,
+                   'movimiento' => 0-floatval($d['cantidad']),
+                   'final' => 0,
+                   'fecha' => date('d-m-Y', strtotime($d['fecha'])),
+                   'hora' => date('H:i:s', strtotime($d['hora']))
+               );
+            }
+         }
+      }
+
       if( $this->db->table_exists('albaranesprov', $tablas) AND $this->db->table_exists('lineasalbaranesprov', $tablas) )
       {
          /// buscamos el artículo en albaranes de compra
          $sql = "SELECT a.idalbaran,a.codigo,l.cantidad,a.fecha,a.hora,a.codalmacen
             FROM albaranesprov a, lineasalbaranesprov l
             WHERE a.idalbaran = l.idalbaran
-            AND a.codalmacen = ".$this->empresa->var2str($codalmacen)." 
+            AND a.codalmacen = ".$this->empresa->var2str($codalmacen)."
             AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
-         
+
          $data = $this->db->select($sql);
          if($data)
          {
@@ -688,16 +743,16 @@ class ventas_articulo extends fs_controller
             }
          }
       }
-      
+
       if( $this->db->table_exists('facturasprov', $tablas) AND $this->db->table_exists('lineasfacturasprov', $tablas) )
       {
          /// buscamos el artículo en facturas de compra
          $sql = "SELECT f.idfactura,f.codigo,l.cantidad,f.fecha,f.hora,f.codalmacen
             FROM facturasprov f, lineasfacturasprov l
             WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL
-            AND f.codalmacen = ".$this->empresa->var2str($codalmacen)." 
+            AND f.codalmacen = ".$this->empresa->var2str($codalmacen)."
             AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
-         
+
          $data = $this->db->select($sql);
          if($data)
          {
@@ -716,16 +771,16 @@ class ventas_articulo extends fs_controller
             }
          }
       }
-      
+
       if( $this->db->table_exists('albaranescli', $tablas) AND $this->db->table_exists('lineasalbaranescli', $tablas) )
       {
          /// buscamos el artículo en albaranes de venta
          $sql = "SELECT a.idalbaran,a.codigo,l.cantidad,a.fecha,a.hora,a.codalmacen
             FROM albaranescli a, lineasalbaranescli l
             WHERE a.idalbaran = l.idalbaran
-            AND a.codalmacen = ".$this->empresa->var2str($codalmacen)." 
+            AND a.codalmacen = ".$this->empresa->var2str($codalmacen)."
             AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
-         
+
          $data = $this->db->select($sql);
          if($data)
          {
@@ -744,16 +799,16 @@ class ventas_articulo extends fs_controller
             }
          }
       }
-      
+
       if( $this->db->table_exists('facturascli', $tablas) AND $this->db->table_exists('lineasfacturascli', $tablas) )
       {
          /// buscamos el artículo en facturas de venta
          $sql = "SELECT f.idfactura,f.codigo,l.cantidad,f.fecha,f.hora,f.codalmacen
             FROM facturascli f, lineasfacturascli l
             WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL
-            AND f.codalmacen = ".$this->empresa->var2str($codalmacen)." 
+            AND f.codalmacen = ".$this->empresa->var2str($codalmacen)."
             AND l.referencia = ".$this->articulo->var2str($this->articulo->referencia);
-         
+
          $data = $this->db->select($sql);
          if($data)
          {
@@ -772,7 +827,7 @@ class ventas_articulo extends fs_controller
             }
          }
       }
-      
+
       /// ordenamos por fecha y hora
       usort($mlist, function($a,$b) {
          if( strtotime($a['fecha'].' '.$a['hora']) == strtotime($b['fecha'].' '.$b['hora']) )
@@ -786,7 +841,7 @@ class ventas_articulo extends fs_controller
          else
             return 1;
       });
-            
+
       /// recalculamos las cantidades finales hacia atrás
       $final = $this->stock->total_from_articulo($this->articulo->referencia,$codalmacen);
       for($i = count($mlist) - 1; $i >= 0; $i--)
@@ -808,7 +863,7 @@ class ventas_articulo extends fs_controller
          $final -= $mlist[$i]['movimiento'];
          $mlist[$i]['inicial'] = $final;
       }
-      
+
       /// Si esta el agrupar con un valor se agrupan los datos
       if($this->agrupar)
       {
@@ -819,7 +874,7 @@ class ventas_articulo extends fs_controller
                $this->mgrupo[$item['fecha']]['ingreso'] = FALSE;
                $this->mgrupo[$item['fecha']]['salida'] = FALSE;
             }
-            
+
             if($item['movimiento'] > 0)
             {
                $this->mgrupo[$item['fecha']]['ingreso'] += $item['movimiento'];
@@ -830,10 +885,10 @@ class ventas_articulo extends fs_controller
             }
          }
       }
-      
+
       return $mlist;
    }
-   
+
    /**
     * Calcula el stock real del artículo en función de los movimientos y regularizaciones
     */
@@ -851,7 +906,7 @@ class ventas_articulo extends fs_controller
                $total += $mov['movimiento'];
             }
          }
-         
+
          if( $this->articulo->set_stock($alm->codalmacen, $total) )
          {
             $this->new_message('Recarculado el stock del almacén '.$alm->codalmacen.'.');
@@ -865,11 +920,11 @@ class ventas_articulo extends fs_controller
       $this->new_message("Puedes recalcular el stock de todos los artículos desde"
                . " <b>Informes &gt; Artículos &gt; Stock</b>");
    }
-   
+
    public function combinaciones()
    {
       $lista = array();
-      
+
       $comb1 = new articulo_combinacion();
       foreach($comb1->all_from_ref($this->articulo->referencia) as $com)
       {
@@ -883,10 +938,10 @@ class ventas_articulo extends fs_controller
             $lista[$com->codigo] = $com;
          }
       }
-      
+
       return $lista;
    }
-   
+
    public function atributos()
    {
       $atri0 = new atributo();
