@@ -11,56 +11,22 @@
    });
    {/if}
 $(document).ready(function(){
-      $('#b_calcular_inventario').click(function (event) {
-         $("#modal_calcular_inventario").modal('show');
-      });
+   $('#b_calcular_inventario').click(function (event) {
+      $("#modal_calcular_inventario").modal('show');
+   });
 
    $('#b_ejecutar_calculo').click(function (event) {
-      $("#modal_calcular_inventario").modal('hide');
-      ejecutar_inventario();
+      $('#b_ejecutar_calculo').hide();
+      $('#calculando').show();
+      recalcular_stock();
    });
 });
 
-   function ejecutar_inventario() {
-        var inv_desde = $('#inv_desde').val();
-        var icodalmacen = $('#codalmacen').val();
-        if (!window.XMLHttpRequest) {
-            bootbox.alert("Tu navegador no soporta tecnología XMLHttpRequest.");
-            return;
-        }
-        try {
-            var xhr = new XMLHttpRequest();
-            xhr.previous_text = '';
-            xhr.onerror = function () {
-                alert("Ocurrió un error inesperado en la llamada [XHR].");
-            };
-            xhr.onreadystatechange = function () {
-                try {
-                    if (xhr.readyState === 4) {
-                        bootbox.alert({ message: '¡Inventario actualizado correctamente!', callback:function(){
-                              window.location.assign("{$fsc->url()}&tab=stock");
-                           }
-                        });
-                        $('#modal_proceso_inventario').modal('hide');
-                    } else if (xhr.readyState > 2) {
-                        var new_response = xhr.responseText.substring(xhr.previous_text.length);
-                        var result = JSON.parse(new_response);
-                        $('#modal_proceso_inventario').modal('show');
-                        document.getElementById("divProgress").innerHTML = result.message;
-                        document.getElementById("progressor").innerHTML = result.progress + "%";
-                        document.getElementById('progressor').style.width = result.progress + "%";
-                        xhr.previous_text = xhr.responseText;
-                    }
-                } catch (e) {
-                    alert("[XHR STATECHANGE] Exception: " + e);
-                }
-            };
-            xhr.open('GET', '{$fsc->url()}&tab=stock&recalcular=ok&codalmacen={$fsc->codalmacen}&inv_desde='+inv_desde, true);
-            xhr.send();
-        } catch (e) {
-            alert("[XHR REQUEST] Exception: " + e);
-        }
-    }
+function recalcular_stock()
+{
+   var inv_desde = $('#inv_desde').val();
+   window.location.assign('{$fsc->url()}&tab=stock&recalcular=ok&codalmacen={$fsc->codalmacen}&inv_desde='+inv_desde);
+}
 </script>
 
 <div class="container-fluid">
@@ -104,12 +70,6 @@ $(document).ready(function(){
                <a href="{$fsc->url()}&tab=varios">
                   <span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span>
                   <span class="hidden-xs">&nbsp;Varios</span>
-               </a>
-            </li>
-            <li role="presentation"{if="$fsc->pestanya=='inventario'"} class="active"{/if}>
-               <a href="{$fsc->url()}&tab=inventario">
-                  <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
-                  <span class="hidden-xs">&nbsp;Inventario</span>
                </a>
             </li>
          </ul>
@@ -353,6 +313,10 @@ $(document).ready(function(){
       </div>
       <div class="col-sm-6 text-right">
          <div class="btn-group">
+            <a href="#" class="btn btn-default btn-sm" id="b_opciones_inventario" data-toggle="modal" data-target="#modal_opciones_inventario" name="opciones_inventario">
+               <span class='glyphicon glyphicon-cog'></span>
+               <span class="hidden-xs">&nbsp;Opciones de Calculo</span>
+            </a>
             <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_recal_stock">
                <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
                <span class="hidden-xs">&nbsp; Recalcular stock</span>
@@ -364,6 +328,61 @@ $(document).ready(function(){
             </a>
             {/if}
          </div>
+      </div>
+   </div>
+</div>
+<div class="modal fade" id="modal_opciones_inventario">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <form class="form" id="f_opciones_inventario" role="form" action="{$fsc->url()}&tab=stock&opciones-inventario=TRUE" method="POST">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">Opciones de Calculo de Inventario Diario</h4>
+            </div>
+            <div class="modal-body bg-warning">
+               <p align="justify">
+                  Aqui puede indicar una hora específica para ejecutar automáticamente el Calculo de Inventario Diario, 
+                  pero para esto debe tener correctamente configurado el proceso de <b>cron</b> al instalar FacturaScripts.
+               </p>
+               <p align="justify">
+                  Si el cron esta configurado para ejecutarse una sola vez al día, 
+                  entonces debe colocar la hora de ejecución del Calculo de Inventario a la hora que corre el cron.
+               </p>
+               <hr/>
+               <div class="row">
+                  <div class="col-sm-6">
+                     <label class="control-label"><b>¿Se ejecuta automáticamente?</b></label>
+                  </div>
+                  <div class="col-sm-6">
+                     <div class="form-group" id="inventario_cron_ops">
+                        <label class="control-label">
+                           <input type="radio" name='inventario_cron' value='TRUE' {if="$fsc->inventario_cron"}checked{/if}>
+                           Si
+                        </label>
+                        &nbsp;
+                        <label class="control-label">
+                           <input type="radio" name='inventario_cron' value='' {if="!$fsc->inventario_cron"}checked{/if}>
+                           No
+                        </label>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group">
+                  <label class="control-label col-sm-6 pull-left" for='inventario_programado'><b>Hora de Ejecución:</b></label>
+                  <select class="control-label input-sm col-xs-2" name='inventario_programado'>
+                     {loop="$fsc->loop_horas"}
+                     <option value="{$value}" {if="$fsc->inventario_programado==$value"}selected{/if}>{$value}</option>
+                     {/loop}
+                  </select>
+               </div>
+               <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+               <button type="submit" data-disable="true" class="btn btn-sm btn-warning">
+                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp;Guardar cambios
+               </button>
+            </div>
+         </form>
       </div>
    </div>
 </div>
@@ -490,10 +509,14 @@ $(document).ready(function(){
             <div class="clearfix"></div>
          </div>
          <div class="modal-footer">
-             <a href="#" id="b_ejecutar_calculo" class="btn btn-sm btn-warning">
+            <a href="#" id="b_ejecutar_calculo" class="btn btn-sm btn-warning">
                <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
                <span class="hidden-xs">&nbsp; Recalcular stock</span>
             </a>
+            <button id="calculando" class="btn btn-sm btn-info" disabled="" style="display: none;">
+               <i class="fa fa-spinner fa-pulse fa-fw"></i>
+               <span>Recalculando Stock...</span>
+            </button>
          </div>
       </div>
    </div>
@@ -691,7 +714,7 @@ $(document).ready(function(){
                         y las facturas de compra y de venta.
                      </p>
                      <p class="help-block">
-                        También dispones del <b>plugin kardex</b> para obtener un listado
+                        También dispones del <b>plugin inventario</b> para obtener un listado
                         de inventario valorado.
                      </p>
                      <div class="form-group">
@@ -880,118 +903,5 @@ $(document).ready(function(){
       </div>
    </div>
 </div>
-{elseif="$fsc->pestanya=='inventario'"}
-<div class="container-fluid">
-   <div class="row">
-      <form action="{$fsc->url()}&tab=inventario" method="post" class="form">
-         <input type="hidden" name="accion" value="">
-         <div class="panel-body">
-            <div class="row">
-               <div class="col-sm-2">
-                  <div class="input-group">
-                     <span class="input-group-addon">Desde</span>
-                     <input type="text" idesde="idesde" name="idesde" value="{$fsc->idesde}" class="form-control input-sm datepicker" autocomplete="off" onchange="this.form.submit()"/>
-                  </div>
-               </div>
-               <div class="col-sm-2">
-                  <div class="input-group">
-                     <span class="input-group-addon">Hasta</span>
-                     <input type="text" id="ihasta" name="ihasta" value="{$fsc->ihasta}" class="form-control input-sm datepicker" autocomplete="off" onchange="this.form.submit()"/>
-                  </div>
-               </div>
-               <div class="col-sm-2">
-                  <div class="form-group">
-                     <select class="form-control input-sm" required id="icodalmacen" name="icodalmacen">
-                      {if="count($fsc->almacen->all())>1"}
-                      <option value="TODOS">Todos los almacenes</option>
-                      {/if}
-                     {loop="$fsc->almacen->all()"}
-                        <option value="{$value->codalmacen}" {if="$value->codalmacen==$fsc->icodalmacen"}selected{/if}>{$value->nombre}</option>
-                     {/loop}
-                     </select>
-                  </div>
-               </div>
-               <div class="col-sm-6 text-right">
-                  <button type="button" id="b_calcular_inventario" class="btn btn-sm btn-warning" onclick="this.form.accion.value='calcular';">
-                     <span class="fa fa-cogs" aria-hidden="true"></span>
-                     <span class="hidden-xs">&nbsp; Calcular</span>
-                  </button>
-                  <button type="submit" class="btn btn-sm btn-primary" onclick="this.form.accion.value='buscar';">
-                     <span class="fa fa-search" aria-hidden="true"></span>
-                     <span class="hidden-xs">&nbsp; Buscar</span>
-                  </button>
-               </div>
-            </div>
-         </div>
-      </form>
-   </div>
-   <div class="row">
-      <div class="col-sm-12">
-         {if="$fsc->inventario->ultimo_proceso()"}
-            La última vez que se procesó el inventario fue el {$fsc->inventario->ultimo_proceso()}
-         {else}
-            No se ha calculado nunca el inventario, se debe calcular este para poder traer la información final.
-         {/if}
-         {loop="$fsc->inventario_resultado"}
-
-         {else}
-         <div class="alert alert-warning">No hay registros de inventario en el intervalo de fechas o almacén indicados. Puedes darle al boton <b>Calcular</b> para que se generé el calculo del mismo.</div>
-         {/loop}
-      </div>
-   </div>
-</div>
-<div class="modal fade" id="modal_calcular_inventario">
-   <div class="modal-dialog">
-      <div class="modal-content">
-         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Calcular Inventario</h4>
-         </div>
-         <div class="modal-body bg-info">
-            <div class="col-sm-12">
-            {if="$fsc->inventario->ultimo_proceso()"}
-            <p align="justify">
-               Inventario ejecutado por ultima vez el: <b>{$fsc->inventario->ultimo_proceso()}</b>.
-            </p>
-            {else}
-            <p align="justify">
-               Nunca se ha ejecutado el inventario, se procesará desde el {$fsc->inventario->fecha_inicio}.
-            </p>
-            {/if}
-            </div>
-            <div class="col-sm-5">
-               <div class="input-group">
-                  <span class="input-group-addon">Desde</span>
-                  <input type="text" id="inv_desde2" name="inv_desde2" value="" class="form-control input-sm datepicker" autocomplete="off"/>
-               </div>
-            </div>
-            <div class="col-sm-12">
-               <p align="justify">
-                  Opcionalmente puede indicar una fecha de inicio para procesar el inventario.
-               </p>
-            </div>
-            <div class="clearfix"></div>
-         </div>
-         <div class="modal-footer">
-            <button type="button" id="b_ejecutar_calculo_2" data-disable="true" class="btn btn-sm btn-warning">
-               <span class='glyphicon glyphicon-equalizer'></span>&nbsp;Calcular
-            </button>
-         </div>
-      </div>
-   </div>
-</div>
-
 {/if}
-<div class="modal" id="modal_proceso_inventario">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-body" id='modal_proceso_inventario_body'>
-                <div id="divProgress" class="text-left"></div>
-                <div class="progress progress-popup">
-                    <div class="progress-bar progress-bar-striped active" id="progressor"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 {include="footer"}

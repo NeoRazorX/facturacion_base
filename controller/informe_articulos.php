@@ -56,7 +56,7 @@ class informe_articulos extends fbase_controller
    public $top_ventas;
    public $top_compras;
    public $url_recarga;
-
+   
    /**
     * para buscar el inventario
     * @var type date
@@ -74,11 +74,12 @@ class informe_articulos extends fbase_controller
    public $icodalmacen;
 
    public $inventario;
-
+   public $inventario_setup;
    public $inventario_resultado;
 
    private $tablas;
-
+   public $loop_horas;
+   
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Artículos', 'informes');
@@ -107,18 +108,23 @@ class informe_articulos extends fbase_controller
       $codalmacen = ($codalmacen_p)?$codalmacen_p:$codalmacen_g;
       $this->codalmacen = ($codalmacen)?$codalmacen:$this->codalmacen;
 
-      $this->desde = Date('01-m-Y');
+      $this->desde = \date('01-m-Y');
       $desde_p = \filter_input(INPUT_POST, 'desde');
       $desde_g = \filter_input(INPUT_GET, 'desde');
       $desde = ($desde_p)?$desde_p:$desde_g;
       $this->desde = ($desde)?$desde:$this->desde;
 
-      $this->hasta = Date('t-m-Y');
+      $this->hasta = \date('t-m-Y');
       $hasta_p = \filter_input(INPUT_POST, 'hasta');
       $hasta_g = \filter_input(INPUT_GET, 'hasta');
       $hasta = ($hasta_p)?$hasta_p:$hasta_g;
       $this->hasta = ($hasta)?$hasta:$this->hasta;
 
+      //Creamos un array para el selector de horas para cron
+      for ($x = 0; $x < 25; $x++) {
+          $this->loop_horas[] = str_pad($x, 2, "0", STR_PAD_LEFT);
+      }
+      
       $this->offset = 0;
       if( isset($_GET['offset']) )
       {
@@ -153,16 +159,38 @@ class informe_articulos extends fbase_controller
       {
          $this->varios();
       }
-      else if($this->pestanya == 'inventario')
-      {
-         $this->inventario();
-      }
    }
 
    public function stocks()
    {
-      /// forzamos la comprobación de la tabla stock
+      /// forzamos la comprobación de la tabla de inventario
       $this->inventario->ultima_fecha();
+      
+      $this->opciones_inventario();
+      
+      $actualizar_informacion = \filter_input(INPUT_GET, 'opciones-inventario');
+      if($actualizar_informacion)
+      {
+         $fsvar = new fs_var();
+         $op_inventario_cron = \filter_input(INPUT_POST, 'inventario_cron');
+         $op_inventario_programado = \filter_input(INPUT_POST, 'inventario_programado');
+         $inventario_cron = ($op_inventario_cron == 'TRUE') ? "TRUE" : "FALSE";
+         $inventario_programado = $op_inventario_programado;
+         $inventario_config = array(
+            'inventario_cron' => $inventario_cron,
+            'inventario_programado' => $inventario_programado
+         );
+         if ($fsvar->array_save($inventario_config))
+         {
+            $this->new_message('Cambios guardados correctamente.');
+         } 
+         else
+         {
+            $this->new_error_message('No se pudieron grabar las opciones de calculo, por favor confirme que eligió una hora correcta.');
+         }
+         $this->opciones_inventario();
+      }
+      
       $this->tipo_stock = 'todo';
       if( isset($_GET['tipo']) )
       {
@@ -245,60 +273,52 @@ class informe_articulos extends fbase_controller
          }
       }
    }
-
-   public function inventario()
+   
+   public function opciones_inventario()
    {
-      $this->icodalmacen = FALSE;
-      $icodalmacen_p = \filter_input(INPUT_POST, 'icodalmacen');
-      $icodalmacen_g = \filter_input(INPUT_GET, 'icodalmacen');
-      $icodalmacen = ($icodalmacen_p)?$icodalmacen_p:$icodalmacen_g;
-      $this->icodalmacen = ($icodalmacen)?$icodalmacen:$this->icodalmacen;
-
-      $this->idesde = Date('01-m-Y');
-      $idesde_p = \filter_input(INPUT_POST, 'idesde');
-      $idesde_g = \filter_input(INPUT_GET, 'idesde');
-      $idesde = ($idesde_p)?$idesde_p:$idesde_g;
-      $this->idesde = ($idesde)?$idesde:$this->idesde;
-
-      $this->ihasta = Date('t-m-Y');
-      $ihasta_p = \filter_input(INPUT_POST, 'ihasta');
-      $ihasta_g = \filter_input(INPUT_GET, 'ihasta');
-      $ihasta = ($ihasta_p)?$ihasta_p:$ihasta_g;
-      $this->ihasta = ($ihasta)?$ihasta:$this->ihasta;
-
-      $accion_p = \filter_input(INPUT_POST, 'accion');
-      $accion_g = \filter_input(INPUT_GET, 'accion');
-      $accion = ($accion_p)?$accion_p:$accion_g;
-
-      $this->inventario_resultado = array();
-      $lista_almacenes = ($this->icodalmacen=='TODOS')?$this->almacen->all():array($this->almacen->get($this->icodalmacen));
-      $this->inventario->ultima_fecha();
-      if($accion == 'calcular')
-      {
-         $this->template = false;
-         $this->inventario->fecha_inicio = (\filter_input(INPUT_GET, 'inv_desde'))?\filter_input(INPUT_GET, 'inv_desde'):NULL;
-         $this->inventario->fecha_fin = \date('d-m-Y');
-         $this->inventario->almacenes = $lista_almacenes;
-         $this->inventario->procesar_inventario($this->user->nick);
-      }
-      else
-      {
-         foreach($lista_almacenes as $alm)
-         {
-            $lista = $this->inventario->listar_movimientos($this->idesde,$this->ihasta,$alm->codalmacen);
-            array_merge($this->inventario_resultado,$lista);
-         }
-      }
+      $fsvar = new fs_var();
+      $this->inventario_setup = $fsvar->array_get(
+         array(
+            'inventario_ultimo_proceso' => '',
+            'inventario_cron' => '',
+            'inventario_programado' => '',
+            'inventario_procesandose' => 'FALSE',
+            'inventario_usuario_procesando' => ''
+         ), FALSE
+      );
+      $this->inventario_procesandose = ($this->inventario_setup['inventario_procesandose'] == 'TRUE') ? TRUE : FALSE;
+      $this->inventario_usuario_procesando = ($this->inventario_setup['inventario_usuario_procesando']) ? $this->inventario_setup['inventario_usuario_procesando'] : FALSE;
+      $this->inventario_cron = $this->inventario_setup['inventario_cron'];
+      $this->inventario_programado = $this->inventario_setup['inventario_programado'];
    }
 
    private function recalcular_stock()
    {
-      $this->template = false;
       $lista_almacenes = (!$this->codalmacen)?$this->almacen->all():array($this->almacen->get($this->codalmacen));
-      $this->inventario->fecha_inicio = (\filter_input(INPUT_GET, 'inv_desde'))?\filter_input(INPUT_GET, 'inv_desde'):NULL;
-      $this->inventario->fecha_fin = \date('d-m-Y');
+      $fecha_desde = \filter_input(INPUT_GET, 'inv_desde');
+      $this->inventario->fecha_inicio = ($fecha_desde)?\date('Y-m-d',strtotime($fecha_desde)):$this->inventario->fecha_inicio;
+      $fechaFin = \date("Y-m-t", strtotime($this->inventario->fecha_inicio));
+      $mesProceso = \date("m", strtotime($this->inventario->fecha_inicio));
+      $anhoProceso = \date("Y", strtotime($this->inventario->fecha_inicio));
+      $periodoProceso = \date("Y-m", strtotime($this->inventario->fecha_inicio));
+      $fechaHoy = \date('Y-m-d');
+      $periodoActual = \date('Y-m');
+      $fechaSiguienteMes = \date('Y-m-d', mktime(0, 0, 0, $mesProceso+1, 1, $anhoProceso));
+      $this->inventario->fecha_fin = ($periodoProceso == $periodoActual)?$fechaHoy:$fechaFin;
       $this->inventario->almacenes = $lista_almacenes;
       $this->inventario->procesar_inventario($this->user->nick);
+      if($periodoProceso != $periodoActual)
+      {
+         $this->new_message('Recalculando stock de artículos, procesado el periodo del '
+            .$this->inventario->fecha_inicio.' al '.$this->inventario->fecha_fin
+            .'... recalculando el siguiente mes&nbsp;<i class="fa fa-spinner fa-pulse fa-fw"></i>...');
+         $this->url_recarga = $this->url().'&tab=stock&recalcular=TRUE&codalmacen='.$this->codalmacen.'&inv_desde='.$fechaSiguienteMes;
+      }
+      else
+      {
+         $this->new_advice('Finalizado &nbsp; <span class="fa fa-ok" aria-hidden="true"></span>');
+      }
+      
    }
 
    private function recalcular_stock_old()

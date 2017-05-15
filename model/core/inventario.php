@@ -159,6 +159,11 @@ class inventario extends \fs_model
     */
    public $tablas;
    public $stock;
+   /**
+    * Si se va procesar solo un artículo se envia esta variable con información
+    * @var type referencia Articulo
+    */
+   public $ref;
    public function __construct($t = '')
    {
       parent::__construct('inventario');
@@ -198,7 +203,7 @@ class inventario extends \fs_model
       $this->cron = false;
       $this->tablas = $this->db->list_tables();
       $this->almacenes = false;
-
+      $this->ref = false;
    }
 
    protected function install()
@@ -352,68 +357,7 @@ class inventario extends \fs_model
       {
          $this->ultima_fecha();
       }
-
-      /**
-       * Una vez con el rango de días generamos el intervalo para saber
-       * la cantidad de días que vamos a procesar el inventario
-       */
-      $intervalo = date_diff(date_create($this->fecha_inicio), date_create($this->fecha_fin));
-      $dias_proceso = $intervalo->format('%a') + 1;
-      $rango = $this->rango_fechas();
-
-      /**
-       * Si no se va ejecutar por cron
-       * inicializamos el object collector
-       * para poder mostrar en pantalla
-       * como avanza el calculo del inventario
-       */
-      if (!$this->cron)
-      {
-         ob_implicit_flush(true);
-         ob_end_flush();
-      }
-
-      //Iniciamos el control del inventario
-      $inicio_total = new \DateTime('NOW');
-      //contador de días procesados
-      $contador = 0;
-      //Iteramos el rango de fechas
-      foreach ($rango as $fecha)
-      {
-         $inicio_paso = new \DateTime('NOW');
-         sleep(1);
-         $plural = ($contador == 0) ? "" : "s";
-         $p = ceil((($contador + 1) * 100) / $dias_proceso);
-         $this->fecha_proceso = $fecha->format('Y-m-d');
-         //Bloqueamos el intento de procesar el Inventario por varios usuarios al mismo tiempo
-         $fsvar->array_save(
-            array(
-               'inventario_ultimo_proceso' => $this->fecha_proceso,
-               'inventario_procesandose' => 'TRUE',
-               'inventario_usuario_procesando' => ($usuario) ? $usuario : 'cron'
-            )
-         );
-         /**
-          * Iniciamos el calculo del inventario
-          */
-         $this->calcular_inventario();
-         /**
-          * Si no es el cron que ejecuta el inventario mandamos la cadena json de avance del mismo
-          */
-         if (!$this->cron)
-         {
-            $fin_paso = $inicio_paso->diff(new \DateTime('NOW'));
-            $tiempo_proceso = $inicio_total->diff(new \DateTime('NOW'));
-            $time = $fin_paso->h . ':' . $fin_paso->i . ':' . $fin_paso->s;
-            $tiempo_en_segundos = strtotime("1970-01-01 $time UTC");
-            $tiempo_estimado = gmdate("H:i:s", ($dias_proceso * $tiempo_en_segundos));
-            $response = array('message' => 'Calculando inventario <b>' . $fecha->format("Y-m-d") . '</b>, ' . ($contador + 1) . ' dia' . $plural ." de ".' <b>' . $dias_proceso . '</b> procesando' . $plural . ' en ' . $tiempo_proceso->format('%H:%I:%S') . ', a las: ' . date("h:i:s", time()) .', tiempo estimado: <b>' . $tiempo_estimado . '</b>',
-               'progress' => $p);
-            echo json_encode($response);
-         }
-         $contador++;
-      }
-      sleep(1);
+      $this->calcular_inventario();
       /**
        * cuando termina de procesarse el inventario
        * guardamos la ultima ejecución y limpiamos las variables
@@ -421,17 +365,11 @@ class inventario extends \fs_model
        * mandamos la cadeja json de termino
        */
       $fsvar->array_save(array(
-         'inventario_ultimo_proceso' => $this->fecha_proceso,
+         'inventario_ultimo_proceso' => $this->fecha_fin,
          'inventario_procesandose' => 'FALSE',
          'inventario_usuario_procesando' => ''
       ));
-      if (!$this->cron)
-      {
-         $response = array('message' => '<b>¡Calculo de Inventario completo en '.$tiempo_proceso->format('%H:%I:%S') . '!<b>',
-            'progress' => 100);
-         echo json_encode($response);
-      }
-      else
+      if ($this->cron)
       {
          echo " ** Proceso de Inventario diario concluido...\n";
       }
@@ -442,13 +380,13 @@ class inventario extends \fs_model
     */
    public function calcular_inventario()
    {
-      //Confirmamos que haya una fecha de proceso
-      if ($this->fecha_proceso)
+      //Confirmamos que haya una fecha de inicio y una fecha de fin
+      if ($this->fecha_inicio AND $this->fecha_fin)
       {
          foreach ($this->almacenes as $almacen)
          {
             //buscamos los movimientos por almacén
-            $this->calcular_movimientos($almacen);
+            $this->calcular_movimientos($almacen, $this->ref);
          }
          gc_collect_cycles();
       }
@@ -486,34 +424,43 @@ class inventario extends \fs_model
 
    /*
     * Esta es la consulta multiple que utilizamos para sacar la información
-    * de todos los articulos
+    * de todos los articulos o de un solo artículo si se especifíca
     */
-   public function calcular_movimientos($almacen)
+   public function calcular_movimientos($almacen, $referencia)
    {
       //Generamos el select para la subconsulta de productos activos y que se controla su stock
-      $productos = "SELECT referencia, descripcion, costemedio FROM articulos where bloqueado = false and nostock = false;";
-      $lista_productos = $this->db->select($productos);
-      if ($lista_productos)
+      $articulo = '';
+      if($referencia)
       {
-         foreach ($lista_productos as $item)
+         $articulo = " AND referencia = ".$this->var2str($referencia);
+      }
+      $articulos = "SELECT referencia, descripcion, costemedio FROM articulos where bloqueado = false and nostock = false".$articulo.";";
+      $lista = $this->db->select($articulos);
+      if ($lista)
+      {
+         foreach ($lista as $item)
          {
             //Inicializamos la clase de inventario para guardar los resultados del calculo
-            $inventario = new inventario();
-            $inventario->codalmacen = $almacen->codalmacen;
-            $inventario->fecha = $this->fecha_proceso;
-            $inventario->referencia = $item['referencia'];
-            $inventario->descripcion = stripcslashes($item['descripcion']);
-            $inventario->cantidad_salida = 0;
-            $inventario->cantidad_ingreso = 0;
-            $inventario->cantidad_saldo = 0;
-            $inventario->monto_salida = 0;
-            $inventario->monto_ingreso = 0;
-            $inventario->monto_saldo = 0;
-
+            $mov = array();
+            foreach($this->rango_fechas() as $fecha)
+            {
+               $mov[$fecha->format('Y-m-d')] = new inventario();
+               $mov[$fecha->format('Y-m-d')]->codalmacen = $almacen->codalmacen;
+               $mov[$fecha->format('Y-m-d')]->fecha = $fecha->format('Y-m-d');
+               $mov[$fecha->format('Y-m-d')]->referencia = $item['referencia'];
+               $mov[$fecha->format('Y-m-d')]->descripcion = stripcslashes($item['descripcion']);
+               $mov[$fecha->format('Y-m-d')]->cantidad_salida = 0;
+               $mov[$fecha->format('Y-m-d')]->cantidad_ingreso = 0;
+               $mov[$fecha->format('Y-m-d')]->cantidad_saldo = 0;
+               $mov[$fecha->format('Y-m-d')]->monto_salida = 0;
+               $mov[$fecha->format('Y-m-d')]->monto_ingreso = 0;
+               $mov[$fecha->format('Y-m-d')]->monto_saldo = 0;
+            }
+            
             /*
              * Generamos la informacion del saldo final del dia anterior segun el inventario diario
              */
-            $fechaProceso = new \DateTime($this->fecha_proceso);
+            $fechaProceso = new \DateTime($this->fecha_inicio);
             $fechaAnterior = $fechaProceso->sub(new \DateInterval('P1D'))->format('Y-m-d');
             $sql_inventario = "select referencia, descripcion, cantidad_saldo , monto_saldo ".
                      " FROM inventario ".
@@ -522,30 +469,30 @@ class inventario extends \fs_model
             $saldo_anterior = $this->db->select($sql_inventario);
             if ($saldo_anterior)
             {
-                  $inventario->cantidad_saldo = $saldo_anterior[0]['cantidad_saldo'];
-                  $inventario->monto_saldo = $saldo_anterior[0]['monto_saldo'];
+                  $mov[$this->fecha_inicio]->cantidad_saldo = $saldo_anterior[0]['cantidad_saldo'];
+                  $mov[$this->fecha_inicio]->monto_saldo = $saldo_anterior[0]['monto_saldo'];
             }
 
             /*
              * Generamos la informacion de los albaranes de proveedor asociados a facturas no anuladas
              */
-            $sql_albaranesprov = "select referencia,coddivisa,tasaconv,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
+            $sql_albaranesprov = "select referencia,coddivisa,tasaconv,fecha,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
                " from albaranesprov as ac ".
                " join lineasalbaranesprov as l ON (ac.idalbaran=l.idalbaran) ".
-               " where codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha = " .$this->var2str($this->fecha_proceso).
+               " where codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
                " AND idfactura is not null ".
                " AND referencia = ".$this->var2str($item['referencia']).
-               " group by l.referencia,coddivisa,tasaconv ".
-               " order by coddivisa;";
+               " group by l.referencia,coddivisa,tasaconv,fecha ".
+               " order by fecha,coddivisa;";
             $data_albaranesprov = $this->db->select($sql_albaranesprov);
             if ($data_albaranesprov) {
                foreach ($data_albaranesprov as $linea) {
                   //Verificamos la divisa del monto
                   $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
-                  $inventario->cantidad_salida += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
-                  $inventario->cantidad_ingreso += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                  $inventario->monto_salida += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
-                  $inventario->monto_ingreso += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
+                  $mov[$linea['fecha']]->cantidad_salida += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
+                  $mov[$linea['fecha']]->cantidad_ingreso += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+                  $mov[$linea['fecha']]->monto_salida += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
+                  $mov[$linea['fecha']]->monto_ingreso += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
                }
             }
 
@@ -553,92 +500,92 @@ class inventario extends \fs_model
              * Generamos la informacion de las facturas de proveedor ingresadas
              * que no esten asociadas a un albaran de proveedor
              */
-            $sql_facturasprov = "select referencia,coddivisa,tasaconv,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
+            $sql_facturasprov = "select referencia,coddivisa,tasaconv,fecha,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
                " FROM facturasprov as fc ".
                " JOIN lineasfacturasprov as l ON (fc.idfactura=l.idfactura) ".
-               " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha = " .$this->var2str($this->fecha_proceso).
+               " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
                " and anulada=FALSE and idalbaran is null ".
                " AND referencia = ".$this->var2str($item['referencia']).
-               " group by referencia,coddivisa,tasaconv ".
-               " order by coddivisa;";
+               " group by referencia,coddivisa,tasaconv,fecha ".
+               " order by fecha,coddivisa;";
             $data_facturasprov = $this->db->select($sql_facturasprov);
             if ($data_facturasprov) {
                foreach ($data_facturasprov as $linea) {
                   //Verificamos la divisa del monto
                   $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
-                  $inventario->cantidad_salida += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
-                  $inventario->cantidad_ingreso += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                  $inventario->monto_salida += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
-                  $inventario->monto_ingreso += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
+                  $mov[$linea['fecha']]->cantidad_salida += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
+                  $mov[$linea['fecha']]->cantidad_ingreso += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+                  $mov[$linea['fecha']]->monto_salida += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
+                  $mov[$linea['fecha']]->monto_ingreso += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
                }
             }
 
             /*
              * Generamos la informacion de los albaranes asociados a facturas no anuladas
              */
-            $sql_albaranescli = "select referencia,coddivisa,tasaconv,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
+            $sql_albaranescli = "select referencia,coddivisa,tasaconv,fecha,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
                " from albaranescli as ac ".
                " join lineasalbaranescli as l ON (ac.idalbaran=l.idalbaran) ".
-               " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha = " .$this->var2str($this->fecha_proceso).
+               " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
                " and idfactura is not null ".
                " AND referencia = ".$this->var2str($item['referencia']).
-               " group by referencia,coddivisa,tasaconv ".
-               " order by coddivisa;";
+               " group by referencia,coddivisa,tasaconv,fecha ".
+               " order by fecha,coddivisa;";
             $data_albaranescli = $this->db->select($sql_albaranescli);
             if ($data_albaranescli) {
                foreach ($data_albaranescli as $linea) {
                   //Verificamos la divisa del monto
                   $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
-                  $inventario->cantidad_salida += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                  $inventario->cantidad_ingreso += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
-                  $inventario->monto_salida += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
-                  $inventario->monto_ingreso += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
+                  $mov[$linea['fecha']]->cantidad_salida += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+                  $mov[$linea['fecha']]->cantidad_ingreso += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
+                  $mov[$linea['fecha']]->monto_salida += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
+                  $mov[$linea['fecha']]->monto_ingreso += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
                }
             }
 
             /*
              * Generamos la informacion de los albaranes no asociados a facturas
              */
-            $sql_albaranescli2 = "select referencia,coddivisa,tasaconv,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
+            $sql_albaranescli2 = "select referencia,coddivisa,tasaconv,fecha,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
                " from albaranescli as ac ".
                " join lineasalbaranescli as l ON (ac.idalbaran=l.idalbaran) ".
-               " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha = " .$this->var2str($this->fecha_proceso).
+               " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
                " and idfactura is null ".
                " AND referencia = ".$this->var2str($item['referencia']).
-               " group by referencia,coddivisa,tasaconv ".
-               " order by coddivisa;";
+               " group by referencia,coddivisa,tasaconv,fecha ".
+               " order by fecha,coddivisa;";
             $data_albaranescli2 = $this->db->select($sql_albaranescli2);
             if ($data_albaranescli2) {
                foreach ($data_albaranescli2 as $linea) {
                   //Verificamos la divisa del monto
                   $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
-                  $inventario->cantidad_salida += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                  $inventario->cantidad_ingreso += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
-                  $inventario->monto_salida += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
-                  $inventario->monto_ingreso += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
+                  $mov[$linea['fecha']]->cantidad_salida += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+                  $mov[$linea['fecha']]->cantidad_ingreso += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
+                  $mov[$linea['fecha']]->monto_salida += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
+                  $mov[$linea['fecha']]->monto_ingreso += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
                }
             }
 
             /*
              * Generamos la informacion de las facturas que se han generado sin albaran
              */
-            $sql_facturascli = "select referencia,coddivisa,tasaconv ,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
+            $sql_facturascli = "select referencia,coddivisa,tasaconv,fecha ,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
                 " from facturascli as fc ".
                 " join lineasfacturascli as l ON (fc.idfactura=l.idfactura) ".
-                " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha = ".$this->var2str($this->fecha_proceso).
+                " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
                 " and anulada=FALSE and idalbaran is null ".
                 " AND referencia = ".$this->var2str($item['referencia']).
-                " group by fc.idfactura,referencia,coddivisa,tasaconv ".
-                " order by fc.idfactura;";
+                " group by fc.idfactura,referencia,coddivisa,tasaconv,fecha ".
+                " order by fecha,fc.idfactura;";
             $data_facturascli = $this->db->select($sql_facturascli);
             if ($data_facturascli) {
                foreach ($data_facturascli as $linea) {
                   //Verificamos la divisa del monto
                   $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
-                  $inventario->cantidad_salida += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                  $inventario->cantidad_ingreso += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
-                  $inventario->monto_salida += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
-                  $inventario->monto_ingreso += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
+                  $mov[$linea['fecha']]->cantidad_salida += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+                  $mov[$linea['fecha']]->cantidad_ingreso += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
+                  $mov[$linea['fecha']]->monto_salida += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
+                  $mov[$linea['fecha']]->monto_ingreso += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
                }
             }
 
@@ -648,38 +595,40 @@ class inventario extends \fs_model
                 /*
                  * Generamos la informacion de las transferencias por ingresos entre almacenes que se hayan hecho a los stocks
                  */
-                $sql_regstocks_ingreso = "select referencia, sum(cantidad) as cantidad ".
+                $sql_regstocks_ingreso = "select referencia,fecha, sum(cantidad) as cantidad ".
                   " from lineastransstock AS ls ".
                   " JOIN transstock as l ON(ls.idtrans = l.idtrans) ".
-                  " where codalmadestino = ".$this->var2str($almacen->codalmacen)." AND fecha = ".$this->var2str($this->fecha_proceso).
+                  " where codalmadestino = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
                   " AND referencia = ".$this->var2str($item['referencia']).
-                  " group by referencia;";
+                  " group by referencia,fecha ".
+                  " ORDER BY fecha,referencia;";
                 $data_regstocks_ingreso = $this->db->select($sql_regstocks_ingreso);
                 if ($data_regstocks_ingreso) {
                    foreach ($data_regstocks_ingreso as $linea) {
-                     $inventario->cantidad_salida += 0;
-                     $inventario->cantidad_ingreso += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                     $inventario->monto_salida += 0;
-                     $inventario->monto_ingreso += ($linea['cantidad'] >= 0) ? ($item['costemedio'] * $linea['cantidad']) : 0;
+                     $mov[$linea['fecha']]->cantidad_salida += 0;
+                     $mov[$linea['fecha']]->cantidad_ingreso += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+                     $mov[$linea['fecha']]->monto_salida += 0;
+                     $mov[$linea['fecha']]->monto_ingreso += ($linea['cantidad'] >= 0) ? ($item['costemedio'] * $linea['cantidad']) : 0;
                    }
                 }
 
                 /*
                  * Generamos la informacion de las transferencias por salidas entre almacenes que se hayan hecho a los stocks
                  */
-                $sql_regstocks_salida = "select referencia, sum(cantidad) as cantidad ".
+                $sql_regstocks_salida = "select referencia,fecha, sum(cantidad) as cantidad ".
                   " from lineastransstock AS ls ".
                   " JOIN transstock as l ON(ls.idtrans = l.idtrans) ".
-                  " where codalmaorigen = ".$this->var2str($almacen->codalmacen)." AND fecha = ".$this->var2str($this->fecha_proceso).
+                  " where codalmaorigen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
                   " AND referencia = ".$this->var2str($item['referencia']).
-                  " group by referencia;";
+                  " group by referencia,fecha ".
+                  " ORDER BY fecha,referencia;";
                 $data_regstocks_salida = $this->db->select($sql_regstocks_salida);
                 if ($data_regstocks_salida) {
                    foreach ($data_regstocks_salida as $linea) {
-                     $inventario->cantidad_salida += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                     $inventario->cantidad_ingreso += 0;
-                     $inventario->monto_salida += ($linea['cantidad'] >= 0) ? ($item['costemedio'] * $linea['cantidad']) : 0;
-                     $inventario->monto_ingreso += 0;
+                     $mov[$linea['fecha']]->cantidad_salida += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+                     $mov[$linea['fecha']]->cantidad_ingreso += 0;
+                     $mov[$linea['fecha']]->monto_salida += ($linea['cantidad'] >= 0) ? ($item['costemedio'] * $linea['cantidad']) : 0;
+                     $mov[$linea['fecha']]->monto_ingreso += 0;
                    }
                 }
             }
@@ -687,68 +636,78 @@ class inventario extends \fs_model
             /*
              * Por ultimo generamos la informacion de las regularizaciones que se hayan hecho a los stocks
              */
-            $sql_regularizaciones = "select referencia,sum(cantidadfin) as cantidad ".
+            $sql_regularizaciones = "select referencia,fecha,sum(cantidadfin) as cantidad,sum(cantidadini) as cantidad_inicial ".
             " from lineasregstocks AS ls ".
             " JOIN stocks as l ON(ls.idstock = l.idstock) ".
-            " where codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha = ".$this->var2str($this->fecha_proceso).
+            " where codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
             " AND referencia = ".$this->var2str($item['referencia']).
-            " group by referencia;";
+            " group by referencia,fecha ".
+            " ORDER BY fecha,referencia;";
             $data_regularizaciones = $this->db->select($sql_regularizaciones);
             if ($data_regularizaciones) {
                foreach ($data_regularizaciones as $linea) {
                   //Verificamos la cantidad de la regularización
                   //para asignarle una cantidad de movimiento de regularización
-                  $cantidad = $inventario->cantidad_saldo-$linea['cantidad'];
-                  $inventario->cantidad_salida = ($cantidad > 0)?($cantidad):0;
-                  $inventario->cantidad_ingreso = ($cantidad < 0)?$cantidad*-1:0;
-                  $monto = $inventario->monto_saldo-($item['costemedio'] * $linea['cantidad']);
-                  $inventario->monto_salida = ($monto > 0)?$monto:0;
-                  $inventario->monto_ingreso = ($monto < 0)?$monto*-1:0;
-
+                  $cantidad = $linea['cantidad_inicial']-$linea['cantidad'];
+                  $mov[$linea['fecha']]->cantidad_salida += ($cantidad > 0)?($cantidad):0;
+                  $mov[$linea['fecha']]->cantidad_ingreso += ($cantidad < 0)?$cantidad*-1:0;
+                  $monto = ($item['costemedio'] * $cantidad);
+                  $mov[$linea['fecha']]->monto_salida += ($monto > 0)?$monto:0;
+                  $mov[$linea['fecha']]->monto_ingreso += ($monto < 0)?$monto*-1:0;
                }
             }
 
-            //Calculamos el valor del saldo
-            $inventario->cantidad_saldo = ($inventario->cantidad_saldo + $inventario->cantidad_ingreso) - $inventario->cantidad_salida;
-            $inventario->monto_saldo = ($inventario->monto_saldo + $inventario->monto_ingreso) - $inventario->monto_salida;
-
-            //Guardarmos el resultado si es diferente de cero
-            if($inventario->cantidad_saldo)
+            //Teniendo todos los valores corremos el inventario con arrastre de saldos dia por día
+            foreach($this->rango_fechas() as $fecha)
             {
-               $inventario->save();
-               //Si la fecha de proceso es ya la de hoy, guardamos en el stock del almacén el valor del inventario
-               if($this->verificar_dia())
+               $mov[$fecha->format('Y-m-d')]->cantidad_saldo = ($mov[$fecha->format('Y-m-d')]->cantidad_saldo + $mov[$fecha->format('Y-m-d')]->cantidad_ingreso) - $mov[$fecha->format('Y-m-d')]->cantidad_salida;
+               if($mov[$fecha->format('Y-m-d')]->cantidad_saldo != 0)
                {
-                  $stock_referencia = $this->stock->get_by_almacen($item['referencia'], $almacen->codalmacen);
-                  if($stock_referencia)
+                  $mov[$fecha->format('Y-m-d')]->save();
+               }
+               
+               //Si es el ultimo día guardamos el saldo en la tabla de stock
+               if($this->verificar_dia($fecha->format('Y-m-d'), 'NOW'))
+               {
+                  $stock = $this->stock->get_by_almacen($item['referencia'], $almacen->codalmacen);
+                  //Si hay stock en ese almacén guardamos el stock, en caso que no haya lo creamos
+                  if($stock)
                   {
-                     $stock_referencia->cantidad = $inventario->cantidad_saldo;
-                     $stock_referencia->disponible = $inventario->cantidad_saldo;
-                     $stock_referencia->save();
+                     $stock->cantidad = $mov[$fecha->format('Y-m-d')]->cantidad_saldo;
+                     $stock->disponible = $mov[$fecha->format('Y-m-d')]->cantidad_saldo;
+                     $stock->save();
                   }
                   else
                   {
                      $stock_ref = new \stock();
                      $stock_ref->referencia = $item['referencia'];
                      $stock_ref->codalmacen = $almacen->codalmacen;
-                     $stock_ref->cantidad = $inventario->cantidad_saldo;
-                     $stock_ref->disponible = $inventario->cantidad_saldo;
+                     $stock_ref->cantidad = $mov[$fecha->format('Y-m-d')]->cantidad_saldo;
+                     $stock_ref->disponible = $mov[$fecha->format('Y-m-d')]->cantidad_saldo;
                      $stock_ref->save();
                   }
                }
-
+               //Cargamos el saldo final al saldo del día siguiente, confirmando que no sea el ultimo día de calculo
+               //{
+                  $next = new \DateTime($fecha->format('Y-m-d'));
+                  $nextDay = $next->modify('+1 day');
+                  if(isset($mov[$nextDay->format('Y-m-d')]))
+                  {  
+                     $mov[$nextDay->format('Y-m-d')]->cantidad_saldo = $mov[$fecha->format('Y-m-d')]->cantidad_saldo;
+                  }
+               //}
             }
             gc_collect_cycles();
          }
       }
    }
 
-   public function verificar_dia()
+   public function verificar_dia($dia1,$dia2)
    {
       $ok = false;
       //Si la fecha de proceso es ya la de hoy, guardamos en el stock del almacén el valor del inventario
-      $fecha1 = new \DateTime($this->fecha_proceso);
-      $fecha2 = new \DateTime('NOW');
+      $fecha1 = new \DateTime($dia1);
+      $fecha2 = new \DateTime($dia2);
       if($fecha1->format('Y-m-d') == $fecha2->format('Y-m-d'))
       {
          $ok = true;
@@ -769,6 +728,39 @@ class inventario extends \fs_model
          return FALSE;
       }
    }
+   
+   public function comprobar_movimientos_articulo($ref)
+   {
+      
+      $stock = false;
+      $sql_transstock = '';
+      if( $this->db->table_exists('transstock', $this->tablas) AND $this->db->table_exists('lineastransstock', $this->tablas) )
+      {
+         $sql_transstock .= " UNION SELECT min(fecha) AS fecha FROM transstock,lineastransstock where transstock.idtrans = lineastransstock.idtrans AND referencia = ".$this->var2str($ref);
+      }
+      $sql = "SELECT min(fecha) as fecha FROM ( ".
+            " SELECT min(fecha) AS fecha FROM lineasregstocks, stocks where stocks.idstock = lineasregstocks.idstock AND referencia = ".$this->var2str($ref).
+            " UNION ".
+            " SELECT min(fecha) AS fecha FROM lineasalbaranesprov, albaranesprov where lineasalbaranesprov.idalbaran = albaranesprov.idalbaran AND referencia = ".$this->var2str($ref).
+            " UNION ".
+            " SELECT min(fecha) AS fecha FROM lineasalbaranescli, albaranescli where lineasalbaranescli.idalbaran = albaranescli.idalbaran AND referencia = ".$this->var2str($ref).
+            " UNION ".
+            " SELECT min(fecha) AS fecha FROM lineasfacturasprov, facturasprov where lineasfacturasprov.idfactura = facturasprov.idfactura AND referencia = ".$this->var2str($ref).
+            " UNION ".
+            " SELECT min(fecha) AS fecha FROM lineasfacturascli, facturascli where lineasfacturascli.idfactura = facturascli.idfactura AND referencia = ".$this->var2str($ref).
+            $sql_transstock.
+            " ) AS t1;";
+      $fecha_min = $this->db->select($sql);
+      if($fecha_min)
+      {
+         $fecha1 = new \DateTime($this->fecha_proceso);
+         $fecha2 = new \DateTime($fecha_min[0]['fecha']);
+         if($fecha2 == $fecha1)
+         {
+            $stock = TRUE;
+         }
+      }
+   }
 
    /*
     * Buscamos la fecha del ultimo ingreso en el Inventario
@@ -784,6 +776,11 @@ class inventario extends \fs_model
       }
       //Si no hay nada tenemos que ejecutar un proceso para todas las fechas desde el registro más antiguo
       else {
+         $sql_transstock = '';
+         if( $this->db->table_exists('transstock', $this->tablas) AND $this->db->table_exists('lineastransstock', $this->tablas) )
+         {
+            $sql_transstock .= " UNION SELECT min(fecha) AS fecha FROM transstock ";
+         }
          $select = "SELECT min(fecha) as fecha FROM ( ".
             " SELECT min(fecha) AS fecha FROM lineasregstocks ".
             " UNION ".
@@ -794,6 +791,7 @@ class inventario extends \fs_model
             " SELECT min(fecha) AS fecha FROM facturasprov ".
             " UNION ".
             " SELECT min(fecha) AS fecha FROM facturascli ".
+            $sql_transstock.
             " ) AS t1;";
          $min_fecha = $this->db->select($select);
          $min_fecha_inicio0 = new \DateTime($min_fecha[0]['fecha']);
