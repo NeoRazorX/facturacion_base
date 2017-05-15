@@ -289,6 +289,16 @@
                   Anuladas
                </label>
             </div>
+            <div class="radio-inline">
+               <label>
+                  {if="$fsc->estado=='sinasiento'"}
+                  <input type="radio" name="estado" value="sinasiento" checked="" onchange="this.form.submit()"/>
+                  {else}
+                  <input type="radio" name="estado" value="sinasiento" onchange="this.form.submit()"/>
+                  {/if}
+                  Sin asiento
+               </label>
+            </div>
          </div>
       </div>
    </div>

@@ -17,21 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('asiento.php');
 require_model('balance.php');
 require_model('cierre_ejercicio.php');
-require_model('cliente.php');
 require_model('cuenta.php');
 require_model('ejercicio.php');
 require_model('epigrafe.php');
 require_model('partida.php');
-require_model('proveedor.php');
 require_model('secuencia.php');
 require_model('subcuenta.php');
 
-class contabilidad_ejercicio extends fs_controller
+class contabilidad_ejercicio extends fbase_controller
 {
-   public $allow_delete;
    public $asiento_apertura_url;
    public $asiento_cierre_url;
    public $asiento_pyg_url;
@@ -48,14 +46,13 @@ class contabilidad_ejercicio extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
+      
       /// cargamos las putas secuencias para que se actualicen.
       /// Abanq/Eneboo, yo te maldigooooo!!!!!!!!!!!!!!!!!!!!!!
       $sec0 = new secuencia_ejercicio();
       $sec1 = new secuencia_contabilidad();
       $sec2 = new secuencia();
-      
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       $this->ejercicio = FALSE;
       if( isset($_POST['codejercicio']) )

@@ -244,6 +244,19 @@ class stock extends \fs_model
       return $stocklist;
    }
 
+   public function get_by_almacen($ref, $codalmacen)
+   {
+      $item = false;
+      $data = $this->db->select("SELECT * FROM ".$this->table_name.
+            " WHERE codalmacen = ".$this->var2str($codalmacen)." AND referencia = ".$this->var2str($ref).
+            " ORDER BY referencia ASC;");
+      if($data)
+      {
+         $item = new \stock($data[0]);
+      }
+      return $item;
+   }
+
    public function total_from_articulo($ref, $codalmacen = FALSE)
    {
       $num = 0;

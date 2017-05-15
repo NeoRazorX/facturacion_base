@@ -23,8 +23,7 @@ $(document).ready(function(){
 
    function ejecutar_inventario() {
         var inv_desde = $('#inv_desde').val();
-        var inv_hasta = $('#inv_hasta').val();
-        var icodalmacen = $('#icodalmacen').val();
+        var icodalmacen = $('#codalmacen').val();
         if (!window.XMLHttpRequest) {
             bootbox.alert("Tu navegador no soporta tecnología XMLHttpRequest.");
             return;
@@ -39,7 +38,7 @@ $(document).ready(function(){
                 try {
                     if (xhr.readyState === 4) {
                         bootbox.alert({ message: '¡Inventario actualizado correctamente!', callback:function(){
-                              window.location.assign("{$fsc->url()}&tab=inventario");
+                              window.location.assign("{$fsc->url()}&tab=stock");
                            }
                         });
                         $('#modal_proceso_inventario').modal('hide');
@@ -56,7 +55,7 @@ $(document).ready(function(){
                     alert("[XHR STATECHANGE] Exception: " + e);
                 }
             };
-            xhr.open('GET', '{$fsc->url()}&tab=inventario&accion=calcular&icodalmacen='+icodalmacen+'&inv_desde='+inv_desde+'&inv_hasta='+inv_hasta, true);
+            xhr.open('GET', '{$fsc->url()}&tab=stock&recalcular=ok&codalmacen={$fsc->codalmacen}&inv_desde='+inv_desde, true);
             xhr.send();
         } catch (e) {
             alert("[XHR REQUEST] Exception: " + e);
@@ -463,16 +462,35 @@ $(document).ready(function(){
          <div class="modal-body">
             <p class='help-block'>
                Se recalculará el stock de todos los artículos a partir de las
-               regularizaciones (de stock) y los albaranes y facturas de compra
-               y venta.
+               regularizaciones (de stock), los albaranes, facturas de compra
+               y venta y las transferencias entre almacenes.
             </p>
             <p class='help-block'>
                <b>Advertencia</b>: si el artículo no tiene ningún movimiento,
                ni regularización, el stock resultante <b>será 0</b>.
             </p>
+            {if="$fsc->inventario->ultimo_proceso()"}
+            <p class='help-block'>
+               Calculo del Inventario ejecutado por ultima vez el: <b>{$fsc->inventario->ultimo_proceso()}</b>.
+            </p>
+            {else}
+            <p class='help-block'>
+               Nunca se ha ejecutado el inventario, se procesará desde el {$fsc->inventario->fecha_inicio}.
+            </p>
+            {/if}
+            <div class="col-sm-5">
+               <div class="input-group">
+                  <span class="input-group-addon">Desde</span>
+                  <input type="text" id="inv_desde" name="inv_desde" value="" class="form-control input-sm datepicker" autocomplete="off"/>
+               </div>
+            </div>
+            <p class='help-block'>
+               Opcionalmente puede indicar una fecha de inicio para procesar el inventario.
+            </p>
+            <div class="clearfix"></div>
          </div>
          <div class="modal-footer">
-             <a href="{$fsc->url()}&tab=stock&recalcular=TRUE&offset=0&codalmacen={$fsc->codalmacen}" class="btn btn-sm btn-warning">
+             <a href="#" id="b_ejecutar_calculo" class="btn btn-sm btn-warning">
                <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
                <span class="hidden-xs">&nbsp; Recalcular stock</span>
             </a>
@@ -930,6 +948,7 @@ $(document).ready(function(){
             <h4 class="modal-title">Calcular Inventario</h4>
          </div>
          <div class="modal-body bg-info">
+            <div class="col-sm-12">
             {if="$fsc->inventario->ultimo_proceso()"}
             <p align="justify">
                Inventario ejecutado por ultima vez el: <b>{$fsc->inventario->ultimo_proceso()}</b>.
@@ -939,31 +958,30 @@ $(document).ready(function(){
                Nunca se ha ejecutado el inventario, se procesará desde el {$fsc->inventario->fecha_inicio}.
             </p>
             {/if}
+            </div>
             <div class="col-sm-5">
                <div class="input-group">
                   <span class="input-group-addon">Desde</span>
-                  <input type="text" id="inv_desde" name="inv_desde" value="" class="form-control input-sm datepicker" autocomplete="off"/>
+                  <input type="text" id="inv_desde2" name="inv_desde2" value="" class="form-control input-sm datepicker" autocomplete="off"/>
                </div>
             </div>
-            <div class="col-sm-5">
-               <div class="input-group">
-                  <span class="input-group-addon">Hasta</span>
-                  <input type="text" id="inv_hasta" name="inv_hasta" value="" class="form-control input-sm datepicker" autocomplete="off"/>
-               </div>
+            <div class="col-sm-12">
+               <p align="justify">
+                  Opcionalmente puede indicar una fecha de inicio para procesar el inventario.
+               </p>
             </div>
-            <p align="justify">
-               Opcionalmente puede indicar una fecha de inicio y fin específicos para procesar el kardex.
-            </p>
-            <hr/>
+            <div class="clearfix"></div>
          </div>
          <div class="modal-footer">
-            <button type="button" id="b_ejecutar_calculo" data-disable="true" class="btn btn-sm btn-warning">
+            <button type="button" id="b_ejecutar_calculo_2" data-disable="true" class="btn btn-sm btn-warning">
                <span class='glyphicon glyphicon-equalizer'></span>&nbsp;Calcular
             </button>
          </div>
       </div>
    </div>
 </div>
+
+{/if}
 <div class="modal" id="modal_proceso_inventario">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -976,6 +994,4 @@ $(document).ready(function(){
         </div>
     </div>
 </div>
-{/if}
-
 {include="footer"}

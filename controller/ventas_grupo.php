@@ -18,11 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('agente.php');
-require_model('cliente.php');
 require_model('factura_cliente.php');
 require_model('grupo_clientes.php');
 require_model('forma_pago.php');
+require_model('pais.php');
 require_model('tarifa.php');
 
 /**
@@ -30,25 +31,21 @@ require_model('tarifa.php');
  *
  * @author Carlos Garcia Gomez
  */
-class ventas_grupo extends fs_controller
+class ventas_grupo extends fbase_controller
 {
-   public $agente;
-   public $cliente;
+   public $ciudad;
+   public $clientes;
+   public $codpais;
+   public $direccion;
    public $grupo;
-   public $grupo_clientes;
-   public $forma_pago;
    public $mostrar;
-   public $offset;
+   public $orden;
+   public $pais;
+   public $provincia;
    public $resultados;
    public $tarifa;
    public $total_clientes;
-   public $total_clientes_agregar;
-   public $total_facturas;
-   public $codgrupo;
-   public $codpago;
-   public $codagente;
-   public $direccion;
-   public $nombre;
+
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Grupo', 'ventas', FALSE, FALSE);
@@ -56,57 +53,46 @@ class ventas_grupo extends fs_controller
 
    protected function private_core()
    {
-      $this->agente = new agente();
-      $this->cliente = new cliente();
-      $this->grupo_clientes = new grupo_clientes();
-      $this->forma_pago = new forma_pago();
+      parent::private_core();
+
+      $this->pais = new pais();
+      $this->tarifa = new tarifa();
+
       $this->mostrar = 'clientes';
-      if( isset($_REQUEST['mostrar']) )
+      if(isset($_REQUEST['mostrar']))
       {
          $this->mostrar = $_REQUEST['mostrar'];
       }
 
-      $this->offset = 0;
-      if( isset($_REQUEST['offset']) )
-      {
-         $this->offset = intval($_REQUEST['offset']);
-      }
-
       $this->grupo = FALSE;
-      $this->tarifa = FALSE;
-      if( isset($_REQUEST['cod']) )
+      if(isset($_REQUEST['cod']))
       {
          $grupo = new grupo_clientes();
          $this->grupo = $grupo->get($_REQUEST['cod']);
-         $accion = \filter_input(INPUT_POST, 'accion');
-         switch($accion)
-         {
-            case "agregar_clientes":
-               $this->agregar_clientes();
-               break;
-            default:
-               break;
-         }
       }
 
       if($this->grupo)
       {
-         $tar0 = new tarifa();
-         $this->tarifa = $tar0->get($this->grupo->codtarifa);
-         $this->total_clientes = 0;
-         $this->total_facturas = 0;
+         if(isset($_POST['nombre']))
+         {
+            $this->modificar();
+         }
+         else if(isset($_POST['anyadir']))
+         {
+            $this->anyadir_clientes();
+         }
+         else if(isset($_GET['quitar']))
+         {
+            $this->quitar_cliente();
+         }
 
-         if($this->mostrar == 'clientes')
+         /// El listado de clientes lo cargamos siempre, así tenemos el número
+         $this->clientes = $this->clientes_from_grupo($this->grupo->codgrupo);
+
+         if($this->mostrar == 'agregar_clientes')
          {
-            $this->resultados = $this->clientes_from_grupo($this->grupo->codgrupo, $this->offset);
-         }
-         elseif($this->mostrar == 'agregar_clientes')
-         {
-            $this->resultados = $this->buscar_clientes();
-         }
-         else
-         {
-            $this->resultados = $this->facturas_from_grupo($this->grupo->codgrupo, $this->offset);
+            $this->ini_filters();
+            $this->buscar_clientes();
          }
       }
       else
@@ -127,122 +113,70 @@ class ventas_grupo extends fs_controller
       }
    }
 
-   public function agregar_clientes()
+   private function ini_filters()
    {
-      $codigos_clientes = \filter_input(INPUT_POST, 'clientes');
-      $array_clientes = explode(",", $codigos_clientes);
-      $correcto = 0;
-      $error = 0;
-      foreach($array_clientes as $cod)
+      $this->direccion = '';
+      if(isset($_POST['direccion']))
       {
-         $cliente = $this->cliente->get($cod);
-         if($cliente)
-         {
-            $cliente->codgrupo = $this->grupo->codgrupo;
-            if($cliente->save())
-            {
-               $correcto++;
-            }
-            else
-            {
-               $error++;
-            }
-         }
+         $this->direccion = $_POST['direccion'];
       }
-      $mensaje = "De ".count($array_clientes)." recibidos, se agregaron: ".$correcto." y se tuvieron problemas con ".$error;
-      $this->template = FALSE;
-      header('Content-Type: application/json');
-      $data['mensaje']=$mensaje;
-      echo json_encode($data);
+
+      $this->codpais = FALSE;
+      if(isset($_POST['codpais']))
+      {
+         $this->codpais = $_POST['codpais'];
+      }
+
+      $this->provincia = FALSE;
+      if(isset($_POST['provincia']))
+      {
+         $this->provincia = $_POST['provincia'];
+      }
+
+      $this->ciudad = FALSE;
+      if(isset($_POST['ciudad']))
+      {
+         $this->ciudad = $_POST['ciudad'];
+      }
+
+      $this->orden = 'lower(nombre) ASC';
+      if(isset($_POST['orden']))
+      {
+         $this->orden = $_POST['orden'];
+      }
    }
 
-   /**
-    * Buscamos todos los clientes, por defecto si no se busca por ningún criterio
-    * mostramos los clientes que no tienen asignado un grupo
-    * @return \cliente
-    */
-   private function buscar_clientes()
+   private function modificar()
    {
-      /**
-       * Verificamos las variables si vienen por POST o GET
-       * ya que REQUEST no está recomendado por el consumo de recursos
-       */
-      $p_codgrupo = \filter_input(INPUT_POST, 'b_codgrupo');
-      $g_codgrupo = \filter_input(INPUT_GET, 'b_codgrupo');
-      $this->codgrupo = ($p_codgrupo)?$p_codgrupo:$g_codgrupo;
-      $p_codpago = \filter_input(INPUT_POST, 'b_codpago');
-      $g_codpago = \filter_input(INPUT_GET, 'b_codpago');
-      $this->codpago = ($p_codpago)?$p_codpago:$g_codpago;
-      $p_codagente = \filter_input(INPUT_POST, 'b_codagente');
-      $g_codagente = \filter_input(INPUT_GET, 'b_codagente');
-      $this->codagente = ($p_codagente)?$p_codagente:$g_codagente;
-      $p_direccion = \filter_input(INPUT_POST, 'b_direccion');
-      $g_direccion = \filter_input(INPUT_GET, 'b_direccion');
-      $this->direccion = ($p_direccion)?$p_direccion:$g_direccion;
-      $p_nombre = \filter_input(INPUT_POST, 'b_nombre');
-      $g_nombre = \filter_input(INPUT_GET, 'b_nombre');
-      $this->nombre = ($p_nombre)?$p_nombre:$g_nombre;
-      $query = "clientes.codcliente = dirclientes.codcliente";
-      $query.= " AND (clientes.codgrupo != ".$this->grupo_clientes->var2str($this->grupo->codgrupo)." OR clientes.codgrupo IS NULL) ";
-      if($this->codgrupo)
+      $this->grupo->nombre = $_POST['nombre'];
+
+      $this->grupo->codtarifa = NULL;
+      if($_POST['codtarifa'])
       {
-         $query.= " AND ";
-         $query.= "codgrupo = ".$this->cliente->var2str($this->codgrupo);
-      }
-      if($this->codpago)
-      {
-         $query.= (!empty($query))?" AND ":"";
-         $query.= "codpago = ".$this->cliente->var2str($this->codpago);
-      }
-      if($this->codagente)
-      {
-         $query.= " AND ";
-         $query.= "codagente = ".$this->cliente->var2str($this->codagente);
-      }
-      if($this->direccion)
-      {
-         $query.= " AND ";
-         $query.= "lower(direccion) like '%". strtolower($this->direccion)."%'";
-      }
-      if($this->nombre)
-      {
-         $query.= " AND ";
-         $query.= "(lower(nombre) like '%". strtolower($this->nombre)."%' OR ";
-         $query.= "lower(razonsocial) like '%". strtolower($this->nombre)."%')";
+         $this->grupo->codtarifa = $_POST['codtarifa'];
       }
 
-      $sql_cantidad = "SELECT count(clientes.codcliente) as total FROM clientes, dirclientes ".
-              " WHERE ".$query.";";
-      $cantidad = $this->db->select($sql_cantidad);
-      $this->total_clientes_agregar = $cantidad[0]['total'];
-
-      $sql_datos = "SELECT clientes.*, dirclientes.direccion FROM clientes, dirclientes WHERE ".$query.
-            " ORDER BY razonsocial,nombre,clientes.codcliente";
-
-      $data = $this->db->select_limit($sql_datos, FS_ITEM_LIMIT, $this->offset);
-      $lista = array();
-      if($data){
-         foreach($data as $d){
-            $item = new cliente($d);
-            $item->direccion = $d['direccion'];
-            $lista[] = $item;
-         }
+      if($this->grupo->save())
+      {
+         $this->new_message('Datos guardados correctamente.');
       }
-
-      return $lista;
+      else
+      {
+         $this->new_error_msg('Error al guardar los datos.');
+      }
    }
 
-   private function clientes_from_grupo($cod, $offset)
+   private function clientes_from_grupo($cod)
    {
       $clist = array();
-      $sql = "FROM clientes WHERE codgrupo = ".$this->grupo->var2str($cod);
+      $sql = "FROM clientes WHERE codgrupo = " . $this->grupo->var2str($cod);
 
-      $data = $this->db->select('SELECT COUNT(*) as total '.$sql);
+      $data = $this->db->select('SELECT COUNT(*) as total ' . $sql);
       if($data)
       {
          $this->total_clientes = intval($data[0]['total']);
 
-         $data = $this->db->select_limit('SELECT * '.$sql." ORDER BY nombre ASC", FS_ITEM_LIMIT, $offset);
+         $data = $this->db->select('SELECT * ' . $sql . " ORDER BY nombre ASC;");
          if($data)
          {
             foreach($data as $d)
@@ -255,96 +189,140 @@ class ventas_grupo extends fs_controller
       return $clist;
    }
 
-   private function facturas_from_grupo($cod, $offset)
+   private function buscar_clientes()
    {
-      $clist = array();
-      $sql = "FROM facturascli WHERE codcliente IN (SELECT codcliente FROM clientes WHERE codgrupo = ".$this->grupo->var2str($cod).")";
+      $query = mb_strtolower($this->grupo->no_html($this->query), 'UTF8');
+      $sql = " FROM clientes";
+      $and = ' WHERE ';
 
-      $data = $this->db->select('SELECT COUNT(*) as total '.$sql);
+      if(is_numeric($query))
+      {
+         $sql .= $and . "(nombre LIKE '%" . $query . "%'"
+                 . " OR razonsocial LIKE '%" . $query . "%'"
+                 . " OR codcliente LIKE '%" . $query . "%'"
+                 . " OR cifnif LIKE '%" . $query . "%'"
+                 . " OR telefono1 LIKE '" . $query . "%'"
+                 . " OR telefono2 LIKE '" . $query . "%'"
+                 . " OR observaciones LIKE '%" . $query . "%')";
+         $and = ' AND ';
+      }
+      else
+      {
+         $buscar = str_replace(' ', '%', $query);
+         $sql .= $and . "(lower(nombre) LIKE '%" . $buscar . "%'"
+                 . " OR lower(razonsocial) LIKE '%" . $buscar . "%'"
+                 . " OR lower(cifnif) LIKE '%" . $buscar . "%'"
+                 . " OR lower(observaciones) LIKE '%" . $buscar . "%'"
+                 . " OR lower(email) LIKE '%" . $buscar . "%')";
+         $and = ' AND ';
+      }
+
+      if($this->ciudad != '' OR $this->provincia != '' OR $this->codpais != '')
+      {
+         $sql .= $and . " codcliente IN (SELECT codcliente FROM dirclientes WHERE ";
+         $and2 = '';
+
+         if($this->ciudad != '')
+         {
+            $sql .= $and2 . "lower(ciudad) = " . $this->grupo->var2str(mb_strtolower($this->ciudad, 'UTF8'));
+            $and2 = ' AND ';
+         }
+
+         if($this->provincia != '')
+         {
+            $sql .= $and2 . "lower(provincia) = " . $this->grupo->var2str(mb_strtolower($this->provincia, 'UTF8'));
+            $and2 = ' AND ';
+         }
+
+         if($this->codpais != '')
+         {
+            $sql .= $and2 . "codpais = " . $this->grupo->var2str($this->codpais);
+         }
+
+         $sql .= ")";
+         $and = ' AND ';
+      }
+
+      $data = $this->db->select_limit("SELECT *" . $sql . " ORDER BY " . $this->orden, 100, 0);
       if($data)
       {
-         $this->total_facturas = intval($data[0]['total']);
-
-         $data = $this->db->select_limit('SELECT * '.$sql.' ORDER BY fecha DESC, idfactura DESC', FS_ITEM_LIMIT, $offset);
-         if($data)
+         foreach($data as $d)
          {
-            foreach($data as $d)
+            $this->resultados[] = new cliente($d);
+         }
+      }
+   }
+
+   public function ciudades()
+   {
+      return $this->fbase_sql_distinct('dirclientes', 'ciudad', 'provincia', $this->provincia);
+   }
+
+   public function provincias()
+   {
+      return $this->fbase_sql_distinct('dirclientes', 'provincia', 'codpais', $this->codpais);
+   }
+
+   public function orden()
+   {
+      return array(
+          'lower(nombre) ASC' => 'Orden: nombre',
+          'lower(nombre) DESC' => 'Orden: nombre descendente',
+          'cifnif ASC' => 'Orden: ' . FS_CIFNIF,
+          'cifnif DESC' => 'Orden: ' . FS_CIFNIF . ' descendente',
+          'fechaalta ASC' => 'Orden: fecha',
+          'fechaalta DESC' => 'Orden: fecha descendente'
+      );
+   }
+
+   private function anyadir_clientes()
+   {
+      $errores = 0;
+      $modificados = 0;
+
+      $cli0 = new cliente();
+      foreach($_POST['anyadir'] as $codcliente)
+      {
+         $cliente = $cli0->get($codcliente);
+         if($cliente)
+         {
+            $cliente->codgrupo = $this->grupo->codgrupo;
+            if($cliente->save())
             {
-               $clist[] = new factura_cliente($d);
+               $modificados++;
+            }
+            else
+            {
+               $errores++;
             }
          }
       }
 
-      return $clist;
+      $this->new_message($modificados . ' clientes añadidos, ' . $errores . ' errores.');
    }
 
-   public function paginas()
+   private function quitar_cliente()
    {
-      $url = $this->url()."&mostrar=".$this->mostrar;
-
-      $paginas = array();
-      $i = 0;
-      $num = 0;
-      $actual = 1;
-
-      if($this->mostrar == 'clientes')
+      $cli0 = new cliente();
+      $cliente = $cli0->get($_GET['quitar']);
+      if($cliente)
       {
-         $total = $this->total_clientes;
-      }
-      elseif($this->mostrar == 'agregar_clientes')
-      {
-         $total = $this->total_clientes_agregar;
-         $url.="&b_codgrupo=".$this->codgrupo
-                 ."&b_codpago=".$this->codpago
-                 ."&b_codagente=".$this->codagente
-                 ."&b_direccion=".$this->direccion
-                 ."&b_nombre=".$this->nombre;
+         $cliente->codgrupo = NULL;
+
+         if($cliente->save())
+         {
+            $this->new_message('Datos fuardados correctamente. El cliente ' . $cliente->codcliente
+                    . ' ya no pertenece al grupo ' . $this->grupo->codgrupo . '.');
+         }
+         else
+         {
+            $this->new_error_msg('Error al quitar al cliente ' . $cliente->codcliente
+                    . ' del grupo ' . $this->grupo->codgrupo . '.');
+         }
       }
       else
       {
-         $total = $this->total_facturas;
-      }
-
-      /// añadimos todas la página
-      while($num < $total)
-      {
-         $paginas[$i] = array(
-             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
-             'num' => $i + 1,
-             'actual' => ($num == $this->offset)
-         );
-
-         if($num == $this->offset)
-         {
-            $actual = $i;
-         }
-
-         $i++;
-         $num += FS_ITEM_LIMIT;
-      }
-
-      /// ahora descartamos
-      foreach($paginas as $j => $value)
-      {
-         $enmedio = intval($i/2);
-
-         /**
-          * descartamos todo excepto la primera, la última, la de enmedio,
-          * la actual, las 5 anteriores y las 5 siguientes
-          */
-         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
-         {
-            unset($paginas[$j]);
-         }
-      }
-
-      if( count($paginas) > 1 )
-      {
-         return $paginas;
-      }
-      else
-      {
-         return array();
+         $this->new_error_msg('Cliente no encontrado.');
       }
    }
 }

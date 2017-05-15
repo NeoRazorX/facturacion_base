@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('almacen.php');
 require_model('articulo.php');
 require_model('cliente.php');
@@ -28,7 +29,7 @@ require_model('regularizacion_stock.php');
 require_model('stock.php');
 require_model('inventario.php');
 
-class informe_articulos extends fs_controller
+class informe_articulos extends fbase_controller
 {
    public $agente;
    public $almacen;
@@ -80,11 +81,13 @@ class informe_articulos extends fs_controller
 
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Artículos', 'informes', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Artículos', 'informes');
    }
 
    protected function private_core()
    {
+      parent::private_core();
+
       $this->agente = new agente();
       $this->almacen = new almacen();
       $this->documento = 'facturascli';
@@ -95,7 +98,7 @@ class informe_articulos extends fs_controller
 
       $this->inventario = new inventario();
 
-      $tab= \filter_input(INPUT_GET, 'tab');
+      $tab = \filter_input(INPUT_GET, 'tab');
       $this->pestanya = ($tab)?$tab:'stats';
 
       $this->codalmacen = FALSE;
@@ -159,14 +162,13 @@ class informe_articulos extends fs_controller
    public function stocks()
    {
       /// forzamos la comprobación de la tabla stock
-      $stock = new stock();
-
+      $this->inventario->ultima_fecha();
       $this->tipo_stock = 'todo';
       if( isset($_GET['tipo']) )
       {
          $this->tipo_stock = $_GET['tipo'];
       }
-      else if( isset($_GET['recalcular']) AND isset($_GET['offset']) )
+      else if( isset($_GET['recalcular']))
       {
          $this->recalcular_stock();
       }
@@ -269,16 +271,15 @@ class informe_articulos extends fs_controller
       $accion = ($accion_p)?$accion_p:$accion_g;
 
       $this->inventario_resultado = array();
-      $lista_almacenes = ($this->icodalmacen == 'TODOS')?$this->almacen->all():array($this->almacen->get($this->icodalmacen));
+      $lista_almacenes = ($this->icodalmacen=='TODOS')?$this->almacen->all():array($this->almacen->get($this->icodalmacen));
       $this->inventario->ultima_fecha();
       if($accion == 'calcular')
       {
          $this->template = false;
          $this->inventario->fecha_inicio = (\filter_input(INPUT_GET, 'inv_desde'))?\filter_input(INPUT_GET, 'inv_desde'):NULL;
-         $this->inventario->fecha_fin = (\filter_input(INPUT_GET, 'inv_hasta'))?\filter_input(INPUT_GET, 'inv_hasta'):\date('d-m-Y');
+         $this->inventario->fecha_fin = \date('d-m-Y');
          $this->inventario->almacenes = $lista_almacenes;
          $this->inventario->procesar_inventario($this->user->nick);
-
       }
       else
       {
@@ -291,6 +292,16 @@ class informe_articulos extends fs_controller
    }
 
    private function recalcular_stock()
+   {
+      $this->template = false;
+      $lista_almacenes = (!$this->codalmacen)?$this->almacen->all():array($this->almacen->get($this->codalmacen));
+      $this->inventario->fecha_inicio = (\filter_input(INPUT_GET, 'inv_desde'))?\filter_input(INPUT_GET, 'inv_desde'):NULL;
+      $this->inventario->fecha_fin = \date('d-m-Y');
+      $this->inventario->almacenes = $lista_almacenes;
+      $this->inventario->procesar_inventario($this->user->nick);
+   }
+
+   private function recalcular_stock_old()
    {
       $articulo = new articulo();
       $continuar = FALSE;
@@ -720,7 +731,7 @@ class informe_articulos extends fs_controller
                $articulo = $art0->get($i);
                if($articulo)
                {
-                  echo '"'.$i.'";"'.$this->fix_html($articulo->descripcion()).'";'.$j;
+                  echo '"'.$i.'";"'.fs_fix_html($articulo->descripcion()).'";'.$j;
                }
                else
                {
@@ -741,15 +752,6 @@ class informe_articulos extends fs_controller
       {
          $this->new_message('Sin resultados.');
       }
-   }
-
-   private function fix_html($txt)
-   {
-      $newt = str_replace('&lt;', '<', $txt);
-      $newt = str_replace('&gt;', '>', $newt);
-      $newt = str_replace('&quot;', '"', $newt);
-      $newt = str_replace('&#39;', "'", $newt);
-      return $newt;
    }
 
    private function get_subfamilias($cod)
@@ -893,7 +895,7 @@ class informe_articulos extends fs_controller
          $sql_regstocks = "select l.idtrans, fecha, hora, referencia, sum(cantidad) as cantidad "
                  ." FROM lineastransstock AS ls "
                  ." JOIN transstock as l ON (ls.idtrans = l.idtrans) "
-                 ." WHERE codalmadestino = " . $this->empresa->var2str($this->codalmacen).$rango_fecha
+                 ." WHERE codalmadestino = " . $this->empresa->var2str($this->codalmacen) . $rango_fecha
                  ." GROUP by l.idtrans, fecha, hora, referencia "
                  ." ORDER by l.idtrans;";
          $data = $this->db->select($sql_regstocks);
@@ -938,7 +940,7 @@ class informe_articulos extends fs_controller
                    'origen' => 'Salida por transferencia '.$d['idtrans'],
                    'url' => 'index.php?page=editar_transferencia_stock&id='.$d['idtrans'],
                    'clipro' => '',
-                   'movimiento' => 0-floatval($d['cantidad']),
+                   'movimiento' => 0 - floatval($d['cantidad']),
                    'precio' => 0,
                    'dto' => 0,
                    'inicial' => 0,
@@ -1024,7 +1026,7 @@ class informe_articulos extends fs_controller
                 'origen' => 'Albaran venta '.$d['codigo'],
                 'url' => 'index.php?page=ventas_albaran&id='.$d['idalbaran'],
                 'clipro' => $d['codcliente'].' - '.$d['nombrecliente'],
-                'movimiento' => 0-floatval($d['cantidad']),
+                'movimiento' => 0 - floatval($d['cantidad']),
                 'precio' => floatval($d['pvpunitario']),
                 'dto' => floatval($d['dtopor']),
                 'inicial' => 0,
@@ -1053,7 +1055,7 @@ class informe_articulos extends fs_controller
                 'origen' => 'Factura venta '.$d['codigo'],
                 'url' => 'index.php?page=ventas_factura&id='.$d['idfactura'],
                 'clipro' => $d['codcliente'].' - '.$d['nombrecliente'],
-                'movimiento' => 0-floatval($d['cantidad']),
+                'movimiento' => 0 - floatval($d['cantidad']),
                 'precio' => floatval($d['pvpunitario']),
                 'dto' => floatval($d['dtopor']),
                 'inicial' => 0,
@@ -1084,7 +1086,7 @@ class informe_articulos extends fs_controller
       {
          if($value['movimiento'] == '-')
          {
-            $inicial += $value['final']-$value['inicial'];
+            $inicial += $value['final'] - $value['inicial'];
          }
          else
          {
@@ -1152,7 +1154,7 @@ class informe_articulos extends fs_controller
                echo $value['referencia'].';'
                        .$value['codalmacen'].';'
                        .$value['origen'].';'
-                       .$this->fix_html($value['clipro']).';';
+                       .fs_fix_html($value['clipro']).';';
 
                if( is_numeric($value['movimiento']) )
                {
@@ -1268,7 +1270,7 @@ class informe_articulos extends fs_controller
                {
                   if($cli)
                   {
-                     echo '"'.$i.'";"'.$j.'";'.$this->fix_html($cli->nombre).';'.$k;
+                     echo '"'.$i.'";"'.$j.'";'.fs_fix_html($cli->nombre).';'.$k;
                   }
                   else
                   {

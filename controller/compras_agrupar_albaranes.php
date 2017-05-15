@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('albaran_proveedor.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
@@ -25,12 +26,11 @@ require_model('ejercicio.php');
 require_model('factura_proveedor.php');
 require_model('forma_pago.php');
 require_model('partida.php');
-require_model('proveedor.php');
 require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('subcuenta.php');
 
-class compras_agrupar_albaranes extends fs_controller
+class compras_agrupar_albaranes extends fbase_controller
 {
    public $albaran;
    public $coddivisa;
@@ -38,10 +38,10 @@ class compras_agrupar_albaranes extends fs_controller
    public $desde;
    public $divisa;
    public $hasta;
+   public $neto;
    public $proveedor;
    public $resultados;
    public $serie;
-   public $neto;
    public $total;
    
    private $ejercicio;
@@ -54,6 +54,8 @@ class compras_agrupar_albaranes extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
+      
       $this->albaran = new albaran_proveedor();
       $this->divisa = new divisa();
       $this->ejercicio = new ejercicio();
@@ -95,7 +97,7 @@ class compras_agrupar_albaranes extends fs_controller
       
       if( isset($_REQUEST['buscar_proveedor']) )
       {
-         $this->buscar_proveedor();
+         $this->fbase_buscar_proveedor($_REQUEST['buscar_proveedor']);
       }
       else if( isset($_POST['idalbaran']) )
       {
@@ -132,22 +134,6 @@ class compras_agrupar_albaranes extends fs_controller
       }
       else
          $this->share_extensions();
-   }
-   
-   private function buscar_proveedor()
-   {
-      /// desactivamos la plantilla HTML
-      $this->template = FALSE;
-      
-      $proveedor = new proveedor();
-      $json = array();
-      foreach($proveedor->search($_REQUEST['buscar_proveedor']) as $pro)
-      {
-         $json[] = array('value' => $pro->razonsocial, 'data' => $pro->codproveedor);
-      }
-      
-      header('Content-Type: application/json');
-      echo json_encode( array('query' => $_REQUEST['buscar_proveedor'], 'suggestions' => $json) );
    }
    
    private function agrupar()

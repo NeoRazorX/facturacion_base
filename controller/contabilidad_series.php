@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,32 +18,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('ejercicio.php');
 require_model('serie.php');
 
-class contabilidad_series extends fs_controller
+class contabilidad_series extends fbase_controller
 {
-   public $allow_delete;
    public $ejercicios;
    public $num_personalizada;
    public $serie;
-   
+
    public function __construct()
    {
-      parent::__construct(__CLASS__, ucfirst(FS_SERIES), 'contabilidad', FALSE, TRUE);
+      parent::__construct(__CLASS__, ucfirst(FS_SERIES), 'contabilidad');
    }
-   
+
    protected function private_core()
    {
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
-      
+      parent::private_core();
+
       $eje = new ejercicio();
       $this->ejercicios = $eje->all();
       $this->serie = new serie();
-      
+
+      $this->numeracion_personalizada();
+
+      if(isset($_POST['codserie']))
+      {
+         $this->editar_serie();
+      }
+      else if(isset($_GET['delete']))
+      {
+         $this->eliminar_serie();
+      }
+   }
+
+   private function numeracion_personalizada()
+   {
       $fsvar = new fs_var();
-      if( isset($_GET['num_personalizada']) )
+      if(isset($_GET['num_personalizada']))
       {
          if($_GET['num_personalizada'] == 'TRUE')
          {
@@ -59,36 +73,9 @@ class contabilidad_series extends fs_controller
       {
          $this->num_personalizada = $fsvar->simple_get('numeracion_personalizada');
       }
-      
-      if( isset($_POST['codserie']) )
-      {
-         $this->modificar_serie();
-      }
-      else if( isset($_GET['delete']) )
-      {
-         if(!$this->user->admin)
-         {
-            $this->new_error_msg('Sólo un administrador puede eliminar '.FS_SERIES.'.');
-         }
-         else
-         {
-            $serie = $this->serie->get($_GET['delete']);
-            if($serie)
-            {
-               if( $serie->delete() )
-               {
-                  $this->new_message('Datos eliminados correctamente: '.FS_SERIE.' '.$_GET['delete'], TRUE);
-               }
-               else
-                  $this->new_error_msg("¡Imposible eliminar ".FS_SERIE.' '.$_GET['delete']."!");
-            }
-            else
-               $this->new_error_msg('Datos no encontrados: '.FS_SERIE.' '.$_GET['delete']);
-         }
-      }
    }
-   
-   private function modificar_serie()
+
+   private function editar_serie()
    {
       $serie = $this->serie->get($_POST['codserie']);
       if(!$serie)
@@ -96,18 +83,18 @@ class contabilidad_series extends fs_controller
          $serie = new serie();
          $serie->codserie = $_POST['codserie'];
       }
-      
+
       $serie->descripcion = $_POST['descripcion'];
       $serie->siniva = isset($_POST['siniva']);
       $serie->irpf = floatval($_POST['irpf']);
-      
+
       if($this->num_personalizada)
       {
          if($_POST['codejercicio'] != $serie->codejercicio OR $_POST['numfactura'] != $serie->numfactura)
          {
             if($this->user->admin)
             {
-               if( $this->hay_facturas_venta($serie->codserie) )
+               if($this->hay_facturas_venta($serie->codserie))
                {
                   $this->new_error_msg('Ya hay facturas con esta serie, no puedes cambiar la numeración inicial.');
                }
@@ -115,18 +102,18 @@ class contabilidad_series extends fs_controller
                {
                   $serie->codejercicio = NULL;
                   $serie->numfactura = 1;
-                  
+
                   if($_POST['codejercicio'] != '')
                   {
                      $serie->codejercicio = $_POST['codejercicio'];
                      $serie->numfactura = intval($_POST['numfactura']);
-                     
+
                      /// anotamos el cambio en el log
                      $fslog = new fs_log();
                      $fslog->alerta = TRUE;
                      $fslog->detalle = 'Se ha cambiado la numeración inicial de la serie '
-                             .$serie->codserie.' para el ejercicio '.$serie->codejercicio
-                             .'. Nuevo número inicial: '.$serie->numfactura;
+                             . $serie->codserie . ' para el ejercicio ' . $serie->codejercicio
+                             . '. Nuevo número inicial: ' . $serie->numfactura;
                      $fslog->ip = $this->user->last_ip;
                      $fslog->usuario = $this->user->nick;
                      $fslog->tipo = 'serie';
@@ -141,17 +128,44 @@ class contabilidad_series extends fs_controller
             }
          }
       }
-      
-      if( $serie->save() )
+
+      if($serie->save())
       {
          $this->new_message('Datos guardados correctamente.');
       }
       else
-         $this->new_error_msg("¡Imposible guardar ".FS_SERIE."!");
+         $this->new_error_msg("¡Imposible guardar " . FS_SERIE . "!");
    }
-   
+
+   private function eliminar_serie()
+   {
+      if(!$this->user->admin)
+      {
+         $this->new_error_msg('Sólo un administrador puede eliminar ' . FS_SERIES . '.');
+      }
+      else
+      {
+         $serie = $this->serie->get($_GET['delete']);
+         if($serie)
+         {
+            if( $this->hay_facturas_venta($serie->codserie) )
+            {
+               $this->new_error_msg("Imposible eliminar. Ya ha documentos vinculados a esta " . FS_SERIE . ".");
+            }
+            else if( $serie->delete() )
+            {
+               $this->new_message('Datos eliminados correctamente: ' . FS_SERIE . ' ' . $serie->codserie, TRUE);
+            }
+            else
+               $this->new_error_msg("¡Imposible eliminar " . FS_SERIE . ' ' . $serie->codserie . "!");
+         }
+         else
+            $this->new_error_msg('Datos no encontrados: ' . FS_SERIE . ' ' . $serie->codserie);
+      }
+   }
+
    /**
-    * Devuelve TRUE si ya existen facturas en la serie $codserie
+    * Devuelve TRUE si ya existen facturas o albaranes en la serie $codserie
     * @param type $codserie
     * @return boolean
     */
@@ -159,13 +173,21 @@ class contabilidad_series extends fs_controller
    {
       $hay = FALSE;
       
-      $sql = "SELECT * FROM facturascli WHERE codserie = ".$this->empresa->var2str($codserie);
-      $data = $this->db->select_limit($sql, 5, 0);
-      if($data)
+      $tablas = array('facturascli','albaranescli','pedidoscli','presupuescli','facturasprov','albaranesprov','pedidosprov');
+      foreach($tablas as $tabla)
       {
-         $hay = TRUE;
+         if( $this->db->table_exists($tabla) )
+         {
+            $sql = "SELECT * FROM ".$tabla." WHERE codserie = " . $this->empresa->var2str($codserie);
+            $data = $this->db->select_limit($sql, 5, 0);
+            if($data)
+            {
+               $hay = TRUE;
+               break;
+            }
+         }
       }
-      
+
       return $hay;
    }
 }

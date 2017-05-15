@@ -17,15 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('cliente.php');
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('grupo_clientes.php');
 require_model('pais.php');
 require_model('serie.php');
 require_model('tarifa.php');
 
-class ventas_clientes extends fs_controller
+class ventas_clientes extends fbase_controller
 {
-   public $allow_delete;
    public $ciudad;
    public $cliente;
    public $codgrupo;
@@ -47,14 +46,13 @@ class ventas_clientes extends fs_controller
 
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Clientes', 'ventas', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Clientes', 'ventas');
    }
 
    protected function private_core()
    {
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
-
+      parent::private_core();
+      
       $this->cliente = new cliente();
       $this->grupo = new grupo_clientes();
       $this->pais = new pais();
@@ -105,6 +103,13 @@ class ventas_clientes extends fs_controller
          $this->nuevo_cliente();
       }
 
+      $this->ini_filters();
+      $this->buscar();
+      $this->grupos = $this->grupo->all();
+   }
+   
+   private function ini_filters()
+   {
       $this->offset = 0;
       if( isset($_GET['offset']) )
       {
@@ -135,7 +140,7 @@ class ventas_clientes extends fs_controller
          $this->codgrupo = $_REQUEST['bcodgrupo'];
       }
 
-      $this->orden = 'nombre ASC';
+      $this->orden = 'lower(nombre) ASC';
       if( isset($_REQUEST['orden']) )
       {
          $this->orden = $_REQUEST['orden'];
@@ -143,9 +148,6 @@ class ventas_clientes extends fs_controller
 
       $this->nocifnif = isset($_REQUEST['nocifnif']);
       $this->debaja = isset($_REQUEST['debaja']);
-
-      $this->buscar();
-      $this->grupos = $this->grupo->all();
    }
 
    public function paginas()
@@ -166,53 +168,8 @@ class ventas_clientes extends fs_controller
       {
          $url .= '&debaja=TRUE';
       }
-
-      $paginas = array();
-      $i = 0;
-      $num = 0;
-      $actual = 1;
-
-      /// añadimos todas la página
-      while($num < $this->total_resultados)
-      {
-         $paginas[$i] = array(
-             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
-             'num' => $i + 1,
-             'actual' => ($num == $this->offset)
-         );
-
-         if($num == $this->offset)
-         {
-            $actual = $i;
-         }
-
-         $i++;
-         $num += FS_ITEM_LIMIT;
-      }
-
-      /// ahora descartamos
-      foreach($paginas as $j => $value)
-      {
-         $enmedio = intval($i/2);
-
-         /**
-          * descartamos todo excepto la primera, la última, la de enmedio,
-          * la actual, las 5 anteriores y las 5 siguientes
-          */
-         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
-         {
-            unset($paginas[$j]);
-         }
-      }
-
-      if( count($paginas) > 1 )
-      {
-         return $paginas;
-      }
-      else
-      {
-         return array();
-      }
+      
+      return $this->fbase_paginas($url, $this->total_resultados, $this->offset);
    }
 
    public function nombre_grupo($cod)
@@ -233,71 +190,24 @@ class ventas_clientes extends fs_controller
 
    public function ciudades()
    {
-      $final = array();
-
-      if( $this->db->table_exists('dirclientes') )
-      {
-         $ciudades = array();
-         $sql = "SELECT DISTINCT ciudad FROM dirclientes ORDER BY ciudad ASC;";
-         if($this->provincia != '')
-         {
-            $sql = "SELECT DISTINCT ciudad FROM dirclientes WHERE lower(provincia) = "
-                    .$this->cliente->var2str($this->provincia)." ORDER BY ciudad ASC;";
-         }
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            foreach($data as $d)
-            {
-               $ciudades[] = $d['ciudad'];
-            }
-         }
-
-         /// usamos las minúsculas para filtrar
-         foreach($ciudades as $ciu)
-         {
-            if($ciu != '')
-            {
-               $final[ mb_strtolower($ciu, 'UTF8') ] = $ciu;
-            }
-         }
-      }
-
-      return $final;
+      return $this->fbase_sql_distinct('dirclientes', 'ciudad', 'provincia', $this->provincia);
    }
 
    public function provincias()
    {
-      $final = array();
-
-      if( $this->db->table_exists('dirclientes') )
-      {
-         $provincias = array();
-         $sql = "SELECT DISTINCT provincia FROM dirclientes ORDER BY provincia ASC;";
-         if($this->codpais != '')
-         {
-            $sql = "SELECT DISTINCT provincia FROM dirclientes WHERE codpais = "
-                    .$this->cliente->var2str($this->codpais)." ORDER BY provincia ASC;";
-         }
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            foreach($data as $d)
-            {
-               $provincias[] = $d['provincia'];
-            }
-         }
-
-         foreach($provincias as $pro)
-         {
-            if($pro != '')
-            {
-               $final[ mb_strtolower($pro, 'UTF8') ] = $pro;
-            }
-         }
-      }
-
-      return $final;
+      return $this->fbase_sql_distinct('dirclientes', 'provincia', 'codpais', $this->codpais);
+   }
+   
+   public function orden()
+   {
+      return array(
+          'lower(nombre) ASC' => 'Orden: nombre',
+          'lower(nombre) DESC' => 'Orden: nombre descendente',
+          'cifnif ASC' => 'Orden: '.FS_CIFNIF,
+          'cifnif DESC' => 'Orden: '.FS_CIFNIF.' descendente',
+          'fechaalta ASC' => 'Orden: fecha',
+          'fechaalta DESC' => 'Orden: fecha descendente'
+      );
    }
 
    private function buscar()
@@ -501,25 +411,30 @@ class ventas_clientes extends fs_controller
    private function nuevo_grupo()
    {
       $grupo = $this->grupo->get($_POST['codgrupo']);
-      if(!$grupo)
+      if($grupo)
+      {
+         $this->new_error_msg('El grupo con código '.$_POST['codgrupo'].' ya existe.');
+      }
+      else
       {
          $grupo = new grupo_clientes();
          $grupo->codgrupo = $_POST['codgrupo'];
+         $grupo->nombre = $_POST['nombre'];
+         
+         $grupo->codtarifa = NULL;
+         if($_POST['codtarifa'] != '---')
+         {
+            $grupo->codtarifa = $_POST['codtarifa'];
+         }
+         
+         if( $grupo->save() )
+         {
+            $this->new_message('Grupo guardado correctamente.');
+            header('Location: '.$grupo->url());
+         }
+         else
+            $this->new_error_msg('Imposible guardar el grupo.');
       }
-      $grupo->nombre = $_POST['nombre'];
-      
-      $grupo->codtarifa = NULL;
-      if($_POST['codtarifa'] != '---')
-      {
-         $grupo->codtarifa = $_POST['codtarifa'];
-      }
-      
-      if( $grupo->save() )
-      {
-         $this->new_message('Grupo guardado correctamente.');
-      }
-      else
-         $this->new_error_msg('Imposible guardar el grupo.');
    }
    
    private function eliminar_grupo()
@@ -533,7 +448,7 @@ class ventas_clientes extends fs_controller
          }
          else if( $grupo->delete() )
          {
-            $this->new_message('Grupo eliminado correctamente.');
+            $this->new_message('Grupo '.$grupo->codgrupo.' eliminado correctamente.');
          }
          else
             $this->new_error_msg('Imposible eliminar el grupo.');

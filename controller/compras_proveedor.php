@@ -17,19 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('cuenta_banco_proveedor.php');
 require_model('divisa.php');
 require_model('forma_pago.php');
 require_model('pais.php');
-require_model('proveedor.php');
 require_model('serie.php');
 require_model('cliente.php');
 require_model('cuenta_banco_cliente.php');
 require_model('direccion_cliente.php');
 
-class compras_proveedor extends fs_controller
+class compras_proveedor extends fbase_controller
 {
-   public $allow_delete;
    public $cuenta_banco;
    public $divisa;
    public $forma_pago;
@@ -44,15 +43,14 @@ class compras_proveedor extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
+      
       $this->ppage = $this->page->get('compras_proveedores');
       $this->cuenta_banco = new cuenta_banco_proveedor();
       $this->divisa = new divisa();
       $this->forma_pago = new forma_pago();
       $this->pais = new pais();
       $this->serie = new serie();
-      
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       /// cargamos el proveedor
       $proveedor = new proveedor();

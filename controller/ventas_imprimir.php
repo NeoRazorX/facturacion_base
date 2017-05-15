@@ -1,8 +1,8 @@
 <?php
 /*
  * This file is part of facturacion_base
- * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
- * Copyright (C) 2017  Francesc Pineda Segarra  shawe.ewahs@gmail.com
+ * Copyright (C) 2014-2017    Carlos Garcia Gomez     neorazorx@gmail.com
+ * Copyright (C) 2017         Francesc Pineda Segarra shawe.ewahs@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/../extras/fs_pdf.php';
+require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
 require_model('articulo_traza.php');
@@ -363,7 +363,7 @@ class ventas_imprimir extends fs_controller
       
       for($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ($linea_actual < count($lineas)));)
       {
-         $descripcion = $pdf_doc->fix_html($lineas[$linea_actual]->descripcion);
+         $descripcion = fs_fix_html($lineas[$linea_actual]->descripcion);
          if( !is_null($lineas[$linea_actual]->referencia) )
          {
             $descripcion = '<b>'.$lineas[$linea_actual]->referencia.'</b> '.$descripcion;
@@ -447,7 +447,7 @@ class ventas_imprimir extends fs_controller
       {
          if($this->documento->observaciones != '')
          {
-            $pdf_doc->pdf->ezText("\n".$pdf_doc->fix_html($this->documento->observaciones), 9);
+            $pdf_doc->pdf->ezText("\n".fs_fix_html($this->documento->observaciones), 9);
          }
       }
    }
@@ -464,23 +464,26 @@ class ventas_imprimir extends fs_controller
       {
          $lineast = $this->articulo_traza->all_from_linea('idlalbventa', $linea->idlinea);
       }
-      else
+      else if( get_class_name($linea) == 'linea_factura_cliente' )
       {
          $lineast = $this->articulo_traza->all_from_linea('idlfacventa', $linea->idlinea);
       }
       
+      $lote = FALSE;
       $txt = '';
       foreach($lineast as $lt)
       {
-         $txt .= "\n";
+         $salto = "\n";
          if($lt->numserie)
          {
-            $txt .= 'N/S: '.$lt->numserie.' ';
+            $txt .= $salto.'N/S: '.$lt->numserie.' ';
+            $salto = '';
          }
          
-         if($lt->lote)
+         if($lt->lote AND $lt->lote != $lote)
          {
-            $txt .= 'Lote: '.$lt->lote;
+            $txt .= $salto.'Lote: '.$lt->lote;
+            $lote = $lt->lote;
          }
       }
       
@@ -490,6 +493,7 @@ class ventas_imprimir extends fs_controller
    private function generar_pdf_datos_cliente(&$pdf_doc, &$lppag)
    {
       $tipo_doc = ucfirst(FS_ALBARAN);
+      $width_campo1 = 90;
       $rectificativa = FALSE;
       if( get_class_name($this->documento) == 'factura_cliente' )
       {
@@ -497,6 +501,7 @@ class ventas_imprimir extends fs_controller
          {
             $tipo_doc = ucfirst(FS_FACTURA_RECTIFICATIVA);
             $rectificativa = TRUE;
+            $width_campo1 = 110;
          }
          else
          {
@@ -539,7 +544,7 @@ class ventas_imprimir extends fs_controller
       $pdf_doc->add_table_row(
               array(
                   'campo1' => "<b>Cliente:</b> ",
-                  'dato1' => $pdf_doc->fix_html($this->documento->nombrecliente),
+                  'dato1' => fs_fix_html($this->documento->nombrecliente),
                   'campo2' => "<b>".$tipoidfiscal.":</b> ".$this->documento->cifnif
               )
       );
@@ -569,7 +574,7 @@ class ventas_imprimir extends fs_controller
       }
       $row = array(
           'campo1' => "<b>Dirección:</b>",
-          'dato1' => $pdf_doc->fix_html($direccion),
+          'dato1' => fs_fix_html($direccion),
           'campo2' => ''
       );
       
@@ -634,7 +639,7 @@ class ventas_imprimir extends fs_controller
          $lppag -= ceil(strlen($direccionenv)/54);
          $row_dir_env = array(
             'campo1' => "<b>Enviar a:</b>",
-            'dato1' => $pdf_doc->fix_html($direccionenv),
+            'dato1' => fs_fix_html($direccionenv),
             'campo2' => ''
          );
          $pdf_doc->add_table_row($row_dir_env);
@@ -654,7 +659,7 @@ class ventas_imprimir extends fs_controller
       $pdf_doc->save_table(
          array(
             'cols' => array(
-                'campo1' => array('width' => 90, 'justification' => 'right'),
+                'campo1' => array('width' => $width_campo1, 'justification' => 'right'),
                 'dato1' => array('justification' => 'left'),
                 'campo2' => array('justification' => 'right')
             ),
@@ -859,7 +864,7 @@ class ventas_imprimir extends fs_controller
                   array(
                       'campos' => "<b>".ucfirst(FS_FACTURA).":</b>\n<b>Fecha:</b>\n<b>".$this->cliente->tipoidfiscal.":</b>",
                       'factura' => $this->documento->codigo."\n".$this->documento->fecha."\n".$this->documento->cifnif,
-                      'cliente' => $pdf_doc->fix_html($direccion)
+                      'cliente' => fs_fix_html($direccion)
                   )
                );
                $pdf_doc->save_table(
@@ -951,7 +956,7 @@ class ventas_imprimir extends fs_controller
             /// pié de página para la factura
             if($this->empresa->pie_factura)
             {
-               $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text($pdf_doc->fix_html($this->empresa->pie_factura), 180) );
+               $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text(fs_fix_html($this->empresa->pie_factura), 180) );
             }
             
             $pagina++;
@@ -1076,13 +1081,6 @@ class ventas_imprimir extends fs_controller
    
    public function is_html($txt)
    {
-      if( stripos($txt, '<html') === FALSE )
-      {
-         return FALSE;
-      }
-      else
-      {
-         return TRUE;
-      }
+      return ( $txt != strip_tags($txt) ) ? TRUE : FALSE;
    }
 }

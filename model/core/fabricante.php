@@ -33,7 +33,7 @@ class fabricante extends \fs_model
    public $codfabricante;
    public $nombre;
    
-   public function __construct($f=FALSE)
+   public function __construct($f = FALSE)
    {
       parent::__construct('fabricantes');
       if($f)
@@ -87,7 +87,7 @@ class fabricante extends \fs_model
          return FALSE;
    }
    
-   public function get_articulos($offset=0, $limit=FS_ITEM_LIMIT)
+   public function get_articulos($offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $articulo = new \articulo();
       return $articulo->all_from_fabricante($this->codfabricante, $offset, $limit);
@@ -107,7 +107,7 @@ class fabricante extends \fs_model
    {
       $status = FALSE;
       
-      $this->codfabricante = trim($this->codfabricante);
+      $this->codfabricante = $this->no_html($this->codfabricante);
       $this->nombre = $this->no_html($this->nombre);
       
       if( strlen($this->codfabricante) < 1 OR strlen($this->codfabricante) > 8 )

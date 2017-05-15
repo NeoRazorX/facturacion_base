@@ -239,8 +239,8 @@ class informe_contabilidad extends fs_controller
             
             echo $par['numero'].';'
                     .date('d-m-Y', strtotime($par['fecha'])).';'
-                    .$this->fix_html($par['codsubcuenta']).';'
-                    .$this->fix_html($par['concepto']).';'
+                    .fs_fix_html($par['codsubcuenta']).';'
+                    .fs_fix_html($par['concepto']).';'
                     .number_format($par['debe'], FS_NF0, ',', '').';'
                     .number_format($par['haber'], FS_NF0, ',', '').';'
                     .number_format($saldo, FS_NF0, ',', '')."\n";
@@ -331,8 +331,8 @@ class informe_contabilidad extends fs_controller
             
             echo $par['numero'].';'
                     .date('d-m-Y', strtotime($par['fecha'])).';'
-                    .$this->fix_html($par['codsubcuenta']).';'
-                    .$this->fix_html($par['concepto']).';'
+                    .fs_fix_html($par['codsubcuenta']).';'
+                    .fs_fix_html($par['concepto']).';'
                     .number_format($par['debe'], FS_NF0, ',', '').';'
                     .number_format($par['haber'], FS_NF0, ',', '').';'
                     .number_format($saldo, FS_NF0, ',', '')."\n";
@@ -381,9 +381,9 @@ class informe_contabilidad extends fs_controller
             else
             {
                $pdf_doc = new fs_pdf();
-               $pdf_doc->pdf->addInfo('Title', 'Balance de situación de ' . $pdf_doc->fix_html($this->empresa->nombre) );
-               $pdf_doc->pdf->addInfo('Subject', 'Balance de situación de ' . $pdf_doc->fix_html($this->empresa->nombre) );
-               $pdf_doc->pdf->addInfo('Author', $pdf_doc->fix_html($this->empresa->nombre) );
+               $pdf_doc->pdf->addInfo('Title', 'Balance de situación de ' . fs_fix_html($this->empresa->nombre) );
+               $pdf_doc->pdf->addInfo('Subject', 'Balance de situación de ' . fs_fix_html($this->empresa->nombre) );
+               $pdf_doc->pdf->addInfo('Author', fs_fix_html($this->empresa->nombre) );
                $pdf_doc->pdf->ezStartPageNumbers(580, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
                
                if($_POST['tipo'] == '3')
@@ -576,7 +576,7 @@ class informe_contabilidad extends fs_controller
                $pdf_doc->pdf->ezNewPage();
             }
             
-            $pdf_doc->pdf->ezText($pdf_doc->fix_html($this->empresa->nombre)." - Balance de sumas y saldos ".$eje->year().' '.$titulo.".\n\n", 12);
+            $pdf_doc->pdf->ezText(fs_fix_html($this->empresa->nombre)." - Balance de sumas y saldos ".$eje->year().' '.$titulo.".\n\n", 12);
             
             /// Creamos la tabla con las lineas
             $pdf_doc->new_table();
@@ -612,7 +612,7 @@ class informe_contabilidad extends fs_controller
                $pdf_doc->add_table_row(
                   array(
                       'cuenta' => $a.$lineas[$i]['cuenta'].$b,
-                      'descripcion' => $a.substr( $pdf_doc->fix_html($lineas[$i]['descripcion']), 0, 50 ).$b,
+                      'descripcion' => $a.substr( fs_fix_html($lineas[$i]['descripcion']), 0, 50 ).$b,
                       'debe' => $a.$this->show_numero($lineas[$i]['debe']).$b,
                       'haber' => $a.$this->show_numero($lineas[$i]['haber']).$b,
                       'saldo' => $a.$this->show_numero( floatval($lineas[$i]['debe']) - floatval($lineas[$i]['haber']) ).$b
@@ -630,7 +630,7 @@ class informe_contabilidad extends fs_controller
             $pdf_doc->add_table_row(
                array(
                    'cuenta' => '',
-                   'descripcion' => '<b>'.$pdf_doc->fix_html($desc).'</b>',
+                   'descripcion' => '<b>'.fs_fix_html($desc).'</b>',
                    'debe' => '<b>'.$this->show_numero($tdebe).'</b>',
                    'haber' => '<b>'.$this->show_numero($thaber).'</b>',
                    'saldo' => '<b>'.$this->show_numero($tdebe-$thaber).'</b>'
@@ -660,7 +660,7 @@ class informe_contabilidad extends fs_controller
                }
                
                echo $lineas[$i]['cuenta'].';'.
-                       substr( $this->fix_html($lineas[$i]['descripcion']), 0, 50).';'.
+                       substr( fs_fix_html($lineas[$i]['descripcion']), 0, 50).';'.
                        number_format($lineas[$i]['debe'], FS_NF0, ',', '').';'.
                        number_format($lineas[$i]['haber'], FS_NF0, ',', '').';'.
                        number_format( floatval($lineas[$i]['debe']) - floatval($lineas[$i]['haber']) , FS_NF0, ',', '')."\n";
@@ -683,9 +683,9 @@ class informe_contabilidad extends fs_controller
          {
             $this->template = FALSE;
             $pdf_doc = new fs_pdf();
-            $pdf_doc->pdf->addInfo('Title', 'Balance de situación de ' . $pdf_doc->fix_html($this->empresa->nombre) );
-            $pdf_doc->pdf->addInfo('Subject', 'Balance de situación de ' . $pdf_doc->fix_html($this->empresa->nombre) );
-            $pdf_doc->pdf->addInfo('Author', $pdf_doc->fix_html($this->empresa->nombre) );
+            $pdf_doc->pdf->addInfo('Title', 'Balance de situación de ' . fs_fix_html($this->empresa->nombre) );
+            $pdf_doc->pdf->addInfo('Subject', 'Balance de situación de ' . fs_fix_html($this->empresa->nombre) );
+            $pdf_doc->pdf->addInfo('Author', fs_fix_html($this->empresa->nombre) );
             $pdf_doc->pdf->ezStartPageNumbers(580, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
             
             $this->situacion($pdf_doc, $eje);
@@ -722,7 +722,7 @@ class informe_contabilidad extends fs_controller
          else
             $np = TRUE;
          
-         $pdf_doc->pdf->ezText($pdf_doc->fix_html($this->empresa->nombre)." - Balance de situación de "
+         $pdf_doc->pdf->ezText(fs_fix_html($this->empresa->nombre)." - Balance de situación de "
                  .$_POST['desde']." a ".$_POST['hasta'].".\n\n", 13);
          
          /// creamos las cabeceras de la tabla
@@ -839,9 +839,9 @@ class informe_contabilidad extends fs_controller
          {
             $this->template = FALSE;
             $pdf_doc = new fs_pdf();
-            $pdf_doc->pdf->addInfo('Title', 'Balance de pérdidas y ganancias de ' . $pdf_doc->fix_html($this->empresa->nombre) );
-            $pdf_doc->pdf->addInfo('Subject', 'Balance de pérdidas y ganancias de ' . $pdf_doc->fix_html($this->empresa->nombre) );
-            $pdf_doc->pdf->addInfo('Author', $pdf_doc->fix_html($this->empresa->nombre) );
+            $pdf_doc->pdf->addInfo('Title', 'Balance de pérdidas y ganancias de ' . fs_fix_html($this->empresa->nombre) );
+            $pdf_doc->pdf->addInfo('Subject', 'Balance de pérdidas y ganancias de ' . fs_fix_html($this->empresa->nombre) );
+            $pdf_doc->pdf->addInfo('Author', fs_fix_html($this->empresa->nombre) );
             $pdf_doc->pdf->ezStartPageNumbers(580, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
             
             $this->perdidas_y_ganancias($pdf_doc, $eje);
@@ -858,7 +858,7 @@ class informe_contabilidad extends fs_controller
     */
    private function perdidas_y_ganancias(&$pdf_doc, &$eje)
    {
-      $pdf_doc->pdf->ezText($pdf_doc->fix_html($this->empresa->nombre)." - Cuenta de pérdidas y ganancias abreviada de "
+      $pdf_doc->pdf->ezText(fs_fix_html($this->empresa->nombre)." - Cuenta de pérdidas y ganancias abreviada de "
                  .$_POST['desde']." a ".$_POST['hasta'].".\n\n", 13);
       
       /// creamos las cabeceras de la tabla

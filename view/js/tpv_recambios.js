@@ -474,6 +474,10 @@ function buscar_codbarras()
               +'&query='+document.f_tpv.codbar.value;
       
       $.getJSON(url, function(json) {
+         if( jQuery.isEmptyObject(json) )
+         {
+            bootbox.alert('Ningún artículo encontrado.');
+         }
          $.each(json, function(key, val) {
             if(val.codbarras == document.f_tpv.codbar.value)
             {
@@ -486,6 +490,8 @@ function buscar_codbarras()
                   {
                      funcion = "add_articulo_"+val.tipo+"('"+val.referencia+"','"+Base64.encode(val.descripcion)+"','"
                         +val.pvp+"','"+val.dtopor+"','"+val.codimpuesto+"','"+val.cantidad+"')";
+                     
+                     $("#modal_articulos").modal('show');
                   }
                   
                   eval(funcion);

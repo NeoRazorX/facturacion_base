@@ -17,18 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('agente.php');
 require_model('almacen.php');
 require_model('albaran_cliente.php');
 require_model('articulo.php');
-require_model('cliente.php');
 require_model('factura_cliente.php');
 require_model('serie.php');
 
-class ventas_albaranes extends fs_controller
+class ventas_albaranes extends fbase_controller
 {
    public $agente;
-   public $almacenes;   
+   public $almacenes;
    public $articulo;
    public $buscar_lineas;
    public $cliente;
@@ -39,7 +39,6 @@ class ventas_albaranes extends fs_controller
    public $hasta;
    public $lineas;
    public $mostrar;
-   public $multi_almacen;
    public $num_resultados;
    public $offset;
    public $order;
@@ -55,6 +54,8 @@ class ventas_albaranes extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
+      
       $albaran = new albaran_cliente();
       $this->almacenes = new almacen();
       $this->agente = new agente();
@@ -70,9 +71,6 @@ class ventas_albaranes extends fs_controller
       {
          $this->mostrar = $_COOKIE['ventas_alb_mostrar'];
       }
-      
-      $fsvar = new fs_var();
-      $this->multi_almacen = $fsvar->simple_get('multi_almacen');
       
       $this->offset = 0;
       if( isset($_REQUEST['offset']) )
@@ -102,7 +100,7 @@ class ventas_albaranes extends fs_controller
       }
       else if( isset($_REQUEST['buscar_cliente']) )
       {
-         $this->buscar_cliente();
+         $this->fbase_buscar_cliente($_REQUEST['buscar_cliente']);
       }
       else if( isset($_GET['ref']) )
       {
@@ -229,7 +227,7 @@ class ventas_albaranes extends fs_controller
             $codcliente = $this->cliente->codcliente;
          }
          
-         $url = $this->url()."&mostrar=".$this->mostrar
+         $url = parent::url()."&mostrar=".$this->mostrar
                  ."&query=".$this->query
                  ."&codserie=".$this->codserie
                  ."&codagente=".$this->codagente
@@ -246,30 +244,8 @@ class ventas_albaranes extends fs_controller
       }
    }
    
-   private function buscar_cliente()
-   {
-      /// desactivamos la plantilla HTML
-      $this->template = FALSE;
-      
-      $cli0 = new cliente();
-      $json = array();
-      foreach($cli0->search($_REQUEST['buscar_cliente']) as $cli)
-      {
-         $json[] = array('value' => $cli->nombre, 'data' => $cli->codcliente);
-      }
-      
-      header('Content-Type: application/json');
-      echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
-   }
-   
    public function paginas()
    {
-      $url = $this->url(TRUE);
-      $paginas = array();
-      $i = 0;
-      $num = 0;
-      $actual = 1;
-      
       if($this->mostrar == 'pendientes')
       {
          $total = $this->total_pendientes();
@@ -283,47 +259,7 @@ class ventas_albaranes extends fs_controller
          $total = $this->total_registros();
       }
       
-      /// añadimos todas la página
-      while($num < $total)
-      {
-         $paginas[$i] = array(
-             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
-             'num' => $i + 1,
-             'actual' => ($num == $this->offset)
-         );
-         
-         if($num == $this->offset)
-         {
-            $actual = $i;
-         }
-         
-         $i++;
-         $num += FS_ITEM_LIMIT;
-      }
-      
-      /// ahora descartamos
-      foreach($paginas as $j => $value)
-      {
-         $enmedio = intval($i/2);
-         
-         /**
-          * descartamos todo excepto la primera, la última, la de enmedio,
-          * la actual, las 5 anteriores y las 5 siguientes
-          */
-         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
-         {
-            unset($paginas[$j]);
-         }
-      }
-      
-      if( count($paginas) > 1 )
-      {
-         return $paginas;
-      }
-      else
-      {
-         return array();
-      }
+      return $this->fbase_paginas($this->url(TRUE), $total, $this->offset);
    }
    
    public function buscar_lineas()
@@ -450,24 +386,12 @@ class ventas_albaranes extends fs_controller
    
    public function total_pendientes()
    {
-      $data = $this->db->select("SELECT COUNT(idalbaran) as total FROM albaranescli WHERE ptefactura;");
-      if($data)
-      {
-         return intval($data[0]['total']);
-      }
-      else
-         return 0;
+      return $this->fbase_sql_total('albaranescli', 'idalbaran', 'WHERE ptefactura = true');
    }
    
    private function total_registros()
    {
-      $data = $this->db->select("SELECT COUNT(idalbaran) as total FROM albaranescli;");
-      if($data)
-      {
-         return intval($data[0]['total']);
-      }
-      else
-         return 0;
+      return $this->fbase_sql_total('albaranescli', 'idalbaran');
    }
    
    private function buscar($order2)

@@ -17,13 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('agente.php');
 require_model('almacen.php');
 require_model('articulo.php');
 require_model('articulo_combinacion.php');
 require_model('asiento_factura.php');
 require_model('caja.php');
-require_model('cliente.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('fabricante.php');
@@ -37,11 +37,10 @@ require_model('serie.php');
 require_model('tarifa.php');
 require_model('terminal_caja.php');
 
-class tpv_recambios extends fs_controller
+class tpv_recambios extends fbase_controller
 {
    public $agente;
    public $almacen;
-   public $allow_delete;
    public $articulo;
    public $caja;
    public $cliente;
@@ -68,10 +67,8 @@ class tpv_recambios extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
       $this->share_extensions();
-      
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       $this->articulo = new articulo();
       $this->cliente = new cliente();
@@ -83,7 +80,7 @@ class tpv_recambios extends fs_controller
       
       if( isset($_REQUEST['buscar_cliente']) )
       {
-         $this->buscar_cliente();
+         $this->fbase_buscar_cliente($_REQUEST['buscar_cliente']);
       }
       else if( isset($_REQUEST['datoscliente']) )
       {
@@ -221,21 +218,6 @@ class tpv_recambios extends fs_controller
       }
    }
    
-   private function buscar_cliente()
-   {
-      /// desactivamos la plantilla HTML
-      $this->template = FALSE;
-      
-      $json = array();
-      foreach($this->cliente->search($_REQUEST['buscar_cliente']) as $cli)
-      {
-         $json[] = array('value' => $cli->razonsocial, 'data' => $cli->codcliente, 'full' => $cli);
-      }
-      
-      header('Content-Type: application/json');
-      echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
-   }
-   
    private function datos_cliente()
    {
       /// desactivamos la plantilla HTML
@@ -250,8 +232,6 @@ class tpv_recambios extends fs_controller
       /// desactivamos la plantilla HTML
       $this->template = FALSE;
       
-      $fsvar = new fs_var();
-      $multi_almacen = $fsvar->simple_get('multi_almacen');
       $stock = new stock();
       
       $codfamilia = '';
@@ -275,7 +255,7 @@ class tpv_recambios extends fs_controller
          $this->results[$i]->cantidad = 1;
          
          $this->results[$i]->stockalm = $value->stockfis;
-         if( $multi_almacen AND isset($_REQUEST['codalmacen']) )
+         if( $this->multi_almacen AND isset($_REQUEST['codalmacen']) )
          {
             $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
          }
