@@ -1,0 +1,94 @@
+{include="header"}
+<!--
+Copyright (C) 2017 Joe Nilson <joenilson at gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h2 style="margin-top: -10px;">
+               <span class="fa fa-line-chart"></span>
+               Informe del artículo {$fsc->articulo->descripcion}
+               <a href="{$fsc->url()}" class="btn btn-sm btn-default" title="Recargar la página">
+                  <span class="fa fa-refresh"></span>
+               </a>
+               <a href="{#FS_PATH#}index.php?page=informe_articulos&tab=stock&tipo=todo" class="btn btn-sm btn-default" title="Recargar la página">
+                  <span class="fa fa-arrow-left"></span>&nbsp;Regresar
+               </a>
+               <span class="btn-group">
+                  {loop="$fsc->extensions"}
+                  {if="$value->type=='button'"}
+                  <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                  {/if}
+                  {/loop}
+               </span>
+            </h2>
+         </div>
+         <form name="f_buscar" method="POST" action="{$fsc->url()}">
+                <div class="form-group col-sm-3">
+                    <select name="codalmacen" class="form-control input-sm" onchange="this.form.submit()">
+                        {if="count($fsc->almacen->all())>1"}
+                        <option value="">Todos los almacenes</option>
+                        {/if}
+                        {loop="$fsc->almacen->all()"}
+                        <option value="{$value->codalmacen}" {if="$value->codalmacen==$fsc->codalmacen"}selected{/if}>{$value->nombre}</option>
+                        {/loop}
+                    </select>
+                </div>
+                <div class="form-group col-sm-3">
+                    <input type="text" name="desde" value="{$fsc->desde}" placeholder="Desde" class="form-control input-sm datepicker">
+                </div>
+                <div class="form-group col-sm-3">
+                    <input type="text" name="hasta" value="{$fsc->hasta}" placeholder="Hasta" class="form-control input-sm datepicker">
+                </div>
+                <div class="form-group col-sm-1">
+                    <button type="submit" name="accion" value="buscar" class="btn btn-sm btn-primary">
+                        <span class="fa fa-search"></span>
+                    </button>
+                </div>
+            </form>
+      </div>
+   </div>
+   <div class="table-responsive col-sm-8">
+      <table class="table table-hover table-striped">
+         <thead>
+            <tr>
+               <th class="text-center">Almacen</th>
+               <th class="text-center">Fecha</th>
+               <th class="text-center">Ingresos</th>
+               <th class="text-center">Salidas</th>
+               <th class="text-center">Saldo Final</th>
+            </tr>
+         </thead>
+         <tbody>
+            {loop="$fsc->resultados"}
+            <tr>
+               <td class="text-center">{$value->codalmacen}</td>
+               <td class="text-center">{$value->fecha}</td>
+               <td class="text-right">{if="$value->cantidad_ingreso"}{$fsc->show_numero($value->cantidad_ingreso)}{/if}</td>
+               <td class="text-right">{if="$value->cantidad_salida"}{$fsc->show_numero($value->cantidad_salida)}{/if}</td>
+               <td class="text-right {if="$value->cantidad_saldo<0"}text-danger bg-danger{else}bg-success text-success{/if}">{if="$value->cantidad_saldo"}{$fsc->show_numero($value->cantidad_saldo)}{/if}</td>
+            </tr>
+            {else}
+            <tr>
+               <td colspan="5" class="text-center text-alert bg-alert">No hay información de movimientos en el rango de fechas.</td>
+            </tr>
+            {/loop}
+         </tbody>
+      </table>
+   </div>
+</div>
+{include="footer"}

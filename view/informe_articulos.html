@@ -291,6 +291,10 @@ function recalcular_stock()
                   Bajo mínimos <span class="caret"></span>
                {elseif="$fsc->tipo_stock=='max'"}
                   Excesos <span class="caret"></span>
+               {elseif="$fsc->tipo_stock=='constock'"}
+                  Con Stock <span class="caret"></span>
+               {elseif="$fsc->tipo_stock=='sinstock'"}
+                  Sin Stock <span class="caret"></span>
                {else}
                   Regularizaciones <span class="caret"></span>
                {/if}
@@ -298,6 +302,12 @@ function recalcular_stock()
             <ul class="dropdown-menu">
                {if="$fsc->tipo_stock!='todo'"}
                <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock">Todo</a></li>
+               {/if}
+               {if="$fsc->tipo_stock!='constock'"}
+               <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo=constock">Con Stock</a></li>
+               {/if}
+               {if="$fsc->tipo_stock!='sinstock'"}
+               <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo=sinstock">Sin Stock</a></li>
                {/if}
                {if="$fsc->tipo_stock!='min'"}
                <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo=min">Bajo mínimos</a></li>
@@ -434,10 +444,10 @@ function recalcular_stock()
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-         <tr class="clickableRow{if="intval($value['cantidad'])<intval($value['stockmin'])"} danger{/if}" href="index.php?page=ventas_articulo&ref={$value['referencia']}">
+         <tr class="clickableRow{if="intval($value['cantidad'])<intval($value['stockmin'])"} danger{/if}" href="index.php?page=ver_articulo&ref={$value['referencia']}">
             <td>{$value['codalmacen']}</td>
             <td>
-               <a href="index.php?page=ventas_articulo&ref={$value['referencia']}">{$value['referencia']}</a>
+               <a href="index.php?page=ver_articulo&ref={$value['referencia']}">{$value['referencia']}</a>
                {function="mb_substr($value['descripcion'], 0, 100)"}
             </td>
             <td class="text-right">{$value['cantidad']}</td>

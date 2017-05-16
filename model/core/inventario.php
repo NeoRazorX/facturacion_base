@@ -390,7 +390,7 @@ class inventario extends \fs_model
             //buscamos los movimientos por almacén
             $this->calcular_movimientos($almacen, $this->ref);
          }
-         //gc_collect_cycles();
+         gc_collect_cycles();
       }
    }
 
@@ -401,19 +401,27 @@ class inventario extends \fs_model
     * @param type $codalmacen string
     * @return array
     */
-   public function listar_movimientos($desde, $hasta, $codalmacen='')
+   public function listar_movimientos($desde, $hasta, $referencia='',$codalmacen='')
    {
       $lista = array();
-      $desde = (!$desde)?\date('01-m-Y'):$desde;
-      $hasta = (!$hasta)?\date('d-m-Y'):$hasta;
+      $f_desde = (!$desde)?\date('01-m-Y'):$desde;
+      $f_hasta = (!$hasta)?\date('d-m-Y'):$hasta;
+      
+      $sql_referencia = '';
+      if($referencia)
+      {
+         $sql_referencia .= " AND referencia = ".$this->var2str($referencia);
+      }
+      
       $sql_almacen = '';
       if($codalmacen)
       {
-         $sql_almacen = " AND codalmacen = ".$this->var2str($codalmacen);
+         $sql_almacen .= " AND codalmacen = ".$this->var2str($codalmacen);
       }
+      
       $sql = "SELECT * FROM ".$this->table_name.
-            " WHERE fecha between ".$this->var2str($desde). " AND ".$this->var2str($hasta).$sql_almacen.
-              " ORDER BY fecha";
+            " WHERE fecha between ".$this->var2str($f_desde). " AND ".$this->var2str($f_hasta).$sql_almacen.$sql_referencia.
+            " ORDER BY fecha";
       $data = $this->db->select($sql);
       if($data){
          foreach($data as $d)
@@ -431,312 +439,324 @@ class inventario extends \fs_model
    public function calcular_movimientos($almacen, $referencia)
    {
       //Generamos el select para la subconsulta de productos activos y que se controla su stock
-      $ref = false;
+      $ref0 = false;
       if($referencia)
       {
-         $ref = $referencia;
+         $ref0 = $referencia;
       }
-
-      $lista = $this->comprobar_fechas_stock($ref);
+      $sql_articulos = "SELECT referencia FROM articulos where nostock = FALSE AND bloqueado = FALSE order by referencia";
+      $lista = $this->db->select($sql_articulos);
       $rango = $this->rango_fechas();
+      
       if ($lista)
       {
+         $mov = array();
          foreach ($lista as $item)
          {
             $art0 = new \articulo();
             $art = $art0->get($item['referencia']);
-            //Inicializamos la clase de inventario para guardar los resultados del calculo
-            $mov = array();
+            
+            //Inicializamos la clase de inventario para guardar los resultados del calculo            
+            $ref =  $item['referencia'];
             foreach($rango as $fecha)
             {
-               $ref =  $item['referencia'];
-               $mov[$fecha->format('Y-m-d')][$ref] = new inventario();
-               $mov[$fecha->format('Y-m-d')][$ref]->codalmacen = $almacen->codalmacen;
-               $mov[$fecha->format('Y-m-d')][$ref]->fecha = $fecha->format('Y-m-d');
-               $mov[$fecha->format('Y-m-d')][$ref]->referencia = $item['referencia'];
-               $mov[$fecha->format('Y-m-d')][$ref]->descripcion = stripcslashes($art->descripcion);
-               $mov[$fecha->format('Y-m-d')][$ref]->cantidad_salida = 0;
-               $mov[$fecha->format('Y-m-d')][$ref]->cantidad_ingreso = 0;
-               $mov[$fecha->format('Y-m-d')][$ref]->cantidad_saldo = 0;
-               $mov[$fecha->format('Y-m-d')][$ref]->monto_salida = 0;
-               $mov[$fecha->format('Y-m-d')][$ref]->monto_ingreso = 0;
-               $mov[$fecha->format('Y-m-d')][$ref]->monto_saldo = 0;
+               if(!isset($mov[$fecha->format('Y-m-d')]))
+               {
+                  $mov[$fecha->format('Y-m-d')] = array();
+               }
+               $mov[$fecha->format('Y-m-d')][$ref] = array();
+               $mov[$fecha->format('Y-m-d')][$ref]['codalmacen'] = $almacen->codalmacen;
+               $mov[$fecha->format('Y-m-d')][$ref]['fecha'] = $fecha->format('Y-m-d');
+               $mov[$fecha->format('Y-m-d')][$ref]['referencia'] = $ref;
+               $mov[$fecha->format('Y-m-d')][$ref]['descripcion'] = stripcslashes($art->descripcion);
+               $mov[$fecha->format('Y-m-d')][$ref]['cantidad_salida'] = 0;
+               $mov[$fecha->format('Y-m-d')][$ref]['cantidad_ingreso'] = 0;
+               $mov[$fecha->format('Y-m-d')][$ref]['cantidad_saldo'] = 0;
+               $mov[$fecha->format('Y-m-d')][$ref]['monto_salida'] = 0;
+               $mov[$fecha->format('Y-m-d')][$ref]['monto_ingreso'] = 0;
+               $mov[$fecha->format('Y-m-d')][$ref]['monto_saldo'] = 0;
+            }
+         }
+         $registros = 0;
+
+         /*
+          * Generamos la informacion del saldo final del dia anterior segun el inventario diario
+          */
+         $fechaProceso = new \DateTime($this->fecha_inicio);
+         $fechaAnterior = $fechaProceso->sub(new \DateInterval('P1D'))->format('Y-m-d');
+         $sql_inventario = "select referencia, descripcion, cantidad_saldo , monto_saldo ".
+               " FROM inventario ".
+               " WHERE codalmacen = ".$this->var2str($almacen->codalmacen).
+               " AND fecha = ".$this->var2str($fechaAnterior).";";
+         $saldo_anterior = $this->db->select($sql_inventario);
+         if ($saldo_anterior)
+         {
+            foreach($saldo_anterior as $linea)
+            {
+               $ref = $linea['referencia'];
+               $mov[$this->fecha_inicio][$ref]['cantidad_saldo'] = $linea['cantidad_saldo'];
+               $mov[$this->fecha_inicio][$ref]['monto_saldo'] = $linea['monto_saldo'];
             }
          }
 
-            /*
-             * Generamos la informacion del saldo final del dia anterior segun el inventario diario
-             */
-            $fechaProceso = new \DateTime($this->fecha_inicio);
-            $fechaAnterior = $fechaProceso->sub(new \DateInterval('P1D'))->format('Y-m-d');
-            $sql_inventario = "select referencia, descripcion, cantidad_saldo , monto_saldo ".
-                  " FROM inventario ".
-                  " WHERE codalmacen = ".$this->var2str($almacen->codalmacen).
-                  " AND fecha = ".$this->var2str($fechaAnterior).";";
-            $saldo_anterior = $this->db->select($sql_inventario);
-            if ($saldo_anterior)
-            {
-               foreach($saldo_anterior as $linea)
-               {
-                  $ref = $linea['referencia'];
-                  $mov[$this->fecha_inicio][$ref]->cantidad_saldo = $linea['cantidad_saldo'];
-                  $mov[$this->fecha_inicio][$ref]->monto_saldo = $linea['monto_saldo'];
-               }
-
-            }
-
-            /*
-             * Generamos la informacion de los albaranes de proveedor no asociados a facturas
-             */
-            $sql_albaranesprov = "select referencia,coddivisa,tasaconv,fecha,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
-               " from albaranesprov as ac ".
-               " join lineasalbaranesprov as l ON (ac.idalbaran=l.idalbaran) ".
-               " where codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
-               " AND idfactura is null ".
-               " group by l.referencia,coddivisa,tasaconv,fecha ".
-               " order by fecha,coddivisa;";
-            $data_albaranesprov = $this->db->select($sql_albaranesprov);
-            if ($data_albaranesprov) {
-               foreach ($data_albaranesprov as $linea) {
-                  //Verificamos la divisa del monto
-                  $ref = $linea['referencia'];
-                  $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
-                  $mov[$linea['fecha']][$ref]->cantidad_salida += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
-                  $mov[$linea['fecha']][$ref]->cantidad_ingreso += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                  $mov[$linea['fecha']][$ref]->monto_salida += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
-                  $mov[$linea['fecha']][$ref]->monto_ingreso += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
-               }
-            }
-
-            /*
-             * Generamos la informacion de los albaranes de proveedor asociados a facturas no anuladas
-             */
-            $sql_albaranesprov = "select referencia,coddivisa,tasaconv,fecha,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
-               " from albaranesprov as ac ".
-               " join lineasalbaranesprov as l ON (ac.idalbaran=l.idalbaran) ".
-               " where codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
-               " AND idfactura is not null ".
-               " AND referencia = ".$this->var2str($item['referencia']).
-               " group by l.referencia,coddivisa,tasaconv,fecha ".
-               " order by fecha,coddivisa;";
-            $data_albaranesprov = $this->db->select($sql_albaranesprov);
-            if ($data_albaranesprov) {
-               foreach ($data_albaranesprov as $linea) {
-                  $ref = $linea['referencia'];
-                  //Verificamos la divisa del monto
-                  $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
-                  $mov[$linea['fecha']][$ref]->cantidad_salida += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
-                  $mov[$linea['fecha']][$ref]->cantidad_ingreso += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                  $mov[$linea['fecha']][$ref]->monto_salida += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
-                  $mov[$linea['fecha']][$ref]->monto_ingreso += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
-               }
-            }
-
-            /*
-             * Generamos la informacion de las facturas de proveedor ingresadas
-             * que no esten asociadas a un albaran de proveedor
-             */
-            $sql_facturasprov = "select referencia,coddivisa,tasaconv,fecha,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
-               " FROM facturasprov as fc ".
-               " JOIN lineasfacturasprov as l ON (fc.idfactura=l.idfactura) ".
-               " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
-               " and anulada = FALSE and idalbaran is null ".
-               " AND referencia = ".$this->var2str($item['referencia']).
-               " group by referencia,coddivisa,tasaconv,fecha ".
-               " order by fecha,coddivisa;";
-            $data_facturasprov = $this->db->select($sql_facturasprov);
-            if ($data_facturasprov) {
-               foreach ($data_facturasprov as $linea) {
-                  $ref = $linea['referencia'];
-                  //Verificamos la divisa del monto
-                  $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
-                  $mov[$linea['fecha']][$ref]->cantidad_salida += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
-                  $mov[$linea['fecha']][$ref]->cantidad_ingreso += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                  $mov[$linea['fecha']][$ref]->monto_salida += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
-                  $mov[$linea['fecha']][$ref]->monto_ingreso += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
-               }
-            }
-
-            /*
-             * Generamos la informacion de los albaranes asociados a facturas no anuladas
-             */
-            $sql_albaranescli = "select referencia,coddivisa,tasaconv,fecha,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
-               " from albaranescli as ac ".
-               " join lineasalbaranescli as l ON (ac.idalbaran=l.idalbaran) ".
-               " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
-               " and idfactura is not null ".
-               " AND referencia = ".$this->var2str($item['referencia']).
-               " group by referencia,coddivisa,tasaconv,fecha ".
-               " order by fecha,coddivisa;";
-            $data_albaranescli = $this->db->select($sql_albaranescli);
-            if ($data_albaranescli) {
-               foreach ($data_albaranescli as $linea) {
-                  $ref = $linea['referencia'];
-                  //Verificamos la divisa del monto
-                  $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
-                  $mov[$linea['fecha']][$ref]->cantidad_salida += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                  $mov[$linea['fecha']][$ref]->cantidad_ingreso += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
-                  $mov[$linea['fecha']][$ref]->monto_salida += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
-                  $mov[$linea['fecha']][$ref]->monto_ingreso += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
-               }
-            }
-
-            /*
-             * Generamos la informacion de los albaranes no asociados a facturas
-             */
-            $sql_albaranescli2 = "select referencia,coddivisa,tasaconv,fecha,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
-               " from albaranescli as ac ".
-               " join lineasalbaranescli as l ON (ac.idalbaran=l.idalbaran) ".
-               " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
-               " and idfactura is null ".
-               " AND referencia = ".$this->var2str($item['referencia']).
-               " group by referencia,coddivisa,tasaconv,fecha ".
-               " order by fecha,coddivisa;";
-            $data_albaranescli2 = $this->db->select($sql_albaranescli2);
-            if ($data_albaranescli2) {
-               foreach ($data_albaranescli2 as $linea) {
-                  $ref = $linea['referencia'];
-                  //Verificamos la divisa del monto
-                  $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
-                  $mov[$linea['fecha']][$ref]->cantidad_salida += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                  $mov[$linea['fecha']][$ref]->cantidad_ingreso += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
-                  $mov[$linea['fecha']][$ref]->monto_salida += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
-                  $mov[$linea['fecha']][$ref]->monto_ingreso += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
-               }
-            }
-
-            /*
-             * Generamos la informacion de las facturas que se han generado sin albaran
-             */
-            $sql_facturascli = "select referencia,coddivisa,tasaconv,fecha ,sum(cantidad) as cantidad, sum(pvptotal) as monto ".
-                " from facturascli as fc ".
-                " join lineasfacturascli as l ON (fc.idfactura=l.idfactura) ".
-                " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
-                " and anulada=FALSE and idalbaran is null ".
-                " AND referencia = ".$this->var2str($item['referencia']).
-                " group by fc.idfactura,referencia,coddivisa,tasaconv,fecha ".
-                " order by fecha,fc.idfactura;";
-            $data_facturascli = $this->db->select($sql_facturascli);
-            if ($data_facturascli) {
-               foreach ($data_facturascli as $linea) {
-                  $ref = $linea['referencia'];
-                  //Verificamos la divisa del monto
-                  $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
-                  $mov[$linea['fecha']][$ref]->cantidad_salida += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                  $mov[$linea['fecha']][$ref]->cantidad_ingreso += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
-                  $mov[$linea['fecha']][$ref]->monto_salida += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
-                  $mov[$linea['fecha']][$ref]->monto_ingreso += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
-               }
-            }
-
-            //Si existen estas tablas se genera la información de las transferencias de stock
-            if( $this->db->table_exists('transstock', $this->tablas) AND $this->db->table_exists('lineastransstock', $this->tablas) )
-            {
-                /*
-                 * Generamos la informacion de las transferencias por ingresos entre almacenes que se hayan hecho a los stocks
-                 */
-                $sql_regstocks_ingreso = "select referencia,fecha, sum(cantidad) as cantidad ".
-                  " from lineastransstock AS ls ".
-                  " JOIN transstock as l ON(ls.idtrans = l.idtrans) ".
-                  " where codalmadestino = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
-                  " AND referencia = ".$this->var2str($item['referencia']).
-                  " group by referencia,fecha ".
-                  " ORDER BY fecha,referencia;";
-                $data_regstocks_ingreso = $this->db->select($sql_regstocks_ingreso);
-                if ($data_regstocks_ingreso) {
-                   foreach ($data_regstocks_ingreso as $linea) {
-                     $ref = $linea['referencia'];
-                     $mov[$linea['fecha']][$ref]->cantidad_salida += 0;
-                     $mov[$linea['fecha']][$ref]->cantidad_ingreso += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                     $mov[$linea['fecha']][$ref]->monto_salida += 0;
-                     $mov[$linea['fecha']][$ref]->monto_ingreso += ($linea['cantidad'] >= 0) ? ($art->costemedio * $linea['cantidad']) : 0;
-                   }
-                }
-
-                /*
-                 * Generamos la informacion de las transferencias por salidas entre almacenes que se hayan hecho a los stocks
-                 */
-                $sql_regstocks_salida = "select referencia,fecha, sum(cantidad) as cantidad ".
-                  " from lineastransstock AS ls ".
-                  " JOIN transstock as l ON(ls.idtrans = l.idtrans) ".
-                  " where codalmaorigen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
-                  " AND referencia = ".$this->var2str($item['referencia']).
-                  " group by referencia,fecha ".
-                  " ORDER BY fecha,referencia;";
-                $data_regstocks_salida = $this->db->select($sql_regstocks_salida);
-                if ($data_regstocks_salida) {
-                   foreach ($data_regstocks_salida as $linea) {
-                     $ref = $linea['referencia'];
-                     $mov[$linea['fecha']][$ref]->cantidad_salida += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
-                     $mov[$linea['fecha']][$ref]->cantidad_ingreso += 0;
-                     $mov[$linea['fecha']][$ref]->monto_salida += ($linea['cantidad'] >= 0) ? ($art->costemedio * $linea['cantidad']) : 0;
-                     $mov[$linea['fecha']][$ref]->monto_ingreso += 0;
-                   }
-                }
-            }
-
-            /*
-             * Por ultimo generamos la informacion de las regularizaciones que se hayan hecho a los stocks
-             */
-            $sql_regularizaciones = "select referencia,fecha,sum(cantidadfin) as cantidad,sum(cantidadini) as cantidad_inicial ".
-            " from lineasregstocks AS ls ".
-            " JOIN stocks as l ON(ls.idstock = l.idstock) ".
+         /*
+          * Generamos la informacion de los albaranes de proveedor no asociados a facturas
+          */
+         $sql_albaranesprov = "select referencia,coddivisa,tasaconv,fecha,cantidad, pvptotal as monto ".
+            " from albaranesprov as ac ".
+            " join lineasalbaranesprov as l ON (ac.idalbaran=l.idalbaran) ".
             " where codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
-            " AND referencia = ".$this->var2str($item['referencia']).
-            " group by referencia,fecha ".
-            " ORDER BY fecha,referencia;";
-            $data_regularizaciones = $this->db->select($sql_regularizaciones);
-            if ($data_regularizaciones) {
-               foreach ($data_regularizaciones as $linea) {
-                  $ref = $linea['referencia'];
-                  //Verificamos la cantidad de la regularización
-                  //para asignarle una cantidad de movimiento de regularización
-                  $cantidad = $linea['cantidad_inicial']-$linea['cantidad'];
-                  $mov[$linea['fecha']][$ref]->cantidad_salida += ($cantidad > 0)?($cantidad):0;
-                  $mov[$linea['fecha']][$ref]->cantidad_ingreso += ($cantidad < 0)?$cantidad*-1:0;
-                  $monto = ($art->costemedio * $cantidad);
-                  $mov[$linea['fecha']][$ref]->monto_salida += ($monto > 0)?$monto:0;
-                  $mov[$linea['fecha']][$ref]->monto_ingreso += ($monto < 0)?$monto*-1:0;
-               }
+            " AND idfactura is null and referencia IN (".$sql_articulos.") ".
+            " order by fecha,coddivisa;";
+         $data_albaranesprov = $this->db->select($sql_albaranesprov);
+         if ($data_albaranesprov) {
+            foreach ($data_albaranesprov as $linea) {
+               //Verificamos la divisa del monto
+               $ref = $linea['referencia'];
+               $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
+               $mov[$linea['fecha']][$ref]['cantidad_salida'] += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
+               $mov[$linea['fecha']][$ref]['cantidad_ingreso'] += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+               $mov[$linea['fecha']][$ref]['monto_salida'] += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
+               $mov[$linea['fecha']][$ref]['monto_ingreso'] += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
+               $registros++;
             }
-            gc_collect_cycles();
+         }
 
-            $this->guardar_calculo($rango,$mov,$almacen->codalmacen);
+         /*
+          * Generamos la informacion de los albaranes de proveedor asociados a facturas no anuladas
+          */
+         $sql_albaranesprov = "select referencia,coddivisa,tasaconv,fecha,cantidad, pvptotal as monto ".
+            " from albaranesprov as ac ".
+            " join lineasalbaranesprov as l ON (ac.idalbaran=l.idalbaran) ".
+            " where codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
+            " AND idfactura is not null and referencia IN (".$sql_articulos.") ".
+            " order by fecha,coddivisa;";
+         $data_albaranesprov = $this->db->select($sql_albaranesprov);
+         if ($data_albaranesprov) {
+            foreach ($data_albaranesprov as $linea) {
+               $ref = $linea['referencia'];
+               //Verificamos la divisa del monto
+               $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
+               $mov[$linea['fecha']][$ref]['cantidad_salida'] += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
+               $mov[$linea['fecha']][$ref]['cantidad_ingreso'] += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+               $mov[$linea['fecha']][$ref]['monto_salida'] += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
+               $mov[$linea['fecha']][$ref]['monto_ingreso'] += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
+               $registros++;
+            }
+         }
 
+         /*
+          * Generamos la informacion de las facturas de proveedor ingresadas
+          * que no esten asociadas a un albaran de proveedor
+          */
+         $sql_facturasprov = "select referencia,coddivisa,tasaconv,fecha,cantidad, pvptotal as monto ".
+            " FROM facturasprov as fc ".
+            " JOIN lineasfacturasprov as l ON (fc.idfactura=l.idfactura) ".
+            " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
+            " and anulada = FALSE and idalbaran is null and referencia IN (".$sql_articulos.") ".
+            " order by fecha,coddivisa;";
+         $data_facturasprov = $this->db->select($sql_facturasprov);
+         if ($data_facturasprov) {
+            foreach ($data_facturasprov as $linea) {
+               $ref = $linea['referencia'];
+               //Verificamos la divisa del monto
+               $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
+               $mov[$linea['fecha']][$ref]['cantidad_salida'] += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
+               $mov[$linea['fecha']][$ref]['cantidad_ingreso'] += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+               $mov[$linea['fecha']][$ref]['monto_salida'] += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
+               $mov[$linea['fecha']][$ref]['monto_ingreso'] += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
+               $registros++;
+            }
+         }
+
+         /*
+          * Generamos la informacion de los albaranes asociados a facturas no anuladas
+          */
+         $sql_albaranescli = "select referencia,coddivisa,tasaconv,fecha,cantidad, pvptotal as monto ".
+            " from albaranescli as ac ".
+            " join lineasalbaranescli as l ON (ac.idalbaran=l.idalbaran) ".
+            " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
+            " and idfactura is not null and referencia IN (".$sql_articulos.") ".
+            " order by fecha,coddivisa;";
+         $data_albaranescli = $this->db->select($sql_albaranescli);
+         if ($data_albaranescli) {
+            foreach ($data_albaranescli as $linea) {
+               $ref = $linea['referencia'];
+               //Verificamos la divisa del monto
+               $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
+               $mov[$linea['fecha']][$ref]['cantidad_salida'] += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+               $mov[$linea['fecha']][$ref]['cantidad_ingreso'] += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
+               $mov[$linea['fecha']][$ref]['monto_salida'] += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
+               $mov[$linea['fecha']][$ref]['monto_ingreso'] += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
+               $registros++;
+            }
+         }
+
+         /*
+          * Generamos la informacion de los albaranes no asociados a facturas
+          */
+         $sql_albaranescli2 = "select referencia,coddivisa,tasaconv,fecha,cantidad, pvptotal as monto ".
+            " from albaranescli as ac ".
+            " join lineasalbaranescli as l ON (ac.idalbaran=l.idalbaran) ".
+            " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
+            " and idfactura is null and referencia IN (".$sql_articulos.") ".
+            " order by fecha,coddivisa;";
+         $data_albaranescli2 = $this->db->select($sql_albaranescli2);
+         if ($data_albaranescli2) {
+            foreach ($data_albaranescli2 as $linea) {
+               $ref = $linea['referencia'];
+               //Verificamos la divisa del monto
+               $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
+               $mov[$linea['fecha']][$ref]['cantidad_salida'] += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+               $mov[$linea['fecha']][$ref]['cantidad_ingreso'] += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
+               $mov[$linea['fecha']][$ref]['monto_salida'] += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
+               $mov[$linea['fecha']][$ref]['monto_ingreso'] += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
+               $registros++;
+            }
+         }
+
+         /*
+          * Generamos la informacion de las facturas que se han generado sin albaran
+          */
+         $sql_facturascli = "select referencia,coddivisa,tasaconv,fecha ,cantidad, pvptotal as monto ".
+             " from facturascli as fc ".
+             " join lineasfacturascli as l ON (fc.idfactura=l.idfactura) ".
+             " WHERE codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
+             " and anulada=FALSE and idalbaran is null and referencia IN (".$sql_articulos.") ".
+             " order by fecha,fc.idfactura;";
+         $data_facturascli = $this->db->select($sql_facturascli);
+         if ($data_facturascli) {
+            foreach ($data_facturascli as $linea) {
+               $ref = $linea['referencia'];
+               //Verificamos la divisa del monto
+               $linea['monto'] = $this->verificar_divisa($linea['monto'], $linea['coddivisa']);
+               $mov[$linea['fecha']][$ref]['cantidad_salida'] += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+               $mov[$linea['fecha']][$ref]['cantidad_ingreso'] += ($linea['cantidad'] <= 0) ? ($linea['cantidad'] * -1) : 0;
+               $mov[$linea['fecha']][$ref]['monto_salida'] += ($linea['monto'] >= 0) ? $linea['monto'] : 0;
+               $mov[$linea['fecha']][$ref]['monto_ingreso'] += ($linea['monto'] <= 0) ? ($linea['monto'] * -1) : 0;
+               $registros++;
+            }
+         }
+
+         //Si existen estas tablas se genera la información de las transferencias de stock
+         if( $this->db->table_exists('transstock', $this->tablas) AND $this->db->table_exists('lineastransstock', $this->tablas) )
+         {
+             /*
+              * Generamos la informacion de las transferencias por ingresos entre almacenes que se hayan hecho a los stocks
+              */
+             $sql_regstocks_ingreso = "select referencia,fecha, cantidad ".
+               " from lineastransstock AS ls ".
+               " JOIN transstock as l ON(ls.idtrans = l.idtrans) ".
+               " where codalmadestino = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
+               " AND referencia IN (".$sql_articulos.") ".
+               " ORDER BY fecha,referencia;";
+             $data_regstocks_ingreso = $this->db->select($sql_regstocks_ingreso);
+             if ($data_regstocks_ingreso) {
+                foreach ($data_regstocks_ingreso as $linea) {
+                  $ref = $linea['referencia'];
+                  $mov[$linea['fecha']][$ref]['cantidad_salida'] += 0;
+                  $mov[$linea['fecha']][$ref]['cantidad_ingreso'] += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+                  $mov[$linea['fecha']][$ref]['monto_salida'] += 0;
+                  $mov[$linea['fecha']][$ref]['monto_ingreso'] += ($linea['cantidad'] >= 0) ? ($art->costemedio * $linea['cantidad']) : 0;
+                  $registros++;
+                }
+             }
+
+             /*
+              * Generamos la informacion de las transferencias por salidas entre almacenes que se hayan hecho a los stocks
+              */
+             $sql_regstocks_salida = "select referencia,fecha,cantidad ".
+               " from lineastransstock AS ls ".
+               " JOIN transstock as l ON(ls.idtrans = l.idtrans) ".
+               " where codalmaorigen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
+               " AND referencia IN (".$sql_articulos.") ".
+               " ORDER BY fecha,referencia;";
+             $data_regstocks_salida = $this->db->select($sql_regstocks_salida);
+             if ($data_regstocks_salida) {
+                foreach ($data_regstocks_salida as $linea) {
+                  $ref = $linea['referencia'];
+                  $mov[$linea['fecha']][$ref]['cantidad_salida'] += ($linea['cantidad'] >= 0) ? $linea['cantidad'] : 0;
+                  $mov[$linea['fecha']][$ref]['cantidad_ingreso'] += 0;
+                  $mov[$linea['fecha']][$ref]['monto_salida'] += ($linea['cantidad'] >= 0) ? ($art->costemedio * $linea['cantidad']) : 0;
+                  $mov[$linea['fecha']][$ref]['monto_ingreso'] += 0;
+                  $registros++;
+                }
+             }
+         }
+
+         /*
+          * Por ultimo generamos la informacion de las regularizaciones que se hayan hecho a los stocks
+          */
+         $sql_regularizaciones = "select referencia,fecha,cantidadfin as cantidad,cantidadini as cantidad_inicial ".
+         " from lineasregstocks AS ls ".
+         " JOIN stocks as l ON(ls.idstock = l.idstock) ".
+         " where codalmacen = ".$this->var2str($almacen->codalmacen)." AND fecha between " .$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
+         " AND referencia IN (".$sql_articulos.") ".
+         " ORDER BY fecha,referencia;";
+         $data_regularizaciones = $this->db->select($sql_regularizaciones);
+         if ($data_regularizaciones) {
+            foreach ($data_regularizaciones as $linea) {
+               $ref = $linea['referencia'];
+               //Verificamos la cantidad de la regularización
+               //para asignarle una cantidad de movimiento de regularización
+               $cantidad = $linea['cantidad_inicial']-$linea['cantidad'];
+               $mov[$linea['fecha']][$ref]['cantidad_salida'] += ($cantidad > 0)?($cantidad):0;
+               $mov[$linea['fecha']][$ref]['cantidad_ingreso'] += ($cantidad < 0)?$cantidad*-1:0;
+               $monto = ($art->costemedio * $cantidad);
+               $mov[$linea['fecha']][$ref]['monto_salida'] += ($monto > 0)?$monto:0;
+               $mov[$linea['fecha']][$ref]['monto_ingreso'] += ($monto < 0)?$monto*-1:0;
+               $registros++;
+            }
+         }
+         gc_collect_cycles();
+         if($registros)
+         {
+            $this->guardar_calculo($rango,$mov);
+         }
          return true;
       }
    }
 
-   public function guardar_calculo($rango,$mov,$almacen)
+   public function guardar_calculo($rango,$mov)
    {
       foreach($rango as $fecha)
       {
-         //foreach($fecha as $ref=>$values)
-         foreach($mov[$fecha->format('Y-m-d')] as $ref=>$data)
+         foreach($mov[$fecha->format('Y-m-d')] as $data)
          {
-            $data->cantidad_saldo = ($data->cantidad_saldo + $data->cantidad_ingreso) - $data->cantidad_salida;
-            if($data->cantidad_saldo != 0)
+            $data['cantidad_saldo'] = ($data['cantidad_saldo'] + $data['cantidad_ingreso']) - $data['cantidad_salida'];
+            $item = new inventario();
+            $item->codalmacen = $data['codalmacen'];
+            $item->fecha = $data['fecha'];
+            $item->referencia = $data['referencia'];
+            $item->descripcion = $data['descripcion'];
+            $item->cantidad_salida = $data['cantidad_salida'];
+            $item->cantidad_ingreso = $data['cantidad_ingreso'];
+            $item->cantidad_saldo = $data['cantidad_saldo'];
+            $item->monto_salida = $data['monto_salida'];
+            $item->monto_ingreso = $data['monto_ingreso'];
+            $item->monto_saldo = $data['monto_saldo'];
+            if($data['cantidad_saldo'] != 0)
             {
-               $data->save();
+               $item->save();
             }
             //Si es el ultimo día guardamos el saldo en la tabla de stock
             if($this->verificar_dia($fecha->format('Y-m-d'), 'NOW'))
             {
-               $stock = $this->stock->get_by_almacen($ref, $almacen);
+               $stock = $this->stock->get_by_almacen($data['referencia'], $data['codalmacen']);
                //Si hay stock en ese almacén guardamos el stock, en caso que no haya lo creamos
                if($stock)
                {
-                  $stock->cantidad = $data->cantidad_saldo;
-                  $stock->disponible = $data->cantidad_saldo;
+                  $stock->cantidad = $data['cantidad_saldo'];
+                  $stock->disponible = $data['cantidad_saldo'];
                   $stock->save();
                }
                else
                {
                   $stock_ref = new \stock();
-                  $stock_ref->referencia = $ref;
-                  $stock_ref->codalmacen = $almacen;
-                  $stock_ref->cantidad = $data->cantidad_saldo;
-                  $stock_ref->disponible = $data->cantidad_saldo;
+                  $stock_ref->referencia = $data['referencia'];
+                  $stock_ref->codalmacen = $data['codalmacen'];
+                  $stock_ref->cantidad = $data['cantidad_saldo'];
+                  $stock_ref->disponible = $data['cantidad_saldo'];
                   $stock_ref->save();
                }
             }
@@ -744,15 +764,11 @@ class inventario extends \fs_model
             //Cargamos el saldo final al saldo del día siguiente, confirmando que no sea el ultimo día de calculo
             $next = new \DateTime($fecha->format('Y-m-d'));
             $nextDay = $next->modify('+1 day');
-            if(isset($mov[$nextDay->format('Y-m-d')][$ref]))
+            if(isset($mov[$nextDay->format('Y-m-d')][$data['referencia']]))
             {
-               $mov[$nextDay->format('Y-m-d')][$ref]->cantidad_saldo = $mov[$fecha->format('Y-m-d')][$ref]->cantidad_saldo;
+               $mov[$nextDay->format('Y-m-d')][$data['referencia']]['cantidad_saldo'] = $data['cantidad_saldo'];
             }
          }
-         //$mov[$fecha->format('Y-m-d')][$ref]->cantidad_saldo = ($mov[$fecha->format('Y-m-d')][$ref]->cantidad_saldo + $mov[$fecha->format('Y-m-d')][$ref]->cantidad_ingreso) - $mov[$fecha->format('Y-m-d')]->cantidad_salida;
-
-
-
       }
       return true;
    }
@@ -787,6 +803,7 @@ class inventario extends \fs_model
    /**
     * Obtenemos el listado de articulos que han tenido movimiento durante un rango de fecha determinado
     * con esto aceleramos el proceso de recalculo de stock
+    * Función en desarrollo
     * @param type $ref
     * @return boolean
     */
@@ -804,7 +821,7 @@ class inventario extends \fs_model
       $sql_transstock = '';
       if( $this->db->table_exists('transstock', $this->tablas) AND $this->db->table_exists('lineastransstock', $this->tablas) )
       {
-         $sql_transstock .= " UNION SELECT min(fecha) AS fecha FROM transstock,lineastransstock ".
+         $sql_transstock .= " UNION SELECT referencia,min(fecha) AS fecha FROM transstock,lineastransstock ".
                  " where transstock.idtrans = lineastransstock.idtrans ".$sql_referencia.
                  " AND fecha between ".$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
                  " GROUP BY referencia HAVING referencia != ''";
@@ -832,7 +849,7 @@ class inventario extends \fs_model
                  " AND fecha between ".$this->var2str($this->fecha_inicio)." AND ".$this->var2str($this->fecha_fin).
                  " GROUP BY referencia HAVING referencia != ''".
             $sql_transstock.
-            " ) AS t1 GROUP BY referencia HAVING min(fecha) IS NOT NULL;";
+            " ) AS t1 GROUP BY referencia HAVING min(fecha) IS NOT NULL ORDER BY referencia;";
       $data = $this->db->select($sql);
       if($data)
       {

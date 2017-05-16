@@ -192,11 +192,13 @@ class informe_articulos extends fbase_controller
       }
       
       $this->tipo_stock = 'todo';
-      if( isset($_GET['tipo']) )
+      $tipo_stock = \filter_input(INPUT_GET, 'tipo');
+      $recalcular = \filter_input(INPUT_GET, 'recalcular');
+      if($tipo_stock)
       {
-         $this->tipo_stock = $_GET['tipo'];
+         $this->tipo_stock = $tipo_stock;
       }
-      else if( isset($_GET['recalcular']))
+      else if($recalcular)
       {
          $this->recalcular_stock();
       }
@@ -571,6 +573,14 @@ class informe_articulos extends fbase_controller
       else if($tipo == 'max')
       {
          $sql .= " AND a.stockmax > 0 AND s.cantidad > a.stockmax";
+      }
+      else if($tipo == 'constock')
+      {
+         $sql .= " AND s.cantidad != 0 ";
+      }
+      else if($tipo == 'sinstock')
+      {
+         $sql .= " AND s.cantidad = 0 ";
       }
 
       if($this->codalmacen)
