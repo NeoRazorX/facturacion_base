@@ -181,6 +181,23 @@
                   </span>
                </div>
             </div>
+            {if="$fsc->multi_almacen"}
+            <div class="form-group">
+               <select name="codalmacen" class="form-control" onchange="this.form.submit()">
+                  <option value="">Cualquier almacén</option>
+                  <option value="">------</option>
+                  {loop="$fsc->almacenes->all()"}
+                     {if="$value->codalmacen==$fsc->codalmacen"}
+                     <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
+                     {else}
+                     <option value="{$value->codalmacen}">{$value->nombre}</option>
+                     {/if}
+                  {/loop}
+               </select>
+            </div>
+            {else}
+            <input type="hidden" name="codalmacen" value=""/>
+            {/if}
          </div>
          <div class="col-sm-2">
             <div class="form-group">
@@ -192,6 +209,19 @@
                      <option value="{$value->codserie}" selected="">{$value->descripcion}</option>
                      {else}
                      <option value="{$value->codserie}">{$value->descripcion}</option>
+                     {/if}
+                  {/loop}
+               </select>
+            </div>
+            <div class="form-group">
+               <select class="form-control" name="codpago" onchange="this.form.submit()">
+                  <option value="">Cualquier forma de pago</option>
+                  <option value="">-----</option>
+                  {loop="$fsc->forma_pago->all()"}
+                     {if="$value->codpago==$fsc->codpago"}
+                     <option value="{$value->codpago}" selected="">{$value->descripcion}</option>
+                     {else}
+                     <option value="{$value->codpago}">{$value->descripcion}</option>
                      {/if}
                   {/loop}
                </select>
@@ -227,6 +257,19 @@
                   </span>
                </div>
             </div>
+            <div class="form-group">
+               <select class="form-control" name="codgrupo" onchange="this.form.submit()">
+                  <option value="">Cualquier grupo</option>
+                  <option value="">-----</option>
+                  {loop="$fsc->grupo->all()"}
+                     {if="$value->codgrupo==$fsc->codgrupo"}
+                     <option value="{$value->codgrupo}" selected="">{$value->nombre}</option>
+                     {else}
+                     <option value="{$value->codgrupo}">{$value->nombre}</option>
+                     {/if}
+                  {/loop}
+               </select>
+            </div>
          </div>
          <div class="col-sm-2">
             <div class="form-group">
@@ -236,40 +279,6 @@
          <div class="col-sm-2">
             <div class="form-group">
                <input type="text" name="hasta" value="{$fsc->hasta}" class="form-control datepicker" placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
-            </div>
-         </div>
-         {if="$fsc->multi_almacen"}
-         <div class="col-sm-2">
-            <div class="form-group">
-               <select name="codalmacen" class="form-control" onchange="this.form.submit()">
-                  <option value="">Cualquier almacén</option>
-                  <option value="">------</option>
-                  {loop="$fsc->almacenes->all()"}
-                     {if="$value->codalmacen==$fsc->codalmacen"}
-                     <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
-                     {else}
-                     <option value="{$value->codalmacen}">{$value->nombre}</option>
-                     {/if}
-                  {/loop}
-               </select>
-            </div>
-         </div>
-         {else}
-         <input type="hidden" name="codalmacen" value=""/>
-         {/if}
-         <div class="col-sm-2">
-            <div class="form-group">
-               <select class="form-control" name="codpago" onchange="this.form.submit()">
-                  <option value="">Cualquier forma de pago</option>
-                  <option value="">-----</option>
-                  {loop="$fsc->forma_pago->all()"}
-                     {if="$value->codpago==$fsc->codpago"}
-                     <option value="{$value->codpago}" selected="">{$value->descripcion}</option>
-                     {else}
-                     <option value="{$value->codpago}">{$value->descripcion}</option>
-                     {/if}
-                  {/loop}
-               </select>
             </div>
          </div>
       </div>

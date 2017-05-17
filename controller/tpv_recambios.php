@@ -282,6 +282,16 @@ class tpv_recambios extends fbase_controller
       $con_stock = isset($_REQUEST['con_stock']);
       $this->results = $this->articulo->search($this->query, 0, $codfamilia, $con_stock, $codfabricante);
       
+      /// ejecutamos las funciones de las extensiones
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'function' AND $ext->params == 'new_search')
+         {
+            $name = $ext->text;
+            $name($this->db, $this->results);
+         }
+      }
+      
       /// añadimos el descuento y la cantidad
       foreach($this->results as $i => $value)
       {
@@ -293,16 +303,6 @@ class tpv_recambios extends fbase_controller
          if( $this->multi_almacen AND isset($_REQUEST['codalmacen']) )
          {
             $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
-         }
-      }
-      
-      /// ejecutamos las funciones de las extensiones
-      foreach($this->extensions as $ext)
-      {
-         if($ext->type == 'function' AND $ext->params == 'new_search')
-         {
-            $name = $ext->text;
-            $name($this->db, $this->results);
          }
       }
       
