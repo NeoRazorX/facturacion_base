@@ -51,7 +51,9 @@ class informe_albaranes extends fbase_controller
    protected $table_compras;
    protected $table_ventas;
    protected $where_compras;
+   protected $where_compras_nf;
    protected $where_ventas;
+   protected $where_ventas_nf;
    
    /**
     * Este controlador lo usaremos de ejemplo en otros, así que debemos permitir usar su constructor.
@@ -151,6 +153,9 @@ class informe_albaranes extends fbase_controller
       /// a completar en el informe de facturas
    }
    
+   /**
+    * Obtenemos los valores de los filtros del formulario.
+    */
    protected function ini_filters()
    {
       $this->desde = Date('01-m-Y', strtotime('-14 months'));
@@ -216,49 +221,155 @@ class informe_albaranes extends fbase_controller
       }
    }
    
+   /**
+    * Contruimos sentencias where para las consultas sql.
+    */
    protected function set_where()
    {
       $this->where_compras = " WHERE fecha >= ".$this->empresa->var2str($this->desde)
               ." AND fecha <= ".$this->empresa->var2str($this->hasta);
       
+      /// nos guardamos un where sin fechas
+      $this->where_compras_nf = " WHERE 1 = 1";
+      
       if($this->codserie)
       {
          $this->where_compras .= " AND codserie = ".$this->empresa->var2str($this->codserie);
+         $this->where_compras_nf .= " AND codserie = ".$this->empresa->var2str($this->codserie);
       }
       
       if($this->codagente)
       {
          $this->where_compras .= " AND codagente = ".$this->empresa->var2str($this->codagente);
+         $this->where_compras_nf .= " AND codagente = ".$this->empresa->var2str($this->codagente);
       }
 
       if($this->codalmacen)
       {
          $this->where_compras .= " AND codalmacen = ".$this->empresa->var2str($this->codalmacen);
+         $this->where_compras_nf .= " AND codalmacen = ".$this->empresa->var2str($this->codalmacen);
       }
       
       if($this->coddivisa)
       {
          $this->where_compras .= " AND coddivisa = ".$this->empresa->var2str($this->coddivisa);
+         $this->where_compras_nf .= " AND coddivisa = ".$this->empresa->var2str($this->coddivisa);
       }
       
       if($this->codpago)
       {
          $this->where_compras .= " AND codpago = ".$this->empresa->var2str($this->codpago);
+         $this->where_compras_nf .= " AND codpago = ".$this->empresa->var2str($this->codpago);
       }
       
       $this->where_ventas = $this->where_compras;
+      $this->where_ventas_nf = $this->where_compras_nf;
       
       if($this->cliente)
       {
          $this->where_ventas .= " AND codcliente = ".$this->empresa->var2str($this->cliente->codcliente);
+         $this->where_ventas_nf .= " AND codcliente = ".$this->empresa->var2str($this->cliente->codcliente);
       }
       
       if($this->proveedor)
       {
          $this->where_compras .= " AND codproveedor = ".$this->empresa->var2str($this->proveedor->codproveedor);
+         $this->where_compras_nf .= " AND codproveedor = ".$this->empresa->var2str($this->proveedor->codproveedor);
       }
    }
+   
+   /**
+    * Devuelve un array con las compras y ventas por día en el plazo de un mes desde hoy.
+    * @return type
+    */
+   public function stats_last_30_days()
+   {
+      $stats = array();
+      $stats_cli = $this->stats_last_30_days_aux($this->table_ventas);
+      $stats_pro = $this->stats_last_30_days_aux($this->table_compras);
+      $meses = array(
+          1 => 'ene',
+          2 => 'feb',
+          3 => 'mar',
+          4 => 'abr',
+          5 => 'may',
+          6 => 'jun',
+          7 => 'jul',
+          8 => 'ago',
+          9 => 'sep',
+          10 => 'oct',
+          11 => 'nov',
+          12 => 'dic'
+      );
+      
+      foreach($stats_cli as $i => $value)
+      {
+         $mes = $meses[ intval( date('m', strtotime($value['day'])) ) ];
+         
+         $stats[$i] = array(
+             'day' => date('d', strtotime($value['day'])) . $mes, /// el identificado day será dia + mes
+             'total_cli' => round($value['total'], FS_NF0),
+             'total_pro' => 0
+         );
+      }
+      
+      foreach($stats_pro as $i => $value)
+      {
+         $stats[$i]['total_pro'] = round($value['total'], FS_NF0);
+      }
 
+      return $stats;
+   }
+   
+   /**
+    * Función auxiliar para obtener las compras o ventas por día en el plazo de un mes desde hoy.
+    * @param type $table_name
+    * @return type
+    */
+   protected function stats_last_30_days_aux($table_name)
+   {
+      $stats = array();
+      $hasta = date('d-m-Y');
+      $desde = date('d-m-Y', strtotime($hasta . '-1 month') );
+
+      /// inicializamos los resultados
+      foreach($this->date_range($desde, $hasta) as $date)
+      {
+         $i = strtotime($date);
+         $stats[$i] = array(
+             'day' => date('d-m-Y', $i),
+             'total' => 0
+         );
+      }
+      
+      $where = $this->where_compras_nf;
+      if($table_name == $this->table_ventas)
+      {
+         $where = $this->where_ventas_nf;
+      }
+      
+      $sql = "SELECT fecha as dia, SUM(neto) as total FROM ".$table_name.$where
+              ." AND fecha >= ".$this->empresa->var2str($desde)
+              ." AND fecha <= ".$this->empresa->var2str($hasta)
+              ." GROUP BY dia ORDER BY dia ASC;";
+      
+      $data = $this->db->select($sql);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $i = strtotime($d['dia']);
+            $stats[$i]['total'] = floatval($d['total']);
+         }
+      }
+      
+      return $stats;
+   }
+   
+   /**
+    * Devuelve un array con las compras y ventas agrupadas por mes.
+    * @return type
+    */
    public function stats_months()
    {
       $stats = array();
@@ -281,17 +392,8 @@ class informe_albaranes extends fbase_controller
       
       foreach($stats_cli as $i => $value)
       {
-         $mesletra = "";
-         $ano = "";
-         
-         if( !empty($value['month']) )
-         {
-            $mesletra = $meses[intval(substr((string)$value['month'], 0, strlen((string)$value['month'])-2))];
-            $ano = substr((string)$value['month'], -2);
-         }
-	
          $stats[$i] = array(
-             'month' => $mesletra.$ano,
+             'month' => $meses[ intval($value['month']) ].$value['year'], /// el identificador del mes es mes+año
              'total_cli' => round($value['total'], FS_NF0),
              'total_pro' => 0
          );
@@ -305,15 +407,24 @@ class informe_albaranes extends fbase_controller
       return $stats;
    }
    
+   /**
+    * Función auxiliar para obtener las compras o ventas agrupadas por mes.
+    * @param type $table_name
+    * @return type
+    */
    protected function stats_months_aux($table_name)
    {
       $stats = array();
       
       /// inicializamos los resultados
-      foreach($this->date_range($this->desde, $this->hasta, '+1 month', 'my') as $date)
+      foreach($this->date_range($this->desde, $this->hasta, '+1 month') as $date)
       {
-         $i = intval($date);
-         $stats[$i] = array('month' => $i, 'total' => 0);
+         $i = intval( date('my', strtotime($date)) );
+         $stats[$i] = array(
+             'month' => date('m', strtotime($date)),
+             'year' => date('y', strtotime($date)),
+             'total' => 0
+         );
       }
       
       if( strtolower(FS_DB_TYPE) == 'postgresql')
@@ -348,113 +459,10 @@ class informe_albaranes extends fbase_controller
       return $stats;
    }
    
-   public function stats_last_30_days()
-   {
-      $stats = array();
-      $stats_cli = $this->stats_last_30_days_aux($this->table_ventas);
-      $stats_pro = $this->stats_last_30_days_aux($this->table_compras);
-      $meses = array(
-          1 => 'ene',
-          2 => 'feb',
-          3 => 'mar',
-          4 => 'abr',
-          5 => 'may',
-          6 => 'jun',
-          7 => 'jul',
-          8 => 'ago',
-          9 => 'sep',
-          10 => 'oct',
-          11 => 'nov',
-          12 => 'dic'
-      );
-      
-      foreach($stats_cli as $i => $value)
-      {
-         $mesletra = "";
-         $dia = "";
-         
-         if( !empty($value['day']) )
-         {
-            $mesletra = $meses[intval(substr((string)$value['day'], 5, strlen((string)$value['day'])-2))];
-            $dia = substr((string)$value['day'], -2);
-         }
-         $stats[$i] = array(
-             'day' => $dia.$mesletra,
-             'total_cli' => round($value['total'], FS_NF0),
-             'total_pro' => 0
-         );
-      }
-      
-      foreach($stats_pro as $i => $value)
-      {
-         $stats[$i]['total_pro'] = round($value['total'], FS_NF0);
-         if (!isset($stats[$i]['total_cli']))
-         {
-            $stats[$i]['total_cli'] = round(0, FS_NF0);
-         }
-      }
-
-      return $stats;
-   }
-   
-   protected function stats_last_30_days_aux($table_name)
-   {
-      $stats = array();
-      $hasta = date('Y-m-d');
-      $desde = date("Y-m-d", strtotime($hasta . "-1 months") );
-
-      /// inicializamos los resultados
-      foreach($this->date_range($desde, $hasta) as $date)
-      {
-         $i = intval($date);
-         $stats[$i] = array(
-             'day' => date('Y-m-d', strtotime($date)), 
-             'total' => 0
-             );
-      }
-
-      if( strtolower(FS_DB_TYPE) == 'postgresql')
-      {
-         $sql_aux = "to_char(fecha,'DD-MM-YYYY')";
-      }
-      else
-      {
-         $sql_aux = "DATE_FORMAT(fecha, '%d-%m-%Y')";
-      }
-      
-      $where = $this->where_compras;
-      if($table_name == $this->table_ventas)
-      {
-         $where = $this->where_ventas;
-      }
-      
-      if( strtolower(FS_DB_TYPE) == 'postgresql')
-      {
-         $where = str_replace($this->desde, $desde, $where);
-         $where = str_replace($this->hasta, $hasta, $where);
-      }
-      else
-      {
-         $where = str_replace(date("Y-m-d", strtotime($this->desde)), $desde, $where);
-         $where = str_replace(date("Y-m-d", strtotime($this->hasta)), $hasta, $where);
-      }
-      
-      $sql = "SELECT ".$sql_aux." as dia, SUM(neto) as total FROM ".$table_name
-              .$where." GROUP BY ".$sql_aux." ORDER BY dia ASC;";
-      
-      $data = $this->db->select($sql);
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $i = intval($d['dia']);
-            $stats[$i]['total'] = floatval($d['total']);
-         }
-      }
-      asort($stats);
-      return $stats;
-   }
-   
+   /**
+    * Devuelve un array con las compras y ventas agrupadas por año.
+    * @return type
+    */
    public function stats_years()
    {
       $stats = array();
@@ -478,6 +486,12 @@ class informe_albaranes extends fbase_controller
       return $stats;
    }
    
+   /**
+    * Función auxiliar para obtener las compras o ventas agrupadas por año.
+    * @param type $table_name
+    * @param type $num
+    * @return type
+    */
    protected function stats_years_aux($table_name, $num = 4)
    {
       $stats = array();
