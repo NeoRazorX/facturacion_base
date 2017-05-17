@@ -41,15 +41,15 @@ class asiento_factura
    public $errors;
    public $soloasiento;
    
-   private $articulo_propiedad;
-   private $articulo_propiedad_vacio;
-   private $cuenta_banco;
-   private $divisa;
-   private $ejercicio;
-   private $empresa;
-   private $forma_pago;
-   private $impuestos;
-   private $subcuenta;
+   protected $articulo_propiedad;
+   protected $articulo_propiedad_vacio;
+   protected $cuenta_banco;
+   protected $divisa;
+   protected $ejercicio;
+   protected $empresa;
+   protected $forma_pago;
+   protected $impuestos;
+   protected $subcuenta;
    
    public function __construct()
    {
@@ -88,17 +88,17 @@ class asiento_factura
       $this->subcuenta = new \subcuenta();
    }
    
-   private function new_message($msg)
+   protected function new_message($msg)
    {
       $this->messages[] = $msg;
    }
    
-   private function new_error_msg($msg)
+   protected function new_error_msg($msg)
    {
       $this->errors[] = $msg;
    }
    
-   private function set_tasasconv(&$factura, &$tasa1, &$tasa2, $compras = FALSE)
+   protected function set_tasasconv(&$factura, &$tasa1, &$tasa2, $compras = FALSE)
    {
       if($factura->coddivisa != $this->empresa->coddivisa)
       {
@@ -429,7 +429,7 @@ class asiento_factura
       return $ok;
    }
    
-   private function comprobar_subc_art_compra(&$factura, &$asiento, &$partida2, &$subcuenta_compras, &$asiento_correcto, $tasaconv, $tasaconv2)
+   protected function comprobar_subc_art_compra(&$factura, &$asiento, &$partida2, &$subcuenta_compras, &$asiento_correcto, $tasaconv, $tasaconv2)
    {
       $partidaA = new \partida();
       $partidaA->idasiento = $asiento->idasiento;
@@ -536,7 +536,7 @@ class asiento_factura
     * @param type $tasaconv
     * @param type $tasaconv2
     */
-   private function comprobar_subc_art_compra_irpf(&$factura, &$asiento, &$partida3, &$subcuenta_irpf, &$asiento_correcto, $tasaconv, $tasaconv2)
+   protected function comprobar_subc_art_compra_irpf(&$factura, &$asiento, &$partida3, &$subcuenta_irpf, &$asiento_correcto, $tasaconv, $tasaconv2)
    {
       $partidaA = new \partida();
       $partidaA->idasiento = $asiento->idasiento;
@@ -1251,7 +1251,7 @@ class asiento_factura
     * @param asiento $asiento
     * @return boolean
     */
-   private function check_asiento($asiento)
+   protected function check_asiento($asiento)
    {
       $ok = FALSE;
       
