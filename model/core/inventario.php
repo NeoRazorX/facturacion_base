@@ -735,7 +735,7 @@ class inventario extends \fs_model
             $item->monto_salida = $data['monto_salida'];
             $item->monto_ingreso = $data['monto_ingreso'];
             $item->monto_saldo = $data['monto_saldo'];
-            if($data['cantidad_saldo'] != 0)
+            if($data['cantidad_saldo'] != 0 AND $data['cantidad_ingreso'] != 0 AND $data['cantidad_salida'] != 0)
             {
                $item->save();
             }
