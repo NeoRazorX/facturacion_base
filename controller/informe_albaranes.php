@@ -291,7 +291,7 @@ class informe_albaranes extends fbase_controller
          }
 	
          $stats[$i] = array(
-             'month' => $mesletra.$ano , 
+             'month' => $mesletra.$ano,
              'total_cli' => round($value['total'], FS_NF0),
              'total_pro' => 0
          );
@@ -348,16 +348,38 @@ class informe_albaranes extends fbase_controller
       return $stats;
    }
    
-   public function stats_current_month()
+   public function stats_last_30_days()
    {
       $stats = array();
-      $stats_cli = $this->stats_current_month_aux($this->table_ventas);
-      $stats_pro = $this->stats_current_month_aux($this->table_compras);
-            
+      $stats_cli = $this->stats_last_30_days_aux($this->table_ventas);
+      $stats_pro = $this->stats_last_30_days_aux($this->table_compras);
+      $meses = array(
+          1 => 'ene',
+          2 => 'feb',
+          3 => 'mar',
+          4 => 'abr',
+          5 => 'may',
+          6 => 'jun',
+          7 => 'jul',
+          8 => 'ago',
+          9 => 'sep',
+          10 => 'oct',
+          11 => 'nov',
+          12 => 'dic'
+      );
+      
       foreach($stats_cli as $i => $value)
       {
+         $mesletra = "";
+         $dia = "";
+         
+         if( !empty($value['day']) )
+         {
+            $mesletra = $meses[intval(substr((string)$value['day'], 5, strlen((string)$value['day'])-2))];
+            $dia = substr((string)$value['day'], -2);
+         }
          $stats[$i] = array(
-             'day' => $value['day'],
+             'day' => $dia.$mesletra,
              'total_cli' => round($value['total'], FS_NF0),
              'total_pro' => 0
          );
@@ -375,32 +397,46 @@ class informe_albaranes extends fbase_controller
       return $stats;
    }
    
-   protected function stats_current_month_aux($table_name)
+   protected function stats_last_30_days_aux($table_name)
    {
       $stats = array();
-      $desde = date('01-m-Y');
-      $hasta = date('t-m-Y');
-      
+      $hasta = date('Y-m-d');
+      $desde = date("Y-m-d", strtotime($hasta . "-1 months") );
+
       /// inicializamos los resultados
       foreach($this->date_range($desde, $hasta) as $date)
       {
          $i = intval($date);
-         $stats[$i] = array('day' => $i, 'total' => 0);
+         $stats[$i] = array(
+             'day' => date('Y-m-d', strtotime($date)), 
+             'total' => 0
+             );
       }
-      
+
       if( strtolower(FS_DB_TYPE) == 'postgresql')
       {
-         $sql_aux = "to_char(fecha,'DD')";
+         $sql_aux = "to_char(fecha,'DD-MM-YYYY')";
       }
       else
       {
-         $sql_aux = "DATE_FORMAT(fecha, '%d')";
+         $sql_aux = "DATE_FORMAT(fecha, '%d-%m-%Y')";
       }
       
       $where = $this->where_compras;
       if($table_name == $this->table_ventas)
       {
          $where = $this->where_ventas;
+      }
+      
+      if( strtolower(FS_DB_TYPE) == 'postgresql')
+      {
+         $where = str_replace($this->desde, $desde, $where);
+         $where = str_replace($this->hasta, $hasta, $where);
+      }
+      else
+      {
+         $where = str_replace(date("Y-m-d", strtotime($this->desde)), $desde, $where);
+         $where = str_replace(date("Y-m-d", strtotime($this->hasta)), $hasta, $where);
       }
       
       $sql = "SELECT ".$sql_aux." as dia, SUM(neto) as total FROM ".$table_name
@@ -412,11 +448,10 @@ class informe_albaranes extends fbase_controller
          foreach($data as $d)
          {
             $i = intval($d['dia']);
-            $stats[$i]['day'] = intval($d['dia']);
             $stats[$i]['total'] = floatval($d['total']);
          }
       }
-      
+      asort($stats);
       return $stats;
    }
    
