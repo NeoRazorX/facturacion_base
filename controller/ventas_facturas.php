@@ -22,6 +22,7 @@ require_model('agente.php');
 require_model('almacen.php');
 require_model('articulo.php');
 require_model('factura_cliente.php');
+require_model('forma_pago.php');
 
 class ventas_facturas extends fbase_controller
 {
@@ -32,10 +33,12 @@ class ventas_facturas extends fbase_controller
    public $cliente;
    public $codagente;
    public $codalmacen;
+   public $codpago;
    public $codserie;
    public $desde;
    public $estado;
    public $factura;
+   public $forma_pago;
    public $hasta;
    public $huecos;
    public $lineas;
@@ -61,6 +64,7 @@ class ventas_facturas extends fbase_controller
       $this->agente = new agente();
       $this->almacenes = new almacen();
       $this->factura = new factura_cliente();
+      $this->forma_pago = new forma_pago();
       $this->huecos = array();
       $this->serie = new serie();
       
@@ -122,6 +126,7 @@ class ventas_facturas extends fbase_controller
          $this->cliente = FALSE;
          $this->codagente = '';
          $this->codalmacen = '';
+         $this->codpago = '';
          $this->codserie = '';
          $this->desde = '';
          $this->estado = '';
@@ -165,7 +170,12 @@ class ventas_facturas extends fbase_controller
             {
                $this->codalmacen = $_REQUEST['codalmacen'];
             }
-
+            
+            if( isset($_REQUEST['codpago']) )
+            {
+               $this->codpago = $_REQUEST['codpago'];
+            }
+            
             if( isset($_REQUEST['codserie']) )
             {
                $this->codserie = $_REQUEST['codserie'];
@@ -234,10 +244,11 @@ class ventas_facturas extends fbase_controller
          
          $url = parent::url()."&mostrar=".$this->mostrar
                  ."&query=".$this->query
-                 ."&codserie=".$this->codserie
                  ."&codagente=".$this->codagente
                  ."&codalmacen=".$this->codalmacen
                  ."&codcliente=".$codcliente
+                 ."&codpago=".$this->codpago
+                 ."&codserie=".$this->codserie
                  ."&desde=".$this->desde
                  ."&estado=".$this->estado
                  ."&hasta=".$this->hasta;
@@ -360,25 +371,31 @@ class ventas_facturas extends fbase_controller
          $where = ' AND ';
       }
       
-      if($this->codagente)
-      {
-         $sql .= $where."codagente = ".$this->agente->var2str($this->codagente);
-         $where = ' AND ';
-      }
-      
-      if($this->codalmacen)
-      {
-         $sql .= $where."codalmacen = ".$this->agente->var2str($this->codalmacen);
-         $where = ' AND ';
-      }
-      
       if($this->cliente)
       {
          $sql .= $where."codcliente = ".$this->agente->var2str($this->cliente->codcliente);
          $where = ' AND ';
       }
       
-      if($this->codserie)
+      if($this->codagente != '')
+      {
+         $sql .= $where."codagente = ".$this->agente->var2str($this->codagente);
+         $where = ' AND ';
+      }
+      
+      if($this->codalmacen != '')
+      {
+         $sql .= $where."codalmacen = ".$this->agente->var2str($this->codalmacen);
+         $where = ' AND ';
+      }
+      
+      if($this->codpago != '')
+      {
+         $sql .= $where."codpago = ".$this->agente->var2str($this->codpago);
+         $where = ' AND ';
+      }
+      
+      if($this->codserie != '')
       {
          $sql .= $where."codserie = ".$this->agente->var2str($this->codserie);
          $where = ' AND ';

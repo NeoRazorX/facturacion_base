@@ -256,7 +256,22 @@
          {else}
          <input type="hidden" name="codalmacen" value=""/>
          {/if}
-         <div class="col-sm-10">
+         <div class="col-sm-2">
+            <div class="form-group">
+               <select class="form-control" name="codpago" onchange="this.form.submit()">
+                  <option value="">Cualquier forma de pago</option>
+                  <option value="">-----</option>
+                  {loop="$fsc->forma_pago->all()"}
+                     {if="$value->codpago==$fsc->codpago"}
+                     <option value="{$value->codpago}" selected="">{$value->descripcion}</option>
+                     {else}
+                     <option value="{$value->codpago}">{$value->descripcion}</option>
+                     {/if}
+                  {/loop}
+               </select>
+            </div>
+         </div>
+         <div class="col-sm-8">
             <div class="radio-inline">
                <label>
                   {if="$fsc->estado==''"}

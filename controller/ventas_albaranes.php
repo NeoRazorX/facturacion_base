@@ -23,6 +23,7 @@ require_model('almacen.php');
 require_model('albaran_cliente.php');
 require_model('articulo.php');
 require_model('factura_cliente.php');
+require_model('forma_pago.php');
 require_model('serie.php');
 
 class ventas_albaranes extends fbase_controller
@@ -33,9 +34,11 @@ class ventas_albaranes extends fbase_controller
    public $buscar_lineas;
    public $cliente;
    public $codagente;
-   public $codalmacen;   
+   public $codalmacen;
+   public $codpago;
    public $codserie;
    public $desde;
+   public $forma_pago;
    public $hasta;
    public $lineas;
    public $mostrar;
@@ -57,8 +60,9 @@ class ventas_albaranes extends fbase_controller
       parent::private_core();
       
       $albaran = new albaran_cliente();
-      $this->almacenes = new almacen();
       $this->agente = new agente();
+      $this->almacenes = new almacen();
+      $this->forma_pago = new forma_pago();
       $this->serie = new serie();
       
       $this->mostrar = 'todo';
@@ -118,6 +122,7 @@ class ventas_albaranes extends fbase_controller
          $this->cliente = FALSE;
          $this->codagente = '';
          $this->codalmacen = '';
+         $this->codpago = '';
          $this->codserie = '';
          $this->desde = '';
          $this->hasta = '';
@@ -158,7 +163,12 @@ class ventas_albaranes extends fbase_controller
             if( isset($_REQUEST['codalmacen']) )
             {
                $this->codalmacen = $_REQUEST['codalmacen'];
-            }            
+            }
+            
+            if( isset($_REQUEST['codpago']) )
+            {
+               $this->codpago = $_REQUEST['codpago'];
+            }
             
             if( isset($_REQUEST['codserie']) )
             {
@@ -229,10 +239,11 @@ class ventas_albaranes extends fbase_controller
          
          $url = parent::url()."&mostrar=".$this->mostrar
                  ."&query=".$this->query
-                 ."&codserie=".$this->codserie
                  ."&codagente=".$this->codagente
                  ."&codalmacen=".$this->codalmacen
                  ."&codcliente=".$codcliente
+                 ."&codpago=".$this->codpago
+                 ."&codserie=".$this->codserie
                  ."&desde=".$this->desde
                  ."&hasta=".$this->hasta;
          
@@ -417,25 +428,31 @@ class ventas_albaranes extends fbase_controller
          $where = ' AND ';
       }
       
-      if($this->codagente)
-      {
-         $sql .= $where."codagente = ".$this->agente->var2str($this->codagente);
-         $where = ' AND ';
-      }
-      
-      if($this->codalmacen)
-      {
-         $sql .= $where."codalmacen = ".$this->agente->var2str($this->codalmacen);
-         $where = ' AND ';
-      }
-      
       if($this->cliente)
       {
          $sql .= $where."codcliente = ".$this->agente->var2str($this->cliente->codcliente);
          $where = ' AND ';
       }
       
-      if($this->codserie)
+      if($this->codagente != '')
+      {
+         $sql .= $where."codagente = ".$this->agente->var2str($this->codagente);
+         $where = ' AND ';
+      }
+      
+      if($this->codalmacen != '')
+      {
+         $sql .= $where."codalmacen = ".$this->agente->var2str($this->codalmacen);
+         $where = ' AND ';
+      }
+      
+      if($this->codpago != '')
+      {
+         $sql .= $where."codpago = ".$this->agente->var2str($this->codpago);
+         $where = ' AND ';
+      }
+      
+      if($this->codserie != '')
       {
          $sql .= $where."codserie = ".$this->agente->var2str($this->codserie);
          $where = ' AND ';
