@@ -107,8 +107,7 @@ class tpv_recambios extends fbase_controller
          $this->forma_pago = new forma_pago();
          $this->serie = new serie();
          
-         $this->imprimir_descripciones = isset($_COOKIE['imprimir_desc']);
-         $this->imprimir_observaciones = isset($_COOKIE['imprimir_obs']);
+         $this->comprobar_opciones();
          
          if($this->agente)
          {
@@ -214,6 +213,42 @@ class tpv_recambios extends fbase_controller
          {
             $this->new_error_msg('No tienes un <a href="'.$this->user->url().'">agente asociado</a>
                a tu usuario, y por tanto no puedes hacer tickets.');
+         }
+      }
+   }
+   
+   private function comprobar_opciones()
+   {
+      $fsvar = new fs_var();
+      
+      $this->imprimir_descripciones = ($fsvar->simple_get('tpv_gen_descripcion') == '1');
+      $this->imprimir_observaciones = ($fsvar->simple_get('tpv_gen_observaciones') == '1');
+      
+      /**
+       * Si se detectan datos por post de que se está creando una factura, modificamos las opciones
+       */
+      if( isset($_POST['cliente']) )
+      {
+         if( isset($_POST['imprimir_desc']) )
+         {
+            $this->imprimir_descripciones = TRUE;
+            $fsvar->simple_save('tpv_gen_descripcion', '1');
+         }
+         else
+         {
+            $this->imprimir_descripciones = FALSE;
+            $fsvar->simple_delete('tpv_gen_descripcion');
+         }
+         
+         if( isset($_POST['imprimir_obs']) )
+         {
+            $this->imprimir_observaciones = TRUE;
+            $fsvar->simple_save('tpv_gen_observaciones', '1');
+         }
+         else
+         {
+            $this->imprimir_observaciones = FALSE;
+            $fsvar->simple_delete('tpv_gen_observaciones');
          }
       }
    }
@@ -407,27 +442,7 @@ class tpv_recambios extends fbase_controller
          $continuar = FALSE;
       }
       
-      if( isset($_POST['imprimir_desc']) )
-      {
-         $this->imprimir_descripciones = TRUE;
-         setcookie('imprimir_desc', TRUE, time()+FS_COOKIES_EXPIRE);
-      }
-      else
-      {
-         $this->imprimir_descripciones = FALSE;
-         setcookie('imprimir_desc', FALSE, time()-FS_COOKIES_EXPIRE);
-      }
       
-      if( isset($_POST['imprimir_obs']) )
-      {
-         $this->imprimir_observaciones = TRUE;
-         setcookie('imprimir_obs', TRUE, time()+FS_COOKIES_EXPIRE);
-      }
-      else
-      {
-         $this->imprimir_observaciones = FALSE;
-         setcookie('imprimir_obs', FALSE, time()-FS_COOKIES_EXPIRE);
-      }
       
       $factura = new factura_cliente();
       
