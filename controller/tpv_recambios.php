@@ -267,8 +267,6 @@ class tpv_recambios extends fbase_controller
       /// desactivamos la plantilla HTML
       $this->template = FALSE;
       
-      $stock = new stock();
-      
       $codfamilia = '';
       if( isset($_REQUEST['codfamilia']) )
       {
@@ -282,6 +280,18 @@ class tpv_recambios extends fbase_controller
       $con_stock = isset($_REQUEST['con_stock']);
       $this->results = $this->articulo->search($this->query, 0, $codfamilia, $con_stock, $codfabricante);
       
+      /// buscamos por código de barras de la combinación
+      $combi0 = new articulo_combinacion();
+      foreach($combi0->search($this->query) as $combi)
+      {
+         $articulo = $this->articulo->get($combi->referencia);
+         if($articulo)
+         {
+            $articulo->codbarras = $combi->codbarras;
+            $this->results[] = $articulo;
+         }
+      }
+      
       /// ejecutamos las funciones de las extensiones
       foreach($this->extensions as $ext)
       {
@@ -291,6 +301,16 @@ class tpv_recambios extends fbase_controller
             $name($this->db, $this->results);
          }
       }
+      
+      $this->new_search_postprocess();
+      
+      header('Content-Type: application/json');
+      echo json_encode($this->results);
+   }
+   
+   private function new_search_postprocess()
+   {
+      $stock = new stock();
       
       /// añadimos el descuento y la cantidad
       foreach($this->results as $i => $value)
@@ -328,9 +348,6 @@ class tpv_recambios extends fbase_controller
             }
          }
       }
-      
-      header('Content-Type: application/json');
-      echo json_encode($this->results);
    }
    
    private function get_precios_articulo()
