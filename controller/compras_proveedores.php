@@ -213,7 +213,9 @@ class compras_proveedores extends fbase_controller
           'lower(nombre) ASC' => 'Orden: nombre',
           'lower(nombre) DESC' => 'Orden: nombre descendente',
           'cifnif ASC' => 'Orden: '.FS_CIFNIF,
-          'cifnif DESC' => 'Orden: '.FS_CIFNIF.' descendente'
+          'cifnif DESC' => 'Orden: '.FS_CIFNIF.' descendente',
+          'codproveedor ASC' => 'Orden: código',
+          'codproveedor DESC' => 'Orden: código descendente'
       );
    }
 

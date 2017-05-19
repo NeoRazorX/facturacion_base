@@ -206,7 +206,9 @@ class ventas_clientes extends fbase_controller
           'cifnif ASC' => 'Orden: '.FS_CIFNIF,
           'cifnif DESC' => 'Orden: '.FS_CIFNIF.' descendente',
           'fechaalta ASC' => 'Orden: fecha',
-          'fechaalta DESC' => 'Orden: fecha descendente'
+          'fechaalta DESC' => 'Orden: fecha descendente',
+          'codcliente ASC' => 'Orden: código',
+          'codcliente DESC' => 'Orden: código descendente'
       );
    }
 

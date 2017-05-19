@@ -144,6 +144,20 @@ class admin_agentes extends fbase_controller
       return $this->fbase_sql_distinct('agentes', 'provincia');
    }
    
+   public function orden()
+   {
+      return array(
+          'lower(nombre) ASC' => 'Orden: nombre',
+          'lower(nombre) DESC' => 'Orden: nombre descendente',
+          'dnicif ASC' => 'Orden: '.FS_CIFNIF,
+          'dnicif DESC' => 'Orden: '.FS_CIFNIF.' descendente',
+          'f_alta ASC' => 'Orden: fecha',
+          'f_alta DESC' => 'Orden: fecha descendente',
+          'codagente ASC' => 'Orden: código',
+          'codagente DESC' => 'Orden: código descendente'
+      );
+   }
+   
    private function buscar()
    {
       $this->total_resultados = 0;
