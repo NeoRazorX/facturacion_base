@@ -168,7 +168,7 @@ class informe_albaranes extends fbase_controller
       if( isset($_REQUEST['hasta']) )
       {
          $this->hasta = $_REQUEST['hasta'];
-      }  
+      }
       
       $this->codserie = FALSE;
       if( isset($_REQUEST['codserie']) )
@@ -544,7 +544,7 @@ class informe_albaranes extends fbase_controller
       }
       
       return $dates;
-   } 
+   }
 
    public function stats_series($tabla)
    {
