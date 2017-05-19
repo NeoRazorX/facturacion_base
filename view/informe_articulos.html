@@ -1,7 +1,6 @@
 {include="header"}
-
-{if="$fsc->url_recarga"}
 <script type="text/javascript">
+   {if="$fsc->url_recarga"}
    function recargar()
    {
       window.location.href = '{$fsc->url_recarga}';
@@ -10,8 +9,25 @@
    {
       setTimeout(recargar, 1000);
    });
+   {/if}
+$(document).ready(function(){
+   $('#b_calcular_inventario').click(function (event) {
+      $("#modal_calcular_inventario").modal('show');
+   });
+
+   $('#b_ejecutar_calculo').click(function (event) {
+      $('#b_ejecutar_calculo').hide();
+      $('#calculando').show();
+      recalcular_stock();
+   });
+});
+
+function recalcular_stock()
+{
+   var inv_desde = $('#inv_desde').val();
+   window.location.assign('{$fsc->url()}&tab=stock&recalcular=ok&codalmacen={$fsc->codalmacen}&inv_desde='+inv_desde);
+}
 </script>
-{/if}
 
 <div class="container-fluid">
    <div class="row">
@@ -256,7 +272,7 @@
                      {/if}
                   {/loop}
                {else}
-                  Todos los almacenes&nbsp; <span class="caret"></span>               
+                  Todos los almacenes&nbsp; <span class="caret"></span>
                {/if}
             </button>
             <ul class="dropdown-menu">
@@ -275,6 +291,10 @@
                   Bajo mínimos <span class="caret"></span>
                {elseif="$fsc->tipo_stock=='max'"}
                   Excesos <span class="caret"></span>
+               {elseif="$fsc->tipo_stock=='constock'"}
+                  Con Stock <span class="caret"></span>
+               {elseif="$fsc->tipo_stock=='sinstock'"}
+                  Sin Stock <span class="caret"></span>
                {else}
                   Regularizaciones <span class="caret"></span>
                {/if}
@@ -282,6 +302,12 @@
             <ul class="dropdown-menu">
                {if="$fsc->tipo_stock!='todo'"}
                <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock">Todo</a></li>
+               {/if}
+               {if="$fsc->tipo_stock!='constock'"}
+               <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo=constock">Con Stock</a></li>
+               {/if}
+               {if="$fsc->tipo_stock!='sinstock'"}
+               <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo=sinstock">Sin Stock</a></li>
                {/if}
                {if="$fsc->tipo_stock!='min'"}
                <li><a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo=min">Bajo mínimos</a></li>
@@ -297,6 +323,10 @@
       </div>
       <div class="col-sm-6 text-right">
          <div class="btn-group">
+            <a href="#" class="btn btn-default btn-sm" id="b_opciones_inventario" data-toggle="modal" data-target="#modal_opciones_inventario" name="opciones_inventario">
+               <span class='glyphicon glyphicon-cog'></span>
+               <span class="hidden-xs">&nbsp;Opciones de Calculo</span>
+            </a>
             <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_recal_stock">
                <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
                <span class="hidden-xs">&nbsp; Recalcular stock</span>
@@ -308,6 +338,61 @@
             </a>
             {/if}
          </div>
+      </div>
+   </div>
+</div>
+<div class="modal fade" id="modal_opciones_inventario">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <form class="form" id="f_opciones_inventario" role="form" action="{$fsc->url()}&tab=stock&opciones-inventario=TRUE" method="POST">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h4 class="modal-title">Opciones de Calculo de Inventario Diario</h4>
+            </div>
+            <div class="modal-body bg-warning">
+               <p align="justify">
+                  Aqui puede indicar una hora específica para ejecutar automáticamente el Calculo de Inventario Diario, 
+                  pero para esto debe tener correctamente configurado el proceso de <b>cron</b> al instalar FacturaScripts.
+               </p>
+               <p align="justify">
+                  Si el cron esta configurado para ejecutarse una sola vez al día, 
+                  entonces debe colocar la hora de ejecución del Calculo de Inventario a la hora que corre el cron.
+               </p>
+               <hr/>
+               <div class="row">
+                  <div class="col-sm-6">
+                     <label class="control-label"><b>¿Se ejecuta automáticamente?</b></label>
+                  </div>
+                  <div class="col-sm-6">
+                     <div class="form-group" id="inventario_cron_ops">
+                        <label class="control-label">
+                           <input type="radio" name='inventario_cron' value='TRUE' {if="$fsc->inventario_cron"}checked{/if}>
+                           Si
+                        </label>
+                        &nbsp;
+                        <label class="control-label">
+                           <input type="radio" name='inventario_cron' value='' {if="!$fsc->inventario_cron"}checked{/if}>
+                           No
+                        </label>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group">
+                  <label class="control-label col-sm-6 pull-left" for='inventario_programado'><b>Hora de Ejecución:</b></label>
+                  <select class="control-label input-sm col-xs-2" name='inventario_programado'>
+                     {loop="$fsc->loop_horas"}
+                     <option value="{$value}" {if="$fsc->inventario_programado==$value"}selected{/if}>{$value}</option>
+                     {/loop}
+                  </select>
+               </div>
+               <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+               <button type="submit" data-disable="true" class="btn btn-sm btn-warning">
+                  <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp;Guardar cambios
+               </button>
+            </div>
+         </form>
       </div>
    </div>
 </div>
@@ -359,10 +444,10 @@
          </tr>
       </thead>
       {loop="$fsc->resultados"}
-         <tr class="clickableRow{if="intval($value['cantidad'])<intval($value['stockmin'])"} danger{/if}" href="index.php?page=ventas_articulo&ref={$value['referencia']}">
+         <tr class="clickableRow{if="intval($value['cantidad'])<intval($value['stockmin'])"} danger{/if}" href="index.php?page=ver_articulo&ref={$value['referencia']}">
             <td>{$value['codalmacen']}</td>
             <td>
-               <a href="index.php?page=ventas_articulo&ref={$value['referencia']}">{$value['referencia']}</a>
+               <a href="index.php?page=ver_articulo&ref={$value['referencia']}">{$value['referencia']}</a>
                {function="mb_substr($value['descripcion'], 0, 100)"}
             </td>
             <td class="text-right">{$value['cantidad']}</td>
@@ -406,19 +491,42 @@
          <div class="modal-body">
             <p class='help-block'>
                Se recalculará el stock de todos los artículos a partir de las
-               regularizaciones (de stock) y los albaranes y facturas de compra
-               y venta.
+               regularizaciones (de stock), los albaranes, facturas de compra
+               y venta y las transferencias entre almacenes.
             </p>
             <p class='help-block'>
                <b>Advertencia</b>: si el artículo no tiene ningún movimiento,
                ni regularización, el stock resultante <b>será 0</b>.
             </p>
+            {if="$fsc->inventario->ultimo_proceso()"}
+            <p class='help-block'>
+               Calculo del Inventario ejecutado por ultima vez el: <b>{$fsc->inventario->ultimo_proceso()}</b>.
+            </p>
+            {else}
+            <p class='help-block'>
+               Nunca se ha ejecutado el inventario, se procesará desde el {$fsc->inventario->fecha_inicio}.
+            </p>
+            {/if}
+            <div class="col-sm-5">
+               <div class="input-group">
+                  <span class="input-group-addon">Desde</span>
+                  <input type="text" id="inv_desde" name="inv_desde" value="" class="form-control input-sm datepicker" autocomplete="off"/>
+               </div>
+            </div>
+            <p class='help-block'>
+               Opcionalmente puede indicar una fecha de inicio para procesar el inventario.
+            </p>
+            <div class="clearfix"></div>
          </div>
          <div class="modal-footer">
-             <a href="{$fsc->url()}&tab=stock&recalcular=TRUE&offset=0&codalmacen={$fsc->codalmacen}" class="btn btn-sm btn-warning">
+            <a href="#" id="b_ejecutar_calculo" class="btn btn-sm btn-warning">
                <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
                <span class="hidden-xs">&nbsp; Recalcular stock</span>
             </a>
+            <button id="calculando" class="btn btn-sm btn-info" disabled="" style="display: none;">
+               <i class="fa fa-spinner fa-pulse fa-fw"></i>
+               <span>Recalculando Stock...</span>
+            </button>
          </div>
       </div>
    </div>
@@ -616,7 +724,7 @@
                         y las facturas de compra y de venta.
                      </p>
                      <p class="help-block">
-                        También dispones del <b>plugin kardex</b> para obtener un listado
+                        También dispones del <b>plugin inventario</b> para obtener un listado
                         de inventario valorado.
                      </p>
                      <div class="form-group">
@@ -806,5 +914,4 @@
    </div>
 </div>
 {/if}
-
 {include="footer"}
