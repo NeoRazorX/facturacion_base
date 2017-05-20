@@ -23,7 +23,6 @@ require_model('articulo.php');
 require_model('asiento.php');
 require_model('factura_cliente.php');
 require_model('factura_proveedor.php');
-require_model('inventario.php');
 require_once 'plugins/facturacion_base/extras/libromayor.php';
 require_once 'plugins/facturacion_base/extras/inventarios_balances.php';
 
@@ -54,10 +53,6 @@ class facturacion_base_cron
       $asiento = new asiento();
       echo "\nEjecutando tareas para los asientos...";
       $asiento->cron_job();
-
-      $inventario = new inventario();
-      echo "\nEjecutando calculos de inventario...";
-      $inventario->cron_job();
 
       if(FS_LIBROS_CONTABLES)
       {

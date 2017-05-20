@@ -78,7 +78,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
          {/if}
       </table>
    </div>
-   
+
    <div class="container-fluid">
       <div class="row">
          <div class="col-sm-12">
@@ -298,15 +298,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                <b>Advertencia</b>: si el artículo no tiene ningún movimiento,
                ni regularización, el stock resultante <b>será 0</b>.
             </p>
-            <div class="col-sm-5">
-               <div class="input-group">
-                  <span class="input-group-addon">Desde</span>
-                  <input type="text" id="inv_desde" name="inv_desde" value="" class="form-control input-sm datepicker" autocomplete="off"/>
-               </div>
-            </div>
-            <p class='help-block'>
-               Opcionalmente puede indicar una fecha de inicio para procesar el recalculo.
-            </p>
             <div class="clearfix"></div>
          </div>
          <div class="modal-footer">
@@ -332,20 +323,9 @@ $(document).ready(function(){
    $('#{$fsc->tab}').tab('show');
    {/if}
 });
-{if="$fsc->url_recarga"}
-   function recargar()
-   {
-      window.location.href = '{$fsc->url_recarga}';
-   }
-   $(document).ready(function()
-   {
-      setTimeout(recargar, 1000);
-   });
-   {/if}
 
 function recalcular_stock()
 {
-   var inv_desde = $('#inv_desde').val();
-   window.location.assign('{$fsc->url()}&recalcular_stock=TRUE&inv_desde='+inv_desde+'#stock');
+   window.location.assign('{$fsc->url()}&recalcular_stock=TRUE#stock');
 }
 </script>

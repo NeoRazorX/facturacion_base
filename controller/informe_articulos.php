@@ -27,7 +27,6 @@ require_model('linea_factura_cliente.php');
 require_model('linea_factura_proveedor.php');
 require_model('regularizacion_stock.php');
 require_model('stock.php');
-require_model('inventario.php');
 
 class informe_articulos extends fbase_controller
 {
@@ -56,30 +55,9 @@ class informe_articulos extends fbase_controller
    public $top_ventas;
    public $top_compras;
    public $url_recarga;
-   
-   /**
-    * para buscar el inventario
-    * @var type date
-    */
-   public $ihasta;
-   /**
-    * para buscar el inventario
-    * @var type date
-    */
-   public $idesde;
-   /**
-    * para buscar por almacen el inventario
-    * @var type string or array
-    */
-   public $icodalmacen;
-
-   public $inventario;
-   public $inventario_setup;
-   public $inventario_resultado;
 
    private $tablas;
-   public $loop_horas;
-   
+
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Artículos', 'informes');
@@ -96,8 +74,6 @@ class informe_articulos extends fbase_controller
       $this->stock = new stock();
       $this->tablas = $this->db->list_tables();
       $this->url_recarga = FALSE;
-
-      $this->inventario = new inventario();
 
       $tab = \filter_input(INPUT_GET, 'tab');
       $this->pestanya = ($tab)?$tab:'stats';
@@ -120,11 +96,6 @@ class informe_articulos extends fbase_controller
       $hasta = ($hasta_p)?$hasta_p:$hasta_g;
       $this->hasta = ($hasta)?$hasta:$this->hasta;
 
-      //Creamos un array para el selector de horas para cron
-      for ($x = 0; $x < 25; $x++) {
-          $this->loop_horas[] = str_pad($x, 2, "0", STR_PAD_LEFT);
-      }
-      
       $this->offset = 0;
       if( isset($_GET['offset']) )
       {
@@ -163,34 +134,6 @@ class informe_articulos extends fbase_controller
 
    public function stocks()
    {
-      /// forzamos la comprobación de la tabla de inventario
-      $this->inventario->ultima_fecha();
-      
-      $this->opciones_inventario();
-      
-      $actualizar_informacion = \filter_input(INPUT_GET, 'opciones-inventario');
-      if($actualizar_informacion)
-      {
-         $fsvar = new fs_var();
-         $op_inventario_cron = \filter_input(INPUT_POST, 'inventario_cron');
-         $op_inventario_programado = \filter_input(INPUT_POST, 'inventario_programado');
-         $inventario_cron = ($op_inventario_cron == 'TRUE') ? "TRUE" : "FALSE";
-         $inventario_programado = $op_inventario_programado;
-         $inventario_config = array(
-            'inventario_cron' => $inventario_cron,
-            'inventario_programado' => $inventario_programado
-         );
-         if ($fsvar->array_save($inventario_config))
-         {
-            $this->new_message('Cambios guardados correctamente.');
-         } 
-         else
-         {
-            $this->new_error_message('No se pudieron grabar las opciones de calculo, por favor confirme que eligió una hora correcta.');
-         }
-         $this->opciones_inventario();
-      }
-      
       $this->tipo_stock = 'todo';
       $tipo_stock = \filter_input(INPUT_GET, 'tipo');
       $recalcular = \filter_input(INPUT_GET, 'recalcular');
@@ -275,83 +218,42 @@ class informe_articulos extends fbase_controller
          }
       }
    }
-   
-   public function opciones_inventario()
-   {
-      $fsvar = new fs_var();
-      $this->inventario_setup = $fsvar->array_get(
-         array(
-            'inventario_ultimo_proceso' => '',
-            'inventario_cron' => '',
-            'inventario_programado' => '',
-            'inventario_procesandose' => 'FALSE',
-            'inventario_usuario_procesando' => ''
-         ), FALSE
-      );
-      $this->inventario_procesandose = ($this->inventario_setup['inventario_procesandose'] == 'TRUE') ? TRUE : FALSE;
-      $this->inventario_usuario_procesando = ($this->inventario_setup['inventario_usuario_procesando']) ? $this->inventario_setup['inventario_usuario_procesando'] : FALSE;
-      $this->inventario_cron = $this->inventario_setup['inventario_cron'];
-      $this->inventario_programado = $this->inventario_setup['inventario_programado'];
-   }
 
    private function recalcular_stock()
-   {
-      $lista_almacenes = (!$this->codalmacen)?$this->almacen->all():array($this->almacen->get($this->codalmacen));
-      $fecha_desde = \filter_input(INPUT_GET, 'inv_desde');
-      $this->inventario->fecha_inicio = ($fecha_desde)?\date('Y-m-d',strtotime($fecha_desde)):$this->inventario->fecha_inicio;
-      $fechaFin = \date("Y-m-t", strtotime($this->inventario->fecha_inicio));
-      $mesProceso = \date("m", strtotime($this->inventario->fecha_inicio));
-      $anhoProceso = \date("Y", strtotime($this->inventario->fecha_inicio));
-      $periodoProceso = \date("Y-m", strtotime($this->inventario->fecha_inicio));
-      $fechaHoy = \date('Y-m-d');
-      $periodoActual = \date('Y-m');
-      $fechaSiguienteMes = \date('Y-m-d', mktime(0, 0, 0, $mesProceso+1, 1, $anhoProceso));
-      $this->inventario->fecha_fin = ($periodoProceso == $periodoActual)?$fechaHoy:$fechaFin;
-      $this->inventario->almacenes = $lista_almacenes;
-      $this->inventario->procesar_inventario($this->user->nick);
-      if($periodoProceso != $periodoActual)
-      {
-         $this->new_message('Recalculando stock de artículos, procesado el periodo del '
-            .$this->inventario->fecha_inicio.' al '.$this->inventario->fecha_fin
-            .'... recalculando el siguiente mes&nbsp;<i class="fa fa-spinner fa-pulse fa-fw"></i>...');
-         $this->url_recarga = $this->url().'&tab=stock&recalcular=TRUE&codalmacen='.$this->codalmacen.'&inv_desde='.$fechaSiguienteMes;
-      }
-      else
-      {
-         $this->new_advice('Finalizado &nbsp; <span class="fa fa-ok" aria-hidden="true"></span>');
-      }
-      
-   }
-
-   private function recalcular_stock_old()
    {
       $articulo = new articulo();
       $continuar = FALSE;
       $offset = intval($_GET['offset']);
 
-      if($this->codalmacen)
-      {
-         $this->new_message('Recalculando stock de artículos del almacen '.$this->codalmacen.'... '.$offset);
-      }
-      else
-      {
-         $this->new_message('Recalculando stock de artículos... '.$offset);
-      }
-
+      $almacenes = (!$this->codalmacen)?$this->almacen->all():array($this->almacen->get($this->codalmacen));
       foreach($articulo->all($offset, 30) as $art)
       {
-         $this->calcular_stock_real($art);
+         if(!$art->nostock AND !$art->bloqueado)
+         {
+            foreach($almacenes as $alm)
+            {
+               $this->stock->saldo_articulo($art->referencia, $alm->codalmacen);
+            }
+         }
          $continuar = TRUE;
          $offset++;
       }
 
       if($continuar)
       {
+         if($this->codalmacen)
+         {
+            $this->new_message('Recalculando stock de artículos del almacen '.$this->codalmacen.' <i class="fa fa-spinner fa-pulse fa-fw"></i>... '.$offset);
+         }
+         else
+         {
+            $this->new_message('Recalculando stock de artículos <i class="fa fa-spinner fa-pulse fa-fw"></i>...'.$offset);
+         }
          $this->url_recarga = $this->url().'&tab=stock&recalcular=TRUE&offset='.$offset.'&codalmacen='.$this->codalmacen;
       }
       else
       {
-         $this->new_advice('Finalizado &nbsp; <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
+         $this->new_advice('Finalizado &nbsp; <span class="fa fa-ok" aria-hidden="true"></span>');
       }
    }
 
@@ -564,7 +466,7 @@ class informe_articulos extends fbase_controller
       $slist = array();
 
       $sql = "SELECT codalmacen,s.referencia,a.descripcion,s.cantidad,a.stockmin,a.stockmax"
-              . " FROM stocks s, articulos a WHERE s.referencia = a.referencia";
+              . " FROM stocks s, articulos a WHERE s.referencia = a.referencia AND nostock = FALSE and bloqueado = FALSE ";
 
       if($tipo == 'min')
       {
@@ -801,46 +703,6 @@ class informe_articulos extends fbase_controller
       }
 
       return $familias;
-   }
-
-   private function calcular_stock_real(&$articulo)
-   {
-      $total = 0;
-
-      if($this->codalmacen)
-      {
-         foreach($this->get_movimientos($articulo->referencia) as $mov)
-         {
-            if($mov['codalmacen'] == $this->codalmacen)
-            {
-               $total = $mov['final'];
-            }
-         }
-
-         if( !$articulo->set_stock($this->codalmacen, $total) )
-         {
-            $this->new_error_msg('Error al recarcular el stock del almacén '.$this->codalmacen.'.');
-         }
-      }
-      else
-      {
-         foreach($this->almacen->all() as $alm)
-         {
-            $this->codalmacen = $alm->codalmacen;
-            foreach($this->get_movimientos($articulo->referencia) as $mov)
-            {
-               if($mov['codalmacen'] == $alm->codalmacen)
-               {
-                  $total = $mov['final'];
-               }
-            }
-
-            if( !$articulo->set_stock($alm->codalmacen, $total) )
-            {
-               $this->new_error_msg('Error al recarcular el stock del almacén '.$alm->codalmacen.'.');
-            }
-         }
-      }
    }
 
    private function get_movimientos($ref, $desde = '', $hasta = '', $codagente = '')

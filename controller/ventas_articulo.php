@@ -29,7 +29,6 @@ require_model('fabricante.php');
 require_model('impuesto.php');
 require_model('regularizacion_stock.php');
 require_model('stock.php');
-require_model('inventario.php');
 require_model('tarifa.php');
 
 class ventas_articulo extends fbase_controller
@@ -52,8 +51,6 @@ class ventas_articulo extends fbase_controller
    public $agrupar;
    public $mgrupo;
    public $tab;
-   public $inventario;
-   public $url_recarga;
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Articulo', 'ventas', FALSE, FALSE);
@@ -62,16 +59,13 @@ class ventas_articulo extends fbase_controller
    protected function private_core()
    {
       parent::private_core();
-      
+
       $articulo = new articulo();
       $this->almacen = new almacen();
       $this->articulo = FALSE;
       $this->fabricante = new fabricante();
       $this->impuesto = new impuesto();
       $this->stock = new stock();
-      $this->inventario = new inventario();
-      $this->url_recarga = FALSE;
-      $this->inventario->ultima_fecha();
       /**
        * Si hay alguna extensión de tipo config y texto no_button_publicar,
        * desactivamos el botón publicar.
@@ -85,17 +79,17 @@ class ventas_articulo extends fbase_controller
             break;
          }
       }
-      
+
       $this->tab = FALSE;
       $tab_p = \filter_input(INPUT_POST, 'tab');
       $tab_g = \filter_input(INPUT_GET, 'tab');
       $tab = ($tab_p)?$tab_p:$tab_g;
       $this->tab = ($tab)?$tab:$this->tab;
-      
+
       // Si nos llega la variable agrupar de un GET lo asignamos
       $agrupar = \filter_input(INPUT_GET, 'agrupar');
       $this->agrupar = ($agrupar) ? $agrupar : '';
-      
+
       /**
        * Si hay atributos, mostramos el tab atributos.
        */
@@ -185,7 +179,7 @@ class ventas_articulo extends fbase_controller
          }
 
          $this->stocks = $this->articulo->get_stock();
-         
+
          /// metemos en un array los almacenes que no tengan stock de este producto
          $this->nuevos_almacenes = array();
          foreach($this->almacen->all() as $a)
@@ -199,7 +193,7 @@ class ventas_articulo extends fbase_controller
                   break;
                }
             }
-            
+
             if( !$encontrado )
             {
                $this->nuevos_almacenes[] = $a;
@@ -644,7 +638,7 @@ class ventas_articulo extends fbase_controller
    }
 
    /**
-    * Devuelve un array con los movimientos de stock del artículo.
+    * Devuelve un array con los movimientos de stock del artículo en base a una fecha
     * @return array
     */
    public function get_movimientos($codalmacen)
@@ -892,65 +886,18 @@ class ventas_articulo extends fbase_controller
 
       return $mlist;
    }
-   
-   /**
-    * Utilizamos la misma función que se utiliza en informe_articulos agregando la variable ref con el articulo actual
-    */
-   private function calcular_stock_real()
-   {
-      $fecha_desde = \filter_input(INPUT_GET, 'inv_desde');
-      $this->inventario->fecha_inicio = ($fecha_desde)?\date('Y-m-d',strtotime($fecha_desde)):$this->inventario->fecha_inicio;
-      $fechaFin = \date("Y-m-t", strtotime($this->inventario->fecha_inicio));
-      $mesProceso = \date("m", strtotime($this->inventario->fecha_inicio));
-      $anhoProceso = \date("Y", strtotime($this->inventario->fecha_inicio));
-      $periodoProceso = \date("Y-m", strtotime($this->inventario->fecha_inicio));
-      $fechaHoy = \date('Y-m-d');
-      $periodoActual = \date('Y-m');
-      $fechaSiguienteMes = \date('Y-m-d', mktime(0, 0, 0, $mesProceso+1, 1, $anhoProceso));
-      $this->inventario->fecha_fin = ($periodoProceso == $periodoActual)?$fechaHoy:$fechaFin;
-      $this->inventario->almacenes = $this->almacen->all();
-      $this->inventario->ref = $this->articulo->referencia;
-      $this->inventario->procesar_inventario($this->user->nick);
-      if($periodoProceso != $periodoActual)
-      {
-         $this->new_message('Recalculando stock de artículos, procesado el periodo del '
-            .$this->inventario->fecha_inicio.' al '.$this->inventario->fecha_fin
-            .'... recalculando el siguiente mes&nbsp;<i class="fa fa-spinner fa-pulse fa-fw"></i>...');
-         $this->url_recarga = $this->url().'&recalcular_stock=TRUE&inv_desde='.$fechaSiguienteMes.'#stock';
-      }
-      else
-      {
-         $this->new_message("Stock actualizado correctamente para el artículo ".$this->articulo->descripcion);
-         $this->new_message("Puedes recalcular el stock de todos los artículos desde"
-               . " <b>Informes &gt; Artículos &gt; Stock</b>");
-      }
-   }
 
    /**
     * Calcula el stock real del artículo en función de los movimientos y regularizaciones
     */
-   private function calcular_stock_real_old()
+   private function calcular_stock_real()
    {
       $almacenes = $this->almacen->all();
       foreach($almacenes as $alm)
       {
-         $movimientos = $this->get_movimientos($alm->codalmacen);
-         $total = 0;
-         foreach($movimientos as $mov)
+         if($this->stock->saldo_articulo($this->articulo->referencia, $alm->codalmacen))
          {
-            if($mov['codalmacen'] == $alm->codalmacen)
-            {
-               $total += $mov['movimiento'];
-            }
-         }
-
-         if( $this->articulo->set_stock($alm->codalmacen, $total) )
-         {
-            $this->new_message('Recarculado el stock del almacén '.$alm->codalmacen.'.');
-         }
-         else
-         {
-            $this->new_error_msg('Error al recarcular el stock del almacén '.$alm->codalmacen.'.');
+            $this->new_message('Recalculado el stock del almacén '.$alm->codalmacen.'.');
          }
       }
       $this->new_message("Stock actualizado correctamente para el artículo ".$this->articulo->descripcion);
