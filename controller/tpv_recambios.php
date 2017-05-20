@@ -107,8 +107,7 @@ class tpv_recambios extends fbase_controller
          $this->forma_pago = new forma_pago();
          $this->serie = new serie();
          
-         $this->imprimir_descripciones = isset($_COOKIE['imprimir_desc']);
-         $this->imprimir_observaciones = isset($_COOKIE['imprimir_obs']);
+         $this->comprobar_opciones();
          
          if($this->agente)
          {
@@ -218,6 +217,42 @@ class tpv_recambios extends fbase_controller
       }
    }
    
+   private function comprobar_opciones()
+   {
+      $fsvar = new fs_var();
+      
+      $this->imprimir_descripciones = ($fsvar->simple_get('tpv_gen_descripcion') == '1');
+      $this->imprimir_observaciones = ($fsvar->simple_get('tpv_gen_observaciones') == '1');
+      
+      /**
+       * Si se detectan datos por post de que se está creando una factura, modificamos las opciones
+       */
+      if( isset($_POST['cliente']) )
+      {
+         if( isset($_POST['imprimir_desc']) )
+         {
+            $this->imprimir_descripciones = TRUE;
+            $fsvar->simple_save('tpv_gen_descripcion', '1');
+         }
+         else
+         {
+            $this->imprimir_descripciones = FALSE;
+            $fsvar->simple_delete('tpv_gen_descripcion');
+         }
+         
+         if( isset($_POST['imprimir_obs']) )
+         {
+            $this->imprimir_observaciones = TRUE;
+            $fsvar->simple_save('tpv_gen_observaciones', '1');
+         }
+         else
+         {
+            $this->imprimir_observaciones = FALSE;
+            $fsvar->simple_delete('tpv_gen_observaciones');
+         }
+      }
+   }
+   
    private function datos_cliente()
    {
       /// desactivamos la plantilla HTML
@@ -232,8 +267,6 @@ class tpv_recambios extends fbase_controller
       /// desactivamos la plantilla HTML
       $this->template = FALSE;
       
-      $stock = new stock();
-      
       $codfamilia = '';
       if( isset($_REQUEST['codfamilia']) )
       {
@@ -247,6 +280,38 @@ class tpv_recambios extends fbase_controller
       $con_stock = isset($_REQUEST['con_stock']);
       $this->results = $this->articulo->search($this->query, 0, $codfamilia, $con_stock, $codfabricante);
       
+      /// buscamos por código de barras de la combinación
+      $combi0 = new articulo_combinacion();
+      foreach($combi0->search($this->query) as $combi)
+      {
+         $articulo = $this->articulo->get($combi->referencia);
+         if($articulo)
+         {
+            $articulo->codbarras = $combi->codbarras;
+            $this->results[] = $articulo;
+         }
+      }
+      
+      /// ejecutamos las funciones de las extensiones
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'function' AND $ext->params == 'new_search')
+         {
+            $name = $ext->text;
+            $name($this->db, $this->results);
+         }
+      }
+      
+      $this->new_search_postprocess();
+      
+      header('Content-Type: application/json');
+      echo json_encode($this->results);
+   }
+   
+   private function new_search_postprocess()
+   {
+      $stock = new stock();
+      
       /// añadimos el descuento y la cantidad
       foreach($this->results as $i => $value)
       {
@@ -258,16 +323,6 @@ class tpv_recambios extends fbase_controller
          if( $this->multi_almacen AND isset($_REQUEST['codalmacen']) )
          {
             $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
-         }
-      }
-      
-      /// ejecutamos las funciones de las extensiones
-      foreach($this->extensions as $ext)
-      {
-         if($ext->type == 'function' AND $ext->params == 'new_search')
-         {
-            $name = $ext->text;
-            $name($this->db, $this->results);
          }
       }
       
@@ -293,9 +348,6 @@ class tpv_recambios extends fbase_controller
             }
          }
       }
-      
-      header('Content-Type: application/json');
-      echo json_encode($this->results);
    }
    
    private function get_precios_articulo()
@@ -407,27 +459,7 @@ class tpv_recambios extends fbase_controller
          $continuar = FALSE;
       }
       
-      if( isset($_POST['imprimir_desc']) )
-      {
-         $this->imprimir_descripciones = TRUE;
-         setcookie('imprimir_desc', TRUE, time()+FS_COOKIES_EXPIRE);
-      }
-      else
-      {
-         $this->imprimir_descripciones = FALSE;
-         setcookie('imprimir_desc', FALSE, time()-FS_COOKIES_EXPIRE);
-      }
       
-      if( isset($_POST['imprimir_obs']) )
-      {
-         $this->imprimir_observaciones = TRUE;
-         setcookie('imprimir_obs', TRUE, time()+FS_COOKIES_EXPIRE);
-      }
-      else
-      {
-         $this->imprimir_observaciones = FALSE;
-         setcookie('imprimir_obs', FALSE, time()-FS_COOKIES_EXPIRE);
-      }
       
       $factura = new factura_cliente();
       

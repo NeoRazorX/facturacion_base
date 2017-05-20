@@ -529,7 +529,7 @@ class factura_proveedor extends \fs_model
                      {
                         return 0;
                      }
-                     else if($this->total < 0)
+                     else if($a->totallinea < 0)
                      {
                         return ($a->totallinea < $b->totallinea) ? -1 : 1;
                      }
@@ -568,7 +568,7 @@ class factura_proveedor extends \fs_model
                      {
                         return 0;
                      }
-                     else if($this->total < 0)
+                     else if($a->totaliva < 0)
                      {
                         return ($a->totaliva < $b->totaliva) ? -1 : 1;
                      }

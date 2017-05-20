@@ -240,11 +240,11 @@
             <div class="col-sm-12">
                <div class="panel panel-default">
                   <div class="panel-heading">
-                     <h3 class="panel-title"><span class="text-capitalize">{#FS_ALBARANES#}</span> mes en curso</h3>
+                     <h3 class="panel-title"><span class="text-capitalize">{#FS_ALBARANES#}</span> últimos 30 días</h3>
                   </div>
                   <div class="panel-body">
                      <canvas id="chart_albaranes_mes_actual" style="height: 350px;"></canvas>
-                     <p class="help-block">Se muestran valores <b>netos</b>, es decir, sin impuestos.</p>
+                     <p class="help-block">Se muestran valores <b>netos</b>, es decir, sin impuestos. Se aplican los mismos filtros, excepto el de fecha.</p>
                   </div>
                </div>
                <div class="panel panel-default">
@@ -635,7 +635,7 @@
          [],[]
       ];
       
-      {loop="$fsc->stats_current_month()"}
+      {loop="$fsc->stats_last_30_days()"}
       albaranes_mes_actual_labels.push("{$value['day']}");
       albaranes_mes_actual_data[0].push("{$value['total_pro']}");
       albaranes_mes_actual_data[1].push("{$value['total_cli']}");

@@ -391,4 +391,30 @@ class articulo_combinacion extends \fs_model
       
       return $lista;
    }
+   
+   /**
+    * Devuelve un array con las combinaciones que contienen $query en su referencia
+    * o que coincide con su código de barras.
+    * @param type $query
+    * @return \articulo_combinacion
+    */
+   public function search($query = '')
+   {
+      $artilist = array();
+      $query = $this->no_html( mb_strtolower($query, 'UTF8') );
+      
+      $sql = "SELECT * FROM ".$this->table_name." WHERE referencia LIKE '".$query."%'"
+              . " OR codbarras = ".$this->var2str($query);
+      
+      $data = $this->db->select_limit($sql, 200);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $artilist[] = new \articulo_combinacion($d);
+         }
+      }
+      
+      return $artilist;
+   }
 }
