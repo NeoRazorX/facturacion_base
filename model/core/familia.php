@@ -42,7 +42,7 @@ class familia extends \fs_model
    
    public $nivel;
    
-   public function __construct($f=FALSE)
+   public function __construct($f = FALSE)
    {
       parent::__construct('familias');
       if($f)
@@ -119,7 +119,7 @@ class familia extends \fs_model
          return FALSE;
    }
 
-   public function get_articulos($offset=0, $limit=FS_ITEM_LIMIT)
+   public function get_articulos($offset = 0, $limit = FS_ITEM_LIMIT)
    {
       $articulo = new \articulo();
       return $articulo->all_from_familia($this->codfamilia, $offset, $limit);
@@ -143,7 +143,7 @@ class familia extends \fs_model
    {
       $status = FALSE;
       
-      $this->codfamilia = trim($this->codfamilia);
+      $this->codfamilia = $this->no_html($this->codfamilia);
       $this->descripcion = $this->no_html($this->descripcion);
       
       if( strlen($this->codfamilia) < 1 OR strlen($this->codfamilia) > 8 )

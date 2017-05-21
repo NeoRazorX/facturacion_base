@@ -669,7 +669,7 @@ class factura_cliente extends \fs_model
                      {
                         return 0;
                      }
-                     else if($this->total < 0)
+                     else if($a->totallinea < 0)
                      {
                         return ($a->totallinea < $b->totallinea) ? -1 : 1;
                      }
@@ -708,7 +708,7 @@ class factura_cliente extends \fs_model
                      {
                         return 0;
                      }
-                     else if($this->total < 0)
+                     else if($a->totallinea < 0)
                      {
                         return ($a->totaliva < $b->totaliva) ? -1 : 1;
                      }
@@ -1437,15 +1437,18 @@ class factura_cliente extends \fs_model
     * Devuelve un array con las facturas comprendidas entre $desde y $hasta
     * @param type $desde
     * @param type $hasta
-    * @param type $codserie
-    * @param type $codagente
-    * @param type $codcliente
+    * @param type $codserie código de la serie
+    * @param type $codagente código del empleado
+    * @param type $codcliente código del cliente
     * @param type $estado
+    * @param type $codpago código de la forma de pago
+    * @param type $codalmacen código del almacén
     * @return \factura_cliente
     */
-   public function all_desde($desde, $hasta, $codserie = FALSE, $codagente = FALSE, $codcliente = FALSE, $estado = FALSE, $forma_pago = FALSE)
+   public function all_desde($desde, $hasta, $codserie = FALSE, $codagente = FALSE, $codcliente = FALSE, $estado = FALSE, $codpago = FALSE, $codalmacen = FALSE)
    {
       $faclist = array();
+      
       $sql = "SELECT * FROM ".$this->table_name." WHERE fecha >= ".$this->var2str($desde)." AND fecha <= ".$this->var2str($hasta);
       if($codserie)
       {
@@ -1470,9 +1473,13 @@ class factura_cliente extends \fs_model
             $sql .= " AND pagada = false";
          }
       }
-      if($forma_pago)
+      if($codpago)
       {
-         $sql .= " AND codpago = ".$this->var2str($forma_pago);
+         $sql .= " AND codpago = ".$this->var2str($codpago);
+      }
+      if($codalmacen)
+      {
+         $sql .= " AND codalmacen = ".$this->var2str($codalmacen);
       }
       $sql .= " ORDER BY fecha ASC, codigo ASC;";
       

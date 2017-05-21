@@ -17,14 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('agente.php');
 require_model('almacen.php');
 require_model('articulo.php');
-require_model('cliente.php');
 require_model('factura_cliente.php');
 require_model('forma_pago.php');
+require_model('grupo_clientes.php');
 
-class ventas_facturas extends fs_controller
+class ventas_facturas extends fbase_controller
 {
    public $agente;
    public $almacenes;
@@ -33,22 +34,23 @@ class ventas_facturas extends fs_controller
    public $cliente;
    public $codagente;
    public $codalmacen;
+   public $codgrupo;
+   public $codpago;
    public $codserie;
    public $desde;
    public $estado;
    public $factura;
+   public $forma_pago;
+   public $grupo;
    public $hasta;
    public $huecos;
    public $lineas;
    public $mostrar;
-   public $multi_almacen;
    public $num_resultados;
    public $offset;
    public $order;
    public $resultados;
    public $serie;
-   public $fpago;
-   public $codpago;
    public $total_resultados;
    public $total_resultados_comision;
    public $total_resultados_txt;
@@ -60,12 +62,15 @@ class ventas_facturas extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
+      
       $this->agente = new agente();
       $this->almacenes = new almacen();
       $this->factura = new factura_cliente();
+      $this->forma_pago = new forma_pago();
+      $this->grupo = new grupo_clientes();
       $this->huecos = array();
       $this->serie = new serie();
-      $this->fpago = new forma_pago();
       
       $this->mostrar = 'todo';
       if( isset($_GET['mostrar']) )
@@ -77,9 +82,6 @@ class ventas_facturas extends fs_controller
       {
          $this->mostrar = $_COOKIE['ventas_fac_mostrar'];
       }
-      
-      $fsvar = new fs_var();
-      $this->multi_almacen = $fsvar->simple_get('multi_almacen');
       
       $this->offset = 0;
       if( isset($_REQUEST['offset']) )
@@ -109,7 +111,7 @@ class ventas_facturas extends fs_controller
       }
       else if( isset($_REQUEST['buscar_cliente']) )
       {
-         $this->buscar_cliente();
+         $this->fbase_buscar_cliente($_REQUEST['buscar_cliente']);
       }
       else if( isset($_GET['ref']) )
       {
@@ -128,8 +130,9 @@ class ventas_facturas extends fs_controller
          $this->cliente = FALSE;
          $this->codagente = '';
          $this->codalmacen = '';
-         $this->codserie = '';
+         $this->codgrupo = '';
          $this->codpago = '';
+         $this->codserie = '';
          $this->desde = '';
          $this->estado = '';
          $this->hasta = '';
@@ -144,10 +147,10 @@ class ventas_facturas extends fs_controller
          }
          else
          {
-            if( !isset($_GET['mostrar']) AND (isset($_REQUEST['codagente']) OR isset($_REQUEST['codcliente']) OR isset($_REQUEST['codserie']) OR isset($_REQUEST['codpago'])) )
+            if( !isset($_GET['mostrar']) AND (isset($_REQUEST['codagente']) OR isset($_REQUEST['codcliente']) OR isset($_REQUEST['codserie'])) )
             {
                /**
-                * si obtenermos un codagente, un codcliente,un codserie o codpago pasamos direcatemente
+                * si obtenermos un codagente, un codcliente o un codserie pasamos direcatemente
                 * a la pestaña de búsqueda, a menos que tengamos un mostrar, que
                 * entonces nos indica donde tenemos que estar.
                 */
@@ -172,15 +175,20 @@ class ventas_facturas extends fs_controller
             {
                $this->codalmacen = $_REQUEST['codalmacen'];
             }
-
-            if( isset($_REQUEST['codserie']) )
+            
+            if( isset($_REQUEST['codgrupo']) )
             {
-               $this->codserie = $_REQUEST['codserie'];
+               $this->codgrupo = $_REQUEST['codgrupo'];
             }
             
             if( isset($_REQUEST['codpago']) )
             {
                $this->codpago = $_REQUEST['codpago'];
+            }
+            
+            if( isset($_REQUEST['codserie']) )
+            {
+               $this->codserie = $_REQUEST['codserie'];
             }
             
             if( isset($_REQUEST['desde']) )
@@ -244,13 +252,14 @@ class ventas_facturas extends fs_controller
             $codcliente = $this->cliente->codcliente;
          }
          
-         $url = $this->url()."&mostrar=".$this->mostrar
+         $url = parent::url()."&mostrar=".$this->mostrar
                  ."&query=".$this->query
-                 ."&codserie=".$this->codserie
                  ."&codagente=".$this->codagente
                  ."&codalmacen=".$this->codalmacen
-                 ."&codpago=".$this->codpago
                  ."&codcliente=".$codcliente
+                 ."&codgrupo=".$this->codgrupo
+                 ."&codpago=".$this->codpago
+                 ."&codserie=".$this->codserie
                  ."&desde=".$this->desde
                  ."&estado=".$this->estado
                  ."&hasta=".$this->hasta;
@@ -263,30 +272,8 @@ class ventas_facturas extends fs_controller
       }
    }
    
-   private function buscar_cliente()
-   {
-      /// desactivamos la plantilla HTML
-      $this->template = FALSE;
-      
-      $cli0 = new cliente();
-      $json = array();
-      foreach($cli0->search($_REQUEST['buscar_cliente']) as $cli)
-      {
-         $json[] = array('value' => $cli->nombre, 'data' => $cli->codcliente);
-      }
-      
-      header('Content-Type: application/json');
-      echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
-   }
-   
    public function paginas()
    {
-      $url = $this->url(TRUE);
-      $paginas = array();
-      $i = 0;
-      $num = 0;
-      $actual = 1;
-      
       if($this->mostrar == 'sinpagar')
       {
          $total = $this->total_sinpagar();
@@ -300,47 +287,7 @@ class ventas_facturas extends fs_controller
          $total = $this->total_registros();
       }
       
-      /// añadimos todas la página
-      while($num < $total)
-      {
-         $paginas[$i] = array(
-             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
-             'num' => $i + 1,
-             'actual' => ($num == $this->offset)
-         );
-         
-         if($num == $this->offset)
-         {
-            $actual = $i;
-         }
-         
-         $i++;
-         $num += FS_ITEM_LIMIT;
-      }
-      
-      /// ahora descartamos
-      foreach($paginas as $j => $value)
-      {
-         $enmedio = intval($i/2);
-         
-         /**
-          * descartamos todo excepto la primera, la última, la de enmedio,
-          * la actual, las 5 anteriores y las 5 siguientes
-          */
-         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
-         {
-            unset($paginas[$j]);
-         }
-      }
-      
-      if( count($paginas) > 1 )
-      {
-         return $paginas;
-      }
-      else
-      {
-         return array();
-      }
+      return $this->fbase_paginas($this->url(TRUE), $total, $this->offset);
    }
    
    public function buscar_lineas()
@@ -402,24 +349,12 @@ class ventas_facturas extends fs_controller
    
    public function total_sinpagar()
    {
-      $data = $this->db->select("SELECT COUNT(idfactura) as total FROM facturascli WHERE pagada = false;");
-      if($data)
-      {
-         return intval($data[0]['total']);
-      }
-      else
-         return 0;
+      return $this->fbase_sql_total('facturascli', 'idfactura', 'WHERE pagada = false');
    }
    
    private function total_registros()
    {
-      $data = $this->db->select("SELECT COUNT(idfactura) as total FROM facturascli;");
-      if($data)
-      {
-         return intval($data[0]['total']);
-      }
-      else
-         return 0;
+      return $this->fbase_sql_total('facturascli', 'idfactura');
    }
    
    private function buscar($order2)
@@ -447,36 +382,41 @@ class ventas_facturas extends fs_controller
          $where = ' AND ';
       }
       
-      if($this->codagente)
-      {
-         $sql .= $where."codagente = ".$this->agente->var2str($this->codagente);
-         $where = ' AND ';
-      }
-      
-      if($this->codalmacen)
-      {
-         $sql .= $where."codalmacen = ".$this->agente->var2str($this->codalmacen);
-         $where = ' AND ';
-      }
-      
       if($this->cliente)
       {
          $sql .= $where."codcliente = ".$this->agente->var2str($this->cliente->codcliente);
          $where = ' AND ';
       }
       
-      if($this->codserie)
+      if($this->codagente != '')
+      {
+         $sql .= $where."codagente = ".$this->agente->var2str($this->codagente);
+         $where = ' AND ';
+      }
+      
+      if($this->codalmacen != '')
+      {
+         $sql .= $where."codalmacen = ".$this->agente->var2str($this->codalmacen);
+         $where = ' AND ';
+      }
+      
+      if($this->codgrupo != '')
+      {
+         $sql .= $where."codcliente IN (SELECT codcliente FROM clientes WHERE codgrupo = ".$this->agente->var2str($this->codgrupo).")";
+         $where = ' AND ';
+      }
+      
+      if($this->codpago != '')
+      {
+         $sql .= $where."codpago = ".$this->agente->var2str($this->codpago);
+         $where = ' AND ';
+      }
+      
+      if($this->codserie != '')
       {
          $sql .= $where."codserie = ".$this->agente->var2str($this->codserie);
          $where = ' AND ';
       }
-      
-   if($this->codpago)
-      {
-         $sql .= $where."codpago= ".$this->agente->var2str($this->codpago);
-         $where = ' AND ';
-      } 
-      
       
       if($this->desde)
       {
@@ -503,6 +443,11 @@ class ventas_facturas extends fs_controller
       else if($this->estado == 'anuladas')
       {
          $sql .= $where."anulada = true";
+         $where = ' AND ';
+      }
+      else if($this->estado == 'sinasiento')
+      {
+         $sql .= $where."idasiento IS NULL";
          $where = ' AND ';
       }
       

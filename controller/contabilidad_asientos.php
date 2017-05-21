@@ -17,9 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('asiento.php');
 
-class contabilidad_asientos extends fs_controller
+class contabilidad_asientos extends fbase_controller
 {
    public $asiento;
    public $desde;
@@ -32,23 +33,15 @@ class contabilidad_asientos extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Asientos', 'contabilidad', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Asientos', 'contabilidad');
    }
    
    protected function private_core()
    {
+      parent::private_core();
+      
       $this->asiento = new asiento();
-      
-      $this->desde = '';
-      $this->hasta = '';
-      $this->mostrar = 'todo';
-      $this->offset = 0;
-      $this->orden = 'fecha DESC, numero DESC';
-      
-      if( isset($_GET['mostrar']) )
-      {
-         $this->mostrar = $_GET['mostrar'];
-      }
+      $this->ini_filters();
       
       if( isset($_GET['delete']) )
       {
@@ -62,26 +55,38 @@ class contabilidad_asientos extends fs_controller
          }
       }
       
-      $this->offset = 0;
-      if( isset($_GET['offset']) )
-      {
-         $this->offset = intval($_GET['offset']);
-      }
-      
       if($this->mostrar == 'descuadrados')
       {
          $this->resultados = $this->asiento->descuadrados();
       }
       else
       {
-         if( isset($_REQUEST['desde']) OR isset($_REQUEST['hasta']) OR isset($_REQUEST['orden']) )
-         {
-            $this->desde = $_REQUEST['desde'];
-            $this->hasta = $_REQUEST['hasta'];
-            $this->orden = $_REQUEST['orden'];
-         }
-         
          $this->buscar();
+      }
+   }
+   
+   private function ini_filters()
+   {
+      $this->mostrar = 'todo';
+      if( isset($_GET['mostrar']) )
+      {
+         $this->mostrar = $_GET['mostrar'];
+      }
+      
+      $this->offset = 0;
+      if( isset($_GET['offset']) )
+      {
+         $this->offset = intval($_GET['offset']);
+      }
+      
+      $this->desde = '';
+      $this->hasta = '';
+      $this->orden = 'fecha DESC, numero DESC';
+      if( isset($_REQUEST['desde']) OR isset($_REQUEST['hasta']) OR isset($_REQUEST['orden']) )
+      {
+         $this->desde = $_REQUEST['desde'];
+         $this->hasta = $_REQUEST['hasta'];
+         $this->orden = $_REQUEST['orden'];
       }
    }
    
@@ -145,68 +150,17 @@ class contabilidad_asientos extends fs_controller
    
    public function paginas()
    {
-      $url = $this->url().'&query='.$this->query
-              .'&desde='.$this->desde
-              .'&hasta='.$this->hasta
-              .'&orden='.$this->orden;
-      
-      $paginas = array();
-      $i = 0;
-      $num = 0;
-      $actual = 1;
-      $total = $this->num_resultados;
-      
-      /// añadimos todas la página
-      while($num < $total)
-      {
-         $paginas[$i] = array(
-             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
-             'num' => $i + 1,
-             'actual' => ($num == $this->offset)
-         );
-         
-         if($num == $this->offset)
-         {
-            $actual = $i;
-         }
-         
-         $i++;
-         $num += FS_ITEM_LIMIT;
-      }
-      
-      /// ahora descartamos
-      foreach($paginas as $j => $value)
-      {
-         $enmedio = intval($i/2);
-         
-         /**
-          * descartamos todo excepto la primera, la última, la de enmedio,
-          * la actual, las 5 anteriores y las 5 siguientes
-          */
-         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
-         {
-            unset($paginas[$j]);
-         }
-      }
-      
-      if( count($paginas) > 1 )
-      {
-         return $paginas;
-      }
-      else
-      {
-         return array();
-      }
+      return $this->fbase_paginas($this->url(TRUE), $this->num_resultados, $this->offset);
    }
    
    public function url($busqueda = FALSE)
    {
       if($busqueda)
-      {         
-         $url = $this->url()."&desde=".$this->desde
-                 ."&hasta=".$this->hasta."&orden=".$this->orden;
-         
-         return $url;
+      {
+         return parent::url().'&query='.$this->query
+                 ."&desde=".$this->desde
+                 ."&hasta=".$this->hasta
+                 ."&orden=".$this->orden;
       }
       else
       {
@@ -219,7 +173,11 @@ class contabilidad_asientos extends fs_controller
       $asiento = $this->asiento->get($_GET['delete']);
       if($asiento)
       {
-         if( $asiento->delete() )
+         if( !$this->allow_delete )
+         {
+            $this->new_error_msg("No tienes permiso para eliminar en esta página.");
+         }
+         else if( $asiento->delete() )
          {
             $this->new_message("Asiento eliminado correctamente. (ID: ".$asiento->idasiento.", ".$asiento->fecha.")", TRUE);
             $this->clean_last_changes();

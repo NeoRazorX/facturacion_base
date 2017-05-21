@@ -20,6 +20,9 @@
 
 namespace FacturaScripts\model;
 
+require_model('atributo.php');
+require_model('atributo_valor.php');
+
 /**
  * Este modelo representa el par atributo => valor de la combinación de un artículo con atributos.
  * Ten en cuenta que lo que se almacena son estos pares atributo => valor,
@@ -140,6 +143,10 @@ class articulo_combinacion extends \fs_model
    
    protected function install()
    {
+      /// nos aseguramos de que existan las tablas necesarias
+      new \atributo();
+      new \atributo_valor();
+      
       return '';
    }
    
@@ -383,5 +390,31 @@ class articulo_combinacion extends \fs_model
       }
       
       return $lista;
+   }
+   
+   /**
+    * Devuelve un array con las combinaciones que contienen $query en su referencia
+    * o que coincide con su código de barras.
+    * @param type $query
+    * @return \articulo_combinacion
+    */
+   public function search($query = '')
+   {
+      $artilist = array();
+      $query = $this->no_html( mb_strtolower($query, 'UTF8') );
+      
+      $sql = "SELECT * FROM ".$this->table_name." WHERE referencia LIKE '".$query."%'"
+              . " OR codbarras = ".$this->var2str($query);
+      
+      $data = $this->db->select_limit($sql, 200);
+      if($data)
+      {
+         foreach($data as $d)
+         {
+            $artilist[] = new \articulo_combinacion($d);
+         }
+      }
+      
+      return $artilist;
    }
 }

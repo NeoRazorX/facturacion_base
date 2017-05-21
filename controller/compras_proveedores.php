@@ -17,10 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('pais.php');
-require_model('proveedor.php');
 
-class compras_proveedores extends fs_controller
+class compras_proveedores extends fbase_controller
 {
    public $num_resultados;
    public $offset;
@@ -33,84 +33,38 @@ class compras_proveedores extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Proveedores / Acreedores', 'compras', FALSE, TRUE);
+      parent::__construct(__CLASS__, 'Proveedores / Acreedores', 'compras');
    }
    
    protected function private_core()
    {
+      parent::private_core();
+      
       $this->pais = new pais();
       $this->proveedor = new proveedor();
       
       if( isset($_GET['delete']) )
       {
-         /// eliminar proveedor
-         $proveedor = $this->proveedor->get($_GET['delete']);
-         if($proveedor)
-         {
-            if(FS_DEMO)
-            {
-               $this->new_error_msg('En el modo demo no se pueden eliminar proveedores.
-                  Otros usuarios podrían necesitarlos.');
-            }
-            else if( $proveedor->delete() )
-            {
-               $this->new_message('Proveedor eliminado correctamente.');
-            }
-            else
-               $this->new_error_msg('Ha sido imposible borrar el proveedor.');
-         }
-         else
-            $this->new_message('Proveedor no encontrado.');
+         $this->eliminar_proveedor();
       }
       else if( isset($_POST['cifnif']) )
       {
-         /// nuevo proveedor
-         $proveedor = new proveedor();
-         $proveedor->codproveedor = $proveedor->get_new_codigo();
-         $proveedor->nombre = $_POST['nombre'];
-         $proveedor->razonsocial = $_POST['nombre'];
-         $proveedor->tipoidfiscal = $_POST['tipoidfiscal'];
-         $proveedor->cifnif = $_POST['cifnif'];
-         $proveedor->acreedor = isset($_POST['acreedor']);
-         $proveedor->personafisica = isset($_POST['personafisica']);
-         
-         if( $proveedor->save() )
-         {
-            $dirproveedor = new direccion_proveedor();
-            $dirproveedor->codproveedor = $proveedor->codproveedor;
-            $dirproveedor->descripcion = "Principal";
-            $dirproveedor->codpais = $_POST['pais'];
-            $dirproveedor->provincia = $_POST['provincia'];
-            $dirproveedor->ciudad = $_POST['ciudad'];
-            $dirproveedor->codpostal = $_POST['codpostal'];
-            $dirproveedor->direccion = $_POST['direccion'];
-            $dirproveedor->apartado = $_POST['apartado'];
-            
-            if( $dirproveedor->save() )
-            {
-               if($this->empresa->contintegrada)
-               {
-                  /// forzamos crear la subcuenta
-                  $proveedor->get_subcuenta($this->empresa->codejercicio);
-               }
-               
-               /// redireccionamos a la página del proveedor
-               header('location: '.$proveedor->url());
-            }
-            else
-               $this->new_error_msg("¡Imposible guardar la dirección el proveedor!");
-         }
-         else
-            $this->new_error_msg("¡Imposible guardar el proveedor!");
+         $this->nuevo_proveedor();
       }
       
+      $this->ini_filters();
+      $this->buscar();
+   }
+   
+   private function ini_filters()
+   {
       $this->offset = 0;
       if( isset($_GET['offset']) )
       {
          $this->offset = intval($_GET['offset']);
       }
       
-      $this->orden = 'nombre ASC';
+      $this->orden = 'lower(nombre) ASC';
       if( isset($_REQUEST['orden']) )
       {
          $this->orden = $_REQUEST['orden'];
@@ -123,8 +77,72 @@ class compras_proveedores extends fs_controller
       }
       
       $this->debaja = isset($_REQUEST['debaja']);
+   }
+   
+   private function nuevo_proveedor()
+   {
+      $proveedor = new proveedor();
+      $proveedor->codproveedor = $proveedor->get_new_codigo();
+      $proveedor->nombre = $_POST['nombre'];
+      $proveedor->razonsocial = $_POST['nombre'];
+      $proveedor->tipoidfiscal = $_POST['tipoidfiscal'];
+      $proveedor->cifnif = $_POST['cifnif'];
+      $proveedor->acreedor = isset($_POST['acreedor']);
+      $proveedor->personafisica = isset($_POST['personafisica']);
       
-      $this->buscar();
+      if( $proveedor->save() )
+      {
+         $dirproveedor = new direccion_proveedor();
+         $dirproveedor->codproveedor = $proveedor->codproveedor;
+         $dirproveedor->descripcion = "Principal";
+         $dirproveedor->codpais = $_POST['pais'];
+         $dirproveedor->provincia = $_POST['provincia'];
+         $dirproveedor->ciudad = $_POST['ciudad'];
+         $dirproveedor->codpostal = $_POST['codpostal'];
+         $dirproveedor->direccion = $_POST['direccion'];
+         $dirproveedor->apartado = $_POST['apartado'];
+         
+         if( $dirproveedor->save() )
+         {
+            if($this->empresa->contintegrada)
+            {
+               /// forzamos crear la subcuenta
+               $proveedor->get_subcuenta($this->empresa->codejercicio);
+            }
+            
+            /// redireccionamos a la página del proveedor
+            header('location: '.$proveedor->url());
+         }
+         else
+            $this->new_error_msg("¡Imposible guardar la dirección el proveedor!");
+      }
+      else
+         $this->new_error_msg("¡Imposible guardar el proveedor!");
+   }
+   
+   private function eliminar_proveedor()
+   {
+      $proveedor = $this->proveedor->get($_GET['delete']);
+      if($proveedor)
+      {
+         if(FS_DEMO)
+         {
+            $this->new_error_msg('En el modo demo no se pueden eliminar proveedores.
+               Otros usuarios podrían necesitarlos.');
+         }
+         else if( !$this->allow_delete )
+         {
+            $this->new_error_msg('No tienes permiso para eliminar en esta página.');
+         }
+         else if( $proveedor->delete() )
+         {
+            $this->new_message('Proveedor eliminado correctamente.');
+         }
+         else
+            $this->new_error_msg('Ha sido imposible borrar el proveedor.');
+      }
+      else
+         $this->new_message('Proveedor no encontrado.');
    }
    
    private function buscar()
@@ -189,6 +207,16 @@ class compras_proveedores extends fs_controller
       }
    }
    
+   public function orden()
+   {
+      return array(
+          'lower(nombre) ASC' => 'Orden: nombre',
+          'lower(nombre) DESC' => 'Orden: nombre descendente',
+          'cifnif ASC' => 'Orden: '.FS_CIFNIF,
+          'cifnif DESC' => 'Orden: '.FS_CIFNIF.' descendente'
+      );
+   }
+
    public function paginas()
    {
       $url = $this->url()."&query=".$this->query
@@ -200,54 +228,6 @@ class compras_proveedores extends fs_controller
          $url .= '&debaja=TRUE';
       }
       
-      $paginas = array();
-      $i = 0;
-      $num = 0;
-      $actual = 1;
-      
-      $total = 0;
-      $total = $this->num_resultados;
-      
-      /// añadimos todas la página
-      while($num < $total)
-      {
-         $paginas[$i] = array(
-             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
-             'num' => $i + 1,
-             'actual' => ($num == $this->offset)
-         );
-         
-         if($num == $this->offset)
-         {
-            $actual = $i;
-         }
-         
-         $i++;
-         $num += FS_ITEM_LIMIT;
-      }
-      
-      /// ahora descartamos
-      foreach($paginas as $j => $value)
-      {
-         $enmedio = intval($i/2);
-         
-         /**
-          * descartamos todo excepto la primera, la última, la de enmedio,
-          * la actual, las 5 anteriores y las 5 siguientes
-          */
-         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
-         {
-            unset($paginas[$j]);
-         }
-      }
-      
-      if( count($paginas) > 1 )
-      {
-         return $paginas;
-      }
-      else
-      {
-         return array();
-      }
+      return $this->fbase_paginas($url, $this->num_resultados, $this->offset);
    }
 }

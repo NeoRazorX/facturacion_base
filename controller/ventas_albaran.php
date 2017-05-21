@@ -17,13 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('agencia_transporte.php');
 require_model('albaran_cliente.php');
 require_model('almacen.php');
 require_model('articulo.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
-require_model('cliente.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('fabricante.php');
@@ -37,12 +37,11 @@ require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('subcuenta.php');
 
-class ventas_albaran extends fs_controller
+class ventas_albaran extends fbase_controller
 {
    public $agencia;
    public $agente;
    public $albaran;
-   public $allow_delete;
    public $allow_delete_fac;
    public $almacen;
    public $cliente;
@@ -64,6 +63,8 @@ class ventas_albaran extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
+      
       $this->ppage = $this->page->get('ventas_albaranes');
       $this->agente = FALSE;
       
@@ -83,8 +84,7 @@ class ventas_albaran extends fs_controller
       $this->pais = new pais();
       $this->serie = new serie();
       
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      /// ¿El usuario tiene permiso para eliminar la factura?
       $this->allow_delete_fac = $this->user->allow_delete_on('ventas_factura');
       
       /**

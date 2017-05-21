@@ -17,12 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('articulo.php');
 require_model('familia.php');
 
-class ventas_familia extends fs_controller
+class ventas_familia extends fbase_controller
 {
-   public $allow_delete;
    public $articulos;
    public $familia;
    public $madre;
@@ -36,8 +36,7 @@ class ventas_familia extends fs_controller
    
    protected function private_core()
    {
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      parent::private_core();
       
       $this->familia = FALSE;
       if( isset($_REQUEST['cod']) )
@@ -53,23 +52,7 @@ class ventas_familia extends fs_controller
          
          if( isset($_POST['cod']) )
          {
-            $this->familia->descripcion = $_POST['descripcion'];
-            
-            $this->familia->madre = NULL;
-            if( isset($_POST['madre']) )
-            {
-               if($_POST['madre'] != '---')
-               {
-                  $this->familia->madre = $_POST['madre'];
-               }
-            }
-            
-            if( $this->familia->save() )
-            {
-               $this->new_message("Datos modificados correctamente");
-            }
-            else
-               $this->new_error_msg("Imposible modificar los datos.");
+            $this->modificar();
          }
          
          $this->offset = 0;
@@ -101,6 +84,27 @@ class ventas_familia extends fs_controller
       else
          return $this->page->url();
    }
+   
+   private function modificar()
+   {
+      $this->familia->descripcion = $_POST['descripcion'];
+      
+      $this->familia->madre = NULL;
+      if( isset($_POST['madre']) )
+      {
+         if($_POST['madre'] != '---')
+         {
+            $this->familia->madre = $_POST['madre'];
+         }
+      }
+      
+      if( $this->familia->save() )
+      {
+         $this->new_message("Datos modificados correctamente");
+      }
+      else
+         $this->new_error_msg("Imposible modificar los datos.");
+   }
 
    public function anterior_url()
    {
@@ -128,13 +132,7 @@ class ventas_familia extends fs_controller
    
    public function total_familia()
    {
-      $data = $this->db->select("SELECT COUNT(referencia) as total FROM articulos WHERE codfamilia = ".
-              $this->empresa->var2str($this->familia->codfamilia).";");
-      if($data)
-      {
-         return intval($data[0]['total']);
-      }
-      else
-         return 0;
+      return $this->fbase_sql_total('articulos', 'referencia',
+              "WHERE codfamilia = ".$this->empresa->var2str($this->familia->codfamilia));
    }
 }

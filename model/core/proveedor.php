@@ -607,10 +607,10 @@ class proveedor extends \fs_model
    public function all($offset = 0, $solo_acreedores = FALSE)
    {
       $provelist = array();
-      $sql = "SELECT * FROM ".$this->table_name." ORDER BY nombre ASC";
+      $sql = "SELECT * FROM ".$this->table_name." ORDER BY lower(nombre) ASC";
       if($solo_acreedores)
       {
-         $sql = "SELECT * FROM ".$this->table_name." WHERE acreedor ORDER BY nombre ASC";
+         $sql = "SELECT * FROM ".$this->table_name." WHERE acreedor ORDER BY lower(nombre) ASC";
       }
       
       $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
@@ -636,7 +636,7 @@ class proveedor extends \fs_model
       if(!$provelist)
       {
          /// si no la encontramos en la caché, leemos de la base de datos
-         $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY nombre ASC;");
+         $data = $this->db->select("SELECT * FROM ".$this->table_name." ORDER BY lower(nombre) ASC;");
          if($data)
          {
             foreach($data as $d)
@@ -672,7 +672,7 @@ class proveedor extends \fs_model
                  . " OR lower(cifnif) LIKE '%".$buscar."%' OR lower(email) LIKE '%".$buscar."%'"
                  . " OR lower(observaciones) LIKE '%".$buscar."%'";
       }
-      $consulta .= " ORDER BY nombre ASC";
+      $consulta .= " ORDER BY lower(nombre) ASC";
       
       $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
       if($data)

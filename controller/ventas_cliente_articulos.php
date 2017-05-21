@@ -93,7 +93,7 @@ class ventas_cliente_articulos extends fs_controller
       }
       else
       {
-         parent::url();
+         return parent::url();
       }
    }
 }

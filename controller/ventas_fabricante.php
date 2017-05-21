@@ -17,12 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('articulo.php');
 require_model('fabricante.php');
 
-class ventas_fabricante extends fs_controller
+class ventas_fabricante extends fbase_controller
 {
-   public $allow_delete;
    public $articulos;
    public $fabricante;
    public $offset;
@@ -34,8 +34,7 @@ class ventas_fabricante extends fs_controller
    
    protected function private_core()
    {
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      parent::private_core();
       
       $this->fabricante = FALSE;
       if( isset($_REQUEST['cod']) )
@@ -50,14 +49,7 @@ class ventas_fabricante extends fs_controller
          
          if( isset($_POST['cod']) )
          {
-            $this->fabricante->nombre = $_POST['nombre'];
-
-            if( $this->fabricante->save() )
-            {
-               $this->new_message("Datos modificados correctamente");
-            }
-            else
-               $this->new_error_msg("Imposible modificar los datos.");
+            $this->modificar();
          }
          
          $this->offset = 0;
@@ -72,6 +64,18 @@ class ventas_fabricante extends fs_controller
       {
          $this->new_error_msg("Fabricante no encontrado.", 'error', FALSE, FALSE);
       }
+   }
+   
+   private function modificar()
+   {
+      $this->fabricante->nombre = $_POST['nombre'];
+      
+      if( $this->fabricante->save() )
+      {
+         $this->new_message("Datos modificados correctamente");
+      }
+      else
+         $this->new_error_msg("Imposible modificar los datos.");
    }
    
    public function url()
@@ -114,13 +118,7 @@ class ventas_fabricante extends fs_controller
    
    public function total_fabricante()
    {
-      $data = $this->db->select("SELECT COUNT(referencia) as total FROM articulos WHERE codfabricante = ".
-              $this->empresa->var2str($this->fabricante->codfabricante).";");
-      if($data)
-      {
-         return intval($data[0]['total']);
-      }
-      else
-         return 0;
+      return $this->fbase_sql_total('articulos', 'referencia',
+              "WHERE codfabricante = ".$this->empresa->var2str($this->fabricante->codfabricante));
    }
 }

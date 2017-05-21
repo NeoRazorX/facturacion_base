@@ -17,10 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('albaran_cliente.php');
 require_model('asiento.php');
 require_model('asiento_factura.php');
-require_model('cliente.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('factura_cliente.php');
@@ -30,7 +30,7 @@ require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('subcuenta.php');
 
-class ventas_agrupar_albaranes extends fs_controller
+class ventas_agrupar_albaranes extends fbase_controller
 {
    public $albaran;
    public $cliente;
@@ -55,6 +55,8 @@ class ventas_agrupar_albaranes extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
+      
       $this->albaran = new albaran_cliente();
       $this->cliente = FALSE;
       $this->divisa = new divisa();
@@ -102,7 +104,7 @@ class ventas_agrupar_albaranes extends fs_controller
       
       if( isset($_REQUEST['buscar_cliente']) )
       {
-         $this->buscar_cliente();
+         $this->fbase_buscar_cliente($_REQUEST['buscar_cliente']);
       }
       else if( isset($_POST['idalbaran']) )
       {
@@ -140,22 +142,6 @@ class ventas_agrupar_albaranes extends fs_controller
       }
       else
          $this->share_extensions();
-   }
-   
-   private function buscar_cliente()
-   {
-      /// desactivamos la plantilla HTML
-      $this->template = FALSE;
-      
-      $cliente = new cliente();
-      $json = array();
-      foreach($cliente->search($_REQUEST['buscar_cliente']) as $cli)
-      {
-         $json[] = array('value' => $cli->razonsocial, 'data' => $cli->codcliente);
-      }
-      
-      header('Content-Type: application/json');
-      echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
    }
    
    private function agrupar()
