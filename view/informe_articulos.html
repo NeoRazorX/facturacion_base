@@ -326,11 +326,25 @@ function recalcular_stock()
                <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
                <span class="hidden-xs">&nbsp; Recalcular stock</span>
             </a>
+         </div>
+          <div class="btn-group">
             {if="$fsc->tipo_stock!='reg'"}
-            <a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo={$fsc->tipo_stock}&download=TRUE" class="btn btn-sm btn-default">
-               <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Descargar</span>
-            </a>
+            <button class="btn btn-sm btn-default dropdown-toggle" id="dLabel" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               <span class="fa fa-download" aria-hidden="true"></span><span class="hidden-xs">&nbsp;Descargar</span>
+               <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dLabel">
+               <li>
+                  <a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo={$fsc->tipo_stock}&download=TRUE&archivo=XLSX">
+                     <span class="fa fa-file-excel-o"></span><span class="hidden-xs">&nbsp;Excel</span>
+                  </a>
+               </li>
+               <li>
+                  <a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo={$fsc->tipo_stock}&download=TRUE&archivo=CSV">
+                     <span class="fa fa-file-text-o"></span><span class="hidden-xs">&nbsp;CSV</span>
+                  </a>
+               </li>
+            </ul>
             {/if}
          </div>
       </div>
@@ -610,7 +624,7 @@ function recalcular_stock()
                   <td>{$value['codalmacen']}</td>
                   <td><a href="{$value['url']}">{$value['origen']}</a></td>
                   <td>{$value['clipro']}</td>
-                  <td class="text-right">{$fsc->show_numero($value['movimiento'])}</td>
+                  <td class="text-right">{if="$value['movimiento']"}{$fsc->show_numero($value['movimiento'])}{else}{$value['movimiento']}{/if}</td>
                   <td class="text-right">{$fsc->show_precio($value['precio'])}</td>
                   <td class="text-right">{$fsc->show_numero($value['dto'])}</td>
                   <td class='text-right{if="$value['final']<0"} danger{/if}'>{$fsc->show_numero($value['final'])}</td>
@@ -658,6 +672,17 @@ function recalcular_stock()
                         </p>
                      </div>
                      <div class="form-group">
+                        Almacén:
+                        <select class="form-control" name="codalmacen">
+                           {if="count($fsc->almacen->all())>1"}
+                           <option value="">Todos los almacenes</option>
+                           {/if}
+                           {loop="$fsc->almacen->all()"}
+                           <option value="{$value->codalmacen}">{$value->nombre}</option>
+                           {/loop}
+                        </select>
+                     </div>
+                     <div class="form-group">
                         Familia:
                         <select class="form-control" name="codfamilia">
                            <option value="">Todas las familias</option>
@@ -698,6 +723,7 @@ function recalcular_stock()
                         <select name="generar" class="form-control">
                            <option value="">Pantalla</option>
                            <option value="csv">CSV</option>
+                           <option value="xlsx">Excel</option>
                         </select>
                      </div>
                   </div>
@@ -751,6 +777,17 @@ function recalcular_stock()
                         <input class="form-control datepicker" type="text" name="hasta" value="{$fsc->hasta}"/>
                      </div>
                      <div class="form-group">
+                        Almacén:
+                        <select class="form-control" name="codalmacen">
+                           {if="count($fsc->almacen->all())>1"}
+                           <option value="">Todos los almacenes</option>
+                           {/if}
+                           {loop="$fsc->almacen->all()"}
+                           <option value="{$value->codalmacen}">{$value->nombre}</option>
+                           {/loop}
+                        </select>
+                     </div>
+                     <div class="form-group">
                         Familia:
                         <select class="form-control" name="codfamilia">
                            <option value="">Todas las familias</option>
@@ -767,6 +804,13 @@ function recalcular_stock()
                      <div class="form-group">
                         Mínimo:
                         <input class="form-control" type="text" name="minimo" value="{$fsc->minimo}" autocomplete="off" placeholder="importe o unidades (opcional)"/>
+                     </div>
+                     <div class="form-group">
+                        Salida:
+                        <select name="generar" class="form-control">
+                           <option value="csv">CSV</option>
+                           <option value="xlsx">Excel</option>
+                        </select>
                      </div>
                   </div>
                   <div class="panel-footer">
@@ -800,6 +844,17 @@ function recalcular_stock()
                         </p>
                      </div>
                      <div class="form-group">
+                        Almacén:
+                        <select class="form-control" name="codalmacen">
+                           {if="count($fsc->almacen->all())>1"}
+                           <option value="">Todos los almacenes</option>
+                           {/if}
+                           {loop="$fsc->almacen->all()"}
+                           <option value="{$value->codalmacen}">{$value->nombre}</option>
+                           {/loop}
+                        </select>
+                     </div>
+                     <div class="form-group">
                         Familia:
                         <select class="form-control" name="codfamilia">
                            <option value="">Todas las familias</option>
@@ -824,6 +879,13 @@ function recalcular_stock()
                      <div class="form-group">
                         Mínimo:
                         <input class="form-control" type="text" name="minimo" value="{$fsc->minimo}" autocomplete="off" placeholder="unidades (opcional)"/>
+                     </div>
+                     <div class="form-group">
+                        Salida:
+                        <select name="generar" class="form-control">
+                           <option value="csv">CSV</option>
+                           <option value="xlsx">Excel</option>
+                        </select>
                      </div>
                   </div>
                   <div class="panel-footer">

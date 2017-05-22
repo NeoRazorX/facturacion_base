@@ -18,6 +18,7 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
+require_once 'plugins/facturacion_base/extras/xlsxwriter.class.php';
 require_model('almacen.php');
 require_model('articulo.php');
 require_model('cliente.php');
@@ -55,7 +56,7 @@ class informe_articulos extends fbase_controller
    public $top_ventas;
    public $top_compras;
    public $url_recarga;
-
+   public $meses;
    private $tablas;
 
    public function __construct()
@@ -74,6 +75,20 @@ class informe_articulos extends fbase_controller
       $this->stock = new stock();
       $this->tablas = $this->db->list_tables();
       $this->url_recarga = FALSE;
+
+      $this->meses = array();
+      $this->meses[1] = 'ene';
+      $this->meses[2] = 'feb';
+      $this->meses[3] = 'mar';
+      $this->meses[4] = 'abr';
+      $this->meses[5] = 'may';
+      $this->meses[6] = 'jun';
+      $this->meses[7] = 'jul';
+      $this->meses[8] = 'ago';
+      $this->meses[9] = 'set';
+      $this->meses[10] = 'oct';
+      $this->meses[11] = 'nov';
+      $this->meses[12] = 'dic';
 
       $tab = \filter_input(INPUT_GET, 'tab');
       $this->pestanya = ($tab)?$tab:'stats';
@@ -155,7 +170,8 @@ class informe_articulos extends fbase_controller
       }
       else if( isset($_GET['download']) )
       {
-         $this->download_stock();
+         $archivo = \filter_input(INPUT_GET, 'archivo');
+         $this->download_stock($archivo);
       }
       else
       {
@@ -257,26 +273,45 @@ class informe_articulos extends fbase_controller
       }
    }
 
-   private function download_stock()
+   private function download_stock($archivo)
    {
       $this->template = FALSE;
-
-      header("content-type:application/csv;charset=UTF-8");
-      header("Content-Disposition: attachment; filename=\"stock.csv\"");
-      echo "almacen,referencia,descripcion,stock,stockmin,stockmax\n";
-
       $offset = 0;
       $resultados = $this->stock($offset, $this->tipo_stock);
+      $lista = array();
       while( count($resultados) > 0 )
-      {
-         foreach($resultados as $res)
          {
-            echo '"'.$res['codalmacen'].'","'.$res['referencia'].'","'.$res['descripcion'].'","'.
-                    $res['cantidad'].'","'.$res['stockmin'].'","'.$res['stockmax']."\"\n";
-            $offset++;
-         }
+            foreach($resultados as $res)
+            {
+               $linea = array();
+               $linea[] = $res['codalmacen'];
+               $linea[] = $res['referencia'];
+               $linea[] = $res['descripcion'];
+               $linea[] = $res['cantidad'];
+               $linea[] = $res['stockmin'];
+               $linea[] = $res['stockmax'];
+               $lista[] = $linea;
+               $offset++;
+            }
 
-         $resultados = $this->stock($offset, $this->tipo_stock);
+            $resultados = $this->stock($offset, $this->tipo_stock);
+         }
+      if($archivo == 'CSV')
+      {
+         $cabecera = "almacen,referencia,descripcion,stock,stockmin,stockmax\n";
+         $this->generar_archivo('stock',$cabecera,$lista,'csv');
+      }
+      elseif($archivo == 'XLSX')
+      {
+         $header = array(
+            'Almacen' => 'string',
+            'Referencia' => '@',
+            'Descripción' => 'string',
+            'Stock' => '0',
+            'Mínimo' => '0',
+            'Máximo' => '0'
+         );
+         $this->generar_archivo('stock',$header,$lista,'xlsx');
       }
    }
 
@@ -578,12 +613,17 @@ class informe_articulos extends fbase_controller
          $sumar = 'cantidad';
       }
 
-      $sql = "SELECT l.referencia,f.fecha,SUM(".$sumar.") as total"
-              . " FROM ".$this->documento." f, lineas".$this->documento." l"
-              . " WHERE f.idfactura = l.idfactura"
+      $sql_date = "YEAR(f.fecha) as anho, MONTH(f.fecha) as mes";
+      if(FS_DB_TYPE == 'POSTGRESQL')
+      {
+         $sql_date = "date_part('year',f.fecha) as anho,date_part('month',f.fecha) as mes";
+      }
+      $sql = "SELECT l.referencia,".$sql_date.",SUM(".$sumar.") as total"
+              . " FROM lineas".$this->documento." l JOIN ".$this->documento." f ON (f.idfactura = l.idfactura) "
+              . " WHERE anulada = FALSE "
               . " AND referencia IS NOT NULL AND referencia != ''"
-              . " AND fecha >= ".$this->empresa->var2str($this->desde)
-              . " AND fecha <= ".$this->empresa->var2str($this->hasta);
+              . " AND fecha >= ".$this->empresa->var2str(\date('Y-m-d',strtotime($this->desde)))
+              . " AND fecha <= ".$this->empresa->var2str(\date('Y-m-d',strtotime($this->hasta)));
 
       if( is_numeric($this->minimo) )
       {
@@ -603,81 +643,94 @@ class informe_articulos extends fbase_controller
          $sql .= "))";
       }
 
-      $sql .= " GROUP BY referencia,fecha ORDER BY fecha DESC";
-
+      $sql .= " GROUP BY referencia,anho,mes ORDER BY anho,mes";
       $data = $this->db->select($sql);
+      $rango_anhos = array();
+      $informacion_anho = array();
+      $informacion_anho_total = array();
       if($data)
       {
-         $this->template = FALSE;
-
-         header("content-type:application/csv;charset=UTF-8");
-         header("Content-Disposition: attachment; filename=\"informe_facturacion.csv\"");
-         echo "referencia;descripcion;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
-
-         $stats = array();
          foreach($data as $d)
          {
-            $anyo = date('Y', strtotime($d['fecha']));
-            $mes = date('n', strtotime($d['fecha']));
-            if( !isset($stats[ $d['referencia'] ][ $anyo ]) )
+            if(!isset($informacion_anho_total[$d['referencia']][$d['anho']]))
             {
-               $stats[ $d['referencia'] ][ $anyo ] = array(
-                   1 => 0,
-                   2 => 0,
-                   3 => 0,
-                   4 => 0,
-                   5 => 0,
-                   6 => 0,
-                   7 => 0,
-                   8 => 0,
-                   9 => 0,
-                   10 => 0,
-                   11 => 0,
-                   12 => 0,
-                   13 => 0,
-                   14 => 0
-               );
+               $informacion_anho_total[$d['referencia']][$d['anho']] = 0;
+               $stats_year[$d['referencia']][$d['anho']] = 0;
             }
-
-            $stats[ $d['referencia'] ][ $anyo ][ $mes ] += floatval($d['total']);
-            $stats[ $d['referencia'] ][ $anyo ][13] += floatval($d['total']);
+            $rango_anhos[$d['anho']] = $d['anho'];
+            $informacion_anho[$d['referencia']][$d['anho']][$d['mes']] = $d['total'];
+            $informacion_anho_total[$d['referencia']][$d['anho']] += $d['total'];
          }
 
-         $art0 = new articulo();
-         foreach($stats as $i => $value)
+         $stats_year = array();
+         //Calculamos la variación anual
+         foreach($informacion_anho_total as $ref => $data)
          {
-            /// calculamos la variación
-            $anterior = 0;
-            foreach( array_reverse($value, TRUE) as $j => $value2 )
+            foreach($data as $anho=>$total)
             {
-               if($anterior > 0)
+               $last_stats = 0;
+               $last_year = $anho-1;
+               if(isset($stats_year[$ref][$last_year]))
                {
-                  $value[$j][14] = ($value2[13]*100/$anterior) - 100;
+                  $last_stats = round((($total/$informacion_anho_total[$ref][$last_year])*100)-100,0);
                }
-
-               $anterior = $value2[13];
+               $stats_year[$ref][$anho] = $last_stats;
             }
+         }
 
-            foreach($value as $j => $value2)
+         $this->template = FALSE;
+         $articulo = new articulo();
+         $lista = array();
+         foreach ($informacion_anho as $ref => $info)
             {
-               $articulo = $art0->get($i);
-               if($articulo)
+               $desc_art = $articulo->get($ref);
+               foreach ($rango_anhos as $y)
                {
-                  echo '"'.$i.'";"'.fs_fix_html($articulo->descripcion()).'";'.$j;
-               }
-               else
-               {
-                  echo '"'.$i.'";"";'.$j;
-               }
+                  $linea = array();
+                  $linea[] = $ref;
+                  $linea[] = $desc_art->descripcion;
+                  $linea[] = $y;
+                  foreach ($this->meses as $m => $dm)
+                  {
 
-               foreach($value2 as $value3)
-               {
-                  echo ';'.number_format($value3, FS_NF0, ',', '');
+                     $linea[] = (isset($informacion_anho[$ref][$y][$m]))?$informacion_anho[$ref][$y][$m]:0;
+                  }
+                  if(isset($informacion_anho_total[$ref][$y]))
+                  {
+                     $linea[] = $informacion_anho_total[$ref][$y];
+                     $escribir = true;
+                  }
+                  else
+                  {
+                     $escribir = false;
+                  }
+                  $linea[] = (isset($stats_year[$ref][$y]))?$stats_year[$ref][$y].'%':'0%';
+                  if($escribir)
+                  {
+                     $lista[] = $linea;
+                  }
                }
-
-               echo "\n";
             }
-            echo ";;;;;;;;;;;;;;;;\n";
+         $generar = \filter_input(INPUT_POST, 'generar');
+         if( $generar == 'csv' )
+         {
+            $cabecera = "referencia;descripcion;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
+            $this->generar_archivo('informe_facturacion', $cabecera, $lista, 'csv');
+         }
+         elseif($generar=='xlsx')
+         {
+            $header = array(
+               'Referencia' => '@',
+               'Descripcion' => 'string',
+               'Año' => '0',
+            );
+            foreach($this->meses as $mes)
+            {
+               $header[$mes] = '0';
+            }
+            $header['Total']='0';
+            $header['%VAR']='@';
+            $this->generar_archivo('informe_facturacion', $header, $lista, 'xlsx');
          }
       }
       else
@@ -705,291 +758,6 @@ class informe_articulos extends fbase_controller
       return $familias;
    }
 
-   private function get_movimientos($ref, $desde = '', $hasta = '', $codagente = '')
-   {
-      $mlist = array();
-      $regularizacion = new regularizacion_stock();
-
-      foreach($regularizacion->all_from_articulo($ref) as $reg)
-      {
-         $anyadir = TRUE;
-         if($desde)
-         {
-            if( strtotime($desde) > strtotime($reg->fecha) )
-            {
-               $anyadir = FALSE;
-            }
-         }
-
-         if($hasta)
-         {
-            if( strtotime($hasta) < strtotime($reg->fecha) )
-            {
-               $anyadir = FALSE;
-            }
-         }
-
-         if($anyadir)
-         {
-            $mlist[] = array(
-                'referencia' => $ref,
-                'codalmacen' => $reg->codalmacendest,
-                'origen' => 'Regularización',
-                'url' => 'index.php?page=ventas_articulo&ref='.$ref,
-                'clipro' => '-',
-                'movimiento' => '-',
-                'precio' => 0,
-                'dto' => 0,
-                'inicial' => $reg->cantidadini,
-                'final' => $reg->cantidadfin,
-                'fecha' => $reg->fecha,
-                'hora' => $reg->hora
-            );
-         }
-      }
-
-      /// forzamos la comprobación de las tablas de albaranes
-      $albc = new albaran_cliente();
-      $lin1 = new linea_albaran_cliente();
-      $albp = new albaran_proveedor();
-      $lin2 = new linea_albaran_proveedor();
-
-      $sql_extra = '';
-      $rango_fecha = '';
-      if($desde)
-      {
-         $sql_extra .= " AND fecha >= ".$this->empresa->var2str($desde);
-         $rango_fecha .= " AND fecha >= ".$this->empresa->var2str($desde);
-      }
-
-      if($hasta)
-      {
-         $sql_extra .= " AND fecha <= ".$this->empresa->var2str($hasta);
-         $rango_fecha .= " AND fecha <= ".$this->empresa->var2str($hasta);
-      }
-
-      if($codagente)
-      {
-         $sql_extra .= " AND codagente = ".$this->empresa->var2str($codagente);
-      }
-
-      if($this->codalmacen)
-      {
-         $sql_extra .= " AND codalmacen = ".$this->empresa->var2str($this->codalmacen);
-      }
-
-      /// Si existen estas tablas se genera la información de las transferencias de stock
-      if( $this->db->table_exists('transstock', $this->tablas) AND $this->db->table_exists('lineastransstock', $this->tablas) )
-      {
-         /*
-          * Generamos la informacion de las transferencias por ingresos entre almacenes que se hayan hecho a los stocks
-          */
-         $sql_regstocks = "select l.idtrans, fecha, hora, referencia, sum(cantidad) as cantidad "
-                 ." FROM lineastransstock AS ls "
-                 ." JOIN transstock as l ON (ls.idtrans = l.idtrans) "
-                 ." WHERE codalmadestino = " . $this->empresa->var2str($this->codalmacen) . $rango_fecha
-                 ." GROUP by l.idtrans, fecha, hora, referencia "
-                 ." ORDER by l.idtrans;";
-         $data = $this->db->select($sql_regstocks);
-         if($data)
-         {
-            foreach($data as $d)
-            {
-               $mlist[] = array(
-                   'referencia' => $d['referencia'],
-                   'codalmacen' => $this->codalmacen,
-                   'origen' => 'Ingreso por transferencia '.$d['idtrans'],
-                   'url' => 'index.php?page=editar_transferencia_stock&id='.$d['idtrans'],
-                   'clipro' => '',
-                   'movimiento' => floatval($d['cantidad']),
-                   'precio' => 0,
-                   'dto' => 0,
-                   'inicial' => 0,
-                   'final' => 0,
-                   'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                   'hora' => $d['hora']
-               );
-            }
-         }
-
-         /*
-          * Generamos la informacion de las transferencias por salidas entre almacenes que se hayan hecho a los stocks
-          */
-         $sql_regstocks = "select l.idtrans, fecha, hora, referencia, sum(cantidad) as cantidad "
-                 ." from lineastransstock AS ls "
-                 ." JOIN transstock as l ON(ls.idtrans = l.idtrans) "
-                 ." where codalmaorigen = " . $this->empresa->var2str($this->codalmacen) . $rango_fecha
-                 ." group by l.idtrans, fecha, hora, referencia "
-                 ." order by l.idtrans;";
-         $data = $this->db->select($sql_regstocks);
-         if($data)
-         {
-            foreach($data as $d)
-            {
-               $mlist[] = array(
-                   'referencia' => $d['referencia'],
-                   'codalmacen' => $this->codalmacen,
-                   'origen' => 'Salida por transferencia '.$d['idtrans'],
-                   'url' => 'index.php?page=editar_transferencia_stock&id='.$d['idtrans'],
-                   'clipro' => '',
-                   'movimiento' => 0 - floatval($d['cantidad']),
-                   'precio' => 0,
-                   'dto' => 0,
-                   'inicial' => 0,
-                   'final' => 0,
-                   'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                   'hora' => $d['hora']
-               );
-            }
-         }
-      }
-
-      /// buscamos el artículo en albaranes de compra
-      $sql = "SELECT a.codigo,l.cantidad,l.pvpunitario,l.dtopor,a.fecha,a.hora"
-              .",a.codalmacen,a.idalbaran,a.codproveedor,a.nombre"
-              ." FROM albaranesprov a, lineasalbaranesprov l"
-              ." WHERE a.idalbaran = l.idalbaran AND l.referencia = ".$albc->var2str($ref).$sql_extra;
-
-      $data = $this->db->select($sql);
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $mlist[] = array(
-                'referencia' => $ref,
-                'codalmacen' => $d['codalmacen'],
-                'origen' => 'Albaran compra '.$d['codigo'],
-                'url' => 'index.php?page=compras_albaran&id='.$d['idalbaran'],
-                'clipro' => $d['codproveedor'].' - '.$d['nombre'],
-                'movimiento' => floatval($d['cantidad']),
-                'precio' => floatval($d['pvpunitario']),
-                'dto' => floatval($d['dtopor']),
-                'inicial' => 0,
-                'final' => 0,
-                'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                'hora' => $d['hora']
-            );
-         }
-      }
-
-      /// buscamos el artículo en facturas de compra
-      $sql = "SELECT f.codigo,l.cantidad,l.pvpunitario,l.dtopor,f.fecha,f.hora"
-              .",f.codalmacen,f.idfactura,f.codproveedor,f.nombre"
-              ." FROM facturasprov f, lineasfacturasprov l"
-              ." WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL"
-              ." AND l.referencia = ".$albc->var2str($ref).$sql_extra;
-
-      $data = $this->db->select($sql);
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $mlist[] = array(
-                'referencia' => $ref,
-                'codalmacen' => $d['codalmacen'],
-                'origen' => 'Factura compra '.$d['codigo'],
-                'url' => 'index.php?page=compras_factura&id='.$d['idfactura'],
-                'clipro' => $d['codproveedor'].' - '.$d['nombre'],
-                'movimiento' => floatval($d['cantidad']),
-                'precio' => floatval($d['pvpunitario']),
-                'dto' => floatval($d['dtopor']),
-                'inicial' => 0,
-                'final' => 0,
-                'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                'hora' => $d['hora']
-            );
-         }
-      }
-
-      /// buscamos el artículo en albaranes de venta
-      $sql = "SELECT a.codigo,l.cantidad,l.pvpunitario,l.dtopor,a.fecha,a.hora"
-              .",a.codalmacen,a.idalbaran,a.codcliente,a.nombrecliente"
-              ." FROM albaranescli a, lineasalbaranescli l"
-              ." WHERE a.idalbaran = l.idalbaran AND l.referencia = ".$albc->var2str($ref).$sql_extra;
-
-      $data = $this->db->select($sql);
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $mlist[] = array(
-                'referencia' => $ref,
-                'codalmacen' => $d['codalmacen'],
-                'origen' => 'Albaran venta '.$d['codigo'],
-                'url' => 'index.php?page=ventas_albaran&id='.$d['idalbaran'],
-                'clipro' => $d['codcliente'].' - '.$d['nombrecliente'],
-                'movimiento' => 0 - floatval($d['cantidad']),
-                'precio' => floatval($d['pvpunitario']),
-                'dto' => floatval($d['dtopor']),
-                'inicial' => 0,
-                'final' => 0,
-                'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                'hora' => $d['hora']
-            );
-         }
-      }
-
-      /// buscamos el artículo en facturas de venta
-      $sql = "SELECT f.codigo,l.cantidad,l.pvpunitario,l.dtopor,f.fecha,f.hora"
-              .",f.codalmacen,f.idfactura,f.codcliente,f.nombrecliente"
-              ." FROM facturascli f, lineasfacturascli l"
-              ." WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL"
-              ." AND l.referencia = ".$albc->var2str($ref).$sql_extra;
-
-      $data = $this->db->select($sql);
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $mlist[] = array(
-                'referencia' => $ref,
-                'codalmacen' => $d['codalmacen'],
-                'origen' => 'Factura venta '.$d['codigo'],
-                'url' => 'index.php?page=ventas_factura&id='.$d['idfactura'],
-                'clipro' => $d['codcliente'].' - '.$d['nombrecliente'],
-                'movimiento' => 0 - floatval($d['cantidad']),
-                'precio' => floatval($d['pvpunitario']),
-                'dto' => floatval($d['dtopor']),
-                'inicial' => 0,
-                'final' => 0,
-                'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                'hora' => $d['hora']
-            );
-         }
-      }
-
-      /// ordenamos por fecha y hora
-      usort($mlist, function($a,$b) {
-         if( strtotime($a['fecha'].' '.$a['hora']) == strtotime($b['fecha'].' '.$b['hora']) )
-         {
-            return 0;
-         }
-         else if( strtotime($a['fecha'].' '.$a['hora']) < strtotime($b['fecha'].' '.$b['hora']) )
-         {
-            return -1;
-         }
-         else
-            return 1;
-      });
-
-      /// recalculamos
-      $inicial = 0;
-      foreach($mlist as $i => $value)
-      {
-         if($value['movimiento'] == '-')
-         {
-            $inicial += $value['final'] - $value['inicial'];
-         }
-         else
-         {
-            $inicial += $value['movimiento'];
-         }
-         $mlist[$i]['final'] = $inicial;
-      }
-
-      return $mlist;
-   }
-
    private function informe_movimientos()
    {
       if($this->codfamilia)
@@ -999,7 +767,7 @@ class informe_articulos extends fbase_controller
          {
             foreach($familia->get_articulos() as $art)
             {
-               foreach( $this->get_movimientos($art->referencia, $this->desde, $this->hasta, $this->codagente) as $mov )
+               foreach( $this->stock->get_movimientos($art->referencia, $this->desde, $this->hasta, $this->codalmacen, $this->codagente) as $mov )
                {
                   $this->resultados[] = $mov;
                }
@@ -1016,55 +784,50 @@ class informe_articulos extends fbase_controller
       }
       else
       {
-         $this->resultados = $this->get_movimientos($this->referencia, $this->desde, $this->hasta, $this->codagente);
+         $this->resultados = $this->stock->get_movimientos($this->referencia, $this->desde, $this->hasta, $this->codalmacen, $this->codagente);
       }
-
-      if( isset($_POST['generar']) )
+      $generar = \filter_input(INPUT_POST, 'generar');
+      if( $generar )
       {
-         if($_POST['generar'] == 'csv')
+         $this->template = FALSE;
+         $lista = array();
+         foreach($this->resultados as $value)
          {
-            $this->template = FALSE;
-
-            header("content-type:application/csv;charset=UTF-8");
-            header("Content-Disposition: attachment; filename=\"listado_movimientos.csv\"");
-            echo "referencia;almacen;documento;cliente/proveedor;movimiento;precio;%dto;cantidad final;fecha\n";
-
-            $ref = FALSE;
-            foreach($this->resultados as $value)
-            {
-               if(!$ref)
-               {
-                  $ref = $value['referencia'];
-               }
-               else if($ref != $value['referencia'])
-               {
-                  $ref = $value['referencia'];
-
-                  echo ";;;;;;;;\n";
-               }
-
-               echo $value['referencia'].';'
-                       .$value['codalmacen'].';'
-                       .$value['origen'].';'
-                       .fs_fix_html($value['clipro']).';';
-
-               if( is_numeric($value['movimiento']) )
-               {
-                  echo number_format($value['movimiento'], FS_NF0, ',', '').';';
-               }
-               else
-               {
-                  echo ';';
-               }
-
-               echo number_format($value['precio'], FS_NF0_ART, ',', '').';'
-                       .number_format($value['dto'], FS_NF0, ',', '').';'
-                       .number_format($value['final'], FS_NF0, ',', '').';'
-                       .$value['fecha']."\n";
-            }
+            $linea = array();
+            $linea[] = $value['referencia'];
+            $linea[] = $value['codalmacen'];
+            $linea[] = $value['origen'];
+            $linea[] = fs_fix_html($value['clipro']);
+            $linea[] = $value['movimiento'];
+            $linea[] = $value['precio'];
+            $linea[] = $value['dto'];
+            $linea[] = $value['final'];
+            $linea[] = \date('Y-m-d',strtotime($value['fecha']));
+            $lista[] = $linea;
+         }
+         if($generar == 'csv')
+         {
+            $cabecera = "referencia;almacen;documento;cliente/proveedor;movimiento;precio;%dto;cantidad final;fecha\n";
+            $this->generar_archivo('listado_movimientos',$cabecera,$lista,'csv');
+         }
+         elseif($generar == 'xlsx')
+         {
+            $header = array(
+               'Referencia' => '@',
+               'Almacen' => 'string',
+               'Documento' => 'string',
+               'Cliente/Proveedor' => 'string',
+               'Movimiento' => '0',
+               'Precio' => 'price',
+               'Descuento' => '0',
+               'Cantidad' => '0',
+               'Fecha' => 'date'
+            );
+            $this->generar_archivo('listado_movimientos', $header, $lista, 'xlsx');
          }
          else if(!$this->resultados)
          {
+            $this->template = TRUE;
             $this->new_message('Sin resultados.');
          }
       }
@@ -1072,11 +835,16 @@ class informe_articulos extends fbase_controller
 
    private function informe_ventascli()
    {
-      $sql = "SELECT l.referencia,f.codcliente,f.fecha,SUM(l.cantidad) as total"
-              . " FROM facturascli f, lineasfacturascli l"
-              . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
-              . " AND f.fecha >= ".$this->empresa->var2str($_POST['desde'])
-              . " AND f.fecha <= ".$this->empresa->var2str($_POST['hasta']);
+      $sql_date = "YEAR(f.fecha) as anho, MONTH(f.fecha) as mes";
+      if(FS_DB_TYPE == 'POSTGRESQL')
+      {
+         $sql_date = "date_part('year',f.fecha) as anho,date_part('month',f.fecha) as mes";
+      }
+      $sql = "SELECT l.referencia,f.codcliente,".$sql_date.",SUM(l.cantidad) as total"
+              . " FROM lineasfacturascli l JOIN facturascli f ON (f.idfactura = l.idfactura) "
+              . " WHERE anulada = FALSE AND l.referencia IS NOT NULL"
+              . " AND f.fecha >= ".$this->empresa->var2str(\date('Y-m-d',strtotime($_POST['desde'])))
+              . " AND f.fecha <= ".$this->empresa->var2str(\date('Y-m-d',strtotime($_POST['hasta'])));
 
       if($this->referencia != '')
       {
@@ -1100,90 +868,149 @@ class informe_articulos extends fbase_controller
          $sql .= " AND l.cantidad > ".$this->empresa->var2str($_POST['minimo']);
       }
 
-      $sql .= " GROUP BY l.referencia,f.codcliente,f.fecha ORDER BY l.referencia ASC, f.codcliente ASC, f.fecha DESC;";
-
+      $sql .= " GROUP BY l.referencia,f.codcliente,anho,mes ORDER BY l.referencia ASC, f.codcliente ASC, anho, mes;";
       $data = $this->db->select($sql);
+      $rango_anhos = array();
+      $informacion_anho = array();
+      $informacion_anho_total = array();
       if($data)
       {
-         $this->template = FALSE;
-
-         header("content-type:application/csv;charset=UTF-8");
-         header("Content-Disposition: attachment; filename=\"informe_ventas_unidades.csv\"");
-         echo "referencia;codcliente;nombre;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
-
-         $cliente = new cliente();
-         $stats = array();
-         foreach($data as $d)
+         foreach ($data as $d)
          {
-            $anyo = date('Y', strtotime($d['fecha']));
-            $mes = date('n', strtotime($d['fecha']));
-            if( !isset($stats[ $d['referencia'] ][ $d['codcliente'] ][ $anyo ]) )
+            if (!isset($informacion_anho_total[$d['referencia']][$d['codcliente']][$d['anho']]))
             {
-               $stats[ $d['referencia'] ][ $d['codcliente'] ][ $anyo ] = array(
-                   1 => 0,
-                   2 => 0,
-                   3 => 0,
-                   4 => 0,
-                   5 => 0,
-                   6 => 0,
-                   7 => 0,
-                   8 => 0,
-                   9 => 0,
-                   10 => 0,
-                   11 => 0,
-                   12 => 0,
-                   13 => 0,
-                   14 => 0
-               );
+               $informacion_anho_total[$d['referencia']][$d['codcliente']][$d['anho']] = 0;
+               $stats_year[$d['referencia']][$d['codcliente']][$d['anho']] = 0;
             }
-
-            $stats[ $d['referencia'] ][ $d['codcliente'] ][ $anyo ][ $mes ] += floatval($d['total']);
-            $stats[ $d['referencia'] ][ $d['codcliente'] ][ $anyo ][13] += floatval($d['total']);
+            $rango_anhos[$d['anho']] = $d['anho'];
+            $informacion_anho[$d['referencia']][$d['codcliente']][$d['anho']][$d['mes']] = $d['total'];
+            $informacion_anho_total[$d['referencia']][$d['codcliente']][$d['anho']] += $d['total'];
          }
 
-         foreach($stats as $i => $value)
+         $stats_year = array();
+         //Calculamos la variación anual
+         foreach ($informacion_anho_total as $ref => $clientes)
          {
-            foreach($value as $j => $value2)
+            foreach($clientes as $cli=>$data)
             {
-               /// calculamos la variación
-               $anterior = 0;
-               foreach( array_reverse($value2, TRUE) as $k => $value3 )
+               foreach ($data as $anho => $total)
                {
-                  if($anterior > 0)
+                  $last_stats = 0;
+                  $last_year = $anho - 1;
+                  if (isset($stats_year[$ref][$cli][$last_year]))
                   {
-                     $value2[$k][14] = ($value3[13]*100/$anterior) - 100;
+                     $last_stats = round((($total / $informacion_anho_total[$ref][$cli][$last_year]) * 100) - 100, 0);
                   }
-
-                  $anterior = $value3[13];
+                  $stats_year[$ref][$cli][$anho] = $last_stats;
                }
+            }
+         }
 
-               $cli = $cliente->get($j);
-               foreach($value2 as $k => $value3)
+         //Generamos las lineas a escribir
+         $this->template = FALSE;
+         $articulo = new articulo();
+         $cliente = new cliente();
+         $generar = \filter_input(INPUT_POST, 'generar');
+         $lista = array();
+         foreach ($informacion_anho as $ref => $clientes)
+         {
+            $desc_art = $articulo->get($ref);
+            foreach($clientes as $cli => $info)
+            {
+               $cli_info = $cliente->get($cli);
+               foreach ($rango_anhos as $y)
                {
-                  if($cli)
+                  $linea = array();
+                  $linea[] = $ref;
+                  $linea[] = $desc_art->descripcion;
+                  $linea[] = $cli;
+                  $linea[] = $cli_info->nombre;
+                  $linea[] = $y;
+                  foreach ($this->meses as $m => $dm)
                   {
-                     echo '"'.$i.'";"'.$j.'";'.fs_fix_html($cli->nombre).';'.$k;
+
+                     $linea[] = (isset($informacion_anho[$ref][$cli][$y][$m]))?$informacion_anho[$ref][$cli][$y][$m]:0;
+                  }
+                  if(isset($informacion_anho_total[$ref][$cli][$y]))
+                  {
+                     $linea[] = $informacion_anho_total[$ref][$cli][$y];
+                     $escribir = true;
                   }
                   else
                   {
-                     echo '"'.$i.'";"'.$j.'";-;'.$k;
+                     $escribir = false;
                   }
-
-                  foreach($value3 as $value4)
+                  $linea[] = (isset($stats_year[$ref][$cli][$y]))?$stats_year[$ref][$cli][$y].'%':'0%';
+                  if($escribir)
                   {
-                     echo ';'.number_format($value4, FS_NF0, ',', '');
+                     $lista[] = $linea;
                   }
-
-                  echo "\n";
                }
-               echo ";;;;;;;;;;;;;;;\n";
             }
-            echo ";;;;;;;;;;;;;;;\n";
+         }
+         if($generar== 'csv')
+         {
+            $cabecera = "referencia;descripcion;codcliente;nombre;año;ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic;total;%VAR\n";
+            $this->generar_archivo('informe_ventas_unidades', $cabecera, $lista, 'csv');
+         }
+         elseif($generar == 'xlsx')
+         {
+            $header = array(
+               'Referencia' => '@',
+               'Descripcion' => 'string',
+               'Cliente' => '@',
+               'Nombre' => 'string',
+               'Año' => '0',
+            );
+            foreach($this->meses as $mes)
+            {
+               $header[$mes] = '0';
+            }
+            $header['Total']='0';
+            $header['%VAR']='@';
+            $this->generar_archivo('informe_ventas_unidades', $header, $lista, 'xlsx');
          }
       }
       else
       {
          $this->new_error_msg('Sin resultados.');
+      }
+   }
+
+   public function generar_archivo($archivo,$cabecera,$datos,$tipo='csv')
+   {
+      if($tipo=='csv')
+      {
+         header("content-type:application/csv;charset=UTF-8");
+         header("Content-Disposition: attachment; filename=\"$archivo.csv\"");
+         echo $cabecera;
+         foreach($datos as $l)
+         {
+            $lin = implode(';',$l);
+            echo $lin."\n";
+         }
+      }
+      elseif($tipo=='xlsx')
+      {
+         header("Content-Disposition: attachment; filename=\"".$archivo."_".time().".xlsx\"");
+         header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+         header('Content-Transfer-Encoding: binary');
+         header('Cache-Control: must-revalidate');
+         header('Pragma: public');
+         foreach($this->meses as $mes)
+         {
+            $header[$mes] = '0';
+         }
+         $header['Total']='0';
+         $header['%VAR']='@';
+
+         $writer = new XLSXWriter();
+         $writer->writeSheetHeader('Ventas Unidades', $cabecera);
+         foreach($datos as $l)
+         {
+            $writer->writeSheetRow('Ventas Unidades',$l);
+         }
+         $writer->writeToStdOut();
       }
    }
 }
