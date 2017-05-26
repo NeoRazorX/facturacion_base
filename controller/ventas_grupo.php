@@ -192,8 +192,8 @@ class ventas_grupo extends fbase_controller
    private function buscar_clientes()
    {
       $query = mb_strtolower($this->grupo->no_html($this->query), 'UTF8');
-      $sql = " FROM clientes";
-      $and = ' WHERE ';
+      $sql = " FROM clientes WHERE debaja = false AND codgrupo != ".$this->grupo->var2str($this->grupo->codgrupo);
+      $and = ' AND ';
 
       if(is_numeric($query))
       {

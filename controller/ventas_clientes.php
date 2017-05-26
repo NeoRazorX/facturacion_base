@@ -284,6 +284,11 @@ class ventas_clientes extends fbase_controller
          $sql .= $and."debaja = true";
          $and = ' AND ';
       }
+      else
+      {
+         $sql .= $and."debaja = false";
+         $and = ' AND ';
+      }
 
       $data = $this->db->select("SELECT COUNT(codcliente) as total".$sql.';');
       if($data)

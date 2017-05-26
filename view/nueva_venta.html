@@ -195,7 +195,7 @@
                   <div class="col-sm-2">
                      <div class="form-group">
                         {$fsc->cliente_s->tipoidfiscal}:
-                        <input class="form-control" type="text" name="cifnif" value="{$fsc->cliente_s->cifnif}" maxlength="20" autocomplete="off"/>
+                        <input class="form-control" type="text" name="cifnif" value="{$fsc->cliente_s->cifnif}" maxlength="30" autocomplete="off"/>
                      </div>
                   </div>
                   <div class="col-sm-2"></div>
@@ -855,9 +855,9 @@
                   </div>
                   <div class="col-sm-7">
                      {if="$fsc->nuevocli_setup['nuevocli_cifnif_req']"}
-                     <input type="text" name="nuevo_cifnif" class="form-control" maxlength="20" autocomplete="off" required=""/>
+                     <input type="text" name="nuevo_cifnif" class="form-control" maxlength="30" autocomplete="off" required=""/>
                      {else}
-                     <input type="text" name="nuevo_cifnif" class="form-control" maxlength="20" autocomplete="off"/>
+                     <input type="text" name="nuevo_cifnif" class="form-control" maxlength="30" autocomplete="off"/>
                      {/if}
                      <label class="checkbox-inline">
                         <input type="checkbox" name="personafisica" value="TRUE" checked=""/> Persona física (no empresa)
