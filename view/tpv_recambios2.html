@@ -127,6 +127,8 @@
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+               {elseif="$value->type=='btn_javascript'"}
+               <button class="btn btn-sm btn-default" type="button" onclick="{$value->params}">{$value->text}</button>
                {/if}
             {/loop}
          </div>
