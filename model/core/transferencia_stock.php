@@ -2,7 +2,7 @@
 
 /*
  * @author Carlos García Gómez      neorazorx@gmail.com
- * @copyright 2016, Carlos García Gómez. All Rights Reserved.
+ * @copyright 2016-2017, Carlos García Gómez. All Rights Reserved.
  */
 
 namespace FacturaScripts\model;
@@ -10,7 +10,7 @@ namespace FacturaScripts\model;
 /**
  * Description of transferencia_stock
  *
- * @author carlos
+ * @author Carlos García Gómez
  */
 class transferencia_stock extends \fs_model
 {
@@ -23,7 +23,7 @@ class transferencia_stock extends \fs_model
    public $hora;
    public $usuario;
    
-   public function __construct($d=FALSE)
+   public function __construct($d = FALSE)
    {
       parent::__construct('transstock');
       if($d)
