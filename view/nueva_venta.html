@@ -13,7 +13,7 @@
    cliente = {function="json_encode($fsc->cliente_s)"};
    nueva_venta_url = '{$fsc->url()}';
 
-   $(document).ready(function() {
+   $(document).ready(function() 
       usar_serie();
       usar_almacen();
       usar_divisa();
@@ -458,7 +458,7 @@
          </div>
          {loop="$fsc->extensions"}
             {if="$value->type=='tab'"}
-            <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
+            <div role="tabpanel" class="tab-pane" id="ext_{$value->name}"
                <iframe src="index.php?page={$value->from}{$value->params}&cod={$fsc->cliente_s->codcliente}" width="100%" height="2000" frameborder="0"></iframe>
             </div>
             {/if}
@@ -466,6 +466,17 @@
       </div>
    </div>
 
+   <div class="container-fluid" style="margin-top: 10px;">
+      <div class="row">
+         {loop="$fsc->extensions"}
+            {if="$value->type=='btn_javascript'"}
+            <button class="btn btn-sm btn-default" type="button" onclick="{$value-> params}">
+                <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp; {$value->text}
+            </button>
+            {/if}
+         {/loop}
+      </div>
+   </div>
    <div class="container-fluid" style="margin-top: 10px;">
       <div class="row">
          <div class="col-sm-6">
