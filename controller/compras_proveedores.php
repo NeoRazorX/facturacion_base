@@ -137,7 +137,7 @@ class compras_proveedores extends fbase_controller {
                  . " OR telefono2 LIKE '" . $query . "%'"
                  . " OR observaciones LIKE '%" . $query . "%')";
          $and = ' AND ';
-      } else {
+      } else if($query != '') {
          $buscar = str_replace(' ', '%', $query);
          $sql .= $and . "(lower(nombre) LIKE '%" . $buscar . "%'"
                  . " OR lower(razonsocial) LIKE '%" . $buscar . "%'"

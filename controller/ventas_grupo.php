@@ -31,8 +31,8 @@ require_model('tarifa.php');
  *
  * @author Carlos Garcia Gomez
  */
-class ventas_grupo extends fbase_controller
-{
+class ventas_grupo extends fbase_controller {
+
    public $ciudad;
    public $clientes;
    public $codpais;
@@ -46,141 +46,109 @@ class ventas_grupo extends fbase_controller
    public $tarifa;
    public $total_clientes;
 
-   public function __construct()
-   {
+   public function __construct() {
       parent::__construct(__CLASS__, 'Grupo', 'ventas', FALSE, FALSE);
    }
 
-   protected function private_core()
-   {
+   protected function private_core() {
       parent::private_core();
 
       $this->pais = new pais();
       $this->tarifa = new tarifa();
 
       $this->mostrar = 'clientes';
-      if(isset($_REQUEST['mostrar']))
-      {
+      if (isset($_REQUEST['mostrar'])) {
          $this->mostrar = $_REQUEST['mostrar'];
       }
 
       $this->grupo = FALSE;
-      if(isset($_REQUEST['cod']))
-      {
+      if (isset($_REQUEST['cod'])) {
          $grupo = new grupo_clientes();
          $this->grupo = $grupo->get($_REQUEST['cod']);
       }
 
-      if($this->grupo)
-      {
-         if(isset($_POST['nombre']))
-         {
+      if ($this->grupo) {
+         if (isset($_POST['nombre'])) {
             $this->modificar();
-         }
-         else if(isset($_POST['anyadir']))
-         {
+         } else if (isset($_POST['anyadir'])) {
             $this->anyadir_clientes();
-         }
-         else if(isset($_GET['quitar']))
-         {
+         } else if (isset($_GET['quitar'])) {
             $this->quitar_cliente();
          }
 
          /// El listado de clientes lo cargamos siempre, así tenemos el número
          $this->clientes = $this->clientes_from_grupo($this->grupo->codgrupo);
 
-         if($this->mostrar == 'agregar_clientes')
-         {
+         if ($this->mostrar == 'agregar_clientes') {
             $this->ini_filters();
             $this->buscar_clientes();
          }
-      }
-      else
-      {
+      } else {
          $this->new_error_msg('Grupo no encontrado.', 'error', FALSE, FALSE);
       }
    }
 
-   public function url()
-   {
-      if($this->grupo)
-      {
+   public function url() {
+      if ($this->grupo) {
          return $this->grupo->url();
-      }
-      else
-      {
+      } else {
          return parent::url();
       }
    }
 
-   private function ini_filters()
-   {
+   private function ini_filters() {
       $this->direccion = '';
-      if(isset($_POST['direccion']))
-      {
+      if (isset($_POST['direccion'])) {
          $this->direccion = $_POST['direccion'];
       }
 
       $this->codpais = FALSE;
-      if(isset($_POST['codpais']))
-      {
+      if (isset($_POST['codpais'])) {
          $this->codpais = $_POST['codpais'];
       }
 
       $this->provincia = FALSE;
-      if(isset($_POST['provincia']))
-      {
+      if (isset($_POST['provincia'])) {
          $this->provincia = $_POST['provincia'];
       }
 
       $this->ciudad = FALSE;
-      if(isset($_POST['ciudad']))
-      {
+      if (isset($_POST['ciudad'])) {
          $this->ciudad = $_POST['ciudad'];
       }
 
       $this->orden = 'lower(nombre) ASC';
-      if(isset($_POST['orden']))
-      {
+      if (isset($_POST['orden'])) {
          $this->orden = $_POST['orden'];
       }
    }
 
-   private function modificar()
-   {
+   private function modificar() {
       $this->grupo->nombre = $_POST['nombre'];
 
       $this->grupo->codtarifa = NULL;
-      if($_POST['codtarifa'])
-      {
+      if ($_POST['codtarifa']) {
          $this->grupo->codtarifa = $_POST['codtarifa'];
       }
 
-      if($this->grupo->save())
-      {
+      if ($this->grupo->save()) {
          $this->new_message('Datos guardados correctamente.');
-      }
-      else
-      {
+      } else {
          $this->new_error_msg('Error al guardar los datos.');
       }
    }
 
-   private function clientes_from_grupo($cod)
-   {
+   private function clientes_from_grupo($cod) {
       $clist = array();
       $sql = "FROM clientes WHERE codgrupo = " . $this->grupo->var2str($cod);
 
       $data = $this->db->select('SELECT COUNT(*) as total ' . $sql);
-      if($data)
-      {
+      if ($data) {
          $this->total_clientes = intval($data[0]['total']);
 
          $data = $this->db->select('SELECT * ' . $sql . " ORDER BY nombre ASC;");
-         if($data)
-         {
-            foreach($data as $d)
-            {
+         if ($data) {
+            foreach ($data as $d) {
                $clist[] = new cliente($d);
             }
          }
@@ -189,14 +157,12 @@ class ventas_grupo extends fbase_controller
       return $clist;
    }
 
-   private function buscar_clientes()
-   {
+   private function buscar_clientes() {
       $query = mb_strtolower($this->grupo->no_html($this->query), 'UTF8');
-      $sql = " FROM clientes WHERE debaja = false AND codgrupo != ".$this->grupo->var2str($this->grupo->codgrupo);
+      $sql = " FROM clientes WHERE debaja = false AND codgrupo != " . $this->grupo->var2str($this->grupo->codgrupo);
       $and = ' AND ';
 
-      if(is_numeric($query))
-      {
+      if (is_numeric($query)) {
          $sql .= $and . "(nombre LIKE '%" . $query . "%'"
                  . " OR razonsocial LIKE '%" . $query . "%'"
                  . " OR codcliente LIKE '%" . $query . "%'"
@@ -205,9 +171,7 @@ class ventas_grupo extends fbase_controller
                  . " OR telefono2 LIKE '" . $query . "%'"
                  . " OR observaciones LIKE '%" . $query . "%')";
          $and = ' AND ';
-      }
-      else
-      {
+      } else if ($query != '') {
          $buscar = str_replace(' ', '%', $query);
          $sql .= $and . "(lower(nombre) LIKE '%" . $buscar . "%'"
                  . " OR lower(razonsocial) LIKE '%" . $buscar . "%'"
@@ -217,25 +181,21 @@ class ventas_grupo extends fbase_controller
          $and = ' AND ';
       }
 
-      if($this->ciudad != '' OR $this->provincia != '' OR $this->codpais != '')
-      {
+      if ($this->ciudad != '' OR $this->provincia != '' OR $this->codpais != '') {
          $sql .= $and . " codcliente IN (SELECT codcliente FROM dirclientes WHERE ";
          $and2 = '';
 
-         if($this->ciudad != '')
-         {
+         if ($this->ciudad != '') {
             $sql .= $and2 . "lower(ciudad) = " . $this->grupo->var2str(mb_strtolower($this->ciudad, 'UTF8'));
             $and2 = ' AND ';
          }
 
-         if($this->provincia != '')
-         {
+         if ($this->provincia != '') {
             $sql .= $and2 . "lower(provincia) = " . $this->grupo->var2str(mb_strtolower($this->provincia, 'UTF8'));
             $and2 = ' AND ';
          }
 
-         if($this->codpais != '')
-         {
+         if ($this->codpais != '') {
             $sql .= $and2 . "codpais = " . $this->grupo->var2str($this->codpais);
          }
 
@@ -244,27 +204,22 @@ class ventas_grupo extends fbase_controller
       }
 
       $data = $this->db->select_limit("SELECT *" . $sql . " ORDER BY " . $this->orden, 100, 0);
-      if($data)
-      {
-         foreach($data as $d)
-         {
+      if ($data) {
+         foreach ($data as $d) {
             $this->resultados[] = new cliente($d);
          }
       }
    }
 
-   public function ciudades()
-   {
+   public function ciudades() {
       return $this->fbase_sql_distinct('dirclientes', 'ciudad', 'provincia', $this->provincia);
    }
 
-   public function provincias()
-   {
+   public function provincias() {
       return $this->fbase_sql_distinct('dirclientes', 'provincia', 'codpais', $this->codpais);
    }
 
-   public function orden()
-   {
+   public function orden() {
       return array(
           'lower(nombre) ASC' => 'Orden: nombre',
           'lower(nombre) DESC' => 'Orden: nombre descendente',
@@ -275,24 +230,18 @@ class ventas_grupo extends fbase_controller
       );
    }
 
-   private function anyadir_clientes()
-   {
+   private function anyadir_clientes() {
       $errores = 0;
       $modificados = 0;
 
       $cli0 = new cliente();
-      foreach($_POST['anyadir'] as $codcliente)
-      {
+      foreach ($_POST['anyadir'] as $codcliente) {
          $cliente = $cli0->get($codcliente);
-         if($cliente)
-         {
+         if ($cliente) {
             $cliente->codgrupo = $this->grupo->codgrupo;
-            if($cliente->save())
-            {
+            if ($cliente->save()) {
                $modificados++;
-            }
-            else
-            {
+            } else {
                $errores++;
             }
          }
@@ -301,28 +250,22 @@ class ventas_grupo extends fbase_controller
       $this->new_message($modificados . ' clientes añadidos, ' . $errores . ' errores.');
    }
 
-   private function quitar_cliente()
-   {
+   private function quitar_cliente() {
       $cli0 = new cliente();
       $cliente = $cli0->get($_GET['quitar']);
-      if($cliente)
-      {
+      if ($cliente) {
          $cliente->codgrupo = NULL;
 
-         if($cliente->save())
-         {
+         if ($cliente->save()) {
             $this->new_message('Datos fuardados correctamente. El cliente ' . $cliente->codcliente
                     . ' ya no pertenece al grupo ' . $this->grupo->codgrupo . '.');
-         }
-         else
-         {
+         } else {
             $this->new_error_msg('Error al quitar al cliente ' . $cliente->codcliente
                     . ' del grupo ' . $this->grupo->codgrupo . '.');
          }
-      }
-      else
-      {
+      } else {
          $this->new_error_msg('Cliente no encontrado.');
       }
    }
+
 }
