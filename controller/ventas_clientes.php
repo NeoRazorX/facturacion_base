@@ -59,7 +59,24 @@ class ventas_clientes extends fbase_controller {
       $this->tarifa = new tarifa();
       $this->tarifas = $this->tarifa->all();
 
-      /// cargamos la configuración
+      $this->cargar_config();
+
+      if (isset($_GET['delete_grupo'])) { /// eliminar un grupo
+         $this->eliminar_grupo();
+      } else if (isset($_POST['codgrupo'])) { /// añadir/modificar un grupo
+         $this->nuevo_grupo();
+      } else if (isset($_GET['delete'])) { /// eliminar un cliente
+         $this->eliminar_cliente();
+      } else if (isset($_POST['cifnif'])) { /// añadir un nuevo cliente
+         $this->nuevo_cliente();
+      }
+
+      $this->ini_filters();
+      $this->buscar();
+      $this->grupos = $this->grupo->all();
+   }
+
+   private function cargar_config() {
       $fsvar = new fs_var();
       $this->nuevocli_setup = $fsvar->array_get(
               array(
@@ -83,20 +100,6 @@ class ventas_clientes extends fbase_controller {
           'nuevocli_codgrupo' => '',
               ), FALSE
       );
-
-      if (isset($_GET['delete_grupo'])) { /// eliminar un grupo
-         $this->eliminar_grupo();
-      } else if (isset($_POST['codgrupo'])) { /// añadir/modificar un grupo
-         $this->nuevo_grupo();
-      } else if (isset($_GET['delete'])) { /// eliminar un cliente
-         $this->eliminar_cliente();
-      } else if (isset($_POST['cifnif'])) { /// añadir un nuevo cliente
-         $this->nuevo_cliente();
-      }
-
-      $this->ini_filters();
-      $this->buscar();
-      $this->grupos = $this->grupo->all();
    }
 
    private function ini_filters() {
@@ -248,7 +251,7 @@ class ventas_clientes extends fbase_controller {
          $sql .= $and . "debaja = true";
          $and = ' AND ';
       } else {
-         $sql .= $and . "debaja = false";
+         $sql .= $and . "(debaja = false OR debaja IS NULL)";
          $and = ' AND ';
       }
 

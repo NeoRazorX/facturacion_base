@@ -159,7 +159,7 @@ class compras_proveedores extends fbase_controller {
          $sql .= $and . "debaja = true";
          $and = ' AND ';
       } else {
-         $sql .= $and . "debaja = false";
+         $sql .= $and . "(debaja = false OR debaja IS NULL)";
          $and = ' AND ';
       }
 
