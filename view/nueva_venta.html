@@ -465,7 +465,17 @@
          {/loop}
       </div>
    </div>
-
+   <div class="container-fluid" style="margin-top: 10px;">
+      <div class="row">
+         {loop="$fsc->extensions"}
+            {if="$value->type=='btn_javascript'"}
+            <button class="btn btn-sm btn-default" type="button" onclick="{$value->params}">
+                <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp; {$value->text}
+            </button>
+            {/if}
+         {/loop}
+      </div>
+   </div>
    <div class="container-fluid" style="margin-top: 10px;">
       <div class="row">
          <div class="col-sm-6">
