@@ -9,7 +9,7 @@
    $(document).ready(function() {
       {if="$fsc->url_recarga"}
          setTimeout("location.href = '{$fsc->url_recarga}';", 2000);
-      {elseif="!$fsc->listado AND $fsc->ejercicio->estado == 'ABIERTO'"}
+      {elseif="!$fsc->listado AND $fsc->ejercicio->estado == 'ABIERTO' AND $fsc->listar!='grupos'"}
          $("#modal_importar").modal('show');
       {/if}
       
@@ -160,7 +160,7 @@
       </tr>
       {else}
       <tr class="warning">
-         <td>Sin resultados. Debes importar los datos del ejercicio, pulsa el botón <b>importar</b></td>
+         <td>Sin resultados.</td>
       </tr>
       {/loop}
    </table>

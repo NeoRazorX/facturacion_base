@@ -127,6 +127,8 @@
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+               {elseif="$value->type=='btn_javascript'"}
+               <button class="btn btn-sm btn-default" type="button" onclick="{$value->params}">{$value->text}</button>
                {/if}
             {/loop}
          </div>
@@ -291,7 +293,7 @@
                      <div class="form-group">
                         <div class="input-group">
                            <span class="input-group-addon">{#FS_CIFNIF#}</span>
-                           <input class="form-control" type="text" name="cifnif" value="{$fsc->cliente_s->cifnif}" maxlength="20" autocomplete="off"/>
+                           <input class="form-control" type="text" name="cifnif" value="{$fsc->cliente_s->cifnif}" maxlength="30" autocomplete="off"/>
                         </div>
                      </div>
                      <div class="form-group">

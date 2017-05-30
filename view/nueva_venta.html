@@ -56,6 +56,26 @@
                {/if}
             {/loop}
          </div>
+         {if="$fsc->multi_almacen"}
+         <div class="col-sm-2">
+            <div class="form-group">
+               <a href="{$fsc->almacen->url()}">Almacén</a>:
+               <select name="almacen" class="form-control" id="codalmacen" onchange="usar_almacen()">
+               {loop="$fsc->almacen->all()"}
+                  {if="$value->is_default()"}
+                  <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
+                  {else}
+                  <option value="{$value->codalmacen}">{$value->nombre}</option>
+                  {/if}
+               {/loop}
+               </select>
+            </div>
+         </div>
+         {else}
+         <div class="col-sm-2">
+            <input type="hidden" name="almacen" value="{$fsc->empresa->codalmacen}" id="codalmacen"/>
+         </div>
+         {/if}
          <div class="col-sm-2">
             <div class="form-group">
                <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
@@ -74,20 +94,6 @@
          </div>
          <div class="col-sm-2">
             <div class="form-group">
-               <a href="{$fsc->almacen->url()}">Almacén</a>:
-               <select name="almacen" class="form-control" id="codalmacen" onchange="usar_almacen()">
-               {loop="$fsc->almacen->all()"}
-                  {if="$value->is_default()"}
-                  <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
-                  {else}
-                  <option value="{$value->codalmacen}">{$value->nombre}</option>
-                  {/if}
-               {/loop}
-               </select>
-            </div>
-         </div>
-         <div class="col-sm-2">
-            <div class="form-group">
                <a href="{$fsc->divisa->url()}">Divisa</a>:
                <select name="divisa" class="form-control" id="coddivisa" onchange="usar_divisa()">
                {loop="$fsc->divisa->all()"}
@@ -99,6 +105,15 @@
                {/loop}
                </select>
             </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-12 text-right">
+            {loop="$fsc->extensions"}
+               {if="$value->type=='btn_javascript'"}
+               <button class="btn btn-sm btn-default" type="button" onclick="{$value->params}">{$value->text}</button>
+               {/if}
+            {/loop}
          </div>
       </div>
    </div>
@@ -195,7 +210,7 @@
                   <div class="col-sm-2">
                      <div class="form-group">
                         {$fsc->cliente_s->tipoidfiscal}:
-                        <input class="form-control" type="text" name="cifnif" value="{$fsc->cliente_s->cifnif}" maxlength="20" autocomplete="off"/>
+                        <input class="form-control" type="text" name="cifnif" value="{$fsc->cliente_s->cifnif}" maxlength="30" autocomplete="off"/>
                      </div>
                   </div>
                   <div class="col-sm-2"></div>
@@ -855,9 +870,9 @@
                   </div>
                   <div class="col-sm-7">
                      {if="$fsc->nuevocli_setup['nuevocli_cifnif_req']"}
-                     <input type="text" name="nuevo_cifnif" class="form-control" maxlength="20" autocomplete="off" required=""/>
+                     <input type="text" name="nuevo_cifnif" class="form-control" maxlength="30" autocomplete="off" required=""/>
                      {else}
-                     <input type="text" name="nuevo_cifnif" class="form-control" maxlength="20" autocomplete="off"/>
+                     <input type="text" name="nuevo_cifnif" class="form-control" maxlength="30" autocomplete="off"/>
                      {/if}
                      <label class="checkbox-inline">
                         <input type="checkbox" name="personafisica" value="TRUE" checked=""/> Persona física (no empresa)

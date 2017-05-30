@@ -142,6 +142,8 @@
                </select>
             </div>
          </div>
+      </div>
+      <div class="row">
          {if="$fsc->multi_almacen"}
          <div class="col-sm-2">
             <div class="form-group">
@@ -162,19 +164,14 @@
          {else}
          <input type="hidden" name="codalmacen" value=""/>
          {/if}
-         <div class="col-sm-3">
-            Cliente:
-            <div class="input-group">
-               {if="$fsc->cliente"}
-               <input class="form-control" type="text" name="ac_cliente" value="{$fsc->cliente->nombre}" id="ac_cliente" placeholder="Cualquier cliente" autocomplete="off"/>
-               {else}
-               <input class="form-control" type="text" name="ac_cliente" id="ac_cliente" placeholder="Cualquier cliente" autocomplete="off"/>
-               {/if}
-               <span class="input-group-btn">
-                  <button class="btn btn-default" type="button" onclick="clean_cliente()">
-                     <span class="glyphicon glyphicon-remove"></span>
-                  </button>
-               </span>
+         <div class="col-sm-2">
+            <div class="form-group">
+               Estado:
+               <select class="form-control" name="estado" onchange="this.form.submit()">
+                  <option value="">Todos</option>
+                  <option value="pagada"{if="$fsc->estado=='pagada'"} selected=""{/if}>Pagada</option>
+                  <option value="sinpagar"{if="$fsc->estado=='sinpagar'"} selected=""{/if}>Sin pagar</option>
+               </select>
             </div>
          </div>
          <div class="col-sm-3">
@@ -192,20 +189,23 @@
                </span>
             </div>
          </div>
-         <div class="col-sm-2">
-            <div class="form-group">
-               Estado:
-               <select class="form-control" name="estado" onchange="this.form.submit()">
-                  <option value="">Todos</option>
-                  <option value="pagada"{if="$fsc->estado=='pagada'"} selected=""{/if}>Pagada</option>
-                  <option value="sinpagar"{if="$fsc->estado=='sinpagar'"} selected=""{/if}>Sin pagar</option>
-               </select>
+         <div class="col-sm-3">
+            Cliente:
+            <div class="input-group">
+               {if="$fsc->cliente"}
+               <input class="form-control" type="text" name="ac_cliente" value="{$fsc->cliente->nombre}" id="ac_cliente" placeholder="Cualquier cliente" autocomplete="off"/>
+               {else}
+               <input class="form-control" type="text" name="ac_cliente" id="ac_cliente" placeholder="Cualquier cliente" autocomplete="off"/>
+               {/if}
+               <span class="input-group-btn">
+                  <button class="btn btn-default" type="button" onclick="clean_cliente()">
+                     <span class="glyphicon glyphicon-remove"></span>
+                  </button>
+               </span>
             </div>
          </div>
-         {if="$fsc->multi_almacen"}
+         {if="!$fsc->multi_almacen"}
          <div class="col-sm-2"></div>
-         {else}
-         <div class="col-sm-4"></div>
          {/if}
          <div class="col-sm-2">
             <div class="form-group">
