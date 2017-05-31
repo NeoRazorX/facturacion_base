@@ -25,13 +25,14 @@ require_model('familia.php');
 require_model('impuesto.php');
 require_model('linea_factura_cliente.php');
 require_model('linea_factura_proveedor.php');
+require_model('recalcular_stock.php');
 require_model('regularizacion_stock.php');
 require_model('stock.php');
 
 class informe_articulos extends fbase_controller
 {
    public $agente;
-   public $almacen;
+   public $almacenes;
    public $articulo;
    public $cantidades;
    public $codagente;
@@ -39,7 +40,6 @@ class informe_articulos extends fbase_controller
    public $codfamilia;
    public $codimpuesto;
    public $desde;
-   public $documento;
    public $familia;
    public $hasta;
    public $impuesto;
@@ -56,7 +56,7 @@ class informe_articulos extends fbase_controller
    public $top_compras;
    public $url_recarga;
    
-   private $tablas;
+   private $recalcular_stock;
    
    public function __construct()
    {
@@ -68,42 +68,16 @@ class informe_articulos extends fbase_controller
       parent::private_core();
       
       $this->agente = new agente();
-      $this->almacen = new almacen();
-      $this->documento = 'facturascli';
+      
+      $almacen = new almacen();
+      $this->almacenes = $almacen->all();;
+      
       $this->familia = new familia();
+      $this->recalcular_stock = new recalcular_stock();
       $this->stock = new stock();
-      $this->tablas = $this->db->list_tables();
       $this->url_recarga = FALSE;
       
-      $this->pestanya = 'stats';
-      if( isset($_GET['tab']) )
-      {
-         $this->pestanya = $_GET['tab'];
-      }
-      
-      $this->codalmacen = FALSE;
-      if( isset($_REQUEST['codalmacen']) )
-      {
-         $this->codalmacen = $_REQUEST['codalmacen'];
-      }
-      
-      $this->desde = Date('01-m-Y');
-      if( isset($_POST['desde']) )
-      {
-         $this->desde = $_POST['desde'];
-      }
-      
-      $this->hasta = Date('t-m-Y');
-      if( isset($_POST['hasta']) )
-      {
-         $this->hasta = $_POST['hasta'];
-      }
-      
-      $this->offset = 0;
-      if( isset($_GET['offset']) )
-      {
-         $this->offset = intval($_GET['offset']);
-      }
+      $this->ini_filters();
       
       if( isset($_REQUEST['buscar_referencia']) )
       {
@@ -114,6 +88,7 @@ class informe_articulos extends fbase_controller
          $this->articulo = new articulo();
          $this->stats = $this->stats();
          
+         /// forzamos la comprobación de las tablas de lineas de facturas
          $linea_fac_cli = new linea_factura_cliente();
          $linea_fac_pro = new linea_factura_proveedor();
          
@@ -131,7 +106,7 @@ class informe_articulos extends fbase_controller
          {
             $this->tipo_stock = $_GET['tipo'];
          }
-         else if( isset($_GET['recalcular']) AND isset($_GET['offset']) )
+         else if( isset($_GET['recalcular']) )
          {
             $this->recalcular_stock();
          }
@@ -140,7 +115,7 @@ class informe_articulos extends fbase_controller
          {
             /// forzamos la comprobación de la tabla stocks
             $reg = new regularizacion_stock();
-            
+
             $this->resultados = $this->regularizaciones_stock($this->offset);
          }
          else if( isset($_GET['download']) )
@@ -167,6 +142,7 @@ class informe_articulos extends fbase_controller
       {
          $this->cantidades = FALSE;
          $this->codfamilia = '';
+         $this->documento = 'facturascli';
          $this->minimo = '';
          
          $this->referencia = '';
@@ -207,31 +183,55 @@ class informe_articulos extends fbase_controller
       }
    }
    
-   private function recalcular_stock()
+   private function ini_filters()
    {
-      $articulo = new articulo();
-      $continuar = FALSE;
-      $offset = intval($_GET['offset']);
-
-      if($this->codalmacen)
+      $this->pestanya = 'stats';
+      if( isset($_GET['tab']) )
       {
-         $this->new_message('Recalculando stock de artículos del almacen '.$this->codalmacen.'... '.$offset);
-      }
-      else
-      {
-         $this->new_message('Recalculando stock de artículos... '.$offset);
+         $this->pestanya = $_GET['tab'];
       }
       
-      foreach($articulo->all($offset, 30) as $art)
+      $this->codalmacen = FALSE;
+      if( isset($_REQUEST['codalmacen']) )
+      {
+         $this->codalmacen = $_REQUEST['codalmacen'];
+      }
+      
+      $this->desde = Date('01-m-Y');
+      if( isset($_POST['desde']) )
+      {
+         $this->desde = $_POST['desde'];
+      }
+      
+      $this->hasta = Date('t-m-Y');
+      if( isset($_POST['hasta']) )
+      {
+         $this->hasta = $_POST['hasta'];
+      }
+      
+      $this->offset = 0;
+      if( isset($_GET['offset']) )
+      {
+         $this->offset = intval($_GET['offset']);
+      }
+   }
+   
+   private function recalcular_stock()
+   {
+      $this->new_message('Recalculando stock de artículos... '.$this->offset);
+      
+      $articulo = new articulo();
+      $continuar = FALSE;
+      foreach($articulo->all($this->offset, 25) as $art)
       {
          $this->calcular_stock_real($art);
          $continuar = TRUE;
-         $offset++;
+         $this->offset++;
       }
 
       if($continuar)
       {
-         $this->url_recarga = $this->url().'&tab=stock&recalcular=TRUE&offset='.$offset.'&codalmacen='.$this->codalmacen;
+         $this->url_recarga = $this->url().'&tab=stock&recalcular=TRUE&offset='.$this->offset;
       }
       else
       {
@@ -679,329 +679,29 @@ class informe_articulos extends fbase_controller
       return $familias;
    }
    
+   /**
+    * Recalcula el stock del artículo $articulo para cada almacén.
+    * @param articulo $articulo
+    */
    private function calcular_stock_real(&$articulo)
    {
-      $total = 0;
-      
-      if($this->codalmacen)
+      if($articulo->nostock == FALSE)
       {
-         foreach($this->get_movimientos($articulo->referencia) as $mov)
+         foreach($this->almacenes as $alm)
          {
-            if($mov['codalmacen'] == $this->codalmacen)
+            $total = 0;
+            foreach($this->recalcular_stock->get_movimientos($articulo->referencia, $alm->codalmacen) as $mov)
             {
                $total = $mov['final'];
             }
-         }
-         
-         if( !$articulo->set_stock($this->codalmacen, $total) )
-         {
-            $this->new_error_msg('Error al recarcular el stock del almacén '.$this->codalmacen.'.');
-         }
-      }
-      else
-      {
-         foreach($this->almacen->all() as $alm)
-         {
-            $this->codalmacen = $alm->codalmacen;
-            foreach($this->get_movimientos($articulo->referencia) as $mov)
-            {
-               if($mov['codalmacen'] == $alm->codalmacen)
-               {
-                  $total = $mov['final'];
-               }
-            }
-
+            
             if( !$articulo->set_stock($alm->codalmacen, $total) )
             {
-               $this->new_error_msg('Error al recarcular el stock del almacén '.$alm->codalmacen.'.');
+               $this->new_error_msg('Error al recarcular el stock del artículo '.$articulo->referencia
+                       .' en almacén '.$alm->codalmacen.'.');
             }
          }
       }
-   }
-   
-   private function get_movimientos($ref, $desde = '', $hasta = '', $codagente = '')
-   {
-      $mlist = array();
-      $regularizacion = new regularizacion_stock();
-      
-      foreach($regularizacion->all_from_articulo($ref) as $reg)
-      {
-         $anyadir = TRUE;
-         if($desde)
-         {
-            if( strtotime($desde) > strtotime($reg->fecha) )
-            {
-               $anyadir = FALSE;
-            }
-         }
-         
-         if($hasta)
-         {
-            if( strtotime($hasta) < strtotime($reg->fecha) )
-            {
-               $anyadir = FALSE;
-            }
-         }
-         
-         if($anyadir)
-         {
-            $mlist[] = array(
-                'referencia' => $ref,
-                'codalmacen' => $reg->codalmacendest,
-                'origen' => 'Regularización',
-                'url' => 'index.php?page=ventas_articulo&ref='.$ref,
-                'clipro' => '-',
-                'movimiento' => '-',
-                'precio' => 0,
-                'dto' => 0,
-                'inicial' => $reg->cantidadini,
-                'final' => $reg->cantidadfin,
-                'fecha' => $reg->fecha,
-                'hora' => $reg->hora
-            );
-         }
-      }
-      
-      /// forzamos la comprobación de las tablas de albaranes
-      $albc = new albaran_cliente();
-      $lin1 = new linea_albaran_cliente();
-      $albp = new albaran_proveedor();
-      $lin2 = new linea_albaran_proveedor();
-      
-      $sql_extra = '';
-      $rango_fecha = '';
-      if($desde)
-      {
-         $sql_extra .= " AND fecha >= ".$this->empresa->var2str($desde);
-         $rango_fecha .= " AND fecha >= ".$this->empresa->var2str($desde);
-      }
-      
-      if($hasta)
-      {
-         $sql_extra .= " AND fecha <= ".$this->empresa->var2str($hasta);
-         $rango_fecha .= " AND fecha <= ".$this->empresa->var2str($hasta);
-      }
-      
-      if($codagente)
-      {
-         $sql_extra .= " AND codagente = ".$this->empresa->var2str($codagente);
-      }
-      
-      if($this->codalmacen)
-      {
-         $sql_extra .= " AND codalmacen = ".$this->empresa->var2str($this->codalmacen);
-      }
-
-      /// Si existen estas tablas se genera la información de las transferencias de stock
-      if( $this->db->table_exists('transstock', $this->tablas) AND $this->db->table_exists('lineastransstock', $this->tablas) )
-      {
-         /*
-          * Generamos la informacion de las transferencias por ingresos entre almacenes que se hayan hecho a los stocks
-          */
-         $sql_regstocks = "select l.idtrans, fecha, hora, referencia, sum(cantidad) as cantidad "
-                 ." FROM lineastransstock AS ls "
-                 ." JOIN transstock as l ON (ls.idtrans = l.idtrans) "
-                 ." WHERE codalmadestino = " . $this->empresa->var2str($this->codalmacen) . $rango_fecha
-                 ." GROUP by l.idtrans, fecha, hora, referencia "
-                 ." ORDER by l.idtrans;";
-         $data = $this->db->select($sql_regstocks);
-         if($data)
-         {
-            foreach($data as $d)
-            {
-               $mlist[] = array(
-                   'referencia' => $d['referencia'],
-                   'codalmacen' => $this->codalmacen,
-                   'origen' => 'Transferencia por ingreso '.$d['idtrans'],
-                   'url' => 'index.php?page=editar_transferencia_stock&id='.$d['idtrans'],
-                   'clipro' => '',
-                   'movimiento' => floatval($d['cantidad']),
-                   'precio' => 0,
-                   'dto' => 0,
-                   'inicial' => 0,
-                   'final' => 0,
-                   'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                   'hora' => $d['hora']
-               );
-            }
-         }
-
-         /*
-          * Generamos la informacion de las transferencias por salidas entre almacenes que se hayan hecho a los stocks
-          */
-         $sql_regstocks = "select l.idtrans, fecha, hora, referencia, sum(cantidad) as cantidad "
-                 ." from lineastransstock AS ls "
-                 ." JOIN transstock as l ON(ls.idtrans = l.idtrans) "
-                 ." where codalmadestino = " . $this->empresa->var2str($this->codalmacen) . $rango_fecha
-                 ." group by l.idtrans, fecha, hora, referencia "
-                 ." order by l.idtrans;";
-         $data = $this->db->select($sql_regstocks);
-         if($data)
-         {
-            foreach($data as $d)
-            {
-               $mlist[] = array(
-                   'referencia' => $d['referencia'],
-                   'codalmacen' => $this->codalmacen,
-                   'origen' => 'Transferencia por salida '.$d['idtrans'],
-                   'url' => 'index.php?page=editar_transferencia_stock&id='.$d['idtrans'],
-                   'clipro' => '',
-                   'movimiento' => 0 - floatval($d['cantidad']),
-                   'precio' => 0,
-                   'dto' => 0,
-                   'inicial' => 0,
-                   'final' => 0,
-                   'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                   'hora' => $d['hora']
-               );
-            }
-         }
-      }
-      
-      /// buscamos el artículo en albaranes de compra
-      $sql = "SELECT a.codigo,l.cantidad,l.pvpunitario,l.dtopor,a.fecha,a.hora"
-              .",a.codalmacen,a.idalbaran,a.codproveedor,a.nombre"
-              ." FROM albaranesprov a, lineasalbaranesprov l"
-              ." WHERE a.idalbaran = l.idalbaran AND l.referencia = ".$albc->var2str($ref).$sql_extra;
-      
-      $data = $this->db->select($sql);
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $mlist[] = array(
-                'referencia' => $ref,
-                'codalmacen' => $d['codalmacen'],
-                'origen' => 'Albaran compra '.$d['codigo'],
-                'url' => 'index.php?page=compras_albaran&id='.$d['idalbaran'],
-                'clipro' => $d['codproveedor'].' - '.$d['nombre'],
-                'movimiento' => floatval($d['cantidad']),
-                'precio' => floatval($d['pvpunitario']),
-                'dto' => floatval($d['dtopor']),
-                'inicial' => 0,
-                'final' => 0,
-                'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                'hora' => $d['hora']
-            );
-         }
-      }
-      
-      /// buscamos el artículo en facturas de compra
-      $sql = "SELECT f.codigo,l.cantidad,l.pvpunitario,l.dtopor,f.fecha,f.hora"
-              .",f.codalmacen,f.idfactura,f.codproveedor,f.nombre"
-              ." FROM facturasprov f, lineasfacturasprov l"
-              ." WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL"
-              ." AND l.referencia = ".$albc->var2str($ref).$sql_extra;
-      
-      $data = $this->db->select($sql);
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $mlist[] = array(
-                'referencia' => $ref,
-                'codalmacen' => $d['codalmacen'],
-                'origen' => 'Factura compra '.$d['codigo'],
-                'url' => 'index.php?page=compras_factura&id='.$d['idfactura'],
-                'clipro' => $d['codproveedor'].' - '.$d['nombre'],
-                'movimiento' => floatval($d['cantidad']),
-                'precio' => floatval($d['pvpunitario']),
-                'dto' => floatval($d['dtopor']),
-                'inicial' => 0,
-                'final' => 0,
-                'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                'hora' => $d['hora']
-            );
-         }
-      }
-      
-      /// buscamos el artículo en albaranes de venta
-      $sql = "SELECT a.codigo,l.cantidad,l.pvpunitario,l.dtopor,a.fecha,a.hora"
-              .",a.codalmacen,a.idalbaran,a.codcliente,a.nombrecliente"
-              ." FROM albaranescli a, lineasalbaranescli l"
-              ." WHERE a.idalbaran = l.idalbaran AND l.referencia = ".$albc->var2str($ref).$sql_extra;
-      
-      $data = $this->db->select($sql);
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $mlist[] = array(
-                'referencia' => $ref,
-                'codalmacen' => $d['codalmacen'],
-                'origen' => 'Albaran venta '.$d['codigo'],
-                'url' => 'index.php?page=ventas_albaran&id='.$d['idalbaran'],
-                'clipro' => $d['codcliente'].' - '.$d['nombrecliente'],
-                'movimiento' => 0 - floatval($d['cantidad']),
-                'precio' => floatval($d['pvpunitario']),
-                'dto' => floatval($d['dtopor']),
-                'inicial' => 0,
-                'final' => 0,
-                'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                'hora' => $d['hora']
-            );
-         }
-      }
-      
-      /// buscamos el artículo en facturas de venta
-      $sql = "SELECT f.codigo,l.cantidad,l.pvpunitario,l.dtopor,f.fecha,f.hora"
-              .",f.codalmacen,f.idfactura,f.codcliente,f.nombrecliente"
-              ." FROM facturascli f, lineasfacturascli l"
-              ." WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL"
-              ." AND l.referencia = ".$albc->var2str($ref).$sql_extra;
-      
-      $data = $this->db->select($sql);
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $mlist[] = array(
-                'referencia' => $ref,
-                'codalmacen' => $d['codalmacen'],
-                'origen' => 'Factura venta '.$d['codigo'],
-                'url' => 'index.php?page=ventas_factura&id='.$d['idfactura'],
-                'clipro' => $d['codcliente'].' - '.$d['nombrecliente'],
-                'movimiento' => 0 - floatval($d['cantidad']),
-                'precio' => floatval($d['pvpunitario']),
-                'dto' => floatval($d['dtopor']),
-                'inicial' => 0,
-                'final' => 0,
-                'fecha' => date('d-m-Y', strtotime($d['fecha'])),
-                'hora' => $d['hora']
-            );
-         }
-      }
-      
-      /// ordenamos por fecha y hora
-      usort($mlist, function($a,$b) {
-         if( strtotime($a['fecha'].' '.$a['hora']) == strtotime($b['fecha'].' '.$b['hora']) )
-         {
-            return 0;
-         }
-         else if( strtotime($a['fecha'].' '.$a['hora']) < strtotime($b['fecha'].' '.$b['hora']) )
-         {
-            return -1;
-         }
-         else
-            return 1;
-      });
-      
-      /// recalculamos
-      $inicial = 0;
-      foreach($mlist as $i => $value)
-      {
-         if($value['movimiento'] == '-')
-         {
-            $inicial += $value['final'] - $value['inicial'];
-         }
-         else
-         {
-            $inicial += $value['movimiento'];
-         }
-         $mlist[$i]['final'] = $inicial;
-      }
-      
-      return $mlist;
    }
    
    private function informe_movimientos()
