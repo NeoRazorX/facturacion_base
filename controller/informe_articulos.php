@@ -26,13 +26,14 @@ require_model('familia.php');
 require_model('impuesto.php');
 require_model('linea_factura_cliente.php');
 require_model('linea_factura_proveedor.php');
+require_model('recalcular_stock.php');
 require_model('regularizacion_stock.php');
 require_model('stock.php');
 
 class informe_articulos extends fbase_controller
 {
    public $agente;
-   public $almacen;
+   public $almacenes;
    public $articulo;
    public $cantidades;
    public $codagente;
@@ -40,7 +41,6 @@ class informe_articulos extends fbase_controller
    public $codfamilia;
    public $codimpuesto;
    public $desde;
-   public $documento;
    public $familia;
    public $hasta;
    public $impuesto;
@@ -57,8 +57,8 @@ class informe_articulos extends fbase_controller
    public $top_compras;
    public $url_recarga;
    public $meses;
-   private $tablas;
-
+   private $recalcular_stock;
+   
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Artículos', 'informes');
@@ -69,13 +69,123 @@ class informe_articulos extends fbase_controller
       parent::private_core();
 
       $this->agente = new agente();
-      $this->almacen = new almacen();
-      $this->documento = 'facturascli';
+      
+      $almacen = new almacen();
+      $this->almacenes = $almacen->all();
+      
       $this->familia = new familia();
+      $this->recalcular_stock = new recalcular_stock();
       $this->stock = new stock();
-      $this->tablas = $this->db->list_tables();
       $this->url_recarga = FALSE;
+      
+      $this->ini_filters();
+      
+      if( isset($_REQUEST['buscar_referencia']) )
+      {
+         $this->buscar_referencia();
+      }
+      else if($this->pestanya == 'stats')
+      {
+         $this->articulo = new articulo();
+         $this->stats = $this->stats();
+         
+         /// forzamos la comprobación de las tablas de lineas de facturas
+         $linea_fac_cli = new linea_factura_cliente();
+         $linea_fac_pro = new linea_factura_proveedor();
 
+         $this->top_ventas = $this->top_articulo_faccli();
+         $this->sin_vender = $this->sin_vender();
+         $this->top_compras = $this->top_articulo_facpro();
+      }
+      else if($this->pestanya == 'stock')
+      {
+         /// forzamos la comprobación de la tabla stock
+         $stock = new stock();
+         
+         $this->tipo_stock = 'todo';
+         if( isset($_GET['tipo']) )
+         {
+            $this->tipo_stock = $_GET['tipo'];
+         }
+         else if( isset($_GET['recalcular']) )
+         {
+            $this->recalcular_stock();
+         }
+         
+         if($this->tipo_stock == 'reg')
+         {
+            /// forzamos la comprobación de la tabla stocks
+            $reg = new regularizacion_stock();
+
+            $this->resultados = $this->regularizaciones_stock($this->offset);
+         }
+         else if( isset($_GET['download']) )
+         {
+            $this->download_stock();
+         }
+         else
+            $this->resultados = $this->stock($this->offset, $this->tipo_stock);
+      }
+      else if($this->pestanya == 'impuestos')
+      {
+         $this->impuesto = new impuesto();
+         
+         $this->codimpuesto = '';
+         if( isset($_REQUEST['codimpuesto']) )
+         {
+            $this->codimpuesto = $_REQUEST['codimpuesto'];
+      }
+         
+         /// ¿Hacemos cambio?
+         $this->cambia_impuesto();
+      }
+      else if($this->pestanya == 'varios')
+      {
+         $this->cantidades = FALSE;
+         $this->codfamilia = '';
+         $this->documento = 'facturascli';
+         $this->minimo = '';
+         
+         $this->referencia = '';
+         if( isset($_GET['ref']) )
+         {
+            $this->referencia = $_GET['ref'];
+         }
+         
+         $this->resultados = array();
+         if( isset($_POST['informe']) )
+         {
+            if($_POST['informe'] == 'listadomov')
+            {
+               $this->referencia = $_POST['referencia'];
+               $this->codfamilia = $_POST['codfamilia'];
+               $this->codagente = $_POST['codagente'];
+
+               $this->informe_movimientos();
+            }
+            else if($_POST['informe'] == 'facturacion')
+            {
+               $this->documento = $_POST['documento'];
+               $this->codfamilia = $_POST['codfamilia'];
+               $this->cantidades = ($_POST['cantidades'] == 'TRUE');
+               $this->minimo = $_POST['minimo'];
+
+               $this->informe_facturacion();
+            }
+            else if($_POST['informe'] == 'ventascli')
+            {
+               $this->referencia = $_POST['referencia'];
+               $this->codfamilia = $_POST['codfamilia'];
+               $this->minimo = $_POST['minimo'];
+
+               $this->informe_ventascli();
+            }
+         }
+      }
+   }
+   
+   private function ini_filters()
+   {
       $this->meses = array();
       $this->meses[1] = 'ene';
       $this->meses[2] = 'feb';
@@ -89,187 +199,58 @@ class informe_articulos extends fbase_controller
       $this->meses[10] = 'oct';
       $this->meses[11] = 'nov';
       $this->meses[12] = 'dic';
-
-      $tab = \filter_input(INPUT_GET, 'tab');
-      $this->pestanya = ($tab)?$tab:'stats';
-
+      
+      $this->pestanya = 'stats';
+      if( isset($_GET['tab']) )
+      {
+         $this->pestanya = $_GET['tab'];
+      }
+      
       $this->codalmacen = FALSE;
-      $codalmacen_p = \filter_input(INPUT_POST, 'codalmacen');
-      $codalmacen_g = \filter_input(INPUT_GET, 'codalmacen');
-      $codalmacen = ($codalmacen_p)?$codalmacen_p:$codalmacen_g;
-      $this->codalmacen = ($codalmacen)?$codalmacen:$this->codalmacen;
-
-      $this->desde = \date('01-m-Y');
-      $desde_p = \filter_input(INPUT_POST, 'desde');
-      $desde_g = \filter_input(INPUT_GET, 'desde');
-      $desde = ($desde_p)?$desde_p:$desde_g;
-      $this->desde = ($desde)?$desde:$this->desde;
-
-      $this->hasta = \date('t-m-Y');
-      $hasta_p = \filter_input(INPUT_POST, 'hasta');
-      $hasta_g = \filter_input(INPUT_GET, 'hasta');
-      $hasta = ($hasta_p)?$hasta_p:$hasta_g;
-      $this->hasta = ($hasta)?$hasta:$this->hasta;
-
+      if( isset($_REQUEST['codalmacen']) )
+      {
+         $this->codalmacen = $_REQUEST['codalmacen'];
+      }
+      
+      $this->desde = Date('01-m-Y');
+      if( isset($_POST['desde']) )
+      {
+         $this->desde = $_POST['desde'];
+      }
+      
+      $this->hasta = Date('t-m-Y');
+      if( isset($_POST['hasta']) )
+      {
+         $this->hasta = $_POST['hasta'];
+      }
+      
       $this->offset = 0;
       if( isset($_GET['offset']) )
       {
          $this->offset = intval($_GET['offset']);
       }
-
-      if( isset($_REQUEST['buscar_referencia']) )
-      {
-         $this->buscar_referencia();
-      }
-      else if($this->pestanya == 'stats')
-      {
-         $this->articulo = new articulo();
-         $this->stats = $this->stats();
-
-         $linea_fac_cli = new linea_factura_cliente();
-         $linea_fac_pro = new linea_factura_proveedor();
-
-         $this->top_ventas = $this->top_articulo_faccli();
-         $this->sin_vender = $this->sin_vender();
-         $this->top_compras = $this->top_articulo_facpro();
-      }
-      else if($this->pestanya == 'stock')
-      {
-         $this->stocks();
-      }
-      else if($this->pestanya == 'impuestos')
-      {
-         $this->impuestos();
-      }
-      else if($this->pestanya == 'varios')
-      {
-         $this->varios();
-      }
    }
-
-   public function stocks()
-   {
-      $this->tipo_stock = 'todo';
-      $tipo_stock = \filter_input(INPUT_GET, 'tipo');
-      $recalcular = \filter_input(INPUT_GET, 'recalcular');
-      if($tipo_stock)
-      {
-         $this->tipo_stock = $tipo_stock;
-      }
-      else if($recalcular)
-      {
-         $this->recalcular_stock();
-      }
-
-      if($this->tipo_stock == 'reg')
-      {
-         /// forzamos la comprobación de la tabla stocks
-         $reg = new regularizacion_stock();
-
-         $this->resultados = $this->regularizaciones_stock($this->offset);
-      }
-      else if( isset($_GET['download']) )
-      {
-         $archivo = \filter_input(INPUT_GET, 'archivo');
-         $this->download_stock($archivo);
-      }
-      else
-      {
-         $this->resultados = $this->stock($this->offset, $this->tipo_stock);
-      }
-   }
-
-   public function impuestos()
-   {
-      $this->impuesto = new impuesto();
-      $this->codimpuesto = '';
-      if( isset($_REQUEST['codimpuesto']) )
-      {
-         $this->codimpuesto = $_REQUEST['codimpuesto'];
-      }
-
-      /// ¿Hacemos cambio?
-      $this->cambia_impuesto();
-   }
-
-   public function varios()
-   {
-      $this->cantidades = FALSE;
-      $this->codfamilia = '';
-      $this->minimo = '';
-
-      $this->referencia = '';
-      if( isset($_GET['ref']) )
-      {
-         $this->referencia = $_GET['ref'];
-      }
-
-      $this->resultados = array();
-      if( isset($_POST['informe']) )
-      {
-         if($_POST['informe'] == 'listadomov')
-         {
-            $this->referencia = $_POST['referencia'];
-            $this->codfamilia = $_POST['codfamilia'];
-            $this->codagente = $_POST['codagente'];
-
-            $this->informe_movimientos();
-         }
-         else if($_POST['informe'] == 'facturacion')
-         {
-            $this->documento = $_POST['documento'];
-            $this->codfamilia = $_POST['codfamilia'];
-            $this->cantidades = ($_POST['cantidades'] == 'TRUE');
-            $this->minimo = $_POST['minimo'];
-
-            $this->informe_facturacion();
-         }
-         else if($_POST['informe'] == 'ventascli')
-         {
-            $this->referencia = $_POST['referencia'];
-            $this->codfamilia = $_POST['codfamilia'];
-            $this->minimo = $_POST['minimo'];
-
-            $this->informe_ventascli();
-         }
-      }
-   }
-
+   
    private function recalcular_stock()
    {
+      $this->new_message('Recalculando stock de artículos <i class="fa fa-spinner fa-pulse fa-fw"></i>... '.$this->offset);
+      
       $articulo = new articulo();
       $continuar = FALSE;
-      $offset = intval($_GET['offset']);
-
-      $almacenes = (!$this->codalmacen)?$this->almacen->all():array($this->almacen->get($this->codalmacen));
-      foreach($articulo->all($offset, 30) as $art)
+      foreach($articulo->all($this->offset, 25) as $art)
       {
-         if(!$art->nostock AND !$art->bloqueado)
-         {
-            foreach($almacenes as $alm)
-            {
-               $this->stock->saldo_articulo($art->referencia, $alm->codalmacen);
-            }
-         }
+         $this->calcular_stock_real($art);
          $continuar = TRUE;
-         $offset++;
+         $this->offset++;
       }
 
       if($continuar)
       {
-         if($this->codalmacen)
-         {
-            $this->new_message('Recalculando stock de artículos del almacen '.$this->codalmacen.' <i class="fa fa-spinner fa-pulse fa-fw"></i>... '.$offset);
-         }
-         else
-         {
-            $this->new_message('Recalculando stock de artículos <i class="fa fa-spinner fa-pulse fa-fw"></i>...'.$offset);
-         }
-         $this->url_recarga = $this->url().'&tab=stock&recalcular=TRUE&offset='.$offset.'&codalmacen='.$this->codalmacen;
+         $this->url_recarga = $this->url().'&tab=stock&recalcular=TRUE&offset='.$this->offset;
       }
       else
       {
-         $this->new_advice('Finalizado &nbsp; <span class="fa fa-ok" aria-hidden="true"></span>');
+         $this->new_advice('Finalizado &nbsp; <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
       }
    }
 
@@ -501,7 +482,7 @@ class informe_articulos extends fbase_controller
       $slist = array();
 
       $sql = "SELECT codalmacen,s.referencia,a.descripcion,s.cantidad,a.stockmin,a.stockmax"
-              . " FROM stocks s, articulos a WHERE s.referencia = a.referencia AND nostock = FALSE and bloqueado = FALSE ";
+              . " FROM stocks s, articulos a WHERE s.referencia = a.referencia";
 
       if($tipo == 'min')
       {
@@ -757,7 +738,32 @@ class informe_articulos extends fbase_controller
 
       return $familias;
    }
-
+   
+   /**
+    * Recalcula el stock del artículo $articulo para cada almacén.
+    * @param articulo $articulo
+    */
+   private function calcular_stock_real(&$articulo)
+   {
+      if($articulo->nostock == FALSE)
+      {
+         foreach($this->almacenes as $alm)
+         {
+            $total = 0;
+            foreach($this->recalcular_stock->get_movimientos($articulo->referencia, $alm->codalmacen) as $mov)
+            {
+               $total = $mov['final'];
+            }
+            
+            if( !$articulo->set_stock($alm->codalmacen, $total) )
+            {
+               $this->new_error_msg('Error al recarcular el stock del artículo '.$articulo->referencia
+                       .' en almacén '.$alm->codalmacen.'.');
+            }
+         }
+      }
+   }
+   
    private function informe_movimientos()
    {
       if($this->codfamilia)
@@ -767,7 +773,7 @@ class informe_articulos extends fbase_controller
          {
             foreach($familia->get_articulos() as $art)
             {
-               foreach( $this->stock->get_movimientos($art->referencia, $this->desde, $this->hasta, $this->codalmacen, $this->codagente) as $mov )
+               foreach( $this->recalcular_stock->get_movimientos($art->referencia, $this->codalmacen, $this->desde, $this->hasta,  $this->codagente) as $mov )
                {
                   $this->resultados[] = $mov;
                }

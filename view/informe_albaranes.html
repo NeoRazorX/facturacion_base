@@ -142,6 +142,8 @@
                </select>
             </div>
          </div>
+      </div>
+      <div class="row">
          {if="$fsc->multi_almacen"}
          <div class="col-sm-2">
             <div class="form-group">
@@ -163,21 +165,6 @@
          <input type="hidden" name="codalmacen" value=""/>
          {/if}
          <div class="col-sm-3">
-            Cliente:
-            <div class="input-group">
-               {if="$fsc->cliente"}
-               <input class="form-control" type="text" name="ac_cliente" value="{$fsc->cliente->nombre}" id="ac_cliente" placeholder="Cualquier cliente" autocomplete="off"/>
-               {else}
-               <input class="form-control" type="text" name="ac_cliente" id="ac_cliente" placeholder="Cualquier cliente" autocomplete="off"/>
-               {/if}
-               <span class="input-group-btn">
-                  <button class="btn btn-default" type="button" onclick="clean_cliente()">
-                     <span class="glyphicon glyphicon-remove"></span>
-                  </button>
-               </span>
-            </div>
-         </div>
-         <div class="col-sm-3">
             Proveedor:
             <div class="input-group">
                {if="$fsc->proveedor"}
@@ -187,6 +174,21 @@
                {/if}
                <span class="input-group-btn">
                   <button class="btn btn-default" type="button" onclick="clean_proveedor()">
+                     <span class="glyphicon glyphicon-remove"></span>
+                  </button>
+               </span>
+            </div>
+         </div>
+         <div class="col-sm-3">
+            Cliente:
+            <div class="input-group">
+               {if="$fsc->cliente"}
+               <input class="form-control" type="text" name="ac_cliente" value="{$fsc->cliente->nombre}" id="ac_cliente" placeholder="Cualquier cliente" autocomplete="off"/>
+               {else}
+               <input class="form-control" type="text" name="ac_cliente" id="ac_cliente" placeholder="Cualquier cliente" autocomplete="off"/>
+               {/if}
+               <span class="input-group-btn">
+                  <button class="btn btn-default" type="button" onclick="clean_cliente()">
                      <span class="glyphicon glyphicon-remove"></span>
                   </button>
                </span>

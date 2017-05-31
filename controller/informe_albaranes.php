@@ -782,7 +782,7 @@ class informe_albaranes extends fbase_controller
          foreach($data as $d)
          {
             echo $chart_id.'_labels.push("'.$d['txt'].'"); ';
-            echo $chart_id.'_data.push("'.$d['total'].'");'."\n";
+            echo $chart_id.'_data.push("'.abs($d['total']).'");'."\n";
          }
          
          /// hacemos el apaño para evitar el problema de charts.js con tabs en boostrap

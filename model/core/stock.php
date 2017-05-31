@@ -56,8 +56,8 @@ class stock extends \fs_model
    public $cantidadultreg;
 
    public $ubicacion;
-
-   public function __construct($s=FALSE)
+   
+   public function __construct($s = FALSE)
    {
       parent::__construct('stocks');
       if($s)
@@ -152,10 +152,17 @@ class stock extends \fs_model
       else
          return FALSE;
    }
-
-   public function get_by_referencia($ref)
+   
+   public function get_by_referencia($ref, $codalmacen = FALSE)
    {
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref).";");
+      $sql = "SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref).";";
+      if($codalmacen)
+      {
+         $sql = "SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref)
+                 .", codalmacen = ".$this->var2str($codalmacen).";";
+      }
+      
+      $data = $this->db->select($sql);
       if($data)
       {
          return new \stock($data[0]);
@@ -275,8 +282,8 @@ class stock extends \fs_model
 
       return $num;
    }
-
-   public function count()
+   
+   public function count($column = 'idstock')
    {
       $num = 0;
 
@@ -291,15 +298,7 @@ class stock extends \fs_model
 
    public function count_by_articulo()
    {
-      $num = 0;
-
-      $data = $this->db->select("SELECT COUNT(DISTINCT referencia) as total FROM ".$this->table_name.";");
-      if($data)
-      {
-         $num = intval($data[0]['total']);
-      }
-
-      return $num;
+      return $this->count('DISTINCT referencia');
    }
 
    /**

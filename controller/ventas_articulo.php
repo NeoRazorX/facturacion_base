@@ -27,18 +27,22 @@ require_model('atributo_valor.php');
 require_model('familia.php');
 require_model('fabricante.php');
 require_model('impuesto.php');
+require_model('recalcular_stock.php');
 require_model('regularizacion_stock.php');
 require_model('stock.php');
 require_model('tarifa.php');
 
 class ventas_articulo extends fbase_controller
 {
+   public $agrupar_stock_fecha;
    public $almacen;
    public $articulo;
+   public $equivalentes;
    public $fabricante;
    public $familia;
    public $hay_atributos;
    public $impuesto;
+   public $mgrupo;
    public $mostrar_boton_publicar;
    public $mostrar_tab_atributos;
    public $mostrar_tab_precios;
@@ -46,11 +50,8 @@ class ventas_articulo extends fbase_controller
    public $nuevos_almacenes;
    public $stock;
    public $stocks;
-   public $equivalentes;
    public $regularizaciones;
-   public $agrupar;
-   public $mgrupo;
-   public $tab;
+   
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Articulo', 'ventas', FALSE, FALSE);
@@ -66,71 +67,9 @@ class ventas_articulo extends fbase_controller
       $this->fabricante = new fabricante();
       $this->impuesto = new impuesto();
       $this->stock = new stock();
-      /**
-       * Si hay alguna extensión de tipo config y texto no_button_publicar,
-       * desactivamos el botón publicar.
-       */
-      $this->mostrar_boton_publicar = TRUE;
-      foreach($this->extensions as $ext)
-      {
-         if($ext->type == 'config' AND $ext->text == 'no_button_publicar')
-         {
-            $this->mostrar_boton_publicar = FALSE;
-            break;
-         }
-      }
-
-      $this->tab = FALSE;
-      $tab_p = \filter_input(INPUT_POST, 'tab');
-      $tab_g = \filter_input(INPUT_GET, 'tab');
-      $tab = ($tab_p)?$tab_p:$tab_g;
-      $this->tab = ($tab)?$tab:$this->tab;
-
-      // Si nos llega la variable agrupar de un GET lo asignamos
-      $agrupar = \filter_input(INPUT_GET, 'agrupar');
-      $this->agrupar = ($agrupar) ? $agrupar : '';
-
-      /**
-       * Si hay atributos, mostramos el tab atributos.
-       */
-      $this->hay_atributos = FALSE;
-      $this->mostrar_tab_atributos = FALSE;
-      $atri0 = new atributo();
-      foreach($atri0->all() as $atributo)
-      {
-         $this->mostrar_tab_atributos = TRUE;
-         $this->hay_atributos = TRUE;
-         break;
-      }
-
-      /**
-       * Si hay alguna extensión de tipo config y texto no_tab_recios,
-       * desactivamos la pestaña precios.
-       */
-      $this->mostrar_tab_precios = TRUE;
-      foreach($this->extensions as $ext)
-      {
-         if($ext->type == 'config' AND $ext->text == 'no_tab_precios')
-         {
-            $this->mostrar_tab_precios = FALSE;
-            break;
-         }
-      }
-
-      /**
-       * Si hay alguna extensión de tipo config y texto no_tab_stock,
-       * desactivamos la pestaña stock.
-       */
-      $this->mostrar_tab_stock = TRUE;
-      foreach($this->extensions as $ext)
-      {
-         if($ext->type == 'config' AND $ext->text == 'no_tab_stock')
-         {
-            $this->mostrar_tab_stock = FALSE;
-            break;
-         }
-      }
-
+      
+      $this->check_extensions();
+      
       if( isset($_POST['referencia']) )
       {
          $this->articulo = $articulo->get($_POST['referencia']);
@@ -204,6 +143,7 @@ class ventas_articulo extends fbase_controller
          $this->regularizaciones = $reg->all_from_articulo($this->articulo->referencia);
 
          $this->equivalentes = $this->articulo->get_equivalentes();
+         $this->agrupar_stock_fecha = isset($_GET['agrupar_stock_fecha']);
       }
       else
       {
@@ -219,6 +159,64 @@ class ventas_articulo extends fbase_controller
       }
       else
          return $this->page->url();
+   }
+   
+   private function check_extensions()
+   {
+      /**
+       * Si hay alguna extensión de tipo config y texto no_button_publicar,
+       * desactivamos el botón publicar.
+       */
+      $this->mostrar_boton_publicar = TRUE;
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'config' AND $ext->text == 'no_button_publicar')
+         {
+            $this->mostrar_boton_publicar = FALSE;
+            break;
+         }
+      }
+      
+      /**
+       * Si hay atributos, mostramos el tab atributos.
+       */
+      $this->hay_atributos = FALSE;
+      $this->mostrar_tab_atributos = FALSE;
+      $atri0 = new atributo();
+      foreach($atri0->all() as $atributo)
+      {
+         $this->mostrar_tab_atributos = TRUE;
+         $this->hay_atributos = TRUE;
+         break;
+      }
+      
+      /**
+       * Si hay alguna extensión de tipo config y texto no_tab_recios,
+       * desactivamos la pestaña precios.
+       */
+      $this->mostrar_tab_precios = TRUE;
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'config' AND $ext->text == 'no_tab_precios')
+         {
+            $this->mostrar_tab_precios = FALSE;
+            break;
+         }
+      }
+      
+      /**
+       * Si hay alguna extensión de tipo config y texto no_tab_stock,
+       * desactivamos la pestaña stock.
+       */
+      $this->mostrar_tab_stock = TRUE;
+      foreach($this->extensions as $ext)
+      {
+         if($ext->type == 'config' AND $ext->text == 'no_tab_stock')
+         {
+            $this->mostrar_tab_stock = FALSE;
+            break;
+         }
+      }
    }
 
    /**
@@ -643,11 +641,10 @@ class ventas_articulo extends fbase_controller
     */
    public function get_movimientos($codalmacen)
    {
-
-      $mlist = $this->stock->get_movimientos($this->articulo->referencia, FALSE, FALSE, $codalmacen, FALSE, FALSE);
-
-      /// Si esta el agrupar con un valor se agrupan los datos
-      if($this->agrupar)
+      $recstock = new recalcular_stock();
+      $mlist = $recstock->get_movimientos($this->articulo->referencia, $codalmacen);
+      
+      if($this->agrupar_stock_fecha)
       {
          foreach($mlist as $item)
          {
@@ -678,14 +675,16 @@ class ventas_articulo extends fbase_controller
       $almacenes = $this->almacen->all();
       foreach($almacenes as $alm)
       {
-         if($this->stock->saldo_articulo($this->articulo->referencia, $alm->codalmacen))
+         $total = 0;
+         $movimientos = $this->get_movimientos($alm->codalmacen);
+         foreach($movimientos as $mov)
          {
             $this->new_message('Recalculado el stock del almacén '.$alm->codalmacen.'.');
          }
       }
-      $this->new_message("Stock actualizado correctamente para el artículo ".$this->articulo->descripcion);
-      $this->new_message("Puedes recalcular el stock de todos los artículos desde"
-               . " <b>Informes &gt; Artículos &gt; Stock</b>");
+      
+      $this->new_advice("Puedes recalcular el stock de todos los artículos desde"
+               . " el menú <b>Informes &gt; Artículos &gt; Stock</b>");
    }
 
    public function combinaciones()
