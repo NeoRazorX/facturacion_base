@@ -87,7 +87,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
          </tr>
       </table>
    </div>
-   
+
    <div class="container-fluid">
       <div class="row">
          <div class="col-sm-12">
@@ -316,10 +316,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </p>
          </div>
          <div class="modal-footer">
-            <a href="{$fsc->url()}&recalcular_stock=TRUE#stock" class="btn btn-sm btn-warning">
+            <a href="#" id="b_ejecutar_calculo" class="btn btn-sm btn-warning">
                <span class="glyphicon glyphicon-wrench"></span>&nbsp; Recalcular stock
             </a>
+            <button id="calculando" class="btn btn-sm btn-info" disabled="" style="display: none;">
+               <i class="fa fa-spinner fa-pulse fa-fw"></i>
+               <span>Recalculando Stock...</span>
+            </button>
          </div>
       </div>
    </div>
 </div>
+<script>
+$(document).ready(function(){
+   $('#b_ejecutar_calculo').click(function (event) {
+      $('#b_ejecutar_calculo').hide();
+      $('#calculando').show();
+      recalcular_stock();
+   });
+});
+
+function recalcular_stock()
+{
+   var random = Math.floor((Math.random() * 10000) + 1);
+   window.location.assign('{$fsc->url()}&recalcular_stock=TRUE&pid='+random+'#stock');
+}
+</script>

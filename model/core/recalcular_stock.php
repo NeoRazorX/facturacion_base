@@ -55,7 +55,7 @@ class recalcular_stock {
       $lin2 = new linea_albaran_proveedor();
    }
 
-   public function get_movimientos($ref, $codalmacen = '', $desde = '', $hasta = '') {
+   public function get_movimientos($ref, $codalmacen = '', $desde = '', $hasta = '', $codagente = '') {
       $mlist = array();
 
       $this->get_regularizaciones($mlist, $ref, $codalmacen, $desde, $hasta);
@@ -63,8 +63,8 @@ class recalcular_stock {
          $this->get_transferencias($mlist, $ref, $codalmacen, $desde, $hasta);
       }
 
-      $this->get_movimientos_compra($mlist, $ref, $codalmacen, $desde, $hasta);
-      $this->get_movimientos_venta($mlist, $ref, $codalmacen, $desde, $hasta);
+      $this->get_movimientos_compra($mlist, $ref, $codalmacen, $desde, $hasta, $codagente);
+      $this->get_movimientos_venta($mlist, $ref, $codalmacen, $desde, $hasta, $codagente);
 
       /// ordenamos por fecha y hora
       usort($mlist, function($a, $b) {
@@ -147,8 +147,8 @@ class recalcular_stock {
       }
    }
 
-   private function get_movimientos_compra(&$mlist, $ref, $codalmacen = '', $desde = '', $hasta = '') {
-      $sql_extra = $this->set_sql_extra($codalmacen, $desde, $hasta);
+   private function get_movimientos_compra(&$mlist, $ref, $codalmacen = '', $desde = '', $hasta = '', $codagente = '') {
+      $sql_extra = $this->set_sql_extra($codalmacen, $desde, $hasta, $codagente);
 
       /// buscamos el artículo en albaranes de compra
       $sql = "SELECT a.codigo,l.cantidad,l.pvpunitario,l.dtopor,a.fecha,a.hora"
@@ -204,8 +204,8 @@ class recalcular_stock {
       }
    }
 
-   private function get_movimientos_venta(&$mlist, $ref, $codalmacen = '', $desde = '', $hasta = '') {
-      $sql_extra = $this->set_sql_extra($codalmacen, $desde, $hasta);
+   private function get_movimientos_venta(&$mlist, $ref, $codalmacen = '', $desde = '', $hasta = '', $codagente = '') {
+      $sql_extra = $this->set_sql_extra($codalmacen, $desde, $hasta, $codagente);
 
       /// buscamos el artículo en albaranes de venta
       $sql = "SELECT a.codigo,l.cantidad,l.pvpunitario,l.dtopor,a.fecha,a.hora"
@@ -261,11 +261,15 @@ class recalcular_stock {
       }
    }
 
-   protected function set_sql_extra($codalmacen = '', $desde = '', $hasta = '') {
+   protected function set_sql_extra($codalmacen = '', $desde = '', $hasta = '', $codagente = '') {
       $sql_extra = '';
 
       if ($codalmacen) {
          $sql_extra .= " AND codalmacen = " . $this->regularizacion_stock->var2str($codalmacen);
+      }
+      
+      if ($codagente) {
+         $sql_extra .= " AND codagente = " . $this->regularizacion_stock->var2str($codagente);
       }
 
       if ($desde) {

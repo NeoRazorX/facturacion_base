@@ -12,7 +12,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,33 +33,33 @@ class facturacion_base_cron
       $alb_cli = new albaran_cliente();
       echo "Ejecutando tareas para los ".FS_ALBARANES." de cliente...";
       $alb_cli->cron_job();
-      
+
       $alb_pro = new albaran_proveedor();
       echo "\nEjecutando tareas para los ".FS_ALBARANES." de proveedor...";
       $alb_pro->cron_job();
-      
+
       $fac_cli = new factura_cliente();
       echo "\nEjecutando tareas para las facturas de cliente...";
       $fac_cli->cron_job();
-      
+
       $fac_pro = new factura_proveedor();
       echo "\nEjecutando tareas para las facturas de proveedor...";
       $fac_pro->cron_job();
-      
+
       $articulo = new articulo();
       echo "\nEjecutando tareas para los articulos...";
       $articulo->cron_job();
-      
+
       $asiento = new asiento();
       echo "\nEjecutando tareas para los asientos...";
       $asiento->cron_job();
-      
+
       if(FS_LIBROS_CONTABLES)
       {
          $libro = new libro_mayor();
          echo "\nGeneramos el libro mayor para cada subcuenta y el libro diario para cada ejercicio...";
          $libro->cron_job();
-         
+
          $inventarios_balances = new inventarios_balances($db);
          echo "\nGeneramos el libro de inventarios y balances para cada ejercicio...";
          $inventarios_balances->cron_job();
