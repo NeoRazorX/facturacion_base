@@ -314,7 +314,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                <b>Advertencia</b>: si el artículo no tiene ningún movimiento,
                ni regularización, el stock resultante <b>será 0</b>.
             </p>
-            <div class="clearfix"></div>
          </div>
          <div class="modal-footer">
             <a href="#" id="b_ejecutar_calculo" class="btn btn-sm btn-warning">
@@ -335,13 +334,11 @@ $(document).ready(function(){
       $('#calculando').show();
       recalcular_stock();
    });
-   {if="$fsc->tab"}
-   $('#{$fsc->tab}').tab('show');
-   {/if}
 });
 
 function recalcular_stock()
 {
-   window.location.assign('{$fsc->url()}&recalcular_stock=TRUE#stock');
+   var random = Math.floor((Math.random() * 10000) + 1);
+   window.location.assign('{$fsc->url()}&recalcular_stock=TRUE&pid='+random+'#stock');
 }
 </script>

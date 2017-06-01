@@ -18,15 +18,15 @@ class linea_transferencia_stock extends \fs_model
 {
    /// clave primaria. integer
    public $idlinea;
-   
+
    public $idtrans;
    public $referencia;
    public $cantidad;
    public $descripcion;
-   
+
    private $fecha;
    private $hora;
-   
+
    public function __construct($d = FALSE)
    {
       parent::__construct('lineastransstock');
@@ -37,17 +37,17 @@ class linea_transferencia_stock extends \fs_model
          $this->referencia = $d['referencia'];
          $this->cantidad = floatval($d['cantidad']);
          $this->descripcion = $d['descripcion'];
-         
+
          $this->fecha = NULL;
          if( isset($d['fecha']) )
          {
             $this->fecha = date('d-m-Y', strtotime($d['fecha']));
          }
-         
+
          $this->hora = NULL;
-         if( isset($d['fecha']) )
+         if( isset($d['hora']) )
          {
-            $this->hora = $d['fecha'];
+            $this->hora = $d['hora'];
          }
       }
       else
@@ -67,15 +67,15 @@ class linea_transferencia_stock extends \fs_model
    {
       /// forzamos la comprobación de la tabla de transferencias de stock
       new \transferencia_stock();
-      
+
       return '';
    }
-   
+
    public function fecha()
    {
       return $this->fecha;
    }
-   
+
    public function hora()
    {
       return $this->hora;
@@ -102,7 +102,7 @@ class linea_transferencia_stock extends \fs_model
                  . ", cantidad = ".$this->var2str($this->cantidad)
                  . ", descripcion = ".$this->var2str($this->descripcion)
                  . "  WHERE idlinea = ".$this->var2str($this->idlinea).";";
-         
+
          return $this->db->exec($sql);
       }
       else
@@ -112,7 +112,7 @@ class linea_transferencia_stock extends \fs_model
                  . ",".$this->var2str($this->referencia)
                  . ",".$this->var2str($this->cantidad)
                  . ",".$this->var2str($this->descripcion).");";
-         
+
          if( $this->db->exec($sql) )
          {
             $this->idlinea = $this->db->lastval();
@@ -129,11 +129,11 @@ class linea_transferencia_stock extends \fs_model
    {
       return $this->db->exec('DELETE FROM lineastransstock WHERE idlinea = '.$this->var2str($this->idlinea).';');
    }
-   
+
    public function all_from_transferencia($id)
    {
       $list = array();
-      
+
       $data = $this->db->select("SELECT * FROM lineastransstock WHERE idtrans = ".$this->var2str($id)." ORDER BY referencia ASC;");
       if($data)
       {
@@ -142,14 +142,14 @@ class linea_transferencia_stock extends \fs_model
             $list[] = new \linea_transferencia_stock($d);
          }
       }
-      
+
       return $list;
    }
-   
+
    public function all_from_referencia($ref, $codalmaorigen = '', $codalmadestino = '', $desde = '', $hasta = '')
    {
       $list = array();
-      
+
       $sql = "SELECT l.idlinea,l.idtrans,l.referencia,l.cantidad,l.descripcion,t.fecha,t.hora FROM lineastransstock l"
               . " LEFT JOIN transstock t ON l.idtrans = t.idtrans"
               . " WHERE l.referencia = ".$this->var2str($ref);
@@ -170,7 +170,7 @@ class linea_transferencia_stock extends \fs_model
          $sql .= " AND t.fecha >= ".$this->var2str($hasta);
       }
       $sql .= " ORDER BY t.fecha ASC, t.hora ASC;";
-      
+
       $data = $this->db->select($sql);
       if($data)
       {
@@ -179,7 +179,7 @@ class linea_transferencia_stock extends \fs_model
             $list[] = new \linea_transferencia_stock($d);
          }
       }
-      
+
       return $list;
    }
 }

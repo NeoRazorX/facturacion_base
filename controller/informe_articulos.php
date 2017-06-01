@@ -58,7 +58,7 @@ class informe_articulos extends fbase_controller
    public $url_recarga;
    public $meses;
    private $recalcular_stock;
-   
+
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Artículos', 'informes');
@@ -69,17 +69,17 @@ class informe_articulos extends fbase_controller
       parent::private_core();
 
       $this->agente = new agente();
-      
+
       $almacen = new almacen();
       $this->almacenes = $almacen->all();
-      
+
       $this->familia = new familia();
       $this->recalcular_stock = new recalcular_stock();
       $this->stock = new stock();
       $this->url_recarga = FALSE;
-      
+
       $this->ini_filters();
-      
+
       if( isset($_REQUEST['buscar_referencia']) )
       {
          $this->buscar_referencia();
@@ -88,7 +88,7 @@ class informe_articulos extends fbase_controller
       {
          $this->articulo = new articulo();
          $this->stats = $this->stats();
-         
+
          /// forzamos la comprobación de las tablas de lineas de facturas
          $linea_fac_cli = new linea_factura_cliente();
          $linea_fac_pro = new linea_factura_proveedor();
@@ -101,7 +101,7 @@ class informe_articulos extends fbase_controller
       {
          /// forzamos la comprobación de la tabla stock
          $stock = new stock();
-         
+
          $this->tipo_stock = 'todo';
          if( isset($_GET['tipo']) )
          {
@@ -111,7 +111,7 @@ class informe_articulos extends fbase_controller
          {
             $this->recalcular_stock();
          }
-         
+
          if($this->tipo_stock == 'reg')
          {
             /// forzamos la comprobación de la tabla stocks
@@ -129,13 +129,13 @@ class informe_articulos extends fbase_controller
       else if($this->pestanya == 'impuestos')
       {
          $this->impuesto = new impuesto();
-         
+
          $this->codimpuesto = '';
          if( isset($_REQUEST['codimpuesto']) )
          {
             $this->codimpuesto = $_REQUEST['codimpuesto'];
       }
-         
+
          /// ¿Hacemos cambio?
          $this->cambia_impuesto();
       }
@@ -145,13 +145,13 @@ class informe_articulos extends fbase_controller
          $this->codfamilia = '';
          $this->documento = 'facturascli';
          $this->minimo = '';
-         
+
          $this->referencia = '';
          if( isset($_GET['ref']) )
          {
             $this->referencia = $_GET['ref'];
          }
-         
+
          $this->resultados = array();
          if( isset($_POST['informe']) )
          {
@@ -183,7 +183,7 @@ class informe_articulos extends fbase_controller
          }
       }
    }
-   
+
    private function ini_filters()
    {
       $this->meses = array();
@@ -199,42 +199,42 @@ class informe_articulos extends fbase_controller
       $this->meses[10] = 'oct';
       $this->meses[11] = 'nov';
       $this->meses[12] = 'dic';
-      
+
       $this->pestanya = 'stats';
       if( isset($_GET['tab']) )
       {
          $this->pestanya = $_GET['tab'];
       }
-      
+
       $this->codalmacen = FALSE;
       if( isset($_REQUEST['codalmacen']) )
       {
          $this->codalmacen = $_REQUEST['codalmacen'];
       }
-      
+
       $this->desde = Date('01-m-Y');
       if( isset($_POST['desde']) )
       {
          $this->desde = $_POST['desde'];
       }
-      
+
       $this->hasta = Date('t-m-Y');
       if( isset($_POST['hasta']) )
       {
          $this->hasta = $_POST['hasta'];
       }
-      
+
       $this->offset = 0;
       if( isset($_GET['offset']) )
       {
          $this->offset = intval($_GET['offset']);
       }
    }
-   
+
    private function recalcular_stock()
    {
-      $this->new_message('Recalculando stock de artículos <i class="fa fa-spinner fa-pulse fa-fw"></i>... '.$this->offset);
-      
+
+
       $articulo = new articulo();
       $continuar = FALSE;
       foreach($articulo->all($this->offset, 25) as $art)
@@ -246,11 +246,12 @@ class informe_articulos extends fbase_controller
 
       if($continuar)
       {
+         $this->new_message('Recalculando stock de artículos <i class="fa fa-spinner fa-pulse fa-fw"></i>... '.$this->offset);
          $this->url_recarga = $this->url().'&tab=stock&recalcular=TRUE&offset='.$this->offset;
       }
       else
       {
-         $this->new_advice('Finalizado &nbsp; <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
+         $this->new_advice('Finalizado &nbsp; <span class="fa fa-ok" aria-hidden="true"></span>');
       }
    }
 
@@ -264,14 +265,7 @@ class informe_articulos extends fbase_controller
          {
             foreach($resultados as $res)
             {
-               $linea = array();
-               $linea[] = $res['codalmacen'];
-               $linea[] = $res['referencia'];
-               $linea[] = $res['descripcion'];
-               $linea[] = $res['cantidad'];
-               $linea[] = $res['stockmin'];
-               $linea[] = $res['stockmax'];
-               $lista[] = $linea;
+               $lista[] = array($res['codalmacen'],$res['referencia'],$res['descripcion'],$res['cantidad'],$res['stockmin'],$res['stockmax']);
                $offset++;
             }
 
@@ -738,7 +732,7 @@ class informe_articulos extends fbase_controller
 
       return $familias;
    }
-   
+
    /**
     * Recalcula el stock del artículo $articulo para cada almacén.
     * @param articulo $articulo
@@ -754,7 +748,7 @@ class informe_articulos extends fbase_controller
             {
                $total = $mov['final'];
             }
-            
+
             if( !$articulo->set_stock($alm->codalmacen, $total) )
             {
                $this->new_error_msg('Error al recarcular el stock del artículo '.$articulo->referencia
@@ -763,7 +757,7 @@ class informe_articulos extends fbase_controller
          }
       }
    }
-   
+
    private function informe_movimientos()
    {
       if($this->codfamilia)

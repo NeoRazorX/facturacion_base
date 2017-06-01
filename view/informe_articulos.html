@@ -350,7 +350,6 @@ function recalcular_stock()
       </div>
    </div>
 </div>
-
 <br/>
 <div class="table-responsive">
    {if="$fsc->tipo_stock=='reg'"}
@@ -446,14 +445,13 @@ function recalcular_stock()
          <div class="modal-body">
             <p class='help-block'>
                Se recalculará el stock de todos los artículos a partir de las
-               regularizaciones (de stock), los albaranes, facturas de compra
-               y venta y las transferencias entre almacenes.
+               regularizaciones (de stock) y los albaranes y facturas de compra
+               y venta.
             </p>
             <p class='help-block'>
                <b>Advertencia</b>: si el artículo no tiene ningún movimiento,
                ni regularización, el stock resultante <b>será 0</b>.
             </p>
-            <div class="clearfix"></div>
          </div>
          <div class="modal-footer">
             <a href="#" id="b_ejecutar_calculo" class="btn btn-sm btn-warning">
@@ -674,10 +672,10 @@ function recalcular_stock()
                      <div class="form-group">
                         Almacén:
                         <select class="form-control" name="codalmacen">
-                           {if="count($fsc->almacen->all())>1"}
+                           {if="count($fsc->almacenes)>1"}
                            <option value="">Todos los almacenes</option>
                            {/if}
-                           {loop="$fsc->almacen->all()"}
+                           {loop="$fsc->almacenes"}
                            <option value="{$value->codalmacen}">{$value->nombre}</option>
                            {/loop}
                         </select>
@@ -779,10 +777,10 @@ function recalcular_stock()
                      <div class="form-group">
                         Almacén:
                         <select class="form-control" name="codalmacen">
-                           {if="count($fsc->almacen->all())>1"}
+                           {if="count($fsc->almacenes)>1"}
                            <option value="">Todos los almacenes</option>
                            {/if}
-                           {loop="$fsc->almacen->all()"}
+                           {loop="$fsc->almacenes"}
                            <option value="{$value->codalmacen}">{$value->nombre}</option>
                            {/loop}
                         </select>
@@ -846,10 +844,10 @@ function recalcular_stock()
                      <div class="form-group">
                         Almacén:
                         <select class="form-control" name="codalmacen">
-                           {if="count($fsc->almacen->all())>1"}
+                           {if="count($fsc->almacenes)>1"}
                            <option value="">Todos los almacenes</option>
                            {/if}
-                           {loop="$fsc->almacen->all()"}
+                           {loop="$fsc->almacenes"}
                            <option value="{$value->codalmacen}">{$value->nombre}</option>
                            {/loop}
                         </select>
@@ -899,4 +897,5 @@ function recalcular_stock()
    </div>
 </div>
 {/if}
+
 {include="footer"}

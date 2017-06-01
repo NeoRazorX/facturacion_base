@@ -51,7 +51,7 @@ class ventas_articulo extends fbase_controller
    public $stock;
    public $stocks;
    public $regularizaciones;
-   
+
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Articulo', 'ventas', FALSE, FALSE);
@@ -67,9 +67,9 @@ class ventas_articulo extends fbase_controller
       $this->fabricante = new fabricante();
       $this->impuesto = new impuesto();
       $this->stock = new stock();
-      
+
       $this->check_extensions();
-      
+
       if( isset($_POST['referencia']) )
       {
          $this->articulo = $articulo->get($_POST['referencia']);
@@ -160,7 +160,7 @@ class ventas_articulo extends fbase_controller
       else
          return $this->page->url();
    }
-   
+
    private function check_extensions()
    {
       /**
@@ -176,7 +176,7 @@ class ventas_articulo extends fbase_controller
             break;
          }
       }
-      
+
       /**
        * Si hay atributos, mostramos el tab atributos.
        */
@@ -189,7 +189,7 @@ class ventas_articulo extends fbase_controller
          $this->hay_atributos = TRUE;
          break;
       }
-      
+
       /**
        * Si hay alguna extensión de tipo config y texto no_tab_recios,
        * desactivamos la pestaña precios.
@@ -203,7 +203,7 @@ class ventas_articulo extends fbase_controller
             break;
          }
       }
-      
+
       /**
        * Si hay alguna extensión de tipo config y texto no_tab_stock,
        * desactivamos la pestaña stock.
@@ -636,14 +636,14 @@ class ventas_articulo extends fbase_controller
    }
 
    /**
-    * Devuelve un array con los movimientos de stock del artículo en base a una fecha
+    * Devuelve un array con los movimientos de stock del artículo.
     * @return array
     */
    public function get_movimientos($codalmacen)
    {
       $recstock = new recalcular_stock();
       $mlist = $recstock->get_movimientos($this->articulo->referencia, $codalmacen);
-      
+
       if($this->agrupar_stock_fecha)
       {
          foreach($mlist as $item)
@@ -664,6 +664,7 @@ class ventas_articulo extends fbase_controller
             }
          }
       }
+
       return $mlist;
    }
 
@@ -679,10 +680,22 @@ class ventas_articulo extends fbase_controller
          $movimientos = $this->get_movimientos($alm->codalmacen);
          foreach($movimientos as $mov)
          {
-            $this->new_message('Recalculado el stock del almacén '.$alm->codalmacen.'.');
+            if($mov['codalmacen'] == $alm->codalmacen)
+            {
+               $total += $mov['movimiento'];
          }
       }
-      
+
+         if( $this->articulo->set_stock($alm->codalmacen, $total) )
+         {
+            $this->new_message('Recarculado el stock del almacén '.$alm->codalmacen.'.');
+         }
+         else
+         {
+            $this->new_error_msg('Error al recarcular el stock del almacén '.$alm->codalmacen.'.');
+         }
+      }
+
       $this->new_advice("Puedes recalcular el stock de todos los artículos desde"
                . " el menú <b>Informes &gt; Artículos &gt; Stock</b>");
    }
