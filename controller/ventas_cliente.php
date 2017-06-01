@@ -28,6 +28,7 @@ require_model('pais.php');
 require_model('serie.php');
 require_model('cuenta_banco_proveedor.php');
 require_model('direccion_proveedor.php');
+require_model('tarifa.php');
 
 class ventas_cliente extends fbase_controller
 {
@@ -39,6 +40,7 @@ class ventas_cliente extends fbase_controller
    public $grupo;
    public $pais;
    public $serie;
+   public $tarifa;
    
    public function __construct()
    {
@@ -57,7 +59,8 @@ class ventas_cliente extends fbase_controller
       $this->grupo = new grupo_clientes();
       $this->pais = new pais();
       $this->serie = new serie();
-      
+      $this->tarifa = new tarifa(); 
+           
       /// cargamos el cliente
       $cliente = new cliente();
       $this->cliente = FALSE;
@@ -157,6 +160,12 @@ class ventas_cliente extends fbase_controller
       {
          $this->cliente->codgrupo = $_POST['codgrupo'];
       }
+      
+      $this->cliente->codtarifa = NULL;
+      if($_POST['codtarifa'] != '')
+      {
+         $this->cliente->codtarifa = $_POST['codtarifa'];
+      }      
       
       if( $this->cliente->save() )
       {
