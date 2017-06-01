@@ -469,27 +469,40 @@ class nueva_venta extends fbase_controller
          }
       }
 
-      /// buscamos el grupo de clientes y la tarifa
+      /// buscamos primero si el cliente tiene tarifa, si no la tiene, el grupo de clientes y la tarifa de ese grupo
       if( isset($_REQUEST['codcliente']) )
       {
          $cliente = $this->cliente->get($_REQUEST['codcliente']);
          if($cliente)
          {
-            if($cliente->codgrupo)
+            if($cliente->codtarifa)
             {
-               $grupo0 = new grupo_clientes();
-               $tarifa0 = new tarifa();
 
-               $grupo = $grupo0->get($cliente->codgrupo);
-               if($grupo)
+               $tarifa0 = new tarifa();
+               $tarifa = $tarifa0->get($cliente->codtarifa);
+               if($tarifa)
                {
-                  $tarifa = $tarifa0->get($grupo->codtarifa);
-                  if($tarifa)
-                  {
-                     $tarifa->set_precios($this->results);
-                  }
+                  $tarifa->set_precios($this->results);
                }
             }
+            else
+	         {
+	         	if($cliente->codgrupo)
+	            {
+	               $grupo0 = new grupo_clientes();
+	               $tarifa0 = new tarifa();
+	
+	               $grupo = $grupo0->get($cliente->codgrupo);
+	               if($grupo)
+	               {
+	                  $tarifa = $tarifa0->get($grupo->codtarifa);
+	                  if($tarifa)
+	                  {
+	                     $tarifa->set_precios($this->results);
+	                  }
+	               }
+	            }
+	         }
          }
       }
 
