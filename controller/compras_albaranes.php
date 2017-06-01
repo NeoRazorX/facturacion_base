@@ -17,15 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('agente.php');
 require_model('almacen.php');
 require_model('albaran_proveedor.php');
 require_model('articulo.php');
 require_model('factura_proveedor.php');
-require_model('proveedor.php');
 require_model('serie.php');
 
-class compras_albaranes extends fs_controller
+class compras_albaranes extends fbase_controller
 {
    public $agente;
    public $almacenes;
@@ -38,7 +38,6 @@ class compras_albaranes extends fs_controller
    public $hasta;
    public $lineas;
    public $mostrar;
-   public $multi_almacen;
    public $num_resultados;
    public $offset;
    public $order;
@@ -55,6 +54,8 @@ class compras_albaranes extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
+      
       $albaran = new albaran_proveedor();
       $this->agente = new agente();
       $this->almacenes = new almacen();
@@ -70,9 +71,6 @@ class compras_albaranes extends fs_controller
       {
          $this->mostrar = $_COOKIE['compras_alb_mostrar'];
       }
-      
-      $fsvar = new fs_var();
-      $this->multi_almacen = $fsvar->simple_get('multi_almacen');
       
       $this->offset = 0;
       if( isset($_REQUEST['offset']) )
@@ -102,7 +100,7 @@ class compras_albaranes extends fs_controller
       }
       else if( isset($_REQUEST['buscar_proveedor']) )
       {
-         $this->buscar_proveedor();
+         $this->fbase_buscar_proveedor($_REQUEST['buscar_proveedor']);
       }
       else if( isset($_GET['ref']) )
       {
@@ -160,7 +158,8 @@ class compras_albaranes extends fs_controller
             if( isset($_REQUEST['codalmacen']) )
             {
                $this->codalmacen = $_REQUEST['codalmacen'];
-            }              
+            }
+            
             if( isset($_REQUEST['codserie']) )
             {
                $this->codserie = $_REQUEST['codserie'];
@@ -226,7 +225,7 @@ class compras_albaranes extends fs_controller
             $codproveedor = $this->proveedor->codproveedor;
          }
          
-         $url = $this->url()."&mostrar=".$this->mostrar
+         $url = parent::url()."&mostrar=".$this->mostrar
                  ."&query=".$this->query
                  ."&codserie=".$this->codserie
                  ."&codagente=".$this->codagente
@@ -243,30 +242,8 @@ class compras_albaranes extends fs_controller
       }
    }
    
-   private function buscar_proveedor()
-   {
-      /// desactivamos la plantilla HTML
-      $this->template = FALSE;
-      
-      $pro0 = new proveedor();
-      $json = array();
-      foreach($pro0->search($_REQUEST['buscar_proveedor']) as $pro)
-      {
-         $json[] = array('value' => $pro->nombre, 'data' => $pro->codproveedor);
-      }
-      
-      header('Content-Type: application/json');
-      echo json_encode( array('query' => $_REQUEST['buscar_proveedor'], 'suggestions' => $json) );
-   }
-   
    public function paginas()
    {
-      $url = $this->url(TRUE);
-      $paginas = array();
-      $i = 0;
-      $num = 0;
-      $actual = 1;
-      
       if($this->mostrar == 'pendientes')
       {
          $total = $this->total_pendientes();
@@ -280,47 +257,7 @@ class compras_albaranes extends fs_controller
          $total = $this->total_registros();
       }
       
-      /// añadimos todas la página
-      while($num < $total)
-      {
-         $paginas[$i] = array(
-             'url' => $url."&offset=".($i*FS_ITEM_LIMIT),
-             'num' => $i + 1,
-             'actual' => ($num == $this->offset)
-         );
-         
-         if($num == $this->offset)
-         {
-            $actual = $i;
-         }
-         
-         $i++;
-         $num += FS_ITEM_LIMIT;
-      }
-      
-      /// ahora descartamos
-      foreach($paginas as $j => $value)
-      {
-         $enmedio = intval($i/2);
-         
-         /**
-          * descartamos todo excepto la primera, la última, la de enmedio,
-          * la actual, las 5 anteriores y las 5 siguientes
-          */
-         if( ($j>1 AND $j<$actual-5 AND $j!=$enmedio) OR ($j>$actual+5 AND $j<$i-1 AND $j!=$enmedio) )
-         {
-            unset($paginas[$j]);
-         }
-      }
-      
-      if( count($paginas) > 1 )
-      {
-         return $paginas;
-      }
-      else
-      {
-         return array();
-      }
+      return $this->fbase_paginas($this->url(TRUE), $total, $this->offset);
    }
    
    public function buscar_lineas()
@@ -447,24 +384,12 @@ class compras_albaranes extends fs_controller
    
    public function total_pendientes()
    {
-      $data = $this->db->select("SELECT COUNT(idalbaran) as total FROM albaranesprov WHERE ptefactura;");
-      if($data)
-      {
-         return intval($data[0]['total']);
-      }
-      else
-         return 0;
+      return $this->fbase_sql_total('albaranesprov', 'idalbaran', 'WHERE ptefactura = true');
    }
    
    private function total_registros()
    {
-      $data = $this->db->select("SELECT COUNT(idalbaran) as total FROM albaranesprov;");
-      if($data)
-      {
-         return intval($data[0]['total']);
-      }
-      else
-         return 0;
+      return $this->fbase_sql_total('albaranesprov', 'idalbaran');
    }
    
    private function buscar($order2)

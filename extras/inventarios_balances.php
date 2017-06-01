@@ -78,9 +78,9 @@ class inventarios_balances
             echo '.'.$eje->codejercicio.'.';
             
             $pdf_doc = new fs_pdf();
-            $pdf_doc->pdf->addInfo('Title', 'Libro de inventarios y balances de ' . $pdf_doc->fix_html($this->empresa->nombre) );
-            $pdf_doc->pdf->addInfo('Subject', 'Libro de inventarios y balances de ' . $pdf_doc->fix_html($this->empresa->nombre) );
-            $pdf_doc->pdf->addInfo('Author', $pdf_doc->fix_html($this->empresa->nombre) );
+            $pdf_doc->pdf->addInfo('Title', 'Libro de inventarios y balances de ' . fs_fix_html($this->empresa->nombre) );
+            $pdf_doc->pdf->addInfo('Subject', 'Libro de inventarios y balances de ' . fs_fix_html($this->empresa->nombre) );
+            $pdf_doc->pdf->addInfo('Author', fs_fix_html($this->empresa->nombre) );
             $pdf_doc->pdf->ezStartPageNumbers(580, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
             
             $excluir = FALSE;
@@ -115,9 +115,9 @@ class inventarios_balances
       if($eje0)
       {
          $pdf_doc = new fs_pdf();
-         $pdf_doc->pdf->addInfo('Title', 'Balance de pérdidas y ganancias de ' . $pdf_doc->fix_html($this->empresa->nombre) );
-         $pdf_doc->pdf->addInfo('Subject', 'Balance de pérdidas y ganancias de ' . $pdf_doc->fix_html($this->empresa->nombre) );
-         $pdf_doc->pdf->addInfo('Author', $pdf_doc->fix_html($this->empresa->nombre) );
+         $pdf_doc->pdf->addInfo('Title', 'Balance de pérdidas y ganancias de ' . fs_fix_html($this->empresa->nombre) );
+         $pdf_doc->pdf->addInfo('Subject', 'Balance de pérdidas y ganancias de ' . fs_fix_html($this->empresa->nombre) );
+         $pdf_doc->pdf->addInfo('Author', fs_fix_html($this->empresa->nombre) );
          $pdf_doc->pdf->ezStartPageNumbers(580, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
          
          $this->perdidas_y_ganancias($pdf_doc, $eje0, FALSE);
@@ -138,9 +138,9 @@ class inventarios_balances
       if($eje0)
       {
          $pdf_doc = new fs_pdf();
-         $pdf_doc->pdf->addInfo('Title', 'Balance de pérdidas y ganancias de ' . $pdf_doc->fix_html($this->empresa->nombre) );
-         $pdf_doc->pdf->addInfo('Subject', 'Balance de pérdidas y ganancias de ' . $pdf_doc->fix_html($this->empresa->nombre) );
-         $pdf_doc->pdf->addInfo('Author', $pdf_doc->fix_html($this->empresa->nombre) );
+         $pdf_doc->pdf->addInfo('Title', 'Balance de pérdidas y ganancias de ' . fs_fix_html($this->empresa->nombre) );
+         $pdf_doc->pdf->addInfo('Subject', 'Balance de pérdidas y ganancias de ' . fs_fix_html($this->empresa->nombre) );
+         $pdf_doc->pdf->addInfo('Author', fs_fix_html($this->empresa->nombre) );
          $pdf_doc->pdf->ezStartPageNumbers(580, 10, 10, 'left', '{PAGENUM} de {TOTALPAGENUM}');
          
          $this->situacion($pdf_doc, $eje0, FALSE);
@@ -321,7 +321,7 @@ class inventarios_balances
             $pdf_doc->pdf->ezNewPage();
          }
          
-         $pdf_doc->pdf->ezText($pdf_doc->fix_html($this->empresa->nombre)." - Balance de sumas y saldos ".$eje->year().' '.$titulo.".\n\n", 12);
+         $pdf_doc->pdf->ezText(fs_fix_html($this->empresa->nombre)." - Balance de sumas y saldos ".$eje->year().' '.$titulo.".\n\n", 12);
          
          /// Creamos la tabla con las lineas
          $pdf_doc->new_table();
@@ -357,7 +357,7 @@ class inventarios_balances
             $pdf_doc->add_table_row(
                   array(
                       'cuenta' => $a.$lineas[$i]['cuenta'].$b,
-                      'descripcion' => $a.substr( $pdf_doc->fix_html($lineas[$i]['descripcion']), 0, 50 ).$b,
+                      'descripcion' => $a.substr( fs_fix_html($lineas[$i]['descripcion']), 0, 50 ).$b,
                       'debe' => $a.$this->show_numero($lineas[$i]['debe']).$b,
                       'haber' => $a.$this->show_numero($lineas[$i]['haber']).$b,
                       'saldo' => $a.$this->show_numero( floatval($lineas[$i]['debe']) - floatval($lineas[$i]['haber']) ).$b
@@ -375,7 +375,7 @@ class inventarios_balances
          $pdf_doc->add_table_row(
                array(
                    'cuenta' => '',
-                   'descripcion' => '<b>'.$pdf_doc->fix_html($desc).'</b>',
+                   'descripcion' => '<b>'.fs_fix_html($desc).'</b>',
                    'debe' => '<b>'.$this->show_numero($tdebe).'</b>',
                    'haber' => '<b>'.$this->show_numero($thaber).'</b>',
                    'saldo' => '<b>'.$this->show_numero($tdebe-$thaber).'</b>'
@@ -411,7 +411,7 @@ class inventarios_balances
          $pdf_doc->pdf->ezNewPage();
       }
       
-      $pdf_doc->pdf->ezText($pdf_doc->fix_html($this->empresa->nombre)." - Cuenta de pérdidas y ganancias abreviada del ejercicio ".$eje->year().".\n\n", 13);
+      $pdf_doc->pdf->ezText(fs_fix_html($this->empresa->nombre)." - Cuenta de pérdidas y ganancias abreviada del ejercicio ".$eje->year().".\n\n", 13);
       
       /// necesitamos el ejercicio anterior
       $eje0 = $eje->get_by_fecha( '1-1-'.(intval($eje->year())-1), FALSE, FALSE );
@@ -674,7 +674,7 @@ class inventarios_balances
             else
                $np = TRUE;
             
-            $pdf_doc->pdf->ezText($pdf_doc->fix_html($this->empresa->nombre)." - Balance de situación del ejercicio ".$eje->year().".\n\n", 13);
+            $pdf_doc->pdf->ezText(fs_fix_html($this->empresa->nombre)." - Balance de situación del ejercicio ".$eje->year().".\n\n", 13);
             
             /// creamos las cabeceras de la tabla
             $pdf_doc->new_table();
@@ -706,7 +706,7 @@ class inventarios_balances
                               {
                                  $pdf_doc->add_table_row(
                                     array(
-                                        'descripcion' => "\n<b>".$pdf_doc->fix_html($bal->descripcion1).'</b>',
+                                        'descripcion' => "\n<b>".fs_fix_html($bal->descripcion1).'</b>',
                                         'actual' => "\n<b>".$this->get_saldo_balance2($nv0.'-'.$nv1.'-', $eje, $nv0).'</b>',
                                         'anterior' => "\n<b>".$this->get_saldo_balance2($nv0.'-'.$nv1.'-', $eje0, $nv0).'</b>'
                                     )
@@ -719,7 +719,7 @@ class inventarios_balances
                               {
                                  $pdf_doc->add_table_row(
                                     array(
-                                        'descripcion' => ' <b>'.$pdf_doc->fix_html($bal->descripcion2).'</b>',
+                                        'descripcion' => ' <b>'.fs_fix_html($bal->descripcion2).'</b>',
                                         'actual' => $this->get_saldo_balance2($nv0.'-'.$nv1.'-'.$nv2.'-', $eje, $nv0),
                                         'anterior' => $this->get_saldo_balance2($nv0.'-'.$nv1.'-'.$nv2.'-', $eje0, $nv0)
                                     )
@@ -732,7 +732,7 @@ class inventarios_balances
                               {
                                  $pdf_doc->add_table_row(
                                     array(
-                                        'descripcion' => '  '.$pdf_doc->fix_html($bal->descripcion3),
+                                        'descripcion' => '  '.fs_fix_html($bal->descripcion3),
                                         'actual' => $this->get_saldo_balance2($nv0.'-'.$nv1.'-'.$nv2.'-'.$nv3.'-', $eje, $nv0),
                                         'anterior' => $this->get_saldo_balance2($nv0.'-'.$nv1.'-'.$nv2.'-'.$nv3.'-', $eje0, $nv0)
                                     )
@@ -799,7 +799,7 @@ class inventarios_balances
             else
                $np = TRUE;
             
-            $pdf_doc->pdf->ezText($pdf_doc->fix_html($this->empresa->nombre)." - Balance de situación del ejercicio ".$eje->year().".\n\n", 13);
+            $pdf_doc->pdf->ezText(fs_fix_html($this->empresa->nombre)." - Balance de situación del ejercicio ".$eje->year().".\n\n", 13);
             
             /// creamos las cabeceras de la tabla
             $pdf_doc->new_table();
@@ -830,7 +830,7 @@ class inventarios_balances
                               {
                                  $pdf_doc->add_table_row(
                                     array(
-                                        'descripcion' => "\n<b>".$pdf_doc->fix_html($bal->descripcion1).'</b>',
+                                        'descripcion' => "\n<b>".fs_fix_html($bal->descripcion1).'</b>',
                                         'actual' => "\n<b>".$this->get_saldo_balance2($nv0.'-'.$nv1.'-', $eje, $nv0).'</b>'
                                     )
                                  );
@@ -842,7 +842,7 @@ class inventarios_balances
                               {
                                  $pdf_doc->add_table_row(
                                     array(
-                                        'descripcion' => ' <b>'.$pdf_doc->fix_html($bal->descripcion2).'</b>',
+                                        'descripcion' => ' <b>'.fs_fix_html($bal->descripcion2).'</b>',
                                         'actual' => $this->get_saldo_balance2($nv0.'-'.$nv1.'-'.$nv2.'-', $eje, $nv0)
                                     )
                                  );
@@ -854,7 +854,7 @@ class inventarios_balances
                               {
                                  $pdf_doc->add_table_row(
                                     array(
-                                        'descripcion' => '  '.$pdf_doc->fix_html($bal->descripcion3),
+                                        'descripcion' => '  '.fs_fix_html($bal->descripcion3),
                                         'actual' => $this->get_saldo_balance2($nv0.'-'.$nv1.'-'.$nv2.'-'.$nv3.'-', $eje, $nv0)
                                     )
                                  );

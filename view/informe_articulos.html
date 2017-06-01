@@ -250,7 +250,7 @@
          <div class="btn-group">
             <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                {if="$fsc->codalmacen"}
-                  {loop="$fsc->almacen->all()"}
+                  {loop="$fsc->almacenes"}
                      {if="$value->codalmacen==$fsc->codalmacen"}
                         {$value->nombre}&nbsp;<span class="caret"></span>
                      {/if}
@@ -262,7 +262,7 @@
             <ul class="dropdown-menu">
                <li><a href="{$fsc->url()}&tipo={$fsc->tipo_stock}&tab=stock">Todos</a></li>
                <li role="separator" class="divider"></li>
-               {loop="$fsc->almacen->all()"}
+               {loop="$fsc->almacenes"}
                <li><a href="{$fsc->url()}&tipo={$fsc->tipo_stock}&tab=stock&codalmacen={$value->codalmacen}">{$value->nombre}</a></li>
                {/loop}
             </ul>
@@ -299,12 +299,12 @@
          <div class="btn-group">
             <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_recal_stock">
                <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Recalcular stock</span>
+               <span class="hidden-xs">&nbsp;Recalcular stock</span>
             </a>
             {if="$fsc->tipo_stock!='reg'"}
             <a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo={$fsc->tipo_stock}&download=TRUE" class="btn btn-sm btn-default">
                <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Descargar</span>
+               <span class="hidden-xs">&nbsp;Descargar</span>
             </a>
             {/if}
          </div>
@@ -415,9 +415,9 @@
             </p>
          </div>
          <div class="modal-footer">
-             <a href="{$fsc->url()}&tab=stock&recalcular=TRUE&offset=0&codalmacen={$fsc->codalmacen}" class="btn btn-sm btn-warning">
+             <a href="{$fsc->url()}&tab=stock&recalcular=TRUE" class="btn btn-sm btn-warning">
                <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp; Recalcular stock</span>
+               <span class="hidden-xs">&nbsp;Recalcular stock</span>
             </a>
          </div>
       </div>

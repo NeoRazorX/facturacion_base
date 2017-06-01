@@ -1,14 +1,6 @@
 {include="header"}
 
 <script type="text/javascript">
-   function fs_marcar_todo()
-   {
-      $("#f_agrupar_cli input[name='idalbaran[]']").prop('checked', true);
-   }
-   function fs_marcar_nada()
-   {
-      $("#f_agrupar_cli input[name='idalbaran[]']").prop('checked', false);
-   }
    $(document).ready(function() {
       document.f_agrupar_alb.ac_cliente.focus();
       $("#ac_cliente").autocomplete({
@@ -20,9 +12,14 @@
                if(document.f_agrupar_alb.codcliente.value != suggestion.data && suggestion.data != '')
                {
                   document.f_agrupar_alb.codcliente.value = suggestion.data;
+                  document.f_agrupar_alb.submit();
                }
             }
          }
+      });
+      $('#marcartodo').click(function() {
+         var checked = $(this).prop('checked');
+         $('#f_agrupar_cli').find('input:checkbox').prop('checked', checked);
       });
    });
 </script>
@@ -153,6 +150,9 @@
                <table class="table table-hover">
                   <thead>
                      <tr>
+                        <th class="text-center" width="40">
+                           <input id="marcartodo" type="checkbox" name="c_idalbaran">
+                        </th>
                         <th class="text-left">Código + {#FS_NUMERO2#}</th>
                         <th class="text-left">Observaciones</th>
                         <th class="text-right">Neto</th>
@@ -162,11 +162,11 @@
                   </thead>
                   {loop="$fsc->resultados"}
                   <tr{if="$value->total<0"} class="warning"{/if}>
+                     <td class="text-center">
+                        <input type="checkbox" name="idalbaran[]" value="{$value->idalbaran}" checked=""/>
+                     </td>
                      <td>
-                        <div>
-                           <input type="checkbox" name="idalbaran[]" value="{$value->idalbaran}" checked="checked"/>
-                           <a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}
-                        </div>
+                        <a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}
                      </td>
                      <td>{$value->observaciones_resume()}</td>
                      <td class="text-right" title="{$fsc->show_precio($fsc->euro_convert($value->neto/$value->tasaconv, $value->coddivisa, $value->tasaconv))}">
@@ -181,7 +181,7 @@
                   </tr>
                   {/loop}
                   <tr>
-                     <td colspan="2"></td>
+                     <td colspan="3"></td>
                      <td class="text-right"><b>{$fsc->show_precio($fsc->neto, $fsc->coddivisa)}</b></td>
                      <td class="text-right"><b>{$fsc->show_precio($fsc->total, $fsc->coddivisa)}</b></td>
                      <td></td>
@@ -191,19 +191,9 @@
          </div>
       </div>
       <div class="row">
-         <div class="col-sm-6">
-            <div class="btn-group">
-               <button class="btn btn-sm btn-default" type="button" onclick="fs_marcar_todo()" title="Marcar todo">
-                  <span class="glyphicon glyphicon-check"></span>
-               </button>
-               <button class="btn btn-sm btn-default" type="button" onclick="fs_marcar_nada()" title="Desmarcar todo">
-                  <span class="glyphicon glyphicon-unchecked"></span>
-               </button>
-            </div>
-         </div>
-         <div class="col-sm-6 text-right">
+         <div class="col-sm-12 text-right">
             <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal_agrupar">
-               <span class="glyphicon glyphicon-file"></span>&nbsp; Generar Factura
+               <span class="glyphicon glyphicon-file"></span>&nbsp; Generar Factura...
             </button>
          </div>
       </div>

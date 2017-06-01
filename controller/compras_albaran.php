@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('albaran_proveedor.php');
 require_model('almacen.php');
 require_model('articulo.php');
@@ -31,16 +32,14 @@ require_model('familia.php');
 require_model('forma_pago.php');
 require_model('impuesto.php');
 require_model('partida.php');
-require_model('proveedor.php');
 require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('subcuenta.php');
 
-class compras_albaran extends fs_controller
+class compras_albaran extends fbase_controller
 {
    public $agente;
    public $albaran;
-   public $allow_delete;
    public $allow_delete_fac;
    public $almacen;
    public $divisa;
@@ -61,6 +60,8 @@ class compras_albaran extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
+      
       $this->ppage = $this->page->get('compras_albaranes');
       $this->agente = FALSE;
       
@@ -77,8 +78,7 @@ class compras_albaran extends fs_controller
       $this->proveedor_s = FALSE;
       $this->serie = new serie();
       
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      /// ¿El usuario tiene permiso para eliminar la factura?
       $this->allow_delete_fac = $this->user->allow_delete_on('compras_factura');
       
       /// comprobamos si el usuario tiene acceso a nueva_compra

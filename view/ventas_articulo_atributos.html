@@ -19,7 +19,7 @@
                   <form action="{$fsc->url()}#atributos" method="post" class="form">
                      <input type="hidden" name="editar_combi" value="{$value->codigo}"/>
                      <tr>
-                        <td>
+                        <td title="ID: {$value->id}, Código: {$value->codigo}, Código2: {$value->codigo2}">
                            <input type="text" name="refcombinacion" value="{$value->refcombinacion}" class="form-control" maxlength="18" placeholder="(opcional)" autocomplete="off"/>
                         </td>
                         <td>

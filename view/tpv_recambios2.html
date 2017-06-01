@@ -108,12 +108,12 @@
                </a>
                {if="$fsc->page->show_on_menu"}
                   {if="$fsc->page->is_default()"}
-                  <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
-                     <span class="glyphicon glyphicon-home"></span>
+                  <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="Marcada como página de inicio (pulsa de nuevo para desmarcar)">
+                     <i class="fa fa-bookmark" aria-hidden="true"></i>
                   </a>
                   {else}
-                  <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
-                     <span class="glyphicon glyphicon-home"></span>
+                  <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="Marcar como página de inicio">
+                     <i class="fa fa-bookmark-o" aria-hidden="true"></i>
                   </a>
                   {/if}
                {/if}
@@ -127,6 +127,8 @@
             {loop="$fsc->extensions"}
                {if="$value->type=='button'"}
                <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+               {elseif="$value->type=='btn_javascript'"}
+               <button class="btn btn-sm btn-default" type="button" onclick="{$value->params}">{$value->text}</button>
                {/if}
             {/loop}
          </div>
@@ -233,19 +235,19 @@
                <li role="presentation" class="active">
                   <a href="#tab_pago" aria-controls="tab_pago" role="tab" data-toggle="tab">
                      <span class="glyphicon glyphicon-usd"></span>
-                     <span class="hidden-xs">&nbsp; Pago</span>
+                     <span class="hidden-xs">&nbsp;Pago</span>
                   </a>
                </li>
                <li role="presentation">
                   <a href="#tab_cliente" aria-controls="tab_cliente" role="tab" data-toggle="tab">
                      <span class="glyphicon glyphicon-user"></span>
-                     <span class="hidden-xs">&nbsp; Cliente</span>
+                     <span class="hidden-xs">&nbsp;Cliente</span>
                   </a>
                </li>
                <li role="presentation">
                   <a href="#tab_opciones" aria-controls="tab_opciones" role="tab" data-toggle="tab">
                      <span class="glyphicon glyphicon-wrench"></span>
-                     <span class="hidden-xs">&nbsp; Opciones</span>
+                     <span class="hidden-xs">&nbsp;Opciones</span>
                   </a>
                </li>
             </ul>
@@ -291,7 +293,7 @@
                      <div class="form-group">
                         <div class="input-group">
                            <span class="input-group-addon">{#FS_CIFNIF#}</span>
-                           <input class="form-control" type="text" name="cifnif" value="{$fsc->cliente_s->cifnif}" maxlength="20" autocomplete="off"/>
+                           <input class="form-control" type="text" name="cifnif" value="{$fsc->cliente_s->cifnif}" maxlength="30" autocomplete="off"/>
                         </div>
                      </div>
                      <div class="form-group">

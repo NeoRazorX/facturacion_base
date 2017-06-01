@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,66 +18,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('familia.php');
 
-class ventas_familias extends fs_controller
+class ventas_familias extends fbase_controller
 {
    public $familia;
    public $madre;
    public $resultados;
-   
+
    public function __construct()
    {
       parent::__construct(__CLASS__, 'Familias', 'ventas', FALSE, FALSE);
    }
-   
+
    protected function private_core()
    {
+      parent::private_core();
+
       $this->familia = new familia();
-      
+
       $this->madre = NULL;
-      if( isset($_REQUEST['madre']) )
+      if(isset($_REQUEST['madre']))
       {
          $this->madre = $_REQUEST['madre'];
       }
-      
-      if( isset($_POST['ncodfamilia']) )
+
+      if(isset($_POST['ncodfamilia']))
       {
-         $fam = $this->familia->get($_POST['ncodfamilia']);
-         if($fam)
-         {
-            $this->new_error_msg('La familia <a href="'.$fam->url().'">'.$fam->codfamilia.'</a> ya existe.');
-         }
-         else
-         {
-            $fam = new familia();
-            $fam->codfamilia = $_POST['ncodfamilia'];
-            $fam->descripcion = $_POST['ndescripcion'];
-            $fam->madre = $this->madre;
-            if( $fam->save() )
-            {
-               Header('location: ' . $fam->url());
-            }
-            else
-               $this->new_error_msg("¡Imposible guardar la familia!");
-         }
+         $this->nueva_familia();
       }
-      else if( isset($_GET['delete']) )
+      else if(isset($_GET['delete']))
       {
-         $fam = $this->familia->get($_GET['delete']);
-         if($fam)
-         {
-            if( $fam->delete() )
-            {
-               $this->new_message("Familia ".$_GET['delete']." eliminada correctamente");
-            }
-            else
-               $this->new_error_msg("¡Imposible eliminar la familia ".$_GET['delete']."!");
-         }
-         else
-            $this->new_error_msg("Familia ".$_GET['delete']." no encontrada.");
+         $this->eliminar_familia();
       }
-      
+
       if($this->query != '')
       {
          $this->resultados = $this->familia->search($this->query);
@@ -87,18 +63,54 @@ class ventas_familias extends fs_controller
          $this->share_extensions();
       }
    }
-   
-   public function total_familias()
+
+   private function nueva_familia()
    {
-      $data = $this->db->select("SELECT COUNT(codfamilia) as total FROM familias;");
-      if($data)
+      $fam = $this->familia->get($_POST['ncodfamilia']);
+      if($fam)
       {
-         return intval($data[0]['total']);
+         $this->new_error_msg('La familia <a href="' . $fam->url() . '">' . $fam->codfamilia . '</a> ya existe.');
       }
       else
-         return 0;
+      {
+         $fam = new familia();
+         $fam->codfamilia = $_POST['ncodfamilia'];
+         $fam->descripcion = $_POST['ndescripcion'];
+         $fam->madre = $this->madre;
+         if($fam->save())
+         {
+            Header('location: ' . $fam->url());
+         }
+         else
+            $this->new_error_msg("¡Imposible guardar la familia!");
+      }
    }
-   
+
+   private function eliminar_familia()
+   {
+      $fam = $this->familia->get($_GET['delete']);
+      if($fam)
+      {
+         if( !$this->allow_delete )
+         {
+            $this->new_message("No tienes permiso para eliminar en esta página.");
+         }
+         else if( $fam->delete() )
+         {
+            $this->new_message("Familia " . $fam->codfamilia . " eliminada correctamente.");
+         }
+         else
+            $this->new_error_msg("¡Imposible eliminar la familia " . $fam->codfamilia . "!");
+      }
+      else
+         $this->new_error_msg("Familia " . $_GET['delete'] . " no encontrada.");
+   }
+
+   public function total_familias()
+   {
+      return $this->fbase_sql_total('familias', 'codfamilia');
+   }
+
    private function share_extensions()
    {
       /// añadimos la extensión para ventas_artículos
@@ -107,7 +119,8 @@ class ventas_familias extends fs_controller
       $fsext->from = __CLASS__;
       $fsext->to = 'ventas_articulos';
       $fsext->type = 'button';
-      $fsext->text = '<span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span><span class="hidden-xs"> &nbsp; Familias</span>';
+      $fsext->text = '<span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>'
+              . '<span class="hidden-xs"> &nbsp; Familias</span>';
       $fsext->save();
    }
 }

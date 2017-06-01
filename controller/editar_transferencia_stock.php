@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('almacen.php');
 require_model('articulo.php');
 require_model('fabricante.php');
@@ -30,9 +31,8 @@ require_model('transferencia_stock.php');
  *
  * @author Carlos Garcia Gomez
  */
-class editar_transferencia_stock extends fs_controller
+class editar_transferencia_stock extends fbase_controller
 {
-   public $allow_delete;
    public $almacen;
    public $fabricante;
    public $familia;
@@ -46,7 +46,8 @@ class editar_transferencia_stock extends fs_controller
    
    protected function private_core()
    {
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      parent::private_core();
+      
       $this->almacen = new almacen();
       $this->fabricante = new fabricante();
       $this->familia = new familia();

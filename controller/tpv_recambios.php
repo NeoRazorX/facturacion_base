@@ -17,13 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('agente.php');
 require_model('almacen.php');
 require_model('articulo.php');
 require_model('articulo_combinacion.php');
 require_model('asiento_factura.php');
 require_model('caja.php');
-require_model('cliente.php');
 require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('fabricante.php');
@@ -37,11 +37,10 @@ require_model('serie.php');
 require_model('tarifa.php');
 require_model('terminal_caja.php');
 
-class tpv_recambios extends fs_controller
+class tpv_recambios extends fbase_controller
 {
    public $agente;
    public $almacen;
-   public $allow_delete;
    public $articulo;
    public $caja;
    public $cliente;
@@ -68,10 +67,8 @@ class tpv_recambios extends fs_controller
    
    protected function private_core()
    {
+      parent::private_core();
       $this->share_extensions();
-      
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
       
       $this->articulo = new articulo();
       $this->cliente = new cliente();
@@ -83,7 +80,7 @@ class tpv_recambios extends fs_controller
       
       if( isset($_REQUEST['buscar_cliente']) )
       {
-         $this->buscar_cliente();
+         $this->fbase_buscar_cliente($_REQUEST['buscar_cliente']);
       }
       else if( isset($_REQUEST['datoscliente']) )
       {
@@ -110,8 +107,7 @@ class tpv_recambios extends fs_controller
          $this->forma_pago = new forma_pago();
          $this->serie = new serie();
          
-         $this->imprimir_descripciones = isset($_COOKIE['imprimir_desc']);
-         $this->imprimir_observaciones = isset($_COOKIE['imprimir_obs']);
+         $this->comprobar_opciones();
          
          if($this->agente)
          {
@@ -221,19 +217,40 @@ class tpv_recambios extends fs_controller
       }
    }
    
-   private function buscar_cliente()
+   private function comprobar_opciones()
    {
-      /// desactivamos la plantilla HTML
-      $this->template = FALSE;
+      $fsvar = new fs_var();
       
-      $json = array();
-      foreach($this->cliente->search($_REQUEST['buscar_cliente']) as $cli)
+      $this->imprimir_descripciones = ($fsvar->simple_get('tpv_gen_descripcion') == '1');
+      $this->imprimir_observaciones = ($fsvar->simple_get('tpv_gen_observaciones') == '1');
+      
+      /**
+       * Si se detectan datos por post de que se está creando una factura, modificamos las opciones
+       */
+      if( isset($_POST['cliente']) )
       {
-         $json[] = array('value' => $cli->razonsocial, 'data' => $cli->codcliente, 'full' => $cli);
+         if( isset($_POST['imprimir_desc']) )
+         {
+            $this->imprimir_descripciones = TRUE;
+            $fsvar->simple_save('tpv_gen_descripcion', '1');
+         }
+         else
+         {
+            $this->imprimir_descripciones = FALSE;
+            $fsvar->simple_delete('tpv_gen_descripcion');
+         }
+         
+         if( isset($_POST['imprimir_obs']) )
+         {
+            $this->imprimir_observaciones = TRUE;
+            $fsvar->simple_save('tpv_gen_observaciones', '1');
+         }
+         else
+         {
+            $this->imprimir_observaciones = FALSE;
+            $fsvar->simple_delete('tpv_gen_observaciones');
+         }
       }
-      
-      header('Content-Type: application/json');
-      echo json_encode( array('query' => $_REQUEST['buscar_cliente'], 'suggestions' => $json) );
    }
    
    private function datos_cliente()
@@ -250,10 +267,6 @@ class tpv_recambios extends fs_controller
       /// desactivamos la plantilla HTML
       $this->template = FALSE;
       
-      $fsvar = new fs_var();
-      $multi_almacen = $fsvar->simple_get('multi_almacen');
-      $stock = new stock();
-      
       $codfamilia = '';
       if( isset($_REQUEST['codfamilia']) )
       {
@@ -267,17 +280,15 @@ class tpv_recambios extends fs_controller
       $con_stock = isset($_REQUEST['con_stock']);
       $this->results = $this->articulo->search($this->query, 0, $codfamilia, $con_stock, $codfabricante);
       
-      /// añadimos el descuento y la cantidad
-      foreach($this->results as $i => $value)
+      /// buscamos por código de barras de la combinación
+      $combi0 = new articulo_combinacion();
+      foreach($combi0->search($this->query) as $combi)
       {
-         $this->results[$i]->query = $this->query;
-         $this->results[$i]->dtopor = 0;
-         $this->results[$i]->cantidad = 1;
-         
-         $this->results[$i]->stockalm = $value->stockfis;
-         if( $multi_almacen AND isset($_REQUEST['codalmacen']) )
+         $articulo = $this->articulo->get($combi->referencia);
+         if($articulo)
          {
-            $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
+            $articulo->codbarras = $combi->codbarras;
+            $this->results[] = $articulo;
          }
       }
       
@@ -288,6 +299,30 @@ class tpv_recambios extends fs_controller
          {
             $name = $ext->text;
             $name($this->db, $this->results);
+         }
+      }
+      
+      $this->new_search_postprocess();
+      
+      header('Content-Type: application/json');
+      echo json_encode($this->results);
+   }
+   
+   private function new_search_postprocess()
+   {
+      $stock = new stock();
+      
+      /// añadimos el descuento y la cantidad
+      foreach($this->results as $i => $value)
+      {
+         $this->results[$i]->query = $this->query;
+         $this->results[$i]->dtopor = 0;
+         $this->results[$i]->cantidad = 1;
+         
+         $this->results[$i]->stockalm = $value->stockfis;
+         if( $this->multi_almacen AND isset($_REQUEST['codalmacen']) )
+         {
+            $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
          }
       }
       
@@ -313,9 +348,6 @@ class tpv_recambios extends fs_controller
             }
          }
       }
-      
-      header('Content-Type: application/json');
-      echo json_encode($this->results);
    }
    
    private function get_precios_articulo()
@@ -331,6 +363,8 @@ class tpv_recambios extends fs_controller
       /// cambiamos la plantilla HTML
       $this->template = 'ajax/tpv_recambios_combinaciones';
       
+      $impuestos = $this->impuesto->all();
+      
       $this->results = array();
       $comb1 = new articulo_combinacion();
       foreach($comb1->all_from_ref($_POST['referencia4combi']) as $com)
@@ -342,12 +376,23 @@ class tpv_recambios extends fs_controller
          }
          else
          {
+            $iva = 0;
+            foreach($impuestos as $imp)
+            {
+               if($imp->codimpuesto == $_POST['codimpuesto'])
+               {
+                  $iva = $imp->iva;
+                  break;
+               }
+            }
+            
             $this->results[$com->codigo] = array(
                 'ref' => $_POST['referencia4combi'],
                 'desc' => base64_decode($_POST['desc'])."\n".$com->nombreatributo.' - '.$com->valor,
                 'pvp' => floatval($_POST['pvp']) + $com->impactoprecio,
                 'dto' => floatval($_POST['dto']),
                 'codimpuesto' => $_POST['codimpuesto'],
+                'iva' => $iva,
                 'cantidad' => floatval($_POST['cantidad']),
                 'txt' => $com->nombreatributo.' - '.$com->valor,
                 'codigo' => $com->codigo,
@@ -412,28 +457,6 @@ class tpv_recambios extends fs_controller
       {
          $this->new_error_msg('Divisa no encontrada.');
          $continuar = FALSE;
-      }
-      
-      if( isset($_POST['imprimir_desc']) )
-      {
-         $this->imprimir_descripciones = TRUE;
-         setcookie('imprimir_desc', TRUE, time()+FS_COOKIES_EXPIRE);
-      }
-      else
-      {
-         $this->imprimir_descripciones = FALSE;
-         setcookie('imprimir_desc', FALSE, time()-FS_COOKIES_EXPIRE);
-      }
-      
-      if( isset($_POST['imprimir_obs']) )
-      {
-         $this->imprimir_observaciones = TRUE;
-         setcookie('imprimir_obs', TRUE, time()+FS_COOKIES_EXPIRE);
-      }
-      else
-      {
-         $this->imprimir_observaciones = FALSE;
-         setcookie('imprimir_obs', FALSE, time()-FS_COOKIES_EXPIRE);
       }
       
       $factura = new factura_cliente();

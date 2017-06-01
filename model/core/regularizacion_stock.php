@@ -167,16 +167,33 @@ class regularizacion_stock extends \fs_model
    /**
     * Devuelve un array con todas las regularizaciones de un artículo.
     * @param type $ref
+    * @param type $codalmacen
+    * @param type $desde
+    * @param type $hasta
+    * @param type $limit
+    * @param type $offset
     * @return \regularizacion_stock
     */
-   public function all_from_articulo($ref)
+   public function all_from_articulo($ref, $codalmacen = '', $desde = '', $hasta = '', $limit = 1000, $offset = 0)
    {
       $rlist = array();
       $sql = "SELECT * FROM lineasregstocks WHERE idstock IN"
-              . " (SELECT idstock FROM stocks WHERE referencia = ".$this->var2str($ref).")"
-              . " ORDER BY fecha DESC, hora DESC";
+              . " (SELECT idstock FROM stocks WHERE referencia = ".$this->var2str($ref).")";
+      if($codalmacen)
+      {
+         $sql .= " AND codalmacendest >= ".$this->var2str($codalmacen);
+      }
+      if($desde)
+      {
+         $sql .= " AND fecha >= ".$this->var2str($desde);
+      }
+      if($hasta)
+      {
+         $sql .= " AND fecha <= ".$this->var2str($hasta);
+      }
+      $sql .= " ORDER BY fecha DESC, hora DESC";
       
-      $data = $this->db->select_limit($sql, 1000, 0);
+      $data = $this->db->select_limit($sql, $limit, $offset);
       if($data)
       {
          foreach($data as $d)

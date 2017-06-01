@@ -28,12 +28,12 @@
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="Marcada como página de inicio (pulsa de nuevo para desmarcar)">
+               <i class="fa fa-bookmark" aria-hidden="true"></i>
             </a>
             {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="Marcar como página de inicio">
+               <i class="fa fa-bookmark-o" aria-hidden="true"></i>
             </a>
             {/if}
          </div>
@@ -65,7 +65,7 @@
       <li role="presentation" class="active">
          <a href="{$fsc->url()}">
             <span class="glyphicon glyphicon-search"></span>
-            <span class="hidden-xs">&nbsp; Resultados</span>
+            <span class="hidden-xs">&nbsp;Resultados</span>
             <span class="badge">{$fsc->total_resultados}</span>
          </a>
       </li>
@@ -125,10 +125,13 @@
                            <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
                         </div>
                         <select name="orden" class="form-control" onchange="this.form.submit()">
-                           <option value="nombre ASC">Orden: nombre</option>
-                           <option value="nombre DESC"{if="$fsc->orden=='nombre DESC'"} selected=""{/if}>Orden: nombre descendente</option>
-                           <option value="f_alta ASC"{if="$fsc->orden=='f_alta ASC'"} selected=""{/if}>Orden: fecha</option>
-                           <option value="f_alta DESC"{if="$fsc->orden=='f_alta DESC'"} selected=""{/if}>Orden: fecha descendente</option>
+                           {loop="$fsc->orden()"}
+                              {if="$fsc->orden==$key"}
+                              <option value="{$key}" selected="">{$value}</option>
+                              {else}
+                              <option value="{$key}">{$value}</option>
+                              {/if}
+                           {/loop}
                         </select>
                      </div>
                   </div>
@@ -139,7 +142,7 @@
             <table class="table table-hover">
                <thead>
                   <tr>
-                     <th class="text-left">Nombre + Apellidos</th>
+                     <th class="text-left">Código + Nombre</th>
                      <th class="text-left">{#FS_CIFNIF#}</th>
                      <th class="text-left">Cargo</th>
                      <th class="text-left">Teléfono</th>
@@ -150,6 +153,7 @@
                {loop="$fsc->resultados"}
                <tr class='clickableRow{if="$value->f_baja"} danger{/if}' href='{$value->url()}'>
                   <td>
+                     <a href="{$value->url()}">{$value->codagente}</a>
                      {$value->get_fullname()}
                      {if="$value->f_baja"}
                      &nbsp; <span class="label label-danger" title="Empleado dado de baja">Baja</span>

@@ -183,7 +183,7 @@ class fs_pdf
             }
             
             $this->pdf->ez['rightMargin'] = 40;
-            $this->pdf->ezText("<b>".$this->fix_html($empresa->nombre)."</b>", 12, array('justification' => 'right'));
+            $this->pdf->ezText("<b>".fs_fix_html($empresa->nombre)."</b>", 12, array('justification' => 'right'));
             $this->pdf->ezText(FS_CIFNIF.": ".$empresa->cifnif, 8, array('justification' => 'right'));
             
             $direccion = $empresa->direccion . "\n";
@@ -212,7 +212,7 @@ class fs_pdf
                $direccion .= "\nTeléfono: " . $empresa->telefono;
             }
             
-            $this->pdf->ezText($this->fix_html($direccion)."\n", 9, array('justification' => 'right'));
+            $this->pdf->ezText(fs_fix_html($direccion)."\n", 9, array('justification' => 'right'));
             $this->set_y(750);
          }
          else
@@ -223,7 +223,7 @@ class fs_pdf
       }
       else
       {
-         $this->pdf->ezText("<b>".$this->fix_html($empresa->nombre)."</b>", 16, array('justification' => 'center'));
+         $this->pdf->ezText("<b>".fs_fix_html($empresa->nombre)."</b>", 16, array('justification' => 'center'));
          $this->pdf->ezText(FS_CIFNIF.": ".$empresa->cifnif, 8, array('justification' => 'center'));
          
          $direccion = $empresa->direccion;
@@ -252,7 +252,7 @@ class fs_pdf
             $direccion .= ' - Teléfono: ' . $empresa->telefono;
          }
          
-         $this->pdf->ezText($this->fix_html($direccion), 9, array('justification' => 'center'));
+         $this->pdf->ezText(fs_fix_html($direccion), 9, array('justification' => 'center'));
       }
    }
    
@@ -367,13 +367,15 @@ class fs_pdf
       $this->pdf->ezTable($this->table_rows, $this->table_header, '', $options);
    }
    
+   /**
+    * Revierte los cambios producidos por fs_model::no_html()
+    * @deprecated since version 2017.012
+    * @param type $txt
+    * @return type
+    */
    public function fix_html($txt)
    {
-      $newt = str_replace('&lt;', '<', $txt);
-      $newt = str_replace('&gt;', '>', $newt);
-      $newt = str_replace('&quot;', '"', $newt);
-      $newt = str_replace('&#39;', "'", $newt);
-      return $newt;
+      return fs_fix_html($txt);
    }
    
    public function get_lineas_iva($lineas)

@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('articulo.php');
 require_model('articulo_traza.php');
 
@@ -26,9 +27,8 @@ require_model('articulo_traza.php');
  *
  * @author Carlos Garcia Gomez
  */
-class articulo_trazabilidad extends fs_controller
+class articulo_trazabilidad extends fbase_controller
 {
-   public $allow_delete;
    public $articulo;
    public $trazas;
    
@@ -39,8 +39,7 @@ class articulo_trazabilidad extends fs_controller
    
    protected function private_core()
    {
-      /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on(__CLASS__);
+      parent::private_core();
       
       $this->articulo = FALSE;
       if( isset($_REQUEST['ref']) )

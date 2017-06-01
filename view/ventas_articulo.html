@@ -35,7 +35,7 @@
          event.preventDefault();
          {if="$fsc->articulo->publico"}
          bootbox.alert({
-            message: 'Este artículo es público. Si estas seguro de que quieres eliminarlo, desmarcalo como público, guarda y pulsa eliminar.',
+            message: 'Este artículo <b>es público</b>. Si estas seguro de que quieres eliminarlo, desmarcalo como público, guarda y pulsa eliminar.',
             title: "<b>Atención</b>"
          });
          {else}
@@ -54,24 +54,10 @@
          event.preventDefault();
          $("#modal_articulo_imagen").modal('show');
       });
-      $('#b_regularizaciones').click(function(event) {
-         event.preventDefault();
-         $("#b_movimientos").removeClass('active');
-         $("#b_regularizaciones").addClass('active');
-         $("#table_movimientos").hide();
-         $("#table_regularizaciones").show();
-      });
-      $('#b_movimientos').click(function(event) {
-         event.preventDefault();
-         $("#b_movimientos").addClass('active');
-         $("#b_regularizaciones").removeClass('active');
-         $("#table_movimientos").show();
-         $("#table_regularizaciones").hide();
-      });
    });
 </script>
 
-<div class="container-fluid">
+<div class="container-fluid" style="margin-bottom: 10px;">
    <div class="row">
       <div class="col-xs-7">
          <div class="btn-group">
@@ -122,8 +108,6 @@
       </div>
    </div>
 </div>
-
-<br/>
 
 <div id="tab_articulo" role="tabpanel">
    <ul class="nav nav-tabs" role="tablist">
