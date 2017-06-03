@@ -168,4 +168,11 @@ class subcuenta_cliente extends \fs_model
       
       return $sublist;
    }
+   
+   /**
+    * Aplica algunas correcciones a la tabla.
+    */
+   public function fix_db() {
+      $this->db->exec("DELETE FROM ".$this->table_name." WHERE codcliente NOT IN (SELECT codcliente FROM clientes);");
+   }
 }

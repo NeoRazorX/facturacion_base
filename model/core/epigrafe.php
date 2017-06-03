@@ -478,4 +478,11 @@ class epigrafe extends \fs_model
       
       return $epilist;
    }
+   
+   /**
+    * Aplica algunas correcciones a la tabla.
+    */
+   public function fix_db() {
+      $this->db->exec("UPDATE ".$this->table_name." SET idgrupo = NULL WHERE idgrupo NOT IN (SELECT idgrupo FROM co_gruposepigrafes);");
+   }
 }

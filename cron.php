@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -21,56 +22,63 @@ require_model('albaran_cliente.php');
 require_model('albaran_proveedor.php');
 require_model('articulo.php');
 require_model('asiento.php');
+require_model('cliente.php');
 require_model('factura_cliente.php');
 require_model('factura_proveedor.php');
+require_model('proveedor.php');
 require_once 'plugins/facturacion_base/extras/libromayor.php';
 require_once 'plugins/facturacion_base/extras/inventarios_balances.php';
 
-class facturacion_base_cron
-{
-   public function __construct(&$db)
-   {
+class facturacion_base_cron {
+
+   public function __construct(&$db) {
+      echo "Ejecutando tareas para los " . FS_ALBARANES . " de venta...";
       $alb_cli = new albaran_cliente();
-      echo "Ejecutando tareas para los ".FS_ALBARANES." de cliente...";
       $alb_cli->cron_job();
-      
+
+      echo "\nEjecutando tareas para los " . FS_ALBARANES . " de compra...";
       $alb_pro = new albaran_proveedor();
-      echo "\nEjecutando tareas para los ".FS_ALBARANES." de proveedor...";
       $alb_pro->cron_job();
-      
+
+      echo "\nEjecutando tareas para las facturas de venta...";
       $fac_cli = new factura_cliente();
-      echo "\nEjecutando tareas para las facturas de cliente...";
       $fac_cli->cron_job();
-      
+
+      echo "\nEjecutando tareas para las facturas de compra...";
       $fac_pro = new factura_proveedor();
-      echo "\nEjecutando tareas para las facturas de proveedor...";
       $fac_pro->cron_job();
-      
-      $articulo = new articulo();
+
       echo "\nEjecutando tareas para los articulos...";
+      $articulo = new articulo();
       $articulo->cron_job();
-      
-      $asiento = new asiento();
+
       echo "\nEjecutando tareas para los asientos...";
+      $asiento = new asiento();
       $asiento->cron_job();
+
+      echo "\nEjecutando tareas para los clientes...";
+      $cliente = new cliente();
+      $cliente->fix_db();
       
-      if(FS_LIBROS_CONTABLES)
-      {
-         $libro = new libro_mayor();
+      echo "\nEjecutando tareas para los proveedores...";
+      $proveedor = new proveedor();
+      $proveedor->fix_db();
+      
+      if (FS_LIBROS_CONTABLES) {
          echo "\nGeneramos el libro mayor para cada subcuenta y el libro diario para cada ejercicio...";
-         $libro->cron_job();
-         
-         $inventarios_balances = new inventarios_balances($db);
-         echo "\nGeneramos el libro de inventarios y balances para cada ejercicio...";
-         $inventarios_balances->cron_job();
-      }
-      else
-      {
          $libro = new libro_mayor();
+         $libro->cron_job();
+
+         echo "\nGeneramos el libro de inventarios y balances para cada ejercicio...";
+         $inventarios_balances = new inventarios_balances($db);
+         $inventarios_balances->cron_job();
+      } else {
          echo "\nComprobamos algunas subcuentas...";
+         $libro = new libro_mayor();
          $libro->cron_job();
       }
    }
+
 }
 
 new facturacion_base_cron($db);

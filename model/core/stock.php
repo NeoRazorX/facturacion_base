@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -27,41 +28,28 @@ require_model('articulo.php');
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class stock extends \fs_model
-{
+class stock extends \fs_model {
+
    /**
     * Clave primaria.
     * @var type 
     */
    public $idstock;
-   
    public $codalmacen;
-   
    public $referencia;
-   
    public $nombre;
-   
    public $cantidad;
-   
    public $reservada;
-   
    public $disponible;
-   
    public $pterecibir;
-   
    public $stockmin;
-   
    public $stockmax;
-   
    public $cantidadultreg;
-   
    public $ubicacion;
-   
-   public function __construct($s = FALSE)
-   {
+
+   public function __construct($s = FALSE) {
       parent::__construct('stocks');
-      if($s)
-      {
+      if ($s) {
          $this->idstock = $this->intval($s['idstock']);
          $this->codalmacen = $s['codalmacen'];
          $this->referencia = $s['referencia'];
@@ -74,9 +62,7 @@ class stock extends \fs_model
          $this->stockmax = floatval($s['stockmax']);
          $this->cantidadultreg = floatval($s['cantidadultreg']);
          $this->ubicacion = $s['ubicacion'];
-      }
-      else
-      {
+      } else {
          $this->idstock = NULL;
          $this->codalmacen = NULL;
          $this->referencia = NULL;
@@ -91,9 +77,8 @@ class stock extends \fs_model
          $this->ubicacion = NULL;
       }
    }
-   
-   protected function install()
-   {
+
+   protected function install() {
       /**
        * La tabla stocks tiene claves ajenas a artículos y almacenes,
        * por eso creamos un objeto de cada uno, para forzar la comprobación
@@ -101,190 +86,170 @@ class stock extends \fs_model
        */
       new \almacen();
       new \articulo();
-      
+
       return '';
    }
-   
-   public function nombre()
-   {
+
+   public function nombre() {
       $al0 = new \almacen();
       $almacen = $al0->get($this->codalmacen);
-      if($almacen)
-      {
+      if ($almacen) {
          $this->nombre = $almacen->nombre;
       }
-      
+
       return $this->nombre;
    }
-   
-   public function set_cantidad($c = 0)
-   {
+
+   public function set_cantidad($c = 0) {
       $this->cantidad = floatval($c);
-      
-      if($this->cantidad < 0 AND !FS_STOCK_NEGATIVO)
-      {
+
+      if ($this->cantidad < 0 AND ! FS_STOCK_NEGATIVO) {
          $this->cantidad = 0;
       }
-      
+
       $this->disponible = $this->cantidad - $this->reservada;
    }
-   
-   public function sum_cantidad($c = 0)
-   {
+
+   public function sum_cantidad($c = 0) {
       /// convertimos a flot por si acaso nos ha llegado un string
       $this->cantidad += floatval($c);
-      
-      if($this->cantidad < 0 AND !FS_STOCK_NEGATIVO)
-      {
+
+      if ($this->cantidad < 0 AND ! FS_STOCK_NEGATIVO) {
          $this->cantidad = 0;
       }
-      
+
       $this->disponible = $this->cantidad - $this->reservada;
    }
-   
-   public function get($id)
-   {
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE idstock = ".$this->var2str($id).";");
-      if($data)
-      {
+
+   public function get($id) {
+      $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idstock = " . $this->var2str($id) . ";");
+      if ($data) {
          return new \stock($data[0]);
-      }
-      else
+      } else
          return FALSE;
    }
-   
-   public function get_by_referencia($ref, $codalmacen = FALSE)
-   {
-      $sql = "SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref).";";
-      if($codalmacen)
-      {
-         $sql = "SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref)
-                 .", codalmacen = ".$this->var2str($codalmacen).";";
+
+   public function get_by_referencia($ref, $codalmacen = FALSE) {
+      $sql = "SELECT * FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref) . ";";
+      if ($codalmacen) {
+         $sql = "SELECT * FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref)
+                 . ", codalmacen = " . $this->var2str($codalmacen) . ";";
       }
-      
+
       $data = $this->db->select($sql);
-      if($data)
-      {
+      if ($data) {
          return new \stock($data[0]);
-      }
-      else
+      } else
          return FALSE;
    }
-   
-   public function exists()
-   {
-      if( is_null($this->idstock) )
-      {
+
+   public function exists() {
+      if (is_null($this->idstock)) {
          return FALSE;
-      }
-      else
-         return $this->db->select("SELECT * FROM ".$this->table_name." WHERE idstock = ".$this->var2str($this->idstock).";");
+      } else
+         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idstock = " . $this->var2str($this->idstock) . ";");
    }
-   
-   public function save()
-   {
+
+   public function save() {
       $this->cantidad = round($this->cantidad, 3);
       $this->reservada = round($this->reservada, 3);
       $this->disponible = $this->cantidad - $this->reservada;
-      
-      if( $this->exists() )
-      {
-         $sql = "UPDATE ".$this->table_name." SET codalmacen = ".$this->var2str($this->codalmacen)
-                 .", referencia = ".$this->var2str($this->referencia)
-                 .", nombre = ".$this->var2str($this->nombre)
-                 .", cantidad = ".$this->var2str($this->cantidad)
-                 .", reservada = ".$this->var2str($this->reservada)
-                 .", disponible = ".$this->var2str($this->disponible)
-                 .", pterecibir = ".$this->var2str($this->pterecibir)
-                 .", stockmin = ".$this->var2str($this->stockmin)
-                 .", stockmax = ".$this->var2str($this->stockmax)
-                 .", cantidadultreg = ".$this->var2str($this->cantidadultreg)
-                 .", ubicacion = ".$this->var2str($this->ubicacion)
-                 ."  WHERE idstock = ".$this->var2str($this->idstock).";";
-         
+
+      if ($this->exists()) {
+         $sql = "UPDATE " . $this->table_name . " SET codalmacen = " . $this->var2str($this->codalmacen)
+                 . ", referencia = " . $this->var2str($this->referencia)
+                 . ", nombre = " . $this->var2str($this->nombre)
+                 . ", cantidad = " . $this->var2str($this->cantidad)
+                 . ", reservada = " . $this->var2str($this->reservada)
+                 . ", disponible = " . $this->var2str($this->disponible)
+                 . ", pterecibir = " . $this->var2str($this->pterecibir)
+                 . ", stockmin = " . $this->var2str($this->stockmin)
+                 . ", stockmax = " . $this->var2str($this->stockmax)
+                 . ", cantidadultreg = " . $this->var2str($this->cantidadultreg)
+                 . ", ubicacion = " . $this->var2str($this->ubicacion)
+                 . "  WHERE idstock = " . $this->var2str($this->idstock) . ";";
+
          return $this->db->exec($sql);
-      }
-      else
-      {
-         $sql = "INSERT INTO ".$this->table_name." (codalmacen,referencia,nombre,cantidad,reservada,
+      } else {
+         $sql = "INSERT INTO " . $this->table_name . " (codalmacen,referencia,nombre,cantidad,reservada,
             disponible,pterecibir,stockmin,stockmax,cantidadultreg,ubicacion) VALUES 
-                   (".$this->var2str($this->codalmacen)
-                 .",".$this->var2str($this->referencia)
-                 .",".$this->var2str($this->nombre)
-                 .",".$this->var2str($this->cantidad)
-                 .",".$this->var2str($this->reservada)
-                 .",".$this->var2str($this->disponible)
-                 .",".$this->var2str($this->pterecibir)
-                 .",".$this->var2str($this->stockmin)
-                 .",".$this->var2str($this->stockmax)
-                 .",".$this->var2str($this->cantidadultreg)
-                 .",".$this->var2str($this->ubicacion).");";
-         
-         if( $this->db->exec($sql) )
-         {
+                   (" . $this->var2str($this->codalmacen)
+                 . "," . $this->var2str($this->referencia)
+                 . "," . $this->var2str($this->nombre)
+                 . "," . $this->var2str($this->cantidad)
+                 . "," . $this->var2str($this->reservada)
+                 . "," . $this->var2str($this->disponible)
+                 . "," . $this->var2str($this->pterecibir)
+                 . "," . $this->var2str($this->stockmin)
+                 . "," . $this->var2str($this->stockmax)
+                 . "," . $this->var2str($this->cantidadultreg)
+                 . "," . $this->var2str($this->ubicacion) . ");";
+
+         if ($this->db->exec($sql)) {
             $this->idstock = $this->db->lastval();
             return TRUE;
-         }
-         else
+         } else
             return FALSE;
       }
    }
-   
-   public function delete()
-   {
-      return $this->db->exec("DELETE FROM ".$this->table_name." WHERE idstock = ".$this->var2str($this->idstock).";");
+
+   public function delete() {
+      return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE idstock = " . $this->var2str($this->idstock) . ";");
    }
-   
-   public function all_from_articulo($ref)
-   {
+
+   public function all_from_articulo($ref) {
       $stocklist = array();
-      
-      $data = $this->db->select("SELECT * FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref)." ORDER BY codalmacen ASC;");
-      if($data)
-      {
-         foreach($data as $s)
-         {
+
+      $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref) . " ORDER BY codalmacen ASC;");
+      if ($data) {
+         foreach ($data as $s) {
             $stocklist[] = new \stock($s);
          }
       }
-      
+
       return $stocklist;
    }
-   
-   public function total_from_articulo($ref, $codalmacen = FALSE)
-   {
+
+   public function total_from_articulo($ref, $codalmacen = FALSE) {
       $num = 0;
-      $sql = "SELECT SUM(cantidad) as total FROM ".$this->table_name." WHERE referencia = ".$this->var2str($ref);
-      
-      if($codalmacen)
-      {
-         $sql .= " AND codalmacen = ".$this->var2str($codalmacen);
+      $sql = "SELECT SUM(cantidad) as total FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref);
+
+      if ($codalmacen) {
+         $sql .= " AND codalmacen = " . $this->var2str($codalmacen);
       }
-      
+
       $data = $this->db->select($sql);
-      if($data)
-      {
-         $num = round( floatval($data[0]['total']), 3);
+      if ($data) {
+         $num = round(floatval($data[0]['total']), 3);
       }
-      
+
       return $num;
    }
-   
-   public function count($column = 'idstock')
-   {
+
+   public function count($column = 'idstock') {
       $num = 0;
-      
-      $data = $this->db->select("SELECT COUNT(idstock) as total FROM ".$this->table_name.";");
-      if($data)
-      {
+
+      $data = $this->db->select("SELECT COUNT(idstock) as total FROM " . $this->table_name . ";");
+      if ($data) {
          $num = intval($data[0]['total']);
       }
-      
+
       return $num;
    }
-   
-   public function count_by_articulo()
-   {
+
+   public function count_by_articulo() {
       return $this->count('DISTINCT referencia');
    }
+
+   /**
+    * Aplicamos algunas correcciones a la tabla.
+    */
+   public function fix_db() {
+      /**
+       * Esta consulta produce un error si no hay datos erroneos, pero da igual
+       */
+      $this->db->exec("DELETE FROM stocks s WHERE NOT EXISTS "
+              . "(SELECT referencia FROM articulos a WHERE a.referencia = s.referencia);");
+   }
+
 }
