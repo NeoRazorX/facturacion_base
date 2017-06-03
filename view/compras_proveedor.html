@@ -2,27 +2,7 @@
 
 {if="$fsc->proveedor"}
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
-   google.load('visualization', '1.0', {'packages':['corechart']});
-   google.setOnLoadCallback(drawChart);
-   var data_chart;
-   var chart;
-   function drawChart()
-   {
-      data_chart = new google.visualization.DataTable();
-      data_chart.addColumn('string', 'mes');
-      data_chart.addColumn('number', '{#FS_ALBARANES#}');
-      data_chart.addColumn('number', 'facturas');
-      data_chart.addRows([
-      {loop="$fsc->stats_from_prov()"}
-         ['{$value['mes']}', {$value['albaranes']}, {$value['facturas']}],
-      {/loop}
-      ]);
-      
-      chart = new google.visualization.AreaChart(document.getElementById('chart_albaranes_month'));
-      chart.draw(data_chart);
-   }
    function comprobar_url()
    {
       if(window.location.hash.substring(1) == 'cuentasb')
@@ -85,9 +65,6 @@
          event.preventDefault();
          $("#modal_nueva_direccion").modal('show');
          document.f_nueva_direccion.provincia.focus();
-      });
-      $('#tabs_proveedor a[href="#stats"]').on('shown.bs.tab', function(e) {
-         drawChart();
       });
    });
 </script>
@@ -174,7 +151,7 @@
             {/loop}
             <li role="presentation">
                <a href="#stats" aria-controls="stats" role="tab" data-toggle="tab">
-                  <span class="glyphicon glyphicon-stats"></span> &nbsp; Estadísticas
+                  <i class="fa fa-area-chart" aria-hidden="true"></i>&nbsp; Estadísticas
                </a>
             </li>
          </ul>
@@ -665,14 +642,23 @@
                      <h3 class="panel-title">Estadísticas</h3>
                   </div>
                   <div class="panel-body">
-                     <div id="chart_albaranes_month" style="height: 400px;"></div>
+                     <div class="row">
+                        <div class="col-sm-2">
+                           <a target="_blank" href="index.php?page=informe_facturas&codproveedor={$fsc->proveedor->codproveedor}&codcliente={$fsc->proveedor->codcliente}" class="btn btn-sm btn-block btn-default">
+                              <i class="fa fa-area-chart" aria-hidden="true"></i> facturas
+                           </a>
+                        </div>
+                        <div class="col-sm-2">
+                           <a target="_blank" href="index.php?page=informe_albaranes&codproveedor={$fsc->proveedor->codproveedor}&codcliente={$fsc->proveedor->codcliente}" class="btn btn-sm btn-block btn-default">
+                              <i class="fa fa-area-chart" aria-hidden="true"></i> {#FS_ALBARANES#}
+                           </a>
+                        </div>
+                     </div>
                   </div>
                   <div class="panel-footer">
                      <p class="help-block">
-                        Estas son las estadísticas de {#FS_ALBARANES#} y facturas del proveedor
-                        de los últimos años. Los valores son <b>netos</b> en {$fsc->simbolo_divisa()}.
-                        <br/>
-                        Puedes consultar informes de compras más detallados en <b>Informes &gt; Facturas</b>.
+                        Hemos rediseñado los informes para hacerlos más potentes, con muchos
+                        más filtros.
                      </p>
                   </div>
                </div>
