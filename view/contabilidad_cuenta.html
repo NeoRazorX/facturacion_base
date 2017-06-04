@@ -38,7 +38,7 @@
             <div class="btn-group">
                <a href="#" class="btn btn-sm btn-default" data-toggle="modal" data-target="#modal_librom">
                   <span class="glyphicon glyphicon-book"></span>
-                  <span class="hidden-xs">&nbsp; Libro mayor</span>
+                  <span class="hidden-xs">&nbsp;Libro mayor</span>
                </a>
                {loop="$fsc->extensions"}
                   {if="$value->type=='button'"}
@@ -184,7 +184,7 @@
             </p>
          </div>
          <div class="modal-footer">
-            <a href="index.php?page=informe_contabilidad" class="btn btn-sm btn-default">
+            <a href="index.php?page=informe_contabilidad#{$fsc->cuenta->codejercicio}" class="btn btn-sm btn-default">
                <span class="glyphicon glyphicon-book"></span>&nbsp; Libro mayor
             </a>
          </div>

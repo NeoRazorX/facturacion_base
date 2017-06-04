@@ -132,7 +132,7 @@ class compras_facturas extends fbase_controller
          }
          else
          {
-            if( !isset($_GET['mostrar']) AND (isset($_REQUEST['codagente']) OR isset($_REQUEST['codproveedor']) OR isset($_REQUEST['codserie'])) )
+            if( !isset($_GET['mostrar']) AND ($this->query != '' OR isset($_REQUEST['codagente']) OR isset($_REQUEST['codproveedor']) OR isset($_REQUEST['codserie'])) )
             {
                /**
                 * si obtenermos un codagente, un codproveedor o un codserie pasamos direcatemente
