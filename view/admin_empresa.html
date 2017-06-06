@@ -1,5 +1,5 @@
 {include="header"}
-
+<script type="text/javascript" src="{$fsc->get_js_location('ckeditor/ckeditor.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript">
    function comprobar_url()
@@ -37,7 +37,7 @@
       $("#b_facturacion").removeClass('active');
       $("#b_cuentasb").removeClass('active');
       $("#b_impresion").removeClass('active');
-      
+
       if(id == 'email')
       {
          $("#panel_email").show();
@@ -257,7 +257,7 @@
                   </button>
                </div>
             </div>
-            
+
             <div id="panel_email">
                <ul class="nav nav-tabs" role="tablist">
                   <li role="presentation" class="active">
@@ -418,7 +418,8 @@
                            <div class="col-sm-12">
                               <div class="form-group">
                                  Firma:
-                                 <textarea class="form-control" name="mail_firma" rows="5">{$fsc->empresa->email_config['mail_firma']}</textarea>
+                                 <textarea class="form-control ckeditor" name="mail_firma" rows="5">{$fsc->empresa->email_config['mail_firma']}</textarea>
+
                               </div>
                               <p class='help-block'>
                                  A continuación tienes las plantillas de emails para los documentos de venta.
@@ -429,20 +430,20 @@
                               </p>
                               <div class="form-group">
                                  Factura:
-                                 <textarea class="form-control" name="mail_factura" rows="6">{$fsc->email_plantillas['mail_factura']}</textarea>
+                                 <textarea class="form-control ckeditor" name="mail_factura" rows="6">{$fsc->email_plantillas['mail_factura']}</textarea>
                               </div>
                               <div class="form-group">
                                  <span class="text-capitalize">{#FS_ALBARAN#}:</span>
-                                 <textarea class="form-control" name="mail_albaran" rows="6">{$fsc->email_plantillas['mail_albaran']}</textarea>
+                                 <textarea class="form-control ckeditor" name="mail_albaran" rows="6">{$fsc->email_plantillas['mail_albaran']}</textarea>
                               </div>
                               {if="in_array('presupuestos_y_pedidos',$GLOBALS['plugins'])"}
                               <div class="form-group">
                                  <span class="text-capitalize">{#FS_PEDIDO#}:</span>
-                                 <textarea class="form-control" name="mail_pedido" rows="6">{$fsc->email_plantillas['mail_pedido']}</textarea>
+                                 <textarea class="form-control ckeditor" name="mail_pedido" rows="6">{$fsc->email_plantillas['mail_pedido']}</textarea>
                               </div>
                               <div class="form-group">
                                  <span class="text-capitalize">{#FS_PRESUPUESTO#}:</span>
-                                 <textarea class="form-control" name="mail_presupuesto" rows="6">{$fsc->email_plantillas['mail_presupuesto']}</textarea>
+                                 <textarea class="form-control ckeditor" name="mail_presupuesto" rows="6">{$fsc->email_plantillas['mail_presupuesto']}</textarea>
                               </div>
                               {/if}
                            </div>
@@ -458,7 +459,7 @@
                   </div>
                </div>
             </div>
-            
+
             <div class="panel panel-primary" id="panel_facturacion">
                <div class="panel-heading">
                   <h3 class="panel-title">Facturación</h3>
@@ -562,7 +563,7 @@
                   </button>
                </div>
             </div>
-            
+
             <div class="panel panel-primary" id="panel_impresion">
                <div class="panel-heading">
                   <h3 class="panel-title">Impresión</h3>
@@ -646,7 +647,7 @@
                </div>
             </div>
          </form>
-         
+
          <div id="panel_cuentasb">
             {loop="$fsc->cuenta_banco->all()"}
             <form action="{$fsc->url()}#cuentasb" method="post" class="form">
@@ -808,5 +809,6 @@
       </div>
    </div>
 </form>
+
 
 {include="footer"}
