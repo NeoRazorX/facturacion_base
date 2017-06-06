@@ -274,13 +274,23 @@ class familia extends \fs_model {
 
       return $famlist;
    }
-   
+
    /**
     * Aplicamos correcciones a la tabla.
     */
    public function fix_db() {
-      $this->db->select("UPDATE ".$this->table_name." SET madre = null WHERE madre IS NOT NULL"
-              . " AND madre NOT IN (SELECT codfamilia FROM ".$this->table_name.");");
+      /// comprobamos que las familias con madre, su madre exista.
+      $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE madre IS NOT NULL;");
+      if ($data) {
+         foreach ($data as $d) {
+            $fam = $this->get($d['madre']);
+            if(!$fam) {
+               /// si no existe, desvinculamos
+               $this->db->exec("UPDATE " . $this->table_name . " SET madre = null WHERE codfamilia = "
+                       .$this->var2str($d['codfamilia']).":");
+            }
+         }
+      }
    }
 
 }
