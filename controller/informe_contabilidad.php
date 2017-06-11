@@ -312,14 +312,14 @@ class informe_contabilidad extends fs_controller
                /// obtenemos el saldo inicial
                $codsubcuenta = $par['codsubcuenta'];
                $saldo = 0;
-               $sql = "SELECT SUM(p.debe) as debe, SUM(p.haber) as haber"
+               $sql2 = "SELECT SUM(p.debe) as debe, SUM(p.haber) as haber"
                        . " FROM co_asientos a, co_partidas p"
                        . " WHERE a.codejercicio = ".$this->empresa->var2str($codeje)
                        . " AND p.idasiento = a.idasiento"
                        . " AND a.fecha < ".$this->empresa->var2str($desde)
                        . " AND p.codsubcuenta = ".$this->empresa->var2str($codsubcuenta);
                
-               $data = $this->db->select($sql);
+               $data = $this->db->select($sql2);
                if($data)
                {
                   $saldo = floatval($data[0]['debe']) - floatval($data[0]['haber']);

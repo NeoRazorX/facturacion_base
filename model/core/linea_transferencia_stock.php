@@ -45,9 +45,9 @@ class linea_transferencia_stock extends \fs_model
          }
          
          $this->hora = NULL;
-         if( isset($d['fecha']) )
+         if( isset($d['hora']) )
          {
-            $this->hora = $d['fecha'];
+            $this->hora = $d['hora'];
          }
       }
       else

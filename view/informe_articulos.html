@@ -18,7 +18,7 @@
       <div class="col-sm-12">
          <div class="page-header">
             <h1>
-               <span class="glyphicon glyphicon-stats" aria-hidden="true"></span> Informe de artículos
+               <i class="fa fa-area-chart" aria-hidden="true"></i> Informe de artículos
                <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
@@ -296,18 +296,30 @@
          </div>
       </div>
       <div class="col-sm-6 text-right">
-         <div class="btn-group">
-            <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_recal_stock">
-               <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp;Recalcular stock</span>
-            </a>
-            {if="$fsc->tipo_stock!='reg'"}
-            <a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo={$fsc->tipo_stock}&download=TRUE" class="btn btn-sm btn-default">
-               <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-               <span class="hidden-xs">&nbsp;Descargar</span>
-            </a>
-            {/if}
-         </div>
+         <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_recal_stock">
+            <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+            <span class="hidden-xs">&nbsp;Recalcular stock</span>
+         </a>
+         {if="$fsc->tipo_stock!='reg'"}
+            <div class="btn-group">
+               <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
+                  <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+                  <span class="hidden-xs">&nbsp;Descargar</span>
+               </button>
+               <ul class="dropdown-menu dropdown-menu-right">
+                  <li>
+                     <a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo={$fsc->tipo_stock}&download=csv">
+                        <i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp; Descargar en CSV
+                     </a>
+                  </li>
+                  <li>
+                     <a href="{$fsc->url()}&codalmacen={$fsc->codalmacen}&tab=stock&tipo={$fsc->tipo_stock}&download=xls">
+                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>&nbsp; Descargar en Excel
+                     </a>
+                  </li>
+               </ul>
+            </div>
+         {/if}
       </div>
    </div>
 </div>
@@ -650,7 +662,7 @@
                      </div>
                      <div class="form-group">
                         <a href="{$fsc->agente->url()}">Empleado</a>:
-                        <select name="codagente" class="form-control" onchange="this.form.submit();">
+                        <select name="codagente" class="form-control">
                            <option value="">Todos</option>
                            <option value="">---</option>
                            {loop="$fsc->agente->all()"}
@@ -663,10 +675,25 @@
                         </select>
                      </div>
                      <div class="form-group">
+                        Almacén:
+                        <select name="codalmacen" class="form-control">
+                           <option value="">Todos</option>
+                           <option value="">---</option>
+                           {loop="$fsc->almacenes"}
+                           {if="$value->codalmacen==$fsc->codalmacen"}
+                           <option value="{$value->codalmacen}" selected="">{$value->nombre}</option>
+                           {else}
+                           <option value="{$value->codalmacen}">{$value->nombre}</option>
+                           {/if}
+                           {/loop}
+                        </select>
+                     </div>
+                     <div class="form-group">
                         Salida:
                         <select name="generar" class="form-control">
                            <option value="">Pantalla</option>
                            <option value="csv">CSV</option>
+                           <option value="xls">Excel</option>
                         </select>
                      </div>
                   </div>

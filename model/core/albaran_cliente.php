@@ -1062,6 +1062,11 @@ class albaran_cliente extends \fs_model
    
    public function cron_job()
    {
-      
+      /**
+       * Ponemos a NULL todos los idfactura que no están en facturascli.
+       * ¿Por qué? Porque muchos usuarios se dedican a tocar la base de datos.
+       */
+      $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura IS NOT NULL"
+              . " AND idfactura NOT IN (SELECT idfactura FROM facturascli);");
    }
 }

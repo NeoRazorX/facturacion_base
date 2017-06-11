@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -27,8 +28,8 @@ require_model('cliente.php');
 require_model('cuenta_banco_cliente.php');
 require_model('direccion_cliente.php');
 
-class compras_proveedor extends fbase_controller
-{
+class compras_proveedor extends fbase_controller {
+
    public $cuenta_banco;
    public $divisa;
    public $forma_pago;
@@ -36,86 +37,61 @@ class compras_proveedor extends fbase_controller
    public $proveedor;
    public $serie;
 
-   public function __construct()
-   {
+   public function __construct() {
       parent::__construct(__CLASS__, 'Proveedor', 'compras', FALSE, FALSE);
    }
-   
-   protected function private_core()
-   {
+
+   protected function private_core() {
       parent::private_core();
-      
+
       $this->ppage = $this->page->get('compras_proveedores');
       $this->cuenta_banco = new cuenta_banco_proveedor();
       $this->divisa = new divisa();
       $this->forma_pago = new forma_pago();
       $this->pais = new pais();
       $this->serie = new serie();
-      
+
       /// cargamos el proveedor
       $proveedor = new proveedor();
       $this->proveedor = FALSE;
-      if( isset($_POST['codproveedor']) )
-      {
+      if (isset($_POST['codproveedor'])) {
          $this->proveedor = $proveedor->get($_POST['codproveedor']);
-      }
-      else if( isset($_GET['cod']) )
-      {
+      } else if (isset($_GET['cod'])) {
          $this->proveedor = $proveedor->get($_GET['cod']);
       }
-      
-      if($this->proveedor)
-      {
+
+      if ($this->proveedor) {
          $this->page->title = $this->proveedor->codproveedor;
-         
+
          /// ¿Hay que hacer algo más?
-         if( isset($_GET['delete_cuenta']) ) /// eliminar una cuenta bancaria
-         {
+         if (isset($_GET['delete_cuenta'])) { /// eliminar una cuenta bancaria
             $this->delete_cuenta_banco();
-         }
-         else if( isset($_GET['delete_dir']) ) /// eliminar una dirección
-         {
+         } else if (isset($_GET['delete_dir'])) { /// eliminar una dirección
             $this->delete_direccion();
-         }
-         else if( isset($_POST['coddir']) ) /// añadir/modificar una dirección
-         {
+         } else if (isset($_POST['coddir'])) { /// añadir/modificar una dirección
             $this->edit_direccion();
-         }
-         else if( isset($_POST['iban']) ) /// añadir/modificar una cuenta bancaria
-         {
+         } else if (isset($_POST['iban'])) { /// añadir/modificar una cuenta bancaria
             $this->edit_cuenta_banco();
-         }
-         else if( isset($_POST['codproveedor']) ) /// modificar el proveedor
-         {
+         } else if (isset($_POST['codproveedor'])) { /// modificar el proveedor
             $this->modificar();
-         }
-         else if( isset($_GET['convertir']) ) /// convertir a cliente
-         {
+         } else if (isset($_GET['convertir'])) { /// convertir a cliente
             $this->convertir();
-		 }
-      }
-      else
-      {
+         }
+      } else {
          $this->new_error_msg("¡Proveedor no encontrado!", 'error', FALSE, FALSE);
       }
    }
-   
-   public function url()
-   {
-      if( !isset($this->proveedor) )
-      {
+
+   public function url() {
+      if (!isset($this->proveedor)) {
          return parent::url();
-      }
-      else if($this->proveedor)
-      {
+      } else if ($this->proveedor) {
          return $this->proveedor->url();
-      }
-      else
+      } else
          return $this->ppage->url();
    }
-   
-   private function modificar()
-   {
+
+   private function modificar() {
       $this->proveedor->nombre = $_POST['nombre'];
       $this->proveedor->razonsocial = $_POST['razonsocial'];
       $this->proveedor->tipoidfiscal = $_POST['tipoidfiscal'];
@@ -131,72 +107,56 @@ class compras_proveedor extends fbase_controller
       $this->proveedor->regimeniva = $_POST['regimeniva'];
       $this->proveedor->acreedor = isset($_POST['acreedor']);
       $this->proveedor->personafisica = isset($_POST['personafisica']);
-      
+
       $this->proveedor->codserie = NULL;
-      if($_POST['codserie'] != '')
-      {
+      if ($_POST['codserie'] != '') {
          $this->proveedor->codserie = $_POST['codserie'];
       }
-      
+
       $this->proveedor->debaja = isset($_POST['debaja']);
-      
-      if( $this->proveedor->save() )
-      {
+
+      if ($this->proveedor->save()) {
          $this->new_message('Datos del proveedor modificados correctamente.');
-      }
-      else
+      } else
          $this->new_error_msg('¡Imposible modificar los datos del proveedor!');
    }
-   
-   private function edit_cuenta_banco()
-   {
-      if( isset($_POST['codcuenta']) )
-      {
+
+   private function edit_cuenta_banco() {
+      if (isset($_POST['codcuenta'])) {
          $cuentab = $this->cuenta_banco->get($_POST['codcuenta']);
-      }
-      else
-      {
+      } else {
          $cuentab = new cuenta_banco_proveedor();
          $cuentab->codproveedor = $this->proveedor->codproveedor;
       }
-      
+
       $cuentab->descripcion = $_POST['descripcion'];
       $cuentab->iban = $_POST['iban'];
       $cuentab->swift = $_POST['swift'];
       $cuentab->principal = isset($_POST['principal']);
-      
-      if( $cuentab->save() )
-      {
+
+      if ($cuentab->save()) {
          $this->new_message('Cuenta bancaria guardada correctamente.');
-      }
-      else
+      } else
          $this->new_error_msg('Imposible guardar la cuenta bancaria.');
    }
-   
-   private function delete_cuenta_banco()
-   {
+
+   private function delete_cuenta_banco() {
       $cuenta = $this->cuenta_banco->get($_GET['delete_cuenta']);
-      if($cuenta)
-      {
-         if( $cuenta->delete() )
-         {
+      if ($cuenta) {
+         if ($cuenta->delete()) {
             $this->new_message('Cuenta bancaria eliminada correctamente.');
-         }
-         else
+         } else
             $this->new_error_msg('Imposible eliminar la cuenta bancaria.');
-      }
-      else
+      } else
          $this->new_error_msg('Cuenta bancaria no encontrada.');
    }
-   
-   private function edit_direccion()
-   {
+
+   private function edit_direccion() {
       $direccion = new direccion_proveedor();
-      if($_POST['coddir'] != '')
-      {
+      if ($_POST['coddir'] != '') {
          $direccion = $direccion->get($_POST['coddir']);
       }
-      
+
       $direccion->apartado = $_POST['apartado'];
       $direccion->ciudad = $_POST['ciudad'];
       $direccion->codpais = $_POST['pais'];
@@ -206,36 +166,28 @@ class compras_proveedor extends fbase_controller
       $direccion->direccion = $_POST['direccion'];
       $direccion->direccionppal = isset($_POST['direccionppal']);
       $direccion->provincia = $_POST['provincia'];
-      if( $direccion->save() )
-      {
+      if ($direccion->save()) {
          $this->new_message("Dirección guardada correctamente.");
-      }
-      else
+      } else
          $this->new_error_msg("¡Imposible guardar la dirección!");
    }
-   
-   private function delete_direccion()
-   {
+
+   private function delete_direccion() {
       $dir = new direccion_proveedor();
       $dir0 = $dir->get($_GET['delete_dir']);
-      if($dir0)
-      {
-         if( $dir0->delete() )
-         {
+      if ($dir0) {
+         if ($dir0->delete()) {
             $this->new_message('Dirección eliminada correctamente.');
-         }
-         else
+         } else
             $this->new_error_msg('Imposible eliminar la dirección.');
-      }
-      else
+      } else
          $this->new_error_msg('Dirección no encontrada.');
    }
-   
+
    /**
     * Creamos un nuevo cliente a partir de los datos de este proveedor
     */
-   private function convertir()
-   {
+   private function convertir() {
       $cliente = new cliente();
       $cliente->nombre = $this->proveedor->nombre;
       $cliente->razonsocial = $this->proveedor->razonsocial;
@@ -253,162 +205,66 @@ class compras_proveedor extends fbase_controller
       $cliente->personafisica = $this->proveedor->personafisica;
       $cliente->codserie = $this->proveedor->codserie;
       $cliente->codproveedor = $this->proveedor->codproveedor;
-      
+
       $cliente_ok = TRUE;
-	   if( $cliente->save() )
-	   {
+      if ($cliente->save()) {
          $this->proveedor->codcliente = $cliente->codcliente;
          $cliente_ok = $this->proveedor->save();
-	   }
-	   else
+      } else
          $cliente_ok = FALSE;
-      
-      if($cliente_ok)
-      {
+
+      if ($cliente_ok) {
          /* cuentas de banco */
-         foreach($this->cuenta_banco->all_from_proveedor($this->proveedor->codproveedor) as $c)
-	      {
+         foreach ($this->cuenta_banco->all_from_proveedor($this->proveedor->codproveedor) as $c) {
             $c_banco_cliente = new cuenta_banco_cliente();
             $c_banco_cliente->codcliente = $cliente->codcliente;
             $c_banco_cliente->descripcion = $c->descripcion;
             $c_banco_cliente->iban = $c->iban;
             $c_banco_cliente->swift = $c->swift;
             $c_banco_cliente->save();
-	      }
-         
+         }
+
          /* direcciones */
-         foreach($this->proveedor->get_direcciones() as $d)
-	      {
+         foreach ($this->proveedor->get_direcciones() as $d) {
             $direcc_cli = new direccion_cliente();
             $direcc_cli->codcliente = $cliente->codcliente;
-         	$direcc_cli->codpais = $d->codpais;
-         	$direcc_cli->apartado = $d->apartado;
-         	$direcc_cli->provincia = $d->provincia;
-         	$direcc_cli->ciudad = $d->ciudad;
-         	$direcc_cli->codpostal = $d->codpostal;
-         	$direcc_cli->direccion = $d->direccion;
+            $direcc_cli->codpais = $d->codpais;
+            $direcc_cli->apartado = $d->apartado;
+            $direcc_cli->provincia = $d->provincia;
+            $direcc_cli->ciudad = $d->ciudad;
+            $direcc_cli->codpostal = $d->codpostal;
+            $direcc_cli->direccion = $d->direccion;
             $direcc_cli->descripcion = $d->descripcion;
             $direcc_cli->save();
-	      }
-         
+         }
+
          $this->new_message('Cliente creado correctamente.');
-      }
-      else
+      } else
          $this->new_error_msg("¡Imposible crear el cliente!");
    }
-   
-   /*
-    * Devuelve un array con los datos estadísticos de las compras al proveedor
-    * en los cinco últimos años.
-    */
-   public function stats_from_prov()
-   {
-      $stats = array();
-      $years = array();
-      for($i=4; $i>=0; $i--)
-      {
-         $years[] = intval(Date('Y')) - $i;
-      }
-      
-      $meses = array('Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic');
-      
-      foreach($years as $year)
-      {
-         if( $year == intval(Date('Y')) )
-         {
-            /// año actual
-            for($i = 1; $i <= intval(Date('m')); $i++)
-            {
-               $stats[$year.'-'.$i]['mes'] = $meses[$i-1].' '.$year;
-               $stats[$year.'-'.$i]['albaranes'] = 0;
-               $stats[$year.'-'.$i]['facturas'] = 0;
-            }
-         }
-         else
-         {
-            /// años anteriores
-            for($i = 1; $i <= 12; $i++)
-            {
-               $stats[$year.'-'.$i]['mes'] = $meses[$i-1].' '.$year;
-               $stats[$year.'-'.$i]['albaranes'] = 0;
-               $stats[$year.'-'.$i]['facturas'] = 0;
-            }
-         }
-         
-         if( strtolower(FS_DB_TYPE) == 'postgresql')
-         {
-            $sql_aux = "to_char(fecha,'FMMM')";
-         }
-         else
-            $sql_aux = "DATE_FORMAT(fecha, '%m')";
-         
-         $sql = "SELECT ".$sql_aux." as mes, sum(neto/tasaconv) as total FROM albaranesprov"
-                 ." WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))
-                 ." AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))
-                 ." AND codproveedor = ".$this->empresa->var2str($this->proveedor->codproveedor)
-                 ." GROUP BY mes ORDER BY mes ASC;";
-         
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            foreach($data as $d)
-            {
-               if( isset($stats[$year.'-'.intval($d['mes'])]['albaranes']) )
-               {
-                  $total = $this->euro_convert( floatval($d['total']) );
-                  $stats[$year.'-'.intval($d['mes'])]['albaranes'] = number_format($total, FS_NF0, '.', '');
-               }
-            }
-         }
-         
-         $sql = "SELECT ".$sql_aux." as mes, sum(neto/tasaconv) as total FROM facturasprov"
-                 ." WHERE fecha >= ".$this->empresa->var2str(Date('1-1-'.$year))
-                 ." AND fecha <= ".$this->empresa->var2str(Date('31-12-'.$year))
-                 ." AND codproveedor = ".$this->empresa->var2str($this->proveedor->codproveedor)
-                 ." GROUP BY mes ORDER BY mes ASC;";
-         $data = $this->db->select($sql);
-         if($data)
-         {
-            foreach($data as $d)
-            {
-               if( isset($stats[$year.'-'.intval($d['mes'])]['facturas']) )
-               {
-                  $total = $this->euro_convert( floatval($d['total']) );
-                  $stats[$year.'-'.intval($d['mes'])]['facturas'] = number_format($total, FS_NF0, '.', '');
-               }
-            }
-         }
-      }
-      
-      return $stats;
-   }
-   
-   public function tiene_facturas()
-   {
+
+   public function tiene_facturas() {
       $tiene = FALSE;
-      
-      if( $this->db->table_exists('facturasprov') )
-      {
-         $sql = "SELECT * FROM facturasprov WHERE codproveedor = ".$this->proveedor->var2str($this->proveedor->codproveedor);
-         
+
+      if ($this->db->table_exists('facturasprov')) {
+         $sql = "SELECT * FROM facturasprov WHERE codproveedor = " . $this->proveedor->var2str($this->proveedor->codproveedor);
+
          $data = $this->db->select_limit($sql, 5, 0);
-         if($data)
-         {
+         if ($data) {
             $tiene = TRUE;
          }
       }
-      
-      if( !$tiene AND $this->db->table_exists('albaranesprov') )
-      {
-         $sql = "SELECT * FROM albaranesprov WHERE codproveedor = ".$this->proveedor->var2str($this->proveedor->codproveedor);
-         
+
+      if (!$tiene AND $this->db->table_exists('albaranesprov')) {
+         $sql = "SELECT * FROM albaranesprov WHERE codproveedor = " . $this->proveedor->var2str($this->proveedor->codproveedor);
+
          $data = $this->db->select_limit($sql, 5, 0);
-         if($data)
-         {
+         if ($data) {
             $tiene = TRUE;
          }
       }
-      
+
       return $tiene;
    }
+
 }

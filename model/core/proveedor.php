@@ -512,7 +512,6 @@ class proveedor extends \fs_model
       $this->razonsocial = $this->no_html($this->razonsocial);
       $this->cifnif = $this->no_html($this->cifnif);
       $this->observaciones = $this->no_html($this->observaciones);
-      $this->codcliente = trim($this->codcliente);
       
       if( !preg_match("/^[A-Z0-9]{1,6}$/i", $this->codproveedor) )
       {
@@ -559,13 +558,14 @@ class proveedor extends \fs_model
                     ", debaja = ".$this->var2str($this->debaja).
                     ", fechabaja = ".$this->var2str($this->fechabaja).
                     ", codcliente = ".$this->var2str($this->codcliente).
-                    " WHERE codproveedor = ".$this->var2str($this->codproveedor).";";
+                    "  WHERE codproveedor = ".$this->var2str($this->codproveedor).";";
          }
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (codproveedor,nombre,razonsocial,tipoidfiscal,cifnif,
                telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,observaciones,
-               regimeniva,acreedor,personafisica,debaja,fechabaja,codcliente) VALUES (".$this->var2str($this->codproveedor).
+               regimeniva,acreedor,personafisica,debaja,fechabaja,codcliente) VALUES 
+                     (".$this->var2str($this->codproveedor).
                     ",".$this->var2str($this->nombre).
                     ",".$this->var2str($this->razonsocial).
                     ",".$this->var2str($this->tipoidfiscal).
@@ -684,5 +684,17 @@ class proveedor extends \fs_model
       }
       
       return $prolist;
+   }
+   
+   /**
+    * Aplicamos algunas correcciones a la tabla.
+    */
+   public function fix_db() {
+      /// ponemos debaja a false en los casos que sea null
+      $this->db->exec("UPDATE ".$this->table_name." SET debaja = false WHERE debaja IS NULL;");
+      
+      /// desvinculamos de clientes que no existan
+      $this->db->exec("UPDATE ".$this->table_name." SET codcliente = null WHERE codcliente IS NOT NULL"
+              . " AND codcliente NOT IN (SELECT codcliente FROM clientes);");
    }
 }

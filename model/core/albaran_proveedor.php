@@ -899,6 +899,10 @@ class albaran_proveedor extends \fs_model
    
    public function cron_job()
    {
-      
+      /**
+       * Ponemos a NULL todos los idfactura que no están en facturasprov
+       */
+      $this->db->exec("UPDATE ".$this->table_name." SET idfactura = NULL WHERE idfactura IS NOT NULL"
+              . " AND idfactura NOT IN (SELECT idfactura FROM facturasprov);");
    }
 }

@@ -89,6 +89,7 @@
       <nombre>nostock</nombre>
       <tipo>boolean</tipo>
       <nulo>YES</nulo>
+      <defecto>false</defecto>
    </columna>
    <columna>
       <nombre>codsubcuentacom</nombre>
@@ -109,9 +110,15 @@
       <nombre>secompra</nombre>
       <tipo>boolean</tipo>
       <nulo>YES</nulo>
+      <defecto>true</defecto>
    </columna>
    <columna>
       <nombre>codfamilia</nombre>
+      <tipo>character varying(8)</tipo>
+      <nulo>YES</nulo>
+   </columna>
+   <columna>
+      <nombre>codfabricante</nombre>
       <tipo>character varying(8)</tipo>
       <nulo>YES</nulo>
    </columna>
@@ -145,6 +152,7 @@
       <nombre>sevende</nombre>
       <tipo>boolean</tipo>
       <nulo>YES</nulo>
+      <defecto>true</defecto>
    </columna>
    <columna>
       <nombre>publico</nombre>
@@ -164,18 +172,25 @@
       <defecto>false</defecto>
    </columna>
    <restriccion>
-      <nombre>ca_articulos_impuestos2</nombre>
+      <nombre>ca_articulos_impuestos</nombre>
       <consulta>FOREIGN KEY (codimpuesto)
       REFERENCES impuestos (codimpuesto)
-      ON DELETE RESTRICT ON UPDATE CASCADE</consulta>
+      ON DELETE SET NULL ON UPDATE CASCADE</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>ca_articulos_familias</nombre>
+      <consulta>FOREIGN KEY (codfamilia)
+      REFERENCES familias (codfamilia)
+      ON DELETE SET NULL ON UPDATE CASCADE</consulta>
+   </restriccion>
+   <restriccion>
+      <nombre>ca_articulos_fabricantes</nombre>
+      <consulta>FOREIGN KEY (codfabricante)
+      REFERENCES fabricantes (codfabricante)
+      ON DELETE SET NULL ON UPDATE CASCADE</consulta>
    </restriccion>
    <restriccion>
       <nombre>articulos_pkey</nombre>
       <consulta>PRIMARY KEY (referencia)</consulta>
    </restriccion>
-    <columna>
-      <nombre>codfabricante</nombre>
-      <tipo>character varying(8)</tipo>
-      <nulo>YES</nulo>
-   </columna>
 </tabla>

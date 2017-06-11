@@ -49,6 +49,12 @@
               data.value+"</b> "+data.data+"</label></div>"+
               $("#div2_librom_"+cod).html());
    }
+   $(document).ready(function() {
+      if(window.location.hash)
+      {
+         $("#collapse_"+window.location.hash.substring(1)).collapse('show');
+      }
+   });
 </script>
 
 <div class="container-fluid">
@@ -72,6 +78,8 @@
                Estos son los informes contables básicos para España. Algunos se generan
                en tiempo real, pero los que están tachados se generan vía
                <a href="https://www.facturascripts.com/comm3/index.php?page=community_item&tag=cron" target="_blank">cron</a>.
+               <br/>
+               <b>Haz clic</b> en cualquiera de los <b>ejercicios</b> para mostrar los informes.
             </p>
          </div>
       </div>
@@ -82,18 +90,16 @@
          {loop="$fsc->ejercicio->all()"}
             <div class="panel panel-default">
                <div class="panel-heading">
-                  <h3 class="panel-title">
-                     <a data-toggle="collapse" data-parent="#accordion" href="#collapse_{$counter}">
-                        Ejercicio {$value->nombre}
-                        {if="$value->abierto()"}
-                        &nbsp; <span class="label label-default">Abierto</span>
-                        {else}
-                        &nbsp; <span class="label label-success">Cerrado</span>
-                        {/if}
-                     </a>
+                  <h3 class="panel-title clickable" data-toggle="collapse" data-parent="#accordion" href="#collapse_{$value->codejercicio}">
+                     <i class="fa fa-plus-square" aria-hidden="true"></i> &nbsp; Ejercicio {$value->nombre}
+                     {if="$value->abierto()"}
+                     &nbsp; <span class="label label-default">Abierto</span>
+                     {else}
+                     &nbsp; <span class="label label-success">Cerrado</span>
+                     {/if}
                   </h3>
                </div>
-               <div id='collapse_{$counter}' class='panel-collapse collapse{if="$counter==0"} in{/if}'>
+               <div id='collapse_{$value->codejercicio}' class='panel-collapse collapse'>
                   <div class="panel-body">
                      <div class="container-fluid">
                         <div class="row">
