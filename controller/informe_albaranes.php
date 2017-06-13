@@ -915,7 +915,8 @@ class informe_albaranes extends fbase_controller
                         'cliente' => '<b>' . $cliente . '</b>',
                         'cifnif' => '<b>' . FS_CIFNIF . '</b>',
                         'neto' => '<b>Neto</b>',
-                        'iva' => '<b>' . FS_IVA . '</b>',
+                        'tasaiva' => '<b>%' . FS_IVA . '</b>',
+                    	'iva' => '<b>' . FS_IVA . '</b>',
                         're' => '<b>RE</b>',
                         'irpf' => '<b>' . FS_IRPF . '</b>',
                         'total' => '<b>Total</b>'
@@ -924,6 +925,7 @@ class informe_albaranes extends fbase_controller
             
             for($i = 0; $i < $lppag AND $linea_actual < $total_lineas; $i++)
             {
+            	
                $linea = array(
                    'serie' => $documentos[$linea_actual]->codserie,
                    'doc' => $documentos[$linea_actual]->codigo,
@@ -932,6 +934,7 @@ class informe_albaranes extends fbase_controller
                    'cliente' => '',
                    'cifnif' => $documentos[$linea_actual]->cifnif,
                    'neto' => $this->show_numero($documentos[$linea_actual]->neto),
+               	   'tasaiva' => $documentos[$linea_actual]->tasaiva,
                    'iva' => $this->show_numero($documentos[$linea_actual]->totaliva),
                    're' => $this->show_numero($documentos[$linea_actual]->totalrecargo),
                    'irpf' => $this->show_numero($documentos[$linea_actual]->totalirpf),
@@ -969,7 +972,8 @@ class informe_albaranes extends fbase_controller
                 'cliente' => '',
                 'cifnif' => '',
                 'neto' => '<b>'.$this->show_numero($neto).'</b>',
-                'iva' => '<b>'.$this->show_numero($totaliva).'</b>',
+                'tasaiva' => '',
+            	'iva' => '<b>'.$this->show_numero($totaliva).'</b>',
                 're' => '<b>'.$this->show_numero($totalre).'</b>',
                 'irpf' => '<b>'.$this->show_numero($totalirpf).'</b>',
                 'total' => '<b>'.$this->show_numero($total).'</b>',
@@ -1034,6 +1038,7 @@ class informe_albaranes extends fbase_controller
           'proveedor' => 'string',
           FS_CIFNIF => 'string',
           'neto' => '#,##0.00;[RED]-#,##0.00',
+      	 'tasaiva' => 'string',
           'iva' => '#,##0.00;[RED]-#,##0.00',
           're' => '#,##0.00;[RED]-#,##0.00',
           'irpf' => '#,##0.00;[RED]-#,##0.00',
@@ -1069,6 +1074,7 @@ class informe_albaranes extends fbase_controller
              'proveedor' => '',
              'cifnif' => $doc->cifnif,
              'neto' => $doc->neto,
+         	 'tasaiva' => $doc->tasaiva,
              'iva' => $doc->totaliva,
              're' => $doc->totalrecargo,
              'irpf' => $doc->totalirpf,
@@ -1107,7 +1113,7 @@ class informe_albaranes extends fbase_controller
       if($tipo == 'compra')
       {
          $tabla = $this->table_compras;
-         echo "serie,documento,num.proveedor,fecha,proveedor,".FS_CIFNIF.",neto,".FS_IVA.",re,".FS_IRPF.",total\n";
+         echo "serie,documento,num.proveedor,fecha,proveedor,".FS_CIFNIF.",neto,%".FS_IVA.",".FS_IVA.",re,".FS_IRPF.",total\n";
       }
       else
       {
@@ -1125,6 +1131,7 @@ class informe_albaranes extends fbase_controller
              'cliente' => '',
              'cifnif' => $doc->cifnif,
              'neto' => $doc->neto,
+         	 'tasaiva' => $doc->tasaiva,
              'iva' => $doc->totaliva,
              're' => $doc->totalrecargo,
              'irpf' => $doc->totalirpf,

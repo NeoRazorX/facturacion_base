@@ -164,6 +164,13 @@ class factura_cliente extends \fs_model
    public $neto;
    
    /**
+    * Porcentaje tasaiva de las línea.
+    * Es el porcentaje  de impuestos.
+    * @var type
+    */
+   public $tasaiva;
+   
+   /**
     * Suma total del IVA de las líneas.
     * @var type 
     */
@@ -282,6 +289,7 @@ class factura_cliente extends \fs_model
          $this->codpais = $f['codpais'];
          $this->codagente = $f['codagente'];
          $this->neto = floatval($f['neto']);
+         $this->tasaiva = $f['tasaiva'];
          $this->totaliva = floatval($f['totaliva']);
          $this->total = floatval($f['total']);
          $this->totaleuros = floatval($f['totaleuros']);
@@ -349,6 +357,7 @@ class factura_cliente extends \fs_model
          $this->codpais = NULL;
          $this->codagente = NULL;
          $this->neto = 0;
+         $this->tasaiva = 0;
          $this->totaliva = 0;
          $this->total = 0;
          $this->totaleuros = 0;

@@ -162,20 +162,40 @@ class informe_facturas extends informe_albaranes
       }
       
       $sql  = "select * from ".$tabla.$where." order by fecha asc, hora asc;";
+     // echo $sql;
       $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $d)
          {
+
             if($tabla == $this->table_ventas)
             {
-            	$sql  = "select * from lineasivafactcli WHERE idfactura =".$d->id_factura
+            	$sql  = "select * from lineasivafactcli WHERE idfactura =".$d['idfactura']
             			. " order by iva asc;";
-               $doclist[] = new factura_cliente($d);
+            	
+            	$dataiva=$this->db->select($sql);
+            	if($dataiva)
+            	{
+            		foreach($dataiva as $diva)
+            		{
+            			$d['tasaiva']=$diva['iva'];
+            			$d['totaliva']=$diva['totaliva'];
+            			$d['neto']=$diva['neto'];
+            			$d['total']=$diva['totallinea'];
+            			$d['totaleuros']=$diva['totallinea'];
+            			
+               			$doclist[] = new factura_cliente($d);
+            		}
+            	}
+            	else
+            	{
+            			$doclist[] = new factura_cliente($d);
+            	}
             }
             else
             {
-               $doclist[] = new factura_proveedor($d);
+            	$doclist[] = new factura_proveedor($d);
             }
          }
       }
