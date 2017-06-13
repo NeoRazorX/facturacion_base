@@ -47,6 +47,8 @@ class informe_facturas extends informe_albaranes
       $this->pais = new pais();
       $this->table_compras = 'facturasprov';
       $this->table_ventas = 'facturascli';
+      $this->table_compras_iva = 'lineasivafactprov';
+      $this->table_ventas_iva = 'lineasivafactcli';
       
       parent::private_core();
    }
@@ -167,6 +169,8 @@ class informe_facturas extends informe_albaranes
          {
             if($tabla == $this->table_ventas)
             {
+            	$sql  = "select * from lineasivafactcli WHERE idfactura =".$d->id_factura
+            			. " order by iva asc;";
                $doclist[] = new factura_cliente($d);
             }
             else
