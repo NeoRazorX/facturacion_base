@@ -357,7 +357,7 @@ class factura_cliente extends \fs_model
          $this->codpais = NULL;
          $this->codagente = NULL;
          $this->neto = 0;
-         $this->tasaiva = 0;
+         $this->tasaiva = '--';
          $this->totaliva = 0;
          $this->total = 0;
          $this->totaleuros = 0;

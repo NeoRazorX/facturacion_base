@@ -273,7 +273,7 @@ class factura_proveedor extends \fs_model
          $this->idfacturarect = NULL;
          $this->irpf = 0;
          $this->neto = 0;
-         $this->tasaiva = 0;
+         $this->tasaiva = '--';
          $this->nombre = '';
          $this->numero = NULL;
          $this->numproveedor = NULL;
