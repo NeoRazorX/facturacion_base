@@ -171,19 +171,22 @@ class informe_facturas extends informe_albaranes
 
             if($tabla == $this->table_ventas)
             {
-            	$sql  = "select * from lineasivafactcli WHERE idfactura =".$d['idfactura']
-            			. " order by iva asc;";
-            	
+            	$sql  = 
+            	"SELECT SUM(pvptotal) AS neto, iva FROM lineasfacturascli WHERE idfactura=".$d['idfactura']." GROUP BY iva ORDER BY iva";
+
             	$dataiva=$this->db->select($sql);
             	if($dataiva)
             	{
             		foreach($dataiva as $diva)
             		{
+            			if($diva['iva']!=0){
+            				$tasaiva=$diva['iva']/100;
+            			}
             			$d['tasaiva']=$diva['iva'];
-            			$d['totaliva']=$diva['totaliva'];
+            			$d['totaliva']=$diva['neto']*($tasaiva);
             			$d['neto']=$diva['neto'];
-            			$d['total']=$diva['totallinea'];
-            			$d['totaleuros']=$diva['totallinea'];
+            			$d['total']=$diva['neto']*(1+$tasaiva);
+            			$d['totaleuros']=$d['total'];
             			
                			$doclist[] = new factura_cliente($d);
             		}
@@ -195,7 +198,30 @@ class informe_facturas extends informe_albaranes
             }
             else
             {
-            	$doclist[] = new factura_proveedor($d);
+            	$sql  =
+            	"SELECT SUM(pvptotal) AS neto, iva FROM lineasfacturasprov WHERE idfactura=".$d['idfactura']." GROUP BY iva ORDER BY iva";
+            	
+            	$dataiva=$this->db->select($sql);
+            	if($dataiva)
+            	{
+            		foreach($dataiva as $diva)
+            		{
+            			if($diva['iva']!=0){
+            				$tasaiva=$diva['iva']/100;
+            			}
+            			$d['tasaiva']=$diva['iva'];
+            			$d['totaliva']=$diva['neto']*($tasaiva);
+            			$d['neto']=$diva['neto'];
+            			$d['total']=$diva['neto']*(1+$tasaiva);
+            			$d['totaleuros']=$d['total'];
+            			
+            			$doclist[] = new factura_proveedor($d);
+            		}
+            	}
+            	else
+            	{
+            		$doclist[] = new factura_proveedor($d);
+            	}
             }
          }
       }

@@ -187,6 +187,13 @@ class factura_proveedor extends \fs_model
    public $totaliva;
    
    /**
+    * Porcentaje tasaiva de las línea.
+    * Es el porcentaje  de impuestos.
+    * @var type
+    */
+   public $tasaiva;
+   
+   /**
     * Suma del recargo de equivalencia de las líneas.
     * @var type 
     */
@@ -230,6 +237,7 @@ class factura_proveedor extends \fs_model
          $this->idfacturarect = $this->intval($f['idfacturarect']);
          $this->irpf = floatval($f['irpf']);
          $this->neto = floatval($f['neto']);
+         $this->tasaiva = $f['tasaiva'];
          $this->nombre = $f['nombre'];
          $this->numero = $f['numero'];
          $this->numproveedor = $f['numproveedor'];
@@ -265,6 +273,7 @@ class factura_proveedor extends \fs_model
          $this->idfacturarect = NULL;
          $this->irpf = 0;
          $this->neto = 0;
+         $this->tasaiva = 0;
          $this->nombre = '';
          $this->numero = NULL;
          $this->numproveedor = NULL;
