@@ -161,7 +161,7 @@ class regularizacion_stock extends \fs_model {
       $sql = "SELECT * FROM lineasregstocks WHERE idstock IN"
               . " (SELECT idstock FROM stocks WHERE referencia = " . $this->var2str($ref) . ")";
       if ($codalmacen) {
-         $sql .= " AND codalmacendest >= " . $this->var2str($codalmacen);
+         $sql .= " AND codalmacendest = " . $this->var2str($codalmacen);
       }
       if ($desde) {
          $sql .= " AND fecha >= " . $this->var2str($desde);
