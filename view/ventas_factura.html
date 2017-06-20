@@ -77,6 +77,9 @@
                   <span class="hidden-xs">&nbsp;Generar asiento</span>
                </a>
                {/if}
+               <a id="b_whatsapp" class="btn btn-sm btn-default" href="https://api.whatsapp.com/send?phone=34{$fsc->cliente->telefono1}" target="_blank">
+                  <span class="fa fa-whatsapp"></span> Whatsapp
+               </a>
             </div>
             
             {if="$fsc->mostrar_boton_pagada"}
