@@ -310,6 +310,9 @@
             {if="$value->femail"}
             <span class="glyphicon glyphicon-send" title="El {#FS_ALBARAN#} fue enviado por email el {$value->femail}"></span>
             {/if}
+            {if="$value->envio_codtrans AND $value->envio_codigo"}
+            <span class="glyphicon glyphicon-plane" title="Mercancía enviada"></span>
+            {/if}
          </td>
          <td>
             <a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}
