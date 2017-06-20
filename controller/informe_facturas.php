@@ -47,6 +47,8 @@ class informe_facturas extends informe_albaranes
       $this->pais = new pais();
       $this->table_compras = 'facturasprov';
       $this->table_ventas = 'facturascli';
+      $this->table_compras_iva = 'lineasivafactprov';
+      $this->table_ventas_iva = 'lineasivafactcli';
       
       parent::private_core();
    }
@@ -160,18 +162,66 @@ class informe_facturas extends informe_albaranes
       }
       
       $sql  = "select * from ".$tabla.$where." order by fecha asc, hora asc;";
+     // echo $sql;
       $data = $this->db->select($sql);
       if($data)
       {
          foreach($data as $d)
          {
+
             if($tabla == $this->table_ventas)
             {
-               $doclist[] = new factura_cliente($d);
+            	$sql  = 
+            	"SELECT SUM(pvptotal) AS neto, iva FROM lineasfacturascli WHERE idfactura=".$d['idfactura']." GROUP BY iva ORDER BY iva";
+
+            	$dataiva=$this->db->select($sql);
+            	if($dataiva)
+            	{
+            		foreach($dataiva as $diva)
+            		{
+            			if($diva['iva']!=0){
+            				$tasaiva=$diva['iva']/100;
+            			}
+            			$d['tasaiva']=$diva['iva'];
+            			$d['totaliva']=$diva['neto']*($tasaiva);
+            			$d['neto']=$diva['neto'];
+            			$d['total']=$diva['neto']*(1+$tasaiva);
+            			$d['totaleuros']=$d['total'];
+            			
+               			$doclist[] = new factura_cliente($d);
+            		}
+            	}
+            	else
+            	{
+            			$doclist[] = new factura_cliente($d);
+            	}
             }
             else
             {
-               $doclist[] = new factura_proveedor($d);
+            	$sql  =
+            	"SELECT SUM(pvptotal) AS neto, iva FROM lineasfacturasprov WHERE idfactura=".$d['idfactura']." GROUP BY iva ORDER BY iva";
+            	
+            	$dataiva=$this->db->select($sql);
+            	if($dataiva)
+            	{
+            		foreach($dataiva as $diva)
+            		{
+            			if($diva['iva']!=0){
+            				$tasaiva=$diva['iva']/100;
+            			}
+            			$d['tasaiva']=$diva['iva'];
+            			$d['totaliva']=$diva['neto']*($tasaiva);
+            			$d['neto']=$diva['neto'];
+            			$d['total']=$diva['neto']*(1+$tasaiva);
+            			$d['totaleuros']=$d['total'];
+            			
+            			$doclist[] = new factura_proveedor($d);
+            		}
+            	}
+            	else
+            	{
+            		$doclist[] = new factura_proveedor($d);
+            	}
             }
          }
       }
