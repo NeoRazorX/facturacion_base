@@ -45,8 +45,6 @@ class informe_facturas extends informe_albaranes {
         $this->pais = new pais();
         $this->table_compras = 'facturasprov';
         $this->table_ventas = 'facturascli';
-        $this->table_compras_iva = 'lineasivafactprov';
-        $this->table_ventas_iva = 'lineasivafactcli';
 
         parent::private_core();
     }
@@ -204,14 +202,16 @@ class informe_facturas extends informe_albaranes {
     protected function desglose_impuestos_pdf(&$pdf_doc, $tipo) {
         $impuestos = array();
 
-        if ($tipo == 'compra') {
+        if ($tipo == 'compra' && $this->db->table_exists('lineasivafactprov')) {
             $sql = "select * from lineasivafactprov WHERE idfactura IN"
                     . " (select idfactura from facturasprov " . $this->where_compras . ")"
                     . " order by iva asc;";
-        } else {
+        } else if($tipo == 'venta' && $this->db->table_exists('lineasivafactcli')) {
             $sql = "select * from lineasivafactcli WHERE idfactura IN"
                     . " (select idfactura from facturascli " . $this->where_ventas . ")"
                     . " order by iva asc;";
+        } else {
+            return FALSE;
         }
 
         $data = $this->db->select($sql);
