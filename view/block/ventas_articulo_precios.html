@@ -47,14 +47,14 @@
                <div class="form-group">
                   Precio de Coste:
                   {if="$fsc->articulo->secompra AND FS_COST_IS_AVERAGE"}
-                  <input type="text" name="coste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" disabled="disabled">
+                  <input type="text" name="coste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" disabled="disabled"/>
                   <p class="help-block">
                      El precio de compra se calcula automáticamente. Si quieres editarlo puedes
                      desmarcar <b>se compra</b> en la primera pestaña, o bien cambiar la configuración
                      de precio de coste desde la configuración del <a href="index.php?page=admin_almacenes">almacén</a>.
                   </p>
                   {else}
-                  <input type="text" name="preciocoste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" onclick="this.select()" autocomplete="off">
+                  <input type="text" name="preciocoste" id="coste" class="form-control" value="{$fsc->articulo->preciocoste()}" onclick="this.select()" autocomplete="off"/>
                   {/if}
                </div>
             </div>
