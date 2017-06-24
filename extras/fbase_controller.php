@@ -40,26 +40,10 @@ class fbase_controller extends fs_controller
     */
    public $multi_almacen;
    
-   /**
-    * Nombre de la clase del controlador que hereda de este.
-    * @var type 
-    */
-   private $controller_name;
-   
-   public function __construct($name = '', $title = 'home', $folder = '', $admin = FALSE, $shmenu = TRUE, $important = FALSE)
-   {
-      /**
-       * Nos guardamos el nombre de la clase, de la clase hija.
-       */
-      $this->controller_name = $name;
-      
-      parent::__construct($name, $title, $folder, $admin, $shmenu, $important);
-   }
-   
    protected function private_core()
    {
       /// ¿El usuario tiene permiso para eliminar en esta página?
-      $this->allow_delete = $this->user->allow_delete_on($this->controller_name);
+      $this->allow_delete = $this->user->allow_delete_on($this->class_name);
       
       /// ¿Hay más de un almacén?
       $fsvar = new fs_var();

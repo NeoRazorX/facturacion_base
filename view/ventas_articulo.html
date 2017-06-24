@@ -3,34 +3,7 @@
 {if="$fsc->articulo"}
 <script type="text/javascript" src="{$fsc->get_js_location('ventas_articulo.js')}"></script>
 <script type="text/javascript">
-   function delete_combinacion(cod)
-   {
-      bootbox.confirm({
-         message: '¿Realmente desea eliminar la combinacion ' + cod + '?',
-         title: '<b>Atención</b>',
-         callback: function(result) {
-            if (result) {
-               window.location.href = '{$fsc->url()}&delete_combi=' + cod + '#atributos';
-            }
-         }
-      });
-   }
    $(document).ready(function() {
-      calcular_margen();
-      
-      if(window.location.hash.substring(1) == 'precios')
-      {
-         $('#tab_articulo a[href="#precios"]').tab('show');
-      }
-      else if(window.location.hash.substring(1) == 'stock')
-      {
-         $('#tab_articulo a[href="#stock"]').tab('show');
-      }
-      else if(window.location.hash.substring(1) == 'atributos')
-      {
-         $('#tab_articulo a[href="#atributos"]').tab('show');
-      }
-      
       $("#b_eliminar_articulo").click(function(event) {
          event.preventDefault();
          {if="$fsc->articulo->publico"}
@@ -49,10 +22,6 @@
             }
          });
          {/if}
-      });
-      $("#b_imagen").click(function(event) {
-         event.preventDefault();
-         $("#modal_articulo_imagen").modal('show');
       });
    });
 </script>
@@ -372,9 +341,9 @@
             </div>
          </form>
       </div>
-      {if="$fsc->mostrar_tab_atributos"}{include="ventas_articulo_atributos"}{/if}
-      {if="$fsc->mostrar_tab_precios"}{include="ventas_articulo_precios"}{/if}
-      {if="$fsc->mostrar_tab_stock"}{include="ventas_articulo_stock"}{/if}
+      {if="$fsc->mostrar_tab_atributos"}{include="block/ventas_articulo_atributos"}{/if}
+      {if="$fsc->mostrar_tab_precios"}{include="block/ventas_articulo_precios"}{/if}
+      {if="$fsc->mostrar_tab_stock"}{include="block/ventas_articulo_stock"}{/if}
       {if="$fsc->equivalentes"}
       <div role="tabpanel" class="tab-pane" id="equivalentes">
          <div class="table-responsive">

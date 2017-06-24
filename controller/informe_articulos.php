@@ -19,7 +19,7 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_once 'plugins/facturacion_base/extras/xlsxwriter.class.php';
+require_once 'extras/xlsxwriter.class.php';
 require_model('almacen.php');
 require_model('articulo.php');
 require_model('cliente.php');
@@ -192,8 +192,6 @@ class informe_articulos extends fbase_controller {
    }
 
    private function recalcular_stock() {
-      $this->new_message('Recalculando stock de artículos... ' . $this->offset);
-
       $articulo = new articulo();
       $continuar = FALSE;
       foreach ($articulo->all($this->offset, 25) as $art) {
@@ -203,9 +201,11 @@ class informe_articulos extends fbase_controller {
       }
 
       if ($continuar) {
+         $this->new_message('Recalculando stock de artículos... ('.$this->offset.') &nbsp; <i class="fa fa-refresh fa-spin"></i>');
          $this->url_recarga = $this->url() . '&tab=stock&recalcular=TRUE&offset=' . $this->offset;
       } else {
          $this->new_advice('Finalizado &nbsp; <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
+         $this->offset = 0;
       }
    }
 
