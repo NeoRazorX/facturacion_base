@@ -3,6 +3,18 @@
 {if="$fsc->articulo"}
 <script type="text/javascript" src="{$fsc->get_js_location('ventas_articulo.js')}"></script>
 <script type="text/javascript">
+    function delete_combinacion(cod)
+    {
+        bootbox.confirm({
+            message: '¿Realmente desea eliminar la combinacion ' + cod + '?',
+            title: '<b>Atención</b>',
+            callback: function (result) {
+                if (result) {
+                    window.location.href = '{$fsc->url()}&delete_combi=' + cod + '#atributos';
+                }
+            }
+        });
+    }
    $(document).ready(function() {
       $("#b_eliminar_articulo").click(function(event) {
          event.preventDefault();
