@@ -8,7 +8,7 @@
          title: '<b>Atención</b>',
          callback: function(result) {
             if (result) {
-               window.location.href = '{$fsc->url()}&delete='+cod;
+               window.location.href = '{$fsc->url()}&delete='+encodeURIComponent(cod);
             }
          }
       });
@@ -110,16 +110,16 @@
                {/loop}
                <form class="form" name="f_nuevo_impuesto" action="{$fsc->url()}" method="post">
                   <tr class="info">
-                     <td><input class="form-control" type="text" name="codimpuesto" maxlength="10" placeholder="Nuevo código" autocomplete="off"/></td>
-                     <td><input class="form-control" type="text" name="descripcion" placeholder="Nuevo impuesto..." autocomplete="off"/></td>
+                      <td><input class="form-control" type="text" name="codimpuesto" maxlength="10" placeholder="Nuevo código" autocomplete="off" required=""/></td>
+                      <td><input class="form-control" type="text" name="descripcion" placeholder="Nuevo impuesto..." autocomplete="off" required=""/></td>
                      <td><input class="form-control text-right" type="number" step="any" name="iva" value="0" autocomplete="off"/></td>
                      <td><input class="form-control text-right" type="number" step="any" name="recargo" value="0" autocomplete="off"/></td>
                      <td><input class="form-control" type="text" name="codsubcuentasop" placeholder="{$fsc->codsubcuentasop}" autocomplete="off"/></td>
                      <td><input class="form-control" type="text" name="codsubcuentarep" placeholder="{$fsc->codsubcuentarep}" autocomplete="off"/></td>
                      <td class="text-right">
-                        <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Nuevo">
+                        <button class="btn btn-sm btn-primary" type="submit" title="Nuevo">
                            <span class="glyphicon glyphicon-plus-sign"></span>
-                           <span class="hidden-sm">&nbsp; Nuevo</span>
+                           <span class="hidden-sm">&nbsp;Nuevo</span>
                         </button>
                      </td>
                   </tr>

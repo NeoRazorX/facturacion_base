@@ -18,7 +18,7 @@
          title: '<b>Atención</b>',
          callback: function(result) {
             if (result) {
-               window.location.href = '{$fsc->url()}&delete_tarifa='+cod+'#tarifas';
+               window.location.href = '{$fsc->url()}&delete_tarifa='+encodeURIComponent(cod)+'#tarifas';
             }
          }
       });
