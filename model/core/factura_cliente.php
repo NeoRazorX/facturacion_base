@@ -790,7 +790,7 @@ class factura_cliente extends \fs_model {
             $this->codigo = $this->codserie .  substr( $this->codejercicio, -2) . str_pad($this->numero, $long, '0', STR_PAD_LEFT);
         } else {
             $this->codigo = 'FAC' . $this->codejercicio . $this->codserie . $this->numero;
-            $this->codigo = strtoupper(substr(FS_ALBARAN, 0, 3)) . $this->codejercicio . $this->codserie . $this->numero;
+            //$this->codigo = strtoupper(substr(FS_FACTURA, 0, 3)) . $this->codejercicio . $this->codserie . $this->numero;
         }
     }
 
