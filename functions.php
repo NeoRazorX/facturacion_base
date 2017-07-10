@@ -83,8 +83,6 @@ if (!function_exists('fs_documento_new_numero')) {
 if (!function_exists('fs_documento_new_codigo')) {
 
     function fs_documento_new_codigo($tipodoc, $codejercicio, $codserie, $numero, $sufijo = '') {
-        $codigo = '';
-
         switch (FS_NEW_CODIGO) {
             case 'eneboo':
                 $codigo = $codejercicio . str_pad($codserie, 2, '0', STR_PAD_LEFT) . str_pad($numero, 6, '0', STR_PAD_LEFT);
@@ -133,6 +131,7 @@ if (!function_exists('fs_huecos_factua_cliente')) {
         $serie = new \serie();
         foreach ($ejercicio->all_abiertos() as $eje) {
             $codserie = '';
+            $num = 1;
             $sql = "SELECT codserie," . $db->sql_to_int('numero') . " as numero,fecha,hora FROM "
                     . $table_name . " WHERE codejercicio = " . $ejercicio->var2str($eje->codejercicio)
                     . " ORDER BY codserie ASC, numero ASC;";
