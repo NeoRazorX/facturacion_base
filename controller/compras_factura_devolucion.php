@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -27,192 +28,162 @@ require_model('serie.php');
  *
  * @author Carlos Garcia Gomez
  */
-class compras_factura_devolucion extends fs_controller
-{
-   public $factura;
-   public $serie;
+class compras_factura_devolucion extends fs_controller {
 
-   public function __construct()
-   {
-      parent::__construct(__CLASS__, 'Devoluciones de factura de compra', 'compras', FALSE, FALSE);
-   }
+    public $factura;
+    public $serie;
 
-   protected function private_core()
-   {
-      $this->share_extension();
+    public function __construct() {
+        parent::__construct(__CLASS__, 'Devoluciones de factura de compra', 'compras', FALSE, FALSE);
+    }
 
-      $this->serie = new serie();
+    protected function private_core() {
+        $this->share_extension();
 
-      $fact0 = new factura_proveedor();
-      $this->factura = FALSE;
-      if( isset($_REQUEST['id']) )
-      {
-         $this->factura = $fact0->get($_REQUEST['id']);
-      }
+        $this->serie = new serie();
 
-      if($this->factura)
-      {
-         if( isset($_POST['id']) )
-         {
-            $this->nueva_rectificativa();
-         }
-      }
-      else
-      {
-         $this->new_error_msg('Factura no encontrada.', 'error', FALSE, FALSE);
-      }
-   }
+        $fact0 = new factura_proveedor();
+        $this->factura = FALSE;
+        if (isset($_REQUEST['id'])) {
+            $this->factura = $fact0->get($_REQUEST['id']);
+        }
 
-   private function nueva_rectificativa()
-   {
-      $continuar = TRUE;
-      
-      $eje0 = new ejercicio();
-      $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
-      if(!$ejercicio)
-      {
-         $this->new_error_msg('Ejercicio no encontrado o está cerrado.');
-         $continuar = FALSE;
-      }
-      
-      if($continuar)
-      {
-         $frec = clone $this->factura;
-         $frec->idfactura = NULL;
-         $frec->numero = NULL;
-         $frec->numproveedor = $_POST['numproveedor'];
-         $frec->codigo = NULL;
-         $frec->idasiento = NULL;
-         $frec->idfacturarect = $this->factura->idfactura;
-         $frec->codigorect = $this->factura->codigo;
-         $frec->codejercicio = $ejercicio->codejercicio;
-         $frec->codserie = $_POST['codserie'];
-         $frec->set_fecha_hora($_POST['fecha'], $this->hour());
-         $frec->observaciones = $_POST['motivo'];
-         $frec->numdocs = NULL;
-         
-         $frec->irpf = 0;
-         $frec->neto = 0;
-         $frec->total = 0;
-         $frec->totalirpf = 0;
-         $frec->totaliva = 0;
-         $frec->totalrecargo = 0;
-         
-         $guardar = FALSE;
-         foreach($this->factura->get_lineas() as $value)
-         {
-            if( isset($_POST['devolver_'.$value->idlinea]) )
-            {
-               if( floatval($_POST['devolver_'.$value->idlinea]) > 0 )
-               {
-                  $guardar = TRUE;
-               }
+        if ($this->factura) {
+            if (isset($_POST['id'])) {
+                $this->nueva_rectificativa();
             }
-         }
-         
-         if($guardar)
-         {
-            if( $frec->save() )
-            {
-               $art0 = new articulo();
-               
-               foreach($this->factura->get_lineas() as $value)
-               {
-                  if( isset($_POST['devolver_'.$value->idlinea]) )
-                  {
-                     if( floatval($_POST['devolver_'.$value->idlinea]) > 0 )
-                     {
-                        $linea = clone $value;
-                        $linea->idlinea = NULL;
-                        $linea->idfactura = $frec->idfactura;
-                        $linea->idalbaran = NULL;
-                        $linea->cantidad = 0 - floatval($_POST['devolver_'.$value->idlinea]);
-                        $linea->pvpsindto = $linea->cantidad * $linea->pvpunitario;
-                        $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * (100 - $linea->dtopor) / 100;
-                        if( $linea->save() )
-                        {
-                           $articulo = $art0->get($linea->referencia);
-                           if($articulo)
-                           {
-                              $articulo->sum_stock($frec->codalmacen, 0 - $linea->cantidad, TRUE, $linea->codcombinacion);
-                           }
-                           
-                           $frec->neto += $linea->pvptotal;
-                           $frec->totaliva += ($linea->pvptotal * $linea->iva/100);
-                           $frec->totalirpf += ($linea->pvptotal * $linea->irpf/100);
-                           $frec->totalrecargo += ($linea->pvptotal * $linea->recargo/100);
-                           
-                           if($linea->irpf > $frec->irpf)
-                           {
-                              $frec->irpf = $linea->irpf;
-                           }
+        } else {
+            $this->new_error_msg('Factura no encontrada.', 'error', FALSE, FALSE);
+        }
+    }
+
+    private function nueva_rectificativa() {
+        $continuar = TRUE;
+
+        $eje0 = new ejercicio();
+        $ejercicio = $eje0->get_by_fecha($_POST['fecha']);
+        if (!$ejercicio) {
+            $this->new_error_msg('Ejercicio no encontrado o está cerrado.');
+            $continuar = FALSE;
+        }
+
+        if ($continuar) {
+            $frec = clone $this->factura;
+            $frec->idfactura = NULL;
+            $frec->numero = NULL;
+            $frec->numproveedor = $_POST['numproveedor'];
+            $frec->codigo = NULL;
+            $frec->idasiento = NULL;
+            $frec->idfacturarect = $this->factura->idfactura;
+            $frec->codigorect = $this->factura->codigo;
+            $frec->codejercicio = $ejercicio->codejercicio;
+            $frec->codserie = $_POST['codserie'];
+            $frec->set_fecha_hora($_POST['fecha'], $this->hour());
+            $frec->observaciones = $_POST['motivo'];
+            $frec->numdocs = NULL;
+
+            $frec->irpf = 0;
+            $frec->neto = 0;
+            $frec->total = 0;
+            $frec->totalirpf = 0;
+            $frec->totaliva = 0;
+            $frec->totalrecargo = 0;
+
+            $guardar = FALSE;
+            foreach ($this->factura->get_lineas() as $value) {
+                if (isset($_POST['devolver_' . $value->idlinea])) {
+                    if (floatval($_POST['devolver_' . $value->idlinea]) > 0) {
+                        $guardar = TRUE;
+                    }
+                }
+            }
+
+            if ($guardar) {
+                if ($frec->save()) {
+                    $art0 = new articulo();
+
+                    foreach ($this->factura->get_lineas() as $value) {
+                        if (isset($_POST['devolver_' . $value->idlinea])) {
+                            if (floatval($_POST['devolver_' . $value->idlinea]) > 0) {
+                                $linea = clone $value;
+                                $linea->idlinea = NULL;
+                                $linea->idfactura = $frec->idfactura;
+                                $linea->idalbaran = NULL;
+                                $linea->cantidad = 0 - floatval($_POST['devolver_' . $value->idlinea]);
+                                $linea->pvpsindto = $linea->cantidad * $linea->pvpunitario;
+                                $linea->pvptotal = $linea->cantidad * $linea->pvpunitario * (100 - $linea->dtopor) / 100;
+                                if ($linea->save()) {
+                                    $articulo = $art0->get($linea->referencia);
+                                    if ($articulo) {
+                                        $articulo->sum_stock($frec->codalmacen, 0 - $linea->cantidad, TRUE, $linea->codcombinacion);
+                                    }
+
+                                    $frec->neto += $linea->pvptotal;
+                                    $frec->totaliva += ($linea->pvptotal * $linea->iva / 100);
+                                    $frec->totalirpf += ($linea->pvptotal * $linea->irpf / 100);
+                                    $frec->totalrecargo += ($linea->pvptotal * $linea->recargo / 100);
+
+                                    if ($linea->irpf > $frec->irpf) {
+                                        $frec->irpf = $linea->irpf;
+                                    }
+                                }
+                            }
                         }
-                     }
-                  }
-               }
-               
-               /// redondeamos
-               $frec->neto = round($frec->neto, FS_NF0);
-               $frec->totaliva = round($frec->totaliva, FS_NF0);
-               $frec->totalirpf = round($frec->totalirpf, FS_NF0);
-               $frec->totalrecargo = round($frec->totalrecargo, FS_NF0);
-               $frec->total = $frec->neto + $frec->totaliva - $frec->totalirpf + $frec->totalrecargo;
-               $frec->pagada = TRUE;
-               if( $frec->save() )
-               {
-                  $this->generar_asiento($frec);
-                  $this->new_message(FS_FACTURA_RECTIFICATIVA.' creada correctamente.');
-               }
+                    }
+
+                    /// redondeamos
+                    $frec->neto = round($frec->neto, FS_NF0);
+                    $frec->totaliva = round($frec->totaliva, FS_NF0);
+                    $frec->totalirpf = round($frec->totalirpf, FS_NF0);
+                    $frec->totalrecargo = round($frec->totalrecargo, FS_NF0);
+                    $frec->total = $frec->neto + $frec->totaliva - $frec->totalirpf + $frec->totalrecargo;
+                    $frec->pagada = TRUE;
+                    if ($frec->save()) {
+                        $this->generar_asiento($frec);
+                        $this->new_message(FS_FACTURA_RECTIFICATIVA . ' creada correctamente.');
+                    }
+                } else {
+                    $this->new_error_msg('Error al guardar la ' . FS_FACTURA_RECTIFICATIVA);
+                }
+            } else {
+                $this->new_advice('Todas las cantidades a devolver están a 0.');
             }
-            else
-            {
-               $this->new_error_msg('Error al guardar la '.FS_FACTURA_RECTIFICATIVA);
+        }
+    }
+
+    private function generar_asiento(&$factura) {
+        if ($this->empresa->contintegrada) {
+            $asiento_factura = new asiento_factura();
+            $asiento_factura->generar_asiento_compra($factura);
+
+            foreach ($asiento_factura->errors as $err) {
+                $this->new_error_msg($err);
             }
-         }
-         else
-         {
-            $this->new_advice('Todas las cantidades a devolver están a 0.');
-         }
-      }
-   }
 
-   private function generar_asiento(&$factura)
-   {
-      if($this->empresa->contintegrada)
-      {
-         $asiento_factura = new asiento_factura();
-         $asiento_factura->generar_asiento_compra($factura);
+            foreach ($asiento_factura->messages as $msg) {
+                $this->new_message($msg);
+            }
+        }
+    }
 
-         foreach($asiento_factura->errors as $err)
-         {
-            $this->new_error_msg($err);
-         }
+    private function share_extension() {
+        $fsxet = new fs_extension();
+        $fsxet->name = 'tab_devoluciones';
+        $fsxet->from = __CLASS__;
+        $fsxet->to = 'compras_factura';
+        $fsxet->type = 'tab';
+        $fsxet->text = '<span class="glyphicon glyphicon-share" aria-hidden="true"></span>'
+                . '<span class="hidden-xs">&nbsp; Devoluciones</span>';
+        $fsxet->save();
 
-         foreach($asiento_factura->messages as $msg)
-         {
-            $this->new_message($msg);
-         }
-      }
-   }
+        $fsxet2 = new fs_extension();
+        $fsxet2->name = 'tab_editar_factura';
+        $fsxet2->from = __CLASS__;
+        $fsxet2->to = 'editar_factura_prov';
+        $fsxet2->type = 'tab';
+        $fsxet2->text = '<span class="glyphicon glyphicon-share" aria-hidden="true"></span>'
+                . '<span class="hidden-xs">&nbsp; Devoluciones</span>';
+        $fsxet2->save();
+    }
 
-   private function share_extension()
-   {
-      $fsxet = new fs_extension();
-      $fsxet->name = 'tab_devoluciones';
-      $fsxet->from = __CLASS__;
-      $fsxet->to = 'compras_factura';
-      $fsxet->type = 'tab';
-      $fsxet->text = '<span class="glyphicon glyphicon-share" aria-hidden="true"></span>'
-              . '<span class="hidden-xs">&nbsp; Devoluciones</span>';
-      $fsxet->save();
-      
-      $fsxet2 = new fs_extension();
-      $fsxet2->name = 'tab_editar_factura';
-      $fsxet2->from = __CLASS__;
-      $fsxet2->to = 'editar_factura_prov';
-      $fsxet2->type = 'tab';
-      $fsxet2->text = '<span class="glyphicon glyphicon-share" aria-hidden="true"></span>'
-              . '<span class="hidden-xs">&nbsp; Devoluciones</span>';
-      $fsxet2->save();
-   }
 }

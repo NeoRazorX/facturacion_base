@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -25,7 +26,6 @@ require_once 'plugins/facturacion_base/model/core/linea_iva_factura_cliente.php'
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class linea_iva_factura_cliente extends FacturaScripts\model\linea_iva_factura_cliente
-{
-   
+class linea_iva_factura_cliente extends FacturaScripts\model\linea_iva_factura_cliente {
+    
 }

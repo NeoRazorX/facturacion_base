@@ -21,90 +21,71 @@
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('fabricante.php');
 
-class ventas_fabricantes extends fbase_controller
-{
-   public $fabricante;
-   public $resultados;
+class ventas_fabricantes extends fbase_controller {
 
-   public function __construct()
-   {
-      parent::__construct(__CLASS__, 'Fabricantes', 'ventas', FALSE, FALSE);
-   }
+    public $fabricante;
+    public $resultados;
 
-   protected function private_core()
-   {
-      parent::private_core();
+    public function __construct() {
+        parent::__construct(__CLASS__, 'Fabricantes', 'ventas', FALSE, FALSE);
+    }
 
-      $this->share_extensions();
-      $this->fabricante = new fabricante();
+    protected function private_core() {
+        parent::private_core();
 
-      if(isset($_POST['ncodfabricante']))
-      {
-         $this->nuevo_fabricante();
-      }
-      else if(isset($_GET['delete']))
-      {
-         $this->eliminar_fabricante();
-      }
+        $this->share_extensions();
+        $this->fabricante = new fabricante();
 
-      $this->resultados = $this->fabricante->search($this->query);
-   }
+        if (isset($_POST['ncodfabricante'])) {
+            $this->nuevo_fabricante();
+        } else if (isset($_GET['delete'])) {
+            $this->eliminar_fabricante();
+        }
 
-   private function nuevo_fabricante()
-   {
-      $fab = $this->fabricante->get($_POST['ncodfabricante']);
-      if($fab)
-      {
-         $this->new_error_msg('El fabricante <a href="' . $fab->url() . '">' . $fab->codfabricante . '</a> ya existe.');
-      }
-      else
-      {
-         $fab = new fabricante();
-         $fab->codfabricante = $_POST['ncodfabricante'];
-         $fab->nombre = $_POST['nnombre'];
-         if($fab->save())
-         {
-            Header('location: ' . $fab->url());
-         }
-         else
-            $this->new_error_msg("¡Imposible guardar el fabricante!");
-      }
-   }
+        $this->resultados = $this->fabricante->search($this->query);
+    }
 
-   private function eliminar_fabricante()
-   {
-      $fab = $this->fabricante->get($_GET['delete']);
-      if($fab)
-      {
-         if( !$this->allow_delete )
-         {
-            $this->new_message("No tienes permiso para eliminar en esta página.");
-         }
-         else if( $fab->delete() )
-         {
-            $this->new_message("Fabricante " . $_GET['delete'] . " eliminado correctamente");
-         }
-         else
-            $this->new_error_msg("¡Imposible eliminar el fabricante " . $_GET['delete'] . "!");
-      }
-      else
-         $this->new_error_msg("Fabricante " . $_GET['delete'] . " no encontrado.");
-   }
+    private function nuevo_fabricante() {
+        $fab = $this->fabricante->get($_POST['ncodfabricante']);
+        if ($fab) {
+            $this->new_error_msg('El fabricante <a href="' . $fab->url() . '">' . $fab->codfabricante . '</a> ya existe.');
+        } else {
+            $fab = new fabricante();
+            $fab->codfabricante = $_POST['ncodfabricante'];
+            $fab->nombre = $_POST['nnombre'];
+            if ($fab->save()) {
+                Header('location: ' . $fab->url());
+            } else
+                $this->new_error_msg("¡Imposible guardar el fabricante!");
+        }
+    }
 
-   public function total_fabricantes()
-   {
-      return $this->fbase_sql_total('fabricantes', 'codfabricante');
-   }
+    private function eliminar_fabricante() {
+        $fab = $this->fabricante->get($_GET['delete']);
+        if ($fab) {
+            if (!$this->allow_delete) {
+                $this->new_message("No tienes permiso para eliminar en esta página.");
+            } else if ($fab->delete()) {
+                $this->new_message("Fabricante " . $_GET['delete'] . " eliminado correctamente");
+            } else
+                $this->new_error_msg("¡Imposible eliminar el fabricante " . $_GET['delete'] . "!");
+        } else
+            $this->new_error_msg("Fabricante " . $_GET['delete'] . " no encontrado.");
+    }
 
-   private function share_extensions()
-   {
-      /// añadimos la extensión para ventas_artículos
-      $fsext = new fs_extension();
-      $fsext->name = 'btn_fabricantes';
-      $fsext->from = __CLASS__;
-      $fsext->to = 'ventas_articulos';
-      $fsext->type = 'button';
-      $fsext->text = '<span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span><span class="hidden-xs"> &nbsp; Fabricantes</span>';
-      $fsext->save();
-   }
+    public function total_fabricantes() {
+        return $this->fbase_sql_total('fabricantes', 'codfabricante');
+    }
+
+    private function share_extensions() {
+        /// añadimos la extensión para ventas_artículos
+        $fsext = new fs_extension();
+        $fsext->name = 'btn_fabricantes';
+        $fsext->from = __CLASS__;
+        $fsext->to = 'ventas_articulos';
+        $fsext->type = 'button';
+        $fsext->text = '<span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span><span class="hidden-xs"> &nbsp; Fabricantes</span>';
+        $fsext->save();
+    }
+
 }

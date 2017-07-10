@@ -24,136 +24,110 @@ require_model('divisa.php');
 require_model('partida.php');
 require_model('subcuenta.php');
 
-class contabilidad_subcuenta extends fbase_controller
-{
-   public $cuenta;
-   public $divisa;
-   public $ejercicio;
-   public $pdf_libromayor;
-   public $resultados;
-   public $subcuenta;
-   public $offset;
+class contabilidad_subcuenta extends fbase_controller {
 
-   public function __construct()
-   {
-      parent::__construct(__CLASS__, 'Subcuenta', 'contabilidad', FALSE, FALSE);
-   }
+    public $cuenta;
+    public $divisa;
+    public $ejercicio;
+    public $pdf_libromayor;
+    public $resultados;
+    public $subcuenta;
+    public $offset;
 
-   protected function private_core()
-   {
-      parent::private_core();
-      $this->divisa = new divisa();
+    public function __construct() {
+        parent::__construct(__CLASS__, 'Subcuenta', 'contabilidad', FALSE, FALSE);
+    }
 
-      $subcuenta = new subcuenta();
-      $this->subcuenta = FALSE;
-      if(isset($_GET['id']))
-      {
-         $this->subcuenta = $subcuenta->get($_GET['id']);
-      }
+    protected function private_core() {
+        parent::private_core();
+        $this->divisa = new divisa();
 
-      if($this->subcuenta)
-      {
-         /// configuramos la página previa
-         $this->ppage = $this->page->get('contabilidad_cuenta');
-         $this->ppage->title = 'Cuenta: ' . $this->subcuenta->codcuenta;
-         $this->ppage->extra_url = '&id=' . $this->subcuenta->idcuenta;
+        $subcuenta = new subcuenta();
+        $this->subcuenta = FALSE;
+        if (isset($_GET['id'])) {
+            $this->subcuenta = $subcuenta->get($_GET['id']);
+        }
 
-         $this->page->title = 'Subcuenta: ' . $this->subcuenta->codsubcuenta;
-         $this->cuenta = $this->subcuenta->get_cuenta();
-         $this->ejercicio = $this->subcuenta->get_ejercicio();
+        if ($this->subcuenta) {
+            /// configuramos la página previa
+            $this->ppage = $this->page->get('contabilidad_cuenta');
+            $this->ppage->title = 'Cuenta: ' . $this->subcuenta->codcuenta;
+            $this->ppage->extra_url = '&id=' . $this->subcuenta->idcuenta;
 
-         $this->offset = 0;
-         if(isset($_GET['offset']))
-         {
-            $this->offset = intval($_GET['offset']);
-         }
+            $this->page->title = 'Subcuenta: ' . $this->subcuenta->codsubcuenta;
+            $this->cuenta = $this->subcuenta->get_cuenta();
+            $this->ejercicio = $this->subcuenta->get_ejercicio();
 
-         $this->resultados = $this->subcuenta->get_partidas($this->offset);
+            $this->offset = 0;
+            if (isset($_GET['offset'])) {
+                $this->offset = intval($_GET['offset']);
+            }
 
-         if(isset($_POST['puntear']))
-         {
-            $this->modificar();
-         }
-         else if(isset($_GET['genlm']))
-         {
-            $this->generar_libro_mayor();
-         }
+            $this->resultados = $this->subcuenta->get_partidas($this->offset);
 
-         $this->pdf_libromayor = FALSE;
-         if(file_exists('tmp/' . FS_TMP_NAME . 'libro_mayor/' . $this->subcuenta->idsubcuenta . '.pdf'))
-         {
-            $this->pdf_libromayor = 'tmp/' . FS_TMP_NAME . 'libro_mayor/' . $this->subcuenta->idsubcuenta . '.pdf';
-         }
+            if (isset($_POST['puntear'])) {
+                $this->modificar();
+            } else if (isset($_GET['genlm'])) {
+                $this->generar_libro_mayor();
+            }
 
-         /// comprobamos la subcuenta
-         $this->subcuenta->test();
-      }
-      else
-      {
-         $this->new_error_msg("Subcuenta no encontrada.", 'error', FALSE, FALSE);
-         $this->ppage = $this->page->get('contabilidad_cuentas');
-      }
-   }
+            $this->pdf_libromayor = FALSE;
+            if (file_exists('tmp/' . FS_TMP_NAME . 'libro_mayor/' . $this->subcuenta->idsubcuenta . '.pdf')) {
+                $this->pdf_libromayor = 'tmp/' . FS_TMP_NAME . 'libro_mayor/' . $this->subcuenta->idsubcuenta . '.pdf';
+            }
 
-   public function url()
-   {
-      if(!isset($this->subcuenta))
-      {
-         return parent::url();
-      }
-      else if($this->subcuenta)
-      {
-         return $this->subcuenta->url();
-      }
-      else
-         return $this->ppage->url();
-   }
+            /// comprobamos la subcuenta
+            $this->subcuenta->test();
+        } else {
+            $this->new_error_msg("Subcuenta no encontrada.", 'error', FALSE, FALSE);
+            $this->ppage = $this->page->get('contabilidad_cuentas');
+        }
+    }
 
-   public function paginas()
-   {
-      return $this->fbase_paginas($this->url(), $this->subcuenta->count_partidas(), $this->offset);
-   }
+    public function url() {
+        if (!isset($this->subcuenta)) {
+            return parent::url();
+        } else if ($this->subcuenta) {
+            return $this->subcuenta->url();
+        } else
+            return $this->ppage->url();
+    }
 
-   private function modificar()
-   {
-      if($_POST['descripcion'] != $this->subcuenta->descripcion)
-      {
-         $this->subcuenta->descripcion = $_POST['descripcion'];
-         $this->subcuenta->coddivisa = $_POST['coddivisa'];
-         $this->subcuenta->save();
-      }
+    public function paginas() {
+        return $this->fbase_paginas($this->url(), $this->subcuenta->count_partidas(), $this->offset);
+    }
 
-      foreach($this->resultados as $pa)
-      {
-         if(isset($_POST['punteada']))
-         {
-            $valor = in_array($pa->idpartida, $_POST['punteada']);
-         }
-         else
-            $valor = FALSE;
+    private function modificar() {
+        if ($_POST['descripcion'] != $this->subcuenta->descripcion) {
+            $this->subcuenta->descripcion = $_POST['descripcion'];
+            $this->subcuenta->coddivisa = $_POST['coddivisa'];
+            $this->subcuenta->save();
+        }
 
-         if($pa->punteada != $valor)
-         {
-            $pa->punteada = $valor;
-            $pa->save();
-         }
-      }
+        foreach ($this->resultados as $pa) {
+            if (isset($_POST['punteada'])) {
+                $valor = in_array($pa->idpartida, $_POST['punteada']);
+            } else
+                $valor = FALSE;
 
-      $this->new_message('Datos guardados correctamente.');
-   }
+            if ($pa->punteada != $valor) {
+                $pa->punteada = $valor;
+                $pa->save();
+            }
+        }
 
-   private function generar_libro_mayor()
-   {
-      /// generamos el PDF del libro mayor si no existe
-      $libro_mayor = new libro_mayor();
-      $libro_mayor->libro_mayor($this->subcuenta);
-      if(file_exists('tmp/' . FS_TMP_NAME . 'libro_mayor/' . $this->subcuenta->idsubcuenta . '.pdf'))
-      {
-         header('Location: ' . FS_PATH . 'tmp/' . FS_TMP_NAME . 'libro_mayor/' . $this->subcuenta->idsubcuenta . '.pdf');
-      }
-      else
-      {
-         $this->new_error_msg('Error al generar el libro mayor.');
-      }
-   }
+        $this->new_message('Datos guardados correctamente.');
+    }
+
+    private function generar_libro_mayor() {
+        /// generamos el PDF del libro mayor si no existe
+        $libro_mayor = new libro_mayor();
+        $libro_mayor->libro_mayor($this->subcuenta);
+        if (file_exists('tmp/' . FS_TMP_NAME . 'libro_mayor/' . $this->subcuenta->idsubcuenta . '.pdf')) {
+            header('Location: ' . FS_PATH . 'tmp/' . FS_TMP_NAME . 'libro_mayor/' . $this->subcuenta->idsubcuenta . '.pdf');
+        } else {
+            $this->new_error_msg('Error al generar el libro mayor.');
+        }
+    }
+
 }

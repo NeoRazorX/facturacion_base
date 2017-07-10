@@ -143,7 +143,7 @@ class fbase_controller extends fs_controller {
         if (count($paginas) > 1) {
             return $paginas;
         }
-        
+
         return array();
     }
 
@@ -194,7 +194,7 @@ class fbase_controller extends fs_controller {
         if ($data) {
             return intval($data[0]['total']);
         }
-        
+
         return 0;
     }
 

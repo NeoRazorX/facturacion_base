@@ -181,7 +181,7 @@ class dashboard extends fs_controller {
 
         $this->elegir_consejos();
         $this->leer_noticias();
-        
+
         if ((float) substr(phpversion(), 0, 3) < 5.4) {
             $this->new_advice('Estás usando una versión de PHP demasiado antigua. '
                     . 'En próximas actualizaciones FacturaScripts necesitará PHP 5.4 o superor.');

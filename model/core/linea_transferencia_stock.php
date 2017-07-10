@@ -14,172 +14,140 @@ require_model('transferencia_stock.php');
  *
  * @author Carlos García Gómez
  */
-class linea_transferencia_stock extends \fs_model
-{
-   /// clave primaria. integer
-   public $idlinea;
-   
-   public $idtrans;
-   public $referencia;
-   public $cantidad;
-   public $descripcion;
-   
-   private $fecha;
-   private $hora;
-   
-   public function __construct($d = FALSE)
-   {
-      parent::__construct('lineastransstock');
-      if($d)
-      {
-         $this->idlinea = $this->intval($d['idlinea']);
-         $this->idtrans = $this->intval($d['idtrans']);
-         $this->referencia = $d['referencia'];
-         $this->cantidad = floatval($d['cantidad']);
-         $this->descripcion = $d['descripcion'];
-         
-         $this->fecha = NULL;
-         if( isset($d['fecha']) )
-         {
-            $this->fecha = date('d-m-Y', strtotime($d['fecha']));
-         }
-         
-         $this->hora = NULL;
-         if( isset($d['hora']) )
-         {
-            $this->hora = $d['hora'];
-         }
-      }
-      else
-      {
-         /// valores predeterminados
-         $this->idlinea = NULL;
-         $this->idtrans = NULL;
-         $this->referencia = NULL;
-         $this->cantidad = 0;
-         $this->descripcion = NULL;
-         $this->fecha = NULL;
-         $this->hora = NULL;
-      }
-   }
+class linea_transferencia_stock extends \fs_model {
 
-   public function install()
-   {
-      /// forzamos la comprobación de la tabla de transferencias de stock
-      new \transferencia_stock();
-      
-      return '';
-   }
-   
-   public function fecha()
-   {
-      return $this->fecha;
-   }
-   
-   public function hora()
-   {
-      return $this->hora;
-   }
+    /// clave primaria. integer
+    public $idlinea;
+    public $idtrans;
+    public $referencia;
+    public $cantidad;
+    public $descripcion;
+    private $fecha;
+    private $hora;
 
-   public function exists()
-   {
-      if( is_null($this->idlinea) )
-      {
-         return FALSE;
-      }
-      else
-      {
-         return $this->db->select('SELECT * FROM lineastransstock WHERE idlinea = '.$this->var2str($this->idlinea).';');
-      }
-   }
+    public function __construct($d = FALSE) {
+        parent::__construct('lineastransstock');
+        if ($d) {
+            $this->idlinea = $this->intval($d['idlinea']);
+            $this->idtrans = $this->intval($d['idtrans']);
+            $this->referencia = $d['referencia'];
+            $this->cantidad = floatval($d['cantidad']);
+            $this->descripcion = $d['descripcion'];
 
-   public function save()
-   {
-      if( $this->exists() )
-      {
-         $sql = "UPDATE lineastransstock SET idtrans = ".$this->var2str($this->idtrans)
-                 . ", referencia = ".$this->var2str($this->referencia)
-                 . ", cantidad = ".$this->var2str($this->cantidad)
-                 . ", descripcion = ".$this->var2str($this->descripcion)
-                 . "  WHERE idlinea = ".$this->var2str($this->idlinea).";";
-         
-         return $this->db->exec($sql);
-      }
-      else
-      {
-         $sql = "INSERT INTO lineastransstock (idtrans,referencia,cantidad,descripcion) VALUES "
-                 . "(".$this->var2str($this->idtrans)
-                 . ",".$this->var2str($this->referencia)
-                 . ",".$this->var2str($this->cantidad)
-                 . ",".$this->var2str($this->descripcion).");";
-         
-         if( $this->db->exec($sql) )
-         {
-            $this->idlinea = $this->db->lastval();
-            return TRUE;
-         }
-         else
-         {
+            $this->fecha = NULL;
+            if (isset($d['fecha'])) {
+                $this->fecha = date('d-m-Y', strtotime($d['fecha']));
+            }
+
+            $this->hora = NULL;
+            if (isset($d['hora'])) {
+                $this->hora = $d['hora'];
+            }
+        } else {
+            /// valores predeterminados
+            $this->idlinea = NULL;
+            $this->idtrans = NULL;
+            $this->referencia = NULL;
+            $this->cantidad = 0;
+            $this->descripcion = NULL;
+            $this->fecha = NULL;
+            $this->hora = NULL;
+        }
+    }
+
+    public function install() {
+        /// forzamos la comprobación de la tabla de transferencias de stock
+        new \transferencia_stock();
+
+        return '';
+    }
+
+    public function fecha() {
+        return $this->fecha;
+    }
+
+    public function hora() {
+        return $this->hora;
+    }
+
+    public function exists() {
+        if (is_null($this->idlinea)) {
             return FALSE;
-         }
-      }
-   }
+        } else {
+            return $this->db->select('SELECT * FROM lineastransstock WHERE idlinea = ' . $this->var2str($this->idlinea) . ';');
+        }
+    }
 
-   public function delete()
-   {
-      return $this->db->exec('DELETE FROM lineastransstock WHERE idlinea = '.$this->var2str($this->idlinea).';');
-   }
-   
-   public function all_from_transferencia($id)
-   {
-      $list = array();
-      
-      $data = $this->db->select("SELECT * FROM lineastransstock WHERE idtrans = ".$this->var2str($id)." ORDER BY referencia ASC;");
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $list[] = new \linea_transferencia_stock($d);
-         }
-      }
-      
-      return $list;
-   }
-   
-   public function all_from_referencia($ref, $codalmaorigen = '', $codalmadestino = '', $desde = '', $hasta = '')
-   {
-      $list = array();
-      
-      $sql = "SELECT l.idlinea,l.idtrans,l.referencia,l.cantidad,l.descripcion,t.fecha,t.hora FROM lineastransstock l"
-              . " LEFT JOIN transstock t ON l.idtrans = t.idtrans"
-              . " WHERE l.referencia = ".$this->var2str($ref);
-      if($codalmaorigen)
-      {
-         $sql .= " AND t.codalmaorigen = ".$this->var2str($codalmaorigen);
-      }
-      if($codalmadestino)
-      {
-         $sql .= " AND t.codalmadestino = ".$this->var2str($codalmadestino);
-      }
-      if($desde)
-      {
-         $sql .= " AND t.fecha >= ".$this->var2str($desde);
-      }
-      if($hasta)
-      {
-         $sql .= " AND t.fecha >= ".$this->var2str($hasta);
-      }
-      $sql .= " ORDER BY t.fecha ASC, t.hora ASC;";
-      
-      $data = $this->db->select($sql);
-      if($data)
-      {
-         foreach($data as $d)
-         {
-            $list[] = new \linea_transferencia_stock($d);
-         }
-      }
-      
-      return $list;
-   }
+    public function save() {
+        if ($this->exists()) {
+            $sql = "UPDATE lineastransstock SET idtrans = " . $this->var2str($this->idtrans)
+                    . ", referencia = " . $this->var2str($this->referencia)
+                    . ", cantidad = " . $this->var2str($this->cantidad)
+                    . ", descripcion = " . $this->var2str($this->descripcion)
+                    . "  WHERE idlinea = " . $this->var2str($this->idlinea) . ";";
+
+            return $this->db->exec($sql);
+        } else {
+            $sql = "INSERT INTO lineastransstock (idtrans,referencia,cantidad,descripcion) VALUES "
+                    . "(" . $this->var2str($this->idtrans)
+                    . "," . $this->var2str($this->referencia)
+                    . "," . $this->var2str($this->cantidad)
+                    . "," . $this->var2str($this->descripcion) . ");";
+
+            if ($this->db->exec($sql)) {
+                $this->idlinea = $this->db->lastval();
+                return TRUE;
+            } else {
+                return FALSE;
+            }
+        }
+    }
+
+    public function delete() {
+        return $this->db->exec('DELETE FROM lineastransstock WHERE idlinea = ' . $this->var2str($this->idlinea) . ';');
+    }
+
+    public function all_from_transferencia($id) {
+        $list = array();
+
+        $data = $this->db->select("SELECT * FROM lineastransstock WHERE idtrans = " . $this->var2str($id) . " ORDER BY referencia ASC;");
+        if ($data) {
+            foreach ($data as $d) {
+                $list[] = new \linea_transferencia_stock($d);
+            }
+        }
+
+        return $list;
+    }
+
+    public function all_from_referencia($ref, $codalmaorigen = '', $codalmadestino = '', $desde = '', $hasta = '') {
+        $list = array();
+
+        $sql = "SELECT l.idlinea,l.idtrans,l.referencia,l.cantidad,l.descripcion,t.fecha,t.hora FROM lineastransstock l"
+                . " LEFT JOIN transstock t ON l.idtrans = t.idtrans"
+                . " WHERE l.referencia = " . $this->var2str($ref);
+        if ($codalmaorigen) {
+            $sql .= " AND t.codalmaorigen = " . $this->var2str($codalmaorigen);
+        }
+        if ($codalmadestino) {
+            $sql .= " AND t.codalmadestino = " . $this->var2str($codalmadestino);
+        }
+        if ($desde) {
+            $sql .= " AND t.fecha >= " . $this->var2str($desde);
+        }
+        if ($hasta) {
+            $sql .= " AND t.fecha >= " . $this->var2str($hasta);
+        }
+        $sql .= " ORDER BY t.fecha ASC, t.hora ASC;";
+
+        $data = $this->db->select($sql);
+        if ($data) {
+            foreach ($data as $d) {
+                $list[] = new \linea_transferencia_stock($d);
+            }
+        }
+
+        return $list;
+    }
+
 }

@@ -25,7 +25,6 @@ require_once 'plugins/facturacion_base/model/core/articulo_proveedor.php';
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class articulo_proveedor extends FacturaScripts\model\articulo_proveedor
-{
-   
+class articulo_proveedor extends FacturaScripts\model\articulo_proveedor {
+    
 }

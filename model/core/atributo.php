@@ -65,7 +65,7 @@ class atributo extends \fs_model {
         if ($data) {
             return new \atributo($data[0]);
         }
-        
+
         return FALSE;
     }
 
@@ -79,7 +79,7 @@ class atributo extends \fs_model {
         if ($data) {
             return new \atributo($data[0]);
         }
-        
+
         return FALSE;
     }
 
@@ -87,7 +87,7 @@ class atributo extends \fs_model {
         if (is_null($this->codatributo)) {
             return FALSE;
         }
-        
+
         return $this->db->select("SELECT * FROM atributos WHERE codatributo = " . $this->var2str($this->codatributo) . ";");
     }
 

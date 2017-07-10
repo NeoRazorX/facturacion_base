@@ -73,7 +73,7 @@ class grupo_clientes extends \fs_model {
         if ($this->codgrupo == NULL) {
             return 'index.php?page=ventas_clientes#grupos';
         }
-        
+
         return 'index.php?page=ventas_grupo&cod=' . urlencode($this->codgrupo);
     }
 
@@ -94,7 +94,7 @@ class grupo_clientes extends \fs_model {
         if ($data) {
             return sprintf('%06s', (1 + intval($data[0]['codgrupo'])));
         }
-        
+
         return '000001';
     }
 
@@ -103,7 +103,7 @@ class grupo_clientes extends \fs_model {
         if ($data) {
             return new \grupo_clientes($data[0]);
         }
-        
+
         return FALSE;
     }
 
@@ -111,7 +111,7 @@ class grupo_clientes extends \fs_model {
         if (is_null($this->codgrupo)) {
             return FALSE;
         }
-        
+
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codgrupo = " . $this->var2str($this->codgrupo) . ";");
     }
 

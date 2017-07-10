@@ -581,10 +581,12 @@ class factura_proveedor extends \fs_model {
         /// buscamos un hueco o el siguiente número disponible
         $encontrado = FALSE;
         $num = 1;
-        $sql = "SELECT " . $this->db->sql_to_int('numero') . " as numero,fecha,hora FROM " . $this->table_name
-                . " WHERE codejercicio = " . $this->var2str($this->codejercicio)
-                . " AND codserie = " . $this->var2str($this->codserie)
-                . " ORDER BY numero ASC;";
+        $sql = "SELECT " . $this->db->sql_to_int('numero') . " as numero,fecha,hora FROM " . $this->table_name;
+        if (FS_NEW_CODIGO != 'NUM' && FS_NEW_CODIGO != '0-NUM') {
+            $sql .= " WHERE codejercicio = " . $this->var2str($this->codejercicio)
+                    . " AND codserie = " . $this->var2str($this->codserie);
+        }
+        $sql .= " ORDER BY numero ASC;";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -606,40 +608,19 @@ class factura_proveedor extends \fs_model {
             }
         }
 
-        if ($encontrado) {
-            $this->numero = $num;
-        } else {
-            $this->numero = $num;
-
+        $this->numero = $num;
+        
+        if (!$encontrado) {
             /// nos guardamos la secuencia para abanq/eneboo
-            $sec = new \secuencia();
-            $sec = $sec->get_by_params2($this->codejercicio, $this->codserie, 'nfacturaprov');
-            if ($sec) {
-                if ($sec->valorout <= $this->numero) {
-                    $sec->valorout = 1 + $this->numero;
-                    $sec->save();
-                }
+            $sec0 = new \secuencia();
+            $sec = $sec0->get_by_params2($this->codejercicio, $this->codserie, 'nfacturaprov');
+            if ($sec && $sec->valorout <= $this->numero) {
+                $sec->valorout = 1 + $this->numero;
+                $sec->save();
             }
         }
 
-        /* Será diferente en función de si es un equipo de 32/64 bits */
-        $long_max = strlen((string)PHP_INT_MAX);
-
-        if (FS_NEW_CODIGO == 'eneboo') {
-            $this->codigo = $this->codejercicio . sprintf('%02s', $this->codserie) . sprintf('%06s', $this->numero);
-        } elseif (FS_NEW_CODIGO == '0-NUM') {
-            $this->codigo = str_pad($this->numero, $long_max, '0', STR_PAD_LEFT);
-        } elseif (FS_NEW_CODIGO == 'NUM') {
-            $this->codigo = $this->numero;
-        } elseif (FS_NEW_CODIGO == 'SERIE-YY-0-NUM') {
-            $this->codigo = $this->codserie .  substr( $this->codejercicio, -2) . str_pad($this->numero, 17, '0', STR_PAD_LEFT);
-        } elseif (FS_NEW_CODIGO == 'SERIE-YY-0-NUM-CORTO') {
-            $long = max(4,strlen((string)$this->numero));
-            $this->codigo = $this->codserie .  substr( $this->codejercicio, -2) . str_pad($this->numero, $long, '0', STR_PAD_LEFT);
-        } else {
-            $this->codigo = 'FAC' . $this->codejercicio . $this->codserie . $this->numero . 'C';
-            //$this->codigo = strtoupper(substr(FS_FACTURA, 0, 3)) . $this->codejercicio . $this->codserie . $this->numero . 'C';
-        }
+        $this->codigo = fs_documento_new_codigo(FS_FACTURA, $this->codejercicio, $this->codserie, $this->numero, 'C');
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -20,76 +21,58 @@
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('pais.php');
 
-class admin_paises extends fbase_controller
-{
-   public $pais;
+class admin_paises extends fbase_controller {
 
-   public function __construct()
-   {
-      parent::__construct(__CLASS__, 'Paises', 'admin');
-   }
-   
-   protected function private_core()
-   {
-      parent::private_core();
-      
-      $this->pais = new pais();
-      
-      if( isset($_POST['scodpais']) )
-      {
-         $this->editar_pais();
-      }
-      else if( isset($_GET['delete']) )
-      {
-         $this->eliminar_pais();
-      }
-   }
-   
-   private function editar_pais()
-   {
-      $pais = $this->pais->get($_POST['scodpais']);
-      if( !$pais )
-      {
-         /// si no existe lo creamos
-         $pais = new pais();
-         $pais->codpais = $_POST['scodpais'];
-      }
-      
-      $pais->codiso = $_POST['scodiso'];
-      $pais->nombre = $_POST['snombre'];
-      
-      if( $pais->save() )
-      {
-         $this->new_message("País ".$pais->nombre." guardado correctamente.");
-      }
-      else
-         $this->new_error_msg("¡Imposible guardar el país!");
-   }
-   
-   private function eliminar_pais()
-   {
-      if(FS_DEMO)
-      {
-         $this->new_error_msg('En el modo demo no puedes eliminar paises. Otro usuario podría necesitarlo.');
-      }
-      else if( !$this->allow_delete )
-      {
-         $this->new_error_msg('No tienes permiso para eliminar en esta página.');
-      }
-      else
-      {
-         $pais = $this->pais->get($_GET['delete']);
-         if( $pais )
-         {
-            if( $pais->delete() )
-            {
-               $this->new_message("País ".$pais->nombre." eliminado correctamente.");
-            }
-            else
-               $this->new_error_msg("¡Imposible eliminar el país!");
-         }
-         else
-            $this->new_error_msg("¡País no encontrado!");
-      }
-   }
+    public $pais;
+
+    public function __construct() {
+        parent::__construct(__CLASS__, 'Paises', 'admin');
+    }
+
+    protected function private_core() {
+        parent::private_core();
+
+        $this->pais = new pais();
+
+        if (isset($_POST['scodpais'])) {
+            $this->editar_pais();
+        } else if (isset($_GET['delete'])) {
+            $this->eliminar_pais();
+        }
+    }
+
+    private function editar_pais() {
+        $pais = $this->pais->get($_POST['scodpais']);
+        if (!$pais) {
+            /// si no existe lo creamos
+            $pais = new pais();
+            $pais->codpais = $_POST['scodpais'];
+        }
+
+        $pais->codiso = $_POST['scodiso'];
+        $pais->nombre = $_POST['snombre'];
+
+        if ($pais->save()) {
+            $this->new_message("País " . $pais->nombre . " guardado correctamente.");
+        } else
+            $this->new_error_msg("¡Imposible guardar el país!");
+    }
+
+    private function eliminar_pais() {
+        if (FS_DEMO) {
+            $this->new_error_msg('En el modo demo no puedes eliminar paises. Otro usuario podría necesitarlo.');
+        } else if (!$this->allow_delete) {
+            $this->new_error_msg('No tienes permiso para eliminar en esta página.');
+        } else {
+            $pais = $this->pais->get($_GET['delete']);
+            if ($pais) {
+                if ($pais->delete()) {
+                    $this->new_message("País " . $pais->nombre . " eliminado correctamente.");
+                } else
+                    $this->new_error_msg("¡Imposible eliminar el país!");
+            } else
+                $this->new_error_msg("¡País no encontrado!");
+        }
+    }
+
 }

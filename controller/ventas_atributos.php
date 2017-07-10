@@ -27,165 +27,120 @@ require_model('atributo_valor.php');
  *
  * @author Carlos Garcia Gomez
  */
-class ventas_atributos extends fbase_controller
-{
-   public $atributo;
-   public $resultados;
+class ventas_atributos extends fbase_controller {
 
-   public function __construct()
-   {
-      parent::__construct(__CLASS__, 'Atributos de artículos', 'ventas', FALSE, FALSE);
-   }
+    public $atributo;
+    public $resultados;
 
-   protected function private_core()
-   {
-      parent::private_core();
-      $this->share_extensions();
+    public function __construct() {
+        parent::__construct(__CLASS__, 'Atributos de artículos', 'ventas', FALSE, FALSE);
+    }
 
-      $this->atributo = FALSE;
-      $atr1 = new atributo();
-      if( isset($_POST['nuevo']) )
-      {
-         $this->nuevo_atributo($atr1);
-      }
-      else if( isset($_REQUEST['cod']) )
-      {
-         $this->atributo = $atr1->get($_REQUEST['cod']);
-         $this->editar_atributo();
-      }
-      else if( isset($_GET['delete']) )
-      {
-         $this->eliminar_atributos($atr1);
-      }
+    protected function private_core() {
+        parent::private_core();
+        $this->share_extensions();
 
-      if($this->atributo)
-      {
-         $this->template = 'ventas_atributo';
+        $this->atributo = FALSE;
+        $atr1 = new atributo();
+        if (isset($_POST['nuevo'])) {
+            $this->nuevo_atributo($atr1);
+        } else if (isset($_REQUEST['cod'])) {
+            $this->atributo = $atr1->get($_REQUEST['cod']);
+            $this->editar_atributo();
+        } else if (isset($_GET['delete'])) {
+            $this->eliminar_atributos($atr1);
+        }
 
-         $valor = new atributo_valor();
-         $this->resultados = $valor->all_from_atributo($this->atributo->codatributo);
-      }
-      else
-      {
-         $this->resultados = $atr1->all();
-      }
-   }
+        if ($this->atributo) {
+            $this->template = 'ventas_atributo';
 
-   private function share_extensions()
-   {
-      $fsext = new fs_extension();
-      $fsext->name = 'btn_atributos';
-      $fsext->from = __CLASS__;
-      $fsext->to = 'ventas_articulos';
-      $fsext->type = 'button';
-      $fsext->text = '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>'
-              . '<span class="hidden-xs">&nbsp; Atributos</span>';
-      $fsext->save();
-   }
+            $valor = new atributo_valor();
+            $this->resultados = $valor->all_from_atributo($this->atributo->codatributo);
+        } else {
+            $this->resultados = $atr1->all();
+        }
+    }
 
-   private function nuevo_atributo(&$atr1)
-   {
-      $atr1->codatributo = substr($_POST['nuevo'], 0, 20);
-      $atr1->nombre = $_POST['nuevo'];
-      
-      if( $atr1->save() )
-      {
-         $this->new_message('Atributo guardado correctamente.');
-         $this->atributo = $atr1;
-      }
-      else
-      {
-         $this->new_error_msg('Errro al crear el atributo.');
-      }
-   }
+    private function share_extensions() {
+        $fsext = new fs_extension();
+        $fsext->name = 'btn_atributos';
+        $fsext->from = __CLASS__;
+        $fsext->to = 'ventas_articulos';
+        $fsext->type = 'button';
+        $fsext->text = '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>'
+                . '<span class="hidden-xs">&nbsp; Atributos</span>';
+        $fsext->save();
+    }
 
-   private function editar_atributo()
-   {
-      if(isset($_POST['nombre']))
-      {
-         $this->atributo->nombre = $_POST['nombre'];
+    private function nuevo_atributo(&$atr1) {
+        $atr1->codatributo = substr($_POST['nuevo'], 0, 20);
+        $atr1->nombre = $_POST['nuevo'];
 
-         if($this->atributo->save())
-         {
-            $this->new_message('Datos guardados correctamente.');
-         }
-         else
-         {
-            $this->new_error_msg('Error al guardar los datos.');
-         }
-      }
-      else if(isset($_POST['nuevo_valor']))
-      {
-         $valor = new atributo_valor();
-         $valor->codatributo = $this->atributo->codatributo;
-         $valor->valor = $_POST['nuevo_valor'];
+        if ($atr1->save()) {
+            $this->new_message('Atributo guardado correctamente.');
+            $this->atributo = $atr1;
+        } else {
+            $this->new_error_msg('Errro al crear el atributo.');
+        }
+    }
 
-         if($valor->save())
-         {
-            $this->new_message('Datos guardados correctamente.');
-         }
-         else
-         {
-            $this->new_error_msg('Error al guardar los datos.');
-         }
-      }
-      else if(isset($_POST['id']))
-      {
-         $val0 = new atributo_valor();
-         $valor = $val0->get($_POST['id']);
-         if($valor)
-         {
-            $valor->valor = $_POST['valor'];
+    private function editar_atributo() {
+        if (isset($_POST['nombre'])) {
+            $this->atributo->nombre = $_POST['nombre'];
 
-            if($valor->save())
-            {
-               $this->new_message('Datos guardados correctamente.');
+            if ($this->atributo->save()) {
+                $this->new_message('Datos guardados correctamente.');
+            } else {
+                $this->new_error_msg('Error al guardar los datos.');
             }
-            else
-            {
-               $this->new_error_msg('Error al guardar los datos.');
-            }
-         }
-      }
-      else if(isset($_GET['delete_val']))
-      {
-         $val0 = new atributo_valor();
-         $valor = $val0->get($_GET['delete_val']);
-         if($valor)
-         {
-            if( !$this->allow_delete )
-            {
-               $this->new_error_msg('No tienes permiso para eliminar en esta página.');
-            }
-            else if( $valor->delete() )
-            {
-               $this->new_message('Valor eliminado correctamente.');
-            }
-            else
-            {
-               $this->new_error_msg('Error al eliminar el valor.');
-            }
-         }
-      }
-   }
+        } else if (isset($_POST['nuevo_valor'])) {
+            $valor = new atributo_valor();
+            $valor->codatributo = $this->atributo->codatributo;
+            $valor->valor = $_POST['nuevo_valor'];
 
-   private function eliminar_atributos(&$atr1)
-   {
-      $atributo = $atr1->get($_GET['delete']);
-      if($atributo)
-      {
-         if( !$this->allow_delete )
-         {
-            $this->new_error_msg('No tienes permiso para eliminar en esta página.');
-         }
-         else if( $atributo->delete() )
-         {
-            $this->new_message('Atributo eliminado correctamente.');
-         }
-         else
-         {
-            $this->new_error_msg('Imposible eliminar el atributo.');
-         }
-      }
-   }
+            if ($valor->save()) {
+                $this->new_message('Datos guardados correctamente.');
+            } else {
+                $this->new_error_msg('Error al guardar los datos.');
+            }
+        } else if (isset($_POST['id'])) {
+            $val0 = new atributo_valor();
+            $valor = $val0->get($_POST['id']);
+            if ($valor) {
+                $valor->valor = $_POST['valor'];
+
+                if ($valor->save()) {
+                    $this->new_message('Datos guardados correctamente.');
+                } else {
+                    $this->new_error_msg('Error al guardar los datos.');
+                }
+            }
+        } else if (isset($_GET['delete_val'])) {
+            $val0 = new atributo_valor();
+            $valor = $val0->get($_GET['delete_val']);
+            if ($valor) {
+                if (!$this->allow_delete) {
+                    $this->new_error_msg('No tienes permiso para eliminar en esta página.');
+                } else if ($valor->delete()) {
+                    $this->new_message('Valor eliminado correctamente.');
+                } else {
+                    $this->new_error_msg('Error al eliminar el valor.');
+                }
+            }
+        }
+    }
+
+    private function eliminar_atributos(&$atr1) {
+        $atributo = $atr1->get($_GET['delete']);
+        if ($atributo) {
+            if (!$this->allow_delete) {
+                $this->new_error_msg('No tienes permiso para eliminar en esta página.');
+            } else if ($atributo->delete()) {
+                $this->new_message('Atributo eliminado correctamente.');
+            } else {
+                $this->new_error_msg('Imposible eliminar el atributo.');
+            }
+        }
+    }
+
 }

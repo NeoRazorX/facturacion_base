@@ -180,7 +180,7 @@ class informe_facturas extends informe_albaranes {
             $dataFactura['neto'] = $diva['neto'];
             $dataFactura['totaliva'] = $diva['totaliva'];
             $dataFactura['totalrecargo'] = $diva['totalrecargo'];
-            if($key != 0) {
+            if ($key != 0) {
                 $dataFactura['irpf'] = 0;
                 $dataFactura['totalirpf'] = 0;
             }

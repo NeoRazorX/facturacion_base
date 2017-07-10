@@ -26,160 +26,135 @@ require_model('factura_cliente.php');
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class ventas_maquetar extends fs_controller
-{
-   public $documento;
-   public $editable;
-   public $lineas;
-   public $titulo;
-   
-   public function __construct()
-   {
-      parent::__construct(__CLASS__, 'Maquetar', 'ventas', FALSE, FALSE);
-   }
-   
-   protected function private_core()
-   {
-      $this->share_extensions();
-      
-      $this->documento = FALSE;
-      $this->editable = FALSE;
-      if( isset($_REQUEST['albaran']) )
-      {
-         $alb0 = new albaran_cliente();
-         $this->documento = $alb0->get($_REQUEST['id']);
-         if($this->documento)
-         {
-            $this->titulo = FS_ALBARAN.' '.$this->documento->codigo;
-            $this->lineas = $this->documento->get_lineas();
-            $this->editable = $this->documento->ptefactura;
-            
-            if( isset($_POST['idlinea']) )
-            {
-               if($this->editable)
-               {
-                  $orden = 1 + count($_POST['idlinea']);
-                  foreach($_POST['idlinea'] as $idl)
-                  {
-                     foreach($this->lineas as $lin)
-                     {
-                        if($lin->idlinea == $idl)
-                        {
-                           $lin->orden = $orden;
-                           
-                           $lin->mostrar_cantidad = FALSE;
-                           $lin->mostrar_precio = FALSE;
-                           if( isset($_POST['mostrar_cantidad_'.$idl]) )
-                           {
-                              $lin->mostrar_cantidad = TRUE;
-                              $lin->mostrar_precio = isset($_POST['mostrar_precio_'.$idl]);
-                           }
-                           
-                           $lin->save();
-                           break;
+class ventas_maquetar extends fs_controller {
+
+    public $documento;
+    public $editable;
+    public $lineas;
+    public $titulo;
+
+    public function __construct() {
+        parent::__construct(__CLASS__, 'Maquetar', 'ventas', FALSE, FALSE);
+    }
+
+    protected function private_core() {
+        $this->share_extensions();
+
+        $this->documento = FALSE;
+        $this->editable = FALSE;
+        if (isset($_REQUEST['albaran'])) {
+            $alb0 = new albaran_cliente();
+            $this->documento = $alb0->get($_REQUEST['id']);
+            if ($this->documento) {
+                $this->titulo = FS_ALBARAN . ' ' . $this->documento->codigo;
+                $this->lineas = $this->documento->get_lineas();
+                $this->editable = $this->documento->ptefactura;
+
+                if (isset($_POST['idlinea'])) {
+                    if ($this->editable) {
+                        $orden = 1 + count($_POST['idlinea']);
+                        foreach ($_POST['idlinea'] as $idl) {
+                            foreach ($this->lineas as $lin) {
+                                if ($lin->idlinea == $idl) {
+                                    $lin->orden = $orden;
+
+                                    $lin->mostrar_cantidad = FALSE;
+                                    $lin->mostrar_precio = FALSE;
+                                    if (isset($_POST['mostrar_cantidad_' . $idl])) {
+                                        $lin->mostrar_cantidad = TRUE;
+                                        $lin->mostrar_precio = isset($_POST['mostrar_precio_' . $idl]);
+                                    }
+
+                                    $lin->save();
+                                    break;
+                                }
+                            }
+
+                            $orden--;
                         }
-                     }
-                     
-                     $orden--;
-                  }
-                  
-                  $this->new_message('Datos guardados correctamente.');
-                  $this->lineas = $this->documento->get_lineas();
-               }
-               else
-               {
-                  $this->new_error_msg('El documento ya no es editable.');
-               }
+
+                        $this->new_message('Datos guardados correctamente.');
+                        $this->lineas = $this->documento->get_lineas();
+                    } else {
+                        $this->new_error_msg('El documento ya no es editable.');
+                    }
+                }
             }
-         }
-      }
-      else if( isset($_REQUEST['factura']) )
-      {
-         $fact0 = new factura_cliente();
-         $this->documento = $fact0->get($_REQUEST['id']);
-         if($this->documento)
-         {
-            $this->titulo = 'Factura '.$this->documento->codigo;
-            $this->lineas = $this->documento->get_lineas();
-            $this->editable = TRUE;
-            
-            if( isset($_POST['idlinea']) )
-            {
-               if($this->editable)
-               {
-                  $orden = 1 + count($_POST['idlinea']);
-                  foreach($_POST['idlinea'] as $idl)
-                  {
-                     foreach($this->lineas as $lin)
-                     {
-                        if($lin->idlinea == $idl)
-                        {
-                           $lin->orden = $orden;
-                           
-                           $lin->mostrar_cantidad = FALSE;
-                           $lin->mostrar_precio = FALSE;
-                           if( isset($_POST['mostrar_cantidad_'.$idl]) )
-                           {
-                              $lin->mostrar_cantidad = TRUE;
-                              $lin->mostrar_precio = isset($_POST['mostrar_precio_'.$idl]);
-                           }
-                           
-                           $lin->save();
-                           break;
+        } else if (isset($_REQUEST['factura'])) {
+            $fact0 = new factura_cliente();
+            $this->documento = $fact0->get($_REQUEST['id']);
+            if ($this->documento) {
+                $this->titulo = 'Factura ' . $this->documento->codigo;
+                $this->lineas = $this->documento->get_lineas();
+                $this->editable = TRUE;
+
+                if (isset($_POST['idlinea'])) {
+                    if ($this->editable) {
+                        $orden = 1 + count($_POST['idlinea']);
+                        foreach ($_POST['idlinea'] as $idl) {
+                            foreach ($this->lineas as $lin) {
+                                if ($lin->idlinea == $idl) {
+                                    $lin->orden = $orden;
+
+                                    $lin->mostrar_cantidad = FALSE;
+                                    $lin->mostrar_precio = FALSE;
+                                    if (isset($_POST['mostrar_cantidad_' . $idl])) {
+                                        $lin->mostrar_cantidad = TRUE;
+                                        $lin->mostrar_precio = isset($_POST['mostrar_precio_' . $idl]);
+                                    }
+
+                                    $lin->save();
+                                    break;
+                                }
+                            }
+
+                            $orden--;
                         }
-                     }
-                     
-                     $orden--;
-                  }
-                  
-                  $this->new_message('Datos guardados correctamente.');
-                  $this->lineas = $this->documento->get_lineas();
-               }
-               else
-               {
-                  $this->new_error_msg('El documento ya no es editable.');
-               }
+
+                        $this->new_message('Datos guardados correctamente.');
+                        $this->lineas = $this->documento->get_lineas();
+                    } else {
+                        $this->new_error_msg('El documento ya no es editable.');
+                    }
+                }
             }
-         }
-      }
-   }
-   
-   private function share_extensions()
-   {
-      $fsext = new fs_extension();
-      $fsext->name = 'maquetar_albaran';
-      $fsext->from = __CLASS__;
-      $fsext->to = 'ventas_albaran';
-      $fsext->type = 'pdf';
-      $fsext->text = '<i class="fa fa-magic"></i>&nbsp; Maquetar';
-      $fsext->params = '&albaran=TRUE';
-      $fsext->save();
-      
-      $fsext2 = new fs_extension();
-      $fsext2->name = 'maquetar_factura';
-      $fsext2->from = __CLASS__;
-      $fsext2->to = 'ventas_factura';
-      $fsext2->type = 'pdf';
-      $fsext2->text = '<i class="fa fa-magic"></i>&nbsp; Maquetar';
-      $fsext2->params = '&factura=TRUE';
-      $fsext2->save();
-   }
-   
-   public function url()
-   {
-      switch( get_class_name($this->documento) )
-      {
-         case 'albaran_cliente':
-            return 'index.php?page='.__CLASS__.'&albaran=TRUE&id='.$this->documento->idalbaran;
-            break;
-         
-         case 'factura_cliente':
-            return 'index.php?page='.__CLASS__.'&factura=TRUE&id='.$this->documento->idfactura;
-            break;
-         
-         default:
-            return parent::url();
-            break;
-      }
-   }
+        }
+    }
+
+    private function share_extensions() {
+        $fsext = new fs_extension();
+        $fsext->name = 'maquetar_albaran';
+        $fsext->from = __CLASS__;
+        $fsext->to = 'ventas_albaran';
+        $fsext->type = 'pdf';
+        $fsext->text = '<i class="fa fa-magic"></i>&nbsp; Maquetar';
+        $fsext->params = '&albaran=TRUE';
+        $fsext->save();
+
+        $fsext2 = new fs_extension();
+        $fsext2->name = 'maquetar_factura';
+        $fsext2->from = __CLASS__;
+        $fsext2->to = 'ventas_factura';
+        $fsext2->type = 'pdf';
+        $fsext2->text = '<i class="fa fa-magic"></i>&nbsp; Maquetar';
+        $fsext2->params = '&factura=TRUE';
+        $fsext2->save();
+    }
+
+    public function url() {
+        switch (get_class_name($this->documento)) {
+            case 'albaran_cliente':
+                return 'index.php?page=' . __CLASS__ . '&albaran=TRUE&id=' . $this->documento->idalbaran;
+                break;
+
+            case 'factura_cliente':
+                return 'index.php?page=' . __CLASS__ . '&factura=TRUE&id=' . $this->documento->idfactura;
+                break;
+
+            default:
+                return parent::url();
+                break;
+        }
+    }
+
 }

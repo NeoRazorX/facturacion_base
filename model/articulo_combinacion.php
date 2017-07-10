@@ -25,7 +25,6 @@ require_once 'plugins/facturacion_base/model/core/articulo_combinacion.php';
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class articulo_combinacion extends FacturaScripts\model\articulo_combinacion
-{
-   
+class articulo_combinacion extends FacturaScripts\model\articulo_combinacion {
+    
 }
