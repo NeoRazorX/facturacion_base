@@ -622,10 +622,23 @@ class factura_proveedor extends \fs_model {
             }
         }
 
+        /* Será diferente en función de si es un equipo de 32/64 bits */
+        $long_max = strlen((string)PHP_INT_MAX);
+
         if (FS_NEW_CODIGO == 'eneboo') {
             $this->codigo = $this->codejercicio . sprintf('%02s', $this->codserie) . sprintf('%06s', $this->numero);
+        } elseif (FS_NEW_CODIGO == '0-NUM') {
+            $this->codigo = str_pad($this->numero, $long_max, '0', STR_PAD_LEFT);
+        } elseif (FS_NEW_CODIGO == 'NUM') {
+            $this->codigo = $this->numero;
+        } elseif (FS_NEW_CODIGO == 'SERIE-YY-0-NUM') {
+            $this->codigo = $this->codserie .  substr( $this->codejercicio, -2) . str_pad($this->numero, 17, '0', STR_PAD_LEFT);
+        } elseif (FS_NEW_CODIGO == 'SERIE-YY-0-NUM-CORTO') {
+            $long = max(4,strlen((string)$this->numero));
+            $this->codigo = $this->codserie .  substr( $this->codejercicio, -2) . str_pad($this->numero, $long, '0', STR_PAD_LEFT);
         } else {
             $this->codigo = 'FAC' . $this->codejercicio . $this->codserie . $this->numero . 'C';
+            //$this->codigo = strtoupper(substr(FS_FACTURA, 0, 3)) . $this->codejercicio . $this->codserie . $this->numero . 'C';
         }
     }
 

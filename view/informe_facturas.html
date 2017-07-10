@@ -11,7 +11,51 @@
       document.listado_general.codproveedor.value = '';
       document.listado_general.submit();
    }
+   /**
+    * Redimensiona un iframe
+    */
+   function resizeIframe(obj) {
+      obj.style.height = (obj.contentWindow.document.body.scrollHeight + 100) + 'px';
+   }
+   /**
+    *  Workarround para Firefox (siempre dice que el height es 0)
+    */
+   function resize(frame) {
+      var b = frame.contentWindow.document.body || frame.contentDocument.body,
+              cHeight = $(b).height();
+
+      if (frame.oHeight !== cHeight) {
+         $(frame).height(0);
+         frame.style.height = 0;
+
+         $(frame).height(cHeight + 100);
+         frame.style.height = (cHeight + 100) + "px";
+
+         frame.oHeight = cHeight;
+      }
+
+      // Call again to check whether the content height has changed.
+      setTimeout(function () {
+         resize(frame);
+      }, 250);
+   }
    $(document).ready(function() {
+      /**
+       * El resize para Firefox lo llamamos cuando se ha cargado la página completamente
+       */
+      window.onload = function () {
+         var frame,
+                 frames = document.getElementsByTagName('iframe'),
+                 i = frames.length - 1;
+
+         while (i >= 0) {
+            frame = frames[i];
+            frame.onload = resize(frame);
+
+            i -= 1;
+         }
+      };
+
       $("#ac_cliente").autocomplete({
          serviceUrl: '{$fsc->url()}',
          paramName: 'buscar_cliente',
@@ -60,9 +104,20 @@
             <div class="page-header">
                <h1>
                   <i class="fa fa-area-chart" aria-hidden="true"></i> Informe de {#FS_FACTURAS#}
-                  <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
-                     <span class="glyphicon glyphicon-refresh"></span>
-                  </a>
+                  <span class="btn-group">
+                     <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                        <span class="glyphicon glyphicon-refresh"></span>
+                     </a>
+                  </span>
+                  <span class="btn-group">
+                     {loop="$fsc->extensions"}
+                     {if condition="$value->type=='button'"}
+                     <a href="index.php?page={$value->from}{$value->params}" class="btn btn-xs btn-default">{$value->text}</a>
+                     {elseif="$value->type=='modal'"}
+                     <a href="#" class="btn btn-xs btn-default" onclick="fs_modal('{$txt}', '{$url}')">{$value->text}</a>
+                     {/if}
+                     {/loop}
+                  </span>
                </h1>
             </div>
          </div>
@@ -243,6 +298,13 @@
             <li role="presentation">
                <a href="#mas_inf" aria-controls="mas_inf" role="tab" data-toggle="tab">Más...</a>
             </li>
+            {loop="$fsc->extensions"}
+            {if condition="$value->type=='tab'"}
+            <li role="presentation">
+               <a href="#ext_{$value->name}" aria-controls="ext_{$value->name}" role="tab" data-toggle="tab">{$value->text}</a>
+            </li>
+            {/if}
+            {/loop}
          </ul>
          <br/>
       </div>
@@ -749,6 +811,13 @@
             </div>
          </div>
       </div>
+      {loop="$fsc->extensions"}
+      {if condition="$value->type=='tab'"}
+      <div role="tabpanel" class="tab-pane" id="ext_{$value->name}">
+         <iframe src="index.php?page={$value->from}{$value->params}" width="100%" scrolling="no" frameborder="0" onload="resizeIframe(this);" allowfullscreen ></iframe>
+      </div>
+      {/if}
+      {/loop}
    </div>
 </div>
 
