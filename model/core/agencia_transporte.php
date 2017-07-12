@@ -86,8 +86,8 @@ class agencia_transporte extends \fs_model {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtrans = " . $this->var2str($cod) . ";");
         if ($data) {
             return new \agencia_transporte($data[0]);
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     /**
@@ -97,8 +97,8 @@ class agencia_transporte extends \fs_model {
     public function exists() {
         if (is_null($this->codtrans)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtrans = " . $this->var2str($this->codtrans) . ";");
+        }
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtrans = " . $this->var2str($this->codtrans) . ";");
     }
 
     /**

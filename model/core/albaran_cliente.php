@@ -352,8 +352,8 @@ class albaran_cliente extends \fs_model {
     public function show_hora($s = TRUE) {
         if ($s) {
             return Date('H:i:s', strtotime($this->hora));
-        } else
-            return Date('H:i', strtotime($this->hora));
+        }
+        return Date('H:i', strtotime($this->hora));
     }
 
     public function observaciones_resume() {
@@ -361,15 +361,15 @@ class albaran_cliente extends \fs_model {
             return '-';
         } else if (strlen($this->observaciones) < 60) {
             return $this->observaciones;
-        } else
-            return substr($this->observaciones, 0, 50) . '...';
+        }
+        return substr($this->observaciones, 0, 50) . '...';
     }
 
     public function url() {
         if (is_null($this->idalbaran)) {
             return 'index.php?page=ventas_albaranes';
-        } else
-            return 'index.php?page=ventas_albaran&id=' . $this->idalbaran;
+        }
+        return 'index.php?page=ventas_albaran&id=' . $this->idalbaran;
     }
 
     public function factura_url() {
@@ -382,15 +382,15 @@ class albaran_cliente extends \fs_model {
     public function agente_url() {
         if (is_null($this->codagente)) {
             return "index.php?page=admin_agentes";
-        } else
-            return "index.php?page=admin_agente&cod=" . $this->codagente;
+        }
+        return "index.php?page=admin_agente&cod=" . $this->codagente;
     }
 
     public function cliente_url() {
         if (is_null($this->codcliente)) {
             return "index.php?page=ventas_clientes";
-        } else
-            return "index.php?page=ventas_cliente&cod=" . $this->codcliente;
+        }
+        return "index.php?page=ventas_cliente&cod=" . $this->codcliente;
     }
 
     /**
@@ -419,15 +419,15 @@ class albaran_cliente extends \fs_model {
         $albaran = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE upper(codigo) = " . strtoupper($this->var2str($cod)) . ";");
         if ($albaran) {
             return new \albaran_cliente($albaran[0]);
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->idalbaran)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($this->idalbaran) . ";");
+        }
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($this->idalbaran) . ";");
     }
 
     /**
@@ -693,11 +693,11 @@ class albaran_cliente extends \fs_model {
                 if ($this->db->exec($sql)) {
                     $this->idalbaran = $this->db->lastval();
                     return TRUE;
-                } else
-                    return FALSE;
+                }
+                return FALSE;
             }
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     public function delete() {
@@ -716,8 +716,20 @@ class albaran_cliente extends \fs_model {
 
             $this->new_message(ucfirst(FS_ALBARAN) . " de venta " . $this->codigo . " eliminado correctamente.");
             return TRUE;
-        } else
-            return FALSE;
+        }
+        return FALSE;
+    }
+
+    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
+
+        $albalist = array();
+        $data = $this->db->select_limit($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $albalist[] = new \albaran_cliente($a);
+            }
+        }
+        return $albalist;
     }
 
     /**
@@ -727,15 +739,9 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function all($offset = 0, $order = 'fecha DESC', $limit = FS_ITEM_LIMIT) {
-        $albalist = array();
-        $sql = "SELECT * FROM " . $this->table_name . " ORDER BY " . $order;
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $albalist[] = new \albaran_cliente($a);
-            }
-        }
+        $sql = "SELECT * FROM " . $this->table_name . " ORDER BY " . $order;
+        $albalist = $this->all_from($sql, $offset, $limit);
 
         return $albalist;
     }
@@ -747,15 +753,9 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function all_ptefactura($offset = 0, $order = 'fecha ASC', $limit = FS_ITEM_LIMIT) {
-        $albalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE ptefactura = true ORDER BY " . $order;
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $albalist[] = new \albaran_cliente($a);
-            }
-        }
+        $albalist = $this->all_from($sql, $offset, $limit);
 
         return $albalist;
     }
@@ -767,16 +767,10 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function all_from_cliente($codcliente, $offset = 0) {
-        $albalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($codcliente)
                 . " ORDER BY fecha DESC, codigo DESC";
 
-        $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $albalist[] = new \albaran_cliente($a);
-            }
-        }
+        $albalist = $this->all_from($sql, $offset);
 
         return $albalist;
     }
@@ -788,16 +782,10 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function all_from_agente($codagente, $offset = 0) {
-        $albalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codagente = " . $this->var2str($codagente)
                 . " ORDER BY fecha DESC, codigo DESC";
 
-        $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $albalist[] = new \albaran_cliente($a);
-            }
-        }
+        $albalist = $this->all_from($sql, $offset);
 
         return $albalist;
     }
@@ -808,16 +796,10 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function all_from_factura($id) {
-        $albalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE idfactura = " . $this->var2str($id)
                 . " ORDER BY fecha DESC, codigo DESC;";
 
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $a) {
-                $albalist[] = new \albaran_cliente($a);
-            }
-        }
+        $albalist = $this->all_from($sql);
 
         return $albalist;
     }
@@ -829,16 +811,11 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function all_desde($desde, $hasta) {
-        $alblist = array();
+
         $sql = "SELECT * FROM " . $this->table_name . " WHERE fecha >= " . $this->var2str($desde)
                 . " AND fecha <= " . $this->var2str($hasta) . " ORDER BY codigo ASC;";
 
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $a) {
-                $alblist[] = new \albaran_cliente($a);
-            }
-        }
+        $albalist = $this->all_from($sql);
 
         return $alblist;
     }
@@ -850,7 +827,6 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function search($query, $offset = 0) {
-        $alblist = array();
         $query = mb_strtolower($this->no_html($query), 'UTF8');
 
         $consulta = "SELECT * FROM " . $this->table_name . " WHERE ";
@@ -862,12 +838,7 @@ class albaran_cliente extends \fs_model {
         }
         $consulta .= " ORDER BY fecha DESC, codigo DESC";
 
-        $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $alblist[] = new \albaran_cliente($a);
-            }
-        }
+        $alblist = $this->all_from($consulta, FS_ITEM_LIMIT, $offset);
 
         return $alblist;
     }
@@ -884,7 +855,7 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function search_from_cliente($codcliente, $desde, $hasta, $codserie = '', $obs = '', $coddivisa = '') {
-        $albalist = array();
+
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($codcliente)
                 . " AND ptefactura AND fecha BETWEEN " . $this->var2str($desde) . " AND " . $this->var2str($hasta);
 
@@ -902,12 +873,8 @@ class albaran_cliente extends \fs_model {
 
         $sql .= " ORDER BY fecha ASC, codigo ASC;";
 
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $a) {
-                $albalist[] = new \albaran_cliente($a);
-            }
-        }
+        $albalist = $this->all_from($sql);
+
 
         return $albalist;
     }
