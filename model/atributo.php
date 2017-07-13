@@ -25,7 +25,6 @@ require_once 'plugins/facturacion_base/model/core/atributo.php';
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class atributo extends FacturaScripts\model\atributo
-{
-   
+class atributo extends FacturaScripts\model\atributo {
+    
 }

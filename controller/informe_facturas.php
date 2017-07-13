@@ -139,52 +139,25 @@ class informe_facturas extends informe_albaranes {
         if ($data) {
             foreach ($data as $d) {
                 if ($tabla == $this->table_ventas) {
-                    $sql = "SELECT SUM(pvptotal) AS neto, iva FROM lineasfacturascli WHERE idfactura=" . $d['idfactura'] . " GROUP BY iva ORDER BY iva";
+                    $sql = "SELECT * FROM lineasivafactcli WHERE idfactura = " . $this->empresa->var2str($d['idfactura']) . " ORDER BY iva DESC";
                     $dataiva = $this->db->select($sql);
                     if ($dataiva) {
-                        foreach ($dataiva as $diva) {
-                            $tasaiva = 0;
-                            if ($diva['iva'] != 0) {
-                                $tasaiva = $diva['iva'] / 100;
-                            }
-                            $d['tasaiva'] = $diva['iva'];
-                            $d['totaliva'] = $diva['neto'] * ($tasaiva);
-                            $d['neto'] = $diva['neto'];
-                            $d['total'] = $diva['neto'] * (1 + $tasaiva);
-                            $d['totaleuros'] = $d['total'];
-
-                            $factura = new factura_cliente($d);
-                            $factura->tasaiva = $diva['iva'];
-                            $doclist[] = $factura;
-                        }
+                        $this->process_lineas_iva($doclist, $dataiva, $d, 'factura_cliente');
                     } else {
                         $factura = new factura_cliente($d);
                         $factura->tasaiva = 0;
+                        $factura->tasare = 0;
                         $doclist[] = $factura;
                     }
                 } else {
-                    $sql = "SELECT SUM(pvptotal) AS neto, iva FROM lineasfacturasprov WHERE idfactura=" . $d['idfactura'] . " GROUP BY iva ORDER BY iva";
-
+                    $sql = "SELECT * FROM lineasivafactprov WHERE idfactura = " . $this->empresa->var2str($d['idfactura']) . " ORDER BY iva DESC";
                     $dataiva = $this->db->select($sql);
                     if ($dataiva) {
-                        foreach ($dataiva as $diva) {
-                            $tasaiva = 0;
-                            if ($diva['iva'] != 0) {
-                                $tasaiva = $diva['iva'] / 100;
-                            }
-                            $d['tasaiva'] = $diva['iva'];
-                            $d['totaliva'] = $diva['neto'] * ($tasaiva);
-                            $d['neto'] = $diva['neto'];
-                            $d['total'] = $diva['neto'] * (1 + $tasaiva);
-                            $d['totaleuros'] = $d['total'];
-
-                            $factura = new factura_proveedor($d);
-                            $factura->tasaiva = $diva['iva'];
-                            $doclist[] = $factura;
-                        }
+                        $this->process_lineas_iva($doclist, $dataiva, $d, 'factura_proveedor');
                     } else {
                         $factura = new factura_proveedor($d);
-                        $factura->tasaiva = $diva['iva'];
+                        $factura->tasaiva = 0;
+                        $factura->tasare = 0;
                         $doclist[] = $factura;
                     }
                 }
@@ -192,6 +165,32 @@ class informe_facturas extends informe_albaranes {
         }
 
         return $doclist;
+    }
+
+    /**
+     * A partir de los datos de lineasivafactcli (o prov) completamos el listado
+     * de facturas desglosando por tipo de iva.
+     * @param array $docList
+     * @param array $dataIVA
+     * @param array $dataFactura
+     * @param string $className
+     */
+    private function process_lineas_iva(&$docList, &$dataIVA, &$dataFactura, $className) {
+        foreach ($dataIVA as $key => $diva) {
+            $dataFactura['neto'] = $diva['neto'];
+            $dataFactura['totaliva'] = $diva['totaliva'];
+            $dataFactura['totalrecargo'] = $diva['totalrecargo'];
+            if ($key != 0) {
+                $dataFactura['irpf'] = 0;
+                $dataFactura['totalirpf'] = 0;
+            }
+            $dataFactura['total'] = $diva['neto'] + $dataFactura['totaliva'] + $dataFactura['totalrecargo'] - $dataFactura['totalirpf'];
+
+            $factura = new $className($dataFactura);
+            $factura->tasaiva = $diva['iva'];
+            $factura->tasare = $diva['recargo'];
+            $docList[] = $factura;
+        }
     }
 
     /**
@@ -206,7 +205,7 @@ class informe_facturas extends informe_albaranes {
             $sql = "select * from lineasivafactprov WHERE idfactura IN"
                     . " (select idfactura from facturasprov " . $this->where_compras . ")"
                     . " order by iva asc;";
-        } else if($tipo == 'venta' && $this->db->table_exists('lineasivafactcli')) {
+        } else if ($tipo == 'venta' && $this->db->table_exists('lineasivafactcli')) {
             $sql = "select * from lineasivafactcli WHERE idfactura IN"
                     . " (select idfactura from facturascli " . $this->where_ventas . ")"
                     . " order by iva asc;";
@@ -814,6 +813,7 @@ class informe_facturas extends informe_albaranes {
                             'neto' => '<b>Neto</b>',
                             'tasaiva' => '<b>%' . FS_IVA . '</b>',
                             'iva' => '<b>' . FS_IVA . '</b>',
+                            'tasare' => '<b>%RE</b>',
                             're' => '<b>RE</b>',
                             'irpf' => '<b>' . FS_IRPF . '</b>',
                             'total' => '<b>Total</b>'
@@ -831,6 +831,7 @@ class informe_facturas extends informe_albaranes {
                         'neto' => $this->show_numero($documentos[$linea_actual]->neto),
                         'tasaiva' => $this->show_numero($documentos[$linea_actual]->tasaiva),
                         'iva' => $this->show_numero($documentos[$linea_actual]->totaliva),
+                        'tasare' => $this->show_numero($documentos[$linea_actual]->tasare),
                         're' => $this->show_numero($documentos[$linea_actual]->totalrecargo),
                         'irpf' => $this->show_numero($documentos[$linea_actual]->totalirpf),
                         'total' => $this->show_numero($documentos[$linea_actual]->total),
@@ -866,6 +867,7 @@ class informe_facturas extends informe_albaranes {
                     'neto' => '<b>' . $this->show_numero($neto) . '</b>',
                     'tasaiva' => '',
                     'iva' => '<b>' . $this->show_numero($totaliva) . '</b>',
+                    'tasare' => '',
                     're' => '<b>' . $this->show_numero($totalre) . '</b>',
                     'irpf' => '<b>' . $this->show_numero($totalirpf) . '</b>',
                     'total' => '<b>' . $this->show_numero($total) . '</b>',
@@ -879,6 +881,7 @@ class informe_facturas extends informe_albaranes {
                                 'neto' => array('justification' => 'right'),
                                 'tasaiva' => array('justification' => 'right'),
                                 'iva' => array('justification' => 'right'),
+                                'tasare' => array('justification' => 'right'),
                                 're' => array('justification' => 'right'),
                                 'irpf' => array('justification' => 'right'),
                                 'total' => array('justification' => 'right')
@@ -920,6 +923,7 @@ class informe_facturas extends informe_albaranes {
             'neto' => '#,##0.00;[RED]-#,##0.00',
             'tasaiva' => '#,##0.00;[RED]-#,##0.00',
             'iva' => '#,##0.00;[RED]-#,##0.00',
+            'tasare' => '#,##0.00;[RED]-#,##0.00',
             're' => '#,##0.00;[RED]-#,##0.00',
             'irpf' => '#,##0.00;[RED]-#,##0.00',
             'total' => '#,##0.00;[RED]-#,##0.00',
@@ -952,6 +956,7 @@ class informe_facturas extends informe_albaranes {
                 'neto' => $doc->neto,
                 'tasaiva' => $doc->tasaiva,
                 'iva' => $doc->totaliva,
+                'tasare' => $doc->tasare,
                 're' => $doc->totalrecargo,
                 'irpf' => $doc->totalirpf,
                 'total' => $doc->total,
@@ -1001,6 +1006,7 @@ class informe_facturas extends informe_albaranes {
                 'neto' => $doc->neto,
                 'tasaiva' => $doc->tasaiva,
                 'iva' => $doc->totaliva,
+                'tasare' => $doc->tasare,
                 're' => $doc->totalrecargo,
                 'irpf' => $doc->totalirpf,
                 'total' => $doc->total,

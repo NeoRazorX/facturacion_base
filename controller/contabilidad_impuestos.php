@@ -22,117 +22,93 @@ require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('impuesto.php');
 require_model('subcuenta.php');
 
-class contabilidad_impuestos extends fbase_controller
-{
-   public $codsubcuentasop;
-   public $codsubcuentarep;
-   public $impuesto;
+class contabilidad_impuestos extends fbase_controller {
 
-   public function __construct()
-   {
-      parent::__construct(__CLASS__, 'Impuestos', 'contabilidad');
-   }
+    public $codsubcuentasop;
+    public $codsubcuentarep;
+    public $impuesto;
 
-   protected function private_core()
-   {
-      parent::private_core();
+    public function __construct() {
+        parent::__construct(__CLASS__, 'Impuestos', 'contabilidad');
+    }
 
-      $this->impuesto = new impuesto();
+    protected function private_core() {
+        parent::private_core();
 
-      /// Leemos las subcuentas predeterminadas
-      $this->subcuentas_predeterminadas();
+        $this->impuesto = new impuesto();
 
-      if(isset($_GET['delete']))
-      {
-         $this->eliminar_impuesto();
-      }
-      else if(isset($_POST['codimpuesto']))
-      {
-         $this->editar_impuesto();
-      }
-      else if(isset($_GET['set_default']))
-      {
-         $this->save_codimpuesto($_GET['set_default']);
-      }
-   }
+        /// Leemos las subcuentas predeterminadas
+        $this->subcuentas_predeterminadas();
 
-   private function subcuentas_predeterminadas()
-   {
-      $subcuenta = new subcuenta();
+        if (isset($_GET['delete'])) {
+            $this->eliminar_impuesto();
+        } else if (isset($_POST['codimpuesto'])) {
+            $this->editar_impuesto();
+        } else if (isset($_GET['set_default'])) {
+            $this->save_codimpuesto($_GET['set_default']);
+        }
+    }
 
-      $this->codsubcuentasop = '';
-      $subcuentasop = $subcuenta->get_cuentaesp('IVASOP', $this->empresa->codejercicio);
-      if($subcuentasop)
-      {
-         $this->codsubcuentasop = $subcuentasop->codsubcuenta;
-      }
+    private function subcuentas_predeterminadas() {
+        $subcuenta = new subcuenta();
 
-      $this->codsubcuentarep = '';
-      $subcuentarep = $subcuenta->get_cuentaesp('IVAREP', $this->empresa->codejercicio);
-      if($subcuentarep)
-      {
-         $this->codsubcuentarep = $subcuentarep->codsubcuenta;
-         if(!$this->codsubcuentasop)
-         {
-            $this->codsubcuentasop = $this->codsubcuentarep;
-         }
-      }
-   }
+        $this->codsubcuentasop = '';
+        $subcuentasop = $subcuenta->get_cuentaesp('IVASOP', $this->empresa->codejercicio);
+        if ($subcuentasop) {
+            $this->codsubcuentasop = $subcuentasop->codsubcuenta;
+        }
 
-   private function editar_impuesto()
-   {
-      $impuesto = $this->impuesto->get($_POST['codimpuesto']);
-      if(!$impuesto)
-      {
-         $impuesto = new impuesto();
-         $impuesto->codimpuesto = $_POST['codimpuesto'];
-      }
-
-      $impuesto->descripcion = $_POST['descripcion'];
-
-      $impuesto->codsubcuentarep = NULL;
-      if($_POST['codsubcuentarep'] != '')
-      {
-         $impuesto->codsubcuentarep = $_POST['codsubcuentarep'];
-      }
-
-      $impuesto->codsubcuentasop = NULL;
-      if($_POST['codsubcuentasop'] != '')
-      {
-         $impuesto->codsubcuentasop = $_POST['codsubcuentasop'];
-      }
-
-      $impuesto->iva = floatval($_POST['iva']);
-      $impuesto->recargo = floatval($_POST['recargo']);
-
-      if($impuesto->save())
-      {
-         $this->new_message("Impuesto " . $impuesto->codimpuesto . " guardado correctamente.");
-      }
-      else
-         $this->new_error_msg("¡Error al guardar el impuesto!");
-   }
-
-   private function eliminar_impuesto()
-   {
-      if(!$this->user->admin)
-      {
-         $this->new_error_msg('Sólo un administrador puede eliminar impuestos.');
-      }
-      else
-      {
-         $impuesto = $this->impuesto->get($_GET['delete']);
-         if($impuesto)
-         {
-            if($impuesto->delete())
-            {
-               $this->new_message('Impuesto eliminado correctamente.');
+        $this->codsubcuentarep = '';
+        $subcuentarep = $subcuenta->get_cuentaesp('IVAREP', $this->empresa->codejercicio);
+        if ($subcuentarep) {
+            $this->codsubcuentarep = $subcuentarep->codsubcuenta;
+            if (!$this->codsubcuentasop) {
+                $this->codsubcuentasop = $this->codsubcuentarep;
             }
-            else
-               $this->new_error_msg('Ha sido imposible eliminar el impuesto.');
-         }
-         else
-            $this->new_error_msg('Impuesto no encontrado.');
-      }
-   }
+        }
+    }
+
+    private function editar_impuesto() {
+        $impuesto = $this->impuesto->get($_POST['codimpuesto']);
+        if (!$impuesto) {
+            $impuesto = new impuesto();
+            $impuesto->codimpuesto = $_POST['codimpuesto'];
+        }
+
+        $impuesto->descripcion = $_POST['descripcion'];
+
+        $impuesto->codsubcuentarep = NULL;
+        if ($_POST['codsubcuentarep'] != '') {
+            $impuesto->codsubcuentarep = $_POST['codsubcuentarep'];
+        }
+
+        $impuesto->codsubcuentasop = NULL;
+        if ($_POST['codsubcuentasop'] != '') {
+            $impuesto->codsubcuentasop = $_POST['codsubcuentasop'];
+        }
+
+        $impuesto->iva = floatval($_POST['iva']);
+        $impuesto->recargo = floatval($_POST['recargo']);
+
+        if ($impuesto->save()) {
+            $this->new_message("Impuesto " . $impuesto->codimpuesto . " guardado correctamente.");
+        } else
+            $this->new_error_msg("¡Error al guardar el impuesto!");
+    }
+
+    private function eliminar_impuesto() {
+        if (!$this->user->admin) {
+            $this->new_error_msg('Sólo un administrador puede eliminar impuestos.');
+        } else {
+            $impuesto = $this->impuesto->get($_GET['delete']);
+            if ($impuesto) {
+                if ($impuesto->delete()) {
+                    $this->new_message('Impuesto eliminado correctamente.');
+                } else
+                    $this->new_error_msg('Ha sido imposible eliminar el impuesto.');
+            } else
+                $this->new_error_msg('Impuesto no encontrado.');
+        }
+    }
+
 }

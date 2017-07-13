@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -24,7 +25,6 @@ require_once 'plugins/facturacion_base/model/core/cuenta_banco_proveedor.php';
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class cuenta_banco_proveedor extends FacturaScripts\model\cuenta_banco_proveedor
-{
-   
+class cuenta_banco_proveedor extends FacturaScripts\model\cuenta_banco_proveedor {
+    
 }

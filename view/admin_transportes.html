@@ -7,7 +7,7 @@
          title: '<b>Atención</b>',
          callback: function(result) {
             if (result) {
-               window.location.href = '{$fsc->url()}&delete=' + cod;
+               window.location.href = '{$fsc->url()}&delete=' + encodeURIComponent(cod);
             }
          }
       });

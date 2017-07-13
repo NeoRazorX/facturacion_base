@@ -26,5 +26,5 @@ require_once 'plugins/facturacion_base/model/core/recalcular_stock.php';
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
 class recalcular_stock extends FacturaScripts\model\recalcular_stock {
-   //put your code here
+    //put your code here
 }

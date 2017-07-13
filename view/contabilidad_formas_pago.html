@@ -8,7 +8,7 @@
          title: '<b>Atención</b>',
          callback: function(result) {
             if (result) {
-               window.location.href = '{$fsc->url()}&delete='+cod;
+               window.location.href = '{$fsc->url()}&delete='+encodeURIComponent(cod);
             }
          }
       });
@@ -158,10 +158,10 @@
       <form action="{$fsc->url()}" method="post" class="form" role="form">
          <tr class="info">
             <td>
-               <input class="form-control" type="text" name="codpago" maxlength="10" autocomplete="off" placeholder="Nuevo código"/>
+                <input class="form-control" type="text" name="codpago" maxlength="10" autocomplete="off" placeholder="Nuevo código" required=""/>
             </td>
             <td>
-               <input class="form-control" type="text" name="descripcion" autocomplete="off" placeholder="Nueva forma de pago..."/>
+                <input class="form-control" type="text" name="descripcion" autocomplete="off" placeholder="Nueva forma de pago..." required=""/>
             </td>
             <td>
                <select name="genrecibos" class="form-control">
@@ -205,9 +205,9 @@
             </td>
             <td class="text-right">
                <div class="btn-group">
-                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();" title="Nueva">
+                  <button class="btn btn-sm btn-primary" type="submit" title="Nueva">
                      <span class="glyphicon glyphicon-plus-sign"></span>
-                     <span class="hidden-sm">&nbsp; Nueva</span>
+                     <span class="hidden-sm">&nbsp;Nueva</span>
                   </button>
                </div>
             </td>

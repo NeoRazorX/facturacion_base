@@ -28,72 +28,62 @@ require_model('linea_factura_cliente.php');
  * @author Joe Nilson <joenilson@gmail.com>
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class ventas_cliente_articulos extends fs_controller
-{
-   public $cliente;
-   public $observaciones;
-   public $offset;
-   public $resultados;
+class ventas_cliente_articulos extends fs_controller {
 
-   public function __construct()
-   {
-      parent::__construct(__CLASS__, 'Articulos vendidos al cliente', 'ventas', FALSE, FALSE, FALSE);
-   }
+    public $cliente;
+    public $observaciones;
+    public $offset;
+    public $resultados;
 
-   protected function private_core()
-   {
-      $this->share_extensions();
-      
-      $this->cliente = FALSE;
-      $this->resultados = array();
-      
-      /// recibimos el código del cliente
-      if( isset($_REQUEST['cod']) AND !empty($_REQUEST['cod']) )
-      {
-         $cli0 = new cliente();
-         $this->cliente = $cli0->get($_REQUEST['cod']);
-      }
-      
-      $this->observaciones = '';
-      if( isset($_REQUEST['observaciones']) )
-      {
-         $this->observaciones = $_REQUEST['observaciones'];
-      }
-      
-      $this->offset = 0;
-      if( isset($_REQUEST['offset']) )
-      {
-         $this->offset = $_REQUEST['offset'];
-      }
-      
-      if($this->cliente)
-      {
-         $lineafacturacli = new linea_factura_cliente();
-         $this->resultados = $lineafacturacli->search_from_cliente2($this->cliente->codcliente, $this->query, $this->observaciones, $this->offset);
-      }
-   }
+    public function __construct() {
+        parent::__construct(__CLASS__, 'Articulos vendidos al cliente', 'ventas', FALSE, FALSE, FALSE);
+    }
 
-   // Agregamos el tab a ventas_cliente
-   public function share_extensions()
-   {
-      $fsxet = new fs_extension();
-      $fsxet->name = 'tab_ventas_cliente_articulos';
-      $fsxet->from = __CLASS__;
-      $fsxet->to = 'ventas_cliente';
-      $fsxet->type = 'tab';
-      $fsxet->text = '<i class="fa fa-cubes" aria-hidden="true"></i>&nbsp; Artículos';
-      $fsxet->save();
-   }
-   
-   public function url()
-   {
-      if($this->cliente)
-      {
-         return parent::url().'&cod='.$this->cliente->codcliente;
-      }
-      else
-      {
-         return parent::url();
-      }
-   }
+    protected function private_core() {
+        $this->share_extensions();
+
+        $this->cliente = FALSE;
+        $this->resultados = array();
+
+        /// recibimos el código del cliente
+        if (isset($_REQUEST['cod']) AND ! empty($_REQUEST['cod'])) {
+            $cli0 = new cliente();
+            $this->cliente = $cli0->get($_REQUEST['cod']);
+        }
+
+        $this->observaciones = '';
+        if (isset($_REQUEST['observaciones'])) {
+            $this->observaciones = $_REQUEST['observaciones'];
+        }
+
+        $this->offset = 0;
+        if (isset($_REQUEST['offset'])) {
+            $this->offset = $_REQUEST['offset'];
+        }
+
+        if ($this->cliente) {
+            $lineafacturacli = new linea_factura_cliente();
+            $this->resultados = $lineafacturacli->search_from_cliente2($this->cliente->codcliente, $this->query, $this->observaciones, $this->offset);
+        }
+    }
+
+    // Agregamos el tab a ventas_cliente
+    public function share_extensions() {
+        $fsxet = new fs_extension();
+        $fsxet->name = 'tab_ventas_cliente_articulos';
+        $fsxet->from = __CLASS__;
+        $fsxet->to = 'ventas_cliente';
+        $fsxet->type = 'tab';
+        $fsxet->text = '<i class="fa fa-cubes" aria-hidden="true"></i>&nbsp; Artículos';
+        $fsxet->save();
+    }
+
+    public function url() {
+        if ($this->cliente) {
+            return parent::url() . '&cod=' . $this->cliente->codcliente;
+        } else {
+            return parent::url();
+        }
+    }
+
 }

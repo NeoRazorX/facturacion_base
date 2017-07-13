@@ -581,10 +581,12 @@ class factura_proveedor extends \fs_model {
         /// buscamos un hueco o el siguiente número disponible
         $encontrado = FALSE;
         $num = 1;
-        $sql = "SELECT " . $this->db->sql_to_int('numero') . " as numero,fecha,hora FROM " . $this->table_name
-                . " WHERE codejercicio = " . $this->var2str($this->codejercicio)
-                . " AND codserie = " . $this->var2str($this->codserie)
-                . " ORDER BY numero ASC;";
+        $sql = "SELECT " . $this->db->sql_to_int('numero') . " as numero,fecha,hora FROM " . $this->table_name;
+        if (FS_NEW_CODIGO != 'NUM' && FS_NEW_CODIGO != '0-NUM') {
+            $sql .= " WHERE codejercicio = " . $this->var2str($this->codejercicio)
+                    . " AND codserie = " . $this->var2str($this->codserie);
+        }
+        $sql .= " ORDER BY numero ASC;";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -606,27 +608,19 @@ class factura_proveedor extends \fs_model {
             }
         }
 
-        if ($encontrado) {
-            $this->numero = $num;
-        } else {
-            $this->numero = $num;
-
+        $this->numero = $num;
+        
+        if (!$encontrado) {
             /// nos guardamos la secuencia para abanq/eneboo
-            $sec = new \secuencia();
-            $sec = $sec->get_by_params2($this->codejercicio, $this->codserie, 'nfacturaprov');
-            if ($sec) {
-                if ($sec->valorout <= $this->numero) {
-                    $sec->valorout = 1 + $this->numero;
-                    $sec->save();
-                }
+            $sec0 = new \secuencia();
+            $sec = $sec0->get_by_params2($this->codejercicio, $this->codserie, 'nfacturaprov');
+            if ($sec && $sec->valorout <= $this->numero) {
+                $sec->valorout = 1 + $this->numero;
+                $sec->save();
             }
         }
 
-        if (FS_NEW_CODIGO == 'eneboo') {
-            $this->codigo = $this->codejercicio . sprintf('%02s', $this->codserie) . sprintf('%06s', $this->numero);
-        } else {
-            $this->codigo = 'FAC' . $this->codejercicio . $this->codserie . $this->numero . 'C';
-        }
+        $this->codigo = fs_documento_new_codigo(FS_FACTURA, $this->codejercicio, $this->codserie, $this->numero, 'C');
     }
 
     /**

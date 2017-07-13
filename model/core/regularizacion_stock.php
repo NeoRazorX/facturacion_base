@@ -29,163 +29,163 @@ require_model('stock.php');
  */
 class regularizacion_stock extends \fs_model {
 
-   /**
-    * Clave primaria.
-    * @var type 
-    */
-   public $id;
+    /**
+     * Clave primaria.
+     * @var type 
+     */
+    public $id;
 
-   /**
-    * ID del stock, en el modelo stock.
-    * @var type 
-    */
-   public $idstock;
-   public $cantidadini;
-   public $cantidadfin;
+    /**
+     * ID del stock, en el modelo stock.
+     * @var type 
+     */
+    public $idstock;
+    public $cantidadini;
+    public $cantidadfin;
 
-   /**
-    * Código del almacén destino.
-    * @var type 
-    */
-   public $codalmacendest;
-   public $fecha;
-   public $hora;
-   public $motivo;
+    /**
+     * Código del almacén destino.
+     * @var type 
+     */
+    public $codalmacendest;
+    public $fecha;
+    public $hora;
+    public $motivo;
 
-   /**
-    * Nick del usuario que ha realizado la regularización.
-    * @var type 
-    */
-   public $nick;
+    /**
+     * Nick del usuario que ha realizado la regularización.
+     * @var type 
+     */
+    public $nick;
 
-   public function __construct($r = FALSE) {
-      parent::__construct('lineasregstocks');
-      if ($r) {
-         $this->id = $this->intval($r['id']);
-         $this->idstock = $this->intval($r['idstock']);
-         $this->cantidadini = floatval($r['cantidadini']);
-         $this->cantidadfin = floatval($r['cantidadfin']);
-         $this->codalmacendest = $r['codalmacendest'];
-         $this->fecha = date('d-m-Y', strtotime($r['fecha']));
+    public function __construct($r = FALSE) {
+        parent::__construct('lineasregstocks');
+        if ($r) {
+            $this->id = $this->intval($r['id']);
+            $this->idstock = $this->intval($r['idstock']);
+            $this->cantidadini = floatval($r['cantidadini']);
+            $this->cantidadfin = floatval($r['cantidadfin']);
+            $this->codalmacendest = $r['codalmacendest'];
+            $this->fecha = date('d-m-Y', strtotime($r['fecha']));
 
-         $this->hora = '00:00:00';
-         if (!is_null($r['hora'])) {
-            $this->hora = date('H:i:s', strtotime($r['hora']));
-         }
+            $this->hora = '00:00:00';
+            if (!is_null($r['hora'])) {
+                $this->hora = date('H:i:s', strtotime($r['hora']));
+            }
 
-         $this->motivo = $r['motivo'];
-         $this->nick = $r['nick'];
-      } else {
-         $this->id = NULL;
-         $this->idstock = NULL;
-         $this->cantidadini = 0;
-         $this->cantidadfin = 0;
-         $this->codalmacendest = NULL;
-         $this->fecha = date('d-m-Y');
-         $this->hora = date('H:i:s');
-         $this->motivo = '';
-         $this->nick = NULL;
-      }
-   }
+            $this->motivo = $r['motivo'];
+            $this->nick = $r['nick'];
+        } else {
+            $this->id = NULL;
+            $this->idstock = NULL;
+            $this->cantidadini = 0;
+            $this->cantidadfin = 0;
+            $this->codalmacendest = NULL;
+            $this->fecha = date('d-m-Y');
+            $this->hora = date('H:i:s');
+            $this->motivo = '';
+            $this->nick = NULL;
+        }
+    }
 
-   protected function install() {
-      new \stock();
+    protected function install() {
+        new \stock();
 
-      return '';
-   }
+        return '';
+    }
 
-   public function get($id) {
-      $data = $this->db->select("SELECT * FROM lineasregstocks WHERE id = " . $this->var2str($id) . ";");
-      if ($data) {
-         return new \regularizacion_stock($data[0]);
-      } else
-         return FALSE;
-   }
+    public function get($id) {
+        $data = $this->db->select("SELECT * FROM lineasregstocks WHERE id = " . $this->var2str($id) . ";");
+        if ($data) {
+            return new \regularizacion_stock($data[0]);
+        } else
+            return FALSE;
+    }
 
-   public function exists() {
-      if (is_null($this->id)) {
-         return FALSE;
-      } else
-         return $this->db->select("SELECT * FROM lineasregstocks WHERE id = " . $this->var2str($this->id) . ";");
-   }
+    public function exists() {
+        if (is_null($this->id)) {
+            return FALSE;
+        } else
+            return $this->db->select("SELECT * FROM lineasregstocks WHERE id = " . $this->var2str($this->id) . ";");
+    }
 
-   public function save() {
-      if ($this->exists()) {
-         $sql = "UPDATE lineasregstocks SET idstock = " . $this->var2str($this->idstock)
-                 . ", cantidadini = " . $this->var2str($this->cantidadini)
-                 . ", cantidadfin = " . $this->var2str($this->cantidadfin)
-                 . ", codalmacendest = " . $this->var2str($this->codalmacendest)
-                 . ", fecha = " . $this->var2str($this->fecha)
-                 . ", hora = " . $this->var2str($this->hora)
-                 . ", motivo = " . $this->var2str($this->motivo)
-                 . ", nick = " . $this->var2str($this->nick)
-                 . "  WHERE id = " . $this->var2str($this->id) . ";";
+    public function save() {
+        if ($this->exists()) {
+            $sql = "UPDATE lineasregstocks SET idstock = " . $this->var2str($this->idstock)
+                    . ", cantidadini = " . $this->var2str($this->cantidadini)
+                    . ", cantidadfin = " . $this->var2str($this->cantidadfin)
+                    . ", codalmacendest = " . $this->var2str($this->codalmacendest)
+                    . ", fecha = " . $this->var2str($this->fecha)
+                    . ", hora = " . $this->var2str($this->hora)
+                    . ", motivo = " . $this->var2str($this->motivo)
+                    . ", nick = " . $this->var2str($this->nick)
+                    . "  WHERE id = " . $this->var2str($this->id) . ";";
 
-         return $this->db->exec($sql);
-      } else {
-         $sql = "INSERT INTO lineasregstocks (idstock,cantidadini,cantidadfin,
+            return $this->db->exec($sql);
+        } else {
+            $sql = "INSERT INTO lineasregstocks (idstock,cantidadini,cantidadfin,
             codalmacendest,fecha,hora,motivo,nick)
             VALUES (" . $this->var2str($this->idstock)
-                 . "," . $this->var2str($this->cantidadini)
-                 . "," . $this->var2str($this->cantidadfin)
-                 . "," . $this->var2str($this->codalmacendest)
-                 . "," . $this->var2str($this->fecha)
-                 . "," . $this->var2str($this->hora)
-                 . "," . $this->var2str($this->motivo)
-                 . "," . $this->var2str($this->nick) . ");";
+                    . "," . $this->var2str($this->cantidadini)
+                    . "," . $this->var2str($this->cantidadfin)
+                    . "," . $this->var2str($this->codalmacendest)
+                    . "," . $this->var2str($this->fecha)
+                    . "," . $this->var2str($this->hora)
+                    . "," . $this->var2str($this->motivo)
+                    . "," . $this->var2str($this->nick) . ");";
 
-         if ($this->db->exec($sql)) {
-            $this->id = $this->db->lastval();
-            return TRUE;
-         } else
-            return FALSE;
-      }
-   }
+            if ($this->db->exec($sql)) {
+                $this->id = $this->db->lastval();
+                return TRUE;
+            } else
+                return FALSE;
+        }
+    }
 
-   public function delete() {
-      return $this->db->exec("DELETE FROM lineasregstocks WHERE id = " . $this->var2str($this->id) . ";");
-   }
+    public function delete() {
+        return $this->db->exec("DELETE FROM lineasregstocks WHERE id = " . $this->var2str($this->id) . ";");
+    }
 
-   /**
-    * Devuelve un array con todas las regularizaciones de un artículo.
-    * @param type $ref
-    * @param type $codalmacen
-    * @param type $desde
-    * @param type $hasta
-    * @param type $limit
-    * @param type $offset
-    * @return \regularizacion_stock
-    */
-   public function all_from_articulo($ref, $codalmacen = '', $desde = '', $hasta = '', $limit = 1000, $offset = 0) {
-      $rlist = array();
-      $sql = "SELECT * FROM lineasregstocks WHERE idstock IN"
-              . " (SELECT idstock FROM stocks WHERE referencia = " . $this->var2str($ref) . ")";
-      if ($codalmacen) {
-         $sql .= " AND codalmacendest = " . $this->var2str($codalmacen);
-      }
-      if ($desde) {
-         $sql .= " AND fecha >= " . $this->var2str($desde);
-      }
-      if ($hasta) {
-         $sql .= " AND fecha <= " . $this->var2str($hasta);
-      }
-      $sql .= " ORDER BY fecha DESC, hora DESC";
+    /**
+     * Devuelve un array con todas las regularizaciones de un artículo.
+     * @param type $ref
+     * @param type $codalmacen
+     * @param type $desde
+     * @param type $hasta
+     * @param type $limit
+     * @param type $offset
+     * @return \regularizacion_stock
+     */
+    public function all_from_articulo($ref, $codalmacen = '', $desde = '', $hasta = '', $limit = 1000, $offset = 0) {
+        $rlist = array();
+        $sql = "SELECT * FROM lineasregstocks WHERE idstock IN"
+                . " (SELECT idstock FROM stocks WHERE referencia = " . $this->var2str($ref) . ")";
+        if ($codalmacen) {
+            $sql .= " AND codalmacendest = " . $this->var2str($codalmacen);
+        }
+        if ($desde) {
+            $sql .= " AND fecha >= " . $this->var2str($desde);
+        }
+        if ($hasta) {
+            $sql .= " AND fecha <= " . $this->var2str($hasta);
+        }
+        $sql .= " ORDER BY fecha DESC, hora DESC";
 
-      $data = $this->db->select_limit($sql, $limit, $offset);
-      if ($data) {
-         foreach ($data as $d) {
-            $rlist[] = new \regularizacion_stock($d);
-         }
-      }
+        $data = $this->db->select_limit($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $d) {
+                $rlist[] = new \regularizacion_stock($d);
+            }
+        }
 
-      return $rlist;
-   }
+        return $rlist;
+    }
 
-   /**
-    * Aplica algunas correcciones a la tabla.
-    */
-   public function fix_db() {
-      $this->db->exec("DELETE FROM ".$this->table_name." WHERE idstock NOT IN (SELECT idstock FROM stocks);");
-   }
+    /**
+     * Aplica algunas correcciones a la tabla.
+     */
+    public function fix_db() {
+        $this->db->exec("DELETE FROM " . $this->table_name . " WHERE idstock NOT IN (SELECT idstock FROM stocks);");
+    }
 
 }

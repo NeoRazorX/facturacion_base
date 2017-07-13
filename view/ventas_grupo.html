@@ -5,11 +5,11 @@
    function eliminar_grupo(cod)
    {
       bootbox.confirm({
-         message: '¿Realmente desea eliminar el grupo '+cod+'?',
+         message: '¿Realmente desea eliminar este grupo?',
          title: '<b>Atención</b>',
          callback: function(result) {
             if (result) {
-               window.location.href = 'index.php?page=ventas_clientes&delete_grupo='+cod+'#grupos';
+               window.location.href = 'index.php?page=ventas_clientes&delete_grupo={function="urlencode($fsc->grupo->codgrupo)"}#grupos';
             }
          }
       });
@@ -49,7 +49,7 @@
          <div class="col-xs-6 text-right">
             <div class="btn-group">
                {if="$fsc->allow_delete"}
-               <a href="#" class="btn btn-sm btn-danger" onclick="eliminar_grupo('{$fsc->grupo->codgrupo}')">
+               <a href="#" class="btn btn-sm btn-danger" onclick="eliminar_grupo()">
                   <span class="glyphicon glyphicon-trash"></span>
                   <span class="hidden-xs">&nbsp;Eliminar</span>
                </a>

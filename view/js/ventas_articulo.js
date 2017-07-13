@@ -16,19 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-function delete_combinacion(cod)
-{
-    bootbox.confirm({
-        message: '¿Realmente desea eliminar la combinacion ' + cod + '?',
-        title: '<b>Atención</b>',
-        callback: function (result) {
-            if (result) {
-                window.location.href = '{$fsc->url()}&delete_combi=' + cod + '#atributos';
-            }
-        }
-    });
-}
-
 function cambiar_pvp()
 {
     /// cambiamos coma por punto

@@ -2,599 +2,603 @@
 
 {if="$fsc->recargar"}
 <script type="text/javascript">
-   $(document).ready(function() {
-      setTimeout("location.href = '{$fsc->url()}';", 1000);
-   });
+    $(document).ready(function () {
+        setTimeout("location.href = '{$fsc->url()}';", 1000);
+    });
 </script>
 <div class="container-fluid">
-   <div class="row">
-      <div class="col-sm-12">
-         <div class="page-header">
-            <h1>
-               <span class="glyphicon glyphicon-info-sign"></span>
-               Trabajando...
-            </h1>
-         </div>
-         <p class="help-block">
-            Espera a que termine el proceso. Gracias ;-)
-         </p>
-      </div>
-   </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="page-header">
+                <h1>
+                    <span class="glyphicon glyphicon-info-sign"></span>
+                    Trabajando...
+                </h1>
+            </div>
+            <p class="help-block">
+                Espera a que termine el proceso. Gracias ;-)
+            </p>
+        </div>
+    </div>
 </div>
 {elseif="$fsc->step==2"}
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">
-   <div class="container-fluid">
-      {if="$fsc->bad_password"}
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="page-header">
-               <h1>
-                  <span class="glyphicon glyphicon-warning-sign"></span>
-                  Contraseña no segura
-               </h1>
-               <p class="help-block">
-                  Si esta instalación está disponible públicamente, es recomendable
-                  que cambies la contraseña.
-               </p>
+    <div class="container-fluid">
+        {if="$fsc->bad_password"}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <h1>
+                        <span class="glyphicon glyphicon-warning-sign"></span>
+                        Contraseña no segura
+                    </h1>
+                    <p class="help-block">
+                        Si esta instalación está disponible públicamente, es recomendable
+                        que cambies la contraseña.
+                    </p>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-2">
-            <div class="form-group">
-               <input class="form-control" type="password" name="npassword" maxlength="32" placeholder="nueva contraseña" autofocus />
+        </div>
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <input class="form-control" type="password" name="npassword" maxlength="32" placeholder="nueva contraseña" autofocus />
+                </div>
             </div>
-         </div>
-         <div class="col-sm-2">
-            <div class="form-group">
-               <input class="form-control" type="password" name="npassword2" maxlength="32" placeholder="repite la contraseña"/>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <input class="form-control" type="password" name="npassword2" maxlength="32" placeholder="repite la contraseña"/>
+                </div>
             </div>
-         </div>
-      </div>
-      {/if}
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="page-header">
-               <h1>
-                  <span class="glyphicon glyphicon-edit"></span>
-                  Datos de la empresa / Autónomo
-               </h1>
-               <p class="help-block">
-                  Bienvenido al asiente de instalación de facturacion_base, el plugin
-                  de FacturaScripts que integra la facturación y contabilidad básica.
-               </p>
+        </div>
+        {/if}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <h1>
+                        <span class="glyphicon glyphicon-edit"></span>
+                        Datos de la empresa / Autónomo
+                    </h1>
+                    <p class="help-block">
+                        Bienvenido al asiente de instalación de facturacion_base, el plugin
+                        de FacturaScripts que integra la facturación y contabilidad básica.
+                    </p>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-5">
-            <div class="form-group">
-               Nombre:
-               <input class="form-control" type="text" name="nombre" value="{$fsc->empresa->nombre}" autocomplete="off" autofocus />
+        </div>
+        <div class="row">
+            <div class="col-sm-5">
+                <div class="form-group">
+                    Nombre:
+                    <input class="form-control" type="text" name="nombre" value="{$fsc->empresa->nombre}" autocomplete="off" autofocus />
+                </div>
             </div>
-         </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               Nombre Corto:
-               <input class="form-control" type="text" name="nombrecorto" value="{$fsc->empresa->nombrecorto}" autocomplete="off"/>
-               <p class="help-block">Para mostrar en el menú.</p>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    Nombre Corto:
+                    <input class="form-control" type="text" name="nombrecorto" value="{$fsc->empresa->nombrecorto}" autocomplete="off"/>
+                    <p class="help-block">Para mostrar en el menú.</p>
+                </div>
             </div>
-         </div>
-         <div class="col-sm-4">
-            <div class="form-group">
-               {#FS_CIFNIF#}:
-               <input class="form-control" type="text" name="cifnif" value="{$fsc->empresa->cifnif}" maxlength="30" autocomplete="off"/>
-               <p class="help-block">
-                  {#FS_CIFNIF#} es el identificador fiscal. Si en tu país se llama de otra forma, puedes traducirlo más adelante.
-               </p>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    {#FS_CIFNIF#}:
+                    <input class="form-control" type="text" name="cifnif" value="{$fsc->empresa->cifnif}" maxlength="30" autocomplete="off"/>
+                    <p class="help-block">
+                        {#FS_CIFNIF#} es el identificador fiscal. Si en tu país se llama de otra forma, puedes traducirlo más adelante.
+                    </p>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-3">
-            <div class="form-group">
-               <a href="{$fsc->pais->url()}">País</a>:
-               <select name="codpais" class="form-control">
-                  {loop="$fsc->pais->all()"}
-                  <option value="{$value->codpais}"{if="$fsc->empresa->codpais == $value->codpais"} selected=""{/if}>{$value->nombre}</option>
-                  {/loop}
-               </select>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <a href="{$fsc->pais->url()}">País</a>:
+                    <select name="codpais" class="form-control">
+                        {loop="$fsc->pais->all()"}
+                        <option value="{$value->codpais}"{if="$fsc->empresa->codpais == $value->codpais"} selected=""{/if}>{$value->nombre}</option>
+                        {/loop}
+                    </select>
+                </div>
             </div>
-         </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               <div class="text-capitalize">{#FS_PROVINCIA#}:</div>
-               <input id="ac_provincia" class="form-control" type="text" name="provincia" value="{$fsc->empresa->provincia}"/>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <div class="text-capitalize">{#FS_PROVINCIA#}:</div>
+                    <input id="ac_provincia" class="form-control" type="text" name="provincia" value="{$fsc->empresa->provincia}"/>
+                </div>
             </div>
-         </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               Ciudad:
-               <input class="form-control" type="text" name="ciudad" value="{$fsc->empresa->ciudad}" autocomplete="off"/>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    Ciudad:
+                    <input class="form-control" type="text" name="ciudad" value="{$fsc->empresa->ciudad}" autocomplete="off"/>
+                </div>
             </div>
-         </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               Código Postal:
-               <input class="form-control" type="text" name="codpostal" value="{$fsc->empresa->codpostal}" maxlength="10" autocomplete="off"/>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    Código Postal:
+                    <input class="form-control" type="text" name="codpostal" value="{$fsc->empresa->codpostal}" maxlength="10" autocomplete="off"/>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-6">
-            <div class="form-group">
-               Dirección:
-               <input class="form-control" type="text" name="direccion" value="{$fsc->empresa->direccion}" autocomplete="off"/>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    Dirección:
+                    <input class="form-control" type="text" name="direccion" value="{$fsc->empresa->direccion}" autocomplete="off"/>
+                </div>
             </div>
-         </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               <span class="text-capitalize">{#FS_APARTADO#}</span>:
-               <input class="form-control" type="text" name="apartado" value="{$fsc->empresa->apartado}" maxlength="10" autocomplete="off"/>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <span class="text-capitalize">{#FS_APARTADO#}</span>:
+                    <input class="form-control" type="text" name="apartado" value="{$fsc->empresa->apartado}" maxlength="10" autocomplete="off"/>
+                </div>
             </div>
-         </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               Administrador de la empresa:
-               <input class="form-control" type="text" name="administrador" value="{$fsc->empresa->administrador}" autocomplete="off"/>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    Administrador de la empresa:
+                    <input class="form-control" type="text" name="administrador" value="{$fsc->empresa->administrador}" autocomplete="off"/>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-4">
-            <div class="form-group">
-               Teléfono:
-               <input class="form-control" type="text" name="telefono" value="{$fsc->empresa->telefono}" autocomplete="off"/>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    Teléfono:
+                    <input class="form-control" type="text" name="telefono" value="{$fsc->empresa->telefono}" autocomplete="off"/>
+                </div>
             </div>
-         </div>
-         <div class="col-sm-4">
-            <div class="form-group">
-               Fax:
-               <input class="form-control" type="text" name="fax" value="{$fsc->empresa->fax}" autocomplete="off"/>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    Fax:
+                    <input class="form-control" type="text" name="fax" value="{$fsc->empresa->fax}" autocomplete="off"/>
+                </div>
             </div>
-         </div>
-         <div class="col-sm-4">
-            <div class="form-group">
-               Web:
-               <input class="form-control" type="text" name="web" value="{$fsc->empresa->web}" autocomplete="off"/>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    Web:
+                    <input class="form-control" type="text" name="web" value="{$fsc->empresa->web}" autocomplete="off"/>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-12 text-right">
-            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-               <span class="glyphicon glyphicon-ok"></span>&nbsp; Continuar
-            </button>
-         </div>
-      </div>
-   </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 text-right">
+                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true;this.form.submit();">
+                    <span class="glyphicon glyphicon-ok"></span>&nbsp; Continuar
+                </button>
+            </div>
+        </div>
+    </div>
 </form>
 {elseif="$fsc->step==3"}
 <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">
-   <div class="container-fluid">
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="page-header">
-               <h1>
-                  <span class="glyphicon glyphicon-globe"></span>
-                  Datos regionales
-               </h1>
-               <p class="help-block">
-                  Ahora hay que seleccionar la moneda y traducir lo que necesites
-               </p>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <h1>
+                        <span class="glyphicon glyphicon-globe"></span>
+                        Datos regionales
+                    </h1>
+                    <p class="help-block">
+                        Ahora hay que seleccionar la moneda y traducir lo que necesites
+                    </p>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-3">
-            <div class="form-group">
-               <a href="{$fsc->divisa->url()}">Divisa</a>:
-               <select name="coddivisa" class="form-control">
-                  {loop="$fsc->divisa->all()"}
-                  <option value="{$value->coddivisa}"{if="$fsc->empresa->coddivisa == $value->coddivisa"} selected=""{/if}>{$value->descripcion}</option>
-                  {/loop}
-               </select>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <a href="{$fsc->divisa->url()}">Divisa</a>:
+                    <select name="coddivisa" class="form-control">
+                        {loop="$fsc->divisa->all()"}
+                        <option value="{$value->coddivisa}"{if="$fsc->empresa->coddivisa == $value->coddivisa"} selected=""{/if}>{$value->descripcion}</option>
+                        {/loop}
+                    </select>
+                </div>
             </div>
-         </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               Decimales de los totales:
-               <select name="nf0" class="form-control">
-               {loop="$fsc->nf0()"}
-                  <option value="{$value}"{if="$value==$GLOBALS['config2']['nf0']"} selected=""{/if}>{$value}</option>
-               {/loop}
-               </select>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    Decimales de los totales:
+                    <select name="nf0" class="form-control">
+                        {loop="$fsc->nf0()"}
+                        <option value="{$value}"{if="$value==$GLOBALS['config2']['nf0']"} selected=""{/if}>{$value}</option>
+                        {/loop}
+                    </select>
+                </div>
             </div>
-         </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               Decimales de los precios:
-               <select name="nf0_art" class="form-control">
-               {loop="$fsc->nf0()"}
-                  <option value="{$value}"{if="$value==$GLOBALS['config2']['nf0_art']"} selected=""{/if}>{$value}</option>
-               {/loop}
-               </select>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    Decimales de los precios:
+                    <select name="nf0_art" class="form-control">
+                        {loop="$fsc->nf0()"}
+                        <option value="{$value}"{if="$value==$GLOBALS['config2']['nf0_art']"} selected=""{/if}>{$value}</option>
+                        {/loop}
+                    </select>
+                </div>
             </div>
-         </div>
-         <div class="col-sm-3">
-            <div class="form-group">
-               Separador para los Decimales:
-               <select name="nf1" class="form-control">
-               {loop="$fsc->nf1()"}
-                  <option value="{$key}"{if="$key==$GLOBALS['config2']['nf1']"} selected=""{/if}>{$value}</option>
-               {/loop}
-               </select>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    Separador para los Decimales:
+                    <select name="nf1" class="form-control">
+                        {loop="$fsc->nf1()"}
+                        <option value="{$key}"{if="$key==$GLOBALS['config2']['nf1']"} selected=""{/if}>{$value}</option>
+                        {/loop}
+                    </select>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-4">
-            <div class="form-group">
-               Separador para los Millares:
-               <select name="nf2" class="form-control">
-                  <option value="">(Ninguno)</option>
-                  {loop="$fsc->nf1()"}
-                  <option value="{$key}"{if="$key==$GLOBALS['config2']['nf2']"} selected=""{/if}>{$value}</option>
-                  {/loop}
-               </select>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    Separador para los Millares:
+                    <select name="nf2" class="form-control">
+                        <option value="">(Ninguno)</option>
+                        {loop="$fsc->nf1()"}
+                        <option value="{$key}"{if="$key==$GLOBALS['config2']['nf2']"} selected=""{/if}>{$value}</option>
+                        {/loop}
+                    </select>
+                </div>
             </div>
-         </div>
-         <div class="col-sm-4">
-            <div class="form-group">
-               Posición del símbolo divisa:
-               <select name="pos_divisa" class="form-control">
-                  <option value="right"{if="$GLOBALS['config2']['pos_divisa']=='right'"} selected=""{/if}>123 {$fsc->simbolo_divisa()}</option>
-                  <option value="left"{if="$GLOBALS['config2']['pos_divisa']=='left'"} selected=""{/if}>{$fsc->simbolo_divisa()}123</option>
-               </select>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    Posición del símbolo divisa:
+                    <select name="pos_divisa" class="form-control">
+                        <option value="right"{if="$GLOBALS['config2']['pos_divisa']=='right'"} selected=""{/if}>123 {$fsc->simbolo_divisa()}</option>
+                        <option value="left"{if="$GLOBALS['config2']['pos_divisa']=='left'"} selected=""{/if}>{$fsc->simbolo_divisa()}123</option>
+                    </select>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="page-header">
-               <h2><i class="fa fa-language"></i>&nbsp; Traducciones:</h2>
-               <p class="help-block">
-                  Puedes traducir ciertos términos para adaptarlos a tu país o simplemente por comodidad.
-                  <br/>
-                  FACTURA y FACTURAS se traducen únicamente en los documentos de ventas.
-                  FACTURA_SIMPLIFICADA se utiliza en los tickets.
-                  NUMERO2 es un campo disponible en todos los documentos de ventas y
-                  que puedes usar como quieras.
-               </p>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <h2><i class="fa fa-language"></i>&nbsp; Traducciones:</h2>
+                    <p class="help-block">
+                        Puedes traducir ciertos términos para adaptarlos a tu país o simplemente por comodidad.
+                        <br/>
+                        FACTURA y FACTURAS se traducen únicamente en los documentos de ventas.
+                        FACTURA_SIMPLIFICADA se utiliza en los tickets.
+                        NUMERO2 es un campo disponible en todos los documentos de ventas y
+                        que puedes usar como quieras.
+                    </p>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="row">
-         {loop="$fsc->traducciones()"}
-         <div class="col-sm-3">
-            <div class="form-group">
-               <span class="text-uppercase">{$value['nombre']}:</span>
-               <input class="form-control" type="text" name="{$value['nombre']}" value="{$value['valor']}" autocomplete="off"/>
+        </div>
+        <div class="row">
+            {loop="$fsc->traducciones()"}
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <span class="text-uppercase">{$value['nombre']}:</span>
+                    <input class="form-control" type="text" name="{$value['nombre']}" value="{$value['valor']}" autocomplete="off"/>
+                </div>
             </div>
-         </div>
-         {/loop}
-         <div class="col-sm-3">
-            <br/>
-            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-               <span class="glyphicon glyphicon-ok"></span>&nbsp; Continuar
-            </button>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="well well-sm">
-               <h3>
-                  <i class="fa fa-question-circle"></i>&nbsp; Presupuesto
-                  <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> Pedido
-                  <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> Albarán
-                  <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> Factura
-               </h3>
-               <p class="help-block">
-                  El <b>presupuesto</b> es cuando simplemente haces un boceto de una compra o venta,
-                  el <b>pedido</b> es cuando realmente se ha encargado esa compra o venta y hay un compromiso.
-                  El <b>albarán</b> es un documento de salida o entrada de mercancía del almaćen
-                  y la <b>factura</b> es un documento oficial que certifica la compra o venta.
-                  <br/>
-                  A los presupuestos también se les conoce como <b>facturas proforma</b>
-                  o <b>cotizaciones</b>. Y a los albaranes como <b>remitos</b>.
-               </p>
+            {/loop}
+            <div class="col-sm-3">
+                <br/>
+                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true;this.form.submit();">
+                    <span class="glyphicon glyphicon-ok"></span>&nbsp; Continuar
+                </button>
             </div>
-         </div>
-      </div>
-   </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="well well-sm">
+                    <h3>
+                        <i class="fa fa-question-circle"></i>&nbsp; Presupuesto
+                        <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> Pedido
+                        <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> Albarán
+                        <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> Factura
+                    </h3>
+                    <p class="help-block">
+                        El <b>presupuesto</b> es cuando simplemente haces un boceto de una compra o venta,
+                        el <b>pedido</b> es cuando realmente se ha encargado esa compra o venta y hay un compromiso.
+                        El <b>albarán</b> es un documento de salida o entrada de mercancía del almaćen
+                        y la <b>factura</b> es un documento oficial que certifica la compra o venta.
+                        <br/>
+                        A los presupuestos también se les conoce como <b>facturas proforma</b>
+                        o <b>cotizaciones</b>. Y a los albaranes como <b>remitos</b>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>
 {elseif="$fsc->step==4"}
 <form name="f_empresa" action="{$fsc->page->url()}" method="post" class="form" role="form">
-   <div class="container-fluid">
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="page-header">
-               <h1>
-                  <span class="glyphicon glyphicon-edit"></span>
-                  Datos de facturación
-               </h1>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <h1>
+                        <span class="glyphicon glyphicon-edit"></span>
+                        Datos de facturación
+                    </h1>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-4">
-            <div class="form-group">
-               <a href="{$fsc->ejercicio->url()}">Ejercicio contable</a>:
-               <select name="codejercicio" class="form-control" autofocus >
-                  {loop="$fsc->ejercicio->all()"}
-                  <option value="{$value->codejercicio}"{if="$fsc->empresa->codejercicio == $value->codejercicio"} selected=""{/if}>{$value->nombre}</option>
-                  {/loop}
-               </select>
-               <p class="help-block">Sólo sirve para inicializar algunos campos.</p>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <a href="{$fsc->ejercicio->url()}">Ejercicio contable</a>:
+                    <select name="codejercicio" class="form-control" autofocus >
+                        {loop="$fsc->ejercicio->all()"}
+                        <option value="{$value->codejercicio}"{if="$fsc->empresa->codejercicio == $value->codejercicio"} selected=""{/if}>{$value->nombre}</option>
+                        {/loop}
+                    </select>
+                    <p class="help-block">Sólo sirve para inicializar algunos campos.</p>
+                </div>
             </div>
-         </div>
-         <div class="col-sm-4">
-            <div class="form-group">
-               <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
-               <select name="codserie" class="form-control">
-                  {loop="$fsc->serie->all()"}
-                  <option value="{$value->codserie}"{if="$fsc->empresa->codserie == $value->codserie"} selected=""{/if}>{$value->descripcion}</option>
-                  {/loop}
-               </select>
-            </div>
-         </div>
-         {if="$fsc->empresa->codpais=='ESP' or $fsc->empresa->codpais=='ES'"}
-         <div class="col-sm-4">
-            <div class="form-group">
-               {#FS_IRPF#}:
-               <input type="number" name="irpf_serie" value="{$fsc->irpf}" step="any" class="form-control"/>
-            </div>
-         </div>
-         {/if}
-      </div>
-      <div class="row">
-         <div class="col-sm-4">
-            <div class="form-group">
-               Algoritmo de nuevo código:
-               <select name="new_codigo" class="form-control">
-                  <option value="eneboo"{if="$GLOBALS['config2']['new_codigo']=='eneboo'"} selected=''{/if}>Compatible con Eneboo</option>
-                  <option value="new"{if="$GLOBALS['config2']['new_codigo']=='new'"} selected=''{/if}>TIPO + EJERCICIO + {#FS_SERIE#} + NÚMERO</option>
-               </select>
-            </div>
-         </div>
-         <div class="col-sm-4">
-            <div class="form-group">
-               <a href="{$fsc->forma_pago->url()}">Forma de pago predeterminada</a>:
-               <select name="codpago" class="form-control">
-                  {loop="$fsc->forma_pago->all()"}
-                  <option value="{$value->codpago}"{if="$fsc->empresa->codpago == $value->codpago"} selected=""{/if}>{$value->descripcion}</option>
-                  {/loop}
-               </select>
-            </div>
-         </div>
-         <div class="col-sm-4">
-            <div class="form-group">
-               <a href="{$fsc->almacen->url()}">Almacén principal</a>:
-               <select name="codalmacen" class="form-control">
-                  {loop="$fsc->almacen->all()"}
-                  <option value="{$value->codalmacen}"{if="$fsc->empresa->codalmacen == $value->codalmacen"} selected=""{/if}>{$value->nombre}</option>
-                  {/loop}
-               </select>
-            </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="checkbox">
-               <label>
-                  <input type="checkbox" name="contintegrada" value="TRUE"{if="$fsc->empresa->contintegrada"} checked="checked"{/if}/>
-                  Contabilidad integrada: conforme haces facturas se generan los asientos contables.
-               </label>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <a href="{$fsc->serie->url()}" class="text-capitalize">{#FS_SERIE#}</a>:
+                    <select name="codserie" class="form-control">
+                        {loop="$fsc->serie->all()"}
+                        <option value="{$value->codserie}"{if="$fsc->empresa->codserie == $value->codserie"} selected=""{/if}>{$value->descripcion}</option>
+                        {/loop}
+                    </select>
+                </div>
             </div>
             {if="$fsc->empresa->codpais=='ESP' or $fsc->empresa->codpais=='ES'"}
-            <div class="checkbox">
-               <label>
-                  <input type="checkbox" name="recequivalencia" value="TRUE"{if="$fsc->empresa->recequivalencia"} checked="checked"{/if}/>
-                  Aplicar recargo de equivalencia (R.E.) a tus compras.
-               </label>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    {#FS_IRPF#}:
+                    <input type="number" name="irpf_serie" value="{$fsc->irpf}" step="any" class="form-control"/>
+                </div>
             </div>
             {/if}
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-12 text-right">
-            <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
-               <span class="glyphicon glyphicon-ok"></span>&nbsp; Continuar
-            </button>
-         </div>
-      </div>
-   </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    Algoritmo de nuevo código:
+                    <select name="new_codigo" class="form-control">
+                        <option value="eneboo"{if="$GLOBALS['config2']['new_codigo']=='eneboo'"} selected=''{/if}>Compatible con Eneboo</option>
+                        <option value="new"{if="$GLOBALS['config2']['new_codigo']=='new'"} selected=''{/if}>TIPO + EJERCICIO + {function="strtoupper(FS_SERIE)"} + NÚMERO</option>
+                        <option value="0-NUM"{if="$GLOBALS['config2']['new_codigo']=='0-NUM'"} selected=''{/if}>Número continuo (con 0s)</option>
+                        <option value="NUM"{if="$GLOBALS['config2']['new_codigo']=='NUM'"} selected=''{/if}>Número continuo</option>
+                        <option value="SERIE-YY-0-NUM"{if="$GLOBALS['config2']['new_codigo']=='SERIE-YY-0-NUM'"} selected=''{/if}>{function="strtoupper(FS_SERIE)"} + AÑO (2 díg.) + NÚMERO (con 0s)</option>
+                        <option value="SERIE-YY-0-NUM-CORTO"{if="$GLOBALS['config2']['new_codigo']=='SERIE-YY-0-NUM-CORTO'"} selected=''{/if}>{function="strtoupper(FS_SERIE)"} + AÑO (2 díg.) + NÚMERO (mín. 4 car.)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <a href="{$fsc->forma_pago->url()}">Forma de pago predeterminada</a>:
+                    <select name="codpago" class="form-control">
+                        {loop="$fsc->forma_pago->all()"}
+                        <option value="{$value->codpago}"{if="$fsc->empresa->codpago == $value->codpago"} selected=""{/if}>{$value->descripcion}</option>
+                        {/loop}
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <a href="{$fsc->almacen->url()}">Almacén principal</a>:
+                    <select name="codalmacen" class="form-control">
+                        {loop="$fsc->almacen->all()"}
+                        <option value="{$value->codalmacen}"{if="$fsc->empresa->codalmacen == $value->codalmacen"} selected=""{/if}>{$value->nombre}</option>
+                        {/loop}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="contintegrada" value="TRUE"{if="$fsc->empresa->contintegrada"} checked="checked"{/if}/>
+                        Contabilidad integrada: conforme haces facturas se generan los asientos contables.
+                    </label>
+                </div>
+                {if="$fsc->empresa->codpais=='ESP' or $fsc->empresa->codpais=='ES'"}
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="recequivalencia" value="TRUE"{if="$fsc->empresa->recequivalencia"} checked="checked"{/if}/>
+                        Aplicar recargo de equivalencia (R.E.) a tus compras.
+                    </label>
+                </div>
+                {/if}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 text-right">
+                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true;this.form.submit();">
+                    <span class="glyphicon glyphicon-ok"></span>&nbsp; Continuar
+                </button>
+            </div>
+        </div>
+    </div>
 </form>
 {elseif="$fsc->step==5"}
 <div class="container-fluid">
-   {if="$fsc->empresa->codpais=='ESP' or $fsc->empresa->codpais=='ES'"}
-   <div class="row">
-      <div class="col-sm-12">
-         <div class="page-header">
-            <h1>
-               Fin
-               <a href="{$fsc->url()}&restart=TRUE" class="btn btn-xs btn-warning" title="Volver a empezar">
-                  <span class="glyphicon glyphicon-fast-backward"></span>
-               </a>
-            </h1>
+    {if="$fsc->empresa->codpais=='ESP' or $fsc->empresa->codpais=='ES'"}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="page-header">
+                <h1>
+                    Fin
+                    <a href="{$fsc->url()}&restart=TRUE" class="btn btn-xs btn-warning" title="Volver a empezar">
+                        <span class="glyphicon glyphicon-fast-backward"></span>
+                    </a>
+                </h1>
+                <p class="help-block">
+                    Ya has terminado la configuración del plugin. Si quieres hacer cambios
+                    en la configuración de la empresa, puedes ir a <b>Admin &gt; Empresa</b>
+                    en cualquier momento.
+                </p>
+            </div>
+            {if="$fsc->empresa->contintegrada"}
             <p class="help-block">
-               Ya has terminado la configuración del plugin. Si quieres hacer cambios
-               en la configuración de la empresa, puedes ir a <b>Admin &gt; Empresa</b>
-               en cualquier momento.
-            </p>
-         </div>
-         {if="$fsc->empresa->contintegrada"}
-            <p class="help-block">
-               Ahora es el momento de importar el plan contable, si todavía no lo has hecho.
+                Ahora es el momento de importar el plan contable, si todavía no lo has hecho.
             </p>
             <a href="index.php?page=contabilidad_ejercicio&cod={$fsc->empresa->codejercicio}" target="_blank" class="btn btn-sm btn-primary">
-               <span class="glyphicon glyphicon-import"></span>&nbsp;
-               importar los datos contables
+                <span class="glyphicon glyphicon-import"></span>&nbsp;
+                importar los datos contables
             </a>
-         {/if}
-      </div>
-   </div>
-   {else}
-   <div class="row">
-      <div class="col-sm-12">
-         <div class="page-header">
-            <h1>
-               <span class="glyphicon glyphicon-map-marker"></span>&nbsp;
-               Fin
-               <a href="{$fsc->url()}&restart=TRUE" class="btn btn-xs btn-warning" title="Volver a empezar">
-                  <span class="glyphicon glyphicon-fast-backward"></span>
-               </a>
-            </h1>
+            {/if}
+        </div>
+    </div>
+    {else}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="page-header">
+                <h1>
+                    <span class="glyphicon glyphicon-map-marker"></span>&nbsp;
+                    Fin
+                    <a href="{$fsc->url()}&restart=TRUE" class="btn btn-xs btn-warning" title="Volver a empezar">
+                        <span class="glyphicon glyphicon-fast-backward"></span>
+                    </a>
+                </h1>
+                <p class="help-block">
+                    Ahora es el momento de instalar el plugin específico para tu pais.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            <a href="index.php?page=admin_home&download=argentina#plugins" class="btn btn-sm btn-block btn-default">
+                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Argentina
+            </a>
+            <br/>
+        </div>
+        <div class="col-sm-3">
+            <a href="index.php?page=admin_home&download=chile#plugins" class="btn btn-sm btn-block btn-default">
+                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Chile
+            </a>
+            <br/>
+        </div>
+        <div class="col-sm-3">
+            <a href="index.php?page=admin_home&download=colombia#plugins" class="btn btn-sm btn-block btn-default">
+                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Colombia
+            </a>
+            <br/>
+        </div>
+        <div class="col-sm-3">
+            <a href="index.php?page=admin_home&download=ecuador#plugins" class="btn btn-sm btn-block btn-default">
+                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Ecuador
+            </a>
+            <br/>
+        </div>
+        <div class="col-sm-3">
+            <a href="index.php?page=admin_home&download=panama#plugins" class="btn btn-sm btn-block btn-default">
+                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Panamá
+            </a>
+            <br/>
+        </div>
+        <div class="col-sm-3">
+            <a href="index.php?page=admin_home&download=peru#plugins" class="btn btn-sm btn-block btn-default">
+                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Perú
+            </a>
+            <br/>
+        </div>
+        <div class="col-sm-3">
+            <a href="index.php?page=admin_home&download=republica_dominicana#plugins" class="btn btn-sm btn-block btn-default">
+                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Rep. Dominicana
+            </a>
+            <br/>
+        </div>
+        <div class="col-sm-3">
+            <a href="index.php?page=admin_home&download=venezuela#plugins" class="btn btn-sm btn-block btn-default">
+                <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Venezuela
+            </a>
+            <br/>
+        </div>
+    </div>
+    {/if}
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <div class="page-header">
+                <h2>
+                    <span class="glyphicon glyphicon-info-sign"></span> Te puede interesar...
+                </h2>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            <a href="index.php?page=dashboard" class="btn btn-block btn-default">
+                <i class="fa fa-desktop fa-3x" aria-hidden="true"></i>
+                <br/>Inicio
+            </a>
             <p class="help-block">
-               Ahora es el momento de instalar el plugin específico para tu pais.
+                Página de inicio: resumen de compras, ventas, impuestos, beneficios...
             </p>
-         </div>
-      </div>
-   </div>
-   <div class="row">
-      <div class="col-sm-3">
-         <a href="index.php?page=admin_home&download=argentina#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Argentina
-         </a>
-         <br/>
-      </div>
-      <div class="col-sm-3">
-         <a href="index.php?page=admin_home&download=chile#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Chile
-         </a>
-         <br/>
-      </div>
-      <div class="col-sm-3">
-         <a href="index.php?page=admin_home&download=colombia#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Colombia
-         </a>
-         <br/>
-      </div>
-      <div class="col-sm-3">
-         <a href="index.php?page=admin_home&download=ecuador#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Ecuador
-         </a>
-         <br/>
-      </div>
-      <div class="col-sm-3">
-         <a href="index.php?page=admin_home&download=panama#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Panamá
-         </a>
-         <br/>
-      </div>
-      <div class="col-sm-3">
-         <a href="index.php?page=admin_home&download=peru#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Perú
-         </a>
-         <br/>
-      </div>
-      <div class="col-sm-3">
-         <a href="index.php?page=admin_home&download=republica_dominicana#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Rep. Dominicana
-         </a>
-         <br/>
-      </div>
-      <div class="col-sm-3">
-         <a href="index.php?page=admin_home&download=venezuela#plugins" class="btn btn-sm btn-block btn-default">
-            <span class="glyphicon glyphicon-download-alt"></span>&nbsp; Venezuela
-         </a>
-         <br/>
-      </div>
-   </div>
-   {/if}
-   <div class="row">
-      <div class="col-sm-12">
-         <br/>
-         <div class="page-header">
-            <h2>
-               <span class="glyphicon glyphicon-info-sign"></span> Te puede interesar...
-            </h2>
-         </div>
-      </div>
-   </div>
-   <div class="row">
-      <div class="col-sm-3">
-         <a href="index.php?page=dashboard" class="btn btn-block btn-default">
-            <i class="fa fa-desktop fa-3x" aria-hidden="true"></i>
-            <br/>Inicio
-         </a>
-         <p class="help-block">
-            Página de inicio: resumen de compras, ventas, impuestos, beneficios...
-         </p>
-         <br/>
-      </div>
-      <div class="col-sm-3">
-         <a href="https://www.facturascripts.com/documentacion" target="_blank" class="btn btn-block btn-default">
-            <i class="fa fa-info-circle fa-3x" aria-hidden="true"></i>
-            <br/>Primeros pasos
-         </a>
-         <p class="help-block">
-            En la web de FacturaScripts encontrarás la documentación para resolver
-            cualquier duda que tengas: presupuestos y pedidos, IVA, IRPF,
-            <b>Recargo de equivalencia</b>, traducciones, configuración de decimales, etc...
-         </p>
-         <br/>
-      </div>
-      <div class="col-sm-3">
-         <a href="https://www.facturascripts.com/plugin/import_export_csv" target="_blank" class="btn btn-block btn-default">
-            <i class="fa fa-exchange fa-3x" aria-hidden="true"></i>
-            <br/>Transferir datos
-         </a>
-         <p class="help-block">
-            Muchos programas permiten exportar datos a archivos <b>CSV o Excel</b>. Si es el caso,
-            puedes usar el plugin Import/Export CSV para copiar esos datos a FacturaScripts.
-         </p>
-         <br/>
-      </div>
-      <div class="col-sm-3">
-         <a href="index.php?page=contabilidad_series" target="_blank" class="btn btn-block btn-default">
-            <i class="fa fa-list-ol fa-3x" aria-hidden="true"></i>
-            <br/>Numeración de facturas
-         </a>
-         <p class="help-block">
-            Si ya tienes facturas en otro programa y quieres empezar por un número
-            concreto de factura, puedes modificar la numeración desde <b>Contabilidad &gt; Series</b>.
-            Activa la <b>numeración personalizada</b> y elige el número inicial.
-         </p>
-         <br/>
-      </div>
-      <div class="col-sm-3">
-         <a href="index.php?page=admin_empresa#impresion" target="_blank" class="btn btn-block btn-default">
-            <i class="fa fa-picture-o fa-3x" aria-hidden="true"></i>
-            <br/>Cambiar logo
-         </a>
-         <p class="help-block">
-            Puedes cambiar el logotipo muy fácilmente desde las opciones de impresión de la empresa.
-         </p>
-         <br/>
-      </div>
-      {if="!$fsc->empresa->can_send_mail()"}
-      <div class="col-sm-3">
-         <a href="index.php?page=admin_empresa#email" target="_blank" class="btn btn-block btn-warning">
-            <i class="fa fa-envelope fa-3x" aria-hidden="true"></i>
-            <br/>Configurar email
-         </a>
-         <p class="help-block">
-            ¿Quieres enviar emails desde FacturaScripts?
-            Puedes usar tu cuenta de <b>gmail</b>, <b>hotmail</b> o tu dominio personalizado
-            para enviar documentos cómodamente desde FacturaScripts.
-         </p>
-         <br/>
-      </div>
-      {/if}
-      <div class="col-sm-3">
-         <a href="index.php?page=admin_home#descargas" target="_blank" class="btn btn-block btn-default">
-            <i class="fa fa-puzzle-piece fa-3x" aria-hidden="true"></i>
-            <br/>Plugins
-         </a>
-         <p class="help-block">
-            ¿Te falta algo? Revisa la lista de plugins disponibles en la sección
-            descargas del panel de control. Hay de todo, y con un desarrollo constante ;-)
-         </p>
-         <br/>
-      </div>
-   </div>
+            <br/>
+        </div>
+        <div class="col-sm-3">
+            <a href="https://www.facturascripts.com/documentacion" target="_blank" class="btn btn-block btn-default">
+                <i class="fa fa-info-circle fa-3x" aria-hidden="true"></i>
+                <br/>Primeros pasos
+            </a>
+            <p class="help-block">
+                En la web de FacturaScripts encontrarás la documentación para resolver
+                cualquier duda que tengas: presupuestos y pedidos, IVA, IRPF,
+                <b>Recargo de equivalencia</b>, traducciones, configuración de decimales, etc...
+            </p>
+            <br/>
+        </div>
+        <div class="col-sm-3">
+            <a href="https://www.facturascripts.com/plugin/import_export_csv" target="_blank" class="btn btn-block btn-default">
+                <i class="fa fa-exchange fa-3x" aria-hidden="true"></i>
+                <br/>Transferir datos
+            </a>
+            <p class="help-block">
+                Muchos programas permiten exportar datos a archivos <b>CSV o Excel</b>. Si es el caso,
+                puedes usar el plugin Import/Export CSV para copiar esos datos a FacturaScripts.
+            </p>
+            <br/>
+        </div>
+        <div class="col-sm-3">
+            <a href="index.php?page=contabilidad_series" target="_blank" class="btn btn-block btn-default">
+                <i class="fa fa-list-ol fa-3x" aria-hidden="true"></i>
+                <br/>Numeración de facturas
+            </a>
+            <p class="help-block">
+                Si ya tienes facturas en otro programa y quieres empezar por un número
+                concreto de factura, puedes modificar la numeración desde <b>Contabilidad &gt; Series</b>.
+                Activa la <b>numeración personalizada</b> y elige el número inicial.
+            </p>
+            <br/>
+        </div>
+        <div class="col-sm-3">
+            <a href="index.php?page=admin_empresa#impresion" target="_blank" class="btn btn-block btn-default">
+                <i class="fa fa-picture-o fa-3x" aria-hidden="true"></i>
+                <br/>Cambiar logo
+            </a>
+            <p class="help-block">
+                Puedes cambiar el logotipo muy fácilmente desde las opciones de impresión de la empresa.
+            </p>
+            <br/>
+        </div>
+        {if="!$fsc->empresa->can_send_mail()"}
+        <div class="col-sm-3">
+            <a href="index.php?page=admin_empresa#email" target="_blank" class="btn btn-block btn-warning">
+                <i class="fa fa-envelope fa-3x" aria-hidden="true"></i>
+                <br/>Configurar email
+            </a>
+            <p class="help-block">
+                ¿Quieres enviar emails desde FacturaScripts?
+                Puedes usar tu cuenta de <b>gmail</b>, <b>hotmail</b> o tu dominio personalizado
+                para enviar documentos cómodamente desde FacturaScripts.
+            </p>
+            <br/>
+        </div>
+        {/if}
+        <div class="col-sm-3">
+            <a href="index.php?page=admin_home#descargas" target="_blank" class="btn btn-block btn-default">
+                <i class="fa fa-puzzle-piece fa-3x" aria-hidden="true"></i>
+                <br/>Plugins
+            </a>
+            <p class="help-block">
+                ¿Te falta algo? Revisa la lista de plugins disponibles en la sección
+                descargas del panel de control. Hay de todo, y con un desarrollo constante ;-)
+            </p>
+            <br/>
+        </div>
+    </div>
 </div>
 {/if}
 

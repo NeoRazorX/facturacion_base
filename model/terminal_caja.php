@@ -25,7 +25,6 @@ require_once 'plugins/facturacion_base/model/core/terminal_caja.php';
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class terminal_caja extends FacturaScripts\model\terminal_caja
-{
-   
+class terminal_caja extends FacturaScripts\model\terminal_caja {
+    
 }
