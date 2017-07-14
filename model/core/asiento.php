@@ -36,13 +36,13 @@ class asiento extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $idasiento;
 
     /**
      * Número de asiento. Se modificará al renumerar.
-     * @var type 
+     * @var integer
      */
     public $numero;
     public $idconcepto;
@@ -128,7 +128,7 @@ class asiento extends \fs_model {
      * Devuelve el código de la divisa.
      * Lo que pasa es que ese dato se almacena en las partidas, por eso
      * hay que usar esta función.
-     * @return type
+     * @return string
      */
     public function coddivisa() {
         if (!isset($this->coddivisa)) {
@@ -379,6 +379,7 @@ class asiento extends \fs_model {
 
                 return $this->db->exec($sql);
             }
+
             $this->new_numero();
             $sql = "INSERT INTO " . $this->table_name . " (numero,idconcepto,concepto,
                fecha,codejercicio,codplanasiento,editable,documento,tipodocumento,importe)
@@ -397,8 +398,8 @@ class asiento extends \fs_model {
                 $this->idasiento = $this->db->lastval();
                 return TRUE;
             }
-            return FALSE;
         }
+
         return FALSE;
     }
 
@@ -429,13 +430,12 @@ class asiento extends \fs_model {
         if ($bloquear) {
             return FALSE;
         }
+
         /// desvinculamos la factura
         $fac = $this->get_factura();
-        if ($fac) {
-            if ($fac->idasiento == $this->idasiento) {
-                $fac->idasiento = NULL;
-                $fac->save();
-            }
+        if ($fac && $fac->idasiento == $this->idasiento) {
+            $fac->idasiento = NULL;
+            $fac->save();
         }
 
         /// eliminamos las partidas una a una para forzar la actualización de las subcuentas asociadas
@@ -447,7 +447,6 @@ class asiento extends \fs_model {
     }
 
     private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-
         $alist = array();
         $data = $this->db->select_limit($sql, $limit, $offset);
         if ($data) {
@@ -455,6 +454,7 @@ class asiento extends \fs_model {
                 $alist[] = new \asiento($a);
             }
         }
+
         return $alist;
     }
 
@@ -472,9 +472,9 @@ class asiento extends \fs_model {
                     . "%' OR importe BETWEEN " . ($query - .01) . " AND " . ($query + .01);
         } else if (preg_match('/^([0-9]{1,2})-([0-9]{1,2})-([0-9]{4})$/i', $query)) {
             $consulta .= "fecha = " . $this->var2str($query) . " OR concepto LIKE '%" . $query . "%'";
+        } else {
+            $consulta .= "lower(concepto) LIKE '%" . str_replace(' ', '%', $query) . "%'";
         }
-        $consulta .= "lower(concepto) LIKE '%" .str_replace(' ', '%', $query) . "%'";
-
         $consulta .= " ORDER BY fecha DESC";
 
         return $this->all_from($consulta, FS_ITEM_LIMIT, $offset);
@@ -482,7 +482,6 @@ class asiento extends \fs_model {
 
     public function all($offset = 0, $limit = FS_ITEM_LIMIT) {
         $sql = "SELECT * FROM " . $this->table_name . " ORDER BY fecha DESC, numero DESC";
-
         return $this->all_from($sql, $limit, $offset);
     }
 
