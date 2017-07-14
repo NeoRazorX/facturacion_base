@@ -417,7 +417,7 @@ class subcuenta extends \fs_model {
             $sql = "SELECT * FROM " . $this->table_name . " WHERE codejercicio = "
                     . $this->var2str($codejercicio) . " ORDER BY random()";
 
-            $subcuentas = $this->db->select_limit($sql, $limit, 0);
+            return $this->all_from($sql, $limit, 0);
         }
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codejercicio = "
                 . $this->var2str($codejercicio) . " ORDER BY codsubcuenta ASC;";

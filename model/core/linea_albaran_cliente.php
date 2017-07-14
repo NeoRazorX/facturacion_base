@@ -445,7 +445,7 @@ class linea_albaran_cliente extends \fs_model {
             $sql .= "(referencia LIKE '%" . $ref . "%' OR descripcion LIKE '%" . $ref . "%')";
         }
         $buscar = str_replace(' ', '%', $ref);
-        $sql .= "(lower(referencia) LIKE '%" . $ref . "%' OR lower(descripcion) LIKE '%" . $ref . "%')";
+        $sql .= "(lower(referencia) LIKE '%" . $buscar . "%' OR lower(descripcion) LIKE '%" . $buscar . "%')";
 
         $sql .= " ORDER BY idalbaran DESC, idlinea ASC";
 

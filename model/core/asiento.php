@@ -473,7 +473,7 @@ class asiento extends \fs_model {
         } else if (preg_match('/^([0-9]{1,2})-([0-9]{1,2})-([0-9]{4})$/i', $query)) {
             $consulta .= "fecha = " . $this->var2str($query) . " OR concepto LIKE '%" . $query . "%'";
         }
-        $consulta .= "lower(concepto) LIKE '%" . $buscar = str_replace(' ', '%', $query) . "%'";
+        $consulta .= "lower(concepto) LIKE '%" .str_replace(' ', '%', $query) . "%'";
 
         $consulta .= " ORDER BY fecha DESC";
 

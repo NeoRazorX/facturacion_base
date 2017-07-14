@@ -1075,10 +1075,10 @@ class factura_cliente extends \fs_model {
                             . FS_IVA . '. No se puede eliminar.');
                     $bloquear = TRUE;
                 }
-                foreach ($this->get_rectificativas() as $rect) {
+                if(!empty($this->get_rectificativas())){
                     $this->new_error_msg('La factura ya tiene una rectificativa. No se puede eliminar.');
                     $bloquear = TRUE;
-                    break;
+                    
                 }
             }
             $this->new_error_msg('El ejercicio ' . $ejercicio->nombre . ' está cerrado.');
