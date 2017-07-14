@@ -89,7 +89,7 @@ class cuenta_banco_cliente extends \fs_model {
      * @return string
      */
     public function iban($espacios = FALSE) {
-        if ($espacios) {
+        if ($espacios === TRUE) {
             $txt = '';
             $iban = str_replace(' ', '', $this->iban);
             for ($i = 0; $i < strlen($iban); $i += 4) {

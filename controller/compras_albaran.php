@@ -487,7 +487,7 @@ class compras_albaran extends fbase_controller {
 
     /**
      * Actualiza los datos de artículos de proveedor en base a las líneas del documento de compra.
-     * @param type $codproveedor
+     * @param string $codproveedor
      * @param linea_albaran_proveedor $linea
      */
     private function actualizar_precio_proveedor($codproveedor, $linea) {

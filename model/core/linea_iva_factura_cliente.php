@@ -97,18 +97,14 @@ class linea_iva_factura_cliente extends \fs_model {
         } else {
             $this->idlinea = NULL;
             $this->idfactura = NULL;
-            $this->neto = 0;
+            $this->neto = 0.0;
             $this->codimpuesto = NULL;
-            $this->iva = 0;
-            $this->totaliva = 0;
-            $this->recargo = 0;
-            $this->totalrecargo = 0;
-            $this->totallinea = 0;
+            $this->iva = 0.0;
+            $this->totaliva = 0.0;
+            $this->recargo = 0.0;
+            $this->totalrecargo = 0.0;
+            $this->totallinea = 0.0;
         }
-    }
-
-    protected function install() {
-        return '';
     }
 
     public function exists() {

@@ -238,14 +238,14 @@ class albaran_proveedor extends \fs_model {
             $this->codproveedor = NULL;
             $this->nombre = '';
             $this->cifnif = '';
-            $this->neto = 0;
-            $this->total = 0;
-            $this->totaliva = 0;
-            $this->totaleuros = 0;
-            $this->irpf = 0;
-            $this->totalirpf = 0;
-            $this->tasaconv = 1;
-            $this->totalrecargo = 0;
+            $this->neto = 0.0;
+            $this->total = 0.0;
+            $this->totaliva = 0.0;
+            $this->totaleuros = 0.0;
+            $this->irpf = 0.0;
+            $this->totalirpf = 0.0;
+            $this->tasaconv = 1.0;
+            $this->totalrecargo = 0.0;
             $this->observaciones = '';
             $this->ptefactura = TRUE;
 

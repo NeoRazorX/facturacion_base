@@ -208,7 +208,7 @@ class familia extends \fs_model {
      * @param string $familias
      * @param string $madre
      * @param string $nivel
-     * @return \familia
+     * @return \familia[]
      */
     private function aux_all(&$familias, $madre, $nivel) {
         $subfamilias = array();

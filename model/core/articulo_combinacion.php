@@ -132,8 +132,8 @@ class articulo_combinacion extends \fs_model {
             $this->valor = NULL;
             $this->refcombinacion = NULL;
             $this->codbarras = NULL;
-            $this->impactoprecio = 0;
-            $this->stockfis = 0;
+            $this->impactoprecio = 0.0;
+            $this->stockfis = 0.0;
         }
     }
 

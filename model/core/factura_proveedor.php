@@ -254,19 +254,19 @@ class factura_proveedor extends \fs_model {
             $this->idasientop = NULL;
             $this->idfactura = NULL;
             $this->idfacturarect = NULL;
-            $this->irpf = 0;
-            $this->neto = 0;
+            $this->irpf = 0.0;
+            $this->neto = 0.0;
             $this->nombre = '';
             $this->numero = NULL;
             $this->numproveedor = NULL;
             $this->observaciones = NULL;
             $this->pagada = FALSE;
-            $this->tasaconv = 1;
-            $this->total = 0;
-            $this->totaleuros = 0;
-            $this->totalirpf = 0;
-            $this->totaliva = 0;
-            $this->totalrecargo = 0;
+            $this->tasaconv = 1.0;
+            $this->total = 0.0;
+            $this->totaleuros = 0.0;
+            $this->totalirpf = 0.0;
+            $this->totaliva = 0.0;
+            $this->totalrecargo = 0.0;
 
             $this->numdocs = 0;
         }

@@ -131,10 +131,10 @@ class articulo_proveedor extends \fs_model {
             $this->codproveedor = NULL;
             $this->refproveedor = NULL;
             $this->descripcion = NULL;
-            $this->precio = 0;
-            $this->dto = 0;
+            $this->precio = 0.0;
+            $this->dto = 0.0;
             $this->codimpuesto = NULL;
-            $this->stock = 0;
+            $this->stock = 0.0;
             $this->nostock = TRUE;
             $this->codbarras = NULL;
             $this->partnumber = NULL;

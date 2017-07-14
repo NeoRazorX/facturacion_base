@@ -37,6 +37,11 @@ class subcuenta extends \fs_model {
      * @var integer
      */
     public $idsubcuenta;
+    
+    /**
+     * Código de la subcuenta.
+     * @var string
+     */
     public $codsubcuenta;
 
     /**

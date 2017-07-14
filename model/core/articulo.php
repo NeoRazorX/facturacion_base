@@ -201,9 +201,6 @@ class articulo extends \fs_model {
 
         if (!isset(self::$impuestos)) {
             self::$impuestos = array();
-        }
-
-        if (!isset(self::$column_list)) {
             self::$column_list = 'referencia,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,' .
                     'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,' .
                     'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,' .
@@ -251,14 +248,14 @@ class articulo extends \fs_model {
             $this->codfamilia = NULL;
             $this->codfabricante = NULL;
             $this->descripcion = '';
-            $this->pvp = 0;
+            $this->pvp = 0.0;
             $this->factualizado = Date('d-m-Y');
-            $this->costemedio = 0;
-            $this->preciocoste = 0;
+            $this->costemedio = 0.0;
+            $this->preciocoste = 0.0;
             $this->codimpuesto = NULL;
-            $this->stockfis = 0;
-            $this->stockmin = 0;
-            $this->stockmax = 0;
+            $this->stockfis = 0.0;
+            $this->stockmin = 0.0;
+            $this->stockmax = 0.0;
             $this->controlstock = (bool) FS_VENTAS_SIN_STOCK;
             $this->nostock = FALSE;
             $this->bloqueado = FALSE;
@@ -277,7 +274,7 @@ class articulo extends \fs_model {
             $this->exists = FALSE;
         }
 
-        $this->pvp_ant = 0;
+        $this->pvp_ant = 0.0;
         $this->iva = NULL;
     }
 
@@ -354,6 +351,7 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve una nueva referencia, la siguiente a la última de la base de datos.
+     * @return string
      */
     public function get_new_referencia() {
         if (strtolower(FS_DB_TYPE) == 'postgresql') {
@@ -371,7 +369,7 @@ class articulo extends \fs_model {
         }
 
         $this->exists = FALSE;
-        return $ref;
+        return (string) $ref;
     }
 
     /**
@@ -577,9 +575,10 @@ class articulo extends \fs_model {
         }
 
         if ($stock > 0) {
-            return $coste / $stock;
-        } else
-            return $coste;
+            return (float) $coste / $stock;
+        }
+        
+        return (float) $coste;
     }
 
     /**

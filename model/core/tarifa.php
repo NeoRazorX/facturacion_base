@@ -86,8 +86,8 @@ class tarifa extends \fs_model {
         } else {
             $this->codtarifa = NULL;
             $this->nombre = NULL;
-            $this->incporcentual = 0;
-            $this->inclineal = 0;
+            $this->incporcentual = 0.0;
+            $this->inclineal = 0.0;
             $this->aplicar_a = 'pvp';
             $this->mincoste = TRUE;
             $this->maxpvp = TRUE;

@@ -127,9 +127,6 @@ class linea_factura_proveedor extends \fs_model {
 
         if (!isset(self::$facturas)) {
             self::$facturas = array();
-        }
-
-        if (!isset(self::$albaranes)) {
             self::$albaranes = array();
         }
 
@@ -158,15 +155,15 @@ class linea_factura_proveedor extends \fs_model {
             $this->referencia = NULL;
             $this->codcombinacion = NULL;
             $this->descripcion = '';
-            $this->cantidad = 0;
-            $this->pvpunitario = 0;
-            $this->pvpsindto = 0;
-            $this->dtopor = 0;
-            $this->pvptotal = 0;
+            $this->cantidad = 0.0;
+            $this->pvpunitario = 0.0;
+            $this->pvpsindto = 0.0;
+            $this->dtopor = 0.0;
+            $this->pvptotal = 0.0;
             $this->codimpuesto = NULL;
-            $this->iva = 0;
-            $this->recargo = 0;
-            $this->irpf = 0;
+            $this->iva = 0.0;
+            $this->recargo = 0.0;
+            $this->irpf = 0.0;
         }
     }
 
