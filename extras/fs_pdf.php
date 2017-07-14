@@ -89,7 +89,7 @@ class fs_pdf {
 
     /**
      * Devuelve la coordenada Y actual en el documento.
-     * @return type
+     * @return integer
      */
     public function get_y() {
         return $this->pdf->y;
@@ -97,10 +97,10 @@ class fs_pdf {
 
     /**
      * Establece la coordenada Y actual en el documento.
-     * @param type $y
+     * @param integer $value
      */
-    public function set_y($y) {
-        $this->pdf->ezSetY($y);
+    public function set_y($value) {
+        $this->pdf->ezSetY($value);
     }
 
     /**

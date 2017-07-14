@@ -38,6 +38,11 @@ class cuenta extends \fs_model {
      * @var integer
      */
     public $idcuenta;
+    
+    /**
+     * Código de la cuenta.
+     * @var string
+     */
     public $codcuenta;
 
     /**
@@ -280,7 +285,7 @@ class cuenta extends \fs_model {
         $ejercicio = new \ejercicio();
         $eje0 = $ejercicio->get($this->codejercicio);
         if ($eje0) {
-            $codsubcuenta = floatval(sprintf('%-0' . $eje0->longsubcuenta . 's', $this->codcuenta)) + $suma_codigo;
+            $codsubcuenta = (string) floatval(sprintf('%-0' . $eje0->longsubcuenta . 's', $this->codcuenta)) + $suma_codigo;
             $subcuenta = new \subcuenta();
             $subc0 = $subcuenta->get_by_codigo($codsubcuenta, $this->codejercicio);
             if ($subc0) {
