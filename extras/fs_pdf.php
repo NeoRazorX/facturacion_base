@@ -25,6 +25,9 @@ require_once __DIR__ . '/ezpdf/Cezpdf.php';
  */
 class fs_pdf {
 
+    const LOGO_X = 35;
+    const LOGO_y = 740;
+
     /**
      * Ruta al logotipo de la empresa.
      * @var type 
@@ -76,10 +79,12 @@ class fs_pdf {
                 fwrite($file, $this->pdf->ezOutput());
                 fclose($file);
                 return TRUE;
-            } else
-                return TRUE;
-        } else
-            return FALSE;
+            }
+
+            return TRUE;
+        }
+
+        return FALSE;
     }
 
     /**
@@ -137,19 +142,19 @@ class fs_pdf {
 
                 $tamanyo = $this->calcular_tamanyo_logo();
                 if (substr(strtolower($this->logo), -4) == '.png') {
-                    $this->pdf->addPngFromFile($this->logo, 35, 740, $tamanyo[0], $tamanyo[1]);
+                    $this->pdf->addPngFromFile($this->logo, self::LOGO_X, self::LOGO_y, $tamanyo[0], $tamanyo[1]);
                 } else if (function_exists('imagepng')) {
                     /**
                      * La librería ezpdf tiene problemas al redimensionar jpegs,
                      * así que hacemos la conversión a png para evitar estos problemas.
                      */
                     if (imagepng(imagecreatefromstring(file_get_contents($this->logo)), FS_MYDOCS . 'images/logo.png')) {
-                        $this->pdf->addPngFromFile(FS_MYDOCS . 'images/logo.png', 35, 740, $tamanyo[0], $tamanyo[1]);
+                        $this->pdf->addPngFromFile(FS_MYDOCS . 'images/logo.png', self::LOGO_X, self::LOGO_y, $tamanyo[0], $tamanyo[1]);
                     } else {
-                        $this->pdf->addJpegFromFile($this->logo, 35, 740, $tamanyo[0], $tamanyo[1]);
+                        $this->pdf->addJpegFromFile($this->logo, self::LOGO_X, self::LOGO_y, $tamanyo[0], $tamanyo[1]);
                     }
                 } else {
-                    $this->pdf->addJpegFromFile($this->logo, 35, 740, $tamanyo[0], $tamanyo[1]);
+                    $this->pdf->addJpegFromFile($this->logo, self::LOGO_X, self::LOGO_y, $tamanyo[0], $tamanyo[1]);
                 }
 
                 $this->pdf->ez['rightMargin'] = 40;
@@ -178,7 +183,7 @@ class fs_pdf {
                 }
 
                 $this->pdf->ezText(fs_fix_html($direccion) . "\n", 9, array('justification' => 'right'));
-                $this->set_y(750);
+                $this->set_y(self::LOGO_y + 10);
             } else {
                 die('ERROR: no se encuentra la función imagecreatefromstring(). '
                         . 'Y por tanto no se puede usar el logotipo en los documentos.');
