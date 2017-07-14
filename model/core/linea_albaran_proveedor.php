@@ -143,23 +143,28 @@ class linea_albaran_proveedor extends \fs_model {
             $this->pvpunitario = floatval($l['pvpunitario']);
             $this->irpf = floatval($l['irpf']);
             $this->recargo = floatval($l['recargo']);
+        } else {
+            $this->idlinea = NULL;
+            $this->idlineapedido = NULL;
+            $this->idalbaran = NULL;
+            $this->idpedido = NULL;
+            $this->referencia = NULL;
+            $this->codcombinacion = NULL;
+            $this->descripcion = '';
+            $this->cantidad = 0;
+            $this->dtopor = 0;
+            $this->codimpuesto = NULL;
+            $this->iva = 0;
+            $this->pvptotal = 0;
+            $this->pvpsindto = 0;
+            $this->pvpunitario = 0;
+            $this->irpf = 0;
+            $this->recargo = 0;
         }
-        $this->idlinea = NULL;
-        $this->idlineapedido = NULL;
-        $this->idalbaran = NULL;
-        $this->idpedido = NULL;
-        $this->referencia = NULL;
-        $this->codcombinacion = NULL;
-        $this->descripcion = '';
-        $this->cantidad = 0;
-        $this->dtopor = 0;
-        $this->codimpuesto = NULL;
-        $this->iva = 0;
-        $this->pvptotal = 0;
-        $this->pvpsindto = 0;
-        $this->pvpunitario = 0;
-        $this->irpf = 0;
-        $this->recargo = 0;
+    }
+
+    protected function install() {
+        return '';
     }
 
     /**
@@ -198,8 +203,8 @@ class linea_albaran_proveedor extends \fs_model {
     public function total_iva2() {
         if ($this->cantidad == 0) {
             return 0;
-        }
-        return $this->pvptotal * (100 + $this->iva) / 100 / $this->cantidad;
+        } else
+            return $this->pvptotal * (100 + $this->iva) / 100 / $this->cantidad;
     }
 
     public function descripcion() {
@@ -240,8 +245,8 @@ class linea_albaran_proveedor extends \fs_model {
     public function articulo_url() {
         if (is_null($this->referencia) OR $this->referencia == '') {
             return "index.php?page=ventas_articulos";
-        }
-        return "index.php?page=ventas_articulo&ref=" . urlencode($this->referencia);
+        } else
+            return "index.php?page=ventas_articulo&ref=" . urlencode($this->referencia);
     }
 
     /**
@@ -253,15 +258,16 @@ class linea_albaran_proveedor extends \fs_model {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idlinea = " . $this->var2str($idlinea) . ";");
         if ($data) {
             return new \linea_albaran_proveedor($data[0]);
+        } else {
+            return FALSE;
         }
-        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->idlinea)) {
             return false;
-        }
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idlinea = " . $this->var2str($this->idlinea) . ";");
+        } else
+            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idlinea = " . $this->var2str($this->idlinea) . ";");
     }
 
     public function test() {
@@ -277,8 +283,8 @@ class linea_albaran_proveedor extends \fs_model {
             $this->new_error_msg("Error en el valor de pvpsindto de la línea " . $this->referencia
                     . " del " . FS_ALBARAN . ". Valor correcto: " . $totalsindto);
             return FALSE;
-        }
-        return TRUE;
+        } else
+            return TRUE;
     }
 
     public function save() {
@@ -304,32 +310,33 @@ class linea_albaran_proveedor extends \fs_model {
                         . "  WHERE idlinea = " . $this->var2str($this->idlinea) . ";";
 
                 return $this->db->exec($sql);
-            }
-            $sql = "INSERT INTO " . $this->table_name . " (idlineapedido,idalbaran,idpedido,referencia,codcombinacion,
+            } else {
+                $sql = "INSERT INTO " . $this->table_name . " (idlineapedido,idalbaran,idpedido,referencia,codcombinacion,
                descripcion,cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo) VALUES
                      (" . $this->var2str($this->idlineapedido) .
-                    "," . $this->var2str($this->idalbaran) .
-                    "," . $this->var2str($this->idpedido) .
-                    "," . $this->var2str($this->referencia) .
-                    "," . $this->var2str($this->codcombinacion) .
-                    "," . $this->var2str($this->descripcion) .
-                    "," . $this->var2str($this->cantidad) .
-                    "," . $this->var2str($this->dtopor) .
-                    "," . $this->var2str($this->codimpuesto) .
-                    "," . $this->var2str($this->iva) .
-                    "," . $this->var2str($this->pvptotal) .
-                    "," . $this->var2str($this->pvpsindto) .
-                    "," . $this->var2str($this->pvpunitario) .
-                    "," . $this->var2str($this->irpf) .
-                    "," . $this->var2str($this->recargo) . ");";
+                        "," . $this->var2str($this->idalbaran) .
+                        "," . $this->var2str($this->idpedido) .
+                        "," . $this->var2str($this->referencia) .
+                        "," . $this->var2str($this->codcombinacion) .
+                        "," . $this->var2str($this->descripcion) .
+                        "," . $this->var2str($this->cantidad) .
+                        "," . $this->var2str($this->dtopor) .
+                        "," . $this->var2str($this->codimpuesto) .
+                        "," . $this->var2str($this->iva) .
+                        "," . $this->var2str($this->pvptotal) .
+                        "," . $this->var2str($this->pvpsindto) .
+                        "," . $this->var2str($this->pvpunitario) .
+                        "," . $this->var2str($this->irpf) .
+                        "," . $this->var2str($this->recargo) . ");";
 
-            if ($this->db->exec($sql)) {
-                $this->idlinea = $this->db->lastval();
-                return TRUE;
+                if ($this->db->exec($sql)) {
+                    $this->idlinea = $this->db->lastval();
+                    return TRUE;
+                } else
+                    return FALSE;
             }
+        } else
             return FALSE;
-        }
-        return FALSE;
     }
 
     public function delete() {
@@ -341,69 +348,89 @@ class linea_albaran_proveedor extends \fs_model {
         $this->cache->delete('albpro_top_articulos');
     }
 
-    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-
-        $linealist = array();
-        $data = $this->db->select($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $linealist[] = new \linea_albaran_proveedor($a);
-            }
-        }
-        return $linealist;
-    }
-
     public function all_from_albaran($id) {
+        $linealist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($id)
                 . " ORDER BY idlinea ASC;";
 
-        return $this->all_from($sql);
+        $data = $this->db->select($sql);
+        if ($data) {
+            foreach ($data as $l) {
+                $linealist[] = new \linea_albaran_proveedor($l);
+            }
+        }
+
+        return $linealist;
     }
 
     public function all_from_articulo($ref, $offset = 0, $limit = FS_ITEM_LIMIT) {
+        $linealist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref)
                 . " ORDER BY idalbaran DESC";
 
-        return $this->all_from($sql, $limit, $offset);
+        $data = $this->db->select_limit($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $l) {
+                $linealist[] = new \linea_albaran_proveedor($l);
+            }
+        }
+
+        return $linealist;
     }
 
     public function search($query = '', $offset = 0) {
+        $linealist = array();
         $query = mb_strtolower($this->no_html($query), 'UTF8');
 
         $sql = "SELECT * FROM " . $this->table_name . " WHERE ";
         if (is_numeric($query)) {
             $sql .= "referencia LIKE '%" . $query . "%' OR descripcion LIKE '%" . $query . "%'";
+        } else {
+            $buscar = str_replace(' ', '%', $query);
+            $sql .= "lower(referencia) LIKE '%" . $buscar . "%' OR lower(descripcion) LIKE '%" . $buscar . "%'";
         }
-        $buscar = str_replace(' ', '%', $query);
-        $sql .= "lower(referencia) LIKE '%" . $buscar . "%' OR lower(descripcion) LIKE '%" . $buscar . "%'";
-
         $sql .= " ORDER BY idalbaran DESC, idlinea ASC";
 
-        return $this->all_from($sql, FS_ITEM_LIMIT, $offset);
+        $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+        if ($data) {
+            foreach ($data as $l) {
+                $linealist[] = new \linea_albaran_proveedor($l);
+            }
+        }
+
+        return $linealist;
     }
 
     public function search_from_proveedor($codproveedor, $query = '', $offset = 0) {
+        $linealist = array();
         $query = mb_strtolower($this->no_html($query), 'UTF8');
 
         $sql = "SELECT * FROM " . $this->table_name . " WHERE idalbaran IN
          (SELECT idalbaran FROM albaranesprov WHERE codproveedor = " . $this->var2str($codproveedor) . ") AND ";
         if (is_numeric($query)) {
             $sql .= "(referencia LIKE '%" . $query . "%' OR descripcion LIKE '%" . $query . "%')";
+        } else {
+            $buscar = str_replace(' ', '%', $query);
+            $sql .= "(lower(referencia) LIKE '%" . $buscar . "%' OR lower(descripcion) LIKE '%" . $buscar . "%')";
         }
-        $buscar = str_replace(' ', '%', $query);
-        $sql .= "(lower(referencia) LIKE '%" . $buscar . "%' OR lower(descripcion) LIKE '%" . $buscar . "%')";
-
         $sql .= " ORDER BY idalbaran DESC, idlinea ASC";
 
-        return $this->all_from($sql, FS_ITEM_LIMIT, $offset);
+        $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+        if ($data) {
+            foreach ($data as $l) {
+                $linealist[] = new \linea_albaran_proveedor($l);
+            }
+        }
+
+        return $linealist;
     }
 
     public function count_by_articulo() {
         $lineas = $this->db->select("SELECT COUNT(DISTINCT referencia) as total FROM " . $this->table_name . ";");
         if ($lineas) {
             return intval($lineas[0]['total']);
-        }
-        return 0;
+        } else
+            return 0;
     }
 
 }

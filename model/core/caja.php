@@ -96,8 +96,8 @@ class caja extends \fs_model {
 
             if (is_null($c['f_fin'])) {
                 $this->fecha_fin = NULL;
-            }
-            $this->fecha_fin = Date('d-m-Y H:i:s', strtotime($c['f_fin']));
+            } else
+                $this->fecha_fin = Date('d-m-Y H:i:s', strtotime($c['f_fin']));
 
             $this->dinero_fin = floatval($c['d_fin']);
             $this->codagente = $c['codagente'];
@@ -120,22 +120,27 @@ class caja extends \fs_model {
                 $this->agente = $ag->get($this->codagente);
                 self::$agentes[] = $this->agente;
             }
-        }
-        $this->id = NULL;
-        $this->fs_id = NULL;
-        $this->codagente = NULL;
-        $this->fecha_inicial = Date('d-m-Y H:i:s');
-        $this->dinero_inicial = 0;
-        $this->fecha_fin = NULL;
-        $this->dinero_fin = 0;
-        $this->tickets = 0;
+        } else {
+            $this->id = NULL;
+            $this->fs_id = NULL;
+            $this->codagente = NULL;
+            $this->fecha_inicial = Date('d-m-Y H:i:s');
+            $this->dinero_inicial = 0;
+            $this->fecha_fin = NULL;
+            $this->dinero_fin = 0;
+            $this->tickets = 0;
 
-        $this->ip = NULL;
-        if (isset($_SERVER['REMOTE_ADDR'])) {
-            $this->ip = $_SERVER['REMOTE_ADDR'];
-        }
+            $this->ip = NULL;
+            if (isset($_SERVER['REMOTE_ADDR'])) {
+                $this->ip = $_SERVER['REMOTE_ADDR'];
+            }
 
-        $this->agente = NULL;
+            $this->agente = NULL;
+        }
+    }
+
+    protected function install() {
+        return '';
     }
 
     public function abierta() {
@@ -145,8 +150,8 @@ class caja extends \fs_model {
     public function show_fecha_fin() {
         if (is_null($this->fecha_fin)) {
             return '-';
-        }
-        return $this->fecha_fin;
+        } else
+            return $this->fecha_fin;
     }
 
     public function diferencia() {
@@ -156,8 +161,8 @@ class caja extends \fs_model {
     public function exists() {
         if (is_null($this->id)) {
             return FALSE;
-        }
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
+        } else
+            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function get($id) {
@@ -165,10 +170,10 @@ class caja extends \fs_model {
             $caja = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
             if ($caja) {
                 return new \caja($caja[0]);
-            }
+            } else
+                return FALSE;
+        } else
             return FALSE;
-        }
-        return FALSE;
     }
 
     public function save() {
@@ -184,50 +189,55 @@ class caja extends \fs_model {
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        }
-        $sql = "INSERT INTO " . $this->table_name . " (fs_id,codagente,f_inicio,d_inicio,f_fin,d_fin,tickets,ip) VALUES
+        } else {
+            $sql = "INSERT INTO " . $this->table_name . " (fs_id,codagente,f_inicio,d_inicio,f_fin,d_fin,tickets,ip) VALUES
                    (" . $this->var2str($this->fs_id)
-                . "," . $this->var2str($this->codagente)
-                . "," . $this->var2str($this->fecha_inicial)
-                . "," . $this->var2str($this->dinero_inicial)
-                . "," . $this->var2str($this->fecha_fin)
-                . "," . $this->var2str($this->dinero_fin)
-                . "," . $this->var2str($this->tickets)
-                . "," . $this->var2str($this->ip) . ");";
+                    . "," . $this->var2str($this->codagente)
+                    . "," . $this->var2str($this->fecha_inicial)
+                    . "," . $this->var2str($this->dinero_inicial)
+                    . "," . $this->var2str($this->fecha_fin)
+                    . "," . $this->var2str($this->dinero_fin)
+                    . "," . $this->var2str($this->tickets)
+                    . "," . $this->var2str($this->ip) . ");";
 
-        if ($this->db->exec($sql)) {
-            $this->id = $this->db->lastval();
-            return TRUE;
+            if ($this->db->exec($sql)) {
+                $this->id = $this->db->lastval();
+                return TRUE;
+            } else
+                return FALSE;
         }
-        return FALSE;
     }
 
     public function delete() {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
-    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-
+    public function all($offset = 0, $limit = FS_ITEM_LIMIT) {
         $cajalist = array();
-        $data = $this->db->select_limit($sql, $limit, $offset);
+
+        $data = $this->db->select_limit("SELECT * FROM " . $this->table_name . " ORDER BY id DESC", $limit, $offset);
         if ($data) {
-            foreach ($data as $a) {
-                $cajalist[] = new \caja($a);
+            foreach ($data as $c) {
+                $cajalist[] = new \caja($c);
             }
         }
+
         return $cajalist;
     }
 
-    public function all($offset = 0, $limit = FS_ITEM_LIMIT) {
-
-        return $this->all_from("SELECT * FROM " . $this->table_name . " ORDER BY id DESC", $limit, $offset);
-    }
-
     public function all_by_agente($codagente, $offset = 0, $limit = FS_ITEM_LIMIT) {
+        $cajalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codagente = "
                 . $this->var2str($codagente) . " ORDER BY id DESC";
 
-        return $this->all_from($sql, $limit, $offset);
+        $data = $this->db->select_limit($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $c) {
+                $cajalist[] = new \caja($c);
+            }
+        }
+
+        return $cajalist;
     }
 
 }

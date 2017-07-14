@@ -40,9 +40,10 @@ class cuenta_especial extends \fs_model {
         if ($c) {
             $this->idcuentaesp = $c['idcuentaesp'];
             $this->descripcion = $c['descripcion'];
+        } else {
+            $this->idcuentaesp = NULL;
+            $this->descripcion = NULL;
         }
-        $this->idcuentaesp = NULL;
-        $this->descripcion = NULL;
     }
 
     protected function install() {
@@ -82,15 +83,15 @@ class cuenta_especial extends \fs_model {
         $cuentae = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcuentaesp = " . $this->var2str($id) . ";");
         if ($cuentae) {
             return new \cuenta_especial($cuentae[0]);
-        }
-        return FALSE;
+        } else
+            return FALSE;
     }
 
     public function exists() {
         if (is_null($this->idcuentaesp)) {
             return FALSE;
-        }
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcuentaesp = " . $this->var2str($this->idcuentaesp) . ";");
+        } else
+            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcuentaesp = " . $this->var2str($this->idcuentaesp) . ";");
     }
 
     public function save() {
@@ -99,11 +100,11 @@ class cuenta_especial extends \fs_model {
         if ($this->exists()) {
             $sql = "UPDATE " . $this->table_name . " SET descripcion = " . $this->var2str($this->descripcion) .
                     " WHERE idcuentaesp = " . $this->var2str($this->idcuentaesp) . ";";
+        } else {
+            $sql = "INSERT INTO " . $this->table_name . " (idcuentaesp,descripcion)" .
+                    " VALUES (" . $this->var2str($this->idcuentaesp) .
+                    "," . $this->var2str($this->descripcion) . ");";
         }
-        $sql = "INSERT INTO " . $this->table_name . " (idcuentaesp,descripcion)" .
-                " VALUES (" . $this->var2str($this->idcuentaesp) .
-                "," . $this->var2str($this->descripcion) . ");";
-
 
         return $this->db->exec($sql);
     }

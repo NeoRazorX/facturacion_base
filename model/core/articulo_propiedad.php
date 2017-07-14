@@ -38,10 +38,15 @@ class articulo_propiedad extends \fs_model {
             $this->name = $a['name'];
             $this->referencia = $a['referencia'];
             $this->text = $a['text'];
+        } else {
+            $this->name = NULL;
+            $this->referencia = NULL;
+            $this->text = NULL;
         }
-        $this->name = NULL;
-        $this->referencia = NULL;
-        $this->text = NULL;
+    }
+
+    protected function install() {
+        return '';
     }
 
     /**
@@ -51,11 +56,12 @@ class articulo_propiedad extends \fs_model {
     public function exists() {
         if (is_null($this->name) OR is_null($this->referencia)) {
             return FALSE;
-        }
-        $sql = "SELECT * FROM " . $this->table_name . " WHERE name = " . $this->var2str($this->name)
-                . " AND referencia = " . $this->var2str($this->referencia) . ";";
+        } else {
+            $sql = "SELECT * FROM " . $this->table_name . " WHERE name = " . $this->var2str($this->name)
+                    . " AND referencia = " . $this->var2str($this->referencia) . ";";
 
-        return $this->db->select($sql);
+            return $this->db->select($sql);
+        }
     }
 
     /**
@@ -67,12 +73,12 @@ class articulo_propiedad extends \fs_model {
             $sql = "UPDATE " . $this->table_name . " SET text = " . $this->var2str($this->text)
                     . " WHERE name = " . $this->var2str($this->name)
                     . " AND referencia = " . $this->var2str($this->referencia) . ";";
-        }
-        $sql = "INSERT INTO " . $this->table_name . " (name,referencia,text) VALUES
+        } else {
+            $sql = "INSERT INTO " . $this->table_name . " (name,referencia,text) VALUES
                    (" . $this->var2str($this->name)
-                . "," . $this->var2str($this->referencia)
-                . "," . $this->var2str($this->text) . ");";
-
+                    . "," . $this->var2str($this->referencia)
+                    . "," . $this->var2str($this->text) . ");";
+        }
 
         return $this->db->exec($sql);
     }
@@ -141,9 +147,8 @@ class articulo_propiedad extends \fs_model {
         $data = $this->db->select($sql);
         if ($data) {
             return $data[0]['text'];
-        }
-
-        return FALSE;
+        } else
+            return FALSE;
     }
 
     /**
@@ -158,8 +163,8 @@ class articulo_propiedad extends \fs_model {
         $data = $this->db->select($sql);
         if ($data) {
             return $data[0]['referencia'];
-        }
-        return FALSE;
+        } else
+            return FALSE;
     }
 
     /**

@@ -83,14 +83,19 @@ class tarifa extends \fs_model {
             if (!is_null($t['aplicar_a'])) {
                 $this->aplicar_a = $t['aplicar_a'];
             }
+        } else {
+            $this->codtarifa = NULL;
+            $this->nombre = NULL;
+            $this->incporcentual = 0;
+            $this->inclineal = 0;
+            $this->aplicar_a = 'pvp';
+            $this->mincoste = TRUE;
+            $this->maxpvp = TRUE;
         }
-        $this->codtarifa = NULL;
-        $this->nombre = NULL;
-        $this->incporcentual = 0;
-        $this->inclineal = 0;
-        $this->aplicar_a = 'pvp';
-        $this->mincoste = TRUE;
-        $this->maxpvp = TRUE;
+    }
+
+    protected function install() {
+        return '';
     }
 
     public function url() {
@@ -100,29 +105,33 @@ class tarifa extends \fs_model {
     public function x() {
         if ($this->aplicar_a == 'pvp') {
             return (0 - $this->incporcentual);
+        } else {
+            return $this->incporcentual;
         }
-        return $this->incporcentual;
     }
 
     public function set_x($dto) {
         if ($this->aplicar_a == 'pvp') {
             $this->incporcentual = 0 - $dto;
+        } else {
+            $this->incporcentual = $dto;
         }
-        $this->incporcentual = $dto;
     }
 
     public function y() {
         if ($this->aplicar_a == 'pvp') {
             return (0 - $this->inclineal);
+        } else {
+            return $this->inclineal;
         }
-        return $this->inclineal;
     }
 
     public function set_y($inc) {
         if ($this->aplicar_a == 'pvp') {
             $this->inclineal = 0 - $inc;
+        } else {
+            $this->inclineal = $inc;
         }
-        $this->inclineal = $inc;
     }
 
     /**
@@ -138,9 +147,9 @@ class tarifa extends \fs_model {
             $texto = 'Precio de venta ';
             $x = 0 - $x;
             $y = 0 - $y;
+        } else {
+            $texto = 'Precio de coste ';
         }
-        $texto = 'Precio de coste ';
-
 
         if ($x != 0) {
             if ($x > 0) {
@@ -178,11 +187,12 @@ class tarifa extends \fs_model {
                 if ($this->y() == 0 AND $this->x() >= 0) {
                     /// si y == 0 y x >= 0, usamos x como descuento
                     $articulos[$i]->dtopor = $this->x();
+                } else {
+                    $articulos[$i]->pvp = $articulos[$i]->pvp * (100 - $this->x()) / 100 - $this->y();
                 }
-                $articulos[$i]->pvp = $articulos[$i]->pvp * (100 - $this->x()) / 100 - $this->y();
+            } else {
+                $articulos[$i]->pvp = $articulos[$i]->preciocoste() * (100 + $this->x()) / 100 + $this->y();
             }
-            $articulos[$i]->pvp = $articulos[$i]->preciocoste() * (100 + $this->x()) / 100 + $this->y();
-
 
             $articulos[$i]->tarifa_diff = $this->diff();
 
@@ -208,23 +218,23 @@ class tarifa extends \fs_model {
         $tarifa = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($cod) . ";");
         if ($tarifa) {
             return new \tarifa($tarifa[0]);
-        }
-        return FALSE;
+        } else
+            return FALSE;
     }
 
     public function get_new_codigo() {
         $cod = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codtarifa') . ") as cod FROM " . $this->table_name . ";");
         if ($cod) {
             return sprintf('%06s', (1 + intval($cod[0]['cod'])));
-        }
-        return '000001';
+        } else
+            return '000001';
     }
 
     public function exists() {
         if (is_null($this->codtarifa)) {
             return FALSE;
-        }
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($this->codtarifa) . ";");
+        } else
+            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($this->codtarifa) . ";");
     }
 
     public function test() {
@@ -237,8 +247,8 @@ class tarifa extends \fs_model {
             $this->new_error_msg("Código de tarifa no válido. Debe tener entre 1 y 6 caracteres.");
         } else if (strlen($this->nombre) < 1 OR strlen($this->nombre) > 50) {
             $this->new_error_msg("Nombre de tarifa no válido. Debe tener entre 1 y 50 caracteres.");
-        }
-        $status = TRUE;
+        } else
+            $status = TRUE;
 
         return $status;
     }
@@ -253,20 +263,20 @@ class tarifa extends \fs_model {
                         . ", mincoste =" . $this->var2str($this->mincoste)
                         . ", maxpvp =" . $this->var2str($this->maxpvp)
                         . "  WHERE codtarifa = " . $this->var2str($this->codtarifa) . ";";
-            }
-            $sql = "INSERT INTO " . $this->table_name . " (codtarifa,nombre,incporcentual,inclineal,
+            } else {
+                $sql = "INSERT INTO " . $this->table_name . " (codtarifa,nombre,incporcentual,inclineal,
                aplicar_a,mincoste,maxpvp) VALUES (" . $this->var2str($this->codtarifa)
-                    . "," . $this->var2str($this->nombre)
-                    . "," . $this->var2str($this->incporcentual)
-                    . "," . $this->var2str($this->inclineal)
-                    . "," . $this->var2str($this->aplicar_a)
-                    . "," . $this->var2str($this->mincoste)
-                    . "," . $this->var2str($this->maxpvp) . ");";
-
+                        . "," . $this->var2str($this->nombre)
+                        . "," . $this->var2str($this->incporcentual)
+                        . "," . $this->var2str($this->inclineal)
+                        . "," . $this->var2str($this->aplicar_a)
+                        . "," . $this->var2str($this->mincoste)
+                        . "," . $this->var2str($this->maxpvp) . ");";
+            }
 
             return $this->db->exec($sql);
-        }
-        return FALSE;
+        } else
+            return FALSE;
     }
 
     public function delete() {

@@ -36,13 +36,13 @@ class asiento extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var integer
+     * @var type 
      */
     public $idasiento;
 
     /**
      * Número de asiento. Se modificará al renumerar.
-     * @var integer
+     * @var type 
      */
     public $numero;
     public $idconcepto;
@@ -75,25 +75,30 @@ class asiento extends \fs_model {
             $this->documento = $a['documento'];
             $this->tipodocumento = $a['tipodocumento'];
             $this->importe = floatval($a['importe']);
+        } else {
+            $this->idasiento = NULL;
+            $this->numero = NULL;
+            $this->idconcepto = NULL;
+            $this->concepto = NULL;
+            $this->fecha = Date('d-m-Y');
+            $this->codejercicio = NULL;
+            $this->codplanasiento = NULL;
+            $this->editable = TRUE;
+            $this->documento = NULL;
+            $this->tipodocumento = NULL;
+            $this->importe = 0;
         }
-        $this->idasiento = NULL;
-        $this->numero = NULL;
-        $this->idconcepto = NULL;
-        $this->concepto = NULL;
-        $this->fecha = Date('d-m-Y');
-        $this->codejercicio = NULL;
-        $this->codplanasiento = NULL;
-        $this->editable = TRUE;
-        $this->documento = NULL;
-        $this->tipodocumento = NULL;
-        $this->importe = 0;
+    }
+
+    protected function install() {
+        return '';
     }
 
     public function url() {
         if (is_null($this->idasiento)) {
             return 'index.php?page=contabilidad_asientos';
-        }
-        return 'index.php?page=contabilidad_asiento&id=' . $this->idasiento;
+        } else
+            return 'index.php?page=contabilidad_asiento&id=' . $this->idasiento;
     }
 
     public function get_factura() {
@@ -103,16 +108,16 @@ class asiento extends \fs_model {
         } else if ($this->tipodocumento == 'Factura de proveedor') {
             $fac = new \factura_proveedor();
             return $fac->get_by_codigo($this->documento);
-        }
-        return FALSE;
+        } else
+            return FALSE;
     }
 
     public function factura_url() {
         $fac = $this->get_factura();
         if ($fac) {
             return $fac->url();
-        }
-        return '#';
+        } else
+            return '#';
     }
 
     public function ejercicio_url() {
@@ -120,15 +125,15 @@ class asiento extends \fs_model {
         $eje0 = $ejercicio->get($this->codejercicio);
         if ($eje0) {
             return $eje0->url();
-        }
-        return '#';
+        } else
+            return '#';
     }
 
     /**
      * Devuelve el código de la divisa.
      * Lo que pasa es que ese dato se almacena en las partidas, por eso
      * hay que usar esta función.
-     * @return string
+     * @return type
      */
     public function coddivisa() {
         if (!isset($this->coddivisa)) {
@@ -155,10 +160,10 @@ class asiento extends \fs_model {
             $asiento = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idasiento = " . $this->var2str($id) . ";");
             if ($asiento) {
                 return new \asiento($asiento[0]);
-            }
+            } else
+                return FALSE;
+        } else
             return FALSE;
-        }
-        return FALSE;
     }
 
     public function get_partidas() {
@@ -169,8 +174,9 @@ class asiento extends \fs_model {
     public function exists() {
         if (is_null($this->idasiento)) {
             return FALSE;
+        } else {
+            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idasiento = " . $this->var2str($this->idasiento) . ";");
         }
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idasiento = " . $this->var2str($this->idasiento) . ";");
     }
 
     /**
@@ -204,8 +210,8 @@ class asiento extends \fs_model {
         if (strlen($this->concepto) > 255) {
             $this->new_error_msg("Concepto del asiento demasiado largo.");
             return FALSE;
-        }
-        return TRUE;
+        } else
+            return TRUE;
     }
 
     public function full_test($duplicados = TRUE) {
@@ -228,9 +234,10 @@ class asiento extends \fs_model {
                         $this->new_error_msg('La subcuenta ' . $sc->codsubcuenta . ' pertenece a otro ejercicio.');
                         $status = FALSE;
                     }
+                } else {
+                    $this->new_error_msg('Subcuenta ' . $p->codsubcuenta . ' no encontrada.');
+                    $status = FALSE;
                 }
-                $this->new_error_msg('Subcuenta ' . $p->codsubcuenta . ' no encontrada.');
-                $status = FALSE;
             }
         }
 
@@ -265,12 +272,12 @@ class asiento extends \fs_model {
                      FROM co_partidas WHERE idasiento = " . $this->var2str($this->idasiento) . "
                      AND NOT EXISTS(SELECT codsubcuenta,debe,haber,codcontrapartida,concepto FROM co_partidas
                      WHERE idasiento = " . $this->var2str($as['idasiento']) . ");");
-                    }
-                    $aux = $this->db->select("SELECT codsubcuenta,debe,haber,codcontrapartida,concepto
+                    } else {
+                        $aux = $this->db->select("SELECT codsubcuenta,debe,haber,codcontrapartida,concepto
                      FROM co_partidas WHERE idasiento = " . $this->var2str($this->idasiento) . "
                      EXCEPT SELECT codsubcuenta,debe,haber,codcontrapartida,concepto FROM co_partidas
                      WHERE idasiento = " . $this->var2str($as['idasiento']) . ";");
-
+                    }
 
                     if (!$aux) {
                         $this->new_error_msg("Este asiento es un posible duplicado de
@@ -312,31 +319,32 @@ class asiento extends \fs_model {
                 foreach ($partidas as $p) {
                     $p->save();
                 }
-            }
-            /// si no ha funcionado, intentamos arreglarlo
-            $total = 0;
-            $partidas = $this->get_partidas();
-            foreach ($partidas as $p) {
-                $total += ($p->debe - $p->haber);
-            }
-
-            if ($partidas[0]->debe != 0) {
-                $partidas[0]->debe = ($partidas[0]->debe - $total);
-            } else if ($partidas[0]->haber != 0) {
-                $partidas[0]->haber += $total;
-            }
-
-            $debe = $haber = 0;
-            foreach ($partidas as $p) {
-                $debe += $p->debe;
-                $haber += $p->haber;
-            }
-
-            /// si hemos resuelto el problema grabamos
-            if ($this->floatcmp($debe, $haber)) {
-                $this->importe = max(array(abs($debe), abs($haber)));
+            } else {
+                /// si no ha funcionado, intentamos arreglarlo
+                $total = 0;
+                $partidas = $this->get_partidas();
                 foreach ($partidas as $p) {
-                    $p->save();
+                    $total += ($p->debe - $p->haber);
+                }
+
+                if ($partidas[0]->debe != 0) {
+                    $partidas[0]->debe = ($partidas[0]->debe - $total);
+                } else if ($partidas[0]->haber != 0) {
+                    $partidas[0]->haber += $total;
+                }
+
+                $debe = $haber = 0;
+                foreach ($partidas as $p) {
+                    $debe += $p->debe;
+                    $haber += $p->haber;
+                }
+
+                /// si hemos resuelto el problema grabamos
+                if ($this->floatcmp($debe, $haber)) {
+                    $this->importe = max(array(abs($debe), abs($haber)));
+                    foreach ($partidas as $p) {
+                        $p->save();
+                    }
                 }
             }
         }
@@ -358,8 +366,8 @@ class asiento extends \fs_model {
 
         if ($status) {
             return $this->full_test();
-        }
-        return FALSE;
+        } else
+            return FALSE;
     }
 
     public function save() {
@@ -378,29 +386,29 @@ class asiento extends \fs_model {
                         . "  WHERE idasiento = " . $this->var2str($this->idasiento) . ";";
 
                 return $this->db->exec($sql);
-            }
-
-            $this->new_numero();
-            $sql = "INSERT INTO " . $this->table_name . " (numero,idconcepto,concepto,
+            } else {
+                $this->new_numero();
+                $sql = "INSERT INTO " . $this->table_name . " (numero,idconcepto,concepto,
                fecha,codejercicio,codplanasiento,editable,documento,tipodocumento,importe)
                VALUES (" . $this->var2str($this->numero)
-                    . "," . $this->var2str($this->idconcepto)
-                    . "," . $this->var2str($this->concepto)
-                    . "," . $this->var2str($this->fecha)
-                    . "," . $this->var2str($this->codejercicio)
-                    . "," . $this->var2str($this->codplanasiento)
-                    . "," . $this->var2str($this->editable)
-                    . "," . $this->var2str($this->documento)
-                    . "," . $this->var2str($this->tipodocumento)
-                    . "," . $this->var2str($this->importe) . ");";
+                        . "," . $this->var2str($this->idconcepto)
+                        . "," . $this->var2str($this->concepto)
+                        . "," . $this->var2str($this->fecha)
+                        . "," . $this->var2str($this->codejercicio)
+                        . "," . $this->var2str($this->codplanasiento)
+                        . "," . $this->var2str($this->editable)
+                        . "," . $this->var2str($this->documento)
+                        . "," . $this->var2str($this->tipodocumento)
+                        . "," . $this->var2str($this->importe) . ");";
 
-            if ($this->db->exec($sql)) {
-                $this->idasiento = $this->db->lastval();
-                return TRUE;
+                if ($this->db->exec($sql)) {
+                    $this->idasiento = $this->db->lastval();
+                    return TRUE;
+                } else
+                    return FALSE;
             }
-        }
-
-        return FALSE;
+        } else
+            return FALSE;
     }
 
     public function delete() {
@@ -422,43 +430,35 @@ class asiento extends \fs_model {
                             . FS_IVA . '. No se puede eliminar.');
                     $bloquear = TRUE;
                 }
+            } else {
+                $this->new_error_msg('El ejercicio ' . $ejercicio->nombre . ' está cerrado.');
+                $bloquear = TRUE;
             }
-            $this->new_error_msg('El ejercicio ' . $ejercicio->nombre . ' está cerrado.');
-            $bloquear = TRUE;
         }
 
         if ($bloquear) {
             return FALSE;
-        }
-
-        /// desvinculamos la factura
-        $fac = $this->get_factura();
-        if ($fac && $fac->idasiento == $this->idasiento) {
-            $fac->idasiento = NULL;
-            $fac->save();
-        }
-
-        /// eliminamos las partidas una a una para forzar la actualización de las subcuentas asociadas
-        foreach ($this->get_partidas() as $p) {
-            $p->delete();
-        }
-
-        return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE idasiento = " . $this->var2str($this->idasiento) . ";");
-    }
-
-    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-        $alist = array();
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $alist[] = new \asiento($a);
+        } else {
+            /// desvinculamos la factura
+            $fac = $this->get_factura();
+            if ($fac) {
+                if ($fac->idasiento == $this->idasiento) {
+                    $fac->idasiento = NULL;
+                    $fac->save();
+                }
             }
-        }
 
-        return $alist;
+            /// eliminamos las partidas una a una para forzar la actualización de las subcuentas asociadas
+            foreach ($this->get_partidas() as $p) {
+                $p->delete();
+            }
+
+            return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE idasiento = " . $this->var2str($this->idasiento) . ";");
+        }
     }
 
     public function search($query, $offset = 0) {
+        $alist = array();
         $query = $this->no_html(mb_strtolower($query, 'UTF8'));
 
         $consulta = "SELECT * FROM " . $this->table_name . " WHERE ";
@@ -477,18 +477,35 @@ class asiento extends \fs_model {
         }
         $consulta .= " ORDER BY fecha DESC";
 
-        return $this->all_from($consulta, FS_ITEM_LIMIT, $offset);
+        $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $alist[] = new \asiento($a);
+            }
+        }
+
+        return $alist;
     }
 
     public function all($offset = 0, $limit = FS_ITEM_LIMIT) {
+        $alist = array();
         $sql = "SELECT * FROM " . $this->table_name . " ORDER BY fecha DESC, numero DESC";
-        return $this->all_from($sql, $limit, $offset);
+
+        $data = $this->db->select_limit($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $alist[] = new \asiento($a);
+            }
+        }
+
+        return $alist;
     }
 
     public function descuadrados() {
         /// iniciamos partidas para asegurarnos que existe la tabla
         new \partida();
 
+        $alist = array();
         $sql = "SELECT p.idasiento,SUM(p.debe) as sdebe,SUM(p.haber) as shaber
          FROM co_partidas p, " . $this->table_name . " a
           WHERE p.idasiento = a.idasiento
@@ -496,7 +513,14 @@ class asiento extends \fs_model {
             HAVING ABS(SUM(p.haber) - SUM(p.debe)) > 0.01
              ORDER BY p.idasiento DESC;";
 
-        return $this->all_from($sql);
+        $data = $this->db->select($sql);
+        if ($data) {
+            foreach ($data as $a) {
+                $alist[] = $this->get($a['idasiento']);
+            }
+        }
+
+        return $alist;
     }
 
     /// renumera todos los asientos. Devuelve FALSE en caso de error
@@ -553,9 +577,10 @@ class asiento extends \fs_model {
                             . " AND fecha >= " . $this->var2str($reg->fechainicio)
                             . " AND fecha <= " . $this->var2str($reg->fechafin) . ";");
                 }
+            } else {
+                $this->db->exec("UPDATE " . $this->table_name . " SET editable = false WHERE editable = true"
+                        . " AND codejercicio = " . $this->var2str($ej->codejercicio) . ";");
             }
-            $this->db->exec("UPDATE " . $this->table_name . " SET editable = false WHERE editable = true"
-                    . " AND codejercicio = " . $this->var2str($ej->codejercicio) . ";");
         }
 
         echo "\nRenumerando asientos...";

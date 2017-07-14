@@ -290,55 +290,56 @@ class albaran_cliente extends \fs_model {
             $this->envio_codpais = $a['codpaisenv'];
 
             $this->numdocs = intval($a['numdocs']);
+        } else {
+            $this->idalbaran = NULL;
+            $this->idfactura = NULL;
+            $this->codigo = NULL;
+            $this->codagente = NULL;
+            $this->codserie = $this->default_items->codserie();
+            $this->codejercicio = NULL;
+            $this->codcliente = NULL;
+            $this->codpago = $this->default_items->codpago();
+            $this->coddivisa = NULL;
+            $this->codalmacen = $this->default_items->codalmacen();
+            $this->codpais = NULL;
+            $this->coddir = NULL;
+            $this->codpostal = '';
+            $this->numero = NULL;
+            $this->numero2 = NULL;
+            $this->nombrecliente = '';
+            $this->cifnif = '';
+            $this->direccion = NULL;
+            $this->ciudad = NULL;
+            $this->provincia = NULL;
+            $this->apartado = NULL;
+            $this->fecha = Date('d-m-Y');
+            $this->hora = Date('H:i:s');
+            $this->neto = 0;
+            $this->total = 0;
+            $this->totaliva = 0;
+            $this->totaleuros = 0;
+            $this->irpf = 0;
+            $this->totalirpf = 0;
+            $this->porcomision = 0;
+            $this->tasaconv = 1;
+            $this->totalrecargo = 0;
+            $this->observaciones = NULL;
+            $this->ptefactura = TRUE;
+            $this->femail = NULL;
+
+            $this->envio_codtrans = NULL;
+            $this->envio_codigo = NULL;
+            $this->envio_nombre = NULL;
+            $this->envio_apellidos = NULL;
+            $this->envio_apartado = NULL;
+            $this->envio_direccion = NULL;
+            $this->envio_codpostal = NULL;
+            $this->envio_ciudad = NULL;
+            $this->envio_provincia = NULL;
+            $this->envio_codpais = NULL;
+
+            $this->numdocs = 0;
         }
-        $this->idalbaran = NULL;
-        $this->idfactura = NULL;
-        $this->codigo = NULL;
-        $this->codagente = NULL;
-        $this->codserie = $this->default_items->codserie();
-        $this->codejercicio = NULL;
-        $this->codcliente = NULL;
-        $this->codpago = $this->default_items->codpago();
-        $this->coddivisa = NULL;
-        $this->codalmacen = $this->default_items->codalmacen();
-        $this->codpais = NULL;
-        $this->coddir = NULL;
-        $this->codpostal = '';
-        $this->numero = NULL;
-        $this->numero2 = NULL;
-        $this->nombrecliente = '';
-        $this->cifnif = '';
-        $this->direccion = NULL;
-        $this->ciudad = NULL;
-        $this->provincia = NULL;
-        $this->apartado = NULL;
-        $this->fecha = Date('d-m-Y');
-        $this->hora = Date('H:i:s');
-        $this->neto = 0;
-        $this->total = 0;
-        $this->totaliva = 0;
-        $this->totaleuros = 0;
-        $this->irpf = 0;
-        $this->totalirpf = 0;
-        $this->porcomision = 0;
-        $this->tasaconv = 1;
-        $this->totalrecargo = 0;
-        $this->observaciones = NULL;
-        $this->ptefactura = TRUE;
-        $this->femail = NULL;
-
-        $this->envio_codtrans = NULL;
-        $this->envio_codigo = NULL;
-        $this->envio_nombre = NULL;
-        $this->envio_apellidos = NULL;
-        $this->envio_apartado = NULL;
-        $this->envio_direccion = NULL;
-        $this->envio_codpostal = NULL;
-        $this->envio_ciudad = NULL;
-        $this->envio_provincia = NULL;
-        $this->envio_codpais = NULL;
-
-        $this->numdocs = 0;
     }
 
     protected function install() {
@@ -351,8 +352,8 @@ class albaran_cliente extends \fs_model {
     public function show_hora($s = TRUE) {
         if ($s) {
             return Date('H:i:s', strtotime($this->hora));
-        }
-        return Date('H:i', strtotime($this->hora));
+        } else
+            return Date('H:i', strtotime($this->hora));
     }
 
     public function observaciones_resume() {
@@ -360,36 +361,36 @@ class albaran_cliente extends \fs_model {
             return '-';
         } else if (strlen($this->observaciones) < 60) {
             return $this->observaciones;
-        }
-        return substr($this->observaciones, 0, 50) . '...';
+        } else
+            return substr($this->observaciones, 0, 50) . '...';
     }
 
     public function url() {
         if (is_null($this->idalbaran)) {
             return 'index.php?page=ventas_albaranes';
-        }
-        return 'index.php?page=ventas_albaran&id=' . $this->idalbaran;
+        } else
+            return 'index.php?page=ventas_albaran&id=' . $this->idalbaran;
     }
 
     public function factura_url() {
         if (is_null($this->idfactura)) {
             return '#';
-        }
-        return 'index.php?page=ventas_factura&id=' . $this->idfactura;
+        } else
+            return 'index.php?page=ventas_factura&id=' . $this->idfactura;
     }
 
     public function agente_url() {
         if (is_null($this->codagente)) {
             return "index.php?page=admin_agentes";
-        }
-        return "index.php?page=admin_agente&cod=" . $this->codagente;
+        } else
+            return "index.php?page=admin_agente&cod=" . $this->codagente;
     }
 
     public function cliente_url() {
         if (is_null($this->codcliente)) {
             return "index.php?page=ventas_clientes";
-        }
-        return "index.php?page=ventas_cliente&cod=" . $this->codcliente;
+        } else
+            return "index.php?page=ventas_cliente&cod=" . $this->codcliente;
     }
 
     /**
@@ -410,23 +411,23 @@ class albaran_cliente extends \fs_model {
         $albaran = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($id) . ";");
         if ($albaran) {
             return new \albaran_cliente($albaran[0]);
-        }
-        return FALSE;
+        } else
+            return FALSE;
     }
 
     public function get_by_codigo($cod) {
         $albaran = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE upper(codigo) = " . strtoupper($this->var2str($cod)) . ";");
         if ($albaran) {
             return new \albaran_cliente($albaran[0]);
-        }
-        return FALSE;
+        } else
+            return FALSE;
     }
 
     public function exists() {
         if (is_null($this->idalbaran)) {
             return FALSE;
-        }
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($this->idalbaran) . ";");
+        } else
+            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($this->idalbaran) . ";");
     }
 
     /**
@@ -471,9 +472,10 @@ class albaran_cliente extends \fs_model {
 
         if ($this->floatcmp($this->total, $this->neto + $this->totaliva - $this->totalirpf + $this->totalrecargo, FS_NF0, TRUE)) {
             return TRUE;
+        } else {
+            $this->new_error_msg("Error grave: El total está mal calculado. ¡Avisa al informático!");
+            return FALSE;
         }
-        $this->new_error_msg("Error grave: El total está mal calculado. ¡Avisa al informático!");
-        return FALSE;
     }
 
     /**
@@ -634,67 +636,68 @@ class albaran_cliente extends \fs_model {
                         . "  WHERE idalbaran = " . $this->var2str($this->idalbaran) . ";";
 
                 return $this->db->exec($sql);
-            }
-            $this->new_codigo();
-            $sql = "INSERT INTO " . $this->table_name . " (idfactura,codigo,codagente,
+            } else {
+                $this->new_codigo();
+                $sql = "INSERT INTO " . $this->table_name . " (idfactura,codigo,codagente,
                codserie,codejercicio,codcliente,codpago,coddivisa,codalmacen,codpais,coddir,
                codpostal,numero,numero2,nombrecliente,cifnif,direccion,ciudad,provincia,apartado,
                fecha,hora,neto,total,totaliva,totaleuros,irpf,totalirpf,porcomision,tasaconv,
                totalrecargo,observaciones,ptefactura,femail,codtrans,codigoenv,nombreenv,apellidosenv,
                apartadoenv,direccionenv,codpostalenv,ciudadenv,provinciaenv,codpaisenv,numdocs) VALUES "
-                    . "(" . $this->var2str($this->idfactura)
-                    . "," . $this->var2str($this->codigo)
-                    . "," . $this->var2str($this->codagente)
-                    . "," . $this->var2str($this->codserie)
-                    . "," . $this->var2str($this->codejercicio)
-                    . "," . $this->var2str($this->codcliente)
-                    . "," . $this->var2str($this->codpago)
-                    . "," . $this->var2str($this->coddivisa)
-                    . "," . $this->var2str($this->codalmacen)
-                    . "," . $this->var2str($this->codpais)
-                    . "," . $this->var2str($this->coddir)
-                    . "," . $this->var2str($this->codpostal)
-                    . "," . $this->var2str($this->numero)
-                    . "," . $this->var2str($this->numero2)
-                    . "," . $this->var2str($this->nombrecliente)
-                    . "," . $this->var2str($this->cifnif)
-                    . "," . $this->var2str($this->direccion)
-                    . "," . $this->var2str($this->ciudad)
-                    . "," . $this->var2str($this->provincia)
-                    . "," . $this->var2str($this->apartado)
-                    . "," . $this->var2str($this->fecha)
-                    . "," . $this->var2str($this->hora)
-                    . "," . $this->var2str($this->neto)
-                    . "," . $this->var2str($this->total)
-                    . "," . $this->var2str($this->totaliva)
-                    . "," . $this->var2str($this->totaleuros)
-                    . "," . $this->var2str($this->irpf)
-                    . "," . $this->var2str($this->totalirpf)
-                    . "," . $this->var2str($this->porcomision)
-                    . "," . $this->var2str($this->tasaconv)
-                    . "," . $this->var2str($this->totalrecargo)
-                    . "," . $this->var2str($this->observaciones)
-                    . "," . $this->var2str($this->ptefactura)
-                    . "," . $this->var2str($this->femail)
-                    . "," . $this->var2str($this->envio_codtrans)
-                    . "," . $this->var2str($this->envio_codigo)
-                    . "," . $this->var2str($this->envio_nombre)
-                    . "," . $this->var2str($this->envio_apellidos)
-                    . "," . $this->var2str($this->envio_apartado)
-                    . "," . $this->var2str($this->envio_direccion)
-                    . "," . $this->var2str($this->envio_codpostal)
-                    . "," . $this->var2str($this->envio_ciudad)
-                    . "," . $this->var2str($this->envio_provincia)
-                    . "," . $this->var2str($this->envio_codpais)
-                    . "," . $this->var2str($this->numdocs) . ");";
+                        . "(" . $this->var2str($this->idfactura)
+                        . "," . $this->var2str($this->codigo)
+                        . "," . $this->var2str($this->codagente)
+                        . "," . $this->var2str($this->codserie)
+                        . "," . $this->var2str($this->codejercicio)
+                        . "," . $this->var2str($this->codcliente)
+                        . "," . $this->var2str($this->codpago)
+                        . "," . $this->var2str($this->coddivisa)
+                        . "," . $this->var2str($this->codalmacen)
+                        . "," . $this->var2str($this->codpais)
+                        . "," . $this->var2str($this->coddir)
+                        . "," . $this->var2str($this->codpostal)
+                        . "," . $this->var2str($this->numero)
+                        . "," . $this->var2str($this->numero2)
+                        . "," . $this->var2str($this->nombrecliente)
+                        . "," . $this->var2str($this->cifnif)
+                        . "," . $this->var2str($this->direccion)
+                        . "," . $this->var2str($this->ciudad)
+                        . "," . $this->var2str($this->provincia)
+                        . "," . $this->var2str($this->apartado)
+                        . "," . $this->var2str($this->fecha)
+                        . "," . $this->var2str($this->hora)
+                        . "," . $this->var2str($this->neto)
+                        . "," . $this->var2str($this->total)
+                        . "," . $this->var2str($this->totaliva)
+                        . "," . $this->var2str($this->totaleuros)
+                        . "," . $this->var2str($this->irpf)
+                        . "," . $this->var2str($this->totalirpf)
+                        . "," . $this->var2str($this->porcomision)
+                        . "," . $this->var2str($this->tasaconv)
+                        . "," . $this->var2str($this->totalrecargo)
+                        . "," . $this->var2str($this->observaciones)
+                        . "," . $this->var2str($this->ptefactura)
+                        . "," . $this->var2str($this->femail)
+                        . "," . $this->var2str($this->envio_codtrans)
+                        . "," . $this->var2str($this->envio_codigo)
+                        . "," . $this->var2str($this->envio_nombre)
+                        . "," . $this->var2str($this->envio_apellidos)
+                        . "," . $this->var2str($this->envio_apartado)
+                        . "," . $this->var2str($this->envio_direccion)
+                        . "," . $this->var2str($this->envio_codpostal)
+                        . "," . $this->var2str($this->envio_ciudad)
+                        . "," . $this->var2str($this->envio_provincia)
+                        . "," . $this->var2str($this->envio_codpais)
+                        . "," . $this->var2str($this->numdocs) . ");";
 
-            if ($this->db->exec($sql)) {
-                $this->idalbaran = $this->db->lastval();
-                return TRUE;
+                if ($this->db->exec($sql)) {
+                    $this->idalbaran = $this->db->lastval();
+                    return TRUE;
+                } else
+                    return FALSE;
             }
+        } else
             return FALSE;
-        }
-        return FALSE;
     }
 
     public function delete() {
@@ -713,20 +716,8 @@ class albaran_cliente extends \fs_model {
 
             $this->new_message(ucfirst(FS_ALBARAN) . " de venta " . $this->codigo . " eliminado correctamente.");
             return TRUE;
-        }
-        return FALSE;
-    }
-
-    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-
-        $albalist = array();
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $albalist[] = new \albaran_cliente($a);
-            }
-        }
-        return $albalist;
+        } else
+            return FALSE;
     }
 
     /**
@@ -736,9 +727,17 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function all($offset = 0, $order = 'fecha DESC', $limit = FS_ITEM_LIMIT) {
-
+        $albalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " ORDER BY " . $order;
-        return $this->all_from($sql, $offset, $limit);
+
+        $data = $this->db->select_limit($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $albalist[] = new \albaran_cliente($a);
+            }
+        }
+
+        return $albalist;
     }
 
     /**
@@ -748,10 +747,17 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function all_ptefactura($offset = 0, $order = 'fecha ASC', $limit = FS_ITEM_LIMIT) {
+        $albalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE ptefactura = true ORDER BY " . $order;
 
-        return $this->all_from($sql, $offset, $limit);
-        ;
+        $data = $this->db->select_limit($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $albalist[] = new \albaran_cliente($a);
+            }
+        }
+
+        return $albalist;
     }
 
     /**
@@ -761,11 +767,18 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function all_from_cliente($codcliente, $offset = 0) {
+        $albalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($codcliente)
                 . " ORDER BY fecha DESC, codigo DESC";
 
+        $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $albalist[] = new \albaran_cliente($a);
+            }
+        }
 
-        return $this->all_from($sql, $offset);
+        return $albalist;
     }
 
     /**
@@ -775,11 +788,18 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function all_from_agente($codagente, $offset = 0) {
+        $albalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codagente = " . $this->var2str($codagente)
                 . " ORDER BY fecha DESC, codigo DESC";
 
+        $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $albalist[] = new \albaran_cliente($a);
+            }
+        }
 
-        return $this->all_from($sql, $offset);
+        return $albalist;
     }
 
     /**
@@ -788,11 +808,18 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function all_from_factura($id) {
+        $albalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE idfactura = " . $this->var2str($id)
                 . " ORDER BY fecha DESC, codigo DESC;";
 
+        $data = $this->db->select($sql);
+        if ($data) {
+            foreach ($data as $a) {
+                $albalist[] = new \albaran_cliente($a);
+            }
+        }
 
-        return $this->all_from($sql);
+        return $albalist;
     }
 
     /**
@@ -802,12 +829,18 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function all_desde($desde, $hasta) {
-
+        $alblist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE fecha >= " . $this->var2str($desde)
                 . " AND fecha <= " . $this->var2str($hasta) . " ORDER BY codigo ASC;";
 
+        $data = $this->db->select($sql);
+        if ($data) {
+            foreach ($data as $a) {
+                $alblist[] = new \albaran_cliente($a);
+            }
+        }
 
-        return $this->all_from($sql);
+        return $alblist;
     }
 
     /**
@@ -817,19 +850,26 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function search($query, $offset = 0) {
+        $alblist = array();
         $query = mb_strtolower($this->no_html($query), 'UTF8');
 
         $consulta = "SELECT * FROM " . $this->table_name . " WHERE ";
         if (is_numeric($query)) {
             $consulta .= "codigo LIKE '%" . $query . "%' OR numero2 LIKE '%" . $query . "%' OR observaciones LIKE '%" . $query . "%'";
+        } else {
+            $consulta .= "lower(codigo) LIKE '%" . $query . "%' OR lower(numero2) LIKE '%" . $query . "%' "
+                    . "OR lower(observaciones) LIKE '%" . str_replace(' ', '%', $query) . "%'";
         }
-        $consulta .= "lower(codigo) LIKE '%" . $query . "%' OR lower(numero2) LIKE '%" . $query . "%' "
-                . "OR lower(observaciones) LIKE '%" . str_replace(' ', '%', $query) . "%'";
-
         $consulta .= " ORDER BY fecha DESC, codigo DESC";
 
+        $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $alblist[] = new \albaran_cliente($a);
+            }
+        }
 
-        return $this->all_from($consulta, FS_ITEM_LIMIT, $offset);
+        return $alblist;
     }
 
     /**
@@ -844,7 +884,7 @@ class albaran_cliente extends \fs_model {
      * @return \albaran_cliente
      */
     public function search_from_cliente($codcliente, $desde, $hasta, $codserie = '', $obs = '', $coddivisa = '') {
-
+        $albalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($codcliente)
                 . " AND ptefactura AND fecha BETWEEN " . $this->var2str($desde) . " AND " . $this->var2str($hasta);
 
@@ -862,8 +902,14 @@ class albaran_cliente extends \fs_model {
 
         $sql .= " ORDER BY fecha ASC, codigo ASC;";
 
+        $data = $this->db->select($sql);
+        if ($data) {
+            foreach ($data as $a) {
+                $albalist[] = new \albaran_cliente($a);
+            }
+        }
 
-        return $this->all_from($sql);
+        return $albalist;
     }
 
     public function cron_job() {

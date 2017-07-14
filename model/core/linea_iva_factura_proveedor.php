@@ -94,33 +94,39 @@ class linea_iva_factura_proveedor extends \fs_model {
             $this->recargo = floatval($l['recargo']);
             $this->totalrecargo = floatval($l['totalrecargo']);
             $this->totallinea = floatval($l['totallinea']);
+        } else {
+            $this->idlinea = NULL;
+            $this->idfactura = NULL;
+            $this->neto = 0;
+            $this->codimpuesto = NULL;
+            $this->iva = 0;
+            $this->totaliva = 0;
+            $this->recargo = 0;
+            $this->totalrecargo = 0;
+            $this->totallinea = 0;
         }
-        $this->idlinea = NULL;
-        $this->idfactura = NULL;
-        $this->neto = 0;
-        $this->codimpuesto = NULL;
-        $this->iva = 0;
-        $this->totaliva = 0;
-        $this->recargo = 0;
-        $this->totalrecargo = 0;
-        $this->totallinea = 0;
+    }
+
+    protected function install() {
+        return '';
     }
 
     public function exists() {
         if (is_null($this->idlinea)) {
             return FALSE;
-        }
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idlinea = " . $this->var2str($this->idlinea) . ";");
+        } else
+            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idlinea = " . $this->var2str($this->idlinea) . ";");
     }
 
     public function test() {
         if ($this->floatcmp($this->totallinea, $this->neto + $this->totaliva + $this->totalrecargo, FS_NF0, TRUE)) {
             return TRUE;
+        } else {
+            $this->new_error_msg("Error en el valor de totallinea de la línea de IVA del impuesto " .
+                    $this->codimpuesto . " de la factura. Valor correcto: " .
+                    round($this->neto + $this->totaliva + $this->totalrecargo, FS_NF0));
+            return FALSE;
         }
-        $this->new_error_msg("Error en el valor de totallinea de la línea de IVA del impuesto " .
-                $this->codimpuesto . " de la factura. Valor correcto: " .
-                round($this->neto + $this->totaliva + $this->totalrecargo, FS_NF0));
-        return FALSE;
     }
 
     public function factura_test($idfactura, $neto, $totaliva, $totalrecargo) {
@@ -171,25 +177,26 @@ class linea_iva_factura_proveedor extends \fs_model {
                         . "  WHERE idlinea = " . $this->var2str($this->idlinea) . ";";
 
                 return $this->db->exec($sql);
-            }
-            $sql = "INSERT INTO " . $this->table_name . " (idfactura,neto,codimpuesto,iva,
+            } else {
+                $sql = "INSERT INTO " . $this->table_name . " (idfactura,neto,codimpuesto,iva,
                totaliva,recargo,totalrecargo,totallinea) VALUES 
                       (" . $this->var2str($this->idfactura)
-                    . "," . $this->var2str($this->neto)
-                    . "," . $this->var2str($this->codimpuesto)
-                    . "," . $this->var2str($this->iva)
-                    . "," . $this->var2str($this->totaliva)
-                    . "," . $this->var2str($this->recargo)
-                    . "," . $this->var2str($this->totalrecargo)
-                    . "," . $this->var2str($this->totallinea) . ");";
+                        . "," . $this->var2str($this->neto)
+                        . "," . $this->var2str($this->codimpuesto)
+                        . "," . $this->var2str($this->iva)
+                        . "," . $this->var2str($this->totaliva)
+                        . "," . $this->var2str($this->recargo)
+                        . "," . $this->var2str($this->totalrecargo)
+                        . "," . $this->var2str($this->totallinea) . ");";
 
-            if ($this->db->exec($sql)) {
-                $this->idlinea = $this->db->lastval();
-                return TRUE;
+                if ($this->db->exec($sql)) {
+                    $this->idlinea = $this->db->lastval();
+                    return TRUE;
+                } else
+                    return FALSE;
             }
+        } else
             return FALSE;
-        }
-        return FALSE;
     }
 
     public function delete() {

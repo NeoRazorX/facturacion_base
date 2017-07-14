@@ -62,19 +62,20 @@ class stock extends \fs_model {
             $this->stockmax = floatval($s['stockmax']);
             $this->cantidadultreg = floatval($s['cantidadultreg']);
             $this->ubicacion = $s['ubicacion'];
+        } else {
+            $this->idstock = NULL;
+            $this->codalmacen = NULL;
+            $this->referencia = NULL;
+            $this->nombre = '';
+            $this->cantidad = 0;
+            $this->reservada = 0;
+            $this->disponible = 0;
+            $this->pterecibir = 0;
+            $this->stockmin = 0;
+            $this->stockmax = 0;
+            $this->cantidadultreg = 0;
+            $this->ubicacion = NULL;
         }
-        $this->idstock = NULL;
-        $this->codalmacen = NULL;
-        $this->referencia = NULL;
-        $this->nombre = '';
-        $this->cantidad = 0;
-        $this->reservada = 0;
-        $this->disponible = 0;
-        $this->pterecibir = 0;
-        $this->stockmin = 0;
-        $this->stockmax = 0;
-        $this->cantidadultreg = 0;
-        $this->ubicacion = NULL;
     }
 
     protected function install() {
@@ -124,8 +125,8 @@ class stock extends \fs_model {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idstock = " . $this->var2str($id) . ";");
         if ($data) {
             return new \stock($data[0]);
-        }
-        return FALSE;
+        } else
+            return FALSE;
     }
 
     public function get_by_referencia($ref, $codalmacen = FALSE) {
@@ -138,15 +139,15 @@ class stock extends \fs_model {
         $data = $this->db->select($sql);
         if ($data) {
             return new \stock($data[0]);
-        }
-        return FALSE;
+        } else
+            return FALSE;
     }
 
     public function exists() {
         if (is_null($this->idstock)) {
             return FALSE;
-        }
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idstock = " . $this->var2str($this->idstock) . ";");
+        } else
+            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idstock = " . $this->var2str($this->idstock) . ";");
     }
 
     public function save() {
@@ -169,26 +170,27 @@ class stock extends \fs_model {
                     . "  WHERE idstock = " . $this->var2str($this->idstock) . ";";
 
             return $this->db->exec($sql);
-        }
-        $sql = "INSERT INTO " . $this->table_name . " (codalmacen,referencia,nombre,cantidad,reservada,
+        } else {
+            $sql = "INSERT INTO " . $this->table_name . " (codalmacen,referencia,nombre,cantidad,reservada,
             disponible,pterecibir,stockmin,stockmax,cantidadultreg,ubicacion) VALUES 
                    (" . $this->var2str($this->codalmacen)
-                . "," . $this->var2str($this->referencia)
-                . "," . $this->var2str($this->nombre)
-                . "," . $this->var2str($this->cantidad)
-                . "," . $this->var2str($this->reservada)
-                . "," . $this->var2str($this->disponible)
-                . "," . $this->var2str($this->pterecibir)
-                . "," . $this->var2str($this->stockmin)
-                . "," . $this->var2str($this->stockmax)
-                . "," . $this->var2str($this->cantidadultreg)
-                . "," . $this->var2str($this->ubicacion) . ");";
+                    . "," . $this->var2str($this->referencia)
+                    . "," . $this->var2str($this->nombre)
+                    . "," . $this->var2str($this->cantidad)
+                    . "," . $this->var2str($this->reservada)
+                    . "," . $this->var2str($this->disponible)
+                    . "," . $this->var2str($this->pterecibir)
+                    . "," . $this->var2str($this->stockmin)
+                    . "," . $this->var2str($this->stockmax)
+                    . "," . $this->var2str($this->cantidadultreg)
+                    . "," . $this->var2str($this->ubicacion) . ");";
 
-        if ($this->db->exec($sql)) {
-            $this->idstock = $this->db->lastval();
-            return TRUE;
+            if ($this->db->exec($sql)) {
+                $this->idstock = $this->db->lastval();
+                return TRUE;
+            } else
+                return FALSE;
         }
-        return FALSE;
     }
 
     public function delete() {

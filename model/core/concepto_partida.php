@@ -39,24 +39,30 @@ class concepto_partida extends \fs_model {
         if ($c) {
             $this->idconceptopar = $c['idconceptopar'];
             $this->concepto = $c['concepto'];
+        } else {
+            $this->idconceptopar = NULL;
+            $this->concepto = NULL;
         }
-        $this->idconceptopar = NULL;
-        $this->concepto = NULL;
+    }
+
+    protected function install() {
+        return "";
     }
 
     public function get($id) {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idconceptopar = " . $this->var2str($id) . ";");
         if ($data) {
             return new \concepto_partida($data[0]);
-        }
-        return FALSE;
+        } else
+            return FALSE;
     }
 
     public function exists() {
         if (is_null($this->idconceptopar)) {
             return FALSE;
+        } else {
+            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idconceptopar = " . $this->var2str($this->idconceptopar) . ";");
         }
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idconceptopar = " . $this->var2str($this->idconceptopar) . ";");
     }
 
     public function test() {

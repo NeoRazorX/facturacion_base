@@ -43,15 +43,16 @@ class linea_transferencia_stock extends \fs_model {
             if (isset($d['hora'])) {
                 $this->hora = $d['hora'];
             }
+        } else {
+            /// valores predeterminados
+            $this->idlinea = NULL;
+            $this->idtrans = NULL;
+            $this->referencia = NULL;
+            $this->cantidad = 0;
+            $this->descripcion = NULL;
+            $this->fecha = NULL;
+            $this->hora = NULL;
         }
-        /// valores predeterminados
-        $this->idlinea = NULL;
-        $this->idtrans = NULL;
-        $this->referencia = NULL;
-        $this->cantidad = 0;
-        $this->descripcion = NULL;
-        $this->fecha = NULL;
-        $this->hora = NULL;
     }
 
     public function install() {
@@ -72,8 +73,9 @@ class linea_transferencia_stock extends \fs_model {
     public function exists() {
         if (is_null($this->idlinea)) {
             return FALSE;
+        } else {
+            return $this->db->select('SELECT * FROM lineastransstock WHERE idlinea = ' . $this->var2str($this->idlinea) . ';');
         }
-        return $this->db->select('SELECT * FROM lineastransstock WHERE idlinea = ' . $this->var2str($this->idlinea) . ';');
     }
 
     public function save() {
@@ -85,42 +87,41 @@ class linea_transferencia_stock extends \fs_model {
                     . "  WHERE idlinea = " . $this->var2str($this->idlinea) . ";";
 
             return $this->db->exec($sql);
-        }
-        $sql = "INSERT INTO lineastransstock (idtrans,referencia,cantidad,descripcion) VALUES "
-                . "(" . $this->var2str($this->idtrans)
-                . "," . $this->var2str($this->referencia)
-                . "," . $this->var2str($this->cantidad)
-                . "," . $this->var2str($this->descripcion) . ");";
+        } else {
+            $sql = "INSERT INTO lineastransstock (idtrans,referencia,cantidad,descripcion) VALUES "
+                    . "(" . $this->var2str($this->idtrans)
+                    . "," . $this->var2str($this->referencia)
+                    . "," . $this->var2str($this->cantidad)
+                    . "," . $this->var2str($this->descripcion) . ");";
 
-        if ($this->db->exec($sql)) {
-            $this->idlinea = $this->db->lastval();
-            return TRUE;
+            if ($this->db->exec($sql)) {
+                $this->idlinea = $this->db->lastval();
+                return TRUE;
+            } else {
+                return FALSE;
+            }
         }
-        return FALSE;
     }
 
     public function delete() {
         return $this->db->exec('DELETE FROM lineastransstock WHERE idlinea = ' . $this->var2str($this->idlinea) . ';');
     }
 
-    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-
+    public function all_from_transferencia($id) {
         $list = array();
-        $data = $this->db->select($sql, $limit, $offset);
+
+        $data = $this->db->select("SELECT * FROM lineastransstock WHERE idtrans = " . $this->var2str($id) . " ORDER BY referencia ASC;");
         if ($data) {
-            foreach ($data as $a) {
-                $list[] = new \linea_transferencia_stock($a);
+            foreach ($data as $d) {
+                $list[] = new \linea_transferencia_stock($d);
             }
         }
+
         return $list;
     }
 
-    public function all_from_transferencia($id) {
-
-        return $this->all_from("SELECT * FROM lineastransstock WHERE idtrans = " . $this->var2str($id) . " ORDER BY referencia ASC;");
-    }
-
     public function all_from_referencia($ref, $codalmaorigen = '', $codalmadestino = '', $desde = '', $hasta = '') {
+        $list = array();
 
         $sql = "SELECT l.idlinea,l.idtrans,l.referencia,l.cantidad,l.descripcion,t.fecha,t.hora FROM lineastransstock l"
                 . " LEFT JOIN transstock t ON l.idtrans = t.idtrans"
@@ -139,7 +140,14 @@ class linea_transferencia_stock extends \fs_model {
         }
         $sql .= " ORDER BY t.fecha ASC, t.hora ASC;";
 
-        return $this->all_from($sql);
+        $data = $this->db->select($sql);
+        if ($data) {
+            foreach ($data as $d) {
+                $list[] = new \linea_transferencia_stock($d);
+            }
+        }
+
+        return $list;
     }
 
 }

@@ -31,14 +31,19 @@ class transferencia_stock extends \fs_model {
             $this->fecha = date("d-m-Y", strtotime($d['fecha']));
             $this->hora = date('H:i:s', strtotime($d['hora']));
             $this->usuario = $d['usuario'];
+        } else {
+            /// valores predeterminados
+            $this->idtrans = NULL;
+            $this->codalmadestino = NULL;
+            $this->codalmaorigen = NULL;
+            $this->fecha = date('d-m-Y');
+            $this->hora = date('H:i:s');
+            $this->usuario = NULL;
         }
-        /// valores predeterminados
-        $this->idtrans = NULL;
-        $this->codalmadestino = NULL;
-        $this->codalmaorigen = NULL;
-        $this->fecha = date('d-m-Y');
-        $this->hora = date('H:i:s');
-        $this->usuario = NULL;
+    }
+
+    public function install() {
+        return '';
     }
 
     public function url() {
@@ -49,23 +54,26 @@ class transferencia_stock extends \fs_model {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idtrans = " . $this->var2str($id) . ";");
         if ($data) {
             return new \transferencia_stock($data[0]);
+        } else {
+            return FALSE;
         }
-        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->idtrans)) {
             return FALSE;
+        } else {
+            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idtrans = " . $this->var2str($this->idtrans) . ";");
         }
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idtrans = " . $this->var2str($this->idtrans) . ";");
     }
 
     public function test() {
         if ($this->codalmadestino == $this->codalmaorigen) {
             $this->new_error_msg('El almacén de orígen y de destino no puede ser el mismo.');
             return FALSE;
+        } else {
+            return TRUE;
         }
-        return TRUE;
     }
 
     public function save() {
@@ -80,19 +88,21 @@ class transferencia_stock extends \fs_model {
                     . "  WHERE idtrans = " . $this->var2str($this->idtrans) . ";";
 
             return $this->db->exec($sql);
-        }
-        $sql = "INSERT INTO " . $this->table_name . " (codalmadestino,codalmaorigen,fecha,hora,usuario) VALUES "
-                . "(" . $this->var2str($this->codalmadestino)
-                . "," . $this->var2str($this->codalmaorigen)
-                . "," . $this->var2str($this->fecha)
-                . "," . $this->var2str($this->hora)
-                . "," . $this->var2str($this->usuario) . ");";
+        } else {
+            $sql = "INSERT INTO " . $this->table_name . " (codalmadestino,codalmaorigen,fecha,hora,usuario) VALUES "
+                    . "(" . $this->var2str($this->codalmadestino)
+                    . "," . $this->var2str($this->codalmaorigen)
+                    . "," . $this->var2str($this->fecha)
+                    . "," . $this->var2str($this->hora)
+                    . "," . $this->var2str($this->usuario) . ");";
 
-        if ($this->db->exec($sql)) {
-            $this->idtrans = $this->db->lastval();
-            return TRUE;
+            if ($this->db->exec($sql)) {
+                $this->idtrans = $this->db->lastval();
+                return TRUE;
+            } else {
+                return FALSE;
+            }
         }
-        return FALSE;
     }
 
     public function delete() {

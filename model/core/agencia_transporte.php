@@ -56,12 +56,17 @@ class agencia_transporte extends \fs_model {
             $this->telefono = $p['telefono'];
             $this->web = $p['web'];
             $this->activo = $this->str2bool($p['activo']);
+        } else {
+            $this->codtrans = NULL;
+            $this->nombre = NULL;
+            $this->telefono = NULL;
+            $this->web = NULL;
+            $this->activo = TRUE;
         }
-        $this->codtrans = NULL;
-        $this->nombre = NULL;
-        $this->telefono = NULL;
-        $this->web = NULL;
-        $this->activo = TRUE;
+    }
+
+    public function install() {
+        return '';
     }
 
     /**
@@ -81,8 +86,8 @@ class agencia_transporte extends \fs_model {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtrans = " . $this->var2str($cod) . ";");
         if ($data) {
             return new \agencia_transporte($data[0]);
-        }
-        return FALSE;
+        } else
+            return FALSE;
     }
 
     /**
@@ -92,8 +97,8 @@ class agencia_transporte extends \fs_model {
     public function exists() {
         if (is_null($this->codtrans)) {
             return FALSE;
-        }
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtrans = " . $this->var2str($this->codtrans) . ";");
+        } else
+            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtrans = " . $this->var2str($this->codtrans) . ";");
     }
 
     /**
@@ -107,14 +112,14 @@ class agencia_transporte extends \fs_model {
                     . ", web = " . $this->var2str($this->web)
                     . ", activo = " . $this->var2str($this->activo)
                     . "  WHERE codtrans = " . $this->var2str($this->codtrans) . ";";
+        } else {
+            $sql = "INSERT INTO " . $this->table_name . " (codtrans,nombre,telefono,web,activo)"
+                    . " VALUES (" . $this->var2str($this->codtrans)
+                    . "," . $this->var2str($this->nombre)
+                    . "," . $this->var2str($this->telefono)
+                    . "," . $this->var2str($this->web)
+                    . "," . $this->var2str($this->activo) . ");";
         }
-        $sql = "INSERT INTO " . $this->table_name . " (codtrans,nombre,telefono,web,activo)"
-                . " VALUES (" . $this->var2str($this->codtrans)
-                . "," . $this->var2str($this->nombre)
-                . "," . $this->var2str($this->telefono)
-                . "," . $this->var2str($this->web)
-                . "," . $this->var2str($this->activo) . ");";
-
 
         return $this->db->exec($sql);
     }
