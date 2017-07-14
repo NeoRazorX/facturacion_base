@@ -48,80 +48,80 @@ class albaran_cliente extends \fs_model {
 
     /**
      * Identificador único de cara a humanos.
-     * @var type 
+     * @var string
      */
     public $codigo;
 
     /**
      * Serie relacionada.
-     * @var type 
+     * @var string
      */
     public $codserie;
 
     /**
      * Ejercicio relacionado. El que corresponde a la fecha.
-     * @var type 
+     * @var string
      */
     public $codejercicio;
 
     /**
      * Cliente del albarán.
-     * @var type 
+     * @var string
      */
     public $codcliente;
 
     /**
      * Empleado que ha creado este albarán. Modelo agente.
-     * @var type 
+     * @var string
      */
     public $codagente;
 
     /**
      * Forma de pago de este albarán.
-     * @var type 
+     * @var string
      */
     public $codpago;
 
     /**
      * Divisa de este albarán.
-     * @var type 
+     * @var string
      */
     public $coddivisa;
 
     /**
      * Almacén del que sale la mercancía.
-     * @var type 
+     * @var string
      */
     public $codalmacen;
 
     /**
      * País del cliente.
-     * @var type 
+     * @var string
      */
     public $codpais;
 
     /**
      * ID de la dirección del cliente. Modelo direccion_cliente.
-     * @var type 
+     * @var string
      */
     public $coddir;
 
     /**
      * Código postal del cliente.
-     * @var type 
+     * @var string
      */
     public $codpostal;
 
     /**
      * Número de albarán.
      * Es único dentro de la serie+ejercicio.
-     * @var type 
+     * @var string
      */
     public $numero;
 
     /**
      * Número opcional a disposición del usuario.
-     * @var type 
+     * @var string
      */
     public $numero2;
     public $nombrecliente;
@@ -146,19 +146,19 @@ class albaran_cliente extends \fs_model {
 
     /**
      * Suma del pvptotal de líneas. Total del albarán antes de impuestos.
-     * @var type 
+     * @var double
      */
     public $neto;
 
     /**
      * Importe total del albarán, con impuestos.
-     * @var type 
+     * @var double
      */
     public $total;
 
     /**
      * Suma total del IVA de las líneas.
-     * @var type 
+     * @var double
      */
     public $totaliva;
 
@@ -166,51 +166,51 @@ class albaran_cliente extends \fs_model {
      * Total expresado en euros, por si no fuese la divisa del albarán.
      * totaleuros = total/tasaconv
      * No hace falta rellenarlo, al hacer save() se calcula el valor.
-     * @var type 
+     * @var double
      */
     public $totaleuros;
 
     /**
      * % de retención IRPF del albarán. Se obtiene de la serie.
      * Cada línea puede tener un % distinto.
-     * @var type 
+     * @var double
      */
     public $irpf;
 
     /**
      * Suma total de las retenciones IRPF de las líneas.
-     * @var type 
+     * @var double
      */
     public $totalirpf;
 
     /**
      * % de comisión del empleado.
-     * @var type 
+     * @var double
      */
     public $porcomision;
 
     /**
      * Tasa de conversión a Euros de la divisa seleccionada.
-     * @var type 
+     * @var double
      */
     public $tasaconv;
 
     /**
      * Suma total del recargo de equivalencia de las líneas.
-     * @var type 
+     * @var double
      */
     public $totalrecargo;
     public $observaciones;
 
     /**
      * TRUE => está pendiente de factura.
-     * @var type 
+     * @var bool
      */
     public $ptefactura;
 
     /**
      * Fecha en la que se envió el albarán por email.
-     * @var type 
+     * @var string 
      */
     public $femail;
 
@@ -404,7 +404,7 @@ class albaran_cliente extends \fs_model {
 
     /**
      * Devuelve el albarán solicitado o false si no se encuentra.
-     * @param type $id
+     * @param string $id
      * @return \albaran_cliente|boolean
      */
     public function get($id) {
@@ -480,7 +480,7 @@ class albaran_cliente extends \fs_model {
 
     /**
      * Comprobaciones extra del albarán, devuelve TRUE si está todo correcto
-     * @param type $duplicados
+     * @param boolean $duplicados
      * @return boolean
      */
     public function full_test($duplicados = TRUE) {
@@ -722,8 +722,8 @@ class albaran_cliente extends \fs_model {
 
     /**
      * Devuelve un array con los últimos albaranes
-     * @param type $offset
-     * @param type $order
+     * @param integer $offset
+     * @param string $order
      * @return \albaran_cliente
      */
     public function all($offset = 0, $order = 'fecha DESC', $limit = FS_ITEM_LIMIT) {
@@ -742,8 +742,8 @@ class albaran_cliente extends \fs_model {
 
     /**
      * Devuelve un array con los albaranes pendientes.
-     * @param type $offset
-     * @param type $order
+     * @param integer $offset
+     * @param string $order
      * @return \albaran_cliente
      */
     public function all_ptefactura($offset = 0, $order = 'fecha ASC', $limit = FS_ITEM_LIMIT) {
@@ -762,8 +762,8 @@ class albaran_cliente extends \fs_model {
 
     /**
      * Devuelve un array con los albaranes del cliente.
-     * @param type $codcliente
-     * @param type $offset
+     * @param string $codcliente
+     * @param integer $offset
      * @return \albaran_cliente
      */
     public function all_from_cliente($codcliente, $offset = 0) {
@@ -783,8 +783,8 @@ class albaran_cliente extends \fs_model {
 
     /**
      * Devuelve un array con los albaranes del agente/empleado
-     * @param type $codagente
-     * @param type $offset
+     * @param string $codagente
+     * @param integer $offset
      * @return \albaran_cliente
      */
     public function all_from_agente($codagente, $offset = 0) {
@@ -804,7 +804,7 @@ class albaran_cliente extends \fs_model {
 
     /**
      * Devuelve todos los albaranes relacionados con la factura.
-     * @param type $id
+     * @param string $id
      * @return \albaran_cliente
      */
     public function all_from_factura($id) {
@@ -824,8 +824,8 @@ class albaran_cliente extends \fs_model {
 
     /**
      * Devuelve un array con los albaranes comprendidos entre $desde y $hasta
-     * @param type $desde
-     * @param type $hasta
+     * @param string $desde
+     * @param string $hasta
      * @return \albaran_cliente
      */
     public function all_desde($desde, $hasta) {
@@ -845,8 +845,8 @@ class albaran_cliente extends \fs_model {
 
     /**
      * Devuelve un array con todos los albaranes que coinciden con $query
-     * @param type $query
-     * @param type $offset
+     * @param string $query
+     * @param integer $offset
      * @return \albaran_cliente
      */
     public function search($query, $offset = 0) {
@@ -875,12 +875,12 @@ class albaran_cliente extends \fs_model {
     /**
      * Devuelve un array con los albaranes del cliente $codcliente que coincidan
      * con los filtros.
-     * @param type $codcliente
-     * @param type $desde
-     * @param type $hasta
-     * @param type $codserie
-     * @param type $obs
-     * @param type $coddivisa
+     * @param string $codcliente
+     * @param string $desde
+     * @param string $hasta
+     * @param string $codserie
+     * @param string $obs
+     * @param string $coddivisa
      * @return \albaran_cliente
      */
     public function search_from_cliente($codcliente, $desde, $hasta, $codserie = '', $obs = '', $coddivisa = '') {

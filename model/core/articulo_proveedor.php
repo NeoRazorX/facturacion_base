@@ -31,62 +31,62 @@ class articulo_proveedor extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer 
      */
     public $id;
 
     /**
      * Referencia del artículo en nuestro catálogo. Puede no estar actualmente.
-     * @var type 
+     * @var string 
      */
     public $referencia;
 
     /**
      * Código del proveedor asociado.
-     * @var type 
+     * @var string 
      */
     public $codproveedor;
 
     /**
      * Referencia del artículo para el proveedor.
-     * @var type 
+     * @var string 
      */
     public $refproveedor;
     public $descripcion;
 
     /**
      * Precio neto al que nos ofrece el proveedor este producto.
-     * @var type 
+     * @var double
      */
     public $precio;
 
     /**
      * Descuento sobre el precio que nos hace el proveedor.
-     * @var type 
+     * @var double
      */
     public $dto;
 
     /**
      * Impuesto asignado. Clase impuesto.
-     * @var type 
+     * @var string 
      */
     public $codimpuesto;
 
     /**
      * Stock del artículo en el almacén del proveedor.
-     * @var type 
+     * @var double 
      */
     public $stock;
 
     /**
      * TRUE -> el artículo no ofrece stock.
-     * @var type 
+     * @var boolean 
      */
     public $nostock;
 
     /**
      * % IVA del impuesto asignado.
-     * @var type 
+     * @var double 
      */
     private $iva;
     public $codbarras;
@@ -167,8 +167,8 @@ class articulo_proveedor extends \fs_model {
     /**
      * Devuelve el % de IVA del artículo.
      * Si $reload es TRUE, vuelve a consultarlo en lugar de usar los datos cargados.
-     * @param type $reload
-     * @return type
+     * @param boolean $reload
+     * @return double
      */
     public function get_iva($reload = TRUE) {
         if ($reload) {
@@ -212,7 +212,7 @@ class articulo_proveedor extends \fs_model {
 
     /**
      * Devuelve el precio final, aplicando descuento e impuesto.
-     * @return type
+     * @return double
      */
     public function total_iva() {
         return $this->precio * (100 - $this->dto) / 100 * (100 + $this->get_iva()) / 100;
@@ -220,7 +220,7 @@ class articulo_proveedor extends \fs_model {
 
     /**
      * Devuelve el artículo de proveedor solicitado, o false si no se encuentra.
-     * @param type $id
+     * @param string $id
      * @return \articulo_proveedor|boolean
      */
     public function get($id) {
@@ -236,9 +236,9 @@ class articulo_proveedor extends \fs_model {
      * como codproveedor. Si se proporciona $refprov, entonces lo que devuelve es el
      * primer elemento que tenga $codproveedor como codproveedor y $refprov como refproveedor
      * o bien $ref como referencia.
-     * @param type $ref
-     * @param type $codproveedor
-     * @param type $refprov
+     * @param string $ref
+     * @param string $codproveedor
+     * @param string $refprov
      * @return \articulo_proveedor|boolean
      */
     public function get_by($ref, $codproveedor, $refprov = FALSE) {
@@ -318,7 +318,7 @@ class articulo_proveedor extends \fs_model {
 
     /**
      * Devuelve todos los elementos que tienen $ref como referencia.
-     * @param type $ref
+     * @param string $ref
      * @return \articulo_proveedor
      */
     public function all_from_ref($ref) {
@@ -337,7 +337,7 @@ class articulo_proveedor extends \fs_model {
 
     /**
      * Devuelve el artículo con menor precio de los que tienen $ref como referencia.
-     * @param type $ref
+     * @param string $ref
      * @return \articulo_proveedor
      */
     public function mejor_from_ref($ref) {

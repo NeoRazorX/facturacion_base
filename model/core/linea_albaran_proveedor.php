@@ -32,37 +32,37 @@ class linea_albaran_proveedor extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer 
      */
     public $idlinea;
 
     /**
      * ID de la línea del pedido relacionada, si la hay.
-     * @var type 
+     * @var integer 
      */
     public $idlineapedido;
 
     /**
      * ID del albarán de esta línea.
-     * @var type 
+     * @var integer 
      */
     public $idalbaran;
 
     /**
      * ID del pedido relacionado con el albarán, si lo hay.
-     * @var type 
+     * @var integer 
      */
     public $idpedido;
 
     /**
      * Referencia del artículo.
-     * @var type 
+     * @var string
      */
     public $referencia;
 
     /**
      * Código de la combinación seleccionada, en el caso de los artículos con atributos.
-     * @var type 
+     * @var string
      */
     public $codcombinacion;
     public $descripcion;
@@ -70,49 +70,49 @@ class linea_albaran_proveedor extends \fs_model {
 
     /**
      * % de descuento.
-     * @var type 
+     * @var double 
      */
     public $dtopor;
 
     /**
      * Código del impuesto relacionado.
-     * @var type 
+     * @var string
      */
     public $codimpuesto;
 
     /**
      * % del impuesto relacionado.
-     * @var type 
+     * @var double 
      */
     public $iva;
 
     /**
      * Importe neto de la línea, sin impuestos.
-     * @var type 
+     * @var double 
      */
     public $pvptotal;
 
     /**
      * Importe neto sin descuentos.
-     * @var type 
+     * @var double 
      */
     public $pvpsindto;
 
     /**
      * Precio del artículo, una unidad.
-     * @var type 
+     * @var double 
      */
     public $pvpunitario;
 
     /**
      * % de IRPF de la línea.
-     * @var type 
+     * @var double 
      */
     public $irpf;
 
     /**
      * % de recargo de equivalencia de la línea.
-     * @var type 
+     * @var double 
      */
     public $recargo;
     private $codigo;
@@ -251,7 +251,7 @@ class linea_albaran_proveedor extends \fs_model {
 
     /**
      * Devuelve los datos de una linea
-     * @param type $idlinea
+     * @param integer $idlinea
      * @return boolean|\linea_albaran_proveedor
      */
     public function get($idlinea) {

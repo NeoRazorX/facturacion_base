@@ -34,7 +34,7 @@ class secuencia extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $idsec;
     public $id;

@@ -30,7 +30,7 @@ class cuenta_especial extends \fs_model {
 
     /**
      * Identificador de la cuenta especial.
-     * @var type 
+     * @var string 
      */
     public $idcuentaesp;
     public $descripcion;

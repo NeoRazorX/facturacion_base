@@ -37,25 +37,25 @@ class factura_proveedor extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer 
      */
     public $idfactura;
 
     /**
      * ID de la factura a la que rectifica.
-     * @var type 
+     * @var integer 
      */
     public $idfacturarect;
 
     /**
      * ID del asiento relacionado, si lo hay.
-     * @var type 
+     * @var integer 
      */
     public $idasiento;
 
     /**
      * ID del asiento de pago relacionado, si lo hay.
-     * @var type 
+     * @var integer 
      */
     public $idasientop;
     public $cifnif;
@@ -63,55 +63,55 @@ class factura_proveedor extends \fs_model {
     /**
      * Empleado que ha creado la factura.
      * Modelo agente.
-     * @var type 
+     * @var string 
      */
     public $codagente;
 
     /**
      * Almacén en el que entra la mercancía.
-     * @var type 
+     * @var string 
      */
     public $codalmacen;
 
     /**
      * Divisa de la factura.
-     * @var type 
+     * @var string 
      */
     public $coddivisa;
 
     /**
      * Ejercicio relacionado. El que corresponde a la fecha.
-     * @var type 
+     * @var string 
      */
     public $codejercicio;
 
     /**
      * Código único de la factura. Para humanos.
-     * @var type 
+     * @var string 
      */
     public $codigo;
 
     /**
      * Código de la factura a la que rectifica.
-     * @var type 
+     * @var string 
      */
     public $codigorect;
 
     /**
      * Forma d epago usada.
-     * @var type 
+     * @var string 
      */
     public $codpago;
 
     /**
      * Proveedor de la factura.
-     * @var type 
+     * @var string 
      */
     public $codproveedor;
 
     /**
      * Serie de la factura.
-     * @var type 
+     * @var string 
      */
     public $codserie;
     public $fecha;
@@ -120,32 +120,32 @@ class factura_proveedor extends \fs_model {
     /**
      * % de retención IRPF de la factura.
      * Cada línea puede tener uno distinto.
-     * @var type 
+     * @var double
      */
     public $irpf;
 
     /**
      * Suma total antes de impuestos.
-     * @var type 
+     * @var double
      */
     public $neto;
 
     /**
      * Nombre del proveedor.
-     * @var type 
+     * @var string 
      */
     public $nombre;
 
     /**
      * Número de la factura.
      * Único dentro de serie+ejercicio.
-     * @var type 
+     * @var string 
      */
     public $numero;
 
     /**
      * Número de factura del proveedor, si lo hay.
-     * @var type 
+     * @var string 
      */
     public $numproveedor;
     public $observaciones;
@@ -153,13 +153,13 @@ class factura_proveedor extends \fs_model {
 
     /**
      * Tasa de conversión a Euros de la divisa de la factura.
-     * @var type 
+     * @var double
      */
     public $tasaconv;
 
     /**
      * Importe total de la factura, con impuestos.
-     * @var type 
+     * @var double
      */
     public $total;
 
@@ -167,25 +167,25 @@ class factura_proveedor extends \fs_model {
      * Total expresado en euros, por si no fuese la divisa de la factura.
      * totaleuros = total/tasaconv
      * No hace falta rellenarlo, al hacer save() se calcula el valor.
-     * @var type 
+     * @var double
      */
     public $totaleuros;
 
     /**
      * Suma total de retenciones IRPF de las líneas.
-     * @var type 
+     * @var double
      */
     public $totalirpf;
 
     /**
      * Suma total del IVA de las líneas.
-     * @var type 
+     * @var double
      */
     public $totaliva;
 
     /**
      * Suma del recargo de equivalencia de las líneas.
-     * @var type 
+     * @var double
      */
     public $totalrecargo;
     public $anulada;
@@ -292,8 +292,8 @@ class factura_proveedor extends \fs_model {
      * Establece la fecha y la hora, pero respetando el ejercicio y las
      * regularizaciones de IVA.
      * Devuelve TRUE si se asigna una fecha u hora distinta a los solicitados.
-     * @param type $fecha
-     * @param type $hora
+     * @param string $fecha
+     * @param string $hora
      * @return boolean
      */
     public function set_fecha_hora($fecha, $hora) {
@@ -548,7 +548,7 @@ class factura_proveedor extends \fs_model {
 
     /**
      * Devuelve la factura de compra con el id proporcionado.
-     * @param type $id
+     * @param integer $id
      * @return boolean|\factura_proveedor
      */
     public function get($id) {
@@ -909,9 +909,9 @@ class factura_proveedor extends \fs_model {
 
     /**
      * Devuelve un array con las últimas facturas
-     * @param type $offset
-     * @param type $limit
-     * @param type $order
+     * @param integer $offset
+     * @param integer $limit
+     * @param string $order
      * @return \factura_proveedor
      */
     public function all($offset = 0, $limit = FS_ITEM_LIMIT, $order = 'fecha DESC, codigo DESC') {
@@ -930,9 +930,9 @@ class factura_proveedor extends \fs_model {
 
     /**
      * Devuelve un array con las facturas sin pagar.
-     * @param type $offset
-     * @param type $limit
-     * @param type $order
+     * @param integer $offset
+     * @param integer $limit
+     * @param string $order
      * @return \factura_proveedor
      */
     public function all_sin_pagar($offset = 0, $limit = FS_ITEM_LIMIT, $order = 'fecha ASC, codigo ASC') {
@@ -951,8 +951,8 @@ class factura_proveedor extends \fs_model {
 
     /**
      * Devuelve un array con las facturas del agente/empleado
-     * @param type $codagente
-     * @param type $offset
+     * @param string $codagente
+     * @param integer $offset
      * @return \factura_proveedor
      */
     public function all_from_agente($codagente, $offset = 0) {
@@ -973,8 +973,8 @@ class factura_proveedor extends \fs_model {
 
     /**
      * Devuelve un array con las facturas del proveedor
-     * @param type $codproveedor
-     * @param type $offset
+     * @param string $codproveedor
+     * @param integer $offset
      * @return \factura_proveedor
      */
     public function all_from_proveedor($codproveedor, $offset = 0) {
@@ -995,14 +995,14 @@ class factura_proveedor extends \fs_model {
 
     /**
      * Devuelve un array con las facturas comprendidas entre $desde y $hasta
-     * @param type $desde
-     * @param type $hasta
-     * @param type $codserie código de la serie
-     * @param type $codagente código del empleado
-     * @param type $codproveedor código del proveedor
-     * @param type $estado
-     * @param type $codpago código de la forma de pago
-     * @param type $codalmacen código del almacén
+     * @param string $desde
+     * @param string $hasta
+     * @param string $codserie código de la serie
+     * @param string $codagente código del empleado
+     * @param string $codproveedor código del proveedor
+     * @param string $estado
+     * @param string $codpago código de la forma de pago
+     * @param string $codalmacen código del almacén
      * @return \factura_proveedor
      */
     public function all_desde($desde, $hasta, $codserie = FALSE, $codagente = FALSE, $codproveedor = FALSE, $estado = FALSE, $codpago = FALSE, $codalmacen = FALSE) {
@@ -1044,8 +1044,8 @@ class factura_proveedor extends \fs_model {
 
     /**
      * Devuelve un array con las facturas coincidentes con $query
-     * @param type $query
-     * @param type $offset
+     * @param string $query
+     * @param integer $offset
      * @return \factura_proveedor
      */
     public function search($query, $offset = 0) {

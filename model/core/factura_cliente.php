@@ -37,80 +37,80 @@ class factura_cliente extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer 
      */
     public $idfactura;
 
     /**
      * ID del asiento relacionado, si lo hay.
-     * @var type 
+     * @var integer 
      */
     public $idasiento;
 
     /**
      * ID del asiento de pago relacionado, si lo hay.
-     * @var type 
+     * @var integer 
      */
     public $idasientop;
 
     /**
      * ID de la factura que rectifica.
-     * @var type 
+     * @var integer 
      */
     public $idfacturarect;
 
     /**
      * Código único de la factura. Para humanos.
-     * @var type 
+     * @var string 
      */
     public $codigo;
 
     /**
      * Número de la factura.
      * Único dentro de la serie+ejercicio.
-     * @var type 
+     * @var string 
      */
     public $numero;
 
     /**
      * Número opcional a disposición del usuario.
-     * @var type 
+     * @var string 
      */
     public $numero2;
 
     /**
      * Código de la factura que rectifica.
-     * @var type 
+     * @var string 
      */
     public $codigorect;
 
     /**
      * Ejercicio relacionado. El que corresponde a la fecha.
-     * @var type 
+     * @var string 
      */
     public $codejercicio;
 
     /**
      * Serie relacionada.
-     * @var type 
+     * @var string 
      */
     public $codserie;
 
     /**
      * Almacén del que sale la mercancía.
-     * @var type 
+     * @var string 
      */
     public $codalmacen;
 
     /**
      * Forma de pago.
-     * @var type 
+     * @var string 
      */
     public $codpago;
 
     /**
      * Divisa de la factura.
-     * @var type 
+     * @var string 
      */
     public $coddivisa;
     public $fecha;
@@ -118,7 +118,7 @@ class factura_cliente extends \fs_model {
 
     /**
      * Código identificador del cliente de la factura.
-     * @var type 
+     * @var string 
      */
     public $codcliente;
     public $nombrecliente;
@@ -142,7 +142,7 @@ class factura_cliente extends \fs_model {
     /**
      * ID de la dirección en dirclientes.
      * Modelo direccion_cliente.
-     * @var type 
+     * @var string 
      */
     public $coddir;
     public $codpostal;
@@ -151,26 +151,26 @@ class factura_cliente extends \fs_model {
     /**
      * Empleado que ha creado la factura.
      * Modelo agente.
-     * @var type 
+     * @var string 
      */
     public $codagente;
 
     /**
      * Suma de los pvptotal de las líneas.
      * Es el total antes de impuestos.
-     * @var type 
+     * @var double 
      */
     public $neto;
 
     /**
      * Suma total del IVA de las líneas.
-     * @var type 
+     * @var double 
      */
     public $totaliva;
 
     /**
      * Suma total de la factura, con impuestos.
-     * @var type 
+     * @var double 
      */
     public $total;
 
@@ -178,38 +178,38 @@ class factura_cliente extends \fs_model {
      * Total expresado en euros, por si no fuese la divisa de la factura.
      * totaleuros = total/tasaconv
      * No hace falta rellenarlo, al hacer save() se calcula el valor.
-     * @var type 
+     * @var double 
      */
     public $totaleuros;
 
     /**
      * % de retención IRPF de la factura.
      * Puede variar en cada línea.
-     * @var type 
+     * @var double 
      */
     public $irpf;
 
     /**
      * Suma total de retenciones IRPF de las líneas.
-     * @var type 
+     * @var double 
      */
     public $totalirpf;
 
     /**
      * % comisión del empleado (agente).
-     * @var type 
+     * @var double 
      */
     public $porcomision;
 
     /**
      * Tasa de conversión a Euros de la divisa de la factura.
-     * @var type 
+     * @var double 
      */
     public $tasaconv;
 
     /**
      * Suma del recargo de equivalencia de las líneas.
-     * @var type 
+     * @var double 
      */
     public $totalrecargo;
     public $observaciones;
@@ -218,13 +218,13 @@ class factura_cliente extends \fs_model {
 
     /**
      * Fecha de vencimiento de la factura.
-     * @var type 
+     * @var string 
      */
     public $vencimiento;
 
     /**
      * Fecha en la que se envió la factura por email.
-     * @var type 
+     * @var string 
      */
     public $femail;
 
@@ -232,7 +232,7 @@ class factura_cliente extends \fs_model {
      * Identificador opcional para la impresión. Todavía sin uso.
      * Se puede usar para identificar una forma de impresión y usar siempre
      * esa en esta factura.
-     * @var type 
+     * @var integer 
      */
     public $idimprenta;
 
@@ -398,8 +398,8 @@ class factura_cliente extends \fs_model {
      * Establece la fecha y la hora, pero respetando la numeración, el ejercicio
      * y las regularizaciones de IVA.
      * Devuelve TRUE si se asigna una fecha distinta a los solicitados.
-     * @param type $fecha
-     * @param type $hora
+     * @param string $fecha
+     * @param string $hora
      * @return boolean
      */
     public function set_fecha_hora($fecha, $hora) {
@@ -672,7 +672,7 @@ class factura_cliente extends \fs_model {
 
     /**
      * Devuelve la factura de venta con el id proporcionado.
-     * @param type $id
+     * @param string $id
      * @return boolean|\factura_cliente
      */
     public function get($id) {
@@ -1138,9 +1138,9 @@ class factura_cliente extends \fs_model {
     /**
      * Devuelve un array con las últimas facturas (con el orden por defecto).
      * Si alteras el orden puedes obtener lo que desees.
-     * @param type $offset
-     * @param type $limit
-     * @param type $order
+     * @param integer $offset
+     * @param integer $limit
+     * @param string $order
      * @return \factura_cliente
      */
     public function all($offset = 0, $limit = FS_ITEM_LIMIT, $order = 'fecha DESC, codigo DESC') {
@@ -1158,9 +1158,9 @@ class factura_cliente extends \fs_model {
 
     /**
      * Devuelve un array con las facturas sin pagar
-     * @param type $offset
-     * @param type $limit
-     * @param type $order
+     * @param integer $offset
+     * @param integer $limit
+     * @param string $order
      * @return \factura_cliente
      */
     public function all_sin_pagar($offset = 0, $limit = FS_ITEM_LIMIT, $order = 'vencimiento ASC, codigo ASC') {
@@ -1179,8 +1179,8 @@ class factura_cliente extends \fs_model {
 
     /**
      * Devuelve un array con las facturas del agente/empleado
-     * @param type $codagente
-     * @param type $offset
+     * @param string $codagente
+     * @param integer $offset
      * @return \factura_cliente
      */
     public function all_from_agente($codagente, $offset = 0) {
@@ -1201,8 +1201,8 @@ class factura_cliente extends \fs_model {
 
     /**
      * Devuelve un array con las facturas del cliente $codcliente
-     * @param type $codcliente
-     * @param type $offset
+     * @param string $codcliente
+     * @param integer $offset
      * @return \factura_cliente
      */
     public function all_from_cliente($codcliente, $offset = 0) {
@@ -1223,14 +1223,14 @@ class factura_cliente extends \fs_model {
 
     /**
      * Devuelve un array con las facturas comprendidas entre $desde y $hasta
-     * @param type $desde
-     * @param type $hasta
-     * @param type $codserie código de la serie
-     * @param type $codagente código del empleado
-     * @param type $codcliente código del cliente
-     * @param type $estado
-     * @param type $codpago código de la forma de pago
-     * @param type $codalmacen código del almacén
+     * @param string $desde
+     * @param string $hasta
+     * @param string $codserie código de la serie
+     * @param string $codagente código del empleado
+     * @param string $codcliente código del cliente
+     * @param string $estado
+     * @param string $codpago código de la forma de pago
+     * @param string $codalmacen código del almacén
      * @return \factura_cliente
      */
     public function all_desde($desde, $hasta, $codserie = FALSE, $codagente = FALSE, $codcliente = FALSE, $estado = FALSE, $codpago = FALSE, $codalmacen = FALSE) {
@@ -1273,8 +1273,8 @@ class factura_cliente extends \fs_model {
 
     /**
      * Devuelve un array con las facturas que coinciden con $query
-     * @param type $query
-     * @param type $offset
+     * @param string $query
+     * @param integer $offset
      * @return \factura_cliente
      */
     public function search($query, $offset = 0) {
@@ -1302,11 +1302,11 @@ class factura_cliente extends \fs_model {
 
     /**
      * Devuelve un array con las facturas del cliente $codcliente que coinciden con $query
-     * @param type $codcliente
-     * @param type $desde
-     * @param type $hasta
-     * @param type $serie
-     * @param type $obs
+     * @param string $codcliente
+     * @param string $desde
+     * @param string $hasta
+     * @param string $serie
+     * @param string $obs
      * @return \factura_cliente
      */
     public function search_from_cliente($codcliente, $desde, $hasta, $serie, $obs = '') {
@@ -1333,7 +1333,7 @@ class factura_cliente extends \fs_model {
 
     /**
      * Devuelve un array con los huecos en la numeración.
-     * @return type
+     * @return array
      */
     public function huecos() {
         $error = TRUE;

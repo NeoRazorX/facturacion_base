@@ -34,14 +34,14 @@ class subcuenta extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $idsubcuenta;
     public $codsubcuenta;
 
     /**
      * ID de la cuenta a la que pertenece.
-     * @var type 
+     * @var integer
      */
     public $idcuenta;
     public $codcuenta;

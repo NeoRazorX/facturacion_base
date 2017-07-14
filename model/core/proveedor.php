@@ -35,33 +35,33 @@ class proveedor extends \fs_model {
 
     /**
      * Clave primaria. Varchar (6).
-     * @var type 
+     * @var string
      */
     public $codproveedor;
 
     /**
      * Nombre por el que se conoce al proveedor, puede ser el nombre oficial o no.
-     * @var type 
+     * @var string
      */
     public $nombre;
 
     /**
      * Razón social del proveedor, es decir, el nombre oficial, el que se usa en
      * las facturas.
-     * @var type 
+     * @var string
      */
     public $razonsocial;
 
     /**
      * Tipo de identificador fiscal del proveedor.
      * Ejemplo: NIF, CIF, CUIT...
-     * @var type 
+     * @var string
      */
     public $tipoidfiscal;
 
     /**
      * Identificador fiscal del proveedor.
-     * @var type
+     * @var string
      */
     public $cifnif;
     public $telefono1;
@@ -72,19 +72,19 @@ class proveedor extends \fs_model {
 
     /**
      * Serie predeterminada para este proveedor.
-     * @var type
+     * @var string
      */
     public $codserie;
 
     /**
      * Divisa predeterminada para este proveedor.
-     * @var type
+     * @var string
      */
     public $coddivisa;
 
     /**
      * Forma de pago predeterminada para este proveedor.
-     * @var type
+     * @var string
      */
     public $codpago;
     public $observaciones;
@@ -92,39 +92,39 @@ class proveedor extends \fs_model {
     /**
      * Régimen de fiscalidad del proveedor. Por ahora solo están implementados
      * general y exento.
-     * @var type 
+     * @var string 
      */
     public $regimeniva;
 
     /**
      * TRUE -> el proveedor es un acreedor, es decir, no le compramos mercancia,
      * le compramos servicios, etc.
-     * @var type
+     * @var boolean
      */
     public $acreedor;
 
     /**
      * TRUE  -> el cliente es una persona física.
      * FALSE -> el cliente es una persona jurídica (empresa).
-     * @var type 
+     * @var boolean
      */
     public $personafisica;
 
     /**
      * TRUE -> ya no queremos nada con el proveedor.
-     * @var type 
+     * @var boolean
      */
     public $debaja;
 
     /**
      * Fecha en la que se dió de baja al proveedor.
-     * @var type 
+     * @var string 
      */
     public $fechabaja;
 
     /**
      * Cliente asociado equivalente
-     * @var type
+     * @var string
      */
     public $codcliente;
     private static $regimenes_iva;
@@ -199,7 +199,7 @@ class proveedor extends \fs_model {
 
     /**
      * Devuelve un array con los regimenes de iva disponibles.
-     * @return type
+     * @return array
      */
     public function regimenes_iva() {
         if (!isset(self::$regimenes_iva)) {
@@ -248,7 +248,7 @@ class proveedor extends \fs_model {
 
     /**
      * @deprecated since version 50
-     * @return type
+     * @return boolean
      */
     public function is_default() {
         return FALSE;
@@ -256,7 +256,7 @@ class proveedor extends \fs_model {
 
     /**
      * Devuelve el proveedor que tenga ese codproveedor.
-     * @param type $cod
+     * @param string $cod
      * @return boolean|\proveedor
      */
     public function get($cod) {
@@ -271,8 +271,8 @@ class proveedor extends \fs_model {
      * Devuelve el primer proveedor que tenga ese cifnif.
      * Si el cifnif está en blanco y se proporciona una razón social, se devuelve
      * el primer proveedor con esa razón social.
-     * @param type $cifnif
-     * @param type $razon
+     * @param string $cifnif
+     * @param string $razon
      * @return boolean|\proveedor
      */
     public function get_by_cifnif($cifnif, $razon = FALSE) {
@@ -294,7 +294,7 @@ class proveedor extends \fs_model {
 
     /**
      * Devuelve el primer proveedor con $email como email.
-     * @param type $email
+     * @param string $email
      * @return boolean|\proveedor
      */
     public function get_by_email($email) {
@@ -322,7 +322,7 @@ class proveedor extends \fs_model {
 
     /**
      * Devuelve las subcuentas asociadas al proveedor, una para cada ejercicio.
-     * @return type
+     * @return \subcuenta
      */
     public function get_subcuentas() {
         $sublist = array();
@@ -341,7 +341,7 @@ class proveedor extends \fs_model {
     /**
      * Devuelve la subcuenta asignada al proveedor para el ejercicio $codeje,
      * si no hay una subcuenta asignada, intenta crearla. Si falla devuelve FALSE.
-     * @param type $codeje
+     * @param string $codeje
      * @return subcuenta
      */
     public function get_subcuenta($codeje) {
@@ -414,7 +414,7 @@ class proveedor extends \fs_model {
 
     /**
      * Devuelve las direcciones asociadas al proveedor.
-     * @return type
+     * @return \direccion_cliente
      */
     public function get_direcciones() {
         $dir = new \direccion_proveedor();

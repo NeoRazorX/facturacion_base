@@ -31,7 +31,7 @@ class balance extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var string 
      */
     public $codbalance;
     public $descripcion4ba;
@@ -173,7 +173,7 @@ class balance_cuenta extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var string 
      */
     public $id;
     public $codbalance;
@@ -277,7 +277,7 @@ class balance_cuenta_a extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $id;
     public $codbalance;
@@ -306,8 +306,8 @@ class balance_cuenta_a extends \fs_model {
     /**
      * Devuelve el saldo del balance de un ejercicio.
      * @param ejercicio $ejercicio
-     * @param type $desde
-     * @param type $hasta
+     * @param string $desde
+     * @param string $hasta
      * @return int
      */
     public function saldo(&$ejercicio, $desde = FALSE, $hasta = FALSE) {

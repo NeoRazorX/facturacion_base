@@ -32,13 +32,13 @@ class regularizacion_iva extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $idregiva;
 
     /**
      * ID del asiento generado.
-     * @var type 
+     * @var integer
      */
     public $idasiento;
     public $codejercicio;
@@ -66,10 +66,6 @@ class regularizacion_iva extends \fs_model {
             $this->fechainicio = NULL;
             $this->periodo = NULL;
         }
-    }
-
-    protected function install() {
-        return '';
     }
 
     public function url() {

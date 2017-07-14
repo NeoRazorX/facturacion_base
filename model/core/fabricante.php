@@ -29,7 +29,7 @@ class fabricante extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var string
      */
     public $codfabricante;
     public $nombre;

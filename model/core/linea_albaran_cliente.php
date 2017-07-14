@@ -32,37 +32,37 @@ class linea_albaran_cliente extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer 
      */
     public $idlinea;
 
     /**
      * ID de la línea del pedido relacionado, si es que lo hay.
-     * @var type 
+     * @var integer 
      */
     public $idlineapedido;
 
     /**
      * ID del albaran de esta línea.
-     * @var type 
+     * @var integer 
      */
     public $idalbaran;
 
     /**
      * ID del pedido relacionado con el albarán relacionado.
-     * @var type 
+     * @var integer 
      */
     public $idpedido;
 
     /**
      * Referencia del artículo.
-     * @var type 
+     * @var string
      */
     public $referencia;
 
     /**
      * Código de la combinación seleccionada, en el caso de los artículos con atributos.
-     * @var type 
+     * @var string
      */
     public $codcombinacion;
     public $descripcion;
@@ -70,67 +70,67 @@ class linea_albaran_cliente extends \fs_model {
 
     /**
      * % de descuento.
-     * @var type 
+     * @var double 
      */
     public $dtopor;
 
     /**
      * Código del impuesto del artículo.
-     * @var type 
+     * @var string
      */
     public $codimpuesto;
 
     /**
      * % del impuesto relacionado.
-     * @var type 
+     * @var double 
      */
     public $iva;
 
     /**
      * Importe neto de la linea, sin impuestos.
-     * @var type 
+     * @var double 
      */
     public $pvptotal;
 
     /**
      * Importe neto sin descuento, es decir, pvpunitario * cantidad.
-     * @var type 
+     * @var double 
      */
     public $pvpsindto;
 
     /**
      * Precio del artículo, una sola unidad.
-     * @var type 
+     * @var double 
      */
     public $pvpunitario;
 
     /**
      * % de IRPF de la línea.
-     * @var type 
+     * @var double 
      */
     public $irpf;
 
     /**
      * % de recargo de equivalencia de la línea.
-     * @var type 
+     * @var double 
      */
     public $recargo;
 
     /**
      * Posición de la linea en el documento. Cuanto más alto más abajo.
-     * @var type 
+     * @var integer
      */
     public $orden;
 
     /**
      * False -> no se muestra la columna cantidad al imprimir.
-     * @var type 
+     * @var boolean
      */
     public $mostrar_cantidad;
 
     /**
      * False -> no se muestran las columnas precio, descuento, impuestos y total al imprimir.
-     * @var type 
+     * @var boolean
      */
     public $mostrar_precio;
     private $codigo;
@@ -185,10 +185,6 @@ class linea_albaran_cliente extends \fs_model {
             $this->mostrar_cantidad = TRUE;
             $this->mostrar_precio = TRUE;
         }
-    }
-
-    protected function install() {
-        return '';
     }
 
     /**

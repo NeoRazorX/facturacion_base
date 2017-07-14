@@ -29,31 +29,31 @@ class tarifa extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var string
      */
     public $codtarifa;
 
     /**
      * Nombre de la tarifa.
-     * @var type 
+     * @var string
      */
     public $nombre;
 
     /**
      * Incremento porcentual o descuento
-     * @var type 
+     * @var double
      */
     private $incporcentual;
 
     /**
      * Incremento lineal o descuento lineal
-     * @var type 
+     * @var double
      */
     private $inclineal;
 
     /**
      * Fórmula a aplicar
-     * @var type 
+     * @var string
      */
     public $aplicar_a;
 

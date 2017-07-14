@@ -38,99 +38,99 @@ class linea_factura_cliente extends \fs_model {
 
     /**
      * ID de la linea del albarán relacionado, si lo hay.
-     * @var type 
+     * @var integer 
      */
     public $idlineaalbaran;
 
     /**
      * ID de la factura de esta línea.
-     * @var type 
+     * @var integer 
      */
     public $idfactura;
 
     /**
      * ID del albarán relacionado con esta factura, si lo hay.
-     * @var type 
+     * @var integer 
      */
     public $idalbaran;
 
     /**
      * Importe neto de la línea, sin impuestos.
-     * @var type 
+     * @var double 
      */
     public $pvptotal;
 
     /**
      * % de descuento.
-     * @var type 
+     * @var double 
      */
     public $dtopor;
 
     /**
      * % de recargo de equivalencia.
-     * @var type 
+     * @var double 
      */
     public $recargo;
 
     /**
      * % de IRPF.
-     * @var type 
+     * @var double 
      */
     public $irpf;
 
     /**
      * Importe neto sin descuentos.
-     * @var type 
+     * @var double 
      */
     public $pvpsindto;
     public $cantidad;
 
     /**
      * Impuesto del artículo.
-     * @var type 
+     * @var string
      */
     public $codimpuesto;
 
     /**
      * Precio del artículo, una unidad.
-     * @var type 
+     * @var double 
      */
     public $pvpunitario;
     public $descripcion;
 
     /**
      * Referencia del artículo.
-     * @var type 
+     * @var string 
      */
     public $referencia;
 
     /**
      * Código de la combinación seleccionada, en el caso de los artículos con atributos.
-     * @var type 
+     * @var string 
      */
     public $codcombinacion;
 
     /**
      * % de IVA de la línea, el que corresponde al impuesto.
-     * @var type 
+     * @var double 
      */
     public $iva;
 
     /**
      * Posición de la linea en el documento. Cuanto más alto más abajo.
-     * @var type 
+     * @var integer 
      */
     public $orden;
 
     /**
      * False -> no se muestra la columna cantidad al imprimir.
-     * @var type 
+     * @var boolean
      */
     public $mostrar_cantidad;
 
     /**
      * False -> no se muestran las columnas precio, descuento, impuestos y total al imprimir.
-     * @var type 
+     * @var boolean
      */
     public $mostrar_precio;
     private $codigo;
@@ -146,9 +146,6 @@ class linea_factura_cliente extends \fs_model {
 
         if (!isset(self::$facturas)) {
             self::$facturas = array();
-        }
-
-        if (!isset(self::$albaranes)) {
             self::$albaranes = array();
         }
 

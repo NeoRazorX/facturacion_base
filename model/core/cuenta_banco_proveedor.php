@@ -29,13 +29,13 @@ class cuenta_banco_proveedor extends \fs_model {
 
     /**
      * Clave primaria. Varchar(6).
-     * @var type 
+     * @var string 
      */
     public $codcuenta;
 
     /**
      * Código del proveedor.
-     * @var type 
+     * @var string 
      */
     public $codproveedor;
     public $descripcion;
@@ -68,8 +68,8 @@ class cuenta_banco_proveedor extends \fs_model {
 
     /**
      * Devuelve el IBAN con o sin espacios.
-     * @param type $espacios
-     * @return type
+     * @param string $espacios
+     * @return string
      */
     public function iban($espacios = FALSE) {
         if ($espacios) {

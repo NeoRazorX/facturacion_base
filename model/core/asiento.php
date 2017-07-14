@@ -36,13 +36,13 @@ class asiento extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer 
      */
     public $idasiento;
 
     /**
      * Número de asiento. Se modificará al renumerar.
-     * @var type 
+     * @var integer 
      */
     public $numero;
     public $idconcepto;
@@ -133,7 +133,7 @@ class asiento extends \fs_model {
      * Devuelve el código de la divisa.
      * Lo que pasa es que ese dato se almacena en las partidas, por eso
      * hay que usar esta función.
-     * @return type
+     * @return string
      */
     public function coddivisa() {
         if (!isset($this->coddivisa)) {
@@ -152,7 +152,7 @@ class asiento extends \fs_model {
 
     /**
      * Devuelve el asiento con el $id solicitado.
-     * @param type $id
+     * @param string $id
      * @return \asiento|boolean
      */
     public function get($id) {

@@ -29,19 +29,19 @@ class subcuenta_cliente extends \fs_model {
 
     /**
      * Clave primaria
-     * @var type 
+     * @var integer
      */
     public $id;
 
     /**
      * ID de la subcuenta
-     * @var type 
+     * @var integer
      */
     public $idsubcuenta;
 
     /**
      * Código del cliente
-     * @var type 
+     * @var string
      */
     public $codcliente;
     public $codsubcuenta;
@@ -62,10 +62,6 @@ class subcuenta_cliente extends \fs_model {
             $this->codsubcuenta = NULL;
             $this->codejercicio = NULL;
         }
-    }
-
-    protected function install() {
-        return '';
     }
 
     public function get_subcuenta() {

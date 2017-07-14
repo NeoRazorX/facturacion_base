@@ -45,10 +45,6 @@ class articulo_propiedad extends \fs_model {
         }
     }
 
-    protected function install() {
-        return '';
-    }
-
     /**
      * Devuelve TRUE si los datos existen en la base de datos
      * @return boolean
@@ -66,7 +62,7 @@ class articulo_propiedad extends \fs_model {
 
     /**
      * Guarda los datos en la base de datos
-     * @return type
+     * @return boolean
      */
     public function save() {
         if ($this->exists()) {

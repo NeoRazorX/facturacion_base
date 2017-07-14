@@ -36,32 +36,32 @@ class cliente extends \fs_model {
 
     /**
      * Clave primaria. Varchar (6).
-     * @var type 
+     * @var string 
      */
     public $codcliente;
 
     /**
      * Nombre por el que conocemos al cliente, no necesariamente el oficial.
-     * @var type 
+     * @var string 
      */
     public $nombre;
 
     /**
      * Razón social del cliente, es decir, el nombre oficial. El que aparece en las facturas.
-     * @var type
+     * @var string
      */
     public $razonsocial;
 
     /**
      * Tipo de identificador fiscal del cliente.
      * Ejemplos: CIF, NIF, CUIT...
-     * @var type 
+     * @var string 
      */
     public $tipoidfiscal;
 
     /**
      * Identificador fiscal del cliente.
-     * @var type 
+     * @var string 
      */
     public $cifnif;
     public $telefono1;
@@ -72,49 +72,49 @@ class cliente extends \fs_model {
 
     /**
      * Serie predeterminada para este cliente.
-     * @var type 
+     * @var string 
      */
     public $codserie;
 
     /**
      * Divisa predeterminada para este cliente.
-     * @var type 
+     * @var string 
      */
     public $coddivisa;
 
     /**
      * Forma de pago predeterminada para este cliente.
-     * @var type 
+     * @var string 
      */
     public $codpago;
 
     /**
      * Empleado/agente asignado al cliente.
-     * @var type 
+     * @var string 
      */
     public $codagente;
 
     /**
      * Grupo al que pertenece el cliente.
-     * @var type 
+     * @var string 
      */
     public $codgrupo;
 
     /**
      * TRUE -> el cliente ya no nos compra o no queremos nada con él.
-     * @var type 
+     * @var boolean 
      */
     public $debaja;
 
     /**
      * Fecha en la que se dió de baja al cliente.
-     * @var type 
+     * @var string 
      */
     public $fechabaja;
 
     /**
      * Fecha en la que se dió de alta al cliente.
-     * @var type 
+     * @var string 
      */
     public $fechaalta;
     public $observaciones;
@@ -122,33 +122,33 @@ class cliente extends \fs_model {
     /**
      * Régimen de fiscalidad del cliente. Por ahora solo están implementados
      * general y exento.
-     * @var type 
+     * @var string 
      */
     public $regimeniva;
 
     /**
      * TRUE -> al cliente se le aplica recargo de equivalencia.
-     * @var type 
+     * @var boolean 
      */
     public $recargo;
 
     /**
      * TRUE  -> el cliente es una persona física.
      * FALSE -> el cliente es una persona jurídica (empresa).
-     * @var type 
+     * @var boolean 
      */
     public $personafisica;
 
     /**
      * Dias de pago preferidos a la hora de calcular el vencimiento de las facturas.
      * Días separados por comas: 1,15,31
-     * @var type 
+     * @var string 
      */
     public $diaspago;
 
     /**
      * Proveedor asociado equivalente
-     * @var type
+     * @var string
      */
     public $codproveedor;
     private static $regimenes_iva;
@@ -256,7 +256,7 @@ class cliente extends \fs_model {
 
     /**
      * @deprecated since version 50
-     * @return type
+     * @return boolean
      */
     public function is_default() {
         return FALSE;
@@ -264,7 +264,7 @@ class cliente extends \fs_model {
 
     /**
      * Devuelve un array con los regimenes de iva disponibles.
-     * @return type
+     * @return array
      */
     public function regimenes_iva() {
         if (!isset(self::$regimenes_iva)) {
@@ -297,7 +297,7 @@ class cliente extends \fs_model {
 
     /**
      * Devuelve el cliente que tenga ese codcliente.
-     * @param type $cod
+     * @param string $cod
      * @return \cliente|boolean
      */
     public function get($cod) {
@@ -312,8 +312,8 @@ class cliente extends \fs_model {
      * Devuelve el primer cliente que tenga $cifnif como cifnif.
      * Si el cifnif está en blanco y se proporciona una razón social,
      * se devuelve el primer cliente que tenga esa razón social.
-     * @param type $cifnif
-     * @param type $razon
+     * @param string $cifnif
+     * @param string $razon
      * @return boolean|\cliente
      */
     public function get_by_cifnif($cifnif, $razon = FALSE) {
@@ -334,7 +334,7 @@ class cliente extends \fs_model {
 
     /**
      * Devuelve el primer cliente que tenga $email como email.
-     * @param type $email
+     * @param string $email
      * @return boolean|\cliente
      */
     public function get_by_email($email) {
@@ -350,7 +350,7 @@ class cliente extends \fs_model {
 
     /**
      * Devuelve un array con las direcciones asociadas al cliente.
-     * @return type
+     * @return \direccion_cliente
      */
     public function get_direcciones() {
         $dir = new \direccion_cliente();
@@ -360,7 +360,7 @@ class cliente extends \fs_model {
     /**
      * Devuelve un array con todas las subcuentas asociadas al cliente.
      * Una para cada ejercicio.
-     * @return type
+     * @return \subcuenta
      */
     public function get_subcuentas() {
         $subclist = array();
@@ -379,7 +379,7 @@ class cliente extends \fs_model {
     /**
      * Devuelve la subcuenta asociada al cliente para el ejercicio $eje.
      * Si no existe intenta crearla. Si falla devuelve FALSE.
-     * @param type $codejercicio
+     * @param string $codejercicio
      * @return subcuenta
      */
     public function get_subcuenta($codejercicio) {

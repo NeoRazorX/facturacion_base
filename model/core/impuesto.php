@@ -30,19 +30,19 @@ class impuesto extends \fs_model {
 
     /**
      * Clave primaria. varchar(10).
-     * @var type
+     * @var string
      */
     public $codimpuesto;
 
     /**
      * Código de la subcuenta para ventas.
-     * @var type 
+     * @var string
      */
     public $codsubcuentarep;
 
     /**
      * Código de la subcuenta para compras.
-     * @var type 
+     * @var string
      */
     public $codsubcuentasop;
     public $descripcion;

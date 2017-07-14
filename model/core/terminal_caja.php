@@ -29,50 +29,50 @@ namespace FacturaScripts\model;
 class terminal_caja extends \fs_model {
 
     /**
-     *
-     * @var type Clave primiaria.
+     * Clave primiaria.
+     * @var integer 
      */
     public $id;
 
     /**
      * Códifo del almacén a usar en los tickets.
-     * @var type 
+     * @var string
      */
     public $codalmacen;
 
     /**
      * Código de la serie a utilizar en los tickets.
-     * @var type 
+     * @var string
      */
     public $codserie;
 
     /**
      * Código del cliente predeterminado para los tickets.
-     * @var type 
+     * @var string
      */
     public $codcliente;
 
     /**
      * Buffer con los ticket pendientes para imprimir.
-     * @var type
+     * @var string
      */
     public $tickets;
 
     /**
      * Número de caracteres que caben en una línea del papel del ticket.
-     * @var type 
+     * @var integer
      */
     public $anchopapel;
 
     /**
      * Comando ESC/POS para cortar el papel.
-     * @var type 
+     * @var string
      */
     public $comandocorte;
 
     /**
      * Comando ESC/POS para abrir el cajón portamonedas conectado a la impresora.
-     * @var type 
+     * @var string
      */
     public $comandoapertura;
 
@@ -84,7 +84,7 @@ class terminal_caja extends \fs_model {
 
     /**
      * Desactivar los comandos ESC/POS para comprobaciones de la impresora de tickets.
-     * @var type 
+     * @var bool
      */
     public $sin_comandos;
 
@@ -130,10 +130,6 @@ class terminal_caja extends \fs_model {
             $this->num_tickets = 1;
             $this->sin_comandos = FALSE;
         }
-    }
-
-    protected function install() {
-        return '';
     }
 
     public function disponible() {

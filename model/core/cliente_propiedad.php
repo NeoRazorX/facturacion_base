@@ -76,8 +76,8 @@ class cliente_propiedad extends \fs_model {
 
     /**
      * Devuelve un array con los pares name => text para una codcliente dado.
-     * @param type $cod
-     * @return type
+     * @param string $cod
+     * @return array
      */
     public function array_get($cod) {
         $vlist = array();

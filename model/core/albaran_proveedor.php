@@ -48,57 +48,57 @@ class albaran_proveedor extends \fs_model {
 
     /**
      * Identificador único de cara a humanos.
-     * @var type 
+     * @var string 
      */
     public $codigo;
 
     /**
      * Número del albarán.
      * Único dentro de la serie+ejercicio.
-     * @var type 
+     * @var string 
      */
     public $numero;
 
     /**
      * Número de albarán de proveedor, si lo hay.
      * Puede contener letras.
-     * @var type 
+     * @var string 
      */
     public $numproveedor;
 
     /**
      * Ejercicio relacionado. El que corresponde a la fecha.
-     * @var type 
+     * @var string 
      */
     public $codejercicio;
 
     /**
      * Serie relacionada.
-     * @var type 
+     * @var string 
      */
     public $codserie;
 
     /**
      * Divisa del albarán.
-     * @var type 
+     * @var string 
      */
     public $coddivisa;
 
     /**
      * Forma de pago asociada.
-     * @var type 
+     * @var string 
      */
     public $codpago;
 
     /**
      * Empleado que ha creado este albarán.
-     * @var type 
+     * @var string 
      */
     public $codagente;
 
     /**
      * Almacén en el que entra la mercancía.
-     * @var type 
+     * @var string 
      */
     public $codalmacen;
     public $fecha;
@@ -106,7 +106,7 @@ class albaran_proveedor extends \fs_model {
 
     /**
      * Código del proveedor de este albarán.
-     * @var type 
+     * @var string 
      */
     public $codproveedor;
     public $nombre;
@@ -114,19 +114,19 @@ class albaran_proveedor extends \fs_model {
 
     /**
      * Suma del pvptotal de líneas. Total del albarán antes de impuestos.
-     * @var type 
+     * @var double 
      */
     public $neto;
 
     /**
      * Suma total del albarán, con impuestos.
-     * @var type 
+     * @var double 
      */
     public $total;
 
     /**
      * Suma del IVA de las líneas.
-     * @var type 
+     * @var double 
      */
     public $totaliva;
 
@@ -134,39 +134,39 @@ class albaran_proveedor extends \fs_model {
      * Total expresado en euros, por si no fuese la divisa del albarán.
      * totaleuros = total/tasaconv
      * No hace falta rellenarlo, al hacer save() se calcula el valor.
-     * @var type 
+     * @var double 
      */
     public $totaleuros;
 
     /**
      * % de retención IRPF del albarán. Se obtiene de la serie.
      * Cada línea puede tener un % distinto.
-     * @var type 
+     * @var double 
      */
     public $irpf;
 
     /**
      * Suma total de las retenciones IRPF de las líneas.
-     * @var type 
+     * @var double 
      */
     public $totalirpf;
 
     /**
      * Tasa de conversión a Euros de la divisa seleccionada.
-     * @var type 
+     * @var double 
      */
     public $tasaconv;
 
     /**
      * Suma total del recargo de equivalencia de las líneas.
-     * @var type 
+     * @var double 
      */
     public $totalrecargo;
     public $observaciones;
 
     /**
      * TRUE => está pendiente de factura.
-     * @var type 
+     * @var boolean 
      */
     public $ptefactura;
 
@@ -305,7 +305,7 @@ class albaran_proveedor extends \fs_model {
 
     /**
      * Devuelve el albraán solicitado o false si no lo encuentra.
-     * @param type $id
+     * @param string $id
      * @return \albaran_proveedor|boolean
      */
     public function get($id) {
@@ -365,7 +365,7 @@ class albaran_proveedor extends \fs_model {
 
     /**
      * Comprobaciones extra para el albarán. Devuelve TRUE si está todo correcto
-     * @param type $duplicados
+     * @param boolean $duplicados
      * @return boolean
      */
     public function full_test($duplicados = TRUE) {
@@ -570,8 +570,8 @@ class albaran_proveedor extends \fs_model {
 
     /**
      * Devuelve un array con los últimos albaranes
-     * @param type $offset
-     * @param type $order
+     * @param integer $offset
+     * @param string $order
      * @return \albaran_proveedor
      */
     public function all($offset = 0, $order = 'fecha DESC, codigo DESC', $limit = FS_ITEM_LIMIT) {
@@ -590,8 +590,8 @@ class albaran_proveedor extends \fs_model {
 
     /**
      * Devuelve un array con los albaranes pendientes
-     * @param type $offset
-     * @param type $order
+     * @param integer $offset
+     * @param string $order
      * @return \albaran_proveedor
      */
     public function all_ptefactura($offset = 0, $order = 'fecha ASC, codigo ASC', $limit = FS_ITEM_LIMIT) {
@@ -610,8 +610,8 @@ class albaran_proveedor extends \fs_model {
 
     /**
      * Devuelve un array con los albaranes del proveedor
-     * @param type $codproveedor
-     * @param type $offset
+     * @param string $codproveedor
+     * @param integer $offset
      * @return \albaran_proveedor
      */
     public function all_from_proveedor($codproveedor, $offset = 0) {
@@ -631,8 +631,8 @@ class albaran_proveedor extends \fs_model {
 
     /**
      * Devuelve un array con los albaranes del agente/empleado
-     * @param type $codagente
-     * @param type $offset
+     * @param string $codagente
+     * @param integer $offset
      * @return \albaran_proveedor
      */
     public function all_from_agente($codagente, $offset = 0) {
@@ -652,7 +652,7 @@ class albaran_proveedor extends \fs_model {
 
     /**
      * Devuelve un array con los albaranes relacionados con la factura $id
-     * @param type $id
+     * @param string $id
      * @return \albaran_proveedor
      */
     public function all_from_factura($id) {
@@ -672,8 +672,8 @@ class albaran_proveedor extends \fs_model {
 
     /**
      * Devuelve un array con los albaranes comprendidos entre $desde y $hasta
-     * @param type $desde
-     * @param type $hasta
+     * @param string $desde
+     * @param string $hasta
      * @return \albaran_proveedor
      */
     public function all_desde($desde, $hasta) {
@@ -694,8 +694,8 @@ class albaran_proveedor extends \fs_model {
 
     /**
      * Devuelve un array con los albaranes que coinciden con $query
-     * @param type $query
-     * @param type $offset
+     * @param string $query
+     * @param integer $offset
      * @return \albaran_proveedor
      */
     public function search($query, $offset = 0) {
@@ -724,11 +724,11 @@ class albaran_proveedor extends \fs_model {
     /**
      * Devuelve un array con los albaranes del proveedor $codproveedor
      * que coincidan con los filtros.
-     * @param type $codproveedor
-     * @param type $desde
-     * @param type $hasta
-     * @param type $codserie
-     * @param type $coddivisa
+     * @param string $codproveedor
+     * @param string $desde
+     * @param string $hasta
+     * @param string $codserie
+     * @param string $coddivisa
      * @return \albaran_proveedor
      */
     public function search_from_proveedor($codproveedor, $desde, $hasta, $codserie = '', $coddivisa = '') {

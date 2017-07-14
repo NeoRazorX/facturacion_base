@@ -29,19 +29,19 @@ class grupo_clientes extends \fs_model {
 
     /**
      * Clave primaria
-     * @var type 
+     * @var string
      */
     public $codgrupo;
 
     /**
      * Nombre del grupo
-     * @var type 
+     * @var string 
      */
     public $nombre;
 
     /**
      * Código de la tarifa asociada, si la hay
-     * @var type 
+     * @var string 
      */
     public $codtarifa;
 
@@ -151,7 +151,7 @@ class grupo_clientes extends \fs_model {
 
     /**
      * Devuelve todos los grupos con la tarifa $cod
-     * @param type $cod
+     * @param string $cod
      * @return \grupo_clientes
      */
     public function all_with_tarifa($cod) {

@@ -31,13 +31,13 @@ class regularizacion_stock extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $id;
 
     /**
      * ID del stock, en el modelo stock.
-     * @var type 
+     * @var integer
      */
     public $idstock;
     public $cantidadini;
@@ -45,7 +45,7 @@ class regularizacion_stock extends \fs_model {
 
     /**
      * Código del almacén destino.
-     * @var type 
+     * @var string
      */
     public $codalmacendest;
     public $fecha;
@@ -54,7 +54,7 @@ class regularizacion_stock extends \fs_model {
 
     /**
      * Nick del usuario que ha realizado la regularización.
-     * @var type 
+     * @var string
      */
     public $nick;
 

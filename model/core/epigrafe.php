@@ -31,7 +31,7 @@ class grupo_epigrafes extends \fs_model {
 
     /**
      * Clave primaria
-     * @var type 
+     * @var integer
      */
     public $idgrupo;
     public $codgrupo;
@@ -51,10 +51,6 @@ class grupo_epigrafes extends \fs_model {
             $this->descripcion = NULL;
             $this->codejercicio = NULL;
         }
-    }
-
-    protected function install() {
-        return '';
     }
 
     public function url() {

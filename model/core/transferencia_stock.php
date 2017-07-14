@@ -42,10 +42,6 @@ class transferencia_stock extends \fs_model {
         }
     }
 
-    public function install() {
-        return '';
-    }
-
     public function url() {
         return 'index.php?page=editar_transferencia_stock&id=' . $this->idtrans;
     }

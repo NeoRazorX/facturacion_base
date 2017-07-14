@@ -32,87 +32,87 @@ class linea_factura_proveedor extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer 
      */
     public $idlinea;
 
     /**
      * ID de la linea del albarán relacionado, si lo hay.
-     * @var type 
+     * @var integer 
      */
     public $idlineaalbaran;
 
     /**
      * ID de la factura de esta línea.
-     * @var type 
+     * @var integer 
      */
     public $idfactura;
 
     /**
      * ID del albarán relacionado con la factura, si lo hay.
-     * @var type 
+     * @var integer 
      */
     public $idalbaran;
 
     /**
      * Importe neto de la línea, sin impuestos.
-     * @var type 
+     * @var double 
      */
     public $pvptotal;
 
     /**
      * % de descuento.
-     * @var type 
+     * @var double 
      */
     public $dtopor;
 
     /**
      * % de recargo de equivalencia.
-     * @var type 
+     * @var double 
      */
     public $recargo;
 
     /**
      * % de IRPF
-     * @var type 
+     * @var double 
      */
     public $irpf;
 
     /**
      * Importe neto sin descuentos.
-     * @var type 
+     * @var double 
      */
     public $pvpsindto;
     public $cantidad;
 
     /**
      * Impuesto relacionado.
-     * @var type 
+     * @var string
      */
     public $codimpuesto;
 
     /**
      * Precio del artículo, una unidad.
-     * @var type 
+     * @var double 
      */
     public $pvpunitario;
     public $descripcion;
 
     /**
      * Referencia del artículo.
-     * @var type 
+     * @var string
      */
     public $referencia;
 
     /**
      * Código de la combinación seleccionada, en el caso de los artículos con atributos.
-     * @var type 
+     * @var string
      */
     public $codcombinacion;
 
     /**
      * % de iva, el que corresponde al impuesto.
-     * @var type 
+     * @var double 
      */
     public $iva;
     private $codigo;
@@ -168,10 +168,6 @@ class linea_factura_proveedor extends \fs_model {
             $this->recargo = 0;
             $this->irpf = 0;
         }
-    }
-
-    protected function install() {
-        return '';
     }
 
     /**
@@ -296,7 +292,7 @@ class linea_factura_proveedor extends \fs_model {
 
     /**
      * Devuelve los datos de una linea
-     * @param type $idlinea
+     * @param integer $idlinea
      * @return boolean|\linea_factura_proveedor
      */
     public function get($idlinea) {

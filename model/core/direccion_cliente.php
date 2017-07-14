@@ -29,13 +29,13 @@ class direccion_cliente extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $id;
 
     /**
      * Código del cliente asociado.
-     * @var type 
+     * @var string 
      */
     public $codcliente;
     public $codpais;
@@ -47,20 +47,20 @@ class direccion_cliente extends \fs_model {
 
     /**
      * TRUE -> esta dirección es la principal para envíos.
-     * @var type 
+     * @var boolean 
      */
     public $domenvio;
 
     /**
      * TRUE -> esta dirección es la principal para facturación.
-     * @var type 
+     * @var boolean
      */
     public $domfacturacion;
     public $descripcion;
 
     /**
      * Fecha de última modificación.
-     * @var type 
+     * @var string 
      */
     public $fecha;
 

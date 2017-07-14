@@ -38,38 +38,38 @@ class articulo extends \fs_model {
 
     /**
      * Clave primaria. Varchar (18).
-     * @var type 
+     * @var string 
      */
     public $referencia;
 
     /**
      * Define el tipo de artículo, así se pueden establecer distinciones
      * según un tipo u otro.
-     * @var type Varchar (10).
+     * @var string Varchar (10).
      */
     public $tipo;
 
     /**
      * Código de la familia a la que pertenece. En la clase familia.
-     * @var type 
+     * @var string 
      */
     public $codfamilia;
 
     /**
      * Descripción del artículo. Tipo text, sin límite de caracteres.
-     * @var type 
+     * @var string 
      */
     public $descripcion;
 
     /**
      * Código del fabricante al que pertenece. En la clase fabricante.
-     * @var type 
+     * @var string 
      */
     public $codfabricante;
 
     /**
      * Precio del artículo, sin impuestos.
-     * @var type 
+     * @var double
      */
     public $pvp;
 
@@ -77,19 +77,19 @@ class articulo extends \fs_model {
      * Almacena el valor del pvp antes de hacer el cambio.
      * Esta valor no se almacena en la base de datos, es decir,
      * no se recuerda.
-     * @var type 
+     * @var double
      */
     public $pvp_ant;
 
     /**
      * Fecha de actualización del pvp.
-     * @var type 
+     * @var string 
      */
     public $factualizado;
 
     /**
      * Coste medio al comprar el artículo. Calculado.
-     * @var type 
+     * @var double
      */
     public $costemedio;
 
@@ -97,19 +97,19 @@ class articulo extends \fs_model {
      * Precio de coste editado manualmente.
      * No necesariamente es el precio de compra, puede incluir
      * también otros costes.
-     * @var type 
+     * @var double
      */
     public $preciocoste;
 
     /**
      * Impuesto asignado. Clase impuesto.
-     * @var type 
+     * @var string 
      */
     public $codimpuesto;
 
     /**
      * TRUE => el artículos está bloqueado / obsoleto.
-     * @var type 
+     * @var boolean 
      */
     public $bloqueado;
     public $secompra;
@@ -117,26 +117,26 @@ class articulo extends \fs_model {
 
     /**
      * TRUE -> se mostrará sincronizará con la tienda online.
-     * @var type 
+     * @var boolean 
      */
     public $publico;
 
     /**
      * Código de equivalencia. Varchar (18).
      * Dos artículos o más son equivalentes si tienen el mismo código de equivalencia.
-     * @var type 
+     * @var string 
      */
     public $equivalencia;
 
     /**
      * Partnumber del producto. Máximo 38 caracteres.
-     * @var type 
+     * @var string 
      */
     public $partnumber;
 
     /**
      * Stock físico. La suma de las cantidades de esta referencia que en la tabla stocks.
-     * @var type 
+     * @var double 
      */
     public $stockfis;
     public $stockmin;
@@ -148,45 +148,45 @@ class articulo extends \fs_model {
      * implique la ausencia de control de stock. Pero es una cagada de
      * FacturaLux -> Abanq -> Eneboo, y por motivos de compatibilidad
      * se mantiene.
-     * @var type 
+     * @var boolean 
      */
     public $controlstock;
 
     /**
      * TRUE -> no controlar el stock.
      * Activarlo implica poner a TRUE $controlstock;
-     * @var type 
+     * @var boolean 
      */
     public $nostock;
 
     /**
      * Código de barras.
-     * @var type 
+     * @var string 
      */
     public $codbarras;
     public $observaciones;
 
     /**
      * Código de la subcuenta para compras.
-     * @var type 
+     * @var string 
      */
     public $codsubcuentacom;
 
     /**
      * Código para la subcuenta de compras, pero con IRPF.
-     * @var type 
+     * @var string 
      */
     public $codsubcuentairpfcom;
 
     /**
      * Control de trazabilidad.
-     * @var type 
+     * @var boolean 
      */
     public $trazabilidad;
 
     /**
      * % IVA del impuesto asignado.
-     * @var type 
+     * @var double 
      */
     private $iva;
     private $imagen;
@@ -311,7 +311,7 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve el precio de coste, ya esté configurado como calculado o editable.
-     * @return type
+     * @return double
      */
     public function preciocoste() {
         if ($this->secompra AND FS_COST_IS_AVERAGE) {
@@ -338,8 +338,8 @@ class articulo extends \fs_model {
     /**
      * Devuelve la referencia codificada para poder ser usada en imágenes.
      * Evitamos así errores con caracteres especiales como / y \.
-     * @param type $ref
-     * @return type
+     * @param string $ref
+     * @return string
      */
     public function image_ref($ref = FALSE) {
         if (!$ref) {
@@ -376,7 +376,7 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve un artículo a partir de su referencia
-     * @param type $ref
+     * @param string $ref
      * @return boolean|\articulo
      */
     public function get($ref) {
@@ -434,8 +434,8 @@ class articulo extends \fs_model {
     /**
      * Devuelve el % de IVA del artículo.
      * Si $reload es TRUE, vuelve a consultarlo en lugar de usar los datos cargados.
-     * @param type $reload
-     * @return type
+     * @param boolean $reload
+     * @return double
      */
     public function get_iva($reload = FALSE) {
         if ($reload) {
@@ -494,8 +494,8 @@ class articulo extends \fs_model {
     /**
      * Devuelve las últimas líneas de albaranes de clientes con este artículo.
      * @deprecated since version 106
-     * @param type $offset
-     * @param type $limit
+     * @param integer $offset
+     * @param integer $limit
      * @return linea_albaran_cliente
      */
     public function get_lineas_albaran_cli($offset = 0, $limit = FS_ITEM_LIMIT) {
@@ -506,8 +506,8 @@ class articulo extends \fs_model {
     /**
      * Devuelve las últimas líneas de albaranes de proveedores con este artículo.
      * @deprecated since version 106
-     * @param type $offset
-     * @param type $limit
+     * @param integer $offset
+     * @param integer $limit
      * @return linea_albaran_proveedor
      */
     public function get_lineas_albaran_prov($offset = 0, $limit = FS_ITEM_LIMIT) {
@@ -517,7 +517,7 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve la media del precio de compra del artículo en los últimos albaranes o facturas.
-     * @return type
+     * @return double
      */
     public function get_costemedio() {
         $coste = 0;
@@ -597,8 +597,8 @@ class articulo extends \fs_model {
 
     /**
      * Asigna una imagen a un artículo.
-     * @param type $img
-     * @param type $png
+     * @param string $img
+     * @param boolean $png
      */
     public function set_imagen($img, $png = TRUE) {
         $this->imagen = NULL;
@@ -644,7 +644,7 @@ class articulo extends \fs_model {
     /**
      * Cambia la referencia del artículo.
      * Lo hace en el momento, no hace falta hacer save().
-     * @param type $ref
+     * @param string $ref
      */
     public function set_referencia($ref) {
         $ref = trim($ref);
@@ -670,7 +670,7 @@ class articulo extends \fs_model {
 
     /**
      * Cambia el impuesto asociado al artículo.
-     * @param type $codimpuesto
+     * @param string $codimpuesto
      */
     public function set_impuesto($codimpuesto) {
         if ($codimpuesto != $this->codimpuesto) {
@@ -699,8 +699,8 @@ class articulo extends \fs_model {
     /**
      * Modifica el stock del artículo en un almacén concreto.
      * Ya se encarga de ejecutar save() si es necesario.
-     * @param type $codalmacen
-     * @param type $cantidad
+     * @param string $codalmacen
+     * @param double $cantidad
      * @return boolean
      */
     public function set_stock($codalmacen, $cantidad = 1) {
@@ -754,10 +754,10 @@ class articulo extends \fs_model {
     /**
      * Suma la cantidad especificada al stock del artículo en el almacén especificado.
      * Ya se encarga de ejecutar save() si es necesario.
-     * @param type $codalmacen
-     * @param type $cantidad
-     * @param type $recalcula_coste
-     * @param type $codcombinacion
+     * @param string $codalmacen
+     * @param double $cantidad
+     * @param boolean $recalcula_coste
+     * @param string $codcombinacion
      * @return boolean
      */
     public function sum_stock($codalmacen, $cantidad = 1, $recalcula_coste = FALSE, $codcombinacion = NULL) {
@@ -994,7 +994,7 @@ class articulo extends \fs_model {
      * Comprueba y añade una cadena a la lista de búsquedas precargadas
      * en memcache. Devuelve TRUE si la cadena ya está en la lista de
      * precargadas.
-     * @param type $tag
+     * @param string $tag
      * @return boolean
      */
     private function new_search_tag($tag) {
@@ -1058,12 +1058,12 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve un array con los artículos encontrados en base a la búsqueda.
-     * @param type $query
-     * @param type $offset
-     * @param type $codfamilia
-     * @param type $con_stock
-     * @param type $codfabricante
-     * @param type $bloqueados
+     * @param string $query
+     * @param integer $offset
+     * @param string $codfamilia
+     * @param boolean $con_stock
+     * @param string $codfabricante
+     * @param boolean $bloqueados
      * @return \articulo
      */
     public function search($query = '', $offset = 0, $codfamilia = '', $con_stock = FALSE, $codfabricante = '', $bloqueados = FALSE) {
@@ -1162,9 +1162,9 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve un array con los artículos que tengan $cod como código de barras.
-     * @param type $cod
-     * @param type $offset
-     * @param type $limit
+     * @param string $cod
+     * @param integer $offset
+     * @param integer $limit
      * @return \articulo
      */
     public function search_by_codbar($cod, $offset = 0, $limit = FS_ITEM_LIMIT) {
@@ -1206,8 +1206,8 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve el listado de artículos públicos, desde $offset hasta $offset+$limit
-     * @param type $offset
-     * @param type $limit
+     * @param integer $offset
+     * @param integer $limit
      * @return \articulo
      */
     public function all_publico($offset = 0, $limit = FS_ITEM_LIMIT) {
@@ -1227,9 +1227,9 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve los artículos de una familia.
-     * @param type $cod
-     * @param type $offset
-     * @param type $limit
+     * @param string $cod
+     * @param integer $offset
+     * @param integer $limit
      * @return \articulo
      */
     public function all_from_familia($cod, $offset = 0, $limit = FS_ITEM_LIMIT) {
@@ -1249,9 +1249,9 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve los artículos de un fabricante.
-     * @param type $cod
-     * @param type $offset
-     * @param type $limit
+     * @param string $cod
+     * @param integer $offset
+     * @param integer $limit
      * @return \articulo
      */
     public function all_from_fabricante($cod, $offset = 0, $limit = FS_ITEM_LIMIT) {

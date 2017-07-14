@@ -30,13 +30,13 @@ class agencia_transporte extends \fs_model {
 
     /**
      * Clave primaria. Varchar(8).
-     * @var type 
+     * @var string
      */
     public $codtrans;
 
     /**
      * Nombre de la agencia.
-     * @var type 
+     * @var string
      */
     public $nombre;
     public $telefono;
@@ -44,7 +44,7 @@ class agencia_transporte extends \fs_model {
 
     /**
      * TRUE => activo.
-     * @var type
+     * @var bool
      */
     public $activo;
 
@@ -71,7 +71,7 @@ class agencia_transporte extends \fs_model {
 
     /**
      * Devuelve la url donde ver/modificar estos datos
-     * @return type
+     * @return string
      */
     public function url() {
         return "index.php?page=admin_transportes&cod=" . $this->codtrans;
@@ -79,7 +79,7 @@ class agencia_transporte extends \fs_model {
 
     /**
      * Devuelve la agencia de transporte con codtrans = $cod
-     * @param type $cod
+     * @param string $cod
      * @return \FacturaScripts\model\agencia_transporte|boolean
      */
     public function get($cod) {
@@ -103,7 +103,7 @@ class agencia_transporte extends \fs_model {
 
     /**
      * Guarda los datos en la base de datos
-     * @return type
+     * @return boolean
      */
     public function save() {
         if ($this->exists()) {
@@ -126,7 +126,7 @@ class agencia_transporte extends \fs_model {
 
     /**
      * Elimina la agencia de transportes (de la base de datos)
-     * @return type
+     * @return boolean
      */
     public function delete() {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE codtrans = " . $this->var2str($this->codtrans) . ";");

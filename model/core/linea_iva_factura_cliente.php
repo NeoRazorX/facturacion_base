@@ -30,55 +30,55 @@ class linea_iva_factura_cliente extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer 
      */
     public $idlinea;
 
     /**
      * ID de la factura relacionada.
-     * @var type 
+     * @var integer 
      */
     public $idfactura;
 
     /**
      * neto + totaliva + totalrecargo
-     * @var type 
+     * @var double 
      */
     public $totallinea;
 
     /**
      * Total de recargo de equivalencia para ese impuesto.
-     * @var type 
+     * @var double 
      */
     public $totalrecargo;
 
     /**
      * % de recargo de equivalencia del impuesto.
-     * @var type 
+     * @var double 
      */
     public $recargo;
 
     /**
      * Total de IVA para ese impuesto.
-     * @var type 
+     * @var double 
      */
     public $totaliva;
 
     /**
      * % de IVA del impuesto.
-     * @var type 
+     * @var double 
      */
     public $iva;
 
     /**
      * Código del impuesto relacionado.
-     * @var type 
+     * @var string
      */
     public $codimpuesto;
 
     /**
      * Neto o base imponible para ese impuesto.
-     * @var type 
+     * @var double 
      */
     public $neto;
 

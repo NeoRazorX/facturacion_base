@@ -29,13 +29,13 @@ class direccion_proveedor extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $id;
 
     /**
      * Código del proveedor asociado.
-     * @var type 
+     * @var string 
      */
     public $codproveedor;
     public $codpais;
@@ -47,14 +47,14 @@ class direccion_proveedor extends \fs_model {
 
     /**
      * TRUE -> dirección principal
-     * @var type 
+     * @var boolean
      */
     public $direccionppal;
     public $descripcion;
 
     /**
      * Fecha de la última modificación.
-     * @var type 
+     * @var string 
      */
     public $fecha;
 

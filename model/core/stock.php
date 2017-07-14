@@ -32,7 +32,7 @@ class stock extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $idstock;
     public $codalmacen;

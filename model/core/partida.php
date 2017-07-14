@@ -33,25 +33,25 @@ class partida extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $idpartida;
 
     /**
      * ID del asiento relacionado.
-     * @var type 
+     * @var integer
      */
     public $idasiento;
 
     /**
      * ID de la subcuenta relacionada.
-     * @var type 
+     * @var integer
      */
     public $idsubcuenta;
 
     /**
      * Código, que no ID, de la subcuenta relacionada.
-     * @var type 
+     * @var string 
      */
     public $codsubcuenta;
     public $idconcepto;
@@ -141,10 +141,6 @@ class partida extends \fs_model {
         $this->saldo = 0;
         $this->sum_debe = 0;
         $this->sum_haber = 0;
-    }
-
-    protected function install() {
-        return '';
     }
 
     public function url() {

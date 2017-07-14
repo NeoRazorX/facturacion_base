@@ -38,50 +38,50 @@ class articulo_traza extends \fs_model {
 
     /**
      * Clave primaria
-     * @var type 
+     * @var integer
      */
     public $id;
 
     /**
      * Referencia del artículo
-     * @var type varchar 
+     * @var string varchar 
      */
     public $referencia;
 
     /**
      * Numero de serie
      * Clave primaria.
-     * @var type varchar 
+     * @var string varchar 
      */
     public $numserie;
 
     /**
      * Número o identificador del lote
-     * @var type 
+     * @var string 
      */
     public $lote;
 
     /**
      * Id linea albaran venta
-     * @var type serial
+     * @var integer serial
      */
     public $idlalbventa;
 
     /**
      * id linea factura venta
-     * @var type serial
+     * @var integer serial
      */
     public $idlfacventa;
 
     /**
      * Id linea albaran compra
-     * @var type serial
+     * @var integer serial
      */
     public $idlalbcompra;
 
     /**
      * Id linea factura compra
-     * @var type serial
+     * @var integer serial
      */
     public $idlfaccompra;
     public $fecha_entrada;
@@ -179,7 +179,7 @@ class articulo_traza extends \fs_model {
 
     /**
      * Devuelve una traza a partir de un $id.
-     * @param type $id
+     * @param string $id
      * @return boolean|\articulo_traza
      */
     public function get($id) {
@@ -193,7 +193,7 @@ class articulo_traza extends \fs_model {
 
     /**
      * Devuelve la traza correspondiente al número de serie $numserie.
-     * @param type $numserie
+     * @param string $numserie
      * @return boolean|\articulo_traza
      */
     public function get_by_numserie($numserie) {
@@ -255,8 +255,8 @@ class articulo_traza extends \fs_model {
 
     /**
      * Devuelve todas las trazas de un artículo.
-     * @param type $ref
-     * @param type $sololibre
+     * @param string $ref
+     * @param boolean $sololibre
      * @return \articulo_traza
      */
     public function all_from_ref($ref, $sololibre = FALSE) {
@@ -280,8 +280,8 @@ class articulo_traza extends \fs_model {
 
     /**
      * Devuelve todas las trazas cuya columna $tipo tenga valor $idlinea
-     * @param type $tipo
-     * @param type $idlinea
+     * @param string $tipo
+     * @param integer $idlinea
      * @return \articulo_traza
      */
     public function all_from_linea($tipo, $idlinea) {

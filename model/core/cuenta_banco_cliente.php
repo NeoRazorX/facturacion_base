@@ -29,13 +29,13 @@ class cuenta_banco_cliente extends \fs_model {
 
     /**
      * Clave primaria. Varchar(6).
-     * @var type 
+     * @var string 
      */
     public $codcuenta;
 
     /**
      * Código del cliente.
-     * @var type 
+     * @var string 
      */
     public $codcliente;
     public $descripcion;
@@ -44,13 +44,13 @@ class cuenta_banco_cliente extends \fs_model {
 
     /**
      * ¿Es la cuenta principal del cliente?
-     * @var type 
+     * @var boolean
      */
     public $principal;
 
     /**
      * Fecha en la que se firmó el mandato para autorizar la domiciliación de recibos.
-     * @var type 
+     * @var string 
      */
     public $fmandato;
 
@@ -85,8 +85,8 @@ class cuenta_banco_cliente extends \fs_model {
 
     /**
      * Devuelve el IBAN con o sin espacios.
-     * @param type $espacios
-     * @return type
+     * @param string $espacios
+     * @return string
      */
     public function iban($espacios = FALSE) {
         if ($espacios) {

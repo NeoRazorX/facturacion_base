@@ -29,14 +29,14 @@ class familia extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var string 
      */
     public $codfamilia;
     public $descripcion;
 
     /**
      * Código de la familia madre.
-     * @var type 
+     * @var string 
      */
     public $madre;
     public $nivel;
@@ -86,7 +86,7 @@ class familia extends \fs_model {
 
     /**
      * @deprecated since version 50
-     * @return type
+     * @return boolean
      */
     public function is_default() {
         return FALSE;
@@ -158,7 +158,7 @@ class familia extends \fs_model {
 
     /**
      * Elimina la familia de la base de datos
-     * @return type
+     * @return boolean
      */
     public function delete() {
         $this->clean_cache();
@@ -205,10 +205,10 @@ class familia extends \fs_model {
 
     /**
      * Completa los datos de la lista de familias con el nivel
-     * @param type $familias
-     * @param type $madre
-     * @param type $nivel
-     * @return type
+     * @param string $familias
+     * @param string $madre
+     * @param string $nivel
+     * @return \familia
      */
     private function aux_all(&$familias, $madre, $nivel) {
         $subfamilias = array();

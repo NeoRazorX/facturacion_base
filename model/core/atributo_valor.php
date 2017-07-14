@@ -29,13 +29,13 @@ class atributo_valor extends \fs_model {
 
     /**
      * Clave primaria
-     * @var type 
+     * @var integer
      */
     public $id;
 
     /**
      * Código del atributo relacionado.
-     * @var type 
+     * @var string
      */
     public $codatributo;
     public $valor;
@@ -51,10 +51,6 @@ class atributo_valor extends \fs_model {
             $this->codatributo = NULL;
             $this->valor = NULL;
         }
-    }
-
-    protected function install() {
-        return '';
     }
 
     public function url() {

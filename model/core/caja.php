@@ -31,26 +31,26 @@ class caja extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer 
      */
     public $id;
 
     /**
      * Identificador del terminal. En la tabla cajas_terminales.
-     * @var type 
+     * @var integer 
      */
     public $fs_id;
 
     /**
      * Codigo del agente que abre y usa la caja.
      * El agente asociado al usuario.
-     * @var type 
+     * @var string 
      */
     public $codagente;
 
     /**
      * Fecha de apertura (inicio) de la caja.
-     * @var type 
+     * @var string 
      */
     public $fecha_inicial;
     public $dinero_inicial;
@@ -59,25 +59,25 @@ class caja extends \fs_model {
 
     /**
      * Numero de tickets emitidos en esta caja.
-     * @var type 
+     * @var integer 
      */
     public $tickets;
 
     /**
      * Ultima IP del usuario de la caja.
-     * @var type 
+     * @var string 
      */
     public $ip;
 
     /**
      * El objeto agente asignado.
-     * @var type 
+     * @var \agente
      */
     public $agente;
 
     /**
      * UN array con todos los agentes utilizados, para agilizar la carga.
-     * @var type 
+     * @var array
      */
     private static $agentes;
 

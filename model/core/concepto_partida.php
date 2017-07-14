@@ -29,7 +29,7 @@ class concepto_partida extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var string 
      */
     public $idconceptopar;
     public $concepto;

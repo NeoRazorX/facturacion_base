@@ -35,14 +35,14 @@ class cuenta extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $idcuenta;
     public $codcuenta;
 
     /**
      * Código del ejercicio de esta cuenta.
-     * @var type 
+     * @var string 
      */
     public $codejercicio;
     public $idepigrafe;
@@ -116,8 +116,8 @@ class cuenta extends \fs_model {
 
     /**
      * Obtiene la primera cuenta especial seleccionada.
-     * @param type $id
-     * @param type $codejercicio
+     * @param string $id
+     * @param string $codejercicio
      * @return boolean|\cuenta
      */
     public function get_cuentaesp($id, $codejercicio) {
