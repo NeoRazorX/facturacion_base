@@ -122,19 +122,18 @@ class articulo_combinacion extends \fs_model {
             $this->codbarras = $c['codbarras'];
             $this->impactoprecio = floatval($c['impactoprecio']);
             $this->stockfis = floatval($c['stockfis']);
-        } else {
-            $this->id = NULL;
-            $this->codigo = NULL;
-            $this->codigo2 = NULL;
-            $this->referencia = NULL;
-            $this->idvalor = NULL;
-            $this->nombreatributo = NULL;
-            $this->valor = NULL;
-            $this->refcombinacion = NULL;
-            $this->codbarras = NULL;
-            $this->impactoprecio = 0;
-            $this->stockfis = 0;
         }
+        $this->id = NULL;
+        $this->codigo = NULL;
+        $this->codigo2 = NULL;
+        $this->referencia = NULL;
+        $this->idvalor = NULL;
+        $this->nombreatributo = NULL;
+        $this->valor = NULL;
+        $this->refcombinacion = NULL;
+        $this->codbarras = NULL;
+        $this->impactoprecio = 0;
+        $this->stockfis = 0;
     }
 
     protected function install() {
@@ -154,9 +153,9 @@ class articulo_combinacion extends \fs_model {
         $data = $this->db->select("SELECT * FROM articulo_combinaciones WHERE id = " . $this->var2str($id) . ";");
         if ($data) {
             return new \articulo_combinacion($data[0]);
-        } else {
-            return FALSE;
         }
+
+        return FALSE;
     }
 
     /**
@@ -169,9 +168,8 @@ class articulo_combinacion extends \fs_model {
         $data = $this->db->select("SELECT * FROM articulo_combinaciones WHERE codigo = " . $this->var2str($cod) . ";");
         if ($data) {
             return new \articulo_combinacion($data[0]);
-        } else {
-            return FALSE;
         }
+        return FALSE;
     }
 
     /**
@@ -182,8 +180,8 @@ class articulo_combinacion extends \fs_model {
         $cod = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codigo') . ") as cod FROM " . $this->table_name . ";");
         if ($cod) {
             return 1 + intval($cod[0]['cod']);
-        } else
-            return 1;
+        }
+        return 1;
     }
 
     /**
@@ -193,9 +191,8 @@ class articulo_combinacion extends \fs_model {
     public function exists() {
         if (is_null($this->id)) {
             return FALSE;
-        } else {
-            return $this->db->select("SELECT * FROM articulo_combinaciones WHERE id = " . $this->var2str($this->id) . ";");
         }
+        return $this->db->select("SELECT * FROM articulo_combinaciones WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     /**
@@ -217,31 +214,29 @@ class articulo_combinacion extends \fs_model {
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            if (is_null($this->codigo)) {
-                $this->codigo = $this->get_new_codigo();
-            }
-
-            $sql = "INSERT INTO articulo_combinaciones (codigo,codigo2,referencia,idvalor,nombreatributo,"
-                    . "valor,refcombinacion,codbarras,impactoprecio,stockfis) VALUES "
-                    . "(" . $this->var2str($this->codigo)
-                    . "," . $this->var2str($this->codigo2)
-                    . "," . $this->var2str($this->referencia)
-                    . "," . $this->var2str($this->idvalor)
-                    . "," . $this->var2str($this->nombreatributo)
-                    . "," . $this->var2str($this->valor)
-                    . "," . $this->var2str($this->refcombinacion)
-                    . "," . $this->var2str($this->codbarras)
-                    . "," . $this->var2str($this->impactoprecio)
-                    . "," . $this->var2str($this->stockfis) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            } else {
-                return FALSE;
-            }
         }
+        if (is_null($this->codigo)) {
+            $this->codigo = $this->get_new_codigo();
+        }
+
+        $sql = "INSERT INTO articulo_combinaciones (codigo,codigo2,referencia,idvalor,nombreatributo,"
+                . "valor,refcombinacion,codbarras,impactoprecio,stockfis) VALUES "
+                . "(" . $this->var2str($this->codigo)
+                . "," . $this->var2str($this->codigo2)
+                . "," . $this->var2str($this->referencia)
+                . "," . $this->var2str($this->idvalor)
+                . "," . $this->var2str($this->nombreatributo)
+                . "," . $this->var2str($this->valor)
+                . "," . $this->var2str($this->refcombinacion)
+                . "," . $this->var2str($this->codbarras)
+                . "," . $this->var2str($this->impactoprecio)
+                . "," . $this->var2str($this->stockfis) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
+        }
+        return FALSE;
     }
 
     /**
@@ -261,24 +256,28 @@ class articulo_combinacion extends \fs_model {
         return $this->db->exec("DELETE FROM articulo_combinaciones WHERE referencia = " . $this->var2str($ref) . ";");
     }
 
+    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
+
+        $lista = array();
+        $data = $this->db->select($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $lista[] = new \articulo_combinacion($a);
+            }
+        }
+        return $lista;
+    }
+
     /**
      * Devuelve un array con todas las combinaciones del artículo con referencia = $ref
      * @param type $ref
      * @return \articulo_combinacion
      */
     public function all_from_ref($ref) {
-        $lista = array();
 
         $sql = "SELECT * FROM articulo_combinaciones WHERE referencia = " . $this->var2str($ref)
                 . " ORDER BY codigo ASC, nombreatributo ASC;";
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $d) {
-                $lista[] = new \articulo_combinacion($d);
-            }
-        }
-
-        return $lista;
+        return $this->all_from($sql);
     }
 
     /**
@@ -288,18 +287,10 @@ class articulo_combinacion extends \fs_model {
      * @return \articulo_combinacion
      */
     public function all_from_codigo($cod) {
-        $lista = array();
 
         $sql = "SELECT * FROM articulo_combinaciones WHERE codigo = " . $this->var2str($cod)
                 . " ORDER BY nombreatributo ASC;";
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $d) {
-                $lista[] = new \articulo_combinacion($d);
-            }
-        }
-
-        return $lista;
+        return $this->all_from($sql);
     }
 
     /**
@@ -309,18 +300,10 @@ class articulo_combinacion extends \fs_model {
      * @return \articulo_combinacion
      */
     public function all_from_codigo2($cod) {
-        $lista = array();
 
         $sql = "SELECT * FROM articulo_combinaciones WHERE codigo2 = " . $this->var2str($cod)
                 . " ORDER BY nombreatributo ASC;";
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $d) {
-                $lista[] = new \articulo_combinacion($d);
-            }
-        }
-
-        return $lista;
+        return $this->all_from($sql);
     }
 
     /**
@@ -338,9 +321,8 @@ class articulo_combinacion extends \fs_model {
             foreach ($data as $d) {
                 if (isset($lista[$d['codigo']])) {
                     $lista[$d['codigo']][] = new \articulo_combinacion($d);
-                } else {
-                    $lista[$d['codigo']] = array(new \articulo_combinacion($d));
                 }
+                $lista[$d['codigo']] = array(new \articulo_combinacion($d));
             }
         }
 
@@ -354,20 +336,12 @@ class articulo_combinacion extends \fs_model {
      * @return \articulo_combinacion
      */
     public function search($query = '') {
-        $artilist = array();
         $query = $this->no_html(mb_strtolower($query, 'UTF8'));
 
         $sql = "SELECT * FROM " . $this->table_name . " WHERE referencia LIKE '" . $query . "%'"
                 . " OR codbarras = " . $this->var2str($query);
 
-        $data = $this->db->select_limit($sql, 200);
-        if ($data) {
-            foreach ($data as $d) {
-                $artilist[] = new \articulo_combinacion($d);
-            }
-        }
-
-        return $artilist;
+        return $this->all_from($sql, 200);
     }
 
 }

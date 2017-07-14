@@ -51,11 +51,10 @@ class grupo_clientes extends \fs_model {
             $this->codgrupo = $g['codgrupo'];
             $this->nombre = $g['nombre'];
             $this->codtarifa = $g['codtarifa'];
-        } else {
-            $this->codgrupo = NULL;
-            $this->nombre = NULL;
-            $this->codtarifa = NULL;
         }
+        $this->codgrupo = NULL;
+        $this->nombre = NULL;
+        $this->codtarifa = NULL;
     }
 
     protected function install() {
@@ -85,10 +84,10 @@ class grupo_clientes extends \fs_model {
         if (strtolower(FS_DB_TYPE) == 'postgresql') {
             $sql = "SELECT codgrupo from " . $this->table_name . " where codgrupo ~ '^\d+$'"
                     . " ORDER BY codgrupo::integer DESC";
-        } else {
-            $sql = "SELECT codgrupo from " . $this->table_name . " where codgrupo REGEXP '^[0-9]+$'"
-                    . " ORDER BY CAST(`codgrupo` AS decimal) DESC";
         }
+        $sql = "SELECT codgrupo from " . $this->table_name . " where codgrupo REGEXP '^[0-9]+$'"
+                . " ORDER BY CAST(`codgrupo` AS decimal) DESC";
+
 
         $data = $this->db->select_limit($sql, 1, 0);
         if ($data) {
@@ -122,12 +121,12 @@ class grupo_clientes extends \fs_model {
             $sql = "UPDATE " . $this->table_name . " SET nombre = " . $this->var2str($this->nombre)
                     . ", codtarifa = " . $this->var2str($this->codtarifa)
                     . "  WHERE codgrupo = " . $this->var2str($this->codgrupo) . ";";
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (codgrupo,nombre,codtarifa) VALUES "
-                    . "(" . $this->var2str($this->codgrupo)
-                    . "," . $this->var2str($this->nombre)
-                    . "," . $this->var2str($this->codtarifa) . ");";
         }
+        $sql = "INSERT INTO " . $this->table_name . " (codgrupo,nombre,codtarifa) VALUES "
+                . "(" . $this->var2str($this->codgrupo)
+                . "," . $this->var2str($this->nombre)
+                . "," . $this->var2str($this->codtarifa) . ");";
+
 
         return $this->db->exec($sql);
     }

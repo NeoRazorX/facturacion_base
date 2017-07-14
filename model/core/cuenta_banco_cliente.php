@@ -68,19 +68,14 @@ class cuenta_banco_cliente extends \fs_model {
             if ($c['fmandato']) {
                 $this->fmandato = date('d-m-Y', strtotime($c['fmandato']));
             }
-        } else {
-            $this->codcliente = NULL;
-            $this->codcuenta = NULL;
-            $this->descripcion = NULL;
-            $this->iban = NULL;
-            $this->swift = NULL;
-            $this->principal = TRUE;
-            $this->fmandato = NULL;
         }
-    }
-
-    protected function install() {
-        return '';
+        $this->codcliente = NULL;
+        $this->codcuenta = NULL;
+        $this->descripcion = NULL;
+        $this->iban = NULL;
+        $this->swift = NULL;
+        $this->principal = TRUE;
+        $this->fmandato = NULL;
     }
 
     /**
@@ -96,25 +91,23 @@ class cuenta_banco_cliente extends \fs_model {
                 $txt .= substr($iban, $i, 4) . ' ';
             }
             return $txt;
-        } else {
-            return str_replace(' ', '', $this->iban);
         }
+        return str_replace(' ', '', $this->iban);
     }
 
     public function url() {
         if (is_null($this->codcliente)) {
             return '#';
-        } else {
-            return 'index.php?page=ventas_cliente&cod=' . $this->codcliente . '#cuentasb';
         }
+        return 'index.php?page=ventas_cliente&cod=' . $this->codcliente . '#cuentasb';
     }
 
     public function get($cod) {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcuenta = " . $this->var2str($cod) . ";");
         if ($data) {
             return new \cuenta_banco_cliente($data[0]);
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     private function get_new_codigo() {
@@ -122,17 +115,16 @@ class cuenta_banco_cliente extends \fs_model {
         $cod = $this->db->select($sql);
         if ($cod) {
             return 1 + intval($cod[0]['cod']);
-        } else
-            return 1;
+        }
+        return 1;
     }
 
     public function exists() {
         if (is_null($this->codcuenta)) {
             return FALSE;
-        } else {
-            return $this->db->select("SELECT * FROM " . $this->table_name
-                            . " WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";");
         }
+        return $this->db->select("SELECT * FROM " . $this->table_name
+                        . " WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";");
     }
 
     public function save() {
@@ -146,17 +138,17 @@ class cuenta_banco_cliente extends \fs_model {
                     ", principal = " . $this->var2str($this->principal) .
                     ", fmandato = " . $this->var2str($this->fmandato) .
                     "  WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";";
-        } else {
-            $this->codcuenta = $this->get_new_codigo();
-            $sql = "INSERT INTO " . $this->table_name . " (codcliente,codcuenta,descripcion,iban,swift,principal,fmandato)" .
-                    " VALUES (" . $this->var2str($this->codcliente) .
-                    "," . $this->var2str($this->codcuenta) .
-                    "," . $this->var2str($this->descripcion) .
-                    "," . $this->var2str($this->iban) .
-                    "," . $this->var2str($this->swift) .
-                    "," . $this->var2str($this->principal) .
-                    "," . $this->var2str($this->fmandato) . ");";
         }
+        $this->codcuenta = $this->get_new_codigo();
+        $sql = "INSERT INTO " . $this->table_name . " (codcliente,codcuenta,descripcion,iban,swift,principal,fmandato)" .
+                " VALUES (" . $this->var2str($this->codcliente) .
+                "," . $this->var2str($this->codcuenta) .
+                "," . $this->var2str($this->descripcion) .
+                "," . $this->var2str($this->iban) .
+                "," . $this->var2str($this->swift) .
+                "," . $this->var2str($this->principal) .
+                "," . $this->var2str($this->fmandato) . ");";
+
 
         if ($this->principal) {
             /// si esta cuenta es la principal, desmarcamos las demás

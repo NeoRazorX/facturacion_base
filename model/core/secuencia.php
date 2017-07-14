@@ -52,14 +52,13 @@ class secuencia extends \fs_model {
             $this->valor = $this->intval($s['valor']);
             $this->descripcion = $s['descripcion'];
             $this->nombre = $s['nombre'];
-        } else {
-            $this->idsec = NULL;
-            $this->id = NULL;
-            $this->valorout = 0;
-            $this->valor = 1;
-            $this->descripcion = NULL;
-            $this->nombre = NULL;
         }
+        $this->idsec = NULL;
+        $this->id = NULL;
+        $this->valorout = 0;
+        $this->valor = 1;
+        $this->descripcion = NULL;
+        $this->nombre = NULL;
     }
 
     protected function install() {
@@ -71,8 +70,8 @@ class secuencia extends \fs_model {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idsec = " . $this->var2str($idsec) . ";");
         if ($data) {
             return new \secuencia($data[0]);
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     public function get_by_params($id, $nombre) {
@@ -82,8 +81,8 @@ class secuencia extends \fs_model {
         $data = $this->db->select($sql);
         if ($data) {
             return new \secuencia($data[0]);
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     public function get_by_params2($eje, $serie, $nombre) {
@@ -94,24 +93,22 @@ class secuencia extends \fs_model {
             $sec = $this->get_by_params($aux->id, $nombre);
             if ($sec) {
                 return $sec;
-            } else {
-                $newsec = new \secuencia();
-                $newsec->id = $aux->id;
-                $newsec->nombre = $nombre;
-                $newsec->descripcion = 'Secuencia del ejercicio ' . $eje . ' y la serie ' . $serie;
-                return $newsec;
             }
-        } else {
-            $this->new_error_msg("¡Secuencia de ejercicio no encontrada!");
-            return FALSE;
+            $newsec = new \secuencia();
+            $newsec->id = $aux->id;
+            $newsec->nombre = $nombre;
+            $newsec->descripcion = 'Secuencia del ejercicio ' . $eje . ' y la serie ' . $serie;
+            return $newsec;
         }
+        $this->new_error_msg("¡Secuencia de ejercicio no encontrada!");
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->idsec)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idsec = " . $this->var2str($this->idsec) . ";");
+        }
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idsec = " . $this->var2str($this->idsec) . ";");
     }
 
     public function save() {
@@ -124,20 +121,19 @@ class secuencia extends \fs_model {
                     "  WHERE idsec = " . $this->var2str($this->idsec) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (id,valorout,valor,descripcion,nombre) VALUES
-                  (" . $this->var2str($this->id) .
-                    "," . $this->var2str($this->valorout) .
-                    "," . $this->var2str($this->valor) .
-                    "," . $this->var2str($this->descripcion) .
-                    "," . $this->var2str($this->nombre) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->idsec = $this->db->lastval();
-                return TRUE;
-            } else
-                return FALSE;
         }
+        $sql = "INSERT INTO " . $this->table_name . " (id,valorout,valor,descripcion,nombre) VALUES
+                  (" . $this->var2str($this->id) .
+                "," . $this->var2str($this->valorout) .
+                "," . $this->var2str($this->valor) .
+                "," . $this->var2str($this->descripcion) .
+                "," . $this->var2str($this->nombre) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->idsec = $this->db->lastval();
+            return TRUE;
+        }
+        return FALSE;
     }
 
     public function delete() {
@@ -173,14 +169,13 @@ class secuencia_contabilidad extends \fs_model {
             $this->nombre = $s['nombre'];
             $this->valor = $this->intval($s['valor']);
             $this->valorout = $this->intval($s['valorout']);
-        } else {
-            $this->codejercicio = NULL;
-            $this->descripcion = NULL;
-            $this->idsecuencia = NULL;
-            $this->nombre = NULL;
-            $this->valor = NULL;
-            $this->valorout = 1;
         }
+        $this->codejercicio = NULL;
+        $this->descripcion = NULL;
+        $this->idsecuencia = NULL;
+        $this->nombre = NULL;
+        $this->valor = NULL;
+        $this->valorout = 1;
     }
 
     protected function install() {
@@ -194,30 +189,28 @@ class secuencia_contabilidad extends \fs_model {
         $data = $this->db->select($sql);
         if ($data) {
             return new \secuencia_contabilidad($data[0]);
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     public function get_by_params2($eje, $nombre) {
         $sec = $this->get_by_params($eje, $nombre);
         if ($sec) {
             return $sec;
-        } else {
-            $newsec = new \secuencia_contabilidad();
-            $newsec->codejercicio = $eje;
-            $newsec->descripcion = 'Creado por FacturaScripts';
-            $newsec->nombre = $nombre;
-            return $newsec;
         }
+        $newsec = new \secuencia_contabilidad();
+        $newsec->codejercicio = $eje;
+        $newsec->descripcion = 'Creado por FacturaScripts';
+        $newsec->nombre = $nombre;
+        return $newsec;
     }
 
     public function exists() {
         if (is_null($this->idsecuencia)) {
             return FALSE;
-        } else {
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idsecuencia = " .
-                            $this->var2str($this->idsecuencia) . ";");
         }
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idsecuencia = " .
+                        $this->var2str($this->idsecuencia) . ";");
     }
 
     public function save() {
@@ -230,20 +223,19 @@ class secuencia_contabilidad extends \fs_model {
                     "  WHERE idsecuencia = " . $this->var2str($this->idsecuencia) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (codejercicio,descripcion,nombre,valor,valorout) VALUES "
-                    . "(" . $this->var2str($this->codejercicio)
-                    . "," . $this->var2str($this->descripcion)
-                    . "," . $this->var2str($this->nombre)
-                    . "," . $this->var2str($this->valor)
-                    . "," . $this->var2str($this->valorout) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->idsecuencia = $this->db->lastval();
-                return TRUE;
-            } else
-                return FALSE;
         }
+        $sql = "INSERT INTO " . $this->table_name . " (codejercicio,descripcion,nombre,valor,valorout) VALUES "
+                . "(" . $this->var2str($this->codejercicio)
+                . "," . $this->var2str($this->descripcion)
+                . "," . $this->var2str($this->nombre)
+                . "," . $this->var2str($this->valor)
+                . "," . $this->var2str($this->valorout) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->idsecuencia = $this->db->lastval();
+            return TRUE;
+        }
+        return FALSE;
     }
 
     public function delete() {
@@ -287,18 +279,17 @@ class secuencia_ejercicio extends \fs_model {
             $this->npedidocli = $this->intval($s['npedidocli']);
             $this->npedidoprov = $this->intval($s['npedidoprov']);
             $this->npresupuestocli = $this->intval($s['npresupuestocli']);
-        } else {
-            $this->id = NULL;
-            $this->codejercicio = NULL;
-            $this->codserie = NULL;
-            $this->nalbarancli = 1;
-            $this->nalbaranprov = 1;
-            $this->nfacturacli = 1;
-            $this->nfacturaprov = 1;
-            $this->npedidocli = 1;
-            $this->npedidoprov = 1;
-            $this->npresupuestocli = 1;
         }
+        $this->id = NULL;
+        $this->codejercicio = NULL;
+        $this->codserie = NULL;
+        $this->nalbarancli = 1;
+        $this->nalbaranprov = 1;
+        $this->nfacturacli = 1;
+        $this->nfacturaprov = 1;
+        $this->npedidocli = 1;
+        $this->npedidoprov = 1;
+        $this->npresupuestocli = 1;
     }
 
     protected function install() {
@@ -309,8 +300,8 @@ class secuencia_ejercicio extends \fs_model {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
         if ($data) {
             return new \secuencia_ejercicio($data[0]);
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     public function get_by_params($eje, $serie) {
@@ -320,8 +311,8 @@ class secuencia_ejercicio extends \fs_model {
         $data = $this->db->select($sql);
         if ($data) {
             return new \secuencia_ejercicio($data[0]);
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     public function check() {
@@ -352,9 +343,8 @@ class secuencia_ejercicio extends \fs_model {
     public function exists() {
         if (is_null($this->id)) {
             return FALSE;
-        } else {
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
         }
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function save() {
@@ -371,25 +361,24 @@ class secuencia_ejercicio extends \fs_model {
                     "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (codejercicio,codserie,nalbarancli,
+        }
+        $sql = "INSERT INTO " . $this->table_name . " (codejercicio,codserie,nalbarancli,
             nalbaranprov,nfacturacli,nfacturaprov,npedidocli,npedidoprov,npresupuestocli)
             VALUES (" . $this->var2str($this->codejercicio) .
-                    "," . $this->var2str($this->codserie) .
-                    "," . $this->var2str($this->nalbarancli) .
-                    "," . $this->var2str($this->nalbaranprov) .
-                    "," . $this->var2str($this->nfacturacli) .
-                    "," . $this->var2str($this->nfacturaprov) .
-                    "," . $this->var2str($this->npedidocli) .
-                    "," . $this->var2str($this->npedidoprov) .
-                    "," . $this->var2str($this->npresupuestocli) . ");";
+                "," . $this->var2str($this->codserie) .
+                "," . $this->var2str($this->nalbarancli) .
+                "," . $this->var2str($this->nalbaranprov) .
+                "," . $this->var2str($this->nfacturacli) .
+                "," . $this->var2str($this->nfacturaprov) .
+                "," . $this->var2str($this->npedidocli) .
+                "," . $this->var2str($this->npedidoprov) .
+                "," . $this->var2str($this->npresupuestocli) . ");";
 
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            } else
-                return FALSE;
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
         }
+        return FALSE;
     }
 
     public function delete() {

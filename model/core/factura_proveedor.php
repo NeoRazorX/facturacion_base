@@ -236,40 +236,39 @@ class factura_proveedor extends \fs_model {
             $this->totalrecargo = floatval($f['totalrecargo']);
 
             $this->numdocs = intval($f['numdocs']);
-        } else {
-            $this->anulada = FALSE;
-            $this->cifnif = '';
-            $this->codagente = NULL;
-            $this->codalmacen = $this->default_items->codalmacen();
-            $this->coddivisa = NULL;
-            $this->codejercicio = NULL;
-            $this->codigo = NULL;
-            $this->codigorect = NULL;
-            $this->codpago = $this->default_items->codpago();
-            $this->codproveedor = NULL;
-            $this->codserie = $this->default_items->codserie();
-            $this->fecha = Date('d-m-Y');
-            $this->hora = Date('H:i:s');
-            $this->idasiento = NULL;
-            $this->idasientop = NULL;
-            $this->idfactura = NULL;
-            $this->idfacturarect = NULL;
-            $this->irpf = 0;
-            $this->neto = 0;
-            $this->nombre = '';
-            $this->numero = NULL;
-            $this->numproveedor = NULL;
-            $this->observaciones = NULL;
-            $this->pagada = FALSE;
-            $this->tasaconv = 1;
-            $this->total = 0;
-            $this->totaleuros = 0;
-            $this->totalirpf = 0;
-            $this->totaliva = 0;
-            $this->totalrecargo = 0;
-
-            $this->numdocs = 0;
         }
+        $this->anulada = FALSE;
+        $this->cifnif = '';
+        $this->codagente = NULL;
+        $this->codalmacen = $this->default_items->codalmacen();
+        $this->coddivisa = NULL;
+        $this->codejercicio = NULL;
+        $this->codigo = NULL;
+        $this->codigorect = NULL;
+        $this->codpago = $this->default_items->codpago();
+        $this->codproveedor = NULL;
+        $this->codserie = $this->default_items->codserie();
+        $this->fecha = Date('d-m-Y');
+        $this->hora = Date('H:i:s');
+        $this->idasiento = NULL;
+        $this->idasientop = NULL;
+        $this->idfactura = NULL;
+        $this->idfacturarect = NULL;
+        $this->irpf = 0;
+        $this->neto = 0;
+        $this->nombre = '';
+        $this->numero = NULL;
+        $this->numproveedor = NULL;
+        $this->observaciones = NULL;
+        $this->pagada = FALSE;
+        $this->tasaconv = 1;
+        $this->total = 0;
+        $this->totaleuros = 0;
+        $this->totalirpf = 0;
+        $this->totaliva = 0;
+        $this->totalrecargo = 0;
+
+        $this->numdocs = 0;
     }
 
     protected function install() {
@@ -284,8 +283,8 @@ class factura_proveedor extends \fs_model {
             return '-';
         } else if (strlen($this->observaciones) < 60) {
             return $this->observaciones;
-        } else
-            return substr($this->observaciones, 0, 50) . '...';
+        }
+        return substr($this->observaciones, 0, 50) . '...';
     }
 
     /**
@@ -321,27 +320,23 @@ class factura_proveedor extends \fs_model {
                             } else if ($regiva0->get_fecha_inside($fecha)) {
                                 $this->new_error_msg('No se puede asignar la fecha ' . $fecha . ' porque ya hay'
                                         . ' una regularización de ' . FS_IVA . ' para ese periodo.');
-                            } else {
-                                $cambio = FALSE;
-                                $this->fecha = $fecha;
-                                $this->hora = $hora;
-
-                                /// ¿El ejercicio es distinto?
-                                if ($this->codejercicio != $eje2->codejercicio) {
-                                    $this->codejercicio = $eje2->codejercicio;
-                                    $this->new_codigo();
-                                }
                             }
-                        } else {
-                            $this->new_error_msg('El ejercicio ' . $eje2->nombre . ' está cerrado. No se puede modificar la fecha.');
+                            $cambio = FALSE;
+                            $this->fecha = $fecha;
+                            $this->hora = $hora;
+
+                            /// ¿El ejercicio es distinto?
+                            if ($this->codejercicio != $eje2->codejercicio) {
+                                $this->codejercicio = $eje2->codejercicio;
+                                $this->new_codigo();
+                            }
                         }
+                        $this->new_error_msg('El ejercicio ' . $eje2->nombre . ' está cerrado. No se puede modificar la fecha.');
                     }
-                } else {
-                    $this->new_error_msg('El ejercicio ' . $ejercicio->nombre . ' está cerrado. No se puede modificar la fecha.');
                 }
-            } else {
-                $this->new_error_msg('Ejercicio no encontrado.');
+                $this->new_error_msg('El ejercicio ' . $ejercicio->nombre . ' está cerrado. No se puede modificar la fecha.');
             }
+            $this->new_error_msg('Ejercicio no encontrado.');
         } else if ($hora != $this->hora) { /// factura existente y cambiamos hora
             $this->hora = $hora;
         }
@@ -352,36 +347,36 @@ class factura_proveedor extends \fs_model {
     public function url() {
         if (is_null($this->idfactura)) {
             return 'index.php?page=compras_facturas';
-        } else
-            return 'index.php?page=compras_factura&id=' . $this->idfactura;
+        }
+        return 'index.php?page=compras_factura&id=' . $this->idfactura;
     }
 
     public function asiento_url() {
         if (is_null($this->idasiento)) {
             return 'index.php?page=contabilidad_asientos';
-        } else
-            return 'index.php?page=contabilidad_asiento&id=' . $this->idasiento;
+        }
+        return 'index.php?page=contabilidad_asiento&id=' . $this->idasiento;
     }
 
     public function asiento_pago_url() {
         if (is_null($this->idasientop)) {
             return 'index.php?page=contabilidad_asientos';
-        } else
-            return 'index.php?page=contabilidad_asiento&id=' . $this->idasientop;
+        }
+        return 'index.php?page=contabilidad_asiento&id=' . $this->idasientop;
     }
 
     public function agente_url() {
         if (is_null($this->codagente)) {
             return "index.php?page=admin_agentes";
-        } else
-            return "index.php?page=admin_agente&cod=" . $this->codagente;
+        }
+        return "index.php?page=admin_agente&cod=" . $this->codagente;
     }
 
     public function proveedor_url() {
         if (is_null($this->codproveedor)) {
             return "index.php?page=compras_proveedores";
-        } else
-            return "index.php?page=compras_proveedor&cod=" . $this->codproveedor;
+        }
+        return "index.php?page=compras_proveedor&cod=" . $this->codproveedor;
     }
 
     /**
@@ -436,83 +431,80 @@ class factura_proveedor extends \fs_model {
                     $lineasi[0]->totalrecargo = round($lineasi[0]->totalrecargo, FS_NF0);
                     $lineasi[0]->totallinea = $lineasi[0]->neto + $lineasi[0]->totaliva + $lineasi[0]->totalrecargo;
                     $lineasi[0]->save();
-                } else {
+                }
+                /*
+                 * Como el neto y el iva se redondean en la factura, al dividirlo
+                 * en líneas de iva podemos encontrarnos con un descuadre que
+                 * hay que calcular y solucionar.
+                 */
+                $t_neto = 0;
+                $t_iva = 0;
+                foreach ($lineasi as $li) {
+                    $li->neto = bround($li->neto, FS_NF0);
+                    $li->totaliva = bround($li->totaliva, FS_NF0);
+                    $li->totallinea = $li->neto + $li->totaliva + $li->totalrecargo;
+
+                    $t_neto += $li->neto;
+                    $t_iva += $li->totaliva;
+                }
+
+                if (!$this->floatcmp($this->neto, $t_neto)) {
                     /*
-                     * Como el neto y el iva se redondean en la factura, al dividirlo
-                     * en líneas de iva podemos encontrarnos con un descuadre que
-                     * hay que calcular y solucionar.
+                     * Sumamos o restamos un céntimo a los netos más altos
+                     * hasta que desaparezca el descuadre
                      */
-                    $t_neto = 0;
-                    $t_iva = 0;
-                    foreach ($lineasi as $li) {
-                        $li->neto = bround($li->neto, FS_NF0);
-                        $li->totaliva = bround($li->totaliva, FS_NF0);
-                        $li->totallinea = $li->neto + $li->totaliva + $li->totalrecargo;
-
-                        $t_neto += $li->neto;
-                        $t_iva += $li->totaliva;
-                    }
-
-                    if (!$this->floatcmp($this->neto, $t_neto)) {
-                        /*
-                         * Sumamos o restamos un céntimo a los netos más altos
-                         * hasta que desaparezca el descuadre
-                         */
-                        $diferencia = round(($this->neto - $t_neto) * 100);
-                        usort($lineasi, function($a, $b) {
-                            if ($a->totallinea == $b->totallinea) {
-                                return 0;
-                            } else if ($a->totallinea < 0) {
-                                return ($a->totallinea < $b->totallinea) ? -1 : 1;
-                            } else {
-                                return ($a->totallinea < $b->totallinea) ? 1 : -1;
-                            }
-                        });
-
-                        foreach ($lineasi as $i => $value) {
-                            if ($diferencia > 0) {
-                                $lineasi[$i]->neto += .01;
-                                $diferencia--;
-                            } else if ($diferencia < 0) {
-                                $lineasi[$i]->neto -= .01;
-                                $diferencia++;
-                            } else
-                                break;
+                    $diferencia = round(($this->neto - $t_neto) * 100);
+                    usort($lineasi, function($a, $b) {
+                        if ($a->totallinea == $b->totallinea) {
+                            return 0;
+                        } else if ($a->totallinea < 0) {
+                            return ($a->totallinea < $b->totallinea) ? -1 : 1;
                         }
-                    }
-
-                    if (!$this->floatcmp($this->totaliva, $t_iva)) {
-                        /*
-                         * Sumamos o restamos un céntimo a los importes más altos
-                         * hasta que desaparezca el descuadre
-                         */
-                        $diferencia = round(($this->totaliva - $t_iva) * 100);
-                        usort($lineasi, function($a, $b) {
-                            if ($a->totaliva == $b->totaliva) {
-                                return 0;
-                            } else if ($a->totaliva < 0) {
-                                return ($a->totaliva < $b->totaliva) ? -1 : 1;
-                            } else {
-                                return ($a->totaliva < $b->totaliva) ? 1 : -1;
-                            }
-                        });
-
-                        foreach ($lineasi as $i => $value) {
-                            if ($diferencia > 0) {
-                                $lineasi[$i]->totaliva += .01;
-                                $diferencia--;
-                            } else if ($diferencia < 0) {
-                                $lineasi[$i]->totaliva -= .01;
-                                $diferencia++;
-                            } else
-                                break;
-                        }
-                    }
+                        return ($a->totallinea < $b->totallinea) ? 1 : -1;
+                    });
 
                     foreach ($lineasi as $i => $value) {
-                        $lineasi[$i]->totallinea = $value->neto + $value->totaliva + $value->totalrecargo;
-                        $lineasi[$i]->save();
+                        if ($diferencia > 0) {
+                            $lineasi[$i]->neto += .01;
+                            $diferencia--;
+                        } else if ($diferencia < 0) {
+                            $lineasi[$i]->neto -= .01;
+                            $diferencia++;
+                        }
+                        break;
                     }
+                }
+
+                if (!$this->floatcmp($this->totaliva, $t_iva)) {
+                    /*
+                     * Sumamos o restamos un céntimo a los importes más altos
+                     * hasta que desaparezca el descuadre
+                     */
+                    $diferencia = round(($this->totaliva - $t_iva) * 100);
+                    usort($lineasi, function($a, $b) {
+                        if ($a->totaliva == $b->totaliva) {
+                            return 0;
+                        } else if ($a->totaliva < 0) {
+                            return ($a->totaliva < $b->totaliva) ? -1 : 1;
+                        }
+                        return ($a->totaliva < $b->totaliva) ? 1 : -1;
+                    });
+
+                    foreach ($lineasi as $i => $value) {
+                        if ($diferencia > 0) {
+                            $lineasi[$i]->totaliva += .01;
+                            $diferencia--;
+                        } else if ($diferencia < 0) {
+                            $lineasi[$i]->totaliva -= .01;
+                            $diferencia++;
+                        }
+                        break;
+                    }
+                }
+
+                foreach ($lineasi as $i => $value) {
+                    $lineasi[$i]->totallinea = $value->neto + $value->totaliva + $value->totalrecargo;
+                    $lineasi[$i]->save();
                 }
             }
         }
@@ -555,23 +547,23 @@ class factura_proveedor extends \fs_model {
         $fact = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idfactura = " . $this->var2str($id) . ";");
         if ($fact) {
             return new \factura_proveedor($fact[0]);
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     public function get_by_codigo($cod) {
         $fact = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codigo = " . $this->var2str($cod) . ";");
         if ($fact) {
             return new \factura_proveedor($fact[0]);
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->idfactura)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idfactura = " . $this->var2str($this->idfactura) . ";");
+        }
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idfactura = " . $this->var2str($this->idfactura) . ";");
     }
 
     /**
@@ -600,16 +592,15 @@ class factura_proveedor extends \fs_model {
                 } else if (intval($d['numero']) == $num) {
                     /// el número es correcto, avanzamos
                     $num++;
-                } else {
-                    /// Hemos encontrado un hueco
-                    $encontrado = TRUE;
-                    break;
                 }
+                /// Hemos encontrado un hueco
+                $encontrado = TRUE;
+                break;
             }
         }
 
         $this->numero = $num;
-        
+
         if (!$encontrado) {
             /// nos guardamos la secuencia para abanq/eneboo
             $sec0 = new \secuencia();
@@ -645,10 +636,9 @@ class factura_proveedor extends \fs_model {
 
         if ($this->floatcmp($this->total, $this->neto + $this->totaliva - $this->totalirpf + $this->totalrecargo, FS_NF0, TRUE)) {
             return TRUE;
-        } else {
-            $this->new_error_msg("Error grave: El total está mal calculado. ¡Informa del error!");
-            return FALSE;
         }
+        $this->new_error_msg("Error grave: El total está mal calculado. ¡Informa del error!");
+        return FALSE;
     }
 
     public function full_test($duplicados = TRUE) {
@@ -721,21 +711,19 @@ class factura_proveedor extends \fs_model {
                 } else if ($this->coddivisa == $this->default_items->coddivisa() AND ( abs($asiento->importe) - abs($this->total + $this->totalirpf) >= .02)) {
                     $this->new_error_msg("El importe del asiento es distinto al de la factura.");
                     $status = FALSE;
-                } else {
-                    $asientop = $this->get_asiento_pago();
-                    if ($asientop) {
-                        if ($this->totalirpf != 0) {
-                            /// excluimos la comprobación si la factura tiene IRPF
-                        } else if (!$this->floatcmp($asiento->importe, $asientop->importe)) {
-                            $this->new_error_msg('No coinciden los importes de los asientos.');
-                            $status = FALSE;
-                        }
+                }
+                $asientop = $this->get_asiento_pago();
+                if ($asientop) {
+                    if ($this->totalirpf != 0) {
+                        /// excluimos la comprobación si la factura tiene IRPF
+                    } else if (!$this->floatcmp($asiento->importe, $asientop->importe)) {
+                        $this->new_error_msg('No coinciden los importes de los asientos.');
+                        $status = FALSE;
                     }
                 }
-            } else {
-                $this->new_error_msg("Asiento no encontrado.");
-                $status = FALSE;
             }
+            $this->new_error_msg("Asiento no encontrado.");
+            $status = FALSE;
         }
 
         if ($status AND $duplicados) {
@@ -803,50 +791,49 @@ class factura_proveedor extends \fs_model {
                         . "  WHERE idfactura = " . $this->var2str($this->idfactura) . ";";
 
                 return $this->db->exec($sql);
-            } else {
-                $this->new_codigo();
-                $sql = "INSERT INTO " . $this->table_name . " (codigo,total,neto,cifnif,pagada,anulada,observaciones,
+            }
+            $this->new_codigo();
+            $sql = "INSERT INTO " . $this->table_name . " (codigo,total,neto,cifnif,pagada,anulada,observaciones,
                codagente,codalmacen,irpf,totaleuros,nombre,codpago,codproveedor,idfacturarect,numproveedor,
                codigorect,codserie,idasiento,idasientop,totalirpf,totaliva,coddivisa,numero,codejercicio,tasaconv,
                totalrecargo,fecha,hora,numdocs) VALUES (" . $this->var2str($this->codigo)
-                        . "," . $this->var2str($this->total)
-                        . "," . $this->var2str($this->neto)
-                        . "," . $this->var2str($this->cifnif)
-                        . "," . $this->var2str($this->pagada)
-                        . "," . $this->var2str($this->anulada)
-                        . "," . $this->var2str($this->observaciones)
-                        . "," . $this->var2str($this->codagente)
-                        . "," . $this->var2str($this->codalmacen)
-                        . "," . $this->var2str($this->irpf)
-                        . "," . $this->var2str($this->totaleuros)
-                        . "," . $this->var2str($this->nombre)
-                        . "," . $this->var2str($this->codpago)
-                        . "," . $this->var2str($this->codproveedor)
-                        . "," . $this->var2str($this->idfacturarect)
-                        . "," . $this->var2str($this->numproveedor)
-                        . "," . $this->var2str($this->codigorect)
-                        . "," . $this->var2str($this->codserie)
-                        . "," . $this->var2str($this->idasiento)
-                        . "," . $this->var2str($this->idasientop)
-                        . "," . $this->var2str($this->totalirpf)
-                        . "," . $this->var2str($this->totaliva)
-                        . "," . $this->var2str($this->coddivisa)
-                        . "," . $this->var2str($this->numero)
-                        . "," . $this->var2str($this->codejercicio)
-                        . "," . $this->var2str($this->tasaconv)
-                        . "," . $this->var2str($this->totalrecargo)
-                        . "," . $this->var2str($this->fecha)
-                        . "," . $this->var2str($this->hora)
-                        . "," . $this->var2str($this->numdocs) . ");";
+                    . "," . $this->var2str($this->total)
+                    . "," . $this->var2str($this->neto)
+                    . "," . $this->var2str($this->cifnif)
+                    . "," . $this->var2str($this->pagada)
+                    . "," . $this->var2str($this->anulada)
+                    . "," . $this->var2str($this->observaciones)
+                    . "," . $this->var2str($this->codagente)
+                    . "," . $this->var2str($this->codalmacen)
+                    . "," . $this->var2str($this->irpf)
+                    . "," . $this->var2str($this->totaleuros)
+                    . "," . $this->var2str($this->nombre)
+                    . "," . $this->var2str($this->codpago)
+                    . "," . $this->var2str($this->codproveedor)
+                    . "," . $this->var2str($this->idfacturarect)
+                    . "," . $this->var2str($this->numproveedor)
+                    . "," . $this->var2str($this->codigorect)
+                    . "," . $this->var2str($this->codserie)
+                    . "," . $this->var2str($this->idasiento)
+                    . "," . $this->var2str($this->idasientop)
+                    . "," . $this->var2str($this->totalirpf)
+                    . "," . $this->var2str($this->totaliva)
+                    . "," . $this->var2str($this->coddivisa)
+                    . "," . $this->var2str($this->numero)
+                    . "," . $this->var2str($this->codejercicio)
+                    . "," . $this->var2str($this->tasaconv)
+                    . "," . $this->var2str($this->totalrecargo)
+                    . "," . $this->var2str($this->fecha)
+                    . "," . $this->var2str($this->hora)
+                    . "," . $this->var2str($this->numdocs) . ");";
 
-                if ($this->db->exec($sql)) {
-                    $this->idfactura = $this->db->lastval();
-                    return TRUE;
-                } else
-                    return FALSE;
+            if ($this->db->exec($sql)) {
+                $this->idfactura = $this->db->lastval();
+                return TRUE;
             }
-        } else
             return FALSE;
+        }
+        return FALSE;
     }
 
     /**
@@ -865,17 +852,15 @@ class factura_proveedor extends \fs_model {
                     $this->new_error_msg('La factura se encuentra dentro de una regularización de '
                             . FS_IVA . '. No se puede eliminar.');
                     $bloquear = TRUE;
-                } else {
-                    foreach ($this->get_rectificativas() as $rect) {
-                        $this->new_error_msg('La factura ya tiene una rectificativa. No se puede eliminar.');
-                        $bloquear = TRUE;
-                        break;
-                    }
                 }
-            } else {
-                $this->new_error_msg('El ejercicio ' . $ejercicio->nombre . ' está cerrado.');
-                $bloquear = TRUE;
+                foreach ($this->get_rectificativas() as $rect) {
+                    $this->new_error_msg('La factura ya tiene una rectificativa. No se puede eliminar.');
+                    $bloquear = TRUE;
+                    break;
+                }
             }
+            $this->new_error_msg('El ejercicio ' . $ejercicio->nombre . ' está cerrado.');
+            $bloquear = TRUE;
         }
 
         /// desvincular albaranes asociados y eliminar factura
@@ -903,8 +888,20 @@ class factura_proveedor extends \fs_model {
 
             $this->new_message(ucfirst(FS_FACTURA) . " de compra " . $this->codigo . " eliminada correctamente.");
             return TRUE;
-        } else
-            return FALSE;
+        }
+        return FALSE;
+    }
+
+    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
+
+        $faclist = array();
+        $data = $this->db->select($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $faclist[] = new \factura_proveedor($a);
+            }
+        }
+        return $faclist;
     }
 
     /**
@@ -915,17 +912,9 @@ class factura_proveedor extends \fs_model {
      * @return \factura_proveedor
      */
     public function all($offset = 0, $limit = FS_ITEM_LIMIT, $order = 'fecha DESC, codigo DESC') {
-        $faclist = array();
         $sql = "SELECT * FROM " . $this->table_name . " ORDER BY " . $order;
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $f) {
-                $faclist[] = new \factura_proveedor($f);
-            }
-        }
-
-        return $faclist;
+        return $this->all_from($sql, $limit, $offset);
     }
 
     /**
@@ -936,17 +925,9 @@ class factura_proveedor extends \fs_model {
      * @return \factura_proveedor
      */
     public function all_sin_pagar($offset = 0, $limit = FS_ITEM_LIMIT, $order = 'fecha ASC, codigo ASC') {
-        $faclist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE pagada = false ORDER BY " . $order;
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $f) {
-                $faclist[] = new \factura_proveedor($f);
-            }
-        }
-
-        return $faclist;
+        return $this->all_from($sql, $limit, $offset);
     }
 
     /**
@@ -956,19 +937,11 @@ class factura_proveedor extends \fs_model {
      * @return \factura_proveedor
      */
     public function all_from_agente($codagente, $offset = 0) {
-        $faclist = array();
         $sql = "SELECT * FROM " . $this->table_name .
                 " WHERE codagente = " . $this->var2str($codagente) .
                 " ORDER BY fecha DESC, codigo DESC";
 
-        $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $f) {
-                $faclist[] = new \factura_proveedor($f);
-            }
-        }
-
-        return $faclist;
+        return $this->all_from($sql, FS_ITEM_LIMIT, $offset);
     }
 
     /**
@@ -978,19 +951,11 @@ class factura_proveedor extends \fs_model {
      * @return \factura_proveedor
      */
     public function all_from_proveedor($codproveedor, $offset = 0) {
-        $faclist = array();
         $sql = "SELECT * FROM " . $this->table_name .
                 " WHERE codproveedor = " . $this->var2str($codproveedor) .
                 " ORDER BY fecha DESC, codigo DESC";
 
-        $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $f) {
-                $faclist[] = new \factura_proveedor($f);
-            }
-        }
-
-        return $faclist;
+        return $this->all_from($sql, FS_ITEM_LIMIT, $offset);
     }
 
     /**
@@ -1006,7 +971,6 @@ class factura_proveedor extends \fs_model {
      * @return \factura_proveedor
      */
     public function all_desde($desde, $hasta, $codserie = FALSE, $codagente = FALSE, $codproveedor = FALSE, $estado = FALSE, $codpago = FALSE, $codalmacen = FALSE) {
-        $faclist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE fecha >= " . $this->var2str($desde) . " AND fecha <= " . $this->var2str($hasta);
         if ($codserie) {
             $sql .= " AND codserie = " . $this->var2str($codserie);
@@ -1020,9 +984,8 @@ class factura_proveedor extends \fs_model {
         if ($estado) {
             if ($estado == 'pagada') {
                 $sql .= " AND pagada = true";
-            } else {
-                $sql .= " AND pagada = false";
             }
+            $sql .= " AND pagada = false";
         }
         if ($codpago) {
             $sql .= " AND codpago = " . $this->var2str($codpago);
@@ -1032,14 +995,7 @@ class factura_proveedor extends \fs_model {
         }
         $sql .= " ORDER BY fecha ASC, codigo ASC;";
 
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $f) {
-                $faclist[] = new \factura_proveedor($f);
-            }
-        }
-
-        return $faclist;
+        return $this->all_from($sql);
     }
 
     /**
@@ -1049,27 +1005,19 @@ class factura_proveedor extends \fs_model {
      * @return \factura_proveedor
      */
     public function search($query, $offset = 0) {
-        $faclist = array();
         $query = mb_strtolower($this->no_html($query), 'UTF8');
 
         $consulta = "SELECT * FROM " . $this->table_name . " WHERE ";
         if (is_numeric($query)) {
             $consulta .= "codigo LIKE '%" . $query . "%' OR numproveedor LIKE '%" . $query
                     . "%' OR observaciones LIKE '%" . $query . "%'";
-        } else {
-            $consulta .= "lower(codigo) LIKE '%" . $query . "%' OR lower(numproveedor) LIKE '%" . $query . "%' "
-                    . "OR lower(observaciones) LIKE '%" . str_replace(' ', '%', $query) . "%'";
         }
+        $consulta .= "lower(codigo) LIKE '%" . $query . "%' OR lower(numproveedor) LIKE '%" . $query . "%' "
+                . "OR lower(observaciones) LIKE '%" . str_replace(' ', '%', $query) . "%'";
+
         $consulta .= " ORDER BY fecha DESC, codigo DESC";
 
-        $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $f) {
-                $faclist[] = new \factura_proveedor($f);
-            }
-        }
-
-        return $faclist;
+        return $this->all_from($consulta, FS_ITEM_LIMIT, $offset);
     }
 
     public function cron_job() {
