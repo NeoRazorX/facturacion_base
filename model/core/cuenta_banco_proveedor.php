@@ -52,18 +52,13 @@ class cuenta_banco_proveedor extends \fs_model {
             $this->iban = $c['iban'];
             $this->swift = $c['swift'];
             $this->principal = $this->str2bool($c['principal']);
-        } else {
-            $this->codcuenta = NULL;
-            $this->codproveedor = NULL;
-            $this->descripcion = NULL;
-            $this->iban = NULL;
-            $this->swift = NULL;
-            $this->principal = TRUE;
         }
-    }
-
-    protected function install() {
-        return '';
+        $this->codcuenta = NULL;
+        $this->codproveedor = NULL;
+        $this->descripcion = NULL;
+        $this->iban = NULL;
+        $this->swift = NULL;
+        $this->principal = TRUE;
     }
 
     /**
@@ -79,25 +74,23 @@ class cuenta_banco_proveedor extends \fs_model {
                 $txt .= substr($iban, $i, 4) . ' ';
             }
             return $txt;
-        } else {
-            return str_replace(' ', '', $this->iban);
         }
+        return str_replace(' ', '', $this->iban);
     }
 
     public function url() {
         if (is_null($this->codproveedor)) {
             return '#';
-        } else {
-            return 'index.php?page=compras_proveedor&cod=' . $this->codproveedor . '#cuentasb';
         }
+        return 'index.php?page=compras_proveedor&cod=' . $this->codproveedor . '#cuentasb';
     }
 
     public function get($cod) {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcuenta = " . $this->var2str($cod) . ";");
         if ($data) {
             return new \cuenta_banco_proveedor($data[0]);
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     private function get_new_codigo() {
@@ -105,17 +98,16 @@ class cuenta_banco_proveedor extends \fs_model {
         $cod = $this->db->select($sql);
         if ($cod) {
             return 1 + intval($cod[0]['cod']);
-        } else
-            return 1;
+        }
+        return 1;
     }
 
     public function exists() {
         if (is_null($this->codcuenta)) {
             return FALSE;
-        } else {
-            return $this->db->select("SELECT * FROM " . $this->table_name
-                            . " WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";");
         }
+        return $this->db->select("SELECT * FROM " . $this->table_name
+                        . " WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";");
     }
 
     public function save() {
@@ -128,16 +120,16 @@ class cuenta_banco_proveedor extends \fs_model {
                     ", swift = " . $this->var2str($this->swift) .
                     ", principal = " . $this->var2str($this->principal) .
                     "  WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";";
-        } else {
-            $this->codcuenta = $this->get_new_codigo();
-            $sql = "INSERT INTO " . $this->table_name . " (codcuenta,codproveedor,descripcion,iban,swift,principal)" .
-                    " VALUES (" . $this->var2str($this->codcuenta) .
-                    "," . $this->var2str($this->codproveedor) .
-                    "," . $this->var2str($this->descripcion) .
-                    "," . $this->var2str($this->iban) .
-                    "," . $this->var2str($this->swift) .
-                    "," . $this->var2str($this->principal) . ");";
         }
+        $this->codcuenta = $this->get_new_codigo();
+        $sql = "INSERT INTO " . $this->table_name . " (codcuenta,codproveedor,descripcion,iban,swift,principal)" .
+                " VALUES (" . $this->var2str($this->codcuenta) .
+                "," . $this->var2str($this->codproveedor) .
+                "," . $this->var2str($this->descripcion) .
+                "," . $this->var2str($this->iban) .
+                "," . $this->var2str($this->swift) .
+                "," . $this->var2str($this->principal) . ");";
+
 
         if ($this->principal) {
             /// si esta cuenta es la principal, desmarcamos las demás

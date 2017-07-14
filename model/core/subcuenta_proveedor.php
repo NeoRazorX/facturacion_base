@@ -55,17 +55,12 @@ class subcuenta_proveedor extends \fs_model {
             $this->codproveedor = $s['codproveedor'];
             $this->codsubcuenta = $s['codsubcuenta'];
             $this->codejercicio = $s['codejercicio'];
-        } else {
-            $this->id = NULL;
-            $this->idsubcuenta = NULL;
-            $this->codproveedor = NULL;
-            $this->codsubcuenta = NULL;
-            $this->codejercicio = NULL;
         }
-    }
-
-    protected function install() {
-        return "";
+        $this->id = NULL;
+        $this->idsubcuenta = NULL;
+        $this->codproveedor = NULL;
+        $this->codsubcuenta = NULL;
+        $this->codejercicio = NULL;
     }
 
     public function get_subcuenta() {
@@ -80,23 +75,23 @@ class subcuenta_proveedor extends \fs_model {
         $data = $this->db->select($sql);
         if ($data) {
             return new \subcuenta_proveedor($data[0]);
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     public function get2($id) {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
         if ($data) {
             return new \subcuenta_proveedor($data[0]);
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->id)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
+        }
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function save() {
@@ -108,20 +103,18 @@ class subcuenta_proveedor extends \fs_model {
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (codproveedor,codsubcuenta,codejercicio,idsubcuenta)
-            VALUES (" . $this->var2str($this->codproveedor)
-                    . "," . $this->var2str($this->codsubcuenta)
-                    . "," . $this->var2str($this->codejercicio)
-                    . "," . $this->var2str($this->idsubcuenta) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            } else {
-                return FALSE;
-            }
         }
+        $sql = "INSERT INTO " . $this->table_name . " (codproveedor,codsubcuenta,codejercicio,idsubcuenta)
+            VALUES (" . $this->var2str($this->codproveedor)
+                . "," . $this->var2str($this->codsubcuenta)
+                . "," . $this->var2str($this->codejercicio)
+                . "," . $this->var2str($this->idsubcuenta) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
+        }
+        return FALSE;
     }
 
     public function delete() {
