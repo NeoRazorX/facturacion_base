@@ -108,18 +108,17 @@ class articulo_traza extends \fs_model {
             if (isset($n['fecha_salida']) AND ( $this->idlalbventa OR $this->idlfacventa)) {
                 $this->fecha_salida = date('d-m-Y', strtotime($n['fecha_salida']));
             }
-        } else {
-            $this->id = NULL;
-            $this->referencia = NULL;
-            $this->numserie = NULL;
-            $this->lote = NULL;
-            $this->idlalbventa = NULL;
-            $this->idlfacventa = NULL;
-            $this->idlalbcompra = NULL;
-            $this->idlfaccompra = NULL;
-            $this->fecha_entrada = NULL;
-            $this->fecha_salida = NULL;
         }
+        $this->id = NULL;
+        $this->referencia = NULL;
+        $this->numserie = NULL;
+        $this->lote = NULL;
+        $this->idlalbventa = NULL;
+        $this->idlfacventa = NULL;
+        $this->idlalbcompra = NULL;
+        $this->idlfaccompra = NULL;
+        $this->fecha_entrada = NULL;
+        $this->fecha_salida = NULL;
     }
 
     protected function install() {
@@ -150,9 +149,8 @@ class articulo_traza extends \fs_model {
             if ($linea) {
                 return $linea->url();
             }
-        } else {
-            return '#';
         }
+        return '#';
     }
 
     /**
@@ -172,9 +170,8 @@ class articulo_traza extends \fs_model {
             if ($linea) {
                 return $linea->url();
             }
-        } else {
-            return '#';
         }
+        return '#';
     }
 
     /**
@@ -186,9 +183,8 @@ class articulo_traza extends \fs_model {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
         if ($data) {
             return new \articulo_traza($data[0]);
-        } else {
-            return FALSE;
         }
+        return FALSE;
     }
 
     /**
@@ -200,17 +196,15 @@ class articulo_traza extends \fs_model {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE numserie = " . $this->var2str($numserie) . ";");
         if ($data) {
             return new \articulo_traza($data[0]);
-        } else {
-            return FALSE;
         }
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->id)) {
             return FALSE;
-        } else {
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
         }
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function save() {
@@ -227,30 +221,40 @@ class articulo_traza extends \fs_model {
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (referencia,numserie,lote,idlalbventa,"
-                    . "idlfacventa,idlalbcompra,idlfaccompra,fecha_entrada,fecha_salida) VALUES "
-                    . "(" . $this->var2str($this->referencia)
-                    . "," . $this->var2str($this->numserie)
-                    . "," . $this->var2str($this->lote)
-                    . "," . $this->var2str($this->idlalbventa)
-                    . "," . $this->var2str($this->idlfacventa)
-                    . "," . $this->var2str($this->idlalbcompra)
-                    . "," . $this->var2str($this->idlfaccompra)
-                    . "," . $this->var2str($this->fecha_entrada)
-                    . "," . $this->var2str($this->fecha_salida) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            } else {
-                return FALSE;
-            }
         }
+        $sql = "INSERT INTO " . $this->table_name . " (referencia,numserie,lote,idlalbventa,"
+                . "idlfacventa,idlalbcompra,idlfaccompra,fecha_entrada,fecha_salida) VALUES "
+                . "(" . $this->var2str($this->referencia)
+                . "," . $this->var2str($this->numserie)
+                . "," . $this->var2str($this->lote)
+                . "," . $this->var2str($this->idlalbventa)
+                . "," . $this->var2str($this->idlfacventa)
+                . "," . $this->var2str($this->idlalbcompra)
+                . "," . $this->var2str($this->idlfaccompra)
+                . "," . $this->var2str($this->fecha_entrada)
+                . "," . $this->var2str($this->fecha_salida) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
+        }
+        return FALSE;
     }
 
     public function delete() {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
+    }
+
+    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
+
+        $lista = array();
+        $data = $this->db->select_limit($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $lista[] = new \articulo_traza($a);
+            }
+        }
+        return $lista;
     }
 
     /**
@@ -268,14 +272,7 @@ class articulo_traza extends \fs_model {
         }
         $sql .= " ORDER BY id ASC;";
 
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $d) {
-                $lista[] = new \articulo_traza($d);
-            }
-        }
-
-        return $lista;
+        return $this->all_from($sql);
     }
 
     /**
@@ -285,17 +282,9 @@ class articulo_traza extends \fs_model {
      * @return \articulo_traza
      */
     public function all_from_linea($tipo, $idlinea) {
-        $lista = array();
 
         $sql = "SELECT * FROM " . $this->table_name . " WHERE " . $tipo . " = " . $this->var2str($idlinea) . " ORDER BY id DESC;";
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $d) {
-                $lista[] = new \articulo_traza($d);
-            }
-        }
-
-        return $lista;
+        return $this->all_from($sql);
     }
 
 }

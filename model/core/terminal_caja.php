@@ -118,29 +118,24 @@ class terminal_caja extends \fs_model {
             }
 
             $this->sin_comandos = $this->str2bool($t['sin_comandos']);
-        } else {
-            $this->id = NULL;
-            $this->codalmacen = NULL;
-            $this->codserie = NULL;
-            $this->codcliente = NULL;
-            $this->tickets = '';
-            $this->anchopapel = 40;
-            $this->comandocorte = '27.105';
-            $this->comandoapertura = '27.112.48';
-            $this->num_tickets = 1;
-            $this->sin_comandos = FALSE;
         }
-    }
-
-    protected function install() {
-        return '';
+        $this->id = NULL;
+        $this->codalmacen = NULL;
+        $this->codserie = NULL;
+        $this->codcliente = NULL;
+        $this->tickets = '';
+        $this->anchopapel = 40;
+        $this->comandocorte = '27.105';
+        $this->comandoapertura = '27.112.48';
+        $this->num_tickets = 1;
+        $this->sin_comandos = FALSE;
     }
 
     public function disponible() {
         if ($this->db->select("SELECT * FROM cajas WHERE f_fin IS NULL AND fs_id = " . $this->var2str($this->id) . ";")) {
             return FALSE;
-        } else
-            return TRUE;
+        }
+        return TRUE;
     }
 
     public function add_linea($linea) {
@@ -150,9 +145,8 @@ class terminal_caja extends \fs_model {
     public function add_linea_big($linea) {
         if ($this->sin_comandos) {
             $this->tickets .= $linea;
-        } else {
-            $this->tickets .= chr(27) . chr(33) . chr(56) . $linea . chr(27) . chr(33) . chr(1);
         }
+        $this->tickets .= chr(27) . chr(33) . chr(56) . $linea . chr(27) . chr(33) . chr(1);
     }
 
     public function abrir_cajon() {
@@ -194,33 +188,31 @@ class terminal_caja extends \fs_model {
             return $word;
         } else if (strlen($word) < $ancho) {
             return $this->center_text2($word, $ancho);
-        } else {
-            $result = '';
-            $nword = '';
-            foreach (explode(' ', $word) as $aux) {
-                if ($nword == '') {
-                    $nword = $aux;
-                } else if (strlen($nword) + strlen($aux) + 1 <= $ancho) {
-                    $nword = $nword . ' ' . $aux;
-                } else {
-                    if ($result != '') {
-                        $result .= "\n";
-                    }
-
-                    $result .= $this->center_text2($nword, $ancho);
-                    $nword = $aux;
-                }
-            }
-            if ($nword != '') {
-                if ($result != '') {
-                    $result .= "\n";
-                }
-
-                $result .= $this->center_text2($nword, $ancho);
-            }
-
-            return $result;
         }
+        $result = '';
+        $nword = '';
+        foreach (explode(' ', $word) as $aux) {
+            if ($nword == '') {
+                $nword = $aux;
+            } else if (strlen($nword) + strlen($aux) + 1 <= $ancho) {
+                $nword = $nword . ' ' . $aux;
+            }
+            if ($result != '') {
+                $result .= "\n";
+            }
+
+            $result .= $this->center_text2($nword, $ancho);
+            $nword = $aux;
+        }
+        if ($nword != '') {
+            if ($result != '') {
+                $result .= "\n";
+            }
+
+            $result .= $this->center_text2($nword, $ancho);
+        }
+
+        return $result;
     }
 
     private function center_text2($word = '', $ancho = 40) {
@@ -241,15 +233,15 @@ class terminal_caja extends \fs_model {
         $data = $this->db->select("SELECT * FROM cajas_terminales WHERE id = " . $this->var2str($id) . ";");
         if ($data) {
             return new \terminal_caja($data[0]);
-        } else
-            return FALSE;
+        }
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->id)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM cajas_terminales WHERE id = " . $this->var2str($this->id) . ";");
+        }
+        return $this->db->select("SELECT * FROM cajas_terminales WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function save() {
@@ -266,58 +258,53 @@ class terminal_caja extends \fs_model {
                     "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO cajas_terminales (codalmacen,codserie,codcliente,tickets,anchopapel,"
-                    . "comandocorte,comandoapertura,num_tickets,sin_comandos) VALUES (" .
-                    $this->var2str($this->codalmacen) . "," .
-                    $this->var2str($this->codserie) . "," .
-                    $this->var2str($this->codcliente) . "," .
-                    $this->var2str($this->tickets) . "," .
-                    $this->var2str($this->anchopapel) . "," .
-                    $this->var2str($this->comandocorte) . "," .
-                    $this->var2str($this->comandoapertura) . "," .
-                    $this->var2str($this->num_tickets) . "," .
-                    $this->var2str($this->sin_comandos) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            } else
-                return FALSE;
         }
+        $sql = "INSERT INTO cajas_terminales (codalmacen,codserie,codcliente,tickets,anchopapel,"
+                . "comandocorte,comandoapertura,num_tickets,sin_comandos) VALUES (" .
+                $this->var2str($this->codalmacen) . "," .
+                $this->var2str($this->codserie) . "," .
+                $this->var2str($this->codcliente) . "," .
+                $this->var2str($this->tickets) . "," .
+                $this->var2str($this->anchopapel) . "," .
+                $this->var2str($this->comandocorte) . "," .
+                $this->var2str($this->comandoapertura) . "," .
+                $this->var2str($this->num_tickets) . "," .
+                $this->var2str($this->sin_comandos) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
+        }
+        return FALSE;
     }
 
     public function delete() {
         return $this->db->exec("DELETE FROM cajas_terminales WHERE id = " . $this->var2str($this->id) . ";");
     }
 
-    public function all() {
-        $tlist = array();
+    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
 
-        $data = $this->db->select("SELECT * FROM cajas_terminales ORDER BY id ASC;");
+        $tlist = array();
+        $data = $this->db->select($sql, $limit, $offset);
         if ($data) {
-            foreach ($data as $d) {
-                $tlist[] = new \terminal_caja($d);
+            foreach ($data as $a) {
+                $tlist[] = new \terminal_caja($a);
             }
         }
-
         return $tlist;
     }
 
+    public function all() {
+
+        return $this->all_from("SELECT * FROM cajas_terminales ORDER BY id ASC;");
+    }
+
     public function disponibles() {
-        $tlist = array();
         $sql = "SELECT * FROM cajas_terminales WHERE id NOT IN "
                 . "(SELECT fs_id as id FROM cajas WHERE f_fin IS NULL) "
                 . "ORDER BY id ASC;";
 
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $d) {
-                $tlist[] = new \terminal_caja($d);
-            }
-        }
-
-        return $tlist;
+        return $this->all_from($sql);
     }
 
     /**
@@ -333,8 +320,8 @@ class terminal_caja extends \fs_model {
 
         if ($empresa->lema != '') {
             $this->add_linea($this->center_text($this->sanitize($empresa->lema)) . "\n\n");
-        } else
-            $this->add_linea("\n");
+        }
+        $this->add_linea("\n");
 
         $this->add_linea(
                 $this->center_text($this->sanitize($empresa->direccion) . " - " . $this->sanitize($empresa->ciudad)) . "\n"
@@ -371,10 +358,10 @@ class terminal_caja extends \fs_model {
             if ($imprimir_descripciones) {
                 $linea = sprintf("%3s", $col->cantidad) . " " . sprintf("%-" . $width . "s", substr($this->sanitize($col->descripcion), 0, $width - 1)) . " " .
                         sprintf("%10s", $this->show_numero($col->total_iva())) . "\n";
-            } else {
-                $linea = sprintf("%3s", $col->cantidad) . " " . sprintf("%-" . $width . "s", $this->sanitize($col->referencia))
-                        . " " . sprintf("%10s", $this->show_numero($col->total_iva())) . "\n";
             }
+            $linea = sprintf("%3s", $col->cantidad) . " " . sprintf("%-" . $width . "s", $this->sanitize($col->referencia))
+                    . " " . sprintf("%10s", $this->show_numero($col->total_iva())) . "\n";
+
 
             $this->add_linea($linea);
         }
@@ -422,8 +409,8 @@ class terminal_caja extends \fs_model {
 
         if ($empresa->lema != '') {
             $this->add_linea($this->center_text($this->sanitize($empresa->lema)) . "\n\n");
-        } else
-            $this->add_linea("\n");
+        }
+        $this->add_linea("\n");
 
         $this->add_linea(
                 $this->center_text($this->sanitize($empresa->direccion) . " - " . $this->sanitize($empresa->ciudad)) . "\n"
@@ -460,10 +447,10 @@ class terminal_caja extends \fs_model {
             if ($imprimir_descripciones) {
                 $linea = sprintf("%3s", $col->cantidad) . " " . sprintf("%-" . $width . "s", substr($this->sanitize($col->descripcion), 0, $width - 1)) . " " .
                         sprintf("%10s", '-') . "\n";
-            } else {
-                $linea = sprintf("%3s", $col->cantidad) . " " . sprintf("%-" . $width . "s", $this->sanitize($col->referencia))
-                        . " " . sprintf("%10s", '-') . "\n";
             }
+            $linea = sprintf("%3s", $col->cantidad) . " " . sprintf("%-" . $width . "s", $this->sanitize($col->referencia))
+                    . " " . sprintf("%10s", '-') . "\n";
+
 
             $this->add_linea($linea);
         }
@@ -502,9 +489,8 @@ class terminal_caja extends \fs_model {
     protected function show_precio($precio, $coddivisa) {
         if (FS_POS_DIVISA == 'right') {
             return number_format($precio, FS_NF0, FS_NF1, FS_NF2) . ' ' . $coddivisa;
-        } else {
-            return $coddivisa . ' ' . number_format($precio, FS_NF0, FS_NF1, FS_NF2);
         }
+        return $coddivisa . ' ' . number_format($precio, FS_NF0, FS_NF1, FS_NF2);
     }
 
     protected function show_numero($num = 0, $decimales = FS_NF0) {
