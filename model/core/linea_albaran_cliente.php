@@ -164,26 +164,27 @@ class linea_albaran_cliente extends \fs_model {
             $this->orden = intval($l['orden']);
             $this->mostrar_cantidad = $this->str2bool($l['mostrar_cantidad']);
             $this->mostrar_precio = $this->str2bool($l['mostrar_precio']);
+        } else {
+            $this->idlinea = NULL;
+            $this->idlineapedido = NULL;
+            $this->idalbaran = NULL;
+            $this->idpedido = NULL;
+            $this->referencia = NULL;
+            $this->codcombinacion = NULL;
+            $this->descripcion = '';
+            $this->cantidad = 0;
+            $this->dtopor = 0;
+            $this->codimpuesto = NULL;
+            $this->iva = 0;
+            $this->pvptotal = 0;
+            $this->pvpsindto = 0;
+            $this->pvpunitario = 0;
+            $this->irpf = 0;
+            $this->recargo = 0;
+            $this->orden = 0;
+            $this->mostrar_cantidad = TRUE;
+            $this->mostrar_precio = TRUE;
         }
-        $this->idlinea = NULL;
-        $this->idlineapedido = NULL;
-        $this->idalbaran = NULL;
-        $this->idpedido = NULL;
-        $this->referencia = NULL;
-        $this->codcombinacion = NULL;
-        $this->descripcion = '';
-        $this->cantidad = 0;
-        $this->dtopor = 0;
-        $this->codimpuesto = NULL;
-        $this->iva = 0;
-        $this->pvptotal = 0;
-        $this->pvpsindto = 0;
-        $this->pvpunitario = 0;
-        $this->irpf = 0;
-        $this->recargo = 0;
-        $this->orden = 0;
-        $this->mostrar_cantidad = TRUE;
-        $this->mostrar_precio = TRUE;
     }
 
     /**
@@ -331,34 +332,35 @@ class linea_albaran_cliente extends \fs_model {
                         . "  WHERE idlinea = " . $this->var2str($this->idlinea) . ";";
 
                 return $this->db->exec($sql);
-            }
-            $sql = "INSERT INTO " . $this->table_name . " (idlineapedido,idalbaran,idpedido,referencia,codcombinacion,
+            } else {
+                $sql = "INSERT INTO " . $this->table_name . " (idlineapedido,idalbaran,idpedido,referencia,codcombinacion,
                descripcion,cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo,orden,
                mostrar_cantidad,mostrar_precio) VALUES
                       (" . $this->var2str($this->idlineapedido)
-                    . "," . $this->var2str($this->idalbaran)
-                    . "," . $this->var2str($this->idpedido)
-                    . "," . $this->var2str($this->referencia)
-                    . "," . $this->var2str($this->codcombinacion)
-                    . "," . $this->var2str($this->descripcion)
-                    . "," . $this->var2str($this->cantidad)
-                    . "," . $this->var2str($this->dtopor)
-                    . "," . $this->var2str($this->codimpuesto)
-                    . "," . $this->var2str($this->iva)
-                    . "," . $this->var2str($this->pvptotal)
-                    . "," . $this->var2str($this->pvpsindto)
-                    . "," . $this->var2str($this->pvpunitario)
-                    . "," . $this->var2str($this->irpf)
-                    . "," . $this->var2str($this->recargo)
-                    . "," . $this->var2str($this->orden)
-                    . "," . $this->var2str($this->mostrar_cantidad)
-                    . "," . $this->var2str($this->mostrar_precio) . ");";
+                        . "," . $this->var2str($this->idalbaran)
+                        . "," . $this->var2str($this->idpedido)
+                        . "," . $this->var2str($this->referencia)
+                        . "," . $this->var2str($this->codcombinacion)
+                        . "," . $this->var2str($this->descripcion)
+                        . "," . $this->var2str($this->cantidad)
+                        . "," . $this->var2str($this->dtopor)
+                        . "," . $this->var2str($this->codimpuesto)
+                        . "," . $this->var2str($this->iva)
+                        . "," . $this->var2str($this->pvptotal)
+                        . "," . $this->var2str($this->pvpsindto)
+                        . "," . $this->var2str($this->pvpunitario)
+                        . "," . $this->var2str($this->irpf)
+                        . "," . $this->var2str($this->recargo)
+                        . "," . $this->var2str($this->orden)
+                        . "," . $this->var2str($this->mostrar_cantidad)
+                        . "," . $this->var2str($this->mostrar_precio) . ");";
 
-            if ($this->db->exec($sql)) {
-                $this->idlinea = $this->db->lastval();
-                return TRUE;
+                if ($this->db->exec($sql)) {
+                    $this->idlinea = $this->db->lastval();
+                    return TRUE;
+                }
+                return FALSE;
             }
-            return FALSE;
         }
         return FALSE;
     }
@@ -375,7 +377,7 @@ class linea_albaran_cliente extends \fs_model {
     private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
 
         $linealist = array();
-        $data = $this->db->select($sql, $limit, $offset);
+        $data = $this->db->select_limit($sql, $limit, $offset);
         if ($data) {
             foreach ($data as $a) {
                 $linealist[] = new \linea_albaran_cliente($a);
@@ -390,10 +392,18 @@ class linea_albaran_cliente extends \fs_model {
      * @return \linea_albaran_cliente
      */
     public function all_from_albaran($id) {
+        $linealist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($id)
                 . " ORDER BY orden DESC, idlinea ASC;";
 
-        return $this->all_from($sql);
+        $data = $this->db->select($sql);
+        if ($data) {
+            foreach ($data as $l) {
+                $linealist[] = new \linea_albaran_cliente($l);
+            }
+        }
+
+        return $linealist;
     }
 
     public function all_from_articulo($ref, $offset = 0, $limit = FS_ITEM_LIMIT) {
@@ -409,10 +419,10 @@ class linea_albaran_cliente extends \fs_model {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE ";
         if (is_numeric($query)) {
             $sql .= "referencia LIKE '%" . $query . "%' OR descripcion LIKE '%" . $query . "%'";
+        } else {
+            $buscar = str_replace(' ', '%', $query);
+            $sql .= "lower(referencia) LIKE '%" . $buscar . "%' OR lower(descripcion) LIKE '%" . $buscar . "%'";
         }
-        $buscar = str_replace(' ', '%', $query);
-        $sql .= "lower(referencia) LIKE '%" . $buscar . "%' OR lower(descripcion) LIKE '%" . $buscar . "%'";
-
         $sql .= " ORDER BY idalbaran DESC, idlinea ASC";
 
         return $this->all_from($sql, FS_ITEM_LIMIT, $offset);
@@ -425,10 +435,10 @@ class linea_albaran_cliente extends \fs_model {
          (SELECT idalbaran FROM albaranescli WHERE codcliente = " . $this->var2str($codcliente) . ") AND ";
         if (is_numeric($query)) {
             $sql .= "(referencia LIKE '%" . $query . "%' OR descripcion LIKE '%" . $query . "%')";
+        } else {
+            $buscar = str_replace(' ', '%', $query);
+            $sql .= "(lower(referencia) LIKE '%" . $buscar . "%' OR lower(descripcion) LIKE '%" . $buscar . "%')";
         }
-        $buscar = str_replace(' ', '%', $query);
-        $sql .= "(lower(referencia) LIKE '%" . $buscar . "%' OR lower(descripcion) LIKE '%" . $buscar . "%')";
-
         $sql .= " ORDER BY idalbaran DESC, idlinea ASC";
 
         return $this->all_from($sql, FS_ITEM_LIMIT, $offset);
@@ -443,10 +453,10 @@ class linea_albaran_cliente extends \fs_model {
          AND lower(observaciones) LIKE '" . $obs . "%') AND ";
         if (is_numeric($ref)) {
             $sql .= "(referencia LIKE '%" . $ref . "%' OR descripcion LIKE '%" . $ref . "%')";
+        } else {
+            $buscar = str_replace(' ', '%', $ref);
+            $sql .= "(lower(referencia) LIKE '%" . $ref . "%' OR lower(descripcion) LIKE '%" . $ref . "%')";
         }
-        $buscar = str_replace(' ', '%', $ref);
-        $sql .= "(lower(referencia) LIKE '%" . $buscar . "%' OR lower(descripcion) LIKE '%" . $buscar . "%')";
-
         $sql .= " ORDER BY idalbaran DESC, idlinea ASC";
 
         return $this->all_from($sql, FS_ITEM_LIMIT, $offset);

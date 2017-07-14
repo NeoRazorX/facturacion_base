@@ -31,14 +31,15 @@ class transferencia_stock extends \fs_model {
             $this->fecha = date("d-m-Y", strtotime($d['fecha']));
             $this->hora = date('H:i:s', strtotime($d['hora']));
             $this->usuario = $d['usuario'];
+        } else {
+            /// valores predeterminados
+            $this->idtrans = NULL;
+            $this->codalmadestino = NULL;
+            $this->codalmaorigen = NULL;
+            $this->fecha = date('d-m-Y');
+            $this->hora = date('H:i:s');
+            $this->usuario = NULL;
         }
-        /// valores predeterminados
-        $this->idtrans = NULL;
-        $this->codalmadestino = NULL;
-        $this->codalmaorigen = NULL;
-        $this->fecha = date('d-m-Y');
-        $this->hora = date('H:i:s');
-        $this->usuario = NULL;
     }
 
     public function url() {
@@ -80,19 +81,20 @@ class transferencia_stock extends \fs_model {
                     . "  WHERE idtrans = " . $this->var2str($this->idtrans) . ";";
 
             return $this->db->exec($sql);
-        }
-        $sql = "INSERT INTO " . $this->table_name . " (codalmadestino,codalmaorigen,fecha,hora,usuario) VALUES "
-                . "(" . $this->var2str($this->codalmadestino)
-                . "," . $this->var2str($this->codalmaorigen)
-                . "," . $this->var2str($this->fecha)
-                . "," . $this->var2str($this->hora)
-                . "," . $this->var2str($this->usuario) . ");";
+        } else {
+            $sql = "INSERT INTO " . $this->table_name . " (codalmadestino,codalmaorigen,fecha,hora,usuario) VALUES "
+                    . "(" . $this->var2str($this->codalmadestino)
+                    . "," . $this->var2str($this->codalmaorigen)
+                    . "," . $this->var2str($this->fecha)
+                    . "," . $this->var2str($this->hora)
+                    . "," . $this->var2str($this->usuario) . ");";
 
-        if ($this->db->exec($sql)) {
-            $this->idtrans = $this->db->lastval();
-            return TRUE;
+            if ($this->db->exec($sql)) {
+                $this->idtrans = $this->db->lastval();
+                return TRUE;
+            }
+            return FALSE;
         }
-        return FALSE;
     }
 
     public function delete() {

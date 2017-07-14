@@ -79,19 +79,20 @@ class direccion_cliente extends \fs_model {
             $this->domfacturacion = $this->str2bool($d['domfacturacion']);
             $this->descripcion = $d['descripcion'];
             $this->fecha = date('d-m-Y', strtotime($d['fecha']));
+        } else {
+            $this->id = NULL;
+            $this->codcliente = NULL;
+            $this->codpais = NULL;
+            $this->apartado = NULL;
+            $this->provincia = NULL;
+            $this->ciudad = NULL;
+            $this->codpostal = NULL;
+            $this->direccion = NULL;
+            $this->domenvio = TRUE;
+            $this->domfacturacion = TRUE;
+            $this->descripcion = 'Principal';
+            $this->fecha = date('d-m-Y');
         }
-        $this->id = NULL;
-        $this->codcliente = NULL;
-        $this->codpais = NULL;
-        $this->apartado = NULL;
-        $this->provincia = NULL;
-        $this->ciudad = NULL;
-        $this->codpostal = NULL;
-        $this->direccion = NULL;
-        $this->domenvio = TRUE;
-        $this->domfacturacion = TRUE;
-        $this->descripcion = 'Principal';
-        $this->fecha = date('d-m-Y');
     }
 
     public function get($id) {
@@ -146,25 +147,26 @@ class direccion_cliente extends \fs_model {
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        }
-        $sql .= "INSERT INTO " . $this->table_name . " (codcliente,codpais,apartado,provincia,ciudad,codpostal,
+        } else {
+            $sql .= "INSERT INTO " . $this->table_name . " (codcliente,codpais,apartado,provincia,ciudad,codpostal,
             direccion,domenvio,domfacturacion,descripcion,fecha) VALUES (" . $this->var2str($this->codcliente)
-                . "," . $this->var2str($this->codpais)
-                . "," . $this->var2str($this->apartado)
-                . "," . $this->var2str($this->provincia)
-                . "," . $this->var2str($this->ciudad)
-                . "," . $this->var2str($this->codpostal)
-                . "," . $this->var2str($this->direccion)
-                . "," . $this->var2str($this->domenvio)
-                . "," . $this->var2str($this->domfacturacion)
-                . "," . $this->var2str($this->descripcion)
-                . "," . $this->var2str($this->fecha) . ");";
+                    . "," . $this->var2str($this->codpais)
+                    . "," . $this->var2str($this->apartado)
+                    . "," . $this->var2str($this->provincia)
+                    . "," . $this->var2str($this->ciudad)
+                    . "," . $this->var2str($this->codpostal)
+                    . "," . $this->var2str($this->direccion)
+                    . "," . $this->var2str($this->domenvio)
+                    . "," . $this->var2str($this->domfacturacion)
+                    . "," . $this->var2str($this->descripcion)
+                    . "," . $this->var2str($this->fecha) . ");";
 
-        if ($this->db->exec($sql)) {
-            $this->id = $this->db->lastval();
-            return TRUE;
+            if ($this->db->exec($sql)) {
+                $this->id = $this->db->lastval();
+                return TRUE;
+            }
+            return FALSE;
         }
-        return FALSE;
     }
 
     public function delete() {
@@ -174,7 +176,7 @@ class direccion_cliente extends \fs_model {
     private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
 
         $dirlist = array();
-        $data = $this->db->select($sql, $limit, $offset);
+        $data = $this->db->select_limit($sql, $limit, $offset);
         if ($data) {
             foreach ($data as $a) {
                 $dirlist[] = new \direccion_cliente($a);
@@ -189,10 +191,18 @@ class direccion_cliente extends \fs_model {
     }
 
     public function all_from_cliente($cod) {
+        $dirlist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($cod)
                 . " ORDER BY id DESC;";
 
-        return $this->all_from($sql);
+        $data = $this->db->select($sql);
+        if ($data) {
+            foreach ($data as $d) {
+                $dirlist[] = new \direccion_cliente($d);
+            }
+        }
+
+        return $dirlist;
     }
 
     /**

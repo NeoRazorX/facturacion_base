@@ -39,9 +39,10 @@ class fabricante extends \fs_model {
         if ($f) {
             $this->codfabricante = $f['codfabricante'];
             $this->nombre = $f['nombre'];
+        } else {
+            $this->codfabricante = NULL;
+            $this->nombre = '';
         }
-        $this->codfabricante = NULL;
-        $this->nombre = '';
     }
 
     protected function install() {
@@ -93,8 +94,8 @@ class fabricante extends \fs_model {
             $this->new_error_msg("Código de fabricante no válido. Deben ser entre 1 y 8 caracteres.");
         } else if (strlen($this->nombre) < 1 OR strlen($this->nombre) > 100) {
             $this->new_error_msg("Descripción de fabricante no válida.");
-        }
-        $status = TRUE;
+        } else
+            $status = TRUE;
 
         return $status;
     }
@@ -106,10 +107,11 @@ class fabricante extends \fs_model {
             if ($this->exists()) {
                 $sql = "UPDATE " . $this->table_name . " SET nombre = " . $this->var2str($this->nombre) .
                         " WHERE codfabricante = " . $this->var2str($this->codfabricante) . ";";
+            } else {
+                $sql = "INSERT INTO " . $this->table_name . " (codfabricante,nombre) VALUES " .
+                        "(" . $this->var2str($this->codfabricante) .
+                        "," . $this->var2str($this->nombre) . ");";
             }
-            $sql = "INSERT INTO " . $this->table_name . " (codfabricante,nombre) VALUES " .
-                    "(" . $this->var2str($this->codfabricante) .
-                    "," . $this->var2str($this->nombre) . ");";
 
 
             return $this->db->exec($sql);

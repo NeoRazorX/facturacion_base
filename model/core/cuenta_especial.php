@@ -40,9 +40,10 @@ class cuenta_especial extends \fs_model {
         if ($c) {
             $this->idcuentaesp = $c['idcuentaesp'];
             $this->descripcion = $c['descripcion'];
+        } else {
+            $this->idcuentaesp = NULL;
+            $this->descripcion = NULL;
         }
-        $this->idcuentaesp = NULL;
-        $this->descripcion = NULL;
     }
 
     protected function install() {
@@ -99,11 +100,11 @@ class cuenta_especial extends \fs_model {
         if ($this->exists()) {
             $sql = "UPDATE " . $this->table_name . " SET descripcion = " . $this->var2str($this->descripcion) .
                     " WHERE idcuentaesp = " . $this->var2str($this->idcuentaesp) . ";";
+        } else {
+            $sql = "INSERT INTO " . $this->table_name . " (idcuentaesp,descripcion)" .
+                    " VALUES (" . $this->var2str($this->idcuentaesp) .
+                    "," . $this->var2str($this->descripcion) . ");";
         }
-        $sql = "INSERT INTO " . $this->table_name . " (idcuentaesp,descripcion)" .
-                " VALUES (" . $this->var2str($this->idcuentaesp) .
-                "," . $this->var2str($this->descripcion) . ");";
-
 
         return $this->db->exec($sql);
     }

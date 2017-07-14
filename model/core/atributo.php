@@ -41,9 +41,10 @@ class atributo extends \fs_model {
         if ($a) {
             $this->codatributo = $a['codatributo'];
             $this->nombre = $a['nombre'];
+        } else {
+            $this->codatributo = NULL;
+            $this->nombre = NULL;
         }
-        $this->codatributo = NULL;
-        $this->nombre = NULL;
     }
 
     public function url() {
@@ -67,9 +68,9 @@ class atributo extends \fs_model {
     public function get_by_nombre($nombre, $minusculas = FALSE) {
         if ($minusculas) {
             $data = $this->db->select("SELECT * FROM atributos WHERE lower(nombre) = " . $this->var2str(mb_strtolower($nombre, 'UTF8')) . ";");
+        } else {
+            $data = $this->db->select("SELECT * FROM atributos WHERE nombre = " . $this->var2str($nombre) . ";");
         }
-        $data = $this->db->select("SELECT * FROM atributos WHERE nombre = " . $this->var2str($nombre) . ";");
-
 
         if ($data) {
             return new \atributo($data[0]);
@@ -92,11 +93,11 @@ class atributo extends \fs_model {
         if ($this->exists()) {
             $sql = "UPDATE atributos SET nombre = " . $this->var2str($this->nombre)
                     . " WHERE codatributo = " . $this->var2str($this->codatributo) . ";";
+        } else {
+            $sql = "INSERT INTO atributos (codatributo,nombre) VALUES "
+                    . "(" . $this->var2str($this->codatributo)
+                    . "," . $this->var2str($this->nombre) . ");";
         }
-        $sql = "INSERT INTO atributos (codatributo,nombre) VALUES "
-                . "(" . $this->var2str($this->codatributo)
-                . "," . $this->var2str($this->nombre) . ");";
-
 
         return $this->db->exec($sql);
     }

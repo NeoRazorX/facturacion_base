@@ -96,8 +96,8 @@ class caja extends \fs_model {
 
             if (is_null($c['f_fin'])) {
                 $this->fecha_fin = NULL;
-            }
-            $this->fecha_fin = Date('d-m-Y H:i:s', strtotime($c['f_fin']));
+            } else
+                $this->fecha_fin = Date('d-m-Y H:i:s', strtotime($c['f_fin']));
 
             $this->dinero_fin = floatval($c['d_fin']);
             $this->codagente = $c['codagente'];
@@ -120,22 +120,23 @@ class caja extends \fs_model {
                 $this->agente = $ag->get($this->codagente);
                 self::$agentes[] = $this->agente;
             }
-        }
-        $this->id = NULL;
-        $this->fs_id = NULL;
-        $this->codagente = NULL;
-        $this->fecha_inicial = Date('d-m-Y H:i:s');
-        $this->dinero_inicial = 0;
-        $this->fecha_fin = NULL;
-        $this->dinero_fin = 0;
-        $this->tickets = 0;
+        } else {
+            $this->id = NULL;
+            $this->fs_id = NULL;
+            $this->codagente = NULL;
+            $this->fecha_inicial = Date('d-m-Y H:i:s');
+            $this->dinero_inicial = 0;
+            $this->fecha_fin = NULL;
+            $this->dinero_fin = 0;
+            $this->tickets = 0;
 
-        $this->ip = NULL;
-        if (isset($_SERVER['REMOTE_ADDR'])) {
-            $this->ip = $_SERVER['REMOTE_ADDR'];
-        }
+            $this->ip = NULL;
+            if (isset($_SERVER['REMOTE_ADDR'])) {
+                $this->ip = $_SERVER['REMOTE_ADDR'];
+            }
 
-        $this->agente = NULL;
+            $this->agente = NULL;
+        }
     }
 
     public function abierta() {
@@ -184,22 +185,23 @@ class caja extends \fs_model {
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        }
-        $sql = "INSERT INTO " . $this->table_name . " (fs_id,codagente,f_inicio,d_inicio,f_fin,d_fin,tickets,ip) VALUES
+        } else {
+            $sql = "INSERT INTO " . $this->table_name . " (fs_id,codagente,f_inicio,d_inicio,f_fin,d_fin,tickets,ip) VALUES
                    (" . $this->var2str($this->fs_id)
-                . "," . $this->var2str($this->codagente)
-                . "," . $this->var2str($this->fecha_inicial)
-                . "," . $this->var2str($this->dinero_inicial)
-                . "," . $this->var2str($this->fecha_fin)
-                . "," . $this->var2str($this->dinero_fin)
-                . "," . $this->var2str($this->tickets)
-                . "," . $this->var2str($this->ip) . ");";
+                    . "," . $this->var2str($this->codagente)
+                    . "," . $this->var2str($this->fecha_inicial)
+                    . "," . $this->var2str($this->dinero_inicial)
+                    . "," . $this->var2str($this->fecha_fin)
+                    . "," . $this->var2str($this->dinero_fin)
+                    . "," . $this->var2str($this->tickets)
+                    . "," . $this->var2str($this->ip) . ");";
 
-        if ($this->db->exec($sql)) {
-            $this->id = $this->db->lastval();
-            return TRUE;
+            if ($this->db->exec($sql)) {
+                $this->id = $this->db->lastval();
+                return TRUE;
+            }
+            return FALSE;
         }
-        return FALSE;
     }
 
     public function delete() {

@@ -72,18 +72,19 @@ class direccion_proveedor extends \fs_model {
             $this->direccionppal = $this->str2bool($d['direccionppal']);
             $this->descripcion = $d['descripcion'];
             $this->fecha = date('d-m-Y', strtotime($d['fecha']));
+        } else {
+            $this->id = NULL;
+            $this->codproveedor = NULL;
+            $this->codpais = NULL;
+            $this->apartado = NULL;
+            $this->provincia = NULL;
+            $this->ciudad = NULL;
+            $this->codpostal = NULL;
+            $this->direccion = NULL;
+            $this->direccionppal = TRUE;
+            $this->descripcion = 'Principal';
+            $this->fecha = date('d-m-Y');
         }
-        $this->id = NULL;
-        $this->codproveedor = NULL;
-        $this->codpais = NULL;
-        $this->apartado = NULL;
-        $this->provincia = NULL;
-        $this->ciudad = NULL;
-        $this->codpostal = NULL;
-        $this->direccion = NULL;
-        $this->direccionppal = TRUE;
-        $this->descripcion = 'Principal';
-        $this->fecha = date('d-m-Y');
     }
 
     public function get($id) {
@@ -133,24 +134,25 @@ class direccion_proveedor extends \fs_model {
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        }
-        $sql .= "INSERT INTO " . $this->table_name . " (codproveedor,codpais,apartado,provincia,ciudad,
+        } else {
+            $sql .= "INSERT INTO " . $this->table_name . " (codproveedor,codpais,apartado,provincia,ciudad,
             codpostal,direccion,direccionppal,descripcion,fecha) VALUES (" . $this->var2str($this->codproveedor)
-                . "," . $this->var2str($this->codpais)
-                . "," . $this->var2str($this->apartado)
-                . "," . $this->var2str($this->provincia)
-                . "," . $this->var2str($this->ciudad)
-                . "," . $this->var2str($this->codpostal)
-                . "," . $this->var2str($this->direccion)
-                . "," . $this->var2str($this->direccionppal)
-                . "," . $this->var2str($this->descripcion)
-                . "," . $this->var2str($this->fecha) . ");";
+                    . "," . $this->var2str($this->codpais)
+                    . "," . $this->var2str($this->apartado)
+                    . "," . $this->var2str($this->provincia)
+                    . "," . $this->var2str($this->ciudad)
+                    . "," . $this->var2str($this->codpostal)
+                    . "," . $this->var2str($this->direccion)
+                    . "," . $this->var2str($this->direccionppal)
+                    . "," . $this->var2str($this->descripcion)
+                    . "," . $this->var2str($this->fecha) . ");";
 
-        if ($this->db->exec($sql)) {
-            $this->id = $this->db->lastval();
-            return TRUE;
+            if ($this->db->exec($sql)) {
+                $this->id = $this->db->lastval();
+                return TRUE;
+            }
+            return FALSE;
         }
-        return FALSE;
     }
 
     public function delete() {

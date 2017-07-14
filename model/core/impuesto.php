@@ -58,13 +58,14 @@ class impuesto extends \fs_model {
             $this->descripcion = $i['descripcion'];
             $this->iva = floatval($i['iva']);
             $this->recargo = floatval($i['recargo']);
+        } else {
+            $this->codimpuesto = NULL;
+            $this->codsubcuentarep = NULL;
+            $this->codsubcuentasop = NULL;
+            $this->descripcion = NULL;
+            $this->iva = 0;
+            $this->recargo = 0;
         }
-        $this->codimpuesto = NULL;
-        $this->codsubcuentarep = NULL;
-        $this->codsubcuentasop = NULL;
-        $this->descripcion = NULL;
-        $this->iva = 0;
-        $this->recargo = 0;
     }
 
     protected function install() {
@@ -128,8 +129,8 @@ class impuesto extends \fs_model {
             $this->new_error_msg("Código del impuesto no válido. Debe tener entre 1 y 10 caracteres.");
         } else if (strlen($this->descripcion) < 1 OR strlen($this->descripcion) > 50) {
             $this->new_error_msg("Descripción del impuesto no válida.");
-        }
-        $status = TRUE;
+        } else
+            $status = TRUE;
 
         return $status;
     }
@@ -145,7 +146,7 @@ class impuesto extends \fs_model {
                         . ", iva = " . $this->var2str($this->iva)
                         . ", recargo = " . $this->var2str($this->recargo)
                         . "  WHERE codimpuesto = " . $this->var2str($this->codimpuesto) . ";";
-            } {
+            } else {
                 $sql = "INSERT INTO " . $this->table_name . " (codimpuesto,codsubcuentarep,codsubcuentasop,
                      descripcion,iva,recargo) VALUES (" . $this->var2str($this->codimpuesto)
                         . "," . $this->var2str($this->codsubcuentarep)

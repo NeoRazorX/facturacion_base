@@ -57,14 +57,15 @@ class regularizacion_iva extends \fs_model {
             $this->fechafin = Date('d-m-Y', strtotime($r['fechafin']));
             $this->fechainicio = Date('d-m-Y', strtotime($r['fechainicio']));
             $this->periodo = $r['periodo'];
+        } else {
+            $this->idregiva = NULL;
+            $this->idasiento = NULL;
+            $this->codejercicio = NULL;
+            $this->fechaasiento = NULL;
+            $this->fechafin = NULL;
+            $this->fechainicio = NULL;
+            $this->periodo = NULL;
         }
-        $this->idregiva = NULL;
-        $this->idasiento = NULL;
-        $this->codejercicio = NULL;
-        $this->fechaasiento = NULL;
-        $this->fechafin = NULL;
-        $this->fechainicio = NULL;
-        $this->periodo = NULL;
     }
 
     public function url() {
@@ -147,20 +148,21 @@ class regularizacion_iva extends \fs_model {
                     . "  WHERE idregiva = " . $this->var2str($this->idregiva) . ";";
 
             return $this->db->exec($sql);
-        }
-        $sql = "INSERT INTO " . $this->table_name . " (codejercicio,fechaasiento,fechafin,
+        } else {
+            $sql = "INSERT INTO " . $this->table_name . " (codejercicio,fechaasiento,fechafin,
             fechainicio,idasiento,periodo) VALUES (" . $this->var2str($this->codejercicio)
-                . "," . $this->var2str($this->fechaasiento)
-                . "," . $this->var2str($this->fechafin)
-                . "," . $this->var2str($this->fechainicio)
-                . "," . $this->var2str($this->idasiento)
-                . "," . $this->var2str($this->periodo) . ");";
+                    . "," . $this->var2str($this->fechaasiento)
+                    . "," . $this->var2str($this->fechafin)
+                    . "," . $this->var2str($this->fechainicio)
+                    . "," . $this->var2str($this->idasiento)
+                    . "," . $this->var2str($this->periodo) . ");";
 
-        if ($this->db->exec($sql)) {
-            $this->idregiva = $this->db->lastval();
-            return TRUE;
+            if ($this->db->exec($sql)) {
+                $this->idregiva = $this->db->lastval();
+                return TRUE;
+            }
+            return FALSE;
         }
-        return FALSE;
     }
 
     public function delete() {
@@ -179,25 +181,21 @@ class regularizacion_iva extends \fs_model {
         return FALSE;
     }
 
-    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-
-        $reglist = array();
-        $data = $this->db->select($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $reglist[] = new \regularizacion_iva($a);
-            }
-        }
-        return $reglist;
-    }
-
     /**
      * Devuelve todas las regularizaciones.
      * @return \regularizacion_iva
      */
     public function all() {
+        $reglist = array();
 
-        return $this->all_from("SELECT * FROM " . $this->table_name . " ORDER BY fechafin DESC;");
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " ORDER BY fechafin DESC;");
+        if ($data) {
+            foreach ($data as $r) {
+                $reglist[] = new \regularizacion_iva($r);
+            }
+        }
+
+        return $reglist;
     }
 
     /**
@@ -206,10 +204,18 @@ class regularizacion_iva extends \fs_model {
      * @return \regularizacion_iva
      */
     public function all_from_ejercicio($codejercicio) {
+        $reglist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codejercicio = " . $this->var2str($codejercicio)
                 . " ORDER BY fechafin DESC;";
 
-        return $this->all_from($sql);
+        $data = $this->db->select($sql);
+        if ($data) {
+            foreach ($data as $r) {
+                $reglist[] = new \regularizacion_iva($r);
+            }
+        }
+
+        return $reglist;
     }
 
 }

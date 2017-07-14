@@ -37,10 +37,11 @@ class cliente_propiedad extends \fs_model {
             $this->name = $a['name'];
             $this->codcliente = $a['codcliente'];
             $this->text = $a['text'];
+        } else {
+            $this->name = NULL;
+            $this->codcliente = NULL;
+            $this->text = NULL;
         }
-        $this->name = NULL;
-        $this->codcliente = NULL;
-        $this->text = NULL;
     }
 
     public function exists() {
@@ -55,9 +56,10 @@ class cliente_propiedad extends \fs_model {
         if ($this->exists()) {
             $sql = "UPDATE cliente_propiedades SET text = " . $this->var2str($this->text) . " WHERE name = " .
                     $this->var2str($this->name) . " AND codcliente = " . $this->var2str($this->codcliente) . ";";
-        }
-        $sql = "INSERT INTO cliente_propiedades (name,codcliente,text) VALUES
+        } else {
+            $sql = "INSERT INTO cliente_propiedades (name,codcliente,text) VALUES
             (" . $this->var2str($this->name) . "," . $this->var2str($this->codcliente) . "," . $this->var2str($this->text) . ");";
+        }
 
 
         return $this->db->exec($sql);

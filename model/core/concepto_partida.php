@@ -39,9 +39,10 @@ class concepto_partida extends \fs_model {
         if ($c) {
             $this->idconceptopar = $c['idconceptopar'];
             $this->concepto = $c['concepto'];
+        } else {
+            $this->idconceptopar = NULL;
+            $this->concepto = NULL;
         }
-        $this->idconceptopar = NULL;
-        $this->concepto = NULL;
     }
 
     public function get($id) {

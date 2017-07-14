@@ -56,11 +56,12 @@ class familia extends \fs_model {
             if (isset($f['nivel'])) {
                 $this->nivel = $f['nivel'];
             }
+        } else {
+            $this->codfamilia = NULL;
+            $this->descripcion = '';
+            $this->madre = NULL;
+            $this->nivel = '';
         }
-        $this->codfamilia = NULL;
-        $this->descripcion = '';
-        $this->madre = NULL;
-        $this->nivel = '';
     }
 
     protected function install() {
@@ -124,8 +125,8 @@ class familia extends \fs_model {
             $this->new_error_msg("Código de familia no válido. Deben ser entre 1 y 8 caracteres.");
         } else if (strlen($this->descripcion) < 1 OR strlen($this->descripcion) > 100) {
             $this->new_error_msg("Descripción de familia no válida.");
-        }
-        $status = TRUE;
+        } else
+            $status = TRUE;
 
         return $status;
     }
@@ -142,11 +143,12 @@ class familia extends \fs_model {
                 $sql = "UPDATE " . $this->table_name . " SET descripcion = " . $this->var2str($this->descripcion) .
                         ", madre = " . $this->var2str($this->madre) .
                         "  WHERE codfamilia = " . $this->var2str($this->codfamilia) . ";";
+            } else {
+                $sql = "INSERT INTO " . $this->table_name . " (codfamilia,descripcion,madre) VALUES " .
+                        "(" . $this->var2str($this->codfamilia) .
+                        "," . $this->var2str($this->descripcion) .
+                        "," . $this->var2str($this->madre) . ");";
             }
-            $sql = "INSERT INTO " . $this->table_name . " (codfamilia,descripcion,madre) VALUES " .
-                    "(" . $this->var2str($this->codfamilia) .
-                    "," . $this->var2str($this->descripcion) .
-                    "," . $this->var2str($this->madre) . ");";
 
 
             return $this->db->exec($sql);
@@ -224,18 +226,6 @@ class familia extends \fs_model {
         return $subfamilias;
     }
 
-    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-
-        $famlist = array();
-        $data = $this->db->select($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $famlist[] = new \familia($a);
-            }
-        }
-        return $famlist;
-    }
-
     public function madres() {
         $famlist = array();
 
@@ -255,18 +245,34 @@ class familia extends \fs_model {
     }
 
     public function hijas($codmadre = FALSE) {
+        $famlist = array();
 
         if (!$codmadre) {
             $codmadre = $this->codfamilia;
         }
 
-        return $this->all_from("SELECT * FROM " . $this->table_name . " WHERE madre = " . $this->var2str($codmadre) . " ORDER BY descripcion ASC;");
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE madre = " . $this->var2str($codmadre) . " ORDER BY descripcion ASC;");
+        if ($data) {
+            foreach ($data as $d) {
+                $famlist[] = new \familia($d);
+            }
+        }
+
+        return $famlist;
     }
 
     public function search($query) {
+        $famlist = array();
         $query = $this->no_html(mb_strtolower($query, 'UTF8'));
 
-        return $this->all_from("SELECT * FROM " . $this->table_name . " WHERE lower(descripcion) LIKE '%" . $query . "%' ORDER BY descripcion ASC;");
+        $familias = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE lower(descripcion) LIKE '%" . $query . "%' ORDER BY descripcion ASC;");
+        if ($familias) {
+            foreach ($familias as $f) {
+                $famlist[] = new \familia($f);
+            }
+        }
+
+        return $famlist;
     }
 
     /**

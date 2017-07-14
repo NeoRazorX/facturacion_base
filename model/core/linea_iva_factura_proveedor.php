@@ -94,7 +94,7 @@ class linea_iva_factura_proveedor extends \fs_model {
             $this->recargo = floatval($l['recargo']);
             $this->totalrecargo = floatval($l['totalrecargo']);
             $this->totallinea = floatval($l['totallinea']);
-        }
+        } else {
         $this->idlinea = NULL;
         $this->idfactura = NULL;
         $this->neto = 0;
@@ -104,6 +104,7 @@ class linea_iva_factura_proveedor extends \fs_model {
         $this->recargo = 0;
         $this->totalrecargo = 0;
         $this->totallinea = 0;
+        }
     }
 
     public function exists() {
@@ -116,11 +117,12 @@ class linea_iva_factura_proveedor extends \fs_model {
     public function test() {
         if ($this->floatcmp($this->totallinea, $this->neto + $this->totaliva + $this->totalrecargo, FS_NF0, TRUE)) {
             return TRUE;
-        }
+        } else {
         $this->new_error_msg("Error en el valor de totallinea de la línea de IVA del impuesto " .
                 $this->codimpuesto . " de la factura. Valor correcto: " .
                 round($this->neto + $this->totaliva + $this->totalrecargo, FS_NF0));
         return FALSE;
+    }
     }
 
     public function factura_test($idfactura, $neto, $totaliva, $totalrecargo) {
@@ -171,7 +173,7 @@ class linea_iva_factura_proveedor extends \fs_model {
                         . "  WHERE idlinea = " . $this->var2str($this->idlinea) . ";";
 
                 return $this->db->exec($sql);
-            }
+            } else {
             $sql = "INSERT INTO " . $this->table_name . " (idfactura,neto,codimpuesto,iva,
                totaliva,recargo,totalrecargo,totallinea) VALUES 
                       (" . $this->var2str($this->idfactura)
@@ -189,6 +191,7 @@ class linea_iva_factura_proveedor extends \fs_model {
             }
             return FALSE;
         }
+        } 
         return FALSE;
     }
 

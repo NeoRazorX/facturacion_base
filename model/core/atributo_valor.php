@@ -46,10 +46,11 @@ class atributo_valor extends \fs_model {
             $this->id = $this->intval($a['id']);
             $this->codatributo = $a['codatributo'];
             $this->valor = $a['valor'];
+        } else {
+            $this->id = NULL;
+            $this->codatributo = NULL;
+            $this->valor = NULL;
         }
-        $this->id = NULL;
-        $this->codatributo = NULL;
-        $this->valor = NULL;
     }
 
     public function url() {
@@ -92,21 +93,21 @@ class atributo_valor extends \fs_model {
             $sql = "UPDATE atributos_valores SET valor = " . $this->var2str($this->valor)
                     . ", codatributo = " . $this->var2str($this->codatributo)
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
-        }
-        if (is_null($this->id)) {
-            $this->id = 1;
+        } else {
+            if (is_null($this->id)) {
+                $this->id = 1;
 
-            $data = $this->db->select("SELECT MAX(id) as max FROM atributos_valores;");
-            if ($data) {
-                $this->id = 1 + intval($data[0]['max']);
+                $data = $this->db->select("SELECT MAX(id) as max FROM atributos_valores;");
+                if ($data) {
+                    $this->id = 1 + intval($data[0]['max']);
+                }
             }
+
+            $sql = "INSERT INTO atributos_valores (id,codatributo,valor) VALUES "
+                    . "(" . $this->var2str($this->id)
+                    . "," . $this->var2str($this->codatributo)
+                    . "," . $this->var2str($this->valor) . ");";
         }
-
-        $sql = "INSERT INTO atributos_valores (id,codatributo,valor) VALUES "
-                . "(" . $this->var2str($this->id)
-                . "," . $this->var2str($this->codatributo)
-                . "," . $this->var2str($this->valor) . ");";
-
 
         return $this->db->exec($sql);
     }

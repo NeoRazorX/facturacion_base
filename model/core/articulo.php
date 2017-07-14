@@ -245,37 +245,37 @@ class articulo extends \fs_model {
 
             $this->imagen = NULL;
             $this->exists = TRUE;
+        } else {
+            $this->referencia = NULL;
+            $this->tipo = NULL;
+            $this->codfamilia = NULL;
+            $this->codfabricante = NULL;
+            $this->descripcion = '';
+            $this->pvp = 0;
+            $this->factualizado = Date('d-m-Y');
+            $this->costemedio = 0;
+            $this->preciocoste = 0;
+            $this->codimpuesto = NULL;
+            $this->stockfis = 0;
+            $this->stockmin = 0;
+            $this->stockmax = 0;
+            $this->controlstock = (bool) FS_VENTAS_SIN_STOCK;
+            $this->nostock = FALSE;
+            $this->bloqueado = FALSE;
+            $this->secompra = TRUE;
+            $this->sevende = TRUE;
+            $this->publico = FALSE;
+            $this->equivalencia = NULL;
+            $this->partnumber = NULL;
+            $this->codbarras = '';
+            $this->observaciones = '';
+            $this->codsubcuentacom = NULL;
+            $this->codsubcuentairpfcom = NULL;
+            $this->trazabilidad = FALSE;
+
+            $this->imagen = NULL;
+            $this->exists = FALSE;
         }
-        $this->referencia = NULL;
-        $this->tipo = NULL;
-        $this->codfamilia = NULL;
-        $this->codfabricante = NULL;
-        $this->descripcion = '';
-        $this->pvp = 0;
-        $this->factualizado = Date('d-m-Y');
-        $this->costemedio = 0;
-        $this->preciocoste = 0;
-        $this->codimpuesto = NULL;
-        $this->stockfis = 0;
-        $this->stockmin = 0;
-        $this->stockmax = 0;
-        $this->controlstock = (bool) FS_VENTAS_SIN_STOCK;
-        $this->nostock = FALSE;
-        $this->bloqueado = FALSE;
-        $this->secompra = TRUE;
-        $this->sevende = TRUE;
-        $this->publico = FALSE;
-        $this->equivalencia = NULL;
-        $this->partnumber = NULL;
-        $this->codbarras = '';
-        $this->observaciones = '';
-        $this->codsubcuentacom = NULL;
-        $this->codsubcuentairpfcom = NULL;
-        $this->trazabilidad = FALSE;
-
-        $this->imagen = NULL;
-        $this->exists = FALSE;
-
 
         $this->pvp_ant = 0;
         $this->iva = NULL;
@@ -358,10 +358,10 @@ class articulo extends \fs_model {
         if (strtolower(FS_DB_TYPE) == 'postgresql') {
             $sql = "SELECT referencia from " . $this->table_name . " where referencia ~ '^\d+$'"
                     . " ORDER BY referencia::bigint DESC";
+        } else {
+            $sql = "SELECT referencia from " . $this->table_name . " where referencia REGEXP '^[0-9]+$'"
+                    . " ORDER BY ABS(referencia) DESC";
         }
-        $sql = "SELECT referencia from " . $this->table_name . " where referencia REGEXP '^[0-9]+$'"
-                . " ORDER BY ABS(referencia) DESC";
-
 
         $ref = 1;
         $data = $this->db->select_limit($sql, 1, 0);
@@ -393,9 +393,10 @@ class articulo extends \fs_model {
     public function get_familia() {
         if (is_null($this->codfamilia)) {
             return FALSE;
+        } else {
+            $fam = new \familia();
+            return $fam->get($this->codfamilia);
         }
-        $fam = new \familia();
-        return $fam->get($this->codfamilia);
     }
 
     /**
@@ -405,17 +406,19 @@ class articulo extends \fs_model {
     public function get_fabricante() {
         if (is_null($this->codfabricante)) {
             return FALSE;
+        } else {
+            $fab = new \fabricante();
+            return $fab->get($this->codfabricante);
         }
-        $fab = new \fabricante();
-        return $fab->get($this->codfabricante);
     }
 
     public function get_stock() {
         if ($this->nostock) {
             return array();
+        } else {
+            $stock = new \stock();
+            return $stock->all_from_articulo($this->referencia);
         }
-        $stock = new \stock();
-        return $stock->all_from_articulo($this->referencia);
     }
 
     /**
@@ -541,8 +544,9 @@ class articulo extends \fs_model {
                     if ($stock < $this->stockfis OR $this->stockfis <= 0) {
                         $coste += $linea->pvptotal;
                         $stock += $linea->cantidad;
+                    } else {
+                        break;
                     }
-                    break;
                 }
             }
         }
@@ -553,8 +557,9 @@ class articulo extends \fs_model {
                 if ($stock < $this->stockfis OR $this->stockfis <= 0) {
                     $coste += $linea->pvptotal;
                     $stock += $linea->cantidad;
+                } else {
+                    break;
                 }
-                break;
             }
         }
 
@@ -564,8 +569,9 @@ class articulo extends \fs_model {
                 if ($stock < $this->stockfis OR $this->stockfis <= 0) {
                     $coste += $linea->pvptotal;
                     $stock += $linea->cantidad;
+                } else {
+                    break;
                 }
-                break;
             }
         }
 
@@ -609,9 +615,9 @@ class articulo extends \fs_model {
 
             if ($png) {
                 $f = @fopen(FS_MYDOCS . 'images/articulos/' . $this->image_ref() . '-1.png', 'a');
+            } else {
+                $f = @fopen(FS_MYDOCS . 'images/articulos/' . $this->image_ref() . '-1.jpg', 'a');
             }
-            $f = @fopen(FS_MYDOCS . 'images/articulos/' . $this->image_ref() . '-1.jpg', 'a');
-
 
             if ($f) {
                 fwrite($f, $img);
@@ -653,8 +659,9 @@ class articulo extends \fs_model {
                 }
 
                 $this->referencia = $ref;
+            } else {
+                $this->new_error_msg('Imposible modificar la referencia.');
             }
-            $this->new_error_msg('Imposible modificar la referencia.');
         }
 
         $this->exists = FALSE;
@@ -682,8 +689,8 @@ class articulo extends \fs_model {
                 if ($imp0) {
                     $this->iva = floatval($imp0->iva);
                     self::$impuestos[] = $imp0;
-                }
-                $this->iva = 0;
+                } else
+                    $this->iva = 0;
             }
         }
     }
@@ -700,45 +707,45 @@ class articulo extends \fs_model {
 
         if ($this->nostock) {
             $result = TRUE;
-        }
-        $stock = new \stock();
-        $encontrado = FALSE;
-        $stocks = $stock->all_from_articulo($this->referencia);
-        foreach ($stocks as $k => $value) {
-            if ($value->codalmacen == $codalmacen) {
-                $stocks[$k]->set_cantidad($cantidad);
-                $result = $stocks[$k]->save();
-                $encontrado = TRUE;
-                break;
-            }
-        }
-        if (!$encontrado) {
-            $stock->referencia = $this->referencia;
-            $stock->codalmacen = $codalmacen;
-            $stock->set_cantidad($cantidad);
-            $result = $stock->save();
-        }
-
-        if ($result) {
-            /// $result es TRUE
-            /// este código está muy optimizado para guardar solamente los cambios
-
-            $nuevo_stock = $stock->total_from_articulo($this->referencia);
-            if ($this->stockfis != $nuevo_stock) {
-                $this->stockfis = $nuevo_stock;
-
-                if ($this->exists) {
-                    $this->clean_cache();
-                    $result = $this->db->exec("UPDATE " . $this->table_name
-                            . " SET stockfis = " . $this->var2str($this->stockfis)
-                            . " WHERE referencia = " . $this->var2str($this->referencia) . ";");
-                } else if (!$this->save()) {
-                    $this->new_error_msg("¡Error al actualizar el stock del artículo!");
+        } else {
+            $stock = new \stock();
+            $encontrado = FALSE;
+            $stocks = $stock->all_from_articulo($this->referencia);
+            foreach ($stocks as $k => $value) {
+                if ($value->codalmacen == $codalmacen) {
+                    $stocks[$k]->set_cantidad($cantidad);
+                    $result = $stocks[$k]->save();
+                    $encontrado = TRUE;
+                    break;
                 }
             }
-        }
-        $this->new_error_msg("Error al guardar el stock");
+            if (!$encontrado) {
+                $stock->referencia = $this->referencia;
+                $stock->codalmacen = $codalmacen;
+                $stock->set_cantidad($cantidad);
+                $result = $stock->save();
+            }
 
+            if ($result) {
+                /// $result es TRUE
+                /// este código está muy optimizado para guardar solamente los cambios
+
+                $nuevo_stock = $stock->total_from_articulo($this->referencia);
+                if ($this->stockfis != $nuevo_stock) {
+                    $this->stockfis = $nuevo_stock;
+
+                    if ($this->exists) {
+                        $this->clean_cache();
+                        $result = $this->db->exec("UPDATE " . $this->table_name
+                                . " SET stockfis = " . $this->var2str($this->stockfis)
+                                . " WHERE referencia = " . $this->var2str($this->referencia) . ";");
+                    } else if (!$this->save()) {
+                        $this->new_error_msg("¡Error al actualizar el stock del artículo!");
+                    }
+                }
+            } else
+                $this->new_error_msg("Error al guardar el stock");
+        }
 
         return $result;
     }
@@ -774,55 +781,56 @@ class articulo extends \fs_model {
                     $result = FALSE;
                 }
             }
-        }
-        $stock = new \stock();
-        $encontrado = FALSE;
-        $stocks = $stock->all_from_articulo($this->referencia);
-        foreach ($stocks as $k => $value) {
-            if ($value->codalmacen == $codalmacen) {
-                $stocks[$k]->sum_cantidad($cantidad);
-                $result = $stocks[$k]->save();
-                $encontrado = TRUE;
-                break;
-            }
-        }
-        if (!$encontrado) {
-            $stock->referencia = $this->referencia;
-            $stock->codalmacen = $codalmacen;
-            $stock->set_cantidad($cantidad);
-            $result = $stock->save();
-        }
-
-        if ($result) {
-            /// este código está muy optimizado para guardar solamente los cambios
-
-            $nuevo_stock = $stock->total_from_articulo($this->referencia);
-            if ($this->stockfis != $nuevo_stock) {
-                $this->stockfis = $nuevo_stock;
-
-                if ($this->exists) {
-                    $this->clean_cache();
-                    $result = $this->db->exec("UPDATE " . $this->table_name
-                            . "  SET stockfis = " . $this->var2str($this->stockfis)
-                            . ", costemedio = " . $this->var2str($this->costemedio)
-                            . "  WHERE referencia = " . $this->var2str($this->referencia) . ";");
-                } else if (!$this->save()) {
-                    $this->new_error_msg("¡Error al actualizar el stock del artículo!");
-                    $result = FALSE;
+        } else {
+            $stock = new \stock();
+            $encontrado = FALSE;
+            $stocks = $stock->all_from_articulo($this->referencia);
+            foreach ($stocks as $k => $value) {
+                if ($value->codalmacen == $codalmacen) {
+                    $stocks[$k]->sum_cantidad($cantidad);
+                    $result = $stocks[$k]->save();
+                    $encontrado = TRUE;
+                    break;
                 }
+            }
+            if (!$encontrado) {
+                $stock->referencia = $this->referencia;
+                $stock->codalmacen = $codalmacen;
+                $stock->set_cantidad($cantidad);
+                $result = $stock->save();
+            }
 
-                /// ¿Alguna combinación?
-                if ($codcombinacion AND $result) {
-                    $com0 = new \articulo_combinacion();
-                    foreach ($com0->all_from_codigo($codcombinacion) as $combi) {
-                        $combi->stockfis += $cantidad;
-                        $combi->save();
+            if ($result) {
+                /// este código está muy optimizado para guardar solamente los cambios
+
+                $nuevo_stock = $stock->total_from_articulo($this->referencia);
+                if ($this->stockfis != $nuevo_stock) {
+                    $this->stockfis = $nuevo_stock;
+
+                    if ($this->exists) {
+                        $this->clean_cache();
+                        $result = $this->db->exec("UPDATE " . $this->table_name
+                                . "  SET stockfis = " . $this->var2str($this->stockfis)
+                                . ", costemedio = " . $this->var2str($this->costemedio)
+                                . "  WHERE referencia = " . $this->var2str($this->referencia) . ";");
+                    } else if (!$this->save()) {
+                        $this->new_error_msg("¡Error al actualizar el stock del artículo!");
+                        $result = FALSE;
+                    }
+
+                    /// ¿Alguna combinación?
+                    if ($codcombinacion AND $result) {
+                        $com0 = new \articulo_combinacion();
+                        foreach ($com0->all_from_codigo($codcombinacion) as $combi) {
+                            $combi->stockfis += $cantidad;
+                            $combi->save();
+                        }
                     }
                 }
+            } else {
+                $this->new_error_msg("¡Error al guardar el stock!");
             }
         }
-        $this->new_error_msg("¡Error al guardar el stock!");
-
 
         return $result;
     }
@@ -874,8 +882,8 @@ class articulo extends \fs_model {
         } else if (isset($this->equivalencia) AND strlen($this->equivalencia) > 25) {
             $this->new_error_msg("Código de equivalencia del artículos no válido: " . $this->equivalencia .
                     ". Debe tener entre 1 y 25 caracteres.");
-        }
-        $status = TRUE;
+        } else
+            $status = TRUE;
 
         return $status;
     }
@@ -923,36 +931,36 @@ class articulo extends \fs_model {
                     $sql .= "UPDATE " . $this->table_name . " SET stockfis = " . $this->var2str($this->stockfis) .
                             " WHERE referencia = " . $this->var2str($this->referencia) . ";";
                 }
+            } else {
+                $sql = "INSERT INTO " . $this->table_name . " (" . self::$column_list . ") VALUES (" .
+                        $this->var2str($this->referencia) . "," .
+                        $this->var2str($this->codfamilia) . "," .
+                        $this->var2str($this->codfabricante) . "," .
+                        $this->var2str($this->descripcion) . "," .
+                        $this->var2str($this->pvp) . "," .
+                        $this->var2str($this->factualizado) . "," .
+                        $this->var2str($this->costemedio) . "," .
+                        $this->var2str($this->preciocoste) . "," .
+                        $this->var2str($this->codimpuesto) . "," .
+                        $this->var2str($this->stockfis) . "," .
+                        $this->var2str($this->stockmin) . "," .
+                        $this->var2str($this->stockmax) . "," .
+                        $this->var2str($this->controlstock) . "," .
+                        $this->var2str($this->nostock) . "," .
+                        $this->var2str($this->bloqueado) . "," .
+                        $this->var2str($this->secompra) . "," .
+                        $this->var2str($this->sevende) . "," .
+                        $this->var2str($this->equivalencia) . "," .
+                        $this->var2str($this->codbarras) . "," .
+                        $this->var2str($this->observaciones) . "," .
+                        $this->var2str($this->imagen) . "," .
+                        $this->var2str($this->publico) . "," .
+                        $this->var2str($this->tipo) . "," .
+                        $this->var2str($this->partnumber) . "," .
+                        $this->var2str($this->codsubcuentacom) . "," .
+                        $this->var2str($this->codsubcuentairpfcom) . "," .
+                        $this->var2str($this->trazabilidad) . ");";
             }
-            $sql = "INSERT INTO " . $this->table_name . " (" . self::$column_list . ") VALUES (" .
-                    $this->var2str($this->referencia) . "," .
-                    $this->var2str($this->codfamilia) . "," .
-                    $this->var2str($this->codfabricante) . "," .
-                    $this->var2str($this->descripcion) . "," .
-                    $this->var2str($this->pvp) . "," .
-                    $this->var2str($this->factualizado) . "," .
-                    $this->var2str($this->costemedio) . "," .
-                    $this->var2str($this->preciocoste) . "," .
-                    $this->var2str($this->codimpuesto) . "," .
-                    $this->var2str($this->stockfis) . "," .
-                    $this->var2str($this->stockmin) . "," .
-                    $this->var2str($this->stockmax) . "," .
-                    $this->var2str($this->controlstock) . "," .
-                    $this->var2str($this->nostock) . "," .
-                    $this->var2str($this->bloqueado) . "," .
-                    $this->var2str($this->secompra) . "," .
-                    $this->var2str($this->sevende) . "," .
-                    $this->var2str($this->equivalencia) . "," .
-                    $this->var2str($this->codbarras) . "," .
-                    $this->var2str($this->observaciones) . "," .
-                    $this->var2str($this->imagen) . "," .
-                    $this->var2str($this->publico) . "," .
-                    $this->var2str($this->tipo) . "," .
-                    $this->var2str($this->partnumber) . "," .
-                    $this->var2str($this->codsubcuentacom) . "," .
-                    $this->var2str($this->codsubcuentairpfcom) . "," .
-                    $this->var2str($this->trazabilidad) . ");";
-
 
             if ($this->db->exec($sql)) {
                 $this->exists = TRUE;
@@ -1090,10 +1098,10 @@ class articulo extends \fs_model {
             if ($bloqueados) {
                 $sql .= $separador . " bloqueado = TRUE";
                 $separador = ' AND';
+            } else {
+                $sql .= $separador . " bloqueado = FALSE";
+                $separador = ' AND';
             }
-            $sql .= $separador . " bloqueado = FALSE";
-            $separador = ' AND';
-
 
             if ($query == '') {
                 /// nada
@@ -1105,39 +1113,40 @@ class articulo extends \fs_model {
                         . " OR descripcion LIKE '%" . $query . "%'"
                         . " OR codbarras = " . $this->var2str($query) . ")";
                 $separador = ' AND';
-            }
-            /// ¿La búsqueda son varias palabras?
-            $palabras = explode(' ', $query);
-            if (count($palabras) > 1) {
-                $sql .= $separador . " (lower(referencia) = " . $this->var2str($query)
-                        . " OR lower(referencia) LIKE '%" . $query . "%'"
-                        . " OR lower(partnumber) LIKE '%" . $query . "%'"
-                        . " OR lower(equivalencia) LIKE '%" . $query . "%'"
-                        . " OR (";
+            } else {
+                /// ¿La búsqueda son varias palabras?
+                $palabras = explode(' ', $query);
+                if (count($palabras) > 1) {
+                    $sql .= $separador . " (lower(referencia) = " . $this->var2str($query)
+                            . " OR lower(referencia) LIKE '%" . $query . "%'"
+                            . " OR lower(partnumber) LIKE '%" . $query . "%'"
+                            . " OR lower(equivalencia) LIKE '%" . $query . "%'"
+                            . " OR (";
 
-                foreach ($palabras as $i => $pal) {
-                    if ($i == 0) {
-                        $sql .= "lower(descripcion) LIKE '%" . $pal . "%'";
+                    foreach ($palabras as $i => $pal) {
+                        if ($i == 0) {
+                            $sql .= "lower(descripcion) LIKE '%" . $pal . "%'";
+                        } else {
+                            $sql .= " AND lower(descripcion) LIKE '%" . $pal . "%'";
+                        }
                     }
-                    $sql .= " AND lower(descripcion) LIKE '%" . $pal . "%'";
+
+                    $sql .= "))";
+                } else {
+                    $sql .= $separador . " (lower(referencia) = " . $this->var2str($query)
+                            . " OR lower(referencia) LIKE '%" . $query . "%'"
+                            . " OR lower(partnumber) LIKE '%" . $query . "%'"
+                            . " OR lower(equivalencia) LIKE '%" . $query . "%'"
+                            . " OR lower(codbarras) = " . $this->var2str($query)
+                            . " OR lower(descripcion) LIKE '%" . $query . "%')";
                 }
-
-                $sql .= "))";
             }
-            $sql .= $separador . " (lower(referencia) = " . $this->var2str($query)
-                    . " OR lower(referencia) LIKE '%" . $query . "%'"
-                    . " OR lower(partnumber) LIKE '%" . $query . "%'"
-                    . " OR lower(equivalencia) LIKE '%" . $query . "%'"
-                    . " OR lower(codbarras) = " . $this->var2str($query)
-                    . " OR lower(descripcion) LIKE '%" . $query . "%')";
-
-
 
             if (strtolower(FS_DB_TYPE) == 'mysql') {
                 $sql .= " ORDER BY lower(referencia) ASC";
+            } else {
+                $sql .= " ORDER BY referencia ASC";
             }
-            $sql .= " ORDER BY referencia ASC";
-
 
             $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
             if ($data) {

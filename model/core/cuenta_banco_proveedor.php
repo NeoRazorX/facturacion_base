@@ -52,13 +52,14 @@ class cuenta_banco_proveedor extends \fs_model {
             $this->iban = $c['iban'];
             $this->swift = $c['swift'];
             $this->principal = $this->str2bool($c['principal']);
+        } else {
+            $this->codcuenta = NULL;
+            $this->codproveedor = NULL;
+            $this->descripcion = NULL;
+            $this->iban = NULL;
+            $this->swift = NULL;
+            $this->principal = TRUE;
         }
-        $this->codcuenta = NULL;
-        $this->codproveedor = NULL;
-        $this->descripcion = NULL;
-        $this->iban = NULL;
-        $this->swift = NULL;
-        $this->principal = TRUE;
     }
 
     /**
@@ -120,16 +121,16 @@ class cuenta_banco_proveedor extends \fs_model {
                     ", swift = " . $this->var2str($this->swift) .
                     ", principal = " . $this->var2str($this->principal) .
                     "  WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";";
+        } else {
+            $this->codcuenta = $this->get_new_codigo();
+            $sql = "INSERT INTO " . $this->table_name . " (codcuenta,codproveedor,descripcion,iban,swift,principal)" .
+                    " VALUES (" . $this->var2str($this->codcuenta) .
+                    "," . $this->var2str($this->codproveedor) .
+                    "," . $this->var2str($this->descripcion) .
+                    "," . $this->var2str($this->iban) .
+                    "," . $this->var2str($this->swift) .
+                    "," . $this->var2str($this->principal) . ");";
         }
-        $this->codcuenta = $this->get_new_codigo();
-        $sql = "INSERT INTO " . $this->table_name . " (codcuenta,codproveedor,descripcion,iban,swift,principal)" .
-                " VALUES (" . $this->var2str($this->codcuenta) .
-                "," . $this->var2str($this->codproveedor) .
-                "," . $this->var2str($this->descripcion) .
-                "," . $this->var2str($this->iban) .
-                "," . $this->var2str($this->swift) .
-                "," . $this->var2str($this->principal) . ");";
-
 
         if ($this->principal) {
             /// si esta cuenta es la principal, desmarcamos las demás
