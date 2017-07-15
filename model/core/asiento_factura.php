@@ -347,14 +347,13 @@ class asiento_factura {
                         }
 
                         $this->asiento = $asiento;
-                    } else
+                    } else {
                         $this->new_error_msg("¡Imposible añadir el asiento a la factura!");
-                }
-                else {
-                    if ($asiento->delete()) {
-                        $this->new_message("El asiento se ha borrado.");
-                    } else
-                        $this->new_error_msg("¡Imposible borrar el asiento!");
+                    }
+                } else if ($asiento->delete()) {
+                    $this->new_message("El asiento se ha borrado.");
+                } else {
+                    $this->new_error_msg("¡Imposible borrar el asiento!");
                 }
             }
         }
@@ -828,17 +827,15 @@ class asiento_factura {
                         }
 
                         $this->asiento = $asiento;
-                    } else
+                    } else {
                         $this->new_error_msg("¡Imposible añadir el asiento a la factura!");
+                    }
+                } else if ($asiento->delete()) {
+                    $this->new_message("El asiento se ha borrado.");
+                } else {
+                    $this->new_error_msg("¡Imposible borrar el asiento!");
                 }
-                else {
-                    if ($asiento->delete()) {
-                        $this->new_message("El asiento se ha borrado.");
-                    } else
-                        $this->new_error_msg("¡Imposible borrar el asiento!");
-                }
-            }
-            else {
+            } else {
                 $this->new_error_msg("¡Imposible guardar el asiento!");
             }
         }
@@ -916,11 +913,9 @@ class asiento_factura {
             $seleccionar = 0;
             $encontrada = FALSE;
             foreach ($asiento->get_partidas() as $i => $par) {
-                if ($subclipro) {
-                    if ($par->codsubcuenta == $subclipro->codsubcuenta) {
-                        $seleccionar = $i;
-                        break;
-                    }
+                if ($subclipro && $par->codsubcuenta == $subclipro->codsubcuenta) {
+                    $seleccionar = $i;
+                    break;
                 }
 
                 if ($nasientop->floatcmp(abs($par->debe), $importe, FS_NF0) OR $nasientop->floatcmp(abs($par->debe), $importe2, FS_NF0)) {

@@ -51,10 +51,10 @@ class cliente_propiedad extends \fs_model {
     public function exists() {
         if (is_null($this->name) OR is_null($this->codcliente)) {
             return FALSE;
-        } else {
-            return $this->db->select("SELECT * FROM cliente_propiedades WHERE name = " .
-                            $this->var2str($this->name) . " AND codcliente = " . $this->var2str($this->codcliente) . ";");
         }
+        
+        return $this->db->select("SELECT * FROM cliente_propiedades WHERE name = " .
+                        $this->var2str($this->name) . " AND codcliente = " . $this->var2str($this->codcliente) . ";");
     }
 
     public function save() {
@@ -65,6 +65,7 @@ class cliente_propiedad extends \fs_model {
             $sql = "INSERT INTO cliente_propiedades (name,codcliente,text) VALUES
             (" . $this->var2str($this->name) . "," . $this->var2str($this->codcliente) . "," . $this->var2str($this->text) . ");";
         }
+
 
         return $this->db->exec($sql);
     }
