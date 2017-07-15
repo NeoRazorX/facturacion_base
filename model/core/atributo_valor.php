@@ -53,6 +53,10 @@ class atributo_valor extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     public function url() {
         return 'index.php?page=ventas_atributos&cod=' . $this->codatributo;
     }

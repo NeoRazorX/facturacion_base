@@ -236,7 +236,7 @@ class proveedor extends \fs_model {
         } else if (strlen($this->observaciones) < 60) {
             return $this->observaciones;
         }
-        
+
         return substr($this->observaciones, 0, 50) . '...';
     }
 
@@ -244,7 +244,7 @@ class proveedor extends \fs_model {
         if (is_null($this->codproveedor)) {
             return "index.php?page=compras_proveedores";
         }
-        
+
         return "index.php?page=compras_proveedor&cod=" . $this->codproveedor;
     }
 
@@ -266,7 +266,7 @@ class proveedor extends \fs_model {
         if ($data) {
             return new \proveedor($data[0]);
         }
-        
+
         return FALSE;
     }
 
@@ -292,7 +292,7 @@ class proveedor extends \fs_model {
         if ($data) {
             return new \proveedor($data[0]);
         }
-        
+
         return FALSE;
     }
 
@@ -309,7 +309,7 @@ class proveedor extends \fs_model {
         if ($data) {
             return new \proveedor($data[0]);
         }
-        
+
         return FALSE;
     }
 
@@ -318,11 +318,11 @@ class proveedor extends \fs_model {
      * @return string
      */
     public function get_new_codigo() {
-        $cod = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codproveedor') . ") as cod FROM " . $this->table_name . ";");
-        if ($cod) {
-            return sprintf('%06s', (1 + intval($cod[0]['cod'])));
+        $data = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codproveedor') . ") as cod FROM " . $this->table_name . ";");
+        if ($data) {
+            return sprintf('%06s', (1 + intval($data[0]['cod'])));
         }
-        
+
         return '000001';
     }
 
@@ -374,8 +374,9 @@ class proveedor extends \fs_model {
                 if (!$cpro) {
                     $cpro = $cuenta->get_cuentaesp('PROVEE', $codeje);
                 }
-            } else
+            } else {
                 $cpro = $cuenta->get_cuentaesp('PROVEE', $codeje);
+            }
 
             if ($cpro) {
                 $continuar = FALSE;
@@ -396,8 +397,9 @@ class proveedor extends \fs_model {
                     $scpro->idsubcuenta = $subc0->idsubcuenta;
                     if ($scpro->save()) {
                         $subcuenta = $subc0;
-                    } else
+                    } else {
                         $this->new_error_msg('Imposible asociar la subcuenta para el proveedor ' . $this->codproveedor);
+                    }
                 } else {
                     $this->new_error_msg('Imposible crear la subcuenta para el proveedor ' . $this->codproveedor);
                 }
@@ -431,7 +433,7 @@ class proveedor extends \fs_model {
         if (is_null($this->codproveedor)) {
             return FALSE;
         }
-        
+
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codproveedor = " . $this->var2str($this->codproveedor) . ";");
     }
 
@@ -515,7 +517,7 @@ class proveedor extends \fs_model {
 
             return $this->db->exec($sql);
         }
-        
+
         return FALSE;
     }
 
@@ -536,7 +538,7 @@ class proveedor extends \fs_model {
                 $provelist[] = new \proveedor($a);
             }
         }
-        
+
         return $provelist;
     }
 
@@ -546,7 +548,7 @@ class proveedor extends \fs_model {
             $sql = "SELECT * FROM " . $this->table_name . " WHERE acreedor ORDER BY lower(nombre) ASC";
         }
 
-        return $this->all_from($sql, FS_ITEM_LIMIT, $offset);
+        return $this->all_from($sql, $offset);
     }
 
     /**
@@ -589,7 +591,7 @@ class proveedor extends \fs_model {
         }
         $consulta .= " ORDER BY lower(nombre) ASC";
 
-        return $this->all_from($consulta, FS_ITEM_LIMIT, $offset);
+        return $this->all_from($consulta, $offset);
     }
 
     /**

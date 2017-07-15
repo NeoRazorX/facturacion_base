@@ -71,9 +71,9 @@ class grupo_epigrafes extends \fs_model {
     }
 
     public function get($id) {
-        $grupo = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idgrupo = " . $this->var2str($id) . ";");
-        if ($grupo) {
-            return new \grupo_epigrafes($grupo[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idgrupo = " . $this->var2str($id) . ";");
+        if ($data) {
+            return new \grupo_epigrafes($data[0]);
         }
         
         return FALSE;
@@ -83,9 +83,9 @@ class grupo_epigrafes extends \fs_model {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codgrupo = " . $this->var2str($cod)
                 . " AND codejercicio = " . $this->var2str($codejercicio) . ";";
 
-        $grupo = $this->db->select($sql);
-        if ($grupo) {
-            return new \grupo_epigrafes($grupo[0]);
+        $data = $this->db->select($sql);
+        if ($data) {
+            return new \grupo_epigrafes($data[0]);
         }
         
         return FALSE;

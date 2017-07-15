@@ -494,12 +494,12 @@ class asiento extends \fs_model {
         }
         $consulta .= " ORDER BY fecha DESC";
 
-        return $this->all_from($consulta, FS_ITEM_LIMIT, $offset);
+        return $this->all_from($consulta, $offset);
     }
 
     public function all($offset = 0, $limit = FS_ITEM_LIMIT) {
         $sql = "SELECT * FROM " . $this->table_name . " ORDER BY fecha DESC, numero DESC";
-        return $this->all_from($sql, $limit, $offset);
+        return $this->all_from($sql, $offset, $limit);
     }
 
     public function descuadrados() {

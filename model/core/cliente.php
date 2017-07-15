@@ -303,9 +303,9 @@ class cliente extends \fs_model {
      * @return \cliente|boolean
      */
     public function get($cod) {
-        $cli = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($cod) . ";");
-        if ($cli) {
-            return new \cliente($cli[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($cod) . ";");
+        if ($data) {
+            return new \cliente($data[0]);
         }
         
         return FALSE;

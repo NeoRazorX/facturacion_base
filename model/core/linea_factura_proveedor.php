@@ -167,6 +167,10 @@ class linea_factura_proveedor extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     /**
      * Completa con los datos de la factura.
      */
@@ -386,13 +390,9 @@ class linea_factura_proveedor extends \fs_model {
     public function delete() {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE idlinea = " . $this->var2str($this->idlinea) . ";");
     }
-
-    public function all_from_factura($id) {
+    
+    private function all_from_data(&$data) {
         $linlist = array();
-        $sql = "SELECT * FROM " . $this->table_name . " WHERE idfactura = " . $this->var2str($id)
-                . " ORDER BY idlinea ASC;";
-
-        $data = $this->db->select($sql);
         if ($data) {
             foreach ($data as $l) {
                 $linlist[] = new \linea_factura_proveedor($l);
@@ -402,24 +402,24 @@ class linea_factura_proveedor extends \fs_model {
         return $linlist;
     }
 
+    public function all_from_factura($id) {
+        $sql = "SELECT * FROM " . $this->table_name . " WHERE idfactura = " . $this->var2str($id)
+                . " ORDER BY idlinea ASC;";
+
+        $data = $this->db->select($sql);
+        return $this->all_from_data($data);
+    }
+
     public function all_from_articulo($ref, $offset = 0) {
-        $linealist = array();
         $sql = "SELECT * FROM " . $this->table_name .
                 " WHERE referencia = " . $this->var2str($ref) .
                 " ORDER BY idfactura DESC";
 
         $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $l) {
-                $linealist[] = new \linea_factura_proveedor($l);
-            }
-        }
-
-        return $linealist;
+        return $this->all_from_data($data);
     }
 
     public function search($query = '', $offset = 0) {
-        $linealist = array();
         $query = mb_strtolower($this->no_html($query), 'UTF8');
 
         $sql = "SELECT * FROM " . $this->table_name . " WHERE ";
@@ -432,13 +432,7 @@ class linea_factura_proveedor extends \fs_model {
         $sql .= " ORDER BY idfactura DESC, idlinea ASC";
 
         $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $l) {
-                $linealist[] = new \linea_factura_proveedor($l);
-            }
-        }
-
-        return $linealist;
+        return $this->all_from_data($data);
     }
 
     public function facturas_from_albaran($id) {

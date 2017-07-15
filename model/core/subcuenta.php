@@ -183,9 +183,9 @@ class subcuenta extends \fs_model {
     }
 
     public function get($id) {
-        $subc = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idsubcuenta = " . $this->var2str($id) . ";");
-        if ($subc) {
-            return new \subcuenta($subc[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idsubcuenta = " . $this->var2str($id) . ";");
+        if ($data) {
+            return new \subcuenta($data[0]);
         }
 
         return FALSE;
@@ -374,7 +374,7 @@ class subcuenta extends \fs_model {
 
     private function all_from($sql) {
         $sublist = array();
-        $data = $this->db->select($sql, $limit, $offset);
+        $data = $this->db->select($sql);
         if ($data) {
             foreach ($data as $a) {
                 $sublist[] = new \subcuenta($a);

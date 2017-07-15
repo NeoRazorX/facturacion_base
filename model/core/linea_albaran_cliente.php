@@ -187,6 +187,10 @@ class linea_albaran_cliente extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     /**
      * Completa con los datos del albarán.
      */

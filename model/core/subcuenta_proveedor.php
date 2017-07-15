@@ -64,6 +64,10 @@ class subcuenta_proveedor extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     public function get_subcuenta() {
         $subc = new \subcuenta();
         return $subc->get($this->idsubcuenta);
@@ -77,7 +81,7 @@ class subcuenta_proveedor extends \fs_model {
         if ($data) {
             return new \subcuenta_proveedor($data[0]);
         }
-        
+
         return FALSE;
     }
 
@@ -86,7 +90,7 @@ class subcuenta_proveedor extends \fs_model {
         if ($data) {
             return new \subcuenta_proveedor($data[0]);
         }
-        
+
         return FALSE;
     }
 
@@ -94,7 +98,7 @@ class subcuenta_proveedor extends \fs_model {
         if (is_null($this->id)) {
             return FALSE;
         }
-        
+
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
@@ -108,7 +112,7 @@ class subcuenta_proveedor extends \fs_model {
 
             return $this->db->exec($sql);
         }
-        
+
         $sql = "INSERT INTO " . $this->table_name . " (codproveedor,codsubcuenta,codejercicio,idsubcuenta)
             VALUES (" . $this->var2str($this->codproveedor)
                 . "," . $this->var2str($this->codsubcuenta)
@@ -119,7 +123,7 @@ class subcuenta_proveedor extends \fs_model {
             $this->id = $this->db->lastval();
             return TRUE;
         }
-        
+
         return FALSE;
     }
 

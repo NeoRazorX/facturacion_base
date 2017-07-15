@@ -107,6 +107,10 @@ class linea_iva_factura_proveedor extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     public function exists() {
         if (is_null($this->idlinea)) {
             return FALSE;

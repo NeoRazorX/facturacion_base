@@ -102,9 +102,9 @@ class cuenta extends \fs_model {
     }
 
     public function get($id) {
-        $cuenta = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcuenta = " . $this->var2str($id) . ";");
-        if ($cuenta) {
-            return new \cuenta($cuenta[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcuenta = " . $this->var2str($id) . ";");
+        if ($data) {
+            return new \cuenta($data[0]);
         }
         
         return FALSE;

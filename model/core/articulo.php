@@ -1150,12 +1150,7 @@ class articulo extends \fs_model {
                 $sql .= " ORDER BY referencia ASC";
             }
 
-            $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-            if ($data) {
-                foreach ($data as $a) {
-                    $artilist[] = new \articulo($a);
-                }
-            }
+            $artilist = $this->all_from($sql, $offset);
         }
 
         return $artilist;

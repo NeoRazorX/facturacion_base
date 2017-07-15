@@ -45,6 +45,10 @@ class articulo_propiedad extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     /**
      * Devuelve TRUE si los datos existen en la base de datos
      * @return boolean

@@ -97,18 +97,18 @@ class impuesto extends \fs_model {
      * @return boolean|\impuesto
      */
     public function get($cod) {
-        $impuesto = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codimpuesto = " . $this->var2str($cod) . ";");
-        if ($impuesto) {
-            return new \impuesto($impuesto[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codimpuesto = " . $this->var2str($cod) . ";");
+        if ($data) {
+            return new \impuesto($data[0]);
         }
 
         return FALSE;
     }
 
     public function get_by_iva($iva) {
-        $impuesto = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE iva = " . $this->var2str(floatval($iva)) . ";");
-        if ($impuesto) {
-            return new \impuesto($impuesto[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE iva = " . $this->var2str(floatval($iva)) . ";");
+        if ($data) {
+            return new \impuesto($data[0]);
         }
 
         return FALSE;

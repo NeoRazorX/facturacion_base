@@ -120,7 +120,7 @@ class direccion_proveedor extends \fs_model {
         $this->fecha = date('d-m-Y');
 
         /// ¿Desmarcamos las demás direcciones principales?
-        $sql = "";
+        $sql = '';
         if ($this->direccionppal) {
             $sql = "UPDATE " . $this->table_name . " SET direccionppal = false"
                     . " WHERE codproveedor = " . $this->var2str($this->codproveedor) . ";";

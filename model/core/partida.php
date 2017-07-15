@@ -143,6 +143,10 @@ class partida extends \fs_model {
         $this->sum_haber = 0;
     }
 
+    protected function install() {
+        return '';
+    }
+
     public function url() {
         if (is_null($this->idasiento)) {
             return 'index.php?page=contabilidad_asientos';

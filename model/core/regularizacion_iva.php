@@ -68,6 +68,10 @@ class regularizacion_iva extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     public function url() {
         if (is_null($this->idregiva)) {
             return 'index.php?page=contabilidad_regusiva';

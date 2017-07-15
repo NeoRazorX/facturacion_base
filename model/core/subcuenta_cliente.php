@@ -64,6 +64,10 @@ class subcuenta_cliente extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     public function get_subcuenta() {
         $subc = new \subcuenta();
         return $subc->get($this->idsubcuenta);
