@@ -162,7 +162,7 @@ class informe_errores extends fs_controller {
                 }
 
                 $new_results = $this->test_models();
-                if ($new_results) {
+                if (!empty($new_results)) {
                     foreach ($new_results as $nr) {
                         $this->errores[] = $nr;
                         fwrite($file, join(';', $nr) . "\n");
@@ -230,7 +230,7 @@ class informe_errores extends fs_controller {
             case 'asiento':
                 $asiento = new asiento();
                 $asientos = $asiento->all($this->informe['offset']);
-                if ($asientos) {
+                if (!empty($asientos)) {
                     if ($this->informe['offset'] == 0) {
                         foreach ($this->check_partidas_erroneas() as $err) {
                             $last_errores[] = $err;
@@ -270,7 +270,7 @@ class informe_errores extends fs_controller {
             case 'factura cliente':
                 $factura = new factura_cliente();
                 $facturas = $factura->all($this->informe['offset']);
-                if ($facturas) {
+                if (!empty($facturas)) {
                     foreach ($facturas as $fac) {
                         if ($fac->codejercicio == $this->informe['ejercicio']) {
                             $this->informe['offset'] = 0;
@@ -304,7 +304,7 @@ class informe_errores extends fs_controller {
             case 'factura proveedor':
                 $factura = new factura_proveedor();
                 $facturas = $factura->all($this->informe['offset']);
-                if ($facturas) {
+                if (!empty($facturas)) {
                     foreach ($facturas as $fac) {
                         if ($fac->codejercicio == $this->informe['ejercicio']) {
                             $this->informe['offset'] = 0;
@@ -338,7 +338,7 @@ class informe_errores extends fs_controller {
             case 'albaran cliente':
                 $albaran = new albaran_cliente();
                 $albaranes = $albaran->all($this->informe['offset']);
-                if ($albaranes) {
+                if (!empty($albaranes)) {
                     foreach ($albaranes as $alb) {
                         if ($alb->codejercicio == $this->informe['ejercicio']) {
                             $this->informe['offset'] = 0;
@@ -372,7 +372,7 @@ class informe_errores extends fs_controller {
             case 'albaran proveedor':
                 $albaran = new albaran_proveedor();
                 $albaranes = $albaran->all($this->informe['offset']);
-                if ($albaranes) {
+                if (!empty($albaranes)) {
                     foreach ($albaranes as $alb) {
                         if ($alb->codejercicio == $this->informe['ejercicio']) {
                             $this->informe['model'] = 'fin';
@@ -400,7 +400,7 @@ class informe_errores extends fs_controller {
             case 'dirclientes':
                 $dircli0 = new direccion_cliente();
                 $direcciones = $dircli0->all($this->informe['offset']);
-                if ($direcciones) {
+                if (!empty($direcciones)) {
                     foreach ($direcciones as $dir) {
                         /// simplemente guardamos para que se eliminen espacios de ciudades, provincias, etc...
                         $dir->save();

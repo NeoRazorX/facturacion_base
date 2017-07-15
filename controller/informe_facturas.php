@@ -99,13 +99,11 @@ class informe_facturas extends informe_albaranes {
         $sql .= " and idfactura is not null order by total desc;";
 
         $data = $this->db->select($sql);
-        if ($data) {
-            if (floatval($data[0]['total'])) {
-                $stats[] = array(
-                    'txt' => 'facturado',
-                    'total' => round(floatval($data[0]['total']), FS_NF0)
-                );
-            }
+        if ($data && floatval($data[0]['total'])) {
+            $stats[] = array(
+                'txt' => 'facturado',
+                'total' => round(floatval($data[0]['total']), FS_NF0)
+            );
         }
 
         /// pendientes
@@ -114,13 +112,11 @@ class informe_facturas extends informe_albaranes {
         $sql .= " and idfactura is null order by total desc;";
 
         $data = $this->db->select($sql);
-        if ($data) {
-            if (floatval($data[0]['total'])) {
-                $stats[] = array(
-                    'txt' => 'no facturado',
-                    'total' => round(floatval($data[0]['total']), FS_NF0)
-                );
-            }
+        if ($data && floatval($data[0]['total'])) {
+            $stats[] = array(
+                'txt' => 'no facturado',
+                'total' => round(floatval($data[0]['total']), FS_NF0)
+            );
         }
 
         return $stats;
@@ -239,7 +235,7 @@ class informe_facturas extends informe_albaranes {
             }
         }
 
-        if ($impuestos) {
+        if (!empty($impuestos)) {
             $header = array();
             $row = array();
 
@@ -546,7 +542,6 @@ class informe_facturas extends informe_albaranes {
             $stats = array();
 
             foreach ($data as $d) {
-                $lineas = 1;
                 $anyo = date('Y', strtotime($d['fecha']));
                 $mes = date('n', strtotime($d['fecha']));
                 if (!isset($stats[$d['codproveedor']][$d['referencia']][$anyo])) {
@@ -575,8 +570,6 @@ class informe_facturas extends informe_albaranes {
             }
 
             foreach ($stats as $i => $value) {
-                $lineas++;
-
                 $pro = $proveedor->get($i);
                 foreach ($value as $j => $value2) {
                     /// calculamos la variación
@@ -784,7 +777,7 @@ class informe_facturas extends informe_albaranes {
         }
 
         $documentos = $this->get_documentos($tabla);
-        if ($documentos) {
+        if (!empty($documentos)) {
             $total_lineas = count($documentos);
             $linea_actual = 0;
             $lppag = 72;

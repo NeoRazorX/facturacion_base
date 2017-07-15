@@ -176,7 +176,7 @@ class articulo_proveedor extends \fs_model {
         }
 
         if (is_null($this->iva)) {
-            $this->iva = 0;
+            $this->iva = 0.0;
 
             if (!is_null($this->codimpuesto)) {
                 $encontrado = FALSE;
@@ -242,7 +242,7 @@ class articulo_proveedor extends \fs_model {
      * @return \articulo_proveedor|boolean
      */
     public function get_by($ref, $codproveedor, $refprov = FALSE) {
-        if ($refprov) {
+        if ($refprov !== FALSE) {
             $sql = "SELECT * FROM articulosprov WHERE codproveedor = " . $this->var2str($codproveedor)
                     . " AND (refproveedor = " . $this->var2str($refprov)
                     . " OR referencia = " . $this->var2str($ref) . ");";
@@ -269,7 +269,7 @@ class articulo_proveedor extends \fs_model {
         $this->descripcion = $this->no_html($this->descripcion);
 
         if ($this->nostock) {
-            $this->stock = 0;
+            $this->stock = 0.0;
         }
 
         if (is_null($this->refproveedor) OR strlen($this->refproveedor) < 1 OR strlen($this->refproveedor) > 25) {
@@ -338,7 +338,7 @@ class articulo_proveedor extends \fs_model {
     /**
      * Devuelve el artículo con menor precio de los que tienen $ref como referencia.
      * @param string $ref
-     * @return \articulo_proveedor
+     * @return \articulo_proveedor|false
      */
     public function mejor_from_ref($ref) {
         $sql = "SELECT * FROM articulosprov WHERE referencia = " . $this->var2str($ref)

@@ -101,7 +101,7 @@ class compras_agrupar_albaranes extends fbase_controller {
                 $this->resultados = $this->albaran->search_from_proveedor(
                         $this->proveedor->codproveedor, $this->desde, $this->hasta, $this->codserie, $this->coddivisa
                 );
-                if ($this->resultados) {
+                if (!empty($this->resultados)) {
                     foreach ($this->resultados as $alb) {
                         $this->neto += $alb->neto;
                         $this->total += $alb->total;
@@ -309,7 +309,7 @@ class compras_agrupar_albaranes extends fbase_controller {
 
         $offset = 0;
         $albaranes = $this->albaran->all_ptefactura($offset);
-        while ($albaranes) {
+        while (!empty($albaranes)) {
             foreach ($albaranes as $alb) {
                 if ($alb->codproveedor) {
                     /// Comprobamos si el proveedor ya está en la lista.

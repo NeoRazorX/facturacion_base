@@ -38,7 +38,7 @@ class cuenta extends \fs_model {
      * @var integer
      */
     public $idcuenta;
-    
+
     /**
      * Código de la cuenta.
      * @var string
@@ -285,22 +285,22 @@ class cuenta extends \fs_model {
         $ejercicio = new \ejercicio();
         $eje0 = $ejercicio->get($this->codejercicio);
         if ($eje0) {
-            $codsubcuenta = (string) floatval(sprintf('%-0' . $eje0->longsubcuenta . 's', $this->codcuenta)) + $suma_codigo;
+            $codsubcuenta = floatval(sprintf('%-0' . $eje0->longsubcuenta . 's', $this->codcuenta)) + $suma_codigo;
             $subcuenta = new \subcuenta();
             $subc0 = $subcuenta->get_by_codigo($codsubcuenta, $this->codejercicio);
             if ($subc0) {
                 return $subc0;
-            } else {
-                $subc0 = new \subcuenta();
-                $subc0->codcuenta = $this->codcuenta;
-                $subc0->idcuenta = $this->idcuenta;
-                $subc0->codejercicio = $this->codejercicio;
-                $subc0->codsubcuenta = $codsubcuenta;
-
-                return $subc0;
             }
-        } else
-            return FALSE;
+
+            $subc0 = new \subcuenta();
+            $subc0->codcuenta = $this->codcuenta;
+            $subc0->idcuenta = $this->idcuenta;
+            $subc0->codejercicio = $this->codejercicio;
+            $subc0->codsubcuenta = (string) $codsubcuenta;
+            return $subc0;
+        }
+
+        return FALSE;
     }
 
 }

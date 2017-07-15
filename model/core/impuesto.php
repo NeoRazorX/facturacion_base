@@ -63,8 +63,8 @@ class impuesto extends \fs_model {
             $this->codsubcuentarep = NULL;
             $this->codsubcuentasop = NULL;
             $this->descripcion = NULL;
-            $this->iva = 0;
-            $this->recargo = 0;
+            $this->iva = 0.0;
+            $this->recargo = 0.0;
         }
     }
 

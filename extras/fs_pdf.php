@@ -30,7 +30,7 @@ class fs_pdf {
 
     /**
      * Ruta al logotipo de la empresa.
-     * @var type 
+     * @var string|false 
      */
     public $logo;
 
@@ -57,7 +57,7 @@ class fs_pdf {
 
     /**
      * Vuelca el documento PDF en la salida estándar.
-     * @param type $filename
+     * @param string $filename
      */
     public function show($filename = 'doc.pdf') {
         $this->pdf->ezStream(array('Content-Disposition' => $filename));
@@ -65,7 +65,7 @@ class fs_pdf {
 
     /**
      * Guarda el documento PDF en el archivo $filename
-     * @param type $filename
+     * @param string $filename
      * @return boolean
      */
     public function save($filename) {
@@ -131,7 +131,7 @@ class fs_pdf {
 
     /**
      * Añade la cabecera al PDF con el logotipo y los datos de la empresa.
-     * @param type $empresa
+     * @param empresa $empresa
      * @param int $lppag
      */
     public function generar_pdf_cabecera(&$empresa, &$lppag) {
@@ -293,7 +293,7 @@ class fs_pdf {
     }
 
     public function save_table($options) {
-        if (!$this->table_header) {
+        if (empty($this->table_header)) {
             foreach (array_keys($this->table_rows[0]) as $k) {
                 $this->table_header[$k] = '';
             }
@@ -305,8 +305,8 @@ class fs_pdf {
     /**
      * Revierte los cambios producidos por fs_model::no_html()
      * @deprecated since version 2017.012
-     * @param type $txt
-     * @return type
+     * @param string $txt
+     * @return string
      */
     public function fix_html($txt) {
         return fs_fix_html($txt);

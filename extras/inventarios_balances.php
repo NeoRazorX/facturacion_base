@@ -97,7 +97,7 @@ class inventarios_balances {
 
     /**
      * Genera el balance de pérdidas y ganancias de un ejercicio.
-     * @param type $codeje
+     * @param string $codeje
      */
     public function generar_pyg($codeje) {
         $ejercicio = new ejercicio();
@@ -118,7 +118,7 @@ class inventarios_balances {
 
     /**
      * Genera el balance de situación.
-     * @param type $codeje
+     * @param string $codeje
      */
     public function generar_sit($codeje) {
         $ejercicio = new ejercicio();
@@ -142,12 +142,12 @@ class inventarios_balances {
      * Este informe muestra los saldos (distintos de cero) de cada cuenta y subcuenta
      * por periodos, pero siempre excluyendo los asientos de cierre y pérdidas y ganancias.
      * @param fs_pdf $pdf_doc
-     * @param type $eje
-     * @param type $titulo
-     * @param type $fechaini
-     * @param type $fechafin
-     * @param type $excluir
-     * @param type $np
+     * @param ejercicio $eje
+     * @param string $titulo
+     * @param string $fechaini
+     * @param string $fechafin
+     * @param boolean $excluir
+     * @param boolean $np
      */
     public function sumas_y_saldos(&$pdf_doc, &$eje, $titulo, $fechaini, $fechafin, $excluir = FALSE, $np = TRUE) {
         $ge0 = new grupo_epigrafes();
@@ -356,8 +356,8 @@ class inventarios_balances {
      * Este informe se confecciona a partir de las cuentas que señalan los códigos
      * de balance que empiezan por PG.
      * @param fs_pdf $pdf_doc
-     * @param type $eje
-     * @param type $np
+     * @param ejercicio $eje
+     * @param boolean $np
      */
     private function perdidas_y_ganancias(&$pdf_doc, &$eje, $np = TRUE) {
         if ($np) {
@@ -575,8 +575,8 @@ class inventarios_balances {
      * en orden. Pero como era demasiado sencillo, los hijos de puta de facturalux decidieron
      * añadir números romanos, para que no puedas ordenarlos fácilemnte.
      * @param fs_pdf $pdf_doc
-     * @param type $eje
-     * @param type $np
+     * @param ejercicio $eje
+     * @param boolean $np
      */
     private function situacion(&$pdf_doc, &$eje, $np = TRUE) {
         /// necesitamos el ejercicio anterior

@@ -414,7 +414,7 @@ class albaran_proveedor extends \fs_model {
             /// comprobamos las facturas asociadas
             $linea_factura = new \linea_factura_proveedor();
             $facturas = $linea_factura->facturas_from_albaran($this->idalbaran);
-            if ($facturas) {
+            if (!empty($facturas)) {
                 if (count($facturas) > 1) {
                     $msg = "Este " . FS_ALBARAN . " esta asociado a las siguientes facturas (y no debería):";
                     foreach ($facturas as $f) {

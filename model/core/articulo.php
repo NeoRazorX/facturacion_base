@@ -339,14 +339,11 @@ class articulo extends \fs_model {
      * @return string
      */
     public function image_ref($ref = FALSE) {
-        if (!$ref) {
+        if ($ref === FALSE) {
             $ref = $this->referencia;
         }
 
-        $ref = str_replace('/', '_', $ref);
-        $ref = str_replace('\\', '_', $ref);
-
-        return $ref;
+        return str_replace(array('/', '\\'), array('_', '_'), $ref);
     }
 
     /**
@@ -387,28 +384,28 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve la familia del artículo.
-     * @return familia
+     * @return \familia|false
      */
     public function get_familia() {
         if (is_null($this->codfamilia)) {
             return FALSE;
-        } else {
-            $fam = new \familia();
-            return $fam->get($this->codfamilia);
         }
+
+        $fam = new \familia();
+        return $fam->get($this->codfamilia);
     }
 
     /**
      * Devuelve el fabricante del artículo.
-     * @return fabricante
+     * @return \fabricante|false
      */
     public function get_fabricante() {
         if (is_null($this->codfabricante)) {
             return FALSE;
-        } else {
-            $fab = new \fabricante();
-            return $fab->get($this->codfabricante);
         }
+
+        $fab = new \fabricante();
+        return $fab->get($this->codfabricante);
     }
 
     public function get_stock() {
@@ -441,7 +438,7 @@ class articulo extends \fs_model {
         }
 
         if (is_null($this->iva)) {
-            $this->iva = 0;
+            $this->iva = 0.0;
 
             if (!is_null($this->codimpuesto)) {
                 $encontrado = FALSE;
@@ -550,7 +547,7 @@ class articulo extends \fs_model {
             }
         }
 
-        if ($lineasfac) {
+        if (!empty($lineasfac)) {
             /// usamos las facturas para el cálculo.
             foreach ($lineasfac as $linea) {
                 if ($stock < $this->stockfis OR $this->stockfis <= 0) {
@@ -562,7 +559,7 @@ class articulo extends \fs_model {
             }
         }
 
-        if ($lineasalb) {
+        if (!empty($lineasalb)) {
             /// usamos los albaranes para el cálculo.
             foreach ($lineasalb as $linea) {
                 if ($stock < $this->stockfis OR $this->stockfis <= 0) {
@@ -577,7 +574,7 @@ class articulo extends \fs_model {
         if ($stock > 0) {
             return (float) $coste / $stock;
         }
-        
+
         return (float) $coste;
     }
 
@@ -689,8 +686,9 @@ class articulo extends \fs_model {
                 if ($imp0) {
                     $this->iva = floatval($imp0->iva);
                     self::$impuestos[] = $imp0;
-                } else
-                    $this->iva = 0;
+                } else {
+                    $this->iva = 0.0;
+                }
             }
         }
     }

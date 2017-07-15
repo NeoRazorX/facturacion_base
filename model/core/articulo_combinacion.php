@@ -176,14 +176,15 @@ class articulo_combinacion extends \fs_model {
 
     /**
      * Devuelve un nuevo código para una combinación de artículo
-     * @return int
+     * @return string
      */
     private function get_new_codigo() {
         $cod = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codigo') . ") as cod FROM " . $this->table_name . ";");
         if ($cod) {
-            return 1 + intval($cod[0]['cod']);
-        } else
-            return 1;
+            return (string) 1 + intval($cod[0]['cod']);
+        }
+        
+        return '1';
     }
 
     /**

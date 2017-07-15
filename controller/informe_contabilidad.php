@@ -53,8 +53,7 @@ class informe_contabilidad extends fs_controller {
                 $iba->generar_pyg($_GET['eje']);
             } else
                 $iba->generar_sit($_GET['eje']);
-        }
-        else if (isset($_POST['informe'])) {
+        } else if (isset($_POST['informe'])) {
             if ($_POST['informe'] == 'sumasysaldos') {
                 $this->balance_sumas_y_saldos();
             } else if ($_POST['informe'] == 'situacion') {
@@ -188,14 +187,6 @@ class informe_contabilidad extends fs_controller {
         }
     }
 
-    private function fix_html($txt) {
-        $newt = str_replace('&lt;', '<', $txt);
-        $newt = str_replace('&gt;', '>', $newt);
-        $newt = str_replace('&quot;', '"', $newt);
-        $newt = str_replace('&#39;', "'", $newt);
-        return $newt;
-    }
-
     private function libro_mayor_csv($codeje, $desde, $hasta, $codgrupo = FALSE, $codepi = FALSE, $codcuenta = FALSE, $codsubc = FALSE) {
         $this->template = FALSE;
 
@@ -225,6 +216,7 @@ class informe_contabilidad extends fs_controller {
 
         $codsubcuenta = FALSE;
         $offset = 0;
+        $saldo = 0;
         $data = $this->db->select_limit($sql, 1000, $offset);
         while ($data) {
             foreach ($data as $par) {

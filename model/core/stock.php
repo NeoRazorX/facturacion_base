@@ -211,7 +211,7 @@ class stock extends \fs_model {
     }
 
     public function total_from_articulo($ref, $codalmacen = FALSE) {
-        $num = 0;
+        $num = 0.0;
         $sql = "SELECT SUM(cantidad) as total FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref);
 
         if ($codalmacen) {

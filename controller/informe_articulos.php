@@ -623,7 +623,7 @@ class informe_articulos extends fbase_controller {
             $this->resultados = $this->recalcular_stock->get_movimientos($this->referencia, $this->codalmacen, $this->desde, $this->hasta, $this->codagente);
         }
 
-        if (!$this->resultados) {
+        if (empty($this->resultados)) {
             $this->new_message('Sin resultados.');
         } else if ($_POST['generar'] != '') {
             $header = array(
