@@ -489,7 +489,7 @@ class cliente extends \fs_model {
             }
         }
         $this->diaspago = NULL;
-        if ($array_dias) {
+        if (!empty($array_dias)) {
             $this->diaspago = join(',', $array_dias);
         }
 

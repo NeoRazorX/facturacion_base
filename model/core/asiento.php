@@ -223,7 +223,7 @@ class asiento extends \fs_model {
          */
         $debe = $haber = 0;
         $partidas = $this->get_partidas();
-        if ($partidas) {
+        if (!empty($partidas)) {
             foreach ($partidas as $p) {
                 $debe += $p->debe;
                 $haber += $p->haber;
@@ -525,6 +525,7 @@ class asiento extends \fs_model {
 
     /// renumera todos los asientos. Devuelve FALSE en caso de error
     public function renumerar() {
+        $continuar = FALSE;
         $ejercicio = new \ejercicio();
         foreach ($ejercicio->all_abiertos() as $eje) {
             $posicion = 0;

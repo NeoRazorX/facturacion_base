@@ -866,9 +866,9 @@ class articulo extends \fs_model {
 
         if ($this->nostock) {
             $this->controlstock = TRUE;
-            $this->stockfis = 0;
-            $this->stockmax = 0;
-            $this->stockmin = 0;
+            $this->stockfis = 0.0;
+            $this->stockmax = 0.0;
+            $this->stockmin = 0.0;
         }
 
         if ($this->bloqueado) {
@@ -924,7 +924,7 @@ class articulo extends \fs_model {
                         "  WHERE referencia = " . $this->var2str($this->referencia) . ";";
 
                 if ($this->nostock AND $this->stockfis != 0) {
-                    $this->stockfis = 0;
+                    $this->stockfis = 0.0;
                     $sql .= "DELETE FROM stocks WHERE referencia = " . $this->var2str($this->referencia) . ";";
                     $sql .= "UPDATE " . $this->table_name . " SET stockfis = " . $this->var2str($this->stockfis) .
                             " WHERE referencia = " . $this->var2str($this->referencia) . ";";
@@ -1043,7 +1043,7 @@ class articulo extends \fs_model {
             /// obtenemos los datos de memcache
             $this->get_search_tags();
 
-            if (self::$search_tags) {
+            if (!empty(self::$search_tags)) {
                 foreach (self::$search_tags as $value) {
                     $this->cache->delete('articulos_search_' . $value['tag']);
                 }

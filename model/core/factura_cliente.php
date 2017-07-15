@@ -536,9 +536,9 @@ class factura_cliente extends \fs_model {
         $linea_iva = new \linea_iva_factura_cliente();
         $lineasi = $linea_iva->all_from_factura($this->idfactura);
         /// si no hay lineas de IVA las generamos
-        if (!$lineasi) {
+        if (empty($lineasi)) {
             $lineas = $this->get_lineas();
-            if ($lineas) {
+            if (!empty($lineas)) {
                 foreach ($lineas as $l) {
                     $i = 0;
                     $encontrada = FALSE;
@@ -546,8 +546,8 @@ class factura_cliente extends \fs_model {
                         if ($l->iva == $lineasi[$i]->iva AND $l->recargo == $lineasi[$i]->recargo) {
                             $encontrada = TRUE;
                             $lineasi[$i]->neto += $l->pvptotal;
-                            $lineasi[$i]->totaliva += ($l->pvptotal * $l->iva) / 100;
-                            $lineasi[$i]->totalrecargo += ($l->pvptotal * $l->recargo) / 100;
+                            $lineasi[$i]->totaliva += ($l->pvptotal * $l->iva) / 100.0;
+                            $lineasi[$i]->totalrecargo += ($l->pvptotal * $l->recargo) / 100.0;
                         }
                         $i++;
                     }
@@ -558,8 +558,8 @@ class factura_cliente extends \fs_model {
                         $lineasi[$i]->iva = $l->iva;
                         $lineasi[$i]->recargo = $l->recargo;
                         $lineasi[$i]->neto = $l->pvptotal;
-                        $lineasi[$i]->totaliva = ($l->pvptotal * $l->iva) / 100;
-                        $lineasi[$i]->totalrecargo = ($l->pvptotal * $l->recargo) / 100;
+                        $lineasi[$i]->totaliva = ($l->pvptotal * $l->iva) / 100.0;
+                        $lineasi[$i]->totalrecargo = ($l->pvptotal * $l->recargo) / 100.0;
                     }
                 }
 
@@ -755,7 +755,7 @@ class factura_cliente extends \fs_model {
                 }
             }
         }
-        
+
         $this->numero = $num;
 
         if ($encontrado) {

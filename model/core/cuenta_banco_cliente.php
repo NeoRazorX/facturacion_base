@@ -121,9 +121,10 @@ class cuenta_banco_cliente extends \fs_model {
         $sql = "SELECT MAX(" . $this->db->sql_to_int('codcuenta') . ") as cod FROM " . $this->table_name . ";";
         $cod = $this->db->select($sql);
         if ($cod) {
-            return 1 + intval($cod[0]['cod']);
-        } else
-            return 1;
+            return (string) (1 + intval($cod[0]['cod']));
+        }
+
+        return '1';
     }
 
     public function exists() {
