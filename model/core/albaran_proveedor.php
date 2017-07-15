@@ -248,7 +248,6 @@ class albaran_proveedor extends \fs_model {
             $this->totalrecargo = 0.0;
             $this->observaciones = '';
             $this->ptefactura = TRUE;
-
             $this->numdocs = 0;
         }
     }
@@ -266,36 +265,41 @@ class albaran_proveedor extends \fs_model {
             return '-';
         } else if (strlen($this->observaciones) < 60) {
             return $this->observaciones;
-        } else
-            return substr($this->observaciones, 0, 50) . '...';
+        }
+
+        return substr($this->observaciones, 0, 50) . '...';
     }
 
     public function url() {
         if (is_null($this->idalbaran)) {
             return 'index.php?page=compras_albaranes';
-        } else
-            return 'index.php?page=compras_albaran&id=' . $this->idalbaran;
+        }
+
+        return 'index.php?page=compras_albaran&id=' . $this->idalbaran;
     }
 
     public function factura_url() {
         if (is_null($this->idfactura)) {
             return '#';
-        } else
-            return 'index.php?page=compras_factura&id=' . $this->idfactura;
+        }
+
+        return 'index.php?page=compras_factura&id=' . $this->idfactura;
     }
 
     public function agente_url() {
         if (is_null($this->codagente)) {
             return "index.php?page=admin_agentes";
-        } else
-            return "index.php?page=admin_agente&cod=" . $this->codagente;
+        }
+
+        return "index.php?page=admin_agente&cod=" . $this->codagente;
     }
 
     public function proveedor_url() {
         if (is_null($this->codproveedor)) {
             return "index.php?page=compras_proveedores";
-        } else
-            return "index.php?page=compras_proveedor&cod=" . $this->codproveedor;
+        }
+
+        return "index.php?page=compras_proveedor&cod=" . $this->codproveedor;
     }
 
     public function get_lineas() {
@@ -309,18 +313,20 @@ class albaran_proveedor extends \fs_model {
      * @return \albaran_proveedor|boolean
      */
     public function get($id) {
-        $albaran = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($id) . ";");
-        if ($albaran) {
-            return new \albaran_proveedor($albaran[0]);
-        } else
-            return FALSE;
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($id) . ";");
+        if ($data) {
+            return new \albaran_proveedor($data[0]);
+        }
+
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->idalbaran)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($this->idalbaran) . ";");
+        }
+
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($this->idalbaran) . ";");
     }
 
     /**
@@ -357,10 +363,10 @@ class albaran_proveedor extends \fs_model {
 
         if ($this->floatcmp($this->total, $this->neto + $this->totaliva - $this->totalirpf + $this->totalrecargo, FS_NF0, TRUE)) {
             return TRUE;
-        } else {
-            $this->new_error_msg("Error grave: El total está mal calculado. ¡Avisa al informático!");
-            return FALSE;
         }
+
+        $this->new_error_msg("Error grave: El total está mal calculado. ¡Avisa al informático!");
+        return FALSE;
     }
 
     /**
@@ -500,48 +506,46 @@ class albaran_proveedor extends \fs_model {
                         . ", ptefactura = " . $this->var2str($this->ptefactura)
                         . ", numdocs = " . $this->var2str($this->numdocs)
                         . "  WHERE idalbaran = " . $this->var2str($this->idalbaran) . ";";
-
                 return $this->db->exec($sql);
-            } else {
-                $this->new_codigo();
-                $sql = "INSERT INTO " . $this->table_name . " (codigo,numero,numproveedor,
+            }
+
+            $this->new_codigo();
+            $sql = "INSERT INTO " . $this->table_name . " (codigo,numero,numproveedor,
                codejercicio,codserie,coddivisa,codpago,codagente,codalmacen,fecha,codproveedor,
                nombre,cifnif,neto,total,totaliva,totaleuros,irpf,totalirpf,tasaconv,
                totalrecargo,observaciones,ptefactura,hora,numdocs) VALUES
                       (" . $this->var2str($this->codigo)
-                        . "," . $this->var2str($this->numero)
-                        . "," . $this->var2str($this->numproveedor)
-                        . "," . $this->var2str($this->codejercicio)
-                        . "," . $this->var2str($this->codserie)
-                        . "," . $this->var2str($this->coddivisa)
-                        . "," . $this->var2str($this->codpago)
-                        . "," . $this->var2str($this->codagente)
-                        . "," . $this->var2str($this->codalmacen)
-                        . "," . $this->var2str($this->fecha)
-                        . "," . $this->var2str($this->codproveedor)
-                        . "," . $this->var2str($this->nombre)
-                        . "," . $this->var2str($this->cifnif)
-                        . "," . $this->var2str($this->neto)
-                        . "," . $this->var2str($this->total)
-                        . "," . $this->var2str($this->totaliva)
-                        . "," . $this->var2str($this->totaleuros)
-                        . "," . $this->var2str($this->irpf)
-                        . "," . $this->var2str($this->totalirpf)
-                        . "," . $this->var2str($this->tasaconv)
-                        . "," . $this->var2str($this->totalrecargo)
-                        . "," . $this->var2str($this->observaciones)
-                        . "," . $this->var2str($this->ptefactura)
-                        . "," . $this->var2str($this->hora)
-                        . "," . $this->var2str($this->numdocs) . ");";
-
-                if ($this->db->exec($sql)) {
-                    $this->idalbaran = $this->db->lastval();
-                    return TRUE;
-                } else
-                    return FALSE;
+                    . "," . $this->var2str($this->numero)
+                    . "," . $this->var2str($this->numproveedor)
+                    . "," . $this->var2str($this->codejercicio)
+                    . "," . $this->var2str($this->codserie)
+                    . "," . $this->var2str($this->coddivisa)
+                    . "," . $this->var2str($this->codpago)
+                    . "," . $this->var2str($this->codagente)
+                    . "," . $this->var2str($this->codalmacen)
+                    . "," . $this->var2str($this->fecha)
+                    . "," . $this->var2str($this->codproveedor)
+                    . "," . $this->var2str($this->nombre)
+                    . "," . $this->var2str($this->cifnif)
+                    . "," . $this->var2str($this->neto)
+                    . "," . $this->var2str($this->total)
+                    . "," . $this->var2str($this->totaliva)
+                    . "," . $this->var2str($this->totaleuros)
+                    . "," . $this->var2str($this->irpf)
+                    . "," . $this->var2str($this->totalirpf)
+                    . "," . $this->var2str($this->tasaconv)
+                    . "," . $this->var2str($this->totalrecargo)
+                    . "," . $this->var2str($this->observaciones)
+                    . "," . $this->var2str($this->ptefactura)
+                    . "," . $this->var2str($this->hora)
+                    . "," . $this->var2str($this->numdocs) . ");";
+            if ($this->db->exec($sql)) {
+                $this->idalbaran = $this->db->lastval();
+                return TRUE;
             }
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
     /**
@@ -564,8 +568,21 @@ class albaran_proveedor extends \fs_model {
 
             $this->new_message(ucfirst(FS_ALBARAN) . " de compra " . $this->codigo . " eliminado correctamente.");
             return TRUE;
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
+    }
+
+    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
+        $albalist = array();
+        $data = $this->db->select_limit($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $albalist[] = new \albaran_proveedor($a);
+            }
+        }
+
+        return $albalist;
     }
 
     /**
@@ -575,17 +592,8 @@ class albaran_proveedor extends \fs_model {
      * @return \albaran_proveedor
      */
     public function all($offset = 0, $order = 'fecha DESC, codigo DESC', $limit = FS_ITEM_LIMIT) {
-        $albalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " ORDER BY " . $order;
-
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $albalist[] = new \albaran_proveedor($a);
-            }
-        }
-
-        return $albalist;
+        return $this->all_from($sql, $offset, $limit);
     }
 
     /**
@@ -595,17 +603,8 @@ class albaran_proveedor extends \fs_model {
      * @return \albaran_proveedor
      */
     public function all_ptefactura($offset = 0, $order = 'fecha ASC, codigo ASC', $limit = FS_ITEM_LIMIT) {
-        $albalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE ptefactura = true ORDER BY " . $order;
-
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $albalist[] = new \albaran_proveedor($a);
-            }
-        }
-
-        return $albalist;
+        return $this->all_from($sql, $offset, $limit);
     }
 
     /**
@@ -615,18 +614,10 @@ class albaran_proveedor extends \fs_model {
      * @return \albaran_proveedor
      */
     public function all_from_proveedor($codproveedor, $offset = 0) {
-        $alblist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codproveedor = "
                 . $this->var2str($codproveedor) . " ORDER BY fecha DESC, codigo DESC";
 
-        $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $alblist[] = new \albaran_proveedor($a);
-            }
-        }
-
-        return $alblist;
+        return $this->all_from($sql, $offset);
     }
 
     /**
@@ -636,18 +627,10 @@ class albaran_proveedor extends \fs_model {
      * @return \albaran_proveedor
      */
     public function all_from_agente($codagente, $offset = 0) {
-        $alblist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codagente = "
                 . $this->var2str($codagente) . " ORDER BY fecha DESC, codigo DESC";
 
-        $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $alblist[] = new \albaran_proveedor($a);
-            }
-        }
-
-        return $alblist;
+        return $this->all_from($sql, $offset);
     }
 
     /**
@@ -699,7 +682,6 @@ class albaran_proveedor extends \fs_model {
      * @return \albaran_proveedor
      */
     public function search($query, $offset = 0) {
-        $alblist = array();
         $query = $this->no_html(mb_strtolower($query, 'UTF8'));
 
         $consulta = "SELECT * FROM " . $this->table_name . " WHERE ";
@@ -711,14 +693,7 @@ class albaran_proveedor extends \fs_model {
         }
         $consulta .= " ORDER BY fecha DESC, codigo DESC";
 
-        $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $alblist[] = new \albaran_proveedor($a);
-            }
-        }
-
-        return $alblist;
+        return $this->all_from($sql, $offset);
     }
 
     /**

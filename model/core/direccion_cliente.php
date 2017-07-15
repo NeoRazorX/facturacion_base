@@ -103,15 +103,17 @@ class direccion_cliente extends \fs_model {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
         if ($data) {
             return new \direccion_cliente($data[0]);
-        } else
-            return FALSE;
+        }
+        
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->id)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
+        }
+        
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function save() {
@@ -151,26 +153,27 @@ class direccion_cliente extends \fs_model {
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql .= "INSERT INTO " . $this->table_name . " (codcliente,codpais,apartado,provincia,ciudad,codpostal,
-            direccion,domenvio,domfacturacion,descripcion,fecha) VALUES (" . $this->var2str($this->codcliente)
-                    . "," . $this->var2str($this->codpais)
-                    . "," . $this->var2str($this->apartado)
-                    . "," . $this->var2str($this->provincia)
-                    . "," . $this->var2str($this->ciudad)
-                    . "," . $this->var2str($this->codpostal)
-                    . "," . $this->var2str($this->direccion)
-                    . "," . $this->var2str($this->domenvio)
-                    . "," . $this->var2str($this->domfacturacion)
-                    . "," . $this->var2str($this->descripcion)
-                    . "," . $this->var2str($this->fecha) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            } else
-                return FALSE;
         }
+        
+        $sql .= "INSERT INTO " . $this->table_name . " (codcliente,codpais,apartado,provincia,ciudad,codpostal,
+            direccion,domenvio,domfacturacion,descripcion,fecha) VALUES (" . $this->var2str($this->codcliente)
+                . "," . $this->var2str($this->codpais)
+                . "," . $this->var2str($this->apartado)
+                . "," . $this->var2str($this->provincia)
+                . "," . $this->var2str($this->ciudad)
+                . "," . $this->var2str($this->codpostal)
+                . "," . $this->var2str($this->direccion)
+                . "," . $this->var2str($this->domenvio)
+                . "," . $this->var2str($this->domfacturacion)
+                . "," . $this->var2str($this->descripcion)
+                . "," . $this->var2str($this->fecha) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
+        }
+        
+        return FALSE;
     }
 
     public function delete() {

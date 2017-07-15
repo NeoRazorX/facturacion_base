@@ -150,8 +150,9 @@ class caja extends \fs_model {
     public function show_fecha_fin() {
         if (is_null($this->fecha_fin)) {
             return '-';
-        } else
-            return $this->fecha_fin;
+        }
+        
+        return $this->fecha_fin;
     }
 
     public function diferencia() {
@@ -161,19 +162,20 @@ class caja extends \fs_model {
     public function exists() {
         if (is_null($this->id)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
+        }
+        
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function get($id) {
         if (isset($id)) {
-            $caja = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
-            if ($caja) {
-                return new \caja($caja[0]);
-            } else
-                return FALSE;
-        } else
-            return FALSE;
+            $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
+            if ($data) {
+                return new \caja($data[0]);
+            }
+        }
+        
+        return FALSE;
     }
 
     public function save() {
@@ -189,55 +191,51 @@ class caja extends \fs_model {
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (fs_id,codagente,f_inicio,d_inicio,f_fin,d_fin,tickets,ip) VALUES
-                   (" . $this->var2str($this->fs_id)
-                    . "," . $this->var2str($this->codagente)
-                    . "," . $this->var2str($this->fecha_inicial)
-                    . "," . $this->var2str($this->dinero_inicial)
-                    . "," . $this->var2str($this->fecha_fin)
-                    . "," . $this->var2str($this->dinero_fin)
-                    . "," . $this->var2str($this->tickets)
-                    . "," . $this->var2str($this->ip) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            } else
-                return FALSE;
         }
+        
+        $sql = "INSERT INTO " . $this->table_name . " (fs_id,codagente,f_inicio,d_inicio,f_fin,d_fin,tickets,ip) VALUES
+                   (" . $this->var2str($this->fs_id)
+                . "," . $this->var2str($this->codagente)
+                . "," . $this->var2str($this->fecha_inicial)
+                . "," . $this->var2str($this->dinero_inicial)
+                . "," . $this->var2str($this->fecha_fin)
+                . "," . $this->var2str($this->dinero_fin)
+                . "," . $this->var2str($this->tickets)
+                . "," . $this->var2str($this->ip) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
+        }
+        
+        return FALSE;
     }
 
     public function delete() {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
-    public function all($offset = 0, $limit = FS_ITEM_LIMIT) {
+    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
         $cajalist = array();
-
-        $data = $this->db->select_limit("SELECT * FROM " . $this->table_name . " ORDER BY id DESC", $limit, $offset);
+        $data = $this->db->select_limit($sql, $limit, $offset);
         if ($data) {
-            foreach ($data as $c) {
-                $cajalist[] = new \caja($c);
+            foreach ($data as $a) {
+                $cajalist[] = new \caja($a);
             }
         }
-
+        
         return $cajalist;
     }
 
+    public function all($offset = 0, $limit = FS_ITEM_LIMIT) {
+        return $this->all_from("SELECT * FROM " . $this->table_name . " ORDER BY id DESC", $offset, $limit);
+    }
+
     public function all_by_agente($codagente, $offset = 0, $limit = FS_ITEM_LIMIT) {
-        $cajalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codagente = "
                 . $this->var2str($codagente) . " ORDER BY id DESC";
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $c) {
-                $cajalist[] = new \caja($c);
-            }
-        }
-
-        return $cajalist;
+        return $this->all_from($sql, $offset, $limit);
     }
 
 }

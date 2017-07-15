@@ -105,9 +105,9 @@ class tarifa extends \fs_model {
     public function x() {
         if ($this->aplicar_a == 'pvp') {
             return (0 - $this->incporcentual);
-        } else {
-            return $this->incporcentual;
         }
+        
+        return $this->incporcentual;
     }
 
     public function set_x($dto) {
@@ -121,9 +121,9 @@ class tarifa extends \fs_model {
     public function y() {
         if ($this->aplicar_a == 'pvp') {
             return (0 - $this->inclineal);
-        } else {
-            return $this->inclineal;
         }
+        
+        return $this->inclineal;
     }
 
     public function set_y($inc) {
@@ -218,23 +218,26 @@ class tarifa extends \fs_model {
         $tarifa = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($cod) . ";");
         if ($tarifa) {
             return new \tarifa($tarifa[0]);
-        } else
-            return FALSE;
+        }
+        
+        return FALSE;
     }
 
     public function get_new_codigo() {
         $cod = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codtarifa') . ") as cod FROM " . $this->table_name . ";");
         if ($cod) {
             return sprintf('%06s', (1 + intval($cod[0]['cod'])));
-        } else
-            return '000001';
+        }
+        
+        return '000001';
     }
 
     public function exists() {
         if (is_null($this->codtarifa)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($this->codtarifa) . ";");
+        }
+        
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($this->codtarifa) . ";");
     }
 
     public function test() {
@@ -275,8 +278,9 @@ class tarifa extends \fs_model {
             }
 
             return $this->db->exec($sql);
-        } else
-            return FALSE;
+        }
+        
+        return FALSE;
     }
 
     public function delete() {

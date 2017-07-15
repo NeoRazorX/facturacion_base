@@ -73,9 +73,9 @@ class linea_transferencia_stock extends \fs_model {
     public function exists() {
         if (is_null($this->idlinea)) {
             return FALSE;
-        } else {
-            return $this->db->select('SELECT * FROM lineastransstock WHERE idlinea = ' . $this->var2str($this->idlinea) . ';');
         }
+
+        return $this->db->select('SELECT * FROM lineastransstock WHERE idlinea = ' . $this->var2str($this->idlinea) . ';');
     }
 
     public function save() {
@@ -87,42 +87,43 @@ class linea_transferencia_stock extends \fs_model {
                     . "  WHERE idlinea = " . $this->var2str($this->idlinea) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO lineastransstock (idtrans,referencia,cantidad,descripcion) VALUES "
-                    . "(" . $this->var2str($this->idtrans)
-                    . "," . $this->var2str($this->referencia)
-                    . "," . $this->var2str($this->cantidad)
-                    . "," . $this->var2str($this->descripcion) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->idlinea = $this->db->lastval();
-                return TRUE;
-            } else {
-                return FALSE;
-            }
         }
+
+        $sql = "INSERT INTO lineastransstock (idtrans,referencia,cantidad,descripcion) VALUES "
+                . "(" . $this->var2str($this->idtrans)
+                . "," . $this->var2str($this->referencia)
+                . "," . $this->var2str($this->cantidad)
+                . "," . $this->var2str($this->descripcion) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->idlinea = $this->db->lastval();
+            return TRUE;
+        }
+
+        return FALSE;
     }
 
     public function delete() {
         return $this->db->exec('DELETE FROM lineastransstock WHERE idlinea = ' . $this->var2str($this->idlinea) . ';');
     }
 
-    public function all_from_transferencia($id) {
+    private function all_from($sql) {
         $list = array();
-
-        $data = $this->db->select("SELECT * FROM lineastransstock WHERE idtrans = " . $this->var2str($id) . " ORDER BY referencia ASC;");
+        $data = $this->db->select($sql);
         if ($data) {
-            foreach ($data as $d) {
-                $list[] = new \linea_transferencia_stock($d);
+            foreach ($data as $a) {
+                $list[] = new \linea_transferencia_stock($a);
             }
         }
 
         return $list;
     }
 
-    public function all_from_referencia($ref, $codalmaorigen = '', $codalmadestino = '', $desde = '', $hasta = '') {
-        $list = array();
+    public function all_from_transferencia($id) {
+        return $this->all_from("SELECT * FROM lineastransstock WHERE idtrans = " . $this->var2str($id) . " ORDER BY referencia ASC;");
+    }
 
+    public function all_from_referencia($ref, $codalmaorigen = '', $codalmadestino = '', $desde = '', $hasta = '') {
         $sql = "SELECT l.idlinea,l.idtrans,l.referencia,l.cantidad,l.descripcion,t.fecha,t.hora FROM lineastransstock l"
                 . " LEFT JOIN transstock t ON l.idtrans = t.idtrans"
                 . " WHERE l.referencia = " . $this->var2str($ref);
@@ -140,14 +141,7 @@ class linea_transferencia_stock extends \fs_model {
         }
         $sql .= " ORDER BY t.fecha ASC, t.hora ASC;";
 
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $d) {
-                $list[] = new \linea_transferencia_stock($d);
-            }
-        }
-
-        return $list;
+        return $this->all_from($sql);
     }
 
 }

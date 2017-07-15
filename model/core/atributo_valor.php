@@ -73,20 +73,18 @@ class atributo_valor extends \fs_model {
             $data = $this->db->select("SELECT * FROM atributos_valores WHERE id = " . $this->var2str($id) . ";");
             if ($data) {
                 return new \atributo_valor($data[0]);
-            } else {
-                return FALSE;
             }
-        } else {
-            return FALSE;
         }
+        
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->id)) {
             return FALSE;
-        } else {
-            return $this->db->select("SELECT * FROM atributos_valores WHERE id = " . $this->var2str($this->id) . ";");
         }
+        
+        return $this->db->select("SELECT * FROM atributos_valores WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function save() {

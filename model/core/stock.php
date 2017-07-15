@@ -125,8 +125,9 @@ class stock extends \fs_model {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idstock = " . $this->var2str($id) . ";");
         if ($data) {
             return new \stock($data[0]);
-        } else
-            return FALSE;
+        }
+        
+        return FALSE;
     }
 
     public function get_by_referencia($ref, $codalmacen = FALSE) {
@@ -139,15 +140,17 @@ class stock extends \fs_model {
         $data = $this->db->select($sql);
         if ($data) {
             return new \stock($data[0]);
-        } else
-            return FALSE;
+        }
+        
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->idstock)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idstock = " . $this->var2str($this->idstock) . ";");
+        }
+        
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idstock = " . $this->var2str($this->idstock) . ";");
     }
 
     public function save() {
@@ -170,27 +173,28 @@ class stock extends \fs_model {
                     . "  WHERE idstock = " . $this->var2str($this->idstock) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (codalmacen,referencia,nombre,cantidad,reservada,
+        }
+
+        $sql = "INSERT INTO " . $this->table_name . " (codalmacen,referencia,nombre,cantidad,reservada,
             disponible,pterecibir,stockmin,stockmax,cantidadultreg,ubicacion) VALUES 
                    (" . $this->var2str($this->codalmacen)
-                    . "," . $this->var2str($this->referencia)
-                    . "," . $this->var2str($this->nombre)
-                    . "," . $this->var2str($this->cantidad)
-                    . "," . $this->var2str($this->reservada)
-                    . "," . $this->var2str($this->disponible)
-                    . "," . $this->var2str($this->pterecibir)
-                    . "," . $this->var2str($this->stockmin)
-                    . "," . $this->var2str($this->stockmax)
-                    . "," . $this->var2str($this->cantidadultreg)
-                    . "," . $this->var2str($this->ubicacion) . ");";
+                . "," . $this->var2str($this->referencia)
+                . "," . $this->var2str($this->nombre)
+                . "," . $this->var2str($this->cantidad)
+                . "," . $this->var2str($this->reservada)
+                . "," . $this->var2str($this->disponible)
+                . "," . $this->var2str($this->pterecibir)
+                . "," . $this->var2str($this->stockmin)
+                . "," . $this->var2str($this->stockmax)
+                . "," . $this->var2str($this->cantidadultreg)
+                . "," . $this->var2str($this->ubicacion) . ");";
 
-            if ($this->db->exec($sql)) {
-                $this->idstock = $this->db->lastval();
-                return TRUE;
-            } else
-                return FALSE;
+        if ($this->db->exec($sql)) {
+            $this->idstock = $this->db->lastval();
+            return TRUE;
         }
+
+        return FALSE;
     }
 
     public function delete() {

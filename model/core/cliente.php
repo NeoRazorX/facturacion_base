@@ -243,15 +243,17 @@ class cliente extends \fs_model {
             return '-';
         } else if (strlen($this->observaciones) < 60) {
             return $this->observaciones;
-        } else
-            return substr($this->observaciones, 0, 50) . '...';
+        }
+        
+        return substr($this->observaciones, 0, 50) . '...';
     }
 
     public function url() {
         if (is_null($this->codcliente)) {
             return "index.php?page=ventas_clientes";
-        } else
-            return "index.php?page=ventas_cliente&cod=" . $this->codcliente;
+        }
+        
+        return "index.php?page=ventas_cliente&cod=" . $this->codcliente;
     }
 
     /**
@@ -304,8 +306,9 @@ class cliente extends \fs_model {
         $cli = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($cod) . ";");
         if ($cli) {
             return new \cliente($cli[0]);
-        } else
-            return FALSE;
+        }
+        
+        return FALSE;
     }
 
     /**
@@ -328,8 +331,9 @@ class cliente extends \fs_model {
         $data = $this->db->select($sql);
         if ($data) {
             return new \cliente($data[0]);
-        } else
-            return FALSE;
+        }
+        
+        return FALSE;
     }
 
     /**
@@ -344,8 +348,9 @@ class cliente extends \fs_model {
         $data = $this->db->select($sql);
         if ($data) {
             return new \cliente($data[0]);
-        } else
-            return FALSE;
+        }
+        
+        return FALSE;
     }
 
     /**
@@ -419,8 +424,7 @@ class cliente extends \fs_model {
                         $subcuenta = $subc0;
                     } else
                         $this->new_error_msg('Imposible asociar la subcuenta para el cliente ' . $this->codcliente);
-                }
-                else {
+                } else {
                     $this->new_error_msg('Imposible crear la subcuenta para el cliente ' . $this->codcliente);
                 }
             } else {
@@ -443,8 +447,9 @@ class cliente extends \fs_model {
     public function exists() {
         if (is_null($this->codcliente)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($this->codcliente) . ";");
+        }
+        
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($this->codcliente) . ";");
     }
 
     /**
@@ -452,11 +457,12 @@ class cliente extends \fs_model {
      * @return string
      */
     public function get_new_codigo() {
-        $cod = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codcliente') . ") as cod FROM " . $this->table_name . ";");
-        if ($cod) {
-            return sprintf('%06s', (1 + intval($cod[0]['cod'])));
-        } else
-            return '000001';
+        $data = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codcliente') . ") as cod FROM " . $this->table_name . ";");
+        if ($data) {
+            return sprintf('%06s', (1 + intval($data[0]['cod'])));
+        }
+        
+        return '000001';
     }
 
     public function test() {
@@ -565,8 +571,9 @@ class cliente extends \fs_model {
             }
 
             return $this->db->exec($sql);
-        } else
-            return FALSE;
+        }
+        
+        return FALSE;
     }
 
     public function delete() {
@@ -579,16 +586,8 @@ class cliente extends \fs_model {
     }
 
     public function all($offset = 0) {
-        $clientlist = array();
-
         $data = $this->db->select_limit("SELECT * FROM " . $this->table_name . " ORDER BY lower(nombre) ASC", FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $d) {
-                $clientlist[] = new \cliente($d);
-            }
-        }
-
-        return $clientlist;
+        return $this->all_from_data($data);
     }
 
     /**
@@ -601,11 +600,7 @@ class cliente extends \fs_model {
         if (!$clientlist) {
             /// si no la encontramos en la caché, leemos de la base de datos
             $data = $this->db->select("SELECT * FROM " . $this->table_name . " ORDER BY lower(nombre) ASC;");
-            if ($data) {
-                foreach ($data as $d) {
-                    $clientlist[] = new \cliente($d);
-                }
-            }
+            $clientlist = $this->all_from_data($data);
 
             /// guardamos la lista en la caché
             $this->cache->set('m_cliente_all', $clientlist);
@@ -615,7 +610,6 @@ class cliente extends \fs_model {
     }
 
     public function search($query, $offset = 0) {
-        $clilist = array();
         $query = mb_strtolower($this->no_html($query), 'UTF8');
 
         $consulta = "SELECT * FROM " . $this->table_name . " WHERE debaja = FALSE AND ";
@@ -633,13 +627,7 @@ class cliente extends \fs_model {
         $consulta .= " ORDER BY lower(nombre) ASC";
 
         $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $d) {
-                $clilist[] = new \cliente($d);
-            }
-        }
-
-        return $clilist;
+        return $this->all_from_data($data);
     }
 
     /**
@@ -649,12 +637,16 @@ class cliente extends \fs_model {
      * @return \cliente
      */
     public function search_by_dni($dni, $offset = 0) {
-        $clilist = array();
         $query = mb_strtolower($this->no_html($dni), 'UTF8');
         $consulta = "SELECT * FROM " . $this->table_name . " WHERE debaja = FALSE "
                 . "AND lower(cifnif) LIKE '" . $query . "%' ORDER BY lower(nombre) ASC";
 
         $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+        return $this->all_from_data($data);
+    }
+    
+    private function all_from_data(&$data) {
+        $clilist = array();
         if ($data) {
             foreach ($data as $d) {
                 $clilist[] = new \cliente($d);
