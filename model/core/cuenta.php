@@ -268,7 +268,7 @@ class cuenta extends \fs_model {
                 $subc0->codcuenta = $this->codcuenta;
                 $subc0->idcuenta = $this->idcuenta;
                 $subc0->codejercicio = $this->codejercicio;
-                $subc0->codsubcuenta = $codsubcuenta;
+                $subc0->codsubcuenta = (string) $codsubcuenta;
 
                 return $subc0;
             }
