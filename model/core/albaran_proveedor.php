@@ -684,14 +684,14 @@ class albaran_proveedor extends \fs_model {
     public function search($query, $offset = 0) {
         $query = $this->no_html(mb_strtolower($query, 'UTF8'));
 
-        $consulta = "SELECT * FROM " . $this->table_name . " WHERE ";
+        $sql = "SELECT * FROM " . $this->table_name . " WHERE ";
         if (is_numeric($query)) {
-            $consulta .= "codigo LIKE '%" . $query . "%' OR numproveedor LIKE '%" . $query . "%' OR observaciones LIKE '%" . $query . "%'";
+            $sql .= "codigo LIKE '%" . $query . "%' OR numproveedor LIKE '%" . $query . "%' OR observaciones LIKE '%" . $query . "%'";
         } else {
-            $consulta .= "lower(codigo) LIKE '%" . $query . "%' OR lower(numproveedor) LIKE '%" . $query . "%' "
+            $sql .= "lower(codigo) LIKE '%" . $query . "%' OR lower(numproveedor) LIKE '%" . $query . "%' "
                     . "OR lower(observaciones) LIKE '%" . str_replace(' ', '%', $query) . "%'";
         }
-        $consulta .= " ORDER BY fecha DESC, codigo DESC";
+        $sql .= " ORDER BY fecha DESC, codigo DESC";
 
         return $this->all_from($sql, $offset);
     }

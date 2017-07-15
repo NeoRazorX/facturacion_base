@@ -482,7 +482,7 @@ class linea_factura_cliente extends \fs_model {
         }
         $sql .= " ORDER BY idfactura DESC, idlinea ASC";
 
-        $this->all_from($sql, $offset);
+        return $this->all_from($sql, $offset);
     }
 
     public function search_from_cliente($codcliente, $query = '', $offset = 0) {
