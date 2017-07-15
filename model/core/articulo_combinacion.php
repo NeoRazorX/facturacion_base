@@ -181,7 +181,7 @@ class articulo_combinacion extends \fs_model {
     private function get_new_codigo() {
         $cod = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codigo') . ") as cod FROM " . $this->table_name . ";");
         if ($cod) {
-            return (string) 1 + intval($cod[0]['cod']);
+            return (string) (1 + intval($cod[0]['cod']));
         }
         
         return '1';

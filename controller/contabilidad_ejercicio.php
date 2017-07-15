@@ -554,7 +554,7 @@ class contabilidad_ejercicio extends fbase_controller {
                     $error = FALSE;
                     $proveedor = new proveedor();
                     $proveedores = $proveedor->all($offset);
-                    while (!$empty($proveedores)) {
+                    while (!empty($proveedores)) {
                         foreach ($proveedores as $pro) {
                             /// forzamos la generación y asociación de una subcuenta para cada proveedor
                             if ($pro->get_subcuenta($this->ejercicio->codejercicio)) {

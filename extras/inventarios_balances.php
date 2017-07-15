@@ -146,7 +146,7 @@ class inventarios_balances {
      * @param string $titulo
      * @param string $fechaini
      * @param string $fechafin
-     * @param boolean $excluir
+     * @param array|boolean $excluir
      * @param boolean $np
      */
     public function sumas_y_saldos(&$pdf_doc, &$eje, $titulo, $fechaini, $fechafin, $excluir = FALSE, $np = TRUE) {

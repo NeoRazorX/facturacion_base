@@ -136,7 +136,7 @@ class fs_pdf {
      */
     public function generar_pdf_cabecera(&$empresa, &$lppag) {
         /// ¿Añadimos el logo?
-        if ($this->logo) {
+        if ($this->logo !== FALSE) {
             if (function_exists('imagecreatefromstring')) {
                 $lppag -= 2; /// si metemos el logo, caben menos líneas
 
