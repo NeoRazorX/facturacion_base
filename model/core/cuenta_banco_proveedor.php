@@ -79,43 +79,45 @@ class cuenta_banco_proveedor extends \fs_model {
                 $txt .= substr($iban, $i, 4) . ' ';
             }
             return $txt;
-        } else {
-            return str_replace(' ', '', $this->iban);
         }
+        
+        return str_replace(' ', '', $this->iban);
     }
 
     public function url() {
         if (is_null($this->codproveedor)) {
             return '#';
-        } else {
-            return 'index.php?page=compras_proveedor&cod=' . $this->codproveedor . '#cuentasb';
         }
+        
+        return 'index.php?page=compras_proveedor&cod=' . $this->codproveedor . '#cuentasb';
     }
 
     public function get($cod) {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcuenta = " . $this->var2str($cod) . ";");
         if ($data) {
             return new \cuenta_banco_proveedor($data[0]);
-        } else
-            return FALSE;
+        }
+        
+        return FALSE;
     }
 
     private function get_new_codigo() {
         $sql = "SELECT MAX(" . $this->db->sql_to_int('codcuenta') . ") as cod FROM " . $this->table_name . ";";
         $cod = $this->db->select($sql);
         if ($cod) {
-            return 1 + intval($cod[0]['cod']);
-        } else
-            return 1;
+            return (string) (1 + intval($cod[0]['cod']));
+        }
+
+        return '1';
     }
 
     public function exists() {
         if (is_null($this->codcuenta)) {
             return FALSE;
-        } else {
-            return $this->db->select("SELECT * FROM " . $this->table_name
-                            . " WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";");
         }
+        
+        return $this->db->select("SELECT * FROM " . $this->table_name
+                        . " WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";");
     }
 
     public function save() {

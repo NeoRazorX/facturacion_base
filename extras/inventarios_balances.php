@@ -163,7 +163,7 @@ class inventarios_balances {
                 " AND a.fecha >= " . $this->empresa->var2str($fechaini) .
                 " AND fecha <= " . $this->empresa->var2str($fechafin);
 
-        if ($excluir) {
+        if (is_array($excluir)) {
             foreach ($excluir as $exc) {
                 $sql .= " AND p.idasiento != " . $this->empresa->var2str($exc);
             }

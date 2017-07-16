@@ -235,15 +235,17 @@ class proveedor extends \fs_model {
             return '-';
         } else if (strlen($this->observaciones) < 60) {
             return $this->observaciones;
-        } else
-            return substr($this->observaciones, 0, 50) . '...';
+        }
+
+        return substr($this->observaciones, 0, 50) . '...';
     }
 
     public function url() {
         if (is_null($this->codproveedor)) {
             return "index.php?page=compras_proveedores";
-        } else
-            return "index.php?page=compras_proveedor&cod=" . $this->codproveedor;
+        }
+
+        return "index.php?page=compras_proveedor&cod=" . $this->codproveedor;
     }
 
     /**
@@ -260,11 +262,12 @@ class proveedor extends \fs_model {
      * @return boolean|\proveedor
      */
     public function get($cod) {
-        $prov = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codproveedor = " . $this->var2str($cod) . ";");
-        if ($prov) {
-            return new \proveedor($prov[0]);
-        } else
-            return FALSE;
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codproveedor = " . $this->var2str($cod) . ";");
+        if ($data) {
+            return new \proveedor($data[0]);
+        }
+
+        return FALSE;
     }
 
     /**
@@ -288,8 +291,9 @@ class proveedor extends \fs_model {
         $data = $this->db->select($sql);
         if ($data) {
             return new \proveedor($data[0]);
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
     /**
@@ -304,8 +308,9 @@ class proveedor extends \fs_model {
         $data = $this->db->select($sql);
         if ($data) {
             return new \proveedor($data[0]);
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
     /**
@@ -313,11 +318,12 @@ class proveedor extends \fs_model {
      * @return string
      */
     public function get_new_codigo() {
-        $cod = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codproveedor') . ") as cod FROM " . $this->table_name . ";");
-        if ($cod) {
-            return sprintf('%06s', (1 + intval($cod[0]['cod'])));
-        } else
-            return '000001';
+        $data = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codproveedor') . ") as cod FROM " . $this->table_name . ";");
+        if ($data) {
+            return sprintf('%06s', (1 + intval($data[0]['cod'])));
+        }
+
+        return '000001';
     }
 
     /**
@@ -331,8 +337,9 @@ class proveedor extends \fs_model {
             $s2 = $s->get_subcuenta();
             if ($s2) {
                 $sublist[] = $s2;
-            } else
+            } else {
                 $s->delete();
+            }
         }
 
         return $sublist;
@@ -367,8 +374,9 @@ class proveedor extends \fs_model {
                 if (!$cpro) {
                     $cpro = $cuenta->get_cuentaesp('PROVEE', $codeje);
                 }
-            } else
+            } else {
                 $cpro = $cuenta->get_cuentaesp('PROVEE', $codeje);
+            }
 
             if ($cpro) {
                 $continuar = FALSE;
@@ -389,10 +397,10 @@ class proveedor extends \fs_model {
                     $scpro->idsubcuenta = $subc0->idsubcuenta;
                     if ($scpro->save()) {
                         $subcuenta = $subc0;
-                    } else
+                    } else {
                         $this->new_error_msg('Imposible asociar la subcuenta para el proveedor ' . $this->codproveedor);
-                }
-                else {
+                    }
+                } else {
                     $this->new_error_msg('Imposible crear la subcuenta para el proveedor ' . $this->codproveedor);
                 }
             } else {
@@ -424,8 +432,9 @@ class proveedor extends \fs_model {
     public function exists() {
         if (is_null($this->codproveedor)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codproveedor = " . $this->var2str($this->codproveedor) . ";");
+        }
+
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codproveedor = " . $this->var2str($this->codproveedor) . ";");
     }
 
     public function test() {
@@ -448,8 +457,9 @@ class proveedor extends \fs_model {
             $this->new_error_msg("Nombre de proveedor no válido.");
         } else if (strlen($this->razonsocial) < 1 OR strlen($this->razonsocial) > 100) {
             $this->new_error_msg("Razón social del proveedor no válida.");
-        } else
+        } else {
             $status = TRUE;
+        }
 
         return $status;
     }
@@ -506,8 +516,9 @@ class proveedor extends \fs_model {
             }
 
             return $this->db->exec($sql);
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
     public function delete() {
@@ -519,21 +530,25 @@ class proveedor extends \fs_model {
         $this->cache->delete('m_proveedor_all');
     }
 
-    public function all($offset = 0, $solo_acreedores = FALSE) {
+    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
         $provelist = array();
+        $data = $this->db->select_limit($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $provelist[] = new \proveedor($a);
+            }
+        }
+
+        return $provelist;
+    }
+
+    public function all($offset = 0, $solo_acreedores = FALSE) {
         $sql = "SELECT * FROM " . $this->table_name . " ORDER BY lower(nombre) ASC";
         if ($solo_acreedores) {
             $sql = "SELECT * FROM " . $this->table_name . " WHERE acreedor ORDER BY lower(nombre) ASC";
         }
 
-        $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $p) {
-                $provelist[] = new \proveedor($p);
-            }
-        }
-
-        return $provelist;
+        return $this->all_from($sql, $offset);
     }
 
     /**
@@ -560,7 +575,6 @@ class proveedor extends \fs_model {
     }
 
     public function search($query, $offset = 0) {
-        $prolist = array();
         $query = mb_strtolower($this->no_html($query), 'UTF8');
 
         $consulta = "SELECT * FROM " . $this->table_name . " WHERE ";
@@ -577,14 +591,7 @@ class proveedor extends \fs_model {
         }
         $consulta .= " ORDER BY lower(nombre) ASC";
 
-        $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
-        if ($data) {
-            foreach ($data as $d) {
-                $prolist[] = new \proveedor($d);
-            }
-        }
-
-        return $prolist;
+        return $this->all_from($consulta, $offset);
     }
 
     /**

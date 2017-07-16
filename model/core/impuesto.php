@@ -78,8 +78,9 @@ class impuesto extends \fs_model {
     public function url() {
         if (is_null($this->codimpuesto)) {
             return 'index.php?page=contabilidad_impuestos';
-        } else
-            return 'index.php?page=contabilidad_impuestos#' . $this->codimpuesto;
+        }
+
+        return 'index.php?page=contabilidad_impuestos#' . $this->codimpuesto;
     }
 
     /**
@@ -96,28 +97,30 @@ class impuesto extends \fs_model {
      * @return boolean|\impuesto
      */
     public function get($cod) {
-        $impuesto = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codimpuesto = " . $this->var2str($cod) . ";");
-        if ($impuesto) {
-            return new \impuesto($impuesto[0]);
-        } else
-            return FALSE;
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codimpuesto = " . $this->var2str($cod) . ";");
+        if ($data) {
+            return new \impuesto($data[0]);
+        }
+
+        return FALSE;
     }
 
     public function get_by_iva($iva) {
-        $impuesto = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE iva = " . $this->var2str(floatval($iva)) . ";");
-        if ($impuesto) {
-            return new \impuesto($impuesto[0]);
-        } else
-            return FALSE;
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE iva = " . $this->var2str(floatval($iva)) . ";");
+        if ($data) {
+            return new \impuesto($data[0]);
+        }
+
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->codimpuesto)) {
             return FALSE;
-        } else {
-            return $this->db->select("SELECT * FROM " . $this->table_name
-                            . " WHERE codimpuesto = " . $this->var2str($this->codimpuesto) . ";");
         }
+
+        return $this->db->select("SELECT * FROM " . $this->table_name
+                        . " WHERE codimpuesto = " . $this->var2str($this->codimpuesto) . ";");
     }
 
     public function test() {
@@ -130,8 +133,9 @@ class impuesto extends \fs_model {
             $this->new_error_msg("Código del impuesto no válido. Debe tener entre 1 y 10 caracteres.");
         } else if (strlen($this->descripcion) < 1 OR strlen($this->descripcion) > 50) {
             $this->new_error_msg("Descripción del impuesto no válida.");
-        } else
+        } else {
             $status = TRUE;
+        }
 
         return $status;
     }
@@ -158,8 +162,9 @@ class impuesto extends \fs_model {
             }
 
             return $this->db->exec($sql);
-        } else
-            return FALSE;
+        }
+        
+        return FALSE;
     }
 
     public function delete() {

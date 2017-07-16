@@ -83,15 +83,17 @@ class cuenta_especial extends \fs_model {
         $cuentae = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcuentaesp = " . $this->var2str($id) . ";");
         if ($cuentae) {
             return new \cuenta_especial($cuentae[0]);
-        } else
-            return FALSE;
+        }
+        
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->idcuentaesp)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcuentaesp = " . $this->var2str($this->idcuentaesp) . ";");
+        }
+        
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcuentaesp = " . $this->var2str($this->idcuentaesp) . ";");
     }
 
     public function save() {

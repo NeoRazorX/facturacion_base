@@ -84,25 +84,27 @@ class balance extends \fs_model {
     public function url() {
         if (is_null($this->codbalance)) {
             return 'index.php?page=editar_balances';
-        } else
-            return 'index.php?page=editar_balances&cod=' . $this->codbalance;
+        }
+        
+        return 'index.php?page=editar_balances&cod=' . $this->codbalance;
     }
 
     public function get($cod) {
-        $balance = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codbalance = " . $this->var2str($cod) . ";");
-        if ($balance) {
-            return new \balance($balance[0]);
-        } else
-            return FALSE;
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codbalance = " . $this->var2str($cod) . ";");
+        if ($data) {
+            return new \balance($data[0]);
+        }
+        
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->codbalance)) {
             return FALSE;
-        } else {
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codbalance = " .
-                            $this->var2str($this->codbalance) . ";");
         }
+        
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codbalance = " .
+                        $this->var2str($this->codbalance) . ";");
     }
 
     public function save() {
@@ -200,18 +202,20 @@ class balance_cuenta extends \fs_model {
     }
 
     public function get($id) {
-        $bc = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
-        if ($bc) {
-            return new \balance_cuenta($bc[0]);
-        } else
-            return FALSE;
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
+        if ($data) {
+            return new \balance_cuenta($data[0]);
+        }
+        
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->id)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
+        }
+        
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function save() {
@@ -222,18 +226,19 @@ class balance_cuenta extends \fs_model {
                     "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (codbalance,codcuenta,desccuenta) VALUES "
-                    . "(" . $this->var2str($this->codbalance)
-                    . "," . $this->var2str($this->codcuenta)
-                    . "," . $this->var2str($this->desccuenta) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            } else
-                return FALSE;
         }
+        
+        $sql = "INSERT INTO " . $this->table_name . " (codbalance,codcuenta,desccuenta) VALUES "
+                . "(" . $this->var2str($this->codbalance)
+                . "," . $this->var2str($this->codcuenta)
+                . "," . $this->var2str($this->desccuenta) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
+        }
+        
+        return FALSE;
     }
 
     public function delete() {
@@ -316,10 +321,10 @@ class balance_cuenta_a extends \fs_model {
             if (isset($ejercicio->idasientocierre)) {
                 $extra = " AND idasiento NOT IN (" . $this->var2str($ejercicio->idasientocierre)
                         . "," . $this->var2str($ejercicio->idasientopyg) . ')';
-            } else
+            } else {
                 $extra = " AND idasiento != " . $this->var2str($ejercicio->idasientopyg);
-        }
-        else if (isset($ejercicio->idasientocierre)) {
+            }
+        } else if (isset($ejercicio->idasientocierre)) {
             $extra = " AND idasiento != " . $this->var2str($ejercicio->idasientocierre);
         }
 
@@ -342,23 +347,26 @@ class balance_cuenta_a extends \fs_model {
 
         if ($data) {
             return floatval($data[0]['haber']) - floatval($data[0]['debe']);
-        } else
-            return 0;
+        }
+        
+        return 0;
     }
 
     public function get($id) {
-        $bca = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
-        if ($bca) {
-            return new \balance_cuenta_a($bca[0]);
-        } else
-            return FALSE;
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
+        if ($data) {
+            return new \balance_cuenta_a($data[0]);
+        }
+        
+        return FALSE;
     }
 
     public function exists() {
         if (is_null($this->id)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
+        }
+        
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function save() {
@@ -369,18 +377,19 @@ class balance_cuenta_a extends \fs_model {
                     "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (codbalance,codcuenta,desccuenta) VALUES "
-                    . "(" . $this->var2str($this->codbalance)
-                    . "," . $this->var2str($this->codcuenta)
-                    . "," . $this->var2str($this->desccuenta) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            } else
-                return FALSE;
         }
+        
+        $sql = "INSERT INTO " . $this->table_name . " (codbalance,codcuenta,desccuenta) VALUES "
+                . "(" . $this->var2str($this->codbalance)
+                . "," . $this->var2str($this->codcuenta)
+                . "," . $this->var2str($this->desccuenta) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
+        }
+        
+        return FALSE;
     }
 
     public function delete() {
@@ -388,43 +397,28 @@ class balance_cuenta_a extends \fs_model {
     }
 
     public function all() {
-        $balist = array();
-
-        $data = $this->db->select("SELECT * FROM " . $this->table_name . ";");
-        if ($data) {
-            foreach ($data as $b) {
-                $balist[] = new \balance_cuenta_a($b);
-            }
-        }
-
-        return $balist;
+        return $this->all_from("SELECT * FROM " . $this->table_name . ";");
     }
 
     public function all_from_codbalance($cod) {
-        $balist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codbalance = " . $this->var2str($cod) . " ORDER BY codcuenta ASC;";
-
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $b) {
-                $balist[] = new \balance_cuenta_a($b);
-            }
-        }
-
-        return $balist;
+        return $this->all_from($sql);
     }
 
     public function search_by_codbalance($cod) {
-        $balist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codbalance LIKE '" . $this->no_html($cod) . "%' ORDER BY codcuenta ASC;";
+        return $this->all_from($sql);
+    }
 
+    private function all_from($sql) {
+        $balist = array();
         $data = $this->db->select($sql);
         if ($data) {
-            foreach ($data as $b) {
-                $balist[] = new \balance_cuenta_a($b);
+            foreach ($data as $a) {
+                $balist[] = new \balance_cuenta($a);
             }
         }
-
+        
         return $balist;
     }
 

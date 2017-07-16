@@ -239,7 +239,6 @@ class articulo extends \fs_model {
             $this->codsubcuentacom = $a['codsubcuentacom'];
             $this->codsubcuentairpfcom = $a['codsubcuentairpfcom'];
             $this->trazabilidad = $this->str2bool($a['trazabilidad']);
-
             $this->imagen = NULL;
             $this->exists = TRUE;
         } else {
@@ -269,7 +268,6 @@ class articulo extends \fs_model {
             $this->codsubcuentacom = NULL;
             $this->codsubcuentairpfcom = NULL;
             $this->trazabilidad = FALSE;
-
             $this->imagen = NULL;
             $this->exists = FALSE;
         }
@@ -297,9 +295,9 @@ class articulo extends \fs_model {
     public function descripcion($len = 120) {
         if (mb_strlen($this->descripcion, 'UTF8') > $len) {
             return mb_substr($this->descripcion, 0, $len) . '...';
-        } else {
-            return $this->descripcion;
         }
+
+        return $this->descripcion;
     }
 
     public function pvp_iva() {
@@ -313,8 +311,9 @@ class articulo extends \fs_model {
     public function preciocoste() {
         if ($this->secompra AND FS_COST_IS_AVERAGE) {
             return $this->costemedio;
-        } else
-            return $this->preciocoste;
+        }
+
+        return $this->preciocoste;
     }
 
     public function preciocoste_iva() {
@@ -328,8 +327,9 @@ class articulo extends \fs_model {
     public function url() {
         if (is_null($this->referencia)) {
             return "index.php?page=ventas_articulos";
-        } else
-            return "index.php?page=ventas_articulo&ref=" . urlencode($this->referencia);
+        }
+
+        return "index.php?page=ventas_articulo&ref=" . urlencode($this->referencia);
     }
 
     /**
@@ -375,11 +375,12 @@ class articulo extends \fs_model {
      * @return boolean|\articulo
      */
     public function get($ref) {
-        $art = $this->db->select("SELECT " . self::$column_list . " FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref) . ";");
-        if ($art) {
-            return new \articulo($art[0]);
-        } else
-            return FALSE;
+        $data = $this->db->select("SELECT " . self::$column_list . " FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref) . ";");
+        if ($data) {
+            return new \articulo($data[0]);
+        }
+
+        return FALSE;
     }
 
     /**
@@ -411,10 +412,10 @@ class articulo extends \fs_model {
     public function get_stock() {
         if ($this->nostock) {
             return array();
-        } else {
-            $stock = new \stock();
-            return $stock->all_from_articulo($this->referencia);
         }
+
+        $stock = new \stock();
+        return $stock->all_from_articulo($this->referencia);
     }
 
     /**
@@ -587,8 +588,9 @@ class articulo extends \fs_model {
             return 'images/articulos/' . $this->image_ref() . '-1.png';
         } else if (file_exists(FS_MYDOCS . 'images/articulos/' . $this->image_ref() . '-1.jpg')) {
             return 'images/articulos/' . $this->image_ref() . '-1.jpg';
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
     /**
@@ -741,8 +743,9 @@ class articulo extends \fs_model {
                         $this->new_error_msg("¡Error al actualizar el stock del artículo!");
                     }
                 }
-            } else
+            } else {
                 $this->new_error_msg("Error al guardar el stock");
+            }
         }
 
         return $result;
@@ -866,9 +869,9 @@ class articulo extends \fs_model {
 
         if ($this->nostock) {
             $this->controlstock = TRUE;
-            $this->stockfis = 0;
-            $this->stockmax = 0;
-            $this->stockmin = 0;
+            $this->stockfis = 0.0;
+            $this->stockmax = 0.0;
+            $this->stockmin = 0.0;
         }
 
         if ($this->bloqueado) {
@@ -880,8 +883,9 @@ class articulo extends \fs_model {
         } else if (isset($this->equivalencia) AND strlen($this->equivalencia) > 25) {
             $this->new_error_msg("Código de equivalencia del artículos no válido: " . $this->equivalencia .
                     ". Debe tener entre 1 y 25 caracteres.");
-        } else
+        } else {
             $status = TRUE;
+        }
 
         return $status;
     }
@@ -924,7 +928,7 @@ class articulo extends \fs_model {
                         "  WHERE referencia = " . $this->var2str($this->referencia) . ";";
 
                 if ($this->nostock AND $this->stockfis != 0) {
-                    $this->stockfis = 0;
+                    $this->stockfis = 0.0;
                     $sql .= "DELETE FROM stocks WHERE referencia = " . $this->var2str($this->referencia) . ";";
                     $sql .= "UPDATE " . $this->table_name . " SET stockfis = " . $this->var2str($this->stockfis) .
                             " WHERE referencia = " . $this->var2str($this->referencia) . ";";
@@ -963,10 +967,10 @@ class articulo extends \fs_model {
             if ($this->db->exec($sql)) {
                 $this->exists = TRUE;
                 return TRUE;
-            } else
-                return FALSE;
-        } else
-            return FALSE;
+            }
+        }
+
+        return FALSE;
     }
 
     /**
@@ -980,11 +984,11 @@ class articulo extends \fs_model {
         $sql .= "DELETE FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($this->referencia) . ";";
         if ($this->db->exec($sql)) {
             $this->set_imagen(FALSE);
-
             $this->exists = FALSE;
             return TRUE;
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
     /**
@@ -1043,7 +1047,7 @@ class articulo extends \fs_model {
             /// obtenemos los datos de memcache
             $this->get_search_tags();
 
-            if (self::$search_tags) {
+            if (!empty(self::$search_tags)) {
                 foreach (self::$search_tags as $value) {
                     $this->cache->delete('articulos_search_' . $value['tag']);
                 }
@@ -1146,11 +1150,18 @@ class articulo extends \fs_model {
                 $sql .= " ORDER BY referencia ASC";
             }
 
-            $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-            if ($data) {
-                foreach ($data as $a) {
-                    $artilist[] = new \articulo($a);
-                }
+            $artilist = $this->all_from($sql, $offset);
+        }
+
+        return $artilist;
+    }
+
+    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
+        $artilist = array();
+        $data = $this->db->select_limit($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $artilist[] = new \articulo($a);
             }
         }
 
@@ -1165,19 +1176,11 @@ class articulo extends \fs_model {
      * @return \articulo
      */
     public function search_by_codbar($cod, $offset = 0, $limit = FS_ITEM_LIMIT) {
-        $artilist = array();
         $sql = "SELECT " . self::$column_list . " FROM " . $this->table_name
                 . " WHERE codbarras = " . $this->var2str($cod)
                 . " ORDER BY lower(referencia) ASC";
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $d) {
-                $artilist[] = new \articulo($d);
-            }
-        }
-
-        return $artilist;
+        return $this->all_from($sql, $offset, $limit);
     }
 
     /**
@@ -1187,18 +1190,10 @@ class articulo extends \fs_model {
      * @return \articulo
      */
     public function all($offset = 0, $limit = FS_ITEM_LIMIT) {
-        $artilist = array();
         $sql = "SELECT " . self::$column_list . " FROM " . $this->table_name
                 . " ORDER BY lower(referencia) ASC";
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $d) {
-                $artilist[] = new \articulo($d);
-            }
-        }
-
-        return $artilist;
+        return $this->all_from($sql, $offset, $limit);
     }
 
     /**
@@ -1208,18 +1203,10 @@ class articulo extends \fs_model {
      * @return \articulo
      */
     public function all_publico($offset = 0, $limit = FS_ITEM_LIMIT) {
-        $artilist = array();
         $sql = "SELECT " . self::$column_list . " FROM " . $this->table_name
                 . " WHERE publico ORDER BY lower(referencia) ASC";
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $d) {
-                $artilist[] = new \articulo($d);
-            }
-        }
-
-        return $artilist;
+        return $this->all_from($sql, $offset, $limit);
     }
 
     /**
@@ -1230,18 +1217,10 @@ class articulo extends \fs_model {
      * @return \articulo
      */
     public function all_from_familia($cod, $offset = 0, $limit = FS_ITEM_LIMIT) {
-        $artilist = array();
         $sql = "SELECT " . self::$column_list . " FROM " . $this->table_name . " WHERE codfamilia = "
                 . $this->var2str($cod) . " ORDER BY lower(referencia) ASC";
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $d) {
-                $artilist[] = new \articulo($d);
-            }
-        }
-
-        return $artilist;
+        return $this->all_from($sql, $offset, $limit);
     }
 
     /**
@@ -1252,18 +1231,10 @@ class articulo extends \fs_model {
      * @return \articulo
      */
     public function all_from_fabricante($cod, $offset = 0, $limit = FS_ITEM_LIMIT) {
-        $artilist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codfabricante = "
                 . $this->var2str($cod) . " ORDER BY lower(referencia) ASC";
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $d) {
-                $artilist[] = new \articulo($d);
-            }
-        }
-
-        return $artilist;
+        return $this->all_from($sql, $offset, $limit);
     }
 
     public function cron_job() {

@@ -45,6 +45,10 @@ class articulo_propiedad extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     /**
      * Devuelve TRUE si los datos existen en la base de datos
      * @return boolean
@@ -52,12 +56,12 @@ class articulo_propiedad extends \fs_model {
     public function exists() {
         if (is_null($this->name) OR is_null($this->referencia)) {
             return FALSE;
-        } else {
-            $sql = "SELECT * FROM " . $this->table_name . " WHERE name = " . $this->var2str($this->name)
-                    . " AND referencia = " . $this->var2str($this->referencia) . ";";
-
-            return $this->db->select($sql);
         }
+
+        $sql = "SELECT * FROM " . $this->table_name . " WHERE name = " . $this->var2str($this->name)
+                . " AND referencia = " . $this->var2str($this->referencia) . ";";
+
+        return $this->db->select($sql);
     }
 
     /**
@@ -70,8 +74,8 @@ class articulo_propiedad extends \fs_model {
                     . " WHERE name = " . $this->var2str($this->name)
                     . " AND referencia = " . $this->var2str($this->referencia) . ";";
         } else {
-            $sql = "INSERT INTO " . $this->table_name . " (name,referencia,text) VALUES
-                   (" . $this->var2str($this->name)
+            $sql = "INSERT INTO " . $this->table_name . " (name,referencia,text) VALUES "
+                    . "(" . $this->var2str($this->name)
                     . "," . $this->var2str($this->referencia)
                     . "," . $this->var2str($this->text) . ");";
         }
@@ -143,8 +147,9 @@ class articulo_propiedad extends \fs_model {
         $data = $this->db->select($sql);
         if ($data) {
             return $data[0]['text'];
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
     /**
@@ -159,8 +164,9 @@ class articulo_propiedad extends \fs_model {
         $data = $this->db->select($sql);
         if ($data) {
             return $data[0]['referencia'];
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
     /**
