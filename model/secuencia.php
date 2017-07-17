@@ -30,21 +30,3 @@ require_once 'plugins/facturacion_base/model/core/secuencia.php';
 class secuencia extends FacturaScripts\model\secuencia {
     
 }
-
-/**
- * Clase que permite la compatibilidad con Eneboo.
- * 
- * @author Carlos García Gómez <neorazorx@gmail.com>
- */
-class secuencia_contabilidad extends FacturaScripts\model\secuencia_contabilidad {
-    
-}
-
-/**
- * Clase que permite la compatibilidad con Eneboo.
- * 
- * @author Carlos García Gómez <neorazorx@gmail.com>
- */
-class secuencia_ejercicio extends FacturaScripts\model\secuencia_ejercicio {
-    
-}
