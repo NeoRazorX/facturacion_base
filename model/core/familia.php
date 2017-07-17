@@ -29,14 +29,14 @@ class familia extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var string 
      */
     public $codfamilia;
     public $descripcion;
 
     /**
      * Código de la familia madre.
-     * @var type 
+     * @var string 
      */
     public $madre;
     public $nivel;
@@ -73,6 +73,7 @@ class familia extends \fs_model {
         if (is_null($this->codfamilia)) {
             return "index.php?page=ventas_familias";
         }
+
         return "index.php?page=ventas_familia&cod=" . urlencode($this->codfamilia);
     }
 
@@ -80,22 +81,24 @@ class familia extends \fs_model {
         if (mb_strlen($this->descripcion) > $len) {
             return substr($this->descripcion, 0, $len) . '...';
         }
+
         return $this->descripcion;
     }
 
     /**
      * @deprecated since version 50
-     * @return type
+     * @return boolean
      */
     public function is_default() {
         return FALSE;
     }
 
     public function get($cod) {
-        $f = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codfamilia = " . $this->var2str($cod) . ";");
-        if ($f) {
-            return new \familia($f[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codfamilia = " . $this->var2str($cod) . ";");
+        if ($data) {
+            return new \familia($data[0]);
         }
+
         return FALSE;
     }
 
@@ -108,6 +111,7 @@ class familia extends \fs_model {
         if (is_null($this->codfamilia)) {
             return FALSE;
         }
+
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codfamilia = " . $this->var2str($this->codfamilia) . ";");
     }
 
@@ -125,8 +129,9 @@ class familia extends \fs_model {
             $this->new_error_msg("Código de familia no válido. Deben ser entre 1 y 8 caracteres.");
         } else if (strlen($this->descripcion) < 1 OR strlen($this->descripcion) > 100) {
             $this->new_error_msg("Descripción de familia no válida.");
-        } else
+        } else {
             $status = TRUE;
+        }
 
         return $status;
     }
@@ -150,15 +155,15 @@ class familia extends \fs_model {
                         "," . $this->var2str($this->madre) . ");";
             }
 
-
             return $this->db->exec($sql);
         }
+        
         return FALSE;
     }
 
     /**
      * Elimina la familia de la base de datos
-     * @return type
+     * @return boolean
      */
     public function delete() {
         $this->clean_cache();
@@ -205,10 +210,10 @@ class familia extends \fs_model {
 
     /**
      * Completa los datos de la lista de familias con el nivel
-     * @param type $familias
-     * @param type $madre
-     * @param type $nivel
-     * @return type
+     * @param string $familias
+     * @param string $madre
+     * @param string $nivel
+     * @return \familia[]
      */
     private function aux_all(&$familias, $madre, $nivel) {
         $subfamilias = array();
@@ -226,16 +231,19 @@ class familia extends \fs_model {
         return $subfamilias;
     }
 
-    public function madres() {
+    private function all_from($sql) {
         $famlist = array();
-
-        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE madre IS NULL ORDER BY lower(descripcion) ASC;");
+        $data = $this->db->select($sql);
         if ($data) {
-            foreach ($data as $d) {
-                $famlist[] = new \familia($d);
+            foreach ($data as $a) {
+                $famlist[] = new \familia($a);
             }
         }
+        return $famlist;
+    }
 
+    public function madres() {
+        $famlist = $this->all_from("SELECT * FROM " . $this->table_name . " WHERE madre IS NULL ORDER BY lower(descripcion) ASC;");
         if (empty($famlist)) {
             /// si la lista está vacía, ponemos madre a NULL en todas por si el usuario ha estado jugando
             $this->db->exec("UPDATE " . $this->table_name . " SET madre = NULL;");
@@ -245,34 +253,16 @@ class familia extends \fs_model {
     }
 
     public function hijas($codmadre = FALSE) {
-        $famlist = array();
-
         if (!$codmadre) {
             $codmadre = $this->codfamilia;
         }
-
-        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE madre = " . $this->var2str($codmadre) . " ORDER BY descripcion ASC;");
-        if ($data) {
-            foreach ($data as $d) {
-                $famlist[] = new \familia($d);
-            }
-        }
-
-        return $famlist;
+        
+        return $this->all_from("SELECT * FROM " . $this->table_name . " WHERE madre = " . $this->var2str($codmadre) . " ORDER BY descripcion ASC;");
     }
 
     public function search($query) {
-        $famlist = array();
         $query = $this->no_html(mb_strtolower($query, 'UTF8'));
-
-        $familias = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE lower(descripcion) LIKE '%" . $query . "%' ORDER BY descripcion ASC;");
-        if ($familias) {
-            foreach ($familias as $f) {
-                $famlist[] = new \familia($f);
-            }
-        }
-
-        return $famlist;
+        return $this->all_from("SELECT * FROM " . $this->table_name . " WHERE lower(descripcion) LIKE '%" . $query . "%' ORDER BY descripcion ASC;");
     }
 
     /**

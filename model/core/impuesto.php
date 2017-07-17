@@ -30,19 +30,19 @@ class impuesto extends \fs_model {
 
     /**
      * Clave primaria. varchar(10).
-     * @var type
+     * @var string
      */
     public $codimpuesto;
 
     /**
      * Código de la subcuenta para ventas.
-     * @var type 
+     * @var string
      */
     public $codsubcuentarep;
 
     /**
      * Código de la subcuenta para compras.
-     * @var type 
+     * @var string
      */
     public $codsubcuentasop;
     public $descripcion;
@@ -63,8 +63,8 @@ class impuesto extends \fs_model {
             $this->codsubcuentarep = NULL;
             $this->codsubcuentasop = NULL;
             $this->descripcion = NULL;
-            $this->iva = 0;
-            $this->recargo = 0;
+            $this->iva = 0.0;
+            $this->recargo = 0.0;
         }
     }
 
@@ -79,6 +79,7 @@ class impuesto extends \fs_model {
         if (is_null($this->codimpuesto)) {
             return 'index.php?page=contabilidad_impuestos';
         }
+
         return 'index.php?page=contabilidad_impuestos#' . $this->codimpuesto;
     }
 
@@ -96,18 +97,20 @@ class impuesto extends \fs_model {
      * @return boolean|\impuesto
      */
     public function get($cod) {
-        $impuesto = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codimpuesto = " . $this->var2str($cod) . ";");
-        if ($impuesto) {
-            return new \impuesto($impuesto[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codimpuesto = " . $this->var2str($cod) . ";");
+        if ($data) {
+            return new \impuesto($data[0]);
         }
+
         return FALSE;
     }
 
     public function get_by_iva($iva) {
-        $impuesto = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE iva = " . $this->var2str(floatval($iva)) . ";");
-        if ($impuesto) {
-            return new \impuesto($impuesto[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE iva = " . $this->var2str(floatval($iva)) . ";");
+        if ($data) {
+            return new \impuesto($data[0]);
         }
+
         return FALSE;
     }
 
@@ -115,6 +118,7 @@ class impuesto extends \fs_model {
         if (is_null($this->codimpuesto)) {
             return FALSE;
         }
+
         return $this->db->select("SELECT * FROM " . $this->table_name
                         . " WHERE codimpuesto = " . $this->var2str($this->codimpuesto) . ";");
     }
@@ -129,8 +133,9 @@ class impuesto extends \fs_model {
             $this->new_error_msg("Código del impuesto no válido. Debe tener entre 1 y 10 caracteres.");
         } else if (strlen($this->descripcion) < 1 OR strlen($this->descripcion) > 50) {
             $this->new_error_msg("Descripción del impuesto no válida.");
-        } else
+        } else {
             $status = TRUE;
+        }
 
         return $status;
     }
@@ -158,6 +163,7 @@ class impuesto extends \fs_model {
 
             return $this->db->exec($sql);
         }
+        
         return FALSE;
     }
 

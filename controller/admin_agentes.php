@@ -163,7 +163,6 @@ class admin_agentes extends fbase_controller {
 
         if ($this->provincia != '') {
             $sql .= $and . "lower(provincia) = " . $this->agente->var2str(mb_strtolower($this->provincia, 'UTF8'));
-            $and = ' AND ';
         }
 
         $data = $this->db->select("SELECT COUNT(codagente) as total" . $sql . ';');

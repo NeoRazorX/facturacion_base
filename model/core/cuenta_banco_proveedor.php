@@ -29,13 +29,13 @@ class cuenta_banco_proveedor extends \fs_model {
 
     /**
      * Clave primaria. Varchar(6).
-     * @var type 
+     * @var string 
      */
     public $codcuenta;
 
     /**
      * Código del proveedor.
-     * @var type 
+     * @var string 
      */
     public $codproveedor;
     public $descripcion;
@@ -62,13 +62,17 @@ class cuenta_banco_proveedor extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     /**
      * Devuelve el IBAN con o sin espacios.
-     * @param type $espacios
-     * @return type
+     * @param string $espacios
+     * @return string
      */
     public function iban($espacios = FALSE) {
-        if ($espacios) {
+        if ($espacios === TRUE) {
             $txt = '';
             $iban = str_replace(' ', '', $this->iban);
             for ($i = 0; $i < strlen($iban); $i += 4) {
@@ -76,6 +80,7 @@ class cuenta_banco_proveedor extends \fs_model {
             }
             return $txt;
         }
+        
         return str_replace(' ', '', $this->iban);
     }
 
@@ -83,6 +88,7 @@ class cuenta_banco_proveedor extends \fs_model {
         if (is_null($this->codproveedor)) {
             return '#';
         }
+        
         return 'index.php?page=compras_proveedor&cod=' . $this->codproveedor . '#cuentasb';
     }
 
@@ -91,6 +97,7 @@ class cuenta_banco_proveedor extends \fs_model {
         if ($data) {
             return new \cuenta_banco_proveedor($data[0]);
         }
+        
         return FALSE;
     }
 
@@ -98,15 +105,17 @@ class cuenta_banco_proveedor extends \fs_model {
         $sql = "SELECT MAX(" . $this->db->sql_to_int('codcuenta') . ") as cod FROM " . $this->table_name . ";";
         $cod = $this->db->select($sql);
         if ($cod) {
-            return 1 + intval($cod[0]['cod']);
+            return (string) (1 + intval($cod[0]['cod']));
         }
-        return 1;
+
+        return '1';
     }
 
     public function exists() {
         if (is_null($this->codcuenta)) {
             return FALSE;
         }
+        
         return $this->db->select("SELECT * FROM " . $this->table_name
                         . " WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";");
     }

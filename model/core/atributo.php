@@ -31,7 +31,7 @@ class atributo extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var string 
      */
     public $codatributo;
     public $nombre;
@@ -45,6 +45,10 @@ class atributo extends \fs_model {
             $this->codatributo = NULL;
             $this->nombre = NULL;
         }
+    }
+
+    protected function install() {
+        return '';
     }
 
     public function url() {

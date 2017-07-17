@@ -754,7 +754,7 @@ class informe_albaranes extends fbase_controller {
         }
 
         $documentos = $this->get_documentos($tabla);
-        if ($documentos) {
+        if (!empty($documentos)) {
             $total_lineas = count($documentos);
             $linea_actual = 0;
             $lppag = 72;

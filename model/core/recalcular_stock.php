@@ -73,6 +73,7 @@ class recalcular_stock {
             } else if (strtotime($a['fecha'] . ' ' . $a['hora']) < strtotime($b['fecha'] . ' ' . $b['hora'])) {
                 return -1;
             }
+            
             return 1;
         });
 

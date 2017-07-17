@@ -44,10 +44,15 @@ class cliente_propiedad extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     public function exists() {
         if (is_null($this->name) OR is_null($this->codcliente)) {
             return FALSE;
         }
+        
         return $this->db->select("SELECT * FROM cliente_propiedades WHERE name = " .
                         $this->var2str($this->name) . " AND codcliente = " . $this->var2str($this->codcliente) . ";");
     }
@@ -72,8 +77,8 @@ class cliente_propiedad extends \fs_model {
 
     /**
      * Devuelve un array con los pares name => text para una codcliente dado.
-     * @param type $cod
-     * @return type
+     * @param string $cod
+     * @return array
      */
     public function array_get($cod) {
         $vlist = array();

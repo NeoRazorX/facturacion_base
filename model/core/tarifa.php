@@ -29,31 +29,31 @@ class tarifa extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var string
      */
     public $codtarifa;
 
     /**
      * Nombre de la tarifa.
-     * @var type 
+     * @var string
      */
     public $nombre;
 
     /**
      * Incremento porcentual o descuento
-     * @var type 
+     * @var double
      */
     private $incporcentual;
 
     /**
      * Incremento lineal o descuento lineal
-     * @var type 
+     * @var double
      */
     private $inclineal;
 
     /**
      * Fórmula a aplicar
-     * @var type 
+     * @var string
      */
     public $aplicar_a;
 
@@ -86,12 +86,16 @@ class tarifa extends \fs_model {
         } else {
             $this->codtarifa = NULL;
             $this->nombre = NULL;
-            $this->incporcentual = 0;
-            $this->inclineal = 0;
+            $this->incporcentual = 0.0;
+            $this->inclineal = 0.0;
             $this->aplicar_a = 'pvp';
             $this->mincoste = TRUE;
             $this->maxpvp = TRUE;
         }
+    }
+
+    protected function install() {
+        return '';
     }
 
     public function url() {
@@ -102,6 +106,7 @@ class tarifa extends \fs_model {
         if ($this->aplicar_a == 'pvp') {
             return (0 - $this->incporcentual);
         }
+
         return $this->incporcentual;
     }
 
@@ -117,6 +122,7 @@ class tarifa extends \fs_model {
         if ($this->aplicar_a == 'pvp') {
             return (0 - $this->inclineal);
         }
+
         return $this->inclineal;
     }
 
@@ -209,18 +215,20 @@ class tarifa extends \fs_model {
     }
 
     public function get($cod) {
-        $tarifa = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($cod) . ";");
-        if ($tarifa) {
-            return new \tarifa($tarifa[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($cod) . ";");
+        if ($data) {
+            return new \tarifa($data[0]);
         }
+
         return FALSE;
     }
 
     public function get_new_codigo() {
-        $cod = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codtarifa') . ") as cod FROM " . $this->table_name . ";");
-        if ($cod) {
-            return sprintf('%06s', (1 + intval($cod[0]['cod'])));
+        $data = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codtarifa') . ") as cod FROM " . $this->table_name . ";");
+        if ($data) {
+            return sprintf('%06s', (1 + intval($data[0]['cod'])));
         }
+
         return '000001';
     }
 
@@ -228,6 +236,7 @@ class tarifa extends \fs_model {
         if (is_null($this->codtarifa)) {
             return FALSE;
         }
+
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($this->codtarifa) . ";");
     }
 
@@ -241,8 +250,9 @@ class tarifa extends \fs_model {
             $this->new_error_msg("Código de tarifa no válido. Debe tener entre 1 y 6 caracteres.");
         } else if (strlen($this->nombre) < 1 OR strlen($this->nombre) > 50) {
             $this->new_error_msg("Nombre de tarifa no válido. Debe tener entre 1 y 50 caracteres.");
-        } else
+        } else {
             $status = TRUE;
+        }
 
         return $status;
     }
@@ -268,9 +278,9 @@ class tarifa extends \fs_model {
                         . "," . $this->var2str($this->maxpvp) . ");";
             }
 
-
             return $this->db->exec($sql);
         }
+
         return FALSE;
     }
 

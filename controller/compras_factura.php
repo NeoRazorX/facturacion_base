@@ -221,7 +221,7 @@ class compras_factura extends fbase_controller {
 
                 $asiento_factura = new asiento_factura();
                 $this->factura->idasientop = $asiento_factura->generar_asiento_pago($asiento, $this->factura->codpago, $_POST['fpagada'], $subpro, $importe);
-                if ($this->factura->idasientop) {
+                if ($this->factura->idasientop !== NULL) {
                     $this->factura->pagada = TRUE;
                     if ($this->factura->save()) {
                         $this->new_message('<a href="' . $this->factura->asiento_pago_url() . '">Asiento de pago</a> generado.');

@@ -36,32 +36,32 @@ class cliente extends \fs_model {
 
     /**
      * Clave primaria. Varchar (6).
-     * @var type 
+     * @var string 
      */
     public $codcliente;
 
     /**
      * Nombre por el que conocemos al cliente, no necesariamente el oficial.
-     * @var type 
+     * @var string 
      */
     public $nombre;
 
     /**
      * Razón social del cliente, es decir, el nombre oficial. El que aparece en las facturas.
-     * @var type
+     * @var string
      */
     public $razonsocial;
 
     /**
      * Tipo de identificador fiscal del cliente.
      * Ejemplos: CIF, NIF, CUIT...
-     * @var type 
+     * @var string 
      */
     public $tipoidfiscal;
 
     /**
      * Identificador fiscal del cliente.
-     * @var type 
+     * @var string 
      */
     public $cifnif;
     public $telefono1;
@@ -72,49 +72,49 @@ class cliente extends \fs_model {
 
     /**
      * Serie predeterminada para este cliente.
-     * @var type 
+     * @var string 
      */
     public $codserie;
 
     /**
      * Divisa predeterminada para este cliente.
-     * @var type 
+     * @var string 
      */
     public $coddivisa;
 
     /**
      * Forma de pago predeterminada para este cliente.
-     * @var type 
+     * @var string 
      */
     public $codpago;
 
     /**
      * Empleado/agente asignado al cliente.
-     * @var type 
+     * @var string 
      */
     public $codagente;
 
     /**
      * Grupo al que pertenece el cliente.
-     * @var type 
+     * @var string 
      */
     public $codgrupo;
 
     /**
      * TRUE -> el cliente ya no nos compra o no queremos nada con él.
-     * @var type 
+     * @var boolean 
      */
     public $debaja;
 
     /**
      * Fecha en la que se dió de baja al cliente.
-     * @var type 
+     * @var string 
      */
     public $fechabaja;
 
     /**
      * Fecha en la que se dió de alta al cliente.
-     * @var type 
+     * @var string 
      */
     public $fechaalta;
     public $observaciones;
@@ -122,33 +122,33 @@ class cliente extends \fs_model {
     /**
      * Régimen de fiscalidad del cliente. Por ahora solo están implementados
      * general y exento.
-     * @var type 
+     * @var string 
      */
     public $regimeniva;
 
     /**
      * TRUE -> al cliente se le aplica recargo de equivalencia.
-     * @var type 
+     * @var boolean 
      */
     public $recargo;
 
     /**
      * TRUE  -> el cliente es una persona física.
      * FALSE -> el cliente es una persona jurídica (empresa).
-     * @var type 
+     * @var boolean 
      */
     public $personafisica;
 
     /**
      * Dias de pago preferidos a la hora de calcular el vencimiento de las facturas.
      * Días separados por comas: 1,15,31
-     * @var type 
+     * @var string 
      */
     public $diaspago;
 
     /**
      * Proveedor asociado equivalente
-     * @var type
+     * @var string
      */
     public $codproveedor;
     private static $regimenes_iva;
@@ -244,6 +244,7 @@ class cliente extends \fs_model {
         } else if (strlen($this->observaciones) < 60) {
             return $this->observaciones;
         }
+        
         return substr($this->observaciones, 0, 50) . '...';
     }
 
@@ -251,12 +252,13 @@ class cliente extends \fs_model {
         if (is_null($this->codcliente)) {
             return "index.php?page=ventas_clientes";
         }
+        
         return "index.php?page=ventas_cliente&cod=" . $this->codcliente;
     }
 
     /**
      * @deprecated since version 50
-     * @return type
+     * @return boolean
      */
     public function is_default() {
         return FALSE;
@@ -264,7 +266,7 @@ class cliente extends \fs_model {
 
     /**
      * Devuelve un array con los regimenes de iva disponibles.
-     * @return type
+     * @return array
      */
     public function regimenes_iva() {
         if (!isset(self::$regimenes_iva)) {
@@ -297,14 +299,15 @@ class cliente extends \fs_model {
 
     /**
      * Devuelve el cliente que tenga ese codcliente.
-     * @param type $cod
+     * @param string $cod
      * @return \cliente|boolean
      */
     public function get($cod) {
-        $cli = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($cod) . ";");
-        if ($cli) {
-            return new \cliente($cli[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($cod) . ";");
+        if ($data) {
+            return new \cliente($data[0]);
         }
+        
         return FALSE;
     }
 
@@ -312,8 +315,8 @@ class cliente extends \fs_model {
      * Devuelve el primer cliente que tenga $cifnif como cifnif.
      * Si el cifnif está en blanco y se proporciona una razón social,
      * se devuelve el primer cliente que tenga esa razón social.
-     * @param type $cifnif
-     * @param type $razon
+     * @param string $cifnif
+     * @param string $razon
      * @return boolean|\cliente
      */
     public function get_by_cifnif($cifnif, $razon = FALSE) {
@@ -329,12 +332,13 @@ class cliente extends \fs_model {
         if ($data) {
             return new \cliente($data[0]);
         }
+        
         return FALSE;
     }
 
     /**
      * Devuelve el primer cliente que tenga $email como email.
-     * @param type $email
+     * @param string $email
      * @return boolean|\cliente
      */
     public function get_by_email($email) {
@@ -345,12 +349,13 @@ class cliente extends \fs_model {
         if ($data) {
             return new \cliente($data[0]);
         }
+        
         return FALSE;
     }
 
     /**
      * Devuelve un array con las direcciones asociadas al cliente.
-     * @return type
+     * @return \direccion_cliente
      */
     public function get_direcciones() {
         $dir = new \direccion_cliente();
@@ -360,7 +365,7 @@ class cliente extends \fs_model {
     /**
      * Devuelve un array con todas las subcuentas asociadas al cliente.
      * Una para cada ejercicio.
-     * @return type
+     * @return \subcuenta
      */
     public function get_subcuentas() {
         $subclist = array();
@@ -379,7 +384,7 @@ class cliente extends \fs_model {
     /**
      * Devuelve la subcuenta asociada al cliente para el ejercicio $eje.
      * Si no existe intenta crearla. Si falla devuelve FALSE.
-     * @param type $codejercicio
+     * @param string $codejercicio
      * @return subcuenta
      */
     public function get_subcuenta($codejercicio) {
@@ -419,8 +424,7 @@ class cliente extends \fs_model {
                         $subcuenta = $subc0;
                     } else
                         $this->new_error_msg('Imposible asociar la subcuenta para el cliente ' . $this->codcliente);
-                }
-                else {
+                } else {
                     $this->new_error_msg('Imposible crear la subcuenta para el cliente ' . $this->codcliente);
                 }
             } else {
@@ -444,6 +448,7 @@ class cliente extends \fs_model {
         if (is_null($this->codcliente)) {
             return FALSE;
         }
+        
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($this->codcliente) . ";");
     }
 
@@ -452,10 +457,11 @@ class cliente extends \fs_model {
      * @return string
      */
     public function get_new_codigo() {
-        $cod = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codcliente') . ") as cod FROM " . $this->table_name . ";");
-        if ($cod) {
-            return sprintf('%06s', (1 + intval($cod[0]['cod'])));
+        $data = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codcliente') . ") as cod FROM " . $this->table_name . ";");
+        if ($data) {
+            return sprintf('%06s', (1 + intval($data[0]['cod'])));
         }
+        
         return '000001';
     }
 
@@ -489,7 +495,7 @@ class cliente extends \fs_model {
             }
         }
         $this->diaspago = NULL;
-        if ($array_dias) {
+        if (!empty($array_dias)) {
             $this->diaspago = join(',', $array_dias);
         }
 
@@ -566,6 +572,7 @@ class cliente extends \fs_model {
 
             return $this->db->exec($sql);
         }
+        
         return FALSE;
     }
 
@@ -578,21 +585,9 @@ class cliente extends \fs_model {
         $this->cache->delete('m_cliente_all');
     }
 
-    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-
-        $clientlist = array();
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $clientlist[] = new \cliente($a);
-            }
-        }
-        return $clientlist;
-    }
-
     public function all($offset = 0) {
-
-        return $this->all_from("SELECT * FROM " . $this->table_name . " ORDER BY lower(nombre) ASC", FS_ITEM_LIMIT, $offset);
+        $data = $this->db->select_limit("SELECT * FROM " . $this->table_name . " ORDER BY lower(nombre) ASC", FS_ITEM_LIMIT, $offset);
+        return $this->all_from_data($data);
     }
 
     /**
@@ -605,11 +600,7 @@ class cliente extends \fs_model {
         if (!$clientlist) {
             /// si no la encontramos en la caché, leemos de la base de datos
             $data = $this->db->select("SELECT * FROM " . $this->table_name . " ORDER BY lower(nombre) ASC;");
-            if ($data) {
-                foreach ($data as $d) {
-                    $clientlist[] = new \cliente($d);
-                }
-            }
+            $clientlist = $this->all_from_data($data);
 
             /// guardamos la lista en la caché
             $this->cache->set('m_cliente_all', $clientlist);
@@ -635,7 +626,8 @@ class cliente extends \fs_model {
         }
         $consulta .= " ORDER BY lower(nombre) ASC";
 
-        return $this->all_from($consulta, FS_ITEM_LIMIT, $offset);
+        $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+        return $this->all_from_data($data);
     }
 
     /**
@@ -649,7 +641,19 @@ class cliente extends \fs_model {
         $consulta = "SELECT * FROM " . $this->table_name . " WHERE debaja = FALSE "
                 . "AND lower(cifnif) LIKE '" . $query . "%' ORDER BY lower(nombre) ASC";
 
-        return $this->all_from($consulta, FS_ITEM_LIMIT, $offset);
+        $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
+        return $this->all_from_data($data);
+    }
+    
+    private function all_from_data(&$data) {
+        $clilist = array();
+        if ($data) {
+            foreach ($data as $d) {
+                $clilist[] = new \cliente($d);
+            }
+        }
+
+        return $clilist;
     }
 
     /**

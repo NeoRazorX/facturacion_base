@@ -107,7 +107,7 @@ class ventas_agrupar_albaranes extends fbase_controller {
                 $this->resultados = $this->albaran->search_from_cliente(
                         $this->cliente->codcliente, $this->desde, $this->hasta, $this->codserie, $this->observaciones, $this->coddivisa
                 );
-                if ($this->resultados) {
+                if (!empty($this->resultados)) {
                     foreach ($this->resultados as $alb) {
                         $this->neto += $alb->neto;
                         $this->total += $alb->total;
@@ -366,7 +366,7 @@ class ventas_agrupar_albaranes extends fbase_controller {
 
         $offset = 0;
         $albaranes = $this->albaran->all_ptefactura($offset);
-        while ($albaranes) {
+        while (!empty($albaranes)) {
             foreach ($albaranes as $alb) {
                 if ($alb->codcliente) {
                     /// Comprobamos si el cliente ya está en la lista.

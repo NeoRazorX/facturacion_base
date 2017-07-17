@@ -38,38 +38,38 @@ class articulo extends \fs_model {
 
     /**
      * Clave primaria. Varchar (18).
-     * @var type 
+     * @var string 
      */
     public $referencia;
 
     /**
      * Define el tipo de artículo, así se pueden establecer distinciones
      * según un tipo u otro.
-     * @var type Varchar (10).
+     * @var string Varchar (10).
      */
     public $tipo;
 
     /**
      * Código de la familia a la que pertenece. En la clase familia.
-     * @var type 
+     * @var string 
      */
     public $codfamilia;
 
     /**
      * Descripción del artículo. Tipo text, sin límite de caracteres.
-     * @var type 
+     * @var string 
      */
     public $descripcion;
 
     /**
      * Código del fabricante al que pertenece. En la clase fabricante.
-     * @var type 
+     * @var string 
      */
     public $codfabricante;
 
     /**
      * Precio del artículo, sin impuestos.
-     * @var type 
+     * @var double
      */
     public $pvp;
 
@@ -77,19 +77,19 @@ class articulo extends \fs_model {
      * Almacena el valor del pvp antes de hacer el cambio.
      * Esta valor no se almacena en la base de datos, es decir,
      * no se recuerda.
-     * @var type 
+     * @var double
      */
     public $pvp_ant;
 
     /**
      * Fecha de actualización del pvp.
-     * @var type 
+     * @var string 
      */
     public $factualizado;
 
     /**
      * Coste medio al comprar el artículo. Calculado.
-     * @var type 
+     * @var double
      */
     public $costemedio;
 
@@ -97,19 +97,19 @@ class articulo extends \fs_model {
      * Precio de coste editado manualmente.
      * No necesariamente es el precio de compra, puede incluir
      * también otros costes.
-     * @var type 
+     * @var double
      */
     public $preciocoste;
 
     /**
      * Impuesto asignado. Clase impuesto.
-     * @var type 
+     * @var string 
      */
     public $codimpuesto;
 
     /**
      * TRUE => el artículos está bloqueado / obsoleto.
-     * @var type 
+     * @var boolean 
      */
     public $bloqueado;
     public $secompra;
@@ -117,26 +117,26 @@ class articulo extends \fs_model {
 
     /**
      * TRUE -> se mostrará sincronizará con la tienda online.
-     * @var type 
+     * @var boolean 
      */
     public $publico;
 
     /**
      * Código de equivalencia. Varchar (18).
      * Dos artículos o más son equivalentes si tienen el mismo código de equivalencia.
-     * @var type 
+     * @var string 
      */
     public $equivalencia;
 
     /**
      * Partnumber del producto. Máximo 38 caracteres.
-     * @var type 
+     * @var string 
      */
     public $partnumber;
 
     /**
      * Stock físico. La suma de las cantidades de esta referencia que en la tabla stocks.
-     * @var type 
+     * @var double 
      */
     public $stockfis;
     public $stockmin;
@@ -148,45 +148,45 @@ class articulo extends \fs_model {
      * implique la ausencia de control de stock. Pero es una cagada de
      * FacturaLux -> Abanq -> Eneboo, y por motivos de compatibilidad
      * se mantiene.
-     * @var type 
+     * @var boolean 
      */
     public $controlstock;
 
     /**
      * TRUE -> no controlar el stock.
      * Activarlo implica poner a TRUE $controlstock;
-     * @var type 
+     * @var boolean 
      */
     public $nostock;
 
     /**
      * Código de barras.
-     * @var type 
+     * @var string 
      */
     public $codbarras;
     public $observaciones;
 
     /**
      * Código de la subcuenta para compras.
-     * @var type 
+     * @var string 
      */
     public $codsubcuentacom;
 
     /**
      * Código para la subcuenta de compras, pero con IRPF.
-     * @var type 
+     * @var string 
      */
     public $codsubcuentairpfcom;
 
     /**
      * Control de trazabilidad.
-     * @var type 
+     * @var boolean 
      */
     public $trazabilidad;
 
     /**
      * % IVA del impuesto asignado.
-     * @var type 
+     * @var double 
      */
     private $iva;
     private $imagen;
@@ -201,9 +201,6 @@ class articulo extends \fs_model {
 
         if (!isset(self::$impuestos)) {
             self::$impuestos = array();
-        }
-
-        if (!isset(self::$column_list)) {
             self::$column_list = 'referencia,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,' .
                     'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,' .
                     'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,' .
@@ -242,7 +239,6 @@ class articulo extends \fs_model {
             $this->codsubcuentacom = $a['codsubcuentacom'];
             $this->codsubcuentairpfcom = $a['codsubcuentairpfcom'];
             $this->trazabilidad = $this->str2bool($a['trazabilidad']);
-
             $this->imagen = NULL;
             $this->exists = TRUE;
         } else {
@@ -251,14 +247,14 @@ class articulo extends \fs_model {
             $this->codfamilia = NULL;
             $this->codfabricante = NULL;
             $this->descripcion = '';
-            $this->pvp = 0;
+            $this->pvp = 0.0;
             $this->factualizado = Date('d-m-Y');
-            $this->costemedio = 0;
-            $this->preciocoste = 0;
+            $this->costemedio = 0.0;
+            $this->preciocoste = 0.0;
             $this->codimpuesto = NULL;
-            $this->stockfis = 0;
-            $this->stockmin = 0;
-            $this->stockmax = 0;
+            $this->stockfis = 0.0;
+            $this->stockmin = 0.0;
+            $this->stockmax = 0.0;
             $this->controlstock = (bool) FS_VENTAS_SIN_STOCK;
             $this->nostock = FALSE;
             $this->bloqueado = FALSE;
@@ -272,12 +268,11 @@ class articulo extends \fs_model {
             $this->codsubcuentacom = NULL;
             $this->codsubcuentairpfcom = NULL;
             $this->trazabilidad = FALSE;
-
             $this->imagen = NULL;
             $this->exists = FALSE;
         }
 
-        $this->pvp_ant = 0;
+        $this->pvp_ant = 0.0;
         $this->iva = NULL;
     }
 
@@ -301,6 +296,7 @@ class articulo extends \fs_model {
         if (mb_strlen($this->descripcion, 'UTF8') > $len) {
             return mb_substr($this->descripcion, 0, $len) . '...';
         }
+
         return $this->descripcion;
     }
 
@@ -310,12 +306,13 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve el precio de coste, ya esté configurado como calculado o editable.
-     * @return type
+     * @return double
      */
     public function preciocoste() {
         if ($this->secompra AND FS_COST_IS_AVERAGE) {
             return $this->costemedio;
         }
+
         return $this->preciocoste;
     }
 
@@ -331,28 +328,27 @@ class articulo extends \fs_model {
         if (is_null($this->referencia)) {
             return "index.php?page=ventas_articulos";
         }
+
         return "index.php?page=ventas_articulo&ref=" . urlencode($this->referencia);
     }
 
     /**
      * Devuelve la referencia codificada para poder ser usada en imágenes.
      * Evitamos así errores con caracteres especiales como / y \.
-     * @param type $ref
-     * @return type
+     * @param string $ref
+     * @return string
      */
     public function image_ref($ref = FALSE) {
-        if (!$ref) {
+        if ($ref === FALSE) {
             $ref = $this->referencia;
         }
 
-        $ref = str_replace('/', '_', $ref);
-        $ref = str_replace('\\', '_', $ref);
-
-        return $ref;
+        return str_replace(array('/', '\\'), array('_', '_'), $ref);
     }
 
     /**
      * Devuelve una nueva referencia, la siguiente a la última de la base de datos.
+     * @return string
      */
     public function get_new_referencia() {
         if (strtolower(FS_DB_TYPE) == 'postgresql') {
@@ -370,55 +366,56 @@ class articulo extends \fs_model {
         }
 
         $this->exists = FALSE;
-        return $ref;
+        return (string) $ref;
     }
 
     /**
      * Devuelve un artículo a partir de su referencia
-     * @param type $ref
+     * @param string $ref
      * @return boolean|\articulo
      */
     public function get($ref) {
-        $art = $this->db->select("SELECT " . self::$column_list . " FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref) . ";");
-        if ($art) {
-            return new \articulo($art[0]);
+        $data = $this->db->select("SELECT " . self::$column_list . " FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref) . ";");
+        if ($data) {
+            return new \articulo($data[0]);
         }
+
         return FALSE;
     }
 
     /**
      * Devuelve la familia del artículo.
-     * @return familia
+     * @return \familia|false
      */
     public function get_familia() {
         if (is_null($this->codfamilia)) {
             return FALSE;
-        } else {
-            $fam = new \familia();
-            return $fam->get($this->codfamilia);
         }
+
+        $fam = new \familia();
+        return $fam->get($this->codfamilia);
     }
 
     /**
      * Devuelve el fabricante del artículo.
-     * @return fabricante
+     * @return \fabricante|false
      */
     public function get_fabricante() {
         if (is_null($this->codfabricante)) {
             return FALSE;
-        } else {
-            $fab = new \fabricante();
-            return $fab->get($this->codfabricante);
         }
+
+        $fab = new \fabricante();
+        return $fab->get($this->codfabricante);
     }
 
     public function get_stock() {
         if ($this->nostock) {
             return array();
-        } else {
-            $stock = new \stock();
-            return $stock->all_from_articulo($this->referencia);
         }
+
+        $stock = new \stock();
+        return $stock->all_from_articulo($this->referencia);
     }
 
     /**
@@ -433,8 +430,8 @@ class articulo extends \fs_model {
     /**
      * Devuelve el % de IVA del artículo.
      * Si $reload es TRUE, vuelve a consultarlo en lugar de usar los datos cargados.
-     * @param type $reload
-     * @return type
+     * @param boolean $reload
+     * @return double
      */
     public function get_iva($reload = FALSE) {
         if ($reload) {
@@ -442,7 +439,7 @@ class articulo extends \fs_model {
         }
 
         if (is_null($this->iva)) {
-            $this->iva = 0;
+            $this->iva = 0.0;
 
             if (!is_null($this->codimpuesto)) {
                 $encontrado = FALSE;
@@ -493,8 +490,8 @@ class articulo extends \fs_model {
     /**
      * Devuelve las últimas líneas de albaranes de clientes con este artículo.
      * @deprecated since version 106
-     * @param type $offset
-     * @param type $limit
+     * @param integer $offset
+     * @param integer $limit
      * @return linea_albaran_cliente
      */
     public function get_lineas_albaran_cli($offset = 0, $limit = FS_ITEM_LIMIT) {
@@ -505,8 +502,8 @@ class articulo extends \fs_model {
     /**
      * Devuelve las últimas líneas de albaranes de proveedores con este artículo.
      * @deprecated since version 106
-     * @param type $offset
-     * @param type $limit
+     * @param integer $offset
+     * @param integer $limit
      * @return linea_albaran_proveedor
      */
     public function get_lineas_albaran_prov($offset = 0, $limit = FS_ITEM_LIMIT) {
@@ -516,7 +513,7 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve la media del precio de compra del artículo en los últimos albaranes o facturas.
-     * @return type
+     * @return double
      */
     public function get_costemedio() {
         $coste = 0;
@@ -551,7 +548,7 @@ class articulo extends \fs_model {
             }
         }
 
-        if ($lineasfac) {
+        if (!empty($lineasfac)) {
             /// usamos las facturas para el cálculo.
             foreach ($lineasfac as $linea) {
                 if ($stock < $this->stockfis OR $this->stockfis <= 0) {
@@ -563,7 +560,7 @@ class articulo extends \fs_model {
             }
         }
 
-        if ($lineasalb) {
+        if (!empty($lineasalb)) {
             /// usamos los albaranes para el cálculo.
             foreach ($lineasalb as $linea) {
                 if ($stock < $this->stockfis OR $this->stockfis <= 0) {
@@ -576,9 +573,10 @@ class articulo extends \fs_model {
         }
 
         if ($stock > 0) {
-            return $coste / $stock;
+            return (float) $coste / $stock;
         }
-        return $coste;
+
+        return (float) $coste;
     }
 
     /**
@@ -591,13 +589,14 @@ class articulo extends \fs_model {
         } else if (file_exists(FS_MYDOCS . 'images/articulos/' . $this->image_ref() . '-1.jpg')) {
             return 'images/articulos/' . $this->image_ref() . '-1.jpg';
         }
+
         return FALSE;
     }
 
     /**
      * Asigna una imagen a un artículo.
-     * @param type $img
-     * @param type $png
+     * @param string $img
+     * @param boolean $png
      */
     public function set_imagen($img, $png = TRUE) {
         $this->imagen = NULL;
@@ -643,7 +642,7 @@ class articulo extends \fs_model {
     /**
      * Cambia la referencia del artículo.
      * Lo hace en el momento, no hace falta hacer save().
-     * @param type $ref
+     * @param string $ref
      */
     public function set_referencia($ref) {
         $ref = trim($ref);
@@ -669,7 +668,7 @@ class articulo extends \fs_model {
 
     /**
      * Cambia el impuesto asociado al artículo.
-     * @param type $codimpuesto
+     * @param string $codimpuesto
      */
     public function set_impuesto($codimpuesto) {
         if ($codimpuesto != $this->codimpuesto) {
@@ -689,8 +688,9 @@ class articulo extends \fs_model {
                 if ($imp0) {
                     $this->iva = floatval($imp0->iva);
                     self::$impuestos[] = $imp0;
-                } else
-                    $this->iva = 0;
+                } else {
+                    $this->iva = 0.0;
+                }
             }
         }
     }
@@ -698,8 +698,8 @@ class articulo extends \fs_model {
     /**
      * Modifica el stock del artículo en un almacén concreto.
      * Ya se encarga de ejecutar save() si es necesario.
-     * @param type $codalmacen
-     * @param type $cantidad
+     * @param string $codalmacen
+     * @param double $cantidad
      * @return boolean
      */
     public function set_stock($codalmacen, $cantidad = 1) {
@@ -743,8 +743,9 @@ class articulo extends \fs_model {
                         $this->new_error_msg("¡Error al actualizar el stock del artículo!");
                     }
                 }
-            } else
+            } else {
                 $this->new_error_msg("Error al guardar el stock");
+            }
         }
 
         return $result;
@@ -753,10 +754,10 @@ class articulo extends \fs_model {
     /**
      * Suma la cantidad especificada al stock del artículo en el almacén especificado.
      * Ya se encarga de ejecutar save() si es necesario.
-     * @param type $codalmacen
-     * @param type $cantidad
-     * @param type $recalcula_coste
-     * @param type $codcombinacion
+     * @param string $codalmacen
+     * @param double $cantidad
+     * @param boolean $recalcula_coste
+     * @param string $codcombinacion
      * @return boolean
      */
     public function sum_stock($codalmacen, $cantidad = 1, $recalcula_coste = FALSE, $codcombinacion = NULL) {
@@ -868,9 +869,9 @@ class articulo extends \fs_model {
 
         if ($this->nostock) {
             $this->controlstock = TRUE;
-            $this->stockfis = 0;
-            $this->stockmax = 0;
-            $this->stockmin = 0;
+            $this->stockfis = 0.0;
+            $this->stockmax = 0.0;
+            $this->stockmin = 0.0;
         }
 
         if ($this->bloqueado) {
@@ -882,8 +883,9 @@ class articulo extends \fs_model {
         } else if (isset($this->equivalencia) AND strlen($this->equivalencia) > 25) {
             $this->new_error_msg("Código de equivalencia del artículos no válido: " . $this->equivalencia .
                     ". Debe tener entre 1 y 25 caracteres.");
-        } else
+        } else {
             $status = TRUE;
+        }
 
         return $status;
     }
@@ -926,7 +928,7 @@ class articulo extends \fs_model {
                         "  WHERE referencia = " . $this->var2str($this->referencia) . ";";
 
                 if ($this->nostock AND $this->stockfis != 0) {
-                    $this->stockfis = 0;
+                    $this->stockfis = 0.0;
                     $sql .= "DELETE FROM stocks WHERE referencia = " . $this->var2str($this->referencia) . ";";
                     $sql .= "UPDATE " . $this->table_name . " SET stockfis = " . $this->var2str($this->stockfis) .
                             " WHERE referencia = " . $this->var2str($this->referencia) . ";";
@@ -966,8 +968,8 @@ class articulo extends \fs_model {
                 $this->exists = TRUE;
                 return TRUE;
             }
-            return FALSE;
         }
+
         return FALSE;
     }
 
@@ -982,10 +984,10 @@ class articulo extends \fs_model {
         $sql .= "DELETE FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($this->referencia) . ";";
         if ($this->db->exec($sql)) {
             $this->set_imagen(FALSE);
-
             $this->exists = FALSE;
             return TRUE;
         }
+
         return FALSE;
     }
 
@@ -993,7 +995,7 @@ class articulo extends \fs_model {
      * Comprueba y añade una cadena a la lista de búsquedas precargadas
      * en memcache. Devuelve TRUE si la cadena ya está en la lista de
      * precargadas.
-     * @param type $tag
+     * @param string $tag
      * @return boolean
      */
     private function new_search_tag($tag) {
@@ -1045,7 +1047,7 @@ class articulo extends \fs_model {
             /// obtenemos los datos de memcache
             $this->get_search_tags();
 
-            if (self::$search_tags) {
+            if (!empty(self::$search_tags)) {
                 foreach (self::$search_tags as $value) {
                     $this->cache->delete('articulos_search_' . $value['tag']);
                 }
@@ -1057,12 +1059,12 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve un array con los artículos encontrados en base a la búsqueda.
-     * @param type $query
-     * @param type $offset
-     * @param type $codfamilia
-     * @param type $con_stock
-     * @param type $codfabricante
-     * @param type $bloqueados
+     * @param string $query
+     * @param integer $offset
+     * @param string $codfamilia
+     * @param boolean $con_stock
+     * @param string $codfabricante
+     * @param boolean $bloqueados
      * @return \articulo
      */
     public function search($query = '', $offset = 0, $codfamilia = '', $con_stock = FALSE, $codfabricante = '', $bloqueados = FALSE) {
@@ -1148,19 +1150,13 @@ class articulo extends \fs_model {
                 $sql .= " ORDER BY referencia ASC";
             }
 
-            $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-            if ($data) {
-                foreach ($data as $a) {
-                    $artilist[] = new \articulo($a);
-                }
-            }
+            $artilist = $this->all_from($sql, $offset);
         }
 
         return $artilist;
     }
 
     private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-
         $artilist = array();
         $data = $this->db->select_limit($sql, $limit, $offset);
         if ($data) {
@@ -1168,14 +1164,15 @@ class articulo extends \fs_model {
                 $artilist[] = new \articulo($a);
             }
         }
+
         return $artilist;
     }
 
     /**
      * Devuelve un array con los artículos que tengan $cod como código de barras.
-     * @param type $cod
-     * @param type $offset
-     * @param type $limit
+     * @param string $cod
+     * @param integer $offset
+     * @param integer $limit
      * @return \articulo
      */
     public function search_by_codbar($cod, $offset = 0, $limit = FS_ITEM_LIMIT) {
@@ -1183,7 +1180,7 @@ class articulo extends \fs_model {
                 . " WHERE codbarras = " . $this->var2str($cod)
                 . " ORDER BY lower(referencia) ASC";
 
-        return $this->all_from($sql, $limit, $offset);
+        return $this->all_from($sql, $offset, $limit);
     }
 
     /**
@@ -1196,48 +1193,48 @@ class articulo extends \fs_model {
         $sql = "SELECT " . self::$column_list . " FROM " . $this->table_name
                 . " ORDER BY lower(referencia) ASC";
 
-        return $this->all_from($sql, $limit, $offset);
+        return $this->all_from($sql, $offset, $limit);
     }
 
     /**
      * Devuelve el listado de artículos públicos, desde $offset hasta $offset+$limit
-     * @param type $offset
-     * @param type $limit
+     * @param integer $offset
+     * @param integer $limit
      * @return \articulo
      */
     public function all_publico($offset = 0, $limit = FS_ITEM_LIMIT) {
         $sql = "SELECT " . self::$column_list . " FROM " . $this->table_name
                 . " WHERE publico ORDER BY lower(referencia) ASC";
 
-        return $this->all_from($sql, $limit, $offset);
+        return $this->all_from($sql, $offset, $limit);
     }
 
     /**
      * Devuelve los artículos de una familia.
-     * @param type $cod
-     * @param type $offset
-     * @param type $limit
+     * @param string $cod
+     * @param integer $offset
+     * @param integer $limit
      * @return \articulo
      */
     public function all_from_familia($cod, $offset = 0, $limit = FS_ITEM_LIMIT) {
         $sql = "SELECT " . self::$column_list . " FROM " . $this->table_name . " WHERE codfamilia = "
                 . $this->var2str($cod) . " ORDER BY lower(referencia) ASC";
 
-        return $this->all_from($sql, $limit, $offset);
+        return $this->all_from($sql, $offset, $limit);
     }
 
     /**
      * Devuelve los artículos de un fabricante.
-     * @param type $cod
-     * @param type $offset
-     * @param type $limit
+     * @param string $cod
+     * @param integer $offset
+     * @param integer $limit
      * @return \articulo
      */
     public function all_from_fabricante($cod, $offset = 0, $limit = FS_ITEM_LIMIT) {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codfabricante = "
                 . $this->var2str($cod) . " ORDER BY lower(referencia) ASC";
 
-        return $this->all_from($sql, $limit, $offset);
+        return $this->all_from($sql, $offset, $limit);
     }
 
     public function cron_job() {

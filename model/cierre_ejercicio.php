@@ -143,6 +143,7 @@ class cierre_ejercicio {
 
     public function paso2() {
         $asiento = new asiento();
+        $asiento_apertura = FALSE;
         $continuar = TRUE;
 
         /// cargamos los asientos de cierre, pyg y apertura del siguiente
@@ -216,7 +217,7 @@ class cierre_ejercicio {
                     $ppyg->idsubcuenta = $subcuenta_pyg->idsubcuenta;
                     $ppyg->codsubcuenta = $subcuenta_pyg->codsubcuenta;
                     $ppyg->haber = $diferencia;
-                    $ppyg->coddivisa = $sc->coddivisa;
+                    $ppyg->coddivisa = $subcuenta_pyg->coddivisa;
                     if (!$ppyg->save()) {
                         $continuar = FALSE;
                     }
@@ -255,7 +256,7 @@ class cierre_ejercicio {
                     } else
                         $nsc = $subcuenta->get_by_codigo($sc->codsubcuenta, $siguiente_ejercicio->codejercicio, TRUE);
 
-                    if ($nsc) {
+                    if ($nsc && $asiento !== FALSE) {
                         $paa = new partida();
                         $paa->idasiento = $asiento_apertura->idasiento;
                         $paa->concepto = $asiento_apertura->concepto;

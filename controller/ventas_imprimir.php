@@ -74,8 +74,7 @@ class ventas_imprimir extends fs_controller {
                 $this->enviar_email('albaran');
             } else
                 $this->generar_pdf_albaran();
-        }
-        else if (isset($_REQUEST['factura']) AND isset($_REQUEST['id'])) {
+        } else if (isset($_REQUEST['factura']) AND isset($_REQUEST['id'])) {
             $this->articulo_traza = new articulo_traza();
 
             $fac = new factura_cliente();
@@ -381,10 +380,8 @@ class ventas_imprimir extends fs_controller {
         );
 
         /// ¿Última página?
-        if ($linea_actual == count($lineas)) {
-            if ($this->documento->observaciones != '') {
-                $pdf_doc->pdf->ezText("\n" . fs_fix_html($this->documento->observaciones), 9);
-            }
+        if ($linea_actual == count($lineas) && $this->documento->observaciones != '') {
+            $pdf_doc->pdf->ezText("\n" . fs_fix_html($this->documento->observaciones), 9);
         }
     }
 

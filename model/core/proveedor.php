@@ -35,33 +35,33 @@ class proveedor extends \fs_model {
 
     /**
      * Clave primaria. Varchar (6).
-     * @var type 
+     * @var string
      */
     public $codproveedor;
 
     /**
      * Nombre por el que se conoce al proveedor, puede ser el nombre oficial o no.
-     * @var type 
+     * @var string
      */
     public $nombre;
 
     /**
      * Razón social del proveedor, es decir, el nombre oficial, el que se usa en
      * las facturas.
-     * @var type 
+     * @var string
      */
     public $razonsocial;
 
     /**
      * Tipo de identificador fiscal del proveedor.
      * Ejemplo: NIF, CIF, CUIT...
-     * @var type 
+     * @var string
      */
     public $tipoidfiscal;
 
     /**
      * Identificador fiscal del proveedor.
-     * @var type
+     * @var string
      */
     public $cifnif;
     public $telefono1;
@@ -72,19 +72,19 @@ class proveedor extends \fs_model {
 
     /**
      * Serie predeterminada para este proveedor.
-     * @var type
+     * @var string
      */
     public $codserie;
 
     /**
      * Divisa predeterminada para este proveedor.
-     * @var type
+     * @var string
      */
     public $coddivisa;
 
     /**
      * Forma de pago predeterminada para este proveedor.
-     * @var type
+     * @var string
      */
     public $codpago;
     public $observaciones;
@@ -92,39 +92,39 @@ class proveedor extends \fs_model {
     /**
      * Régimen de fiscalidad del proveedor. Por ahora solo están implementados
      * general y exento.
-     * @var type 
+     * @var string 
      */
     public $regimeniva;
 
     /**
      * TRUE -> el proveedor es un acreedor, es decir, no le compramos mercancia,
      * le compramos servicios, etc.
-     * @var type
+     * @var boolean
      */
     public $acreedor;
 
     /**
      * TRUE  -> el cliente es una persona física.
      * FALSE -> el cliente es una persona jurídica (empresa).
-     * @var type 
+     * @var boolean
      */
     public $personafisica;
 
     /**
      * TRUE -> ya no queremos nada con el proveedor.
-     * @var type 
+     * @var boolean
      */
     public $debaja;
 
     /**
      * Fecha en la que se dió de baja al proveedor.
-     * @var type 
+     * @var string 
      */
     public $fechabaja;
 
     /**
      * Cliente asociado equivalente
-     * @var type
+     * @var string
      */
     public $codcliente;
     private static $regimenes_iva;
@@ -199,7 +199,7 @@ class proveedor extends \fs_model {
 
     /**
      * Devuelve un array con los regimenes de iva disponibles.
-     * @return type
+     * @return array
      */
     public function regimenes_iva() {
         if (!isset(self::$regimenes_iva)) {
@@ -236,6 +236,7 @@ class proveedor extends \fs_model {
         } else if (strlen($this->observaciones) < 60) {
             return $this->observaciones;
         }
+
         return substr($this->observaciones, 0, 50) . '...';
     }
 
@@ -243,12 +244,13 @@ class proveedor extends \fs_model {
         if (is_null($this->codproveedor)) {
             return "index.php?page=compras_proveedores";
         }
+
         return "index.php?page=compras_proveedor&cod=" . $this->codproveedor;
     }
 
     /**
      * @deprecated since version 50
-     * @return type
+     * @return boolean
      */
     public function is_default() {
         return FALSE;
@@ -256,14 +258,15 @@ class proveedor extends \fs_model {
 
     /**
      * Devuelve el proveedor que tenga ese codproveedor.
-     * @param type $cod
+     * @param string $cod
      * @return boolean|\proveedor
      */
     public function get($cod) {
-        $prov = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codproveedor = " . $this->var2str($cod) . ";");
-        if ($prov) {
-            return new \proveedor($prov[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codproveedor = " . $this->var2str($cod) . ";");
+        if ($data) {
+            return new \proveedor($data[0]);
         }
+
         return FALSE;
     }
 
@@ -271,8 +274,8 @@ class proveedor extends \fs_model {
      * Devuelve el primer proveedor que tenga ese cifnif.
      * Si el cifnif está en blanco y se proporciona una razón social, se devuelve
      * el primer proveedor con esa razón social.
-     * @param type $cifnif
-     * @param type $razon
+     * @param string $cifnif
+     * @param string $razon
      * @return boolean|\proveedor
      */
     public function get_by_cifnif($cifnif, $razon = FALSE) {
@@ -289,12 +292,13 @@ class proveedor extends \fs_model {
         if ($data) {
             return new \proveedor($data[0]);
         }
+
         return FALSE;
     }
 
     /**
      * Devuelve el primer proveedor con $email como email.
-     * @param type $email
+     * @param string $email
      * @return boolean|\proveedor
      */
     public function get_by_email($email) {
@@ -305,6 +309,7 @@ class proveedor extends \fs_model {
         if ($data) {
             return new \proveedor($data[0]);
         }
+
         return FALSE;
     }
 
@@ -313,16 +318,17 @@ class proveedor extends \fs_model {
      * @return string
      */
     public function get_new_codigo() {
-        $cod = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codproveedor') . ") as cod FROM " . $this->table_name . ";");
-        if ($cod) {
-            return sprintf('%06s', (1 + intval($cod[0]['cod'])));
+        $data = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codproveedor') . ") as cod FROM " . $this->table_name . ";");
+        if ($data) {
+            return sprintf('%06s', (1 + intval($data[0]['cod'])));
         }
+
         return '000001';
     }
 
     /**
      * Devuelve las subcuentas asociadas al proveedor, una para cada ejercicio.
-     * @return type
+     * @return \subcuenta
      */
     public function get_subcuentas() {
         $sublist = array();
@@ -331,8 +337,9 @@ class proveedor extends \fs_model {
             $s2 = $s->get_subcuenta();
             if ($s2) {
                 $sublist[] = $s2;
-            } else
+            } else {
                 $s->delete();
+            }
         }
 
         return $sublist;
@@ -341,7 +348,7 @@ class proveedor extends \fs_model {
     /**
      * Devuelve la subcuenta asignada al proveedor para el ejercicio $codeje,
      * si no hay una subcuenta asignada, intenta crearla. Si falla devuelve FALSE.
-     * @param type $codeje
+     * @param string $codeje
      * @return subcuenta
      */
     public function get_subcuenta($codeje) {
@@ -367,8 +374,9 @@ class proveedor extends \fs_model {
                 if (!$cpro) {
                     $cpro = $cuenta->get_cuentaesp('PROVEE', $codeje);
                 }
-            } else
+            } else {
                 $cpro = $cuenta->get_cuentaesp('PROVEE', $codeje);
+            }
 
             if ($cpro) {
                 $continuar = FALSE;
@@ -389,10 +397,10 @@ class proveedor extends \fs_model {
                     $scpro->idsubcuenta = $subc0->idsubcuenta;
                     if ($scpro->save()) {
                         $subcuenta = $subc0;
-                    } else
+                    } else {
                         $this->new_error_msg('Imposible asociar la subcuenta para el proveedor ' . $this->codproveedor);
-                }
-                else {
+                    }
+                } else {
                     $this->new_error_msg('Imposible crear la subcuenta para el proveedor ' . $this->codproveedor);
                 }
             } else {
@@ -414,7 +422,7 @@ class proveedor extends \fs_model {
 
     /**
      * Devuelve las direcciones asociadas al proveedor.
-     * @return type
+     * @return \direccion_cliente
      */
     public function get_direcciones() {
         $dir = new \direccion_proveedor();
@@ -425,6 +433,7 @@ class proveedor extends \fs_model {
         if (is_null($this->codproveedor)) {
             return FALSE;
         }
+
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codproveedor = " . $this->var2str($this->codproveedor) . ";");
     }
 
@@ -448,8 +457,9 @@ class proveedor extends \fs_model {
             $this->new_error_msg("Nombre de proveedor no válido.");
         } else if (strlen($this->razonsocial) < 1 OR strlen($this->razonsocial) > 100) {
             $this->new_error_msg("Razón social del proveedor no válida.");
-        } else
+        } else {
             $status = TRUE;
+        }
 
         return $status;
     }
@@ -505,9 +515,9 @@ class proveedor extends \fs_model {
                         "," . $this->var2str($this->codcliente) . ");";
             }
 
-
             return $this->db->exec($sql);
         }
+
         return FALSE;
     }
 
@@ -521,7 +531,6 @@ class proveedor extends \fs_model {
     }
 
     private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-
         $provelist = array();
         $data = $this->db->select_limit($sql, $limit, $offset);
         if ($data) {
@@ -529,6 +538,7 @@ class proveedor extends \fs_model {
                 $provelist[] = new \proveedor($a);
             }
         }
+
         return $provelist;
     }
 
@@ -538,7 +548,7 @@ class proveedor extends \fs_model {
             $sql = "SELECT * FROM " . $this->table_name . " WHERE acreedor ORDER BY lower(nombre) ASC";
         }
 
-        return $this->all_from($sql, FS_ITEM_LIMIT, $offset);
+        return $this->all_from($sql, $offset);
     }
 
     /**
@@ -581,7 +591,7 @@ class proveedor extends \fs_model {
         }
         $consulta .= " ORDER BY lower(nombre) ASC";
 
-        return $this->all_from($consulta, FS_ITEM_LIMIT, $offset);
+        return $this->all_from($consulta, $offset);
     }
 
     /**

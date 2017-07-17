@@ -29,13 +29,13 @@ class cuenta_banco_cliente extends \fs_model {
 
     /**
      * Clave primaria. Varchar(6).
-     * @var type 
+     * @var string 
      */
     public $codcuenta;
 
     /**
      * Código del cliente.
-     * @var type 
+     * @var string 
      */
     public $codcliente;
     public $descripcion;
@@ -44,13 +44,13 @@ class cuenta_banco_cliente extends \fs_model {
 
     /**
      * ¿Es la cuenta principal del cliente?
-     * @var type 
+     * @var boolean
      */
     public $principal;
 
     /**
      * Fecha en la que se firmó el mandato para autorizar la domiciliación de recibos.
-     * @var type 
+     * @var string 
      */
     public $fmandato;
 
@@ -79,13 +79,17 @@ class cuenta_banco_cliente extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     /**
      * Devuelve el IBAN con o sin espacios.
-     * @param type $espacios
-     * @return type
+     * @param string $espacios
+     * @return string
      */
     public function iban($espacios = FALSE) {
-        if ($espacios) {
+        if ($espacios === TRUE) {
             $txt = '';
             $iban = str_replace(' ', '', $this->iban);
             for ($i = 0; $i < strlen($iban); $i += 4) {
@@ -93,6 +97,7 @@ class cuenta_banco_cliente extends \fs_model {
             }
             return $txt;
         }
+        
         return str_replace(' ', '', $this->iban);
     }
 
@@ -100,6 +105,7 @@ class cuenta_banco_cliente extends \fs_model {
         if (is_null($this->codcliente)) {
             return '#';
         }
+        
         return 'index.php?page=ventas_cliente&cod=' . $this->codcliente . '#cuentasb';
     }
 
@@ -108,22 +114,25 @@ class cuenta_banco_cliente extends \fs_model {
         if ($data) {
             return new \cuenta_banco_cliente($data[0]);
         }
+        
         return FALSE;
     }
 
     private function get_new_codigo() {
         $sql = "SELECT MAX(" . $this->db->sql_to_int('codcuenta') . ") as cod FROM " . $this->table_name . ";";
-        $cod = $this->db->select($sql);
-        if ($cod) {
-            return 1 + intval($cod[0]['cod']);
+        $data = $this->db->select($sql);
+        if ($data) {
+            return (string) (1 + intval($data[0]['cod']));
         }
-        return 1;
+
+        return '1';
     }
 
     public function exists() {
         if (is_null($this->codcuenta)) {
             return FALSE;
         }
+        
         return $this->db->select("SELECT * FROM " . $this->table_name
                         . " WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";");
     }

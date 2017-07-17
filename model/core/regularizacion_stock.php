@@ -31,13 +31,13 @@ class regularizacion_stock extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $id;
 
     /**
      * ID del stock, en el modelo stock.
-     * @var type 
+     * @var integer
      */
     public $idstock;
     public $cantidadini;
@@ -45,7 +45,7 @@ class regularizacion_stock extends \fs_model {
 
     /**
      * Código del almacén destino.
-     * @var type 
+     * @var string
      */
     public $codalmacendest;
     public $fecha;
@@ -54,7 +54,7 @@ class regularizacion_stock extends \fs_model {
 
     /**
      * Nick del usuario que ha realizado la regularización.
-     * @var type 
+     * @var string
      */
     public $nick;
 
@@ -99,6 +99,7 @@ class regularizacion_stock extends \fs_model {
         if ($data) {
             return new \regularizacion_stock($data[0]);
         }
+
         return FALSE;
     }
 
@@ -106,6 +107,7 @@ class regularizacion_stock extends \fs_model {
         if (is_null($this->id)) {
             return FALSE;
         }
+
         return $this->db->select("SELECT * FROM lineasregstocks WHERE id = " . $this->var2str($this->id) . ";");
     }
 
@@ -122,24 +124,25 @@ class regularizacion_stock extends \fs_model {
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO lineasregstocks (idstock,cantidadini,cantidadfin,
+        }
+
+        $sql = "INSERT INTO lineasregstocks (idstock,cantidadini,cantidadfin,
             codalmacendest,fecha,hora,motivo,nick)
             VALUES (" . $this->var2str($this->idstock)
-                    . "," . $this->var2str($this->cantidadini)
-                    . "," . $this->var2str($this->cantidadfin)
-                    . "," . $this->var2str($this->codalmacendest)
-                    . "," . $this->var2str($this->fecha)
-                    . "," . $this->var2str($this->hora)
-                    . "," . $this->var2str($this->motivo)
-                    . "," . $this->var2str($this->nick) . ");";
+                . "," . $this->var2str($this->cantidadini)
+                . "," . $this->var2str($this->cantidadfin)
+                . "," . $this->var2str($this->codalmacendest)
+                . "," . $this->var2str($this->fecha)
+                . "," . $this->var2str($this->hora)
+                . "," . $this->var2str($this->motivo)
+                . "," . $this->var2str($this->nick) . ");";
 
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            }
-            return FALSE;
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
         }
+
+        return FALSE;
     }
 
     public function delete() {

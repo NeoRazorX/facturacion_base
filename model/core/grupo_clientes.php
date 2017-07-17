@@ -29,19 +29,19 @@ class grupo_clientes extends \fs_model {
 
     /**
      * Clave primaria
-     * @var type 
+     * @var string
      */
     public $codgrupo;
 
     /**
      * Nombre del grupo
-     * @var type 
+     * @var string 
      */
     public $nombre;
 
     /**
      * Código de la tarifa asociada, si la hay
-     * @var type 
+     * @var string 
      */
     public $codtarifa;
 
@@ -137,27 +137,22 @@ class grupo_clientes extends \fs_model {
     }
 
     public function all() {
-        $glist = array();
-
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " ORDER BY nombre ASC;");
-        if ($data) {
-            foreach ($data as $d) {
-                $glist[] = new \grupo_clientes($d);
-            }
-        }
-
-        return $glist;
+        return $this->all_from_data($data);
     }
 
     /**
      * Devuelve todos los grupos con la tarifa $cod
-     * @param type $cod
+     * @param string $cod
      * @return \grupo_clientes
      */
     public function all_with_tarifa($cod) {
-        $glist = array();
-
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($cod) . " ORDER BY codgrupo ASC;");
+        return $this->all_from_data($data);
+    }
+    
+    private function all_from_data(&$data) {
+        $glist = array();
         if ($data) {
             foreach ($data as $d) {
                 $glist[] = new \grupo_clientes($d);

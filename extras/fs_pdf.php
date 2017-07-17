@@ -25,9 +25,12 @@ require_once __DIR__ . '/ezpdf/Cezpdf.php';
  */
 class fs_pdf {
 
+    const LOGO_X = 35;
+    const LOGO_Y = 740;
+
     /**
      * Ruta al logotipo de la empresa.
-     * @var type 
+     * @var string|false 
      */
     public $logo;
 
@@ -54,7 +57,7 @@ class fs_pdf {
 
     /**
      * Vuelca el documento PDF en la salida estándar.
-     * @param type $filename
+     * @param string $filename
      */
     public function show($filename = 'doc.pdf') {
         $this->pdf->ezStream(array('Content-Disposition' => $filename));
@@ -62,7 +65,7 @@ class fs_pdf {
 
     /**
      * Guarda el documento PDF en el archivo $filename
-     * @param type $filename
+     * @param string $filename
      * @return boolean
      */
     public function save($filename) {
@@ -76,15 +79,17 @@ class fs_pdf {
                 fwrite($file, $this->pdf->ezOutput());
                 fclose($file);
                 return TRUE;
-            } else
-                return TRUE;
-        } else
-            return FALSE;
+            }
+
+            return TRUE;
+        }
+
+        return FALSE;
     }
 
     /**
      * Devuelve la coordenada Y actual en el documento.
-     * @return type
+     * @return integer
      */
     public function get_y() {
         return $this->pdf->y;
@@ -92,10 +97,10 @@ class fs_pdf {
 
     /**
      * Establece la coordenada Y actual en el documento.
-     * @param type $y
+     * @param integer $value
      */
-    public function set_y($y) {
-        $this->pdf->ezSetY($y);
+    public function set_y($value) {
+        $this->pdf->ezSetY($value);
     }
 
     /**
@@ -126,30 +131,30 @@ class fs_pdf {
 
     /**
      * Añade la cabecera al PDF con el logotipo y los datos de la empresa.
-     * @param type $empresa
+     * @param empresa $empresa
      * @param int $lppag
      */
     public function generar_pdf_cabecera(&$empresa, &$lppag) {
         /// ¿Añadimos el logo?
-        if ($this->logo) {
+        if ($this->logo !== FALSE) {
             if (function_exists('imagecreatefromstring')) {
                 $lppag -= 2; /// si metemos el logo, caben menos líneas
 
                 $tamanyo = $this->calcular_tamanyo_logo();
                 if (substr(strtolower($this->logo), -4) == '.png') {
-                    $this->pdf->addPngFromFile($this->logo, 35, 740, $tamanyo[0], $tamanyo[1]);
+                    $this->pdf->addPngFromFile($this->logo, self::LOGO_X, self::LOGO_Y, $tamanyo[0], $tamanyo[1]);
                 } else if (function_exists('imagepng')) {
                     /**
                      * La librería ezpdf tiene problemas al redimensionar jpegs,
                      * así que hacemos la conversión a png para evitar estos problemas.
                      */
                     if (imagepng(imagecreatefromstring(file_get_contents($this->logo)), FS_MYDOCS . 'images/logo.png')) {
-                        $this->pdf->addPngFromFile(FS_MYDOCS . 'images/logo.png', 35, 740, $tamanyo[0], $tamanyo[1]);
+                        $this->pdf->addPngFromFile(FS_MYDOCS . 'images/logo.png', self::LOGO_X, self::LOGO_Y, $tamanyo[0], $tamanyo[1]);
                     } else {
-                        $this->pdf->addJpegFromFile($this->logo, 35, 740, $tamanyo[0], $tamanyo[1]);
+                        $this->pdf->addJpegFromFile($this->logo, self::LOGO_X, self::LOGO_Y, $tamanyo[0], $tamanyo[1]);
                     }
                 } else {
-                    $this->pdf->addJpegFromFile($this->logo, 35, 740, $tamanyo[0], $tamanyo[1]);
+                    $this->pdf->addJpegFromFile($this->logo, self::LOGO_X, self::LOGO_Y, $tamanyo[0], $tamanyo[1]);
                 }
 
                 $this->pdf->ez['rightMargin'] = 40;
@@ -178,7 +183,7 @@ class fs_pdf {
                 }
 
                 $this->pdf->ezText(fs_fix_html($direccion) . "\n", 9, array('justification' => 'right'));
-                $this->set_y(750);
+                $this->set_y(self::LOGO_Y + 10);
             } else {
                 die('ERROR: no se encuentra la función imagecreatefromstring(). '
                         . 'Y por tanto no se puede usar el logotipo en los documentos.');
@@ -288,7 +293,7 @@ class fs_pdf {
     }
 
     public function save_table($options) {
-        if (!$this->table_header) {
+        if (empty($this->table_header)) {
             foreach (array_keys($this->table_rows[0]) as $k) {
                 $this->table_header[$k] = '';
             }
@@ -300,8 +305,8 @@ class fs_pdf {
     /**
      * Revierte los cambios producidos por fs_model::no_html()
      * @deprecated since version 2017.012
-     * @param type $txt
-     * @return type
+     * @param string $txt
+     * @return string
      */
     public function fix_html($txt) {
         return fs_fix_html($txt);

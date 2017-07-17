@@ -42,6 +42,10 @@ class transferencia_stock extends \fs_model {
         }
     }
 
+    public function install() {
+        return '';
+    }
+
     public function url() {
         return 'index.php?page=editar_transferencia_stock&id=' . $this->idtrans;
     }
@@ -51,6 +55,7 @@ class transferencia_stock extends \fs_model {
         if ($data) {
             return new \transferencia_stock($data[0]);
         }
+
         return FALSE;
     }
 
@@ -58,6 +63,7 @@ class transferencia_stock extends \fs_model {
         if (is_null($this->idtrans)) {
             return FALSE;
         }
+
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idtrans = " . $this->var2str($this->idtrans) . ";");
     }
 
@@ -66,22 +72,23 @@ class transferencia_stock extends \fs_model {
             $this->new_error_msg('El almacén de orígen y de destino no puede ser el mismo.');
             return FALSE;
         }
+
         return TRUE;
     }
 
     public function save() {
-        if (!$this->test()) {
-            return FALSE;
-        } else if ($this->exists()) {
-            $sql = "UPDATE " . $this->table_name . " SET codalmadestino = " . $this->var2str($this->codalmadestino)
-                    . ", codalmaorigen = " . $this->var2str($this->codalmaorigen)
-                    . ", fecha = " . $this->var2str($this->fecha)
-                    . ", hora = " . $this->var2str($this->hora)
-                    . ", usuario = " . $this->var2str($this->usuario)
-                    . "  WHERE idtrans = " . $this->var2str($this->idtrans) . ";";
+        if ($this->test()) {
+            if ($this->exists()) {
+                $sql = "UPDATE " . $this->table_name . " SET codalmadestino = " . $this->var2str($this->codalmadestino)
+                        . ", codalmaorigen = " . $this->var2str($this->codalmaorigen)
+                        . ", fecha = " . $this->var2str($this->fecha)
+                        . ", hora = " . $this->var2str($this->hora)
+                        . ", usuario = " . $this->var2str($this->usuario)
+                        . "  WHERE idtrans = " . $this->var2str($this->idtrans) . ";";
 
-            return $this->db->exec($sql);
-        } else {
+                return $this->db->exec($sql);
+            }
+
             $sql = "INSERT INTO " . $this->table_name . " (codalmadestino,codalmaorigen,fecha,hora,usuario) VALUES "
                     . "(" . $this->var2str($this->codalmadestino)
                     . "," . $this->var2str($this->codalmaorigen)
@@ -93,8 +100,9 @@ class transferencia_stock extends \fs_model {
                 $this->idtrans = $this->db->lastval();
                 return TRUE;
             }
-            return FALSE;
         }
+
+        return FALSE;
     }
 
     public function delete() {

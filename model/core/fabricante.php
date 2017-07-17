@@ -29,7 +29,7 @@ class fabricante extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var string
      */
     public $codfabricante;
     public $nombre;
@@ -54,6 +54,7 @@ class fabricante extends \fs_model {
         if (is_null($this->codfabricante)) {
             return "index.php?page=ventas_fabricantes";
         }
+        
         return "index.php?page=ventas_fabricante&cod=" . urlencode($this->codfabricante);
     }
 
@@ -61,14 +62,16 @@ class fabricante extends \fs_model {
         if (mb_strlen($this->nombre) > $len) {
             return substr($this->nombre, 0, $len) . '...';
         }
+        
         return $this->nombre;
     }
 
     public function get($cod) {
-        $f = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codfabricante = " . $this->var2str($cod) . ";");
-        if ($f) {
-            return new \fabricante($f[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codfabricante = " . $this->var2str($cod) . ";");
+        if ($data) {
+            return new \fabricante($data[0]);
         }
+        
         return FALSE;
     }
 
@@ -81,6 +84,7 @@ class fabricante extends \fs_model {
         if (is_null($this->codfabricante)) {
             return FALSE;
         }
+        
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codfabricante = " . $this->var2str($this->codfabricante) . ";");
     }
 
@@ -94,8 +98,9 @@ class fabricante extends \fs_model {
             $this->new_error_msg("Código de fabricante no válido. Deben ser entre 1 y 8 caracteres.");
         } else if (strlen($this->nombre) < 1 OR strlen($this->nombre) > 100) {
             $this->new_error_msg("Descripción de fabricante no válida.");
-        } else
+        } else {
             $status = TRUE;
+        }
 
         return $status;
     }
@@ -113,9 +118,9 @@ class fabricante extends \fs_model {
                         "," . $this->var2str($this->nombre) . ");";
             }
 
-
             return $this->db->exec($sql);
         }
+        
         return FALSE;
     }
 

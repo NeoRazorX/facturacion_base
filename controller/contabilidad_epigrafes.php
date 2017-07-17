@@ -56,11 +56,11 @@ class contabilidad_epigrafes extends fbase_controller {
         } else if (isset($_GET['epi'])) { /// ver epígrafe
             $this->ver_epigrafe($epi0);
         } else if (isset($_GET['deletee'])) { /// eliminar epígrafe
-            $this->eliminar_epigrafe($epi0);
+            $this->eliminar_epigrafe($epi0, $grupo0);
         } else if (isset($_POST['ncuenta'])) { /// nueva cuenta
-            $this->nueva_cuenta();
+            $this->nueva_cuenta($epi0);
         } else if (isset($_GET['deletec'])) { /// eliminar una cuenta
-            $this->eliminar_cuenta();
+            $this->eliminar_cuenta($epi0);
         }
 
         if ($this->grupo) {
@@ -180,7 +180,7 @@ class contabilidad_epigrafes extends fbase_controller {
         }
     }
 
-    private function eliminar_epigrafe(&$epi0) {
+    private function eliminar_epigrafe(&$epi0, &$grupo0) {
         $epi1 = $epi0->get($_GET['deletee']);
         if ($epi1) {
             $this->grupo = $grupo0->get($epi1->idgrupo);
@@ -191,14 +191,13 @@ class contabilidad_epigrafes extends fbase_controller {
                 $this->new_message('Epígrafe eliminado correctamente.');
             } else
                 $this->new_error_msg('Error al eliminar el epígrafe.');
-        }
-        else {
+        } else {
             $this->new_error_msg('Epígrafe no encontrado.');
             $this->grupo = FALSE;
         }
     }
 
-    private function nueva_cuenta() {
+    private function nueva_cuenta(&$epi0) {
         $this->grupo = FALSE;
         $this->epigrafe = FALSE;
         $cuenta0 = new cuenta();
@@ -222,7 +221,7 @@ class contabilidad_epigrafes extends fbase_controller {
         }
     }
 
-    private function eliminar_cuenta() {
+    private function eliminar_cuenta(&$epi0) {
         $this->grupo = FALSE;
         $this->epigrafe = FALSE;
         $cuenta0 = new cuenta();

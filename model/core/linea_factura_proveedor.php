@@ -32,87 +32,87 @@ class linea_factura_proveedor extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer 
      */
     public $idlinea;
 
     /**
      * ID de la linea del albarán relacionado, si lo hay.
-     * @var type 
+     * @var integer 
      */
     public $idlineaalbaran;
 
     /**
      * ID de la factura de esta línea.
-     * @var type 
+     * @var integer 
      */
     public $idfactura;
 
     /**
      * ID del albarán relacionado con la factura, si lo hay.
-     * @var type 
+     * @var integer 
      */
     public $idalbaran;
 
     /**
      * Importe neto de la línea, sin impuestos.
-     * @var type 
+     * @var double 
      */
     public $pvptotal;
 
     /**
      * % de descuento.
-     * @var type 
+     * @var double 
      */
     public $dtopor;
 
     /**
      * % de recargo de equivalencia.
-     * @var type 
+     * @var double 
      */
     public $recargo;
 
     /**
      * % de IRPF
-     * @var type 
+     * @var double 
      */
     public $irpf;
 
     /**
      * Importe neto sin descuentos.
-     * @var type 
+     * @var double 
      */
     public $pvpsindto;
     public $cantidad;
 
     /**
      * Impuesto relacionado.
-     * @var type 
+     * @var string
      */
     public $codimpuesto;
 
     /**
      * Precio del artículo, una unidad.
-     * @var type 
+     * @var double 
      */
     public $pvpunitario;
     public $descripcion;
 
     /**
      * Referencia del artículo.
-     * @var type 
+     * @var string
      */
     public $referencia;
 
     /**
      * Código de la combinación seleccionada, en el caso de los artículos con atributos.
-     * @var type 
+     * @var string
      */
     public $codcombinacion;
 
     /**
      * % de iva, el que corresponde al impuesto.
-     * @var type 
+     * @var double 
      */
     public $iva;
     private $codigo;
@@ -127,9 +127,6 @@ class linea_factura_proveedor extends \fs_model {
 
         if (!isset(self::$facturas)) {
             self::$facturas = array();
-        }
-
-        if (!isset(self::$albaranes)) {
             self::$albaranes = array();
         }
 
@@ -158,16 +155,20 @@ class linea_factura_proveedor extends \fs_model {
             $this->referencia = NULL;
             $this->codcombinacion = NULL;
             $this->descripcion = '';
-            $this->cantidad = 0;
-            $this->pvpunitario = 0;
-            $this->pvpsindto = 0;
-            $this->dtopor = 0;
-            $this->pvptotal = 0;
+            $this->cantidad = 0.0;
+            $this->pvpunitario = 0.0;
+            $this->pvpsindto = 0.0;
+            $this->dtopor = 0.0;
+            $this->pvptotal = 0.0;
             $this->codimpuesto = NULL;
-            $this->iva = 0;
-            $this->recargo = 0;
-            $this->irpf = 0;
+            $this->iva = 0.0;
+            $this->recargo = 0.0;
+            $this->irpf = 0.0;
         }
+    }
+
+    protected function install() {
+        return '';
     }
 
     /**
@@ -235,6 +236,7 @@ class linea_factura_proveedor extends \fs_model {
         if (!isset($this->codigo)) {
             $this->fill();
         }
+        
         return $this->codigo;
     }
 
@@ -242,6 +244,7 @@ class linea_factura_proveedor extends \fs_model {
         if (!isset($this->fecha)) {
             $this->fill();
         }
+        
         return $this->fecha;
     }
 
@@ -266,6 +269,7 @@ class linea_factura_proveedor extends \fs_model {
         if (!isset($this->albaran_codigo)) {
             $this->fill();
         }
+        
         return $this->albaran_codigo;
     }
 
@@ -273,6 +277,7 @@ class linea_factura_proveedor extends \fs_model {
         if (is_null($this->idalbaran)) {
             return 'index.php?page=compras_albaranes';
         }
+        
         return 'index.php?page=compras_albaran&id=' . $this->idalbaran;
     }
 
@@ -280,6 +285,7 @@ class linea_factura_proveedor extends \fs_model {
         if (!isset($this->albaran_numero)) {
             $this->fill();
         }
+        
         return $this->albaran_numero;
     }
 
@@ -287,12 +293,13 @@ class linea_factura_proveedor extends \fs_model {
         if (is_null($this->referencia) OR $this->referencia == '') {
             return "index.php?page=ventas_articulos";
         }
+        
         return "index.php?page=ventas_articulo&ref=" . urlencode($this->referencia);
     }
 
     /**
      * Devuelve los datos de una linea
-     * @param type $idlinea
+     * @param integer $idlinea
      * @return boolean|\linea_factura_proveedor
      */
     public function get($idlinea) {
@@ -300,6 +307,7 @@ class linea_factura_proveedor extends \fs_model {
         if ($data) {
             return new \linea_factura_proveedor($data[0]);
         }
+        
         return FALSE;
     }
 
@@ -307,6 +315,7 @@ class linea_factura_proveedor extends \fs_model {
         if (is_null($this->idlinea)) {
             return FALSE;
         }
+        
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idlinea = " . $this->var2str($this->idlinea) . ";");
     }
 
@@ -324,6 +333,7 @@ class linea_factura_proveedor extends \fs_model {
                     . " de la factura. Valor correcto: " . $totalsindto);
             return FALSE;
         }
+        
         return TRUE;
     }
 
@@ -348,58 +358,41 @@ class linea_factura_proveedor extends \fs_model {
                         . "  WHERE idlinea = " . $this->var2str($this->idlinea) . ";";
 
                 return $this->db->exec($sql);
-            } else {
-                $sql = "INSERT INTO " . $this->table_name . " (pvptotal,dtopor,recargo,irpf,pvpsindto,cantidad,
-               codimpuesto,pvpunitario,idfactura,idalbaran,idlineaalbaran,descripcion,referencia,
-               codcombinacion,iva) VALUES 
-                      (" . $this->var2str($this->pvptotal)
-                        . "," . $this->var2str($this->dtopor)
-                        . "," . $this->var2str($this->recargo)
-                        . "," . $this->var2str($this->irpf)
-                        . "," . $this->var2str($this->pvpsindto)
-                        . "," . $this->var2str($this->cantidad)
-                        . "," . $this->var2str($this->codimpuesto)
-                        . "," . $this->var2str($this->pvpunitario)
-                        . "," . $this->var2str($this->idfactura)
-                        . "," . $this->var2str($this->idalbaran)
-                        . "," . $this->var2str($this->idlineaalbaran)
-                        . "," . $this->var2str($this->descripcion)
-                        . "," . $this->var2str($this->referencia)
-                        . "," . $this->var2str($this->codcombinacion)
-                        . "," . $this->var2str($this->iva) . ");";
+            }
 
-                if ($this->db->exec($sql)) {
-                    $this->idlinea = $this->db->lastval();
-                    return TRUE;
-                }
-                return FALSE;
+            $sql = "INSERT INTO " . $this->table_name . " (pvptotal,dtopor,recargo,irpf,pvpsindto,cantidad,
+               codimpuesto,pvpunitario,idfactura,idalbaran,idlineaalbaran,descripcion,referencia,codcombinacion,
+               iva) VALUES (" . $this->var2str($this->pvptotal)
+                    . "," . $this->var2str($this->dtopor)
+                    . "," . $this->var2str($this->recargo)
+                    . "," . $this->var2str($this->irpf)
+                    . "," . $this->var2str($this->pvpsindto)
+                    . "," . $this->var2str($this->cantidad)
+                    . "," . $this->var2str($this->codimpuesto)
+                    . "," . $this->var2str($this->pvpunitario)
+                    . "," . $this->var2str($this->idfactura)
+                    . "," . $this->var2str($this->idalbaran)
+                    . "," . $this->var2str($this->idlineaalbaran)
+                    . "," . $this->var2str($this->descripcion)
+                    . "," . $this->var2str($this->referencia)
+                    . "," . $this->var2str($this->codcombinacion)
+                    . "," . $this->var2str($this->iva) . ");";
+
+            if ($this->db->exec($sql)) {
+                $this->idlinea = $this->db->lastval();
+                return TRUE;
             }
         }
+
         return FALSE;
     }
 
     public function delete() {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE idlinea = " . $this->var2str($this->idlinea) . ";");
     }
-
-    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-
-        $linealist = array();
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $linealist[] = new \linea_factura_proveedor($a);
-            }
-        }
-        return $linealist;
-    }
-
-    public function all_from_factura($id) {
+    
+    private function all_from_data(&$data) {
         $linlist = array();
-        $sql = "SELECT * FROM " . $this->table_name . " WHERE idfactura = " . $this->var2str($id)
-                . " ORDER BY idlinea ASC;";
-
-        $data = $this->db->select($sql);
         if ($data) {
             foreach ($data as $l) {
                 $linlist[] = new \linea_factura_proveedor($l);
@@ -409,12 +402,21 @@ class linea_factura_proveedor extends \fs_model {
         return $linlist;
     }
 
+    public function all_from_factura($id) {
+        $sql = "SELECT * FROM " . $this->table_name . " WHERE idfactura = " . $this->var2str($id)
+                . " ORDER BY idlinea ASC;";
+
+        $data = $this->db->select($sql);
+        return $this->all_from_data($data);
+    }
+
     public function all_from_articulo($ref, $offset = 0) {
         $sql = "SELECT * FROM " . $this->table_name .
                 " WHERE referencia = " . $this->var2str($ref) .
                 " ORDER BY idfactura DESC";
 
-        return $this->all_from($sql, FS_ITEM_LIMIT, $offset);
+        $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+        return $this->all_from_data($data);
     }
 
     public function search($query = '', $offset = 0) {
@@ -429,7 +431,8 @@ class linea_factura_proveedor extends \fs_model {
         }
         $sql .= " ORDER BY idfactura DESC, idlinea ASC";
 
-        return $this->all_from($sql, FS_ITEM_LIMIT, $offset);
+        $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
+        return $this->all_from_data($data);
     }
 
     public function facturas_from_albaran($id) {

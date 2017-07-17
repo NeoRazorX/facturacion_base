@@ -29,19 +29,19 @@ class subcuenta_cliente extends \fs_model {
 
     /**
      * Clave primaria
-     * @var type 
+     * @var integer
      */
     public $id;
 
     /**
      * ID de la subcuenta
-     * @var type 
+     * @var integer
      */
     public $idsubcuenta;
 
     /**
      * Código del cliente
-     * @var type 
+     * @var string
      */
     public $codcliente;
     public $codsubcuenta;
@@ -64,6 +64,10 @@ class subcuenta_cliente extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     public function get_subcuenta() {
         $subc = new \subcuenta();
         return $subc->get($this->idsubcuenta);
@@ -77,6 +81,7 @@ class subcuenta_cliente extends \fs_model {
         if ($data) {
             return new \subcuenta_cliente($data[0]);
         }
+
         return FALSE;
     }
 
@@ -85,6 +90,7 @@ class subcuenta_cliente extends \fs_model {
         if ($data) {
             return new \subcuenta_cliente($data[0]);
         }
+
         return FALSE;
     }
 
@@ -92,6 +98,7 @@ class subcuenta_cliente extends \fs_model {
         if (is_null($this->id)) {
             return FALSE;
         }
+
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
@@ -104,19 +111,20 @@ class subcuenta_cliente extends \fs_model {
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (codcliente,codsubcuenta,codejercicio,idsubcuenta)
-            VALUES (" . $this->var2str($this->codcliente)
-                    . "," . $this->var2str($this->codsubcuenta)
-                    . "," . $this->var2str($this->codejercicio)
-                    . "," . $this->var2str($this->idsubcuenta) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            }
-            return FALSE;
         }
+
+        $sql = "INSERT INTO " . $this->table_name . " (codcliente,codsubcuenta,codejercicio,idsubcuenta)
+            VALUES (" . $this->var2str($this->codcliente)
+                . "," . $this->var2str($this->codsubcuenta)
+                . "," . $this->var2str($this->codejercicio)
+                . "," . $this->var2str($this->idsubcuenta) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
+        }
+
+        return FALSE;
     }
 
     public function delete() {

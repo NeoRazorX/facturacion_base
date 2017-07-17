@@ -38,50 +38,50 @@ class articulo_traza extends \fs_model {
 
     /**
      * Clave primaria
-     * @var type 
+     * @var integer
      */
     public $id;
 
     /**
      * Referencia del artículo
-     * @var type varchar 
+     * @var string varchar 
      */
     public $referencia;
 
     /**
      * Numero de serie
      * Clave primaria.
-     * @var type varchar 
+     * @var string varchar 
      */
     public $numserie;
 
     /**
      * Número o identificador del lote
-     * @var type 
+     * @var string 
      */
     public $lote;
 
     /**
      * Id linea albaran venta
-     * @var type serial
+     * @var integer serial
      */
     public $idlalbventa;
 
     /**
      * id linea factura venta
-     * @var type serial
+     * @var integer serial
      */
     public $idlfacventa;
 
     /**
      * Id linea albaran compra
-     * @var type serial
+     * @var integer serial
      */
     public $idlalbcompra;
 
     /**
      * Id linea factura compra
-     * @var type serial
+     * @var integer serial
      */
     public $idlfaccompra;
     public $fecha_entrada;
@@ -151,6 +151,7 @@ class articulo_traza extends \fs_model {
                 return $linea->url();
             }
         }
+        
         return '#';
     }
 
@@ -172,12 +173,13 @@ class articulo_traza extends \fs_model {
                 return $linea->url();
             }
         }
+        
         return '#';
     }
 
     /**
      * Devuelve una traza a partir de un $id.
-     * @param type $id
+     * @param string $id
      * @return boolean|\articulo_traza
      */
     public function get($id) {
@@ -185,12 +187,13 @@ class articulo_traza extends \fs_model {
         if ($data) {
             return new \articulo_traza($data[0]);
         }
+        
         return FALSE;
     }
 
     /**
      * Devuelve la traza correspondiente al número de serie $numserie.
-     * @param type $numserie
+     * @param string $numserie
      * @return boolean|\articulo_traza
      */
     public function get_by_numserie($numserie) {
@@ -198,6 +201,7 @@ class articulo_traza extends \fs_model {
         if ($data) {
             return new \articulo_traza($data[0]);
         }
+        
         return FALSE;
     }
 
@@ -205,6 +209,7 @@ class articulo_traza extends \fs_model {
         if (is_null($this->id)) {
             return FALSE;
         }
+        
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
@@ -222,25 +227,26 @@ class articulo_traza extends \fs_model {
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (referencia,numserie,lote,idlalbventa,"
-                    . "idlfacventa,idlalbcompra,idlfaccompra,fecha_entrada,fecha_salida) VALUES "
-                    . "(" . $this->var2str($this->referencia)
-                    . "," . $this->var2str($this->numserie)
-                    . "," . $this->var2str($this->lote)
-                    . "," . $this->var2str($this->idlalbventa)
-                    . "," . $this->var2str($this->idlfacventa)
-                    . "," . $this->var2str($this->idlalbcompra)
-                    . "," . $this->var2str($this->idlfaccompra)
-                    . "," . $this->var2str($this->fecha_entrada)
-                    . "," . $this->var2str($this->fecha_salida) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            }
-            return FALSE;
         }
+        
+        $sql = "INSERT INTO " . $this->table_name . " (referencia,numserie,lote,idlalbventa,"
+                . "idlfacventa,idlalbcompra,idlfaccompra,fecha_entrada,fecha_salida) VALUES "
+                . "(" . $this->var2str($this->referencia)
+                . "," . $this->var2str($this->numserie)
+                . "," . $this->var2str($this->lote)
+                . "," . $this->var2str($this->idlalbventa)
+                . "," . $this->var2str($this->idlfacventa)
+                . "," . $this->var2str($this->idlalbcompra)
+                . "," . $this->var2str($this->idlfaccompra)
+                . "," . $this->var2str($this->fecha_entrada)
+                . "," . $this->var2str($this->fecha_salida) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
+        }
+        
+        return FALSE;
     }
 
     public function delete() {
@@ -249,39 +255,33 @@ class articulo_traza extends \fs_model {
 
     /**
      * Devuelve todas las trazas de un artículo.
-     * @param type $ref
-     * @param type $sololibre
+     * @param string $ref
+     * @param boolean $sololibre
      * @return \articulo_traza
      */
     public function all_from_ref($ref, $sololibre = FALSE) {
-        $lista = array();
-
         $sql = "SELECT * FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref);
         if ($sololibre) {
             $sql .= " AND idlalbventa IS NULL AND idlfacventa IS NULL";
         }
         $sql .= " ORDER BY id ASC;";
-
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $d) {
-                $lista[] = new \articulo_traza($d);
-            }
-        }
-
-        return $lista;
+        
+        return $this->all_from($sql);
     }
 
     /**
      * Devuelve todas las trazas cuya columna $tipo tenga valor $idlinea
-     * @param type $tipo
-     * @param type $idlinea
+     * @param string $tipo
+     * @param integer $idlinea
      * @return \articulo_traza
      */
     public function all_from_linea($tipo, $idlinea) {
-        $lista = array();
-
         $sql = "SELECT * FROM " . $this->table_name . " WHERE " . $tipo . " = " . $this->var2str($idlinea) . " ORDER BY id DESC;";
+        return $this->all_from($sql);
+    }
+    
+    private function all_from($sql) {
+        $lista = array();
         $data = $this->db->select($sql);
         if ($data) {
             foreach ($data as $d) {

@@ -33,25 +33,25 @@ class partida extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $idpartida;
 
     /**
      * ID del asiento relacionado.
-     * @var type 
+     * @var integer
      */
     public $idasiento;
 
     /**
      * ID de la subcuenta relacionada.
-     * @var type 
+     * @var integer
      */
     public $idsubcuenta;
 
     /**
      * Código, que no ID, de la subcuenta relacionada.
-     * @var type 
+     * @var string 
      */
     public $codsubcuenta;
     public $idconcepto;
@@ -143,10 +143,15 @@ class partida extends \fs_model {
         $this->sum_haber = 0;
     }
 
+    protected function install() {
+        return '';
+    }
+
     public function url() {
         if (is_null($this->idasiento)) {
             return 'index.php?page=contabilidad_asientos';
         }
+        
         return 'index.php?page=contabilidad_asiento&id=' . $this->idasiento;
     }
 
@@ -160,16 +165,17 @@ class partida extends \fs_model {
         if ($subc) {
             return $subc->url();
         }
+        
         return '#';
     }
 
     public function get_contrapartida() {
         if (is_null($this->idcontrapartida)) {
             return FALSE;
-        } else {
-            $subc = new \subcuenta();
-            return $subc->get($this->idcontrapartida);
         }
+        
+        $subc = new \subcuenta();
+        return $subc->get($this->idcontrapartida);
     }
 
     public function contrapartida_url() {
@@ -177,6 +183,7 @@ class partida extends \fs_model {
         if ($subc) {
             return $subc->url();
         }
+        
         return '#';
     }
 
@@ -185,6 +192,7 @@ class partida extends \fs_model {
         if ($partida) {
             return new \partida($partida[0]);
         }
+        
         return FALSE;
     }
 
@@ -192,6 +200,7 @@ class partida extends \fs_model {
         if (is_null($this->idpartida)) {
             return FALSE;
         }
+        
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idpartida = " . $this->var2str($this->idpartida) . ";");
     }
 
@@ -232,45 +241,48 @@ class partida extends \fs_model {
                 }
                 return TRUE;
             }
+            
             return FALSE;
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (idasiento,idsubcuenta,codsubcuenta,idconcepto,
+        }
+
+        $sql = "INSERT INTO " . $this->table_name . " (idasiento,idsubcuenta,codsubcuenta,idconcepto,
             concepto,idcontrapartida,codcontrapartida,punteada,tasaconv,coddivisa,haberme,debeme,recargo,iva,
             baseimponible,factura,codserie,tipodocumento,documento,cifnif,debe,haber) VALUES
                    (" . $this->var2str($this->idasiento)
-                    . "," . $this->var2str($this->idsubcuenta)
-                    . "," . $this->var2str($this->codsubcuenta)
-                    . "," . $this->var2str($this->idconcepto)
-                    . "," . $this->var2str($this->concepto)
-                    . "," . $this->var2str($this->idcontrapartida)
-                    . "," . $this->var2str($this->codcontrapartida)
-                    . "," . $this->var2str($this->punteada)
-                    . "," . $this->var2str($this->tasaconv)
-                    . "," . $this->var2str($this->coddivisa)
-                    . "," . $this->var2str($this->haberme)
-                    . "," . $this->var2str($this->debeme)
-                    . "," . $this->var2str($this->recargo)
-                    . "," . $this->var2str($this->iva)
-                    . "," . $this->var2str($this->baseimponible)
-                    . "," . $this->var2str($this->factura)
-                    . "," . $this->var2str($this->codserie)
-                    . "," . $this->var2str($this->tipodocumento)
-                    . "," . $this->var2str($this->documento)
-                    . "," . $this->var2str($this->cifnif)
-                    . "," . $this->var2str($this->debe)
-                    . "," . $this->var2str($this->haber) . ");";
+                . "," . $this->var2str($this->idsubcuenta)
+                . "," . $this->var2str($this->codsubcuenta)
+                . "," . $this->var2str($this->idconcepto)
+                . "," . $this->var2str($this->concepto)
+                . "," . $this->var2str($this->idcontrapartida)
+                . "," . $this->var2str($this->codcontrapartida)
+                . "," . $this->var2str($this->punteada)
+                . "," . $this->var2str($this->tasaconv)
+                . "," . $this->var2str($this->coddivisa)
+                . "," . $this->var2str($this->haberme)
+                . "," . $this->var2str($this->debeme)
+                . "," . $this->var2str($this->recargo)
+                . "," . $this->var2str($this->iva)
+                . "," . $this->var2str($this->baseimponible)
+                . "," . $this->var2str($this->factura)
+                . "," . $this->var2str($this->codserie)
+                . "," . $this->var2str($this->tipodocumento)
+                . "," . $this->var2str($this->documento)
+                . "," . $this->var2str($this->cifnif)
+                . "," . $this->var2str($this->debe)
+                . "," . $this->var2str($this->haber) . ");";
 
-            if ($this->db->exec($sql)) {
-                $this->idpartida = $this->db->lastval();
+        if ($this->db->exec($sql)) {
+            $this->idpartida = $this->db->lastval();
 
-                $subc = $this->get_subcuenta();
-                if ($subc) {
-                    $subc->save(); /// guardamos la subcuenta para actualizar su saldo
-                }
-                return TRUE;
+            $subc = $this->get_subcuenta();
+            if ($subc) {
+                $subc->save(); /// guardamos la subcuenta para actualizar su saldo
             }
-            return FALSE;
+            
+            return TRUE;
         }
+        
+        return FALSE;
     }
 
     public function delete() {
@@ -282,6 +294,7 @@ class partida extends \fs_model {
 
             return TRUE;
         }
+        
         return FALSE;
     }
 
@@ -383,6 +396,7 @@ class partida extends \fs_model {
         if ($data) {
             return $data;
         }
+        
         return array();
     }
 
@@ -395,6 +409,7 @@ class partida extends \fs_model {
         if ($ordenadas) {
             return count($ordenadas);
         }
+        
         return 0;
     }
 

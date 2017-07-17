@@ -29,13 +29,13 @@ class direccion_cliente extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $id;
 
     /**
      * Código del cliente asociado.
-     * @var type 
+     * @var string 
      */
     public $codcliente;
     public $codpais;
@@ -47,20 +47,20 @@ class direccion_cliente extends \fs_model {
 
     /**
      * TRUE -> esta dirección es la principal para envíos.
-     * @var type 
+     * @var boolean 
      */
     public $domenvio;
 
     /**
      * TRUE -> esta dirección es la principal para facturación.
-     * @var type 
+     * @var boolean
      */
     public $domfacturacion;
     public $descripcion;
 
     /**
      * Fecha de última modificación.
-     * @var type 
+     * @var string 
      */
     public $fecha;
 
@@ -95,11 +95,16 @@ class direccion_cliente extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     public function get($id) {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
         if ($data) {
             return new \direccion_cliente($data[0]);
         }
+        
         return FALSE;
     }
 
@@ -107,6 +112,7 @@ class direccion_cliente extends \fs_model {
         if (is_null($this->id)) {
             return FALSE;
         }
+        
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
@@ -147,47 +153,44 @@ class direccion_cliente extends \fs_model {
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql .= "INSERT INTO " . $this->table_name . " (codcliente,codpais,apartado,provincia,ciudad,codpostal,
-            direccion,domenvio,domfacturacion,descripcion,fecha) VALUES (" . $this->var2str($this->codcliente)
-                    . "," . $this->var2str($this->codpais)
-                    . "," . $this->var2str($this->apartado)
-                    . "," . $this->var2str($this->provincia)
-                    . "," . $this->var2str($this->ciudad)
-                    . "," . $this->var2str($this->codpostal)
-                    . "," . $this->var2str($this->direccion)
-                    . "," . $this->var2str($this->domenvio)
-                    . "," . $this->var2str($this->domfacturacion)
-                    . "," . $this->var2str($this->descripcion)
-                    . "," . $this->var2str($this->fecha) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            }
-            return FALSE;
         }
+        
+        $sql .= "INSERT INTO " . $this->table_name . " (codcliente,codpais,apartado,provincia,ciudad,codpostal,
+            direccion,domenvio,domfacturacion,descripcion,fecha) VALUES (" . $this->var2str($this->codcliente)
+                . "," . $this->var2str($this->codpais)
+                . "," . $this->var2str($this->apartado)
+                . "," . $this->var2str($this->provincia)
+                . "," . $this->var2str($this->ciudad)
+                . "," . $this->var2str($this->codpostal)
+                . "," . $this->var2str($this->direccion)
+                . "," . $this->var2str($this->domenvio)
+                . "," . $this->var2str($this->domfacturacion)
+                . "," . $this->var2str($this->descripcion)
+                . "," . $this->var2str($this->fecha) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
+        }
+        
+        return FALSE;
     }
 
     public function delete() {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
-    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-
+    public function all($offset = 0) {
         $dirlist = array();
-        $data = $this->db->select_limit($sql, $limit, $offset);
+
+        $data = $this->db->select_limit("SELECT * FROM " . $this->table_name . " ORDER BY id ASC", FS_ITEM_LIMIT, $offset);
         if ($data) {
-            foreach ($data as $a) {
-                $dirlist[] = new \direccion_cliente($a);
+            foreach ($data as $d) {
+                $dirlist[] = new \direccion_cliente($d);
             }
         }
+
         return $dirlist;
-    }
-
-    public function all($offset = 0) {
-
-        return $this->all_from("SELECT * FROM " . $this->table_name . " ORDER BY id ASC", FS_ITEM_LIMIT, $offset);
     }
 
     public function all_from_cliente($cod) {

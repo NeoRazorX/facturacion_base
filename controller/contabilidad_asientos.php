@@ -97,7 +97,7 @@ class contabilidad_asientos extends fbase_controller {
                     . "%' OR importe BETWEEN " . ($query - .01) . " AND " . ($query + .01) . ')';
             $where = ' AND ';
         } else {
-            $sql .= $where . "(lower(concepto) LIKE '%" . $buscar = str_replace(' ', '%', $query) . "%')";
+            $sql .= $where . "(lower(concepto) LIKE '%" . str_replace(' ', '%', $query) . "%')";
             $where = ' AND ';
         }
 

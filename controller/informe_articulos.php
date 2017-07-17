@@ -590,7 +590,7 @@ class informe_articulos extends fbase_controller {
      * @param articulo $articulo
      */
     private function calcular_stock_real(&$articulo) {
-        if ($articulo->nostock == FALSE) {
+        if ($articulo->nostock === FALSE) {
             foreach ($this->almacenes as $alm) {
                 $total = 0;
                 foreach ($this->recalcular_stock->get_movimientos($articulo->referencia, $alm->codalmacen) as $mov) {
@@ -623,7 +623,7 @@ class informe_articulos extends fbase_controller {
             $this->resultados = $this->recalcular_stock->get_movimientos($this->referencia, $this->codalmacen, $this->desde, $this->hasta, $this->codagente);
         }
 
-        if (!$this->resultados) {
+        if (empty($this->resultados)) {
             $this->new_message('Sin resultados.');
         } else if ($_POST['generar'] != '') {
             $header = array(

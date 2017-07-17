@@ -33,7 +33,7 @@ class balance extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var string 
      */
     public $codbalance;
     public $descripcion4ba;
@@ -79,18 +79,24 @@ class balance extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     public function url() {
         if (is_null($this->codbalance)) {
             return 'index.php?page=editar_balances';
         }
+        
         return 'index.php?page=editar_balances&cod=' . $this->codbalance;
     }
 
     public function get($cod) {
-        $balance = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codbalance = " . $this->var2str($cod) . ";");
-        if ($balance) {
-            return new \balance($balance[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codbalance = " . $this->var2str($cod) . ";");
+        if ($data) {
+            return new \balance($data[0]);
         }
+        
         return FALSE;
     }
 
@@ -98,6 +104,7 @@ class balance extends \fs_model {
         if (is_null($this->codbalance)) {
             return FALSE;
         }
+        
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codbalance = " .
                         $this->var2str($this->codbalance) . ";");
     }
@@ -139,7 +146,6 @@ class balance extends \fs_model {
                     "," . $this->var2str($this->descripcion4ba) . ");";
         }
 
-
         return $this->db->exec($sql);
     }
 
@@ -156,7 +162,7 @@ class balance extends \fs_model {
                 $balist[] = new \balance($b);
             }
         }
-
+        
         return $balist;
     }
 

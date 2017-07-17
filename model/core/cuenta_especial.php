@@ -30,7 +30,7 @@ class cuenta_especial extends \fs_model {
 
     /**
      * Identificador de la cuenta especial.
-     * @var type 
+     * @var string 
      */
     public $idcuentaesp;
     public $descripcion;
@@ -84,6 +84,7 @@ class cuenta_especial extends \fs_model {
         if ($cuentae) {
             return new \cuenta_especial($cuentae[0]);
         }
+        
         return FALSE;
     }
 
@@ -91,6 +92,7 @@ class cuenta_especial extends \fs_model {
         if (is_null($this->idcuentaesp)) {
             return FALSE;
         }
+        
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcuentaesp = " . $this->var2str($this->idcuentaesp) . ";");
     }
 

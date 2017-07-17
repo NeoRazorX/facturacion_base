@@ -118,10 +118,9 @@ class articulo_trazabilidad extends fbase_controller {
 
     private function get_trazas() {
         /// forzamos la comprobación de la tabla
-        $atraza = new articulo_traza();
+        new articulo_traza();
 
         $this->trazas = array();
-
         $sql = "SELECT * FROM articulo_trazas WHERE referencia = " . $this->articulo->var2str($this->articulo->referencia)
                 . " ORDER BY id DESC";
 

@@ -29,13 +29,13 @@ class atributo_valor extends \fs_model {
 
     /**
      * Clave primaria
-     * @var type 
+     * @var integer
      */
     public $id;
 
     /**
      * Código del atributo relacionado.
-     * @var type 
+     * @var string
      */
     public $codatributo;
     public $valor;
@@ -51,6 +51,10 @@ class atributo_valor extends \fs_model {
             $this->codatributo = NULL;
             $this->valor = NULL;
         }
+    }
+
+    protected function install() {
+        return '';
     }
 
     public function url() {
@@ -74,8 +78,8 @@ class atributo_valor extends \fs_model {
             if ($data) {
                 return new \atributo_valor($data[0]);
             }
-            return FALSE;
         }
+        
         return FALSE;
     }
 
@@ -83,6 +87,7 @@ class atributo_valor extends \fs_model {
         if (is_null($this->id)) {
             return FALSE;
         }
+        
         return $this->db->select("SELECT * FROM atributos_valores WHERE id = " . $this->var2str($this->id) . ";");
     }
 

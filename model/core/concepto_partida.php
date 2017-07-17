@@ -29,7 +29,7 @@ class concepto_partida extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var string 
      */
     public $idconceptopar;
     public $concepto;
@@ -45,11 +45,16 @@ class concepto_partida extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     public function get($id) {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idconceptopar = " . $this->var2str($id) . ";");
         if ($data) {
             return new \concepto_partida($data[0]);
         }
+
         return FALSE;
     }
 
@@ -57,6 +62,7 @@ class concepto_partida extends \fs_model {
         if (is_null($this->idconceptopar)) {
             return FALSE;
         }
+
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idconceptopar = " . $this->var2str($this->idconceptopar) . ";");
     }
 

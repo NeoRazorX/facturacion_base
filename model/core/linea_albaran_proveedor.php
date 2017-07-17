@@ -32,37 +32,37 @@ class linea_albaran_proveedor extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer 
      */
     public $idlinea;
 
     /**
      * ID de la línea del pedido relacionada, si la hay.
-     * @var type 
+     * @var integer 
      */
     public $idlineapedido;
 
     /**
      * ID del albarán de esta línea.
-     * @var type 
+     * @var integer 
      */
     public $idalbaran;
 
     /**
      * ID del pedido relacionado con el albarán, si lo hay.
-     * @var type 
+     * @var integer 
      */
     public $idpedido;
 
     /**
      * Referencia del artículo.
-     * @var type 
+     * @var string
      */
     public $referencia;
 
     /**
      * Código de la combinación seleccionada, en el caso de los artículos con atributos.
-     * @var type 
+     * @var string
      */
     public $codcombinacion;
     public $descripcion;
@@ -70,49 +70,49 @@ class linea_albaran_proveedor extends \fs_model {
 
     /**
      * % de descuento.
-     * @var type 
+     * @var double 
      */
     public $dtopor;
 
     /**
      * Código del impuesto relacionado.
-     * @var type 
+     * @var string
      */
     public $codimpuesto;
 
     /**
      * % del impuesto relacionado.
-     * @var type 
+     * @var double 
      */
     public $iva;
 
     /**
      * Importe neto de la línea, sin impuestos.
-     * @var type 
+     * @var double 
      */
     public $pvptotal;
 
     /**
      * Importe neto sin descuentos.
-     * @var type 
+     * @var double 
      */
     public $pvpsindto;
 
     /**
      * Precio del artículo, una unidad.
-     * @var type 
+     * @var double 
      */
     public $pvpunitario;
 
     /**
      * % de IRPF de la línea.
-     * @var type 
+     * @var double 
      */
     public $irpf;
 
     /**
      * % de recargo de equivalencia de la línea.
-     * @var type 
+     * @var double 
      */
     public $recargo;
     private $codigo;
@@ -151,16 +151,20 @@ class linea_albaran_proveedor extends \fs_model {
             $this->referencia = NULL;
             $this->codcombinacion = NULL;
             $this->descripcion = '';
-            $this->cantidad = 0;
-            $this->dtopor = 0;
+            $this->cantidad = 0.0;
+            $this->dtopor = 0.0;
             $this->codimpuesto = NULL;
-            $this->iva = 0;
-            $this->pvptotal = 0;
-            $this->pvpsindto = 0;
-            $this->pvpunitario = 0;
-            $this->irpf = 0;
-            $this->recargo = 0;
+            $this->iva = 0.0;
+            $this->pvptotal = 0.0;
+            $this->pvpsindto = 0.0;
+            $this->pvpunitario = 0.0;
+            $this->irpf = 0.0;
+            $this->recargo = 0.0;
         }
+    }
+
+    protected function install() {
+        return '';
     }
 
     /**
@@ -200,6 +204,7 @@ class linea_albaran_proveedor extends \fs_model {
         if ($this->cantidad == 0) {
             return 0;
         }
+        
         return $this->pvptotal * (100 + $this->iva) / 100 / $this->cantidad;
     }
 
@@ -218,6 +223,7 @@ class linea_albaran_proveedor extends \fs_model {
         if (!isset($this->fecha)) {
             $this->fill();
         }
+        
         return $this->fecha;
     }
 
@@ -242,12 +248,13 @@ class linea_albaran_proveedor extends \fs_model {
         if (is_null($this->referencia) OR $this->referencia == '') {
             return "index.php?page=ventas_articulos";
         }
+        
         return "index.php?page=ventas_articulo&ref=" . urlencode($this->referencia);
     }
 
     /**
      * Devuelve los datos de una linea
-     * @param type $idlinea
+     * @param integer $idlinea
      * @return boolean|\linea_albaran_proveedor
      */
     public function get($idlinea) {
@@ -255,6 +262,7 @@ class linea_albaran_proveedor extends \fs_model {
         if ($data) {
             return new \linea_albaran_proveedor($data[0]);
         }
+        
         return FALSE;
     }
 
@@ -262,6 +270,7 @@ class linea_albaran_proveedor extends \fs_model {
         if (is_null($this->idlinea)) {
             return false;
         }
+        
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idlinea = " . $this->var2str($this->idlinea) . ";");
     }
 
@@ -279,6 +288,7 @@ class linea_albaran_proveedor extends \fs_model {
                     . " del " . FS_ALBARAN . ". Valor correcto: " . $totalsindto);
             return FALSE;
         }
+        
         return TRUE;
     }
 
@@ -305,32 +315,32 @@ class linea_albaran_proveedor extends \fs_model {
                         . "  WHERE idlinea = " . $this->var2str($this->idlinea) . ";";
 
                 return $this->db->exec($sql);
-            } else {
-                $sql = "INSERT INTO " . $this->table_name . " (idlineapedido,idalbaran,idpedido,referencia,codcombinacion,
+            }
+            
+            $sql = "INSERT INTO " . $this->table_name . " (idlineapedido,idalbaran,idpedido,referencia,codcombinacion,
                descripcion,cantidad,dtopor,codimpuesto,iva,pvptotal,pvpsindto,pvpunitario,irpf,recargo) VALUES
                      (" . $this->var2str($this->idlineapedido) .
-                        "," . $this->var2str($this->idalbaran) .
-                        "," . $this->var2str($this->idpedido) .
-                        "," . $this->var2str($this->referencia) .
-                        "," . $this->var2str($this->codcombinacion) .
-                        "," . $this->var2str($this->descripcion) .
-                        "," . $this->var2str($this->cantidad) .
-                        "," . $this->var2str($this->dtopor) .
-                        "," . $this->var2str($this->codimpuesto) .
-                        "," . $this->var2str($this->iva) .
-                        "," . $this->var2str($this->pvptotal) .
-                        "," . $this->var2str($this->pvpsindto) .
-                        "," . $this->var2str($this->pvpunitario) .
-                        "," . $this->var2str($this->irpf) .
-                        "," . $this->var2str($this->recargo) . ");";
+                    "," . $this->var2str($this->idalbaran) .
+                    "," . $this->var2str($this->idpedido) .
+                    "," . $this->var2str($this->referencia) .
+                    "," . $this->var2str($this->codcombinacion) .
+                    "," . $this->var2str($this->descripcion) .
+                    "," . $this->var2str($this->cantidad) .
+                    "," . $this->var2str($this->dtopor) .
+                    "," . $this->var2str($this->codimpuesto) .
+                    "," . $this->var2str($this->iva) .
+                    "," . $this->var2str($this->pvptotal) .
+                    "," . $this->var2str($this->pvpsindto) .
+                    "," . $this->var2str($this->pvpunitario) .
+                    "," . $this->var2str($this->irpf) .
+                    "," . $this->var2str($this->recargo) . ");";
 
-                if ($this->db->exec($sql)) {
-                    $this->idlinea = $this->db->lastval();
-                    return TRUE;
-                }
-                return FALSE;
+            if ($this->db->exec($sql)) {
+                $this->idlinea = $this->db->lastval();
+                return TRUE;
             }
         }
+        
         return FALSE;
     }
 
@@ -341,18 +351,6 @@ class linea_albaran_proveedor extends \fs_model {
 
     public function clean_cache() {
         $this->cache->delete('albpro_top_articulos');
-    }
-
-    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-
-        $linealist = array();
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $a) {
-                $linealist[] = new \linea_albaran_proveedor($a);
-            }
-        }
-        return $linealist;
     }
 
     public function all_from_albaran($id) {
@@ -369,12 +367,22 @@ class linea_albaran_proveedor extends \fs_model {
 
         return $linealist;
     }
+    
+    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
+        $linealist = array();
+        $data = $this->db->select_limit($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $l) {
+                $linealist[] = new \linea_albaran_proveedor($l);
+            }
+        }
+
+        return $linealist;
+    }
 
     public function all_from_articulo($ref, $offset = 0, $limit = FS_ITEM_LIMIT) {
-        $sql = "SELECT * FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref)
-                . " ORDER BY idalbaran DESC";
-
-        return $this->all_from($sql, $limit, $offset);
+        $sql = "SELECT * FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref). " ORDER BY idalbaran DESC";
+        return $this->all_from($sql, $offset, $limit);
     }
 
     public function search($query = '', $offset = 0) {
@@ -389,7 +397,7 @@ class linea_albaran_proveedor extends \fs_model {
         }
         $sql .= " ORDER BY idalbaran DESC, idlinea ASC";
 
-        return $this->all_from($sql, FS_ITEM_LIMIT, $offset);
+        return $this->all_from($sql, $offset);
     }
 
     public function search_from_proveedor($codproveedor, $query = '', $offset = 0) {
@@ -405,7 +413,7 @@ class linea_albaran_proveedor extends \fs_model {
         }
         $sql .= " ORDER BY idalbaran DESC, idlinea ASC";
 
-        return $this->all_from($sql, FS_ITEM_LIMIT, $offset);
+        return $this->all_from($sql, $offset);
     }
 
     public function count_by_articulo() {
@@ -413,6 +421,7 @@ class linea_albaran_proveedor extends \fs_model {
         if ($lineas) {
             return intval($lineas[0]['total']);
         }
+        
         return 0;
     }
 

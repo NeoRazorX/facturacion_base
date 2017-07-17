@@ -31,26 +31,26 @@ class caja extends \fs_model {
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer 
      */
     public $id;
 
     /**
      * Identificador del terminal. En la tabla cajas_terminales.
-     * @var type 
+     * @var integer 
      */
     public $fs_id;
 
     /**
      * Codigo del agente que abre y usa la caja.
      * El agente asociado al usuario.
-     * @var type 
+     * @var string 
      */
     public $codagente;
 
     /**
      * Fecha de apertura (inicio) de la caja.
-     * @var type 
+     * @var string 
      */
     public $fecha_inicial;
     public $dinero_inicial;
@@ -59,25 +59,25 @@ class caja extends \fs_model {
 
     /**
      * Numero de tickets emitidos en esta caja.
-     * @var type 
+     * @var integer 
      */
     public $tickets;
 
     /**
      * Ultima IP del usuario de la caja.
-     * @var type 
+     * @var string 
      */
     public $ip;
 
     /**
      * El objeto agente asignado.
-     * @var type 
+     * @var \agente
      */
     public $agente;
 
     /**
      * UN array con todos los agentes utilizados, para agilizar la carga.
-     * @var type 
+     * @var array
      */
     private static $agentes;
 
@@ -139,6 +139,10 @@ class caja extends \fs_model {
         }
     }
 
+    protected function install() {
+        return '';
+    }
+
     public function abierta() {
         return is_null($this->fecha_fin);
     }
@@ -147,6 +151,7 @@ class caja extends \fs_model {
         if (is_null($this->fecha_fin)) {
             return '-';
         }
+        
         return $this->fecha_fin;
     }
 
@@ -158,17 +163,18 @@ class caja extends \fs_model {
         if (is_null($this->id)) {
             return FALSE;
         }
+        
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function get($id) {
         if (isset($id)) {
-            $caja = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
-            if ($caja) {
-                return new \caja($caja[0]);
+            $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
+            if ($data) {
+                return new \caja($data[0]);
             }
-            return FALSE;
         }
+        
         return FALSE;
     }
 
@@ -185,23 +191,24 @@ class caja extends \fs_model {
                     . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (fs_id,codagente,f_inicio,d_inicio,f_fin,d_fin,tickets,ip) VALUES
-                   (" . $this->var2str($this->fs_id)
-                    . "," . $this->var2str($this->codagente)
-                    . "," . $this->var2str($this->fecha_inicial)
-                    . "," . $this->var2str($this->dinero_inicial)
-                    . "," . $this->var2str($this->fecha_fin)
-                    . "," . $this->var2str($this->dinero_fin)
-                    . "," . $this->var2str($this->tickets)
-                    . "," . $this->var2str($this->ip) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            }
-            return FALSE;
         }
+        
+        $sql = "INSERT INTO " . $this->table_name . " (fs_id,codagente,f_inicio,d_inicio,f_fin,d_fin,tickets,ip) VALUES
+                   (" . $this->var2str($this->fs_id)
+                . "," . $this->var2str($this->codagente)
+                . "," . $this->var2str($this->fecha_inicial)
+                . "," . $this->var2str($this->dinero_inicial)
+                . "," . $this->var2str($this->fecha_fin)
+                . "," . $this->var2str($this->dinero_fin)
+                . "," . $this->var2str($this->tickets)
+                . "," . $this->var2str($this->ip) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
+        }
+        
+        return FALSE;
     }
 
     public function delete() {
@@ -209,7 +216,6 @@ class caja extends \fs_model {
     }
 
     private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
-
         $cajalist = array();
         $data = $this->db->select_limit($sql, $limit, $offset);
         if ($data) {
@@ -217,19 +223,19 @@ class caja extends \fs_model {
                 $cajalist[] = new \caja($a);
             }
         }
+        
         return $cajalist;
     }
 
     public function all($offset = 0, $limit = FS_ITEM_LIMIT) {
-
-        return $this->all_from("SELECT * FROM " . $this->table_name . " ORDER BY id DESC", $limit, $offset);
+        return $this->all_from("SELECT * FROM " . $this->table_name . " ORDER BY id DESC", $offset, $limit);
     }
 
     public function all_by_agente($codagente, $offset = 0, $limit = FS_ITEM_LIMIT) {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codagente = "
                 . $this->var2str($codagente) . " ORDER BY id DESC";
 
-        return $this->all_from($sql, $limit, $offset);
+        return $this->all_from($sql, $offset, $limit);
     }
 
 }
