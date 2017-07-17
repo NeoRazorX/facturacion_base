@@ -19,8 +19,7 @@
 function cambiar_pvp()
 {
     /// cambiamos coma por punto
-    if ($("#pvp").val().search(",") >= 0)
-    {
+    if ($("#pvp").val().search(",") >= 0) {
         $("#pvp").val($("#pvp").val().replace(",", "."));
     }
 
@@ -30,8 +29,7 @@ function cambiar_pvp()
     $("#pvpi").val(pvp * (100 + iva) / 100);
 
     var margen = 0;
-    if (coste > 0)
-    {
+    if (coste > 0) {
         margen = ((pvp - coste) / pvp) * 100;
     }
 
@@ -41,8 +39,7 @@ function cambiar_pvp()
 function cambiar_pvpi()
 {
     /// cambiamos coma por punto
-    if ($("#pvpi").val().search(",") >= 0)
-    {
+    if ($("#pvpi").val().search(",") >= 0) {
         $("#pvpi").val($("#pvpi").val().replace(",", "."));
     }
 
@@ -54,8 +51,7 @@ function cambiar_pvpi()
     $("#pvp").val(pvp);
 
     var margen = 0;
-    if (coste > 0)
-    {
+    if (coste > 0) {
         margen = ((pvp - coste) / pvp) * 100;
     }
 
@@ -65,12 +61,10 @@ function cambiar_pvpi()
 function cambiar_margen()
 {
     /// cambiamos coma por punto
-    if ($("#coste").val().search(",") >= 0)
-    {
+    if ($("#coste").val().search(",") >= 0) {
         $("#coste").val($("#coste").val().replace(",", "."));
     }
-    if ($("#margen").val().search(",") >= 0)
-    {
+    if ($("#margen").val().search(",") >= 0) {
         $("#margen").val($("#margen").val().replace(",", "."));
     }
 
@@ -78,8 +72,7 @@ function cambiar_margen()
     var coste = parseFloat($("#coste").val());
     var margen = parseFloat($("#margen").val());
 
-    if (!isNaN(margen) && isFinite(margen))
-    {
+    if (!isNaN(margen) && isFinite(margen)) {
         var pvp = coste / (1 - (margen / 100));
         $("#pvp").val(pvp);
         $("#pvpi").val(pvp * (100 + iva) / 100);
@@ -92,8 +85,7 @@ function calcular_margen()
     var pvp = parseFloat($("#pvp").val());
 
     var margen = 0;
-    if (coste > 0)
-    {
+    if (coste > 0) {
         margen = ((pvp - coste) / pvp) * 100;
     }
 
@@ -103,27 +95,16 @@ function calcular_margen()
 $(document).ready(function () {
     calcular_margen();
 
-    if (window.location.hash.substring(1) == 'precios')
-    {
+    if (window.location.hash.substring(1) == 'precios') {
         $('#tab_articulo a[href="#precios"]').tab('show');
-    } else if (window.location.hash.substring(1) == 'stock')
-    {
+    } else if (window.location.hash.substring(1) == 'stock') {
         $('#tab_articulo a[href="#stock"]').tab('show');
-    } else if (window.location.hash.substring(1) == 'atributos')
-    {
+    } else if (window.location.hash.substring(1) == 'atributos') {
         $('#tab_articulo a[href="#atributos"]').tab('show');
     }
 
     $("#b_imagen").click(function (event) {
         event.preventDefault();
         $("#modal_articulo_imagen").modal('show');
-    });
-
-    $("#coste").keyup(function () {
-        /// cambiamos coma por punto
-        if ($("#coste").val().search(",") >= 0)
-        {
-            $("#coste").val($("#coste").val().replace(",", "."));
-        }
     });
 });

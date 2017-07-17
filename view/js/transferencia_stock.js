@@ -44,36 +44,30 @@ function add_articulo(ref, desc, cantidad)
 
 function buscar_articulos()
 {
-    if (document.f_buscar_articulos.query.value === '')
-    {
+    if (document.f_buscar_articulos.query.value === '') {
         $("#nav_articulos").hide();
         $("#search_results").html('');
-    } else
-    {
+    } else {
         $("#nav_articulos").show();
 
-        if (form_url !== '')
-        {
+        if (form_url !== '') {
             $.getJSON(form_url, $("form[name=f_buscar_articulos]").serialize(), function (json) {
                 var items = [];
                 var insertar = false;
                 $.each(json, function (key, val) {
                     var descripcion = Base64.encode(val.descripcion);
                     var descripcion_visible = val.descripcion;
-                    if (val.codfamilia)
-                    {
+                    if (val.codfamilia) {
                         descripcion_visible += ' <span class="label label-default" title="Familia: ' + val.codfamilia + '">'
                                 + val.codfamilia + '</span>';
                     }
-                    if (val.codfabricante)
-                    {
+                    if (val.codfabricante) {
                         descripcion_visible += ' <span class="label label-default" title="Fabricante: ' + val.codfabricante + '">'
                                 + val.codfabricante + '</span>';
                     }
 
                     var tr_aux = '<tr>';
-                    if (val.origen > 0)
-                    {
+                    if (val.origen > 0) {
                         tr_aux = '<tr class="success">'
                     }
                     var funcion = "add_articulo('" + val.referencia + "','" + descripcion + "','1')";
@@ -82,21 +76,18 @@ function buscar_articulos()
                      <td class=\"text-right\">" + val.origen + "</td>\n\
                      <td class=\"text-right\">" + val.destino + "</td></tr>");
 
-                    if (val.query == document.f_buscar_articulos.query.value)
-                    {
+                    if (val.query == document.f_buscar_articulos.query.value) {
                         insertar = true;
                     }
                 });
 
-                if (items.length == 0)
-                {
+                if (items.length == 0) {
                     items.push("<tr><td colspan=\"3\" class=\"warning\">Sin resultados. Usa la pestaña\n\
                               <b>Nuevo</b> para crear uno.</td></tr>");
                     insertar = true;
                 }
 
-                if (insertar)
-                {
+                if (insertar) {
                     $("#search_results").html("<div class=\"table-responsive\"><table class=\"table table-hover\"><thead><tr>\n\
                   <th class=\"text-left\">Referencia + descripción</th>\n\
                   <th class=\"text-right\" width=\"80\">Orígen</th>\n\
