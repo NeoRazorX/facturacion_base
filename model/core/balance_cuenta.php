@@ -24,20 +24,20 @@ class balance_cuenta extends \fs_model {
      * Clave primaria.
      * @var type 
      */
-    public $id;
+    public $idbalance;
     public $codbalance;
     public $codcuenta;
     public $desccuenta;
 
-    public function __construct($b = FALSE) {
+    public function __construct($aux = FALSE) {
         parent::__construct('co_cuentascb');
-        if ($b) {
-            $this->id = $this->intval($b['id']);
-            $this->codbalance = $b['codbalance'];
-            $this->codcuenta = $b['codcuenta'];
-            $this->desccuenta = $b['desccuenta'];
+        if ($aux) {
+            $this->idbalance = $this->intval($aux['id']);
+            $this->codbalance = $aux['codbalance'];
+            $this->codcuenta = $aux['codcuenta'];
+            $this->desccuenta = $aux['desccuenta'];
         } else {
-            $this->id = NULL;
+            $this->idbalance = NULL;
             $this->codbalance = NULL;
             $this->codcuenta = NULL;
             $this->desccuenta = NULL;
@@ -48,19 +48,19 @@ class balance_cuenta extends \fs_model {
         return '';
     }
 
-    public function get($id) {
-        $bc = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
-        if ($bc) {
-            return new \balance_cuenta($bc[0]);
+    public function get($getid) {
+        $result = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($getid) . ";");
+        if ($result) {
+            return new \balance_cuenta($result[0]);
         }
         return FALSE;
     }
 
     public function exists() {
-        if (is_null($this->id)) {
+        if (is_null($this->idbalance)) {
             return FALSE;
         }
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->idbalance) . ";");
     }
 
     public function save() {
@@ -68,7 +68,7 @@ class balance_cuenta extends \fs_model {
             $sql = "UPDATE " . $this->table_name . " SET codbalance = " . $this->var2str($this->codbalance) .
                     ", codcuenta = " . $this->var2str($this->codcuenta) .
                     ", desccuenta = " . $this->var2str($this->desccuenta) .
-                    "  WHERE id = " . $this->var2str($this->id) . ";";
+                    "  WHERE id = " . $this->var2str($this->idbalance) . ";";
 
             return $this->db->exec($sql);
         } else {
@@ -78,7 +78,7 @@ class balance_cuenta extends \fs_model {
                     . "," . $this->var2str($this->desccuenta) . ");";
 
             if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
+                $this->idbalance = $this->db->lastval();
                 return TRUE;
             }
             return FALSE;
@@ -86,7 +86,7 @@ class balance_cuenta extends \fs_model {
     }
 
     public function delete() {
-        return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
+        return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->idbalance) . ";");
     }
 
     public function all() {
@@ -94,8 +94,8 @@ class balance_cuenta extends \fs_model {
 
         $data = $this->db->select("SELECT * FROM " . $this->table_name . ";");
         if ($data) {
-            foreach ($data as $b) {
-                $balist[] = new \balance_cuenta($b);
+            foreach ($data as $aux) {
+                $balist[] = new \balance_cuenta($aux);
             }
         }
 
@@ -107,8 +107,8 @@ class balance_cuenta extends \fs_model {
 
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codbalance = " . $this->var2str($cod) . " ORDER BY codcuenta ASC;");
         if ($data) {
-            foreach ($data as $b) {
-                $balist[] = new \balance_cuenta($b);
+            foreach ($data as $aux) {
+                $balist[] = new \balance_cuenta($aux);
             }
         }
 

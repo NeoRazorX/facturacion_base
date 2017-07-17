@@ -34,15 +34,15 @@ class secuencia_contabilidad extends \fs_model {
     public $nombre;
     public $codejercicio;
 
-    public function __construct($s = FALSE) {
+    public function __construct($aux = FALSE) {
         parent::__construct('co_secuencias');
-        if ($s) {
-            $this->codejercicio = $s['codejercicio'];
-            $this->descripcion = $s['descripcion'];
-            $this->idsecuencia = $this->intval($s['idsecuencia']);
-            $this->nombre = $s['nombre'];
-            $this->valor = $this->intval($s['valor']);
-            $this->valorout = $this->intval($s['valorout']);
+        if ($aux) {
+            $this->codejercicio = $aux['codejercicio'];
+            $this->descripcion = $aux['descripcion'];
+            $this->idsecuencia = $this->intval($aux['idsecuencia']);
+            $this->nombre = $aux['nombre'];
+            $this->valor = $this->intval($aux['valor']);
+            $this->valorout = $this->intval($aux['valorout']);
         } else {
             $this->codejercicio = NULL;
             $this->descripcion = NULL;

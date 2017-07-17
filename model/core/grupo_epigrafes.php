@@ -30,13 +30,13 @@ class grupo_epigrafes extends \fs_model {
     public $codejercicio;
     public $descripcion;
 
-    public function __construct($f = FALSE) {
+    public function __construct($aux = FALSE) {
         parent::__construct('co_gruposepigrafes');
-        if ($f) {
-            $this->idgrupo = $this->intval($f['idgrupo']);
-            $this->codgrupo = $f['codgrupo'];
-            $this->descripcion = $f['descripcion'];
-            $this->codejercicio = $f['codejercicio'];
+        if ($aux) {
+            $this->idgrupo = $this->intval($aux['idgrupo']);
+            $this->codgrupo = $aux['codgrupo'];
+            $this->descripcion = $aux['descripcion'];
+            $this->codejercicio = $aux['codejercicio'];
         } else {
             $this->idgrupo = NULL;
             $this->codgrupo = NULL;
@@ -62,8 +62,8 @@ class grupo_epigrafes extends \fs_model {
         return $epigrafe->all_from_grupo($this->idgrupo);
     }
 
-    public function get($id) {
-        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idgrupo = " . $this->var2str($id) . ";");
+    public function get($getid) {
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idgrupo = " . $this->var2str($getid) . ";");
         if ($data) {
             return new \grupo_epigrafes($data[0]);
         }
