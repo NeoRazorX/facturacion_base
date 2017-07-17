@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -32,7 +31,8 @@ require_model('partida.php');
 require_model('serie.php');
 require_model('subcuenta.php');
 
-class compras_factura extends fbase_controller {
+class compras_factura extends fbase_controller
+{
 
     public $agente;
     public $almacen;
@@ -46,11 +46,13 @@ class compras_factura extends fbase_controller {
     public $rectificativa;
     public $serie;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Factura de proveedor', 'compras', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->ppage = $this->page->get('compras_facturas');
@@ -127,7 +129,8 @@ class compras_factura extends fbase_controller {
         }
     }
 
-    public function url() {
+    public function url()
+    {
         if (!isset($this->factura)) {
             return parent::url();
         } else if ($this->factura) {
@@ -136,7 +139,8 @@ class compras_factura extends fbase_controller {
             return $this->page->url();
     }
 
-    private function modificar() {
+    private function modificar()
+    {
         $this->factura->numproveedor = $_POST['numproveedor'];
         $this->factura->observaciones = $_POST['observaciones'];
         $this->factura->codpago = $_POST['forma_pago'];
@@ -158,7 +162,8 @@ class compras_factura extends fbase_controller {
             $this->new_error_msg("¡Imposible modificar la factura!");
     }
 
-    private function generar_asiento(&$factura) {
+    private function generar_asiento(&$factura)
+    {
         if ($factura->get_asiento()) {
             $this->new_error_msg('Ya hay un asiento asociado a esta factura.');
         } else {
@@ -169,7 +174,7 @@ class compras_factura extends fbase_controller {
 
                 if (!$this->empresa->contintegrada) {
                     $this->new_message("¿Quieres que los asientos se generen automáticamente?"
-                            . " Activa la <a href='index.php?page=admin_empresa#facturacion'>Contabilidad integrada</a>.");
+                        . " Activa la <a href='index.php?page=admin_empresa#facturacion'>Contabilidad integrada</a>.");
                 }
             }
 
@@ -183,7 +188,8 @@ class compras_factura extends fbase_controller {
         }
     }
 
-    private function pagar($pagada = TRUE) {
+    private function pagar($pagada = TRUE)
+    {
         /// ¿Hay asiento?
         if (is_null($this->factura->idasiento)) {
             $this->factura->pagada = $pagada;
@@ -239,7 +245,8 @@ class compras_factura extends fbase_controller {
         }
     }
 
-    private function anular_factura() {
+    private function anular_factura()
+    {
         $this->factura->anulada = TRUE;
 
         if ($this->factura->observaciones == '') {
@@ -263,7 +270,8 @@ class compras_factura extends fbase_controller {
         }
     }
 
-    private function generar_rectificativa() {
+    private function generar_rectificativa()
+    {
         $ejercicio = $this->ejercicio->get_by_fecha($this->today());
         if ($ejercicio) {
             /// generamos una factura rectificativa a partir de la actual
@@ -335,7 +343,8 @@ class compras_factura extends fbase_controller {
         }
     }
 
-    private function get_factura_rectificativa() {
+    private function get_factura_rectificativa()
+    {
         $sql = "SELECT * FROM facturasprov WHERE idfacturarect = " . $this->factura->var2str($this->factura->idfactura);
 
         $data = $this->db->select($sql);
@@ -344,7 +353,8 @@ class compras_factura extends fbase_controller {
         }
     }
 
-    public function get_cuentas_bancarias() {
+    public function get_cuentas_bancarias()
+    {
         $cuentas = array();
 
         $cbp0 = new cuenta_banco_proveedor();
@@ -354,5 +364,4 @@ class compras_factura extends fbase_controller {
 
         return $cuentas;
     }
-
 }

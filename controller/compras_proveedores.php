@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -21,7 +20,8 @@
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('pais.php');
 
-class compras_proveedores extends fbase_controller {
+class compras_proveedores extends fbase_controller
+{
 
     public $debaja;
     public $num_resultados;
@@ -32,11 +32,13 @@ class compras_proveedores extends fbase_controller {
     public $resultados;
     public $tipo;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Proveedores / Acreedores', 'compras');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->pais = new pais();
@@ -52,7 +54,8 @@ class compras_proveedores extends fbase_controller {
         $this->buscar();
     }
 
-    private function ini_filters() {
+    private function ini_filters()
+    {
         $this->offset = 0;
         if (isset($_GET['offset'])) {
             $this->offset = intval($_GET['offset']);
@@ -71,7 +74,8 @@ class compras_proveedores extends fbase_controller {
         $this->debaja = isset($_REQUEST['debaja']);
     }
 
-    private function nuevo_proveedor() {
+    private function nuevo_proveedor()
+    {
         $proveedor = new proveedor();
         $proveedor->codproveedor = $proveedor->get_new_codigo();
         $proveedor->nombre = $_POST['nombre'];
@@ -106,7 +110,8 @@ class compras_proveedores extends fbase_controller {
             $this->new_error_msg("¡Imposible guardar el proveedor!");
     }
 
-    private function eliminar_proveedor() {
+    private function eliminar_proveedor()
+    {
         $proveedor = $this->proveedor->get($_GET['delete']);
         if ($proveedor) {
             if (FS_DEMO) {
@@ -122,7 +127,8 @@ class compras_proveedores extends fbase_controller {
             $this->new_message('Proveedor no encontrado.');
     }
 
-    private function buscar() {
+    private function buscar()
+    {
         $this->total_resultados = 0;
         $query = mb_strtolower($this->proveedor->no_html($this->query), 'UTF8');
         $sql = " FROM proveedores";
@@ -130,20 +136,20 @@ class compras_proveedores extends fbase_controller {
 
         if (is_numeric($query)) {
             $sql .= $and . "(nombre LIKE '%" . $query . "%'"
-                    . " OR razonsocial LIKE '%" . $query . "%'"
-                    . " OR codproveedor LIKE '%" . $query . "%'"
-                    . " OR cifnif LIKE '%" . $query . "%'"
-                    . " OR telefono1 LIKE '" . $query . "%'"
-                    . " OR telefono2 LIKE '" . $query . "%'"
-                    . " OR observaciones LIKE '%" . $query . "%')";
+                . " OR razonsocial LIKE '%" . $query . "%'"
+                . " OR codproveedor LIKE '%" . $query . "%'"
+                . " OR cifnif LIKE '%" . $query . "%'"
+                . " OR telefono1 LIKE '" . $query . "%'"
+                . " OR telefono2 LIKE '" . $query . "%'"
+                . " OR observaciones LIKE '%" . $query . "%')";
             $and = ' AND ';
         } else if ($query != '') {
             $buscar = str_replace(' ', '%', $query);
             $sql .= $and . "(lower(nombre) LIKE '%" . $buscar . "%'"
-                    . " OR lower(razonsocial) LIKE '%" . $buscar . "%'"
-                    . " OR lower(cifnif) LIKE '%" . $buscar . "%'"
-                    . " OR lower(observaciones) LIKE '%" . $buscar . "%'"
-                    . " OR lower(email) LIKE '%" . $buscar . "%')";
+                . " OR lower(razonsocial) LIKE '%" . $buscar . "%'"
+                . " OR lower(cifnif) LIKE '%" . $buscar . "%'"
+                . " OR lower(observaciones) LIKE '%" . $buscar . "%'"
+                . " OR lower(email) LIKE '%" . $buscar . "%')";
             $and = ' AND ';
         }
 
@@ -176,7 +182,8 @@ class compras_proveedores extends fbase_controller {
         }
     }
 
-    public function orden() {
+    public function orden()
+    {
         return array(
             'lower(nombre) ASC' => 'Orden: nombre',
             'lower(nombre) DESC' => 'Orden: nombre descendente',
@@ -187,10 +194,11 @@ class compras_proveedores extends fbase_controller {
         );
     }
 
-    public function paginas() {
+    public function paginas()
+    {
         $url = $this->url() . "&query=" . $this->query
-                . "&tipo=" . $this->tipo
-                . "&orden=" . $this->orden;
+            . "&tipo=" . $this->tipo
+            . "&orden=" . $this->orden;
 
         if ($this->debaja) {
             $url .= '&debaja=TRUE';
@@ -198,5 +206,4 @@ class compras_proveedores extends fbase_controller {
 
         return $this->fbase_paginas($url, $this->num_resultados, $this->offset);
     }
-
 }

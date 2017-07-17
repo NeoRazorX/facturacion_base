@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015         Pablo Peralta
@@ -26,6 +25,7 @@ require_once 'plugins/facturacion_base/model/core/agencia_transporte.php';
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class agencia_transporte extends FacturaScripts\model\agencia_transporte {
+class agencia_transporte extends FacturaScripts\model\agencia_transporte
+{
     
 }

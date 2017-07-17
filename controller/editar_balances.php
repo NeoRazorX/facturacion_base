@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of facturacion_base
  * Copyright (C) 2016-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -25,17 +24,20 @@ require_model('balance.php');
  *
  * @author Carlos Garcia Gomez
  */
-class editar_balances extends fbase_controller {
+class editar_balances extends fbase_controller
+{
 
     public $balance;
     public $cuentas;
     public $cuentas_a;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Editar balances', 'informes', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
         $this->share_extensions();
 
@@ -71,23 +73,26 @@ class editar_balances extends fbase_controller {
         }
     }
 
-    private function share_extensions() {
+    private function share_extensions()
+    {
         $fsext = new fs_extension();
         $fsext->name = 'btn_balances';
         $fsext->from = __CLASS__;
         $fsext->to = 'informe_contabilidad';
         $fsext->type = 'button';
         $fsext->text = '<span class="glyphicon glyphicon-wrench"></span>'
-                . '<span class="hidden-xs">&nbsp; Balances</a>';
+            . '<span class="hidden-xs">&nbsp; Balances</a>';
         $fsext->save();
     }
 
-    public function all_balances() {
+    public function all_balances()
+    {
         $balance = new balance();
         return $balance->all();
     }
 
-    public function all_naturalezas() {
+    public function all_naturalezas()
+    {
         return array(
             'A' => 'A = Activo',
             'P' => 'P = Pasivo',
@@ -96,7 +101,8 @@ class editar_balances extends fbase_controller {
         );
     }
 
-    private function nuevo_balance() {
+    private function nuevo_balance()
+    {
         $balance = new balance();
         $this->balance = $balance->get($_POST['ncodbalance']);
         if (!$this->balance) {
@@ -113,7 +119,8 @@ class editar_balances extends fbase_controller {
         }
     }
 
-    private function editar_balance() {
+    private function editar_balance()
+    {
         $this->balance->naturaleza = $_POST['naturaleza'];
         $this->balance->descripcion1 = $_POST['descripcion'];
         $this->balance->descripcion2 = $_POST['descripcion2'];
@@ -126,7 +133,8 @@ class editar_balances extends fbase_controller {
         }
     }
 
-    private function delete_balance() {
+    private function delete_balance()
+    {
         $balance = new balance();
         $balance2 = $balance->get($_REQUEST['delete']);
         if ($balance2) {
@@ -140,7 +148,8 @@ class editar_balances extends fbase_controller {
         }
     }
 
-    private function nuevo_balance_cuenta(&$bc0) {
+    private function nuevo_balance_cuenta(&$bc0)
+    {
         $bc0->codbalance = $this->balance->codbalance;
         $bc0->codcuenta = $_POST['nueva_cuenta'];
 
@@ -151,7 +160,8 @@ class editar_balances extends fbase_controller {
         }
     }
 
-    private function eliminar_balance_cuenta(&$bc0) {
+    private function eliminar_balance_cuenta(&$bc0)
+    {
         $balance = $bc0->get($_GET['rm_cuenta']);
         if ($balance) {
             if ($balance->delete()) {
@@ -164,7 +174,8 @@ class editar_balances extends fbase_controller {
         }
     }
 
-    private function nuevo_balance_cuenta_abreviado(&$bca0) {
+    private function nuevo_balance_cuenta_abreviado(&$bca0)
+    {
         $bca0->codbalance = $this->balance->codbalance;
         $bca0->codcuenta = $_POST['nueva_cuenta_a'];
 
@@ -175,7 +186,8 @@ class editar_balances extends fbase_controller {
         }
     }
 
-    private function eliminar_balance_cuenta_abreviado(&$bca0) {
+    private function eliminar_balance_cuenta_abreviado(&$bca0)
+    {
         $balance = $bca0->get($_GET['rm_cuenta_a']);
         if ($balance) {
             if ($balance->delete()) {
@@ -187,5 +199,4 @@ class editar_balances extends fbase_controller {
             $this->new_error_msg('datos no encontrados.');
         }
     }
-
 }

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -26,18 +25,21 @@ require_model('subcuenta.php');
  *
  * @author Carlos Garcia Gomez
  */
-class articulo_subcuentas extends fs_controller {
+class articulo_subcuentas extends fs_controller
+{
 
     public $articulo;
     public $subcuentacom;
     public $subcuentairpfcom;
     public $subcuentaventa;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Subcuentas', 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->share_extension();
         $art0 = new articulo();
 
@@ -95,25 +97,28 @@ class articulo_subcuentas extends fs_controller {
         }
     }
 
-    private function share_extension() {
+    private function share_extension()
+    {
         $fsext = new fs_extension();
         $fsext->name = 'articulo_subcuentas';
         $fsext->from = __CLASS__;
         $fsext->to = 'ventas_articulo';
         $fsext->type = 'tab';
         $fsext->text = '<span class="glyphicon glyphicon-book" aria-hidden="true">'
-                . '</span><span class="hidden-xs">&nbsp; Subcuentas</span>';
+            . '</span><span class="hidden-xs">&nbsp; Subcuentas</span>';
         $fsext->save();
     }
 
-    public function url() {
+    public function url()
+    {
         if ($this->articulo) {
             return 'index.php?page=' . __CLASS__ . '&ref=' . $this->articulo->referencia;
         } else
             return parent::url();
     }
 
-    private function buscar_subcuenta() {
+    private function buscar_subcuenta()
+    {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
@@ -133,5 +138,4 @@ class articulo_subcuentas extends fs_controller {
         header('Content-Type: application/json');
         echo json_encode(array('query' => $_REQUEST['buscar_subcuenta'], 'suggestions' => $json));
     }
-
 }

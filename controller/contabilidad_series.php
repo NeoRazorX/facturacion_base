@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -22,17 +21,20 @@ require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('ejercicio.php');
 require_model('serie.php');
 
-class contabilidad_series extends fbase_controller {
+class contabilidad_series extends fbase_controller
+{
 
     public $ejercicios;
     public $num_personalizada;
     public $serie;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, ucfirst(FS_SERIES), 'contabilidad');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $eje = new ejercicio();
@@ -48,7 +50,8 @@ class contabilidad_series extends fbase_controller {
         }
     }
 
-    private function numeracion_personalizada() {
+    private function numeracion_personalizada()
+    {
         $fsvar = new fs_var();
         if (isset($_GET['num_personalizada'])) {
             if ($_GET['num_personalizada'] == 'TRUE') {
@@ -63,7 +66,8 @@ class contabilidad_series extends fbase_controller {
         }
     }
 
-    private function editar_serie() {
+    private function editar_serie()
+    {
         $serie = $this->serie->get($_POST['codserie']);
         if (!$serie) {
             $serie = new serie();
@@ -91,8 +95,8 @@ class contabilidad_series extends fbase_controller {
                             $fslog = new fs_log();
                             $fslog->alerta = TRUE;
                             $fslog->detalle = 'Se ha cambiado la numeración inicial de la serie '
-                                    . $serie->codserie . ' para el ejercicio ' . $serie->codejercicio
-                                    . '. Nuevo número inicial: ' . $serie->numfactura;
+                                . $serie->codserie . ' para el ejercicio ' . $serie->codejercicio
+                                . '. Nuevo número inicial: ' . $serie->numfactura;
                             $fslog->ip = $this->user->last_ip;
                             $fslog->usuario = $this->user->nick;
                             $fslog->tipo = 'serie';
@@ -101,7 +105,7 @@ class contabilidad_series extends fbase_controller {
                     }
                 } else {
                     $this->new_error_msg("La numeración de facturas es una cosa delicada,"
-                            . " solamente un administrador puede hacer cambios.", 'serie', TRUE);
+                        . " solamente un administrador puede hacer cambios.", 'serie', TRUE);
                 }
             }
         }
@@ -112,7 +116,8 @@ class contabilidad_series extends fbase_controller {
             $this->new_error_msg("¡Imposible guardar " . FS_SERIE . "!");
     }
 
-    private function eliminar_serie() {
+    private function eliminar_serie()
+    {
         if (!$this->user->admin) {
             $this->new_error_msg('Sólo un administrador puede eliminar ' . FS_SERIES . '.');
         } else {
@@ -134,7 +139,8 @@ class contabilidad_series extends fbase_controller {
      * @param type $codserie
      * @return boolean
      */
-    private function hay_facturas_venta($codserie) {
+    private function hay_facturas_venta($codserie)
+    {
         $hay = FALSE;
 
         $tablas = array('facturascli', 'albaranescli', 'pedidoscli', 'presupuescli', 'facturasprov', 'albaranesprov', 'pedidosprov');
@@ -151,5 +157,4 @@ class contabilidad_series extends fbase_controller {
 
         return $hay;
     }
-
 }

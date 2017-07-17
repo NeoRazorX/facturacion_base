@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017    Carlos Garcia Gomez  neorazorx@gmail.com
@@ -27,16 +26,19 @@ require_model('pais.php');
 /**
  * Heredamos del controlador de informe_albaranes, para reaprovechar el código.
  */
-class informe_facturas extends informe_albaranes {
+class informe_facturas extends informe_albaranes
+{
 
     public $pais;
     public $estado;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Facturas', 'informes');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         /// declaramos los objetos sólo para asegurarnos de que existen las tablas
         $factura_cli = new factura_cliente();
         $factura_pro = new factura_proveedor();
@@ -49,7 +51,8 @@ class informe_facturas extends informe_albaranes {
         parent::private_core();
     }
 
-    protected function generar_extra() {
+    protected function generar_extra()
+    {
         if ($_POST['generar'] == 'informe_compras') {
             if ($_POST['unidades'] == 'TRUE') {
                 $this->informe_compras_unidades();
@@ -65,27 +68,33 @@ class informe_facturas extends informe_albaranes {
         }
     }
 
-    public function provincias() {
+    public function provincias()
+    {
         return $this->fbase_sql_distinct('dirclientes', 'provincia');
     }
 
-    public function stats_series($tabla = 'facturasprov') {
+    public function stats_series($tabla = 'facturasprov')
+    {
         return parent::stats_series($tabla);
     }
 
-    public function stats_agentes($tabla = 'facturasprov') {
+    public function stats_agentes($tabla = 'facturasprov')
+    {
         return parent::stats_agentes($tabla);
     }
 
-    public function stats_almacenes($tabla = 'facturasprov') {
+    public function stats_almacenes($tabla = 'facturasprov')
+    {
         return parent::stats_almacenes($tabla);
     }
 
-    public function stats_formas_pago($tabla = 'facturasprov') {
+    public function stats_formas_pago($tabla = 'facturasprov')
+    {
         return parent::stats_formas_pago($tabla);
     }
 
-    public function stats_estados($tabla = 'facturasprov') {
+    public function stats_estados($tabla = 'facturasprov')
+    {
         $stats = array();
 
         $where = $this->where_compras;
@@ -122,7 +131,8 @@ class informe_facturas extends informe_albaranes {
         return $stats;
     }
 
-    protected function get_documentos($tabla) {
+    protected function get_documentos($tabla)
+    {
         $doclist = array();
 
         $where = $this->where_compras;
@@ -171,7 +181,8 @@ class informe_facturas extends informe_albaranes {
      * @param array $dataFactura
      * @param string $className
      */
-    private function process_lineas_iva(&$docList, &$dataIVA, &$dataFactura, $className) {
+    private function process_lineas_iva(&$docList, &$dataIVA, &$dataFactura, $className)
+    {
         foreach ($dataIVA as $key => $diva) {
             $dataFactura['neto'] = $diva['neto'];
             $dataFactura['totaliva'] = $diva['totaliva'];
@@ -194,17 +205,18 @@ class informe_facturas extends informe_albaranes {
      * @param fs_pdf $pdf_doc
      * @param string $tipo
      */
-    protected function desglose_impuestos_pdf(&$pdf_doc, $tipo) {
+    protected function desglose_impuestos_pdf(&$pdf_doc, $tipo)
+    {
         $impuestos = array();
 
         if ($tipo == 'compra' && $this->db->table_exists('lineasivafactprov')) {
             $sql = "select * from lineasivafactprov WHERE idfactura IN"
-                    . " (select idfactura from facturasprov " . $this->where_compras . ")"
-                    . " order by iva asc;";
+                . " (select idfactura from facturasprov " . $this->where_compras . ")"
+                . " order by iva asc;";
         } else if ($tipo == 'venta' && $this->db->table_exists('lineasivafactcli')) {
             $sql = "select * from lineasivafactcli WHERE idfactura IN"
-                    . " (select idfactura from facturascli " . $this->where_ventas . ")"
-                    . " order by iva asc;";
+                . " (select idfactura from facturascli " . $this->where_ventas . ")"
+                . " order by iva asc;";
         } else {
             return FALSE;
         }
@@ -257,21 +269,22 @@ class informe_facturas extends informe_albaranes {
             $pdf_doc->add_table_header($header);
             $pdf_doc->add_table_row($row);
             $pdf_doc->save_table(
-                    array(
-                        'fontSize' => 8,
-                        'shaded' => 0,
-                        'width' => 780
-                    )
+                array(
+                    'fontSize' => 8,
+                    'shaded' => 0,
+                    'width' => 780
+                )
             );
         } else {
             $pdf_doc->pdf->ezText("\nSin impuestos.");
         }
     }
 
-    private function informe_compras() {
+    private function informe_compras()
+    {
         $sql = "SELECT codproveedor,fecha,SUM(neto) as total FROM facturasprov"
-                . " WHERE fecha >= " . $this->empresa->var2str($this->desde)
-                . " AND fecha <= " . $this->empresa->var2str($this->hasta);
+            . " WHERE fecha >= " . $this->empresa->var2str($this->desde)
+            . " AND fecha <= " . $this->empresa->var2str($this->hasta);
 
         if ($this->codserie) {
             $sql .= " AND codserie = " . $this->empresa->var2str($this->codserie);
@@ -380,10 +393,11 @@ class informe_facturas extends informe_albaranes {
         }
     }
 
-    private function informe_ventas() {
+    private function informe_ventas()
+    {
         $sql = "SELECT codalmacen,codcliente,fecha,SUM(neto) as total FROM facturascli"
-                . " WHERE fecha >= " . $this->empresa->var2str($this->desde)
-                . " AND fecha <= " . $this->empresa->var2str($this->hasta);
+            . " WHERE fecha >= " . $this->empresa->var2str($this->desde)
+            . " AND fecha <= " . $this->empresa->var2str($this->hasta);
 
         if ($_POST['codpais']) {
             $sql .= " AND codpais = " . $this->empresa->var2str($_POST['codpais']);
@@ -502,12 +516,13 @@ class informe_facturas extends informe_albaranes {
         }
     }
 
-    private function informe_compras_unidades() {
+    private function informe_compras_unidades()
+    {
         $sql = "SELECT f.codalmacen,f.codproveedor,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
-                . " FROM facturasprov f, lineasfacturasprov l"
-                . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
-                . " AND f.fecha >= " . $this->empresa->var2str($this->desde)
-                . " AND f.fecha <= " . $this->empresa->var2str($this->hasta);
+            . " FROM facturasprov f, lineasfacturasprov l"
+            . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
+            . " AND f.fecha >= " . $this->empresa->var2str($this->desde)
+            . " AND f.fecha <= " . $this->empresa->var2str($this->hasta);
 
         if ($this->codserie) {
             $sql .= " AND f.codserie = " . $this->empresa->var2str($this->codserie);
@@ -604,12 +619,13 @@ class informe_facturas extends informe_albaranes {
         }
     }
 
-    private function informe_ventas_unidades() {
+    private function informe_ventas_unidades()
+    {
         $sql = "SELECT f.codalmacen,f.codcliente,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
-                . " FROM facturascli f, lineasfacturascli l"
-                . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
-                . " AND f.fecha >= " . $this->empresa->var2str($this->desde)
-                . " AND f.fecha <= " . $this->empresa->var2str($this->hasta);
+            . " FROM facturascli f, lineasfacturascli l"
+            . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
+            . " AND f.fecha >= " . $this->empresa->var2str($this->desde)
+            . " AND f.fecha <= " . $this->empresa->var2str($this->hasta);
 
         if ($_POST['codpais']) {
             $sql .= " AND f.codpais = " . $this->empresa->var2str($_POST['codpais']);
@@ -716,7 +732,8 @@ class informe_facturas extends informe_albaranes {
         }
     }
 
-    protected function ini_filters() {
+    protected function ini_filters()
+    {
         parent::ini_filters();
 
         $this->estado = FALSE;
@@ -725,7 +742,8 @@ class informe_facturas extends informe_albaranes {
         }
     }
 
-    protected function set_where() {
+    protected function set_where()
+    {
         parent::set_where();
 
         if ($this->estado) {
@@ -735,7 +753,8 @@ class informe_facturas extends informe_albaranes {
         }
     }
 
-    protected function generar_pdf($tipo = 'compra') {
+    protected function generar_pdf($tipo = 'compra')
+    {
         /// desactivamos el motor de plantillas
         $this->template = FALSE;
 
@@ -754,7 +773,7 @@ class informe_facturas extends informe_albaranes {
         }
 
         $encabezado = fs_fix_html($this->empresa->nombre) . ' - ' . $this->nombre_docs
-                . ' de ' . $tipo . ' del ' . $this->desde . ' al ' . $this->hasta;
+            . ' de ' . $tipo . ' del ' . $this->desde . ' al ' . $this->hasta;
 
         if ($this->codagente) {
             $encabezado .= ', empleado: ' . $this->codagente;
@@ -796,21 +815,21 @@ class informe_facturas extends informe_albaranes {
                 /// tabla principal
                 $pdf_doc->new_table();
                 $pdf_doc->add_table_header(
-                        array(
-                            'serie' => '<b>' . strtoupper(FS_SERIE) . '</b>',
-                            'doc' => '<b>Documento</b>',
-                            'num2' => '<b>' . $num2 . '</b>',
-                            'fecha' => '<b>Fecha</b>',
-                            'cliente' => '<b>' . $cliente . '</b>',
-                            'cifnif' => '<b>' . FS_CIFNIF . '</b>',
-                            'neto' => '<b>Neto</b>',
-                            'tasaiva' => '<b>%' . FS_IVA . '</b>',
-                            'iva' => '<b>' . FS_IVA . '</b>',
-                            'tasare' => '<b>%RE</b>',
-                            're' => '<b>RE</b>',
-                            'irpf' => '<b>' . FS_IRPF . '</b>',
-                            'total' => '<b>Total</b>'
-                        )
+                    array(
+                        'serie' => '<b>' . strtoupper(FS_SERIE) . '</b>',
+                        'doc' => '<b>Documento</b>',
+                        'num2' => '<b>' . $num2 . '</b>',
+                        'fecha' => '<b>Fecha</b>',
+                        'cliente' => '<b>' . $cliente . '</b>',
+                        'cifnif' => '<b>' . FS_CIFNIF . '</b>',
+                        'neto' => '<b>Neto</b>',
+                        'tasaiva' => '<b>%' . FS_IVA . '</b>',
+                        'iva' => '<b>' . FS_IVA . '</b>',
+                        'tasare' => '<b>%RE</b>',
+                        're' => '<b>RE</b>',
+                        'irpf' => '<b>' . FS_IRPF . '</b>',
+                        'total' => '<b>Total</b>'
+                    )
                 );
 
                 for ($i = 0; $i < $lppag AND $linea_actual < $total_lineas; $i++) {
@@ -868,20 +887,20 @@ class informe_facturas extends informe_albaranes {
                 $pdf_doc->add_table_row($linea);
 
                 $pdf_doc->save_table(
-                        array(
-                            'fontSize' => 8,
-                            'cols' => array(
-                                'neto' => array('justification' => 'right'),
-                                'tasaiva' => array('justification' => 'right'),
-                                'iva' => array('justification' => 'right'),
-                                'tasare' => array('justification' => 'right'),
-                                're' => array('justification' => 'right'),
-                                'irpf' => array('justification' => 'right'),
-                                'total' => array('justification' => 'right')
-                            ),
-                            'shaded' => 0,
-                            'width' => 780
-                        )
+                    array(
+                        'fontSize' => 8,
+                        'cols' => array(
+                            'neto' => array('justification' => 'right'),
+                            'tasaiva' => array('justification' => 'right'),
+                            'iva' => array('justification' => 'right'),
+                            'tasare' => array('justification' => 'right'),
+                            're' => array('justification' => 'right'),
+                            'irpf' => array('justification' => 'right'),
+                            'total' => array('justification' => 'right')
+                        ),
+                        'shaded' => 0,
+                        'width' => 780
+                    )
                 );
             }
 
@@ -894,7 +913,8 @@ class informe_facturas extends informe_albaranes {
         $pdf_doc->show();
     }
 
-    protected function generar_xls($tipo = 'compra') {
+    protected function generar_xls($tipo = 'compra')
+    {
         /// desactivamos el motor de plantillas
         $this->template = FALSE;
 
@@ -973,7 +993,8 @@ class informe_facturas extends informe_albaranes {
         $writter->writeToStdOut();
     }
 
-    protected function generar_csv($tipo = 'compra') {
+    protected function generar_csv($tipo = 'compra')
+    {
         /// desactivamos el motor de plantillas
         $this->template = FALSE;
 
@@ -1016,5 +1037,4 @@ class informe_facturas extends informe_albaranes {
             echo '"' . join('","', $linea) . "\"\n";
         }
     }
-
 }

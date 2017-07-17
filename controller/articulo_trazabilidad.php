@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of facturacion_base
  * Copyright (C) 2016-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -26,16 +25,19 @@ require_model('articulo_traza.php');
  *
  * @author Carlos Garcia Gomez
  */
-class articulo_trazabilidad extends fbase_controller {
+class articulo_trazabilidad extends fbase_controller
+{
 
     public $articulo;
     public $trazas;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, '', 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->articulo = FALSE;
@@ -50,7 +52,7 @@ class articulo_trazabilidad extends fbase_controller {
                     $this->edit_traza();
                 } else {
                     $this->new_error_msg('Debes escribir un número de serie o un lote o ambos,'
-                            . ' pero algo debes escribir.');
+                        . ' pero algo debes escribir.');
                 }
             } else if (isset($_GET['delete'])) {
                 $this->delete_traza();
@@ -62,7 +64,8 @@ class articulo_trazabilidad extends fbase_controller {
         }
     }
 
-    public function url() {
+    public function url()
+    {
         if ($this->articulo) {
             return 'index.php?page=' . __CLASS__ . '&ref=' . urlencode($this->articulo->referencia);
         } else {
@@ -70,7 +73,8 @@ class articulo_trazabilidad extends fbase_controller {
         }
     }
 
-    private function edit_traza() {
+    private function edit_traza()
+    {
         if (isset($_POST['id'])) {
             $atraza = new articulo_traza();
             $natraza = $atraza->get($_POST['id']);
@@ -101,7 +105,8 @@ class articulo_trazabilidad extends fbase_controller {
         }
     }
 
-    private function delete_traza() {
+    private function delete_traza()
+    {
         $atraza = new articulo_traza();
 
         $natraza = $atraza->get($_GET['delete']);
@@ -116,13 +121,14 @@ class articulo_trazabilidad extends fbase_controller {
         }
     }
 
-    private function get_trazas() {
+    private function get_trazas()
+    {
         /// forzamos la comprobación de la tabla
         new articulo_traza();
 
         $this->trazas = array();
         $sql = "SELECT * FROM articulo_trazas WHERE referencia = " . $this->articulo->var2str($this->articulo->referencia)
-                . " ORDER BY id DESC";
+            . " ORDER BY id DESC";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -131,5 +137,4 @@ class articulo_trazabilidad extends fbase_controller {
             }
         }
     }
-
 }

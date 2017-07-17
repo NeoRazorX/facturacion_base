@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -31,7 +30,8 @@ require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('subcuenta.php');
 
-class compras_agrupar_albaranes extends fbase_controller {
+class compras_agrupar_albaranes extends fbase_controller
+{
 
     public $albaran;
     public $coddivisa;
@@ -47,11 +47,13 @@ class compras_agrupar_albaranes extends fbase_controller {
     private $ejercicio;
     private $forma_pago;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Agrupar ' . FS_ALBARANES, 'compras', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->albaran = new albaran_proveedor();
@@ -99,7 +101,7 @@ class compras_agrupar_albaranes extends fbase_controller {
 
             if ($this->proveedor) {
                 $this->resultados = $this->albaran->search_from_proveedor(
-                        $this->proveedor->codproveedor, $this->desde, $this->hasta, $this->codserie, $this->coddivisa
+                    $this->proveedor->codproveedor, $this->desde, $this->hasta, $this->codserie, $this->coddivisa
                 );
                 if (!empty($this->resultados)) {
                     foreach ($this->resultados as $alb) {
@@ -114,7 +116,8 @@ class compras_agrupar_albaranes extends fbase_controller {
             $this->share_extensions();
     }
 
-    private function agrupar() {
+    private function agrupar()
+    {
         $continuar = TRUE;
         $albaranes = array();
 
@@ -145,7 +148,8 @@ class compras_agrupar_albaranes extends fbase_controller {
         }
     }
 
-    private function generar_factura($albaranes) {
+    private function generar_factura($albaranes)
+    {
         $continuar = TRUE;
 
         $factura = new factura_proveedor();
@@ -270,7 +274,8 @@ class compras_agrupar_albaranes extends fbase_controller {
             $this->new_error_msg("¡Imposible guardar la factura!");
     }
 
-    private function generar_asiento(&$factura) {
+    private function generar_asiento(&$factura)
+    {
         if ($this->empresa->contintegrada) {
             $asiento_factura = new asiento_factura();
             if ($asiento_factura->generar_asiento_compra($factura)) {
@@ -291,7 +296,8 @@ class compras_agrupar_albaranes extends fbase_controller {
         $this->new_change('Factura Proveedor ' . $factura->codigo, $factura->url(), TRUE);
     }
 
-    private function share_extensions() {
+    private function share_extensions()
+    {
         $extension = array(
             'name' => 'agrupar_albaranes',
             'page_from' => __CLASS__,
@@ -304,7 +310,8 @@ class compras_agrupar_albaranes extends fbase_controller {
         $fsext->save();
     }
 
-    public function pendientes() {
+    public function pendientes()
+    {
         $pendientes = array();
 
         $offset = 0;
@@ -353,5 +360,4 @@ class compras_agrupar_albaranes extends fbase_controller {
 
         return $pendientes;
     }
-
 }

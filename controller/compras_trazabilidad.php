@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -27,7 +26,8 @@ require_model('factura_proveedor.php');
  *
  * @author Carlos Garcia Gomez
  */
-class compras_trazabilidad extends fs_controller {
+class compras_trazabilidad extends fs_controller
+{
 
     public $documento;
     public $lineas;
@@ -36,11 +36,13 @@ class compras_trazabilidad extends fs_controller {
     private $articulo;
     private $articulo_traza;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Trazabilidad', 'compras', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->documento = FALSE;
         if (isset($_GET['doc']) AND isset($_GET['id'])) {
             if ($_GET['doc'] == 'albaran') {
@@ -76,14 +78,15 @@ class compras_trazabilidad extends fs_controller {
         }
     }
 
-    private function share_extensions() {
+    private function share_extensions()
+    {
         $fsext = new fs_extension();
         $fsext->name = 'tab_compras_trazabilidad_fac';
         $fsext->from = __CLASS__;
         $fsext->to = 'compras_factura';
         $fsext->type = 'tab';
         $fsext->text = '<i class="fa fa-code-fork" aria-hidden="true"></i>'
-                . '<span class="hidden-xs">&nbsp;Trazabilidad</span>';
+            . '<span class="hidden-xs">&nbsp;Trazabilidad</span>';
         $fsext->params = '&doc=factura&tab=TRUE';
         $fsext->save();
 
@@ -93,12 +96,13 @@ class compras_trazabilidad extends fs_controller {
         $fsext2->to = 'compras_albaran';
         $fsext2->type = 'tab';
         $fsext2->text = '<i class="fa fa-code-fork" aria-hidden="true"></i>'
-                . '<span class="hidden-xs">&nbsp;Trazabilidad</span>';
+            . '<span class="hidden-xs">&nbsp;Trazabilidad</span>';
         $fsext2->params = '&doc=albaran&tab=TRUE';
         $fsext2->save();
     }
 
-    public function url() {
+    public function url()
+    {
         if ($this->documento) {
             $extra = '';
             if ($this->tab) {
@@ -113,7 +117,8 @@ class compras_trazabilidad extends fs_controller {
             return parent::url();
     }
 
-    private function get_lineas() {
+    private function get_lineas()
+    {
         $this->lineas = array();
 
         /**
@@ -196,7 +201,8 @@ class compras_trazabilidad extends fs_controller {
         }
     }
 
-    private function modificar() {
+    private function modificar()
+    {
         $ok = TRUE;
 
         $this->get_lineas();
@@ -215,7 +221,7 @@ class compras_trazabilidad extends fs_controller {
                 if (is_null($this->lineas[$i]->numserie) AND is_null($this->lineas[$i]->lote)) {
                     if ($ok) {
                         $this->new_error_msg('En la <b>linea ' . ($i + 1) . '</b> debes escribir un número de serie'
-                                . ' o un lote o ambos, pero algo debes escribir.');
+                            . ' o un lote o ambos, pero algo debes escribir.');
                     }
                     $ok = FALSE;
                 } else if (!$this->lineas[$i]->save()) {
@@ -236,5 +242,4 @@ class compras_trazabilidad extends fs_controller {
             }
         }
     }
-
 }

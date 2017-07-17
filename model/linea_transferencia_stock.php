@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2016  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -25,6 +24,7 @@ require_once 'plugins/facturacion_base/model/core/linea_transferencia_stock.php'
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class linea_transferencia_stock extends FacturaScripts\model\linea_transferencia_stock {
+class linea_transferencia_stock extends FacturaScripts\model\linea_transferencia_stock
+{
     
 }

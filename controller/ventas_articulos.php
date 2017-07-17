@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -28,7 +27,8 @@ require_model('linea_transferencia_stock.php');
 require_model('tarifa.php');
 require_model('transferencia_stock.php');
 
-class ventas_articulos extends fbase_controller {
+class ventas_articulos extends fbase_controller
+{
 
     public $almacenes;
     public $b_bloqueados;
@@ -51,11 +51,13 @@ class ventas_articulos extends fbase_controller {
     public $tarifa;
     public $transferencia_stock;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Artículos', 'ventas');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $almacen = new almacen();
@@ -97,7 +99,8 @@ class ventas_articulos extends fbase_controller {
         $this->search_articulos();
     }
 
-    private function ini_filters() {
+    private function ini_filters()
+    {
         $this->offset = 0;
         if (isset($_REQUEST['offset'])) {
             $this->offset = intval($_REQUEST['offset']);
@@ -143,10 +146,10 @@ class ventas_articulos extends fbase_controller {
         }
 
         $this->b_url = $this->url() . "&query=" . $this->query
-                . "&b_codfabricante=" . $this->b_codfabricante
-                . "&b_codalmacen=" . $this->b_codalmacen
-                . "&b_codfamilia=" . $this->b_codfamilia
-                . "&b_codtarifa=" . $this->b_codtarifa;
+            . "&b_codfabricante=" . $this->b_codfabricante
+            . "&b_codalmacen=" . $this->b_codalmacen
+            . "&b_codfamilia=" . $this->b_codfamilia
+            . "&b_codtarifa=" . $this->b_codtarifa;
 
         if ($this->b_subfamilias) {
             $this->b_url .= '&b_subfamilias=TRUE';
@@ -165,7 +168,8 @@ class ventas_articulos extends fbase_controller {
         }
     }
 
-    private function edit_tarifa() {
+    private function edit_tarifa()
+    {
         $tar0 = $this->tarifa->get($_POST['codtarifa']);
         if (!$tar0) {
             $tar0 = new tarifa();
@@ -183,7 +187,8 @@ class ventas_articulos extends fbase_controller {
             $this->new_error_msg("¡Imposible guardar la tarifa!");
     }
 
-    private function delete_tarifa() {
+    private function delete_tarifa()
+    {
         $tar0 = $this->tarifa->get($_GET['delete_tarifa']);
         if ($tar0) {
             if (!$this->allow_delete) {
@@ -196,7 +201,8 @@ class ventas_articulos extends fbase_controller {
             $this->new_error_msg("¡La tarifa no existe!");
     }
 
-    private function new_articulo(&$articulo) {
+    private function new_articulo(&$articulo)
+    {
         $this->save_codimpuesto($_POST['codimpuesto']);
 
         if ($_POST['referencia'] == '') {
@@ -237,7 +243,8 @@ class ventas_articulos extends fbase_controller {
         }
     }
 
-    private function delete_articulo(&$articulo) {
+    private function delete_articulo(&$articulo)
+    {
         $art = $articulo->get($_GET['delete']);
         if ($art) {
             if (!$this->allow_delete) {
@@ -252,7 +259,8 @@ class ventas_articulos extends fbase_controller {
         }
     }
 
-    private function new_transferencia() {
+    private function new_transferencia()
+    {
         $this->transferencia_stock->usuario = $this->user->nick;
         $this->transferencia_stock->codalmaorigen = $_POST['origen'];
         $this->transferencia_stock->codalmadestino = $_POST['destino'];
@@ -265,7 +273,8 @@ class ventas_articulos extends fbase_controller {
         }
     }
 
-    private function delete_transferencia(&$articulo) {
+    private function delete_transferencia(&$articulo)
+    {
         $transf = $this->transferencia_stock->get($_GET['delete_transf']);
 
         if (!$this->allow_delete) {
@@ -301,7 +310,8 @@ class ventas_articulos extends fbase_controller {
         }
     }
 
-    private function search_articulos() {
+    private function search_articulos()
+    {
         $this->resultados = array();
         $this->num_resultados = 0;
         $sql = ' FROM articulos ';
@@ -313,20 +323,20 @@ class ventas_articulos extends fbase_controller {
             if (is_numeric($query)) {
                 /// ¿La búsqueda son números?
                 $sql .= "(referencia = " . $this->empresa->var2str($query)
-                        . " OR referencia LIKE '%" . $query . "%'"
-                        . " OR partnumber LIKE '%" . $query . "%'"
-                        . " OR equivalencia LIKE '%" . $query . "%'"
-                        . " OR descripcion LIKE '%" . $query . "%'"
-                        . " OR codbarras = " . $this->empresa->var2str($query) . ")";
+                    . " OR referencia LIKE '%" . $query . "%'"
+                    . " OR partnumber LIKE '%" . $query . "%'"
+                    . " OR equivalencia LIKE '%" . $query . "%'"
+                    . " OR descripcion LIKE '%" . $query . "%'"
+                    . " OR codbarras = " . $this->empresa->var2str($query) . ")";
             } else {
                 /// ¿La búsqueda son varias palabras?
                 $palabras = explode(' ', $query);
                 if (count($palabras) > 1) {
                     $sql .= "(lower(referencia) = " . $this->empresa->var2str($query)
-                            . " OR lower(referencia) LIKE '%" . $query . "%'"
-                            . " OR lower(partnumber) LIKE '%" . $query . "%'"
-                            . " OR lower(equivalencia) LIKE '%" . $query . "%'"
-                            . " OR (";
+                        . " OR lower(referencia) LIKE '%" . $query . "%'"
+                        . " OR lower(partnumber) LIKE '%" . $query . "%'"
+                        . " OR lower(equivalencia) LIKE '%" . $query . "%'"
+                        . " OR (";
 
                     foreach ($palabras as $i => $pal) {
                         if ($i == 0) {
@@ -339,11 +349,11 @@ class ventas_articulos extends fbase_controller {
                     $sql .= "))";
                 } else {
                     $sql .= "(lower(referencia) = " . $this->empresa->var2str($query)
-                            . " OR lower(referencia) LIKE '%" . $query . "%'"
-                            . " OR lower(partnumber) LIKE '%" . $query . "%'"
-                            . " OR lower(equivalencia) LIKE '%" . $query . "%'"
-                            . " OR lower(codbarras) = " . $this->empresa->var2str($query)
-                            . " OR lower(descripcion) LIKE '%" . $query . "%')";
+                        . " OR lower(referencia) LIKE '%" . $query . "%'"
+                        . " OR lower(partnumber) LIKE '%" . $query . "%'"
+                        . " OR lower(equivalencia) LIKE '%" . $query . "%'"
+                        . " OR lower(codbarras) = " . $this->empresa->var2str($query)
+                        . " OR lower(descripcion) LIKE '%" . $query . "%')";
                 }
             }
             $where = ' AND ';
@@ -374,7 +384,7 @@ class ventas_articulos extends fbase_controller {
                 $sql .= $where . "stockfis > 0";
             } else {
                 $sql .= $where . "referencia IN (SELECT referencia FROM stocks WHERE cantidad > 0"
-                        . " AND codalmacen = " . $this->empresa->var2str($this->b_codalmacen) . ')';
+                    . " AND codalmacen = " . $this->empresa->var2str($this->b_codalmacen) . ')';
             }
             $where = ' AND ';
         }
@@ -479,7 +489,8 @@ class ventas_articulos extends fbase_controller {
         }
     }
 
-    private function download_resultados($sql, $order) {
+    private function download_resultados($sql, $order)
+    {
         /// desactivamos el motor de plantillas
         $this->template = FALSE;
 
@@ -548,12 +559,14 @@ class ventas_articulos extends fbase_controller {
         }
     }
 
-    public function paginas() {
+    public function paginas()
+    {
         $url = $this->b_url . '&b_orden=' . $this->b_orden;
         return $this->fbase_paginas($url, $this->total_resultados, $this->offset);
     }
 
-    private function get_subfamilias($cod) {
+    private function get_subfamilias($cod)
+    {
         $familias = array($cod);
 
         $data = $this->db->select("SELECT codfamilia,madre FROM familias WHERE madre = " . $this->empresa->var2str($cod) . ";");
@@ -567,5 +580,4 @@ class ventas_articulos extends fbase_controller {
 
         return $familias;
     }
-
 }

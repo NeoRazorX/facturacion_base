@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -30,7 +29,8 @@ require_model('serie.php');
 require_model('cuenta_banco_proveedor.php');
 require_model('direccion_proveedor.php');
 
-class ventas_cliente extends fbase_controller {
+class ventas_cliente extends fbase_controller
+{
 
     public $agente;
     public $cliente;
@@ -41,11 +41,13 @@ class ventas_cliente extends fbase_controller {
     public $pais;
     public $serie;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Cliente', 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->ppage = $this->page->get('ventas_clientes');
@@ -88,7 +90,8 @@ class ventas_cliente extends fbase_controller {
         }
     }
 
-    public function url() {
+    public function url()
+    {
         if (!isset($this->cliente)) {
             return parent::url();
         } else if ($this->cliente) {
@@ -97,7 +100,8 @@ class ventas_cliente extends fbase_controller {
             return $this->ppage->url();
     }
 
-    private function modificar() {
+    private function modificar()
+    {
         $this->cliente->nombre = $_POST['nombre'];
         $this->cliente->razonsocial = $_POST['razonsocial'];
         $this->cliente->tipoidfiscal = $_POST['tipoidfiscal'];
@@ -138,7 +142,8 @@ class ventas_cliente extends fbase_controller {
             $this->new_error_msg("¡Imposible modificar los datos del cliente!");
     }
 
-    private function edit_cuenta_banco() {
+    private function edit_cuenta_banco()
+    {
         if (isset($_POST['codcuenta'])) {
             $cuentab = $this->cuenta_banco->get($_POST['codcuenta']);
         } else {
@@ -164,7 +169,8 @@ class ventas_cliente extends fbase_controller {
             $this->new_error_msg('Imposible guardar la cuenta bancaria.');
     }
 
-    private function delete_cuenta_banco() {
+    private function delete_cuenta_banco()
+    {
         $cuenta = $this->cuenta_banco->get($_GET['delete_cuenta']);
         if ($cuenta) {
             if ($cuenta->delete()) {
@@ -175,7 +181,8 @@ class ventas_cliente extends fbase_controller {
             $this->new_error_msg('Cuenta bancaria no encontrada.');
     }
 
-    private function edit_direccion() {
+    private function edit_direccion()
+    {
         $dir = new direccion_cliente();
         if ($_POST['coddir'] != '') {
             $dir = $dir->get($_POST['coddir']);
@@ -196,7 +203,8 @@ class ventas_cliente extends fbase_controller {
             $this->new_message("¡Imposible guardar la dirección!");
     }
 
-    private function delete_direccion() {
+    private function delete_direccion()
+    {
         $dir = new direccion_cliente();
         $dir0 = $dir->get($_GET['delete_dir']);
         if ($dir0) {
@@ -208,7 +216,8 @@ class ventas_cliente extends fbase_controller {
             $this->new_error_msg('Dirección no encontrada.');
     }
 
-    private function convertir() {
+    private function convertir()
+    {
         $proveedor = new proveedor();
         $proveedor->nombre = $this->cliente->nombre;
         $proveedor->razonsocial = $this->cliente->razonsocial;
@@ -264,7 +273,8 @@ class ventas_cliente extends fbase_controller {
             $this->new_error_msg("¡Imposible crear el proveedor!");
     }
 
-    public function tiene_facturas() {
+    public function tiene_facturas()
+    {
         $tiene = FALSE;
 
         if ($this->db->table_exists('facturascli')) {
@@ -291,20 +301,20 @@ class ventas_cliente extends fbase_controller {
     /**
      * Asigna el cif/nif a todos los albaranes y facturas del cliente que no tengan cif/nif
      */
-    private function propagar_cifnif() {
+    private function propagar_cifnif()
+    {
         if ($this->cliente->cifnif) {
             /// actualizamos albaranes
             $sql = "UPDATE albaranescli SET cifnif = " . $this->cliente->var2str($this->cliente->cifnif)
-                    . " WHERE codcliente = " . $this->cliente->var2str($this->cliente->codcliente)
-                    . " AND cifnif = '' AND fecha >= " . $this->cliente->var2str(date('01-01-Y')) . ";";
+                . " WHERE codcliente = " . $this->cliente->var2str($this->cliente->codcliente)
+                . " AND cifnif = '' AND fecha >= " . $this->cliente->var2str(date('01-01-Y')) . ";";
             $this->db->exec($sql);
 
             /// actualizamos facturas
             $sql = "UPDATE facturascli SET cifnif = " . $this->cliente->var2str($this->cliente->cifnif)
-                    . " WHERE codcliente = " . $this->cliente->var2str($this->cliente->codcliente)
-                    . " AND cifnif = '' AND fecha >= " . $this->cliente->var2str(date('01-01-Y')) . ";";
+                . " WHERE codcliente = " . $this->cliente->var2str($this->cliente->codcliente)
+                . " AND cifnif = '' AND fecha >= " . $this->cliente->var2str(date('01-01-Y')) . ";";
             $this->db->exec($sql);
         }
     }
-
 }

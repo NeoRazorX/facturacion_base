@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -28,7 +27,8 @@ require_model('forma_pago.php');
 require_model('pais.php');
 require_model('serie.php');
 
-class admin_empresa extends fs_controller {
+class admin_empresa extends fs_controller
+{
 
     public $almacen;
     public $cuenta_banco;
@@ -41,11 +41,13 @@ class admin_empresa extends fs_controller {
     public $pais;
     public $serie;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Empresa', 'admin', TRUE, TRUE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->almacen = new almacen();
         $this->cuenta_banco = new cuenta_banco();
         $this->divisa = new divisa();
@@ -120,7 +122,7 @@ class admin_empresa extends fs_controller {
                 $this->new_message('Datos guardados correctamente.');
                 if (!$this->empresa->contintegrada) {
                     $this->new_message('¿Quieres activar la <b>contabilidad integrada</b>?'
-                            . ' Haz clic en la sección <a href="#facturacion">facturación</a>.');
+                        . ' Haz clic en la sección <a href="#facturacion">facturación</a>.');
                 }
 
                 $step = $fsvar->simple_get('install_step');
@@ -131,7 +133,7 @@ class admin_empresa extends fs_controller {
 
                 if ($step == 3 AND $this->empresa->contintegrada) {
                     $this->new_message('Recuerda que tienes que <a href="index.php?page=contabilidad_ejercicio&cod=' .
-                            $this->empresa->codejercicio . '">importar los datos del ejercicio</a>.');
+                        $this->empresa->codejercicio . '">importar los datos del ejercicio</a>.');
                 }
 
                 $this->mail_test();
@@ -195,7 +197,8 @@ class admin_empresa extends fs_controller {
         $this->logo();
     }
 
-    private function mail_test() {
+    private function mail_test()
+    {
         if ($this->empresa->can_send_mail()) {
             /// Es imprescindible OpenSSL para enviar emails con los principales proveedores
             if (extension_loaded('openssl')) {
@@ -213,23 +216,24 @@ class admin_empresa extends fs_controller {
 
                     if ($mail->Host == 'smtp.gmail.com') {
                         $this->new_error_msg('Aunque la contraseña de gmail sea correcta, en ciertas '
-                                . 'situaciones los servidores de gmail bloquean la conexión. '
-                                . 'Para superar esta situación debes crear y usar una '
-                                . '<a href="https://support.google.com/accounts/answer/185833?hl=es" '
-                                . 'target="_blank">contraseña de aplicación</a>');
+                            . 'situaciones los servidores de gmail bloquean la conexión. '
+                            . 'Para superar esta situación debes crear y usar una '
+                            . '<a href="https://support.google.com/accounts/answer/185833?hl=es" '
+                            . 'target="_blank">contraseña de aplicación</a>');
                     } else {
                         $this->new_error_msg("¿<a href='https://www.facturascripts.com/comm3/index.php?page=community_item&id=74'"
-                                . " target='_blank'>Necesitas ayuda</a>?");
+                            . " target='_blank'>Necesitas ayuda</a>?");
                     }
                 }
             } else {
                 $this->new_error_msg('No se encuentra la extensión OpenSSL,'
-                        . ' imprescindible para enviar emails.');
+                    . ' imprescindible para enviar emails.');
             }
         }
     }
 
-    private function fix_logo() {
+    private function fix_logo()
+    {
         if (!file_exists(FS_MYDOCS . 'images')) {
             @mkdir(FS_MYDOCS . 'images', 0777, TRUE);
         }
@@ -245,7 +249,8 @@ class admin_empresa extends fs_controller {
         }
     }
 
-    private function logo() {
+    private function logo()
+    {
         $this->logo = FALSE;
         if (file_exists(FS_MYDOCS . 'images/logo.png')) {
             $this->logo = 'images/logo.png';
@@ -254,7 +259,8 @@ class admin_empresa extends fs_controller {
         }
     }
 
-    private function cambiar_logo() {
+    private function cambiar_logo()
+    {
         if (is_uploaded_file($_FILES['fimagen']['tmp_name'])) {
             if (!file_exists(FS_MYDOCS . 'images')) {
                 @mkdir(FS_MYDOCS . 'images', 0777, TRUE);
@@ -271,7 +277,8 @@ class admin_empresa extends fs_controller {
         }
     }
 
-    private function delete_logo() {
+    private function delete_logo()
+    {
         if (file_exists(FS_MYDOCS . 'images/logo.png')) {
             unlink(FS_MYDOCS . 'images/logo.png');
             $this->new_message('Logotipo borrado correctamente.');
@@ -281,7 +288,8 @@ class admin_empresa extends fs_controller {
         }
     }
 
-    public function encriptaciones() {
+    public function encriptaciones()
+    {
         return array(
             'ssl' => 'SSL',
             'tls' => 'TLS',
@@ -289,12 +297,12 @@ class admin_empresa extends fs_controller {
         );
     }
 
-    public function mailers() {
+    public function mailers()
+    {
         return array(
             'mail' => 'Mail',
             'sendmail' => 'SendMail',
             'smtp' => 'SMTP'
         );
     }
-
 }

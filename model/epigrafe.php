@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -25,6 +24,7 @@ require_once 'plugins/facturacion_base/model/core/epigrafe.php';
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class epigrafe extends FacturaScripts\model\epigrafe {
+class epigrafe extends FacturaScripts\model\epigrafe
+{
     
 }

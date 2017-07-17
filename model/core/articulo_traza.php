@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2016      Luismipr               <luismipr@gmail.com>.
@@ -18,7 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 require_model('articulo.php');
@@ -34,7 +32,8 @@ require_model('linea_factura_proveedor.php');
  * @author Luismipr              <luismipr@gmail.com>
  * @author Carlos García Gómez   <neorazorx@gmail.com>
  */
-class articulo_traza extends \fs_model {
+class articulo_traza extends \fs_model
+{
 
     /**
      * Clave primaria
@@ -87,7 +86,8 @@ class articulo_traza extends \fs_model {
     public $fecha_entrada;
     public $fecha_salida;
 
-    public function __construct($n = FALSE) {
+    public function __construct($n = FALSE)
+    {
         parent::__construct('articulo_trazas');
         if ($n) {
             $this->id = $this->intval($n['id']);
@@ -122,7 +122,8 @@ class articulo_traza extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         /// forzamos la comprobación de las tablas necesarias
         new \articulo();
         new \linea_albaran_cliente();
@@ -137,7 +138,8 @@ class articulo_traza extends \fs_model {
      * Devuelve la url del albarán o la factura de compra.
      * @return string
      */
-    public function documento_compra_url() {
+    public function documento_compra_url()
+    {
         if ($this->idlalbcompra) {
             $lin0 = new \linea_albaran_proveedor();
             $linea = $lin0->get($this->idlalbcompra);
@@ -151,7 +153,7 @@ class articulo_traza extends \fs_model {
                 return $linea->url();
             }
         }
-        
+
         return '#';
     }
 
@@ -159,7 +161,8 @@ class articulo_traza extends \fs_model {
      * Devuelve la url del albarán o factura de venta.
      * @return string
      */
-    public function documento_venta_url() {
+    public function documento_venta_url()
+    {
         if ($this->idlalbventa) {
             $lin0 = new \linea_albaran_cliente();
             $linea = $lin0->get($this->idlalbventa);
@@ -173,7 +176,7 @@ class articulo_traza extends \fs_model {
                 return $linea->url();
             }
         }
-        
+
         return '#';
     }
 
@@ -182,12 +185,13 @@ class articulo_traza extends \fs_model {
      * @param string $id
      * @return boolean|\articulo_traza
      */
-    public function get($id) {
+    public function get($id)
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
         if ($data) {
             return new \articulo_traza($data[0]);
         }
-        
+
         return FALSE;
     }
 
@@ -196,60 +200,64 @@ class articulo_traza extends \fs_model {
      * @param string $numserie
      * @return boolean|\articulo_traza
      */
-    public function get_by_numserie($numserie) {
+    public function get_by_numserie($numserie)
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE numserie = " . $this->var2str($numserie) . ";");
         if ($data) {
             return new \articulo_traza($data[0]);
         }
-        
+
         return FALSE;
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->id)) {
             return FALSE;
         }
-        
+
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
-    public function save() {
+    public function save()
+    {
         if ($this->exists()) {
             $sql = "UPDATE " . $this->table_name . " SET referencia = " . $this->var2str($this->referencia)
-                    . ", numserie = " . $this->var2str($this->numserie)
-                    . ", lote = " . $this->var2str($this->lote)
-                    . ", idlalbventa = " . $this->var2str($this->idlalbventa)
-                    . ", idlfacventa = " . $this->var2str($this->idlfacventa)
-                    . ", idlalbcompra = " . $this->var2str($this->idlalbcompra)
-                    . ", idlfaccompra = " . $this->var2str($this->idlfaccompra)
-                    . ", fecha_entrada = " . $this->var2str($this->fecha_entrada)
-                    . ", fecha_salida = " . $this->var2str($this->fecha_salida)
-                    . "  WHERE id = " . $this->var2str($this->id) . ";";
+                . ", numserie = " . $this->var2str($this->numserie)
+                . ", lote = " . $this->var2str($this->lote)
+                . ", idlalbventa = " . $this->var2str($this->idlalbventa)
+                . ", idlfacventa = " . $this->var2str($this->idlfacventa)
+                . ", idlalbcompra = " . $this->var2str($this->idlalbcompra)
+                . ", idlfaccompra = " . $this->var2str($this->idlfaccompra)
+                . ", fecha_entrada = " . $this->var2str($this->fecha_entrada)
+                . ", fecha_salida = " . $this->var2str($this->fecha_salida)
+                . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
         }
-        
+
         $sql = "INSERT INTO " . $this->table_name . " (referencia,numserie,lote,idlalbventa,"
-                . "idlfacventa,idlalbcompra,idlfaccompra,fecha_entrada,fecha_salida) VALUES "
-                . "(" . $this->var2str($this->referencia)
-                . "," . $this->var2str($this->numserie)
-                . "," . $this->var2str($this->lote)
-                . "," . $this->var2str($this->idlalbventa)
-                . "," . $this->var2str($this->idlfacventa)
-                . "," . $this->var2str($this->idlalbcompra)
-                . "," . $this->var2str($this->idlfaccompra)
-                . "," . $this->var2str($this->fecha_entrada)
-                . "," . $this->var2str($this->fecha_salida) . ");";
+            . "idlfacventa,idlalbcompra,idlfaccompra,fecha_entrada,fecha_salida) VALUES "
+            . "(" . $this->var2str($this->referencia)
+            . "," . $this->var2str($this->numserie)
+            . "," . $this->var2str($this->lote)
+            . "," . $this->var2str($this->idlalbventa)
+            . "," . $this->var2str($this->idlfacventa)
+            . "," . $this->var2str($this->idlalbcompra)
+            . "," . $this->var2str($this->idlfaccompra)
+            . "," . $this->var2str($this->fecha_entrada)
+            . "," . $this->var2str($this->fecha_salida) . ");";
 
         if ($this->db->exec($sql)) {
             $this->id = $this->db->lastval();
             return TRUE;
         }
-        
+
         return FALSE;
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
@@ -259,13 +267,14 @@ class articulo_traza extends \fs_model {
      * @param boolean $sololibre
      * @return \articulo_traza
      */
-    public function all_from_ref($ref, $sololibre = FALSE) {
+    public function all_from_ref($ref, $sololibre = FALSE)
+    {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref);
         if ($sololibre) {
             $sql .= " AND idlalbventa IS NULL AND idlfacventa IS NULL";
         }
         $sql .= " ORDER BY id ASC;";
-        
+
         return $this->all_from($sql);
     }
 
@@ -275,12 +284,14 @@ class articulo_traza extends \fs_model {
      * @param integer $idlinea
      * @return \articulo_traza
      */
-    public function all_from_linea($tipo, $idlinea) {
+    public function all_from_linea($tipo, $idlinea)
+    {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE " . $tipo . " = " . $this->var2str($idlinea) . " ORDER BY id DESC;";
         return $this->all_from($sql);
     }
-    
-    private function all_from($sql) {
+
+    private function all_from($sql)
+    {
         $lista = array();
         $data = $this->db->select($sql);
         if ($data) {
@@ -291,5 +302,4 @@ class articulo_traza extends \fs_model {
 
         return $lista;
     }
-
 }

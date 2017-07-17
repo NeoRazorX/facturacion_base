@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 /**
@@ -25,7 +23,8 @@ namespace FacturaScripts\model;
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class fabricante extends \fs_model {
+class fabricante extends \fs_model
+{
 
     /**
      * Clave primaria.
@@ -34,7 +33,8 @@ class fabricante extends \fs_model {
     public $codfabricante;
     public $nombre;
 
-    public function __construct($f = FALSE) {
+    public function __construct($f = FALSE)
+    {
         parent::__construct('fabricantes');
         if ($f) {
             $this->codfabricante = $f['codfabricante'];
@@ -45,50 +45,57 @@ class fabricante extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         $this->clean_cache();
         return "INSERT INTO " . $this->table_name . " (codfabricante,nombre) VALUES ('OEM','OEM');";
     }
 
-    public function url() {
+    public function url()
+    {
         if (is_null($this->codfabricante)) {
             return "index.php?page=ventas_fabricantes";
         }
-        
+
         return "index.php?page=ventas_fabricante&cod=" . urlencode($this->codfabricante);
     }
 
-    public function nombre($len = 12) {
+    public function nombre($len = 12)
+    {
         if (mb_strlen($this->nombre) > $len) {
             return substr($this->nombre, 0, $len) . '...';
         }
-        
+
         return $this->nombre;
     }
 
-    public function get($cod) {
+    public function get($cod)
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codfabricante = " . $this->var2str($cod) . ";");
         if ($data) {
             return new \fabricante($data[0]);
         }
-        
+
         return FALSE;
     }
 
-    public function get_articulos($offset = 0, $limit = FS_ITEM_LIMIT) {
+    public function get_articulos($offset = 0, $limit = FS_ITEM_LIMIT)
+    {
         $articulo = new \articulo();
         return $articulo->all_from_fabricante($this->codfabricante, $offset, $limit);
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->codfabricante)) {
             return FALSE;
         }
-        
+
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codfabricante = " . $this->var2str($this->codfabricante) . ";");
     }
 
-    public function test() {
+    public function test()
+    {
         $status = FALSE;
 
         $this->codfabricante = $this->no_html($this->codfabricante);
@@ -105,33 +112,36 @@ class fabricante extends \fs_model {
         return $status;
     }
 
-    public function save() {
+    public function save()
+    {
         if ($this->test()) {
             $this->clean_cache();
 
             if ($this->exists()) {
                 $sql = "UPDATE " . $this->table_name . " SET nombre = " . $this->var2str($this->nombre) .
-                        " WHERE codfabricante = " . $this->var2str($this->codfabricante) . ";";
+                    " WHERE codfabricante = " . $this->var2str($this->codfabricante) . ";";
             } else {
                 $sql = "INSERT INTO " . $this->table_name . " (codfabricante,nombre) VALUES " .
-                        "(" . $this->var2str($this->codfabricante) .
-                        "," . $this->var2str($this->nombre) . ");";
+                    "(" . $this->var2str($this->codfabricante) .
+                    "," . $this->var2str($this->nombre) . ");";
             }
 
             return $this->db->exec($sql);
         }
-        
+
         return FALSE;
     }
 
-    public function delete() {
+    public function delete()
+    {
         $this->clean_cache();
 
         $sql = "DELETE FROM " . $this->table_name . " WHERE codfabricante = " . $this->var2str($this->codfabricante) . ";";
         return $this->db->exec($sql);
     }
 
-    private function clean_cache() {
+    private function clean_cache()
+    {
         $this->cache->delete('m_fabricante_all');
     }
 
@@ -139,7 +149,8 @@ class fabricante extends \fs_model {
      * Devuelve un array con todos los fabricantes
      * @return \fabricante
      */
-    public function all() {
+    public function all()
+    {
         /// leemos la lista de la caché
         $fablist = $this->cache->get_array('m_fabricante_all');
         if (!$fablist) {
@@ -158,7 +169,8 @@ class fabricante extends \fs_model {
         return $fablist;
     }
 
-    public function search($query) {
+    public function search($query)
+    {
         $fablist = array();
         $query = $this->no_html(mb_strtolower($query, 'UTF8'));
 
@@ -171,5 +183,4 @@ class fabricante extends \fs_model {
 
         return $fablist;
     }
-
 }

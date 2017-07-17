@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2016  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -26,18 +25,21 @@ require_model('factura_cliente.php');
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class ventas_maquetar extends fs_controller {
+class ventas_maquetar extends fs_controller
+{
 
     public $documento;
     public $editable;
     public $lineas;
     public $titulo;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Maquetar', 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->share_extensions();
 
         $this->documento = FALSE;
@@ -121,7 +123,8 @@ class ventas_maquetar extends fs_controller {
         }
     }
 
-    private function share_extensions() {
+    private function share_extensions()
+    {
         $fsext = new fs_extension();
         $fsext->name = 'maquetar_albaran';
         $fsext->from = __CLASS__;
@@ -141,7 +144,8 @@ class ventas_maquetar extends fs_controller {
         $fsext2->save();
     }
 
-    public function url() {
+    public function url()
+    {
         switch (get_class_name($this->documento)) {
             case 'albaran_cliente':
                 return 'index.php?page=' . __CLASS__ . '&albaran=TRUE&id=' . $this->documento->idalbaran;
@@ -156,5 +160,4 @@ class ventas_maquetar extends fs_controller {
                 break;
         }
     }
-
 }

@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 /**
@@ -26,13 +24,15 @@ namespace FacturaScripts\model;
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class articulo_propiedad extends \fs_model {
+class articulo_propiedad extends \fs_model
+{
 
     public $name;
     public $referencia;
     public $text;
 
-    public function __construct($a = FALSE) {
+    public function __construct($a = FALSE)
+    {
         parent::__construct('articulo_propiedades');
         if ($a) {
             $this->name = $a['name'];
@@ -45,7 +45,8 @@ class articulo_propiedad extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         return '';
     }
 
@@ -53,13 +54,14 @@ class articulo_propiedad extends \fs_model {
      * Devuelve TRUE si los datos existen en la base de datos
      * @return boolean
      */
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->name) OR is_null($this->referencia)) {
             return FALSE;
         }
 
         $sql = "SELECT * FROM " . $this->table_name . " WHERE name = " . $this->var2str($this->name)
-                . " AND referencia = " . $this->var2str($this->referencia) . ";";
+            . " AND referencia = " . $this->var2str($this->referencia) . ";";
 
         return $this->db->select($sql);
     }
@@ -68,16 +70,17 @@ class articulo_propiedad extends \fs_model {
      * Guarda los datos en la base de datos
      * @return boolean
      */
-    public function save() {
+    public function save()
+    {
         if ($this->exists()) {
             $sql = "UPDATE " . $this->table_name . " SET text = " . $this->var2str($this->text)
-                    . " WHERE name = " . $this->var2str($this->name)
-                    . " AND referencia = " . $this->var2str($this->referencia) . ";";
+                . " WHERE name = " . $this->var2str($this->name)
+                . " AND referencia = " . $this->var2str($this->referencia) . ";";
         } else {
             $sql = "INSERT INTO " . $this->table_name . " (name,referencia,text) VALUES "
-                    . "(" . $this->var2str($this->name)
-                    . "," . $this->var2str($this->referencia)
-                    . "," . $this->var2str($this->text) . ");";
+                . "(" . $this->var2str($this->name)
+                . "," . $this->var2str($this->referencia)
+                . "," . $this->var2str($this->text) . ");";
         }
 
         return $this->db->exec($sql);
@@ -87,9 +90,10 @@ class articulo_propiedad extends \fs_model {
      * Elimina los datos de la base de datos
      * @return type
      */
-    public function delete() {
+    public function delete()
+    {
         $sql = "DELETE FROM " . $this->table_name . " WHERE name = " . $this->var2str($this->name)
-                . " AND referencia = " . $this->var2str($this->referencia) . ";";
+            . " AND referencia = " . $this->var2str($this->referencia) . ";";
 
         return $this->db->exec($sql);
     }
@@ -99,7 +103,8 @@ class articulo_propiedad extends \fs_model {
      * @param type $ref
      * @return type
      */
-    public function array_get($ref) {
+    public function array_get($ref)
+    {
         $vlist = array();
 
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref) . ";");
@@ -118,7 +123,8 @@ class articulo_propiedad extends \fs_model {
      * @param type $values
      * @return boolean
      */
-    public function array_save($ref, $values) {
+    public function array_save($ref, $values)
+    {
         $done = TRUE;
 
         foreach ($values as $key => $value) {
@@ -141,9 +147,10 @@ class articulo_propiedad extends \fs_model {
      * @param type $name
      * @return boolean
      */
-    public function simple_get($ref, $name) {
+    public function simple_get($ref, $name)
+    {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref)
-                . " AND name = " . $this->var2str($name) . ";";
+            . " AND name = " . $this->var2str($name) . ";";
         $data = $this->db->select($sql);
         if ($data) {
             return $data[0]['text'];
@@ -158,9 +165,10 @@ class articulo_propiedad extends \fs_model {
      * @param type $text
      * @return boolean
      */
-    public function simple_get_ref($name, $text) {
+    public function simple_get_ref($name, $text)
+    {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE text = " . $this->var2str($text)
-                . " AND name = " . $this->var2str($name) . ";";
+            . " AND name = " . $this->var2str($name) . ";";
         $data = $this->db->select($sql);
         if ($data) {
             return $data[0]['referencia'];
@@ -175,14 +183,16 @@ class articulo_propiedad extends \fs_model {
      * @param type $name
      * @return type
      */
-    public function simple_delete($ref, $name) {
+    public function simple_delete($ref, $name)
+    {
         $sql = "DELETE FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref)
-                . " AND name = " . $this->var2str($name) . ";";
+            . " AND name = " . $this->var2str($name) . ";";
 
         return $this->db->exec($sql);
     }
 
-    public function all($offset = 0, $limit = FS_ITEM_LIMIT) {
+    public function all($offset = 0, $limit = FS_ITEM_LIMIT)
+    {
         $aplist = array();
 
         $data = $this->db->select_limit("SELECT * FROM " . $this->table_name . " ORDER BY referencia ASC", $limit, $offset);
@@ -194,5 +204,4 @@ class articulo_propiedad extends \fs_model {
 
         return $aplist;
     }
-
 }

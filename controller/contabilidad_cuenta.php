@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -24,17 +23,20 @@ require_model('cuenta_especial.php');
 require_model('ejercicio.php');
 require_model('subcuenta.php');
 
-class contabilidad_cuenta extends fbase_controller {
+class contabilidad_cuenta extends fbase_controller
+{
 
     public $cuenta;
     public $ejercicio;
     public $nuevo_codsubcuenta;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Cuenta', 'contabilidad', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->cuenta = FALSE;
@@ -63,7 +65,8 @@ class contabilidad_cuenta extends fbase_controller {
         }
     }
 
-    public function url() {
+    public function url()
+    {
         if (!isset($this->cuenta)) {
             return parent::url();
         } else if ($this->cuenta) {
@@ -72,12 +75,14 @@ class contabilidad_cuenta extends fbase_controller {
             return $this->page->url();
     }
 
-    public function cuentas_especiales() {
+    public function cuentas_especiales()
+    {
         $cuentae = new cuenta_especial();
         return $cuentae->all();
     }
 
-    private function cargar_cuenta() {
+    private function cargar_cuenta()
+    {
         $cuenta = new cuenta();
         $this->cuenta = $cuenta->get($_GET['id']);
         if ($this->cuenta AND isset($_POST['descripcion'])) {
@@ -94,7 +99,8 @@ class contabilidad_cuenta extends fbase_controller {
         }
     }
 
-    private function nueva_subcuenta() {
+    private function nueva_subcuenta()
+    {
         $subc0 = new subcuenta();
         $subc0->codcuenta = $_POST['codcuenta'];
         $subc0->codejercicio = $_POST['ejercicio'];
@@ -110,7 +116,8 @@ class contabilidad_cuenta extends fbase_controller {
         $this->cuenta = $subc0->get_cuenta();
     }
 
-    private function delete_subcuenta() {
+    private function delete_subcuenta()
+    {
         $subc0 = new subcuenta();
         $subc1 = $subc0->get($_GET['deletes']);
         if ($subc1) {
@@ -122,7 +129,7 @@ class contabilidad_cuenta extends fbase_controller {
             if ($ejercicio) {
                 if (!$ejercicio->abierto()) {
                     $this->new_error_msg('No se puede eliminar la subcuenta, el ejercicio '
-                            . $ejercicio->nombre . ' está cerrado.');
+                        . $ejercicio->nombre . ' está cerrado.');
                     $bloquear = TRUE;
                 }
             }
@@ -136,5 +143,4 @@ class contabilidad_cuenta extends fbase_controller {
         } else
             $this->new_error_msg('Subcuenta no encontrada.');
     }
-
 }

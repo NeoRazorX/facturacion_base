@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -43,7 +42,8 @@ require_model('subcuenta.php');
 require_model('subcuenta_cliente.php');
 require_model('subcuenta_proveedor.php');
 
-class informe_errores extends fs_controller {
+class informe_errores extends fs_controller
+{
 
     public $ajax;
     public $ejercicio;
@@ -51,11 +51,13 @@ class informe_errores extends fs_controller {
     public $informe;
     public $mostrar_cancelar;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Errores', 'informes', FALSE, TRUE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->ajax = FALSE;
         $this->ejercicio = new ejercicio();
         $this->errores = array();
@@ -83,7 +85,8 @@ class informe_errores extends fs_controller {
         }
     }
 
-    private function iniciar_test() {
+    private function iniciar_test()
+    {
         $file = fopen('tmp/' . FS_TMP_NAME . 'informe_errores.txt', 'w');
         if ($file) {
             $this->mostrar_cancelar = TRUE;
@@ -111,7 +114,8 @@ class informe_errores extends fs_controller {
         }
     }
 
-    private function continuar_test() {
+    private function continuar_test()
+    {
         $file = fopen('tmp/' . FS_TMP_NAME . 'informe_errores.txt', 'r+');
         if ($file) {
             /*
@@ -182,7 +186,8 @@ class informe_errores extends fs_controller {
         }
     }
 
-    private function test_models() {
+    private function test_models()
+    {
         $last_errores = array();
 
         switch ($this->informe['model']) {
@@ -420,7 +425,8 @@ class informe_errores extends fs_controller {
         return $last_errores;
     }
 
-    public function all_pages() {
+    public function all_pages()
+    {
         $allp = array();
         $show_p = $this->informe['show_page'];
 
@@ -439,7 +445,8 @@ class informe_errores extends fs_controller {
         return $allp;
     }
 
-    private function check_partidas_erroneas() {
+    private function check_partidas_erroneas()
+    {
         $errores = array();
         $asient0 = new asiento();
 
@@ -469,7 +476,8 @@ class informe_errores extends fs_controller {
         return $errores;
     }
 
-    private function test_tablas() {
+    private function test_tablas()
+    {
         $recargar = TRUE;
 
         switch ($this->informe['offset']) {
@@ -604,5 +612,4 @@ class informe_errores extends fs_controller {
             $this->informe['offset'] = 0;
         }
     }
-
 }

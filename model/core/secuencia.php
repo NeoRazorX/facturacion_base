@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,14 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 require_model('ejercicio.php');
 require_model('serie.php');
 require_model('secuencia_contabilidad.php');
 require_model('secuencia_ejercicio.php');
-
 
 /**
  * Estos tres modelos (secuencia, secuencia_contabilidad y secuencia_ejercicio)
@@ -33,7 +30,8 @@ require_model('secuencia_ejercicio.php');
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class secuencia extends \fs_model {
+class secuencia extends \fs_model
+{
 
     /**
      * Clave primaria.
@@ -46,7 +44,8 @@ class secuencia extends \fs_model {
     public $descripcion;
     public $nombre;
 
-    public function __construct($s = FALSE) {
+    public function __construct($s = FALSE)
+    {
         parent::__construct('secuencias');
         if ($s) {
             $this->idsec = $this->intval($s['idsec']);
@@ -65,12 +64,14 @@ class secuencia extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         $sece = new \secuencia_ejercicio();
         return '';
     }
 
-    public function get($idsec) {
+    public function get($idsec)
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idsec = " . $this->var2str($idsec) . ";");
         if ($data) {
             return new \secuencia($data[0]);
@@ -79,9 +80,10 @@ class secuencia extends \fs_model {
         return FALSE;
     }
 
-    public function get_by_params($id, $nombre) {
+    public function get_by_params($id, $nombre)
+    {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id)
-                . " AND nombre = " . $this->var2str($nombre) . ";";
+            . " AND nombre = " . $this->var2str($nombre) . ";";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -91,7 +93,8 @@ class secuencia extends \fs_model {
         return FALSE;
     }
 
-    public function get_by_params2($eje, $serie, $nombre) {
+    public function get_by_params2($eje, $serie, $nombre)
+    {
         $sece = new \secuencia_ejercicio();
         $sece->check();
         $aux = $sece->get_by_params($eje, $serie);
@@ -111,7 +114,8 @@ class secuencia extends \fs_model {
         return FALSE;
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->idsec)) {
             return FALSE;
         }
@@ -119,24 +123,25 @@ class secuencia extends \fs_model {
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idsec = " . $this->var2str($this->idsec) . ";");
     }
 
-    public function save() {
+    public function save()
+    {
         if ($this->exists()) {
             $sql = "UPDATE " . $this->table_name . " SET id = " . $this->var2str($this->id) .
-                    ", valorout = " . $this->var2str($this->valorout) .
-                    ", valor = " . $this->var2str($this->valor) .
-                    ", descripcion = " . $this->var2str($this->descripcion) .
-                    ", nombre = " . $this->var2str($this->nombre) .
-                    "  WHERE idsec = " . $this->var2str($this->idsec) . ";";
+                ", valorout = " . $this->var2str($this->valorout) .
+                ", valor = " . $this->var2str($this->valor) .
+                ", descripcion = " . $this->var2str($this->descripcion) .
+                ", nombre = " . $this->var2str($this->nombre) .
+                "  WHERE idsec = " . $this->var2str($this->idsec) . ";";
 
             return $this->db->exec($sql);
         }
 
         $sql = "INSERT INTO " . $this->table_name . " (id,valorout,valor,descripcion,nombre) VALUES
                   (" . $this->var2str($this->id) .
-                "," . $this->var2str($this->valorout) .
-                "," . $this->var2str($this->valor) .
-                "," . $this->var2str($this->descripcion) .
-                "," . $this->var2str($this->nombre) . ");";
+            "," . $this->var2str($this->valorout) .
+            "," . $this->var2str($this->valor) .
+            "," . $this->var2str($this->descripcion) .
+            "," . $this->var2str($this->nombre) . ");";
 
         if ($this->db->exec($sql)) {
             $this->idsec = $this->db->lastval();
@@ -146,8 +151,8 @@ class secuencia extends \fs_model {
         return FALSE;
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE idsec = " . $this->var2str($this->idsec) . ";");
     }
-
 }

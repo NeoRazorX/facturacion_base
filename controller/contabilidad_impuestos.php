@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -22,17 +21,20 @@ require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('impuesto.php');
 require_model('subcuenta.php');
 
-class contabilidad_impuestos extends fbase_controller {
+class contabilidad_impuestos extends fbase_controller
+{
 
     public $codsubcuentasop;
     public $codsubcuentarep;
     public $impuesto;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Impuestos', 'contabilidad');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->impuesto = new impuesto();
@@ -49,7 +51,8 @@ class contabilidad_impuestos extends fbase_controller {
         }
     }
 
-    private function subcuentas_predeterminadas() {
+    private function subcuentas_predeterminadas()
+    {
         $subcuenta = new subcuenta();
 
         $this->codsubcuentasop = '';
@@ -68,7 +71,8 @@ class contabilidad_impuestos extends fbase_controller {
         }
     }
 
-    private function editar_impuesto() {
+    private function editar_impuesto()
+    {
         $impuesto = $this->impuesto->get($_POST['codimpuesto']);
         if (!$impuesto) {
             $impuesto = new impuesto();
@@ -96,7 +100,8 @@ class contabilidad_impuestos extends fbase_controller {
             $this->new_error_msg("¡Error al guardar el impuesto!");
     }
 
-    private function eliminar_impuesto() {
+    private function eliminar_impuesto()
+    {
         if (!$this->user->admin) {
             $this->new_error_msg('Sólo un administrador puede eliminar impuestos.');
         } else {
@@ -110,5 +115,4 @@ class contabilidad_impuestos extends fbase_controller {
                 $this->new_error_msg('Impuesto no encontrado.');
         }
     }
-
 }

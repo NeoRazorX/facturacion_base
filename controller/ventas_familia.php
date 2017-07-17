@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -22,7 +21,8 @@ require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('articulo.php');
 require_model('familia.php');
 
-class ventas_familia extends fbase_controller {
+class ventas_familia extends fbase_controller
+{
 
     public $articulos;
     public $familia;
@@ -30,11 +30,13 @@ class ventas_familia extends fbase_controller {
     public $offset;
     public $subfamilias;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Familia', 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->familia = FALSE;
@@ -64,7 +66,8 @@ class ventas_familia extends fbase_controller {
         }
     }
 
-    public function url() {
+    public function url()
+    {
         if (!isset($this->familia)) {
             return parent::url();
         } else if ($this->familia) {
@@ -73,7 +76,8 @@ class ventas_familia extends fbase_controller {
             return $this->page->url();
     }
 
-    private function modificar() {
+    private function modificar()
+    {
         $this->familia->descripcion = $_POST['descripcion'];
 
         $this->familia->madre = NULL;
@@ -89,7 +93,8 @@ class ventas_familia extends fbase_controller {
             $this->new_error_msg("Imposible modificar los datos.");
     }
 
-    public function anterior_url() {
+    public function anterior_url()
+    {
         $url = '';
 
         if ($this->offset > '0') {
@@ -99,7 +104,8 @@ class ventas_familia extends fbase_controller {
         return $url;
     }
 
-    public function siguiente_url() {
+    public function siguiente_url()
+    {
         $url = '';
 
         if (count($this->articulos) == FS_ITEM_LIMIT) {
@@ -109,8 +115,8 @@ class ventas_familia extends fbase_controller {
         return $url;
     }
 
-    public function total_familia() {
+    public function total_familia()
+    {
         return $this->fbase_sql_total('articulos', 'referencia', "WHERE codfamilia = " . $this->empresa->var2str($this->familia->codfamilia));
     }
-
 }

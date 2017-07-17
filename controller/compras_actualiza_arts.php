@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -28,17 +27,20 @@ require_model('pedido_proveedor.php');
  *
  * @author Carlos Garcia Gomez
  */
-class compras_actualiza_arts extends fs_controller {
+class compras_actualiza_arts extends fs_controller
+{
 
     public $documento;
     public $lineas;
     public $tipodoc;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Artículos documento', 'compras', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->share_extensions();
 
         $this->documento = FALSE;
@@ -146,7 +148,8 @@ class compras_actualiza_arts extends fs_controller {
         }
     }
 
-    private function share_extensions() {
+    private function share_extensions()
+    {
         /// añadimos las extensiones para pedidos y albaranes
         $extensiones = array(
             array(
@@ -176,7 +179,8 @@ class compras_actualiza_arts extends fs_controller {
         }
     }
 
-    public function url() {
+    public function url()
+    {
         $url = parent::url();
 
         if (isset($_REQUEST['doc']) AND isset($_REQUEST['id'])) {
@@ -185,5 +189,4 @@ class compras_actualiza_arts extends fs_controller {
 
         return $url;
     }
-
 }

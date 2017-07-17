@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 /**
@@ -25,7 +23,8 @@ namespace FacturaScripts\model;
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class familia extends \fs_model {
+class familia extends \fs_model
+{
 
     /**
      * Clave primaria.
@@ -41,7 +40,8 @@ class familia extends \fs_model {
     public $madre;
     public $nivel;
 
-    public function __construct($f = FALSE) {
+    public function __construct($f = FALSE)
+    {
         parent::__construct('familias');
         if ($f) {
             $this->codfamilia = $f['codfamilia'];
@@ -64,12 +64,14 @@ class familia extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         $this->clean_cache();
         return "INSERT INTO " . $this->table_name . " (codfamilia,descripcion) VALUES ('VARI','VARIOS');";
     }
 
-    public function url() {
+    public function url()
+    {
         if (is_null($this->codfamilia)) {
             return "index.php?page=ventas_familias";
         }
@@ -77,7 +79,8 @@ class familia extends \fs_model {
         return "index.php?page=ventas_familia&cod=" . urlencode($this->codfamilia);
     }
 
-    public function descripcion($len = 12) {
+    public function descripcion($len = 12)
+    {
         if (mb_strlen($this->descripcion) > $len) {
             return substr($this->descripcion, 0, $len) . '...';
         }
@@ -89,11 +92,13 @@ class familia extends \fs_model {
      * @deprecated since version 50
      * @return boolean
      */
-    public function is_default() {
+    public function is_default()
+    {
         return FALSE;
     }
 
-    public function get($cod) {
+    public function get($cod)
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codfamilia = " . $this->var2str($cod) . ";");
         if ($data) {
             return new \familia($data[0]);
@@ -102,12 +107,14 @@ class familia extends \fs_model {
         return FALSE;
     }
 
-    public function get_articulos($offset = 0, $limit = FS_ITEM_LIMIT) {
+    public function get_articulos($offset = 0, $limit = FS_ITEM_LIMIT)
+    {
         $articulo = new \articulo();
         return $articulo->all_from_familia($this->codfamilia, $offset, $limit);
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->codfamilia)) {
             return FALSE;
         }
@@ -119,7 +126,8 @@ class familia extends \fs_model {
      * Comprueba los datos de la familia, devuelve TRUE si son correctos
      * @return boolean
      */
-    public function test() {
+    public function test()
+    {
         $status = FALSE;
 
         $this->codfamilia = $this->no_html($this->codfamilia);
@@ -140,24 +148,25 @@ class familia extends \fs_model {
      * Guarda los datos en la base de datos
      * @return boolean
      */
-    public function save() {
+    public function save()
+    {
         if ($this->test()) {
             $this->clean_cache();
 
             if ($this->exists()) {
                 $sql = "UPDATE " . $this->table_name . " SET descripcion = " . $this->var2str($this->descripcion) .
-                        ", madre = " . $this->var2str($this->madre) .
-                        "  WHERE codfamilia = " . $this->var2str($this->codfamilia) . ";";
+                    ", madre = " . $this->var2str($this->madre) .
+                    "  WHERE codfamilia = " . $this->var2str($this->codfamilia) . ";";
             } else {
                 $sql = "INSERT INTO " . $this->table_name . " (codfamilia,descripcion,madre) VALUES " .
-                        "(" . $this->var2str($this->codfamilia) .
-                        "," . $this->var2str($this->descripcion) .
-                        "," . $this->var2str($this->madre) . ");";
+                    "(" . $this->var2str($this->codfamilia) .
+                    "," . $this->var2str($this->descripcion) .
+                    "," . $this->var2str($this->madre) . ");";
             }
 
             return $this->db->exec($sql);
         }
-        
+
         return FALSE;
     }
 
@@ -165,10 +174,11 @@ class familia extends \fs_model {
      * Elimina la familia de la base de datos
      * @return boolean
      */
-    public function delete() {
+    public function delete()
+    {
         $this->clean_cache();
         $sql = "DELETE FROM " . $this->table_name . " WHERE codfamilia = " . $this->var2str($this->codfamilia) . ";"
-                . "UPDATE " . $this->table_name . " SET madre = " . $this->var2str($this->madre) . " WHERE madre = " . $this->var2str($this->codfamilia) . ";";
+            . "UPDATE " . $this->table_name . " SET madre = " . $this->var2str($this->madre) . " WHERE madre = " . $this->var2str($this->codfamilia) . ";";
 
         return $this->db->exec($sql);
     }
@@ -176,7 +186,8 @@ class familia extends \fs_model {
     /**
      * Limpia la caché
      */
-    private function clean_cache() {
+    private function clean_cache()
+    {
         $this->cache->delete('m_familia_all');
     }
 
@@ -184,7 +195,8 @@ class familia extends \fs_model {
      * Devuelve un array con todas las familias
      * @return \familia
      */
-    public function all() {
+    public function all()
+    {
         /// lee la lista de la caché
         $famlist = $this->cache->get_array('m_familia_all');
         if (!$famlist) {
@@ -215,7 +227,8 @@ class familia extends \fs_model {
      * @param string $nivel
      * @return \familia[]
      */
-    private function aux_all(&$familias, $madre, $nivel) {
+    private function aux_all(&$familias, $madre, $nivel)
+    {
         $subfamilias = array();
 
         foreach ($familias as $fam) {
@@ -231,7 +244,8 @@ class familia extends \fs_model {
         return $subfamilias;
     }
 
-    private function all_from($sql) {
+    private function all_from($sql)
+    {
         $famlist = array();
         $data = $this->db->select($sql);
         if ($data) {
@@ -242,7 +256,8 @@ class familia extends \fs_model {
         return $famlist;
     }
 
-    public function madres() {
+    public function madres()
+    {
         $famlist = $this->all_from("SELECT * FROM " . $this->table_name . " WHERE madre IS NULL ORDER BY lower(descripcion) ASC;");
         if (empty($famlist)) {
             /// si la lista está vacía, ponemos madre a NULL en todas por si el usuario ha estado jugando
@@ -252,15 +267,17 @@ class familia extends \fs_model {
         return $famlist;
     }
 
-    public function hijas($codmadre = FALSE) {
+    public function hijas($codmadre = FALSE)
+    {
         if (!$codmadre) {
             $codmadre = $this->codfamilia;
         }
-        
+
         return $this->all_from("SELECT * FROM " . $this->table_name . " WHERE madre = " . $this->var2str($codmadre) . " ORDER BY descripcion ASC;");
     }
 
-    public function search($query) {
+    public function search($query)
+    {
         $query = $this->no_html(mb_strtolower($query, 'UTF8'));
         return $this->all_from("SELECT * FROM " . $this->table_name . " WHERE lower(descripcion) LIKE '%" . $query . "%' ORDER BY descripcion ASC;");
     }
@@ -268,7 +285,8 @@ class familia extends \fs_model {
     /**
      * Aplicamos correcciones a la tabla.
      */
-    public function fix_db() {
+    public function fix_db()
+    {
         /// comprobamos que las familias con madre, su madre exista.
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE madre IS NOT NULL;");
         if ($data) {
@@ -277,10 +295,9 @@ class familia extends \fs_model {
                 if (!$fam) {
                     /// si no existe, desvinculamos
                     $this->db->exec("UPDATE " . $this->table_name . " SET madre = null WHERE codfamilia = "
-                            . $this->var2str($d['codfamilia']) . ":");
+                        . $this->var2str($d['codfamilia']) . ":");
                 }
             }
         }
     }
-
 }

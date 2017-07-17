@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 require_model('ejercicio.php');
@@ -32,7 +30,8 @@ require_model('secuencia.php');
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class albaran_proveedor extends \fs_model {
+class albaran_proveedor extends \fs_model
+{
 
     /**
      * Clave primaria. Integer
@@ -176,7 +175,8 @@ class albaran_proveedor extends \fs_model {
      */
     public $numdocs;
 
-    public function __construct($a = FALSE) {
+    public function __construct($a = FALSE)
+    {
         parent::__construct('albaranesprov');
         if ($a) {
             $this->idalbaran = $this->intval($a['idalbaran']);
@@ -252,7 +252,8 @@ class albaran_proveedor extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         /// nos aseguramos de que se comprueban las tablas de facturas y series antes
         new \serie();
         new \factura_proveedor();
@@ -260,7 +261,8 @@ class albaran_proveedor extends \fs_model {
         return '';
     }
 
-    public function observaciones_resume() {
+    public function observaciones_resume()
+    {
         if ($this->observaciones == '') {
             return '-';
         } else if (strlen($this->observaciones) < 60) {
@@ -270,7 +272,8 @@ class albaran_proveedor extends \fs_model {
         return substr($this->observaciones, 0, 50) . '...';
     }
 
-    public function url() {
+    public function url()
+    {
         if (is_null($this->idalbaran)) {
             return 'index.php?page=compras_albaranes';
         }
@@ -278,7 +281,8 @@ class albaran_proveedor extends \fs_model {
         return 'index.php?page=compras_albaran&id=' . $this->idalbaran;
     }
 
-    public function factura_url() {
+    public function factura_url()
+    {
         if (is_null($this->idfactura)) {
             return '#';
         }
@@ -286,7 +290,8 @@ class albaran_proveedor extends \fs_model {
         return 'index.php?page=compras_factura&id=' . $this->idfactura;
     }
 
-    public function agente_url() {
+    public function agente_url()
+    {
         if (is_null($this->codagente)) {
             return "index.php?page=admin_agentes";
         }
@@ -294,7 +299,8 @@ class albaran_proveedor extends \fs_model {
         return "index.php?page=admin_agente&cod=" . $this->codagente;
     }
 
-    public function proveedor_url() {
+    public function proveedor_url()
+    {
         if (is_null($this->codproveedor)) {
             return "index.php?page=compras_proveedores";
         }
@@ -302,7 +308,8 @@ class albaran_proveedor extends \fs_model {
         return "index.php?page=compras_proveedor&cod=" . $this->codproveedor;
     }
 
-    public function get_lineas() {
+    public function get_lineas()
+    {
         $linea = new \linea_albaran_proveedor();
         return $linea->all_from_albaran($this->idalbaran);
     }
@@ -312,7 +319,8 @@ class albaran_proveedor extends \fs_model {
      * @param string $id
      * @return \albaran_proveedor|boolean
      */
-    public function get($id) {
+    public function get($id)
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($id) . ";");
         if ($data) {
             return new \albaran_proveedor($data[0]);
@@ -321,7 +329,8 @@ class albaran_proveedor extends \fs_model {
         return FALSE;
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->idalbaran)) {
             return FALSE;
         }
@@ -332,7 +341,8 @@ class albaran_proveedor extends \fs_model {
     /**
      * Genera un nuevo código y número para el albarán
      */
-    public function new_codigo() {
+    public function new_codigo()
+    {
         $this->numero = fs_documento_new_numero($this->db, $this->table_name, $this->codejercicio, $this->codserie, 'nalbaranprov');
         $this->codigo = fs_documento_new_codigo(FS_ALBARAN, $this->codejercicio, $this->codserie, $this->numero, 'C');
     }
@@ -341,7 +351,8 @@ class albaran_proveedor extends \fs_model {
      * Comprueba los datos del albarán, devuelve TRUE si está todo correcto
      * @return boolean
      */
-    public function test() {
+    public function test()
+    {
         $this->nombre = $this->no_html($this->nombre);
         if ($this->nombre == '') {
             $this->nombre = '-';
@@ -374,7 +385,8 @@ class albaran_proveedor extends \fs_model {
      * @param boolean $duplicados
      * @return boolean
      */
-    public function full_test($duplicados = TRUE) {
+    public function full_test($duplicados = TRUE)
+    {
         $status = TRUE;
 
         /// comprobamos las líneas
@@ -430,12 +442,12 @@ class albaran_proveedor extends \fs_model {
                     $status = FALSE;
                 } else if ($facturas[0]->idfactura != $this->idfactura) {
                     $this->new_error_msg("Este " . FS_ALBARAN . " esta asociado a una <a href='" . $this->factura_url() .
-                            "'>factura</a> incorrecta. La correcta es <a href='" . $facturas[0]->url() . "'>esta</a>.");
+                        "'>factura</a> incorrecta. La correcta es <a href='" . $facturas[0]->url() . "'>esta</a>.");
                     $status = FALSE;
                 }
             } else if (isset($this->idfactura)) {
                 $this->new_error_msg("Este " . FS_ALBARAN . " esta asociado a una <a href='" . $this->factura_url()
-                        . "'>factura</a> que ya no existe. <b>Corregido</b>.");
+                    . "'>factura</a> que ya no existe. <b>Corregido</b>.");
                 $this->idfactura = NULL;
                 $this->save();
 
@@ -446,12 +458,12 @@ class albaran_proveedor extends \fs_model {
         if ($status AND $duplicados) {
             /// comprobamos si es un duplicado
             $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE fecha = " . $this->var2str($this->fecha)
-                    . " AND codproveedor = " . $this->var2str($this->codproveedor)
-                    . " AND total = " . $this->var2str($this->total)
-                    . " AND codagente = " . $this->var2str($this->codagente)
-                    . " AND numproveedor = " . $this->var2str($this->numproveedor)
-                    . " AND observaciones = " . $this->var2str($this->observaciones)
-                    . " AND idalbaran != " . $this->var2str($this->idalbaran) . ";");
+                . " AND codproveedor = " . $this->var2str($this->codproveedor)
+                . " AND total = " . $this->var2str($this->total)
+                . " AND codagente = " . $this->var2str($this->codagente)
+                . " AND numproveedor = " . $this->var2str($this->numproveedor)
+                . " AND observaciones = " . $this->var2str($this->observaciones)
+                . " AND idalbaran != " . $this->var2str($this->idalbaran) . ";");
             if ($data) {
                 foreach ($data as $alb) {
                     /// comprobamos las líneas
@@ -476,36 +488,37 @@ class albaran_proveedor extends \fs_model {
      * Guarda los datos en la base de datos
      * @return boolean
      */
-    public function save() {
+    public function save()
+    {
         if ($this->test()) {
             if ($this->exists()) {
                 $sql = "UPDATE " . $this->table_name . " SET idfactura = " . $this->var2str($this->idfactura)
-                        . ", codigo = " . $this->var2str($this->codigo)
-                        . ", numero = " . $this->var2str($this->numero)
-                        . ", numproveedor = " . $this->var2str($this->numproveedor)
-                        . ", codejercicio = " . $this->var2str($this->codejercicio)
-                        . ", codserie = " . $this->var2str($this->codserie)
-                        . ", coddivisa = " . $this->var2str($this->coddivisa)
-                        . ", codpago = " . $this->var2str($this->codpago)
-                        . ", codagente = " . $this->var2str($this->codagente)
-                        . ", codalmacen = " . $this->var2str($this->codalmacen)
-                        . ", fecha = " . $this->var2str($this->fecha)
-                        . ", codproveedor = " . $this->var2str($this->codproveedor)
-                        . ", nombre = " . $this->var2str($this->nombre)
-                        . ", cifnif = " . $this->var2str($this->cifnif)
-                        . ", neto = " . $this->var2str($this->neto)
-                        . ", total = " . $this->var2str($this->total)
-                        . ", totaliva = " . $this->var2str($this->totaliva)
-                        . ", totaleuros = " . $this->var2str($this->totaleuros)
-                        . ", irpf = " . $this->var2str($this->irpf)
-                        . ", totalirpf = " . $this->var2str($this->totalirpf)
-                        . ", tasaconv = " . $this->var2str($this->tasaconv)
-                        . ", totalrecargo = " . $this->var2str($this->totalrecargo)
-                        . ", observaciones = " . $this->var2str($this->observaciones)
-                        . ", hora = " . $this->var2str($this->hora)
-                        . ", ptefactura = " . $this->var2str($this->ptefactura)
-                        . ", numdocs = " . $this->var2str($this->numdocs)
-                        . "  WHERE idalbaran = " . $this->var2str($this->idalbaran) . ";";
+                    . ", codigo = " . $this->var2str($this->codigo)
+                    . ", numero = " . $this->var2str($this->numero)
+                    . ", numproveedor = " . $this->var2str($this->numproveedor)
+                    . ", codejercicio = " . $this->var2str($this->codejercicio)
+                    . ", codserie = " . $this->var2str($this->codserie)
+                    . ", coddivisa = " . $this->var2str($this->coddivisa)
+                    . ", codpago = " . $this->var2str($this->codpago)
+                    . ", codagente = " . $this->var2str($this->codagente)
+                    . ", codalmacen = " . $this->var2str($this->codalmacen)
+                    . ", fecha = " . $this->var2str($this->fecha)
+                    . ", codproveedor = " . $this->var2str($this->codproveedor)
+                    . ", nombre = " . $this->var2str($this->nombre)
+                    . ", cifnif = " . $this->var2str($this->cifnif)
+                    . ", neto = " . $this->var2str($this->neto)
+                    . ", total = " . $this->var2str($this->total)
+                    . ", totaliva = " . $this->var2str($this->totaliva)
+                    . ", totaleuros = " . $this->var2str($this->totaleuros)
+                    . ", irpf = " . $this->var2str($this->irpf)
+                    . ", totalirpf = " . $this->var2str($this->totalirpf)
+                    . ", tasaconv = " . $this->var2str($this->tasaconv)
+                    . ", totalrecargo = " . $this->var2str($this->totalrecargo)
+                    . ", observaciones = " . $this->var2str($this->observaciones)
+                    . ", hora = " . $this->var2str($this->hora)
+                    . ", ptefactura = " . $this->var2str($this->ptefactura)
+                    . ", numdocs = " . $this->var2str($this->numdocs)
+                    . "  WHERE idalbaran = " . $this->var2str($this->idalbaran) . ";";
                 return $this->db->exec($sql);
             }
 
@@ -515,30 +528,30 @@ class albaran_proveedor extends \fs_model {
                nombre,cifnif,neto,total,totaliva,totaleuros,irpf,totalirpf,tasaconv,
                totalrecargo,observaciones,ptefactura,hora,numdocs) VALUES
                       (" . $this->var2str($this->codigo)
-                    . "," . $this->var2str($this->numero)
-                    . "," . $this->var2str($this->numproveedor)
-                    . "," . $this->var2str($this->codejercicio)
-                    . "," . $this->var2str($this->codserie)
-                    . "," . $this->var2str($this->coddivisa)
-                    . "," . $this->var2str($this->codpago)
-                    . "," . $this->var2str($this->codagente)
-                    . "," . $this->var2str($this->codalmacen)
-                    . "," . $this->var2str($this->fecha)
-                    . "," . $this->var2str($this->codproveedor)
-                    . "," . $this->var2str($this->nombre)
-                    . "," . $this->var2str($this->cifnif)
-                    . "," . $this->var2str($this->neto)
-                    . "," . $this->var2str($this->total)
-                    . "," . $this->var2str($this->totaliva)
-                    . "," . $this->var2str($this->totaleuros)
-                    . "," . $this->var2str($this->irpf)
-                    . "," . $this->var2str($this->totalirpf)
-                    . "," . $this->var2str($this->tasaconv)
-                    . "," . $this->var2str($this->totalrecargo)
-                    . "," . $this->var2str($this->observaciones)
-                    . "," . $this->var2str($this->ptefactura)
-                    . "," . $this->var2str($this->hora)
-                    . "," . $this->var2str($this->numdocs) . ");";
+                . "," . $this->var2str($this->numero)
+                . "," . $this->var2str($this->numproveedor)
+                . "," . $this->var2str($this->codejercicio)
+                . "," . $this->var2str($this->codserie)
+                . "," . $this->var2str($this->coddivisa)
+                . "," . $this->var2str($this->codpago)
+                . "," . $this->var2str($this->codagente)
+                . "," . $this->var2str($this->codalmacen)
+                . "," . $this->var2str($this->fecha)
+                . "," . $this->var2str($this->codproveedor)
+                . "," . $this->var2str($this->nombre)
+                . "," . $this->var2str($this->cifnif)
+                . "," . $this->var2str($this->neto)
+                . "," . $this->var2str($this->total)
+                . "," . $this->var2str($this->totaliva)
+                . "," . $this->var2str($this->totaleuros)
+                . "," . $this->var2str($this->irpf)
+                . "," . $this->var2str($this->totalirpf)
+                . "," . $this->var2str($this->tasaconv)
+                . "," . $this->var2str($this->totalrecargo)
+                . "," . $this->var2str($this->observaciones)
+                . "," . $this->var2str($this->ptefactura)
+                . "," . $this->var2str($this->hora)
+                . "," . $this->var2str($this->numdocs) . ");";
             if ($this->db->exec($sql)) {
                 $this->idalbaran = $this->db->lastval();
                 return TRUE;
@@ -552,7 +565,8 @@ class albaran_proveedor extends \fs_model {
      * Elimina el albarán de la base de datos
      * @return boolean
      */
-    public function delete() {
+    public function delete()
+    {
         if ($this->db->exec("DELETE FROM " . $this->table_name . " WHERE idalbaran = " . $this->var2str($this->idalbaran) . ";")) {
             if ($this->idfactura) {
                 /**
@@ -573,7 +587,8 @@ class albaran_proveedor extends \fs_model {
         return FALSE;
     }
 
-    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT) {
+    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT)
+    {
         $albalist = array();
         $data = $this->db->select_limit($sql, $limit, $offset);
         if ($data) {
@@ -591,7 +606,8 @@ class albaran_proveedor extends \fs_model {
      * @param string $order
      * @return \albaran_proveedor
      */
-    public function all($offset = 0, $order = 'fecha DESC, codigo DESC', $limit = FS_ITEM_LIMIT) {
+    public function all($offset = 0, $order = 'fecha DESC, codigo DESC', $limit = FS_ITEM_LIMIT)
+    {
         $sql = "SELECT * FROM " . $this->table_name . " ORDER BY " . $order;
         return $this->all_from($sql, $offset, $limit);
     }
@@ -602,7 +618,8 @@ class albaran_proveedor extends \fs_model {
      * @param string $order
      * @return \albaran_proveedor
      */
-    public function all_ptefactura($offset = 0, $order = 'fecha ASC, codigo ASC', $limit = FS_ITEM_LIMIT) {
+    public function all_ptefactura($offset = 0, $order = 'fecha ASC, codigo ASC', $limit = FS_ITEM_LIMIT)
+    {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE ptefactura = true ORDER BY " . $order;
         return $this->all_from($sql, $offset, $limit);
     }
@@ -613,9 +630,10 @@ class albaran_proveedor extends \fs_model {
      * @param integer $offset
      * @return \albaran_proveedor
      */
-    public function all_from_proveedor($codproveedor, $offset = 0) {
+    public function all_from_proveedor($codproveedor, $offset = 0)
+    {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codproveedor = "
-                . $this->var2str($codproveedor) . " ORDER BY fecha DESC, codigo DESC";
+            . $this->var2str($codproveedor) . " ORDER BY fecha DESC, codigo DESC";
 
         return $this->all_from($sql, $offset);
     }
@@ -626,9 +644,10 @@ class albaran_proveedor extends \fs_model {
      * @param integer $offset
      * @return \albaran_proveedor
      */
-    public function all_from_agente($codagente, $offset = 0) {
+    public function all_from_agente($codagente, $offset = 0)
+    {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codagente = "
-                . $this->var2str($codagente) . " ORDER BY fecha DESC, codigo DESC";
+            . $this->var2str($codagente) . " ORDER BY fecha DESC, codigo DESC";
 
         return $this->all_from($sql, $offset);
     }
@@ -638,10 +657,11 @@ class albaran_proveedor extends \fs_model {
      * @param string $id
      * @return \albaran_proveedor
      */
-    public function all_from_factura($id) {
+    public function all_from_factura($id)
+    {
         $alblist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE idfactura = "
-                . $this->var2str($id) . " ORDER BY fecha DESC, codigo DESC";
+            . $this->var2str($id) . " ORDER BY fecha DESC, codigo DESC";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -659,11 +679,12 @@ class albaran_proveedor extends \fs_model {
      * @param string $hasta
      * @return \albaran_proveedor
      */
-    public function all_desde($desde, $hasta) {
+    public function all_desde($desde, $hasta)
+    {
         $alblist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE fecha >= "
-                . $this->var2str($desde) . " AND fecha <= " . $this->var2str($hasta)
-                . " ORDER BY codigo ASC;";
+            . $this->var2str($desde) . " AND fecha <= " . $this->var2str($hasta)
+            . " ORDER BY codigo ASC;";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -681,7 +702,8 @@ class albaran_proveedor extends \fs_model {
      * @param integer $offset
      * @return \albaran_proveedor
      */
-    public function search($query, $offset = 0) {
+    public function search($query, $offset = 0)
+    {
         $query = $this->no_html(mb_strtolower($query, 'UTF8'));
 
         $sql = "SELECT * FROM " . $this->table_name . " WHERE ";
@@ -689,7 +711,7 @@ class albaran_proveedor extends \fs_model {
             $sql .= "codigo LIKE '%" . $query . "%' OR numproveedor LIKE '%" . $query . "%' OR observaciones LIKE '%" . $query . "%'";
         } else {
             $sql .= "lower(codigo) LIKE '%" . $query . "%' OR lower(numproveedor) LIKE '%" . $query . "%' "
-                    . "OR lower(observaciones) LIKE '%" . str_replace(' ', '%', $query) . "%'";
+                . "OR lower(observaciones) LIKE '%" . str_replace(' ', '%', $query) . "%'";
         }
         $sql .= " ORDER BY fecha DESC, codigo DESC";
 
@@ -706,11 +728,12 @@ class albaran_proveedor extends \fs_model {
      * @param string $coddivisa
      * @return \albaran_proveedor
      */
-    public function search_from_proveedor($codproveedor, $desde, $hasta, $codserie = '', $coddivisa = '') {
+    public function search_from_proveedor($codproveedor, $desde, $hasta, $codserie = '', $coddivisa = '')
+    {
         $albalist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codproveedor = "
-                . $this->var2str($codproveedor) . " AND ptefactura AND fecha BETWEEN "
-                . $this->var2str($desde) . " AND " . $this->var2str($hasta);
+            . $this->var2str($codproveedor) . " AND ptefactura AND fecha BETWEEN "
+            . $this->var2str($desde) . " AND " . $this->var2str($hasta);
 
         if ($codserie) {
             $sql .= " AND codserie = " . $this->var2str($codserie);
@@ -732,12 +755,12 @@ class albaran_proveedor extends \fs_model {
         return $albalist;
     }
 
-    public function cron_job() {
+    public function cron_job()
+    {
         /**
          * Ponemos a NULL todos los idfactura que no están en facturasprov
          */
         $this->db->exec("UPDATE " . $this->table_name . " SET idfactura = NULL WHERE idfactura IS NOT NULL"
-                . " AND idfactura NOT IN (SELECT idfactura FROM facturasprov);");
+            . " AND idfactura NOT IN (SELECT idfactura FROM facturasprov);");
     }
-
 }

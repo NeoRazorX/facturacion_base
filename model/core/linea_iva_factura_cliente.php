@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 /**
@@ -26,7 +24,8 @@ namespace FacturaScripts\model;
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class linea_iva_factura_cliente extends \fs_model {
+class linea_iva_factura_cliente extends \fs_model
+{
 
     /**
      * Clave primaria.
@@ -82,7 +81,8 @@ class linea_iva_factura_cliente extends \fs_model {
      */
     public $neto;
 
-    public function __construct($l = FALSE) {
+    public function __construct($l = FALSE)
+    {
         parent::__construct('lineasivafactcli');
         if ($l) {
             $this->idlinea = $this->intval($l['idlinea']);
@@ -107,30 +107,34 @@ class linea_iva_factura_cliente extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         return '';
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->idfactura)) {
             return FALSE;
         }
-        
+
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idlinea = " . $this->var2str($this->idlinea) . ";");
     }
 
-    public function test() {
+    public function test()
+    {
         if ($this->floatcmp($this->totallinea, $this->neto + $this->totaliva + $this->totalrecargo, FS_NF0, TRUE)) {
             return TRUE;
         }
-        
+
         $this->new_error_msg("Error en el valor de totallinea de la línea de IVA del impuesto " .
-                $this->codimpuesto . " de la factura. Valor correcto: " .
-                round($this->neto + $this->totaliva + $this->totalrecargo, FS_NF0));
+            $this->codimpuesto . " de la factura. Valor correcto: " .
+            round($this->neto + $this->totaliva + $this->totalrecargo, FS_NF0));
         return FALSE;
     }
 
-    public function factura_test($idfactura, $neto, $totaliva, $totalrecargo) {
+    public function factura_test($idfactura, $neto, $totaliva, $totalrecargo)
+    {
         $status = TRUE;
 
         $li_neto = 0;
@@ -164,45 +168,48 @@ class linea_iva_factura_cliente extends \fs_model {
         return $status;
     }
 
-    public function save() {
+    public function save()
+    {
         if ($this->exists()) {
             $sql = "UPDATE " . $this->table_name . " SET idfactura = " . $this->var2str($this->idfactura)
-                    . ", neto = " . $this->var2str($this->neto)
-                    . ", codimpuesto = " . $this->var2str($this->codimpuesto)
-                    . ", iva = " . $this->var2str($this->iva)
-                    . ", totaliva = " . $this->var2str($this->totaliva)
-                    . ", recargo = " . $this->var2str($this->recargo)
-                    . ", totalrecargo = " . $this->var2str($this->totalrecargo)
-                    . ", totallinea = " . $this->var2str($this->totallinea)
-                    . "  WHERE idlinea = " . $this->var2str($this->idlinea) . ";";
+                . ", neto = " . $this->var2str($this->neto)
+                . ", codimpuesto = " . $this->var2str($this->codimpuesto)
+                . ", iva = " . $this->var2str($this->iva)
+                . ", totaliva = " . $this->var2str($this->totaliva)
+                . ", recargo = " . $this->var2str($this->recargo)
+                . ", totalrecargo = " . $this->var2str($this->totalrecargo)
+                . ", totallinea = " . $this->var2str($this->totallinea)
+                . "  WHERE idlinea = " . $this->var2str($this->idlinea) . ";";
 
             return $this->db->exec($sql);
         }
-        
+
         $sql = "INSERT INTO " . $this->table_name . " (idfactura,neto,codimpuesto,iva,
             totaliva,recargo,totalrecargo,totallinea) VALUES 
                    (" . $this->var2str($this->idfactura)
-                . "," . $this->var2str($this->neto)
-                . "," . $this->var2str($this->codimpuesto)
-                . "," . $this->var2str($this->iva)
-                . "," . $this->var2str($this->totaliva)
-                . "," . $this->var2str($this->recargo)
-                . "," . $this->var2str($this->totalrecargo)
-                . "," . $this->var2str($this->totallinea) . ");";
+            . "," . $this->var2str($this->neto)
+            . "," . $this->var2str($this->codimpuesto)
+            . "," . $this->var2str($this->iva)
+            . "," . $this->var2str($this->totaliva)
+            . "," . $this->var2str($this->recargo)
+            . "," . $this->var2str($this->totalrecargo)
+            . "," . $this->var2str($this->totallinea) . ");";
 
         if ($this->db->exec($sql)) {
             $this->idlinea = $this->db->lastval();
             return TRUE;
         }
-        
+
         return FALSE;
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE idlinea = " . $this->var2str($this->idlinea) . ";");
     }
 
-    public function all_from_factura($id) {
+    public function all_from_factura($id)
+    {
         $linealist = array();
 
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idfactura = " . $this->var2str($id) . " ORDER BY iva DESC;");
@@ -214,5 +221,4 @@ class linea_iva_factura_cliente extends \fs_model {
 
         return $linealist;
     }
-
 }

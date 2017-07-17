@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -21,7 +20,8 @@
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('agente.php');
 
-class admin_agente extends fbase_controller {
+class admin_agente extends fbase_controller
+{
 
     public $agente;
 
@@ -30,11 +30,13 @@ class admin_agente extends fbase_controller {
      * Está en la carpeta admin porque su antecesora también lo está (y debe estarlo).
      */
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Empleado', 'admin', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->ppage = $this->page->get('admin_agentes');
@@ -60,7 +62,8 @@ class admin_agente extends fbase_controller {
         }
     }
 
-    private function modificar() {
+    private function modificar()
+    {
         if ($this->agente) {
             $this->agente->nombre = $_POST['nombre'];
             $this->agente->apellidos = $_POST['apellidos'];
@@ -100,7 +103,8 @@ class admin_agente extends fbase_controller {
         }
     }
 
-    private function user_can_edit() {
+    private function user_can_edit()
+    {
         if (FS_DEMO) {
             return ($this->user->codagente == $this->agente->codagente);
         }
@@ -108,7 +112,8 @@ class admin_agente extends fbase_controller {
         return TRUE;
     }
 
-    public function url() {
+    public function url()
+    {
         if (!isset($this->agente)) {
             return parent::url();
         } else if ($this->agente) {
@@ -117,5 +122,4 @@ class admin_agente extends fbase_controller {
 
         return $this->page->url();
     }
-
 }

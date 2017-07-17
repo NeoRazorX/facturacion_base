@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -22,16 +21,19 @@ require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('almacen.php');
 require_model('pais.php');
 
-class admin_almacenes extends fbase_controller {
+class admin_almacenes extends fbase_controller
+{
 
     public $almacenes;
     public $pais;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Almacenes', 'admin');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $almacen = new almacen();
@@ -56,7 +58,8 @@ class admin_almacenes extends fbase_controller {
         }
     }
 
-    private function editar_almacen(&$almacen) {
+    private function editar_almacen(&$almacen)
+    {
         $al0 = $almacen->get($_POST['scodalmacen']);
         if (!$al0) {
             /// si no existe el almacén, lo creamos
@@ -80,7 +83,8 @@ class admin_almacenes extends fbase_controller {
         }
     }
 
-    private function eliminar_almacen(&$almacen) {
+    private function eliminar_almacen(&$almacen)
+    {
         $al0 = $almacen->get($_GET['delete']);
         if ($al0) {
             if (!$this->user->admin) {
@@ -95,7 +99,8 @@ class admin_almacenes extends fbase_controller {
         }
     }
 
-    private function guardar_opciones_avanzadas() {
+    private function guardar_opciones_avanzadas()
+    {
         /// ¿Guardamos las opciones avanzadas?
         $guardar = FALSE;
         foreach ($GLOBALS['config2'] as $i => $value) {
@@ -122,5 +127,4 @@ class admin_almacenes extends fbase_controller {
             $this->new_message('Datos guardados correctamente.');
         }
     }
-
 }

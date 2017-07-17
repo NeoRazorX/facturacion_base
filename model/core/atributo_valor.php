@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 /**
@@ -25,7 +23,8 @@ namespace FacturaScripts\model;
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class atributo_valor extends \fs_model {
+class atributo_valor extends \fs_model
+{
 
     /**
      * Clave primaria
@@ -40,7 +39,8 @@ class atributo_valor extends \fs_model {
     public $codatributo;
     public $valor;
 
-    public function __construct($a = FALSE) {
+    public function __construct($a = FALSE)
+    {
         parent::__construct('atributos_valores');
         if ($a) {
             $this->id = $this->intval($a['id']);
@@ -53,15 +53,18 @@ class atributo_valor extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         return '';
     }
 
-    public function url() {
+    public function url()
+    {
         return 'index.php?page=ventas_atributos&cod=' . $this->codatributo;
     }
 
-    public function nombre() {
+    public function nombre()
+    {
         $nombre = '';
 
         $data = $this->db->select("SELECT * FROM atributos WHERE codatributo = " . $this->var2str($this->codatributo) . ";");
@@ -72,32 +75,35 @@ class atributo_valor extends \fs_model {
         return $nombre;
     }
 
-    public function get($id) {
+    public function get($id)
+    {
         if ($id) {
             $data = $this->db->select("SELECT * FROM atributos_valores WHERE id = " . $this->var2str($id) . ";");
             if ($data) {
                 return new \atributo_valor($data[0]);
             }
         }
-        
+
         return FALSE;
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->id)) {
             return FALSE;
         }
-        
+
         return $this->db->select("SELECT * FROM atributos_valores WHERE id = " . $this->var2str($this->id) . ";");
     }
 
-    public function save() {
+    public function save()
+    {
         $this->valor = $this->no_html($this->valor);
 
         if ($this->exists()) {
             $sql = "UPDATE atributos_valores SET valor = " . $this->var2str($this->valor)
-                    . ", codatributo = " . $this->var2str($this->codatributo)
-                    . "  WHERE id = " . $this->var2str($this->id) . ";";
+                . ", codatributo = " . $this->var2str($this->codatributo)
+                . "  WHERE id = " . $this->var2str($this->id) . ";";
         } else {
             if (is_null($this->id)) {
                 $this->id = 1;
@@ -109,19 +115,21 @@ class atributo_valor extends \fs_model {
             }
 
             $sql = "INSERT INTO atributos_valores (id,codatributo,valor) VALUES "
-                    . "(" . $this->var2str($this->id)
-                    . "," . $this->var2str($this->codatributo)
-                    . "," . $this->var2str($this->valor) . ");";
+                . "(" . $this->var2str($this->id)
+                . "," . $this->var2str($this->codatributo)
+                . "," . $this->var2str($this->valor) . ");";
         }
 
         return $this->db->exec($sql);
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM atributos_valores WHERE id = " . $this->var2str($this->id) . ";");
     }
 
-    public function all() {
+    public function all()
+    {
         $lista = array();
 
         $data = $this->db->select("SELECT * FROM atributos_valores ORDER BY codatributo DESC;");
@@ -134,10 +142,11 @@ class atributo_valor extends \fs_model {
         return $lista;
     }
 
-    public function all_from_atributo($cod) {
+    public function all_from_atributo($cod)
+    {
         $lista = array();
         $sql = "SELECT * FROM atributos_valores WHERE codatributo = " . $this->var2str($cod)
-                . " ORDER BY valor ASC;";
+            . " ORDER BY valor ASC;";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -148,5 +157,4 @@ class atributo_valor extends \fs_model {
 
         return $lista;
     }
-
 }

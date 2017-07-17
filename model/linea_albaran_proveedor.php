@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -25,6 +24,7 @@ require_once 'plugins/facturacion_base/model/core/linea_albaran_proveedor.php';
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class linea_albaran_proveedor extends FacturaScripts\model\linea_albaran_proveedor {
+class linea_albaran_proveedor extends FacturaScripts\model\linea_albaran_proveedor
+{
     
 }

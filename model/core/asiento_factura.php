@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 require_model('articulo.php');
@@ -35,7 +33,8 @@ require_model('proveedor.php');
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class asiento_factura {
+class asiento_factura
+{
 
     public $asiento;
     public $messages;
@@ -51,7 +50,8 @@ class asiento_factura {
     protected $impuestos;
     protected $subcuenta;
 
-    public function __construct() {
+    public function __construct()
+    {
         /**
          * Las subcuentas personalizadas para cada artículo se almacenan en articulo_propiedad.
          * Para optimizar comprobamos si la tabla está vacía, así no hacemos consultas innecesarias.
@@ -85,15 +85,18 @@ class asiento_factura {
         $this->subcuenta = new \subcuenta();
     }
 
-    protected function new_message($msg) {
+    protected function new_message($msg)
+    {
         $this->messages[] = $msg;
     }
 
-    protected function new_error_msg($msg) {
+    protected function new_error_msg($msg)
+    {
         $this->errors[] = $msg;
     }
 
-    protected function set_tasasconv(&$factura, &$tasa1, &$tasa2, $compras = FALSE) {
+    protected function set_tasasconv(&$factura, &$tasa1, &$tasa2, $compras = FALSE)
+    {
         if ($factura->coddivisa != $this->empresa->coddivisa) {
             $divisa = $this->divisa->get($this->empresa->coddivisa);
             if ($divisa) {
@@ -114,7 +117,8 @@ class asiento_factura {
      * Si genera el asiento, este es accesible desde $this->asiento.
      * @param factura_proveedor $factura
      */
-    public function generar_asiento_compra(&$factura) {
+    public function generar_asiento_compra(&$factura)
+    {
         $ok = FALSE;
         $this->asiento = FALSE;
         $proveedor0 = new \proveedor();
@@ -243,7 +247,7 @@ class asiento_factura {
                     } else if (!$subcuenta_iva) {
                         $asiento_correcto = FALSE;
                         $this->new_error_msg('No se encuentra ninguna subcuenta de ' . FS_IVA . ' para el ejercicio '
-                                . $asiento->codejercicio . ' (cuenta especial IVASOP).');
+                            . $asiento->codejercicio . ' (cuenta especial IVASOP).');
                     }
                 }
 
@@ -265,7 +269,7 @@ class asiento_factura {
                 } else if (!$subcuenta_compras) {
                     $asiento_correcto = FALSE;
                     $this->new_error_msg('No se encuentra ninguna subcuenta de compras para el ejercicio '
-                            . $asiento->codejercicio . ' (cuenta especial COMPRA).');
+                        . $asiento->codejercicio . ' (cuenta especial COMPRA).');
                 }
 
                 /// ¿IRPF?
@@ -288,7 +292,7 @@ class asiento_factura {
                     } else if (!$subcuenta_irpf) {
                         $asiento_correcto = FALSE;
                         $this->new_error_msg('No se encuentra ninguna subcuenta de ' . FS_IRPF . ' para el ejercicio '
-                                . $asiento->codejercicio . ' (cuenta especial IRPFPR).');
+                            . $asiento->codejercicio . ' (cuenta especial IRPFPR).');
                     }
                 }
 
@@ -336,7 +340,7 @@ class asiento_factura {
                     $factura->idasiento = $asiento->idasiento;
                     if ($factura->pagada) {
                         $factura->idasientop = $this->generar_asiento_pago(
-                                $asiento, $factura->codpago, $factura->fecha, $subcuenta_prov, $partida0->haber
+                            $asiento, $factura->codpago, $factura->fecha, $subcuenta_prov, $partida0->haber
                         );
                     }
 
@@ -361,7 +365,8 @@ class asiento_factura {
         return $ok;
     }
 
-    protected function comprobar_subc_art_compra(&$factura, &$asiento, &$partida2, &$subcuenta_compras, &$asiento_correcto, $tasaconv, $tasaconv2) {
+    protected function comprobar_subc_art_compra(&$factura, &$asiento, &$partida2, &$subcuenta_compras, &$asiento_correcto, $tasaconv, $tasaconv2)
+    {
         $partidaA = new \partida();
         $partidaA->idasiento = $asiento->idasiento;
         $partidaA->concepto = $asiento->concepto;
@@ -403,7 +408,7 @@ class asiento_factura {
                         if (!$partidaA->save()) {
                             $asiento_correcto = FALSE;
                             $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo "
-                                    . $lin->referencia . "!");
+                                . $lin->referencia . "!");
                         }
 
                         $partidaA = new \partida();
@@ -447,7 +452,8 @@ class asiento_factura {
      * @param type $tasaconv
      * @param type $tasaconv2
      */
-    protected function comprobar_subc_art_compra_irpf(&$factura, &$asiento, &$partida3, &$subcuenta_irpf, &$asiento_correcto, $tasaconv, $tasaconv2) {
+    protected function comprobar_subc_art_compra_irpf(&$factura, &$asiento, &$partida3, &$subcuenta_irpf, &$asiento_correcto, $tasaconv, $tasaconv2)
+    {
         $partidaA = new \partida();
         $partidaA->idasiento = $asiento->idasiento;
         $partidaA->concepto = $asiento->concepto;
@@ -489,7 +495,7 @@ class asiento_factura {
                         if (!$partidaA->save()) {
                             $asiento_correcto = FALSE;
                             $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo "
-                                    . $lin->referencia . "!");
+                                . $lin->referencia . "!");
                         }
 
                         $partidaA = new \partida();
@@ -529,7 +535,8 @@ class asiento_factura {
      * Si genera el asiento, este es accesible desde $this->asiento.
      * @param factura_cliente $factura
      */
-    public function generar_asiento_venta(&$factura) {
+    public function generar_asiento_venta(&$factura)
+    {
         $ok = FALSE;
         $this->asiento = FALSE;
         $cliente0 = new \cliente();
@@ -653,7 +660,7 @@ class asiento_factura {
                     } else if (!$subcuenta_iva) {
                         $asiento_correcto = FALSE;
                         $this->new_error_msg('No se encuentra ninguna subcuenta de ' . FS_IVA . ' para el ejercicio '
-                                . $asiento->codejercicio . ' (cuenta especial IVAREP).');
+                            . $asiento->codejercicio . ' (cuenta especial IVAREP).');
                     }
                 }
 
@@ -675,7 +682,7 @@ class asiento_factura {
                 } else if (!$subcuenta_ventas) {
                     $asiento_correcto = FALSE;
                     $this->new_error_msg('No se encuentra ninguna subcuenta de ventas para el ejercicio '
-                            . $asiento->codejercicio . ' (cuenta especial VENTAS).');
+                        . $asiento->codejercicio . ' (cuenta especial VENTAS).');
                 }
 
                 /// ¿IRPF?
@@ -703,7 +710,7 @@ class asiento_factura {
                     } else if (!$subcuenta_irpf) {
                         $asiento_correcto = FALSE;
                         $this->new_error_msg('No se encuentra ninguna subcuenta de ' . FS_IRPF . ' para el ejercicio '
-                                . $asiento->codejercicio . ' (cuenta especial IRPF).');
+                            . $asiento->codejercicio . ' (cuenta especial IRPF).');
                     }
                 }
 
@@ -746,7 +753,7 @@ class asiento_factura {
                                 if (!$partidaA->save()) {
                                     $asiento_correcto = FALSE;
                                     $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo "
-                                            . $lin->referencia . "!");
+                                        . $lin->referencia . "!");
                                 }
 
                                 $partidaA = new \partida();
@@ -775,7 +782,7 @@ class asiento_factura {
                         } else {
                             $asiento_correcto = FALSE;
                             $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo "
-                                    . $lin->referencia . "!");
+                                . $lin->referencia . "!");
                         }
                     }
                 }
@@ -816,7 +823,7 @@ class asiento_factura {
                     $factura->idasiento = $asiento->idasiento;
                     if ($factura->pagada) {
                         $factura->idasientop = $this->generar_asiento_pago(
-                                $asiento, $factura->codpago, $factura->fecha, $subcuenta_cli, $partida0->debe
+                            $asiento, $factura->codpago, $factura->fecha, $subcuenta_cli, $partida0->debe
                         );
                     }
 
@@ -852,7 +859,8 @@ class asiento_factura {
      * @param type $importe
      * @return asiento
      */
-    public function generar_asiento_pago(&$asiento, $codpago = FALSE, $fecha = FALSE, $subclipro = FALSE, $importe = NULL) {
+    public function generar_asiento_pago(&$asiento, $codpago = FALSE, $fecha = FALSE, $subclipro = FALSE, $importe = NULL)
+    {
         /// necesitamos un importe para asegurarnos de que la partida elegida es la correcta
         if (is_null($importe)) {
             $importe = $asiento->importe;
@@ -907,7 +915,7 @@ class asiento_factura {
             $this->new_error_msg('Ningún ejercico encontrado.');
         } else if (!$subcaja) {
             $this->new_error_msg('No se ha encontrado ninguna subcuenta de caja para el ejercicio '
-                    . $eje->codejercicio . '. <a href="' . $eje->url() . '">¿Has importado los datos del ejercicio?</a>');
+                . $eje->codejercicio . '. <a href="' . $eje->url() . '">¿Has importado los datos del ejercicio?</a>');
         } else if ($nasientop->save()) {
             /// elegimos la partida sobre la que hacer el pago
             $seleccionar = 0;
@@ -977,7 +985,7 @@ class asiento_factura {
                         $encontrada = TRUE;
                     } else {
                         $this->new_error_msg('No se ha encontrado la subcuenta ' . $par->codsubcuenta
-                                . ' en el ejercicio ' . $nasientop->codejercicio);
+                            . ' en el ejercicio ' . $nasientop->codejercicio);
                         $nasientop->delete();
                     }
                     break;
@@ -988,7 +996,7 @@ class asiento_factura {
                 $nasientop->save();
             } else {
                 $this->new_error_msg('No se ha encontrado la partida necesaria para generar el asiento'
-                        . ' de pago de <a href="' . $asiento->url() . '">' . $asiento->concepto . '</a>');
+                    . ' de pago de <a href="' . $asiento->url() . '">' . $asiento->concepto . '</a>');
                 $nasientop->delete();
                 $nasientop->idasiento = NULL;
             }
@@ -1003,7 +1011,8 @@ class asiento_factura {
      * Invierte los valores debe/haber de las líneas del asiento
      * @param asiento $asiento
      */
-    public function invertir_asiento(&$asiento) {
+    public function invertir_asiento(&$asiento)
+    {
         foreach ($asiento->get_partidas() as $part) {
             $debe = abs($part->debe);
             $haber = abs($part->haber);
@@ -1020,7 +1029,8 @@ class asiento_factura {
      * @param asiento $asiento
      * @return boolean
      */
-    protected function check_asiento($asiento) {
+    protected function check_asiento($asiento)
+    {
         $ok = FALSE;
 
         $debe = 0;
@@ -1036,5 +1046,4 @@ class asiento_factura {
 
         return $ok;
     }
-
 }

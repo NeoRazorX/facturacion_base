@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -23,24 +22,29 @@
  *
  * @author carlos
  */
-class cierre_ejercicio {
+class cierre_ejercicio
+{
 
     private $ejercicio;
     private $errors;
 
-    public function __construct($eje) {
+    public function __construct($eje)
+    {
         $this->ejercicio = $eje;
     }
 
-    public function get_errors() {
+    public function get_errors()
+    {
         return $this->errors;
     }
 
-    private function new_error_msg($err) {
+    private function new_error_msg($err)
+    {
         $this->errors[] = $err;
     }
 
-    public function paso1() {
+    public function paso1()
+    {
         $asiento = new asiento();
         $continuar = TRUE;
 
@@ -141,7 +145,8 @@ class cierre_ejercicio {
         return $continuar;
     }
 
-    public function paso2() {
+    public function paso2()
+    {
         $asiento = new asiento();
         $asiento_apertura = FALSE;
         $continuar = TRUE;
@@ -368,5 +373,4 @@ class cierre_ejercicio {
             return $continuar;
         }
     }
-
 }

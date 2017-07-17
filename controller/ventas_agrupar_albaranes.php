@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -31,7 +30,8 @@ require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('subcuenta.php');
 
-class ventas_agrupar_albaranes extends fbase_controller {
+class ventas_agrupar_albaranes extends fbase_controller
+{
 
     public $albaran;
     public $cliente;
@@ -48,11 +48,13 @@ class ventas_agrupar_albaranes extends fbase_controller {
     private $ejercicio;
     public $forma_pago;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Agrupar ' . FS_ALBARANES, 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->albaran = new albaran_cliente();
@@ -105,7 +107,7 @@ class ventas_agrupar_albaranes extends fbase_controller {
 
             if ($this->cliente) {
                 $this->resultados = $this->albaran->search_from_cliente(
-                        $this->cliente->codcliente, $this->desde, $this->hasta, $this->codserie, $this->observaciones, $this->coddivisa
+                    $this->cliente->codcliente, $this->desde, $this->hasta, $this->codserie, $this->observaciones, $this->coddivisa
                 );
                 if (!empty($this->resultados)) {
                     foreach ($this->resultados as $alb) {
@@ -120,7 +122,8 @@ class ventas_agrupar_albaranes extends fbase_controller {
             $this->share_extensions();
     }
 
-    private function agrupar() {
+    private function agrupar()
+    {
         $continuar = TRUE;
         $albaranes = array();
 
@@ -155,7 +158,8 @@ class ventas_agrupar_albaranes extends fbase_controller {
      * Genera una factura a partir de un array de albaranes.
      * @param albaran_cliente $albaranes
      */
-    private function generar_factura($albaranes) {
+    private function generar_factura($albaranes)
+    {
         $continuar = TRUE;
 
         $factura = new factura_cliente();
@@ -327,7 +331,8 @@ class ventas_agrupar_albaranes extends fbase_controller {
             $this->new_error_msg("¡Imposible guardar la factura!");
     }
 
-    private function generar_asiento(&$factura) {
+    private function generar_asiento(&$factura)
+    {
         if ($this->empresa->contintegrada) {
             $asiento_factura = new asiento_factura();
             if ($asiento_factura->generar_asiento_venta($factura)) {
@@ -348,7 +353,8 @@ class ventas_agrupar_albaranes extends fbase_controller {
         $this->new_change('Factura ' . $factura->codigo, $factura->url(), TRUE);
     }
 
-    private function share_extensions() {
+    private function share_extensions()
+    {
         $extension = array(
             'name' => 'agrupar_albaranes',
             'page_from' => __CLASS__,
@@ -361,7 +367,8 @@ class ventas_agrupar_albaranes extends fbase_controller {
         $fsext->save();
     }
 
-    public function pendientes() {
+    public function pendientes()
+    {
         $pendientes = array();
 
         $offset = 0;
@@ -410,5 +417,4 @@ class ventas_agrupar_albaranes extends fbase_controller {
 
         return $pendientes;
     }
-
 }

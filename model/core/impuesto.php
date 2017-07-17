@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 /**
@@ -26,7 +24,8 @@ namespace FacturaScripts\model;
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class impuesto extends \fs_model {
+class impuesto extends \fs_model
+{
 
     /**
      * Clave primaria. varchar(10).
@@ -49,7 +48,8 @@ class impuesto extends \fs_model {
     public $iva;
     public $recargo;
 
-    public function __construct($i = FALSE) {
+    public function __construct($i = FALSE)
+    {
         parent::__construct('impuestos');
         if ($i) {
             $this->codimpuesto = $i['codimpuesto'];
@@ -68,14 +68,16 @@ class impuesto extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         $this->clean_cache();
         return "INSERT INTO " . $this->table_name . " (codimpuesto,descripcion,iva,recargo) VALUES "
-                . "('IVA0','IVA 0%','0','0'),('IVA21','IVA 21%','21','5.2'),"
-                . "('IVA10','IVA 10%','10','1.4'),('IVA4','IVA 4%','4','0.5');";
+            . "('IVA0','IVA 0%','0','0'),('IVA21','IVA 21%','21','5.2'),"
+            . "('IVA10','IVA 10%','10','1.4'),('IVA4','IVA 4%','4','0.5');";
     }
 
-    public function url() {
+    public function url()
+    {
         if (is_null($this->codimpuesto)) {
             return 'index.php?page=contabilidad_impuestos';
         }
@@ -87,7 +89,8 @@ class impuesto extends \fs_model {
      * Devuelve TRUE si el impuesto es el predeterminado del usuario
      * @return type
      */
-    public function is_default() {
+    public function is_default()
+    {
         return ( $this->codimpuesto == $this->default_items->codimpuesto() );
     }
 
@@ -96,7 +99,8 @@ class impuesto extends \fs_model {
      * @param type $cod
      * @return boolean|\impuesto
      */
-    public function get($cod) {
+    public function get($cod)
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codimpuesto = " . $this->var2str($cod) . ";");
         if ($data) {
             return new \impuesto($data[0]);
@@ -105,7 +109,8 @@ class impuesto extends \fs_model {
         return FALSE;
     }
 
-    public function get_by_iva($iva) {
+    public function get_by_iva($iva)
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE iva = " . $this->var2str(floatval($iva)) . ";");
         if ($data) {
             return new \impuesto($data[0]);
@@ -114,16 +119,18 @@ class impuesto extends \fs_model {
         return FALSE;
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->codimpuesto)) {
             return FALSE;
         }
 
         return $this->db->select("SELECT * FROM " . $this->table_name
-                        . " WHERE codimpuesto = " . $this->var2str($this->codimpuesto) . ";");
+                . " WHERE codimpuesto = " . $this->var2str($this->codimpuesto) . ";");
     }
 
-    public function test() {
+    public function test()
+    {
         $status = FALSE;
 
         $this->codimpuesto = trim($this->codimpuesto);
@@ -140,39 +147,42 @@ class impuesto extends \fs_model {
         return $status;
     }
 
-    public function save() {
+    public function save()
+    {
         if ($this->test()) {
             $this->clean_cache();
 
             if ($this->exists()) {
                 $sql = "UPDATE " . $this->table_name . " SET codsubcuentarep = " . $this->var2str($this->codsubcuentarep)
-                        . ", codsubcuentasop = " . $this->var2str($this->codsubcuentasop)
-                        . ", descripcion = " . $this->var2str($this->descripcion)
-                        . ", iva = " . $this->var2str($this->iva)
-                        . ", recargo = " . $this->var2str($this->recargo)
-                        . "  WHERE codimpuesto = " . $this->var2str($this->codimpuesto) . ";";
+                    . ", codsubcuentasop = " . $this->var2str($this->codsubcuentasop)
+                    . ", descripcion = " . $this->var2str($this->descripcion)
+                    . ", iva = " . $this->var2str($this->iva)
+                    . ", recargo = " . $this->var2str($this->recargo)
+                    . "  WHERE codimpuesto = " . $this->var2str($this->codimpuesto) . ";";
             } else {
                 $sql = "INSERT INTO " . $this->table_name . " (codimpuesto,codsubcuentarep,codsubcuentasop,
                      descripcion,iva,recargo) VALUES (" . $this->var2str($this->codimpuesto)
-                        . "," . $this->var2str($this->codsubcuentarep)
-                        . "," . $this->var2str($this->codsubcuentasop)
-                        . "," . $this->var2str($this->descripcion)
-                        . "," . $this->var2str($this->iva)
-                        . "," . $this->var2str($this->recargo) . ");";
+                    . "," . $this->var2str($this->codsubcuentarep)
+                    . "," . $this->var2str($this->codsubcuentasop)
+                    . "," . $this->var2str($this->descripcion)
+                    . "," . $this->var2str($this->iva)
+                    . "," . $this->var2str($this->recargo) . ");";
             }
 
             return $this->db->exec($sql);
         }
-        
+
         return FALSE;
     }
 
-    public function delete() {
+    public function delete()
+    {
         $this->clean_cache();
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE codimpuesto = " . $this->var2str($this->codimpuesto) . ";");
     }
 
-    private function clean_cache() {
+    private function clean_cache()
+    {
         $this->cache->delete('m_impuesto_all');
     }
 
@@ -180,7 +190,8 @@ class impuesto extends \fs_model {
      * Devuelve un array con todos los impuestos
      * @return \impuesto
      */
-    public function all() {
+    public function all()
+    {
         /// leemos la lista de la caché
         $impuestolist = $this->cache->get_array('m_impuesto_all');
         if (!$impuestolist) {
@@ -198,5 +209,4 @@ class impuesto extends \fs_model {
 
         return $impuestolist;
     }
-
 }

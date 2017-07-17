@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -29,7 +28,8 @@ require_model('partida.php');
 require_model('secuencia.php');
 require_model('subcuenta.php');
 
-class contabilidad_ejercicio extends fbase_controller {
+class contabilidad_ejercicio extends fbase_controller
+{
 
     public $asiento_apertura_url;
     public $asiento_cierre_url;
@@ -40,11 +40,13 @@ class contabilidad_ejercicio extends fbase_controller {
     public $offset;
     public $url_recarga;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Ejercicio', 'contabilidad', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         /// cargamos las putas secuencias para que se actualicen.
@@ -139,7 +141,8 @@ class contabilidad_ejercicio extends fbase_controller {
         }
     }
 
-    public function url() {
+    public function url()
+    {
         if (!isset($this->ejercicio)) {
             return parent::url();
         } else if ($this->ejercicio) {
@@ -148,7 +151,8 @@ class contabilidad_ejercicio extends fbase_controller {
             return parent::url();
     }
 
-    private function check_asientos() {
+    private function check_asientos()
+    {
         $asiento = new asiento();
 
         $this->asiento_apertura_url = FALSE;
@@ -176,7 +180,8 @@ class contabilidad_ejercicio extends fbase_controller {
         }
     }
 
-    private function exportar_xml() {
+    private function exportar_xml()
+    {
         /// desactivamos el motor de plantillas
         $this->template = FALSE;
 
@@ -186,7 +191,7 @@ class contabilidad_ejercicio extends fbase_controller {
     Document   : ejercicio_" . $this->ejercicio->codejercicio . ".xml
     Description:
         Estructura de grupos de epígrafes, epígrafes, cuentas y subcuentas del ejercicio " .
-                $this->ejercicio->codejercicio . ".
+            $this->ejercicio->codejercicio . ".
 -->
 
 <ejercicio>
@@ -284,7 +289,8 @@ class contabilidad_ejercicio extends fbase_controller {
         echo $archivo_xml->asXML();
     }
 
-    private function importar_xml() {
+    private function importar_xml()
+    {
         $import_step = 0;
         $this->url_recarga = FALSE;
 
@@ -329,10 +335,10 @@ class contabilidad_ejercicio extends fbase_controller {
 
             if ($offset == 0) {
                 $this->new_message('Importando ejercicio: paso ' . $import_step . ' de 6 ...'
-                        . '<br/>Espera a que termine &nbsp; <i class="fa fa-refresh fa-spin"></i>');
+                    . '<br/>Espera a que termine &nbsp; <i class="fa fa-refresh fa-spin"></i>');
             } else {
                 $this->new_message('Importando ejercicio: paso ' . $import_step . '.' . ($offset / 500) . ' de 6 ...'
-                        . '<br/>Espera a que termine &nbsp; <i class="fa fa-refresh fa-spin"></i>');
+                    . '<br/>Espera a que termine &nbsp; <i class="fa fa-refresh fa-spin"></i>');
             }
 
             $xml = simplexml_load_file('tmp/' . FS_TMP_NAME . 'ejercicio.xml');
@@ -510,8 +516,8 @@ class contabilidad_ejercicio extends fbase_controller {
 
                                 if (strlen($sc->codsubcuenta) != $this->ejercicio->longsubcuenta) {
                                     $this->new_error_msg('La subcuenta tiene una longitud de ' . strlen($sc->codsubcuenta)
-                                            . ', mientras que el ejercicio tiene definida una longitud de: ' . $this->ejercicio->longsubcuenta
-                                            . '. Debeas cambiarla para evitar problemas.');
+                                        . ', mientras que el ejercicio tiene definida una longitud de: ' . $this->ejercicio->longsubcuenta
+                                        . '. Debeas cambiarla para evitar problemas.');
                                     $this->url_recarga = FALSE;
                                     break;
                                 } else if (!$subcuenta->save()) {
@@ -582,7 +588,8 @@ class contabilidad_ejercicio extends fbase_controller {
         }
     }
 
-    private function cerrar_ejercicio() {
+    private function cerrar_ejercicio()
+    {
         $this->new_message('Cerrando ejercicio...');
 
         $cie = new cierre_ejercicio($this->ejercicio);
@@ -605,7 +612,8 @@ class contabilidad_ejercicio extends fbase_controller {
         }
     }
 
-    private function cerrar_ejercicio2() {
+    private function cerrar_ejercicio2()
+    {
         $this->new_message('Cerrando ejercicio...');
 
         $cie = new cierre_ejercicio($this->ejercicio);
@@ -620,5 +628,4 @@ class contabilidad_ejercicio extends fbase_controller {
             }
         }
     }
-
 }

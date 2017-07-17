@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -29,7 +28,8 @@ require_model('forma_pago.php');
 require_model('pedido_proveedor.php');
 require_model('regularizacion_iva.php');
 
-class nueva_compra extends fbase_controller {
+class nueva_compra extends fbase_controller
+{
 
     public $agente;
     public $almacen;
@@ -46,11 +46,13 @@ class nueva_compra extends fbase_controller {
     public $serie;
     public $tipo;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Nueva compra...', 'compras', FALSE, FALSE, TRUE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->articulo_prov = new articulo_proveedor();
@@ -145,7 +147,8 @@ class nueva_compra extends fbase_controller {
      * así para añadir tipos no hay que tocar la vista.
      * @return type
      */
-    public function tipos_a_guardar() {
+    public function tipos_a_guardar()
+    {
         $tipos = array();
 
         if ($this->user->have_access_to('compras_pedido') AND class_exists('pedido_proveedor')) {
@@ -163,11 +166,13 @@ class nueva_compra extends fbase_controller {
         return $tipos;
     }
 
-    public function url() {
+    public function url()
+    {
         return 'index.php?page=' . __CLASS__ . '&tipo=' . $this->tipo;
     }
 
-    private function datos_proveedor() {
+    private function datos_proveedor()
+    {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
@@ -175,7 +180,8 @@ class nueva_compra extends fbase_controller {
         echo json_encode($this->proveedor->get($_REQUEST['datosproveedor']));
     }
 
-    private function new_articulo() {
+    private function new_articulo()
+    {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
@@ -245,7 +251,8 @@ class nueva_compra extends fbase_controller {
         echo json_encode($this->results);
     }
 
-    private function new_search() {
+    private function new_search()
+    {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
@@ -297,7 +304,8 @@ class nueva_compra extends fbase_controller {
         echo json_encode($this->results);
     }
 
-    private function get_precios_articulo() {
+    private function get_precios_articulo()
+    {
         /// cambiamos la plantilla HTML
         $this->template = 'ajax/nueva_compra_precios';
 
@@ -305,7 +313,8 @@ class nueva_compra extends fbase_controller {
         $this->articulo = $articulo->get($_POST['referencia4precios']);
     }
 
-    private function get_combinaciones_articulo() {
+    private function get_combinaciones_articulo()
+    {
         /// cambiamos la plantilla HTML
         $this->template = 'ajax/nueva_compra_combinaciones';
 
@@ -330,7 +339,8 @@ class nueva_compra extends fbase_controller {
         }
     }
 
-    private function nuevo_pedido_proveedor() {
+    private function nuevo_pedido_proveedor()
+    {
         $continuar = TRUE;
 
         $proveedor = $this->proveedor->get($_POST['proveedor']);
@@ -477,7 +487,7 @@ class nueva_compra extends fbase_controller {
 
                     if (abs(floatval($_POST['atotal']) - $pedido->total) >= .02) {
                         $this->new_error_msg("El total difiere entre la vista y el controlador (" .
-                                $_POST['atotal'] . " frente a " . $pedido->total . "). Debes informar del error.");
+                            $_POST['atotal'] . " frente a " . $pedido->total . "). Debes informar del error.");
                         $pedido->delete();
                     } else if ($pedido->save()) {
                         $this->new_message("<a href='" . $pedido->url() . "'>" . ucfirst(FS_PEDIDO) . "</a> guardado correctamente.");
@@ -498,7 +508,8 @@ class nueva_compra extends fbase_controller {
         }
     }
 
-    private function nuevo_albaran_proveedor() {
+    private function nuevo_albaran_proveedor()
+    {
         $continuar = TRUE;
 
         $proveedor = $this->proveedor->get($_POST['proveedor']);
@@ -656,7 +667,7 @@ class nueva_compra extends fbase_controller {
 
                     if (abs(floatval($_POST['atotal']) - $albaran->total) >= .02) {
                         $this->new_error_msg("El total difiere entre la vista y el controlador (" .
-                                $_POST['atotal'] . " frente a " . $albaran->total . "). Debes informar del error.");
+                            $_POST['atotal'] . " frente a " . $albaran->total . "). Debes informar del error.");
                         $albaran->delete();
                     } else if ($albaran->save()) {
                         $this->new_message("<a href='" . $albaran->url() . "'>" . ucfirst(FS_ALBARAN) . "</a> guardado correctamente.");
@@ -679,7 +690,8 @@ class nueva_compra extends fbase_controller {
         }
     }
 
-    private function nueva_factura_proveedor() {
+    private function nueva_factura_proveedor()
+    {
         $continuar = TRUE;
 
         $proveedor = $this->proveedor->get($_POST['proveedor']);
@@ -760,7 +772,7 @@ class nueva_compra extends fbase_controller {
             $regularizacion = new regularizacion_iva();
             if ($regularizacion->get_fecha_inside($factura->fecha)) {
                 $this->new_error_msg("El " . FS_IVA . " de ese periodo ya ha sido regularizado."
-                        . " No se pueden añadir más facturas en esa fecha.");
+                    . " No se pueden añadir más facturas en esa fecha.");
             } else if ($factura->save()) {
                 $trazabilidad = FALSE;
 
@@ -845,7 +857,7 @@ class nueva_compra extends fbase_controller {
 
                     if (abs(floatval($_POST['atotal']) - $factura->total) >= .02) {
                         $this->new_error_msg("El total difiere entre el controlador y la vista (" .
-                                $factura->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
+                            $factura->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                         $factura->delete();
                     } else if ($factura->save()) {
                         $this->generar_asiento($factura);
@@ -873,7 +885,8 @@ class nueva_compra extends fbase_controller {
      * Genera el asiento correspondiente a la factura, si procede
      * @param factura_proveedor $factura
      */
-    private function generar_asiento(&$factura) {
+    private function generar_asiento(&$factura)
+    {
         if ($this->empresa->contintegrada) {
             $asiento_factura = new asiento_factura();
             $asiento_factura->generar_asiento_compra($factura);
@@ -896,7 +909,8 @@ class nueva_compra extends fbase_controller {
      * @param string $codproveedor
      * @param linea_albaran_proveedor $linea
      */
-    private function actualizar_precio_proveedor($codproveedor, $linea) {
+    private function actualizar_precio_proveedor($codproveedor, $linea)
+    {
         if (!is_null($linea->referencia)) {
             $artp = $this->articulo_prov->get_by($linea->referencia, $codproveedor, $linea->referencia);
             if (!$artp) {
@@ -916,7 +930,8 @@ class nueva_compra extends fbase_controller {
         }
     }
 
-    private function search_from_proveedor() {
+    private function search_from_proveedor()
+    {
         $artilist = array();
         $query = $this->articulo_prov->no_html(mb_strtolower($this->query, 'UTF8'));
         $sql = "SELECT * FROM articulos WHERE bloqueado = false";
@@ -936,25 +951,25 @@ class nueva_compra extends fbase_controller {
 
         if (isset($_REQUEST['solo_proveedor']) AND isset($_REQUEST['codproveedor'])) {
             $sql .= $separador . " referencia IN (SELECT referencia FROM articulosprov WHERE codproveedor = "
-                    . $this->articulo_prov->var2str($_REQUEST['codproveedor']) . ")";
+                . $this->articulo_prov->var2str($_REQUEST['codproveedor']) . ")";
         }
 
         if (is_numeric($query)) {
             $sql .= $separador . " (referencia = " . $this->articulo_prov->var2str($query)
-                    . " OR referencia LIKE '%" . $query . "%'"
-                    . " OR partnumber LIKE '%" . $query . "%'"
-                    . " OR equivalencia LIKE '%" . $query . "%'"
-                    . " OR descripcion LIKE '%" . $query . "%'"
-                    . " OR codbarras = " . $this->articulo_prov->var2str($query) . ")";
+                . " OR referencia LIKE '%" . $query . "%'"
+                . " OR partnumber LIKE '%" . $query . "%'"
+                . " OR equivalencia LIKE '%" . $query . "%'"
+                . " OR descripcion LIKE '%" . $query . "%'"
+                . " OR codbarras = " . $this->articulo_prov->var2str($query) . ")";
         } else {
             /// ¿La búsqueda son varias palabras?
             $palabras = explode(' ', $query);
             if (count($palabras) > 1) {
                 $sql .= $separador . " (lower(referencia) = " . $this->articulo_prov->var2str($query)
-                        . " OR lower(referencia) LIKE '%" . $query . "%'"
-                        . " OR lower(partnumber) LIKE '%" . $query . "%'"
-                        . " OR lower(equivalencia) LIKE '%" . $query . "%'"
-                        . " OR (";
+                    . " OR lower(referencia) LIKE '%" . $query . "%'"
+                    . " OR lower(partnumber) LIKE '%" . $query . "%'"
+                    . " OR lower(equivalencia) LIKE '%" . $query . "%'"
+                    . " OR (";
 
                 foreach ($palabras as $i => $pal) {
                     if ($i == 0) {
@@ -967,11 +982,11 @@ class nueva_compra extends fbase_controller {
                 $sql .= "))";
             } else {
                 $sql .= $separador . " (lower(referencia) = " . $this->articulo_prov->var2str($query)
-                        . " OR lower(referencia) LIKE '%" . $query . "%'"
-                        . " OR lower(partnumber) LIKE '%" . $query . "%'"
-                        . " OR lower(equivalencia) LIKE '%" . $query . "%'"
-                        . " OR lower(codbarras) = " . $this->articulo_prov->var2str($query)
-                        . " OR lower(descripcion) LIKE '%" . $query . "%')";
+                    . " OR lower(referencia) LIKE '%" . $query . "%'"
+                    . " OR lower(partnumber) LIKE '%" . $query . "%'"
+                    . " OR lower(equivalencia) LIKE '%" . $query . "%'"
+                    . " OR lower(codbarras) = " . $this->articulo_prov->var2str($query)
+                    . " OR lower(descripcion) LIKE '%" . $query . "%')";
             }
         }
 
@@ -990,5 +1005,4 @@ class nueva_compra extends fbase_controller {
 
         return $artilist;
     }
-
 }

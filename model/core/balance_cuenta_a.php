@@ -1,35 +1,44 @@
 <?php
-
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-namespace FacturaScripts\model;
-require_model('ejercicio.php');
-/**
- * Description of balance_cuenta_a
+ * This file is part of facturacion_base
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
- * @author Jesus
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+namespace FacturaScripts\model;
+
+require_model('ejercicio.php');
+
 /**
  * Detalle abreviado de un balance.
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class balance_cuenta_a extends \fs_model {
+class balance_cuenta_a extends \fs_model
+{
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $idbalancea;
     public $codbalance;
     public $codcuenta;
     public $desccuenta;
 
-    public function __construct($aux = FALSE) {
+    public function __construct($aux = FALSE)
+    {
         parent::__construct('co_cuentascbba');
         if ($aux) {
             $this->idbalancea = $this->intval($aux['id']);
@@ -44,34 +53,35 @@ class balance_cuenta_a extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         return '';
     }
 
     /**
      * Devuelve el saldo del balance de un ejercicio.
      * @param ejercicio $ejercicio
-     * @param type $desde
-     * @param type $hasta
+     * @param string $desde
+     * @param string $hasta
      * @return int
      */
-    public function saldo(&$ejercicio, $desde = FALSE, $hasta = FALSE) {
+    public function saldo(&$ejercicio, $desde = FALSE, $hasta = FALSE)
+    {
         $extra = '';
         if (isset($ejercicio->idasientopyg)) {
             if (isset($ejercicio->idasientocierre)) {
                 $extra = " AND idasiento NOT IN (" . $this->var2str($ejercicio->idasientocierre)
-                        . "," . $this->var2str($ejercicio->idasientopyg) . ')';
+                    . "," . $this->var2str($ejercicio->idasientopyg) . ')';
             } else
                 $extra = " AND idasiento != " . $this->var2str($ejercicio->idasientopyg);
-        }
-        else if (isset($ejercicio->idasientocierre)) {
+        } else if (isset($ejercicio->idasientocierre)) {
             $extra = " AND idasiento != " . $this->var2str($ejercicio->idasientocierre);
         }
 
         if ($desde AND $hasta) {
             $extra .= " AND idasiento IN (SELECT idasiento FROM co_asientos WHERE "
-                    . "fecha >= " . $this->var2str($desde) . " AND "
-                    . "fecha <= " . $this->var2str($hasta) . ")";
+                . "fecha >= " . $this->var2str($desde) . " AND "
+                . "fecha <= " . $this->var2str($hasta) . ")";
         }
 
         if ($this->codcuenta == '129') {
@@ -82,96 +92,92 @@ class balance_cuenta_a extends \fs_model {
             $data = $this->db->select("SELECT SUM(debe) as debe, SUM(haber) as haber FROM co_partidas
             WHERE idsubcuenta IN (SELECT idsubcuenta FROM co_subcuentas
                WHERE codcuenta LIKE '" . $this->no_html($this->codcuenta) . "%'"
-                    . " AND codejercicio = " . $this->var2str($ejercicio->codejercicio) . ")" . $extra . ";");
+                . " AND codejercicio = " . $this->var2str($ejercicio->codejercicio) . ")" . $extra . ";");
         }
 
 
         if ($data) {
             return floatval($data[0]['haber']) - floatval($data[0]['debe']);
         }
+
         return 0;
     }
 
-    public function get($getid) {
-        $bca = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($getid) . ";");
-        if ($bca) {
-            return new \balance_cuenta_a($bca[0]);
+    public function get($getid)
+    {
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($getid) . ";");
+        if ($data) {
+            return new \balance_cuenta_a($data[0]);
         }
+
         return FALSE;
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->idbalancea)) {
             return FALSE;
         }
+
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->idbalancea) . ";");
     }
 
-    public function save() {
+    public function save()
+    {
         if ($this->exists()) {
             $sql = "UPDATE " . $this->table_name . " SET codbalance = " . $this->var2str($this->codbalance) .
-                    ", codcuenta = " . $this->var2str($this->codcuenta) .
-                    ", desccuenta = " . $this->var2str($this->desccuenta) .
-                    "  WHERE id = " . $this->var2str($this->idbalancea) . ";";
+                ", codcuenta = " . $this->var2str($this->codcuenta) .
+                ", desccuenta = " . $this->var2str($this->desccuenta) .
+                "  WHERE id = " . $this->var2str($this->idbalancea) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO " . $this->table_name . " (codbalance,codcuenta,desccuenta) VALUES "
-                    . "(" . $this->var2str($this->codbalance)
-                    . "," . $this->var2str($this->codcuenta)
-                    . "," . $this->var2str($this->desccuenta) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->idbalancea = $this->db->lastval();
-                return TRUE;
-            }
-            return FALSE;
         }
+
+        $sql = "INSERT INTO " . $this->table_name . " (codbalance,codcuenta,desccuenta) VALUES "
+            . "(" . $this->var2str($this->codbalance)
+            . "," . $this->var2str($this->codcuenta)
+            . "," . $this->var2str($this->desccuenta) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->idbalancea = $this->db->lastval();
+            return TRUE;
+        }
+
+        return FALSE;
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->idbalancea) . ";");
     }
 
-    public function all() {
-        $balist = array();
-
-        $data = $this->db->select("SELECT * FROM " . $this->table_name . ";");
-        if ($data) {
-            foreach ($data as $b) {
-                $balist[] = new \balance_cuenta_a($b);
-            }
-        }
-
-        return $balist;
+    public function all()
+    {
+        return $this->all_from("SELECT * FROM " . $this->table_name . ";");
     }
 
-    public function all_from_codbalance($cod) {
-        $balist = array();
+    public function all_from_codbalance($cod)
+    {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codbalance = " . $this->var2str($cod) . " ORDER BY codcuenta ASC;";
-
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $b) {
-                $balist[] = new \balance_cuenta_a($b);
-            }
-        }
-
-        return $balist;
+        return $this->all_from($sql);
     }
 
-    public function search_by_codbalance($cod) {
-        $balist = array();
+    public function search_by_codbalance($cod)
+    {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codbalance LIKE '" . $this->no_html($cod) . "%' ORDER BY codcuenta ASC;";
+        return $this->all_from($sql);
+    }
 
+    private function all_from($sql)
+    {
+        $balist = array();
         $data = $this->db->select($sql);
         if ($data) {
-            foreach ($data as $b) {
-                $balist[] = new \balance_cuenta_a($b);
+            foreach ($data as $a) {
+                $balist[] = new \balance_cuenta($a);
             }
         }
 
         return $balist;
     }
-
 }

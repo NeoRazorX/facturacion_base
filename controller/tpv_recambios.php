@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -38,7 +37,8 @@ require_model('serie.php');
 require_model('tarifa.php');
 require_model('terminal_caja.php');
 
-class tpv_recambios extends fbase_controller {
+class tpv_recambios extends fbase_controller
+{
 
     public $agente;
     public $almacen;
@@ -61,11 +61,13 @@ class tpv_recambios extends fbase_controller {
     public $ultimas_compras;
     public $ultimas_ventas;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'TPV Genérico', 'TPV');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
         $this->share_extensions();
 
@@ -173,7 +175,8 @@ class tpv_recambios extends fbase_controller {
         }
     }
 
-    private function comprobar_opciones() {
+    private function comprobar_opciones()
+    {
         $fsvar = new fs_var();
 
         $this->imprimir_descripciones = ($fsvar->simple_get('tpv_gen_descripcion') == '1');
@@ -201,7 +204,8 @@ class tpv_recambios extends fbase_controller {
         }
     }
 
-    private function datos_cliente() {
+    private function datos_cliente()
+    {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
@@ -209,7 +213,8 @@ class tpv_recambios extends fbase_controller {
         echo json_encode($this->cliente->get($_REQUEST['datoscliente']));
     }
 
-    private function new_search() {
+    private function new_search()
+    {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
@@ -248,7 +253,8 @@ class tpv_recambios extends fbase_controller {
         echo json_encode($this->results);
     }
 
-    private function new_search_postprocess() {
+    private function new_search_postprocess()
+    {
         $stock = new stock();
 
         /// añadimos el descuento y la cantidad
@@ -282,14 +288,16 @@ class tpv_recambios extends fbase_controller {
         }
     }
 
-    private function get_precios_articulo() {
+    private function get_precios_articulo()
+    {
         /// cambiamos la plantilla HTML
         $this->template = 'ajax/tpv_recambios_precios';
 
         $this->articulo = $this->articulo->get($_REQUEST['referencia4precios']);
     }
 
-    private function get_combinaciones_articulo() {
+    private function get_combinaciones_articulo()
+    {
         /// cambiamos la plantilla HTML
         $this->template = 'ajax/tpv_recambios_combinaciones';
 
@@ -326,7 +334,8 @@ class tpv_recambios extends fbase_controller {
         }
     }
 
-    public function get_tarifas_articulo($ref) {
+    public function get_tarifas_articulo($ref)
+    {
         $tarlist = array();
         $articulo = new articulo();
         $tarifa = new tarifa();
@@ -344,7 +353,8 @@ class tpv_recambios extends fbase_controller {
         return $tarlist;
     }
 
-    private function nueva_factura_cliente() {
+    private function nueva_factura_cliente()
+    {
         $continuar = TRUE;
 
         $ejercicio = $this->ejercicio->get_by_fecha($_POST['fecha']);
@@ -431,7 +441,7 @@ class tpv_recambios extends fbase_controller {
             $regularizacion = new regularizacion_iva();
             if ($regularizacion->get_fecha_inside($factura->fecha)) {
                 $this->new_error_msg("El " . FS_IVA . " de ese periodo ya ha sido regularizado."
-                        . " No se pueden añadir más facturas en esa fecha.");
+                    . " No se pueden añadir más facturas en esa fecha.");
             } else if ($factura->save()) {
                 $trazabilidad = FALSE;
                 $n = floatval($_POST['numlineas']);
@@ -500,7 +510,7 @@ class tpv_recambios extends fbase_controller {
 
                     if (abs(floatval($_POST['tpv_total2']) - $factura->total) >= .02) {
                         $this->new_error_msg("El total difiere entre la vista y el controlador (" . $_POST['tpv_total2'] .
-                                " frente a " . $factura->total . "). Debes informar del error.");
+                            " frente a " . $factura->total . "). Debes informar del error.");
                         $factura->delete();
                     } else if ($factura->save()) {
                         $this->new_message("<a href='" . $factura->url() . "'>Factura</a> guardada correctamente.");
@@ -520,7 +530,7 @@ class tpv_recambios extends fbase_controller {
                         if ($this->caja->save()) {
                             if ($trazabilidad) {
                                 header('Location: index.php?page=ventas_trazabilidad&doc=factura&id=' . $factura->idfactura
-                                        . '&volver=' . urlencode($this->url()));
+                                    . '&volver=' . urlencode($this->url()));
                             }
                         } else {
                             $this->new_error_msg("¡Imposible actualizar la caja!");
@@ -537,7 +547,8 @@ class tpv_recambios extends fbase_controller {
         }
     }
 
-    private function abrir_caja() {
+    private function abrir_caja()
+    {
         if ($this->user->admin) {
             if ($this->terminal) {
                 $this->terminal->abrir_cajon();
@@ -547,7 +558,8 @@ class tpv_recambios extends fbase_controller {
             $this->new_error_msg('Sólo un administrador puede abrir la caja.');
     }
 
-    private function cerrar_caja() {
+    private function cerrar_caja()
+    {
         $this->caja->fecha_fin = Date('d-m-Y H:i:s');
         if ($this->caja->save()) {
             if ($this->terminal) {
@@ -577,7 +589,8 @@ class tpv_recambios extends fbase_controller {
             $this->new_error_msg("¡Imposible cerrar la caja!");
     }
 
-    private function reimprimir_ticket() {
+    private function reimprimir_ticket()
+    {
         $factura = new factura_cliente();
         $fac0 = FALSE;
 
@@ -601,7 +614,8 @@ class tpv_recambios extends fbase_controller {
      * @param type $num_tickets
      * @param type $cajon
      */
-    private function imprimir_ticket($factura, $num_tickets = 1, $cajon = TRUE) {
+    private function imprimir_ticket($factura, $num_tickets = 1, $cajon = TRUE)
+    {
         if ($this->terminal) {
             if ($cajon) {
                 $this->terminal->abrir_cajon();
@@ -625,7 +639,8 @@ class tpv_recambios extends fbase_controller {
      * @param type $num_tickets
      * @param type $cajon
      */
-    private function imprimir_ticket_regalo($factura, $num_tickets = 1, $cajon = TRUE) {
+    private function imprimir_ticket_regalo($factura, $num_tickets = 1, $cajon = TRUE)
+    {
         if ($this->terminal) {
             if ($cajon) {
                 $this->terminal->abrir_cajon();
@@ -644,7 +659,8 @@ class tpv_recambios extends fbase_controller {
      * Genera el asiento para la factura, si procede
      * @param factura_cliente $factura
      */
-    private function generar_asiento(&$factura) {
+    private function generar_asiento(&$factura)
+    {
         if ($this->empresa->contintegrada) {
             $asiento_factura = new asiento_factura();
             $asiento_factura->generar_asiento_venta($factura);
@@ -662,7 +678,8 @@ class tpv_recambios extends fbase_controller {
         }
     }
 
-    private function share_extensions() {
+    private function share_extensions()
+    {
         $fsext = new fs_extension();
         $fsext->name = 'api_remote_printer';
         $fsext->from = __CLASS__;
@@ -670,5 +687,4 @@ class tpv_recambios extends fbase_controller {
         $fsext->text = 'remote_printer';
         $fsext->save();
     }
-
 }

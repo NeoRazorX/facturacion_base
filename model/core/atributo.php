@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 require_model('atributo_valor.php');
@@ -27,7 +25,8 @@ require_model('atributo_valor.php');
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class atributo extends \fs_model {
+class atributo extends \fs_model
+{
 
     /**
      * Clave primaria.
@@ -36,7 +35,8 @@ class atributo extends \fs_model {
     public $codatributo;
     public $nombre;
 
-    public function __construct($a = FALSE) {
+    public function __construct($a = FALSE)
+    {
         parent::__construct('atributos');
         if ($a) {
             $this->codatributo = $a['codatributo'];
@@ -47,20 +47,24 @@ class atributo extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         return '';
     }
 
-    public function url() {
+    public function url()
+    {
         return 'index.php?page=ventas_atributos&cod=' . urlencode($this->codatributo);
     }
 
-    public function valores() {
+    public function valores()
+    {
         $valor0 = new \atributo_valor();
         return $valor0->all_from_atributo($this->codatributo);
     }
 
-    public function get($cod) {
+    public function get($cod)
+    {
         $data = $this->db->select("SELECT * FROM atributos WHERE codatributo = " . $this->var2str($cod) . ";");
         if ($data) {
             return new \atributo($data[0]);
@@ -69,7 +73,8 @@ class atributo extends \fs_model {
         return FALSE;
     }
 
-    public function get_by_nombre($nombre, $minusculas = FALSE) {
+    public function get_by_nombre($nombre, $minusculas = FALSE)
+    {
         if ($minusculas) {
             $data = $this->db->select("SELECT * FROM atributos WHERE lower(nombre) = " . $this->var2str(mb_strtolower($nombre, 'UTF8')) . ";");
         } else {
@@ -83,7 +88,8 @@ class atributo extends \fs_model {
         return FALSE;
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->codatributo)) {
             return FALSE;
         }
@@ -91,26 +97,29 @@ class atributo extends \fs_model {
         return $this->db->select("SELECT * FROM atributos WHERE codatributo = " . $this->var2str($this->codatributo) . ";");
     }
 
-    public function save() {
+    public function save()
+    {
         $this->nombre = $this->no_html($this->nombre);
 
         if ($this->exists()) {
             $sql = "UPDATE atributos SET nombre = " . $this->var2str($this->nombre)
-                    . " WHERE codatributo = " . $this->var2str($this->codatributo) . ";";
+                . " WHERE codatributo = " . $this->var2str($this->codatributo) . ";";
         } else {
             $sql = "INSERT INTO atributos (codatributo,nombre) VALUES "
-                    . "(" . $this->var2str($this->codatributo)
-                    . "," . $this->var2str($this->nombre) . ");";
+                . "(" . $this->var2str($this->codatributo)
+                . "," . $this->var2str($this->nombre) . ");";
         }
 
         return $this->db->exec($sql);
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM atributos WHERE codatributo = " . $this->var2str($this->codatributo) . ";");
     }
 
-    public function all() {
+    public function all()
+    {
         $lista = array();
 
         $data = $this->db->select("SELECT * FROM atributos ORDER BY nombre DESC;");
@@ -122,5 +131,4 @@ class atributo extends \fs_model {
 
         return $lista;
     }
-
 }

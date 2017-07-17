@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -25,6 +24,7 @@ require_once 'plugins/facturacion_base/model/core/recalcular_stock.php';
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class recalcular_stock extends FacturaScripts\model\recalcular_stock {
+class recalcular_stock extends FacturaScripts\model\recalcular_stock
+{
     //put your code here
 }

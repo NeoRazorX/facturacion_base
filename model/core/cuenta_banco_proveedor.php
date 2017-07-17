@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 /**
@@ -25,7 +23,8 @@ namespace FacturaScripts\model;
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class cuenta_banco_proveedor extends \fs_model {
+class cuenta_banco_proveedor extends \fs_model
+{
 
     /**
      * Clave primaria. Varchar(6).
@@ -43,7 +42,8 @@ class cuenta_banco_proveedor extends \fs_model {
     public $swift;
     public $principal;
 
-    public function __construct($c = FALSE) {
+    public function __construct($c = FALSE)
+    {
         parent::__construct('cuentasbcopro');
         if ($c) {
             $this->codcuenta = $c['codcuenta'];
@@ -62,7 +62,8 @@ class cuenta_banco_proveedor extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         return '';
     }
 
@@ -71,7 +72,8 @@ class cuenta_banco_proveedor extends \fs_model {
      * @param string $espacios
      * @return string
      */
-    public function iban($espacios = FALSE) {
+    public function iban($espacios = FALSE)
+    {
         if ($espacios === TRUE) {
             $txt = '';
             $iban = str_replace(' ', '', $this->iban);
@@ -80,28 +82,31 @@ class cuenta_banco_proveedor extends \fs_model {
             }
             return $txt;
         }
-        
+
         return str_replace(' ', '', $this->iban);
     }
 
-    public function url() {
+    public function url()
+    {
         if (is_null($this->codproveedor)) {
             return '#';
         }
-        
+
         return 'index.php?page=compras_proveedor&cod=' . $this->codproveedor . '#cuentasb';
     }
 
-    public function get($cod) {
+    public function get($cod)
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcuenta = " . $this->var2str($cod) . ";");
         if ($data) {
             return new \cuenta_banco_proveedor($data[0]);
         }
-        
+
         return FALSE;
     }
 
-    private function get_new_codigo() {
+    private function get_new_codigo()
+    {
         $sql = "SELECT MAX(" . $this->db->sql_to_int('codcuenta') . ") as cod FROM " . $this->table_name . ";";
         $cod = $this->db->select($sql);
         if ($cod) {
@@ -111,54 +116,58 @@ class cuenta_banco_proveedor extends \fs_model {
         return '1';
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->codcuenta)) {
             return FALSE;
         }
-        
+
         return $this->db->select("SELECT * FROM " . $this->table_name
-                        . " WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";");
+                . " WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";");
     }
 
-    public function save() {
+    public function save()
+    {
         $this->descripcion = $this->no_html($this->descripcion);
 
         if ($this->exists()) {
             $sql = "UPDATE " . $this->table_name . " SET descripcion = " . $this->var2str($this->descripcion) .
-                    ", codproveedor = " . $this->var2str($this->codproveedor) .
-                    ", iban = " . $this->var2str($this->iban) .
-                    ", swift = " . $this->var2str($this->swift) .
-                    ", principal = " . $this->var2str($this->principal) .
-                    "  WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";";
+                ", codproveedor = " . $this->var2str($this->codproveedor) .
+                ", iban = " . $this->var2str($this->iban) .
+                ", swift = " . $this->var2str($this->swift) .
+                ", principal = " . $this->var2str($this->principal) .
+                "  WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";";
         } else {
             $this->codcuenta = $this->get_new_codigo();
             $sql = "INSERT INTO " . $this->table_name . " (codcuenta,codproveedor,descripcion,iban,swift,principal)" .
-                    " VALUES (" . $this->var2str($this->codcuenta) .
-                    "," . $this->var2str($this->codproveedor) .
-                    "," . $this->var2str($this->descripcion) .
-                    "," . $this->var2str($this->iban) .
-                    "," . $this->var2str($this->swift) .
-                    "," . $this->var2str($this->principal) . ");";
+                " VALUES (" . $this->var2str($this->codcuenta) .
+                "," . $this->var2str($this->codproveedor) .
+                "," . $this->var2str($this->descripcion) .
+                "," . $this->var2str($this->iban) .
+                "," . $this->var2str($this->swift) .
+                "," . $this->var2str($this->principal) . ");";
         }
 
         if ($this->principal) {
             /// si esta cuenta es la principal, desmarcamos las demás
             $sql .= "UPDATE " . $this->table_name . " SET principal = false" .
-                    " WHERE codproveedor = " . $this->var2str($this->codproveedor) .
-                    " AND codcuenta != " . $this->var2str($this->codcuenta) . ";";
+                " WHERE codproveedor = " . $this->var2str($this->codproveedor) .
+                " AND codcuenta != " . $this->var2str($this->codcuenta) . ";";
         }
 
         return $this->db->exec($sql);
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";");
     }
 
-    public function all_from_proveedor($codpro) {
+    public function all_from_proveedor($codpro)
+    {
         $clist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codproveedor = " . $this->var2str($codpro)
-                . " ORDER BY codcuenta DESC;";
+            . " ORDER BY codcuenta DESC;";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -169,5 +178,4 @@ class cuenta_banco_proveedor extends \fs_model {
 
         return $clist;
     }
-
 }

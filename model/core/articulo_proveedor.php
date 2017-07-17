@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 require_model('articulo.php');
@@ -27,7 +25,8 @@ require_model('articulo.php');
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class articulo_proveedor extends \fs_model {
+class articulo_proveedor extends \fs_model
+{
 
     /**
      * Clave primaria.
@@ -94,7 +93,8 @@ class articulo_proveedor extends \fs_model {
     private static $impuestos;
     private static $nombres;
 
-    public function __construct($a = FALSE) {
+    public function __construct($a = FALSE)
+    {
         parent::__construct('articulosprov');
 
         if (!isset(self::$impuestos)) {
@@ -142,11 +142,13 @@ class articulo_proveedor extends \fs_model {
         $this->iva = NULL;
     }
 
-    protected function install() {
+    protected function install()
+    {
         return '';
     }
 
-    public function nombre_proveedor() {
+    public function nombre_proveedor()
+    {
         if (isset(self::$nombres[$this->codproveedor])) {
             return self::$nombres[$this->codproveedor];
         }
@@ -160,7 +162,8 @@ class articulo_proveedor extends \fs_model {
         return '-';
     }
 
-    public function url_proveedor() {
+    public function url_proveedor()
+    {
         return 'index.php?page=compras_proveedor&cod=' . $this->codproveedor;
     }
 
@@ -170,7 +173,8 @@ class articulo_proveedor extends \fs_model {
      * @param boolean $reload
      * @return double
      */
-    public function get_iva($reload = TRUE) {
+    public function get_iva($reload = TRUE)
+    {
         if ($reload) {
             $this->iva = NULL;
         }
@@ -201,7 +205,8 @@ class articulo_proveedor extends \fs_model {
         return $this->iva;
     }
 
-    public function get_articulo() {
+    public function get_articulo()
+    {
         if (is_null($this->referencia)) {
             return FALSE;
         }
@@ -214,7 +219,8 @@ class articulo_proveedor extends \fs_model {
      * Devuelve el precio final, aplicando descuento e impuesto.
      * @return double
      */
-    public function total_iva() {
+    public function total_iva()
+    {
         return $this->precio * (100 - $this->dto) / 100 * (100 + $this->get_iva()) / 100;
     }
 
@@ -223,7 +229,8 @@ class articulo_proveedor extends \fs_model {
      * @param string $id
      * @return \articulo_proveedor|boolean
      */
-    public function get($id) {
+    public function get($id)
+    {
         $data = $this->db->select("SELECT * FROM articulosprov WHERE id = " . $this->var2str($id) . ";");
         if ($data) {
             return new \articulo_proveedor($data[0]);
@@ -242,14 +249,15 @@ class articulo_proveedor extends \fs_model {
      * @param string $refprov
      * @return \articulo_proveedor|boolean
      */
-    public function get_by($ref, $codproveedor, $refprov = FALSE) {
+    public function get_by($ref, $codproveedor, $refprov = FALSE)
+    {
         if ($refprov !== FALSE) {
             $sql = "SELECT * FROM articulosprov WHERE codproveedor = " . $this->var2str($codproveedor)
-                    . " AND (refproveedor = " . $this->var2str($refprov)
-                    . " OR referencia = " . $this->var2str($ref) . ");";
+                . " AND (refproveedor = " . $this->var2str($refprov)
+                . " OR referencia = " . $this->var2str($ref) . ");";
         } else {
             $sql = "SELECT * FROM articulosprov WHERE referencia = " . $this->var2str($ref)
-                    . " AND codproveedor = " . $this->var2str($codproveedor) . ";";
+                . " AND codproveedor = " . $this->var2str($codproveedor) . ";";
         }
 
         $data = $this->db->select($sql);
@@ -260,7 +268,8 @@ class articulo_proveedor extends \fs_model {
         return FALSE;
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->id)) {
             return FALSE;
         }
@@ -268,7 +277,8 @@ class articulo_proveedor extends \fs_model {
         return $this->db->select("SELECT * FROM articulosprov WHERE id = " . $this->var2str($this->id) . ";");
     }
 
-    public function test() {
+    public function test()
+    {
         $this->descripcion = $this->no_html($this->descripcion);
 
         if ($this->nostock) {
@@ -283,37 +293,38 @@ class articulo_proveedor extends \fs_model {
         return TRUE;
     }
 
-    public function save() {
+    public function save()
+    {
         if ($this->test()) {
             if ($this->exists()) {
                 $sql = "UPDATE articulosprov SET referencia = " . $this->var2str($this->referencia) .
-                        ", codproveedor = " . $this->var2str($this->codproveedor) .
-                        ", refproveedor = " . $this->var2str($this->refproveedor) .
-                        ", descripcion = " . $this->var2str($this->descripcion) .
-                        ", precio = " . $this->var2str($this->precio) .
-                        ", dto = " . $this->var2str($this->dto) .
-                        ", codimpuesto = " . $this->var2str($this->codimpuesto) .
-                        ", stock = " . $this->var2str($this->stock) .
-                        ", nostock = " . $this->var2str($this->nostock) .
-                        ", codbarras = " . $this->var2str($this->codbarras) .
-                        ", partnumber = " . $this->var2str($this->partnumber) .
-                        "  WHERE id = " . $this->var2str($this->id) . ";";
+                    ", codproveedor = " . $this->var2str($this->codproveedor) .
+                    ", refproveedor = " . $this->var2str($this->refproveedor) .
+                    ", descripcion = " . $this->var2str($this->descripcion) .
+                    ", precio = " . $this->var2str($this->precio) .
+                    ", dto = " . $this->var2str($this->dto) .
+                    ", codimpuesto = " . $this->var2str($this->codimpuesto) .
+                    ", stock = " . $this->var2str($this->stock) .
+                    ", nostock = " . $this->var2str($this->nostock) .
+                    ", codbarras = " . $this->var2str($this->codbarras) .
+                    ", partnumber = " . $this->var2str($this->partnumber) .
+                    "  WHERE id = " . $this->var2str($this->id) . ";";
                 return $this->db->exec($sql);
             }
 
             $sql = "INSERT INTO articulosprov (referencia,codproveedor,refproveedor,descripcion," .
-                    "precio,dto,codimpuesto,stock,nostock,codbarras,partnumber) VALUES " .
-                    "(" . $this->var2str($this->referencia) .
-                    "," . $this->var2str($this->codproveedor) .
-                    "," . $this->var2str($this->refproveedor) .
-                    "," . $this->var2str($this->descripcion) .
-                    "," . $this->var2str($this->precio) .
-                    "," . $this->var2str($this->dto) .
-                    "," . $this->var2str($this->codimpuesto) .
-                    "," . $this->var2str($this->stock) .
-                    "," . $this->var2str($this->nostock) .
-                    "," . $this->var2str($this->codbarras) .
-                    "," . $this->var2str($this->partnumber) . ");";
+                "precio,dto,codimpuesto,stock,nostock,codbarras,partnumber) VALUES " .
+                "(" . $this->var2str($this->referencia) .
+                "," . $this->var2str($this->codproveedor) .
+                "," . $this->var2str($this->refproveedor) .
+                "," . $this->var2str($this->descripcion) .
+                "," . $this->var2str($this->precio) .
+                "," . $this->var2str($this->dto) .
+                "," . $this->var2str($this->codimpuesto) .
+                "," . $this->var2str($this->stock) .
+                "," . $this->var2str($this->nostock) .
+                "," . $this->var2str($this->codbarras) .
+                "," . $this->var2str($this->partnumber) . ");";
 
             if ($this->db->exec($sql)) {
                 $this->id = $this->db->lastval();
@@ -324,11 +335,13 @@ class articulo_proveedor extends \fs_model {
         return FALSE;
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM articulosprov WHERE id = " . $this->var2str($this->id) . ";");
     }
 
-    private function all_from($sql) {
+    private function all_from($sql)
+    {
         $alist = array();
         $data = $this->db->select($sql);
         if ($data) {
@@ -345,7 +358,8 @@ class articulo_proveedor extends \fs_model {
      * @param string $ref
      * @return \articulo_proveedor
      */
-    public function all_from_ref($ref) {
+    public function all_from_ref($ref)
+    {
         $sql = "SELECT * FROM articulosprov WHERE referencia = " . $this->var2str($ref) . " ORDER BY precio ASC;";
         return $this->all_from($sql);
     }
@@ -355,9 +369,10 @@ class articulo_proveedor extends \fs_model {
      * @param string $ref
      * @return \articulo_proveedor|false
      */
-    public function mejor_from_ref($ref) {
+    public function mejor_from_ref($ref)
+    {
         $sql = "SELECT * FROM articulosprov WHERE referencia = " . $this->var2str($ref)
-                . " ORDER BY precio ASC;";
+            . " ORDER BY precio ASC;";
 
         return $this->all_from($sql);
     }
@@ -367,7 +382,8 @@ class articulo_proveedor extends \fs_model {
      * @param 
      * @return \articulo_proveedor
      */
-    public function all_con_ref() {
+    public function all_con_ref()
+    {
         $sql = "SELECT * FROM articulosprov WHERE referencia !='' ORDER BY precio ASC;";
         return $this->all_from($sql);
     }
@@ -375,9 +391,9 @@ class articulo_proveedor extends \fs_model {
     /**
      * Aplicamos correcciones a la tabla.
      */
-    public function fix_db() {
+    public function fix_db()
+    {
         $this->db->exec("DELETE FROM articulosprov WHERE codproveedor NOT IN (SELECT codproveedor FROM proveedores);");
         $this->db->exec("UPDATE articulosprov SET refproveedor = referencia WHERE refproveedor IS NULL;");
     }
-
 }

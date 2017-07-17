@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015         Pablo Peralta
@@ -22,15 +21,18 @@
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('agencia_transporte.php');
 
-class admin_transportes extends fbase_controller {
+class admin_transportes extends fbase_controller
+{
 
     public $listado;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Agencias de transporte', 'admin');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $agencia = new agencia_transporte();
@@ -44,7 +46,8 @@ class admin_transportes extends fbase_controller {
         $this->listado = $agencia->all();
     }
 
-    private function editar_agencia(&$agencia) {
+    private function editar_agencia(&$agencia)
+    {
         $agencia2 = $agencia->get(filter_input(INPUT_POST, 'codtrans'));
         if (!$agencia2) {
             /// si no existe la creamos
@@ -64,7 +67,8 @@ class admin_transportes extends fbase_controller {
         }
     }
 
-    private function eliminar_agencia(&$agencia) {
+    private function eliminar_agencia(&$agencia)
+    {
         $agencia2 = $agencia->get(filter_input(INPUT_GET, 'delete'));
         if ($agencia2) {
             if (!$this->allow_delete) {
@@ -78,5 +82,4 @@ class admin_transportes extends fbase_controller {
             $this->new_error_msg('Agencia no encontrada.');
         }
     }
-
 }

@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -27,7 +26,8 @@ require_model('partida.php');
 require_model('regularizacion_iva.php');
 require_model('subcuenta.php');
 
-class contabilidad_asiento extends fbase_controller {
+class contabilidad_asiento extends fbase_controller
+{
 
     public $asiento;
     public $divisa;
@@ -37,11 +37,13 @@ class contabilidad_asiento extends fbase_controller {
     public $resultados;
     public $subcuenta;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Asiento', 'contabilidad', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->asiento = FALSE;
@@ -78,7 +80,8 @@ class contabilidad_asiento extends fbase_controller {
         }
     }
 
-    public function url() {
+    public function url()
+    {
         if (!isset($this->asiento)) {
             return parent::url();
         } else if ($this->asiento) {
@@ -87,7 +90,8 @@ class contabilidad_asiento extends fbase_controller {
             return $this->ppage->url();
     }
 
-    private function new_search() {
+    private function new_search()
+    {
         /// cambiamos la plantilla HTML
         $this->template = 'ajax/contabilidad_nuevo_asiento';
 
@@ -99,7 +103,8 @@ class contabilidad_asiento extends fbase_controller {
         }
     }
 
-    private function bloquear() {
+    private function bloquear()
+    {
         $this->asiento->editable = FALSE;
         if ($this->asiento->save()) {
             $this->new_message('Asiento bloqueado correctamente.');
@@ -107,7 +112,8 @@ class contabilidad_asiento extends fbase_controller {
             $this->new_error_msg('Imposible bloquear el asiento.');
     }
 
-    private function desbloquear() {
+    private function desbloquear()
+    {
         $ejercicio = $this->ejercicio->get($this->asiento->codejercicio);
         if ($ejercicio) {
             if ($ejercicio->abierto()) {
@@ -118,7 +124,7 @@ class contabilidad_asiento extends fbase_controller {
                 if ($regiva0->get_fecha_inside($this->asiento->fecha) AND ! in_array($this->asiento->idasiento, $excluir)) {
                     $this->asiento->editable = FALSE;
                     $this->new_error_msg('El asiento está dentro de una regularización de '
-                            . FS_IVA . '. No se puede modificar.');
+                        . FS_IVA . '. No se puede modificar.');
                 } else if ($this->asiento->save()) {
                     $this->new_message('Asiento desbloqueado correctamente.');
                 } else
@@ -126,12 +132,13 @@ class contabilidad_asiento extends fbase_controller {
             }
             else {
                 $this->new_error_msg('Imposible desbloquear el asiento: el ejercicio '
-                        . $ejercicio->nombre . ' está cerrado.');
+                    . $ejercicio->nombre . ' está cerrado.');
             }
         }
     }
 
-    private function modificar() {
+    private function modificar()
+    {
         $bloquear = TRUE;
 
         $ejercicio = $this->ejercicio->get($this->asiento->codejercicio);
@@ -141,14 +148,14 @@ class contabilidad_asiento extends fbase_controller {
                 $excluir = array($ejercicio->idasientoapertura, $ejercicio->idasientocierre, $ejercicio->idasientopyg);
                 if ($regiva0->get_fecha_inside($this->asiento->fecha) AND ! in_array($this->asiento->idasiento, $excluir)) {
                     $this->new_error_msg('El asiento está dentro de una regularización de '
-                            . FS_IVA . '. No se puede modificar.');
+                        . FS_IVA . '. No se puede modificar.');
                 } else {
                     $this->modificar2($ejercicio);
                     $bloquear = FALSE;
                 }
             } else {
                 $this->new_error_msg('Imposible modificar el asiento: el ejercicio '
-                        . $ejercicio->nombre . ' está cerrado.');
+                    . $ejercicio->nombre . ' está cerrado.');
             }
         }
 
@@ -158,20 +165,21 @@ class contabilidad_asiento extends fbase_controller {
         }
     }
 
-    private function modificar2(&$eje0) {
+    private function modificar2(&$eje0)
+    {
         if ($_POST['fecha'] != $this->asiento->fecha) {
             /// necesitamos el ejercicio para poder acotar la fecha
             $regiva0 = new regularizacion_iva();
 
             if (strtotime($eje0->fechainicio) > strtotime($_POST['fecha'])) {
                 $this->new_error_msg('La fecha ' . $_POST['fecha'] . ' está fuera del'
-                        . ' rango del ejercicio ' . $eje0->codejercicio . '.');
+                    . ' rango del ejercicio ' . $eje0->codejercicio . '.');
             } else if (strtotime($eje0->fechafin) < strtotime($_POST['fecha'])) {
                 $this->new_error_msg('La fecha ' . $_POST['fecha'] . ' está fuera del'
-                        . ' rango del ejercicio ' . $eje0->codejercicio . '.');
+                    . ' rango del ejercicio ' . $eje0->codejercicio . '.');
             } else if ($regiva0->get_fecha_inside($_POST['fecha'])) {
                 $this->new_error_msg('No se puede asignar la fecha ' . $_POST['fecha'] . ' porque ya hay'
-                        . ' una regularización de ' . FS_IVA . ' para ese periodo.');
+                    . ' una regularización de ' . FS_IVA . ' para ese periodo.');
             } else {
                 $this->asiento->fecha = $_POST['fecha'];
             }
@@ -293,7 +301,8 @@ class contabilidad_asiento extends fbase_controller {
             $this->new_error_msg('Imposible modificar el asiento.');
     }
 
-    private function get_lineas_asiento() {
+    private function get_lineas_asiento()
+    {
         $lineas = $this->asiento->get_partidas();
         $subc = new subcuenta();
 
@@ -310,5 +319,4 @@ class contabilidad_asiento extends fbase_controller {
 
         return $lineas;
     }
-
 }

@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 require_model('cuenta.php');
@@ -32,7 +30,8 @@ require_model('subcuenta_cliente.php');
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class cliente extends \fs_model {
+class cliente extends \fs_model
+{
 
     /**
      * Clave primaria. Varchar (6).
@@ -153,7 +152,8 @@ class cliente extends \fs_model {
     public $codproveedor;
     private static $regimenes_iva;
 
-    public function __construct($c = FALSE) {
+    public function __construct($c = FALSE)
+    {
         parent::__construct('clientes');
         if ($c) {
             $this->codcliente = $c['codcliente'];
@@ -226,7 +226,8 @@ class cliente extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         $this->clean_cache();
 
         /**
@@ -238,21 +239,23 @@ class cliente extends \fs_model {
         return '';
     }
 
-    public function observaciones_resume() {
+    public function observaciones_resume()
+    {
         if ($this->observaciones == '') {
             return '-';
         } else if (strlen($this->observaciones) < 60) {
             return $this->observaciones;
         }
-        
+
         return substr($this->observaciones, 0, 50) . '...';
     }
 
-    public function url() {
+    public function url()
+    {
         if (is_null($this->codcliente)) {
             return "index.php?page=ventas_clientes";
         }
-        
+
         return "index.php?page=ventas_cliente&cod=" . $this->codcliente;
     }
 
@@ -260,7 +263,8 @@ class cliente extends \fs_model {
      * @deprecated since version 50
      * @return boolean
      */
-    public function is_default() {
+    public function is_default()
+    {
         return FALSE;
     }
 
@@ -268,7 +272,8 @@ class cliente extends \fs_model {
      * Devuelve un array con los regimenes de iva disponibles.
      * @return array
      */
-    public function regimenes_iva() {
+    public function regimenes_iva()
+    {
         if (!isset(self::$regimenes_iva)) {
             /// Si hay usa lista personalizada en fs_vars, la usamos
             $fsvar = new \fs_var();
@@ -302,12 +307,13 @@ class cliente extends \fs_model {
      * @param string $cod
      * @return \cliente|boolean
      */
-    public function get($cod) {
+    public function get($cod)
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($cod) . ";");
         if ($data) {
             return new \cliente($data[0]);
         }
-        
+
         return FALSE;
     }
 
@@ -319,7 +325,8 @@ class cliente extends \fs_model {
      * @param string $razon
      * @return boolean|\cliente
      */
-    public function get_by_cifnif($cifnif, $razon = FALSE) {
+    public function get_by_cifnif($cifnif, $razon = FALSE)
+    {
         if ($cifnif == '' AND $razon) {
             $razon = $this->no_html(mb_strtolower($razon, 'UTF8'));
             $sql = "SELECT * FROM " . $this->table_name . " WHERE cifnif = '' AND lower(razonsocial) = " . $this->var2str($razon) . ";";
@@ -332,7 +339,7 @@ class cliente extends \fs_model {
         if ($data) {
             return new \cliente($data[0]);
         }
-        
+
         return FALSE;
     }
 
@@ -341,7 +348,8 @@ class cliente extends \fs_model {
      * @param string $email
      * @return boolean|\cliente
      */
-    public function get_by_email($email) {
+    public function get_by_email($email)
+    {
         $email = mb_strtolower($email, 'UTF8');
         $sql = "SELECT * FROM " . $this->table_name . " WHERE lower(email) = " . $this->var2str($email) . ";";
 
@@ -349,7 +357,7 @@ class cliente extends \fs_model {
         if ($data) {
             return new \cliente($data[0]);
         }
-        
+
         return FALSE;
     }
 
@@ -357,7 +365,8 @@ class cliente extends \fs_model {
      * Devuelve un array con las direcciones asociadas al cliente.
      * @return \direccion_cliente
      */
-    public function get_direcciones() {
+    public function get_direcciones()
+    {
         $dir = new \direccion_cliente();
         return $dir->all_from_cliente($this->codcliente);
     }
@@ -367,7 +376,8 @@ class cliente extends \fs_model {
      * Una para cada ejercicio.
      * @return \subcuenta
      */
-    public function get_subcuentas() {
+    public function get_subcuentas()
+    {
         $subclist = array();
         $subc = new \subcuenta_cliente();
         foreach ($subc->all_from_cliente($this->codcliente) as $s) {
@@ -387,7 +397,8 @@ class cliente extends \fs_model {
      * @param string $codejercicio
      * @return subcuenta
      */
-    public function get_subcuenta($codejercicio) {
+    public function get_subcuenta($codejercicio)
+    {
         $subcuenta = FALSE;
 
         foreach ($this->get_subcuentas() as $s) {
@@ -437,18 +448,19 @@ class cliente extends \fs_model {
                 }
 
                 $this->new_error_msg('No se encuentra ninguna cuenta especial para clientes en el ejercicio '
-                        . $codejercicio . ' ¿<a href="' . $eje_url . '">Has importado los datos del ejercicio</a>?');
+                    . $codejercicio . ' ¿<a href="' . $eje_url . '">Has importado los datos del ejercicio</a>?');
             }
         }
 
         return $subcuenta;
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->codcliente)) {
             return FALSE;
         }
-        
+
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($this->codcliente) . ";");
     }
 
@@ -456,16 +468,18 @@ class cliente extends \fs_model {
      * Devuelve un código que se usará como clave primaria/identificador único para este cliente.
      * @return string
      */
-    public function get_new_codigo() {
+    public function get_new_codigo()
+    {
         $data = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codcliente') . ") as cod FROM " . $this->table_name . ";");
         if ($data) {
             return sprintf('%06s', (1 + intval($data[0]['cod'])));
         }
-        
+
         return '000001';
     }
 
-    public function test() {
+    public function test()
+    {
         $status = FALSE;
 
         if (is_null($this->codcliente)) {
@@ -511,81 +525,85 @@ class cliente extends \fs_model {
         return $status;
     }
 
-    public function save() {
+    public function save()
+    {
         if ($this->test()) {
             $this->clean_cache();
 
             if ($this->exists()) {
                 $sql = "UPDATE " . $this->table_name . " SET nombre = " . $this->var2str($this->nombre)
-                        . ", razonsocial = " . $this->var2str($this->razonsocial)
-                        . ", tipoidfiscal = " . $this->var2str($this->tipoidfiscal)
-                        . ", cifnif = " . $this->var2str($this->cifnif)
-                        . ", telefono1 = " . $this->var2str($this->telefono1)
-                        . ", telefono2 = " . $this->var2str($this->telefono2)
-                        . ", fax = " . $this->var2str($this->fax)
-                        . ", email = " . $this->var2str($this->email)
-                        . ", web = " . $this->var2str($this->web)
-                        . ", codserie = " . $this->var2str($this->codserie)
-                        . ", coddivisa = " . $this->var2str($this->coddivisa)
-                        . ", codpago = " . $this->var2str($this->codpago)
-                        . ", codagente = " . $this->var2str($this->codagente)
-                        . ", codgrupo = " . $this->var2str($this->codgrupo)
-                        . ", debaja = " . $this->var2str($this->debaja)
-                        . ", fechabaja = " . $this->var2str($this->fechabaja)
-                        . ", fechaalta = " . $this->var2str($this->fechaalta)
-                        . ", observaciones = " . $this->var2str($this->observaciones)
-                        . ", regimeniva = " . $this->var2str($this->regimeniva)
-                        . ", recargo = " . $this->var2str($this->recargo)
-                        . ", personafisica = " . $this->var2str($this->personafisica)
-                        . ", diaspago = " . $this->var2str($this->diaspago)
-                        . ", codproveedor = " . $this->var2str($this->codproveedor)
-                        . "  WHERE codcliente = " . $this->var2str($this->codcliente) . ";";
+                    . ", razonsocial = " . $this->var2str($this->razonsocial)
+                    . ", tipoidfiscal = " . $this->var2str($this->tipoidfiscal)
+                    . ", cifnif = " . $this->var2str($this->cifnif)
+                    . ", telefono1 = " . $this->var2str($this->telefono1)
+                    . ", telefono2 = " . $this->var2str($this->telefono2)
+                    . ", fax = " . $this->var2str($this->fax)
+                    . ", email = " . $this->var2str($this->email)
+                    . ", web = " . $this->var2str($this->web)
+                    . ", codserie = " . $this->var2str($this->codserie)
+                    . ", coddivisa = " . $this->var2str($this->coddivisa)
+                    . ", codpago = " . $this->var2str($this->codpago)
+                    . ", codagente = " . $this->var2str($this->codagente)
+                    . ", codgrupo = " . $this->var2str($this->codgrupo)
+                    . ", debaja = " . $this->var2str($this->debaja)
+                    . ", fechabaja = " . $this->var2str($this->fechabaja)
+                    . ", fechaalta = " . $this->var2str($this->fechaalta)
+                    . ", observaciones = " . $this->var2str($this->observaciones)
+                    . ", regimeniva = " . $this->var2str($this->regimeniva)
+                    . ", recargo = " . $this->var2str($this->recargo)
+                    . ", personafisica = " . $this->var2str($this->personafisica)
+                    . ", diaspago = " . $this->var2str($this->diaspago)
+                    . ", codproveedor = " . $this->var2str($this->codproveedor)
+                    . "  WHERE codcliente = " . $this->var2str($this->codcliente) . ";";
             } else {
                 $sql = "INSERT INTO " . $this->table_name . " (codcliente,nombre,razonsocial,tipoidfiscal,
                cifnif,telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,
                debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,personafisica,diaspago,codproveedor) VALUES
                       (" . $this->var2str($this->codcliente)
-                        . "," . $this->var2str($this->nombre)
-                        . "," . $this->var2str($this->razonsocial)
-                        . "," . $this->var2str($this->tipoidfiscal)
-                        . "," . $this->var2str($this->cifnif)
-                        . "," . $this->var2str($this->telefono1)
-                        . "," . $this->var2str($this->telefono2)
-                        . "," . $this->var2str($this->fax)
-                        . "," . $this->var2str($this->email)
-                        . "," . $this->var2str($this->web)
-                        . "," . $this->var2str($this->codserie)
-                        . "," . $this->var2str($this->coddivisa)
-                        . "," . $this->var2str($this->codpago)
-                        . "," . $this->var2str($this->codagente)
-                        . "," . $this->var2str($this->codgrupo)
-                        . "," . $this->var2str($this->debaja)
-                        . "," . $this->var2str($this->fechabaja)
-                        . "," . $this->var2str($this->fechaalta)
-                        . "," . $this->var2str($this->observaciones)
-                        . "," . $this->var2str($this->regimeniva)
-                        . "," . $this->var2str($this->recargo)
-                        . "," . $this->var2str($this->personafisica)
-                        . "," . $this->var2str($this->diaspago)
-                        . "," . $this->var2str($this->codproveedor) . ");";
+                    . "," . $this->var2str($this->nombre)
+                    . "," . $this->var2str($this->razonsocial)
+                    . "," . $this->var2str($this->tipoidfiscal)
+                    . "," . $this->var2str($this->cifnif)
+                    . "," . $this->var2str($this->telefono1)
+                    . "," . $this->var2str($this->telefono2)
+                    . "," . $this->var2str($this->fax)
+                    . "," . $this->var2str($this->email)
+                    . "," . $this->var2str($this->web)
+                    . "," . $this->var2str($this->codserie)
+                    . "," . $this->var2str($this->coddivisa)
+                    . "," . $this->var2str($this->codpago)
+                    . "," . $this->var2str($this->codagente)
+                    . "," . $this->var2str($this->codgrupo)
+                    . "," . $this->var2str($this->debaja)
+                    . "," . $this->var2str($this->fechabaja)
+                    . "," . $this->var2str($this->fechaalta)
+                    . "," . $this->var2str($this->observaciones)
+                    . "," . $this->var2str($this->regimeniva)
+                    . "," . $this->var2str($this->recargo)
+                    . "," . $this->var2str($this->personafisica)
+                    . "," . $this->var2str($this->diaspago)
+                    . "," . $this->var2str($this->codproveedor) . ");";
             }
 
             return $this->db->exec($sql);
         }
-        
+
         return FALSE;
     }
 
-    public function delete() {
+    public function delete()
+    {
         $this->clean_cache();
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($this->codcliente) . ";");
     }
 
-    private function clean_cache() {
+    private function clean_cache()
+    {
         $this->cache->delete('m_cliente_all');
     }
 
-    public function all($offset = 0) {
+    public function all($offset = 0)
+    {
         $data = $this->db->select_limit("SELECT * FROM " . $this->table_name . " ORDER BY lower(nombre) ASC", FS_ITEM_LIMIT, $offset);
         return $this->all_from_data($data);
     }
@@ -594,7 +612,8 @@ class cliente extends \fs_model {
      * Devuelve un array con la lista completa de clientes.
      * @return \cliente
      */
-    public function all_full() {
+    public function all_full()
+    {
         /// leemos la lista de la caché
         $clientlist = $this->cache->get_array('m_cliente_all');
         if (!$clientlist) {
@@ -609,20 +628,21 @@ class cliente extends \fs_model {
         return $clientlist;
     }
 
-    public function search($query, $offset = 0) {
+    public function search($query, $offset = 0)
+    {
         $query = mb_strtolower($this->no_html($query), 'UTF8');
 
         $consulta = "SELECT * FROM " . $this->table_name . " WHERE debaja = FALSE AND ";
         if (is_numeric($query)) {
             $consulta .= "(nombre LIKE '%" . $query . "%' OR razonsocial LIKE '%" . $query . "%'"
-                    . " OR codcliente LIKE '%" . $query . "%' OR cifnif LIKE '%" . $query . "%'"
-                    . " OR telefono1 LIKE '" . $query . "%' OR telefono2 LIKE '" . $query . "%'"
-                    . " OR observaciones LIKE '%" . $query . "%')";
+                . " OR codcliente LIKE '%" . $query . "%' OR cifnif LIKE '%" . $query . "%'"
+                . " OR telefono1 LIKE '" . $query . "%' OR telefono2 LIKE '" . $query . "%'"
+                . " OR observaciones LIKE '%" . $query . "%')";
         } else {
             $buscar = str_replace(' ', '%', $query);
             $consulta .= "(lower(nombre) LIKE '%" . $buscar . "%' OR lower(razonsocial) LIKE '%" . $buscar . "%'"
-                    . " OR lower(cifnif) LIKE '%" . $buscar . "%' OR lower(observaciones) LIKE '%" . $buscar . "%'"
-                    . " OR lower(email) LIKE '%" . $buscar . "%')";
+                . " OR lower(cifnif) LIKE '%" . $buscar . "%' OR lower(observaciones) LIKE '%" . $buscar . "%'"
+                . " OR lower(email) LIKE '%" . $buscar . "%')";
         }
         $consulta .= " ORDER BY lower(nombre) ASC";
 
@@ -636,16 +656,18 @@ class cliente extends \fs_model {
      * @param integer $offset
      * @return \cliente
      */
-    public function search_by_dni($dni, $offset = 0) {
+    public function search_by_dni($dni, $offset = 0)
+    {
         $query = mb_strtolower($this->no_html($dni), 'UTF8');
         $consulta = "SELECT * FROM " . $this->table_name . " WHERE debaja = FALSE "
-                . "AND lower(cifnif) LIKE '" . $query . "%' ORDER BY lower(nombre) ASC";
+            . "AND lower(cifnif) LIKE '" . $query . "%' ORDER BY lower(nombre) ASC";
 
         $data = $this->db->select_limit($consulta, FS_ITEM_LIMIT, $offset);
         return $this->all_from_data($data);
     }
-    
-    private function all_from_data(&$data) {
+
+    private function all_from_data(&$data)
+    {
         $clilist = array();
         if ($data) {
             foreach ($data as $d) {
@@ -659,17 +681,17 @@ class cliente extends \fs_model {
     /**
      * Aplicamos algunas correcciones a la tabla.
      */
-    public function fix_db() {
+    public function fix_db()
+    {
         /// ponemos debaja a false en los casos que sea null
         $this->db->exec("UPDATE " . $this->table_name . " SET debaja = false WHERE debaja IS NULL;");
 
         /// desvinculamos de grupos que no existen
         $this->db->exec("UPDATE " . $this->table_name . " SET codgrupo = NULL WHERE codgrupo IS NOT NULL"
-                . " AND codgrupo NOT IN (SELECT codgrupo FROM gruposclientes);");
+            . " AND codgrupo NOT IN (SELECT codgrupo FROM gruposclientes);");
 
         /// desvinculamos de proveedores que no existan
         $this->db->exec("UPDATE " . $this->table_name . " SET codproveedor = null WHERE codproveedor IS NOT NULL"
-                . " AND codproveedor NOT IN (SELECT codproveedor FROM proveedores);");
+            . " AND codproveedor NOT IN (SELECT codproveedor FROM proveedores);");
     }
-
 }

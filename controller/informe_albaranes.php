@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017    Carlos Garcia Gomez  neorazorx@gmail.com
@@ -30,7 +29,8 @@ require_model('divisa.php');
 require_model('forma_pago.php');
 require_model('serie.php');
 
-class informe_albaranes extends fbase_controller {
+class informe_albaranes extends fbase_controller
+{
 
     public $agente;
     public $almacen;
@@ -63,7 +63,8 @@ class informe_albaranes extends fbase_controller {
      * @param type $shmenu
      * @param type $important
      */
-    public function __construct($name = '', $title = 'home', $folder = '', $admin = FALSE, $shmenu = TRUE, $important = FALSE) {
+    public function __construct($name = '', $title = 'home', $folder = '', $admin = FALSE, $shmenu = TRUE, $important = FALSE)
+    {
         if ($name == '') {
             /**
              * si no se proporciona un $name es que estamos usando este mismo controlador,
@@ -77,7 +78,8 @@ class informe_albaranes extends fbase_controller {
         parent::__construct($name, $title, $folder, $admin, $shmenu, $important);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         /// declaramos los objetos sólo para asegurarnos de que existen las tablas
@@ -124,14 +126,16 @@ class informe_albaranes extends fbase_controller {
         }
     }
 
-    protected function generar_extra() {
+    protected function generar_extra()
+    {
         /// a completar en el informe de facturas
     }
 
     /**
      * Obtenemos los valores de los filtros del formulario.
      */
-    protected function ini_filters() {
+    protected function ini_filters()
+    {
         $this->desde = Date('01-m-Y', strtotime('-14 months'));
         if (isset($_REQUEST['desde'])) {
             $this->desde = $_REQUEST['desde'];
@@ -187,9 +191,10 @@ class informe_albaranes extends fbase_controller {
     /**
      * Contruimos sentencias where para las consultas sql.
      */
-    protected function set_where() {
+    protected function set_where()
+    {
         $this->where_compras = " WHERE fecha >= " . $this->empresa->var2str($this->desde)
-                . " AND fecha <= " . $this->empresa->var2str($this->hasta);
+            . " AND fecha <= " . $this->empresa->var2str($this->hasta);
 
         /// nos guardamos un where sin fechas
         $this->where_compras_nf = " WHERE 1 = 1";
@@ -237,7 +242,8 @@ class informe_albaranes extends fbase_controller {
      * Devuelve un array con las compras y ventas por día en el plazo de un mes desde hoy.
      * @return type
      */
-    public function stats_last_30_days() {
+    public function stats_last_30_days()
+    {
         $stats = array();
         $stats_cli = $this->stats_last_30_days_aux($this->table_ventas);
         $stats_pro = $this->stats_last_30_days_aux($this->table_compras);
@@ -278,7 +284,8 @@ class informe_albaranes extends fbase_controller {
      * @param type $table_name
      * @return type
      */
-    protected function stats_last_30_days_aux($table_name) {
+    protected function stats_last_30_days_aux($table_name)
+    {
         $stats = array();
         $hasta = date('d-m-Y');
         $desde = date('d-m-Y', strtotime($hasta . '-1 month'));
@@ -298,9 +305,9 @@ class informe_albaranes extends fbase_controller {
         }
 
         $sql = "SELECT fecha as dia, SUM(neto) as total FROM " . $table_name . $where
-                . " AND fecha >= " . $this->empresa->var2str($desde)
-                . " AND fecha <= " . $this->empresa->var2str($hasta)
-                . " GROUP BY dia ORDER BY dia ASC;";
+            . " AND fecha >= " . $this->empresa->var2str($desde)
+            . " AND fecha <= " . $this->empresa->var2str($hasta)
+            . " GROUP BY dia ORDER BY dia ASC;";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -317,7 +324,8 @@ class informe_albaranes extends fbase_controller {
      * Devuelve un array con las compras y ventas agrupadas por mes.
      * @return type
      */
-    public function stats_months() {
+    public function stats_months()
+    {
         $stats = array();
         $stats_cli = $this->stats_months_aux($this->table_ventas);
         $stats_pro = $this->stats_months_aux($this->table_compras);
@@ -356,7 +364,8 @@ class informe_albaranes extends fbase_controller {
      * @param type $table_name
      * @return type
      */
-    protected function stats_months_aux($table_name) {
+    protected function stats_months_aux($table_name)
+    {
         $stats = array();
 
         /// inicializamos los resultados
@@ -381,7 +390,7 @@ class informe_albaranes extends fbase_controller {
         }
 
         $sql = "SELECT " . $sql_aux . " as mes, SUM(neto) as total FROM " . $table_name
-                . $where . " GROUP BY " . $sql_aux . " ORDER BY mes ASC;";
+            . $where . " GROUP BY " . $sql_aux . " ORDER BY mes ASC;";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -398,7 +407,8 @@ class informe_albaranes extends fbase_controller {
      * Devuelve un array con las compras y ventas agrupadas por año.
      * @return type
      */
-    public function stats_years() {
+    public function stats_years()
+    {
         $stats = array();
         $stats_cli = $this->stats_years_aux($this->table_ventas);
         $stats_pro = $this->stats_years_aux($this->table_compras);
@@ -424,7 +434,8 @@ class informe_albaranes extends fbase_controller {
      * @param type $num
      * @return type
      */
-    protected function stats_years_aux($table_name, $num = 4) {
+    protected function stats_years_aux($table_name, $num = 4)
+    {
         $stats = array();
 
         /// inicializamos los resultados
@@ -444,7 +455,7 @@ class informe_albaranes extends fbase_controller {
         }
 
         $data = $this->db->select("SELECT " . $sql_aux . " as ano, sum(neto) as total FROM " . $table_name
-                . $where . " GROUP BY " . $sql_aux . " ORDER BY ano ASC;");
+            . $where . " GROUP BY " . $sql_aux . " ORDER BY ano ASC;");
 
         if ($data) {
             foreach ($data as $d) {
@@ -456,7 +467,8 @@ class informe_albaranes extends fbase_controller {
         return $stats;
     }
 
-    protected function date_range($first, $last, $step = '+1 day', $format = 'd-m-Y') {
+    protected function date_range($first, $last, $step = '+1 day', $format = 'd-m-Y')
+    {
         $dates = array();
         $current = strtotime($first);
         $last = strtotime($last);
@@ -469,7 +481,8 @@ class informe_albaranes extends fbase_controller {
         return $dates;
     }
 
-    public function stats_series($tabla) {
+    public function stats_series($tabla)
+    {
         $stats = array();
 
         $where = $this->where_compras;
@@ -502,7 +515,8 @@ class informe_albaranes extends fbase_controller {
         return $stats;
     }
 
-    public function stats_agentes($tabla) {
+    public function stats_agentes($tabla)
+    {
         $stats = array();
 
         $where = $this->where_compras;
@@ -542,7 +556,8 @@ class informe_albaranes extends fbase_controller {
         return $stats;
     }
 
-    public function stats_almacenes($tabla) {
+    public function stats_almacenes($tabla)
+    {
         $stats = array();
 
         $where = $this->where_compras;
@@ -575,7 +590,8 @@ class informe_albaranes extends fbase_controller {
         return $stats;
     }
 
-    public function stats_formas_pago($tabla) {
+    public function stats_formas_pago($tabla)
+    {
         $stats = array();
 
         $where = $this->where_compras;
@@ -608,7 +624,8 @@ class informe_albaranes extends fbase_controller {
         return $stats;
     }
 
-    public function stats_estados($tabla) {
+    public function stats_estados($tabla)
+    {
         $stats = array();
 
         $where = $this->where_compras;
@@ -656,7 +673,8 @@ class informe_albaranes extends fbase_controller {
      * @param type $chart_id
      * @return string
      */
-    public function generar_chart_pie_js(&$data, $chart_id) {
+    public function generar_chart_pie_js(&$data, $chart_id)
+    {
         $js_txt = '';
 
         if ($data) {
@@ -689,7 +707,8 @@ class informe_albaranes extends fbase_controller {
         return $js_txt;
     }
 
-    protected function get_documentos($tabla) {
+    protected function get_documentos($tabla)
+    {
         $doclist = array();
 
         $where = $this->where_compras;
@@ -712,7 +731,8 @@ class informe_albaranes extends fbase_controller {
         return $doclist;
     }
 
-    protected function generar_pdf($tipo = 'compra') {
+    protected function generar_pdf($tipo = 'compra')
+    {
         /// desactivamos el motor de plantillas
         $this->template = FALSE;
 
@@ -731,7 +751,7 @@ class informe_albaranes extends fbase_controller {
         }
 
         $encabezado = fs_fix_html($this->empresa->nombre) . ' - ' . $this->nombre_docs
-                . ' de ' . $tipo . ' del ' . $this->desde . ' al ' . $this->hasta;
+            . ' de ' . $tipo . ' del ' . $this->desde . ' al ' . $this->hasta;
 
         if ($this->codagente) {
             $encabezado .= ', empleado: ' . $this->codagente;
@@ -773,19 +793,19 @@ class informe_albaranes extends fbase_controller {
                 /// tabla principal
                 $pdf_doc->new_table();
                 $pdf_doc->add_table_header(
-                        array(
-                            'serie' => '<b>' . strtoupper(FS_SERIE) . '</b>',
-                            'doc' => '<b>Documento</b>',
-                            'num2' => '<b>' . $num2 . '</b>',
-                            'fecha' => '<b>Fecha</b>',
-                            'cliente' => '<b>' . $cliente . '</b>',
-                            'cifnif' => '<b>' . FS_CIFNIF . '</b>',
-                            'neto' => '<b>Neto</b>',
-                            'iva' => '<b>' . FS_IVA . '</b>',
-                            're' => '<b>RE</b>',
-                            'irpf' => '<b>' . FS_IRPF . '</b>',
-                            'total' => '<b>Total</b>'
-                        )
+                    array(
+                        'serie' => '<b>' . strtoupper(FS_SERIE) . '</b>',
+                        'doc' => '<b>Documento</b>',
+                        'num2' => '<b>' . $num2 . '</b>',
+                        'fecha' => '<b>Fecha</b>',
+                        'cliente' => '<b>' . $cliente . '</b>',
+                        'cifnif' => '<b>' . FS_CIFNIF . '</b>',
+                        'neto' => '<b>Neto</b>',
+                        'iva' => '<b>' . FS_IVA . '</b>',
+                        're' => '<b>RE</b>',
+                        'irpf' => '<b>' . FS_IRPF . '</b>',
+                        'total' => '<b>Total</b>'
+                    )
                 );
 
                 for ($i = 0; $i < $lppag AND $linea_actual < $total_lineas; $i++) {
@@ -839,18 +859,18 @@ class informe_albaranes extends fbase_controller {
                 $pdf_doc->add_table_row($linea);
 
                 $pdf_doc->save_table(
-                        array(
-                            'fontSize' => 8,
-                            'cols' => array(
-                                'neto' => array('justification' => 'right'),
-                                'iva' => array('justification' => 'right'),
-                                're' => array('justification' => 'right'),
-                                'irpf' => array('justification' => 'right'),
-                                'total' => array('justification' => 'right')
-                            ),
-                            'shaded' => 0,
-                            'width' => 780
-                        )
+                    array(
+                        'fontSize' => 8,
+                        'cols' => array(
+                            'neto' => array('justification' => 'right'),
+                            'iva' => array('justification' => 'right'),
+                            're' => array('justification' => 'right'),
+                            'irpf' => array('justification' => 'right'),
+                            'total' => array('justification' => 'right')
+                        ),
+                        'shaded' => 0,
+                        'width' => 780
+                    )
                 );
             }
 
@@ -868,11 +888,13 @@ class informe_albaranes extends fbase_controller {
      * @param fs_pdf $pdf_doc
      * @param type $tipo
      */
-    protected function desglose_impuestos_pdf(&$pdf_doc, $tipo) {
+    protected function desglose_impuestos_pdf(&$pdf_doc, $tipo)
+    {
         /// a completar en el informe de facturas
     }
 
-    protected function generar_xls($tipo = 'compra') {
+    protected function generar_xls($tipo = 'compra')
+    {
         /// desactivamos el motor de plantillas
         $this->template = FALSE;
 
@@ -947,7 +969,8 @@ class informe_albaranes extends fbase_controller {
         $writter->writeToStdOut();
     }
 
-    protected function generar_csv($tipo = 'compra') {
+    protected function generar_csv($tipo = 'compra')
+    {
         /// desactivamos el motor de plantillas
         $this->template = FALSE;
 
@@ -988,5 +1011,4 @@ class informe_albaranes extends fbase_controller {
             echo '"' . join('","', $linea) . "\"\n";
         }
     }
-
 }

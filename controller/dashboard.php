@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2016-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -23,7 +22,8 @@
  *
  * @author Carlos Garcia Gomez
  */
-class dashboard extends fs_controller {
+class dashboard extends fs_controller
+{
 
     public $anterior;
     public $anyo;
@@ -33,11 +33,13 @@ class dashboard extends fs_controller {
     public $noticias;
     public $trimestre;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Dashboard', 'informes', FALSE, TRUE, TRUE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         /// cargamos la configuración
         $fsvar = new fs_var();
         if (isset($_POST['anterior'])) {
@@ -184,11 +186,12 @@ class dashboard extends fs_controller {
 
         if ((float) substr(phpversion(), 0, 3) < 5.4) {
             $this->new_advice('Estás usando una versión de PHP demasiado antigua. '
-                    . 'En próximas actualizaciones FacturaScripts necesitará PHP 5.4 o superor.');
+                . 'En próximas actualizaciones FacturaScripts necesitará PHP 5.4 o superor.');
         }
     }
 
-    private function calcula_periodo(&$stats, $pendiente = FALSE) {
+    private function calcula_periodo(&$stats, $pendiente = FALSE)
+    {
         $desde_anterior = date('d-m-Y', strtotime($stats['desde'] . ' ' . $stats['anterior']));
         $hasta_anterior = date('d-m-Y', strtotime($stats['hasta'] . ' ' . $stats['anterior']));
 
@@ -211,9 +214,9 @@ class dashboard extends fs_controller {
         if ($this->db->table_exists('co_partidas') AND $this->empresa->codpais == 'ESP') {
             /// calculamos el saldo de todos aquellos asientos que afecten a caja y no se correspondan con facturas
             $sql = "select sum(debe-haber) as total from co_partidas where codsubcuenta LIKE '57%' and idasiento"
-                    . " in (select idasiento from co_asientos where tipodocumento IS NULL"
-                    . " and fecha >= " . $this->empresa->var2str($stats['desde'])
-                    . " and fecha <= " . $this->empresa->var2str($stats['hasta']) . ");";
+                . " in (select idasiento from co_asientos where tipodocumento IS NULL"
+                . " and fecha >= " . $this->empresa->var2str($stats['desde'])
+                . " and fecha <= " . $this->empresa->var2str($stats['hasta']) . ");";
 
             $data = $this->db->select($sql);
             if ($data) {
@@ -225,9 +228,9 @@ class dashboard extends fs_controller {
 
             /// calculamos el saldo de todos aquellos asientos que afecten a caja y no se correspondan con facturas
             $sql = "select sum(debe-haber) as total from co_partidas where codsubcuenta LIKE '57%' and idasiento"
-                    . " in (select idasiento from co_asientos where tipodocumento IS NULL"
-                    . " and fecha >= " . $this->empresa->var2str($desde_anterior)
-                    . " and fecha <= " . $this->empresa->var2str($hasta_anterior) . ");";
+                . " in (select idasiento from co_asientos where tipodocumento IS NULL"
+                . " and fecha >= " . $this->empresa->var2str($desde_anterior)
+                . " and fecha <= " . $this->empresa->var2str($hasta_anterior) . ");";
 
             $data = $this->db->select($sql);
             if ($data) {
@@ -242,7 +245,7 @@ class dashboard extends fs_controller {
             if ($this->db->table_exists('facturascli')) {
                 /// calculamos las facturas de venta vencidas hasta hoy
                 $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from facturascli"
-                        . " where pagada = false and vencimiento <= " . $this->empresa->var2str($stats['hasta']) . ";";
+                    . " where pagada = false and vencimiento <= " . $this->empresa->var2str($stats['hasta']) . ";";
 
                 $data = $this->db->select($sql);
                 if ($data) {
@@ -257,7 +260,7 @@ class dashboard extends fs_controller {
             if ($this->db->table_exists('albaranescli')) {
                 /// calculamos los albaranes de venta pendientes
                 $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from albaranescli"
-                        . " where idfactura IS NULL;";
+                    . " where idfactura IS NULL;";
 
                 $data = $this->db->select($sql);
                 if ($data) {
@@ -272,7 +275,7 @@ class dashboard extends fs_controller {
             if ($this->db->table_exists('pedidoscli')) {
                 /// calculamos los pedidos de venta pendientes
                 $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from pedidoscli"
-                        . " where status = 0;";
+                    . " where status = 0;";
 
                 $data = $this->db->select($sql);
                 if ($data) {
@@ -287,7 +290,7 @@ class dashboard extends fs_controller {
             if ($this->db->table_exists('facturasprov')) {
                 /// calculamos las facturas de compra sin pagar
                 $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from facturasprov"
-                        . " where pagada = false;";
+                    . " where pagada = false;";
 
                 $data = $this->db->select($sql);
                 if ($data) {
@@ -302,7 +305,7 @@ class dashboard extends fs_controller {
             if ($this->db->table_exists('albaranesprov')) {
                 /// calculamos los albaranes de compra pendientes
                 $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from albaranesprov"
-                        . " where idfactura IS NULL;";
+                    . " where idfactura IS NULL;";
 
                 $data = $this->db->select($sql);
                 if ($data) {
@@ -317,7 +320,7 @@ class dashboard extends fs_controller {
             if ($this->db->table_exists('pedidosprov')) {
                 /// calculamos los pedidos de compra pendientes
                 $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto from pedidosprov"
-                        . " where idalbaran IS NULL;";
+                    . " where idalbaran IS NULL;";
 
                 $data = $this->db->select($sql);
                 if ($data) {
@@ -337,7 +340,8 @@ class dashboard extends fs_controller {
         $stats['beneficios_mejora'] = $this->calcular_diff($stats['beneficios'], $stats['beneficios_anterior']);
     }
 
-    private function calcular_facturas(&$stats, $desde, $hasta, $anterior = FALSE, $tabla = 'facturascli') {
+    private function calcular_facturas(&$stats, $desde, $hasta, $anterior = FALSE, $tabla = 'facturascli')
+    {
         /// utilizamos campo y extra para construir el nombre del campo, así la función es más versátil
         $campo = 'ventas';
         if ($tabla != 'facturascli') {
@@ -351,9 +355,9 @@ class dashboard extends fs_controller {
 
         /// primero consultamos en la divisa de la empresa
         $sql = "select sum(total) as total, sum(neto) as neto, sum(totaliva+totalrecargo-totalirpf) as impuestos"
-                . " from " . $tabla . " where coddivisa = " . $this->empresa->var2str($this->empresa->coddivisa)
-                . " and fecha >= " . $this->empresa->var2str($desde)
-                . " and fecha <= " . $this->empresa->var2str($hasta) . ";";
+            . " from " . $tabla . " where coddivisa = " . $this->empresa->var2str($this->empresa->coddivisa)
+            . " and fecha >= " . $this->empresa->var2str($desde)
+            . " and fecha <= " . $this->empresa->var2str($hasta) . ";";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -369,9 +373,9 @@ class dashboard extends fs_controller {
 
         /// ahora consultamos en el resto de divisas y convertimos los valores
         $sql = "select sum(totaleuros) as total, sum(neto/tasaconv) as neto, sum((totaliva+totalrecargo-totalirpf)/tasaconv) as impuestos"
-                . " from " . $tabla . " where coddivisa != " . $this->empresa->var2str($this->empresa->coddivisa)
-                . " and fecha >= " . $this->empresa->var2str($desde)
-                . " and fecha <= " . $this->empresa->var2str($hasta) . ";";
+            . " from " . $tabla . " where coddivisa != " . $this->empresa->var2str($this->empresa->coddivisa)
+            . " and fecha >= " . $this->empresa->var2str($desde)
+            . " and fecha <= " . $this->empresa->var2str($hasta) . ";";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -392,7 +396,8 @@ class dashboard extends fs_controller {
         }
     }
 
-    private function calcular_diff($nuevo, $anterior) {
+    private function calcular_diff($nuevo, $anterior)
+    {
         if ($nuevo == 0 OR $anterior == 0) {
             if ($nuevo == 0 AND $anterior > 0) {
                 return -100;
@@ -412,7 +417,8 @@ class dashboard extends fs_controller {
         }
     }
 
-    private function elegir_consejos() {
+    private function elegir_consejos()
+    {
         $this->consejos = array(
             array(
                 'titulo' => '¡Vota por tus ideas favoritas!',
@@ -486,7 +492,8 @@ class dashboard extends fs_controller {
         shuffle($this->consejos);
     }
 
-    private function leer_noticias() {
+    private function leer_noticias()
+    {
         $this->noticias = $this->cache->get_array('community_changelog');
         if (!$this->noticias) {
             $data = fs_file_get_contents(FS_COMMUNITY_URL . '/index.php?page=community_changelog&json=TRUE', 5);
@@ -498,5 +505,4 @@ class dashboard extends fs_controller {
             }
         }
     }
-
 }

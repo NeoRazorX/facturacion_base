@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -28,7 +27,8 @@ require_model('forma_pago.php');
 require_model('grupo_clientes.php');
 require_model('serie.php');
 
-class ventas_albaranes extends fbase_controller {
+class ventas_albaranes extends fbase_controller
+{
 
     public $agente;
     public $almacenes;
@@ -54,11 +54,13 @@ class ventas_albaranes extends fbase_controller {
     public $total_resultados;
     public $total_resultados_txt;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, ucfirst(FS_ALBARANES), 'ventas');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $albaran = new albaran_cliente();
@@ -198,7 +200,8 @@ class ventas_albaranes extends fbase_controller {
         }
     }
 
-    public function url($busqueda = FALSE) {
+    public function url($busqueda = FALSE)
+    {
         if ($busqueda) {
             $codcliente = '';
             if ($this->cliente) {
@@ -206,15 +209,15 @@ class ventas_albaranes extends fbase_controller {
             }
 
             $url = parent::url() . "&mostrar=" . $this->mostrar
-                    . "&query=" . $this->query
-                    . "&codagente=" . $this->codagente
-                    . "&codalmacen=" . $this->codalmacen
-                    . "&codcliente=" . $codcliente
-                    . "&codgrupo=" . $this->codgrupo
-                    . "&codpago=" . $this->codpago
-                    . "&codserie=" . $this->codserie
-                    . "&desde=" . $this->desde
-                    . "&hasta=" . $this->hasta;
+                . "&query=" . $this->query
+                . "&codagente=" . $this->codagente
+                . "&codalmacen=" . $this->codalmacen
+                . "&codcliente=" . $codcliente
+                . "&codgrupo=" . $this->codgrupo
+                . "&codpago=" . $this->codpago
+                . "&codserie=" . $this->codserie
+                . "&desde=" . $this->desde
+                . "&hasta=" . $this->hasta;
 
             return $url;
         } else {
@@ -222,7 +225,8 @@ class ventas_albaranes extends fbase_controller {
         }
     }
 
-    public function paginas() {
+    public function paginas()
+    {
         if ($this->mostrar == 'pendientes') {
             $total = $this->total_pendientes();
         } else if ($this->mostrar == 'buscar') {
@@ -234,7 +238,8 @@ class ventas_albaranes extends fbase_controller {
         return $this->fbase_paginas($this->url(TRUE), $total, $this->offset);
     }
 
-    public function buscar_lineas() {
+    public function buscar_lineas()
+    {
         /// cambiamos la plantilla HTML
         $this->template = 'ajax/ventas_lineas_albaranes';
 
@@ -248,7 +253,8 @@ class ventas_albaranes extends fbase_controller {
         }
     }
 
-    private function delete_albaran() {
+    private function delete_albaran()
+    {
         $alb = new albaran_cliente();
         $alb1 = $alb->get($_POST['delete']);
         if ($alb1) {
@@ -297,7 +303,8 @@ class ventas_albaranes extends fbase_controller {
             $this->new_error_msg("¡" . FS_ALBARAN . " no encontrado!");
     }
 
-    private function share_extension() {
+    private function share_extension()
+    {
         /// añadimos las extensiones para clientes, agentes y artículos
         $extensiones = array(
             array(
@@ -333,15 +340,18 @@ class ventas_albaranes extends fbase_controller {
         }
     }
 
-    public function total_pendientes() {
+    public function total_pendientes()
+    {
         return $this->fbase_sql_total('albaranescli', 'idalbaran', 'WHERE ptefactura = true');
     }
 
-    private function total_registros() {
+    private function total_registros()
+    {
         return $this->fbase_sql_total('albaranescli', 'idalbaran');
     }
 
-    private function buscar($order2) {
+    private function buscar($order2)
+    {
         $this->resultados = array();
         $this->num_resultados = 0;
         $sql = " FROM albaranescli ";
@@ -354,7 +364,7 @@ class ventas_albaranes extends fbase_controller {
                 $sql .= "(codigo LIKE '%" . $query . "%' OR numero2 LIKE '%" . $query . "%' OR observaciones LIKE '%" . $query . "%')";
             } else {
                 $sql .= "(lower(codigo) LIKE '%" . $query . "%' OR lower(numero2) LIKE '%" . $query . "%' "
-                        . "OR lower(observaciones) LIKE '%" . str_replace(' ', '%', $query) . "%')";
+                    . "OR lower(observaciones) LIKE '%" . str_replace(' ', '%', $query) . "%')";
             }
             $where = ' AND ';
         }
@@ -424,7 +434,8 @@ class ventas_albaranes extends fbase_controller {
         }
     }
 
-    public function orden() {
+    public function orden()
+    {
         return array(
             'fecha_desc' => array(
                 'icono' => '<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>',
@@ -453,5 +464,4 @@ class ventas_albaranes extends fbase_controller {
             )
         );
     }
-
 }

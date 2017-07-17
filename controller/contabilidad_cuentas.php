@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -21,7 +20,8 @@
 require_model('cuenta.php');
 require_model('ejercicio.php');
 
-class contabilidad_cuentas extends fs_controller {
+class contabilidad_cuentas extends fs_controller
+{
 
     public $cuenta;
     public $ejercicio;
@@ -29,11 +29,13 @@ class contabilidad_cuentas extends fs_controller {
     public $resultados2;
     public $offset;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Cuentas', 'contabilidad', FALSE, TRUE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->cuenta = new cuenta();
         $this->ejercicio = new ejercicio();
 
@@ -70,7 +72,8 @@ class contabilidad_cuentas extends fs_controller {
         }
     }
 
-    public function anterior_url() {
+    public function anterior_url()
+    {
         $url = '';
         if ($this->query != '' AND $this->offset > 0) {
             $url = $this->url() . "&query=" . $this->query . "&offset=" . ($this->offset - FS_ITEM_LIMIT);
@@ -80,7 +83,8 @@ class contabilidad_cuentas extends fs_controller {
         return $url;
     }
 
-    public function siguiente_url() {
+    public function siguiente_url()
+    {
         $url = '';
         if ($this->query != '' AND count($this->resultados) == FS_ITEM_LIMIT) {
             $url = $this->url() . "&query=" . $this->query . "&offset=" . ($this->offset + FS_ITEM_LIMIT);
@@ -89,5 +93,4 @@ class contabilidad_cuentas extends fs_controller {
         }
         return $url;
     }
-
 }
