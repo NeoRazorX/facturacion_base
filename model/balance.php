@@ -28,21 +28,3 @@ require_once 'plugins/facturacion_base/model/core/balance.php';
 class balance extends FacturaScripts\model\balance {
     
 }
-
-/**
- * Detalle de un balance.
- * 
- * @author Carlos García Gómez <neorazorx@gmail.com>
- */
-class balance_cuenta extends FacturaScripts\model\balance_cuenta {
-    
-}
-
-/**
- * Detalle abreviado de un balance.
- * 
- * @author Carlos García Gómez <neorazorx@gmail.com>
- */
-class balance_cuenta_a extends FacturaScripts\model\balance_cuenta_a {
-    
-}
