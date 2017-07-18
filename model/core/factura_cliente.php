@@ -1119,7 +1119,7 @@ class factura_cliente extends \fs_model
                     $this->new_error_msg('La factura se encuentra dentro de una regularización de '
                         . FS_IVA . '. No se puede eliminar.');
                     $bloquear = TRUE;
-                } else if (!empty($this->get_rectificativas())) {
+                } else if (count($this->get_rectificativas()) > 0) {
                     $this->new_error_msg('La factura ya tiene una rectificativa. No se puede eliminar.');
                     $bloquear = TRUE;
                 }
