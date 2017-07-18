@@ -32,21 +32,21 @@ class balance_cuenta extends \fs_model
      * Clave primaria.
      * @var integer
      */
-    public $idbalance;
+    public $id;
     public $codbalance;
     public $codcuenta;
     public $desccuenta;
 
-    public function __construct($aux = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_cuentascb');
-        if ($aux) {
-            $this->idbalance = $this->intval($aux['id']);
-            $this->codbalance = $aux['codbalance'];
-            $this->codcuenta = $aux['codcuenta'];
-            $this->desccuenta = $aux['desccuenta'];
+        if ($data) {
+            $this->id = $this->intval($data['id']);
+            $this->codbalance = $data['codbalance'];
+            $this->codcuenta = $data['codcuenta'];
+            $this->desccuenta = $data['desccuenta'];
         } else {
-            $this->idbalance = NULL;
+            $this->id = NULL;
             $this->codbalance = NULL;
             $this->codcuenta = NULL;
             $this->desccuenta = NULL;
@@ -70,11 +70,11 @@ class balance_cuenta extends \fs_model
 
     public function exists()
     {
-        if (is_null($this->idbalance)) {
+        if (is_null($this->id)) {
             return FALSE;
         }
 
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->idbalance) . ";");
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function save()
@@ -83,7 +83,7 @@ class balance_cuenta extends \fs_model
             $sql = "UPDATE " . $this->table_name . " SET codbalance = " . $this->var2str($this->codbalance) .
                 ", codcuenta = " . $this->var2str($this->codcuenta) .
                 ", desccuenta = " . $this->var2str($this->desccuenta) .
-                "  WHERE id = " . $this->var2str($this->idbalance) . ";";
+                "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
         }
@@ -94,7 +94,7 @@ class balance_cuenta extends \fs_model
             . "," . $this->var2str($this->desccuenta) . ");";
 
         if ($this->db->exec($sql)) {
-            $this->idbalance = $this->db->lastval();
+            $this->id = $this->db->lastval();
             return TRUE;
         }
 
@@ -103,7 +103,7 @@ class balance_cuenta extends \fs_model
 
     public function delete()
     {
-        return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->idbalance) . ";");
+        return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function all()

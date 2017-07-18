@@ -44,16 +44,16 @@ class secuencia extends \fs_model
     public $descripcion;
     public $nombre;
 
-    public function __construct($s = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('secuencias');
-        if ($s) {
-            $this->idsec = $this->intval($s['idsec']);
-            $this->id = $this->intval($s['id']);
-            $this->valorout = $this->intval($s['valorout']);
-            $this->valor = $this->intval($s['valor']);
-            $this->descripcion = $s['descripcion'];
-            $this->nombre = $s['nombre'];
+        if ($data) {
+            $this->idsec = $this->intval($data['idsec']);
+            $this->id = $this->intval($data['id']);
+            $this->valorout = $this->intval($data['valorout']);
+            $this->valor = $this->intval($data['valor']);
+            $this->descripcion = $data['descripcion'];
+            $this->nombre = $data['nombre'];
         } else {
             $this->idsec = NULL;
             $this->id = NULL;

@@ -50,16 +50,16 @@ class epigrafe extends \fs_model
     public $codgrupo;
     private static $grupos;
 
-    public function __construct($e = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_epigrafes');
-        if ($e) {
-            $this->idepigrafe = $this->intval($e['idepigrafe']);
-            $this->idpadre = $this->intval($e['idpadre']);
-            $this->codepigrafe = $e['codepigrafe'];
-            $this->idgrupo = $this->intval($e['idgrupo']);
-            $this->descripcion = $e['descripcion'];
-            $this->codejercicio = $e['codejercicio'];
+        if ($data) {
+            $this->idepigrafe = $this->intval($data['idepigrafe']);
+            $this->idpadre = $this->intval($data['idpadre']);
+            $this->codepigrafe = $data['codepigrafe'];
+            $this->idgrupo = $this->intval($data['idgrupo']);
+            $this->descripcion = $data['descripcion'];
+            $this->codejercicio = $data['codejercicio'];
 
             if (!isset(self::$grupos)) {
                 $ge = new \grupo_epigrafes();

@@ -40,16 +40,16 @@ class secuencia_contabilidad extends \fs_model
     public $nombre;
     public $codejercicio;
 
-    public function __construct($aux = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_secuencias');
-        if ($aux) {
-            $this->codejercicio = $aux['codejercicio'];
-            $this->descripcion = $aux['descripcion'];
-            $this->idsecuencia = $this->intval($aux['idsecuencia']);
-            $this->nombre = $aux['nombre'];
-            $this->valor = $this->intval($aux['valor']);
-            $this->valorout = $this->intval($aux['valorout']);
+        if ($data) {
+            $this->codejercicio = $data['codejercicio'];
+            $this->descripcion = $data['descripcion'];
+            $this->idsecuencia = $this->intval($data['idsecuencia']);
+            $this->nombre = $data['nombre'];
+            $this->valor = $this->intval($data['valor']);
+            $this->valorout = $this->intval($data['valorout']);
         } else {
             $this->codejercicio = NULL;
             $this->descripcion = NULL;
@@ -65,10 +65,10 @@ class secuencia_contabilidad extends \fs_model
         return '';
     }
 
-    public function get_by_params($eje, $nombre)
+    public function get_by_params($codejercicio, $nombre)
     {
-        $sql = "SELECT * FROM " . $this->table_name . " WHERE codejercicio = " .
-            $this->var2str($eje) . " AND nombre = " . $this->var2str($nombre) . ";";
+        $sql = "SELECT * FROM " . $this->table_name . " WHERE codejercicio = " . $this->var2str($codejercicio)
+            . " AND nombre = " . $this->var2str($nombre) . ";";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -78,15 +78,15 @@ class secuencia_contabilidad extends \fs_model
         return FALSE;
     }
 
-    public function get_by_params2($eje, $nombre)
+    public function get_by_params2($codejercicio, $nombre)
     {
-        $sec = $this->get_by_params($eje, $nombre);
+        $sec = $this->get_by_params($codejercicio, $nombre);
         if ($sec) {
             return $sec;
         }
 
         $newsec = new \secuencia_contabilidad();
-        $newsec->codejercicio = $eje;
+        $newsec->codejercicio = $codejercicio;
         $newsec->descripcion = 'Creado por FacturaScripts';
         $newsec->nombre = $nombre;
         return $newsec;

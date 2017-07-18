@@ -47,22 +47,22 @@ class balance extends \fs_model
     public $nivel1;
     public $naturaleza;
 
-    public function __construct($b = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_codbalances08');
-        if ($b) {
-            $this->codbalance = $b['codbalance'];
-            $this->naturaleza = $b['naturaleza'];
-            $this->nivel1 = $b['nivel1'];
-            $this->descripcion1 = $b['descripcion1'];
-            $this->nivel2 = $this->intval($b['nivel2']);
-            $this->descripcion2 = $b['descripcion2'];
-            $this->nivel3 = $b['nivel3'];
-            $this->descripcion3 = $b['descripcion3'];
-            $this->orden3 = $b['orden3'];
-            $this->nivel4 = $b['nivel4'];
-            $this->descripcion4 = $b['descripcion4'];
-            $this->descripcion4ba = $b['descripcion4ba'];
+        if ($data) {
+            $this->codbalance = $data['codbalance'];
+            $this->naturaleza = $data['naturaleza'];
+            $this->nivel1 = $data['nivel1'];
+            $this->descripcion1 = $data['descripcion1'];
+            $this->nivel2 = $this->intval($data['nivel2']);
+            $this->descripcion2 = $data['descripcion2'];
+            $this->nivel3 = $data['nivel3'];
+            $this->descripcion3 = $data['descripcion3'];
+            $this->orden3 = $data['orden3'];
+            $this->nivel4 = $data['nivel4'];
+            $this->descripcion4 = $data['descripcion4'];
+            $this->descripcion4ba = $data['descripcion4ba'];
         } else {
             $this->codbalance = NULL;
             $this->naturaleza = NULL;

@@ -37,14 +37,14 @@ class grupo_epigrafes extends \fs_model
     public $codejercicio;
     public $descripcion;
 
-    public function __construct($aux = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_gruposepigrafes');
-        if ($aux) {
-            $this->idgrupo = $this->intval($aux['idgrupo']);
-            $this->codgrupo = $aux['codgrupo'];
-            $this->descripcion = $aux['descripcion'];
-            $this->codejercicio = $aux['codejercicio'];
+        if ($data) {
+            $this->idgrupo = $this->intval($data['idgrupo']);
+            $this->codgrupo = $data['codgrupo'];
+            $this->descripcion = $data['descripcion'];
+            $this->codejercicio = $data['codejercicio'];
         } else {
             $this->idgrupo = NULL;
             $this->codgrupo = NULL;
@@ -129,10 +129,10 @@ class grupo_epigrafes extends \fs_model
                 return $this->db->exec($sql);
             }
 
-            $sql = "INSERT INTO " . $this->table_name . " (codgrupo,descripcion,codejercicio) VALUES
-                     (" . $this->var2str($this->codgrupo) .
-                "," . $this->var2str($this->descripcion) .
-                "," . $this->var2str($this->codejercicio) . ");";
+            $sql = "INSERT INTO " . $this->table_name . " (codgrupo,descripcion,codejercicio) VALUES "
+                . "(" . $this->var2str($this->codgrupo)
+                . "," . $this->var2str($this->descripcion)
+                . "," . $this->var2str($this->codejercicio) . ");";
 
             if ($this->db->exec($sql)) {
                 $this->idgrupo = $this->db->lastval();

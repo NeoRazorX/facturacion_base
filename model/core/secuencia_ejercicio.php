@@ -31,9 +31,9 @@ class secuencia_ejercicio extends \fs_model
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
-    public $idsecuenciaejer;
+    public $id;
     public $nfacturacli;
     public $nalbarancli;
     public $npedidocli;
@@ -44,22 +44,22 @@ class secuencia_ejercicio extends \fs_model
     public $codejercicio;
     public $codserie;
 
-    public function __construct($aux = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('secuenciasejercicios');
-        if ($aux) {
-            $this->idsecuenciaejer = $this->intval($aux['id']);
-            $this->codejercicio = $aux['codejercicio'];
-            $this->codserie = $aux['codserie'];
-            $this->nalbarancli = $this->intval($aux['nalbarancli']);
-            $this->nalbaranprov = $this->intval($aux['nalbaranprov']);
-            $this->nfacturacli = $this->intval($aux['nfacturacli']);
-            $this->nfacturaprov = $this->intval($aux['nfacturaprov']);
-            $this->npedidocli = $this->intval($aux['npedidocli']);
-            $this->npedidoprov = $this->intval($aux['npedidoprov']);
-            $this->npresupuestocli = $this->intval($aux['npresupuestocli']);
+        if ($data) {
+            $this->id = $this->intval($data['id']);
+            $this->codejercicio = $data['codejercicio'];
+            $this->codserie = $data['codserie'];
+            $this->nalbarancli = $this->intval($data['nalbarancli']);
+            $this->nalbaranprov = $this->intval($data['nalbaranprov']);
+            $this->nfacturacli = $this->intval($data['nfacturacli']);
+            $this->nfacturaprov = $this->intval($data['nfacturaprov']);
+            $this->npedidocli = $this->intval($data['npedidocli']);
+            $this->npedidoprov = $this->intval($data['npedidoprov']);
+            $this->npresupuestocli = $this->intval($data['npresupuestocli']);
         } else {
-            $this->idsecuenciaejer = NULL;
+            $this->id = NULL;
             $this->codejercicio = NULL;
             $this->codserie = NULL;
             $this->nalbarancli = 1;
@@ -87,10 +87,10 @@ class secuencia_ejercicio extends \fs_model
         return FALSE;
     }
 
-    public function get_by_params($eje, $serie)
+    public function get_by_params($codejercicio, $codserie)
     {
-        $sql = "SELECT * FROM " . $this->table_name . " WHERE codejercicio = " . $this->var2str($eje)
-            . " AND codserie = " . $this->var2str($serie) . ";";
+        $sql = "SELECT * FROM " . $this->table_name . " WHERE codejercicio = " . $this->var2str($codejercicio)
+            . " AND codserie = " . $this->var2str($codserie) . ";";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -147,7 +147,7 @@ class secuencia_ejercicio extends \fs_model
                 ", npedidocli = " . $this->var2str($this->npedidocli) .
                 ", npedidoprov = " . $this->var2str($this->npedidoprov) .
                 ", npresupuestocli =" . $this->var2str($this->npresupuestocli) .
-                "  WHERE id = " . $this->var2str($this->idsecuenciaejer) . ";";
+                "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
         }
@@ -165,7 +165,7 @@ class secuencia_ejercicio extends \fs_model
             "," . $this->var2str($this->npresupuestocli) . ");";
 
         if ($this->db->exec($sql)) {
-            $this->idsecuenciaejer = $this->db->lastval();
+            $this->id = $this->db->lastval();
             return TRUE;
         }
 
@@ -174,14 +174,14 @@ class secuencia_ejercicio extends \fs_model
 
     public function delete()
     {
-        return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->idsecuenciaejer) . ";");
+        return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
-    public function all_from_ejercicio($eje)
+    public function all_from_ejercicio($codejercicio)
     {
         $seclist = array();
 
-        $secs = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codejercicio = " . $this->var2str($eje) . ";");
+        $secs = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codejercicio = " . $this->var2str($codejercicio) . ";");
         if ($secs) {
             foreach ($secs as $s) {
                 $seclist[] = new \secuencia_ejercicio($s);

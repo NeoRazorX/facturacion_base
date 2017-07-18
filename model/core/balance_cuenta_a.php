@@ -32,21 +32,21 @@ class balance_cuenta_a extends \fs_model
      * Clave primaria.
      * @var integer
      */
-    public $idbalancea;
+    public $id;
     public $codbalance;
     public $codcuenta;
     public $desccuenta;
 
-    public function __construct($aux = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_cuentascbba');
-        if ($aux) {
-            $this->idbalancea = $this->intval($aux['id']);
-            $this->codbalance = $aux['codbalance'];
-            $this->codcuenta = $aux['codcuenta'];
-            $this->desccuenta = $aux['desccuenta'];
+        if ($data) {
+            $this->id = $this->intval($data['id']);
+            $this->codbalance = $data['codbalance'];
+            $this->codcuenta = $data['codcuenta'];
+            $this->desccuenta = $data['desccuenta'];
         } else {
-            $this->idbalancea = NULL;
+            $this->id = NULL;
             $this->codbalance = NULL;
             $this->codcuenta = NULL;
             $this->desccuenta = NULL;
@@ -72,8 +72,9 @@ class balance_cuenta_a extends \fs_model
             if (isset($ejercicio->idasientocierre)) {
                 $extra = " AND idasiento NOT IN (" . $this->var2str($ejercicio->idasientocierre)
                     . "," . $this->var2str($ejercicio->idasientopyg) . ')';
-            } else
+            } else {
                 $extra = " AND idasiento != " . $this->var2str($ejercicio->idasientopyg);
+            }
         } else if (isset($ejercicio->idasientocierre)) {
             $extra = " AND idasiento != " . $this->var2str($ejercicio->idasientocierre);
         }
@@ -95,7 +96,6 @@ class balance_cuenta_a extends \fs_model
                 . " AND codejercicio = " . $this->var2str($ejercicio->codejercicio) . ")" . $extra . ";");
         }
 
-
         if ($data) {
             return floatval($data[0]['haber']) - floatval($data[0]['debe']);
         }
@@ -115,11 +115,11 @@ class balance_cuenta_a extends \fs_model
 
     public function exists()
     {
-        if (is_null($this->idbalancea)) {
+        if (is_null($this->id)) {
             return FALSE;
         }
 
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->idbalancea) . ";");
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function save()
@@ -128,7 +128,7 @@ class balance_cuenta_a extends \fs_model
             $sql = "UPDATE " . $this->table_name . " SET codbalance = " . $this->var2str($this->codbalance) .
                 ", codcuenta = " . $this->var2str($this->codcuenta) .
                 ", desccuenta = " . $this->var2str($this->desccuenta) .
-                "  WHERE id = " . $this->var2str($this->idbalancea) . ";";
+                "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
         }
@@ -139,7 +139,7 @@ class balance_cuenta_a extends \fs_model
             . "," . $this->var2str($this->desccuenta) . ");";
 
         if ($this->db->exec($sql)) {
-            $this->idbalancea = $this->db->lastval();
+            $this->id = $this->db->lastval();
             return TRUE;
         }
 
@@ -148,7 +148,7 @@ class balance_cuenta_a extends \fs_model
 
     public function delete()
     {
-        return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->idbalancea) . ";");
+        return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function all()
