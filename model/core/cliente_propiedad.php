@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 /**
@@ -25,13 +23,15 @@ namespace FacturaScripts\model;
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class cliente_propiedad extends \fs_model {
+class cliente_propiedad extends \fs_model
+{
 
     public $name;
     public $codcliente;
     public $text;
 
-    public function __construct($a = FALSE) {
+    public function __construct($a = FALSE)
+    {
         parent::__construct('cliente_propiedades');
         if ($a) {
             $this->name = $a['name'];
@@ -44,42 +44,48 @@ class cliente_propiedad extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         return '';
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->name) OR is_null($this->codcliente)) {
             return FALSE;
-        } else {
-            return $this->db->select("SELECT * FROM cliente_propiedades WHERE name = " .
-                            $this->var2str($this->name) . " AND codcliente = " . $this->var2str($this->codcliente) . ";");
         }
+
+        return $this->db->select("SELECT * FROM cliente_propiedades WHERE name = " .
+                $this->var2str($this->name) . " AND codcliente = " . $this->var2str($this->codcliente) . ";");
     }
 
-    public function save() {
+    public function save()
+    {
         if ($this->exists()) {
             $sql = "UPDATE cliente_propiedades SET text = " . $this->var2str($this->text) . " WHERE name = " .
-                    $this->var2str($this->name) . " AND codcliente = " . $this->var2str($this->codcliente) . ";";
+                $this->var2str($this->name) . " AND codcliente = " . $this->var2str($this->codcliente) . ";";
         } else {
             $sql = "INSERT INTO cliente_propiedades (name,codcliente,text) VALUES
             (" . $this->var2str($this->name) . "," . $this->var2str($this->codcliente) . "," . $this->var2str($this->text) . ");";
         }
 
+
         return $this->db->exec($sql);
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM cliente_propiedades WHERE name = " .
-                        $this->var2str($this->name) . " AND codcliente = " . $this->var2str($this->codcliente) . ";");
+                $this->var2str($this->name) . " AND codcliente = " . $this->var2str($this->codcliente) . ";");
     }
 
     /**
      * Devuelve un array con los pares name => text para una codcliente dado.
-     * @param type $cod
-     * @return type
+     * @param string $cod
+     * @return array
      */
-    public function array_get($cod) {
+    public function array_get($cod)
+    {
         $vlist = array();
 
         $data = $this->db->select("SELECT * FROM cliente_propiedades WHERE codcliente = " . $this->var2str($cod) . ";");
@@ -92,7 +98,8 @@ class cliente_propiedad extends \fs_model {
         return $vlist;
     }
 
-    public function array_save($cod, $values) {
+    public function array_save($cod, $values)
+    {
         $done = TRUE;
 
         foreach ($values as $key => $value) {
@@ -108,5 +115,4 @@ class cliente_propiedad extends \fs_model {
 
         return $done;
     }
-
 }

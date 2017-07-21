@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -27,7 +26,8 @@ require_model('factura_cliente.php');
  *
  * @author Carlos Garcia Gomez
  */
-class ventas_trazabilidad extends fs_controller {
+class ventas_trazabilidad extends fs_controller
+{
 
     public $disponibles;
     public $documento;
@@ -36,11 +36,13 @@ class ventas_trazabilidad extends fs_controller {
     public $tipo;
     public $volver;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Trazabilidad', 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->documento = FALSE;
         if (isset($_GET['doc']) AND isset($_GET['id'])) {
             if ($_GET['doc'] == 'albaran') {
@@ -78,14 +80,15 @@ class ventas_trazabilidad extends fs_controller {
         }
     }
 
-    private function share_extensions() {
+    private function share_extensions()
+    {
         $fsext = new fs_extension();
         $fsext->name = 'tab_ventas_trazabilidad_fac';
         $fsext->from = __CLASS__;
         $fsext->to = 'ventas_factura';
         $fsext->type = 'tab';
         $fsext->text = '<i class="fa fa-code-fork" aria-hidden="true"></i>'
-                . '<span class="hidden-xs">&nbsp;Trazabilidad</span>';
+            . '<span class="hidden-xs">&nbsp;Trazabilidad</span>';
         $fsext->params = '&doc=factura&tab=TRUE';
         $fsext->save();
 
@@ -95,12 +98,13 @@ class ventas_trazabilidad extends fs_controller {
         $fsext2->to = 'ventas_albaran';
         $fsext2->type = 'tab';
         $fsext2->text = '<i class="fa fa-code-fork" aria-hidden="true"></i>'
-                . '<span class="hidden-xs">&nbsp;Trazabilidad</span>';
+            . '<span class="hidden-xs">&nbsp;Trazabilidad</span>';
         $fsext2->params = '&doc=albaran&tab=TRUE';
         $fsext2->save();
     }
 
-    public function url() {
+    public function url()
+    {
         if ($this->documento) {
             $extra = '';
             if ($this->tab) {
@@ -118,7 +122,8 @@ class ventas_trazabilidad extends fs_controller {
             return parent::url();
     }
 
-    private function asignar() {
+    private function asignar()
+    {
         $art0 = new articulo();
         $at0 = new articulo_traza();
         $ok = TRUE;
@@ -182,7 +187,8 @@ class ventas_trazabilidad extends fs_controller {
         }
     }
 
-    private function get_lineas() {
+    private function get_lineas()
+    {
         $art0 = new articulo();
         $at0 = new articulo_traza();
         $this->disponibles = array();
@@ -230,5 +236,4 @@ class ventas_trazabilidad extends fs_controller {
             }
         }
     }
-
 }

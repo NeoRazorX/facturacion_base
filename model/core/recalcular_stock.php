@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 require_model('albaran_cliente.php');
@@ -37,13 +35,15 @@ require_model('transferencia_stock.php');
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class recalcular_stock {
+class recalcular_stock
+{
 
     protected $db;
     protected $linea_transferencia_stock;
     protected $regularizacion_stock;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = new \fs_db2();
         $this->linea_transferencia_stock = new \linea_transferencia_stock();
         $this->regularizacion_stock = new \regularizacion_stock();
@@ -55,7 +55,8 @@ class recalcular_stock {
         $lin2 = new linea_albaran_proveedor();
     }
 
-    public function get_movimientos($ref, $codalmacen = '', $desde = '', $hasta = '', $codagente = '') {
+    public function get_movimientos($ref, $codalmacen = '', $desde = '', $hasta = '', $codagente = '')
+    {
         $mlist = array();
 
         $this->get_regularizaciones($mlist, $ref, $codalmacen, $desde, $hasta);
@@ -72,8 +73,9 @@ class recalcular_stock {
                 return 0;
             } else if (strtotime($a['fecha'] . ' ' . $a['hora']) < strtotime($b['fecha'] . ' ' . $b['hora'])) {
                 return -1;
-            } else
-                return 1;
+            }
+
+            return 1;
         });
 
         /// recalculamos
@@ -86,7 +88,8 @@ class recalcular_stock {
         return $mlist;
     }
 
-    protected function get_regularizaciones(&$mlist, $ref, $codalmacen = '', $desde = '', $hasta = '') {
+    protected function get_regularizaciones(&$mlist, $ref, $codalmacen = '', $desde = '', $hasta = '')
+    {
         foreach ($this->regularizacion_stock->all_from_articulo($ref, $codalmacen, $desde, $hasta) as $reg) {
             $mlist[] = array(
                 'referencia' => $ref,
@@ -105,7 +108,8 @@ class recalcular_stock {
         }
     }
 
-    protected function get_transferencias(&$mlist, $ref, $codalmacen, $desde = '', $hasta = '') {
+    protected function get_transferencias(&$mlist, $ref, $codalmacen, $desde = '', $hasta = '')
+    {
         /**
          * Transferencias de stock con origen $codalmacen
          */
@@ -147,14 +151,15 @@ class recalcular_stock {
         }
     }
 
-    private function get_movimientos_compra(&$mlist, $ref, $codalmacen = '', $desde = '', $hasta = '', $codagente = '') {
+    private function get_movimientos_compra(&$mlist, $ref, $codalmacen = '', $desde = '', $hasta = '', $codagente = '')
+    {
         $sql_extra = $this->set_sql_extra($codalmacen, $desde, $hasta, $codagente);
 
         /// buscamos el artículo en albaranes de compra
         $sql = "SELECT a.codigo,l.cantidad,l.pvpunitario,l.dtopor,a.fecha,a.hora"
-                . ",a.codalmacen,a.idalbaran,a.codproveedor,a.nombre"
-                . " FROM albaranesprov a, lineasalbaranesprov l"
-                . " WHERE a.idalbaran = l.idalbaran AND l.referencia = " . $this->regularizacion_stock->var2str($ref) . $sql_extra;
+            . ",a.codalmacen,a.idalbaran,a.codproveedor,a.nombre"
+            . " FROM albaranesprov a, lineasalbaranesprov l"
+            . " WHERE a.idalbaran = l.idalbaran AND l.referencia = " . $this->regularizacion_stock->var2str($ref) . $sql_extra;
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -178,10 +183,10 @@ class recalcular_stock {
 
         /// buscamos el artículo en facturas de compra
         $sql = "SELECT f.codigo,l.cantidad,l.pvpunitario,l.dtopor,f.fecha,f.hora"
-                . ",f.codalmacen,f.idfactura,f.codproveedor,f.nombre"
-                . " FROM facturasprov f, lineasfacturasprov l"
-                . " WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL"
-                . " AND f.anulada = false AND l.referencia = " . $this->regularizacion_stock->var2str($ref) . $sql_extra;
+            . ",f.codalmacen,f.idfactura,f.codproveedor,f.nombre"
+            . " FROM facturasprov f, lineasfacturasprov l"
+            . " WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL"
+            . " AND f.anulada = false AND l.referencia = " . $this->regularizacion_stock->var2str($ref) . $sql_extra;
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -204,14 +209,15 @@ class recalcular_stock {
         }
     }
 
-    private function get_movimientos_venta(&$mlist, $ref, $codalmacen = '', $desde = '', $hasta = '', $codagente = '') {
+    private function get_movimientos_venta(&$mlist, $ref, $codalmacen = '', $desde = '', $hasta = '', $codagente = '')
+    {
         $sql_extra = $this->set_sql_extra($codalmacen, $desde, $hasta, $codagente);
 
         /// buscamos el artículo en albaranes de venta
         $sql = "SELECT a.codigo,l.cantidad,l.pvpunitario,l.dtopor,a.fecha,a.hora"
-                . ",a.codalmacen,a.idalbaran,a.codcliente,a.nombrecliente"
-                . " FROM albaranescli a, lineasalbaranescli l"
-                . " WHERE a.idalbaran = l.idalbaran AND l.referencia = " . $this->regularizacion_stock->var2str($ref) . $sql_extra;
+            . ",a.codalmacen,a.idalbaran,a.codcliente,a.nombrecliente"
+            . " FROM albaranescli a, lineasalbaranescli l"
+            . " WHERE a.idalbaran = l.idalbaran AND l.referencia = " . $this->regularizacion_stock->var2str($ref) . $sql_extra;
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -235,10 +241,10 @@ class recalcular_stock {
 
         /// buscamos el artículo en facturas de venta
         $sql = "SELECT f.codigo,l.cantidad,l.pvpunitario,l.dtopor,f.fecha,f.hora"
-                . ",f.codalmacen,f.idfactura,f.codcliente,f.nombrecliente"
-                . " FROM facturascli f, lineasfacturascli l"
-                . " WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL"
-                . " AND f.anulada = false AND l.referencia = " . $this->regularizacion_stock->var2str($ref) . $sql_extra;
+            . ",f.codalmacen,f.idfactura,f.codcliente,f.nombrecliente"
+            . " FROM facturascli f, lineasfacturascli l"
+            . " WHERE f.idfactura = l.idfactura AND l.idalbaran IS NULL"
+            . " AND f.anulada = false AND l.referencia = " . $this->regularizacion_stock->var2str($ref) . $sql_extra;
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -261,7 +267,8 @@ class recalcular_stock {
         }
     }
 
-    protected function set_sql_extra($codalmacen = '', $desde = '', $hasta = '', $codagente = '') {
+    protected function set_sql_extra($codalmacen = '', $desde = '', $hasta = '', $codagente = '')
+    {
         $sql_extra = '';
 
         if ($codalmacen) {
@@ -282,5 +289,4 @@ class recalcular_stock {
 
         return $sql_extra;
     }
-
 }

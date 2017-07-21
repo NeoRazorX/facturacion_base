@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 /**
@@ -26,16 +24,18 @@ namespace FacturaScripts\model;
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class cuenta_especial extends \fs_model {
+class cuenta_especial extends \fs_model
+{
 
     /**
      * Identificador de la cuenta especial.
-     * @var type 
+     * @var string 
      */
     public $idcuentaesp;
     public $descripcion;
 
-    public function __construct($c = FALSE) {
+    public function __construct($c = FALSE)
+    {
         parent::__construct('co_cuentasesp');
         if ($c) {
             $this->idcuentaesp = $c['idcuentaesp'];
@@ -46,7 +46,8 @@ class cuenta_especial extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         return "INSERT INTO co_cuentasesp (idcuentaesp,descripcion) VALUES 
          ('IVAREP','Cuentas de IVA repercutido'),
          ('IVASOP','Cuentas de IVA soportado'),
@@ -79,41 +80,48 @@ class cuenta_especial extends \fs_model {
          ('IVASIM','Cuentas de IVA soportado en importaciones')";
     }
 
-    public function get($id) {
+    public function get($id)
+    {
         $cuentae = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcuentaesp = " . $this->var2str($id) . ";");
         if ($cuentae) {
             return new \cuenta_especial($cuentae[0]);
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->idcuentaesp)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcuentaesp = " . $this->var2str($this->idcuentaesp) . ";");
+        }
+
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcuentaesp = " . $this->var2str($this->idcuentaesp) . ";");
     }
 
-    public function save() {
+    public function save()
+    {
         $this->descripcion = $this->no_html($this->descripcion);
 
         if ($this->exists()) {
             $sql = "UPDATE " . $this->table_name . " SET descripcion = " . $this->var2str($this->descripcion) .
-                    " WHERE idcuentaesp = " . $this->var2str($this->idcuentaesp) . ";";
+                " WHERE idcuentaesp = " . $this->var2str($this->idcuentaesp) . ";";
         } else {
             $sql = "INSERT INTO " . $this->table_name . " (idcuentaesp,descripcion)" .
-                    " VALUES (" . $this->var2str($this->idcuentaesp) .
-                    "," . $this->var2str($this->descripcion) . ");";
+                " VALUES (" . $this->var2str($this->idcuentaesp) .
+                "," . $this->var2str($this->descripcion) . ");";
         }
 
         return $this->db->exec($sql);
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE idcuentaesp = " . $this->var2str($this->idcuentaesp) . ";");
     }
 
-    public function all() {
+    public function all()
+    {
         $culist = array();
 
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " ORDER BY descripcion ASC;");
@@ -141,5 +149,4 @@ class cuenta_especial extends \fs_model {
 
         return $culist;
     }
-
 }

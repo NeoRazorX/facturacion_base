@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2016 Joe Nilson                <joenilson at gmail.com>
@@ -28,18 +27,21 @@ require_model('linea_factura_cliente.php');
  * @author Joe Nilson <joenilson@gmail.com>
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class ventas_cliente_articulos extends fs_controller {
+class ventas_cliente_articulos extends fs_controller
+{
 
     public $cliente;
     public $observaciones;
     public $offset;
     public $resultados;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Articulos vendidos al cliente', 'ventas', FALSE, FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->share_extensions();
 
         $this->cliente = FALSE;
@@ -68,7 +70,8 @@ class ventas_cliente_articulos extends fs_controller {
     }
 
     // Agregamos el tab a ventas_cliente
-    public function share_extensions() {
+    public function share_extensions()
+    {
         $fsxet = new fs_extension();
         $fsxet->name = 'tab_ventas_cliente_articulos';
         $fsxet->from = __CLASS__;
@@ -78,12 +81,12 @@ class ventas_cliente_articulos extends fs_controller {
         $fsxet->save();
     }
 
-    public function url() {
+    public function url()
+    {
         if ($this->cliente) {
             return parent::url() . '&cod=' . $this->cliente->codcliente;
         } else {
             return parent::url();
         }
     }
-
 }

@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2016 Luismipr <luismipr@gmail.com>.
@@ -27,6 +26,7 @@ require_once 'plugins/facturacion_base/model/core/articulo_traza.php';
  * @author Luismipr <luismipr@gmail.com>
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class articulo_traza extends FacturaScripts\model\articulo_traza {
+class articulo_traza extends FacturaScripts\model\articulo_traza
+{
     
 }

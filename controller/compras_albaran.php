@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -37,7 +36,8 @@ require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('subcuenta.php');
 
-class compras_albaran extends fbase_controller {
+class compras_albaran extends fbase_controller
+{
 
     public $agente;
     public $albaran;
@@ -54,11 +54,13 @@ class compras_albaran extends fbase_controller {
     public $proveedor_s;
     public $serie;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, FS_ALBARAN . ' de proveedor', 'compras', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->ppage = $this->page->get('compras_albaranes');
@@ -123,7 +125,8 @@ class compras_albaran extends fbase_controller {
         }
     }
 
-    public function url() {
+    public function url()
+    {
         if (!isset($this->albaran)) {
             return parent::url();
         } else if ($this->albaran) {
@@ -132,7 +135,8 @@ class compras_albaran extends fbase_controller {
             return $this->page->url();
     }
 
-    private function modificar() {
+    private function modificar()
+    {
         $error = FALSE;
         $this->albaran->numproveedor = $_POST['numproveedor'];
         $this->albaran->observaciones = $_POST['observaciones'];
@@ -351,7 +355,7 @@ class compras_albaran extends fbase_controller {
 
                 if (abs(floatval($_POST['atotal']) - $this->albaran->total) >= .02) {
                     $this->new_error_msg("El total difiere entre el controlador y la vista (" . $this->albaran->total .
-                            " frente a " . $_POST['atotal'] . "). Debes informar del error.");
+                        " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                 }
             }
         }
@@ -366,7 +370,8 @@ class compras_albaran extends fbase_controller {
             $this->new_error_msg("¡Imposible modificar el " . FS_ALBARAN . "!");
     }
 
-    private function generar_factura() {
+    private function generar_factura()
+    {
         $factura = new factura_proveedor();
         $factura->cifnif = $this->albaran->cifnif;
         $factura->codalmacen = $this->albaran->codalmacen;
@@ -464,7 +469,8 @@ class compras_albaran extends fbase_controller {
             $this->new_error_msg("¡Imposible guardar la factura!");
     }
 
-    private function generar_asiento(&$factura) {
+    private function generar_asiento(&$factura)
+    {
         if ($this->empresa->contintegrada) {
             $asiento_factura = new asiento_factura();
             if ($asiento_factura->generar_asiento_compra($factura)) {
@@ -487,10 +493,11 @@ class compras_albaran extends fbase_controller {
 
     /**
      * Actualiza los datos de artículos de proveedor en base a las líneas del documento de compra.
-     * @param type $codproveedor
+     * @param string $codproveedor
      * @param linea_albaran_proveedor $linea
      */
-    private function actualizar_precio_proveedor($codproveedor, $linea) {
+    private function actualizar_precio_proveedor($codproveedor, $linea)
+    {
         if (!is_null($linea->referencia)) {
             $artp0 = new articulo_proveedor();
             $artp = $artp0->get_by($linea->referencia, $codproveedor, $linea->referencia);
@@ -510,5 +517,4 @@ class compras_albaran extends fbase_controller {
             }
         }
     }
-
 }

@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -28,7 +27,8 @@ require_model('partida.php');
 require_model('regularizacion_iva.php');
 require_model('subcuenta.php');
 
-class contabilidad_nuevo_asiento extends fs_controller {
+class contabilidad_nuevo_asiento extends fs_controller
+{
 
     public $asiento;
     public $concepto;
@@ -40,11 +40,13 @@ class contabilidad_nuevo_asiento extends fs_controller {
     public $resultados;
     public $subcuenta;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Nuevo asiento', 'contabilidad', FALSE, FALSE, TRUE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->ppage = $this->page->get('contabilidad_asientos');
 
         $this->asiento = new asiento();
@@ -82,7 +84,8 @@ class contabilidad_nuevo_asiento extends fs_controller {
         }
     }
 
-    private function get_ejercicio($fecha) {
+    private function get_ejercicio($fecha)
+    {
         $ejercicio = FALSE;
 
         $ejercicio = $this->ejercicio->get_by_fecha($fecha);
@@ -90,7 +93,7 @@ class contabilidad_nuevo_asiento extends fs_controller {
             $regiva0 = new regularizacion_iva();
             if ($regiva0->get_fecha_inside($fecha)) {
                 $this->new_error_msg('No se puede usar la fecha ' . $_POST['fecha'] . ' porque ya hay'
-                        . ' una regularización de ' . FS_IVA . ' para ese periodo.');
+                    . ' una regularización de ' . FS_IVA . ' para ese periodo.');
                 $ejercicio = FALSE;
             }
         } else {
@@ -100,7 +103,8 @@ class contabilidad_nuevo_asiento extends fs_controller {
         return $ejercicio;
     }
 
-    private function nuevo_asiento() {
+    private function nuevo_asiento()
+    {
         $continuar = TRUE;
 
         $eje0 = $this->get_ejercicio($_POST['fecha']);
@@ -198,7 +202,8 @@ class contabilidad_nuevo_asiento extends fs_controller {
         }
     }
 
-    private function nuevo_asiento_autonomo() {
+    private function nuevo_asiento_autonomo()
+    {
         $continuar = TRUE;
 
         $eje0 = $this->get_ejercicio($_POST['fecha']);
@@ -324,7 +329,8 @@ class contabilidad_nuevo_asiento extends fs_controller {
         }
     }
 
-    private function nuevo_asiento_modelo130() {
+    private function nuevo_asiento_modelo130()
+    {
         $continuar = TRUE;
 
         $eje0 = $this->get_ejercicio($_POST['fecha']);
@@ -413,7 +419,8 @@ class contabilidad_nuevo_asiento extends fs_controller {
         }
     }
 
-    private function copiar_asiento() {
+    private function copiar_asiento()
+    {
         $copia = $this->asiento->get($_GET['copy']);
         if ($copia) {
             $this->asiento->concepto = $copia->concepto;
@@ -437,7 +444,8 @@ class contabilidad_nuevo_asiento extends fs_controller {
         }
     }
 
-    private function new_search() {
+    private function new_search()
+    {
         /// cambiamos la plantilla HTML
         $this->template = 'ajax/contabilidad_nuevo_asiento';
 
@@ -450,7 +458,8 @@ class contabilidad_nuevo_asiento extends fs_controller {
         }
     }
 
-    private function check_datos_contables() {
+    private function check_datos_contables()
+    {
         $eje = $this->ejercicio->get_by_fecha($this->today());
         if ($eje) {
             $ok = FALSE;
@@ -461,11 +470,10 @@ class contabilidad_nuevo_asiento extends fs_controller {
 
             if (!$ok) {
                 $this->new_error_msg('No se encuentran subcuentas para el ejercicio ' . $eje->nombre
-                        . ' ¿<a href="' . $eje->url() . '">Has importado los datos de contabilidad</a>?');
+                    . ' ¿<a href="' . $eje->url() . '">Has importado los datos de contabilidad</a>?');
             }
         } else {
             $this->new_error_msg('No se encuentra ningún ejercicio abierto para la fecha ' . $this->today());
         }
     }
-
 }

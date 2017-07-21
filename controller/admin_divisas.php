@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -21,15 +20,18 @@
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('divisa.php');
 
-class admin_divisas extends fbase_controller {
+class admin_divisas extends fbase_controller
+{
 
     public $divisa;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Divisas', 'admin');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->divisa = new divisa();
@@ -41,7 +43,8 @@ class admin_divisas extends fbase_controller {
         }
     }
 
-    private function editar_divisa() {
+    private function editar_divisa()
+    {
         $div0 = $this->divisa->get($_POST['coddivisa']);
         if (!$div0) {
             /// si no existe la divisa, la creamos
@@ -60,7 +63,8 @@ class admin_divisas extends fbase_controller {
             $this->new_error_msg('Error al guardar la divisa.');
     }
 
-    private function eliminar_divisa() {
+    private function eliminar_divisa()
+    {
         $div0 = $this->divisa->get($_GET['delete']);
         if ($div0) {
             if (!$this->user->admin) {
@@ -72,5 +76,4 @@ class admin_divisas extends fbase_controller {
         } else
             $this->new_error_msg('Divisa no encontrada.');
     }
-
 }

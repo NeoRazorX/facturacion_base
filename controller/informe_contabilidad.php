@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -22,7 +21,8 @@ require_model('ejercicio.php');
 require_model('epigrafe.php');
 require_once 'plugins/facturacion_base/extras/inventarios_balances.php';
 
-class informe_contabilidad extends fs_controller {
+class informe_contabilidad extends fs_controller
+{
 
     private $balance;
     private $balance_cuenta_a;
@@ -31,11 +31,13 @@ class informe_contabilidad extends fs_controller {
     public $epigrafes;
     public $grupos;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Contabilidad', 'informes', FALSE, TRUE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->balance = new balance();
         $this->balance_cuenta_a = new balance_cuenta_a();
         $this->ejercicio = new ejercicio();
@@ -53,8 +55,7 @@ class informe_contabilidad extends fs_controller {
                 $iba->generar_pyg($_GET['eje']);
             } else
                 $iba->generar_sit($_GET['eje']);
-        }
-        else if (isset($_POST['informe'])) {
+        } else if (isset($_POST['informe'])) {
             if ($_POST['informe'] == 'sumasysaldos') {
                 $this->balance_sumas_y_saldos();
             } else if ($_POST['informe'] == 'situacion') {
@@ -64,23 +65,23 @@ class informe_contabilidad extends fs_controller {
             } else if ($_POST['informe'] == 'librom') {
                 if ($_POST['filtro'] == '') {
                     $this->libro_diario_csv(
-                            $_POST['codejercicio'], $_POST['desde'], $_POST['hasta']
+                        $_POST['codejercicio'], $_POST['desde'], $_POST['hasta']
                     );
                 } else if (isset($_POST['codgrupo'])) {
                     $this->libro_mayor_csv(
-                            $_POST['codejercicio'], $_POST['desde'], $_POST['hasta'], $_POST['codgrupo']
+                        $_POST['codejercicio'], $_POST['desde'], $_POST['hasta'], $_POST['codgrupo']
                     );
                 } else if (isset($_POST['codepigrafe'])) {
                     $this->libro_mayor_csv(
-                            $_POST['codejercicio'], $_POST['desde'], $_POST['hasta'], FALSE, $_POST['codepigrafe']
+                        $_POST['codejercicio'], $_POST['desde'], $_POST['hasta'], FALSE, $_POST['codepigrafe']
                     );
                 } else if (isset($_POST['codcuenta'])) {
                     $this->libro_mayor_csv(
-                            $_POST['codejercicio'], $_POST['desde'], $_POST['hasta'], FALSE, FALSE, $_POST['codcuenta']
+                        $_POST['codejercicio'], $_POST['desde'], $_POST['hasta'], FALSE, FALSE, $_POST['codcuenta']
                     );
                 } else if (isset($_POST['codsubcuenta'])) {
                     $this->libro_mayor_csv(
-                            $_POST['codejercicio'], $_POST['desde'], $_POST['hasta'], FALSE, FALSE, FALSE, $_POST['codsubcuenta']
+                        $_POST['codejercicio'], $_POST['desde'], $_POST['hasta'], FALSE, FALSE, FALSE, $_POST['codsubcuenta']
                     );
                 } else {
                     $this->template = 'ajax/informe_libro_mayor';
@@ -104,7 +105,8 @@ class informe_contabilidad extends fs_controller {
         }
     }
 
-    private function buscar_subcuenta() {
+    private function buscar_subcuenta()
+    {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
@@ -125,15 +127,18 @@ class informe_contabilidad extends fs_controller {
         echo json_encode(array('query' => $_REQUEST['buscar_subcuenta'], 'suggestions' => $json));
     }
 
-    public function existe_libro_diario($codeje) {
+    public function existe_libro_diario($codeje)
+    {
         return file_exists('tmp/' . FS_TMP_NAME . 'libro_diario/' . $codeje . '.pdf');
     }
 
-    public function existe_libro_inventarios($codeje) {
+    public function existe_libro_inventarios($codeje)
+    {
         return file_exists('tmp/' . FS_TMP_NAME . 'inventarios_balances/' . $codeje . '.pdf');
     }
 
-    private function libro_diario_csv($codeje, $desde = FALSE, $hasta = FALSE) {
+    private function libro_diario_csv($codeje, $desde = FALSE, $hasta = FALSE)
+    {
         $this->template = FALSE;
         header("content-type:application/csv;charset=UTF-8");
         header("Content-Disposition: attachment; filename=\"diario.csv\"");
@@ -143,10 +148,10 @@ class informe_contabilidad extends fs_controller {
         $saldo = 0;
         if ($desde) {
             $sql = "SELECT SUM(p.debe) as debe, SUM(p.haber) as haber"
-                    . " FROM co_asientos a, co_partidas p"
-                    . " WHERE a.codejercicio = " . $this->empresa->var2str($codeje)
-                    . " AND p.idasiento = a.idasiento"
-                    . " AND a.fecha < " . $this->empresa->var2str($desde);
+                . " FROM co_asientos a, co_partidas p"
+                . " WHERE a.codejercicio = " . $this->empresa->var2str($codeje)
+                . " AND p.idasiento = a.idasiento"
+                . " AND a.fecha < " . $this->empresa->var2str($desde);
 
             $data = $this->db->select($sql);
             if ($data) {
@@ -157,9 +162,9 @@ class informe_contabilidad extends fs_controller {
 
         /// ahora las líneas
         $sql = "SELECT a.numero,a.fecha,p.codsubcuenta,p.concepto,p.debe,p.haber"
-                . " FROM co_asientos a, co_partidas p"
-                . " WHERE a.codejercicio = " . $this->empresa->var2str($codeje)
-                . " AND p.idasiento = a.idasiento";
+            . " FROM co_asientos a, co_partidas p"
+            . " WHERE a.codejercicio = " . $this->empresa->var2str($codeje)
+            . " AND p.idasiento = a.idasiento";
 
         if ($desde AND $hasta) {
             $sql .= " AND a.fecha >= " . $this->empresa->var2str($desde);
@@ -188,15 +193,8 @@ class informe_contabilidad extends fs_controller {
         }
     }
 
-    private function fix_html($txt) {
-        $newt = str_replace('&lt;', '<', $txt);
-        $newt = str_replace('&gt;', '>', $newt);
-        $newt = str_replace('&quot;', '"', $newt);
-        $newt = str_replace('&#39;', "'", $newt);
-        return $newt;
-    }
-
-    private function libro_mayor_csv($codeje, $desde, $hasta, $codgrupo = FALSE, $codepi = FALSE, $codcuenta = FALSE, $codsubc = FALSE) {
+    private function libro_mayor_csv($codeje, $desde, $hasta, $codgrupo = FALSE, $codepi = FALSE, $codcuenta = FALSE, $codsubc = FALSE)
+    {
         $this->template = FALSE;
 
         header("content-type:application/csv;charset=UTF-8");
@@ -205,11 +203,11 @@ class informe_contabilidad extends fs_controller {
 
         /// ahora las líneas
         $sql = "SELECT a.numero,a.fecha,p.codsubcuenta,p.concepto,p.debe,p.haber"
-                . " FROM co_asientos a, co_partidas p"
-                . " WHERE a.codejercicio = " . $this->empresa->var2str($codeje)
-                . " AND p.idasiento = a.idasiento"
-                . " AND a.fecha >= " . $this->empresa->var2str($desde)
-                . " AND a.fecha <= " . $this->empresa->var2str($hasta);
+            . " FROM co_asientos a, co_partidas p"
+            . " WHERE a.codejercicio = " . $this->empresa->var2str($codeje)
+            . " AND p.idasiento = a.idasiento"
+            . " AND a.fecha >= " . $this->empresa->var2str($desde)
+            . " AND a.fecha <= " . $this->empresa->var2str($hasta);
 
         if ($codgrupo) {
             $sql .= " AND p.codsubcuenta LIKE '" . $this->empresa->no_html($codgrupo) . "%'";
@@ -225,6 +223,7 @@ class informe_contabilidad extends fs_controller {
 
         $codsubcuenta = FALSE;
         $offset = 0;
+        $saldo = 0;
         $data = $this->db->select_limit($sql, 1000, $offset);
         while ($data) {
             foreach ($data as $par) {
@@ -237,11 +236,11 @@ class informe_contabilidad extends fs_controller {
                     $codsubcuenta = $par['codsubcuenta'];
                     $saldo = 0;
                     $sql2 = "SELECT SUM(p.debe) as debe, SUM(p.haber) as haber"
-                            . " FROM co_asientos a, co_partidas p"
-                            . " WHERE a.codejercicio = " . $this->empresa->var2str($codeje)
-                            . " AND p.idasiento = a.idasiento"
-                            . " AND a.fecha < " . $this->empresa->var2str($desde)
-                            . " AND p.codsubcuenta = " . $this->empresa->var2str($codsubcuenta);
+                        . " FROM co_asientos a, co_partidas p"
+                        . " WHERE a.codejercicio = " . $this->empresa->var2str($codeje)
+                        . " AND p.idasiento = a.idasiento"
+                        . " AND a.fecha < " . $this->empresa->var2str($desde)
+                        . " AND p.codsubcuenta = " . $this->empresa->var2str($codsubcuenta);
 
                     $data = $this->db->select($sql2);
                     if ($data) {
@@ -266,7 +265,8 @@ class informe_contabilidad extends fs_controller {
         }
     }
 
-    private function balance_sumas_y_saldos() {
+    private function balance_sumas_y_saldos()
+    {
         $eje = $this->ejercicio->get($_POST['codejercicio']);
         if ($eje) {
             if (strtotime($_POST['desde']) < strtotime($eje->fechainicio) OR strtotime($_POST['hasta']) > strtotime($eje->fechafin)) {
@@ -319,7 +319,8 @@ class informe_contabilidad extends fs_controller {
      * @param type $fechafin
      * @param type $excluir
      */
-    public function sumas_y_saldos(&$pdf_doc, &$eje, $tipo = 3, $titulo, $fechaini, $fechafin, $excluir = FALSE) {
+    public function sumas_y_saldos(&$pdf_doc, &$eje, $tipo = 3, $titulo, $fechaini, $fechafin, $excluir = FALSE)
+    {
         $ge0 = new grupo_epigrafes();
         $epi0 = new epigrafe();
         $cuenta0 = new cuenta();
@@ -328,10 +329,10 @@ class informe_contabilidad extends fs_controller {
         $lineas = array();
 
         $sql = "SELECT p.codsubcuenta, SUM(p.debe) as debe, SUM(p.haber) as haber" .
-                " FROM co_partidas p, co_asientos a WHERE p.idasiento = a.idasiento" .
-                " AND a.codejercicio = " . $this->empresa->var2str($eje->codejercicio) .
-                " AND a.fecha >= " . $this->empresa->var2str($fechaini) .
-                " AND fecha <= " . $this->empresa->var2str($fechafin);
+            " FROM co_partidas p, co_asientos a WHERE p.idasiento = a.idasiento" .
+            " AND a.codejercicio = " . $this->empresa->var2str($eje->codejercicio) .
+            " AND a.fecha >= " . $this->empresa->var2str($fechaini) .
+            " AND fecha <= " . $this->empresa->var2str($fechafin);
 
         if ($excluir) {
             foreach ($excluir as $exc) {
@@ -461,13 +462,13 @@ class informe_contabilidad extends fs_controller {
                 /// Creamos la tabla con las lineas
                 $pdf_doc->new_table();
                 $pdf_doc->add_table_header(
-                        array(
-                            'cuenta' => '<b>Cuenta</b>',
-                            'descripcion' => '<b>Descripción</b>',
-                            'debe' => '<b>Debe</b>',
-                            'haber' => '<b>Haber</b>',
-                            'saldo' => '<b>Saldo</b>'
-                        )
+                    array(
+                        'cuenta' => '<b>Cuenta</b>',
+                        'descripcion' => '<b>Descripción</b>',
+                        'debe' => '<b>Debe</b>',
+                        'haber' => '<b>Haber</b>',
+                        'saldo' => '<b>Saldo</b>'
+                    )
                 );
 
                 for ($i = $linea; $i < min(array($linea + 48, count($lineas))); $i++) {
@@ -484,13 +485,13 @@ class informe_contabilidad extends fs_controller {
                     }
 
                     $pdf_doc->add_table_row(
-                            array(
-                                'cuenta' => $a . $lineas[$i]['cuenta'] . $b,
-                                'descripcion' => $a . substr(fs_fix_html($lineas[$i]['descripcion']), 0, 50) . $b,
-                                'debe' => $a . $this->show_numero($lineas[$i]['debe']) . $b,
-                                'haber' => $a . $this->show_numero($lineas[$i]['haber']) . $b,
-                                'saldo' => $a . $this->show_numero(floatval($lineas[$i]['debe']) - floatval($lineas[$i]['haber'])) . $b
-                            )
+                        array(
+                            'cuenta' => $a . $lineas[$i]['cuenta'] . $b,
+                            'descripcion' => $a . substr(fs_fix_html($lineas[$i]['descripcion']), 0, 50) . $b,
+                            'debe' => $a . $this->show_numero($lineas[$i]['debe']) . $b,
+                            'haber' => $a . $this->show_numero($lineas[$i]['haber']) . $b,
+                            'saldo' => $a . $this->show_numero(floatval($lineas[$i]['debe']) - floatval($lineas[$i]['haber'])) . $b
+                        )
                     );
                 }
                 $linea += 48;
@@ -501,25 +502,25 @@ class informe_contabilidad extends fs_controller {
                     $desc = 'Totales';
                 }
                 $pdf_doc->add_table_row(
-                        array(
-                            'cuenta' => '',
-                            'descripcion' => '<b>' . fs_fix_html($desc) . '</b>',
-                            'debe' => '<b>' . $this->show_numero($tdebe) . '</b>',
-                            'haber' => '<b>' . $this->show_numero($thaber) . '</b>',
-                            'saldo' => '<b>' . $this->show_numero($tdebe - $thaber) . '</b>'
-                        )
+                    array(
+                        'cuenta' => '',
+                        'descripcion' => '<b>' . fs_fix_html($desc) . '</b>',
+                        'debe' => '<b>' . $this->show_numero($tdebe) . '</b>',
+                        'haber' => '<b>' . $this->show_numero($thaber) . '</b>',
+                        'saldo' => '<b>' . $this->show_numero($tdebe - $thaber) . '</b>'
+                    )
                 );
                 $pdf_doc->save_table(
-                        array(
-                            'fontSize' => 9,
-                            'cols' => array(
-                                'debe' => array('justification' => 'right'),
-                                'haber' => array('justification' => 'right'),
-                                'saldo' => array('justification' => 'right')
-                            ),
-                            'width' => 540,
-                            'shaded' => 0
-                        )
+                    array(
+                        'fontSize' => 9,
+                        'cols' => array(
+                            'debe' => array('justification' => 'right'),
+                            'haber' => array('justification' => 'right'),
+                            'saldo' => array('justification' => 'right')
+                        ),
+                        'width' => 540,
+                        'shaded' => 0
+                    )
                 );
             } else {
                 for ($i = $linea; $i < min(array($linea + 48, count($lineas))); $i++) {
@@ -539,7 +540,8 @@ class informe_contabilidad extends fs_controller {
         }
     }
 
-    private function balance_situacion() {
+    private function balance_situacion()
+    {
         $eje = $this->ejercicio->get($_POST['codejercicio']);
         if ($eje) {
             if (strtotime($_POST['desde']) < strtotime($eje->fechainicio) OR strtotime($_POST['hasta']) > strtotime($eje->fechafin)) {
@@ -567,7 +569,8 @@ class informe_contabilidad extends fs_controller {
      * @param fs_pdf $pdf_doc
      * @param type $eje
      */
-    private function situacion(&$pdf_doc, &$eje) {
+    private function situacion(&$pdf_doc, &$eje)
+    {
         $nivel0 = array('A', 'P');
         $nivel1 = array('A', 'B', 'C');
         $nivel2 = array('', '1', '2', '3', '4', '5', '6', '7', '8', '9');
@@ -583,15 +586,15 @@ class informe_contabilidad extends fs_controller {
                 $np = TRUE;
 
             $pdf_doc->pdf->ezText(fs_fix_html($this->empresa->nombre) . " - Balance de situación de "
-                    . $_POST['desde'] . " a " . $_POST['hasta'] . ".\n\n", 13);
+                . $_POST['desde'] . " a " . $_POST['hasta'] . ".\n\n", 13);
 
             /// creamos las cabeceras de la tabla
             $pdf_doc->new_table();
             $pdf_doc->add_table_header(
-                    array(
-                        'descripcion' => '<b>Descripción</b>',
-                        'actual' => '<b>' . $eje->year() . '</b>'
-                    )
+                array(
+                    'descripcion' => '<b>Descripción</b>',
+                    'actual' => '<b>' . $eje->year() . '</b>'
+                )
             );
 
             $desc1 = '';
@@ -606,10 +609,10 @@ class informe_contabilidad extends fs_controller {
                                 if ($bal->naturaleza == $nv0 AND $bal->nivel1 == $nv1 AND $bal->nivel2 == $nv2 AND $bal->nivel3 == $nv3 AND $bal->nivel4 == $nv4) {
                                     if ($bal->descripcion1 != $desc1 AND $bal->descripcion1 != '') {
                                         $pdf_doc->add_table_row(
-                                                array(
-                                                    'descripcion' => "\n<b>" . $bal->descripcion1 . '</b>',
-                                                    'actual' => "\n<b>" . $this->get_saldo_balance2($nv0 . '-' . $nv1 . '-', $eje, $nv0) . '</b>'
-                                                )
+                                            array(
+                                                'descripcion' => "\n<b>" . $bal->descripcion1 . '</b>',
+                                                'actual' => "\n<b>" . $this->get_saldo_balance2($nv0 . '-' . $nv1 . '-', $eje, $nv0) . '</b>'
+                                            )
                                         );
 
                                         $desc1 = $bal->descripcion1;
@@ -617,10 +620,10 @@ class informe_contabilidad extends fs_controller {
 
                                     if ($bal->descripcion2 != $desc2 AND $bal->descripcion2 != '') {
                                         $pdf_doc->add_table_row(
-                                                array(
-                                                    'descripcion' => ' <b>' . $bal->descripcion2 . '</b>',
-                                                    'actual' => $this->get_saldo_balance2($nv0 . '-' . $nv1 . '-' . $nv2 . '-', $eje, $nv0)
-                                                )
+                                            array(
+                                                'descripcion' => ' <b>' . $bal->descripcion2 . '</b>',
+                                                'actual' => $this->get_saldo_balance2($nv0 . '-' . $nv1 . '-' . $nv2 . '-', $eje, $nv0)
+                                            )
                                         );
 
                                         $desc2 = $bal->descripcion2;
@@ -628,10 +631,10 @@ class informe_contabilidad extends fs_controller {
 
                                     if ($bal->descripcion3 != $desc3 AND $bal->descripcion3 != '') {
                                         $pdf_doc->add_table_row(
-                                                array(
-                                                    'descripcion' => '  ' . $bal->descripcion3,
-                                                    'actual' => $this->get_saldo_balance2($nv0 . '-' . $nv1 . '-' . $nv2 . '-' . $nv3 . '-', $eje, $nv0)
-                                                )
+                                            array(
+                                                'descripcion' => '  ' . $bal->descripcion3,
+                                                'actual' => $this->get_saldo_balance2($nv0 . '-' . $nv1 . '-' . $nv2 . '-' . $nv3 . '-', $eje, $nv0)
+                                            )
                                         );
 
                                         $desc3 = $bal->descripcion3;
@@ -647,34 +650,35 @@ class informe_contabilidad extends fs_controller {
 
             if ($nv0 == 'A') {
                 $pdf_doc->add_table_row(
-                        array(
-                            'descripcion' => "\n<b>TOTAL ACTIVO (A+B)</b>",
-                            'actual' => "\n<b>" . $this->get_saldo_balance2($nv0 . '-', $eje, $nv0) . '</b>'
-                        )
+                    array(
+                        'descripcion' => "\n<b>TOTAL ACTIVO (A+B)</b>",
+                        'actual' => "\n<b>" . $this->get_saldo_balance2($nv0 . '-', $eje, $nv0) . '</b>'
+                    )
                 );
             } else if ($nv0 == 'P') {
                 $pdf_doc->add_table_row(
-                        array(
-                            'descripcion' => "\n<b>TOTAL PATRIMONIO NETO (A+B+C)</b>",
-                            'actual' => "\n<b>" . $this->get_saldo_balance2($nv0 . '-', $eje, $nv0) . '</b>'
-                        )
+                    array(
+                        'descripcion' => "\n<b>TOTAL PATRIMONIO NETO (A+B+C)</b>",
+                        'actual' => "\n<b>" . $this->get_saldo_balance2($nv0 . '-', $eje, $nv0) . '</b>'
+                    )
                 );
             }
 
             $pdf_doc->save_table(
-                    array(
-                        'fontSize' => 12,
-                        'cols' => array(
-                            'actual' => array('justification' => 'right')
-                        ),
-                        'width' => 540,
-                        'shaded' => 0
-                    )
+                array(
+                    'fontSize' => 12,
+                    'cols' => array(
+                        'actual' => array('justification' => 'right')
+                    ),
+                    'width' => 540,
+                    'shaded' => 0
+                )
             );
         }
     }
 
-    private function balance_perdidasyg() {
+    private function balance_perdidasyg()
+    {
         $eje = $this->ejercicio->get($_POST['codejercicio']);
         if ($eje) {
             if (strtotime($_POST['desde']) < strtotime($eje->fechainicio) OR strtotime($_POST['hasta']) > strtotime($eje->fechafin)) {
@@ -699,17 +703,18 @@ class informe_contabilidad extends fs_controller {
      * Este informe se confecciona a partir de las cuentas que señalan los códigos
      * de balance que empiezan por PG.
      */
-    private function perdidas_y_ganancias(&$pdf_doc, &$eje) {
+    private function perdidas_y_ganancias(&$pdf_doc, &$eje)
+    {
         $pdf_doc->pdf->ezText(fs_fix_html($this->empresa->nombre) . " - Cuenta de pérdidas y ganancias abreviada de "
-                . $_POST['desde'] . " a " . $_POST['hasta'] . ".\n\n", 13);
+            . $_POST['desde'] . " a " . $_POST['hasta'] . ".\n\n", 13);
 
         /// creamos las cabeceras de la tabla
         $pdf_doc->new_table();
         $pdf_doc->add_table_header(
-                array(
-                    'descripcion' => '<b>Descripción</b>',
-                    'actual' => '<b>' . $eje->year() . '</b>'
-                )
+            array(
+                'descripcion' => '<b>Descripción</b>',
+                'actual' => '<b>' . $eje->year() . '</b>'
+            )
         );
 
         $balances = $this->balance->all();
@@ -719,23 +724,23 @@ class informe_contabilidad extends fs_controller {
         while ($continuar) {
             if ($num == 12) {
                 $pdf_doc->add_table_row(
-                        array(
-                            'descripcion' => "\n<b>A) RESULTADOS DE EXPLOTACIÓN (1+2+3+4+5+6+7+8+9+10+11)</b>",
-                            'actual' => "\n<b>" . $this->show_numero($totales[$eje->year()]['a']) . '</b>'
-                        )
+                    array(
+                        'descripcion' => "\n<b>A) RESULTADOS DE EXPLOTACIÓN (1+2+3+4+5+6+7+8+9+10+11)</b>",
+                        'actual' => "\n<b>" . $this->show_numero($totales[$eje->year()]['a']) . '</b>'
+                    )
                 );
             } else if ($num == 17) {
                 $pdf_doc->add_table_row(
-                        array(
-                            'descripcion' => "\n<b>B) RESULTADO FINANCIERO (12+13+14+15+16)</b>",
-                            'actual' => "\n<b>" . $this->show_numero($totales[$eje->year()]['b']) . '</b>'
-                        )
+                    array(
+                        'descripcion' => "\n<b>B) RESULTADO FINANCIERO (12+13+14+15+16)</b>",
+                        'actual' => "\n<b>" . $this->show_numero($totales[$eje->year()]['b']) . '</b>'
+                    )
                 );
                 $pdf_doc->add_table_row(
-                        array(
-                            'descripcion' => "<b>C) RESULTADO ANTES DE IMPUESTOS (A+B)</b>",
-                            'actual' => '<b>' . $this->show_numero($totales[$eje->year()]['c']) . '</b>'
-                        )
+                    array(
+                        'descripcion' => "<b>C) RESULTADO ANTES DE IMPUESTOS (A+B)</b>",
+                        'actual' => '<b>' . $this->show_numero($totales[$eje->year()]['c']) . '</b>'
+                    )
                 );
             }
 
@@ -746,10 +751,10 @@ class informe_contabilidad extends fs_controller {
 
                     /// añadimos la fila
                     $pdf_doc->add_table_row(
-                            array(
-                                'descripcion' => $bal->descripcion2,
-                                'actual' => $this->show_numero($saldo1)
-                            )
+                        array(
+                            'descripcion' => $bal->descripcion2,
+                            'actual' => $this->show_numero($saldo1)
+                        )
                     );
 
                     /// sumamos donde corresponda
@@ -772,25 +777,26 @@ class informe_contabilidad extends fs_controller {
         }
 
         $pdf_doc->add_table_row(
-                array(
-                    'descripcion' => "\n<b>D) RESULTADO DEL EJERCICIO (C+17)</b>",
-                    'actual' => "\n<b>" . $this->show_numero($totales[$eje->year()]['d']) . '</b>'
-                )
+            array(
+                'descripcion' => "\n<b>D) RESULTADO DEL EJERCICIO (C+17)</b>",
+                'actual' => "\n<b>" . $this->show_numero($totales[$eje->year()]['d']) . '</b>'
+            )
         );
 
         $pdf_doc->save_table(
-                array(
-                    'fontSize' => 12,
-                    'cols' => array(
-                        'actual' => array('justification' => 'right')
-                    ),
-                    'width' => 540,
-                    'shaded' => 0
-                )
+            array(
+                'fontSize' => 12,
+                'cols' => array(
+                    'actual' => array('justification' => 'right')
+                ),
+                'width' => 540,
+                'shaded' => 0
+            )
         );
     }
 
-    private function get_saldo_balance($codbalance, &$ejercicio) {
+    private function get_saldo_balance($codbalance, &$ejercicio)
+    {
         $total = 0;
 
         foreach ($this->balance_cuenta_a->search_by_codbalance($codbalance) as $bca) {
@@ -800,7 +806,8 @@ class informe_contabilidad extends fs_controller {
         return $total;
     }
 
-    private function get_saldo_balance2($codbalance, $ejercicio, $naturaleza = 'A') {
+    private function get_saldo_balance2($codbalance, $ejercicio, $naturaleza = 'A')
+    {
         $total = 0;
 
         foreach ($this->balance_cuenta_a->search_by_codbalance($codbalance) as $bca) {
@@ -812,5 +819,4 @@ class informe_contabilidad extends fs_controller {
         } else
             return $this->show_numero($total);
     }
-
 }

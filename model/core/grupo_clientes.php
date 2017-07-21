@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 /**
@@ -25,27 +23,29 @@ namespace FacturaScripts\model;
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class grupo_clientes extends \fs_model {
+class grupo_clientes extends \fs_model
+{
 
     /**
      * Clave primaria
-     * @var type 
+     * @var string
      */
     public $codgrupo;
 
     /**
      * Nombre del grupo
-     * @var type 
+     * @var string 
      */
     public $nombre;
 
     /**
      * Código de la tarifa asociada, si la hay
-     * @var type 
+     * @var string 
      */
     public $codtarifa;
 
-    public function __construct($g = FALSE) {
+    public function __construct($g = FALSE)
+    {
         parent::__construct('gruposclientes');
         if ($g) {
             $this->codgrupo = $g['codgrupo'];
@@ -58,7 +58,8 @@ class grupo_clientes extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         /// como hay una clave ajena a tarifas, tenemos que comprobar esa tabla antes
         new \tarifa();
 
@@ -69,7 +70,8 @@ class grupo_clientes extends \fs_model {
      * Devuelve la url donde ver/modificar los datos
      * @return string
      */
-    public function url() {
+    public function url()
+    {
         if ($this->codgrupo == NULL) {
             return 'index.php?page=ventas_clientes#grupos';
         }
@@ -81,13 +83,14 @@ class grupo_clientes extends \fs_model {
      * Devuelve un nuevo código para un nuevo grupo de clientes
      * @return string
      */
-    public function get_new_codigo() {
+    public function get_new_codigo()
+    {
         if (strtolower(FS_DB_TYPE) == 'postgresql') {
             $sql = "SELECT codgrupo from " . $this->table_name . " where codgrupo ~ '^\d+$'"
-                    . " ORDER BY codgrupo::integer DESC";
+                . " ORDER BY codgrupo::integer DESC";
         } else {
             $sql = "SELECT codgrupo from " . $this->table_name . " where codgrupo REGEXP '^[0-9]+$'"
-                    . " ORDER BY CAST(`codgrupo` AS decimal) DESC";
+                . " ORDER BY CAST(`codgrupo` AS decimal) DESC";
         }
 
         $data = $this->db->select_limit($sql, 1, 0);
@@ -98,7 +101,8 @@ class grupo_clientes extends \fs_model {
         return '000001';
     }
 
-    public function get($cod) {
+    public function get($cod)
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codgrupo = " . $this->var2str($cod) . ";");
         if ($data) {
             return new \grupo_clientes($data[0]);
@@ -107,7 +111,8 @@ class grupo_clientes extends \fs_model {
         return FALSE;
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->codgrupo)) {
             return FALSE;
         }
@@ -115,49 +120,49 @@ class grupo_clientes extends \fs_model {
         return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codgrupo = " . $this->var2str($this->codgrupo) . ";");
     }
 
-    public function save() {
+    public function save()
+    {
         $this->nombre = $this->no_html($this->nombre);
 
         if ($this->exists()) {
             $sql = "UPDATE " . $this->table_name . " SET nombre = " . $this->var2str($this->nombre)
-                    . ", codtarifa = " . $this->var2str($this->codtarifa)
-                    . "  WHERE codgrupo = " . $this->var2str($this->codgrupo) . ";";
+                . ", codtarifa = " . $this->var2str($this->codtarifa)
+                . "  WHERE codgrupo = " . $this->var2str($this->codgrupo) . ";";
         } else {
             $sql = "INSERT INTO " . $this->table_name . " (codgrupo,nombre,codtarifa) VALUES "
-                    . "(" . $this->var2str($this->codgrupo)
-                    . "," . $this->var2str($this->nombre)
-                    . "," . $this->var2str($this->codtarifa) . ");";
+                . "(" . $this->var2str($this->codgrupo)
+                . "," . $this->var2str($this->nombre)
+                . "," . $this->var2str($this->codtarifa) . ");";
         }
 
         return $this->db->exec($sql);
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE codgrupo = " . $this->var2str($this->codgrupo) . ";");
     }
 
-    public function all() {
-        $glist = array();
-
+    public function all()
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " ORDER BY nombre ASC;");
-        if ($data) {
-            foreach ($data as $d) {
-                $glist[] = new \grupo_clientes($d);
-            }
-        }
-
-        return $glist;
+        return $this->all_from_data($data);
     }
 
     /**
      * Devuelve todos los grupos con la tarifa $cod
-     * @param type $cod
+     * @param string $cod
      * @return \grupo_clientes
      */
-    public function all_with_tarifa($cod) {
-        $glist = array();
-
+    public function all_with_tarifa($cod)
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($cod) . " ORDER BY codgrupo ASC;");
+        return $this->all_from_data($data);
+    }
+
+    private function all_from_data(&$data)
+    {
+        $glist = array();
         if ($data) {
             foreach ($data as $d) {
                 $glist[] = new \grupo_clientes($d);
@@ -166,5 +171,4 @@ class grupo_clientes extends \fs_model {
 
         return $glist;
     }
-
 }

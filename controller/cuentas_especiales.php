@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -21,16 +20,19 @@
 require_model('cuenta.php');
 require_model('cuenta_especial.php');
 
-class cuentas_especiales extends fs_controller {
+class cuentas_especiales extends fs_controller
+{
 
     private $cuenta;
     public $cuenta_especial;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Cuentas Especiales', 'contabilidad', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->cuenta = new cuenta();
         $this->cuenta_especial = new cuenta_especial();
 
@@ -61,7 +63,8 @@ class cuentas_especiales extends fs_controller {
         }
     }
 
-    public function get_codcuenta_cuentaesp($idcuentaesp) {
+    public function get_codcuenta_cuentaesp($idcuentaesp)
+    {
         $codcuenta = '';
 
         foreach ($this->cuenta->all_from_cuentaesp($idcuentaesp, $this->empresa->codejercicio) as $cuen) {
@@ -74,5 +77,4 @@ class cuentas_especiales extends fs_controller {
 
         return $codcuenta;
     }
-
 }

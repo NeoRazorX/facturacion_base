@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2016  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -31,7 +30,8 @@ require_model('transferencia_stock.php');
  *
  * @author Carlos Garcia Gomez
  */
-class editar_transferencia_stock extends fbase_controller {
+class editar_transferencia_stock extends fbase_controller
+{
 
     public $almacen;
     public $fabricante;
@@ -39,11 +39,13 @@ class editar_transferencia_stock extends fbase_controller {
     public $lineas;
     public $transferencia;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Editar transferencia', 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->almacen = new almacen();
@@ -70,7 +72,8 @@ class editar_transferencia_stock extends fbase_controller {
         }
     }
 
-    private function new_search() {
+    private function new_search()
+    {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
@@ -108,7 +111,8 @@ class editar_transferencia_stock extends fbase_controller {
         echo json_encode($this->results);
     }
 
-    private function modificar() {
+    private function modificar()
+    {
         $this->transferencia->codalmaorigen = $_POST['codalmaorigen'];
         $this->transferencia->codalmadestino = $_POST['codalmadestino'];
         $this->transferencia->fecha = $_POST['fecha'];
@@ -187,5 +191,4 @@ class editar_transferencia_stock extends fbase_controller {
             $this->new_error_msg('Error al guardar los datos.');
         }
     }
-
 }

@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017    Carlos Garcia Gomez  neorazorx@gmail.com
@@ -23,17 +22,20 @@ require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('cuenta_banco.php');
 require_model('forma_pago.php');
 
-class contabilidad_formas_pago extends fbase_controller {
+class contabilidad_formas_pago extends fbase_controller
+{
 
     public $button_plazos;
     public $cuentas_banco;
     public $forma_pago;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Formas de Pago', 'contabilidad');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         /**
@@ -59,7 +61,8 @@ class contabilidad_formas_pago extends fbase_controller {
         }
     }
 
-    private function editar_forma_pago() {
+    private function editar_forma_pago()
+    {
         /// crear/modificar forma de pago
         $nueva = FALSE;
 
@@ -83,7 +86,7 @@ class contabilidad_formas_pago extends fbase_controller {
         if (isset($_POST['domiciliado'])) {
             if (is_null($fp0->codcuenta)) {
                 $this->new_error_msg('Para marcar una forma de pago como domiciliada,'
-                        . ' también tienes que seleccionar una cuenta bancaria.');
+                    . ' también tienes que seleccionar una cuenta bancaria.');
             } else {
                 $fp0->domiciliado = TRUE;
             }
@@ -102,7 +105,8 @@ class contabilidad_formas_pago extends fbase_controller {
         }
     }
 
-    private function eliminar_forma_pago() {
+    private function eliminar_forma_pago()
+    {
         $fp0 = $this->forma_pago->get($_GET['delete']);
         if ($fp0) {
             if (!$this->user->admin) {
@@ -117,7 +121,8 @@ class contabilidad_formas_pago extends fbase_controller {
         }
     }
 
-    public function vencimientos() {
+    public function vencimientos()
+    {
         return array(
             '+0day' => 'mismo día',
             '+1day' => '1 día',
@@ -138,5 +143,4 @@ class contabilidad_formas_pago extends fbase_controller {
             '+12month' => '12 meses',
         );
     }
-
 }

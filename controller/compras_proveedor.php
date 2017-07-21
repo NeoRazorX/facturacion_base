@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -28,7 +27,8 @@ require_model('cliente.php');
 require_model('cuenta_banco_cliente.php');
 require_model('direccion_cliente.php');
 
-class compras_proveedor extends fbase_controller {
+class compras_proveedor extends fbase_controller
+{
 
     public $cuenta_banco;
     public $divisa;
@@ -37,11 +37,13 @@ class compras_proveedor extends fbase_controller {
     public $proveedor;
     public $serie;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Proveedor', 'compras', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->ppage = $this->page->get('compras_proveedores');
@@ -82,7 +84,8 @@ class compras_proveedor extends fbase_controller {
         }
     }
 
-    public function url() {
+    public function url()
+    {
         if (!isset($this->proveedor)) {
             return parent::url();
         } else if ($this->proveedor) {
@@ -91,7 +94,8 @@ class compras_proveedor extends fbase_controller {
             return $this->ppage->url();
     }
 
-    private function modificar() {
+    private function modificar()
+    {
         $this->proveedor->nombre = $_POST['nombre'];
         $this->proveedor->razonsocial = $_POST['razonsocial'];
         $this->proveedor->tipoidfiscal = $_POST['tipoidfiscal'];
@@ -121,7 +125,8 @@ class compras_proveedor extends fbase_controller {
             $this->new_error_msg('¡Imposible modificar los datos del proveedor!');
     }
 
-    private function edit_cuenta_banco() {
+    private function edit_cuenta_banco()
+    {
         if (isset($_POST['codcuenta'])) {
             $cuentab = $this->cuenta_banco->get($_POST['codcuenta']);
         } else {
@@ -140,7 +145,8 @@ class compras_proveedor extends fbase_controller {
             $this->new_error_msg('Imposible guardar la cuenta bancaria.');
     }
 
-    private function delete_cuenta_banco() {
+    private function delete_cuenta_banco()
+    {
         $cuenta = $this->cuenta_banco->get($_GET['delete_cuenta']);
         if ($cuenta) {
             if ($cuenta->delete()) {
@@ -151,7 +157,8 @@ class compras_proveedor extends fbase_controller {
             $this->new_error_msg('Cuenta bancaria no encontrada.');
     }
 
-    private function edit_direccion() {
+    private function edit_direccion()
+    {
         $direccion = new direccion_proveedor();
         if ($_POST['coddir'] != '') {
             $direccion = $direccion->get($_POST['coddir']);
@@ -172,7 +179,8 @@ class compras_proveedor extends fbase_controller {
             $this->new_error_msg("¡Imposible guardar la dirección!");
     }
 
-    private function delete_direccion() {
+    private function delete_direccion()
+    {
         $dir = new direccion_proveedor();
         $dir0 = $dir->get($_GET['delete_dir']);
         if ($dir0) {
@@ -187,7 +195,8 @@ class compras_proveedor extends fbase_controller {
     /**
      * Creamos un nuevo cliente a partir de los datos de este proveedor
      */
-    private function convertir() {
+    private function convertir()
+    {
         $cliente = new cliente();
         $cliente->nombre = $this->proveedor->nombre;
         $cliente->razonsocial = $this->proveedor->razonsocial;
@@ -243,7 +252,8 @@ class compras_proveedor extends fbase_controller {
             $this->new_error_msg("¡Imposible crear el cliente!");
     }
 
-    public function tiene_facturas() {
+    public function tiene_facturas()
+    {
         $tiene = FALSE;
 
         if ($this->db->table_exists('facturasprov')) {
@@ -266,5 +276,4 @@ class compras_proveedor extends fbase_controller {
 
         return $tiene;
     }
-
 }

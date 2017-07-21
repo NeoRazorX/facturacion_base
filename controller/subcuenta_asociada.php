@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -26,7 +25,8 @@ require_model('subcuenta_cliente.php');
 require_model('subcuenta_proveedor.php');
 require_model('subcuenta.php');
 
-class subcuenta_asociada extends fs_controller {
+class subcuenta_asociada extends fs_controller
+{
 
     public $tipo;
     public $cliente;
@@ -37,11 +37,13 @@ class subcuenta_asociada extends fs_controller {
     public $subcuenta_a;
     public $resultados;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Asignar subcuenta...', 'contabilidad', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->tipo = FALSE;
         $this->subcuenta = FALSE;
         $this->cuenta = new cuenta();
@@ -264,7 +266,8 @@ class subcuenta_asociada extends fs_controller {
         }
     }
 
-    private function new_search() {
+    private function new_search()
+    {
         /// cambiamos la plantilla HTML
         $this->template = 'ajax/subcuenta_asociada';
 
@@ -272,7 +275,8 @@ class subcuenta_asociada extends fs_controller {
         $this->resultados = $subcuenta->search_by_ejercicio($_POST['ejercicio'], $_POST['query']);
     }
 
-    public function url() {
+    public function url()
+    {
         if (isset($_REQUEST['cli'])) {
             return 'index.php?page=' . __CLASS__ . '&cli=' . $_REQUEST['cli'];
         } else if (isset($_REQUEST['pro'])) {
@@ -280,5 +284,4 @@ class subcuenta_asociada extends fs_controller {
         } else
             return 'index.php?page=' . __CLASS__;
     }
-
 }

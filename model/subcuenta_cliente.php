@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -25,6 +24,7 @@ require_once 'plugins/facturacion_base/model/core/subcuenta_cliente.php';
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class subcuenta_cliente extends FacturaScripts\model\subcuenta_cliente {
+class subcuenta_cliente extends FacturaScripts\model\subcuenta_cliente
+{
     
 }

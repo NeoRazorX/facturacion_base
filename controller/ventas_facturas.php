@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -26,7 +25,8 @@ require_model('factura_cliente.php');
 require_model('forma_pago.php');
 require_model('grupo_clientes.php');
 
-class ventas_facturas extends fbase_controller {
+class ventas_facturas extends fbase_controller
+{
 
     public $agente;
     public $almacenes;
@@ -56,11 +56,13 @@ class ventas_facturas extends fbase_controller {
     public $total_resultados_comision;
     public $total_resultados_txt;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Facturas', 'ventas');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->agente = new agente();
@@ -204,7 +206,8 @@ class ventas_facturas extends fbase_controller {
         }
     }
 
-    public function url($busqueda = FALSE) {
+    public function url($busqueda = FALSE)
+    {
         if ($busqueda) {
             $codcliente = '';
             if ($this->cliente) {
@@ -212,16 +215,16 @@ class ventas_facturas extends fbase_controller {
             }
 
             $url = parent::url() . "&mostrar=" . $this->mostrar
-                    . "&query=" . $this->query
-                    . "&codagente=" . $this->codagente
-                    . "&codalmacen=" . $this->codalmacen
-                    . "&codcliente=" . $codcliente
-                    . "&codgrupo=" . $this->codgrupo
-                    . "&codpago=" . $this->codpago
-                    . "&codserie=" . $this->codserie
-                    . "&desde=" . $this->desde
-                    . "&estado=" . $this->estado
-                    . "&hasta=" . $this->hasta;
+                . "&query=" . $this->query
+                . "&codagente=" . $this->codagente
+                . "&codalmacen=" . $this->codalmacen
+                . "&codcliente=" . $codcliente
+                . "&codgrupo=" . $this->codgrupo
+                . "&codpago=" . $this->codpago
+                . "&codserie=" . $this->codserie
+                . "&desde=" . $this->desde
+                . "&estado=" . $this->estado
+                . "&hasta=" . $this->hasta;
 
             return $url;
         } else {
@@ -229,7 +232,8 @@ class ventas_facturas extends fbase_controller {
         }
     }
 
-    public function paginas() {
+    public function paginas()
+    {
         if ($this->mostrar == 'sinpagar') {
             $total = $this->total_sinpagar();
         } else if ($this->mostrar == 'buscar') {
@@ -241,7 +245,8 @@ class ventas_facturas extends fbase_controller {
         return $this->fbase_paginas($this->url(TRUE), $total, $this->offset);
     }
 
-    public function buscar_lineas() {
+    public function buscar_lineas()
+    {
         /// cambiamos la plantilla HTML
         $this->template = 'ajax/ventas_lineas_facturas';
 
@@ -255,7 +260,8 @@ class ventas_facturas extends fbase_controller {
         }
     }
 
-    private function share_extension() {
+    private function share_extension()
+    {
         /// añadimos las extensiones para clientes, agentes y artículos
         $extensiones = array(
             array(
@@ -291,15 +297,18 @@ class ventas_facturas extends fbase_controller {
         }
     }
 
-    public function total_sinpagar() {
+    public function total_sinpagar()
+    {
         return $this->fbase_sql_total('facturascli', 'idfactura', 'WHERE pagada = false');
     }
 
-    private function total_registros() {
+    private function total_registros()
+    {
         return $this->fbase_sql_total('facturascli', 'idfactura');
     }
 
-    private function buscar($order2) {
+    private function buscar($order2)
+    {
         $this->resultados = array();
         $this->num_resultados = 0;
         $sql = " FROM facturascli ";
@@ -310,11 +319,11 @@ class ventas_facturas extends fbase_controller {
             $sql .= $where;
             if (is_numeric($query)) {
                 $sql .= "(codigo LIKE '%" . $query . "%' OR numero2 LIKE '%" . $query . "%' "
-                        . "OR observaciones LIKE '%" . $query . "%' OR cifnif LIKE '" . $query . "%')";
+                    . "OR observaciones LIKE '%" . $query . "%' OR cifnif LIKE '" . $query . "%')";
             } else {
                 $sql .= "(lower(codigo) LIKE '%" . $query . "%' OR lower(numero2) LIKE '%" . $query . "%' "
-                        . "OR lower(cifnif) LIKE '" . $query . "%' "
-                        . "OR lower(observaciones) LIKE '%" . str_replace(' ', '%', $query) . "%')";
+                    . "OR lower(cifnif) LIKE '" . $query . "%' "
+                    . "OR lower(observaciones) LIKE '%" . str_replace(' ', '%', $query) . "%')";
             }
             $where = ' AND ';
         }
@@ -406,7 +415,8 @@ class ventas_facturas extends fbase_controller {
         }
     }
 
-    private function delete_factura() {
+    private function delete_factura()
+    {
         $fact = $this->factura->get($_GET['delete']);
         if ($fact) {
             /// obtenemos las líneas de la factura antes de eliminar
@@ -443,7 +453,8 @@ class ventas_facturas extends fbase_controller {
             $this->new_error_msg("Factura no encontrada.");
     }
 
-    public function orden() {
+    public function orden()
+    {
         return array(
             'fecha_desc' => array(
                 'icono' => '<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>',
@@ -482,5 +493,4 @@ class ventas_facturas extends fbase_controller {
             )
         );
     }
-
 }

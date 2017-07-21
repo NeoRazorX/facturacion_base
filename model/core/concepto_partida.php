@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 /**
@@ -25,16 +23,18 @@ namespace FacturaScripts\model;
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class concepto_partida extends \fs_model {
+class concepto_partida extends \fs_model
+{
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var string 
      */
     public $idconceptopar;
     public $concepto;
 
-    public function __construct($c = FALSE) {
+    public function __construct($c = FALSE)
+    {
         parent::__construct('co_conceptospar');
         if ($c) {
             $this->idconceptopar = $c['idconceptopar'];
@@ -45,40 +45,48 @@ class concepto_partida extends \fs_model {
         }
     }
 
-    protected function install() {
-        return "";
+    protected function install()
+    {
+        return '';
     }
 
-    public function get($id) {
+    public function get($id)
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idconceptopar = " . $this->var2str($id) . ";");
         if ($data) {
             return new \concepto_partida($data[0]);
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->idconceptopar)) {
             return FALSE;
-        } else {
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idconceptopar = " . $this->var2str($this->idconceptopar) . ";");
         }
+
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idconceptopar = " . $this->var2str($this->idconceptopar) . ";");
     }
 
-    public function test() {
+    public function test()
+    {
         $this->concepto = $this->no_html($this->concepto);
         return TRUE;
     }
 
-    public function save() {
+    public function save()
+    {
         return FALSE;
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE idconceptopar = " . $this->var2str($this->idconceptopar) . ";");
     }
 
-    public function all() {
+    public function all()
+    {
         $concelist = array();
 
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " ORDER BY idconceptopar ASC;");
@@ -90,5 +98,4 @@ class concepto_partida extends \fs_model {
 
         return $concelist;
     }
-
 }

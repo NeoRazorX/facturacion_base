@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -26,6 +25,7 @@ require_once 'plugins/facturacion_base/model/core/articulo_propiedad.php';
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class articulo_propiedad extends FacturaScripts\model\articulo_propiedad {
+class articulo_propiedad extends FacturaScripts\model\articulo_propiedad
+{
     
 }

@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -26,7 +25,8 @@ require_model('articulo.php');
 require_model('factura_proveedor.php');
 require_model('serie.php');
 
-class compras_albaranes extends fbase_controller {
+class compras_albaranes extends fbase_controller
+{
 
     public $agente;
     public $almacenes;
@@ -48,11 +48,13 @@ class compras_albaranes extends fbase_controller {
     public $total_resultados;
     public $total_resultados_txt;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, ucfirst(FS_ALBARANES), 'compras');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $albaran = new albaran_proveedor();
@@ -179,7 +181,8 @@ class compras_albaranes extends fbase_controller {
         }
     }
 
-    public function url($busqueda = FALSE) {
+    public function url($busqueda = FALSE)
+    {
         if ($busqueda) {
             $codproveedor = '';
             if ($this->proveedor) {
@@ -187,13 +190,13 @@ class compras_albaranes extends fbase_controller {
             }
 
             $url = parent::url() . "&mostrar=" . $this->mostrar
-                    . "&query=" . $this->query
-                    . "&codserie=" . $this->codserie
-                    . "&codagente=" . $this->codagente
-                    . "&codalmacen=" . $this->codalmacen
-                    . "&codproveedor=" . $codproveedor
-                    . "&desde=" . $this->desde
-                    . "&hasta=" . $this->hasta;
+                . "&query=" . $this->query
+                . "&codserie=" . $this->codserie
+                . "&codagente=" . $this->codagente
+                . "&codalmacen=" . $this->codalmacen
+                . "&codproveedor=" . $codproveedor
+                . "&desde=" . $this->desde
+                . "&hasta=" . $this->hasta;
 
             return $url;
         } else {
@@ -201,7 +204,8 @@ class compras_albaranes extends fbase_controller {
         }
     }
 
-    public function paginas() {
+    public function paginas()
+    {
         if ($this->mostrar == 'pendientes') {
             $total = $this->total_pendientes();
         } else if ($this->mostrar == 'buscar') {
@@ -213,7 +217,8 @@ class compras_albaranes extends fbase_controller {
         return $this->fbase_paginas($this->url(TRUE), $total, $this->offset);
     }
 
-    public function buscar_lineas() {
+    public function buscar_lineas()
+    {
         /// cambiamos la plantilla HTML
         $this->template = 'ajax/compras_lineas_albaranes';
 
@@ -227,7 +232,8 @@ class compras_albaranes extends fbase_controller {
         }
     }
 
-    private function delete_albaran() {
+    private function delete_albaran()
+    {
         $alb = new albaran_proveedor();
         $alb1 = $alb->get($_POST['delete']);
         if ($alb1) {
@@ -276,7 +282,8 @@ class compras_albaranes extends fbase_controller {
             $this->new_error_msg("¡" . FS_ALBARAN . " no encontrado!");
     }
 
-    private function share_extension() {
+    private function share_extension()
+    {
         /// añadimos las extensiones para proveedores, agentes y artículos
         $extensiones = array(
             array(
@@ -312,15 +319,18 @@ class compras_albaranes extends fbase_controller {
         }
     }
 
-    public function total_pendientes() {
+    public function total_pendientes()
+    {
         return $this->fbase_sql_total('albaranesprov', 'idalbaran', 'WHERE ptefactura = true');
     }
 
-    private function total_registros() {
+    private function total_registros()
+    {
         return $this->fbase_sql_total('albaranesprov', 'idalbaran');
     }
 
-    private function buscar($order2) {
+    private function buscar($order2)
+    {
         $this->resultados = array();
         $this->num_resultados = 0;
         $sql = " FROM albaranesprov ";
@@ -333,7 +343,7 @@ class compras_albaranes extends fbase_controller {
                 $sql .= "(codigo LIKE '%" . $query . "%' OR numproveedor LIKE '%" . $query . "%' OR observaciones LIKE '%" . $query . "%')";
             } else {
                 $sql .= "(lower(codigo) LIKE '%" . $query . "%' OR lower(numproveedor) LIKE '%" . $query . "%' "
-                        . "OR lower(observaciones) LIKE '%" . str_replace(' ', '%', $query) . "%')";
+                    . "OR lower(observaciones) LIKE '%" . str_replace(' ', '%', $query) . "%')";
             }
             $where = ' AND ';
         }
@@ -393,7 +403,8 @@ class compras_albaranes extends fbase_controller {
         }
     }
 
-    public function orden() {
+    public function orden()
+    {
         return array(
             'fecha_desc' => array(
                 'icono' => '<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>',
@@ -422,5 +433,4 @@ class compras_albaranes extends fbase_controller {
             )
         );
     }
-
 }

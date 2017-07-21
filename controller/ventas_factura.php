@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -34,7 +33,8 @@ require_model('partida.php');
 require_model('serie.php');
 require_model('subcuenta.php');
 
-class ventas_factura extends fbase_controller {
+class ventas_factura extends fbase_controller
+{
 
     public $agencia;
     public $agente;
@@ -51,11 +51,13 @@ class ventas_factura extends fbase_controller {
     public $rectificativa;
     public $serie;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Factura de cliente', 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->ppage = $this->page->get('ventas_facturas');
@@ -142,7 +144,8 @@ class ventas_factura extends fbase_controller {
         }
     }
 
-    public function url() {
+    public function url()
+    {
         if (!isset($this->factura)) {
             return parent::url();
         } else if ($this->factura) {
@@ -151,7 +154,8 @@ class ventas_factura extends fbase_controller {
             return $this->ppage->url();
     }
 
-    private function modificar() {
+    private function modificar()
+    {
         $this->factura->observaciones = $_POST['observaciones'];
         $this->factura->numero2 = $_POST['numero2'];
         $this->factura->nombrecliente = $_POST['nombrecliente'];
@@ -208,7 +212,8 @@ class ventas_factura extends fbase_controller {
             $this->new_error_msg("¡Imposible modificar la factura!");
     }
 
-    private function actualizar_direccion() {
+    private function actualizar_direccion()
+    {
         foreach ($this->cliente->get_direcciones() as $dir) {
             if ($dir->domfacturacion) {
                 $this->factura->cifnif = $this->cliente->cifnif;
@@ -232,7 +237,8 @@ class ventas_factura extends fbase_controller {
         }
     }
 
-    private function generar_asiento(&$factura) {
+    private function generar_asiento(&$factura)
+    {
         if ($factura->get_asiento()) {
             $this->new_error_msg('Ya hay un asiento asociado a esta factura.');
         } else {
@@ -243,7 +249,7 @@ class ventas_factura extends fbase_controller {
 
                 if (!$this->empresa->contintegrada) {
                     $this->new_message("¿Quieres que los asientos se generen automáticamente?"
-                            . " Activa la <a href='index.php?page=admin_empresa#facturacion'>Contabilidad integrada</a>.");
+                        . " Activa la <a href='index.php?page=admin_empresa#facturacion'>Contabilidad integrada</a>.");
                 }
             }
 
@@ -257,7 +263,8 @@ class ventas_factura extends fbase_controller {
         }
     }
 
-    private function pagar($pagada = TRUE) {
+    private function pagar($pagada = TRUE)
+    {
         /// ¿Hay asiento?
         if (is_null($this->factura->idasiento)) {
             $this->factura->pagada = $pagada;
@@ -295,7 +302,7 @@ class ventas_factura extends fbase_controller {
 
                 $asiento_factura = new asiento_factura();
                 $this->factura->idasientop = $asiento_factura->generar_asiento_pago($asiento, $this->factura->codpago, $_POST['fpagada'], $subcli, $importe);
-                if ($this->factura->idasientop) {
+                if ($this->factura->idasientop !== NULL) {
                     $this->factura->pagada = TRUE;
                     if ($this->factura->save()) {
                         $this->new_message('<a href="' . $this->factura->asiento_pago_url() . '">Asiento de pago</a> generado.');
@@ -313,7 +320,8 @@ class ventas_factura extends fbase_controller {
         }
     }
 
-    private function nuevo_vencimiento($fecha, $codpago) {
+    private function nuevo_vencimiento($fecha, $codpago)
+    {
         $vencimiento = $fecha;
 
         $formap = $this->forma_pago->get($codpago);
@@ -330,7 +338,8 @@ class ventas_factura extends fbase_controller {
         return $vencimiento;
     }
 
-    private function anular_factura() {
+    private function anular_factura()
+    {
         $this->factura->anulada = TRUE;
 
         if ($this->factura->observaciones == '') {
@@ -354,7 +363,8 @@ class ventas_factura extends fbase_controller {
         }
     }
 
-    private function generar_rectificativa() {
+    private function generar_rectificativa()
+    {
         $ejercicio = $this->ejercicio->get_by_fecha($this->today());
         if ($ejercicio) {
             /// generamos una factura rectificativa a partir de la actual
@@ -427,7 +437,8 @@ class ventas_factura extends fbase_controller {
         }
     }
 
-    private function get_factura_rectificativa() {
+    private function get_factura_rectificativa()
+    {
         $sql = "SELECT * FROM facturascli WHERE idfacturarect = " . $this->factura->var2str($this->factura->idfactura);
 
         $data = $this->db->select($sql);
@@ -436,7 +447,8 @@ class ventas_factura extends fbase_controller {
         }
     }
 
-    public function get_cuentas_bancarias() {
+    public function get_cuentas_bancarias()
+    {
         $cuentas = array();
 
         $cbc0 = new cuenta_banco_cliente();
@@ -446,5 +458,4 @@ class ventas_factura extends fbase_controller {
 
         return $cuentas;
     }
-
 }

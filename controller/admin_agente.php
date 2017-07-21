@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -21,7 +20,8 @@
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('agente.php');
 
-class admin_agente extends fbase_controller {
+class admin_agente extends fbase_controller
+{
 
     public $agente;
 
@@ -30,11 +30,13 @@ class admin_agente extends fbase_controller {
      * Está en la carpeta admin porque su antecesora también lo está (y debe estarlo).
      */
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Empleado', 'admin', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->ppage = $this->page->get('admin_agentes');
@@ -51,67 +53,73 @@ class admin_agente extends fbase_controller {
             if (isset($_POST['nombre'])) {
                 if ($this->user_can_edit()) {
                     $this->modificar();
-                } else
+                } else {
                     $this->new_error_msg('No tienes permiso para modificar estos datos.');
+                }
             }
-        }
-        else {
+        } else {
             $this->new_error_msg("Empleado no encontrado.", 'error', FALSE, FALSE);
         }
     }
 
-    private function modificar() {
-        $this->agente->nombre = $_POST['nombre'];
-        $this->agente->apellidos = $_POST['apellidos'];
-        $this->agente->dnicif = $_POST['dnicif'];
-        $this->agente->telefono = $_POST['telefono'];
-        $this->agente->email = $_POST['email'];
-        $this->agente->cargo = $_POST['cargo'];
-        $this->agente->provincia = $_POST['provincia'];
-        $this->agente->ciudad = $_POST['ciudad'];
-        $this->agente->direccion = $_POST['direccion'];
-        $this->agente->codpostal = $_POST['codpostal'];
+    private function modificar()
+    {
+        if ($this->agente) {
+            $this->agente->nombre = $_POST['nombre'];
+            $this->agente->apellidos = $_POST['apellidos'];
+            $this->agente->dnicif = $_POST['dnicif'];
+            $this->agente->telefono = $_POST['telefono'];
+            $this->agente->email = $_POST['email'];
+            $this->agente->cargo = $_POST['cargo'];
+            $this->agente->provincia = $_POST['provincia'];
+            $this->agente->ciudad = $_POST['ciudad'];
+            $this->agente->direccion = $_POST['direccion'];
+            $this->agente->codpostal = $_POST['codpostal'];
 
-        $this->agente->f_nacimiento = NULL;
-        if ($_POST['f_nacimiento'] != '') {
-            $this->agente->f_nacimiento = $_POST['f_nacimiento'];
+            $this->agente->f_nacimiento = NULL;
+            if ($_POST['f_nacimiento'] != '') {
+                $this->agente->f_nacimiento = $_POST['f_nacimiento'];
+            }
+
+            $this->agente->f_alta = NULL;
+            if ($_POST['f_alta'] != '') {
+                $this->agente->f_alta = $_POST['f_alta'];
+            }
+
+            $this->agente->f_baja = NULL;
+            if ($_POST['f_baja'] != '') {
+                $this->agente->f_baja = $_POST['f_baja'];
+            }
+
+            $this->agente->seg_social = $_POST['seg_social'];
+            $this->agente->banco = $_POST['banco'];
+            $this->agente->porcomision = floatval($_POST['porcomision']);
+
+            if ($this->agente->save()) {
+                $this->new_message("Datos del empleado guardados correctamente.");
+            } else {
+                $this->new_error_msg("¡Imposible guardar los datos del empleado!");
+            }
         }
-
-        $this->agente->f_alta = NULL;
-        if ($_POST['f_alta'] != '') {
-            $this->agente->f_alta = $_POST['f_alta'];
-        }
-
-        $this->agente->f_baja = NULL;
-        if ($_POST['f_baja'] != '') {
-            $this->agente->f_baja = $_POST['f_baja'];
-        }
-
-        $this->agente->seg_social = $_POST['seg_social'];
-        $this->agente->banco = $_POST['banco'];
-        $this->agente->porcomision = floatval($_POST['porcomision']);
-
-        if ($this->agente->save()) {
-            $this->new_message("Datos del empleado guardados correctamente.");
-        } else
-            $this->new_error_msg("¡Imposible guardar los datos del empleado!");
     }
 
-    private function user_can_edit() {
+    private function user_can_edit()
+    {
         if (FS_DEMO) {
             return ($this->user->codagente == $this->agente->codagente);
-        } else {
-            return TRUE;
         }
+
+        return TRUE;
     }
 
-    public function url() {
+    public function url()
+    {
         if (!isset($this->agente)) {
             return parent::url();
         } else if ($this->agente) {
             return $this->agente->url();
-        } else
-            return $this->page->url();
-    }
+        }
 
+        return $this->page->url();
+    }
 }

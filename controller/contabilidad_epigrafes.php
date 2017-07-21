@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -23,7 +22,8 @@ require_model('cuenta.php');
 require_model('ejercicio.php');
 require_model('epigrafe.php');
 
-class contabilidad_epigrafes extends fbase_controller {
+class contabilidad_epigrafes extends fbase_controller
+{
 
     public $codejercicio;
     public $ejercicio;
@@ -32,11 +32,13 @@ class contabilidad_epigrafes extends fbase_controller {
     public $resultados;
     public $super_epigrafes;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Grupos y epígrafes', 'contabilidad');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->codejercicio = $this->empresa->codejercicio;
@@ -56,11 +58,11 @@ class contabilidad_epigrafes extends fbase_controller {
         } else if (isset($_GET['epi'])) { /// ver epígrafe
             $this->ver_epigrafe($epi0);
         } else if (isset($_GET['deletee'])) { /// eliminar epígrafe
-            $this->eliminar_epigrafe($epi0);
+            $this->eliminar_epigrafe($epi0, $grupo0);
         } else if (isset($_POST['ncuenta'])) { /// nueva cuenta
-            $this->nueva_cuenta();
+            $this->nueva_cuenta($epi0);
         } else if (isset($_GET['deletec'])) { /// eliminar una cuenta
-            $this->eliminar_cuenta();
+            $this->eliminar_cuenta($epi0);
         }
 
         if ($this->grupo) {
@@ -95,7 +97,8 @@ class contabilidad_epigrafes extends fbase_controller {
         }
     }
 
-    private function nuevo_grupo(&$grupo0) {
+    private function nuevo_grupo(&$grupo0)
+    {
         $this->epigrafe = FALSE;
         $this->grupo = $grupo0->get_by_codigo($_GET['ngrupo'], $_POST['ejercicio']);
         if (!$this->grupo) {
@@ -113,7 +116,8 @@ class contabilidad_epigrafes extends fbase_controller {
         }
     }
 
-    private function ver_grupo(&$grupo0) {
+    private function ver_grupo(&$grupo0)
+    {
         $this->epigrafe = FALSE;
         $this->grupo = $grupo0->get($_GET['grupo']);
         if ($this->grupo AND isset($_POST['descripcion'])) {
@@ -125,7 +129,8 @@ class contabilidad_epigrafes extends fbase_controller {
         }
     }
 
-    private function eliminar_grupo(&$grupo0) {
+    private function eliminar_grupo(&$grupo0)
+    {
         $grupo1 = $grupo0->get($_GET['deleteg']);
         if ($grupo1) {
             if (!$this->allow_delete) {
@@ -141,7 +146,8 @@ class contabilidad_epigrafes extends fbase_controller {
         $this->epigrafe = FALSE;
     }
 
-    private function nuevo_epigrafe(&$epi0) {
+    private function nuevo_epigrafe(&$epi0)
+    {
         $this->epigrafe = $epi0->get_by_codigo($_POST['nepigrafe'], $_POST['ejercicio']);
         if (!$this->epigrafe) {
             $this->epigrafe = new epigrafe();
@@ -167,7 +173,8 @@ class contabilidad_epigrafes extends fbase_controller {
         }
     }
 
-    private function ver_epigrafe(&$epi0) {
+    private function ver_epigrafe(&$epi0)
+    {
         $this->grupo = FALSE;
         $this->epigrafe = $epi0->get($_GET['epi']);
         if ($this->ejercicio AND isset($_POST['descripcion'])) {
@@ -180,7 +187,8 @@ class contabilidad_epigrafes extends fbase_controller {
         }
     }
 
-    private function eliminar_epigrafe(&$epi0) {
+    private function eliminar_epigrafe(&$epi0, &$grupo0)
+    {
         $epi1 = $epi0->get($_GET['deletee']);
         if ($epi1) {
             $this->grupo = $grupo0->get($epi1->idgrupo);
@@ -191,14 +199,14 @@ class contabilidad_epigrafes extends fbase_controller {
                 $this->new_message('Epígrafe eliminado correctamente.');
             } else
                 $this->new_error_msg('Error al eliminar el epígrafe.');
-        }
-        else {
+        } else {
             $this->new_error_msg('Epígrafe no encontrado.');
             $this->grupo = FALSE;
         }
     }
 
-    private function nueva_cuenta() {
+    private function nueva_cuenta(&$epi0)
+    {
         $this->grupo = FALSE;
         $this->epigrafe = FALSE;
         $cuenta0 = new cuenta();
@@ -222,7 +230,8 @@ class contabilidad_epigrafes extends fbase_controller {
         }
     }
 
-    private function eliminar_cuenta() {
+    private function eliminar_cuenta(&$epi0)
+    {
         $this->grupo = FALSE;
         $this->epigrafe = FALSE;
         $cuenta0 = new cuenta();
@@ -239,5 +248,4 @@ class contabilidad_epigrafes extends fbase_controller {
         } else
             $this->new_error_msg('Cuenta no encontrada.');
     }
-
 }

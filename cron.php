@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -29,9 +28,11 @@ require_model('proveedor.php');
 require_once 'plugins/facturacion_base/extras/libromayor.php';
 require_once 'plugins/facturacion_base/extras/inventarios_balances.php';
 
-class facturacion_base_cron {
+class facturacion_base_cron
+{
 
-    public function __construct(&$db) {
+    public function __construct(&$db)
+    {
         echo "Ejecutando tareas para los " . FS_ALBARANES . " de venta...";
         $alb_cli = new albaran_cliente();
         $alb_cli->cron_job();
@@ -78,7 +79,6 @@ class facturacion_base_cron {
             $libro->cron_job();
         }
     }
-
 }
 
 new facturacion_base_cron($db);

@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -21,16 +20,19 @@
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('fabricante.php');
 
-class ventas_fabricantes extends fbase_controller {
+class ventas_fabricantes extends fbase_controller
+{
 
     public $fabricante;
     public $resultados;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Fabricantes', 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->share_extensions();
@@ -45,7 +47,8 @@ class ventas_fabricantes extends fbase_controller {
         $this->resultados = $this->fabricante->search($this->query);
     }
 
-    private function nuevo_fabricante() {
+    private function nuevo_fabricante()
+    {
         $fab = $this->fabricante->get($_POST['ncodfabricante']);
         if ($fab) {
             $this->new_error_msg('El fabricante <a href="' . $fab->url() . '">' . $fab->codfabricante . '</a> ya existe.');
@@ -60,7 +63,8 @@ class ventas_fabricantes extends fbase_controller {
         }
     }
 
-    private function eliminar_fabricante() {
+    private function eliminar_fabricante()
+    {
         $fab = $this->fabricante->get($_GET['delete']);
         if ($fab) {
             if (!$this->allow_delete) {
@@ -73,11 +77,13 @@ class ventas_fabricantes extends fbase_controller {
             $this->new_error_msg("Fabricante " . $_GET['delete'] . " no encontrado.");
     }
 
-    public function total_fabricantes() {
+    public function total_fabricantes()
+    {
         return $this->fbase_sql_total('fabricantes', 'codfabricante');
     }
 
-    private function share_extensions() {
+    private function share_extensions()
+    {
         /// añadimos la extensión para ventas_artículos
         $fsext = new fs_extension();
         $fsext->name = 'btn_fabricantes';
@@ -87,5 +93,4 @@ class ventas_fabricantes extends fbase_controller {
         $fsext->text = '<span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span><span class="hidden-xs"> &nbsp; Fabricantes</span>';
         $fsext->save();
     }
-
 }

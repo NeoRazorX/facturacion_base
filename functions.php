@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -24,10 +23,10 @@ if (!function_exists('fs_tipos_id_fiscal')) {
      * Devuelve la lista de identificadores fiscales.
      * @return string
      */
-    function fs_tipos_id_fiscal() {
+    function fs_tipos_id_fiscal()
+    {
         return array(FS_CIFNIF, 'Pasaporte', 'DNI', 'NIF', 'CIF', 'VAT', 'CUIT');
     }
-
 }
 
 
@@ -42,7 +41,8 @@ if (!function_exists('fs_documento_new_numero')) {
      * @param string $nombresec
      * @return string
      */
-    function fs_documento_new_numero(&$db, $table_name, $codejercicio, $codserie, $nombresec) {
+    function fs_documento_new_numero(&$db, $table_name, $codejercicio, $codserie, $nombresec)
+    {
         $numero = 1;
         $sec0 = new \secuencia();
 
@@ -76,15 +76,13 @@ if (!function_exists('fs_documento_new_numero')) {
 
         return (string) $numero;
     }
-
 }
 
 
 if (!function_exists('fs_documento_new_codigo')) {
 
-    function fs_documento_new_codigo($tipodoc, $codejercicio, $codserie, $numero, $sufijo = '') {
-        $codigo = '';
-
+    function fs_documento_new_codigo($tipodoc, $codejercicio, $codserie, $numero, $sufijo = '')
+    {
         switch (FS_NEW_CODIGO) {
             case 'eneboo':
                 $codigo = $codejercicio . str_pad($codserie, 2, '0', STR_PAD_LEFT) . str_pad($numero, 6, '0', STR_PAD_LEFT);
@@ -116,12 +114,12 @@ if (!function_exists('fs_documento_new_codigo')) {
 
         return $codigo;
     }
-
 }
 
 if (!function_exists('fs_huecos_factua_cliente')) {
 
-    function fs_huecos_facturas_cliente(&$db, $table_name) {
+    function fs_huecos_facturas_cliente(&$db, $table_name)
+    {
         $huecolist = array();
 
         if (FS_NEW_CODIGO == 'NUM' || FS_NEW_CODIGO == '0-NUM') {
@@ -133,9 +131,10 @@ if (!function_exists('fs_huecos_factua_cliente')) {
         $serie = new \serie();
         foreach ($ejercicio->all_abiertos() as $eje) {
             $codserie = '';
+            $num = 1;
             $sql = "SELECT codserie," . $db->sql_to_int('numero') . " as numero,fecha,hora FROM "
-                    . $table_name . " WHERE codejercicio = " . $ejercicio->var2str($eje->codejercicio)
-                    . " ORDER BY codserie ASC, numero ASC;";
+                . $table_name . " WHERE codejercicio = " . $ejercicio->var2str($eje->codejercicio)
+                . " ORDER BY codserie ASC, numero ASC;";
 
             $data = $db->select($sql);
             if ($data) {
@@ -186,7 +185,6 @@ if (!function_exists('fs_huecos_factua_cliente')) {
 
         return $huecolist;
     }
-
 }
 
 
@@ -195,7 +193,8 @@ if (!function_exists('remote_printer')) {
     /**
      * Vuelca en la salida estándar el buffer de tickets pendientes de imprimir.
      */
-    function remote_printer() {
+    function remote_printer()
+    {
         if (isset($_REQUEST['terminal'])) {
             require_model('terminal_caja.php');
 
@@ -210,7 +209,6 @@ if (!function_exists('remote_printer')) {
                 echo 'ERROR: terminal no encontrado.';
         }
     }
-
 }
 
 
@@ -223,7 +221,8 @@ if (!function_exists('plantilla_email')) {
      * @param string $firma
      * @return string
      */
-    function plantilla_email($tipo, $documento, $firma) {
+    function plantilla_email($tipo, $documento, $firma)
+    {
         /// obtenemos las plantillas
         $fsvar = new fs_var();
         $plantillas = array(
@@ -249,5 +248,4 @@ if (!function_exists('plantilla_email')) {
 
         return $txt;
     }
-
 }

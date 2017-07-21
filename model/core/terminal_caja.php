@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 /**
@@ -26,53 +24,54 @@ namespace FacturaScripts\model;
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class terminal_caja extends \fs_model {
+class terminal_caja extends \fs_model
+{
 
     /**
-     *
-     * @var type Clave primiaria.
+     * Clave primiaria.
+     * @var integer 
      */
     public $id;
 
     /**
      * Códifo del almacén a usar en los tickets.
-     * @var type 
+     * @var string
      */
     public $codalmacen;
 
     /**
      * Código de la serie a utilizar en los tickets.
-     * @var type 
+     * @var string
      */
     public $codserie;
 
     /**
      * Código del cliente predeterminado para los tickets.
-     * @var type 
+     * @var string
      */
     public $codcliente;
 
     /**
      * Buffer con los ticket pendientes para imprimir.
-     * @var type
+     * @var string
      */
     public $tickets;
 
     /**
      * Número de caracteres que caben en una línea del papel del ticket.
-     * @var type 
+     * @var integer
      */
     public $anchopapel;
 
     /**
      * Comando ESC/POS para cortar el papel.
-     * @var type 
+     * @var string
      */
     public $comandocorte;
 
     /**
      * Comando ESC/POS para abrir el cajón portamonedas conectado a la impresora.
-     * @var type 
+     * @var string
      */
     public $comandoapertura;
 
@@ -84,11 +83,12 @@ class terminal_caja extends \fs_model {
 
     /**
      * Desactivar los comandos ESC/POS para comprobaciones de la impresora de tickets.
-     * @var type 
+     * @var bool
      */
     public $sin_comandos;
 
-    public function __construct($t = FALSE) {
+    public function __construct($t = FALSE)
+    {
         parent::__construct('cajas_terminales');
         if ($t) {
             $this->id = $this->intval($t['id']);
@@ -132,22 +132,22 @@ class terminal_caja extends \fs_model {
         }
     }
 
-    protected function install() {
-        return '';
-    }
-
-    public function disponible() {
+    public function disponible()
+    {
         if ($this->db->select("SELECT * FROM cajas WHERE f_fin IS NULL AND fs_id = " . $this->var2str($this->id) . ";")) {
             return FALSE;
-        } else
-            return TRUE;
+        }
+
+        return TRUE;
     }
 
-    public function add_linea($linea) {
+    public function add_linea($linea)
+    {
         $this->tickets .= $linea;
     }
 
-    public function add_linea_big($linea) {
+    public function add_linea_big($linea)
+    {
         if ($this->sin_comandos) {
             $this->tickets .= $linea;
         } else {
@@ -155,7 +155,8 @@ class terminal_caja extends \fs_model {
         }
     }
 
-    public function abrir_cajon() {
+    public function abrir_cajon()
+    {
         if ($this->sin_comandos) {
             /// nada
         } else if ($this->comandoapertura) {
@@ -170,7 +171,8 @@ class terminal_caja extends \fs_model {
         }
     }
 
-    public function cortar_papel() {
+    public function cortar_papel()
+    {
         if ($this->sin_comandos) {
             /// nada
         } else if ($this->comandocorte) {
@@ -185,7 +187,8 @@ class terminal_caja extends \fs_model {
         }
     }
 
-    public function center_text($word = '', $ancho = FALSE) {
+    public function center_text($word = '', $ancho = FALSE)
+    {
         if (!$ancho) {
             $ancho = $this->anchopapel;
         }
@@ -194,36 +197,37 @@ class terminal_caja extends \fs_model {
             return $word;
         } else if (strlen($word) < $ancho) {
             return $this->center_text2($word, $ancho);
-        } else {
-            $result = '';
-            $nword = '';
-            foreach (explode(' ', $word) as $aux) {
-                if ($nword == '') {
-                    $nword = $aux;
-                } else if (strlen($nword) + strlen($aux) + 1 <= $ancho) {
-                    $nword = $nword . ' ' . $aux;
-                } else {
-                    if ($result != '') {
-                        $result .= "\n";
-                    }
+        }
 
-                    $result .= $this->center_text2($nword, $ancho);
-                    $nword = $aux;
-                }
-            }
-            if ($nword != '') {
+        $result = '';
+        $nword = '';
+        foreach (explode(' ', $word) as $aux) {
+            if ($nword == '') {
+                $nword = $aux;
+            } else if (strlen($nword) + strlen($aux) + 1 <= $ancho) {
+                $nword = $nword . ' ' . $aux;
+            } else {
                 if ($result != '') {
                     $result .= "\n";
                 }
 
                 $result .= $this->center_text2($nword, $ancho);
+                $nword = $aux;
+            }
+        }
+        if ($nword != '') {
+            if ($result != '') {
+                $result .= "\n";
             }
 
-            return $result;
+            $result .= $this->center_text2($nword, $ancho);
         }
+
+        return $result;
     }
 
-    private function center_text2($word = '', $ancho = 40) {
+    private function center_text2($word = '', $ancho = 40)
+    {
         $symbol = " ";
         $middle = round($ancho / 2);
         $length_word = strlen($word);
@@ -237,87 +241,92 @@ class terminal_caja extends \fs_model {
         return $result;
     }
 
-    public function get($id) {
+    public function get($id)
+    {
         $data = $this->db->select("SELECT * FROM cajas_terminales WHERE id = " . $this->var2str($id) . ";");
         if ($data) {
             return new \terminal_caja($data[0]);
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->id)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM cajas_terminales WHERE id = " . $this->var2str($this->id) . ";");
+        }
+
+        return $this->db->select("SELECT * FROM cajas_terminales WHERE id = " . $this->var2str($this->id) . ";");
     }
 
-    public function save() {
+    public function save()
+    {
         if ($this->exists()) {
             $sql = "UPDATE cajas_terminales SET codalmacen = " . $this->var2str($this->codalmacen) .
-                    ", codserie = " . $this->var2str($this->codserie) .
-                    ", codcliente = " . $this->var2str($this->codcliente) .
-                    ", tickets = " . $this->var2str($this->tickets) .
-                    ", anchopapel = " . $this->var2str($this->anchopapel) .
-                    ", comandocorte = " . $this->var2str($this->comandocorte) .
-                    ", comandoapertura = " . $this->var2str($this->comandoapertura) .
-                    ", num_tickets = " . $this->var2str($this->num_tickets) .
-                    ", sin_comandos = " . $this->var2str($this->sin_comandos) .
-                    "  WHERE id = " . $this->var2str($this->id) . ";";
+                ", codserie = " . $this->var2str($this->codserie) .
+                ", codcliente = " . $this->var2str($this->codcliente) .
+                ", tickets = " . $this->var2str($this->tickets) .
+                ", anchopapel = " . $this->var2str($this->anchopapel) .
+                ", comandocorte = " . $this->var2str($this->comandocorte) .
+                ", comandoapertura = " . $this->var2str($this->comandoapertura) .
+                ", num_tickets = " . $this->var2str($this->num_tickets) .
+                ", sin_comandos = " . $this->var2str($this->sin_comandos) .
+                "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO cajas_terminales (codalmacen,codserie,codcliente,tickets,anchopapel,"
-                    . "comandocorte,comandoapertura,num_tickets,sin_comandos) VALUES (" .
-                    $this->var2str($this->codalmacen) . "," .
-                    $this->var2str($this->codserie) . "," .
-                    $this->var2str($this->codcliente) . "," .
-                    $this->var2str($this->tickets) . "," .
-                    $this->var2str($this->anchopapel) . "," .
-                    $this->var2str($this->comandocorte) . "," .
-                    $this->var2str($this->comandoapertura) . "," .
-                    $this->var2str($this->num_tickets) . "," .
-                    $this->var2str($this->sin_comandos) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            } else
-                return FALSE;
         }
+
+        $sql = "INSERT INTO cajas_terminales (codalmacen,codserie,codcliente,tickets,anchopapel,"
+            . "comandocorte,comandoapertura,num_tickets,sin_comandos) VALUES (" .
+            $this->var2str($this->codalmacen) . "," .
+            $this->var2str($this->codserie) . "," .
+            $this->var2str($this->codcliente) . "," .
+            $this->var2str($this->tickets) . "," .
+            $this->var2str($this->anchopapel) . "," .
+            $this->var2str($this->comandocorte) . "," .
+            $this->var2str($this->comandoapertura) . "," .
+            $this->var2str($this->num_tickets) . "," .
+            $this->var2str($this->sin_comandos) . ");";
+
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
+        }
+
+        return FALSE;
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM cajas_terminales WHERE id = " . $this->var2str($this->id) . ";");
     }
 
-    public function all() {
+    private function all_from($sql)
+    {
         $tlist = array();
-
-        $data = $this->db->select("SELECT * FROM cajas_terminales ORDER BY id ASC;");
+        $data = $this->db->select($sql);
         if ($data) {
-            foreach ($data as $d) {
-                $tlist[] = new \terminal_caja($d);
+            foreach ($data as $a) {
+                $tlist[] = new \terminal_caja($a);
             }
         }
 
         return $tlist;
     }
 
-    public function disponibles() {
-        $tlist = array();
+    public function all()
+    {
+        return $this->all_from("SELECT * FROM cajas_terminales ORDER BY id ASC;");
+    }
+
+    public function disponibles()
+    {
         $sql = "SELECT * FROM cajas_terminales WHERE id NOT IN "
-                . "(SELECT fs_id as id FROM cajas WHERE f_fin IS NULL) "
-                . "ORDER BY id ASC;";
+            . "(SELECT fs_id as id FROM cajas WHERE f_fin IS NULL) "
+            . "ORDER BY id ASC;";
 
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $d) {
-                $tlist[] = new \terminal_caja($d);
-            }
-        }
-
-        return $tlist;
+        return $this->all_from($sql);
     }
 
     /**
@@ -327,7 +336,8 @@ class terminal_caja extends \fs_model {
      * @param type $imprimir_descripciones
      * @param type $imprimir_observaciones
      */
-    public function imprimir_ticket(&$factura, &$empresa, $imprimir_descripciones = TRUE, $imprimir_observaciones = FALSE) {
+    public function imprimir_ticket(&$factura, &$empresa, $imprimir_descripciones = TRUE, $imprimir_observaciones = FALSE)
+    {
         $medio = $this->anchopapel / 2.5;
         $this->add_linea_big($this->center_text($this->sanitize($empresa->nombre), $medio) . "\n");
 
@@ -337,7 +347,7 @@ class terminal_caja extends \fs_model {
             $this->add_linea("\n");
 
         $this->add_linea(
-                $this->center_text($this->sanitize($empresa->direccion) . " - " . $this->sanitize($empresa->ciudad)) . "\n"
+            $this->center_text($this->sanitize($empresa->direccion) . " - " . $this->sanitize($empresa->ciudad)) . "\n"
         );
         $this->add_linea($this->center_text(FS_CIFNIF . ": " . $empresa->cifnif));
         $this->add_linea("\n\n");
@@ -358,22 +368,22 @@ class terminal_caja extends \fs_model {
 
         $width = $this->anchopapel - 15;
         $this->add_linea(
-                sprintf("%3s", "Ud.") . " " .
-                sprintf("%-" . $width . "s", "Articulo") . " " .
-                sprintf("%10s", "TOTAL") . "\n"
+            sprintf("%3s", "Ud.") . " " .
+            sprintf("%-" . $width . "s", "Articulo") . " " .
+            sprintf("%10s", "TOTAL") . "\n"
         );
         $this->add_linea(
-                sprintf("%3s", "---") . " " .
-                sprintf("%-" . $width . "s", substr("--------------------------------------------------------", 0, $width - 1)) . " " .
-                sprintf("%10s", "----------") . "\n"
+            sprintf("%3s", "---") . " " .
+            sprintf("%-" . $width . "s", substr("--------------------------------------------------------", 0, $width - 1)) . " " .
+            sprintf("%10s", "----------") . "\n"
         );
         foreach ($factura->get_lineas() as $col) {
             if ($imprimir_descripciones) {
                 $linea = sprintf("%3s", $col->cantidad) . " " . sprintf("%-" . $width . "s", substr($this->sanitize($col->descripcion), 0, $width - 1)) . " " .
-                        sprintf("%10s", $this->show_numero($col->total_iva())) . "\n";
+                    sprintf("%10s", $this->show_numero($col->total_iva())) . "\n";
             } else {
                 $linea = sprintf("%3s", $col->cantidad) . " " . sprintf("%-" . $width . "s", $this->sanitize($col->referencia))
-                        . " " . sprintf("%10s", $this->show_numero($col->total_iva())) . "\n";
+                    . " " . sprintf("%10s", $this->show_numero($col->total_iva())) . "\n";
             }
 
             $this->add_linea($linea);
@@ -385,24 +395,24 @@ class terminal_caja extends \fs_model {
         }
         $this->add_linea($lineaiguales . "\n");
         $this->add_linea(
-                'TOTAL A PAGAR: ' . sprintf("%" . ($this->anchopapel - 15) . "s", $this->show_precio($factura->total, $factura->coddivisa)) . "\n"
+            'TOTAL A PAGAR: ' . sprintf("%" . ($this->anchopapel - 15) . "s", $this->show_precio($factura->total, $factura->coddivisa)) . "\n"
         );
         $this->add_linea($lineaiguales . "\n");
 
         /// imprimimos los impuestos desglosados
         $this->add_linea(
-                'TIPO   BASE    ' . FS_IVA . '    RE' .
-                sprintf('%' . ($this->anchopapel - 24) . 's', 'TOTAL') .
-                "\n"
+            'TIPO   BASE    ' . FS_IVA . '    RE' .
+            sprintf('%' . ($this->anchopapel - 24) . 's', 'TOTAL') .
+            "\n"
         );
         foreach ($factura->get_lineas_iva() as $imp) {
             $this->add_linea(
-                    sprintf("%-6s", $imp->iva . '%') . ' ' .
-                    sprintf("%-7s", $this->show_numero($imp->neto)) . ' ' .
-                    sprintf("%-6s", $this->show_numero($imp->totaliva)) . ' ' .
-                    sprintf("%-6s", $this->show_numero($imp->totalrecargo)) . ' ' .
-                    sprintf('%' . ($this->anchopapel - 29) . 's', $this->show_numero($imp->totallinea)) .
-                    "\n"
+                sprintf("%-6s", $imp->iva . '%') . ' ' .
+                sprintf("%-7s", $this->show_numero($imp->neto)) . ' ' .
+                sprintf("%-6s", $this->show_numero($imp->totaliva)) . ' ' .
+                sprintf("%-6s", $this->show_numero($imp->totalrecargo)) . ' ' .
+                sprintf('%' . ($this->anchopapel - 29) . 's', $this->show_numero($imp->totallinea)) .
+                "\n"
             );
         }
 
@@ -416,7 +426,8 @@ class terminal_caja extends \fs_model {
      * @param \factura_cliente $factura
      * @param \empresa $empresa
      */
-    public function imprimir_ticket_regalo(&$factura, &$empresa, $imprimir_descripciones = TRUE, $imprimir_observaciones = FALSE) {
+    public function imprimir_ticket_regalo(&$factura, &$empresa, $imprimir_descripciones = TRUE, $imprimir_observaciones = FALSE)
+    {
         $medio = $this->anchopapel / 2.5;
         $this->add_linea_big($this->center_text($this->sanitize($empresa->nombre), $medio) . "\n");
 
@@ -426,7 +437,7 @@ class terminal_caja extends \fs_model {
             $this->add_linea("\n");
 
         $this->add_linea(
-                $this->center_text($this->sanitize($empresa->direccion) . " - " . $this->sanitize($empresa->ciudad)) . "\n"
+            $this->center_text($this->sanitize($empresa->direccion) . " - " . $this->sanitize($empresa->ciudad)) . "\n"
         );
         $this->add_linea($this->center_text(FS_CIFNIF . ": " . $empresa->cifnif));
         $this->add_linea("\n\n");
@@ -447,22 +458,22 @@ class terminal_caja extends \fs_model {
 
         $width = $this->anchopapel - 15;
         $this->add_linea(
-                sprintf("%3s", "Ud.") . " " .
-                sprintf("%-" . $width . "s", "Articulo") . " " .
-                sprintf("%10s", "TOTAL") . "\n"
+            sprintf("%3s", "Ud.") . " " .
+            sprintf("%-" . $width . "s", "Articulo") . " " .
+            sprintf("%10s", "TOTAL") . "\n"
         );
         $this->add_linea(
-                sprintf("%3s", "---") . " " .
-                sprintf("%-" . $width . "s", substr("--------------------------------------------------------", 0, $width - 1)) . " " .
-                sprintf("%10s", "----------") . "\n"
+            sprintf("%3s", "---") . " " .
+            sprintf("%-" . $width . "s", substr("--------------------------------------------------------", 0, $width - 1)) . " " .
+            sprintf("%10s", "----------") . "\n"
         );
         foreach ($factura->get_lineas() as $col) {
             if ($imprimir_descripciones) {
                 $linea = sprintf("%3s", $col->cantidad) . " " . sprintf("%-" . $width . "s", substr($this->sanitize($col->descripcion), 0, $width - 1)) . " " .
-                        sprintf("%10s", '-') . "\n";
+                    sprintf("%10s", '-') . "\n";
             } else {
                 $linea = sprintf("%3s", $col->cantidad) . " " . sprintf("%-" . $width . "s", $this->sanitize($col->referencia))
-                        . " " . sprintf("%10s", '-') . "\n";
+                    . " " . sprintf("%10s", '-') . "\n";
             }
 
             $this->add_linea($linea);
@@ -480,7 +491,8 @@ class terminal_caja extends \fs_model {
         $this->cortar_papel();
     }
 
-    public function sanitize($txt) {
+    public function sanitize($txt)
+    {
         $changes = array('/à/' => 'a', '/á/' => 'a', '/â/' => 'a', '/ã/' => 'a', '/ä/' => 'a',
             '/å/' => 'a', '/æ/' => 'ae', '/ç/' => 'c', '/è/' => 'e', '/é/' => 'e', '/ê/' => 'e',
             '/ë/' => 'e', '/ì/' => 'i', '/í/' => 'i', '/î/' => 'i', '/ï/' => 'i', '/ð/' => 'd',
@@ -499,16 +511,17 @@ class terminal_caja extends \fs_model {
         return preg_replace(array_keys($changes), $changes, $txt);
     }
 
-    protected function show_precio($precio, $coddivisa) {
+    protected function show_precio($precio, $coddivisa)
+    {
         if (FS_POS_DIVISA == 'right') {
             return number_format($precio, FS_NF0, FS_NF1, FS_NF2) . ' ' . $coddivisa;
-        } else {
-            return $coddivisa . ' ' . number_format($precio, FS_NF0, FS_NF1, FS_NF2);
         }
+
+        return $coddivisa . ' ' . number_format($precio, FS_NF0, FS_NF1, FS_NF2);
     }
 
-    protected function show_numero($num = 0, $decimales = FS_NF0) {
+    protected function show_numero($num = 0, $decimales = FS_NF0)
+    {
         return number_format($num, $decimales, FS_NF1, FS_NF2);
     }
-
 }

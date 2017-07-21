@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2012-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 require_model('articulo_combinacion.php');
@@ -34,42 +32,43 @@ require_model('stock.php');
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class articulo extends \fs_model {
+class articulo extends \fs_model
+{
 
     /**
      * Clave primaria. Varchar (18).
-     * @var type 
+     * @var string 
      */
     public $referencia;
 
     /**
      * Define el tipo de artículo, así se pueden establecer distinciones
      * según un tipo u otro.
-     * @var type Varchar (10).
+     * @var string Varchar (10).
      */
     public $tipo;
 
     /**
      * Código de la familia a la que pertenece. En la clase familia.
-     * @var type 
+     * @var string 
      */
     public $codfamilia;
 
     /**
      * Descripción del artículo. Tipo text, sin límite de caracteres.
-     * @var type 
+     * @var string 
      */
     public $descripcion;
 
     /**
      * Código del fabricante al que pertenece. En la clase fabricante.
-     * @var type 
+     * @var string 
      */
     public $codfabricante;
 
     /**
      * Precio del artículo, sin impuestos.
-     * @var type 
+     * @var double
      */
     public $pvp;
 
@@ -77,19 +76,19 @@ class articulo extends \fs_model {
      * Almacena el valor del pvp antes de hacer el cambio.
      * Esta valor no se almacena en la base de datos, es decir,
      * no se recuerda.
-     * @var type 
+     * @var double
      */
     public $pvp_ant;
 
     /**
      * Fecha de actualización del pvp.
-     * @var type 
+     * @var string 
      */
     public $factualizado;
 
     /**
      * Coste medio al comprar el artículo. Calculado.
-     * @var type 
+     * @var double
      */
     public $costemedio;
 
@@ -97,19 +96,19 @@ class articulo extends \fs_model {
      * Precio de coste editado manualmente.
      * No necesariamente es el precio de compra, puede incluir
      * también otros costes.
-     * @var type 
+     * @var double
      */
     public $preciocoste;
 
     /**
      * Impuesto asignado. Clase impuesto.
-     * @var type 
+     * @var string 
      */
     public $codimpuesto;
 
     /**
      * TRUE => el artículos está bloqueado / obsoleto.
-     * @var type 
+     * @var boolean 
      */
     public $bloqueado;
     public $secompra;
@@ -117,26 +116,26 @@ class articulo extends \fs_model {
 
     /**
      * TRUE -> se mostrará sincronizará con la tienda online.
-     * @var type 
+     * @var boolean 
      */
     public $publico;
 
     /**
      * Código de equivalencia. Varchar (18).
      * Dos artículos o más son equivalentes si tienen el mismo código de equivalencia.
-     * @var type 
+     * @var string 
      */
     public $equivalencia;
 
     /**
      * Partnumber del producto. Máximo 38 caracteres.
-     * @var type 
+     * @var string 
      */
     public $partnumber;
 
     /**
      * Stock físico. La suma de las cantidades de esta referencia que en la tabla stocks.
-     * @var type 
+     * @var double 
      */
     public $stockfis;
     public $stockmin;
@@ -148,45 +147,45 @@ class articulo extends \fs_model {
      * implique la ausencia de control de stock. Pero es una cagada de
      * FacturaLux -> Abanq -> Eneboo, y por motivos de compatibilidad
      * se mantiene.
-     * @var type 
+     * @var boolean 
      */
     public $controlstock;
 
     /**
      * TRUE -> no controlar el stock.
      * Activarlo implica poner a TRUE $controlstock;
-     * @var type 
+     * @var boolean 
      */
     public $nostock;
 
     /**
      * Código de barras.
-     * @var type 
+     * @var string 
      */
     public $codbarras;
     public $observaciones;
 
     /**
      * Código de la subcuenta para compras.
-     * @var type 
+     * @var string 
      */
     public $codsubcuentacom;
 
     /**
      * Código para la subcuenta de compras, pero con IRPF.
-     * @var type 
+     * @var string 
      */
     public $codsubcuentairpfcom;
 
     /**
      * Control de trazabilidad.
-     * @var type 
+     * @var boolean 
      */
     public $trazabilidad;
 
     /**
      * % IVA del impuesto asignado.
-     * @var type 
+     * @var double 
      */
     private $iva;
     private $imagen;
@@ -196,18 +195,16 @@ class articulo extends \fs_model {
     private static $cleaned_cache;
     private static $column_list;
 
-    public function __construct($a = FALSE) {
+    public function __construct($a = FALSE)
+    {
         parent::__construct('articulos');
 
         if (!isset(self::$impuestos)) {
             self::$impuestos = array();
-        }
-
-        if (!isset(self::$column_list)) {
             self::$column_list = 'referencia,codfamilia,codfabricante,descripcion,pvp,factualizado,costemedio,' .
-                    'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,' .
-                    'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,' .
-                    'partnumber,codsubcuentacom,codsubcuentairpfcom,trazabilidad';
+                'preciocoste,codimpuesto,stockfis,stockmin,stockmax,controlstock,nostock,bloqueado,' .
+                'secompra,sevende,equivalencia,codbarras,observaciones,imagen,publico,tipo,' .
+                'partnumber,codsubcuentacom,codsubcuentairpfcom,trazabilidad';
         }
 
         if ($a) {
@@ -242,7 +239,6 @@ class articulo extends \fs_model {
             $this->codsubcuentacom = $a['codsubcuentacom'];
             $this->codsubcuentairpfcom = $a['codsubcuentairpfcom'];
             $this->trazabilidad = $this->str2bool($a['trazabilidad']);
-
             $this->imagen = NULL;
             $this->exists = TRUE;
         } else {
@@ -251,14 +247,14 @@ class articulo extends \fs_model {
             $this->codfamilia = NULL;
             $this->codfabricante = NULL;
             $this->descripcion = '';
-            $this->pvp = 0;
+            $this->pvp = 0.0;
             $this->factualizado = Date('d-m-Y');
-            $this->costemedio = 0;
-            $this->preciocoste = 0;
+            $this->costemedio = 0.0;
+            $this->preciocoste = 0.0;
             $this->codimpuesto = NULL;
-            $this->stockfis = 0;
-            $this->stockmin = 0;
-            $this->stockmax = 0;
+            $this->stockfis = 0.0;
+            $this->stockmin = 0.0;
+            $this->stockmax = 0.0;
             $this->controlstock = (bool) FS_VENTAS_SIN_STOCK;
             $this->nostock = FALSE;
             $this->bloqueado = FALSE;
@@ -272,16 +268,16 @@ class articulo extends \fs_model {
             $this->codsubcuentacom = NULL;
             $this->codsubcuentairpfcom = NULL;
             $this->trazabilidad = FALSE;
-
             $this->imagen = NULL;
             $this->exists = FALSE;
         }
 
-        $this->pvp_ant = 0;
+        $this->pvp_ant = 0.0;
         $this->iva = NULL;
     }
 
-    protected function install() {
+    protected function install()
+    {
         /**
          * Limpiamos la caché por si el usuario ha borrado la tabla, pero ya tenía búsquedas.
          */
@@ -297,30 +293,35 @@ class articulo extends \fs_model {
         return '';
     }
 
-    public function descripcion($len = 120) {
+    public function descripcion($len = 120)
+    {
         if (mb_strlen($this->descripcion, 'UTF8') > $len) {
             return mb_substr($this->descripcion, 0, $len) . '...';
-        } else {
-            return $this->descripcion;
         }
+
+        return $this->descripcion;
     }
 
-    public function pvp_iva() {
+    public function pvp_iva()
+    {
         return $this->pvp * (100 + $this->get_iva()) / 100;
     }
 
     /**
      * Devuelve el precio de coste, ya esté configurado como calculado o editable.
-     * @return type
+     * @return double
      */
-    public function preciocoste() {
+    public function preciocoste()
+    {
         if ($this->secompra AND FS_COST_IS_AVERAGE) {
             return $this->costemedio;
-        } else
-            return $this->preciocoste;
+        }
+
+        return $this->preciocoste;
     }
 
-    public function preciocoste_iva() {
+    public function preciocoste_iva()
+    {
         return $this->preciocoste() * (100 + $this->get_iva()) / 100;
     }
 
@@ -328,40 +329,42 @@ class articulo extends \fs_model {
      * Devuelve la url donde ver/modificar estos datos
      * @return string
      */
-    public function url() {
+    public function url()
+    {
         if (is_null($this->referencia)) {
             return "index.php?page=ventas_articulos";
-        } else
-            return "index.php?page=ventas_articulo&ref=" . urlencode($this->referencia);
+        }
+
+        return "index.php?page=ventas_articulo&ref=" . urlencode($this->referencia);
     }
 
     /**
      * Devuelve la referencia codificada para poder ser usada en imágenes.
      * Evitamos así errores con caracteres especiales como / y \.
-     * @param type $ref
-     * @return type
+     * @param string $ref
+     * @return string
      */
-    public function image_ref($ref = FALSE) {
-        if (!$ref) {
+    public function image_ref($ref = FALSE)
+    {
+        if ($ref === FALSE) {
             $ref = $this->referencia;
         }
 
-        $ref = str_replace('/', '_', $ref);
-        $ref = str_replace('\\', '_', $ref);
-
-        return $ref;
+        return str_replace(array('/', '\\'), array('_', '_'), $ref);
     }
 
     /**
      * Devuelve una nueva referencia, la siguiente a la última de la base de datos.
+     * @return string
      */
-    public function get_new_referencia() {
+    public function get_new_referencia()
+    {
         if (strtolower(FS_DB_TYPE) == 'postgresql') {
             $sql = "SELECT referencia from " . $this->table_name . " where referencia ~ '^\d+$'"
-                    . " ORDER BY referencia::bigint DESC";
+                . " ORDER BY referencia::bigint DESC";
         } else {
             $sql = "SELECT referencia from " . $this->table_name . " where referencia REGEXP '^[0-9]+$'"
-                    . " ORDER BY ABS(referencia) DESC";
+                . " ORDER BY ABS(referencia) DESC";
         }
 
         $ref = 1;
@@ -371,62 +374,68 @@ class articulo extends \fs_model {
         }
 
         $this->exists = FALSE;
-        return $ref;
+        return (string) $ref;
     }
 
     /**
      * Devuelve un artículo a partir de su referencia
-     * @param type $ref
+     * @param string $ref
      * @return boolean|\articulo
      */
-    public function get($ref) {
-        $art = $this->db->select("SELECT " . self::$column_list . " FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref) . ";");
-        if ($art) {
-            return new \articulo($art[0]);
-        } else
-            return FALSE;
+    public function get($ref)
+    {
+        $data = $this->db->select("SELECT " . self::$column_list . " FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($ref) . ";");
+        if ($data) {
+            return new \articulo($data[0]);
+        }
+
+        return FALSE;
     }
 
     /**
      * Devuelve la familia del artículo.
-     * @return familia
+     * @return \familia|false
      */
-    public function get_familia() {
+    public function get_familia()
+    {
         if (is_null($this->codfamilia)) {
             return FALSE;
-        } else {
-            $fam = new \familia();
-            return $fam->get($this->codfamilia);
         }
+
+        $fam = new \familia();
+        return $fam->get($this->codfamilia);
     }
 
     /**
      * Devuelve el fabricante del artículo.
-     * @return fabricante
+     * @return \fabricante|false
      */
-    public function get_fabricante() {
+    public function get_fabricante()
+    {
         if (is_null($this->codfabricante)) {
             return FALSE;
-        } else {
-            $fab = new \fabricante();
-            return $fab->get($this->codfabricante);
         }
+
+        $fab = new \fabricante();
+        return $fab->get($this->codfabricante);
     }
 
-    public function get_stock() {
+    public function get_stock()
+    {
         if ($this->nostock) {
             return array();
-        } else {
-            $stock = new \stock();
-            return $stock->all_from_articulo($this->referencia);
         }
+
+        $stock = new \stock();
+        return $stock->all_from_articulo($this->referencia);
     }
 
     /**
      * Devuelve el impuesto del artículo
      * @return impuesto
      */
-    public function get_impuesto() {
+    public function get_impuesto()
+    {
         $imp = new \impuesto();
         return $imp->get($this->codimpuesto);
     }
@@ -434,16 +443,17 @@ class articulo extends \fs_model {
     /**
      * Devuelve el % de IVA del artículo.
      * Si $reload es TRUE, vuelve a consultarlo en lugar de usar los datos cargados.
-     * @param type $reload
-     * @return type
+     * @param boolean $reload
+     * @return double
      */
-    public function get_iva($reload = FALSE) {
+    public function get_iva($reload = FALSE)
+    {
         if ($reload) {
             $this->iva = NULL;
         }
 
         if (is_null($this->iva)) {
-            $this->iva = 0;
+            $this->iva = 0.0;
 
             if (!is_null($this->codimpuesto)) {
                 $encontrado = FALSE;
@@ -473,12 +483,13 @@ class articulo extends \fs_model {
      * equivalencia que el artículo.
      * @return \articulo
      */
-    public function get_equivalentes() {
+    public function get_equivalentes()
+    {
         $artilist = array();
 
         if (isset($this->equivalencia)) {
             $data = $this->db->select("SELECT " . self::$column_list . " FROM " . $this->table_name .
-                    " WHERE equivalencia = " . $this->var2str($this->equivalencia) . " ORDER BY referencia ASC;");
+                " WHERE equivalencia = " . $this->var2str($this->equivalencia) . " ORDER BY referencia ASC;");
             if ($data) {
                 foreach ($data as $d) {
                     if ($d['referencia'] != $this->referencia) {
@@ -494,11 +505,12 @@ class articulo extends \fs_model {
     /**
      * Devuelve las últimas líneas de albaranes de clientes con este artículo.
      * @deprecated since version 106
-     * @param type $offset
-     * @param type $limit
+     * @param integer $offset
+     * @param integer $limit
      * @return linea_albaran_cliente
      */
-    public function get_lineas_albaran_cli($offset = 0, $limit = FS_ITEM_LIMIT) {
+    public function get_lineas_albaran_cli($offset = 0, $limit = FS_ITEM_LIMIT)
+    {
         $linea = new \linea_albaran_cliente();
         return $linea->all_from_articulo($this->referencia, $offset, $limit);
     }
@@ -506,20 +518,22 @@ class articulo extends \fs_model {
     /**
      * Devuelve las últimas líneas de albaranes de proveedores con este artículo.
      * @deprecated since version 106
-     * @param type $offset
-     * @param type $limit
+     * @param integer $offset
+     * @param integer $limit
      * @return linea_albaran_proveedor
      */
-    public function get_lineas_albaran_prov($offset = 0, $limit = FS_ITEM_LIMIT) {
+    public function get_lineas_albaran_prov($offset = 0, $limit = FS_ITEM_LIMIT)
+    {
         $linea = new \linea_albaran_proveedor();
         return $linea->all_from_articulo($this->referencia, $offset, $limit);
     }
 
     /**
      * Devuelve la media del precio de compra del artículo en los últimos albaranes o facturas.
-     * @return type
+     * @return double
      */
-    public function get_costemedio() {
+    public function get_costemedio()
+    {
         $coste = 0;
         $stock = 0;
 
@@ -552,7 +566,7 @@ class articulo extends \fs_model {
             }
         }
 
-        if ($lineasfac) {
+        if (!empty($lineasfac)) {
             /// usamos las facturas para el cálculo.
             foreach ($lineasfac as $linea) {
                 if ($stock < $this->stockfis OR $this->stockfis <= 0) {
@@ -564,7 +578,7 @@ class articulo extends \fs_model {
             }
         }
 
-        if ($lineasalb) {
+        if (!empty($lineasalb)) {
             /// usamos los albaranes para el cálculo.
             foreach ($lineasalb as $linea) {
                 if ($stock < $this->stockfis OR $this->stockfis <= 0) {
@@ -577,30 +591,34 @@ class articulo extends \fs_model {
         }
 
         if ($stock > 0) {
-            return $coste / $stock;
-        } else
-            return $coste;
+            return (float) $coste / $stock;
+        }
+
+        return (float) $coste;
     }
 
     /**
      * Devuelve la url relativa de la imagen del artículo.
      * @return boolean
      */
-    public function imagen_url() {
+    public function imagen_url()
+    {
         if (file_exists(FS_MYDOCS . 'images/articulos/' . $this->image_ref() . '-1.png')) {
             return 'images/articulos/' . $this->image_ref() . '-1.png';
         } else if (file_exists(FS_MYDOCS . 'images/articulos/' . $this->image_ref() . '-1.jpg')) {
             return 'images/articulos/' . $this->image_ref() . '-1.jpg';
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
     /**
      * Asigna una imagen a un artículo.
-     * @param type $img
-     * @param type $png
+     * @param string $img
+     * @param boolean $png
      */
-    public function set_imagen($img, $png = TRUE) {
+    public function set_imagen($img, $png = TRUE)
+    {
         $this->imagen = NULL;
 
         if (file_exists(FS_MYDOCS . 'images/articulos/' . $this->image_ref() . '-1.png')) {
@@ -627,7 +645,8 @@ class articulo extends \fs_model {
         }
     }
 
-    public function set_pvp($p) {
+    public function set_pvp($p)
+    {
         $p = bround($p, FS_NF0_ART);
 
         if (!$this->floatcmp($this->pvp, $p, FS_NF0_ART + 2)) {
@@ -637,22 +656,24 @@ class articulo extends \fs_model {
         }
     }
 
-    public function set_pvp_iva($p) {
+    public function set_pvp_iva($p)
+    {
         $this->set_pvp((100 * $p) / (100 + $this->get_iva()));
     }
 
     /**
      * Cambia la referencia del artículo.
      * Lo hace en el momento, no hace falta hacer save().
-     * @param type $ref
+     * @param string $ref
      */
-    public function set_referencia($ref) {
+    public function set_referencia($ref)
+    {
         $ref = trim($ref);
         if (is_null($ref) OR strlen($ref) < 1 OR strlen($ref) > 18) {
             $this->new_error_msg("¡Referencia de artículo no válida! Debe tener entre 1 y 18 caracteres.");
         } else if ($ref != $this->referencia AND ! is_null($this->referencia)) {
             $sql = "UPDATE " . $this->table_name . " SET referencia = " . $this->var2str($ref)
-                    . " WHERE referencia = " . $this->var2str($this->referencia) . ";";
+                . " WHERE referencia = " . $this->var2str($this->referencia) . ";";
             if ($this->db->exec($sql)) {
                 /// renombramos la imagen, si la hay
                 if (file_exists(FS_MYDOCS . 'images/articulos/' . $this->image_ref() . '-1.png')) {
@@ -670,9 +691,10 @@ class articulo extends \fs_model {
 
     /**
      * Cambia el impuesto asociado al artículo.
-     * @param type $codimpuesto
+     * @param string $codimpuesto
      */
-    public function set_impuesto($codimpuesto) {
+    public function set_impuesto($codimpuesto)
+    {
         if ($codimpuesto != $this->codimpuesto) {
             $this->codimpuesto = $codimpuesto;
 
@@ -690,8 +712,9 @@ class articulo extends \fs_model {
                 if ($imp0) {
                     $this->iva = floatval($imp0->iva);
                     self::$impuestos[] = $imp0;
-                } else
-                    $this->iva = 0;
+                } else {
+                    $this->iva = 0.0;
+                }
             }
         }
     }
@@ -699,11 +722,12 @@ class articulo extends \fs_model {
     /**
      * Modifica el stock del artículo en un almacén concreto.
      * Ya se encarga de ejecutar save() si es necesario.
-     * @param type $codalmacen
-     * @param type $cantidad
+     * @param string $codalmacen
+     * @param double $cantidad
      * @return boolean
      */
-    public function set_stock($codalmacen, $cantidad = 1) {
+    public function set_stock($codalmacen, $cantidad = 1)
+    {
         $result = FALSE;
 
         if ($this->nostock) {
@@ -738,14 +762,15 @@ class articulo extends \fs_model {
                     if ($this->exists) {
                         $this->clean_cache();
                         $result = $this->db->exec("UPDATE " . $this->table_name
-                                . " SET stockfis = " . $this->var2str($this->stockfis)
-                                . " WHERE referencia = " . $this->var2str($this->referencia) . ";");
+                            . " SET stockfis = " . $this->var2str($this->stockfis)
+                            . " WHERE referencia = " . $this->var2str($this->referencia) . ";");
                     } else if (!$this->save()) {
                         $this->new_error_msg("¡Error al actualizar el stock del artículo!");
                     }
                 }
-            } else
+            } else {
                 $this->new_error_msg("Error al guardar el stock");
+            }
         }
 
         return $result;
@@ -754,13 +779,14 @@ class articulo extends \fs_model {
     /**
      * Suma la cantidad especificada al stock del artículo en el almacén especificado.
      * Ya se encarga de ejecutar save() si es necesario.
-     * @param type $codalmacen
-     * @param type $cantidad
-     * @param type $recalcula_coste
-     * @param type $codcombinacion
+     * @param string $codalmacen
+     * @param double $cantidad
+     * @param boolean $recalcula_coste
+     * @param string $codcombinacion
      * @return boolean
      */
-    public function sum_stock($codalmacen, $cantidad = 1, $recalcula_coste = FALSE, $codcombinacion = NULL) {
+    public function sum_stock($codalmacen, $cantidad = 1, $recalcula_coste = FALSE, $codcombinacion = NULL)
+    {
         $result = FALSE;
 
         if ($recalcula_coste) {
@@ -775,8 +801,8 @@ class articulo extends \fs_model {
                 if ($this->exists) {
                     $this->clean_cache();
                     $result = $this->db->exec("UPDATE " . $this->table_name
-                            . "  SET costemedio = " . $this->var2str($this->costemedio)
-                            . "  WHERE referencia = " . $this->var2str($this->referencia) . ";");
+                        . "  SET costemedio = " . $this->var2str($this->costemedio)
+                        . "  WHERE referencia = " . $this->var2str($this->referencia) . ";");
                 } else if (!$this->save()) {
                     $this->new_error_msg("¡Error al actualizar el stock del artículo!");
                     $result = FALSE;
@@ -811,9 +837,9 @@ class articulo extends \fs_model {
                     if ($this->exists) {
                         $this->clean_cache();
                         $result = $this->db->exec("UPDATE " . $this->table_name
-                                . "  SET stockfis = " . $this->var2str($this->stockfis)
-                                . ", costemedio = " . $this->var2str($this->costemedio)
-                                . "  WHERE referencia = " . $this->var2str($this->referencia) . ";");
+                            . "  SET stockfis = " . $this->var2str($this->stockfis)
+                            . ", costemedio = " . $this->var2str($this->costemedio)
+                            . "  WHERE referencia = " . $this->var2str($this->referencia) . ";");
                     } else if (!$this->save()) {
                         $this->new_error_msg("¡Error al actualizar el stock del artículo!");
                         $result = FALSE;
@@ -842,7 +868,8 @@ class articulo extends \fs_model {
      * se utiliza la variable $this->exists para almacenar el resultado.
      * @return boolean
      */
-    public function exists() {
+    public function exists()
+    {
         if (!$this->exists) {
             if ($this->db->select("SELECT referencia FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($this->referencia) . ";")) {
                 $this->exists = TRUE;
@@ -856,7 +883,8 @@ class articulo extends \fs_model {
      * Devuelve TRUE  si los datos del artículo son correctos.
      * @return boolean
      */
-    public function test() {
+    public function test()
+    {
         $status = FALSE;
 
         $this->descripcion = $this->no_html($this->descripcion);
@@ -869,9 +897,9 @@ class articulo extends \fs_model {
 
         if ($this->nostock) {
             $this->controlstock = TRUE;
-            $this->stockfis = 0;
-            $this->stockmax = 0;
-            $this->stockmin = 0;
+            $this->stockfis = 0.0;
+            $this->stockmax = 0.0;
+            $this->stockmin = 0.0;
         }
 
         if ($this->bloqueado) {
@@ -882,9 +910,10 @@ class articulo extends \fs_model {
             $this->new_error_msg("Referencia de artículo no válida: " . $this->referencia . ". Debe tener entre 1 y 18 caracteres.");
         } else if (isset($this->equivalencia) AND strlen($this->equivalencia) > 25) {
             $this->new_error_msg("Código de equivalencia del artículos no válido: " . $this->equivalencia .
-                    ". Debe tener entre 1 y 25 caracteres.");
-        } else
+                ". Debe tener entre 1 y 25 caracteres.");
+        } else {
             $status = TRUE;
+        }
 
         return $status;
     }
@@ -893,111 +922,114 @@ class articulo extends \fs_model {
      * Guarda en la base de datos los datos del artículo.
      * @return boolean
      */
-    public function save() {
+    public function save()
+    {
         if ($this->test()) {
             $this->clean_cache();
 
             if ($this->exists()) {
                 $sql = "UPDATE " . $this->table_name . " SET descripcion = " . $this->var2str($this->descripcion) .
-                        ", codfamilia = " . $this->var2str($this->codfamilia) .
-                        ", codfabricante = " . $this->var2str($this->codfabricante) .
-                        ", pvp = " . $this->var2str($this->pvp) .
-                        ", factualizado = " . $this->var2str($this->factualizado) .
-                        ", costemedio = " . $this->var2str($this->costemedio) .
-                        ", preciocoste = " . $this->var2str($this->preciocoste) .
-                        ", codimpuesto = " . $this->var2str($this->codimpuesto) .
-                        ", stockfis = " . $this->var2str($this->stockfis) .
-                        ", stockmin = " . $this->var2str($this->stockmin) .
-                        ", stockmax = " . $this->var2str($this->stockmax) .
-                        ", controlstock = " . $this->var2str($this->controlstock) .
-                        ", nostock = " . $this->var2str($this->nostock) .
-                        ", bloqueado = " . $this->var2str($this->bloqueado) .
-                        ", sevende = " . $this->var2str($this->sevende) .
-                        ", publico = " . $this->var2str($this->publico) .
-                        ", secompra = " . $this->var2str($this->secompra) .
-                        ", equivalencia = " . $this->var2str($this->equivalencia) .
-                        ", partnumber = " . $this->var2str($this->partnumber) .
-                        ", codbarras = " . $this->var2str($this->codbarras) .
-                        ", observaciones = " . $this->var2str($this->observaciones) .
-                        ", tipo = " . $this->var2str($this->tipo) .
-                        ", imagen = " . $this->var2str($this->imagen) .
-                        ", codsubcuentacom = " . $this->var2str($this->codsubcuentacom) .
-                        ", codsubcuentairpfcom = " . $this->var2str($this->codsubcuentairpfcom) .
-                        ", trazabilidad = " . $this->var2str($this->trazabilidad) .
-                        "  WHERE referencia = " . $this->var2str($this->referencia) . ";";
+                    ", codfamilia = " . $this->var2str($this->codfamilia) .
+                    ", codfabricante = " . $this->var2str($this->codfabricante) .
+                    ", pvp = " . $this->var2str($this->pvp) .
+                    ", factualizado = " . $this->var2str($this->factualizado) .
+                    ", costemedio = " . $this->var2str($this->costemedio) .
+                    ", preciocoste = " . $this->var2str($this->preciocoste) .
+                    ", codimpuesto = " . $this->var2str($this->codimpuesto) .
+                    ", stockfis = " . $this->var2str($this->stockfis) .
+                    ", stockmin = " . $this->var2str($this->stockmin) .
+                    ", stockmax = " . $this->var2str($this->stockmax) .
+                    ", controlstock = " . $this->var2str($this->controlstock) .
+                    ", nostock = " . $this->var2str($this->nostock) .
+                    ", bloqueado = " . $this->var2str($this->bloqueado) .
+                    ", sevende = " . $this->var2str($this->sevende) .
+                    ", publico = " . $this->var2str($this->publico) .
+                    ", secompra = " . $this->var2str($this->secompra) .
+                    ", equivalencia = " . $this->var2str($this->equivalencia) .
+                    ", partnumber = " . $this->var2str($this->partnumber) .
+                    ", codbarras = " . $this->var2str($this->codbarras) .
+                    ", observaciones = " . $this->var2str($this->observaciones) .
+                    ", tipo = " . $this->var2str($this->tipo) .
+                    ", imagen = " . $this->var2str($this->imagen) .
+                    ", codsubcuentacom = " . $this->var2str($this->codsubcuentacom) .
+                    ", codsubcuentairpfcom = " . $this->var2str($this->codsubcuentairpfcom) .
+                    ", trazabilidad = " . $this->var2str($this->trazabilidad) .
+                    "  WHERE referencia = " . $this->var2str($this->referencia) . ";";
 
                 if ($this->nostock AND $this->stockfis != 0) {
-                    $this->stockfis = 0;
+                    $this->stockfis = 0.0;
                     $sql .= "DELETE FROM stocks WHERE referencia = " . $this->var2str($this->referencia) . ";";
                     $sql .= "UPDATE " . $this->table_name . " SET stockfis = " . $this->var2str($this->stockfis) .
-                            " WHERE referencia = " . $this->var2str($this->referencia) . ";";
+                        " WHERE referencia = " . $this->var2str($this->referencia) . ";";
                 }
             } else {
                 $sql = "INSERT INTO " . $this->table_name . " (" . self::$column_list . ") VALUES (" .
-                        $this->var2str($this->referencia) . "," .
-                        $this->var2str($this->codfamilia) . "," .
-                        $this->var2str($this->codfabricante) . "," .
-                        $this->var2str($this->descripcion) . "," .
-                        $this->var2str($this->pvp) . "," .
-                        $this->var2str($this->factualizado) . "," .
-                        $this->var2str($this->costemedio) . "," .
-                        $this->var2str($this->preciocoste) . "," .
-                        $this->var2str($this->codimpuesto) . "," .
-                        $this->var2str($this->stockfis) . "," .
-                        $this->var2str($this->stockmin) . "," .
-                        $this->var2str($this->stockmax) . "," .
-                        $this->var2str($this->controlstock) . "," .
-                        $this->var2str($this->nostock) . "," .
-                        $this->var2str($this->bloqueado) . "," .
-                        $this->var2str($this->secompra) . "," .
-                        $this->var2str($this->sevende) . "," .
-                        $this->var2str($this->equivalencia) . "," .
-                        $this->var2str($this->codbarras) . "," .
-                        $this->var2str($this->observaciones) . "," .
-                        $this->var2str($this->imagen) . "," .
-                        $this->var2str($this->publico) . "," .
-                        $this->var2str($this->tipo) . "," .
-                        $this->var2str($this->partnumber) . "," .
-                        $this->var2str($this->codsubcuentacom) . "," .
-                        $this->var2str($this->codsubcuentairpfcom) . "," .
-                        $this->var2str($this->trazabilidad) . ");";
+                    $this->var2str($this->referencia) . "," .
+                    $this->var2str($this->codfamilia) . "," .
+                    $this->var2str($this->codfabricante) . "," .
+                    $this->var2str($this->descripcion) . "," .
+                    $this->var2str($this->pvp) . "," .
+                    $this->var2str($this->factualizado) . "," .
+                    $this->var2str($this->costemedio) . "," .
+                    $this->var2str($this->preciocoste) . "," .
+                    $this->var2str($this->codimpuesto) . "," .
+                    $this->var2str($this->stockfis) . "," .
+                    $this->var2str($this->stockmin) . "," .
+                    $this->var2str($this->stockmax) . "," .
+                    $this->var2str($this->controlstock) . "," .
+                    $this->var2str($this->nostock) . "," .
+                    $this->var2str($this->bloqueado) . "," .
+                    $this->var2str($this->secompra) . "," .
+                    $this->var2str($this->sevende) . "," .
+                    $this->var2str($this->equivalencia) . "," .
+                    $this->var2str($this->codbarras) . "," .
+                    $this->var2str($this->observaciones) . "," .
+                    $this->var2str($this->imagen) . "," .
+                    $this->var2str($this->publico) . "," .
+                    $this->var2str($this->tipo) . "," .
+                    $this->var2str($this->partnumber) . "," .
+                    $this->var2str($this->codsubcuentacom) . "," .
+                    $this->var2str($this->codsubcuentairpfcom) . "," .
+                    $this->var2str($this->trazabilidad) . ");";
             }
 
             if ($this->db->exec($sql)) {
                 $this->exists = TRUE;
                 return TRUE;
-            } else
-                return FALSE;
-        } else
-            return FALSE;
+            }
+        }
+
+        return FALSE;
     }
 
     /**
      * Elimina el artículo de la base de datos.
      * @return boolean
      */
-    public function delete() {
+    public function delete()
+    {
         $this->clean_cache();
 
         $sql = "DELETE FROM articulosprov WHERE referencia = " . $this->var2str($this->referencia) . ";";
         $sql .= "DELETE FROM " . $this->table_name . " WHERE referencia = " . $this->var2str($this->referencia) . ";";
         if ($this->db->exec($sql)) {
             $this->set_imagen(FALSE);
-
             $this->exists = FALSE;
             return TRUE;
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
     /**
      * Comprueba y añade una cadena a la lista de búsquedas precargadas
      * en memcache. Devuelve TRUE si la cadena ya está en la lista de
      * precargadas.
-     * @param type $tag
+     * @param string $tag
      * @return boolean
      */
-    private function new_search_tag($tag) {
+    private function new_search_tag($tag)
+    {
         $encontrado = FALSE;
         $actualizar = FALSE;
 
@@ -1029,7 +1061,8 @@ class articulo extends \fs_model {
         return $encontrado;
     }
 
-    public function get_search_tags() {
+    public function get_search_tags()
+    {
         if (!isset(self::$search_tags)) {
             self::$search_tags = $this->cache->get_array('articulos_searches');
         }
@@ -1037,7 +1070,8 @@ class articulo extends \fs_model {
         return self::$search_tags;
     }
 
-    private function clean_cache() {
+    private function clean_cache()
+    {
         /*
          * Durante las actualizaciones masivas de artículos se ejecuta esta
          * función cada vez que se guarda un artículo, por eso es mejor limitarla.
@@ -1046,7 +1080,7 @@ class articulo extends \fs_model {
             /// obtenemos los datos de memcache
             $this->get_search_tags();
 
-            if (self::$search_tags) {
+            if (!empty(self::$search_tags)) {
                 foreach (self::$search_tags as $value) {
                     $this->cache->delete('articulos_search_' . $value['tag']);
                 }
@@ -1058,15 +1092,16 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve un array con los artículos encontrados en base a la búsqueda.
-     * @param type $query
-     * @param type $offset
-     * @param type $codfamilia
-     * @param type $con_stock
-     * @param type $codfabricante
-     * @param type $bloqueados
+     * @param string $query
+     * @param integer $offset
+     * @param string $codfamilia
+     * @param boolean $con_stock
+     * @param string $codfabricante
+     * @param boolean $bloqueados
      * @return \articulo
      */
-    public function search($query = '', $offset = 0, $codfamilia = '', $con_stock = FALSE, $codfabricante = '', $bloqueados = FALSE) {
+    public function search($query = '', $offset = 0, $codfamilia = '', $con_stock = FALSE, $codfabricante = '', $bloqueados = FALSE)
+    {
         $artilist = array();
         $query = $this->no_html(mb_strtolower($query, 'UTF8'));
 
@@ -1108,21 +1143,21 @@ class articulo extends \fs_model {
                 /// nada
             } else if (is_numeric($query)) {
                 $sql .= $separador . " (referencia = " . $this->var2str($query)
-                        . " OR referencia LIKE '%" . $query . "%'"
-                        . " OR partnumber LIKE '%" . $query . "%'"
-                        . " OR equivalencia LIKE '%" . $query . "%'"
-                        . " OR descripcion LIKE '%" . $query . "%'"
-                        . " OR codbarras = " . $this->var2str($query) . ")";
+                    . " OR referencia LIKE '%" . $query . "%'"
+                    . " OR partnumber LIKE '%" . $query . "%'"
+                    . " OR equivalencia LIKE '%" . $query . "%'"
+                    . " OR descripcion LIKE '%" . $query . "%'"
+                    . " OR codbarras = " . $this->var2str($query) . ")";
                 $separador = ' AND';
             } else {
                 /// ¿La búsqueda son varias palabras?
                 $palabras = explode(' ', $query);
                 if (count($palabras) > 1) {
                     $sql .= $separador . " (lower(referencia) = " . $this->var2str($query)
-                            . " OR lower(referencia) LIKE '%" . $query . "%'"
-                            . " OR lower(partnumber) LIKE '%" . $query . "%'"
-                            . " OR lower(equivalencia) LIKE '%" . $query . "%'"
-                            . " OR (";
+                        . " OR lower(referencia) LIKE '%" . $query . "%'"
+                        . " OR lower(partnumber) LIKE '%" . $query . "%'"
+                        . " OR lower(equivalencia) LIKE '%" . $query . "%'"
+                        . " OR (";
 
                     foreach ($palabras as $i => $pal) {
                         if ($i == 0) {
@@ -1135,11 +1170,11 @@ class articulo extends \fs_model {
                     $sql .= "))";
                 } else {
                     $sql .= $separador . " (lower(referencia) = " . $this->var2str($query)
-                            . " OR lower(referencia) LIKE '%" . $query . "%'"
-                            . " OR lower(partnumber) LIKE '%" . $query . "%'"
-                            . " OR lower(equivalencia) LIKE '%" . $query . "%'"
-                            . " OR lower(codbarras) = " . $this->var2str($query)
-                            . " OR lower(descripcion) LIKE '%" . $query . "%')";
+                        . " OR lower(referencia) LIKE '%" . $query . "%'"
+                        . " OR lower(partnumber) LIKE '%" . $query . "%'"
+                        . " OR lower(equivalencia) LIKE '%" . $query . "%'"
+                        . " OR lower(codbarras) = " . $this->var2str($query)
+                        . " OR lower(descripcion) LIKE '%" . $query . "%')";
                 }
             }
 
@@ -1149,11 +1184,19 @@ class articulo extends \fs_model {
                 $sql .= " ORDER BY referencia ASC";
             }
 
-            $data = $this->db->select_limit($sql, FS_ITEM_LIMIT, $offset);
-            if ($data) {
-                foreach ($data as $a) {
-                    $artilist[] = new \articulo($a);
-                }
+            $artilist = $this->all_from($sql, $offset);
+        }
+
+        return $artilist;
+    }
+
+    private function all_from($sql, $offset = 0, $limit = FS_ITEM_LIMIT)
+    {
+        $artilist = array();
+        $data = $this->db->select_limit($sql, $limit, $offset);
+        if ($data) {
+            foreach ($data as $a) {
+                $artilist[] = new \articulo($a);
             }
         }
 
@@ -1162,25 +1205,18 @@ class articulo extends \fs_model {
 
     /**
      * Devuelve un array con los artículos que tengan $cod como código de barras.
-     * @param type $cod
-     * @param type $offset
-     * @param type $limit
+     * @param string $cod
+     * @param integer $offset
+     * @param integer $limit
      * @return \articulo
      */
-    public function search_by_codbar($cod, $offset = 0, $limit = FS_ITEM_LIMIT) {
-        $artilist = array();
+    public function search_by_codbar($cod, $offset = 0, $limit = FS_ITEM_LIMIT)
+    {
         $sql = "SELECT " . self::$column_list . " FROM " . $this->table_name
-                . " WHERE codbarras = " . $this->var2str($cod)
-                . " ORDER BY lower(referencia) ASC";
+            . " WHERE codbarras = " . $this->var2str($cod)
+            . " ORDER BY lower(referencia) ASC";
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $d) {
-                $artilist[] = new \articulo($d);
-            }
-        }
-
-        return $artilist;
+        return $this->all_from($sql, $offset, $limit);
     }
 
     /**
@@ -1189,87 +1225,60 @@ class articulo extends \fs_model {
      * @param integer $limit nº de elementos devuelto
      * @return \articulo
      */
-    public function all($offset = 0, $limit = FS_ITEM_LIMIT) {
-        $artilist = array();
+    public function all($offset = 0, $limit = FS_ITEM_LIMIT)
+    {
         $sql = "SELECT " . self::$column_list . " FROM " . $this->table_name
-                . " ORDER BY lower(referencia) ASC";
+            . " ORDER BY lower(referencia) ASC";
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $d) {
-                $artilist[] = new \articulo($d);
-            }
-        }
-
-        return $artilist;
+        return $this->all_from($sql, $offset, $limit);
     }
 
     /**
      * Devuelve el listado de artículos públicos, desde $offset hasta $offset+$limit
-     * @param type $offset
-     * @param type $limit
+     * @param integer $offset
+     * @param integer $limit
      * @return \articulo
      */
-    public function all_publico($offset = 0, $limit = FS_ITEM_LIMIT) {
-        $artilist = array();
+    public function all_publico($offset = 0, $limit = FS_ITEM_LIMIT)
+    {
         $sql = "SELECT " . self::$column_list . " FROM " . $this->table_name
-                . " WHERE publico ORDER BY lower(referencia) ASC";
+            . " WHERE publico ORDER BY lower(referencia) ASC";
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $d) {
-                $artilist[] = new \articulo($d);
-            }
-        }
-
-        return $artilist;
+        return $this->all_from($sql, $offset, $limit);
     }
 
     /**
      * Devuelve los artículos de una familia.
-     * @param type $cod
-     * @param type $offset
-     * @param type $limit
+     * @param string $cod
+     * @param integer $offset
+     * @param integer $limit
      * @return \articulo
      */
-    public function all_from_familia($cod, $offset = 0, $limit = FS_ITEM_LIMIT) {
-        $artilist = array();
+    public function all_from_familia($cod, $offset = 0, $limit = FS_ITEM_LIMIT)
+    {
         $sql = "SELECT " . self::$column_list . " FROM " . $this->table_name . " WHERE codfamilia = "
-                . $this->var2str($cod) . " ORDER BY lower(referencia) ASC";
+            . $this->var2str($cod) . " ORDER BY lower(referencia) ASC";
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $d) {
-                $artilist[] = new \articulo($d);
-            }
-        }
-
-        return $artilist;
+        return $this->all_from($sql, $offset, $limit);
     }
 
     /**
      * Devuelve los artículos de un fabricante.
-     * @param type $cod
-     * @param type $offset
-     * @param type $limit
+     * @param string $cod
+     * @param integer $offset
+     * @param integer $limit
      * @return \articulo
      */
-    public function all_from_fabricante($cod, $offset = 0, $limit = FS_ITEM_LIMIT) {
-        $artilist = array();
+    public function all_from_fabricante($cod, $offset = 0, $limit = FS_ITEM_LIMIT)
+    {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codfabricante = "
-                . $this->var2str($cod) . " ORDER BY lower(referencia) ASC";
+            . $this->var2str($cod) . " ORDER BY lower(referencia) ASC";
 
-        $data = $this->db->select_limit($sql, $limit, $offset);
-        if ($data) {
-            foreach ($data as $d) {
-                $artilist[] = new \articulo($d);
-            }
-        }
-
-        return $artilist;
+        return $this->all_from($sql, $offset, $limit);
     }
 
-    public function cron_job() {
+    public function cron_job()
+    {
         /// aceleramos las búsquedas
         if ($this->get_search_tags()) {
             foreach (self::$search_tags as $i => $value) {
@@ -1293,17 +1302,17 @@ class articulo extends \fs_model {
     /**
      * Realizamos algunas correcciones a la base de datos.
      */
-    public function fix_db() {
+    public function fix_db()
+    {
         $this->db->exec("UPDATE " . $this->table_name . " SET bloqueado = true WHERE bloqueado IS NULL;");
         $this->db->exec("UPDATE " . $this->table_name . " SET nostock = false WHERE nostock IS NULL;");
 
         /// desvinculamos de fabricantes que no existan
         $this->db->exec("UPDATE " . $this->table_name . " SET codfabricante = null WHERE codfabricante IS NOT NULL"
-                . " AND codfabricante NOT IN (SELECT codfabricante FROM fabricantes);");
+            . " AND codfabricante NOT IN (SELECT codfabricante FROM fabricantes);");
 
         /// desvinculamos de familias que no existan
         $this->db->exec("UPDATE " . $this->table_name . " SET codfamilia = null WHERE codfamilia IS NOT NULL"
-                . " AND codfamilia NOT IN (SELECT codfamilia FROM familias);");
+            . " AND codfamilia NOT IN (SELECT codfamilia FROM familias);");
     }
-
 }

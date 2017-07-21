@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 require_model('stock.php');
@@ -27,17 +25,18 @@ require_model('stock.php');
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class regularizacion_stock extends \fs_model {
+class regularizacion_stock extends \fs_model
+{
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var integer
      */
     public $id;
 
     /**
      * ID del stock, en el modelo stock.
-     * @var type 
+     * @var integer
      */
     public $idstock;
     public $cantidadini;
@@ -45,7 +44,7 @@ class regularizacion_stock extends \fs_model {
 
     /**
      * Código del almacén destino.
-     * @var type 
+     * @var string
      */
     public $codalmacendest;
     public $fecha;
@@ -54,11 +53,12 @@ class regularizacion_stock extends \fs_model {
 
     /**
      * Nick del usuario que ha realizado la regularización.
-     * @var type 
+     * @var string
      */
     public $nick;
 
-    public function __construct($r = FALSE) {
+    public function __construct($r = FALSE)
+    {
         parent::__construct('lineasregstocks');
         if ($r) {
             $this->id = $this->intval($r['id']);
@@ -88,61 +88,69 @@ class regularizacion_stock extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         new \stock();
 
         return '';
     }
 
-    public function get($id) {
+    public function get($id)
+    {
         $data = $this->db->select("SELECT * FROM lineasregstocks WHERE id = " . $this->var2str($id) . ";");
         if ($data) {
             return new \regularizacion_stock($data[0]);
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->id)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM lineasregstocks WHERE id = " . $this->var2str($this->id) . ";");
+        }
+
+        return $this->db->select("SELECT * FROM lineasregstocks WHERE id = " . $this->var2str($this->id) . ";");
     }
 
-    public function save() {
+    public function save()
+    {
         if ($this->exists()) {
             $sql = "UPDATE lineasregstocks SET idstock = " . $this->var2str($this->idstock)
-                    . ", cantidadini = " . $this->var2str($this->cantidadini)
-                    . ", cantidadfin = " . $this->var2str($this->cantidadfin)
-                    . ", codalmacendest = " . $this->var2str($this->codalmacendest)
-                    . ", fecha = " . $this->var2str($this->fecha)
-                    . ", hora = " . $this->var2str($this->hora)
-                    . ", motivo = " . $this->var2str($this->motivo)
-                    . ", nick = " . $this->var2str($this->nick)
-                    . "  WHERE id = " . $this->var2str($this->id) . ";";
+                . ", cantidadini = " . $this->var2str($this->cantidadini)
+                . ", cantidadfin = " . $this->var2str($this->cantidadfin)
+                . ", codalmacendest = " . $this->var2str($this->codalmacendest)
+                . ", fecha = " . $this->var2str($this->fecha)
+                . ", hora = " . $this->var2str($this->hora)
+                . ", motivo = " . $this->var2str($this->motivo)
+                . ", nick = " . $this->var2str($this->nick)
+                . "  WHERE id = " . $this->var2str($this->id) . ";";
 
             return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO lineasregstocks (idstock,cantidadini,cantidadfin,
+        }
+
+        $sql = "INSERT INTO lineasregstocks (idstock,cantidadini,cantidadfin,
             codalmacendest,fecha,hora,motivo,nick)
             VALUES (" . $this->var2str($this->idstock)
-                    . "," . $this->var2str($this->cantidadini)
-                    . "," . $this->var2str($this->cantidadfin)
-                    . "," . $this->var2str($this->codalmacendest)
-                    . "," . $this->var2str($this->fecha)
-                    . "," . $this->var2str($this->hora)
-                    . "," . $this->var2str($this->motivo)
-                    . "," . $this->var2str($this->nick) . ");";
+            . "," . $this->var2str($this->cantidadini)
+            . "," . $this->var2str($this->cantidadfin)
+            . "," . $this->var2str($this->codalmacendest)
+            . "," . $this->var2str($this->fecha)
+            . "," . $this->var2str($this->hora)
+            . "," . $this->var2str($this->motivo)
+            . "," . $this->var2str($this->nick) . ");";
 
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            } else
-                return FALSE;
+        if ($this->db->exec($sql)) {
+            $this->id = $this->db->lastval();
+            return TRUE;
         }
+
+        return FALSE;
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM lineasregstocks WHERE id = " . $this->var2str($this->id) . ";");
     }
 
@@ -156,10 +164,11 @@ class regularizacion_stock extends \fs_model {
      * @param type $offset
      * @return \regularizacion_stock
      */
-    public function all_from_articulo($ref, $codalmacen = '', $desde = '', $hasta = '', $limit = 1000, $offset = 0) {
+    public function all_from_articulo($ref, $codalmacen = '', $desde = '', $hasta = '', $limit = 1000, $offset = 0)
+    {
         $rlist = array();
         $sql = "SELECT * FROM lineasregstocks WHERE idstock IN"
-                . " (SELECT idstock FROM stocks WHERE referencia = " . $this->var2str($ref) . ")";
+            . " (SELECT idstock FROM stocks WHERE referencia = " . $this->var2str($ref) . ")";
         if ($codalmacen) {
             $sql .= " AND codalmacendest = " . $this->var2str($codalmacen);
         }
@@ -184,8 +193,8 @@ class regularizacion_stock extends \fs_model {
     /**
      * Aplica algunas correcciones a la tabla.
      */
-    public function fix_db() {
+    public function fix_db()
+    {
         $this->db->exec("DELETE FROM " . $this->table_name . " WHERE idstock NOT IN (SELECT idstock FROM stocks);");
     }
-
 }

@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 /**
@@ -25,35 +23,36 @@ namespace FacturaScripts\model;
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class tarifa extends \fs_model {
+class tarifa extends \fs_model
+{
 
     /**
      * Clave primaria.
-     * @var type 
+     * @var string
      */
     public $codtarifa;
 
     /**
      * Nombre de la tarifa.
-     * @var type 
+     * @var string
      */
     public $nombre;
 
     /**
      * Incremento porcentual o descuento
-     * @var type 
+     * @var double
      */
     private $incporcentual;
 
     /**
      * Incremento lineal o descuento lineal
-     * @var type 
+     * @var double
      */
     private $inclineal;
 
     /**
      * Fórmula a aplicar
-     * @var type 
+     * @var string
      */
     public $aplicar_a;
 
@@ -69,7 +68,8 @@ class tarifa extends \fs_model {
      */
     public $maxpvp;
 
-    public function __construct($t = FALSE) {
+    public function __construct($t = FALSE)
+    {
         parent::__construct('tarifas');
         if ($t) {
             $this->codtarifa = $t['codtarifa'];
@@ -86,31 +86,35 @@ class tarifa extends \fs_model {
         } else {
             $this->codtarifa = NULL;
             $this->nombre = NULL;
-            $this->incporcentual = 0;
-            $this->inclineal = 0;
+            $this->incporcentual = 0.0;
+            $this->inclineal = 0.0;
             $this->aplicar_a = 'pvp';
             $this->mincoste = TRUE;
             $this->maxpvp = TRUE;
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         return '';
     }
 
-    public function url() {
+    public function url()
+    {
         return 'index.php?page=ventas_articulos#tarifas';
     }
 
-    public function x() {
+    public function x()
+    {
         if ($this->aplicar_a == 'pvp') {
             return (0 - $this->incporcentual);
-        } else {
-            return $this->incporcentual;
         }
+
+        return $this->incporcentual;
     }
 
-    public function set_x($dto) {
+    public function set_x($dto)
+    {
         if ($this->aplicar_a == 'pvp') {
             $this->incporcentual = 0 - $dto;
         } else {
@@ -118,15 +122,17 @@ class tarifa extends \fs_model {
         }
     }
 
-    public function y() {
+    public function y()
+    {
         if ($this->aplicar_a == 'pvp') {
             return (0 - $this->inclineal);
-        } else {
-            return $this->inclineal;
         }
+
+        return $this->inclineal;
     }
 
-    public function set_y($inc) {
+    public function set_y($inc)
+    {
         if ($this->aplicar_a == 'pvp') {
             $this->inclineal = 0 - $inc;
         } else {
@@ -138,7 +144,8 @@ class tarifa extends \fs_model {
      * Devuelve un texto explicativo de lo que hace la tarifa
      * @return type
      */
-    public function diff() {
+    public function diff()
+    {
         $texto = '';
         $x = $this->x();
         $y = $this->y();
@@ -175,7 +182,8 @@ class tarifa extends \fs_model {
      * artículos.
      * @param type $articulos
      */
-    public function set_precios(&$articulos) {
+    public function set_precios(&$articulos)
+    {
         foreach ($articulos as $i => $value) {
             $articulos[$i]->codtarifa = $this->codtarifa;
             $articulos[$i]->tarifa_nombre = $this->nombre;
@@ -214,30 +222,37 @@ class tarifa extends \fs_model {
         }
     }
 
-    public function get($cod) {
-        $tarifa = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($cod) . ";");
-        if ($tarifa) {
-            return new \tarifa($tarifa[0]);
-        } else
-            return FALSE;
+    public function get($cod)
+    {
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($cod) . ";");
+        if ($data) {
+            return new \tarifa($data[0]);
+        }
+
+        return FALSE;
     }
 
-    public function get_new_codigo() {
-        $cod = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codtarifa') . ") as cod FROM " . $this->table_name . ";");
-        if ($cod) {
-            return sprintf('%06s', (1 + intval($cod[0]['cod'])));
-        } else
-            return '000001';
+    public function get_new_codigo()
+    {
+        $data = $this->db->select("SELECT MAX(" . $this->db->sql_to_int('codtarifa') . ") as cod FROM " . $this->table_name . ";");
+        if ($data) {
+            return sprintf('%06s', (1 + intval($data[0]['cod'])));
+        }
+
+        return '000001';
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->codtarifa)) {
             return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($this->codtarifa) . ";");
+        }
+
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($this->codtarifa) . ";");
     }
 
-    public function test() {
+    public function test()
+    {
         $status = FALSE;
 
         $this->codtarifa = trim($this->codtarifa);
@@ -247,43 +262,48 @@ class tarifa extends \fs_model {
             $this->new_error_msg("Código de tarifa no válido. Debe tener entre 1 y 6 caracteres.");
         } else if (strlen($this->nombre) < 1 OR strlen($this->nombre) > 50) {
             $this->new_error_msg("Nombre de tarifa no válido. Debe tener entre 1 y 50 caracteres.");
-        } else
+        } else {
             $status = TRUE;
+        }
 
         return $status;
     }
 
-    public function save() {
+    public function save()
+    {
         if ($this->test()) {
             if ($this->exists()) {
                 $sql = "UPDATE " . $this->table_name . " SET nombre = " . $this->var2str($this->nombre)
-                        . ", incporcentual = " . $this->var2str($this->incporcentual)
-                        . ", inclineal =" . $this->var2str($this->inclineal)
-                        . ", aplicar_a =" . $this->var2str($this->aplicar_a)
-                        . ", mincoste =" . $this->var2str($this->mincoste)
-                        . ", maxpvp =" . $this->var2str($this->maxpvp)
-                        . "  WHERE codtarifa = " . $this->var2str($this->codtarifa) . ";";
+                    . ", incporcentual = " . $this->var2str($this->incporcentual)
+                    . ", inclineal =" . $this->var2str($this->inclineal)
+                    . ", aplicar_a =" . $this->var2str($this->aplicar_a)
+                    . ", mincoste =" . $this->var2str($this->mincoste)
+                    . ", maxpvp =" . $this->var2str($this->maxpvp)
+                    . "  WHERE codtarifa = " . $this->var2str($this->codtarifa) . ";";
             } else {
                 $sql = "INSERT INTO " . $this->table_name . " (codtarifa,nombre,incporcentual,inclineal,
                aplicar_a,mincoste,maxpvp) VALUES (" . $this->var2str($this->codtarifa)
-                        . "," . $this->var2str($this->nombre)
-                        . "," . $this->var2str($this->incporcentual)
-                        . "," . $this->var2str($this->inclineal)
-                        . "," . $this->var2str($this->aplicar_a)
-                        . "," . $this->var2str($this->mincoste)
-                        . "," . $this->var2str($this->maxpvp) . ");";
+                    . "," . $this->var2str($this->nombre)
+                    . "," . $this->var2str($this->incporcentual)
+                    . "," . $this->var2str($this->inclineal)
+                    . "," . $this->var2str($this->aplicar_a)
+                    . "," . $this->var2str($this->mincoste)
+                    . "," . $this->var2str($this->maxpvp) . ");";
             }
 
             return $this->db->exec($sql);
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE codtarifa = " . $this->var2str($this->codtarifa) . ";");
     }
 
-    public function all() {
+    public function all()
+    {
         $tarlist = array();
 
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " ORDER BY codtarifa ASC;");
@@ -295,5 +315,4 @@ class tarifa extends \fs_model {
 
         return $tarlist;
     }
-
 }

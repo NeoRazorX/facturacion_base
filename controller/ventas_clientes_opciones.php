@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2016    Carlos Garcia Gomez        neorazorx@gmail.com
@@ -26,16 +25,19 @@ require_model('grupo_clientes.php');
  *
  * @author Carlos Garcia Gomez
  */
-class ventas_clientes_opciones extends fs_controller {
+class ventas_clientes_opciones extends fs_controller
+{
 
     public $nuevocli_setup;
     public $grupo;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Opciones', 'clientes', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->share_extension();
 
         $this->grupo = new grupo_clientes();
@@ -43,7 +45,7 @@ class ventas_clientes_opciones extends fs_controller {
         /// cargamos la configuración
         $fsvar = new fs_var();
         $this->nuevocli_setup = $fsvar->array_get(
-                array(
+            array(
             'nuevocli_cifnif_req' => 0,
             'nuevocli_direccion' => 1,
             'nuevocli_direccion_req' => 0,
@@ -62,7 +64,7 @@ class ventas_clientes_opciones extends fs_controller {
             'nuevocli_email' => 0,
             'nuevocli_email_req' => 0,
             'nuevocli_codgrupo' => '',
-                ), FALSE
+            ), FALSE
         );
 
         if (isset($_POST['setup'])) {
@@ -92,15 +94,15 @@ class ventas_clientes_opciones extends fs_controller {
         }
     }
 
-    private function share_extension() {
+    private function share_extension()
+    {
         $fsext = new fs_extension();
         $fsext->name = 'opciones_clientes';
         $fsext->from = __CLASS__;
         $fsext->to = 'ventas_clientes';
         $fsext->type = 'button';
         $fsext->text = '<span class="glyphicon glyphicon-wrench" aria-hidden="true" title="Opciones para nuevos clientes"></span>'
-                . '<span class="hidden-xs">&nbsp; Opciones</span>';
+            . '<span class="hidden-xs">&nbsp; Opciones</span>';
         $fsext->save();
     }
-
 }

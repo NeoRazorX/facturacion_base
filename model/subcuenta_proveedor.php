@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -25,6 +24,7 @@ require_once 'plugins/facturacion_base/model/core/subcuenta_proveedor.php';
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class subcuenta_proveedor extends FacturaScripts\model\subcuenta_proveedor {
+class subcuenta_proveedor extends FacturaScripts\model\subcuenta_proveedor
+{
     
 }

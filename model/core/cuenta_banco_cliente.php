@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -17,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 namespace FacturaScripts\model;
 
 /**
@@ -25,17 +23,18 @@ namespace FacturaScripts\model;
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class cuenta_banco_cliente extends \fs_model {
+class cuenta_banco_cliente extends \fs_model
+{
 
     /**
      * Clave primaria. Varchar(6).
-     * @var type 
+     * @var string 
      */
     public $codcuenta;
 
     /**
      * Código del cliente.
-     * @var type 
+     * @var string 
      */
     public $codcliente;
     public $descripcion;
@@ -44,17 +43,18 @@ class cuenta_banco_cliente extends \fs_model {
 
     /**
      * ¿Es la cuenta principal del cliente?
-     * @var type 
+     * @var boolean
      */
     public $principal;
 
     /**
      * Fecha en la que se firmó el mandato para autorizar la domiciliación de recibos.
-     * @var type 
+     * @var string 
      */
     public $fmandato;
 
-    public function __construct($c = FALSE) {
+    public function __construct($c = FALSE)
+    {
         parent::__construct('cuentasbcocli');
         if ($c) {
             $this->codcliente = $c['codcliente'];
@@ -79,103 +79,114 @@ class cuenta_banco_cliente extends \fs_model {
         }
     }
 
-    protected function install() {
+    protected function install()
+    {
         return '';
     }
 
     /**
      * Devuelve el IBAN con o sin espacios.
-     * @param type $espacios
-     * @return type
+     * @param string $espacios
+     * @return string
      */
-    public function iban($espacios = FALSE) {
-        if ($espacios) {
+    public function iban($espacios = FALSE)
+    {
+        if ($espacios === TRUE) {
             $txt = '';
             $iban = str_replace(' ', '', $this->iban);
             for ($i = 0; $i < strlen($iban); $i += 4) {
                 $txt .= substr($iban, $i, 4) . ' ';
             }
             return $txt;
-        } else {
-            return str_replace(' ', '', $this->iban);
         }
+
+        return str_replace(' ', '', $this->iban);
     }
 
-    public function url() {
+    public function url()
+    {
         if (is_null($this->codcliente)) {
             return '#';
-        } else {
-            return 'index.php?page=ventas_cliente&cod=' . $this->codcliente . '#cuentasb';
         }
+
+        return 'index.php?page=ventas_cliente&cod=' . $this->codcliente . '#cuentasb';
     }
 
-    public function get($cod) {
+    public function get($cod)
+    {
         $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE codcuenta = " . $this->var2str($cod) . ";");
         if ($data) {
             return new \cuenta_banco_cliente($data[0]);
-        } else
-            return FALSE;
+        }
+
+        return FALSE;
     }
 
-    private function get_new_codigo() {
+    private function get_new_codigo()
+    {
         $sql = "SELECT MAX(" . $this->db->sql_to_int('codcuenta') . ") as cod FROM " . $this->table_name . ";";
-        $cod = $this->db->select($sql);
-        if ($cod) {
-            return 1 + intval($cod[0]['cod']);
-        } else
-            return 1;
+        $data = $this->db->select($sql);
+        if ($data) {
+            return (string) (1 + intval($data[0]['cod']));
+        }
+
+        return '1';
     }
 
-    public function exists() {
+    public function exists()
+    {
         if (is_null($this->codcuenta)) {
             return FALSE;
-        } else {
-            return $this->db->select("SELECT * FROM " . $this->table_name
-                            . " WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";");
         }
+
+        return $this->db->select("SELECT * FROM " . $this->table_name
+                . " WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";");
     }
 
-    public function save() {
+    public function save()
+    {
         $this->descripcion = $this->no_html($this->descripcion);
 
         if ($this->exists()) {
             $sql = "UPDATE " . $this->table_name . " SET descripcion = " . $this->var2str($this->descripcion) .
-                    ", codcliente = " . $this->var2str($this->codcliente) .
-                    ", iban = " . $this->var2str($this->iban) .
-                    ", swift = " . $this->var2str($this->swift) .
-                    ", principal = " . $this->var2str($this->principal) .
-                    ", fmandato = " . $this->var2str($this->fmandato) .
-                    "  WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";";
+                ", codcliente = " . $this->var2str($this->codcliente) .
+                ", iban = " . $this->var2str($this->iban) .
+                ", swift = " . $this->var2str($this->swift) .
+                ", principal = " . $this->var2str($this->principal) .
+                ", fmandato = " . $this->var2str($this->fmandato) .
+                "  WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";";
         } else {
             $this->codcuenta = $this->get_new_codigo();
             $sql = "INSERT INTO " . $this->table_name . " (codcliente,codcuenta,descripcion,iban,swift,principal,fmandato)" .
-                    " VALUES (" . $this->var2str($this->codcliente) .
-                    "," . $this->var2str($this->codcuenta) .
-                    "," . $this->var2str($this->descripcion) .
-                    "," . $this->var2str($this->iban) .
-                    "," . $this->var2str($this->swift) .
-                    "," . $this->var2str($this->principal) .
-                    "," . $this->var2str($this->fmandato) . ");";
+                " VALUES (" . $this->var2str($this->codcliente) .
+                "," . $this->var2str($this->codcuenta) .
+                "," . $this->var2str($this->descripcion) .
+                "," . $this->var2str($this->iban) .
+                "," . $this->var2str($this->swift) .
+                "," . $this->var2str($this->principal) .
+                "," . $this->var2str($this->fmandato) . ");";
         }
 
         if ($this->principal) {
             /// si esta cuenta es la principal, desmarcamos las demás
             $sql .= "UPDATE " . $this->table_name . " SET principal = false" .
-                    " WHERE codcliente = " . $this->var2str($this->codcliente) .
-                    " AND codcuenta != " . $this->var2str($this->codcuenta) . ";";
+                " WHERE codcliente = " . $this->var2str($this->codcliente) .
+                " AND codcuenta != " . $this->var2str($this->codcuenta) . ";";
         }
 
         return $this->db->exec($sql);
     }
 
-    public function delete() {
+    public function delete()
+    {
         return $this->db->exec("DELETE FROM " . $this->table_name . " WHERE codcuenta = " . $this->var2str($this->codcuenta) . ";");
     }
 
-    public function all_from_cliente($codcli) {
+    public function all_from_cliente($codcli)
+    {
         $clist = array();
         $sql = "SELECT * FROM " . $this->table_name . " WHERE codcliente = " . $this->var2str($codcli)
-                . " ORDER BY codcuenta DESC;";
+            . " ORDER BY codcuenta DESC;";
 
         $data = $this->db->select($sql);
         if ($data) {
@@ -186,5 +197,4 @@ class cuenta_banco_cliente extends \fs_model {
 
         return $clist;
     }
-
 }

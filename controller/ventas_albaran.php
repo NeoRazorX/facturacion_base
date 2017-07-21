@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -38,7 +37,8 @@ require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('subcuenta.php');
 
-class ventas_albaran extends fbase_controller {
+class ventas_albaran extends fbase_controller
+{
 
     public $agencia;
     public $agente;
@@ -57,11 +57,13 @@ class ventas_albaran extends fbase_controller {
     public $pais;
     public $serie;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, FS_ALBARAN . ' de cliente', 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->ppage = $this->page->get('ventas_albaranes');
@@ -133,7 +135,8 @@ class ventas_albaran extends fbase_controller {
         }
     }
 
-    public function url() {
+    public function url()
+    {
         if (!isset($this->albaran)) {
             return parent::url();
         } else if ($this->albaran) {
@@ -142,7 +145,8 @@ class ventas_albaran extends fbase_controller {
             return $this->page->url();
     }
 
-    private function modificar() {
+    private function modificar()
+    {
         $error = FALSE;
         $this->albaran->numero2 = $_POST['numero2'];
         $this->albaran->observaciones = $_POST['observaciones'];
@@ -402,7 +406,7 @@ class ventas_albaran extends fbase_controller {
 
                 if (abs(floatval($_POST['atotal']) - $this->albaran->total) >= .02) {
                     $this->new_error_msg("El total difiere entre el controlador y la vista (" . $this->albaran->total .
-                            " frente a " . $_POST['atotal'] . "). Debes informar del error.");
+                        " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                 }
             }
         }
@@ -421,7 +425,8 @@ class ventas_albaran extends fbase_controller {
     /**
      * Actualizamos el cif/nif en el cliente y los albaranes de este cliente que no tenga cif/nif
      */
-    private function propagar_cifnif() {
+    private function propagar_cifnif()
+    {
         if ($this->albaran->cifnif) {
             /// buscamos el cliente
             $cliente = $this->cliente->get($this->albaran->codcliente);
@@ -432,14 +437,14 @@ class ventas_albaran extends fbase_controller {
                     if ($cliente->save()) {
                         /// actualizamos albaranes
                         $sql = "UPDATE albaranescli SET cifnif = " . $cliente->var2str($this->albaran->cifnif)
-                                . " WHERE codcliente = " . $cliente->var2str($this->albaran->codcliente)
-                                . " AND cifnif = '' AND fecha >= " . $cliente->var2str(date('01-01-Y')) . ";";
+                            . " WHERE codcliente = " . $cliente->var2str($this->albaran->codcliente)
+                            . " AND cifnif = '' AND fecha >= " . $cliente->var2str(date('01-01-Y')) . ";";
                         $this->db->exec($sql);
 
                         /// actualizamos facturas
                         $sql = "UPDATE facturascli SET cifnif = " . $cliente->var2str($this->albaran->cifnif)
-                                . " WHERE codcliente = " . $cliente->var2str($this->albaran->codcliente)
-                                . " AND cifnif = '' AND fecha >= " . $cliente->var2str(date('01-01-Y')) . ";";
+                            . " WHERE codcliente = " . $cliente->var2str($this->albaran->codcliente)
+                            . " AND cifnif = '' AND fecha >= " . $cliente->var2str(date('01-01-Y')) . ";";
                         $this->db->exec($sql);
                     }
                 }
@@ -447,7 +452,8 @@ class ventas_albaran extends fbase_controller {
         }
     }
 
-    private function generar_factura() {
+    private function generar_factura()
+    {
         $factura = new factura_cliente();
         $factura->apartado = $this->albaran->apartado;
         $factura->cifnif = $this->albaran->cifnif;
@@ -577,7 +583,8 @@ class ventas_albaran extends fbase_controller {
             $this->new_error_msg("¡Imposible guardar la factura!");
     }
 
-    private function generar_asiento(&$factura) {
+    private function generar_asiento(&$factura)
+    {
         if ($this->empresa->contintegrada) {
             $asiento_factura = new asiento_factura();
             if ($asiento_factura->generar_asiento_venta($factura)) {
@@ -597,5 +604,4 @@ class ventas_albaran extends fbase_controller {
 
         $this->new_change('Factura ' . $factura->codigo, $factura->url(), TRUE);
     }
-
 }

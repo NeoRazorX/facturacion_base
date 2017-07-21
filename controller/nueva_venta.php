@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez       neorazorx@gmail.com
@@ -38,7 +37,8 @@ require_model('regularizacion_iva.php');
 require_model('serie.php');
 require_model('tarifa.php');
 
-class nueva_venta extends fbase_controller {
+class nueva_venta extends fbase_controller
+{
 
     public $agencia;
     public $agente;
@@ -59,11 +59,13 @@ class nueva_venta extends fbase_controller {
     public $serie;
     public $tipo;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Nueva venta...', 'ventas', FALSE, FALSE, TRUE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->agencia = new agencia_transporte();
@@ -80,7 +82,7 @@ class nueva_venta extends fbase_controller {
         /// cargamos la configuración
         $fsvar = new fs_var();
         $this->nuevocli_setup = $fsvar->array_get(
-                array(
+            array(
             'nuevocli_cifnif_req' => 0,
             'nuevocli_direccion' => 0,
             'nuevocli_direccion_req' => 0,
@@ -99,7 +101,7 @@ class nueva_venta extends fbase_controller {
             'nuevocli_email' => 0,
             'nuevocli_email_req' => 0,
             'nuevocli_codgrupo' => '',
-                ), FALSE
+            ), FALSE
         );
 
         if (isset($_REQUEST['tipo'])) {
@@ -276,7 +278,8 @@ class nueva_venta extends fbase_controller {
      * así para añadir tipos no hay que tocar la vista.
      * @return type
      */
-    public function tipos_a_guardar() {
+    public function tipos_a_guardar()
+    {
         $tipos = array();
 
         if ($this->user->have_access_to('ventas_presupuesto') AND class_exists('presupuesto_cliente')) {
@@ -298,11 +301,13 @@ class nueva_venta extends fbase_controller {
         return $tipos;
     }
 
-    public function url() {
+    public function url()
+    {
         return 'index.php?page=' . __CLASS__ . '&tipo=' . $this->tipo;
     }
 
-    private function datos_cliente() {
+    private function datos_cliente()
+    {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
@@ -310,7 +315,8 @@ class nueva_venta extends fbase_controller {
         echo json_encode($this->cliente->get($_REQUEST['datoscliente']));
     }
 
-    private function new_articulo() {
+    private function new_articulo()
+    {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
@@ -351,7 +357,8 @@ class nueva_venta extends fbase_controller {
         echo json_encode($this->results);
     }
 
-    private function new_search() {
+    private function new_search()
+    {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
@@ -423,7 +430,8 @@ class nueva_venta extends fbase_controller {
         echo json_encode($this->results);
     }
 
-    private function get_precios_articulo() {
+    private function get_precios_articulo()
+    {
         /// cambiamos la plantilla HTML
         $this->template = 'ajax/nueva_venta_precios';
 
@@ -431,7 +439,8 @@ class nueva_venta extends fbase_controller {
         $this->articulo = $articulo->get($_POST['referencia4precios']);
     }
 
-    private function get_combinaciones_articulo() {
+    private function get_combinaciones_articulo()
+    {
         /// cambiamos la plantilla HTML
         $this->template = 'ajax/nueva_venta_combinaciones';
 
@@ -468,7 +477,8 @@ class nueva_venta extends fbase_controller {
         }
     }
 
-    public function get_tarifas_articulo($ref) {
+    public function get_tarifas_articulo($ref)
+    {
         $tarlist = array();
         $articulo = new articulo();
         $tarifa = new tarifa();
@@ -486,7 +496,8 @@ class nueva_venta extends fbase_controller {
         return $tarlist;
     }
 
-    private function nuevo_albaran_cliente() {
+    private function nuevo_albaran_cliente()
+    {
         $continuar = TRUE;
 
         $cliente = $this->cliente->get($_POST['cliente']);
@@ -667,7 +678,7 @@ class nueva_venta extends fbase_controller {
 
                     if (abs(floatval($_POST['atotal']) - $albaran->total) >= .02) {
                         $this->new_error_msg("El total difiere entre la vista y el controlador (" . $_POST['atotal'] .
-                                " frente a " . $albaran->total . "). Debes informar del error.");
+                            " frente a " . $albaran->total . "). Debes informar del error.");
                         $albaran->delete();
                     } else if ($albaran->save()) {
                         $this->new_message("<a href='" . $albaran->url() . "'>" . ucfirst(FS_ALBARAN) . "</a> guardado correctamente.");
@@ -701,7 +712,8 @@ class nueva_venta extends fbase_controller {
         }
     }
 
-    private function nueva_factura_cliente() {
+    private function nueva_factura_cliente()
+    {
         $continuar = TRUE;
 
         $cliente = $this->cliente->get($_POST['cliente']);
@@ -808,7 +820,7 @@ class nueva_venta extends fbase_controller {
             $regularizacion = new regularizacion_iva();
             if ($regularizacion->get_fecha_inside($factura->fecha)) {
                 $this->new_error_msg("El " . FS_IVA . " de ese periodo ya ha sido regularizado."
-                        . " No se pueden añadir más facturas en esa fecha.");
+                    . " No se pueden añadir más facturas en esa fecha.");
             } else if ($factura->save()) {
                 $trazabilidad = FALSE;
 
@@ -892,7 +904,7 @@ class nueva_venta extends fbase_controller {
 
                     if (abs(floatval($_POST['atotal']) - $factura->total) >= .02) {
                         $this->new_error_msg("El total difiere entre la vista y el controlador (" . $_POST['atotal'] .
-                                " frente a " . $factura->total . "). Debes informar del error.");
+                            " frente a " . $factura->total . "). Debes informar del error.");
                         $factura->delete();
                     } else if ($factura->save()) {
                         $this->generar_asiento($factura);
@@ -931,7 +943,8 @@ class nueva_venta extends fbase_controller {
      * Genera el asiento para la factura, si procede
      * @param factura_cliente $factura
      */
-    private function generar_asiento(&$factura) {
+    private function generar_asiento(&$factura)
+    {
         if ($this->empresa->contintegrada) {
             $asiento_factura = new asiento_factura();
             $asiento_factura->generar_asiento_venta($factura);
@@ -949,7 +962,8 @@ class nueva_venta extends fbase_controller {
         }
     }
 
-    private function nuevo_presupuesto_cliente() {
+    private function nuevo_presupuesto_cliente()
+    {
         $continuar = TRUE;
 
         $cliente = $this->cliente->get($_POST['cliente']);
@@ -1114,7 +1128,7 @@ class nueva_venta extends fbase_controller {
 
                     if (abs(floatval($_POST['atotal']) - $presupuesto->total) >= .02) {
                         $this->new_error_msg("El total difiere entre el controlador y la vista (" .
-                                $presupuesto->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
+                            $presupuesto->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                         $presupuesto->delete();
                     } else if ($presupuesto->save()) {
                         $this->new_message("<a href='" . $presupuesto->url() . "'>" . ucfirst(FS_PRESUPUESTO) . "</a> guardado correctamente.");
@@ -1135,7 +1149,8 @@ class nueva_venta extends fbase_controller {
         }
     }
 
-    private function nuevo_pedido_cliente() {
+    private function nuevo_pedido_cliente()
+    {
         $continuar = TRUE;
 
         $cliente = $this->cliente->get($_POST['cliente']);
@@ -1292,7 +1307,7 @@ class nueva_venta extends fbase_controller {
 
                     if (abs(floatval($_POST['atotal']) - $pedido->total) >= .02) {
                         $this->new_error_msg("El total difiere entre el controlador y la vista (" .
-                                $pedido->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
+                            $pedido->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                         $pedido->delete();
                     } else if ($pedido->save()) {
                         $this->new_message("<a href='" . $pedido->url() . "'>" . ucfirst(FS_PEDIDO) . "</a> guardado correctamente.");
@@ -1312,5 +1327,4 @@ class nueva_venta extends fbase_controller {
                 $this->new_error_msg("¡Imposible guardar el " . FS_PEDIDO . "!");
         }
     }
-
 }

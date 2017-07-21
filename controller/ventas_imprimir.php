@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017    Carlos Garcia Gomez     neorazorx@gmail.com
@@ -32,7 +31,8 @@ require_model('pais.php');
 /**
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes y facturas.
  */
-class ventas_imprimir extends fs_controller {
+class ventas_imprimir extends fs_controller
+{
 
     public $articulo_traza;
     public $cliente;
@@ -41,11 +41,13 @@ class ventas_imprimir extends fs_controller {
     public $impuesto;
     private $numpaginas;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'imprimir', 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->cliente = FALSE;
         $this->documento = FALSE;
         $this->impuesto = new impuesto();
@@ -74,8 +76,7 @@ class ventas_imprimir extends fs_controller {
                 $this->enviar_email('albaran');
             } else
                 $this->generar_pdf_albaran();
-        }
-        else if (isset($_REQUEST['factura']) AND isset($_REQUEST['id'])) {
+        } else if (isset($_REQUEST['factura']) AND isset($_REQUEST['id'])) {
             $this->articulo_traza = new articulo_traza();
 
             $fac = new factura_cliente();
@@ -94,7 +95,8 @@ class ventas_imprimir extends fs_controller {
         $this->share_extensions();
     }
 
-    private function share_extensions() {
+    private function share_extensions()
+    {
         $extensiones = array(
             array(
                 'name' => 'imprimir_albaran',
@@ -153,7 +155,8 @@ class ventas_imprimir extends fs_controller {
         }
     }
 
-    private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag) {
+    private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag)
+    {
         /// calculamos el número de páginas
         if (!isset($this->numpaginas)) {
             $this->numpaginas = 0;
@@ -362,29 +365,27 @@ class ventas_imprimir extends fs_controller {
         }
 
         $pdf_doc->save_table(
-                array(
-                    'fontSize' => 8,
-                    'cols' => array(
-                        'cantidad' => array('justification' => 'right'),
-                        'pvp' => array('justification' => 'right'),
-                        'dto' => array('justification' => 'right'),
-                        'iva' => array('justification' => 'right'),
-                        're' => array('justification' => 'right'),
-                        'irpf' => array('justification' => 'right'),
-                        'importe' => array('justification' => 'right')
-                    ),
-                    'width' => 520,
-                    'shaded' => 1,
-                    'shadeCol' => array(0.95, 0.95, 0.95),
-                    'lineCol' => array(0.3, 0.3, 0.3),
-                )
+            array(
+                'fontSize' => 8,
+                'cols' => array(
+                    'cantidad' => array('justification' => 'right'),
+                    'pvp' => array('justification' => 'right'),
+                    'dto' => array('justification' => 'right'),
+                    'iva' => array('justification' => 'right'),
+                    're' => array('justification' => 'right'),
+                    'irpf' => array('justification' => 'right'),
+                    'importe' => array('justification' => 'right')
+                ),
+                'width' => 520,
+                'shaded' => 1,
+                'shadeCol' => array(0.95, 0.95, 0.95),
+                'lineCol' => array(0.3, 0.3, 0.3),
+            )
         );
 
         /// ¿Última página?
-        if ($linea_actual == count($lineas)) {
-            if ($this->documento->observaciones != '') {
-                $pdf_doc->pdf->ezText("\n" . fs_fix_html($this->documento->observaciones), 9);
-            }
+        if ($linea_actual == count($lineas) && $this->documento->observaciones != '') {
+            $pdf_doc->pdf->ezText("\n" . fs_fix_html($this->documento->observaciones), 9);
         }
     }
 
@@ -393,7 +394,8 @@ class ventas_imprimir extends fs_controller {
      * @param linea_albaran_compra $linea
      * @return string
      */
-    private function generar_trazabilidad($linea) {
+    private function generar_trazabilidad($linea)
+    {
         $lineast = array();
         if (get_class_name($linea) == 'linea_albaran_cliente') {
             $lineast = $this->articulo_traza->all_from_linea('idlalbventa', $linea->idlinea);
@@ -419,7 +421,8 @@ class ventas_imprimir extends fs_controller {
         return $txt;
     }
 
-    private function generar_pdf_datos_cliente(&$pdf_doc, &$lppag) {
+    private function generar_pdf_datos_cliente(&$pdf_doc, &$lppag)
+    {
         $tipo_doc = ucfirst(FS_ALBARAN);
         $width_campo1 = 90;
         $rectificativa = FALSE;
@@ -446,29 +449,29 @@ class ventas_imprimir extends fs_controller {
          */
         $pdf_doc->new_table();
         $pdf_doc->add_table_row(
-                array(
-                    'campo1' => "<b>" . $tipo_doc . ":</b>",
-                    'dato1' => $this->documento->codigo,
-                    'campo2' => "<b>Fecha:</b> " . $this->documento->fecha
-                )
+            array(
+                'campo1' => "<b>" . $tipo_doc . ":</b>",
+                'dato1' => $this->documento->codigo,
+                'campo2' => "<b>Fecha:</b> " . $this->documento->fecha
+            )
         );
 
         if ($rectificativa) {
             $pdf_doc->add_table_row(
-                    array(
-                        'campo1' => "<b>Original:</b>",
-                        'dato1' => $this->documento->codigorect,
-                        'campo2' => '',
-                    )
+                array(
+                    'campo1' => "<b>Original:</b>",
+                    'dato1' => $this->documento->codigorect,
+                    'campo2' => '',
+                )
             );
         }
 
         $pdf_doc->add_table_row(
-                array(
-                    'campo1' => "<b>Cliente:</b> ",
-                    'dato1' => fs_fix_html($this->documento->nombrecliente),
-                    'campo2' => "<b>" . $tipoidfiscal . ":</b> " . $this->documento->cifnif
-                )
+            array(
+                'campo1' => "<b>Cliente:</b> ",
+                'dato1' => fs_fix_html($this->documento->nombrecliente),
+                'campo2' => "<b>" . $tipoidfiscal . ":</b> " . $this->documento->cifnif
+            )
         );
 
         $direccion = $this->documento->direccion;
@@ -550,30 +553,31 @@ class ventas_imprimir extends fs_controller {
 
         if ($this->empresa->codpais != 'ESP') {
             $pdf_doc->add_table_row(
-                    array(
-                        'campo1' => "<b>Régimen " . FS_IVA . ":</b> ",
-                        'dato1' => $this->cliente->regimeniva,
-                        'campo2' => ''
-                    )
+                array(
+                    'campo1' => "<b>Régimen " . FS_IVA . ":</b> ",
+                    'dato1' => $this->cliente->regimeniva,
+                    'campo2' => ''
+                )
             );
         }
 
         $pdf_doc->save_table(
-                array(
-                    'cols' => array(
-                        'campo1' => array('width' => $width_campo1, 'justification' => 'right'),
-                        'dato1' => array('justification' => 'left'),
-                        'campo2' => array('justification' => 'right')
-                    ),
-                    'showLines' => 0,
-                    'width' => 520,
-                    'shaded' => 0
-                )
+            array(
+                'cols' => array(
+                    'campo1' => array('width' => $width_campo1, 'justification' => 'right'),
+                    'dato1' => array('justification' => 'left'),
+                    'campo2' => array('justification' => 'right')
+                ),
+                'showLines' => 0,
+                'width' => 520,
+                'shaded' => 0
+            )
         );
         $pdf_doc->pdf->ezText("\n", 10);
     }
 
-    private function generar_pdf_totales(&$pdf_doc, &$lineas_iva, $pagina) {
+    private function generar_pdf_totales(&$pdf_doc, &$lineas_iva, $pagina)
+    {
         if (isset($_GET['noval'])) {
             $pdf_doc->pdf->addText(10, 10, 8, $pdf_doc->center_text('Página ' . $pagina . '/' . $this->numpaginas, 250));
         } else {
@@ -630,7 +634,8 @@ class ventas_imprimir extends fs_controller {
         }
     }
 
-    public function generar_pdf_albaran($archivo = FALSE) {
+    public function generar_pdf_albaran($archivo = FALSE)
+    {
         if (!$archivo) {
             /// desactivamos la plantilla HTML
             $this->template = FALSE;
@@ -679,7 +684,8 @@ class ventas_imprimir extends fs_controller {
             $pdf_doc->show(FS_ALBARAN . '_' . $this->documento->codigo . '.pdf');
     }
 
-    public function generar_pdf_factura($tipo = 'simple', $archivo = FALSE) {
+    public function generar_pdf_factura($tipo = 'simple', $archivo = FALSE)
+    {
         if (!$archivo) {
             /// desactivamos la plantilla HTML
             $this->template = FALSE;
@@ -732,22 +738,22 @@ class ventas_imprimir extends fs_controller {
                     }
                     $pdf_doc->new_table();
                     $pdf_doc->add_table_row(
-                            array(
-                                'campos' => "<b>" . ucfirst(FS_FACTURA) . ":</b>\n<b>Fecha:</b>\n<b>" . $this->cliente->tipoidfiscal . ":</b>",
-                                'factura' => $this->documento->codigo . "\n" . $this->documento->fecha . "\n" . $this->documento->cifnif,
-                                'cliente' => fs_fix_html($direccion)
-                            )
+                        array(
+                            'campos' => "<b>" . ucfirst(FS_FACTURA) . ":</b>\n<b>Fecha:</b>\n<b>" . $this->cliente->tipoidfiscal . ":</b>",
+                            'factura' => $this->documento->codigo . "\n" . $this->documento->fecha . "\n" . $this->documento->cifnif,
+                            'cliente' => fs_fix_html($direccion)
+                        )
                     );
                     $pdf_doc->save_table(
-                            array(
-                                'cols' => array(
-                                    'campos' => array('justification' => 'right', 'width' => 100),
-                                    'factura' => array('justification' => 'left'),
-                                    'cliente' => array('justification' => 'right')
-                                ),
-                                'showLines' => 0,
-                                'width' => 520
-                            )
+                        array(
+                            'cols' => array(
+                                'campos' => array('justification' => 'right', 'width' => 100),
+                                'factura' => array('justification' => 'left'),
+                                'cliente' => array('justification' => 'right')
+                            ),
+                            'showLines' => 0,
+                            'width' => 520
+                        )
                     );
                     $pdf_doc->pdf->ezText("\n\n\n", 14);
                 } else { /// esta es la cabecera de la página para el modelo 'simple'
@@ -828,7 +834,8 @@ class ventas_imprimir extends fs_controller {
             $pdf_doc->show(FS_FACTURA . '_' . $this->documento->codigo . '.pdf');
     }
 
-    private function enviar_email($doc, $tipo = 'simple') {
+    private function enviar_email($doc, $tipo = 'simple')
+    {
         if ($this->empresa->can_send_mail()) {
             if ($doc == 'factura') {
                 $filename = 'factura_' . $this->documento->codigo . '.pdf';
@@ -902,8 +909,8 @@ class ventas_imprimir extends fs_controller {
         }
     }
 
-    public function is_html($txt) {
+    public function is_html($txt)
+    {
         return ( $txt != strip_tags($txt) ) ? TRUE : FALSE;
     }
-
 }

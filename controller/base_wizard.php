@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -30,7 +29,8 @@ require_model('serie.php');
  *
  * @author Carlos Garcia Gomez
  */
-class base_wizard extends fs_controller {
+class base_wizard extends fs_controller
+{
 
     public $almacen;
     public $bad_password;
@@ -43,11 +43,13 @@ class base_wizard extends fs_controller {
     public $serie;
     public $step;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Asistente de instalación', 'admin', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->recargar = FALSE;
 
         if (floatval($this->version()) >= 2017.023) {
@@ -57,7 +59,8 @@ class base_wizard extends fs_controller {
         }
     }
 
-    private function private_core2() {
+    private function private_core2()
+    {
         $this->check_menu();
 
         $this->almacen = new almacen();
@@ -72,8 +75,8 @@ class base_wizard extends fs_controller {
         /// ¿Hay errores? Usa informes > Errores
         if ($this->get_errors()) {
             $this->new_message('Puedes solucionar la mayoría de errores en la base de datos ejecutando el '
-                    . '<a href="index.php?page=informe_errores" target="_blank">informe de errores</a> '
-                    . 'sobre las tablas.');
+                . '<a href="index.php?page=informe_errores" target="_blank">informe de errores</a> '
+                . 'sobre las tablas.');
         }
 
         if ($this->user->password == sha1('admin')) {
@@ -89,7 +92,7 @@ class base_wizard extends fs_controller {
         if (FS_DEMO) {
             $this->new_advice('En el modo demo no se pueden hacer cambios en esta página.');
             $this->new_advice('Si te gusta FacturaScripts y quieres saber más, consulta la '
-                    . '<a href="https://www.facturascripts.com/comm3/index.php?page=community_questions">sección preguntas</a>.');
+                . '<a href="https://www.facturascripts.com/comm3/index.php?page=community_questions">sección preguntas</a>.');
         } else if (isset($_POST['nombrecorto'])) {
             /// guardamos los datos de la empresa
             $this->empresa->nombre = $_POST['nombre'];
@@ -227,7 +230,8 @@ class base_wizard extends fs_controller {
     /**
      * Cargamos el menú en la base de datos, pero en varias pasadas.
      */
-    private function check_menu() {
+    private function check_menu()
+    {
         if (file_exists(__DIR__)) {
             $max = 25;
 
@@ -279,7 +283,8 @@ class base_wizard extends fs_controller {
      * @return array
      * @link http://stackoverflow.com/a/9328760
      */
-    public function get_timezone_list() {
+    public function get_timezone_list()
+    {
         $zones_array = array();
 
         $timestamp = time();
@@ -296,7 +301,8 @@ class base_wizard extends fs_controller {
      * Lista de opciones para NF0
      * @return type
      */
-    public function nf0() {
+    public function nf0()
+    {
         return array(0, 1, 2, 3, 4, 5);
     }
 
@@ -304,7 +310,8 @@ class base_wizard extends fs_controller {
      * Lista de opciones para NF1
      * @return type
      */
-    public function nf1() {
+    public function nf1()
+    {
         return array(
             ',' => 'coma',
             '.' => 'punto',
@@ -316,7 +323,8 @@ class base_wizard extends fs_controller {
      * Devuelve la lista de elementos a traducir
      * @return type
      */
-    public function traducciones() {
+    public function traducciones()
+    {
         $clist = array();
         $include = array(
             'factura', 'facturas', 'factura_simplificada', 'factura_rectificativa',
@@ -332,5 +340,4 @@ class base_wizard extends fs_controller {
 
         return $clist;
     }
-
 }

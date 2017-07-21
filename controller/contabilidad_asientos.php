@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -21,7 +20,8 @@
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('asiento.php');
 
-class contabilidad_asientos extends fbase_controller {
+class contabilidad_asientos extends fbase_controller
+{
 
     public $asiento;
     public $desde;
@@ -32,11 +32,13 @@ class contabilidad_asientos extends fbase_controller {
     public $orden;
     public $resultados;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Asientos', 'contabilidad');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->asiento = new asiento();
@@ -57,7 +59,8 @@ class contabilidad_asientos extends fbase_controller {
         }
     }
 
-    private function ini_filters() {
+    private function ini_filters()
+    {
         $this->mostrar = 'todo';
         if (isset($_GET['mostrar'])) {
             $this->mostrar = $_GET['mostrar'];
@@ -78,7 +81,8 @@ class contabilidad_asientos extends fbase_controller {
         }
     }
 
-    private function buscar() {
+    private function buscar()
+    {
         $this->resultados = array();
         $this->num_resultados = 0;
         $query = $this->empresa->no_html(mb_strtolower($this->query, 'UTF8'));
@@ -94,10 +98,10 @@ class contabilidad_asientos extends fbase_controller {
             }
 
             $sql .= $where . "(numero" . $aux_sql . " LIKE '%" . $query . "%' OR concepto LIKE '%" . $query
-                    . "%' OR importe BETWEEN " . ($query - .01) . " AND " . ($query + .01) . ')';
+                . "%' OR importe BETWEEN " . ($query - .01) . " AND " . ($query + .01) . ')';
             $where = ' AND ';
         } else {
-            $sql .= $where . "(lower(concepto) LIKE '%" . $buscar = str_replace(' ', '%', $query) . "%')";
+            $sql .= $where . "(lower(concepto) LIKE '%" . str_replace(' ', '%', $query) . "%')";
             $where = ' AND ';
         }
 
@@ -124,22 +128,25 @@ class contabilidad_asientos extends fbase_controller {
         }
     }
 
-    public function paginas() {
+    public function paginas()
+    {
         return $this->fbase_paginas($this->url(TRUE), $this->num_resultados, $this->offset);
     }
 
-    public function url($busqueda = FALSE) {
+    public function url($busqueda = FALSE)
+    {
         if ($busqueda) {
             return parent::url() . '&query=' . $this->query
-                    . "&desde=" . $this->desde
-                    . "&hasta=" . $this->hasta
-                    . "&orden=" . $this->orden;
+                . "&desde=" . $this->desde
+                . "&hasta=" . $this->hasta
+                . "&orden=" . $this->orden;
         } else {
             return parent::url();
         }
     }
 
-    private function eliminar_asiento() {
+    private function eliminar_asiento()
+    {
         $asiento = $this->asiento->get($_GET['delete']);
         if ($asiento) {
             if (!$this->allow_delete) {
@@ -152,5 +159,4 @@ class contabilidad_asientos extends fbase_controller {
         } else
             $this->new_error_msg("¡Asiento no encontrado!");
     }
-
 }

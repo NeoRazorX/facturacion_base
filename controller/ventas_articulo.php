@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -33,7 +32,8 @@ require_model('regularizacion_stock.php');
 require_model('stock.php');
 require_model('tarifa.php');
 
-class ventas_articulo extends fbase_controller {
+class ventas_articulo extends fbase_controller
+{
 
     public $agrupar_stock_fecha;
     public $almacen;
@@ -53,11 +53,13 @@ class ventas_articulo extends fbase_controller {
     public $stocks;
     public $regularizaciones;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Articulo', 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $articulo = new articulo();
@@ -135,14 +137,16 @@ class ventas_articulo extends fbase_controller {
         }
     }
 
-    public function url() {
+    public function url()
+    {
         if ($this->articulo) {
             return $this->articulo->url();
         } else
             return $this->page->url();
     }
 
-    private function check_extensions() {
+    private function check_extensions()
+    {
         /**
          * Si hay alguna extensión de tipo config y texto no_button_publicar,
          * desactivamos el botón publicar.
@@ -195,7 +199,8 @@ class ventas_articulo extends fbase_controller {
     /**
      * Decide qué modificación hacer en función de los parametros del formulario.
      */
-    private function modificar() {
+    private function modificar()
+    {
         if (isset($_POST['pvpiva'])) {
             $this->edit_precio();
         } else if (isset($_POST['almacen'])) {
@@ -219,7 +224,8 @@ class ventas_articulo extends fbase_controller {
         }
     }
 
-    private function edit_precio() {
+    private function edit_precio()
+    {
         $this->articulo->set_impuesto($_POST['codimpuesto']);
         $this->articulo->set_pvp_iva(floatval($_POST['pvpiva']));
 
@@ -234,7 +240,8 @@ class ventas_articulo extends fbase_controller {
         }
     }
 
-    private function edit_stock() {
+    private function edit_stock()
+    {
         if ($_POST['cantidadini'] == $_POST['cantidad']) {
             /// sin cambios de stock, pero aún así guardamos la ubicación
             foreach ($this->articulo->get_stock() as $stock) {
@@ -278,7 +285,8 @@ class ventas_articulo extends fbase_controller {
         }
     }
 
-    private function eliminar_regulacion() {
+    private function eliminar_regulacion()
+    {
         $reg = new regularizacion_stock();
         $regularizacion = $reg->get($_GET['deletereg']);
         if ($regularizacion) {
@@ -294,7 +302,8 @@ class ventas_articulo extends fbase_controller {
         }
     }
 
-    private function edit_imagen() {
+    private function edit_imagen()
+    {
         if (is_uploaded_file($_FILES['fimagen']['tmp_name'])) {
             $png = ( substr(strtolower($_FILES['fimagen']['name']), -3) == 'png' );
             $this->articulo->set_imagen(file_get_contents($_FILES['fimagen']['tmp_name']), $png);
@@ -305,7 +314,8 @@ class ventas_articulo extends fbase_controller {
         }
     }
 
-    private function eliminar_imagen() {
+    private function eliminar_imagen()
+    {
         $this->articulo->set_imagen(NULL);
         if ($this->articulo->save()) {
             $this->new_message("Imagen del articulo eliminada correctamente");
@@ -313,7 +323,8 @@ class ventas_articulo extends fbase_controller {
             $this->new_error_msg("¡Error al eliminar la imagen del articulo!");
     }
 
-    private function modificar_articulo() {
+    private function modificar_articulo()
+    {
         $this->articulo->descripcion = $_POST['descripcion'];
 
         $this->articulo->tipo = NULL;
@@ -338,7 +349,7 @@ class ventas_articulo extends fbase_controller {
                 foreach ($arts as $art2) {
                     if ($art2->referencia != $this->articulo->referencia) {
                         $this->new_advice('Ya hay un artículo con este mismo código de barras. '
-                                . 'En concreto, el artículo <a href="' . $art2->url() . '">' . $art2->referencia . '</a>.');
+                            . 'En concreto, el artículo <a href="' . $art2->url() . '">' . $art2->referencia . '</a>.');
                         break;
                     }
                 }
@@ -375,34 +386,35 @@ class ventas_articulo extends fbase_controller {
              */
             if ($this->db->table_exists('lineasalbaranescli')) {
                 $this->db->exec("UPDATE lineasalbaranescli SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                        . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
             }
 
             if ($this->db->table_exists('lineasalbaranesprov')) {
                 $this->db->exec("UPDATE lineasalbaranesprov SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                        . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
             }
 
             if ($this->db->table_exists('lineasfacturascli')) {
                 $this->db->exec("UPDATE lineasfacturascli SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                        . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
             }
 
             if ($this->db->table_exists('lineasfacturasprov')) {
                 $this->db->exec("UPDATE lineasfacturasprov SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                        . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
             }
 
             /// esto es una personalización del plugin producción, será eliminado este código en futuras versiones.
             if ($this->db->table_exists('lineasfabricados')) {
                 $this->db->exec("UPDATE lineasfabricados SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
-                        . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
+                    . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
             }
         } else
             $this->new_error_msg("¡Error al guardar el articulo!");
     }
 
-    private function nueva_combinacion() {
+    private function nueva_combinacion()
+    {
         $comb1 = new articulo_combinacion();
         $comb1->referencia = $this->articulo->referencia;
         $comb1->impactoprecio = floatval($_POST['impactoprecio']);
@@ -441,7 +453,8 @@ class ventas_articulo extends fbase_controller {
         }
     }
 
-    private function edit_combinacion() {
+    private function edit_combinacion()
+    {
         $comb1 = new articulo_combinacion();
         foreach ($comb1->all_from_codigo($_POST['editar_combi']) as $com) {
             $com->refcombinacion = NULL;
@@ -462,7 +475,8 @@ class ventas_articulo extends fbase_controller {
         $this->new_message('Combinación modificada.');
     }
 
-    private function eliminar_combinacion() {
+    private function eliminar_combinacion()
+    {
         $comb1 = new articulo_combinacion();
         foreach ($comb1->all_from_codigo($_GET['delete_combi']) as $com) {
             $com->delete();
@@ -471,7 +485,8 @@ class ventas_articulo extends fbase_controller {
         $this->new_message('Combinación eliminada.');
     }
 
-    public function get_tarifas() {
+    public function get_tarifas()
+    {
         $tarlist = array();
         $tarifa = new tarifa();
 
@@ -488,7 +503,8 @@ class ventas_articulo extends fbase_controller {
         return $tarlist;
     }
 
-    public function get_articulo_proveedores() {
+    public function get_articulo_proveedores()
+    {
         $artprov = new articulo_proveedor();
         $alist = $artprov->all_from_ref($this->articulo->referencia);
 
@@ -517,7 +533,8 @@ class ventas_articulo extends fbase_controller {
      * Devuelve un array con los movimientos de stock del artículo.
      * @return array
      */
-    public function get_movimientos($codalmacen) {
+    public function get_movimientos($codalmacen)
+    {
         $recstock = new recalcular_stock();
         $mlist = $recstock->get_movimientos($this->articulo->referencia, $codalmacen);
 
@@ -542,7 +559,8 @@ class ventas_articulo extends fbase_controller {
     /**
      * Calcula el stock real del artículo en función de los movimientos y regularizaciones
      */
-    private function calcular_stock_real() {
+    private function calcular_stock_real()
+    {
         $almacenes = $this->almacen->all();
         foreach ($almacenes as $alm) {
             $total = 0;
@@ -561,10 +579,11 @@ class ventas_articulo extends fbase_controller {
         }
 
         $this->new_advice("Puedes recalcular el stock de todos los artículos desde"
-                . " el menú <b>Informes &gt; Artículos &gt; Stock</b>");
+            . " el menú <b>Informes &gt; Artículos &gt; Stock</b>");
     }
 
-    public function combinaciones() {
+    public function combinaciones()
+    {
         $lista = array();
 
         $comb1 = new articulo_combinacion();
@@ -580,9 +599,9 @@ class ventas_articulo extends fbase_controller {
         return $lista;
     }
 
-    public function atributos() {
+    public function atributos()
+    {
         $atri0 = new atributo();
         return $atri0->all();
     }
-
 }

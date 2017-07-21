@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -31,7 +30,8 @@ require_model('recalcular_stock.php');
 require_model('regularizacion_stock.php');
 require_model('stock.php');
 
-class informe_articulos extends fbase_controller {
+class informe_articulos extends fbase_controller
+{
 
     public $agente;
     public $almacenes;
@@ -60,11 +60,13 @@ class informe_articulos extends fbase_controller {
     public $url_recarga;
     private $recalcular_stock;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Artículos', 'informes');
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->agente = new agente();
@@ -127,7 +129,8 @@ class informe_articulos extends fbase_controller {
         }
     }
 
-    private function ini_filters() {
+    private function ini_filters()
+    {
         $this->pestanya = 'stats';
         if (isset($_GET['tab'])) {
             $this->pestanya = $_GET['tab'];
@@ -191,7 +194,8 @@ class informe_articulos extends fbase_controller {
         }
     }
 
-    private function recalcular_stock() {
+    private function recalcular_stock()
+    {
         $articulo = new articulo();
         $continuar = FALSE;
         foreach ($articulo->all($this->offset, 25) as $art) {
@@ -209,7 +213,8 @@ class informe_articulos extends fbase_controller {
         }
     }
 
-    private function download_stock() {
+    private function download_stock()
+    {
         $header = array(
             'almacen' => 'string',
             'referencia' => '@',
@@ -237,7 +242,8 @@ class informe_articulos extends fbase_controller {
         $this->generar_archivo('Stock', $header, $rows, $_GET['download']);
     }
 
-    private function cambia_impuesto() {
+    private function cambia_impuesto()
+    {
         if (isset($_POST['new_codimpuesto'])) {
             if ($_POST['new_codimpuesto'] != '') {
                 $sql = "UPDATE articulos SET codimpuesto = " . $this->impuesto->var2str($_POST['new_codimpuesto']);
@@ -272,7 +278,8 @@ class informe_articulos extends fbase_controller {
         }
     }
 
-    private function stats() {
+    private function stats()
+    {
         $stats = array(
             'total' => 0,
             'con_stock' => 0,
@@ -282,10 +289,10 @@ class informe_articulos extends fbase_controller {
         );
 
         $sql = "SELECT GREATEST( COUNT(referencia), 0) as art,"
-                . " GREATEST( SUM(case when stockfis > 0 then 1 else 0 end), 0) as stock,"
-                . " GREATEST( SUM(case when bloqueado then 1 else 0 end), 0) as bloq,"
-                . " GREATEST( SUM(case when publico then 1 else 0 end), 0) as publi,"
-                . " MAX(factualizado) as factualizado FROM articulos;";
+            . " GREATEST( SUM(case when stockfis > 0 then 1 else 0 end), 0) as stock,"
+            . " GREATEST( SUM(case when bloqueado then 1 else 0 end), 0) as bloq,"
+            . " GREATEST( SUM(case when publico then 1 else 0 end), 0) as publi,"
+            . " MAX(factualizado) as factualizado FROM articulos;";
 
         $aux = $this->db->select($sql);
         if ($aux) {
@@ -299,19 +306,20 @@ class informe_articulos extends fbase_controller {
         return $stats;
     }
 
-    private function top_articulo_faccli() {
+    private function top_articulo_faccli()
+    {
         /// buscamos el resultado en caché
         $toplist = $this->cache->get_array('faccli_top_articulos');
         if (!$toplist OR isset($_POST['desde'])) {
             $toplist = array();
             $articulo = new articulo();
             $sql = "SELECT l.referencia, SUM(l.cantidad) as unidades, SUM(l.pvptotal/f.tasaconv) as total"
-                    . " FROM lineasfacturascli l, facturascli f"
-                    . " WHERE l.idfactura = f.idfactura AND l.referencia IS NOT NULL"
-                    . " AND f.fecha >= " . $articulo->var2str($this->desde)
-                    . " AND f.fecha <= " . $articulo->var2str($this->hasta)
-                    . " GROUP BY referencia"
-                    . " ORDER BY unidades DESC";
+                . " FROM lineasfacturascli l, facturascli f"
+                . " WHERE l.idfactura = f.idfactura AND l.referencia IS NOT NULL"
+                . " AND f.fecha >= " . $articulo->var2str($this->desde)
+                . " AND f.fecha <= " . $articulo->var2str($this->hasta)
+                . " GROUP BY referencia"
+                . " ORDER BY unidades DESC";
 
             $lineas = $this->db->select_limit($sql, FS_ITEM_LIMIT, 0);
             if ($lineas) {
@@ -335,16 +343,17 @@ class informe_articulos extends fbase_controller {
         return $toplist;
     }
 
-    private function sin_vender() {
+    private function sin_vender()
+    {
         $toplist = $this->cache->get_array('top_articulos_sin_vender');
         if (!$toplist) {
             $articulo = new articulo();
             $sql = "SELECT * FROM articulos WHERE sevende = true"
-                    . " AND bloqueado = false AND stockfis > 0 AND referencia NOT IN "
-                    . "(SELECT DISTINCT(referencia) FROM lineasfacturascli WHERE referencia IS NOT NULL"
-                    . " AND idfactura IN (SELECT idfactura FROM facturascli"
-                    . " WHERE fecha >= " . $articulo->var2str(Date('1-1-Y')) . "))"
-                    . " ORDER BY stockfis DESC";
+                . " AND bloqueado = false AND stockfis > 0 AND referencia NOT IN "
+                . "(SELECT DISTINCT(referencia) FROM lineasfacturascli WHERE referencia IS NOT NULL"
+                . " AND idfactura IN (SELECT idfactura FROM facturascli"
+                . " WHERE fecha >= " . $articulo->var2str(Date('1-1-Y')) . "))"
+                . " ORDER BY stockfis DESC";
 
             $lineas = $this->db->select_limit($sql, FS_ITEM_LIMIT, 0);
             if ($lineas) {
@@ -360,16 +369,17 @@ class informe_articulos extends fbase_controller {
         return $toplist;
     }
 
-    private function top_articulo_facpro() {
+    private function top_articulo_facpro()
+    {
         $toplist = $this->cache->get('facpro_top_articulos');
         if (!$toplist OR isset($_POST['desde'])) {
             $articulo = new articulo();
             $sql = "SELECT l.referencia, SUM(l.cantidad) as compras FROM lineasfacturasprov l, facturasprov f"
-                    . " WHERE l.idfactura = f.idfactura AND l.referencia IS NOT NULL"
-                    . " AND f.fecha >= " . $articulo->var2str($this->desde)
-                    . " AND f.fecha <= " . $articulo->var2str($this->hasta)
-                    . " GROUP BY referencia"
-                    . " ORDER BY compras DESC";
+                . " WHERE l.idfactura = f.idfactura AND l.referencia IS NOT NULL"
+                . " AND f.fecha >= " . $articulo->var2str($this->desde)
+                . " AND f.fecha <= " . $articulo->var2str($this->hasta)
+                . " GROUP BY referencia"
+                . " ORDER BY compras DESC";
 
             $lineas = $this->db->select_limit($sql, FS_ITEM_LIMIT, 0);
             if ($lineas) {
@@ -388,11 +398,12 @@ class informe_articulos extends fbase_controller {
         return $toplist;
     }
 
-    private function stock($offset = 0, $tipo = 'todo') {
+    private function stock($offset = 0, $tipo = 'todo')
+    {
         $slist = array();
 
         $sql = "SELECT codalmacen,s.referencia,a.descripcion,s.cantidad,a.stockmin,a.stockmax"
-                . " FROM stocks s, articulos a WHERE s.referencia = a.referencia";
+            . " FROM stocks s, articulos a WHERE s.referencia = a.referencia";
 
         if ($tipo == 'min') {
             $sql .= " AND s.cantidad < a.stockmin";
@@ -416,11 +427,12 @@ class informe_articulos extends fbase_controller {
         return $slist;
     }
 
-    private function regularizaciones_stock($offset = 0) {
+    private function regularizaciones_stock($offset = 0)
+    {
         $slist = array();
 
         $sql = "SELECT s.codalmacen,s.referencia,a.descripcion,r.cantidadini,r.cantidadfin,r.nick,r.motivo,r.fecha,r.hora "
-                . "FROM stocks s, articulos a, lineasregstocks r WHERE r.idstock = s.idstock AND s.referencia = a.referencia";
+            . "FROM stocks s, articulos a, lineasregstocks r WHERE r.idstock = s.idstock AND s.referencia = a.referencia";
         if ($this->codalmacen) {
             $sql .= " AND codalmacen = " . $this->empresa->var2str($this->codalmacen);
         }
@@ -436,7 +448,8 @@ class informe_articulos extends fbase_controller {
         return $slist;
     }
 
-    public function anterior_url() {
+    public function anterior_url()
+    {
         $url = '';
         $extra = '&tab=stock&tipo=' . $this->tipo_stock . '&codalmacen=' . $this->codalmacen;
 
@@ -447,7 +460,8 @@ class informe_articulos extends fbase_controller {
         return $url;
     }
 
-    public function siguiente_url() {
+    public function siguiente_url()
+    {
         $url = '';
         $extra = '&tab=stock&tipo=' . $this->tipo_stock . '&codalmacen=' . $this->codalmacen;
 
@@ -458,7 +472,8 @@ class informe_articulos extends fbase_controller {
         return $url;
     }
 
-    private function buscar_referencia() {
+    private function buscar_referencia()
+    {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
@@ -472,18 +487,19 @@ class informe_articulos extends fbase_controller {
         echo json_encode(array('query' => $_REQUEST['buscar_referencia'], 'suggestions' => $json));
     }
 
-    private function informe_facturacion() {
+    private function informe_facturacion()
+    {
         $sumar = 'pvptotal';
         if ($this->cantidades) {
             $sumar = 'cantidad';
         }
 
         $sql = "SELECT l.referencia,f.fecha,SUM(" . $sumar . ") as total"
-                . " FROM " . $this->documento . " f, lineas" . $this->documento . " l"
-                . " WHERE f.idfactura = l.idfactura"
-                . " AND referencia IS NOT NULL AND referencia != ''"
-                . " AND fecha >= " . $this->empresa->var2str($this->desde)
-                . " AND fecha <= " . $this->empresa->var2str($this->hasta);
+            . " FROM " . $this->documento . " f, lineas" . $this->documento . " l"
+            . " WHERE f.idfactura = l.idfactura"
+            . " AND referencia IS NOT NULL AND referencia != ''"
+            . " AND fecha >= " . $this->empresa->var2str($this->desde)
+            . " AND fecha <= " . $this->empresa->var2str($this->hasta);
 
         if (is_numeric($this->minimo)) {
             $sql .= " AND " . $sumar . " >= " . $this->empresa->var2str($this->minimo);
@@ -491,7 +507,7 @@ class informe_articulos extends fbase_controller {
 
         if ($this->codfamilia != '') {
             $sql .= " AND referencia IN (SELECT referencia FROM articulos"
-                    . " WHERE codfamilia IN (";
+                . " WHERE codfamilia IN (";
             $coma = '';
             foreach ($this->get_subfamilias($this->codfamilia) as $fam) {
                 $sql .= $coma . $this->empresa->var2str($fam);
@@ -570,7 +586,8 @@ class informe_articulos extends fbase_controller {
         }
     }
 
-    private function get_subfamilias($cod) {
+    private function get_subfamilias($cod)
+    {
         $familias = array($cod);
 
         $data = $this->db->select("SELECT codfamilia,madre FROM familias WHERE madre = " . $this->empresa->var2str($cod) . ";");
@@ -589,8 +606,9 @@ class informe_articulos extends fbase_controller {
      * Recalcula el stock del artículo $articulo para cada almacén.
      * @param articulo $articulo
      */
-    private function calcular_stock_real(&$articulo) {
-        if ($articulo->nostock == FALSE) {
+    private function calcular_stock_real(&$articulo)
+    {
+        if ($articulo->nostock === FALSE) {
             foreach ($this->almacenes as $alm) {
                 $total = 0;
                 foreach ($this->recalcular_stock->get_movimientos($articulo->referencia, $alm->codalmacen) as $mov) {
@@ -599,13 +617,14 @@ class informe_articulos extends fbase_controller {
 
                 if (!$articulo->set_stock($alm->codalmacen, $total)) {
                     $this->new_error_msg('Error al recarcular el stock del artículo ' . $articulo->referencia
-                            . ' en almacén ' . $alm->codalmacen . '.');
+                        . ' en almacén ' . $alm->codalmacen . '.');
                 }
             }
         }
     }
 
-    private function informe_movimientos() {
+    private function informe_movimientos()
+    {
         if ($this->codfamilia) {
             $familia = $this->familia->get($this->codfamilia);
             if ($familia) {
@@ -623,7 +642,7 @@ class informe_articulos extends fbase_controller {
             $this->resultados = $this->recalcular_stock->get_movimientos($this->referencia, $this->codalmacen, $this->desde, $this->hasta, $this->codagente);
         }
 
-        if (!$this->resultados) {
+        if (empty($this->resultados)) {
             $this->new_message('Sin resultados.');
         } else if ($_POST['generar'] != '') {
             $header = array(
@@ -659,18 +678,19 @@ class informe_articulos extends fbase_controller {
         }
     }
 
-    private function informe_ventascli() {
+    private function informe_ventascli()
+    {
         $sql = "SELECT l.referencia,f.codcliente,f.fecha,SUM(l.cantidad) as total"
-                . " FROM facturascli f, lineasfacturascli l"
-                . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
-                . " AND f.fecha >= " . $this->empresa->var2str($_POST['desde'])
-                . " AND f.fecha <= " . $this->empresa->var2str($_POST['hasta']);
+            . " FROM facturascli f, lineasfacturascli l"
+            . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
+            . " AND f.fecha >= " . $this->empresa->var2str($_POST['desde'])
+            . " AND f.fecha <= " . $this->empresa->var2str($_POST['hasta']);
 
         if ($this->referencia != '') {
             $sql .= " AND l.referencia = " . $this->empresa->var2str($this->referencia);
         } else if ($this->codfamilia != '') {
             $sql .= " AND l.referencia IN (SELECT referencia FROM articulos"
-                    . " WHERE codfamilia IN (";
+                . " WHERE codfamilia IN (";
             $coma = '';
             foreach ($this->get_subfamilias($this->codfamilia) as $fam) {
                 $sql .= $coma . $this->empresa->var2str($fam);
@@ -756,7 +776,8 @@ class informe_articulos extends fbase_controller {
         }
     }
 
-    public function generar_archivo($archivo, $header, $rows, $format = 'csv') {
+    public function generar_archivo($archivo, $header, $rows, $format = 'csv')
+    {
         $this->template = FALSE;
 
         if ($format == 'csv') {
@@ -786,5 +807,4 @@ class informe_articulos extends fbase_controller {
             $writer->writeToStdOut();
         }
     }
-
 }

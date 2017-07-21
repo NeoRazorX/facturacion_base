@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -25,6 +24,7 @@ require_once 'plugins/facturacion_base/model/core/articulo_combinacion.php';
  *
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
-class articulo_combinacion extends FacturaScripts\model\articulo_combinacion {
+class articulo_combinacion extends FacturaScripts\model\articulo_combinacion
+{
     
 }

@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -28,16 +27,19 @@ require_model('serie.php');
  *
  * @author Carlos Garcia Gomez
  */
-class compras_factura_devolucion extends fs_controller {
+class compras_factura_devolucion extends fs_controller
+{
 
     public $factura;
     public $serie;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Devoluciones de factura de compra', 'compras', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->share_extension();
 
         $this->serie = new serie();
@@ -57,7 +59,8 @@ class compras_factura_devolucion extends fs_controller {
         }
     }
 
-    private function nueva_rectificativa() {
+    private function nueva_rectificativa()
+    {
         $continuar = TRUE;
 
         $eje0 = new ejercicio();
@@ -151,7 +154,8 @@ class compras_factura_devolucion extends fs_controller {
         }
     }
 
-    private function generar_asiento(&$factura) {
+    private function generar_asiento(&$factura)
+    {
         if ($this->empresa->contintegrada) {
             $asiento_factura = new asiento_factura();
             $asiento_factura->generar_asiento_compra($factura);
@@ -166,14 +170,15 @@ class compras_factura_devolucion extends fs_controller {
         }
     }
 
-    private function share_extension() {
+    private function share_extension()
+    {
         $fsxet = new fs_extension();
         $fsxet->name = 'tab_devoluciones';
         $fsxet->from = __CLASS__;
         $fsxet->to = 'compras_factura';
         $fsxet->type = 'tab';
         $fsxet->text = '<span class="glyphicon glyphicon-share" aria-hidden="true"></span>'
-                . '<span class="hidden-xs">&nbsp; Devoluciones</span>';
+            . '<span class="hidden-xs">&nbsp; Devoluciones</span>';
         $fsxet->save();
 
         $fsxet2 = new fs_extension();
@@ -182,8 +187,7 @@ class compras_factura_devolucion extends fs_controller {
         $fsxet2->to = 'editar_factura_prov';
         $fsxet2->type = 'tab';
         $fsxet2->text = '<span class="glyphicon glyphicon-share" aria-hidden="true"></span>'
-                . '<span class="hidden-xs">&nbsp; Devoluciones</span>';
+            . '<span class="hidden-xs">&nbsp; Devoluciones</span>';
         $fsxet2->save();
     }
-
 }

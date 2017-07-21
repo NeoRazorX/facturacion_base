@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -20,15 +19,18 @@
 
 require_model('ejercicio.php');
 
-class contabilidad_ejercicios extends fs_controller {
+class contabilidad_ejercicios extends fs_controller
+{
 
     public $ejercicio;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Ejercicios', 'contabilidad', FALSE, TRUE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->ejercicio = new ejercicio();
 
         if (isset($_GET['delete'])) {
@@ -40,7 +42,8 @@ class contabilidad_ejercicios extends fs_controller {
         }
     }
 
-    private function new_ejercico() {
+    private function new_ejercico()
+    {
         /// ¿Existe ya el ejercicio?
         $eje0 = $this->ejercicio->get($_POST['codejercicio']);
         if ($eje0) {
@@ -59,7 +62,8 @@ class contabilidad_ejercicios extends fs_controller {
         }
     }
 
-    private function predeterminado() {
+    private function predeterminado()
+    {
         $this->empresa->codejercicio = $_POST['predeterminado'];
 
         if ($this->empresa->save()) {
@@ -70,7 +74,8 @@ class contabilidad_ejercicios extends fs_controller {
         }
     }
 
-    private function delete_ejercicio() {
+    private function delete_ejercicio()
+    {
         $eje0 = $this->ejercicio->get($_GET['delete']);
         if ($eje0) {
             if ($eje0->delete()) {
@@ -80,5 +85,4 @@ class contabilidad_ejercicios extends fs_controller {
         } else
             $this->new_error_msg("Ejercicio no encontrado");
     }
-
 }

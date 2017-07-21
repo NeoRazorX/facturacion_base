@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -27,16 +26,19 @@ require_model('atributo_valor.php');
  *
  * @author Carlos Garcia Gomez
  */
-class ventas_atributos extends fbase_controller {
+class ventas_atributos extends fbase_controller
+{
 
     public $atributo;
     public $resultados;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Atributos de artículos', 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
         $this->share_extensions();
 
@@ -61,18 +63,20 @@ class ventas_atributos extends fbase_controller {
         }
     }
 
-    private function share_extensions() {
+    private function share_extensions()
+    {
         $fsext = new fs_extension();
         $fsext->name = 'btn_atributos';
         $fsext->from = __CLASS__;
         $fsext->to = 'ventas_articulos';
         $fsext->type = 'button';
         $fsext->text = '<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>'
-                . '<span class="hidden-xs">&nbsp; Atributos</span>';
+            . '<span class="hidden-xs">&nbsp; Atributos</span>';
         $fsext->save();
     }
 
-    private function nuevo_atributo(&$atr1) {
+    private function nuevo_atributo(&$atr1)
+    {
         $atr1->codatributo = substr($_POST['nuevo'], 0, 20);
         $atr1->nombre = $_POST['nuevo'];
 
@@ -84,7 +88,8 @@ class ventas_atributos extends fbase_controller {
         }
     }
 
-    private function editar_atributo() {
+    private function editar_atributo()
+    {
         if (isset($_POST['nombre'])) {
             $this->atributo->nombre = $_POST['nombre'];
 
@@ -130,7 +135,8 @@ class ventas_atributos extends fbase_controller {
         }
     }
 
-    private function eliminar_atributos(&$atr1) {
+    private function eliminar_atributos(&$atr1)
+    {
         $atributo = $atr1->get($_GET['delete']);
         if ($atributo) {
             if (!$this->allow_delete) {
@@ -142,5 +148,4 @@ class ventas_atributos extends fbase_controller {
             }
         }
     }
-
 }

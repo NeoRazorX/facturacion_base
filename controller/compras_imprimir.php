@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -29,7 +28,8 @@ require_model('proveedor.php');
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes de proveedor
  * e imprimir facturas de proveedor.
  */
-class compras_imprimir extends fs_controller {
+class compras_imprimir extends fs_controller
+{
 
     public $articulo_traza;
     public $documento;
@@ -39,11 +39,13 @@ class compras_imprimir extends fs_controller {
     private $articulo_proveedor;
     private $numpaginas;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'imprimir', 'compras', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         $this->articulo_proveedor = new articulo_proveedor();
         $this->documento = FALSE;
         $this->impuesto = new impuesto();
@@ -89,7 +91,8 @@ class compras_imprimir extends fs_controller {
         $this->share_extensions();
     }
 
-    private function share_extensions() {
+    private function share_extensions()
+    {
         $extensiones = array(
             array(
                 'name' => 'imprimir_albaran_proveedor',
@@ -124,7 +127,8 @@ class compras_imprimir extends fs_controller {
         }
     }
 
-    private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag) {
+    private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag)
+    {
         /// calculamos el número de páginas
         if (!isset($this->numpaginas)) {
             $this->numpaginas = 0;
@@ -256,7 +260,7 @@ class compras_imprimir extends fs_controller {
             $descripcion = fs_fix_html($lineas[$linea_actual]->descripcion);
             if (!is_null($lineas[$linea_actual]->referencia)) {
                 $descripcion = '<b>' . $this->get_referencia_proveedor($lineas[$linea_actual]->referencia)
-                        . '</b> ' . $descripcion;
+                    . '</b> ' . $descripcion;
             }
 
             /// ¿El articulo tiene trazabilidad?
@@ -290,22 +294,22 @@ class compras_imprimir extends fs_controller {
         }
 
         $pdf_doc->save_table(
-                array(
-                    'fontSize' => 8,
-                    'cols' => array(
-                        'cantidad' => array('justification' => 'right'),
-                        'pvp' => array('justification' => 'right'),
-                        'dto' => array('justification' => 'right'),
-                        'iva' => array('justification' => 'right'),
-                        're' => array('justification' => 'right'),
-                        'irpf' => array('justification' => 'right'),
-                        'importe' => array('justification' => 'right')
-                    ),
-                    'width' => 520,
-                    'shaded' => 1,
-                    'shadeCol' => array(0.95, 0.95, 0.95),
-                    'lineCol' => array(0.3, 0.3, 0.3),
-                )
+            array(
+                'fontSize' => 8,
+                'cols' => array(
+                    'cantidad' => array('justification' => 'right'),
+                    'pvp' => array('justification' => 'right'),
+                    'dto' => array('justification' => 'right'),
+                    'iva' => array('justification' => 'right'),
+                    're' => array('justification' => 'right'),
+                    'irpf' => array('justification' => 'right'),
+                    'importe' => array('justification' => 'right')
+                ),
+                'width' => 520,
+                'shaded' => 1,
+                'shadeCol' => array(0.95, 0.95, 0.95),
+                'lineCol' => array(0.3, 0.3, 0.3),
+            )
         );
 
         /// ¿Última página?
@@ -318,7 +322,8 @@ class compras_imprimir extends fs_controller {
         $pdf_doc->set_y(80);
     }
 
-    private function get_referencia_proveedor($ref) {
+    private function get_referencia_proveedor($ref)
+    {
         $artprov = $this->articulo_proveedor->get_by($ref, $this->documento->codproveedor);
         if ($artprov) {
             return $artprov->refproveedor;
@@ -331,7 +336,8 @@ class compras_imprimir extends fs_controller {
      * @param linea_albaran_compra $linea
      * @return string
      */
-    private function generar_trazabilidad($linea) {
+    private function generar_trazabilidad($linea)
+    {
         $lineast = array();
         if (get_class_name($linea) == 'linea_albaran_proveedor') {
             $lineast = $this->articulo_traza->all_from_linea('idlalbcompra', $linea->idlinea);
@@ -357,7 +363,8 @@ class compras_imprimir extends fs_controller {
         return $txt;
     }
 
-    private function generar_pdf_datos_proveedor(&$pdf_doc) {
+    private function generar_pdf_datos_proveedor(&$pdf_doc)
+    {
         $tipo_doc = ucfirst(FS_ALBARAN);
         $width_campo1 = 90;
         $rectificativa = FALSE;
@@ -383,47 +390,48 @@ class compras_imprimir extends fs_controller {
          */
         $pdf_doc->new_table();
         $pdf_doc->add_table_row(
-                array(
-                    'campo1' => "<b>" . $tipo_doc . ":</b>",
-                    'dato1' => $this->documento->codigo,
-                    'campo2' => "<b>Fecha:</b> " . $this->documento->fecha
-                )
+            array(
+                'campo1' => "<b>" . $tipo_doc . ":</b>",
+                'dato1' => $this->documento->codigo,
+                'campo2' => "<b>Fecha:</b> " . $this->documento->fecha
+            )
         );
 
         if ($rectificativa) {
             $pdf_doc->add_table_row(
-                    array(
-                        'campo1' => "<b>Original:</b>",
-                        'dato1' => $this->documento->codigorect,
-                        'campo2' => '',
-                    )
+                array(
+                    'campo1' => "<b>Original:</b>",
+                    'dato1' => $this->documento->codigorect,
+                    'campo2' => '',
+                )
             );
         }
 
         $pdf_doc->add_table_row(
-                array(
-                    'campo1' => "<b>Proveedor:</b>",
-                    'dato1' => fs_fix_html($this->documento->nombre),
-                    'campo2' => "<b>" . $tipoidfiscal . ":</b> " . $this->documento->cifnif
-                )
+            array(
+                'campo1' => "<b>Proveedor:</b>",
+                'dato1' => fs_fix_html($this->documento->nombre),
+                'campo2' => "<b>" . $tipoidfiscal . ":</b> " . $this->documento->cifnif
+            )
         );
 
         $pdf_doc->save_table(
-                array(
-                    'cols' => array(
-                        'campo1' => array('width' => $width_campo1, 'justification' => 'right'),
-                        'dato1' => array('justification' => 'left'),
-                        'campo2' => array('justification' => 'right'),
-                    ),
-                    'showLines' => 0,
-                    'width' => 520,
-                    'shaded' => 0
-                )
+            array(
+                'cols' => array(
+                    'campo1' => array('width' => $width_campo1, 'justification' => 'right'),
+                    'dato1' => array('justification' => 'left'),
+                    'campo2' => array('justification' => 'right'),
+                ),
+                'showLines' => 0,
+                'width' => 520,
+                'shaded' => 0
+            )
         );
         $pdf_doc->pdf->ezText("\n", 10);
     }
 
-    private function generar_pdf_totales(&$pdf_doc, &$lineas_iva, $pagina) {
+    private function generar_pdf_totales(&$pdf_doc, &$lineas_iva, $pagina)
+    {
         /*
          * Rellenamos la última tabla de la página:
          * 
@@ -475,7 +483,8 @@ class compras_imprimir extends fs_controller {
         $pdf_doc->save_table($opciones);
     }
 
-    public function generar_pdf_albaran($archivo = FALSE) {
+    public function generar_pdf_albaran($archivo = FALSE)
+    {
         if (!$archivo) {
             /// desactivamos la plantilla HTML
             $this->template = FALSE;
@@ -522,7 +531,8 @@ class compras_imprimir extends fs_controller {
             $pdf_doc->show(FS_ALBARAN . '_compra_' . $this->documento->codigo . '.pdf');
     }
 
-    public function generar_pdf_factura($archivo = FALSE) {
+    public function generar_pdf_factura($archivo = FALSE)
+    {
         if (!$archivo) {
             /// desactivamos la plantilla HTML
             $this->template = FALSE;
@@ -569,7 +579,8 @@ class compras_imprimir extends fs_controller {
             $pdf_doc->show('factura_compra_' . $this->documento->codigo . '.pdf');
     }
 
-    private function enviar_email() {
+    private function enviar_email()
+    {
         if ($this->empresa->can_send_mail()) {
             if ($this->proveedor) {
                 if ($_POST['email'] != $this->proveedor->email AND isset($_POST['guardar'])) {
@@ -628,12 +639,12 @@ class compras_imprimir extends fs_controller {
         }
     }
 
-    public function is_html($txt) {
+    public function is_html($txt)
+    {
         if (stripos($txt, '<html') === FALSE) {
             return FALSE;
         } else {
             return TRUE;
         }
     }
-
 }

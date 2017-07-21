@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -21,17 +20,20 @@
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_model('familia.php');
 
-class ventas_familias extends fbase_controller {
+class ventas_familias extends fbase_controller
+{
 
     public $familia;
     public $madre;
     public $resultados;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Familias', 'ventas', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
 
         $this->familia = new familia();
@@ -55,7 +57,8 @@ class ventas_familias extends fbase_controller {
         }
     }
 
-    private function nueva_familia() {
+    private function nueva_familia()
+    {
         $fam = $this->familia->get($_POST['ncodfamilia']);
         if ($fam) {
             $this->new_error_msg('La familia <a href="' . $fam->url() . '">' . $fam->codfamilia . '</a> ya existe.');
@@ -71,7 +74,8 @@ class ventas_familias extends fbase_controller {
         }
     }
 
-    private function eliminar_familia() {
+    private function eliminar_familia()
+    {
         $fam = $this->familia->get($_GET['delete']);
         if ($fam) {
             if (!$this->allow_delete) {
@@ -84,11 +88,13 @@ class ventas_familias extends fbase_controller {
             $this->new_error_msg("Familia " . $_GET['delete'] . " no encontrada.");
     }
 
-    public function total_familias() {
+    public function total_familias()
+    {
         return $this->fbase_sql_total('familias', 'codfamilia');
     }
 
-    private function share_extensions() {
+    private function share_extensions()
+    {
         /// añadimos la extensión para ventas_artículos
         $fsext = new fs_extension();
         $fsext->name = 'btn_familias';
@@ -96,8 +102,7 @@ class ventas_familias extends fbase_controller {
         $fsext->to = 'ventas_articulos';
         $fsext->type = 'button';
         $fsext->text = '<span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>'
-                . '<span class="hidden-xs"> &nbsp; Familias</span>';
+            . '<span class="hidden-xs"> &nbsp; Familias</span>';
         $fsext->save();
     }
-
 }

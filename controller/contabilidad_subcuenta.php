@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -24,7 +23,8 @@ require_model('divisa.php');
 require_model('partida.php');
 require_model('subcuenta.php');
 
-class contabilidad_subcuenta extends fbase_controller {
+class contabilidad_subcuenta extends fbase_controller
+{
 
     public $cuenta;
     public $divisa;
@@ -34,11 +34,13 @@ class contabilidad_subcuenta extends fbase_controller {
     public $subcuenta;
     public $offset;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Subcuenta', 'contabilidad', FALSE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
         parent::private_core();
         $this->divisa = new divisa();
 
@@ -84,7 +86,8 @@ class contabilidad_subcuenta extends fbase_controller {
         }
     }
 
-    public function url() {
+    public function url()
+    {
         if (!isset($this->subcuenta)) {
             return parent::url();
         } else if ($this->subcuenta) {
@@ -93,11 +96,13 @@ class contabilidad_subcuenta extends fbase_controller {
             return $this->ppage->url();
     }
 
-    public function paginas() {
+    public function paginas()
+    {
         return $this->fbase_paginas($this->url(), $this->subcuenta->count_partidas(), $this->offset);
     }
 
-    private function modificar() {
+    private function modificar()
+    {
         if ($_POST['descripcion'] != $this->subcuenta->descripcion) {
             $this->subcuenta->descripcion = $_POST['descripcion'];
             $this->subcuenta->coddivisa = $_POST['coddivisa'];
@@ -119,7 +124,8 @@ class contabilidad_subcuenta extends fbase_controller {
         $this->new_message('Datos guardados correctamente.');
     }
 
-    private function generar_libro_mayor() {
+    private function generar_libro_mayor()
+    {
         /// generamos el PDF del libro mayor si no existe
         $libro_mayor = new libro_mayor();
         $libro_mayor->libro_mayor($this->subcuenta);
@@ -129,5 +135,4 @@ class contabilidad_subcuenta extends fbase_controller {
             $this->new_error_msg('Error al generar el libro mayor.');
         }
     }
-
 }
