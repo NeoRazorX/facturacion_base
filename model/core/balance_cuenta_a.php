@@ -174,7 +174,7 @@ class balance_cuenta_a extends \fs_model
         $data = $this->db->select($sql);
         if ($data) {
             foreach ($data as $a) {
-                $balist[] = new \balance_cuenta($a);
+                $balist[] = new \balance_cuenta_a($a);
             }
         }
 
