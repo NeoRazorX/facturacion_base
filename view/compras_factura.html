@@ -99,6 +99,11 @@
                <!--{$url='index.php?page='.$value->from.'&id='.$fsc->factura->idfactura.$value->params}-->
                <a href="#" class="btn btn-sm btn-default" onclick="fs_modal('{$txt}','{$url}')">{$value->text}</a>
                {/if}
+               {if="$value->type=='btn_javascript'"}
+               <button class="btn btn-sm btn-default" type="button" onclick="{$value->params}">
+                   <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp; {$value->text}
+               </button>
+               {/if}               
             {/loop}
             </div>
          </div>
