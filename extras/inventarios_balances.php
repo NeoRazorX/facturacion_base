@@ -19,11 +19,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
-require_model('balance.php');
-require_model('cuenta.php');
-require_model('ejercicio.php');
-require_model('empresa.php');
-require_model('partida.php');
 
 class inventarios_balances {
 

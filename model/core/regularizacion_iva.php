@@ -18,9 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('asiento.php');
-require_model('partida.php');
-
 /**
  * Una regularización de IVA.
  * 

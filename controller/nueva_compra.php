@@ -18,15 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('almacen.php');
-require_model('articulo_combinacion.php');
-require_model('articulo_proveedor.php');
-require_model('asiento_factura.php');
-require_model('fabricante.php');
-require_model('familia.php');
-require_model('forma_pago.php');
-require_model('pedido_proveedor.php');
-require_model('regularizacion_iva.php');
 
 class nueva_compra extends fbase_controller
 {

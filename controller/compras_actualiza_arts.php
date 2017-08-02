@@ -17,11 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('albaran_proveedor.php');
-require_model('articulo.php');
-require_model('articulo_proveedor.php');
-require_model('pedido_proveedor.php');
-
 /**
  * Description of articulos_documento
  *

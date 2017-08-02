@@ -18,9 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('cuenta.php');
-require_model('grupo_epigrafes.php');
-
 /**
  * Segundo nivel del plan contable.
  * 

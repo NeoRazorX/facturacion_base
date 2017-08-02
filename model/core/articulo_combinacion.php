@@ -18,9 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('atributo.php');
-require_model('atributo_valor.php');
-
 /**
  * Este modelo representa el par atributo => valor de la combinación de un artículo con atributos.
  * Ten en cuenta que lo que se almacena son estos pares atributo => valor,

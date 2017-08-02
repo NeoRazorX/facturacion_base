@@ -18,9 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('cuenta.php');
-require_model('ejercicio.php');
-require_model('epigrafe.php');
 
 class contabilidad_epigrafes extends fbase_controller
 {

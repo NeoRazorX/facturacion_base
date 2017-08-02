@@ -18,13 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('asiento.php');
-require_model('divisa.php');
-require_model('ejercicio.php');
-require_model('impuesto.php');
-require_model('partida.php');
-require_model('regularizacion_iva.php');
-require_model('subcuenta.php');
 
 class contabilidad_asiento extends fbase_controller
 {

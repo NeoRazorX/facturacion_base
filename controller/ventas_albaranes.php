@@ -18,14 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('agente.php');
-require_model('almacen.php');
-require_model('albaran_cliente.php');
-require_model('articulo.php');
-require_model('factura_cliente.php');
-require_model('forma_pago.php');
-require_model('grupo_clientes.php');
-require_model('serie.php');
 
 class ventas_albaranes extends fbase_controller
 {

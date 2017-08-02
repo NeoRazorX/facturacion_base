@@ -17,14 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('albaran_cliente.php');
-require_model('albaran_proveedor.php');
-require_model('articulo.php');
-require_model('asiento.php');
-require_model('cliente.php');
-require_model('factura_cliente.php');
-require_model('factura_proveedor.php');
-require_model('proveedor.php');
 require_once 'plugins/facturacion_base/extras/libromayor.php';
 require_once 'plugins/facturacion_base/extras/inventarios_balances.php';
 

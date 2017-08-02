@@ -17,13 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('almacen.php');
-require_model('divisa.php');
-require_model('ejercicio.php');
-require_model('forma_pago.php');
-require_model('pais.php');
-require_model('serie.php');
-
 /**
  * Description of base_wizard
  *
@@ -52,7 +45,7 @@ class base_wizard extends fs_controller
     {
         $this->recargar = FALSE;
 
-        if (floatval($this->version()) >= 2017.023) {
+        if (floatval($this->version()) >= 2017.024) {
             $this->private_core2();
         } else {
             $this->template = 'base_wizard_update';

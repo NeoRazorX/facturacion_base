@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('articulo.php');
-require_model('articulo_traza.php');
 
 /**
  * Description of articulo_trazabilidad

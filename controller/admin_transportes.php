@@ -19,7 +19,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('agencia_transporte.php');
 
 class admin_transportes extends fbase_controller
 {

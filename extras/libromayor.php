@@ -19,10 +19,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
-require_model('ejercicio.php');
-require_model('empresa.php');
-require_model('partida.php');
-require_model('subcuenta.php');
 
 class libro_mayor {
 

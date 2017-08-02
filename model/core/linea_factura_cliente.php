@@ -18,9 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('albaran_cliente.php');
-require_model('factura_cliente.php');
-
 /**
  * Línea de una factura de cliente.
  * 

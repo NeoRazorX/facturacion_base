@@ -18,13 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('ejercicio.php');
-require_model('factura_cliente.php');
-require_model('factura_proveedor.php');
-require_model('partida.php');
-require_model('regularizacion_iva.php');
-require_model('secuencia.php');
-
 /**
  * El asiento contable. Se relaciona con un ejercicio y se compone de partidas.
  * 

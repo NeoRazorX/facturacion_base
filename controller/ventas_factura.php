@@ -18,20 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('agencia_transporte.php');
-require_model('almacen.php');
-require_model('articulo.php');
-require_model('asiento.php');
-require_model('asiento_factura.php');
-require_model('cuenta_banco_cliente.php');
-require_model('divisa.php');
-require_model('ejercicio.php');
-require_model('factura_cliente.php');
-require_model('forma_pago.php');
-require_model('pais.php');
-require_model('partida.php');
-require_model('serie.php');
-require_model('subcuenta.php');
 
 class ventas_factura extends fbase_controller
 {

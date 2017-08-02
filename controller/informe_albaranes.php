@@ -22,12 +22,6 @@
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_once 'extras/xlsxwriter.class.php';
-require_model('albaran_cliente.php');
-require_model('albaran_proveedor.php');
-require_model('almacen.php');
-require_model('divisa.php');
-require_model('forma_pago.php');
-require_model('serie.php');
 
 class informe_albaranes extends fbase_controller
 {

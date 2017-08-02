@@ -18,12 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('cuenta.php');
-require_model('direccion_proveedor.php');
-require_model('ejercicio.php');
-require_model('subcuenta.php');
-require_model('subcuenta_proveedor.php');
-
 /**
  * Un proveedor. Puede estar relacionado con varias direcciones o subcuentas.
  * 

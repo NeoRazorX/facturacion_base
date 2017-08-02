@@ -18,9 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('almacen.php');
-require_model('articulo.php');
-
 /**
  * La cantidad en inventario de un artículo en un almacén concreto.
  * 

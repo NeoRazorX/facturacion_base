@@ -16,9 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-require_model('articulo.php');
-require_model('articulo_propiedad.php');
-require_model('subcuenta.php');
 
 /**
  * Description of articulo_subcuentas

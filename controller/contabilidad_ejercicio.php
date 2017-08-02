@@ -18,15 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('asiento.php');
-require_model('balance.php');
-require_model('cierre_ejercicio.php');
-require_model('cuenta.php');
-require_model('ejercicio.php');
-require_model('epigrafe.php');
-require_model('partida.php');
-require_model('secuencia.php');
-require_model('subcuenta.php');
 
 class contabilidad_ejercicio extends fbase_controller
 {

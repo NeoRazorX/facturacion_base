@@ -18,9 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('cliente.php');
-require_model('proveedor.php');
-
 /**
  * Controlador extendido para el plugin facturacion_base.
  *

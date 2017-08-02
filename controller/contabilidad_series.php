@@ -18,8 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('ejercicio.php');
-require_model('serie.php');
 
 class contabilidad_series extends fbase_controller
 {

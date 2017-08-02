@@ -18,9 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('cliente.php');
-require_model('linea_factura_cliente.php');
-
 /**
  * Description of ventas_cliente_articulos
  *

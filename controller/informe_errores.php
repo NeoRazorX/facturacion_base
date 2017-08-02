@@ -17,31 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('albaran_cliente.php');
-require_model('albaran_proveedor.php');
-require_model('almacen.php');
-require_model('articulo.php');
-require_model('articulo_proveedor.php');
-require_model('asiento.php');
-require_model('cliente.php');
-require_model('direccion_cliente.php');
-require_model('direccion_proveedor.php');
-require_model('divisa.php');
-require_model('ejercicio.php');
-require_model('epigrafes.php');
-require_model('factura_cliente.php');
-require_model('factura_proveedor.php');
-require_model('familia.php');
-require_model('forma_pago.php');
-require_model('pais.php');
-require_model('proveedor.php');
-require_model('regularizacion_stock.php');
-require_model('serie.php');
-require_model('stock.php');
-require_model('subcuenta.php');
-require_model('subcuenta_cliente.php');
-require_model('subcuenta_proveedor.php');
-
 class informe_errores extends fs_controller
 {
 

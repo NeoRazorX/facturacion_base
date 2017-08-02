@@ -18,8 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('atributo_valor.php');
-
 /**
  * Un atributo para artículos.
  *

@@ -18,11 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('ejercicio.php');
-require_model('factura_cliente.php');
-require_model('linea_albaran_cliente.php');
-require_model('secuencia.php');
-
 /**
  * Albarán de cliente o albarán de venta. Representa la entrega a un cliente
  * de un material que se le ha vendido. Implica la salida de ese material

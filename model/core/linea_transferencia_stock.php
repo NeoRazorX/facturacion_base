@@ -5,8 +5,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('transferencia_stock.php');
-
 /**
  * Description of linea_transferencia_stock
  *

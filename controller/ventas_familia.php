@@ -18,8 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('articulo.php');
-require_model('familia.php');
 
 class ventas_familia extends fbase_controller
 {

@@ -18,8 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('atributo.php');
-require_model('atributo_valor.php');
 
 /**
  * Description of ventas_atributos

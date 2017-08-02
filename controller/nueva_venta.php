@@ -19,23 +19,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('agencia_transporte.php');
-require_model('almacen.php');
-require_model('articulo.php');
-require_model('articulo_combinacion.php');
-require_model('asiento_factura.php');
-require_model('divisa.php');
-require_model('fabricante.php');
-require_model('familia.php');
-require_model('forma_pago.php');
-require_model('grupo_clientes.php');
-require_model('impuesto.php');
-require_model('pais.php');
-require_model('pedido_cliente.php');
-require_model('presupuesto_cliente.php');
-require_model('regularizacion_iva.php');
-require_model('serie.php');
-require_model('tarifa.php');
 
 class nueva_venta extends fbase_controller
 {

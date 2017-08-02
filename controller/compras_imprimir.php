@@ -20,9 +20,6 @@
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
-require_model('articulo_proveedor.php');
-require_model('articulo_traza.php');
-require_model('proveedor.php');
 
 /**
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes de proveedor
@@ -39,9 +36,9 @@ class compras_imprimir extends fs_controller
     public $proveedor;
     public $numpaginas;
 
-    public function __construct()
+    public function __construct($name = __CLASS__, $title = 'imprimir', $folder = 'compras')
     {
-        parent::__construct(__CLASS__, 'imprimir', 'compras', FALSE, FALSE);
+        parent::__construct($name, $title, $folder, FALSE, FALSE);
     }
 
     protected function private_core()
@@ -96,7 +93,7 @@ class compras_imprimir extends fs_controller
         $this->impresion = $fsvar->array_get($this->impresion, FALSE);
     }
 
-    private function share_extensions()
+    protected function share_extensions()
     {
         $extensiones = array(
             array(

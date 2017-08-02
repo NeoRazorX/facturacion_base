@@ -18,19 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('almacen.php');
-require_model('articulo.php');
-require_model('articulo_combinacion.php');
-require_model('articulo_proveedor.php');
-require_model('atributo.php');
-require_model('atributo_valor.php');
-require_model('familia.php');
-require_model('fabricante.php');
-require_model('impuesto.php');
-require_model('recalcular_stock.php');
-require_model('regularizacion_stock.php');
-require_model('stock.php');
-require_model('tarifa.php');
 
 class ventas_articulo extends fbase_controller
 {

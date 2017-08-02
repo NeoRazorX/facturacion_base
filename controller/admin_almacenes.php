@@ -18,8 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('almacen.php');
-require_model('pais.php');
 
 class admin_almacenes extends fbase_controller
 {

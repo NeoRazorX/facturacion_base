@@ -18,10 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('ejercicio.php');
-require_model('balance_cuenta.php');
-require_model('balance_cuenta_a.php');
-
 /**
  * Define que cuentas hay que usar para generar los distintos informes contables.
  * 

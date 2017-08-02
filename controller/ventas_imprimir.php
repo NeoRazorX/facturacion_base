@@ -19,11 +19,6 @@
  */
 
 require_once __DIR__ . '/compras_imprimir.php';
-require_model('cliente.php');
-require_model('cuenta_banco.php');
-require_model('cuenta_banco_cliente.php');
-require_model('forma_pago.php');
-require_model('pais.php');
 
 /**
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes y facturas.
@@ -33,9 +28,9 @@ class ventas_imprimir extends compras_imprimir
 
     public $cliente;
 
-    public function __construct()
+    public function __construct($name = __CLASS__, $title = 'imprimir', $folder = 'ventas')
     {
-        parent::__construct(__CLASS__, 'imprimir', 'ventas', FALSE, FALSE);
+        parent::__construct($name, $title, $folder);
     }
 
     protected function private_core()
@@ -80,7 +75,7 @@ class ventas_imprimir extends compras_imprimir
         $this->share_extensions();
     }
 
-    private function share_extensions()
+    protected function share_extensions()
     {
         $extensiones = array(
             array(

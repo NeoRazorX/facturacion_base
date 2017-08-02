@@ -18,8 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('ejercicio.php');
-
 /**
  * Detalle de un balance.
  * 

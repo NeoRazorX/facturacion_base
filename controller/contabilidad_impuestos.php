@@ -18,8 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('impuesto.php');
-require_model('subcuenta.php');
 
 class contabilidad_impuestos extends fbase_controller
 {

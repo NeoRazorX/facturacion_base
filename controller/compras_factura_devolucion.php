@@ -17,11 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('articulo.php');
-require_model('asiento_factura.php');
-require_model('factura_proveedor.php');
-require_model('serie.php');
-
 /**
  * Description of compras_factura_devolucion
  *

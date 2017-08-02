@@ -18,12 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('agente.php');
-require_model('factura_cliente.php');
-require_model('grupo_clientes.php');
-require_model('forma_pago.php');
-require_model('pais.php');
-require_model('tarifa.php');
 
 /**
  * Description of ventas_grupo

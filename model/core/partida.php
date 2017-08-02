@@ -18,9 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('asiento.php');
-require_model('subcuenta.php');
-
 /**
  * La línea de un asiento.
  * Se relaciona con un asiento y una subcuenta.
