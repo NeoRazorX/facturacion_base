@@ -143,7 +143,7 @@ class ventas_clientes extends fbase_controller
             . "&ciudad=" . $this->ciudad
             . "&provincia=" . $this->provincia
             . "&codpais=" . $this->codpais
-            . "&codgrupo=" . $this->codgrupo
+            . "&bcodgrupo=" . $this->codgrupo
             . "&orden=" . $this->orden;
 
         if ($this->nocifnif) {

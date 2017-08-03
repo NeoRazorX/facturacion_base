@@ -264,7 +264,7 @@ class ventas_grupo extends fbase_controller
             $cliente->codgrupo = NULL;
 
             if ($cliente->save()) {
-                $this->new_message('Datos fuardados correctamente. El cliente ' . $cliente->codcliente
+                $this->new_message('Datos guardados correctamente. El cliente ' . $cliente->codcliente
                     . ' ya no pertenece al grupo ' . $this->grupo->codgrupo . '.');
             } else {
                 $this->new_error_msg('Error al quitar al cliente ' . $cliente->codcliente
