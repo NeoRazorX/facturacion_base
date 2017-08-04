@@ -51,6 +51,8 @@ class editar_balances extends fbase_controller
         }
 
         if ($this->balance) {
+            $this->template = 'alternative/editar_balance';
+
             $bc0 = new balance_cuenta();
             $bca0 = new balance_cuenta_a();
             if (isset($_POST['nueva_cuenta']) OR isset($_POST['nueva_cuenta_a'])) {

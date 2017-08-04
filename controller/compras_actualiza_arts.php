@@ -37,6 +37,7 @@ class compras_actualiza_arts extends fs_controller
     protected function private_core()
     {
         $this->share_extensions();
+        $this->template = 'tab/'.__CLASS__;
 
         $this->documento = FALSE;
         $this->lineas = array();
@@ -135,10 +136,10 @@ class compras_actualiza_arts extends fs_controller
                 if ($cambios > 0) {
                     $this->new_message($cambios . ' cambios realizados.');
                 }
-            } else
+            } else {
                 $this->new_error_msg('Documento no encontrado.');
-        }
-        else {
+            }
+        } else {
             $this->new_error_msg('Faltan datos.', 'error', FALSE, FALSE);
         }
     }
