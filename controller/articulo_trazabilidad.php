@@ -67,7 +67,7 @@ class articulo_trazabilidad extends fbase_controller
         if ($this->articulo) {
             return 'index.php?page=' . __CLASS__ . '&ref=' . urlencode($this->articulo->referencia);
         }
-        
+
         return parent::url();
     }
 

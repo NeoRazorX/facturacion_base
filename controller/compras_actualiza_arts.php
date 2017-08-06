@@ -37,7 +37,7 @@ class compras_actualiza_arts extends fs_controller
     protected function private_core()
     {
         $this->share_extensions();
-        $this->template = 'tab/'.__CLASS__;
+        $this->template = 'tab/' . __CLASS__;
 
         $this->documento = FALSE;
         $this->lineas = array();

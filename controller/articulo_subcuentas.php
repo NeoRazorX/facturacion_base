@@ -37,7 +37,7 @@ class articulo_subcuentas extends fs_controller
 
     protected function private_core()
     {
-        $this->template = 'tab/'.__CLASS__;
+        $this->template = 'tab/' . __CLASS__;
         $this->share_extension();
         $art0 = new articulo();
 
@@ -112,7 +112,7 @@ class articulo_subcuentas extends fs_controller
         if ($this->articulo) {
             return 'index.php?page=' . __CLASS__ . '&ref=' . $this->articulo->referencia;
         }
-        
+
         return parent::url();
     }
 

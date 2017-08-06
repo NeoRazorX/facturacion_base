@@ -36,7 +36,7 @@ class compras_factura_devolucion extends fs_controller
     protected function private_core()
     {
         $this->share_extension();
-        $this->template = 'tab/'.__CLASS__;
+        $this->template = 'tab/' . __CLASS__;
 
         $this->serie = new serie();
 

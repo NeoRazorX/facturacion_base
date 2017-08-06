@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -23,7 +22,8 @@ require_once __DIR__ . '/ezpdf/Cezpdf.php';
 /**
  * Permite la generación de PDFs algo más sencilla.
  */
-class fs_pdf {
+class fs_pdf
+{
 
     const LOGO_X = 35;
     const LOGO_Y = 740;
@@ -42,7 +42,8 @@ class fs_pdf {
     public $table_header;
     public $table_rows;
 
-    public function __construct($paper = 'a4', $orientation = 'portrait', $font = 'Helvetica') {
+    public function __construct($paper = 'a4', $orientation = 'portrait', $font = 'Helvetica')
+    {
         if (!file_exists('tmp/' . FS_TMP_NAME . 'pdf')) {
             mkdir('tmp/' . FS_TMP_NAME . 'pdf');
         }
@@ -59,7 +60,8 @@ class fs_pdf {
      * Vuelca el documento PDF en la salida estándar.
      * @param string $filename
      */
-    public function show($filename = 'doc.pdf') {
+    public function show($filename = 'doc.pdf')
+    {
         $this->pdf->ezStream(array('Content-Disposition' => $filename));
     }
 
@@ -68,7 +70,8 @@ class fs_pdf {
      * @param string $filename
      * @return boolean
      */
-    public function save($filename) {
+    public function save($filename)
+    {
         if ($filename) {
             if (file_exists($filename)) {
                 unlink($filename);
@@ -91,7 +94,8 @@ class fs_pdf {
      * Devuelve la coordenada Y actual en el documento.
      * @return integer
      */
-    public function get_y() {
+    public function get_y()
+    {
         return $this->pdf->y;
     }
 
@@ -99,14 +103,16 @@ class fs_pdf {
      * Establece la coordenada Y actual en el documento.
      * @param integer $value
      */
-    public function set_y($value) {
+    public function set_y($value)
+    {
         $this->pdf->ezSetY($value);
     }
 
     /**
      * Carga la ruta del logotipo de la empresa.
      */
-    private function cargar_logo() {
+    private function cargar_logo()
+    {
         if (!file_exists(FS_MYDOCS . 'images')) {
             @mkdir(FS_MYDOCS . 'images', 0777, TRUE);
         }
@@ -134,7 +140,8 @@ class fs_pdf {
      * @param empresa $empresa
      * @param int $lppag
      */
-    public function generar_pdf_cabecera(&$empresa, &$lppag) {
+    public function generar_pdf_cabecera(&$empresa, &$lppag)
+    {
         /// ¿Añadimos el logo?
         if ($this->logo !== FALSE) {
             if (function_exists('imagecreatefromstring')) {
@@ -186,7 +193,7 @@ class fs_pdf {
                 $this->set_y(self::LOGO_Y + 10);
             } else {
                 die('ERROR: no se encuentra la función imagecreatefromstring(). '
-                        . 'Y por tanto no se puede usar el logotipo en los documentos.');
+                    . 'Y por tanto no se puede usar el logotipo en los documentos.');
             }
         } else {
             $this->pdf->ezText("<b>" . fs_fix_html($empresa->nombre) . "</b>", 16, array('justification' => 'center'));
@@ -217,7 +224,8 @@ class fs_pdf {
         }
     }
 
-    private function calcular_tamanyo_logo() {
+    private function calcular_tamanyo_logo()
+    {
         $tamanyo = $size = getimagesize($this->logo);
         if ($size[0] > 200) {
             $tamanyo[0] = 200;
@@ -234,7 +242,8 @@ class fs_pdf {
         return $tamanyo;
     }
 
-    public function center_text($word = '', $tot_width = 140) {
+    public function center_text($word = '', $tot_width = 140)
+    {
         if (strlen($word) == $tot_width) {
             return $word;
         } else if (strlen($word) < $tot_width) {
@@ -265,7 +274,8 @@ class fs_pdf {
         }
     }
 
-    private function center_text2($word = '', $tot_width = 140) {
+    private function center_text2($word = '', $tot_width = 140)
+    {
         $symbol = " ";
         $middle = round($tot_width / 2);
         $length_word = strlen($word);
@@ -279,20 +289,24 @@ class fs_pdf {
         return $result;
     }
 
-    public function new_table() {
+    public function new_table()
+    {
         $this->table_header = array();
         $this->table_rows = array();
     }
 
-    public function add_table_header($header) {
+    public function add_table_header($header)
+    {
         $this->table_header = $header;
     }
 
-    public function add_table_row($row) {
+    public function add_table_row($row)
+    {
         $this->table_rows[] = $row;
     }
 
-    public function save_table($options) {
+    public function save_table($options)
+    {
         if (empty($this->table_header)) {
             foreach (array_keys($this->table_rows[0]) as $k) {
                 $this->table_header[$k] = '';
@@ -308,11 +322,13 @@ class fs_pdf {
      * @param string $txt
      * @return string
      */
-    public function fix_html($txt) {
+    public function fix_html($txt)
+    {
         return fs_fix_html($txt);
     }
 
-    public function get_lineas_iva($lineas) {
+    public function get_lineas_iva($lineas)
+    {
         $retorno = array();
         $lineasiva = array();
 
@@ -346,5 +362,4 @@ class fs_pdf {
 
         return $retorno;
     }
-
 }

@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -20,19 +19,22 @@
 
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 
-class libro_mayor {
+class libro_mayor
+{
 
     private $ejercicio;
     private $empresa;
     private $subcuenta;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->ejercicio = new ejercicio();
         $this->empresa = new empresa();
         $this->subcuenta = new subcuenta();
     }
 
-    public function cron_job() {
+    public function cron_job()
+    {
         /**
          * Como es un proceso que tarda mucho, solamente comprobamos los dos primeros
          * ejercicios de la lista (los más nuevos), más uno aleatorio.
@@ -62,7 +64,8 @@ class libro_mayor {
         }
     }
 
-    public function libro_mayor(&$subc, $echos = FALSE) {
+    public function libro_mayor(&$subc, $echos = FALSE)
+    {
         if ($subc) {
             if (!file_exists('tmp/' . FS_TMP_NAME . 'libro_mayor')) {
                 mkdir('tmp/' . FS_TMP_NAME . 'libro_mayor');
@@ -95,87 +98,14 @@ class libro_mayor {
                         /// Creamos la tabla del encabezado
                         $pdf_doc->new_table();
                         $pdf_doc->add_table_row(
-                                array(
-                                    'campos' => "<b>Empresa:</b>\n<b>Subcuenta:</b>\n<b>Fecha:</b>",
-                                    'factura' => fs_fix_html($this->empresa->nombre) . "\n"
-                                    . $subc->codsubcuenta . ' - ' . fs_fix_html($subc->descripcion) . "\n"
-                                    . Date('d-m-Y')
-                                )
-                        );
-                        $pdf_doc->save_table(
-                                array(
-                                    'cols' => array(
-                                        'campos' => array('justification' => 'right', 'width' => 70),
-                                        'factura' => array('justification' => 'left')
-                                    ),
-                                    'showLines' => 0,
-                                    'width' => 540
-                                )
-                        );
-                        $pdf_doc->pdf->ezText("\n", 10);
-
-                        /// Creamos la tabla con las lineas
-                        $pdf_doc->new_table();
-                        $pdf_doc->add_table_header(
-                                array(
-                                    'asiento' => '<b>Asiento</b>',
-                                    'fecha' => '<b>Fecha</b>',
-                                    'concepto' => '<b>Concepto</b>',
-                                    'debe' => '<b>Debe</b>',
-                                    'haber' => '<b>Haber</b>',
-                                    'saldo' => '<b>Saldo</b>'
-                                )
-                        );
-                        for ($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ( $linea_actual < $lineasfact));) {
-                            $pdf_doc->add_table_row(
-                                    array(
-                                        'asiento' => $partidas[$linea_actual]->numero,
-                                        'fecha' => $partidas[$linea_actual]->fecha,
-                                        'concepto' => mb_substr(fs_fix_html($partidas[$linea_actual]->concepto), 0, 60),
-                                        'debe' => $this->show_numero($partidas[$linea_actual]->debe),
-                                        'haber' => $this->show_numero($partidas[$linea_actual]->haber),
-                                        'saldo' => $this->show_numero($partidas[$linea_actual]->saldo)
-                                    )
-                            );
-
-                            $linea_actual++;
-                        }
-                        /// añadimos las sumas de la línea actual
-                        $pdf_doc->add_table_row(
-                                array(
-                                    'asiento' => '',
-                                    'fecha' => '',
-                                    'concepto' => '',
-                                    'debe' => '<b>' . $this->show_numero($partidas[$linea_actual - 1]->sum_debe) . '</b>',
-                                    'haber' => '<b>' . $this->show_numero($partidas[$linea_actual - 1]->sum_haber) . '</b>',
-                                    'saldo' => ''
-                                )
-                        );
-                        $pdf_doc->save_table(
-                                array(
-                                    'fontSize' => 8,
-                                    'cols' => array(
-                                        'debe' => array('justification' => 'right'),
-                                        'haber' => array('justification' => 'right'),
-                                        'saldo' => array('justification' => 'right')
-                                    ),
-                                    'width' => 540,
-                                    'shaded' => 0
-                                )
-                        );
-                    }
-                } else {
-                    /// Creamos la tabla del encabezado
-                    $pdf_doc->new_table();
-                    $pdf_doc->add_table_row(
                             array(
                                 'campos' => "<b>Empresa:</b>\n<b>Subcuenta:</b>\n<b>Fecha:</b>",
                                 'factura' => fs_fix_html($this->empresa->nombre) . "\n"
                                 . $subc->codsubcuenta . ' - ' . fs_fix_html($subc->descripcion) . "\n"
                                 . Date('d-m-Y')
                             )
-                    );
-                    $pdf_doc->save_table(
+                        );
+                        $pdf_doc->save_table(
                             array(
                                 'cols' => array(
                                     'campos' => array('justification' => 'right', 'width' => 70),
@@ -184,12 +114,12 @@ class libro_mayor {
                                 'showLines' => 0,
                                 'width' => 540
                             )
-                    );
-                    $pdf_doc->pdf->ezText("\n", 10);
+                        );
+                        $pdf_doc->pdf->ezText("\n", 10);
 
-                    /// Creamos la tabla con las lineas
-                    $pdf_doc->new_table();
-                    $pdf_doc->add_table_header(
+                        /// Creamos la tabla con las lineas
+                        $pdf_doc->new_table();
+                        $pdf_doc->add_table_header(
                             array(
                                 'asiento' => '<b>Asiento</b>',
                                 'fecha' => '<b>Fecha</b>',
@@ -198,19 +128,33 @@ class libro_mayor {
                                 'haber' => '<b>Haber</b>',
                                 'saldo' => '<b>Saldo</b>'
                             )
-                    );
-                    /// añadimos las sumas de la línea actual
-                    $pdf_doc->add_table_row(
+                        );
+                        for ($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ( $linea_actual < $lineasfact));) {
+                            $pdf_doc->add_table_row(
+                                array(
+                                    'asiento' => $partidas[$linea_actual]->numero,
+                                    'fecha' => $partidas[$linea_actual]->fecha,
+                                    'concepto' => mb_substr(fs_fix_html($partidas[$linea_actual]->concepto), 0, 60),
+                                    'debe' => $this->show_numero($partidas[$linea_actual]->debe),
+                                    'haber' => $this->show_numero($partidas[$linea_actual]->haber),
+                                    'saldo' => $this->show_numero($partidas[$linea_actual]->saldo)
+                                )
+                            );
+
+                            $linea_actual++;
+                        }
+                        /// añadimos las sumas de la línea actual
+                        $pdf_doc->add_table_row(
                             array(
                                 'asiento' => '',
                                 'fecha' => '',
                                 'concepto' => '',
-                                'debe' => '<b>' . $this->show_numero(0) . '</b>',
-                                'haber' => '<b>' . $this->show_numero(0) . '</b>',
+                                'debe' => '<b>' . $this->show_numero($partidas[$linea_actual - 1]->sum_debe) . '</b>',
+                                'haber' => '<b>' . $this->show_numero($partidas[$linea_actual - 1]->sum_haber) . '</b>',
                                 'saldo' => ''
                             )
-                    );
-                    $pdf_doc->save_table(
+                        );
+                        $pdf_doc->save_table(
                             array(
                                 'fontSize' => 8,
                                 'cols' => array(
@@ -221,6 +165,65 @@ class libro_mayor {
                                 'width' => 540,
                                 'shaded' => 0
                             )
+                        );
+                    }
+                } else {
+                    /// Creamos la tabla del encabezado
+                    $pdf_doc->new_table();
+                    $pdf_doc->add_table_row(
+                        array(
+                            'campos' => "<b>Empresa:</b>\n<b>Subcuenta:</b>\n<b>Fecha:</b>",
+                            'factura' => fs_fix_html($this->empresa->nombre) . "\n"
+                            . $subc->codsubcuenta . ' - ' . fs_fix_html($subc->descripcion) . "\n"
+                            . Date('d-m-Y')
+                        )
+                    );
+                    $pdf_doc->save_table(
+                        array(
+                            'cols' => array(
+                                'campos' => array('justification' => 'right', 'width' => 70),
+                                'factura' => array('justification' => 'left')
+                            ),
+                            'showLines' => 0,
+                            'width' => 540
+                        )
+                    );
+                    $pdf_doc->pdf->ezText("\n", 10);
+
+                    /// Creamos la tabla con las lineas
+                    $pdf_doc->new_table();
+                    $pdf_doc->add_table_header(
+                        array(
+                            'asiento' => '<b>Asiento</b>',
+                            'fecha' => '<b>Fecha</b>',
+                            'concepto' => '<b>Concepto</b>',
+                            'debe' => '<b>Debe</b>',
+                            'haber' => '<b>Haber</b>',
+                            'saldo' => '<b>Saldo</b>'
+                        )
+                    );
+                    /// añadimos las sumas de la línea actual
+                    $pdf_doc->add_table_row(
+                        array(
+                            'asiento' => '',
+                            'fecha' => '',
+                            'concepto' => '',
+                            'debe' => '<b>' . $this->show_numero(0) . '</b>',
+                            'haber' => '<b>' . $this->show_numero(0) . '</b>',
+                            'saldo' => ''
+                        )
+                    );
+                    $pdf_doc->save_table(
+                        array(
+                            'fontSize' => 8,
+                            'cols' => array(
+                                'debe' => array('justification' => 'right'),
+                                'haber' => array('justification' => 'right'),
+                                'saldo' => array('justification' => 'right')
+                            ),
+                            'width' => 540,
+                            'shaded' => 0
+                        )
                     );
                 }
 
@@ -229,7 +232,8 @@ class libro_mayor {
         }
     }
 
-    private function libro_diario(&$eje) {
+    private function libro_diario(&$eje)
+    {
         if ($eje) {
             if (!file_exists('tmp/' . FS_TMP_NAME . 'libro_diario')) {
                 mkdir('tmp/' . FS_TMP_NAME . 'libro_diario');
@@ -263,26 +267,26 @@ class libro_mayor {
                     /// Creamos la tabla con las lineas
                     $pdf_doc->new_table();
                     $pdf_doc->add_table_header(
-                            array(
-                                'asiento' => '<b>Asiento</b>',
-                                'fecha' => '<b>Fecha</b>',
-                                'subcuenta' => '<b>Subcuenta</b>',
-                                'concepto' => '<b>Concepto</b>',
-                                'debe' => '<b>Debe</b>',
-                                'haber' => '<b>Haber</b>'
-                            )
+                        array(
+                            'asiento' => '<b>Asiento</b>',
+                            'fecha' => '<b>Fecha</b>',
+                            'subcuenta' => '<b>Subcuenta</b>',
+                            'concepto' => '<b>Concepto</b>',
+                            'debe' => '<b>Debe</b>',
+                            'haber' => '<b>Haber</b>'
+                        )
                     );
 
                     foreach ($lineas as $linea) {
                         $pdf_doc->add_table_row(
-                                array(
-                                    'asiento' => $linea['numero'],
-                                    'fecha' => $linea['fecha'],
-                                    'subcuenta' => $linea['codsubcuenta'] . ' ' . mb_substr(fs_fix_html($linea['descripcion']), 0, 35),
-                                    'concepto' => mb_substr(fs_fix_html($linea['concepto']), 0, 45),
-                                    'debe' => $this->show_numero($linea['debe']),
-                                    'haber' => $this->show_numero($linea['haber'])
-                                )
+                            array(
+                                'asiento' => $linea['numero'],
+                                'fecha' => $linea['fecha'],
+                                'subcuenta' => $linea['codsubcuenta'] . ' ' . mb_substr(fs_fix_html($linea['descripcion']), 0, 35),
+                                'concepto' => mb_substr(fs_fix_html($linea['concepto']), 0, 45),
+                                'debe' => $this->show_numero($linea['debe']),
+                                'haber' => $this->show_numero($linea['haber'])
+                            )
                         );
 
                         $sum_debe += floatval($linea['debe']);
@@ -292,25 +296,25 @@ class libro_mayor {
 
                     /// añadimos las sumas de la línea actual
                     $pdf_doc->add_table_row(
-                            array(
-                                'asiento' => '',
-                                'fecha' => '',
-                                'subcuenta' => '',
-                                'concepto' => '',
-                                'debe' => '<b>' . $this->show_numero($sum_debe) . '</b>',
-                                'haber' => '<b>' . $this->show_numero($sum_haber) . '</b>'
-                            )
+                        array(
+                            'asiento' => '',
+                            'fecha' => '',
+                            'subcuenta' => '',
+                            'concepto' => '',
+                            'debe' => '<b>' . $this->show_numero($sum_debe) . '</b>',
+                            'haber' => '<b>' . $this->show_numero($sum_haber) . '</b>'
+                        )
                     );
                     $pdf_doc->save_table(
-                            array(
-                                'fontSize' => 9,
-                                'cols' => array(
-                                    'debe' => array('justification' => 'right'),
-                                    'haber' => array('justification' => 'right')
-                                ),
-                                'width' => 780,
-                                'shaded' => 0
-                            )
+                        array(
+                            'fontSize' => 9,
+                            'cols' => array(
+                                'debe' => array('justification' => 'right'),
+                                'haber' => array('justification' => 'right')
+                            ),
+                            'width' => 780,
+                            'shaded' => 0
+                        )
                     );
 
                     $lineas = $partida->full_from_ejercicio($eje->codejercicio, $lactual, $lppag);
@@ -321,8 +325,8 @@ class libro_mayor {
         }
     }
 
-    private function show_numero($num) {
+    private function show_numero($num)
+    {
         return number_format($num, FS_NF0, FS_NF1, FS_NF2);
     }
-
 }

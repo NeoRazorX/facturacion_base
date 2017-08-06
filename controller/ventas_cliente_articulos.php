@@ -40,7 +40,7 @@ class ventas_cliente_articulos extends fs_controller
     protected function private_core()
     {
         $this->share_extensions();
-        $this->template = 'tab/'.__CLASS__;
+        $this->template = 'tab/' . __CLASS__;
 
         $this->cliente = FALSE;
         $this->resultados = array();
@@ -84,7 +84,7 @@ class ventas_cliente_articulos extends fs_controller
         if ($this->cliente) {
             return parent::url() . '&cod=' . $this->cliente->codcliente;
         }
-        
+
         return parent::url();
     }
 }
