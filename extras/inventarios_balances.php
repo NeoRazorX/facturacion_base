@@ -615,7 +615,6 @@ class inventarios_balances
                 $desc1 = '';
                 $desc2 = '';
                 $desc3 = '';
-                $desc4 = '';
                 foreach ($nivel1 as $nv1) {
                     foreach ($nivel2 as $nv2) {
                         foreach ($nivel3 as $nv3) {
@@ -723,7 +722,6 @@ class inventarios_balances
                 $desc1 = '';
                 $desc2 = '';
                 $desc3 = '';
-                $desc4 = '';
                 foreach ($nivel1 as $nv1) {
                     foreach ($nivel2 as $nv2) {
                         foreach ($nivel3 as $nv3) {

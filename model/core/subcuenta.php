@@ -54,23 +54,23 @@ class subcuenta extends \fs_model
     public $recargo;
     public $iva;
 
-    public function __construct($s = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_subcuentas');
-        if ($s) {
-            $this->idsubcuenta = $this->intval($s['idsubcuenta']);
-            $this->codsubcuenta = $s['codsubcuenta'];
-            $this->idcuenta = $this->intval($s['idcuenta']);
-            $this->codcuenta = $s['codcuenta'];
-            $this->codejercicio = $s['codejercicio'];
-            $this->coddivisa = $s['coddivisa'];
-            $this->codimpuesto = $s['codimpuesto'];
-            $this->descripcion = $s['descripcion'];
-            $this->debe = floatval($s['debe']);
-            $this->haber = floatval($s['haber']);
-            $this->saldo = floatval($s['saldo']);
-            $this->recargo = floatval($s['recargo']);
-            $this->iva = floatval($s['iva']);
+        if ($data) {
+            $this->idsubcuenta = $this->intval($data['idsubcuenta']);
+            $this->codsubcuenta = $data['codsubcuenta'];
+            $this->idcuenta = $this->intval($data['idcuenta']);
+            $this->codcuenta = $data['codcuenta'];
+            $this->codejercicio = $data['codejercicio'];
+            $this->coddivisa = $data['coddivisa'];
+            $this->codimpuesto = $data['codimpuesto'];
+            $this->descripcion = $data['descripcion'];
+            $this->debe = floatval($data['debe']);
+            $this->haber = floatval($data['haber']);
+            $this->saldo = floatval($data['saldo']);
+            $this->recargo = floatval($data['recargo']);
+            $this->iva = floatval($data['iva']);
         } else {
             $this->idsubcuenta = NULL;
             $this->codsubcuenta = NULL;
@@ -116,7 +116,8 @@ class subcuenta extends \fs_model
         }
 
         /// forzamos la creación de la tabla de cuentas
-        $cuenta = new \cuenta();
+        new \cuenta();
+        
         return '';
     }
 

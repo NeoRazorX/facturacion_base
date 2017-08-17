@@ -40,21 +40,21 @@ class familia extends \fs_model
     public $madre;
     public $nivel;
 
-    public function __construct($f = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('familias');
-        if ($f) {
-            $this->codfamilia = $f['codfamilia'];
-            $this->descripcion = $f['descripcion'];
+        if ($data) {
+            $this->codfamilia = $data['codfamilia'];
+            $this->descripcion = $data['descripcion'];
 
             $this->madre = NULL;
-            if (isset($f['madre'])) {
-                $this->madre = $f['madre'];
+            if (isset($data['madre'])) {
+                $this->madre = $data['madre'];
             }
 
             $this->nivel = '';
-            if (isset($f['nivel'])) {
-                $this->nivel = $f['nivel'];
+            if (isset($data['nivel'])) {
+                $this->nivel = $data['nivel'];
             }
         } else {
             $this->codfamilia = NULL;
@@ -222,7 +222,7 @@ class familia extends \fs_model
 
     /**
      * Completa los datos de la lista de familias con el nivel
-     * @param string $familias
+     * @param array $familias
      * @param string $madre
      * @param string $nivel
      * @return \familia[]

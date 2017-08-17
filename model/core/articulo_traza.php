@@ -80,27 +80,27 @@ class articulo_traza extends \fs_model
     public $fecha_entrada;
     public $fecha_salida;
 
-    public function __construct($n = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('articulo_trazas');
-        if ($n) {
-            $this->id = $this->intval($n['id']);
-            $this->referencia = $n['referencia'];
-            $this->numserie = $n['numserie'];
-            $this->lote = $n['lote'];
-            $this->idlalbventa = $this->intval($n['idlalbventa']);
-            $this->idlfacventa = $this->intval($n['idlfacventa']);
-            $this->idlalbcompra = $this->intval($n['idlalbcompra']);
-            $this->idlfaccompra = $this->intval($n['idlfaccompra']);
+        if ($data) {
+            $this->id = $this->intval($data['id']);
+            $this->referencia = $data['referencia'];
+            $this->numserie = $data['numserie'];
+            $this->lote = $data['lote'];
+            $this->idlalbventa = $this->intval($data['idlalbventa']);
+            $this->idlfacventa = $this->intval($data['idlfacventa']);
+            $this->idlalbcompra = $this->intval($data['idlalbcompra']);
+            $this->idlfaccompra = $this->intval($data['idlfaccompra']);
 
             $this->fecha_entrada = NULL;
-            if (isset($n['fecha_entrada'])) {
-                $this->fecha_entrada = date('d-m-Y', strtotime($n['fecha_entrada']));
+            if (isset($data['fecha_entrada'])) {
+                $this->fecha_entrada = date('d-m-Y', strtotime($data['fecha_entrada']));
             }
 
             $this->fecha_salida = NULL;
-            if (isset($n['fecha_salida']) AND ( $this->idlalbventa OR $this->idlfacventa)) {
-                $this->fecha_salida = date('d-m-Y', strtotime($n['fecha_salida']));
+            if (isset($data['fecha_salida']) AND ( $this->idlalbventa OR $this->idlfacventa)) {
+                $this->fecha_salida = date('d-m-Y', strtotime($data['fecha_salida']));
             }
         } else {
             $this->id = NULL;

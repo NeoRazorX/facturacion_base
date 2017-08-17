@@ -43,22 +43,22 @@ class stock extends \fs_model
     public $cantidadultreg;
     public $ubicacion;
 
-    public function __construct($s = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('stocks');
-        if ($s) {
-            $this->idstock = $this->intval($s['idstock']);
-            $this->codalmacen = $s['codalmacen'];
-            $this->referencia = $s['referencia'];
-            $this->nombre = $s['nombre'];
-            $this->cantidad = floatval($s['cantidad']);
-            $this->reservada = floatval($s['reservada']);
-            $this->disponible = floatval($s['disponible']);
-            $this->pterecibir = floatval($s['pterecibir']);
-            $this->stockmin = floatval($s['stockmin']);
-            $this->stockmax = floatval($s['stockmax']);
-            $this->cantidadultreg = floatval($s['cantidadultreg']);
-            $this->ubicacion = $s['ubicacion'];
+        if ($data) {
+            $this->idstock = $this->intval($data['idstock']);
+            $this->codalmacen = $data['codalmacen'];
+            $this->referencia = $data['referencia'];
+            $this->nombre = $data['nombre'];
+            $this->cantidad = floatval($data['cantidad']);
+            $this->reservada = floatval($data['reservada']);
+            $this->disponible = floatval($data['disponible']);
+            $this->pterecibir = floatval($data['pterecibir']);
+            $this->stockmin = floatval($data['stockmin']);
+            $this->stockmax = floatval($data['stockmax']);
+            $this->cantidadultreg = floatval($data['cantidadultreg']);
+            $this->ubicacion = $data['ubicacion'];
         } else {
             $this->idstock = NULL;
             $this->codalmacen = NULL;

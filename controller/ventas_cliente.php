@@ -165,10 +165,12 @@ class ventas_cliente extends fbase_controller
         if ($cuenta) {
             if ($cuenta->delete()) {
                 $this->new_message('Cuenta bancaria eliminada correctamente.');
-            } else
+            } else {
                 $this->new_error_msg('Imposible eliminar la cuenta bancaria.');
-        } else
+            }
+        } else {
             $this->new_error_msg('Cuenta bancaria no encontrada.');
+        }
     }
 
     private function edit_direccion()
@@ -189,8 +191,9 @@ class ventas_cliente extends fbase_controller
         $dir->provincia = $_POST['provincia'];
         if ($dir->save()) {
             $this->new_message("Dirección guardada correctamente.");
-        } else
+        } else {
             $this->new_message("¡Imposible guardar la dirección!");
+        }
     }
 
     private function delete_direccion()
@@ -200,10 +203,12 @@ class ventas_cliente extends fbase_controller
         if ($dir0) {
             if ($dir0->delete()) {
                 $this->new_message('Dirección eliminada correctamente.');
-            } else
+            } else {
                 $this->new_error_msg('Imposible eliminar la dirección.');
-        } else
+            }
+        } else {
             $this->new_error_msg('Dirección no encontrada.');
+        }
     }
 
     private function convertir()
@@ -226,7 +231,6 @@ class ventas_cliente extends fbase_controller
         $proveedor->codserie = $this->cliente->codserie;
         $proveedor->codcliente = $this->cliente->codcliente;
 
-        $proveedor_ok = TRUE;
         if ($proveedor->save()) {
             $this->cliente->codproveedor = $proveedor->codproveedor;
             $proveedor_ok = $this->cliente->save();

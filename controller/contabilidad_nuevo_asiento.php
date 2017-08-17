@@ -76,8 +76,6 @@ class contabilidad_nuevo_asiento extends fs_controller
 
     private function get_ejercicio($fecha)
     {
-        $ejercicio = FALSE;
-
         $ejercicio = $this->ejercicio->get_by_fecha($fecha);
         if ($ejercicio) {
             $regiva0 = new regularizacion_iva();

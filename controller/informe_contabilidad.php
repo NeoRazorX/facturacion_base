@@ -51,8 +51,9 @@ class informe_contabilidad extends fs_controller
 
             if ($_GET['balance'] == 'pyg') {
                 $iba->generar_pyg($_GET['eje']);
-            } else
+            } else {
                 $iba->generar_sit($_GET['eje']);
+            }
         } else if (isset($_POST['informe'])) {
             if ($_POST['informe'] == 'sumasysaldos') {
                 $this->balance_sumas_y_saldos();
@@ -598,7 +599,6 @@ class informe_contabilidad extends fs_controller
             $desc1 = '';
             $desc2 = '';
             $desc3 = '';
-            $desc4 = '';
             foreach ($nivel1 as $nv1) {
                 foreach ($nivel2 as $nv2) {
                     foreach ($nivel3 as $nv3) {

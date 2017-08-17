@@ -33,12 +33,12 @@ class atributo extends \fs_model
     public $codatributo;
     public $nombre;
 
-    public function __construct($a = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('atributos');
-        if ($a) {
-            $this->codatributo = $a['codatributo'];
-            $this->nombre = $a['nombre'];
+        if ($data) {
+            $this->codatributo = $data['codatributo'];
+            $this->nombre = $data['nombre'];
         } else {
             $this->codatributo = NULL;
             $this->nombre = NULL;

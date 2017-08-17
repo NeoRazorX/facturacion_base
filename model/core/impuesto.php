@@ -48,16 +48,16 @@ class impuesto extends \fs_model
     public $iva;
     public $recargo;
 
-    public function __construct($i = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('impuestos');
-        if ($i) {
-            $this->codimpuesto = $i['codimpuesto'];
-            $this->codsubcuentarep = $i['codsubcuentarep'];
-            $this->codsubcuentasop = $i['codsubcuentasop'];
-            $this->descripcion = $i['descripcion'];
-            $this->iva = floatval($i['iva']);
-            $this->recargo = floatval($i['recargo']);
+        if ($data) {
+            $this->codimpuesto = $data['codimpuesto'];
+            $this->codsubcuentarep = $data['codsubcuentarep'];
+            $this->codsubcuentasop = $data['codsubcuentasop'];
+            $this->descripcion = $data['descripcion'];
+            $this->iva = floatval($data['iva']);
+            $this->recargo = floatval($data['recargo']);
         } else {
             $this->codimpuesto = NULL;
             $this->codsubcuentarep = NULL;

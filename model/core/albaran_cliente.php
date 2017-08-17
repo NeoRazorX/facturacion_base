@@ -214,77 +214,77 @@ class albaran_cliente extends \fs_model
      */
     public $numdocs;
 
-    public function __construct($a = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('albaranescli');
-        if ($a) {
-            $this->idalbaran = $this->intval($a['idalbaran']);
+        if ($data) {
+            $this->idalbaran = $this->intval($data['idalbaran']);
 
-            $this->idfactura = $this->intval($a['idfactura']);
+            $this->idfactura = $this->intval($data['idfactura']);
             if ($this->idfactura == 0) {
                 $this->idfactura = NULL;
             }
 
-            $this->ptefactura = $this->str2bool($a['ptefactura']);
+            $this->ptefactura = $this->str2bool($data['ptefactura']);
             if ($this->idfactura) {
                 /// si ya hay una factura enlazada, no puede estar pendiente de factura
                 $this->ptefactura = FALSE;
             }
 
-            $this->codigo = $a['codigo'];
-            $this->codagente = $a['codagente'];
-            $this->codserie = $a['codserie'];
-            $this->codejercicio = $a['codejercicio'];
-            $this->codcliente = $a['codcliente'];
-            $this->codpago = $a['codpago'];
-            $this->coddivisa = $a['coddivisa'];
-            $this->codalmacen = $a['codalmacen'];
-            $this->codpais = $a['codpais'];
-            $this->coddir = $a['coddir'];
-            $this->codpostal = $a['codpostal'];
-            $this->numero = $a['numero'];
-            $this->numero2 = $a['numero2'];
-            $this->nombrecliente = $a['nombrecliente'];
-            $this->cifnif = $a['cifnif'];
-            $this->direccion = $a['direccion'];
-            $this->ciudad = $a['ciudad'];
-            $this->provincia = $a['provincia'];
-            $this->apartado = $a['apartado'];
-            $this->fecha = Date('d-m-Y', strtotime($a['fecha']));
+            $this->codigo = $data['codigo'];
+            $this->codagente = $data['codagente'];
+            $this->codserie = $data['codserie'];
+            $this->codejercicio = $data['codejercicio'];
+            $this->codcliente = $data['codcliente'];
+            $this->codpago = $data['codpago'];
+            $this->coddivisa = $data['coddivisa'];
+            $this->codalmacen = $data['codalmacen'];
+            $this->codpais = $data['codpais'];
+            $this->coddir = $data['coddir'];
+            $this->codpostal = $data['codpostal'];
+            $this->numero = $data['numero'];
+            $this->numero2 = $data['numero2'];
+            $this->nombrecliente = $data['nombrecliente'];
+            $this->cifnif = $data['cifnif'];
+            $this->direccion = $data['direccion'];
+            $this->ciudad = $data['ciudad'];
+            $this->provincia = $data['provincia'];
+            $this->apartado = $data['apartado'];
+            $this->fecha = Date('d-m-Y', strtotime($data['fecha']));
 
             $this->hora = '00:00:00';
-            if (!is_null($a['hora'])) {
-                $this->hora = date('H:i:s', strtotime($a['hora']));
+            if (!is_null($data['hora'])) {
+                $this->hora = date('H:i:s', strtotime($data['hora']));
             }
 
-            $this->neto = floatval($a['neto']);
-            $this->total = floatval($a['total']);
-            $this->totaliva = floatval($a['totaliva']);
-            $this->totaleuros = floatval($a['totaleuros']);
-            $this->irpf = floatval($a['irpf']);
-            $this->totalirpf = floatval($a['totalirpf']);
-            $this->porcomision = floatval($a['porcomision']);
-            $this->tasaconv = floatval($a['tasaconv']);
-            $this->totalrecargo = floatval($a['totalrecargo']);
-            $this->observaciones = $this->no_html($a['observaciones']);
+            $this->neto = floatval($data['neto']);
+            $this->total = floatval($data['total']);
+            $this->totaliva = floatval($data['totaliva']);
+            $this->totaleuros = floatval($data['totaleuros']);
+            $this->irpf = floatval($data['irpf']);
+            $this->totalirpf = floatval($data['totalirpf']);
+            $this->porcomision = floatval($data['porcomision']);
+            $this->tasaconv = floatval($data['tasaconv']);
+            $this->totalrecargo = floatval($data['totalrecargo']);
+            $this->observaciones = $this->no_html($data['observaciones']);
 
             $this->femail = NULL;
-            if (!is_null($a['femail'])) {
-                $this->femail = Date('d-m-Y', strtotime($a['femail']));
+            if (!is_null($data['femail'])) {
+                $this->femail = Date('d-m-Y', strtotime($data['femail']));
             }
 
-            $this->envio_codtrans = $a['codtrans'];
-            $this->envio_codigo = $a['codigoenv'];
-            $this->envio_nombre = $a['nombreenv'];
-            $this->envio_apellidos = $a['apellidosenv'];
-            $this->envio_apartado = $a['apartadoenv'];
-            $this->envio_direccion = $a['direccionenv'];
-            $this->envio_codpostal = $a['codpostalenv'];
-            $this->envio_ciudad = $a['ciudadenv'];
-            $this->envio_provincia = $a['provinciaenv'];
-            $this->envio_codpais = $a['codpaisenv'];
+            $this->envio_codtrans = $data['codtrans'];
+            $this->envio_codigo = $data['codigoenv'];
+            $this->envio_nombre = $data['nombreenv'];
+            $this->envio_apellidos = $data['apellidosenv'];
+            $this->envio_apartado = $data['apartadoenv'];
+            $this->envio_direccion = $data['direccionenv'];
+            $this->envio_codpostal = $data['codpostalenv'];
+            $this->envio_ciudad = $data['ciudadenv'];
+            $this->envio_provincia = $data['provinciaenv'];
+            $this->envio_codpais = $data['codpaisenv'];
 
-            $this->numdocs = intval($a['numdocs']);
+            $this->numdocs = intval($data['numdocs']);
         } else {
             $this->idalbaran = NULL;
             $this->idfactura = NULL;

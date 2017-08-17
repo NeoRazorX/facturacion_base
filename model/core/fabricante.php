@@ -33,12 +33,12 @@ class fabricante extends \fs_model
     public $codfabricante;
     public $nombre;
 
-    public function __construct($f = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('fabricantes');
-        if ($f) {
-            $this->codfabricante = $f['codfabricante'];
-            $this->nombre = $f['nombre'];
+        if ($data) {
+            $this->codfabricante = $data['codfabricante'];
+            $this->nombre = $data['nombre'];
         } else {
             $this->codfabricante = NULL;
             $this->nombre = '';

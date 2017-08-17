@@ -187,46 +187,46 @@ class factura_proveedor extends \fs_model
      */
     public $numdocs;
 
-    public function __construct($f = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('facturasprov');
-        if ($f) {
-            $this->anulada = $this->str2bool($f['anulada']);
-            $this->cifnif = $f['cifnif'];
-            $this->codagente = $f['codagente'];
-            $this->codalmacen = $f['codalmacen'];
-            $this->coddivisa = $f['coddivisa'];
-            $this->codejercicio = $f['codejercicio'];
-            $this->codigo = $f['codigo'];
-            $this->codigorect = $f['codigorect'];
-            $this->codpago = $f['codpago'];
-            $this->codproveedor = $f['codproveedor'];
-            $this->codserie = $f['codserie'];
-            $this->fecha = Date('d-m-Y', strtotime($f['fecha']));
+        if ($data) {
+            $this->anulada = $this->str2bool($data['anulada']);
+            $this->cifnif = $data['cifnif'];
+            $this->codagente = $data['codagente'];
+            $this->codalmacen = $data['codalmacen'];
+            $this->coddivisa = $data['coddivisa'];
+            $this->codejercicio = $data['codejercicio'];
+            $this->codigo = $data['codigo'];
+            $this->codigorect = $data['codigorect'];
+            $this->codpago = $data['codpago'];
+            $this->codproveedor = $data['codproveedor'];
+            $this->codserie = $data['codserie'];
+            $this->fecha = Date('d-m-Y', strtotime($data['fecha']));
 
             $this->hora = '00:00:00';
-            if (!is_null($f['hora'])) {
-                $this->hora = date('H:i:s', strtotime($f['hora']));
+            if (!is_null($data['hora'])) {
+                $this->hora = date('H:i:s', strtotime($data['hora']));
             }
 
-            $this->idasiento = $this->intval($f['idasiento']);
-            $this->idasientop = $this->intval($f['idasientop']);
-            $this->idfactura = $this->intval($f['idfactura']);
-            $this->idfacturarect = $this->intval($f['idfacturarect']);
-            $this->irpf = floatval($f['irpf']);
-            $this->neto = floatval($f['neto']);
-            $this->nombre = $f['nombre'];
-            $this->numero = $f['numero'];
-            $this->numproveedor = $f['numproveedor'];
-            $this->observaciones = $this->no_html($f['observaciones']);
-            $this->pagada = $this->str2bool($f['pagada']);
-            $this->tasaconv = floatval($f['tasaconv']);
-            $this->total = floatval($f['total']);
-            $this->totaleuros = floatval($f['totaleuros']);
-            $this->totalirpf = floatval($f['totalirpf']);
-            $this->totaliva = floatval($f['totaliva']);
-            $this->totalrecargo = floatval($f['totalrecargo']);
-            $this->numdocs = intval($f['numdocs']);
+            $this->idasiento = $this->intval($data['idasiento']);
+            $this->idasientop = $this->intval($data['idasientop']);
+            $this->idfactura = $this->intval($data['idfactura']);
+            $this->idfacturarect = $this->intval($data['idfacturarect']);
+            $this->irpf = floatval($data['irpf']);
+            $this->neto = floatval($data['neto']);
+            $this->nombre = $data['nombre'];
+            $this->numero = $data['numero'];
+            $this->numproveedor = $data['numproveedor'];
+            $this->observaciones = $this->no_html($data['observaciones']);
+            $this->pagada = $this->str2bool($data['pagada']);
+            $this->tasaconv = floatval($data['tasaconv']);
+            $this->total = floatval($data['total']);
+            $this->totaleuros = floatval($data['totaleuros']);
+            $this->totalirpf = floatval($data['totalirpf']);
+            $this->totaliva = floatval($data['totaliva']);
+            $this->totalrecargo = floatval($data['totalrecargo']);
+            $this->numdocs = intval($data['numdocs']);
         } else {
             $this->anulada = FALSE;
             $this->cifnif = '';

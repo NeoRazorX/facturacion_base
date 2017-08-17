@@ -68,20 +68,20 @@ class tarifa extends \fs_model
      */
     public $maxpvp;
 
-    public function __construct($t = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('tarifas');
-        if ($t) {
-            $this->codtarifa = $t['codtarifa'];
-            $this->nombre = $t['nombre'];
-            $this->incporcentual = floatval($t['incporcentual']);
-            $this->inclineal = floatval($t['inclineal']);
-            $this->mincoste = $this->str2bool($t['mincoste']);
-            $this->maxpvp = $this->str2bool($t['maxpvp']);
+        if ($data) {
+            $this->codtarifa = $data['codtarifa'];
+            $this->nombre = $data['nombre'];
+            $this->incporcentual = floatval($data['incporcentual']);
+            $this->inclineal = floatval($data['inclineal']);
+            $this->mincoste = $this->str2bool($data['mincoste']);
+            $this->maxpvp = $this->str2bool($data['maxpvp']);
 
             $this->aplicar_a = 'pvp';
-            if (!is_null($t['aplicar_a'])) {
-                $this->aplicar_a = $t['aplicar_a'];
+            if (!is_null($data['aplicar_a'])) {
+                $this->aplicar_a = $data['aplicar_a'];
             }
         } else {
             $this->codtarifa = NULL;
@@ -146,7 +146,6 @@ class tarifa extends \fs_model
      */
     public function diff()
     {
-        $texto = '';
         $x = $this->x();
         $y = $this->y();
 

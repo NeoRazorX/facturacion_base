@@ -112,7 +112,6 @@ class asiento_factura
         $ok = FALSE;
         $this->asiento = FALSE;
         $proveedor0 = new \proveedor();
-        $subcuenta_prov = FALSE;
 
         /// obtenemos las tasas de conversión, para las ocasiones en que la factura está en otra divisa
         $tasaconv = 1;
@@ -427,7 +426,7 @@ class asiento_factura
                 }
             } else {
                 $asiento_correcto = FALSE;
-                $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo " . $lin->referencia . "!");
+                $this->new_error_msg("¡Imposible generar la partida para la subcuenta " . $partidaA->codsubcuenta . "!");
             }
         }
     }
@@ -514,7 +513,7 @@ class asiento_factura
                 }
             } else {
                 $asiento_correcto = FALSE;
-                $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo " . $lin->referencia . "!");
+                $this->new_error_msg("¡Imposible generar la partida para la subcuenta " . $partidaA->codsubcuenta . "!");
             }
         }
     }
@@ -530,7 +529,6 @@ class asiento_factura
         $ok = FALSE;
         $this->asiento = FALSE;
         $cliente0 = new \cliente();
-        $subcuenta_cli = FALSE;
 
         /// obtenemos las tasas de conversión, para las ocasiones en que la factura está en otra divisa
         $tasaconv = 1;
@@ -771,8 +769,7 @@ class asiento_factura
                             }
                         } else {
                             $asiento_correcto = FALSE;
-                            $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo "
-                                . $lin->referencia . "!");
+                            $this->new_error_msg("¡Imposible generar la partida para la subcuenta ". $partidaA->codsubcuenta . "!");
                         }
                     }
                 }

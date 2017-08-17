@@ -48,26 +48,26 @@ class asiento extends \fs_model
     public $importe;
     private $coddivisa;
 
-    public function __construct($a = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_asientos');
-        if ($a) {
-            $this->idasiento = $this->intval($a['idasiento']);
-            $this->numero = $this->intval($a['numero']);
-            $this->idconcepto = $a['idconcepto'];
+        if ($data) {
+            $this->idasiento = $this->intval($data['idasiento']);
+            $this->numero = $this->intval($data['numero']);
+            $this->idconcepto = $data['idconcepto'];
 
             $this->concepto = '---';
-            if ($a['concepto'] != '') {
-                $this->concepto = $a['concepto'];
+            if ($data['concepto'] != '') {
+                $this->concepto = $data['concepto'];
             }
 
-            $this->fecha = Date('d-m-Y', strtotime($a['fecha']));
-            $this->codejercicio = $a['codejercicio'];
-            $this->codplanasiento = $a['codplanasiento'];
-            $this->editable = $this->str2bool($a['editable']);
-            $this->documento = $a['documento'];
-            $this->tipodocumento = $a['tipodocumento'];
-            $this->importe = floatval($a['importe']);
+            $this->fecha = Date('d-m-Y', strtotime($data['fecha']));
+            $this->codejercicio = $data['codejercicio'];
+            $this->codplanasiento = $data['codplanasiento'];
+            $this->editable = $this->str2bool($data['editable']);
+            $this->documento = $data['documento'];
+            $this->tipodocumento = $data['tipodocumento'];
+            $this->importe = floatval($data['importe']);
         } else {
             $this->idasiento = NULL;
             $this->numero = NULL;
@@ -161,9 +161,9 @@ class asiento extends \fs_model
     public function get($id)
     {
         if (isset($id)) {
-            $asiento = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idasiento = " . $this->var2str($id) . ";");
-            if ($asiento) {
-                return new \asiento($asiento[0]);
+            $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idasiento = " . $this->var2str($id) . ";");
+            if ($data) {
+                return new \asiento($data[0]);
             }
         }
 
@@ -310,7 +310,6 @@ class asiento extends \fs_model
             $debe += $p->debe;
             $haber += $p->haber;
         }
-        $total = $debe - $haber;
         $this->importe = max(array(abs($debe), abs($haber)));
 
         /// corregimos descuadres de menos de 0.01

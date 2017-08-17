@@ -53,20 +53,20 @@ class cuenta_banco_cliente extends \fs_model
      */
     public $fmandato;
 
-    public function __construct($c = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('cuentasbcocli');
-        if ($c) {
-            $this->codcliente = $c['codcliente'];
-            $this->codcuenta = $c['codcuenta'];
-            $this->descripcion = $c['descripcion'];
-            $this->iban = $c['iban'];
-            $this->swift = $c['swift'];
-            $this->principal = $this->str2bool($c['principal']);
+        if ($data) {
+            $this->codcliente = $data['codcliente'];
+            $this->codcuenta = $data['codcuenta'];
+            $this->descripcion = $data['descripcion'];
+            $this->iban = $data['iban'];
+            $this->swift = $data['swift'];
+            $this->principal = $this->str2bool($data['principal']);
 
             $this->fmandato = NULL;
-            if ($c['fmandato']) {
-                $this->fmandato = date('d-m-Y', strtotime($c['fmandato']));
+            if ($data['fmandato']) {
+                $this->fmandato = date('d-m-Y', strtotime($data['fmandato']));
             }
         } else {
             $this->codcliente = NULL;

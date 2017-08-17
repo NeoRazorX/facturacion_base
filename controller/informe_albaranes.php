@@ -77,8 +77,8 @@ class informe_albaranes extends fbase_controller
         parent::private_core();
 
         /// declaramos los objetos sólo para asegurarnos de que existen las tablas
-        $albaran_cli = new albaran_cliente();
-        $albaran_pro = new albaran_proveedor();
+        new albaran_cliente();
+        new albaran_proveedor();
 
         $this->agente = new agente();
         $this->almacen = new almacen();

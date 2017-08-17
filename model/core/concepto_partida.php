@@ -33,12 +33,12 @@ class concepto_partida extends \fs_model
     public $idconceptopar;
     public $concepto;
 
-    public function __construct($c = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_conceptospar');
-        if ($c) {
-            $this->idconceptopar = $c['idconceptopar'];
-            $this->concepto = $c['concepto'];
+        if ($data) {
+            $this->idconceptopar = $data['idconceptopar'];
+            $this->concepto = $data['concepto'];
         } else {
             $this->idconceptopar = NULL;
             $this->concepto = NULL;

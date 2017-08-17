@@ -87,37 +87,37 @@ class terminal_caja extends \fs_model
      */
     public $sin_comandos;
 
-    public function __construct($t = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('cajas_terminales');
-        if ($t) {
-            $this->id = $this->intval($t['id']);
-            $this->codalmacen = $t['codalmacen'];
-            $this->codserie = $t['codserie'];
-            $this->codcliente = $t['codcliente'];
-            $this->tickets = $t['tickets'];
+        if ($data) {
+            $this->id = $this->intval($data['id']);
+            $this->codalmacen = $data['codalmacen'];
+            $this->codserie = $data['codserie'];
+            $this->codcliente = $data['codcliente'];
+            $this->tickets = $data['tickets'];
 
             $this->anchopapel = 40;
-            if (isset($t['anchopapel'])) {
-                $this->anchopapel = intval($t['anchopapel']);
+            if (isset($data['anchopapel'])) {
+                $this->anchopapel = intval($data['anchopapel']);
             }
 
             $this->comandocorte = '27.105';
-            if (isset($t['comandocorte'])) {
-                $this->comandocorte = $t['comandocorte'];
+            if (isset($data['comandocorte'])) {
+                $this->comandocorte = $data['comandocorte'];
             }
 
             $this->comandoapertura = '27.112.48';
-            if (isset($t['comandoapertura'])) {
-                $this->comandoapertura = $t['comandoapertura'];
+            if (isset($data['comandoapertura'])) {
+                $this->comandoapertura = $data['comandoapertura'];
             }
 
             $this->num_tickets = 1;
-            if (isset($t['num_tickets'])) {
-                $this->num_tickets = intval($t['num_tickets']);
+            if (isset($data['num_tickets'])) {
+                $this->num_tickets = intval($data['num_tickets']);
             }
 
-            $this->sin_comandos = $this->str2bool($t['sin_comandos']);
+            $this->sin_comandos = $this->str2bool($data['sin_comandos']);
         } else {
             $this->id = NULL;
             $this->codalmacen = NULL;

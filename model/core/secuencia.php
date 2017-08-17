@@ -61,7 +61,9 @@ class secuencia extends \fs_model
 
     protected function install()
     {
-        $sece = new \secuencia_ejercicio();
+        /// necesitamos comprobar este modelo para que cree la tabla, para la clave ajena
+        new \secuencia_ejercicio();
+        
         return '';
     }
 

@@ -146,15 +146,12 @@ class ventas_maquetar extends fs_controller
         switch (get_class_name($this->documento)) {
             case 'albaran_cliente':
                 return 'index.php?page=' . __CLASS__ . '&albaran=TRUE&id=' . $this->documento->idalbaran;
-                break;
 
             case 'factura_cliente':
                 return 'index.php?page=' . __CLASS__ . '&factura=TRUE&id=' . $this->documento->idfactura;
-                break;
 
             default:
                 return parent::url();
-                break;
         }
     }
 }

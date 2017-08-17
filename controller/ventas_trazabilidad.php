@@ -120,7 +120,6 @@ class ventas_trazabilidad extends fs_controller
 
     private function asignar()
     {
-        $art0 = new articulo();
         $at0 = new articulo_traza();
         $ok = TRUE;
 

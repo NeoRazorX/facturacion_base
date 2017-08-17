@@ -122,37 +122,37 @@ class proveedor extends \fs_model
     public $codcliente;
     private static $regimenes_iva;
 
-    public function __construct($p = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('proveedores');
-        if ($p) {
-            $this->codproveedor = $p['codproveedor'];
-            $this->nombre = $p['nombre'];
+        if ($data) {
+            $this->codproveedor = $data['codproveedor'];
+            $this->nombre = $data['nombre'];
 
-            if (is_null($p['razonsocial'])) {
-                $this->razonsocial = $p['nombrecomercial'];
+            if (is_null($data['razonsocial'])) {
+                $this->razonsocial = $data['nombrecomercial'];
             } else {
-                $this->razonsocial = $p['razonsocial'];
+                $this->razonsocial = $data['razonsocial'];
             }
 
-            $this->tipoidfiscal = $p['tipoidfiscal'];
-            $this->cifnif = $p['cifnif'];
-            $this->telefono1 = $p['telefono1'];
-            $this->telefono2 = $p['telefono2'];
-            $this->fax = $p['fax'];
-            $this->email = $p['email'];
-            $this->web = $p['web'];
-            $this->codserie = $p['codserie'];
-            $this->coddivisa = $p['coddivisa'];
-            $this->codpago = $p['codpago'];
-            $this->observaciones = $this->no_html($p['observaciones']);
-            $this->regimeniva = $p['regimeniva'];
-            $this->acreedor = $this->str2bool($p['acreedor']);
-            $this->personafisica = $this->str2bool($p['personafisica']);
+            $this->tipoidfiscal = $data['tipoidfiscal'];
+            $this->cifnif = $data['cifnif'];
+            $this->telefono1 = $data['telefono1'];
+            $this->telefono2 = $data['telefono2'];
+            $this->fax = $data['fax'];
+            $this->email = $data['email'];
+            $this->web = $data['web'];
+            $this->codserie = $data['codserie'];
+            $this->coddivisa = $data['coddivisa'];
+            $this->codpago = $data['codpago'];
+            $this->observaciones = $this->no_html($data['observaciones']);
+            $this->regimeniva = $data['regimeniva'];
+            $this->acreedor = $this->str2bool($data['acreedor']);
+            $this->personafisica = $this->str2bool($data['personafisica']);
 
-            $this->debaja = $this->str2bool($p['debaja']);
+            $this->debaja = $this->str2bool($data['debaja']);
             $this->fechabaja = date('d-m-Y');
-            $this->codcliente = $p['codcliente'];
+            $this->codcliente = $data['codcliente'];
         } else {
             $this->codproveedor = NULL;
             $this->nombre = '';

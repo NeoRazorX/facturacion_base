@@ -186,7 +186,7 @@ class articulo extends \fs_model
     private static $cleaned_cache;
     private static $column_list;
 
-    public function __construct($a = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('articulos');
 
@@ -198,38 +198,38 @@ class articulo extends \fs_model
                 'partnumber,codsubcuentacom,codsubcuentairpfcom,trazabilidad';
         }
 
-        if ($a) {
-            $this->referencia = $a['referencia'];
-            $this->tipo = $a['tipo'];
-            $this->codfamilia = $a['codfamilia'];
-            $this->codfabricante = $a['codfabricante'];
-            $this->descripcion = $this->no_html($a['descripcion']);
-            $this->pvp = floatval($a['pvp']);
-            $this->factualizado = Date('d-m-Y', strtotime($a['factualizado']));
-            $this->costemedio = floatval($a['costemedio']);
-            $this->preciocoste = floatval($a['preciocoste']);
-            $this->codimpuesto = $a['codimpuesto'];
-            $this->stockfis = floatval($a['stockfis']);
-            $this->stockmin = floatval($a['stockmin']);
-            $this->stockmax = floatval($a['stockmax']);
+        if ($data) {
+            $this->referencia = $data['referencia'];
+            $this->tipo = $data['tipo'];
+            $this->codfamilia = $data['codfamilia'];
+            $this->codfabricante = $data['codfabricante'];
+            $this->descripcion = $this->no_html($data['descripcion']);
+            $this->pvp = floatval($data['pvp']);
+            $this->factualizado = Date('d-m-Y', strtotime($data['factualizado']));
+            $this->costemedio = floatval($data['costemedio']);
+            $this->preciocoste = floatval($data['preciocoste']);
+            $this->codimpuesto = $data['codimpuesto'];
+            $this->stockfis = floatval($data['stockfis']);
+            $this->stockmin = floatval($data['stockmin']);
+            $this->stockmax = floatval($data['stockmax']);
 
-            $this->controlstock = $this->str2bool($a['controlstock']);
-            $this->nostock = $this->str2bool($a['nostock']);
+            $this->controlstock = $this->str2bool($data['controlstock']);
+            $this->nostock = $this->str2bool($data['nostock']);
             if ($this->nostock) {
                 $this->controlstock = TRUE;
             }
 
-            $this->bloqueado = $this->str2bool($a['bloqueado']);
-            $this->secompra = $this->str2bool($a['secompra']);
-            $this->sevende = $this->str2bool($a['sevende']);
-            $this->publico = $this->str2bool($a['publico']);
-            $this->equivalencia = $a['equivalencia'];
-            $this->partnumber = $a['partnumber'];
-            $this->codbarras = $a['codbarras'];
-            $this->observaciones = $this->no_html($a['observaciones']);
-            $this->codsubcuentacom = $a['codsubcuentacom'];
-            $this->codsubcuentairpfcom = $a['codsubcuentairpfcom'];
-            $this->trazabilidad = $this->str2bool($a['trazabilidad']);
+            $this->bloqueado = $this->str2bool($data['bloqueado']);
+            $this->secompra = $this->str2bool($data['secompra']);
+            $this->sevende = $this->str2bool($data['sevende']);
+            $this->publico = $this->str2bool($data['publico']);
+            $this->equivalencia = $data['equivalencia'];
+            $this->partnumber = $data['partnumber'];
+            $this->codbarras = $data['codbarras'];
+            $this->observaciones = $this->no_html($data['observaciones']);
+            $this->codsubcuentacom = $data['codsubcuentacom'];
+            $this->codsubcuentairpfcom = $data['codsubcuentairpfcom'];
+            $this->trazabilidad = $this->str2bool($data['trazabilidad']);
             $this->imagen = NULL;
             $this->exists = TRUE;
         } else {

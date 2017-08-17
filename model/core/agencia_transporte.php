@@ -47,15 +47,15 @@ class agencia_transporte extends \fs_model
      */
     public $activo;
 
-    public function __construct($p = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('agenciastrans');
-        if ($p) {
-            $this->codtrans = $p['codtrans'];
-            $this->nombre = $p['nombre'];
-            $this->telefono = $p['telefono'];
-            $this->web = $p['web'];
-            $this->activo = $this->str2bool($p['activo']);
+        if ($data) {
+            $this->codtrans = $data['codtrans'];
+            $this->nombre = $data['nombre'];
+            $this->telefono = $data['telefono'];
+            $this->web = $data['web'];
+            $this->activo = $this->str2bool($data['activo']);
         } else {
             $this->codtrans = NULL;
             $this->nombre = NULL;

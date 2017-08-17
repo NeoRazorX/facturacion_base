@@ -42,9 +42,9 @@ class contabilidad_ejercicio extends fbase_controller
 
         /// cargamos las putas secuencias para que se actualicen.
         /// Abanq/Eneboo, yo te maldigooooo!!!!!!!!!!!!!!!!!!!!!!
-        $sec0 = new secuencia_ejercicio();
-        $sec1 = new secuencia_contabilidad();
-        $sec2 = new secuencia();
+        new secuencia_ejercicio();
+        new secuencia_contabilidad();
+        new secuencia();
 
         $this->ejercicio = FALSE;
         if (isset($_POST['codejercicio'])) {
