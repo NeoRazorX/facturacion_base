@@ -16,9 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-require_model('articulo.php');
-require_model('articulo_propiedad.php');
-require_model('subcuenta.php');
 
 /**
  * Description of articulo_subcuentas
@@ -40,6 +37,7 @@ class articulo_subcuentas extends fs_controller
 
     protected function private_core()
     {
+        $this->template = 'tab/' . __CLASS__;
         $this->share_extension();
         $art0 = new articulo();
 
@@ -113,8 +111,9 @@ class articulo_subcuentas extends fs_controller
     {
         if ($this->articulo) {
             return 'index.php?page=' . __CLASS__ . '&ref=' . $this->articulo->referencia;
-        } else
-            return parent::url();
+        }
+
+        return parent::url();
     }
 
     private function buscar_subcuenta()

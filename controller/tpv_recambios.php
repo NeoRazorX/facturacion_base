@@ -18,24 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('agente.php');
-require_model('almacen.php');
-require_model('articulo.php');
-require_model('articulo_combinacion.php');
-require_model('asiento_factura.php');
-require_model('caja.php');
-require_model('divisa.php');
-require_model('ejercicio.php');
-require_model('fabricante.php');
-require_model('factura_cliente.php');
-require_model('familia.php');
-require_model('forma_pago.php');
-require_model('grupo_clientes.php');
-require_model('impuesto.php');
-require_model('regularizacion_iva.php');
-require_model('serie.php');
-require_model('tarifa.php');
-require_model('terminal_caja.php');
 
 class tpv_recambios extends fbase_controller
 {

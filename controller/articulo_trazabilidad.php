@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('articulo.php');
-require_model('articulo_traza.php');
 
 /**
  * Description of articulo_trazabilidad
@@ -68,9 +66,9 @@ class articulo_trazabilidad extends fbase_controller
     {
         if ($this->articulo) {
             return 'index.php?page=' . __CLASS__ . '&ref=' . urlencode($this->articulo->referencia);
-        } else {
-            return parent::url();
         }
+
+        return parent::url();
     }
 
     private function edit_traza()

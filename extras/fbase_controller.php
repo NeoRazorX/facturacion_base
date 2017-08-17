@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2017  Carlos Garcia Gomez  neorazorx@gmail.com
@@ -18,15 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('cliente.php');
-require_model('proveedor.php');
-
 /**
  * Controlador extendido para el plugin facturacion_base.
  *
  * @author Carlos garcía Gómez
  */
-class fbase_controller extends fs_controller {
+class fbase_controller extends fs_controller
+{
 
     /**
      * TRUE si el usuario tiene permisos para eliminar en la página.
@@ -40,7 +37,8 @@ class fbase_controller extends fs_controller {
      */
     public $multi_almacen;
 
-    protected function private_core() {
+    protected function private_core()
+    {
         /// ¿El usuario tiene permiso para eliminar en esta página?
         $this->allow_delete = $this->user->allow_delete_on($this->class_name);
 
@@ -54,7 +52,8 @@ class fbase_controller extends fs_controller {
      * que coinciden con la búsqueda. Ideal para usar con el autocomplete en js.
      * @param string $query
      */
-    protected function fbase_buscar_cliente($query) {
+    protected function fbase_buscar_cliente($query)
+    {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
@@ -78,7 +77,8 @@ class fbase_controller extends fs_controller {
      * que coinciden con la búsqueda. Ideal para usar con el autocomplete en js.
      * @param string $query
      */
-    protected function fbase_buscar_proveedor($query) {
+    protected function fbase_buscar_proveedor($query)
+    {
         /// desactivamos la plantilla HTML
         $this->template = FALSE;
 
@@ -105,7 +105,8 @@ class fbase_controller extends fs_controller {
      * @param integer $offset
      * @return array
      */
-    protected function fbase_paginas($url, $total, $offset) {
+    protected function fbase_paginas($url, $total, $offset)
+    {
         $paginas = array();
         $i = 0;
         $num = 0;
@@ -157,7 +158,8 @@ class fbase_controller extends fs_controller {
      * @param string $valor
      * @return array
      */
-    public function fbase_sql_distinct($tabla, $columna, $columna2 = '', $valor = '') {
+    public function fbase_sql_distinct($tabla, $columna, $columna2 = '', $valor = '')
+    {
         $final = array();
 
         if ($this->db->table_exists($tabla)) {
@@ -165,7 +167,7 @@ class fbase_controller extends fs_controller {
             if ($valor != '') {
                 $valor = mb_strtolower($valor, 'UTF8');
                 $sql = "SELECT DISTINCT " . $columna . " FROM " . $tabla . " WHERE lower(" . $columna2 . ") = "
-                        . $this->empresa->var2str($valor) . " ORDER BY " . $columna . " ASC;";
+                    . $this->empresa->var2str($valor) . " ORDER BY " . $columna . " ASC;";
             }
 
             $data = $this->db->select($sql);
@@ -189,7 +191,8 @@ class fbase_controller extends fs_controller {
      * @param string $where
      * @return int
      */
-    public function fbase_sql_total($tabla, $columna, $where = '') {
+    public function fbase_sql_total($tabla, $columna, $where = '')
+    {
         $data = $this->db->select("SELECT COUNT(" . $columna . ") as total FROM " . $tabla . ' ' . $where . ";");
         if ($data) {
             return intval($data[0]['total']);
@@ -197,5 +200,4 @@ class fbase_controller extends fs_controller {
 
         return 0;
     }
-
 }

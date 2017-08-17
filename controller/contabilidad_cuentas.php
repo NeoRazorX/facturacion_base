@@ -17,9 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('cuenta.php');
-require_model('ejercicio.php');
-
 class contabilidad_cuentas extends fs_controller
 {
 

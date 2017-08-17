@@ -18,9 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('articulo.php');
-require_model('albaran_cliente.php');
-
 /**
  * Línea de un albarán de cliente.
  * 

@@ -18,14 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('asiento.php');
-require_model('ejercicio.php');
-require_model('linea_iva_factura_cliente.php');
-require_model('linea_factura_cliente.php');
-require_model('regularizacion_iva.php');
-require_model('secuencia.php');
-require_model('serie.php');
-
 /**
  * Factura de un cliente.
  * 

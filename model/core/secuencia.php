@@ -18,11 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('ejercicio.php');
-require_model('serie.php');
-require_model('secuencia_contabilidad.php');
-require_model('secuencia_ejercicio.php');
-
 /**
  * Estos tres modelos (secuencia, secuencia_contabilidad y secuencia_ejercicio)
  * existen para mantener compatibilidad con eneboo, porque maldita la gana que

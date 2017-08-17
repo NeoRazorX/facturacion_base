@@ -18,9 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('ejercicio.php');
-require_model('serie.php');
-
 /**
  * Clase que permite la compatibilidad con Eneboo.
  * 
@@ -77,9 +74,9 @@ class secuencia_ejercicio extends \fs_model
         return '';
     }
 
-    public function get($getid)
+    public function get($id)
     {
-        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($getid) . ";");
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($id) . ";");
         if ($data) {
             return new \secuencia_ejercicio($data[0]);
         }
@@ -102,24 +99,25 @@ class secuencia_ejercicio extends \fs_model
 
     public function check()
     {
-        $eje = new \ejercicio();
-        $serie = new \serie();
-        foreach ($eje->all() as $e) {
-            $secs = $this->all_from_ejercicio($e->codejercicio);
-            foreach ($serie->all() as $serie) {
+        $ejercicio_model = new \ejercicio();
+        $serie_model = new \serie();
+        foreach ($ejercicio_model->all() as $eje) {
+            $secuencias = $this->all_from_ejercicio($eje->codejercicio);
+            foreach ($serie_model->all() as $serie) {
                 $encontrada = FALSE;
-                foreach ($secs as $s) {
-                    if ($s->codserie == $serie->codserie) {
+                foreach ($secuencias as $sec) {
+                    if ($sec->codserie == $serie->codserie) {
                         $encontrada = TRUE;
+                        break;
                     }
                 }
                 if (!$encontrada) {
-                    $aux = new \secuencia_ejercicio();
-                    $aux->codejercicio = $e->codejercicio;
-                    $aux->codserie = $serie->codserie;
-                    if (!$aux->save()) {
+                    $nueva_sec = new \secuencia_ejercicio();
+                    $nueva_sec->codejercicio = $eje->codejercicio;
+                    $nueva_sec->codserie = $serie->codserie;
+                    if (!$nueva_sec->save()) {
                         $this->new_error_msg("¡Imposible crear la secuencia para el ejercicio " .
-                            $aux->codejercicio . " y la serie " . $aux->codserie . "!");
+                            $nueva_sec->codejercicio . " y la serie " . $nueva_sec->codserie . "!");
                     }
                 }
             }
@@ -128,11 +126,11 @@ class secuencia_ejercicio extends \fs_model
 
     public function exists()
     {
-        if (is_null($this->idsecuenciaejer)) {
+        if (is_null($this->id)) {
             return FALSE;
         }
 
-        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->idsecuenciaejer) . ";");
+        return $this->db->select("SELECT * FROM " . $this->table_name . " WHERE id = " . $this->var2str($this->id) . ";");
     }
 
     public function save()

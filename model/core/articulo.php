@@ -18,15 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('articulo_combinacion.php');
-require_model('fabricante.php');
-require_model('familia.php');
-require_model('impuesto.php');
-require_model('linea_albaran_cliente.php');
-require_model('linea_albaran_proveedor.php');
-require_model('linea_factura_proveedor.php');
-require_model('stock.php');
-
 /**
  * Almacena los datos de un artículos.
  * 

@@ -18,10 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('grupo_clientes.php');
-require_model('pais.php');
-require_model('serie.php');
-require_model('tarifa.php');
 
 class ventas_clientes extends fbase_controller
 {
@@ -147,7 +143,7 @@ class ventas_clientes extends fbase_controller
             . "&ciudad=" . $this->ciudad
             . "&provincia=" . $this->provincia
             . "&codpais=" . $this->codpais
-            . "&codgrupo=" . $this->codgrupo
+            . "&bcodgrupo=" . $this->codgrupo
             . "&orden=" . $this->orden;
 
         if ($this->nocifnif) {

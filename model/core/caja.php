@@ -18,8 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('agente.php');
-
 /**
  * Estructura para almacenar los datos de estado de una caja registradora (TPV).
  * 

@@ -18,7 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('pais.php');
 
 class compras_proveedores extends fbase_controller
 {

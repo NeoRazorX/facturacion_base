@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('balance.php');
 
 /**
  * Description of editar_balances
@@ -52,6 +51,8 @@ class editar_balances extends fbase_controller
         }
 
         if ($this->balance) {
+            $this->template = 'alternative/editar_balance';
+
             $bc0 = new balance_cuenta();
             $bca0 = new balance_cuenta_a();
             if (isset($_POST['nueva_cuenta']) OR isset($_POST['nueva_cuenta_a'])) {

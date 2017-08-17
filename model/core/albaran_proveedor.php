@@ -18,11 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('ejercicio.php');
-require_model('factura_proveedor.php');
-require_model('linea_albaran_proveedor.php');
-require_model('secuencia.php');
-
 /**
  * Albarán de proveedor o albarán de compra. Representa la recepción
  * de un material que se ha comprado. Implica la entrada de ese material

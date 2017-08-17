@@ -18,16 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('articulo.php');
-require_model('articulo_propiedad.php');
-require_model('cliente.php');
-require_model('cuenta_banco.php');
-require_model('divisa.php');
-require_model('empresa.php');
-require_model('forma_pago.php');
-require_model('impuesto.php');
-require_model('proveedor.php');
-
 /**
  * Esta clase permite genera un asiento a partir de una factura.
  *

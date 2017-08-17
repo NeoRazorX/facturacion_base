@@ -18,8 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('articulo.php');
-
 /**
  * Artículo vendido por un proveedor.
  *

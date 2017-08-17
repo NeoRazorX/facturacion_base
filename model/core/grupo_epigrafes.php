@@ -18,8 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('cuenta.php');
-
 /**
  * Primer nivel del plan contable.
  * 

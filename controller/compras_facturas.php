@@ -18,10 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('agente.php');
-require_model('almacen.php');
-require_model('articulo.php');
-require_model('factura_proveedor.php');
 
 class compras_facturas extends fbase_controller
 {

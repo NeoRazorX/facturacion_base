@@ -19,9 +19,6 @@
  */
 
 require_once 'plugins/facturacion_base/controller/informe_albaranes.php';
-require_model('factura_cliente.php');
-require_model('factura_proveedor.php');
-require_model('pais.php');
 
 /**
  * Heredamos del controlador de informe_albaranes, para reaprovechar el código.

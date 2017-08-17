@@ -19,9 +19,6 @@
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_once 'plugins/facturacion_base/extras/libromayor.php';
-require_model('divisa.php');
-require_model('partida.php');
-require_model('subcuenta.php');
 
 class contabilidad_subcuenta extends fbase_controller
 {

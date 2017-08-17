@@ -18,7 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('asiento.php');
 
 class contabilidad_asientos extends fbase_controller
 {

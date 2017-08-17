@@ -17,10 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('albaran_cliente.php');
-require_model('articulo_traza.php');
-require_model('factura_cliente.php');
-
 /**
  * Description of ventas_trazabilidad
  *

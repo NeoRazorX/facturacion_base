@@ -19,12 +19,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('articulo.php');
-require_model('linea_albaran_cliente.php');
-require_model('linea_albaran_proveedor.php');
-require_model('linea_factura_cliente.php');
-require_model('linea_factura_proveedor.php');
-
 /**
  * Esta clase sirve para guardar la información de trazabilidad del artículo.
  * Números de serie, de lote y albaranes y facturas relacionadas.

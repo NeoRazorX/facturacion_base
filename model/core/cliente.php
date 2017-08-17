@@ -18,13 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('cuenta.php');
-require_model('direccion_cliente.php');
-require_model('ejercicio.php');
-require_model('grupo_clientes.php');
-require_model('subcuenta.php');
-require_model('subcuenta_cliente.php');
-
 /**
  * El cliente. Puede tener una o varias direcciones y subcuentas asociadas.
  * 

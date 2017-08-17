@@ -18,16 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('agente.php');
-require_model('cuenta_banco_cliente.php');
-require_model('direccion_cliente.php');
-require_model('divisa.php');
-require_model('forma_pago.php');
-require_model('grupo_clientes.php');
-require_model('pais.php');
-require_model('serie.php');
-require_model('cuenta_banco_proveedor.php');
-require_model('direccion_proveedor.php');
 
 class ventas_cliente extends fbase_controller
 {

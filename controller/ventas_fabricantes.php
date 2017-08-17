@@ -18,7 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('fabricante.php');
 
 class ventas_fabricantes extends fbase_controller
 {

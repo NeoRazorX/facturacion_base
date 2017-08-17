@@ -18,10 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('cuenta.php');
-require_model('cuenta_especial.php');
-require_model('ejercicio.php');
-require_model('subcuenta.php');
 
 class contabilidad_cuenta extends fbase_controller
 {

@@ -20,9 +20,6 @@
 require_once 'plugins/facturacion_base/extras/fs_pdf.php';
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
-require_model('articulo_proveedor.php');
-require_model('articulo_traza.php');
-require_model('proveedor.php');
 
 /**
  * Esta clase agrupa los procedimientos de imprimir/enviar albaranes de proveedor
@@ -31,17 +28,17 @@ require_model('proveedor.php');
 class compras_imprimir extends fs_controller
 {
 
+    public $articulo_proveedor;
     public $articulo_traza;
     public $documento;
     public $impresion;
     public $impuesto;
     public $proveedor;
-    private $articulo_proveedor;
-    private $numpaginas;
+    public $numpaginas;
 
-    public function __construct()
+    public function __construct($name = __CLASS__, $title = 'imprimir', $folder = 'compras')
     {
-        parent::__construct(__CLASS__, 'imprimir', 'compras', FALSE, FALSE);
+        parent::__construct($name, $title, $folder, FALSE, FALSE);
     }
 
     protected function private_core()
@@ -50,15 +47,7 @@ class compras_imprimir extends fs_controller
         $this->documento = FALSE;
         $this->impuesto = new impuesto();
         $this->proveedor = FALSE;
-
-        /// obtenemos los datos de configuración de impresión
-        $this->impresion = array(
-            'print_ref' => '1',
-            'print_dto' => '1',
-            'print_alb' => '0'
-        );
-        $fsvar = new fs_var();
-        $this->impresion = $fsvar->array_get($this->impresion, FALSE);
+        $this->cargar_config();
 
         if (isset($_REQUEST['albaran']) AND isset($_REQUEST['id'])) {
             $this->articulo_traza = new articulo_traza();
@@ -71,11 +60,11 @@ class compras_imprimir extends fs_controller
             }
 
             if (isset($_POST['email'])) {
-                $this->enviar_email();
-            } else
+                $this->enviar_email_proveedor();
+            } else {
                 $this->generar_pdf_albaran();
-        }
-        else if (isset($_REQUEST['factura']) AND isset($_REQUEST['id'])) {
+            }
+        } else if (isset($_REQUEST['factura']) AND isset($_REQUEST['id'])) {
             $this->articulo_traza = new articulo_traza();
 
             $fac = new factura_proveedor();
@@ -91,7 +80,20 @@ class compras_imprimir extends fs_controller
         $this->share_extensions();
     }
 
-    private function share_extensions()
+    protected function cargar_config()
+    {
+        /// obtenemos los datos de configuración de impresión
+        $this->impresion = array(
+            'print_ref' => '1',
+            'print_dto' => '1',
+            'print_alb' => '0',
+            'print_formapago' => '1'
+        );
+        $fsvar = new fs_var();
+        $this->impresion = $fsvar->array_get($this->impresion, FALSE);
+    }
+
+    protected function share_extensions()
     {
         $extensiones = array(
             array(
@@ -127,7 +129,7 @@ class compras_imprimir extends fs_controller
         }
     }
 
-    private function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag)
+    protected function generar_pdf_lineas(&$pdf_doc, &$lineas, &$linea_actual, &$lppag)
     {
         /// calculamos el número de páginas
         if (!isset($this->numpaginas)) {
@@ -258,7 +260,7 @@ class compras_imprimir extends fs_controller
 
         for ($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ( $linea_actual < count($lineas)));) {
             $descripcion = fs_fix_html($lineas[$linea_actual]->descripcion);
-            if (!is_null($lineas[$linea_actual]->referencia)) {
+            if (!is_null($lineas[$linea_actual]->referencia) && $this->impresion['print_ref']) {
                 $descripcion = '<b>' . $this->get_referencia_proveedor($lineas[$linea_actual]->referencia)
                     . '</b> ' . $descripcion;
             }
@@ -313,22 +315,21 @@ class compras_imprimir extends fs_controller
         );
 
         /// ¿Última página?
-        if ($linea_actual == count($lineas)) {
-            if ($this->documento->observaciones != '') {
-                $pdf_doc->pdf->ezText("\n" . fs_fix_html($this->documento->observaciones), 9);
-            }
+        if ($linea_actual == count($lineas) && $this->documento->observaciones != '') {
+            $pdf_doc->pdf->ezText("\n" . fs_fix_html($this->documento->observaciones), 9);
         }
 
         $pdf_doc->set_y(80);
     }
 
-    private function get_referencia_proveedor($ref)
+    protected function get_referencia_proveedor($ref)
     {
         $artprov = $this->articulo_proveedor->get_by($ref, $this->documento->codproveedor);
         if ($artprov) {
             return $artprov->refproveedor;
-        } else
-            return $ref;
+        }
+
+        return $ref;
     }
 
     /**
@@ -336,13 +337,13 @@ class compras_imprimir extends fs_controller
      * @param linea_albaran_compra $linea
      * @return string
      */
-    private function generar_trazabilidad($linea)
+    protected function generar_trazabilidad($linea, $tabla1 = 'linea_albaran_proveedor', $columna1 = 'idlalbcompra', $tabla2 = 'linea_factura_proveedor', $columna2 = 'idlfaccompra')
     {
         $lineast = array();
-        if (get_class_name($linea) == 'linea_albaran_proveedor') {
-            $lineast = $this->articulo_traza->all_from_linea('idlalbcompra', $linea->idlinea);
-        } else if (get_class_name($linea) == 'linea_factura_proveedor') {
-            $lineast = $this->articulo_traza->all_from_linea('idlfaccompra', $linea->idlinea);
+        if (get_class_name($linea) == $tabla1) {
+            $lineast = $this->articulo_traza->all_from_linea($columna1, $linea->idlinea);
+        } else if (get_class_name($linea) == $tabla2) {
+            $lineast = $this->articulo_traza->all_from_linea($columna2, $linea->idlinea);
         }
 
         $lote = FALSE;
@@ -363,7 +364,7 @@ class compras_imprimir extends fs_controller
         return $txt;
     }
 
-    private function generar_pdf_datos_proveedor(&$pdf_doc)
+    protected function generar_pdf_datos_proveedor(&$pdf_doc)
     {
         $tipo_doc = ucfirst(FS_ALBARAN);
         $width_campo1 = 90;
@@ -430,7 +431,7 @@ class compras_imprimir extends fs_controller
         $pdf_doc->pdf->ezText("\n", 10);
     }
 
-    private function generar_pdf_totales(&$pdf_doc, &$lineas_iva, $pagina)
+    protected function generar_pdf_totales(&$pdf_doc, &$lineas_iva, $pagina)
     {
         /*
          * Rellenamos la última tabla de la página:
@@ -457,8 +458,9 @@ class compras_imprimir extends fs_controller
             $imp = $this->impuesto->get($li['codimpuesto']);
             if ($imp) {
                 $titulo['iva' . $li['iva']] = '<b>' . $imp->descripcion . '</b>';
-            } else
+            } else {
                 $titulo['iva' . $li['iva']] = '<b>' . FS_IVA . ' ' . $li['iva'] . '%</b>';
+            }
 
             $fila['iva' . $li['iva']] = $this->show_precio($li['totaliva'], $this->documento->coddivisa);
 
@@ -481,6 +483,11 @@ class compras_imprimir extends fs_controller
         $pdf_doc->add_table_header($titulo);
         $pdf_doc->add_table_row($fila);
         $pdf_doc->save_table($opciones);
+    }
+
+    public function generar_pdf_pedido_proveedor($archivo = FALSE)
+    {
+        
     }
 
     public function generar_pdf_albaran($archivo = FALSE)
@@ -527,8 +534,9 @@ class compras_imprimir extends fs_controller
             }
 
             $pdf_doc->save('tmp/' . FS_TMP_NAME . 'enviar/' . $archivo);
-        } else
+        } else {
             $pdf_doc->show(FS_ALBARAN . '_compra_' . $this->documento->codigo . '.pdf');
+        }
     }
 
     public function generar_pdf_factura($archivo = FALSE)
@@ -575,22 +583,25 @@ class compras_imprimir extends fs_controller
             }
 
             $pdf_doc->save('tmp/' . FS_TMP_NAME . 'enviar/' . $archivo);
-        } else
+        } else {
             $pdf_doc->show('factura_compra_' . $this->documento->codigo . '.pdf');
+        }
     }
 
-    private function enviar_email()
+    private function enviar_email_proveedor($doc = 'albaran')
     {
         if ($this->empresa->can_send_mail()) {
-            if ($this->proveedor) {
-                if ($_POST['email'] != $this->proveedor->email AND isset($_POST['guardar'])) {
-                    $this->proveedor->email = $_POST['email'];
-                    $this->proveedor->save();
-                }
+            if ($this->proveedor && $_POST['email'] != $this->proveedor->email && isset($_POST['guardar'])) {
+                $this->proveedor->email = $_POST['email'];
+                $this->proveedor->save();
             }
 
-            $filename = 'albaran_' . $this->documento->codigo . '.pdf';
-            $this->generar_pdf_albaran($filename);
+            $filename = $doc . '_' . $this->documento->codigo . '.pdf';
+            if ($doc == 'albaran') {
+                $this->generar_pdf_albaran($filename);
+            } else {
+                $this->generar_pdf_pedido_proveedor($filename);
+            }
             $razonsocial = $this->documento->nombre;
 
             if (file_exists('tmp/' . FS_TMP_NAME . 'enviar/' . $filename)) {
@@ -610,7 +621,12 @@ class compras_imprimir extends fs_controller
                     }
                 }
 
-                $mail->Subject = $this->empresa->nombre . ': Mi ' . FS_ALBARAN . ' ' . $this->documento->codigo;
+                if ($doc == 'albaran') {
+                    $mail->Subject = $this->empresa->nombre . ': Mi ' . FS_ALBARAN . ' ' . $this->documento->codigo;
+                } else {
+                    $mail->Subject = $this->empresa->nombre . ': Mi ' . FS_PEDIDO . ' ' . $this->documento->codigo;
+                }
+
                 if ($this->is_html($_POST['mensaje'])) {
                     $mail->AltBody = strip_tags($_POST['mensaje']);
                     $mail->msgHTML($_POST['mensaje']);
@@ -628,23 +644,22 @@ class compras_imprimir extends fs_controller
                     if ($mail->send()) {
                         $this->new_message('Mensaje enviado correctamente.');
                         $this->empresa->save_mail($mail);
-                    } else
+                    } else {
                         $this->new_error_msg("Error al enviar el email: " . $mail->ErrorInfo);
-                } else
+                    }
+                } else {
                     $this->new_error_msg("Error al enviar el email: " . $mail->ErrorInfo);
+                }
 
                 unlink('tmp/' . FS_TMP_NAME . 'enviar/' . $filename);
-            } else
+            } else {
                 $this->new_error_msg('Imposible generar el PDF.');
+            }
         }
     }
 
     public function is_html($txt)
     {
-        if (stripos($txt, '<html') === FALSE) {
-            return FALSE;
-        } else {
-            return TRUE;
-        }
+        return ( $txt != strip_tags($txt) ) ? TRUE : FALSE;
     }
 }

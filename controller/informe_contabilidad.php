@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('ejercicio.php');
-require_model('epigrafe.php');
 require_once 'plugins/facturacion_base/extras/inventarios_balances.php';
 
 class informe_contabilidad extends fs_controller

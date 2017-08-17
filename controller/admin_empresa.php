@@ -19,13 +19,6 @@
 
 require_once 'extras/phpmailer/class.phpmailer.php';
 require_once 'extras/phpmailer/class.smtp.php';
-require_model('almacen.php');
-require_model('cuenta_banco.php');
-require_model('divisa.php');
-require_model('ejercicio.php');
-require_model('forma_pago.php');
-require_model('pais.php');
-require_model('serie.php');
 
 class admin_empresa extends fs_controller
 {

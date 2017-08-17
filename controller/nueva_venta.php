@@ -19,23 +19,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('agencia_transporte.php');
-require_model('almacen.php');
-require_model('articulo.php');
-require_model('articulo_combinacion.php');
-require_model('asiento_factura.php');
-require_model('divisa.php');
-require_model('fabricante.php');
-require_model('familia.php');
-require_model('forma_pago.php');
-require_model('grupo_clientes.php');
-require_model('impuesto.php');
-require_model('pais.php');
-require_model('pedido_cliente.php');
-require_model('presupuesto_cliente.php');
-require_model('regularizacion_iva.php');
-require_model('serie.php');
-require_model('tarifa.php');
 
 class nueva_venta extends fbase_controller
 {
@@ -153,10 +136,8 @@ class nueva_venta extends fbase_controller
                             $this->cliente_s->email = $_POST['nuevo_email'];
                         }
 
-                        if (isset($_POST['codgrupo'])) {
-                            if ($_POST['codgrupo'] != '') {
-                                $this->cliente_s->codgrupo = $_POST['codgrupo'];
-                            }
+                        if (isset($_POST['codgrupo']) && $_POST['codgrupo'] != '') {
+                            $this->cliente_s->codgrupo = $_POST['codgrupo'];
                         }
 
                         if (isset($_POST['nuevo_telefono1'])) {
@@ -202,8 +183,9 @@ class nueva_venta extends fbase_controller
                             if ($dircliente->save()) {
                                 $this->new_message('Cliente agregado correctamente.');
                             }
-                        } else
+                        } else {
                             $this->new_error_msg("¡Imposible guardar la dirección del cliente!");
+                        }
                     }
                 }
             }
@@ -220,8 +202,9 @@ class nueva_venta extends fbase_controller
             if (isset($_POST['codagente'])) {
                 $agente = new agente();
                 $this->agente = $agente->get($_POST['codagente']);
-            } else
+            } else {
                 $this->agente = $this->user->get_agente();
+            }
 
             $this->almacen = new almacen();
             $this->serie = new serie();
@@ -233,9 +216,9 @@ class nueva_venta extends fbase_controller
                     $this->nueva_factura_cliente();
                 } else if ($_POST['tipo'] == 'albaran') {
                     $this->nuevo_albaran_cliente();
-                } else if ($_POST['tipo'] == 'pedido' AND class_exists('pedido_cliente')) {
+                } else if ($_POST['tipo'] == 'pedido' && class_exists('pedido_cliente')) {
                     $this->nuevo_pedido_cliente();
-                } else if ($_POST['tipo'] == 'presupuesto' AND class_exists('presupuesto_cliente')) {
+                } else if ($_POST['tipo'] == 'presupuesto' && class_exists('presupuesto_cliente')) {
                     $this->nuevo_presupuesto_cliente();
                 }
 
@@ -400,29 +383,25 @@ class nueva_venta extends fbase_controller
         /// buscamos el grupo de clientes y la tarifa
         if (isset($_REQUEST['codcliente'])) {
             $cliente = $this->cliente->get($_REQUEST['codcliente']);
-            if ($cliente) {
-                if ($cliente->codgrupo) {
-                    $grupo0 = new grupo_clientes();
-                    $tarifa0 = new tarifa();
+            if ($cliente && $cliente->codgrupo) {
+                $grupo0 = new grupo_clientes();
+                $tarifa0 = new tarifa();
 
-                    $grupo = $grupo0->get($cliente->codgrupo);
-                    if ($grupo) {
-                        $tarifa = $tarifa0->get($grupo->codtarifa);
-                        if ($tarifa) {
-                            $tarifa->set_precios($this->results);
-                        }
+                $grupo = $grupo0->get($cliente->codgrupo);
+                if ($grupo) {
+                    $tarifa = $tarifa0->get($grupo->codtarifa);
+                    if ($tarifa) {
+                        $tarifa->set_precios($this->results);
                     }
                 }
             }
         }
 
         /// convertimos la divisa
-        if (isset($_REQUEST['coddivisa'])) {
-            if ($_REQUEST['coddivisa'] != $this->empresa->coddivisa) {
-                foreach ($this->results as $i => $value) {
-                    $this->results[$i]->coddivisa = $_REQUEST['coddivisa'];
-                    $this->results[$i]->pvp = $this->divisa_convert($value->pvp, $this->empresa->coddivisa, $_REQUEST['coddivisa']);
-                }
+        if (isset($_REQUEST['coddivisa']) && $_REQUEST['coddivisa'] != $this->empresa->coddivisa) {
+            foreach ($this->results as $i => $value) {
+                $this->results[$i]->coddivisa = $_REQUEST['coddivisa'];
+                $this->results[$i]->pvp = $this->divisa_convert($value->pvp, $this->empresa->coddivisa, $_REQUEST['coddivisa']);
             }
         }
 
@@ -689,10 +668,10 @@ class nueva_venta extends fbase_controller
                         } else if ($_POST['redir'] == 'TRUE') {
                             header('Location: ' . $albaran->url());
                         }
-                    } else
+                    } else {
                         $this->new_error_msg("¡Imposible actualizar el <a href='" . $albaran->url() . "'>" . FS_ALBARAN . "</a>!");
-                }
-                else {
+                    }
+                } else {
                     /// actualizamos el stock
                     foreach ($albaran->get_lineas() as $linea) {
                         if ($linea->referencia) {
@@ -707,8 +686,9 @@ class nueva_venta extends fbase_controller
                         $this->new_error_msg("¡Imposible eliminar el <a href='" . $albaran->url() . "'>" . FS_ALBARAN . "</a>!");
                     }
                 }
-            } else
+            } else {
                 $this->new_error_msg("¡Imposible guardar el " . FS_ALBARAN . "!");
+            }
         }
     }
 
@@ -918,8 +898,7 @@ class nueva_venta extends fbase_controller
                         }
                     } else
                         $this->new_error_msg("¡Imposible actualizar la <a href='" . $factura->url() . "'>Factura</a>!");
-                }
-                else {
+                } else {
                     /// actualizamos el stock
                     foreach ($factura->get_lineas() as $linea) {
                         if ($linea->referencia) {
@@ -934,8 +913,9 @@ class nueva_venta extends fbase_controller
                         $this->new_error_msg("¡Imposible eliminar la <a href='" . $factura->url() . "'>Factura</a>!");
                     }
                 }
-            } else
+            } else {
                 $this->new_error_msg("¡Imposible guardar la Factura!");
+            }
         }
     }
 
@@ -1137,15 +1117,17 @@ class nueva_venta extends fbase_controller
                         if ($_POST['redir'] == 'TRUE') {
                             header('Location: ' . $presupuesto->url());
                         }
-                    } else
+                    } else {
                         $this->new_error_msg("¡Imposible actualizar el <a href='" . $presupuesto->url() . "'>" . FS_PRESUPUESTO . "</a>!");
-                }
-                else if ($presupuesto->delete()) {
+                    }
+                } else if ($presupuesto->delete()) {
                     $this->new_message(ucfirst(FS_PRESUPUESTO) . " eliminado correctamente.");
-                } else
+                } else {
                     $this->new_error_msg("¡Imposible eliminar el <a href='" . $presupuesto->url() . "'>" . FS_PRESUPUESTO . "</a>!");
-            } else
+                }
+            } else {
                 $this->new_error_msg("¡Imposible guardar el " . FS_PRESUPUESTO . "!");
+            }
         }
     }
 
@@ -1316,15 +1298,17 @@ class nueva_venta extends fbase_controller
                         if ($_POST['redir'] == 'TRUE') {
                             header('Location: ' . $pedido->url());
                         }
-                    } else
+                    } else {
                         $this->new_error_msg("¡Imposible actualizar el <a href='" . $pedido->url() . "'>" . FS_PEDIDO . "</a>!");
-                }
-                else if ($pedido->delete()) {
+                    }
+                } else if ($pedido->delete()) {
                     $this->new_message(ucfirst(FS_PEDIDO) . " eliminado correctamente.");
-                } else
+                } else {
                     $this->new_error_msg("¡Imposible eliminar el <a href='" . $pedido->url() . "'>" . FS_PEDIDO . "</a>!");
-            } else
+                }
+            } else {
                 $this->new_error_msg("¡Imposible guardar el " . FS_PEDIDO . "!");
+            }
         }
     }
 }

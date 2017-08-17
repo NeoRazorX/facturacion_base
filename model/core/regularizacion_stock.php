@@ -18,8 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('stock.php');
-
 /**
  * Regularización del stock de un almacén de un artículos en una fecha concreta.
  *

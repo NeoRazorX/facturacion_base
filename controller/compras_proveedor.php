@@ -18,14 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('cuenta_banco_proveedor.php');
-require_model('divisa.php');
-require_model('forma_pago.php');
-require_model('pais.php');
-require_model('serie.php');
-require_model('cliente.php');
-require_model('cuenta_banco_cliente.php');
-require_model('direccion_cliente.php');
 
 class compras_proveedor extends fbase_controller
 {

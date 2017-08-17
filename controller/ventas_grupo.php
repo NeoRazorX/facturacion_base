@@ -18,12 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('agente.php');
-require_model('factura_cliente.php');
-require_model('grupo_clientes.php');
-require_model('forma_pago.php');
-require_model('pais.php');
-require_model('tarifa.php');
 
 /**
  * Description of ventas_grupo
@@ -270,7 +264,7 @@ class ventas_grupo extends fbase_controller
             $cliente->codgrupo = NULL;
 
             if ($cliente->save()) {
-                $this->new_message('Datos fuardados correctamente. El cliente ' . $cliente->codcliente
+                $this->new_message('Datos guardados correctamente. El cliente ' . $cliente->codcliente
                     . ' ya no pertenece al grupo ' . $this->grupo->codgrupo . '.');
             } else {
                 $this->new_error_msg('Error al quitar al cliente ' . $cliente->codcliente

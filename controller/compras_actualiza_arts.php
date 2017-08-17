@@ -17,11 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('albaran_proveedor.php');
-require_model('articulo.php');
-require_model('articulo_proveedor.php');
-require_model('pedido_proveedor.php');
-
 /**
  * Description of articulos_documento
  *
@@ -42,6 +37,7 @@ class compras_actualiza_arts extends fs_controller
     protected function private_core()
     {
         $this->share_extensions();
+        $this->template = 'tab/' . __CLASS__;
 
         $this->documento = FALSE;
         $this->lineas = array();
@@ -140,10 +136,10 @@ class compras_actualiza_arts extends fs_controller
                 if ($cambios > 0) {
                     $this->new_message($cambios . ' cambios realizados.');
                 }
-            } else
+            } else {
                 $this->new_error_msg('Documento no encontrado.');
-        }
-        else {
+            }
+        } else {
             $this->new_error_msg('Faltan datos.', 'error', FALSE, FALSE);
         }
     }

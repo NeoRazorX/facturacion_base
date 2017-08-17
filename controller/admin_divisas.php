@@ -18,7 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('divisa.php');
 
 class admin_divisas extends fbase_controller
 {

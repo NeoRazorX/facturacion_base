@@ -18,13 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('ejercicio.php');
-require_model('factura_cliente.php');
-require_model('factura_proveedor.php');
-require_model('partida.php');
-require_model('regularizacion_iva.php');
-require_model('secuencia.php');
-
 /**
  * El asiento contable. Se relaciona con un ejercicio y se compone de partidas.
  * 
@@ -262,7 +255,7 @@ class asiento extends \fs_model
             $this->new_error_msg("Asiento descuadrado. Descuadre: " . round($debe - $haber, FS_NF0 + 1));
             $status = FALSE;
         } else if (!$this->floatcmp($this->importe, max(array(abs($debe), abs($haber))), FS_NF0, TRUE)) {
-            $this->new_error_msg('Importe del asiento incorrecto.');
+            $this->new_error_msg('Importe del asiento incorrecto (ID: ' . $this->idasiento . ').');
             $status = FALSE;
         }
 

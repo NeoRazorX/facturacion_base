@@ -18,14 +18,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('almacen.php');
-require_model('articulo.php');
-require_model('familia.php');
-require_model('fabricante.php');
-require_model('impuesto.php');
-require_model('linea_transferencia_stock.php');
-require_model('tarifa.php');
-require_model('transferencia_stock.php');
 
 class ventas_articulos extends fbase_controller
 {

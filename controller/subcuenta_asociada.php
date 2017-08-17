@@ -17,14 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('cliente.php');
-require_model('cuenta.php');
-require_model('ejercicio.php');
-require_model('proveedor.php');
-require_model('subcuenta_cliente.php');
-require_model('subcuenta_proveedor.php');
-require_model('subcuenta.php');
-
 class subcuenta_asociada extends fs_controller
 {
 

@@ -18,9 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('cliente.php');
-require_model('linea_factura_cliente.php');
-
 /**
  * Description of ventas_cliente_articulos
  *
@@ -43,6 +40,7 @@ class ventas_cliente_articulos extends fs_controller
     protected function private_core()
     {
         $this->share_extensions();
+        $this->template = 'tab/' . __CLASS__;
 
         $this->cliente = FALSE;
         $this->resultados = array();
@@ -85,8 +83,8 @@ class ventas_cliente_articulos extends fs_controller
     {
         if ($this->cliente) {
             return parent::url() . '&cod=' . $this->cliente->codcliente;
-        } else {
-            return parent::url();
         }
+
+        return parent::url();
     }
 }

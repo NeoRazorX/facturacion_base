@@ -18,9 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('ejercicio.php');
-require_model('serie.php');
-
 /**
  * Clase que permite la compatibilidad con Eneboo.
  * 

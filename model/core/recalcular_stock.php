@@ -18,18 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('albaran_cliente.php');
-require_model('albaran_proveedor.php');
-require_model('factura_cliente.php');
-require_model('factura_proveedor.php');
-require_model('linea_albaran_cliente.php');
-require_model('linea_albaran_proveedor.php');
-require_model('linea_factura_cliente.php');
-require_model('linea_factura_proveedor.php');
-require_model('linea_transferencia_stock.php');
-require_model('regularizacion_stock.php');
-require_model('transferencia_stock.php');
-
 /**
  * Description of recalcular_stock
  *

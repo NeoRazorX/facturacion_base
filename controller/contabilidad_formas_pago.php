@@ -19,8 +19,6 @@
  */
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
-require_model('cuenta_banco.php');
-require_model('forma_pago.php');
 
 class contabilidad_formas_pago extends fbase_controller
 {

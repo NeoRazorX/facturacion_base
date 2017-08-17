@@ -18,9 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('albaran_proveedor.php');
-require_model('factura_proveedor.php');
-
 /**
  * Línea de una factura de proveedor.
  * 

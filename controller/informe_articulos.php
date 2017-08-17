@@ -19,16 +19,6 @@
 
 require_once 'plugins/facturacion_base/extras/fbase_controller.php';
 require_once 'extras/xlsxwriter.class.php';
-require_model('almacen.php');
-require_model('articulo.php');
-require_model('cliente.php');
-require_model('familia.php');
-require_model('impuesto.php');
-require_model('linea_factura_cliente.php');
-require_model('linea_factura_proveedor.php');
-require_model('recalcular_stock.php');
-require_model('regularizacion_stock.php');
-require_model('stock.php');
 
 class informe_articulos extends fbase_controller
 {

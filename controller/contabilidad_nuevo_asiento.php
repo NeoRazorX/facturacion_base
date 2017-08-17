@@ -17,16 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_model('asiento.php');
-require_model('concepto_partida.php');
-require_model('cuenta_banco.php');
-require_model('divisa.php');
-require_model('ejercicio.php');
-require_model('impuesto.php');
-require_model('partida.php');
-require_model('regularizacion_iva.php');
-require_model('subcuenta.php');
-
 class contabilidad_nuevo_asiento extends fs_controller
 {
 

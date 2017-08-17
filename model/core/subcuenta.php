@@ -18,11 +18,6 @@
  */
 namespace FacturaScripts\model;
 
-require_model('cuenta.php');
-require_model('divisa.php');
-require_model('ejercicio.php');
-require_model('partida.php');
-
 /**
  * El cuarto nivel de un plan contable. Está relacionada con una única cuenta.
  * 
