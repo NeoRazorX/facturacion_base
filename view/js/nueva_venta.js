@@ -123,14 +123,43 @@ function recalcular()
     var l_uds = 0;
     var l_pvp = 0;
     var l_dto = 0;
+    var l_dto2 = 0;
+    var l_dto3 = 0;
+    var l_dto4 = 0;
+    var show = [];
     var l_neto = 0;
     var l_iva = 0;
     var l_irpf = 0;
     var l_recargo = 0;
+    var netosindto = 0;
+    var netocondto = 0;
     var neto = 0;
     var total_iva = 0;
     var total_irpf = 0;
     var total_recargo = 0;
+
+    adto1 = parseFloat($("#adtopor1").val());
+    if (isNaN(adto1)) {
+        adto1 = 0;
+    }
+    adto2 = parseFloat($("#adtopor2").val());
+    if (isNaN(adto2)) {
+        adto2 = 0;
+    }
+    adto3 = parseFloat($("#adtopor3").val());
+    if (isNaN(adto3)) {
+        adto3 = 0;
+    }
+    adto4 = parseFloat($("#adtopor4").val());
+    if (isNaN(adto4)) {
+        adto4 = 0;
+    }
+    adto5 = parseFloat($("#adtopor5").val());
+    if (isNaN(adto5)) {
+        adto5 = 0;
+    }
+    // Descuento Unificado Equivalente
+    t_dto_due = fs_round((1-((1-adto1/100)*(1-adto2/100)*(1-adto3/100)*(1-adto4/100)*(1-adto5/100)))*100, fs_nf0);
 
     for (var i = 0; i < numlineas; i++) {
         if ($("#linea_" + i).length > 0) {
@@ -144,6 +173,15 @@ function recalcular()
             if ($("#dto_" + i).val().search(",") >= 0) {
                 $("#dto_" + i).val($("#dto_" + i).val().replace(",", "."));
             }
+            if ($("#dto2_" + i).val() >= 0) {
+                $("#dto2_" + i).val($("#dto2_" + i).val().replace(",", "."));
+            }
+            if ($("#dto3_" + i).val() >= 0) {
+                $("#dto3_" + i).val($("#dto3_" + i).val().replace(",", "."));
+            }
+            if ($("#dto4_" + i).val() >= 0) {
+                $("#dto4_" + i).val($("#dto4_" + i).val().replace(",", "."));
+            }
             if ($("#iva_" + i).val().search(",") >= 0) {
                 $("#iva_" + i).val($("#iva_" + i).val().replace(",", "."));
             }
@@ -153,23 +191,61 @@ function recalcular()
             if ($("#recargo_" + i).val().search(",") >= 0) {
                 $("#recargo_" + i).val($("#recargo_" + i).val().replace(",", "."));
             }
-
+            
             l_uds = parseFloat($("#cantidad_" + i).val());
+            if (isNaN(l_uds)) {
+                l_uds = 0;
+            }
             l_pvp = parseFloat($("#pvp_" + i).val());
+            if (isNaN(l_pvp)) {
+                l_pvp = 0;
+            }
             l_dto = parseFloat($("#dto_" + i).val());
-            l_neto = l_uds * l_pvp * (100 - l_dto) / 100;
+            if (isNaN(l_dto)) {
+                l_dto = 0;
+            }
+            l_dto2 = parseFloat($("#dto2_" + i).val());
+            if (isNaN(l_dto2)) {
+                l_dto2 = 0;
+            }
+            l_dto3 = parseFloat($("#dto3_" + i).val());
+            if (isNaN(l_dto3)) {
+                l_dto3 = 0;
+            }
+            l_dto4 = parseFloat($("#dto4_" + i).val());
+            if (isNaN(l_dto4)) {
+                l_dto4 = 0;
+            }
+            
+            if ((l_dto2 == 0 && l_dto3 == 0 && l_dto4 == 0)) {
+                show[i] = false;
+            } else {
+                show[i] = true;
+            }
+            
+            // Descuento Unificado Equivalente
+            l_dto_due = fs_round((1-((1-l_dto/100)*(1-l_dto2/100)*(1-l_dto3/100)*(1-l_dto4/100)))*100, fs_nf0);
+            netosindto += l_uds * l_pvp * (1 - l_dto_due / 100);
+            l_neto = fs_round(l_uds * l_pvp * (1 - l_dto_due / 100), 2);
+
             l_iva = parseFloat($("#iva_" + i).val());
             l_irpf = parseFloat($("#irpf_" + i).val());
+            if (isNaN(l_irpf)) {
+                l_irpf = 0;
+            }
             l_recargo = parseFloat($("#recargo_" + i).val());
-
-            $("#neto_" + i).val(l_neto);
+            if (isNaN(l_recargo)) {
+                l_recargo = 0;
+            }
+            
+            $("#neto_" + i).val(l_neto, fs_nf0);
             if (numlineas == 1) {
-                $("#total_" + i).val(fs_round(l_neto, fs_nf0) + fs_round(l_neto * (l_iva - l_irpf + l_recargo) / 100, fs_nf0));
+                $("#total_" + i).val(fs_round(l_neto + l_neto * (l_iva - l_irpf + l_recargo) / 100, fs_nf0));
             } else {
                 $("#total_" + i).val(number_format(l_neto + (l_neto * (l_iva - l_irpf + l_recargo) / 100), fs_nf0, '.', ''));
             }
-
-            neto += l_neto;
+            l_neto = fs_round(l_uds * l_pvp * (1 - l_dto_due / 100) * (1 - t_dto_due / 100), 2);
+            netocondto += l_neto;
             total_iva += l_neto * l_iva / 100;
             total_irpf += l_neto * l_irpf / 100;
             total_recargo += l_neto * l_recargo / 100;
@@ -183,15 +259,48 @@ function recalcular()
         }
     }
 
-    neto = fs_round(neto, fs_nf0);
+    // Total neto antes de descuentos globales
+    netosindto = fs_round(netosindto, fs_nf0);
+    // Total neto despues de descuentos globales
+    netocondto = fs_round(netocondto, fs_nf0);
+    // Neto con los descuento aplicados
+    neto = fs_round(netocondto, fs_nf0);
     total_iva = fs_round(total_iva, fs_nf0);
     total_irpf = fs_round(total_irpf, fs_nf0);
     total_recargo = fs_round(total_recargo, fs_nf0);
+    $("#anetosindto").html(netosindto);
     $("#aneto").html(neto);
     $("#aiva").html(total_iva);
     $("#are").html(total_recargo);
     $("#airpf").html(total_irpf);
     $("#atotal").val(fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0));
+    
+    // Descuentos de líneas del documento
+    Array.prototype.contains = function(elem) {
+        for (var i in this) {
+            if (this[i] == elem) return true;
+        }
+        return false;
+    }
+    
+    if(show.contains(true)) {
+        $(".dtosl").show();
+    } else {
+        if (!cliente.dtosl || cliente.dtosl == undefined) {
+            cliente.dtosl = false;
+            $(".dtosl").hide();
+        } else {
+            $(".dtosl").show();
+        }
+    }
+    
+    // Descuentos totales del documento
+    if (netosindto != netocondto || !cliente.dtost || cliente.dtost == undefined) {
+        $(".dtost").show();
+    } else {
+        cliente.dtost = false;
+        $(".dtost").hide();
+    }
 
     if (total_recargo == 0 && !cliente.recargo) {
         $(".recargo").hide();
@@ -220,8 +329,17 @@ function ajustar_neto(i)
         }
 
         l_uds = parseFloat($("#cantidad_" + i).val());
+        if (isNaN(l_uds)) {
+            l_uds = 0;
+        }
         l_pvp = parseFloat($("#pvp_" + i).val());
+        if (isNaN(l_pvp)) {
+            l_pvp = 0;
+        }
         l_dto = parseFloat($("#dto_" + i).val());
+        l_dto2 = parseFloat($("#dto2_" + i).val());
+        l_dto3 = parseFloat($("#dto3_" + i).val());
+        l_dto4 = parseFloat($("#dto4_" + i).val());
         l_neto = parseFloat($("#neto_" + i).val());
         if (isNaN(l_neto)) {
             l_neto = 0;
@@ -235,7 +353,20 @@ function ajustar_neto(i)
                 l_dto = 0;
             }
 
-            l_dto = fs_round(l_dto, 2);
+            l_dto2 = fs_round(l_dto2, 2);
+            if (isNaN(l_dto2)) {
+                l_dto2 = 0;
+            }
+
+            l_dto3 = fs_round(l_dto3, 2);
+            if (isNaN(l_dto3)) {
+                l_dto3 = 0;
+            }
+
+            l_dto4 = fs_round(l_dto4, 2);
+            if (isNaN(l_dto4)) {
+                l_dto4 = 0;
+            }
         } else {
             l_dto = 0;
             l_pvp = 100 * l_neto / (l_uds * (100 - l_dto));
@@ -248,6 +379,9 @@ function ajustar_neto(i)
 
         $("#pvp_" + i).val(l_pvp);
         $("#dto_" + i).val(l_dto);
+        $("#dto2_" + i).val(l_dto2);
+        $("#dto3_" + i).val(l_dto3);
+        $("#dto4_" + i).val(l_dto4);
     }
 
     recalcular();
@@ -271,11 +405,41 @@ function ajustar_total(i)
         }
 
         l_uds = parseFloat($("#cantidad_" + i).val());
+        if (isNaN(l_uds)) {
+            l_uds = 0;
+        } else if (l_uds < 0) {
+            l_uds = Math.abs(l_uds);
+        }
         l_pvp = parseFloat($("#pvp_" + i).val());
+        if (isNaN(l_pvp)) {
+            l_pvp = 0;
+        } else if (l_pvp < 0) {
+            l_pvp = Math.abs(l_pvp);
+        }
         l_dto = parseFloat($("#dto_" + i).val());
+        if (isNaN(l_dto)) {
+            l_dto = 0;
+        } else if (l_dto < 0) {
+            l_dto = Math.abs(l_dto);
+        }
         l_iva = parseFloat($("#iva_" + i).val());
+        if (isNaN(l_iva)) {
+            l_iva = 0;
+        } else if (l_iva < 0) {
+            l_iva = Math.abs(l_iva);
+        }
         l_recargo = parseFloat($("#recargo_" + i).val());
+        if (isNaN(l_recargo)) {
+            l_recargo = 0;
+        } else if (l_recargo < 0) {
+            l_recargo = Math.abs(l_recargo);
+        }
         l_irpf = parseFloat($("#irpf_" + i).val());
+        if (isNaN(l_irpf)) {
+            l_irpf = 0;
+        } else if (l_irpf < 0) {
+            l_irpf = Math.abs(l_irpf);
+        }
 
         l_total = parseFloat($("#total_" + i).val());
         if (isNaN(l_total)) {
@@ -336,6 +500,17 @@ function ajustar_iva(num)
     recalcular();
 }
 
+function aux_all_dtos()
+{
+    html = '<td class="dtosl"><input type="text" id="dto2_' + numlineas + '" name="dto2_' + numlineas + 
+        '" value="0" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
+    html += '<td class="dtosl"><input type="text" id="dto3_' + numlineas + '" name="dto3_' + numlineas + 
+        '" value="0" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
+    html += '<td class="dtosl"><input type="text" id="dto4_' + numlineas + '" name="dto4_' + numlineas + 
+        '" value="0" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
+    return html;
+}
+
 function aux_all_impuestos(num, codimpuesto)
 {
     var iva = 0;
@@ -371,7 +546,7 @@ function aux_all_impuestos(num, codimpuesto)
     return html;
 }
 
-function add_articulo(ref, desc, pvp, dto, codimpuesto, cantidad, codcombinacion)
+function add_articulo(ref, desc, pvp, dto, codimpuesto, cantidad, codcombinacion, dto2 = 0, dto3 = 0, dto4 = 0)
 {
     if (typeof codcombinacion == 'undefined') {
         codcombinacion = '';
@@ -392,6 +567,7 @@ function add_articulo(ref, desc, pvp, dto, codimpuesto, cantidad, codcombinacion
             "\" onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       <td><input type=\"text\" id=\"dto_" + numlineas + "\" name=\"dto_" + numlineas + "\" value=\"" + dto +
             "\" class=\"form-control text-right\" onkeyup=\"recalcular()\" onchange=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+    " + aux_all_dtos() + "\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"neto_" + numlineas + "\" name=\"neto_" + numlineas +
             "\" onchange=\"ajustar_neto(" + numlineas + ")\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       " + aux_all_impuestos(numlineas, codimpuesto) + "\n\
@@ -447,6 +623,7 @@ function add_linea_libre()
           onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       <td><input type=\"text\" id=\"dto_" + numlineas + "\" name=\"dto_" + numlineas + "\" value=\"0\" class=\"form-control text-right\"\n\
           onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
+      " + aux_all_dtos() + "\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"neto_" + numlineas + "\" name=\"neto_" + numlineas +
             "\" onchange=\"ajustar_neto(" + numlineas + ")\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       " + aux_all_impuestos(numlineas, default_impuesto) + "\n\
