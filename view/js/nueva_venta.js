@@ -160,7 +160,8 @@ function recalcular()
     }
     // Descuento Unificado Equivalente
     t_dto_due = (1-((1-adto1/100)*(1-adto2/100)*(1-adto3/100)*(1-adto4/100)*(1-adto5/100)))*100;
-
+    dto_totales = (1 - t_dto_due / 100);
+    
     for (var i = 0; i < numlineas; i++) {
         if ($("#linea_" + i).length > 0) {
             /// cambiamos coma por punto
@@ -225,9 +226,10 @@ function recalcular()
             
             // Descuento Unificado Equivalente
             l_dto_due = (1-((1-l_dto/100)*(1-l_dto2/100)*(1-l_dto3/100)*(1-l_dto4/100)))*100;
+            dto_linea = (1 - l_dto_due / 100);
             // Total neto antes de descuentos globales
-            netosindto += l_uds * l_pvp * (1 - l_dto_due / 100);
-            l_neto = l_uds * l_pvp * (1 - l_dto_due / 100);
+            netosindto += l_uds * l_pvp * dto_linea;
+            l_neto = l_uds * l_pvp * dto_linea;
 
             l_iva = parseFloat($("#iva_" + i).val());
             l_irpf = parseFloat($("#irpf_" + i).val());
@@ -245,8 +247,7 @@ function recalcular()
             } else {
                 $("#total_" + i).val(number_format(l_neto + (l_neto * (l_iva - l_irpf + l_recargo) / 100), fs_nf0, '.', ''));
             }
-            //l_neto = l_uds * l_pvp * (1 - l_dto_due / 100) * (1 - t_dto_due / 100);
-            l_neto = l_uds * l_pvp * (1 - l_dto_due / 100);
+            l_neto = l_uds * l_pvp * dto_linea;
 
             // ESTOS YA SON VALORES FINALES, SE REDONDEAN AHORA
             // Total neto despues de descuentos globales
@@ -264,11 +265,11 @@ function recalcular()
         }
     }
 
-    netocondto = netosindto * (1 - t_dto_due / 100);
-    neto = fs_round(netocondto, fs_nf0);
-    total_iva = total_iva * (1 - t_dto_due / 100);
-    total_recargo = total_recargo * (1 - t_dto_due / 100)
-    total_irpf = total_irpf * (1 - t_dto_due / 100)
+    netocondto = netosindto * dto_totales;
+    neto = netocondto;
+    total_iva = total_iva * dto_totales;
+    total_recargo = total_recargo * dto_totales;
+    total_irpf = total_irpf * dto_totales;
     
     $("#anetosindto").html(fs_round(netosindto, fs_nf0));
     $("#aneto").html(fs_round(netocondto, fs_nf0));
@@ -276,6 +277,25 @@ function recalcular()
     $("#are").html(fs_round(total_recargo, fs_nf0));
     $("#airpf").html(fs_round(total_irpf, fs_nf0));
     $("#atotal").val(fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0));
+
+    // ELIMINAR DESPUÉ DE REVISAR
+    console.log("Valores antes de redondeo: ");
+    console.log("Subtotal: " + netosindto);
+    console.log("Descuento sobre el total: " + netosindto);
+    console.log("Base imponible: " + netocondto);
+    console.log("Impuestos: " + total_iva);
+    console.log("RE: " + total_recargo);
+    console.log("IRPF: " + total_irpf);
+    console.log("Total: " + (neto + total_iva - total_irpf + total_recargo));
+    console.log("");
+    console.log("Valores despues de redondeo: ");
+    console.log("Subtotal: " + fs_round(netosindto, fs_nf0));
+    console.log("Descuento sobre el total: " + fs_round(netosindto, fs_nf0));
+    console.log("Base imponible: " + fs_round(netocondto, fs_nf0));
+    console.log("Impuestos: " + fs_round(total_iva, fs_nf0));
+    console.log("RE: " + fs_round(total_recargo, fs_nf0));
+    console.log("IRPF: " + fs_round(total_irpf, fs_nf0));
+    console.log("Total: " + fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0));
     
     // Descuentos de líneas del documento
     Array.prototype.contains = function(elem) {
@@ -361,17 +381,17 @@ function ajustar_neto(i)
                 l_dto = 0;
             }
 
-            l_dto2 = fs_round(l_dto2, 2);
+            l_dto2 = l_dto2;
             if (isNaN(l_dto2)) {
                 l_dto2 = 0;
             }
 
-            l_dto3 = fs_round(l_dto3, 2);
+            l_dto3 = l_dto3;
             if (isNaN(l_dto3)) {
                 l_dto3 = 0;
             }
 
-            l_dto4 = fs_round(l_dto4, 2);
+            l_dto4 = l_dto4;
             if (isNaN(l_dto4)) {
                 l_dto4 = 0;
             }

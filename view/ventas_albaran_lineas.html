@@ -177,11 +177,11 @@
             <tr>
                 <td></td>
                 <td class="text-right">{$fsc->show_precio($fsc->albaran->netosindto, $fsc->albaran->coddivisa)}</td>
-                <td class="dtost text-right">{$fsc->show_precio($fsc->albaran->neto*($fsc->albaran->dtopor1/100), $fsc->albaran->coddivisa)}</td>
-                <td class="dtost text-right">{$fsc->show_precio($fsc->albaran->neto*($fsc->albaran->dtopor1/100)*($fsc->albaran->dtopor2/100), $fsc->albaran->coddivisa)}</td>
-                <td class="dtost text-right">{$fsc->show_precio($fsc->albaran->neto*($fsc->albaran->dtopor1/100)*($fsc->albaran->dtopor2/100)*($fsc->albaran->dtopor3/100), $fsc->albaran->coddivisa)}</td>
-                <td class="dtost text-right">{$fsc->show_precio($fsc->albaran->neto*($fsc->albaran->dtopor1/100)*($fsc->albaran->dtopor2/100)*($fsc->albaran->dtopor3/100)*($fsc->albaran->dtopor4/100), $fsc->albaran->coddivisa)}</td>
-                <td class="dtost text-right">{$fsc->show_precio($fsc->albaran->neto*($fsc->albaran->dtopor1/100)*($fsc->albaran->dtopor2/100)*($fsc->albaran->dtopor3/100)*($fsc->albaran->dtopor4/100)*($fsc->albaran->dtopor5/100), $fsc->albaran->coddivisa)}</td>
+                <td class="dtost text-right">{$fsc->show_precio($fsc->albaran->netosindto*($fsc->albaran->dtopor1/100), $fsc->albaran->coddivisa)}</td>
+                <td class="dtost text-right">{$fsc->show_precio($fsc->albaran->netosindto*($fsc->albaran->dtopor1/100)*($fsc->albaran->dtopor2/100), $fsc->albaran->coddivisa)}</td>
+                <td class="dtost text-right">{$fsc->show_precio($fsc->albaran->netosindto*($fsc->albaran->dtopor1/100)*($fsc->albaran->dtopor2/100)*($fsc->albaran->dtopor3/100), $fsc->albaran->coddivisa)}</td>
+                <td class="dtost text-right">{$fsc->show_precio($fsc->albaran->netosindto*($fsc->albaran->dtopor1/100)*($fsc->albaran->dtopor2/100)*($fsc->albaran->dtopor3/100)*($fsc->albaran->dtopor4/100), $fsc->albaran->coddivisa)}</td>
+                <td class="dtost text-right">{$fsc->show_precio($fsc->albaran->netosindto*($fsc->albaran->dtopor1/100)*($fsc->albaran->dtopor2/100)*($fsc->albaran->dtopor3/100)*($fsc->albaran->dtopor4/100)*($fsc->albaran->dtopor5/100), $fsc->albaran->coddivisa)}</td>
                 <td class="dtost text-right">{$fsc->show_precio($fsc->albaran->neto, $fsc->albaran->coddivisa)}</td>
                 <td class="text-right">{$fsc->show_precio($fsc->albaran->totaliva, $fsc->albaran->coddivisa)}</td>
                 <td class="recargo text-right">{$fsc->show_precio($fsc->albaran->totalrecargo, $fsc->albaran->coddivisa)}</td>
@@ -244,35 +244,37 @@
             </tr>
             {/loop}
         </tbody>
+    </table>
+    <table class="table table-hover">
         <tfoot>
             <tr>
                 {if="$fsc->albaran->coddivisa!=$fsc->empresa->coddivisa"}
-                <td colspan='{if="$fsc->albaran->netosindto==$fsc->albaran->neto"}5{else}2{/if}' class="text-right warning"><b>{$fsc->albaran->coddivisa}:</b></td>
-                {else}
-                <td colspan='{if="$fsc->albaran->netosindto==$fsc->albaran->neto"}5{else}2{/if}'</td>
+                <td colspan='{if="$fsc->albaran->netosindto==$fsc->albaran->neto"}6{else}1{/if}' class="text-right warning">
+                    <b>{$fsc->albaran->coddivisa}:</b>
+                </td>
                 {/if}
-                <td class="text-right"><b>Neto<br/><br/>{$fsc->show_precio($fsc->albaran->netosindto, $fsc->albaran->coddivisa)}</b></td>
+                <td class="text-right dtost"><b>Neto<br/><br/>{$fsc->show_precio($fsc->albaran->netosindto, $fsc->albaran->coddivisa)}</b></td>
                 <td class="text-right dtost"><b>Dto. 1<br/>{$fsc->albaran->dtopor1}%<br/>{$fsc->show_precio($fsc->albaran->neto*($fsc->albaran->dtopor1/100), $fsc->albaran->coddivisa)}</b></td>
                 <td class="text-right dtost"><b>Dto. 2<br/>{$fsc->albaran->dtopor2}%<br/>{$fsc->show_precio($fsc->albaran->neto*($fsc->albaran->dtopor2/100), $fsc->albaran->coddivisa)}</b></td>
                 <td class="text-right dtost"><b>Dto. 3<br/>{$fsc->albaran->dtopor3}%<br/>{$fsc->show_precio($fsc->albaran->neto*($fsc->albaran->dtopor3/100), $fsc->albaran->coddivisa)}</b></td>
                 <td class="text-right dtost"><b>Dto. 4<br/>{$fsc->albaran->dtopor4}%<br/>{$fsc->show_precio($fsc->albaran->neto*($fsc->albaran->dtopor4/100), $fsc->albaran->coddivisa)}</b></td>
                 <td class="text-right dtost"><b>Dto. 5<br/>{$fsc->albaran->dtopor5}%<br/>{$fsc->show_precio($fsc->albaran->neto*($fsc->albaran->dtopor5/100), $fsc->albaran->coddivisa)}</b></td>
-                <td class="text-right dtost"><b>Base<br/><br/>{$fsc->show_precio($fsc->albaran->neto, $fsc->albaran->coddivisa)}</b></td>
+                <td class="text-right"><b>Base<br/><br/>{$fsc->show_precio($fsc->albaran->neto, $fsc->albaran->coddivisa)}</b></td>
                 <td class="text-right"><b>{#FS_IVA#}<br/><br/>{$fsc->show_precio($fsc->albaran->totaliva, $fsc->albaran->coddivisa)}</b></td>
-                <td class="text-right recargo"><b>{$fsc->show_precio($fsc->albaran->totalrecargo, $fsc->albaran->coddivisa)}</b></td>
-                <td class="text-right irpf"><b>-{$fsc->show_precio($fsc->albaran->totalirpf, $fsc->albaran->coddivisa)}</b></td>
+                <td class="text-right recargo"><b>Recargo<br/><br/>{$fsc->show_precio($fsc->albaran->totalrecargo, $fsc->albaran->coddivisa)}</b></td>
+                <td class="text-right irpf"><b>{#FS_IRPF#}<br/><br/>-{$fsc->show_precio($fsc->albaran->totalirpf, $fsc->albaran->coddivisa)}</b></td>
                 <td class="text-right"><b>Total<br/><br/>{$fsc->show_precio($fsc->albaran->total, $fsc->albaran->coddivisa)}</b></td>
             </tr>
             {if="$fsc->albaran->coddivisa!=$fsc->empresa->coddivisa"}
             <tr class="warning">
-                <td colspan='{if="$fsc->albaran->netosindto==$fsc->albaran->neto"}5{else}2{/if}'></td>
-                <td class="text-right"><b>{$fsc->empresa->coddivisa}:</b></td>
+                <td colspan='{if="$fsc->albaran->netosindto==$fsc->albaran->neto"}6{else}1{/if}' class="text-right"><b>{$fsc->empresa->coddivisa}:</td>
                 <td class="dtost"></td>
                 <td class="dtost"></td>
                 <td class="dtost"></td>
                 <td class="dtost"></td>
                 <td class="dtost"></td>
                 <td class="dtost"></td>
+                <td></td>
                 <td></td>
                 <td class="recargo"></td>
                 <td class="irpf"></td>

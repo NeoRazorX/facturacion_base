@@ -654,16 +654,14 @@ class albaran_cliente extends \fs_model
 
         /// comprobamos las líneas
         $netos = array();
-        $netosdto = array();
-        $ivas = array();
-        $irpfs = array();
-        $recargos = array();
         $netosindto = 0;
         $netocondto = 0;
+        $subtotal = 0;
         $neto = 0;
         $iva = 0;
         $irpf = 0;
         $recargo = 0;
+        $total = 0;
         
         // Descuento total adicional del total del documento
         $t_dto_due = (1-((1-$this->dtopor1/100)*(1-$this->dtopor2/100)*(1-$this->dtopor3/100)*(1-$this->dtopor4/100)*(1-$this->dtopor5/100)))*100;
@@ -673,54 +671,34 @@ class albaran_cliente extends \fs_model
             if (!$l->test()) {
                 $status = FALSE;
             }
-            if (!array_key_exists($l->codimpuesto, $netos)) {
-                // Neto
-                $netos[$l->codimpuesto] = 0;
-                // Base
-                $netosdto[$l->codimpuesto] = 0;
-                // IVA
-                $ivas[$l->codimpuesto] = 0;
-                // IRPF
-                $irpfs[$l->codimpuesto] = 0;
-                // RE
-                $recargos[$l->codimpuesto] = 0;
+            $codimpuesto = ($l->codimpuesto === null ) ? 0 : $l->codimpuesto;
+            if (!array_key_exists($codimpuesto, $netos)) {
+                $netos[$codimpuesto] = array(
+                    'subtotal' => 0,    // Subtotal (Sumatorio de netos de línea)
+                    'base' => 0,        // Base imponible
+                    'iva' => 0,         // Total IVA
+                    'irpf' => 0,        // Total IRPF
+                    'recargo' => 0      // Total Recargo
+                );
             }
             // Acumulamos por tipos de IVAs, que es el desglose de pie de página
-            
-            // Hacemos el recalculo del PVP por línea, con el descuento adicional de fin de documento
-            $pvpcondto = $due_totales * $l->pvptotal;
-            
-            // Neto
-            $netos[$l->codimpuesto] += $l->pvptotal;
-            // Base
-            $netosdto[$l->codimpuesto] += $pvpcondto;
-            // Calculamos el IVA para el pvpcondto=pvptotal-$t_dto_due%
-            $ivas[$l->codimpuesto] += $pvpcondto * ($l->iva / 100);
-            // Calculamos el IRPF para el pvpcondto=pvptotal-$t_dto_due%, cómo ya lo teníamos precalculado
-            // se puede escalar directamente por $due_totales
-            $irpfs[$l->codimpuesto] += $pvpcondto * ($l->irpf / 100);
-            // Debería calcularse así
-            //$imp0 = new \impuesto();
-            //$recargos[$l->codimpuesto] += $pvpcondto * $imp0->get($l->codimpuesto)->recargo;
-            // Y no así
-            $recargos[$l->codimpuesto] += $due_totales * ($l->recargo / 100);
+            $netosindto = $l->pvptotal;                 // Precio neto por línea
+            $netocondto = $netosindto * $due_totales;   // Precio neto - % desc sobre total
+            $netos[$codimpuesto]['subtotal'] += $netosindto;
+            $netos[$codimpuesto]['base'] += $netocondto;
+            $netos[$codimpuesto]['iva'] += $netocondto * ($l->iva / 100);
+            $netos[$codimpuesto]['irpf'] += $netocondto * ($this->irpf / 100);
+            $netos[$codimpuesto]['recargo'] += $netocondto * ($l->recargo / 100);
         }
 
-        // ESTOS YA SON VALORES FINALES, SE REDONDEAN AHORA        
-        foreach ($netos as $pos => $ne) {
-            // Neto total de la línea (Neto)
-            $netosindto += $netos[$pos];
-            // Neto total de la línea, con el descuento total del documento (Base imponible)
-            $netocondto += $netosdto[$pos];
-            $iva += $ivas[$pos];
-            $irpf += $irpfs[$pos];
-            $recargo += $recargos[$pos];
+        foreach ($netos as $codimp => $ne) {
+            $subtotal += $ne['subtotal'];               // Subtotal (Sumatorio de netos de línea)
+            $neto += $ne['base'];                       // Sumatorio de bases imponibles
+            $iva += $ne['iva'];                         // Sumatorio de IVAs
+            $irpf += $ne['irpf'];                       // Sumatorio de IRPFs
+            $recargo += $ne['recargo'];                 // Sumatorio de REs
+            $total = $neto + $iva - $irpf + $recargo;   // Sumatorio del total
         }
-        $neto = round($netocondto, FS_NF0);
-        $iva = round($iva, FS_NF0);
-        $irpf = round($irpf, FS_NF0);
-        $recargo = round($recargos[$pos], FS_NF0);
-        $total = $neto + $iva - $irpf + $recargo;
 
         if (!$this->floatcmp($this->neto, $neto, FS_NF0, TRUE)) {
             $this->new_error_msg("Valor neto del " . FS_ALBARAN . ' ' . $this->codigo . " incorrecto. Valor correcto: " . $neto . " y tiene el valor " . $this->neto);
