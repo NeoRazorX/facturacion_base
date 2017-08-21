@@ -1,8 +1,8 @@
 {$dto1=$fsc->calcDUE(array($fsc->factura->dtopor1))}
 {$dto2=$fsc->calcDUE(array($fsc->factura->dtopor1,$fsc->factura->dtopor2))}
-{$dto3=$fsc->calcDUE(array($dto2,$fsc->factura->dtopor3))}
-{$dto4=$fsc->calcDUE(array($dto3,$fsc->factura->dtopor4))}
-{$dto5=$fsc->calcDUE(array($dto4,$fsc->factura->dtopor5))}
+{$dto3=$fsc->calcDUE(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3))}
+{$dto4=$fsc->calcDUE(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3,$fsc->factura->dtopor4))}
+{$dto5=$fsc->calcDUE(array($fsc->factura->dtopor1,$fsc->factura->dtopor2,$fsc->factura->dtopor3,$fsc->factura->dtopor4,$fsc->factura->dtopor5))}
 <div class="table-responsive">
     <table class="table table-hover">
         <thead>
@@ -66,17 +66,69 @@
                     <b>{$fsc->factura->coddivisa}:</b>
                 </td>
                 {/if}
-                <td class="text-right dtost"><b>Neto<br/><br/>{$fsc->show_precio($fsc->factura->netosindto, $fsc->factura->coddivisa)}</b></td>
-                <td class="text-right dtost"><b>Dto. 1<br/>{$fsc->factura->dtopor1}%<br/>{$fsc->show_precio($fsc->factura->netosindto*($dto1)/100, $fsc->factura->coddivisa)}</b></td>
-                <td class="text-right dtost"><b>Dto. 2<br/>{$fsc->factura->dtopor2}%<br/>{$fsc->show_precio($fsc->factura->netosindto*($dto2-$dto1)/100, $fsc->factura->coddivisa)}</b></td>
-                <td class="text-right dtost"><b>Dto. 3<br/>{$fsc->factura->dtopor3}%<br/>{$fsc->show_precio($fsc->factura->netosindto*($dto3-$dto2)/100, $fsc->factura->coddivisa)}</b></td>
-                <td class="text-right dtost"><b>Dto. 4<br/>{$fsc->factura->dtopor4}%<br/>{$fsc->show_precio($fsc->factura->netosindto*($dto4-$dto3)/100, $fsc->factura->coddivisa)}</b></td>
-                <td class="text-right dtost"><b>Dto. 5<br/>{$fsc->factura->dtopor5}%<br/>{$fsc->show_precio($fsc->factura->netosindto*($dto5-$dto4)/100, $fsc->factura->coddivisa)}</b></td>
-                <td class="text-right"><b>Base<br/><br/>{$fsc->show_precio($fsc->factura->neto, $fsc->factura->coddivisa)}</b></td>
-                <td class="text-right"><b>{#FS_IVA#}<br/><br/>{$fsc->show_precio($fsc->factura->totaliva, $fsc->factura->coddivisa)}</b></td>
-                <td class="text-right recargo"><b>Recargo<br/><br/>{$fsc->show_precio($fsc->factura->totalrecargo, $fsc->factura->coddivisa)}</b></td>
-                <td class="text-right irpf"><b>{#FS_IRPF#}<br/><br/>-{$fsc->show_precio($fsc->factura->totalirpf, $fsc->factura->coddivisa)}</b></td>
-                <td class="text-right"><b>Total<br/><br/>{$fsc->show_precio($fsc->factura->total, $fsc->factura->coddivisa)}</b></td>
+                <td class="text-right dtost">
+                    <b>Neto<br/><br/>{$fsc->show_precio($fsc->factura->netosindto, $fsc->factura->coddivisa)}</b>
+                </td>
+                <td class="text-right dtost">
+                    <b>Dto. 1<br/>{$fsc->factura->dtopor1}%<br/>
+                    {if="$fsc->factura->dtopor1!=0"}
+                    {$fsc->show_precio($fsc->factura->netosindto*(1-$dto1), $fsc->factura->coddivisa)}
+                    {else}
+                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
+                    {/if}
+                    </b>
+                </td>
+                <td class="text-right dtost">
+                    <b>Dto. 2<br/>{$fsc->factura->dtopor2}%<br/>
+                    {if="$fsc->factura->dtopor2!=0"}
+                    {$fsc->show_precio($fsc->factura->netosindto*($dto1-$dto2), $fsc->factura->coddivisa)}
+                    {else}
+                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
+                    {/if}
+                    </b>
+                </td>
+                <td class="text-right dtost">
+                    <b>Dto. 3<br/>{$fsc->factura->dtopor3}%<br/>
+                    {if="$fsc->factura->dtopor3!=0"}
+                    {$fsc->show_precio($fsc->factura->netosindto*($dto2-$dto3), $fsc->factura->coddivisa)}
+                    {else}
+                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
+                    {/if}
+                    </b>
+                </td>
+                <td class="text-right dtost">
+                    <b>Dto. 4<br/>{$fsc->factura->dtopor4}%<br/>
+                    {if="$fsc->factura->dtopor4!=0"}
+                    {$fsc->show_precio($fsc->factura->netosindto*($dto3-$dto4), $fsc->factura->coddivisa)}
+                    {else}
+                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
+                    {/if}
+                    </b>
+                </td>
+                <td class="text-right dtost">
+                    <b>Dto. 5<br/>{$fsc->factura->dtopor5}%<br/>
+                    {if="$fsc->factura->dtopor5!=0"}
+                    {$fsc->show_precio($fsc->factura->netosindto*($dto4-$dto5), $fsc->factura->coddivisa)}
+                    {else}
+                    {$fsc->show_precio(0, $fsc->factura->coddivisa)}
+                    {/if}
+                    </b>
+                </td>
+                <td class="text-right">
+                    <b>Base<br/><br/>{$fsc->show_precio($fsc->factura->neto, $fsc->factura->coddivisa)}</b>
+                </td>
+                <td class="text-right">
+                    <b>{#FS_IVA#}<br/><br/>{$fsc->show_precio($fsc->factura->totaliva, $fsc->factura->coddivisa)}</b>
+                </td>
+                <td class="text-right recargo">
+                    <b>Recargo<br/><br/>{$fsc->show_precio($fsc->factura->totalrecargo, $fsc->factura->coddivisa)}</b>
+                </td>
+                <td class="text-right irpf">
+                    <b>{#FS_IRPF#}<br/><br/>-{$fsc->show_precio($fsc->factura->totalirpf, $fsc->factura->coddivisa)}</b>
+                </td>
+                <td class="text-right">
+                    <b>Total<br/><br/>{$fsc->show_precio($fsc->factura->total, $fsc->factura->coddivisa)}</b>
+                </td>
             </tr>
             {if="$fsc->factura->coddivisa!=$fsc->empresa->coddivisa"}
             <tr class="warning">
