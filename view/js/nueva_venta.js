@@ -158,10 +158,8 @@ function recalcular()
     if (isNaN(adto5)) {
         adto5 = 0;
     }
-    // Descuento Unificado Equivalente
-    t_dto_due = (1-((1-adto1/100)*(1-adto2/100)*(1-adto3/100)*(1-adto4/100)*(1-adto5/100)))*100;
-    dto_totales = (1 - t_dto_due / 100);
-    
+
+    dto_totales = calcDUE([adto1, adto2, adto3, adto4, adto5]);
     for (var i = 0; i < numlineas; i++) {
         if ($("#linea_" + i).length > 0) {
             /// cambiamos coma por punto
@@ -224,9 +222,8 @@ function recalcular()
                 show[i] = true;
             }
             
-            // Descuento Unificado Equivalente
-            l_dto_due = (1-((1-l_dto/100)*(1-l_dto2/100)*(1-l_dto3/100)*(1-l_dto4/100)))*100;
-            dto_linea = (1 - l_dto_due / 100);
+            dto_linea = calcDUE([l_dto, l_dto2, l_dto3, l_dto4]);
+            
             // Total neto antes de descuentos globales
             netosindto += l_uds * l_pvp * dto_linea;
             l_neto = l_uds * l_pvp * dto_linea;
@@ -833,6 +830,29 @@ function show_pvp_iva(pvp, codimpuesto, coddivisa)
 
     return show_precio(pvp + pvp * iva / 100, coddivisa);
 }
+
+/**
+ * Devuelve el descuento unificado equivalente
+ * Por ejemplo: recibe descuentos = [50, 10], dto_due será 55 y devuelve 0.45
+ * 
+ * @param array descuentos
+ * @return float
+ */
+function calcDUE(descuentos)
+{
+    dto = 1;
+    for (i = 0; i < descuentos.length; ++i){
+        if (descuentos[i] == 0) {
+            dto *= 1
+        } else {
+            dto *= (1 - descuentos[i] / 100);
+        }
+        
+    }
+    dto_due = (1 - dto) * 100;
+    return (1 - dto_due / 100);
+}
+
 
 $(document).ready(function () {
     $("#i_new_line").click(function () {
