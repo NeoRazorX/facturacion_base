@@ -832,13 +832,25 @@ function show_pvp_iva(pvp, codimpuesto, coddivisa)
 }
 
 /**
- * Devuelve el descuento unificado equivalente
- * Por ejemplo: recibe descuentos = [50, 10], dto_due será 55 y devuelve 0.45
+ * Devuelve el escalar del descuento unificado equivalente
+ * Por ejemplo: recibe descuentos = [50, 10] y devuelve 0.45
  * 
  * @param array descuentos
  * @return float
  */
 function calcDUE(descuentos)
+{
+    return (1 - calcDescDUE(descuentos) / 100);
+}
+
+/**
+ * Devuelve el descuento unificado equivalente
+ * Por ejemplo: recibe descuentos = [50, 10] y devuelve 55
+ * 
+ * @param array descuentos
+ * @return float
+ */
+function calcDescDUE(descuentos)
 {
     dto = 1;
     for (i = 0; i < descuentos.length; ++i){
@@ -849,10 +861,8 @@ function calcDUE(descuentos)
         }
         
     }
-    dto_due = (1 - dto) * 100;
-    return (1 - dto_due / 100);
+    return (1 - dto) * 100;
 }
-
 
 $(document).ready(function () {
     $("#i_new_line").click(function () {
