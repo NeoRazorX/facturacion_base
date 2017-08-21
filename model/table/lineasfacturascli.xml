@@ -10,6 +10,7 @@
         <nombre>cantidad</nombre>
         <tipo>double precision</tipo>
         <nulo>NO</nulo>
+        <defecto>0</defecto>
     </columna>
     <columna>
         <nombre>codimpuesto</nombre>
@@ -30,6 +31,25 @@
         <nombre>dtopor</nombre>
         <tipo>double precision</tipo>
         <nulo>NO</nulo>
+        <defecto>0</defecto>
+    </columna>
+    <columna>
+        <nombre>dtopor2</nombre>
+        <tipo>double precision</tipo>
+        <nulo>NO</nulo>
+        <defecto>0</defecto>
+    </columna>
+    <columna>
+        <nombre>dtopor3</nombre>
+        <tipo>double precision</tipo>
+        <nulo>NO</nulo>
+        <defecto>0</defecto>
+    </columna>
+    <columna>
+        <nombre>dtopor4</nombre>
+        <tipo>double precision</tipo>
+        <nulo>NO</nulo>
+        <defecto>0</defecto>
     </columna>
     <columna>
         <nombre>idalbaran</nombre>
@@ -89,6 +109,7 @@
     <columna>
         <nombre>referencia</nombre>
         <tipo>character varying(18)</tipo>
+        <nulo>YES</nulo>
     </columna>
     <columna>
         <nombre>codcombinacion</nombre>

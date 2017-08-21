@@ -159,7 +159,7 @@ function recalcular()
         adto5 = 0;
     }
     // Descuento Unificado Equivalente
-    t_dto_due = fs_round((1-((1-adto1/100)*(1-adto2/100)*(1-adto3/100)*(1-adto4/100)*(1-adto5/100)))*100, fs_nf0);
+    t_dto_due = (1-((1-adto1/100)*(1-adto2/100)*(1-adto3/100)*(1-adto4/100)*(1-adto5/100)))*100;
 
     for (var i = 0; i < numlineas; i++) {
         if ($("#linea_" + i).length > 0) {
@@ -224,9 +224,10 @@ function recalcular()
             }
             
             // Descuento Unificado Equivalente
-            l_dto_due = fs_round((1-((1-l_dto/100)*(1-l_dto2/100)*(1-l_dto3/100)*(1-l_dto4/100)))*100, fs_nf0);
+            l_dto_due = (1-((1-l_dto/100)*(1-l_dto2/100)*(1-l_dto3/100)*(1-l_dto4/100)))*100;
+            // Total neto antes de descuentos globales
             netosindto += l_uds * l_pvp * (1 - l_dto_due / 100);
-            l_neto = fs_round(l_uds * l_pvp * (1 - l_dto_due / 100), 2);
+            l_neto = l_uds * l_pvp * (1 - l_dto_due / 100);
 
             l_iva = parseFloat($("#iva_" + i).val());
             l_irpf = parseFloat($("#irpf_" + i).val());
@@ -238,13 +239,17 @@ function recalcular()
                 l_recargo = 0;
             }
             
-            $("#neto_" + i).val(l_neto, fs_nf0);
+            $("#neto_" + i).val(l_neto);
             if (numlineas == 1) {
-                $("#total_" + i).val(fs_round(l_neto + l_neto * (l_iva - l_irpf + l_recargo) / 100, fs_nf0));
+                $("#total_" + i).val(l_neto + l_neto * (l_iva - l_irpf + l_recargo) / 100);
             } else {
                 $("#total_" + i).val(number_format(l_neto + (l_neto * (l_iva - l_irpf + l_recargo) / 100), fs_nf0, '.', ''));
             }
-            l_neto = fs_round(l_uds * l_pvp * (1 - l_dto_due / 100) * (1 - t_dto_due / 100), 2);
+            //l_neto = l_uds * l_pvp * (1 - l_dto_due / 100) * (1 - t_dto_due / 100);
+            l_neto = l_uds * l_pvp * (1 - l_dto_due / 100);
+
+            // ESTOS YA SON VALORES FINALES, SE REDONDEAN AHORA
+            // Total neto despues de descuentos globales
             netocondto += l_neto;
             total_iva += l_neto * l_iva / 100;
             total_irpf += l_neto * l_irpf / 100;
@@ -259,20 +264,17 @@ function recalcular()
         }
     }
 
-    // Total neto antes de descuentos globales
-    netosindto = fs_round(netosindto, fs_nf0);
-    // Total neto despues de descuentos globales
-    netocondto = fs_round(netocondto, fs_nf0);
-    // Neto con los descuento aplicados
+    netocondto = netosindto * (1 - t_dto_due / 100);
     neto = fs_round(netocondto, fs_nf0);
-    total_iva = fs_round(total_iva, fs_nf0);
-    total_irpf = fs_round(total_irpf, fs_nf0);
-    total_recargo = fs_round(total_recargo, fs_nf0);
-    $("#anetosindto").html(netosindto);
-    $("#aneto").html(neto);
-    $("#aiva").html(total_iva);
-    $("#are").html(total_recargo);
-    $("#airpf").html(total_irpf);
+    total_iva = total_iva * (1 - t_dto_due / 100);
+    total_recargo = total_recargo * (1 - t_dto_due / 100)
+    total_irpf = total_irpf * (1 - t_dto_due / 100)
+    
+    $("#anetosindto").html(fs_round(netosindto, fs_nf0));
+    $("#aneto").html(fs_round(netocondto, fs_nf0));
+    $("#aiva").html(fs_round(total_iva, fs_nf0));
+    $("#are").html(fs_round(total_recargo, fs_nf0));
+    $("#airpf").html(fs_round(total_irpf, fs_nf0));
     $("#atotal").val(fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0));
     
     // Descuentos de líneas del documento
@@ -286,19 +288,25 @@ function recalcular()
     if(show.contains(true)) {
         $(".dtosl").show();
     } else {
-        if (!cliente.dtosl || cliente.dtosl == undefined) {
+        // Si está indefinido asignamos false, ya que es la primera vez
+        if(typeof cliente.dtosl === 'undefined'){
             cliente.dtosl = false;
-            $(".dtosl").hide();
-        } else {
+        }
+        if (cliente.dtosl) {
             $(".dtosl").show();
+        } else {
+            $(".dtosl").hide();
         }
     }
     
     // Descuentos totales del documento
-    if (netosindto != netocondto || !cliente.dtost || cliente.dtost == undefined) {
+    // Si está indefinido asignamos false, ya que es la primera vez
+    if (typeof cliente.dtost === 'undefined') {
+        cliente.dtost = false;
+    }
+    if (netosindto != netocondto || cliente.dtost) {
         $(".dtost").show();
     } else {
-        cliente.dtost = false;
         $(".dtost").hide();
     }
 

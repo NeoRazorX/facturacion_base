@@ -133,7 +133,7 @@ class linea_iva_factura_cliente extends \fs_model
         return FALSE;
     }
 
-    public function factura_test($idfactura, $neto, $totaliva, $totalrecargo)
+    public function factura_test($idfactura, $neto, $totaliva, $totalrecargo, $due_totales)
     {
         $status = TRUE;
 
@@ -144,24 +144,28 @@ class linea_iva_factura_cliente extends \fs_model
             if (!$li->test()) {
                 $status = FALSE;
             }
-
+            
+            // Como el IVA se ha calculado por línea para tener compatibilidad con AbanQ/Eneboo
+            // en lugar de sobre la/s base/s imponible/s que es como debería hacerse, hay que 
+            // aplicar el descuento a la base y a los impuestos, para que sea lo mismo que 
+            // calcularlo sobre la base
             $li_neto += $li->neto;
-            $li_iva += $li->totaliva;
-            $li_recargo += $li->totalrecargo;
+            $li_iva += $li->totaliva * $due_totales;
+            $li_recargo += $li->totalrecargo * $due_totales;
         }
 
         $li_neto = round($li_neto, FS_NF0);
         $li_iva = round($li_iva, FS_NF0);
         $li_recargo = round($li_recargo, FS_NF0);
-
+        
         if (!$this->floatcmp($neto, $li_neto, FS_NF0, TRUE)) {
-            $this->new_error_msg("La suma de los netos de las líneas de IVA debería ser: " . $neto);
+            $this->new_error_msg("La suma de los netos de las líneas de IVA debería ser: " . $neto . " y tiene el valor " . $li_neto);
             $status = FALSE;
         } else if (!$this->floatcmp($totaliva, $li_iva, FS_NF0, TRUE)) {
-            $this->new_error_msg("La suma de los totales de iva de las líneas de IVA debería ser: " . $totaliva);
+            $this->new_error_msg("La suma de los totales de iva de las líneas de IVA debería ser: " . $totaliva . " y tiene el valor " . $li_iva);
             $status = FALSE;
         } else if (!$this->floatcmp($totalrecargo, $li_recargo, FS_NF0, TRUE)) {
-            $this->new_error_msg("La suma de los totalrecargo de las líneas de IVA debería ser: " . $totalrecargo);
+            $this->new_error_msg("La suma de los totalrecargo de las líneas de IVA debería ser: " . $totalrecargo . " y tiene el valor " . $li_recargo);
             $status = FALSE;
         }
 
