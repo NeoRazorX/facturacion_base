@@ -137,6 +137,13 @@ function recalcular()
     var total_iva = 0;
     var total_irpf = 0;
     var total_recargo = 0;
+    var adto1 = 0;
+    var adto2 = 0;
+    var adto3 = 0;
+    var adto4 = 0;
+    var adto5 = 0;
+    var dto_totales = 0;
+    var dto_linea = 0;
 
     adto1 = parseFloat($("#adtopor1").val());
     if (isNaN(adto1)) {
@@ -159,7 +166,7 @@ function recalcular()
         adto5 = 0;
     }
 
-    dto_totales = calcDUE([adto1, adto2, adto3, adto4, adto5]);
+    dto_totales = calc_due([adto1, adto2, adto3, adto4, adto5]);
     for (var i = 0; i < numlineas; i++) {
         if ($("#linea_" + i).length > 0) {
             /// cambiamos coma por punto
@@ -222,7 +229,7 @@ function recalcular()
                 show[i] = true;
             }
             
-            dto_linea = calcDUE([l_dto, l_dto2, l_dto3, l_dto4]);
+            dto_linea = calc_due([l_dto, l_dto2, l_dto3, l_dto4]);
             
             // Total neto antes de descuentos globales
             netosindto += l_uds * l_pvp * dto_linea;
@@ -275,7 +282,7 @@ function recalcular()
     $("#airpf").html(fs_round(total_irpf, fs_nf0));
     $("#atotal").val(fs_round(neto + total_iva - total_irpf + total_recargo, fs_nf0));
 
-    // ELIMINAR DESPUÉ DE REVISAR
+    // ELIMINAR DESPUÉS DE REVISAR
     console.log("Valores antes de redondeo: ");
     console.log("Subtotal: " + netosindto);
     console.log("Descuento sobre el total: " + netosindto);
@@ -297,7 +304,9 @@ function recalcular()
     // Descuentos de líneas del documento
     Array.prototype.contains = function(elem) {
         for (var i in this) {
-            if (this[i] == elem) return true;
+            if (this[i] == elem) {
+                return true;
+            }
         }
         return false;
     }
@@ -345,6 +354,9 @@ function ajustar_neto(i)
     var l_uds = 0;
     var l_pvp = 0;
     var l_dto = 0;
+    var l_dto2 = 0;
+    var l_dto3 = 0;
+    var l_dto4 = 0;
     var l_neto = 0;
 
     if ($("#linea_" + i).length > 0) {
@@ -525,14 +537,14 @@ function ajustar_iva(num)
     recalcular();
 }
 
-function aux_all_dtos()
+function aux_all_dtos(dto2, dto3, dto4)
 {
-    html = '<td class="dtosl"><input type="text" id="dto2_' + numlineas + '" name="dto2_' + numlineas + 
-        '" value="0" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
+    var html = '<td class="dtosl"><input type="text" id="dto2_' + numlineas + '" name="dto2_' + numlineas + 
+        '" value="' + dto2 + '" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
     html += '<td class="dtosl"><input type="text" id="dto3_' + numlineas + '" name="dto3_' + numlineas + 
-        '" value="0" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
+        '" value="' + dto3 + '" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
     html += '<td class="dtosl"><input type="text" id="dto4_' + numlineas + '" name="dto4_' + numlineas + 
-        '" value="0" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
+        '" value="' + dto4 + '" class="form-control text-right" onkeyup="recalcular()" onclick="this.select()" autocomplete="off"/></td>';
     return html;
 }
 
@@ -592,7 +604,7 @@ function add_articulo(ref, desc, pvp, dto, codimpuesto, cantidad, codcombinacion
             "\" onkeyup=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       <td><input type=\"text\" id=\"dto_" + numlineas + "\" name=\"dto_" + numlineas + "\" value=\"" + dto +
             "\" class=\"form-control text-right\" onkeyup=\"recalcular()\" onchange=\"recalcular()\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
-    " + aux_all_dtos() + "\n\
+    " + aux_all_dtos(dto2, dto3, dto4) + "\n\
       <td><input type=\"text\" class=\"form-control text-right\" id=\"neto_" + numlineas + "\" name=\"neto_" + numlineas +
             "\" onchange=\"ajustar_neto(" + numlineas + ")\" onclick=\"this.select()\" autocomplete=\"off\"/></td>\n\
       " + aux_all_impuestos(numlineas, codimpuesto) + "\n\
@@ -835,25 +847,25 @@ function show_pvp_iva(pvp, codimpuesto, coddivisa)
  * Devuelve el escalar del descuento unificado equivalente
  * Por ejemplo: recibe descuentos = [50, 10] y devuelve 0.45
  * 
- * @param array descuentos
+ * @param Array descuentos
  * @return float
  */
-function calcDUE(descuentos)
+function calc_due(descuentos)
 {
-    return (1 - calcDescDUE(descuentos) / 100);
+    return (1 - calc_desc_due(descuentos) / 100);
 }
 
 /**
  * Devuelve el descuento unificado equivalente
  * Por ejemplo: recibe descuentos = [50, 10] y devuelve 55
  * 
- * @param array descuentos
+ * @param Array descuentos
  * @return float
  */
-function calcDescDUE(descuentos)
+function calc_desc_due(descuentos)
 {
-    dto = 1;
-    for (i = 0; i < descuentos.length; ++i){
+    var dto = 1;
+    for (var i = 0; i < descuentos.length; ++i){
         if (descuentos[i] == 0) {
             dto *= 1
         } else {
@@ -865,6 +877,7 @@ function calcDescDUE(descuentos)
 }
 
 $(document).ready(function () {
+    show = false;
     $("#i_new_line").click(function () {
         $("#i_new_line").val("");
         $("#nav_articulos li").each(function () {

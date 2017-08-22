@@ -208,9 +208,9 @@ class fbase_controller extends fs_controller
      * @param array $descuentos contiene un array de float.
      * @return float
      */
-    public function calcDUE($descuentos)
+    public function calc_due($descuentos)
     {
-        return (1 - $this->caclDescDUE($descuentos) / 100);
+        return (1 - $this->calc_desc_due($descuentos) / 100);
     }
     
     /**
@@ -220,7 +220,7 @@ class fbase_controller extends fs_controller
      * @param array $descuentos contiene un array de float.
      * @return float
      */
-    public function caclDescDUE($descuentos)
+    public function calc_desc_due($descuentos)
     {
         $dto = 1;
         foreach($descuentos as $descuento) {

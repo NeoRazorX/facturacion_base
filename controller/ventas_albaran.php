@@ -310,7 +310,7 @@ class ventas_albaran extends fbase_controller
                                 $lineas[$k]->dtopor4 = floatval($_POST['dto4_' . $num]);
                                 $lineas[$k]->pvpsindto = $value->cantidad * $value->pvpunitario;
                                 // Descuento Unificado Equivalente
-                                $due_linea = $this->calcDUE(array($lineas[$k]->dtopor,$lineas[$k]->dtopor2,$lineas[$k]->dtopor3,$lineas[$k]->dtopor4));
+                                $due_linea = $this->calc_due(array($lineas[$k]->dtopor,$lineas[$k]->dtopor2,$lineas[$k]->dtopor3,$lineas[$k]->dtopor4));
                                 $lineas[$k]->pvptotal = $lineas[$k]->cantidad * $lineas[$k]->pvpunitario * $due_linea;
                                 $lineas[$k]->descripcion = $_POST['desc_' . $num];
 
@@ -344,7 +344,7 @@ class ventas_albaran extends fbase_controller
                                     // Acumulamos por tipos de IVAs, que es el desglose de pie de página
                                     
                                     // Descuento Unificado Equivalente
-                                    $due_totales = $this->calcDUE(array($this->presupuesto->dtopor1,$this->presupuesto->dtopor2,$this->presupuesto->dtopor3,$this->presupuesto->dtopor4,$this->presupuesto->dtopor5));
+                                    $due_totales = $this->calc_due(array($this->presupuesto->dtopor1,$this->presupuesto->dtopor2,$this->presupuesto->dtopor3,$this->presupuesto->dtopor4,$this->presupuesto->dtopor5));
                                     // Hacemos el recalculo del PVP por línea, con el descuento adicional de fin de documento
                                     $pvpcondto = $due_totales * $lineas[$k]->pvptotal;
                                     
@@ -441,7 +441,7 @@ class ventas_albaran extends fbase_controller
                                 // Acumulamos por tipos de IVAs, que es el desglose de pie de página
 
                                 // Descuento Unificado Equivalente
-                                $due_totales = $this->calcDUE(array($this->presupuesto->dtopor1,$this->presupuesto->dtopor2,$this->presupuesto->dtopor3,$this->presupuesto->dtopor4,$this->presupuesto->dtopor5));
+                                $due_totales = $this->calc_due(array($this->presupuesto->dtopor1,$this->presupuesto->dtopor2,$this->presupuesto->dtopor3,$this->presupuesto->dtopor4,$this->presupuesto->dtopor5));
                                 // Hacemos el recalculo del PVP por línea, con el descuento adicional de fin de documento
                                 $pvpcondto = $due_totales * $linea->pvptotal;
 

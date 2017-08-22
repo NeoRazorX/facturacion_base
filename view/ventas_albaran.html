@@ -51,7 +51,6 @@
 {else}
 <script type="text/javascript">
    $(document).ready(function() {
-      show = false;
       {loop="$lineas"}{if="$value->dtopor2!=0 || $value->dtopor3!=0 || $value->dtopor4!=0"}show = true;{break}{/if}{/loop}
       if(!show) {
           $('.dtosl').hide();
