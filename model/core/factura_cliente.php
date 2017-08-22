@@ -710,27 +710,34 @@ class factura_cliente extends \fs_model
         if (empty($lineasi)) {
             $lineas = $this->get_lineas();
             if (!empty($lineas)) {
+                // Descuento total adicional del total del documento
+                $t_dto_due = (1-((1-$this->dtopor1/100)*(1-$this->dtopor2/100)*(1-$this->dtopor3/100)*(1-$this->dtopor4/100)*(1-$this->dtopor5/100)))*100;
+                $due_totales = (1-$t_dto_due/100);
                 foreach ($lineas as $l) {
                     $i = 0;
                     $encontrada = FALSE;
                     while ($i < count($lineasi)) {
                         if ($l->iva == $lineasi[$i]->iva AND $l->recargo == $lineasi[$i]->recargo) {
                             $encontrada = TRUE;
-                            $lineasi[$i]->neto += $l->pvptotal;
-                            $lineasi[$i]->totaliva += $l->pvptotal * $l->iva / 100.0;
-                            $lineasi[$i]->totalrecargo += $l->pvptotal * $l->recargo / 100.0;
+                            $netosindto = $l->pvptotal;                 // Precio neto por línea
+                            $netocondto = $netosindto * $due_totales;   // Precio neto - % desc sobre total
+                            $lineasi[$i]->neto += $netocondto;
+                            $lineasi[$i]->totaliva += $netocondto * $l->iva / 100.0;
+                            $lineasi[$i]->totalrecargo += $netocondto * $l->recargo / 100.0;
                         }
                         $i++;
                     }
                     if (!$encontrada) {
+                        $netosindto = $l->pvptotal;                 // Precio neto por línea
+                        $netocondto = $netosindto * $due_totales;   // Precio neto - % desc sobre total
                         $lineasi[$i] = new \linea_iva_factura_cliente();
                         $lineasi[$i]->idfactura = $this->idfactura;
                         $lineasi[$i]->codimpuesto = $l->codimpuesto;
                         $lineasi[$i]->iva = $l->iva;
                         $lineasi[$i]->recargo = $l->recargo;
-                        $lineasi[$i]->neto = $l->pvptotal;
-                        $lineasi[$i]->totaliva = $l->pvptotal * $l->iva / 100.0;
-                        $lineasi[$i]->totalrecargo = $l->pvptotal * $l->recargo / 100.0;
+                        $lineasi[$i]->neto = $netocondto;
+                        $lineasi[$i]->totaliva = $netocondto * $l->iva / 100.0;
+                        $lineasi[$i]->totalrecargo = $netocondto * $l->recargo / 100.0;
                     }
                 }
 
@@ -1039,7 +1046,7 @@ class factura_cliente extends \fs_model
         /// comprobamos las líneas de IVA
         $this->get_lineas_iva();
         $linea_iva = new \linea_iva_factura_cliente();
-        if (!$linea_iva->factura_test($this->idfactura, $subtotal, $iva, $recargo, $due_totales)) {
+        if (!$linea_iva->factura_test($this->idfactura, $neto, $iva, $recargo)) {
             $status = FALSE;
         }
 
