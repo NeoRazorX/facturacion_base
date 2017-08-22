@@ -381,83 +381,83 @@ class factura_cliente extends \fs_model
      */
     public $numdocs;
 
-    public function __construct($f = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('facturascli');
-        if ($f) {
-            $this->idfactura = $this->intval($f['idfactura']);
-            $this->idasiento = $this->intval($f['idasiento']);
-            $this->idasientop = $this->intval($f['idasientop']);
-            $this->idfacturarect = $this->intval($f['idfacturarect']);
-            $this->codigo = $f['codigo'];
-            $this->numero = $f['numero'];
-            $this->numero2 = $f['numero2'];
-            $this->codigorect = $f['codigorect'];
-            $this->codejercicio = $f['codejercicio'];
-            $this->codserie = $f['codserie'];
-            $this->codalmacen = $f['codalmacen'];
-            $this->codpago = $f['codpago'];
-            $this->coddivisa = $f['coddivisa'];
-            $this->fecha = Date('d-m-Y', strtotime($f['fecha']));
+        if ($data) {
+            $this->idfactura = $this->intval($data['idfactura']);
+            $this->idasiento = $this->intval($data['idasiento']);
+            $this->idasientop = $this->intval($data['idasientop']);
+            $this->idfacturarect = $this->intval($data['idfacturarect']);
+            $this->codigo = $data['codigo'];
+            $this->numero = $data['numero'];
+            $this->numero2 = $data['numero2'];
+            $this->codigorect = $data['codigorect'];
+            $this->codejercicio = $data['codejercicio'];
+            $this->codserie = $data['codserie'];
+            $this->codalmacen = $data['codalmacen'];
+            $this->codpago = $data['codpago'];
+            $this->coddivisa = $data['coddivisa'];
+            $this->fecha = Date('d-m-Y', strtotime($data['fecha']));
 
             $this->hora = '00:00:00';
-            if (!is_null($f['hora'])) {
-                $this->hora = date('H:i:s', strtotime($f['hora']));
+            if (!is_null($data['hora'])) {
+                $this->hora = date('H:i:s', strtotime($data['hora']));
             }
 
-            $this->codcliente = $f['codcliente'];
-            $this->nombrecliente = $f['nombrecliente'];
-            $this->cifnif = $f['cifnif'];
-            $this->direccion = $f['direccion'];
-            $this->ciudad = $f['ciudad'];
-            $this->provincia = $f['provincia'];
-            $this->apartado = $f['apartado'];
-            $this->coddir = $f['coddir'];
-            $this->codpostal = $f['codpostal'];
-            $this->codpais = $f['codpais'];
-            $this->codagente = $f['codagente'];
-            $this->netosindto = isset($f['netosindto']) ? floatval($f['netosindto']) : 0.0;
-            $this->neto = floatval($f['neto']);
-            $this->dtopor1 = isset($f['dtopor1']) ? floatval($f['dtopor1']) : 0.0;
-            $this->dtopor2 = isset($f['dtopor2']) ? floatval($f['dtopor2']) : 0.0;
-            $this->dtopor3 = isset($f['dtopor3']) ? floatval($f['dtopor3']) : 0.0;
-            $this->dtopor4 = isset($f['dtopor4']) ? floatval($f['dtopor4']) : 0.0;
-            $this->dtopor5 = isset($f['dtopor5']) ? floatval($f['dtopor5']) : 0.0;
-            $this->total = floatval($f['total']);
-            $this->totaliva = floatval($f['totaliva']);
-            $this->totaleuros = floatval($f['totaleuros']);
-            $this->irpf = floatval($f['irpf']);
-            $this->totalirpf = floatval($f['totalirpf']);
-            $this->porcomision = floatval($f['porcomision']);
-            $this->tasaconv = floatval($f['tasaconv']);
-            $this->totalrecargo = floatval($f['totalrecargo']);
-            $this->observaciones = $this->no_html($f['observaciones']);
-            $this->pagada = $this->str2bool($f['pagada']);
-            $this->anulada = $this->str2bool($f['anulada']);
+            $this->codcliente = $data['codcliente'];
+            $this->nombrecliente = $data['nombrecliente'];
+            $this->cifnif = $data['cifnif'];
+            $this->direccion = $data['direccion'];
+            $this->ciudad = $data['ciudad'];
+            $this->provincia = $data['provincia'];
+            $this->apartado = $data['apartado'];
+            $this->coddir = $data['coddir'];
+            $this->codpostal = $data['codpostal'];
+            $this->codpais = $data['codpais'];
+            $this->codagente = $data['codagente'];
+            $this->netosindto = isset($data['netosindto']) ? floatval($data['netosindto']) : 0.0;
+            $this->neto = floatval($data['neto']);
+            $this->dtopor1 = isset($data['dtopor1']) ? floatval($data['dtopor1']) : 0.0;
+            $this->dtopor2 = isset($data['dtopor2']) ? floatval($data['dtopor2']) : 0.0;
+            $this->dtopor3 = isset($data['dtopor3']) ? floatval($data['dtopor3']) : 0.0;
+            $this->dtopor4 = isset($data['dtopor4']) ? floatval($data['dtopor4']) : 0.0;
+            $this->dtopor5 = isset($data['dtopor5']) ? floatval($data['dtopor5']) : 0.0;
+            $this->total = floatval($data['total']);
+            $this->totaliva = floatval($data['totaliva']);
+            $this->totaleuros = floatval($data['totaleuros']);
+            $this->irpf = floatval($data['irpf']);
+            $this->totalirpf = floatval($data['totalirpf']);
+            $this->porcomision = floatval($data['porcomision']);
+            $this->tasaconv = floatval($data['tasaconv']);
+            $this->totalrecargo = floatval($data['totalrecargo']);
+            $this->observaciones = $this->no_html($data['observaciones']);
+            $this->pagada = $this->str2bool($data['pagada']);
+            $this->anulada = $this->str2bool($data['anulada']);
 
-            $this->vencimiento = Date('d-m-Y', strtotime($f['fecha'] . ' +1 day'));
-            if (!is_null($f['vencimiento'])) {
-                $this->vencimiento = Date('d-m-Y', strtotime($f['vencimiento']));
+            $this->vencimiento = Date('d-m-Y', strtotime($data['fecha'] . ' +1 day'));
+            if (!is_null($data['vencimiento'])) {
+                $this->vencimiento = Date('d-m-Y', strtotime($data['vencimiento']));
             }
 
             $this->femail = NULL;
-            if (!is_null($f['femail'])) {
-                $this->femail = Date('d-m-Y', strtotime($f['femail']));
+            if (!is_null($data['femail'])) {
+                $this->femail = Date('d-m-Y', strtotime($data['femail']));
             }
 
-            $this->envio_codtrans = $f['codtrans'];
-            $this->envio_codigo = $f['codigoenv'];
-            $this->envio_nombre = $f['nombreenv'];
-            $this->envio_apellidos = $f['apellidosenv'];
-            $this->envio_apartado = $f['apartadoenv'];
-            $this->envio_direccion = $f['direccionenv'];
-            $this->envio_codpostal = $f['codpostalenv'];
-            $this->envio_ciudad = $f['ciudadenv'];
-            $this->envio_provincia = $f['provinciaenv'];
-            $this->envio_codpais = $f['codpaisenv'];
+            $this->envio_codtrans = $data['codtrans'];
+            $this->envio_codigo = $data['codigoenv'];
+            $this->envio_nombre = $data['nombreenv'];
+            $this->envio_apellidos = $data['apellidosenv'];
+            $this->envio_apartado = $data['apartadoenv'];
+            $this->envio_direccion = $data['direccionenv'];
+            $this->envio_codpostal = $data['codpostalenv'];
+            $this->envio_ciudad = $data['ciudadenv'];
+            $this->envio_provincia = $data['provinciaenv'];
+            $this->envio_codpais = $data['codpaisenv'];
 
-            $this->idimprenta = $this->intval($f['idimprenta']);
-            $this->numdocs = intval($f['numdocs']);
+            $this->idimprenta = $this->intval($data['idimprenta']);
+            $this->numdocs = intval($data['numdocs']);
         } else {
             $this->idfactura = NULL;
             $this->idasiento = NULL;

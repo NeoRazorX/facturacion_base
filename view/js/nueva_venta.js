@@ -878,6 +878,11 @@ function calc_desc_due(descuentos)
 
 $(document).ready(function () {
     show = false;
+    if(!show) {
+        $('.dtosl').hide();
+    } else {
+        $('.dtosl').show();
+    }
     $("#i_new_line").click(function () {
         $("#i_new_line").val("");
         $("#nav_articulos li").each(function () {

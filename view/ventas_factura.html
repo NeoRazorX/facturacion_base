@@ -4,6 +4,7 @@
 <script type="text/javascript" src="{$fsc->get_js_location('ac_email_cliente.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('provincias.js')}"></script>
 <script type="text/javascript" src="{$fsc->get_js_location('nueva_venta.js')}"></script>
+<!--{$lineas=$fsc->factura->get_lineas()}-->
 <script type="text/javascript">
    {if="$fsc->cliente"}
    all_direcciones = {function="json_encode($fsc->cliente->get_direcciones())"};
@@ -29,12 +30,6 @@
          $("#modal_eliminar").modal('show');
       });
 
-      {loop="$fsc->factura->get_lineas()"}{if="$value->dtopor2!=0 || $value->dtopor3!=0 || $value->dtopor4!=0"}show = true;{break}{/if}{/loop}
-      if(!show) {
-          $('.dtosl').hide();
-      } else {
-          $('.dtosl').show();
-      }
       {if="$fsc->factura->netosindto==$fsc->factura->neto"}
       $('.dtost').hide();
       {/if}
