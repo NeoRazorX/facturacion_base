@@ -60,7 +60,7 @@ if (!function_exists('fs_documento_new_numero')) {
         if (!$sec || $numero <= 1) {
             $sql = "SELECT MAX(" . $db->sql_to_int('numero') . ") as num FROM " . $table_name;
             if (FS_NEW_CODIGO != 'NUM' && FS_NEW_CODIGO != '0-NUM') {
-                $sql .= " WHERE codejercicio = " . $sec0->var2str($codejercicio) . " && codserie = " . $sec0->var2str($codserie) . ";";
+                $sql .= " WHERE codejercicio = " . $sec0->var2str($codejercicio) . " AND codserie = " . $sec0->var2str($codserie) . ";";
             }
 
             $data = $db->select($sql);

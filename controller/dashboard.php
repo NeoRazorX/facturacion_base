@@ -403,18 +403,19 @@ class dashboard extends fs_controller
                 return -100;
             } else if ($nuevo > 0 && $anterior == 0) {
                 return 100;
-            } else
-                return 0;
+            }
+            
+            return 0;
         }
         else if ($nuevo != $anterior) {
             if ($anterior < 0) {
                 return 0 - (($nuevo * 100 / $anterior) - 100);
-            } else {
-                return ($nuevo * 100 / $anterior) - 100;
             }
-        } else {
-            return 0;
+            
+            return ($nuevo * 100 / $anterior) - 100;
         }
+        
+        return 0;
     }
 
     private function elegir_consejos()

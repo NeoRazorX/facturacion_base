@@ -252,7 +252,7 @@ class articulo_proveedor extends \fs_model
         if ($refprov !== FALSE) {
             $sql = "SELECT * FROM articulosprov WHERE codproveedor = " . $this->var2str($codproveedor)
                 . " AND (refproveedor = " . $this->var2str($refprov)
-                . " || referencia = " . $this->var2str($ref) . ");";
+                . " OR referencia = " . $this->var2str($ref) . ");";
         } else {
             $sql = "SELECT * FROM articulosprov WHERE referencia = " . $this->var2str($ref)
                 . " AND codproveedor = " . $this->var2str($codproveedor) . ";";
