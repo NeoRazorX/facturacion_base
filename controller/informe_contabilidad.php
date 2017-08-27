@@ -45,7 +45,7 @@ class informe_contabilidad extends fs_controller
             $this->buscar_subcuenta();
         } else if (isset($_GET['diario'])) {
             $this->libro_diario_csv($_GET['diario']);
-        } else if (isset($_GET['balance']) AND isset($_GET['eje'])) {
+        } else if (isset($_GET['balance']) && isset($_GET['eje'])) {
             $this->template = FALSE;
             $iba = new inventarios_balances($this->db);
 
@@ -165,7 +165,7 @@ class informe_contabilidad extends fs_controller
             . " WHERE a.codejercicio = " . $this->empresa->var2str($codeje)
             . " AND p.idasiento = a.idasiento";
 
-        if ($desde AND $hasta) {
+        if ($desde && $hasta) {
             $sql .= " AND a.fecha >= " . $this->empresa->var2str($desde);
             $sql .= " AND a.fecha <= " . $this->empresa->var2str($hasta);
         }
@@ -268,13 +268,13 @@ class informe_contabilidad extends fs_controller
     {
         $eje = $this->ejercicio->get($_POST['codejercicio']);
         if ($eje) {
-            if (strtotime($_POST['desde']) < strtotime($eje->fechainicio) OR strtotime($_POST['hasta']) > strtotime($eje->fechafin)) {
+            if (strtotime($_POST['desde']) < strtotime($eje->fechainicio) || strtotime($_POST['hasta']) > strtotime($eje->fechafin)) {
                 $this->new_error_msg('La fecha está fuera del rango del ejercicio.');
             } else {
                 $this->template = FALSE;
 
                 $excluir = FALSE;
-                if (isset($eje->idasientocierre) AND isset($eje->idasientopyg)) {
+                if (isset($eje->idasientocierre) && isset($eje->idasientopyg)) {
                     $excluir = array($eje->idasientocierre, $eje->idasientopyg);
                 }
 
@@ -403,7 +403,7 @@ class informe_contabilidad extends fs_controller
                         }
 
                         /// añadimos la cuenta
-                        if ($debe != 0 OR $haber != 0) {
+                        if ($debe != 0 || $haber != 0) {
                             $cuenta = $cuenta0->get_by_codigo($i . $j . $k, $eje->codejercicio);
                             if ($cuenta) {
                                 $lineas[] = array(
@@ -543,7 +543,7 @@ class informe_contabilidad extends fs_controller
     {
         $eje = $this->ejercicio->get($_POST['codejercicio']);
         if ($eje) {
-            if (strtotime($_POST['desde']) < strtotime($eje->fechainicio) OR strtotime($_POST['hasta']) > strtotime($eje->fechafin)) {
+            if (strtotime($_POST['desde']) < strtotime($eje->fechainicio) || strtotime($_POST['hasta']) > strtotime($eje->fechafin)) {
                 $this->new_error_msg('La fecha está fuera del rango del ejercicio.');
             } else {
                 $this->template = FALSE;
@@ -604,8 +604,8 @@ class informe_contabilidad extends fs_controller
                     foreach ($nivel3 as $nv3) {
                         foreach ($nivel4 as $nv4) {
                             foreach ($balances as $bal) {
-                                if ($bal->naturaleza == $nv0 AND $bal->nivel1 == $nv1 AND $bal->nivel2 == $nv2 AND $bal->nivel3 == $nv3 AND $bal->nivel4 == $nv4) {
-                                    if ($bal->descripcion1 != $desc1 AND $bal->descripcion1 != '') {
+                                if ($bal->naturaleza == $nv0 && $bal->nivel1 == $nv1 && $bal->nivel2 == $nv2 && $bal->nivel3 == $nv3 && $bal->nivel4 == $nv4) {
+                                    if ($bal->descripcion1 != $desc1 && $bal->descripcion1 != '') {
                                         $pdf_doc->add_table_row(
                                             array(
                                                 'descripcion' => "\n<b>" . $bal->descripcion1 . '</b>',
@@ -616,7 +616,7 @@ class informe_contabilidad extends fs_controller
                                         $desc1 = $bal->descripcion1;
                                     }
 
-                                    if ($bal->descripcion2 != $desc2 AND $bal->descripcion2 != '') {
+                                    if ($bal->descripcion2 != $desc2 && $bal->descripcion2 != '') {
                                         $pdf_doc->add_table_row(
                                             array(
                                                 'descripcion' => ' <b>' . $bal->descripcion2 . '</b>',
@@ -627,7 +627,7 @@ class informe_contabilidad extends fs_controller
                                         $desc2 = $bal->descripcion2;
                                     }
 
-                                    if ($bal->descripcion3 != $desc3 AND $bal->descripcion3 != '') {
+                                    if ($bal->descripcion3 != $desc3 && $bal->descripcion3 != '') {
                                         $pdf_doc->add_table_row(
                                             array(
                                                 'descripcion' => '  ' . $bal->descripcion3,
@@ -679,7 +679,7 @@ class informe_contabilidad extends fs_controller
     {
         $eje = $this->ejercicio->get($_POST['codejercicio']);
         if ($eje) {
-            if (strtotime($_POST['desde']) < strtotime($eje->fechainicio) OR strtotime($_POST['hasta']) > strtotime($eje->fechafin)) {
+            if (strtotime($_POST['desde']) < strtotime($eje->fechainicio) || strtotime($_POST['hasta']) > strtotime($eje->fechafin)) {
                 $this->new_error_msg('La fecha está fuera del rango del ejercicio.');
             } else {
                 $this->template = FALSE;
@@ -744,7 +744,7 @@ class informe_contabilidad extends fs_controller
 
             $encontrado = FALSE;
             foreach ($balances as $bal) {
-                if ($bal->naturaleza == 'PG' AND strstr($bal->codbalance, 'PG-A-' . $num . '-')) {
+                if ($bal->naturaleza == 'PG' && strstr($bal->codbalance, 'PG-A-' . $num . '-')) {
                     $saldo1 = $this->get_saldo_balance('PG-A-' . $num . '-', $eje);
 
                     /// añadimos la fila

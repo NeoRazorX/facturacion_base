@@ -40,7 +40,7 @@ class compras_trazabilidad extends fs_controller
     protected function private_core()
     {
         $this->documento = FALSE;
-        if (isset($_GET['doc']) AND isset($_GET['id'])) {
+        if (isset($_GET['doc']) && isset($_GET['id'])) {
             if ($_GET['doc'] == 'albaran') {
                 $alb = new albaran_proveedor();
                 $this->documento = $alb->get($_GET['id']);
@@ -214,7 +214,7 @@ class compras_trazabilidad extends fs_controller
                     $this->lineas[$i]->lote = $_POST['lote_' . $i];
                 }
 
-                if (is_null($this->lineas[$i]->numserie) AND is_null($this->lineas[$i]->lote)) {
+                if (is_null($this->lineas[$i]->numserie) && is_null($this->lineas[$i]->lote)) {
                     if ($ok) {
                         $this->new_error_msg('En la <b>linea ' . ($i + 1) . '</b> debes escribir un número de serie'
                             . ' o un lote o ambos, pero algo debes escribir.');

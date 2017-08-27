@@ -111,7 +111,7 @@ class articulo_proveedor extends \fs_model
             $this->descripcion = $data['descripcion'];
 
             /// En algunos módulos de eneboo se usa coste como precio
-            if (is_null($data['precio']) AND isset($data['coste'])) {
+            if (is_null($data['precio']) && isset($data['coste'])) {
                 $this->precio = floatval($data['coste']);
             } else
                 $this->precio = floatval($data['precio']);
@@ -252,7 +252,7 @@ class articulo_proveedor extends \fs_model
         if ($refprov !== FALSE) {
             $sql = "SELECT * FROM articulosprov WHERE codproveedor = " . $this->var2str($codproveedor)
                 . " AND (refproveedor = " . $this->var2str($refprov)
-                . " OR referencia = " . $this->var2str($ref) . ");";
+                . " || referencia = " . $this->var2str($ref) . ");";
         } else {
             $sql = "SELECT * FROM articulosprov WHERE referencia = " . $this->var2str($ref)
                 . " AND codproveedor = " . $this->var2str($codproveedor) . ";";
@@ -283,7 +283,7 @@ class articulo_proveedor extends \fs_model
             $this->stock = 0.0;
         }
 
-        if (is_null($this->refproveedor) OR strlen($this->refproveedor) < 1 OR strlen($this->refproveedor) > 25) {
+        if (is_null($this->refproveedor) || strlen($this->refproveedor) < 1 || strlen($this->refproveedor) > 25) {
             $this->new_error_msg('La referencia de proveedor debe contener entre 1 y 25 caracteres.');
             return FALSE;
         }

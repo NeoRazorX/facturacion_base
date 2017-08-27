@@ -323,7 +323,7 @@ class partida extends \fs_model
                 $saldo += floatval($po['debe']) - floatval($po['haber']);
                 $sum_debe += floatval($po['debe']);
                 $sum_haber += floatval($po['haber']);
-                if ($i >= $offset AND $i < ($offset + FS_ITEM_LIMIT)) {
+                if ($i >= $offset && $i < ($offset + FS_ITEM_LIMIT)) {
                     $aux = $partida->get($po['idpartida']);
                     if ($aux) {
                         $aux->numero = intval($po['numero']);

@@ -55,7 +55,7 @@ class editar_balances extends fbase_controller
 
             $bc0 = new balance_cuenta();
             $bca0 = new balance_cuenta_a();
-            if (isset($_POST['nueva_cuenta']) OR isset($_POST['nueva_cuenta_a'])) {
+            if (isset($_POST['nueva_cuenta']) || isset($_POST['nueva_cuenta_a'])) {
                 if ($_POST['nueva_cuenta']) {
                     $this->nuevo_balance_cuenta($bc0);
                 } else if ($_POST['nueva_cuenta_a']) {
@@ -65,7 +65,7 @@ class editar_balances extends fbase_controller
                 $this->eliminar_balance_cuenta($bc0);
             } else if (isset($_GET['rm_cuenta_a'])) {
                 $this->eliminar_balance_cuenta_abreviado($bca0);
-            } else if (isset($_POST['descripcion']) AND ! isset($_POST['ncodbalance'])) {
+            } else if (isset($_POST['descripcion']) && ! isset($_POST['ncodbalance'])) {
                 $this->editar_balance();
             }
 

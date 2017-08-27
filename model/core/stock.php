@@ -103,7 +103,7 @@ class stock extends \fs_model
     {
         $this->cantidad = floatval($c);
 
-        if ($this->cantidad < 0 AND ! FS_STOCK_NEGATIVO) {
+        if ($this->cantidad < 0 && ! FS_STOCK_NEGATIVO) {
             $this->cantidad = 0;
         }
 
@@ -115,7 +115,7 @@ class stock extends \fs_model
         /// convertimos a flot por si acaso nos ha llegado un string
         $this->cantidad += floatval($c);
 
-        if ($this->cantidad < 0 AND ! FS_STOCK_NEGATIVO) {
+        if ($this->cantidad < 0 && ! FS_STOCK_NEGATIVO) {
             $this->cantidad = 0;
         }
 

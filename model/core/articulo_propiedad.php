@@ -56,7 +56,7 @@ class articulo_propiedad extends \fs_model
      */
     public function exists()
     {
-        if (is_null($this->name) OR is_null($this->referencia)) {
+        if (is_null($this->name) || is_null($this->referencia)) {
             return FALSE;
         }
 

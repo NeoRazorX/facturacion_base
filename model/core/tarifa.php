@@ -191,7 +191,7 @@ class tarifa extends \fs_model
 
             $pvp = $articulos[$i]->pvp;
             if ($this->aplicar_a == 'pvp') {
-                if ($this->y() == 0 AND $this->x() >= 0) {
+                if ($this->y() == 0 && $this->x() >= 0) {
                     /// si y == 0 y x >= 0, usamos x como descuento
                     $articulos[$i]->dtopor = $this->x();
                 } else {
@@ -257,9 +257,9 @@ class tarifa extends \fs_model
         $this->codtarifa = trim($this->codtarifa);
         $this->nombre = $this->no_html($this->nombre);
 
-        if (strlen($this->codtarifa) < 1 OR strlen($this->codtarifa) > 6) {
+        if (strlen($this->codtarifa) < 1 || strlen($this->codtarifa) > 6) {
             $this->new_error_msg("Código de tarifa no válido. Debe tener entre 1 y 6 caracteres.");
-        } else if (strlen($this->nombre) < 1 OR strlen($this->nombre) > 50) {
+        } else if (strlen($this->nombre) < 1 || strlen($this->nombre) > 50) {
             $this->new_error_msg("Nombre de tarifa no válido. Debe tener entre 1 y 50 caracteres.");
         } else {
             $status = TRUE;

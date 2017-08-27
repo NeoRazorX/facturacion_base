@@ -415,7 +415,7 @@ class factura_proveedor extends \fs_model
                     $i = 0;
                     $encontrada = FALSE;
                     while ($i < count($lineasi)) {
-                        if ($l->iva == $lineasi[$i]->iva AND $l->recargo == $lineasi[$i]->recargo) {
+                        if ($l->iva == $lineasi[$i]->iva && $l->recargo == $lineasi[$i]->recargo) {
                             $encontrada = TRUE;
                             $lineasi[$i]->neto += $l->pvptotal;
                             $lineasi[$i]->totaliva += ($l->pvptotal * $l->iva) / 100;
@@ -674,7 +674,7 @@ class factura_proveedor extends \fs_model
         $ejercicio = new \ejercicio();
         $eje0 = $ejercicio->get($this->codejercicio);
         if ($eje0) {
-            if (strtotime($this->fecha) < strtotime($eje0->fechainicio) OR strtotime($this->fecha) > strtotime($eje0->fechafin)) {
+            if (strtotime($this->fecha) < strtotime($eje0->fechainicio) || strtotime($this->fecha) > strtotime($eje0->fechafin)) {
                 $status = FALSE;
                 $this->new_error_msg("La fecha de esta factura está fuera del rango del"
                     . " <a target='_blank' href='" . $eje0->url() . "'>ejercicio</a>.");
@@ -731,10 +731,10 @@ class factura_proveedor extends \fs_model
         if (isset($this->idasiento)) {
             $asiento = $this->get_asiento();
             if ($asiento) {
-                if ($asiento->tipodocumento != 'Factura de proveedor' OR $asiento->documento != $this->codigo) {
+                if ($asiento->tipodocumento != 'Factura de proveedor' || $asiento->documento != $this->codigo) {
                     $this->new_error_msg("Esta factura apunta a un <a href='" . $this->asiento_url() . "'>asiento incorrecto</a>.");
                     $status = FALSE;
-                } else if ($this->coddivisa == $this->default_items->coddivisa() AND ( abs($asiento->importe) - abs($this->total + $this->totalirpf) >= .02)) {
+                } else if ($this->coddivisa == $this->default_items->coddivisa() && ( abs($asiento->importe) - abs($this->total + $this->totalirpf) >= .02)) {
                     $this->new_error_msg("El importe del asiento es distinto al de la factura.");
                     $status = FALSE;
                 } else {
@@ -754,7 +754,7 @@ class factura_proveedor extends \fs_model
             }
         }
 
-        if ($status AND $duplicados) {
+        if ($status && $duplicados) {
             /// comprobamos si es un duplicado
             $facturas = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE fecha = " . $this->var2str($this->fecha)
                 . " AND codproveedor = " . $this->var2str($this->codproveedor)

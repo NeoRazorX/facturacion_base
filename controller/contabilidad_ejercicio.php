@@ -73,7 +73,7 @@ class contabilidad_ejercicio extends fbase_controller
             } else {
                 $this->page->title = $this->ejercicio->codejercicio . ' (' . $this->ejercicio->nombre . ')';
 
-                if (isset($_GET['cerrar']) AND isset($_GET['petid'])) {
+                if (isset($_GET['cerrar']) && isset($_GET['petid'])) {
                     if ($this->duplicated_petition($_GET['petid'])) {
                         $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
                     } else
@@ -290,7 +290,7 @@ class contabilidad_ejercicio extends fbase_controller
                 unlink('tmp/' . FS_TMP_NAME . 'ejercicio.xml');
             }
 
-            if ($_POST['fuente'] == 'archivo' AND isset($_POST['archivo'])) {
+            if ($_POST['fuente'] == 'archivo' && isset($_POST['archivo'])) {
                 if (copy($_FILES['farchivo']['tmp_name'], 'tmp/' . FS_TMP_NAME . 'ejercicio.xml')) {
                     $import_step = 1;
                     $this->url_recarga = $this->url() . '&importar=' . (1 + $import_step);
@@ -318,7 +318,7 @@ class contabilidad_ejercicio extends fbase_controller
             }
         }
 
-        if (file_exists('tmp/' . FS_TMP_NAME . 'ejercicio.xml') AND $import_step > 0) {
+        if (file_exists('tmp/' . FS_TMP_NAME . 'ejercicio.xml') && $import_step > 0) {
             $offset = 0;
             if (isset($_GET['offset'])) {
                 $offset = intval($_GET['offset']);
@@ -334,7 +334,7 @@ class contabilidad_ejercicio extends fbase_controller
 
             $xml = simplexml_load_file('tmp/' . FS_TMP_NAME . 'ejercicio.xml');
             if ($xml) {
-                if ($xml->balance AND $import_step == 1) {
+                if ($xml->balance && $import_step == 1) {
                     foreach ($xml->balance as $b) {
                         $balance = new balance();
                         if (!$balance->get($b->codbalance)) {
@@ -363,7 +363,7 @@ class contabilidad_ejercicio extends fbase_controller
                         foreach ($xml->balance_cuenta as $bc) {
                             $encontrado = FALSE;
                             foreach ($all_bcs as $bc2) {
-                                if ($bc2->codbalance == $bc->codbalance AND $bc2->codcuenta == $bc->codcuenta) {
+                                if ($bc2->codbalance == $bc->codbalance && $bc2->codcuenta == $bc->codcuenta) {
                                     $encontrado = TRUE;
                                     break;
                                 }
@@ -387,7 +387,7 @@ class contabilidad_ejercicio extends fbase_controller
                         foreach ($xml->balance_cuenta_a as $bc) {
                             $encontrado = FALSE;
                             foreach ($all_bcas as $bc2) {
-                                if ($bc2->codbalance == $bc->codbalance AND $bc2->codcuenta == $bc->codcuenta) {
+                                if ($bc2->codbalance == $bc->codbalance && $bc2->codcuenta == $bc->codcuenta) {
                                     $encontrado = TRUE;
                                     break;
                                 }
@@ -466,7 +466,7 @@ class contabilidad_ejercicio extends fbase_controller
                     }
                 }
 
-                if ($xml->cuenta AND $import_step == 3) {
+                if ($xml->cuenta && $import_step == 3) {
                     $epigrafe = new epigrafe();
                     foreach ($xml->cuenta as $c) {
                         $cuenta = new cuenta();
@@ -488,7 +488,7 @@ class contabilidad_ejercicio extends fbase_controller
                     }
                 }
 
-                if ($xml->subcuenta AND $import_step == 4) {
+                if ($xml->subcuenta && $import_step == 4) {
                     $cuenta = new cuenta();
                     foreach ($xml->subcuenta as $sc) {
                         $subcuenta = new subcuenta();
@@ -534,7 +534,7 @@ class contabilidad_ejercicio extends fbase_controller
                             }
                         }
 
-                        if ($error OR count($this->get_errors()) > 0) {
+                        if ($error || count($this->get_errors()) > 0) {
                             $this->new_error_msg('Proceso detenido.');
                             $this->url_recarga = FALSE;
                             break;
@@ -562,7 +562,7 @@ class contabilidad_ejercicio extends fbase_controller
                             }
                         }
 
-                        if ($error OR count($this->get_errors()) > 0) {
+                        if ($error || count($this->get_errors()) > 0) {
                             $this->new_error_msg('Proceso detenido.');
                             $this->url_recarga = FALSE;
                             break;

@@ -571,7 +571,7 @@
                <form action="{$fsc->url()}#direcciones" method="post" class="form">
                   <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
                   <input type="hidden" name="coddir" value="{$value->id}"/>
-                  <div class='panel {if="$value->domfacturacion OR $value->domenvio"}panel-primary{else}panel-default{/if}'>
+                  <div class='panel {if="$value->domfacturacion || $value->domenvio"}panel-primary{else}panel-default{/if}'>
                      <div class="panel-heading">
                         <h3 class="panel-title">
                            <span class="glyphicon glyphicon-road"></span>&nbsp; {$value->id} &nbsp; | &nbsp;

@@ -51,7 +51,7 @@ class cliente_propiedad extends \fs_model
 
     public function exists()
     {
-        if (is_null($this->name) OR is_null($this->codcliente)) {
+        if (is_null($this->name) || is_null($this->codcliente)) {
             return FALSE;
         }
 

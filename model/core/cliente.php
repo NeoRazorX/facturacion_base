@@ -320,7 +320,7 @@ class cliente extends \fs_model
      */
     public function get_by_cifnif($cifnif, $razon = FALSE)
     {
-        if ($cifnif == '' AND $razon) {
+        if ($cifnif == '' && $razon) {
             $razon = $this->no_html(mb_strtolower($razon, 'UTF8'));
             $sql = "SELECT * FROM " . $this->table_name . " WHERE cifnif = '' AND lower(razonsocial) = " . $this->var2str($razon) . ";";
         } else {
@@ -496,7 +496,7 @@ class cliente extends \fs_model
         /// validamos los dias de pago
         $array_dias = array();
         foreach (str_getcsv($this->diaspago) as $d) {
-            if (intval($d) >= 1 AND intval($d) <= 31) {
+            if (intval($d) >= 1 && intval($d) <= 31) {
                 $array_dias[] = intval($d);
             }
         }
@@ -507,12 +507,13 @@ class cliente extends \fs_model
 
         if (!preg_match("/^[A-Z0-9]{1,6}$/i", $this->codcliente)) {
             $this->new_error_msg("Código de cliente no válido: " . $this->codcliente);
-        } else if (strlen($this->nombre) < 1 OR strlen($this->nombre) > 100) {
+        } else if (strlen($this->nombre) < 1 || strlen($this->nombre) > 100) {
             $this->new_error_msg("Nombre de cliente no válido: " . $this->nombre);
-        } else if (strlen($this->razonsocial) < 1 OR strlen($this->razonsocial) > 100) {
+        } else if (strlen($this->razonsocial) < 1 || strlen($this->razonsocial) > 100) {
             $this->new_error_msg("Razón social del cliente no válida: " . $this->razonsocial);
-        } else
+        } else {
             $status = TRUE;
+        }
 
         return $status;
     }

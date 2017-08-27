@@ -81,7 +81,7 @@ class contabilidad_cuenta extends fbase_controller
     {
         $cuenta = new cuenta();
         $this->cuenta = $cuenta->get($_GET['id']);
-        if ($this->cuenta AND isset($_POST['descripcion'])) {
+        if ($this->cuenta && isset($_POST['descripcion'])) {
             $this->cuenta->descripcion = $_POST['descripcion'];
             if ($_POST['idcuentaesp'] == '---') {
                 $this->cuenta->idcuentaesp = NULL;

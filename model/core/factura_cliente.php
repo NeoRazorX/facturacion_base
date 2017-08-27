@@ -428,7 +428,7 @@ class factura_cliente extends \fs_model
 
             $data = $this->db->select($sql);
             if ($data) {
-                if (strtotime($data[0]['hora']) > strtotime($hora) OR $cambio) {
+                if (strtotime($data[0]['hora']) > strtotime($hora) || $cambio) {
                     $hora = date('H:i:s', strtotime($data[0]['hora']));
                     $cambio = TRUE;
                 }
@@ -554,7 +554,7 @@ class factura_cliente extends \fs_model
                     $i = 0;
                     $encontrada = FALSE;
                     while ($i < count($lineasi)) {
-                        if ($l->iva == $lineasi[$i]->iva AND $l->recargo == $lineasi[$i]->recargo) {
+                        if ($l->iva == $lineasi[$i]->iva && $l->recargo == $lineasi[$i]->recargo) {
                             $encontrada = TRUE;
                             $lineasi[$i]->neto += $l->pvptotal;
                             $lineasi[$i]->totaliva += ($l->pvptotal * $l->iva) / 100.0;
@@ -839,7 +839,7 @@ class factura_cliente extends \fs_model
         $ejercicio = new \ejercicio();
         $eje0 = $ejercicio->get($this->codejercicio);
         if ($eje0) {
-            if (strtotime($this->fecha) < strtotime($eje0->fechainicio) OR strtotime($this->fecha) > strtotime($eje0->fechafin)) {
+            if (strtotime($this->fecha) < strtotime($eje0->fechainicio) || strtotime($this->fecha) > strtotime($eje0->fechafin)) {
                 $status = FALSE;
                 $this->new_error_msg("La fecha de esta factura está fuera del rango del"
                     . " <a target='_blank' href='" . $eje0->url() . "'>ejercicio</a>.");
@@ -916,10 +916,10 @@ class factura_cliente extends \fs_model
         if (isset($this->idasiento)) {
             $asiento = $this->get_asiento();
             if ($asiento) {
-                if ($asiento->tipodocumento != 'Factura de cliente' OR $asiento->documento != $this->codigo) {
+                if ($asiento->tipodocumento != 'Factura de cliente' || $asiento->documento != $this->codigo) {
                     $this->new_error_msg("Esta factura apunta a un <a href='" . $this->asiento_url() . "'>asiento incorrecto</a>.");
                     $status = FALSE;
-                } else if ($this->coddivisa == $this->default_items->coddivisa() AND ( abs($asiento->importe) - abs($this->total + $this->totalirpf) >= .02)) {
+                } else if ($this->coddivisa == $this->default_items->coddivisa() && ( abs($asiento->importe) - abs($this->total + $this->totalirpf) >= .02)) {
                     $this->new_error_msg("El importe del asiento es distinto al de la factura.");
                     $status = FALSE;
                 } else {
@@ -939,7 +939,7 @@ class factura_cliente extends \fs_model
             }
         }
 
-        if ($status AND $duplicados) {
+        if ($status && $duplicados) {
             /// comprobamos si es un duplicado
             $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE fecha = " . $this->var2str($this->fecha)
                 . " AND codcliente = " . $this->var2str($this->codcliente)

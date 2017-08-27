@@ -263,13 +263,13 @@ class asiento extends \fs_model
         $ejercicio = new \ejercicio();
         $eje0 = $ejercicio->get($this->codejercicio);
         if ($eje0) {
-            if (strtotime($this->fecha) < strtotime($eje0->fechainicio) OR strtotime($this->fecha) > strtotime($eje0->fechafin)) {
+            if (strtotime($this->fecha) < strtotime($eje0->fechainicio) || strtotime($this->fecha) > strtotime($eje0->fechafin)) {
                 $this->new_error_msg("La fecha de este asiento está fuera del rango del <a target='_blank' href='" . $eje0->url() . "'>ejercicio</a>.");
                 $status = FALSE;
             }
         }
 
-        if ($status AND $duplicados) {
+        if ($status && $duplicados) {
             /// comprobamos si es un duplicado
             $asientos = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE fecha = " . $this->var2str($this->fecha) . "
             AND concepto = " . $this->var2str($this->concepto) . " AND importe = " . $this->var2str($this->importe) . "
@@ -550,7 +550,7 @@ class asiento extends \fs_model
                 . " ORDER BY codejercicio ASC, fecha ASC, idasiento ASC";
 
             $asientos = $this->db->select_limit($consulta, 1000, $posicion);
-            while ($asientos AND $continuar) {
+            while ($asientos && $continuar) {
                 foreach ($asientos as $col) {
                     if ($col['numero'] != $numero) {
                         $sql .= "UPDATE " . $this->table_name . " SET numero = " . $this->var2str($numero)

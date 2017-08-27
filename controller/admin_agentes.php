@@ -90,8 +90,9 @@ class admin_agentes extends fbase_controller
         if ($age0->save()) {
             $this->new_message("Empleado " . $age0->codagente . " guardado correctamente.");
             header('location: ' . $age0->url());
-        } else
+        } else {
             $this->new_error_msg("¡Imposible guardar el empleado!");
+        }
     }
 
     private function eliminar_agente()
@@ -104,10 +105,12 @@ class admin_agentes extends fbase_controller
                 $this->new_error_msg('No tienes permiso para eliminar en esta página.');
             } else if ($age0->delete()) {
                 $this->new_message("Empleado " . $age0->codagente . " eliminado correctamente.");
-            } else
+            } else {
                 $this->new_error_msg("¡Imposible eliminar el empleado!");
-        } else
+            }
+        } else {
             $this->new_error_msg("¡Empleado no encontrado!");
+        }
     }
 
     public function paginas()

@@ -49,7 +49,7 @@ class compras_imprimir extends fs_controller
         $this->proveedor = FALSE;
         $this->cargar_config();
 
-        if (isset($_REQUEST['albaran']) AND isset($_REQUEST['id'])) {
+        if (isset($_REQUEST['albaran']) && isset($_REQUEST['id'])) {
             $this->articulo_traza = new articulo_traza();
 
             $alb = new albaran_proveedor();
@@ -64,7 +64,7 @@ class compras_imprimir extends fs_controller
             } else {
                 $this->generar_pdf_albaran();
             }
-        } else if (isset($_REQUEST['factura']) AND isset($_REQUEST['id'])) {
+        } else if (isset($_REQUEST['factura']) && isset($_REQUEST['id'])) {
             $this->articulo_traza = new articulo_traza();
 
             $fac = new factura_proveedor();
@@ -138,7 +138,7 @@ class compras_imprimir extends fs_controller
             while ($linea_a < count($lineas)) {
                 $lppag2 = $lppag;
                 foreach ($lineas as $i => $lin) {
-                    if ($i >= $linea_a AND $i < $linea_a + $lppag2) {
+                    if ($i >= $linea_a && $i < $linea_a + $lppag2) {
                         $linea_size = 1;
                         $len = mb_strlen($lin->referencia . ' ' . $lin->descripcion);
                         while ($len > 85) {
@@ -210,7 +210,7 @@ class compras_imprimir extends fs_controller
             }
 
             /// restamos líneas al documento en función del tamaño de la descripción
-            if ($i >= $linea_actual AND $i < $linea_actual + $lppag) {
+            if ($i >= $linea_actual && $i < $linea_actual + $lppag) {
                 $linea_size = 1;
                 $len = mb_strlen($lin->referencia . ' ' . $lin->descripcion);
                 while ($len > 85) {
@@ -258,7 +258,7 @@ class compras_imprimir extends fs_controller
         $table_header['importe'] = '<b>Importe</b>';
         $pdf_doc->add_table_header($table_header);
 
-        for ($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ( $linea_actual < count($lineas)));) {
+        for ($i = $linea_actual; (($linea_actual < ($lppag + $i)) && ( $linea_actual < count($lineas)));) {
             $descripcion = fs_fix_html($lineas[$linea_actual]->descripcion);
             if (!is_null($lineas[$linea_actual]->referencia) && $this->impresion['print_ref']) {
                 $descripcion = '<b>' . $this->get_referencia_proveedor($lineas[$linea_actual]->referencia)
@@ -355,7 +355,7 @@ class compras_imprimir extends fs_controller
                 $salto = '';
             }
 
-            if ($lt->lote AND $lt->lote != $lote) {
+            if ($lt->lote && $lt->lote != $lote) {
                 $txt .= $salto . 'Lote: ' . $lt->lote;
                 $lote = $lt->lote;
             }

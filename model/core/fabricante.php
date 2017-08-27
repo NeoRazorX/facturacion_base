@@ -101,9 +101,9 @@ class fabricante extends \fs_model
         $this->codfabricante = $this->no_html($this->codfabricante);
         $this->nombre = $this->no_html($this->nombre);
 
-        if (strlen($this->codfabricante) < 1 OR strlen($this->codfabricante) > 8) {
+        if (strlen($this->codfabricante) < 1 || strlen($this->codfabricante) > 8) {
             $this->new_error_msg("Código de fabricante no válido. Deben ser entre 1 y 8 caracteres.");
-        } else if (strlen($this->nombre) < 1 OR strlen($this->nombre) > 100) {
+        } else if (strlen($this->nombre) < 1 || strlen($this->nombre) > 100) {
             $this->new_error_msg("Descripción de fabricante no válida.");
         } else {
             $status = TRUE;

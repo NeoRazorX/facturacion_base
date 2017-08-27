@@ -221,7 +221,7 @@ class ventas_clientes extends fbase_controller
             $and = ' AND ';
         }
 
-        if ($this->ciudad != '' OR $this->provincia != '' OR $this->codpais != '') {
+        if ($this->ciudad != '' || $this->provincia != '' || $this->codpais != '') {
             $sql .= $and . " codcliente IN (SELECT codcliente FROM dirclientes WHERE ";
             $and2 = '';
 

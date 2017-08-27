@@ -278,7 +278,7 @@ class linea_albaran_cliente extends \fs_model
 
     public function articulo_url()
     {
-        if (is_null($this->referencia) OR $this->referencia == '') {
+        if (is_null($this->referencia) || $this->referencia == '') {
             return "index.php?page=ventas_articulos";
         }
 

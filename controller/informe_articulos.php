@@ -300,7 +300,7 @@ class informe_articulos extends fbase_controller
     {
         /// buscamos el resultado en caché
         $toplist = $this->cache->get_array('faccli_top_articulos');
-        if (!$toplist OR isset($_POST['desde'])) {
+        if (!$toplist || isset($_POST['desde'])) {
             $toplist = array();
             $articulo = new articulo();
             $sql = "SELECT l.referencia, SUM(l.cantidad) as unidades, SUM(l.pvptotal/f.tasaconv) as total"
@@ -362,7 +362,7 @@ class informe_articulos extends fbase_controller
     private function top_articulo_facpro()
     {
         $toplist = $this->cache->get('facpro_top_articulos');
-        if (!$toplist OR isset($_POST['desde'])) {
+        if (!$toplist || isset($_POST['desde'])) {
             $articulo = new articulo();
             $sql = "SELECT l.referencia, SUM(l.cantidad) as compras FROM lineasfacturasprov l, facturasprov f"
                 . " WHERE l.idfactura = f.idfactura AND l.referencia IS NOT NULL"

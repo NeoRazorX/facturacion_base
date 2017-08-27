@@ -226,7 +226,7 @@ class linea_factura_cliente extends \fs_model
             foreach (self::$albaranes as $a) {
                 if ($a->idalbaran == $this->idalbaran) {
                     $this->albaran_codigo = $a->codigo;
-                    if (is_null($a->numero2) OR $a->numero2 == '') {
+                    if (is_null($a->numero2) || $a->numero2 == '') {
                         $this->albaran_numero = $a->numero;
                     } else {
                         $this->albaran_numero = $a->numero2;
@@ -241,7 +241,7 @@ class linea_factura_cliente extends \fs_model
                 $alb = $alb->get($this->idalbaran);
                 if ($alb) {
                     $this->albaran_codigo = $alb->codigo;
-                    if (is_null($alb->numero2) OR $alb->numero2 == '') {
+                    if (is_null($alb->numero2) || $alb->numero2 == '') {
                         $this->albaran_numero = $alb->numero;
                     } else {
                         $this->albaran_numero = $alb->numero2;
@@ -338,7 +338,7 @@ class linea_factura_cliente extends \fs_model
 
     public function articulo_url()
     {
-        if (is_null($this->referencia) OR $this->referencia == '') {
+        if (is_null($this->referencia) || $this->referencia == '') {
             return "index.php?page=ventas_articulos";
         }
 

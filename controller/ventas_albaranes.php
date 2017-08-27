@@ -116,7 +116,7 @@ class ventas_albaranes extends fbase_controller
             if (isset($_POST['delete'])) {
                 $this->delete_albaran();
             } else {
-                if (!isset($_GET['mostrar']) AND ( $this->query != '' OR isset($_REQUEST['codagente']) OR isset($_REQUEST['codcliente']) OR isset($_REQUEST['codserie']))) {
+                if (!isset($_GET['mostrar']) && ( $this->query != '' || isset($_REQUEST['codagente']) || isset($_REQUEST['codcliente']) || isset($_REQUEST['codserie']))) {
                     /**
                      * si obtenermos un codagente, un codcliente o un codserie pasamos direcatemente
                      * a la pestaña de búsqueda, a menos que tengamos un mostrar, que
@@ -266,7 +266,7 @@ class ventas_albaranes extends fbase_controller
                              * no tocamos, porque sigue estando ese otro albarán.
                              * (las facturas pueden agrupar albaranes).
                              */
-                            if ($linea->referencia AND ( is_null($linea->idalbaran) OR $linea->idalbaran == $alb1->idalbaran)) {
+                            if ($linea->referencia && ( is_null($linea->idalbaran) || $linea->idalbaran == $alb1->idalbaran)) {
                                 $art0 = $articulo->get($linea->referencia);
                                 if ($art0) {
                                     $art0->sum_stock($alb1->codalmacen, $linea->cantidad, FALSE, $linea->codcombinacion);

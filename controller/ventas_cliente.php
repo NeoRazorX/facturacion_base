@@ -86,8 +86,9 @@ class ventas_cliente extends fbase_controller
             return parent::url();
         } else if ($this->cliente) {
             return $this->cliente->url();
-        } else
-            return $this->ppage->url();
+        }
+        
+        return $this->ppage->url();
     }
 
     private function modificar()
@@ -155,8 +156,9 @@ class ventas_cliente extends fbase_controller
 
         if ($cuentab->save()) {
             $this->new_message('Cuenta bancaria guardada correctamente.');
-        } else
+        } else {
             $this->new_error_msg('Imposible guardar la cuenta bancaria.');
+        }
     }
 
     private function delete_cuenta_banco()
@@ -234,8 +236,9 @@ class ventas_cliente extends fbase_controller
         if ($proveedor->save()) {
             $this->cliente->codproveedor = $proveedor->codproveedor;
             $proveedor_ok = $this->cliente->save();
-        } else
+        } else {
             $proveedor_ok = FALSE;
+        }
 
         if ($proveedor_ok) {
             /* cuentas de banco */
@@ -263,8 +266,9 @@ class ventas_cliente extends fbase_controller
             }
 
             $this->new_message('Proveedor creado correctamente.');
-        } else
+        } else {
             $this->new_error_msg("¡Imposible crear el proveedor!");
+        }
     }
 
     public function tiene_facturas()
@@ -280,7 +284,7 @@ class ventas_cliente extends fbase_controller
             }
         }
 
-        if (!$tiene AND $this->db->table_exists('albaranescli')) {
+        if (!$tiene && $this->db->table_exists('albaranescli')) {
             $sql = "SELECT * FROM albaranescli WHERE codcliente = " . $this->cliente->var2str($this->cliente->codcliente);
 
             $data = $this->db->select_limit($sql, 5, 0);

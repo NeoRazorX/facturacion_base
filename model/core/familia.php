@@ -133,9 +133,9 @@ class familia extends \fs_model
         $this->codfamilia = $this->no_html($this->codfamilia);
         $this->descripcion = $this->no_html($this->descripcion);
 
-        if (strlen($this->codfamilia) < 1 OR strlen($this->codfamilia) > 8) {
+        if (strlen($this->codfamilia) < 1 || strlen($this->codfamilia) > 8) {
             $this->new_error_msg("Código de familia no válido. Deben ser entre 1 y 8 caracteres.");
-        } else if (strlen($this->descripcion) < 1 OR strlen($this->descripcion) > 100) {
+        } else if (strlen($this->descripcion) < 1 || strlen($this->descripcion) > 100) {
             $this->new_error_msg("Descripción de familia no válida.");
         } else {
             $status = TRUE;

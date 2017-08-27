@@ -570,7 +570,7 @@ class albaran_cliente extends \fs_model
             }
         }
 
-        if ($status AND $duplicados) {
+        if ($status && $duplicados) {
             /// comprobamos si es un duplicado
             $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE fecha = " . $this->var2str($this->fecha)
                 . " AND codcliente = " . $this->var2str($this->codcliente)

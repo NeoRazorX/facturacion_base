@@ -308,7 +308,7 @@ class subcuenta extends \fs_model
             $this->clean_cache();
         }
 
-        if (strlen($this->codsubcuenta) > 0 AND strlen($this->descripcion) > 0) {
+        if (strlen($this->codsubcuenta) > 0 && strlen($this->descripcion) > 0) {
             return TRUE;
         }
 
@@ -442,7 +442,7 @@ class subcuenta extends \fs_model
     {
         $sublist = array();
 
-        if ($random AND $limit) {
+        if ($random && $limit) {
             if (strtolower(FS_DB_TYPE) == 'mysql') {
                 $sql = "SELECT * FROM " . $this->table_name . " WHERE codejercicio = "
                     . $this->var2str($codejercicio) . " ORDER BY RAND()";

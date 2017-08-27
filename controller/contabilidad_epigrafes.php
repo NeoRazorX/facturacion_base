@@ -117,7 +117,7 @@ class contabilidad_epigrafes extends fbase_controller
     {
         $this->epigrafe = FALSE;
         $this->grupo = $grupo0->get($_GET['grupo']);
-        if ($this->grupo AND isset($_POST['descripcion'])) {
+        if ($this->grupo && isset($_POST['descripcion'])) {
             $this->grupo->descripcion = $_POST['descripcion'];
             if ($this->grupo->save()) {
                 $this->new_message('Grupo modificado correctamente.');
@@ -174,7 +174,7 @@ class contabilidad_epigrafes extends fbase_controller
     {
         $this->grupo = FALSE;
         $this->epigrafe = $epi0->get($_GET['epi']);
-        if ($this->ejercicio AND isset($_POST['descripcion'])) {
+        if ($this->ejercicio && isset($_POST['descripcion'])) {
             $this->epigrafe->descripcion = $_POST['descripcion'];
 
             if ($this->epigrafe->save()) {

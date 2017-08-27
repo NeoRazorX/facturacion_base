@@ -40,7 +40,7 @@ class ventas_trazabilidad extends fs_controller
     protected function private_core()
     {
         $this->documento = FALSE;
-        if (isset($_GET['doc']) AND isset($_GET['id'])) {
+        if (isset($_GET['doc']) && isset($_GET['id'])) {
             if ($_GET['doc'] == 'albaran') {
                 $alb = new albaran_cliente();
                 $this->documento = $alb->get($_GET['id']);

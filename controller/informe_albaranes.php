@@ -802,7 +802,7 @@ class informe_albaranes extends fbase_controller
                     )
                 );
 
-                for ($i = 0; $i < $lppag AND $linea_actual < $total_lineas; $i++) {
+                for ($i = 0; $i < $lppag && $linea_actual < $total_lineas; $i++) {
                     $linea = array(
                         'serie' => $documentos[$linea_actual]->codserie,
                         'doc' => $documentos[$linea_actual]->codigo,

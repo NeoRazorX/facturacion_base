@@ -211,7 +211,7 @@ class dashboard extends fs_controller
             $this->calcular_facturas($stats, $desde_anterior, $hasta_anterior, TRUE, 'facturasprov');
         }
 
-        if ($this->db->table_exists('co_partidas') AND $this->empresa->codpais == 'ESP') {
+        if ($this->db->table_exists('co_partidas') && $this->empresa->codpais == 'ESP') {
             /// calculamos el saldo de todos aquellos asientos que afecten a caja y no se correspondan con facturas
             $sql = "select sum(debe-haber) as total from co_partidas where codsubcuenta LIKE '57%' and idasiento"
                 . " in (select idasiento from co_asientos where tipodocumento IS NULL"
@@ -398,10 +398,10 @@ class dashboard extends fs_controller
 
     private function calcular_diff($nuevo, $anterior)
     {
-        if ($nuevo == 0 OR $anterior == 0) {
-            if ($nuevo == 0 AND $anterior > 0) {
+        if ($nuevo == 0 || $anterior == 0) {
+            if ($nuevo == 0 && $anterior > 0) {
                 return -100;
-            } else if ($nuevo > 0 AND $anterior == 0) {
+            } else if ($nuevo > 0 && $anterior == 0) {
                 return 100;
             } else
                 return 0;

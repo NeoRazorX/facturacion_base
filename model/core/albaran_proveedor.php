@@ -450,7 +450,7 @@ class albaran_proveedor extends \fs_model
             }
         }
 
-        if ($status AND $duplicados) {
+        if ($status && $duplicados) {
             /// comprobamos si es un duplicado
             $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE fecha = " . $this->var2str($this->fecha)
                 . " AND codproveedor = " . $this->var2str($this->codproveedor)

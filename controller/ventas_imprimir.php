@@ -40,7 +40,7 @@ class ventas_imprimir extends compras_imprimir
         $this->impuesto = new impuesto();
         $this->cargar_config();
 
-        if (isset($_REQUEST['albaran']) AND isset($_REQUEST['id'])) {
+        if (isset($_REQUEST['albaran']) && isset($_REQUEST['id'])) {
             $this->articulo_traza = new articulo_traza();
 
             $alb = new albaran_cliente();
@@ -55,7 +55,7 @@ class ventas_imprimir extends compras_imprimir
             } else {
                 $this->generar_pdf_albaran();
             }
-        } else if (isset($_REQUEST['factura']) AND isset($_REQUEST['id'])) {
+        } else if (isset($_REQUEST['factura']) && isset($_REQUEST['id'])) {
             $this->articulo_traza = new articulo_traza();
 
             $fac = new factura_cliente();
@@ -144,7 +144,7 @@ class ventas_imprimir extends compras_imprimir
             while ($linea_a < count($lineas)) {
                 $lppag2 = $lppag;
                 foreach ($lineas as $i => $lin) {
-                    if ($i >= $linea_a AND $i < $linea_a + $lppag2) {
+                    if ($i >= $linea_a && $i < $linea_a + $lppag2) {
                         $linea_size = 1;
                         $len = mb_strlen($lin->referencia . ' ' . $lin->descripcion);
                         while ($len > 85) {
@@ -216,7 +216,7 @@ class ventas_imprimir extends compras_imprimir
             }
 
             /// restamos líneas al documento en función del tamaño de la descripción
-            if ($i >= $linea_actual AND $i < $linea_actual + $lppag) {
+            if ($i >= $linea_actual && $i < $linea_actual + $lppag) {
                 $linea_size = 1;
                 $len = mb_strlen($lin->referencia . ' ' . $lin->descripcion);
                 while ($len > 85) {
@@ -266,19 +266,19 @@ class ventas_imprimir extends compras_imprimir
             unset($table_header['alb']);
         }
 
-        if ($this->impresion['print_dto'] AND ! isset($_GET['noval'])) {
+        if ($this->impresion['print_dto'] && ! isset($_GET['noval'])) {
             $table_header['dto'] = '<b>Dto.</b>';
         }
 
-        if ($multi_iva AND ! isset($_GET['noval'])) {
+        if ($multi_iva && ! isset($_GET['noval'])) {
             $table_header['iva'] = '<b>' . FS_IVA . '</b>';
         }
 
-        if ($multi_re AND ! isset($_GET['noval'])) {
+        if ($multi_re && ! isset($_GET['noval'])) {
             $table_header['re'] = '<b>R.E.</b>';
         }
 
-        if ($multi_irpf AND ! isset($_GET['noval'])) {
+        if ($multi_irpf && ! isset($_GET['noval'])) {
             $table_header['irpf'] = '<b>' . FS_IRPF . '</b>';
         }
 
@@ -290,7 +290,7 @@ class ventas_imprimir extends compras_imprimir
 
         $pdf_doc->add_table_header($table_header);
 
-        for ($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ( $linea_actual < count($lineas)));) {
+        for ($i = $linea_actual; (($linea_actual < ($lppag + $i)) && ( $linea_actual < count($lineas)));) {
             $descripcion = fs_fix_html($lineas[$linea_actual]->descripcion);
             if (!is_null($lineas[$linea_actual]->referencia) && $this->impresion['print_ref']) {
                 $descripcion = '<b>' . $lineas[$linea_actual]->referencia . '</b> ' . $descripcion;
@@ -336,7 +336,7 @@ class ventas_imprimir extends compras_imprimir
                 $fila['importe'] = '';
             }
 
-            if (get_class_name($lineas[$linea_actual]) == 'linea_factura_cliente' AND $this->impresion['print_alb']) {
+            if (get_class_name($lineas[$linea_actual]) == 'linea_factura_cliente' && $this->impresion['print_alb']) {
                 $fila['alb'] = $lineas[$linea_actual]->albaran_numero();
             }
 
@@ -688,7 +688,7 @@ class ventas_imprimir extends compras_imprimir
                 $this->generar_pdf_lineas_venta($pdf_doc, $lineas, $linea_actual, $lppag, $this->documento);
 
                 if ($linea_actual == count($lineas)) {
-                    if (!$this->documento->pagada AND $this->impresion['print_formapago']) {
+                    if (!$this->documento->pagada && $this->impresion['print_formapago']) {
                         $fp0 = new forma_pago();
                         $forma_pago = $fp0->get($this->documento->codpago);
                         if ($forma_pago) {
@@ -777,7 +777,7 @@ class ventas_imprimir extends compras_imprimir
             }
 
             $razonsocial = $this->documento->nombrecliente;
-            if ($this->cliente && $_POST['email'] != $this->cliente->email AND isset($_POST['guardar'])) {
+            if ($this->cliente && $_POST['email'] != $this->cliente->email && isset($_POST['guardar'])) {
                 $this->cliente->email = $_POST['email'];
                 $this->cliente->save();
             }

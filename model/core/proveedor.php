@@ -280,7 +280,7 @@ class proveedor extends \fs_model
      */
     public function get_by_cifnif($cifnif, $razon = FALSE)
     {
-        if ($cifnif == '' AND $razon) {
+        if ($cifnif == '' && $razon) {
             $razon = mb_strtolower($this->no_html($razon), 'UTF8');
             $sql = "SELECT * FROM " . $this->table_name . " WHERE cifnif = ''"
                 . " AND lower(razonsocial) = " . $this->var2str($razon) . ";";
@@ -461,9 +461,9 @@ class proveedor extends \fs_model
 
         if (!preg_match("/^[A-Z0-9]{1,6}$/i", $this->codproveedor)) {
             $this->new_error_msg("Código de proveedor no válido.");
-        } else if (strlen($this->nombre) < 1 OR strlen($this->nombre) > 100) {
+        } else if (strlen($this->nombre) < 1 || strlen($this->nombre) > 100) {
             $this->new_error_msg("Nombre de proveedor no válido.");
-        } else if (strlen($this->razonsocial) < 1 OR strlen($this->razonsocial) > 100) {
+        } else if (strlen($this->razonsocial) < 1 || strlen($this->razonsocial) > 100) {
             $this->new_error_msg("Razón social del proveedor no válida.");
         } else {
             $status = TRUE;

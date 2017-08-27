@@ -99,7 +99,7 @@ class articulo_traza extends \fs_model
             }
 
             $this->fecha_salida = NULL;
-            if (isset($data['fecha_salida']) AND ( $this->idlalbventa OR $this->idlfacventa)) {
+            if (isset($data['fecha_salida']) && ( $this->idlalbventa || $this->idlfacventa)) {
                 $this->fecha_salida = date('d-m-Y', strtotime($data['fecha_salida']));
             }
         } else {

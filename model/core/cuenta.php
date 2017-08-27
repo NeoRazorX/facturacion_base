@@ -156,7 +156,7 @@ class cuenta extends \fs_model
     {
         $this->descripcion = $this->no_html($this->descripcion);
 
-        if (strlen($this->codcuenta) > 0 AND strlen($this->descripcion) > 0) {
+        if (strlen($this->codcuenta) > 0 && strlen($this->descripcion) > 0) {
             return TRUE;
         }
 

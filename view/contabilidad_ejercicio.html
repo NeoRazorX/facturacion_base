@@ -9,7 +9,7 @@
    $(document).ready(function() {
       {if="$fsc->url_recarga"}
          setTimeout("location.href = '{$fsc->url_recarga}';", 2000);
-      {elseif="!$fsc->listado AND $fsc->ejercicio->estado == 'ABIERTO' AND $fsc->listar!='grupos'"}
+      {elseif="!$fsc->listado && $fsc->ejercicio->estado == 'ABIERTO' && $fsc->listar!='grupos'"}
          $("#modal_importar").modal('show');
       {/if}
       
@@ -46,7 +46,7 @@
                   <span class="glyphicon glyphicon-refresh"></span>
                </a>
             </div>
-            {if="$fsc->asiento_apertura_url OR $fsc->asiento_cierre_url OR $fsc->asiento_pyg_url"}
+            {if="$fsc->asiento_apertura_url || $fsc->asiento_cierre_url || $fsc->asiento_pyg_url"}
             <div class="btn-group">
                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                   Asiento... <span class="caret"></span>

@@ -128,8 +128,9 @@ class ventas_articulo extends fbase_controller
     {
         if ($this->articulo) {
             return $this->articulo->url();
-        } else
-            return $this->page->url();
+        }
+        
+        return $this->page->url();
     }
 
     private function check_extensions()
@@ -140,7 +141,7 @@ class ventas_articulo extends fbase_controller
          */
         $this->mostrar_boton_publicar = TRUE;
         foreach ($this->extensions as $ext) {
-            if ($ext->type == 'config' AND $ext->text == 'no_button_publicar') {
+            if ($ext->type == 'config' && $ext->text == 'no_button_publicar') {
                 $this->mostrar_boton_publicar = FALSE;
                 break;
             }
@@ -164,7 +165,7 @@ class ventas_articulo extends fbase_controller
          */
         $this->mostrar_tab_precios = TRUE;
         foreach ($this->extensions as $ext) {
-            if ($ext->type == 'config' AND $ext->text == 'no_tab_precios') {
+            if ($ext->type == 'config' && $ext->text == 'no_tab_precios') {
                 $this->mostrar_tab_precios = FALSE;
                 break;
             }
@@ -176,7 +177,7 @@ class ventas_articulo extends fbase_controller
          */
         $this->mostrar_tab_stock = TRUE;
         foreach ($this->extensions as $ext) {
-            if ($ext->type == 'config' AND $ext->text == 'no_tab_stock') {
+            if ($ext->type == 'config' && $ext->text == 'no_tab_stock') {
                 $this->mostrar_tab_stock = FALSE;
                 break;
             }
@@ -296,8 +297,9 @@ class ventas_articulo extends fbase_controller
             $this->articulo->set_imagen(file_get_contents($_FILES['fimagen']['tmp_name']), $png);
             if ($this->articulo->save()) {
                 $this->new_message("Imagen del articulo modificada correctamente");
-            } else
+            } else {
                 $this->new_error_msg("¡Error al guardar la imagen del articulo!");
+            }
         }
     }
 
@@ -306,8 +308,9 @@ class ventas_articulo extends fbase_controller
         $this->articulo->set_imagen(NULL);
         if ($this->articulo->save()) {
             $this->new_message("Imagen del articulo eliminada correctamente");
-        } else
+        } else {
             $this->new_error_msg("¡Error al eliminar la imagen del articulo!");
+        }
     }
 
     private function modificar_articulo()
@@ -396,8 +399,9 @@ class ventas_articulo extends fbase_controller
                 $this->db->exec("UPDATE lineasfabricados SET referencia = " . $this->empresa->var2str($_POST['nreferencia'])
                     . " WHERE referencia = " . $this->empresa->var2str($_POST['referencia']) . ";");
             }
-        } else
+        } else {
             $this->new_error_msg("¡Error al guardar el articulo!");
+        }
     }
 
     private function nueva_combinacion()

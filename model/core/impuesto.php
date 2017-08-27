@@ -136,9 +136,9 @@ class impuesto extends \fs_model
         $this->codimpuesto = trim($this->codimpuesto);
         $this->descripcion = $this->no_html($this->descripcion);
 
-        if (strlen($this->codimpuesto) < 1 OR strlen($this->codimpuesto) > 10) {
+        if (strlen($this->codimpuesto) < 1 || strlen($this->codimpuesto) > 10) {
             $this->new_error_msg("Código del impuesto no válido. Debe tener entre 1 y 10 caracteres.");
-        } else if (strlen($this->descripcion) < 1 OR strlen($this->descripcion) > 50) {
+        } else if (strlen($this->descripcion) < 1 || strlen($this->descripcion) > 50) {
             $this->new_error_msg("Descripción del impuesto no válida.");
         } else {
             $status = TRUE;

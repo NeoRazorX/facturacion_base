@@ -73,7 +73,7 @@ class contabilidad_asientos extends fbase_controller
         $this->desde = '';
         $this->hasta = '';
         $this->orden = 'fecha DESC, numero DESC';
-        if (isset($_REQUEST['desde']) OR isset($_REQUEST['hasta']) OR isset($_REQUEST['orden'])) {
+        if (isset($_REQUEST['desde']) || isset($_REQUEST['hasta']) || isset($_REQUEST['orden'])) {
             $this->desde = $_REQUEST['desde'];
             $this->hasta = $_REQUEST['hasta'];
             $this->orden = $_REQUEST['orden'];
@@ -97,7 +97,7 @@ class contabilidad_asientos extends fbase_controller
             }
 
             $sql .= $where . "(numero" . $aux_sql . " LIKE '%" . $query . "%' OR concepto LIKE '%" . $query
-                . "%' OR importe BETWEEN " . ($query - .01) . " AND " . ($query + .01) . ')';
+                . "%' OR importe BETWEEN " . ($query - .01) . " && " . ($query + .01) . ')';
             $where = ' AND ';
         } else {
             $sql .= $where . "(lower(concepto) LIKE '%" . str_replace(' ', '%', $query) . "%')";

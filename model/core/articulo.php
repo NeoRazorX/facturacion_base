@@ -304,7 +304,7 @@ class articulo extends \fs_model
      */
     public function preciocoste()
     {
-        if ($this->secompra AND FS_COST_IS_AVERAGE) {
+        if ($this->secompra && FS_COST_IS_AVERAGE) {
             return $this->costemedio;
         }
 
@@ -540,14 +540,14 @@ class articulo extends \fs_model
          * Ahora comprobamos la fecha del primer elemento de una y otra lista
          * para ver cual usamos.
          */
-        if ($lineasfac AND $lineasalb) {
+        if ($lineasfac && $lineasalb) {
             if (strtotime($lineasalb[0]->show_fecha()) > strtotime($lineasfac[0]->show_fecha())) {
                 /**
                  * la fecha del último albarán es posterior a la de la última factura.
                  * Usamos los albaranes para el cálculo.
                  */
                 foreach ($lineasalb as $linea) {
-                    if ($stock < $this->stockfis OR $this->stockfis <= 0) {
+                    if ($stock < $this->stockfis || $this->stockfis <= 0) {
                         $coste += $linea->pvptotal;
                         $stock += $linea->cantidad;
                     } else {
@@ -560,7 +560,7 @@ class articulo extends \fs_model
         if (!empty($lineasfac)) {
             /// usamos las facturas para el cálculo.
             foreach ($lineasfac as $linea) {
-                if ($stock < $this->stockfis OR $this->stockfis <= 0) {
+                if ($stock < $this->stockfis || $this->stockfis <= 0) {
                     $coste += $linea->pvptotal;
                     $stock += $linea->cantidad;
                 } else {
@@ -572,7 +572,7 @@ class articulo extends \fs_model
         if (!empty($lineasalb)) {
             /// usamos los albaranes para el cálculo.
             foreach ($lineasalb as $linea) {
-                if ($stock < $this->stockfis OR $this->stockfis <= 0) {
+                if ($stock < $this->stockfis || $this->stockfis <= 0) {
                     $coste += $linea->pvptotal;
                     $stock += $linea->cantidad;
                 } else {
@@ -660,9 +660,9 @@ class articulo extends \fs_model
     public function set_referencia($ref)
     {
         $ref = trim($ref);
-        if (is_null($ref) OR strlen($ref) < 1 OR strlen($ref) > 18) {
+        if (is_null($ref) || strlen($ref) < 1 || strlen($ref) > 18) {
             $this->new_error_msg("¡Referencia de artículo no válida! Debe tener entre 1 y 18 caracteres.");
-        } else if ($ref != $this->referencia AND ! is_null($this->referencia)) {
+        } else if ($ref != $this->referencia && ! is_null($this->referencia)) {
             $sql = "UPDATE " . $this->table_name . " SET referencia = " . $this->var2str($ref)
                 . " WHERE referencia = " . $this->var2str($this->referencia) . ";";
             if ($this->db->exec($sql)) {
@@ -837,7 +837,7 @@ class articulo extends \fs_model
                     }
 
                     /// ¿Alguna combinación?
-                    if ($codcombinacion AND $result) {
+                    if ($codcombinacion && $result) {
                         $com0 = new \articulo_combinacion();
                         foreach ($com0->all_from_codigo($codcombinacion) as $combi) {
                             $combi->stockfis += $cantidad;
@@ -897,9 +897,9 @@ class articulo extends \fs_model
             $this->publico = FALSE;
         }
 
-        if (is_null($this->referencia) OR strlen($this->referencia) < 1 OR strlen($this->referencia) > 18) {
+        if (is_null($this->referencia) || strlen($this->referencia) < 1 || strlen($this->referencia) > 18) {
             $this->new_error_msg("Referencia de artículo no válida: " . $this->referencia . ". Debe tener entre 1 y 18 caracteres.");
-        } else if (isset($this->equivalencia) AND strlen($this->equivalencia) > 25) {
+        } else if (isset($this->equivalencia) && strlen($this->equivalencia) > 25) {
             $this->new_error_msg("Código de equivalencia del artículos no válido: " . $this->equivalencia .
                 ". Debe tener entre 1 y 25 caracteres.");
         } else {
@@ -947,7 +947,7 @@ class articulo extends \fs_model
                     ", trazabilidad = " . $this->var2str($this->trazabilidad) .
                     "  WHERE referencia = " . $this->var2str($this->referencia) . ";";
 
-                if ($this->nostock AND $this->stockfis != 0) {
+                if ($this->nostock && $this->stockfis != 0) {
                     $this->stockfis = 0.0;
                     $sql .= "DELETE FROM stocks WHERE referencia = " . $this->var2str($this->referencia) . ";";
                     $sql .= "UPDATE " . $this->table_name . " SET stockfis = " . $this->var2str($this->stockfis) .
@@ -1096,7 +1096,7 @@ class articulo extends \fs_model
         $artilist = array();
         $query = $this->no_html(mb_strtolower($query, 'UTF8'));
 
-        if ($query != '' AND $offset == 0 AND $codfamilia == '' AND $codfabricante == '' AND ! $con_stock AND ! $bloqueados) {
+        if ($query != '' && $offset == 0 && $codfamilia == '' && $codfabricante == '' && ! $con_stock && ! $bloqueados) {
             /// intentamos obtener los datos de memcache
             if ($this->new_search_tag($query)) {
                 $artilist = $this->cache->get_array('articulos_search_' . $query);
