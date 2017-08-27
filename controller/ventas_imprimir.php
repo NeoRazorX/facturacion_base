@@ -759,7 +759,7 @@ class ventas_imprimir extends compras_imprimir
         }
     }
 
-    private function enviar_email($doc, $tipo = 'simple')
+    public function enviar_email($doc, $tipo = 'simple')
     {
         if ($this->empresa->can_send_mail()) {
             if ($doc == 'factura') {

@@ -370,8 +370,8 @@
             {if="$value->femail"}
             <span class="glyphicon glyphicon-send" title="La factura fue enviada por email el {$value->femail}"></span>
             {/if}
-            {if="$value->envio_codtrans AND $value->envio_codigo"}
-            <span class="glyphicon glyphicon-plane" title="Mercancía enviada"></span>
+            {if=" $value->envio_codtrans != NULL && $value->envio_nombre != '' && $value->envio_direccion != '' "}
+            <span class="glyphicon glyphicon-plane" title="La factura fue enviada"></span>
             {/if}
          </td>
          <td class="text-center">
