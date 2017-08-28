@@ -68,7 +68,7 @@ class ventas_factura extends fbase_controller
          */
         $this->mostrar_boton_pagada = TRUE;
         foreach ($this->extensions as $ext) {
-            if ($ext->type == 'config' AND $ext->text == 'no_button_pagada') {
+            if ($ext->type == 'config' && $ext->text == 'no_button_pagada') {
                 $this->mostrar_boton_pagada = FALSE;
                 break;
             }
@@ -99,7 +99,7 @@ class ventas_factura extends fbase_controller
             $cliente = new cliente();
             $this->cliente = $cliente->get($this->factura->codcliente);
 
-            if (isset($_GET['gen_asiento']) AND isset($_GET['petid'])) {
+            if (isset($_GET['gen_asiento']) && isset($_GET['petid'])) {
                 if ($this->duplicated_petition($_GET['petid'])) {
                     $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
                 } else {
@@ -136,8 +136,9 @@ class ventas_factura extends fbase_controller
             return parent::url();
         } else if ($this->factura) {
             return $this->factura->url();
-        } else
-            return $this->ppage->url();
+        }
+        
+        return $this->ppage->url();
     }
 
     private function modificar()
@@ -194,8 +195,9 @@ class ventas_factura extends fbase_controller
             }
             $this->new_message("Factura modificada correctamente.");
             $this->new_change('Factura Cliente ' . $this->factura->codigo, $this->factura->url());
-        } else
+        } else {
             $this->new_error_msg("¡Imposible modificar la factura!");
+        }
     }
 
     private function actualizar_direccion()
@@ -215,8 +217,9 @@ class ventas_factura extends fbase_controller
 
                 if ($this->factura->save()) {
                     $this->new_message('Dirección actualizada correctamente.');
-                } else
+                } else {
                     $this->new_error_msg('Imposible actualizar la dirección de la factura.');
+                }
 
                 break;
             }
@@ -255,7 +258,7 @@ class ventas_factura extends fbase_controller
         if (is_null($this->factura->idasiento)) {
             $this->factura->pagada = $pagada;
             $this->factura->save();
-        } else if (!$pagada AND $this->factura->pagada) {
+        } else if (!$pagada && $this->factura->pagada) {
             /// marcar como impagada
             $this->factura->pagada = FALSE;
 
@@ -273,14 +276,14 @@ class ventas_factura extends fbase_controller
             } else {
                 $this->new_error_msg('Error al modificar la factura.');
             }
-        } else if ($pagada AND ! $this->factura->pagada) {
+        } else if ($pagada && ! $this->factura->pagada) {
             /// marcar como pagada
             $asiento = $this->factura->get_asiento();
             if ($asiento) {
                 /// nos aseguramos que el cliente tenga subcuenta en el ejercicio actual
                 $subcli = FALSE;
                 $eje = $this->ejercicio->get_by_fecha($_POST['fpagada']);
-                if ($eje AND $this->cliente) {
+                if ($eje && $this->cliente) {
                     $subcli = $this->cliente->get_subcuenta($eje->codejercicio);
                 }
 

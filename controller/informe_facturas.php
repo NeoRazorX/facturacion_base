@@ -37,8 +37,8 @@ class informe_facturas extends informe_albaranes
     protected function private_core()
     {
         /// declaramos los objetos sólo para asegurarnos de que existen las tablas
-        $factura_cli = new factura_cliente();
-        $factura_pro = new factura_proveedor();
+        new factura_cliente();
+        new factura_proveedor();
 
         $this->nombre_docs = 'Facturas';
         $this->pais = new pais();
@@ -829,7 +829,7 @@ class informe_facturas extends informe_albaranes
                     )
                 );
 
-                for ($i = 0; $i < $lppag AND $linea_actual < $total_lineas; $i++) {
+                for ($i = 0; $i < $lppag && $linea_actual < $total_lineas; $i++) {
                     $linea = array(
                         'serie' => $documentos[$linea_actual]->codserie,
                         'doc' => $documentos[$linea_actual]->codigo,

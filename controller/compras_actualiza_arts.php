@@ -42,7 +42,7 @@ class compras_actualiza_arts extends fs_controller
         $this->documento = FALSE;
         $this->lineas = array();
         $this->tipodoc = 'Documento';
-        if (isset($_REQUEST['doc']) AND isset($_REQUEST['id'])) {
+        if (isset($_REQUEST['doc']) && isset($_REQUEST['id'])) {
             if ($_REQUEST['doc'] == 'pedido') {
                 $pedido0 = new pedido_proveedor();
                 $this->documento = $pedido0->get($_REQUEST['id']);
@@ -119,7 +119,7 @@ class compras_actualiza_arts extends fs_controller
                             }
 
                             /// ¿usamos la referencia de proveedor como equivalencia?
-                            if ($_POST['refproveedor_' . $value->idlinea] != '' AND $_POST['refproveedor_' . $value->idlinea] != $articulo->referencia) {
+                            if ($_POST['refproveedor_' . $value->idlinea] != '' && $_POST['refproveedor_' . $value->idlinea] != $articulo->referencia) {
                                 if (is_null($articulo->equivalencia)) {
                                     $articulo->equivalencia = $_POST['refproveedor_' . $value->idlinea];
                                 }
@@ -179,7 +179,7 @@ class compras_actualiza_arts extends fs_controller
     {
         $url = parent::url();
 
-        if (isset($_REQUEST['doc']) AND isset($_REQUEST['id'])) {
+        if (isset($_REQUEST['doc']) && isset($_REQUEST['id'])) {
             $url .= '&doc=' . $_REQUEST['doc'] . '&id=' . $_REQUEST['id'];
         }
 

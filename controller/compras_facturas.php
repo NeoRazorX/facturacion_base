@@ -111,7 +111,7 @@ class compras_facturas extends fbase_controller
             if (isset($_GET['delete'])) {
                 $this->delete_factura();
             } else {
-                if (!isset($_GET['mostrar']) AND ( $this->query != '' OR isset($_REQUEST['codagente']) OR isset($_REQUEST['codproveedor']) OR isset($_REQUEST['codserie']))) {
+                if (!isset($_GET['mostrar']) && ( $this->query != '' || isset($_REQUEST['codagente']) || isset($_REQUEST['codproveedor']) || isset($_REQUEST['codserie']))) {
                     /**
                      * si obtenermos un codagente, un codproveedor o un codserie pasamos direcatemente
                      * a la pestaña de búsqueda, a menos que tengamos un mostrar, que
@@ -120,11 +120,9 @@ class compras_facturas extends fbase_controller
                     $this->mostrar = 'buscar';
                 }
 
-                if (isset($_REQUEST['codproveedor'])) {
-                    if ($_REQUEST['codproveedor'] != '') {
-                        $pro0 = new proveedor();
-                        $this->proveedor = $pro0->get($_REQUEST['codproveedor']);
-                    }
+                if (isset($_REQUEST['codproveedor']) && $_REQUEST['codproveedor'] != '') {
+                    $pro0 = new proveedor();
+                    $this->proveedor = $pro0->get($_REQUEST['codproveedor']);
                 }
 
                 if (isset($_REQUEST['codagente'])) {
@@ -194,9 +192,9 @@ class compras_facturas extends fbase_controller
                 . "&hasta=" . $this->hasta;
 
             return $url;
-        } else {
-            return parent::url();
         }
+
+        return parent::url();
     }
 
     public function paginas()
@@ -392,10 +390,12 @@ class compras_facturas extends fbase_controller
                 }
 
                 $this->clean_last_changes();
-            } else
+            } else {
                 $this->new_error_msg("¡Imposible eliminar la factura!");
-        } else
+            }
+        } else {
             $this->new_error_msg("Factura no encontrada.");
+        }
     }
 
     public function orden()

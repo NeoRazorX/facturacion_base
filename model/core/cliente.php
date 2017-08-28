@@ -145,45 +145,45 @@ class cliente extends \fs_model
     public $codproveedor;
     private static $regimenes_iva;
 
-    public function __construct($c = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('clientes');
-        if ($c) {
-            $this->codcliente = $c['codcliente'];
-            $this->nombre = $c['nombre'];
+        if ($data) {
+            $this->codcliente = $data['codcliente'];
+            $this->nombre = $data['nombre'];
 
-            if (is_null($c['razonsocial'])) {
-                $this->razonsocial = $c['nombrecomercial'];
+            if (is_null($data['razonsocial'])) {
+                $this->razonsocial = $data['nombrecomercial'];
             } else {
-                $this->razonsocial = $c['razonsocial'];
+                $this->razonsocial = $data['razonsocial'];
             }
 
-            $this->tipoidfiscal = $c['tipoidfiscal'];
-            $this->cifnif = $c['cifnif'];
-            $this->telefono1 = $c['telefono1'];
-            $this->telefono2 = $c['telefono2'];
-            $this->fax = $c['fax'];
-            $this->email = $c['email'];
-            $this->web = $c['web'];
-            $this->codserie = $c['codserie'];
-            $this->coddivisa = $c['coddivisa'];
-            $this->codpago = $c['codpago'];
-            $this->codagente = $c['codagente'];
-            $this->codgrupo = $c['codgrupo'];
-            $this->debaja = $this->str2bool($c['debaja']);
+            $this->tipoidfiscal = $data['tipoidfiscal'];
+            $this->cifnif = $data['cifnif'];
+            $this->telefono1 = $data['telefono1'];
+            $this->telefono2 = $data['telefono2'];
+            $this->fax = $data['fax'];
+            $this->email = $data['email'];
+            $this->web = $data['web'];
+            $this->codserie = $data['codserie'];
+            $this->coddivisa = $data['coddivisa'];
+            $this->codpago = $data['codpago'];
+            $this->codagente = $data['codagente'];
+            $this->codgrupo = $data['codgrupo'];
+            $this->debaja = $this->str2bool($data['debaja']);
 
             $this->fechabaja = NULL;
-            if ($c['fechabaja']) {
-                $this->fechabaja = date('d-m-Y', strtotime($c['fechabaja']));
+            if ($data['fechabaja']) {
+                $this->fechabaja = date('d-m-Y', strtotime($data['fechabaja']));
             }
 
-            $this->fechaalta = date('d-m-Y', strtotime($c['fechaalta']));
-            $this->observaciones = $this->no_html($c['observaciones']);
-            $this->regimeniva = $c['regimeniva'];
-            $this->recargo = $this->str2bool($c['recargo']);
-            $this->personafisica = $this->str2bool($c['personafisica']);
-            $this->diaspago = $c['diaspago'];
-            $this->codproveedor = $c['codproveedor'];
+            $this->fechaalta = date('d-m-Y', strtotime($data['fechaalta']));
+            $this->observaciones = $this->no_html($data['observaciones']);
+            $this->regimeniva = $data['regimeniva'];
+            $this->recargo = $this->str2bool($data['recargo']);
+            $this->personafisica = $this->str2bool($data['personafisica']);
+            $this->diaspago = $data['diaspago'];
+            $this->codproveedor = $data['codproveedor'];
         } else {
             $this->codcliente = NULL;
             $this->nombre = '';
@@ -320,7 +320,7 @@ class cliente extends \fs_model
      */
     public function get_by_cifnif($cifnif, $razon = FALSE)
     {
-        if ($cifnif == '' AND $razon) {
+        if ($cifnif == '' && $razon) {
             $razon = $this->no_html(mb_strtolower($razon, 'UTF8'));
             $sql = "SELECT * FROM " . $this->table_name . " WHERE cifnif = '' AND lower(razonsocial) = " . $this->var2str($razon) . ";";
         } else {
@@ -403,7 +403,6 @@ class cliente extends \fs_model
 
         if (!$subcuenta) {
             /// intentamos crear la subcuenta y asociarla
-            $continuar = TRUE;
 
             $cuenta = new \cuenta();
             $ccli = $cuenta->get_cuentaesp('CLIENT', $codejercicio);
@@ -497,7 +496,7 @@ class cliente extends \fs_model
         /// validamos los dias de pago
         $array_dias = array();
         foreach (str_getcsv($this->diaspago) as $d) {
-            if (intval($d) >= 1 AND intval($d) <= 31) {
+            if (intval($d) >= 1 && intval($d) <= 31) {
                 $array_dias[] = intval($d);
             }
         }
@@ -508,12 +507,13 @@ class cliente extends \fs_model
 
         if (!preg_match("/^[A-Z0-9]{1,6}$/i", $this->codcliente)) {
             $this->new_error_msg("Código de cliente no válido: " . $this->codcliente);
-        } else if (strlen($this->nombre) < 1 OR strlen($this->nombre) > 100) {
+        } else if (strlen($this->nombre) < 1 || strlen($this->nombre) > 100) {
             $this->new_error_msg("Nombre de cliente no válido: " . $this->nombre);
-        } else if (strlen($this->razonsocial) < 1 OR strlen($this->razonsocial) > 100) {
+        } else if (strlen($this->razonsocial) < 1 || strlen($this->razonsocial) > 100) {
             $this->new_error_msg("Razón social del cliente no válida: " . $this->razonsocial);
-        } else
+        } else {
             $status = TRUE;
+        }
 
         return $status;
     }

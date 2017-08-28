@@ -44,13 +44,13 @@ class grupo_clientes extends \fs_model
      */
     public $codtarifa;
 
-    public function __construct($g = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('gruposclientes');
-        if ($g) {
-            $this->codgrupo = $g['codgrupo'];
-            $this->nombre = $g['nombre'];
-            $this->codtarifa = $g['codtarifa'];
+        if ($data) {
+            $this->codgrupo = $data['codgrupo'];
+            $this->nombre = $data['nombre'];
+            $this->codtarifa = $data['codtarifa'];
         } else {
             $this->codgrupo = NULL;
             $this->nombre = NULL;

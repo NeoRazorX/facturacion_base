@@ -14,7 +14,7 @@
 {$equivalentes=$fsc->articulo->get_equivalentes()}
 
 {$function='add_articulo'}
-{if="$fsc->articulo->stockfis <= 0 AND !$fsc->articulo->controlstock"}
+{if="$fsc->articulo->stockfis <= 0 && !$fsc->articulo->controlstock"}
 {$function='sin_stock'}
 {elseif="$fsc->articulo->tipo"}
 {$function='add_articulo_'.$fsc->articulo->tipo}

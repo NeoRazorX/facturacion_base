@@ -77,7 +77,7 @@ class contabilidad_series extends fbase_controller
         $serie->irpf = floatval($_POST['irpf']);
 
         if ($this->num_personalizada) {
-            if ($_POST['codejercicio'] != $serie->codejercicio OR $_POST['numfactura'] != $serie->numfactura) {
+            if ($_POST['codejercicio'] != $serie->codejercicio || $_POST['numfactura'] != $serie->numfactura) {
                 if ($this->user->admin) {
                     if ($this->hay_facturas_venta($serie->codserie)) {
                         $this->new_error_msg('Ya hay facturas con esta serie, no puedes cambiar la numeración inicial.');

@@ -112,7 +112,6 @@ class asiento_factura
         $ok = FALSE;
         $this->asiento = FALSE;
         $proveedor0 = new \proveedor();
-        $subcuenta_prov = FALSE;
 
         /// obtenemos las tasas de conversión, para las ocasiones en que la factura está en otra divisa
         $tasaconv = 1;
@@ -178,9 +177,9 @@ class asiento_factura
                         $subcuenta_iva = $this->subcuenta->get_cuentaesp('IVAREP', $asiento->codejercicio);
                     }
 
-                    if ($li->totaliva == 0 AND $li->totalrecargo == 0) {
+                    if ($li->totaliva == 0 && $li->totalrecargo == 0) {
                         /// no hacemos nada si no hay IVA ni RE
-                    } else if ($subcuenta_iva AND $asiento_correcto) {
+                    } else if ($subcuenta_iva && $asiento_correcto) {
                         $partida1 = new \partida();
                         $partida1->idasiento = $asiento->idasiento;
                         $partida1->concepto = $asiento->concepto;
@@ -242,7 +241,7 @@ class asiento_factura
                 }
 
                 $subcuenta_compras = $this->subcuenta->get_cuentaesp('COMPRA', $asiento->codejercicio);
-                if ($subcuenta_compras AND $asiento_correcto) {
+                if ($subcuenta_compras && $asiento_correcto) {
                     $partida2 = new \partida();
                     $partida2->idasiento = $asiento->idasiento;
                     $partida2->concepto = $asiento->concepto;
@@ -263,7 +262,7 @@ class asiento_factura
                 }
 
                 /// ¿IRPF?
-                if ($factura->totalirpf != 0 AND $asiento_correcto) {
+                if ($factura->totalirpf != 0 && $asiento_correcto) {
                     $subcuenta_irpf = $this->subcuenta->get_cuentaesp('IRPFPR', $asiento->codejercicio);
                     if ($subcuenta_irpf) {
                         $partida3 = new \partida();
@@ -290,7 +289,7 @@ class asiento_factura
                 if ($asiento_correcto) {
                     $this->comprobar_subc_art_compra($factura, $asiento, $partida2, $subcuenta_compras, $asiento_correcto, $tasaconv, $tasaconv2);
 
-                    if (isset($partida3) AND $asiento_correcto) {
+                    if (isset($partida3) && $asiento_correcto) {
                         $this->comprobar_subc_art_compra_irpf($factura, $asiento, $partida3, $subcuenta_irpf, $asiento_correcto, $tasaconv, $tasaconv2);
                     }
                 }
@@ -323,7 +322,7 @@ class asiento_factura
 
                 if ($asiento_correcto) {
                     /// si es una factura negativa o rectificativa, invertimos los importes
-                    if ($factura->idfacturarect OR $factura->total < 0) {
+                    if ($factura->idfacturarect || $factura->total < 0) {
                         $this->invertir_asiento($asiento);
                     }
 
@@ -414,7 +413,7 @@ class asiento_factura
             }
         }
 
-        if ($partidaA->idsubcuenta AND $partidaA->codsubcuenta) {
+        if ($partidaA->idsubcuenta && $partidaA->codsubcuenta) {
             $partidaA->debe = round($partidaA->debe, FS_NF0);
             $restar += $partidaA->debe;
             if ($partidaA->save()) {
@@ -427,7 +426,7 @@ class asiento_factura
                 }
             } else {
                 $asiento_correcto = FALSE;
-                $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo " . $lin->referencia . "!");
+                $this->new_error_msg("¡Imposible generar la partida para la subcuenta " . $partidaA->codsubcuenta . "!");
             }
         }
     }
@@ -465,7 +464,7 @@ class asiento_factura
                 $articulo = $art0->get($lin->referencia);
             }
 
-            if ($articulo AND $lin->irpf) {
+            if ($articulo && $lin->irpf) {
                 if ($articulo->codsubcuentairpfcom) {
                     $subcart = $this->subcuenta->get_by_codigo($articulo->codsubcuentairpfcom, $factura->codejercicio);
                 }
@@ -501,7 +500,7 @@ class asiento_factura
             }
         }
 
-        if ($partidaA->idsubcuenta AND $partidaA->codsubcuenta) {
+        if ($partidaA->idsubcuenta && $partidaA->codsubcuenta) {
             $partidaA->debe = round($partidaA->debe, FS_NF0);
             $restar += $partidaA->debe;
             if ($partidaA->save()) {
@@ -514,7 +513,7 @@ class asiento_factura
                 }
             } else {
                 $asiento_correcto = FALSE;
-                $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo " . $lin->referencia . "!");
+                $this->new_error_msg("¡Imposible generar la partida para la subcuenta " . $partidaA->codsubcuenta . "!");
             }
         }
     }
@@ -530,7 +529,6 @@ class asiento_factura
         $ok = FALSE;
         $this->asiento = FALSE;
         $cliente0 = new \cliente();
-        $subcuenta_cli = FALSE;
 
         /// obtenemos las tasas de conversión, para las ocasiones en que la factura está en otra divisa
         $tasaconv = 1;
@@ -591,9 +589,9 @@ class asiento_factura
                         $subcuenta_iva = $this->subcuenta->get_cuentaesp('IVAREP', $asiento->codejercicio);
                     }
 
-                    if ($li->totaliva == 0 AND $li->totalrecargo == 0) {
+                    if ($li->totaliva == 0 && $li->totalrecargo == 0) {
                         /// no hacemos nada si no hay IVA ni RE
-                    } else if ($subcuenta_iva AND $asiento_correcto) {
+                    } else if ($subcuenta_iva && $asiento_correcto) {
                         $partida1 = new \partida();
                         $partida1->idasiento = $asiento->idasiento;
                         $partida1->concepto = $asiento->concepto;
@@ -655,7 +653,7 @@ class asiento_factura
                 }
 
                 $subcuenta_ventas = $this->subcuenta->get_cuentaesp('VENTAS', $asiento->codejercicio);
-                if ($subcuenta_ventas AND $asiento_correcto) {
+                if ($subcuenta_ventas && $asiento_correcto) {
                     $partida2 = new \partida();
                     $partida2->idasiento = $asiento->idasiento;
                     $partida2->concepto = $asiento->concepto;
@@ -676,7 +674,7 @@ class asiento_factura
                 }
 
                 /// ¿IRPF?
-                if ($factura->totalirpf != 0 AND $asiento_correcto) {
+                if ($factura->totalirpf != 0 && $asiento_correcto) {
                     $subcuenta_irpf = $this->subcuenta->get_cuentaesp('IRPF', $asiento->codejercicio);
 
                     if (!$subcuenta_irpf) {
@@ -758,7 +756,7 @@ class asiento_factura
                         }
                     }
 
-                    if ($partidaA->idsubcuenta AND $partidaA->codsubcuenta) {
+                    if ($partidaA->idsubcuenta && $partidaA->codsubcuenta) {
                         $partidaA->haber = round($partidaA->haber, FS_NF0);
                         $restar += $partidaA->haber;
                         if ($partidaA->save()) {
@@ -771,8 +769,7 @@ class asiento_factura
                             }
                         } else {
                             $asiento_correcto = FALSE;
-                            $this->new_error_msg("¡Imposible generar la partida para la subcuenta del artículo "
-                                . $lin->referencia . "!");
+                            $this->new_error_msg("¡Imposible generar la partida para la subcuenta ". $partidaA->codsubcuenta . "!");
                         }
                     }
                 }
@@ -806,7 +803,7 @@ class asiento_factura
 
                 if ($asiento_correcto) {
                     /// si es una factura negativa o rectificativa, invertimos los importes
-                    if ($factura->idfacturarect OR $factura->total < 0) {
+                    if ($factura->idfacturarect || $factura->total < 0) {
                         $this->invertir_asiento($asiento);
                     }
 
@@ -916,10 +913,10 @@ class asiento_factura
                     break;
                 }
 
-                if ($nasientop->floatcmp(abs($par->debe), $importe, FS_NF0) OR $nasientop->floatcmp(abs($par->debe), $importe2, FS_NF0)) {
+                if ($nasientop->floatcmp(abs($par->debe), $importe, FS_NF0) || $nasientop->floatcmp(abs($par->debe), $importe2, FS_NF0)) {
                     $seleccionar = $i;
                     break;
-                } else if ($nasientop->floatcmp(abs($par->haber), $importe, FS_NF0) OR $nasientop->floatcmp(abs($par->haber), $importe2, FS_NF0)) {
+                } else if ($nasientop->floatcmp(abs($par->haber), $importe, FS_NF0) || $nasientop->floatcmp(abs($par->haber), $importe2, FS_NF0)) {
                     $seleccionar = $i;
                     break;
                 }

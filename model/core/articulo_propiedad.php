@@ -31,13 +31,13 @@ class articulo_propiedad extends \fs_model
     public $referencia;
     public $text;
 
-    public function __construct($a = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('articulo_propiedades');
-        if ($a) {
-            $this->name = $a['name'];
-            $this->referencia = $a['referencia'];
-            $this->text = $a['text'];
+        if ($data) {
+            $this->name = $data['name'];
+            $this->referencia = $data['referencia'];
+            $this->text = $data['text'];
         } else {
             $this->name = NULL;
             $this->referencia = NULL;
@@ -56,7 +56,7 @@ class articulo_propiedad extends \fs_model
      */
     public function exists()
     {
-        if (is_null($this->name) OR is_null($this->referencia)) {
+        if (is_null($this->name) || is_null($this->referencia)) {
             return FALSE;
         }
 

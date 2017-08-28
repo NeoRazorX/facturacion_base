@@ -42,7 +42,7 @@ class libro_mayor
         $ejercicios = $this->ejercicio->all();
         $random = mt_rand(0, count($ejercicios) - 1);
         foreach ($ejercicios as $num => $eje) {
-            if ($num < 2 OR $num == $random) {
+            if ($num < 2 || $num == $random) {
                 foreach ($this->subcuenta->all_from_ejercicio($eje->codejercicio, TRUE, 300) as $sc) {
                     /**
                      * Recalcular los saldos de las subcuentas es un proceso lento,
@@ -129,7 +129,7 @@ class libro_mayor
                                 'saldo' => '<b>Saldo</b>'
                             )
                         );
-                        for ($i = $linea_actual; (($linea_actual < ($lppag + $i)) AND ( $linea_actual < $lineasfact));) {
+                        for ($i = $linea_actual; (($linea_actual < ($lppag + $i)) && ( $linea_actual < $lineasfact));) {
                             $pdf_doc->add_table_row(
                                 array(
                                     'asiento' => $partidas[$linea_actual]->numero,

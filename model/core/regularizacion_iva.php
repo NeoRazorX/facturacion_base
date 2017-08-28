@@ -43,17 +43,17 @@ class regularizacion_iva extends \fs_model
     public $fechainicio;
     public $periodo;
 
-    public function __construct($r = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_regiva');
-        if ($r) {
-            $this->idregiva = $this->intval($r['idregiva']);
-            $this->idasiento = $this->intval($r['idasiento']);
-            $this->codejercicio = $r['codejercicio'];
-            $this->fechaasiento = Date('d-m-Y', strtotime($r['fechaasiento']));
-            $this->fechafin = Date('d-m-Y', strtotime($r['fechafin']));
-            $this->fechainicio = Date('d-m-Y', strtotime($r['fechainicio']));
-            $this->periodo = $r['periodo'];
+        if ($data) {
+            $this->idregiva = $this->intval($data['idregiva']);
+            $this->idasiento = $this->intval($data['idasiento']);
+            $this->codejercicio = $data['codejercicio'];
+            $this->fechaasiento = Date('d-m-Y', strtotime($data['fechaasiento']));
+            $this->fechafin = Date('d-m-Y', strtotime($data['fechafin']));
+            $this->fechainicio = Date('d-m-Y', strtotime($data['fechainicio']));
+            $this->periodo = $data['periodo'];
         } else {
             $this->idregiva = NULL;
             $this->idasiento = NULL;

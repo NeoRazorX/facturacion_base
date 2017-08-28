@@ -137,7 +137,7 @@ class linea_factura_cliente extends \fs_model
     private static $facturas;
     private static $albaranes;
 
-    public function __construct($l = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('lineasfacturascli');
 
@@ -146,26 +146,26 @@ class linea_factura_cliente extends \fs_model
             self::$albaranes = array();
         }
 
-        if ($l) {
-            $this->idlinea = $this->intval($l['idlinea']);
-            $this->idlineaalbaran = $this->intval($l['idlineaalbaran']);
-            $this->idfactura = $this->intval($l['idfactura']);
-            $this->idalbaran = $this->intval($l['idalbaran']);
-            $this->referencia = $l['referencia'];
-            $this->codcombinacion = $l['codcombinacion'];
-            $this->descripcion = $l['descripcion'];
-            $this->cantidad = floatval($l['cantidad']);
-            $this->pvpunitario = floatval($l['pvpunitario']);
-            $this->pvpsindto = floatval($l['pvpsindto']);
-            $this->dtopor = floatval($l['dtopor']);
-            $this->pvptotal = floatval($l['pvptotal']);
-            $this->codimpuesto = $l['codimpuesto'];
-            $this->iva = floatval($l['iva']);
-            $this->recargo = floatval($l['recargo']);
-            $this->irpf = floatval($l['irpf']);
-            $this->orden = intval($l['orden']);
-            $this->mostrar_cantidad = $this->str2bool($l['mostrar_cantidad']);
-            $this->mostrar_precio = $this->str2bool($l['mostrar_precio']);
+        if ($data) {
+            $this->idlinea = $this->intval($data['idlinea']);
+            $this->idlineaalbaran = $this->intval($data['idlineaalbaran']);
+            $this->idfactura = $this->intval($data['idfactura']);
+            $this->idalbaran = $this->intval($data['idalbaran']);
+            $this->referencia = $data['referencia'];
+            $this->codcombinacion = $data['codcombinacion'];
+            $this->descripcion = $data['descripcion'];
+            $this->cantidad = floatval($data['cantidad']);
+            $this->pvpunitario = floatval($data['pvpunitario']);
+            $this->pvpsindto = floatval($data['pvpsindto']);
+            $this->dtopor = floatval($data['dtopor']);
+            $this->pvptotal = floatval($data['pvptotal']);
+            $this->codimpuesto = $data['codimpuesto'];
+            $this->iva = floatval($data['iva']);
+            $this->recargo = floatval($data['recargo']);
+            $this->irpf = floatval($data['irpf']);
+            $this->orden = intval($data['orden']);
+            $this->mostrar_cantidad = $this->str2bool($data['mostrar_cantidad']);
+            $this->mostrar_precio = $this->str2bool($data['mostrar_precio']);
         } else {
             $this->idlinea = NULL;
             $this->idlineaalbaran = NULL;
@@ -226,7 +226,7 @@ class linea_factura_cliente extends \fs_model
             foreach (self::$albaranes as $a) {
                 if ($a->idalbaran == $this->idalbaran) {
                     $this->albaran_codigo = $a->codigo;
-                    if (is_null($a->numero2) OR $a->numero2 == '') {
+                    if (is_null($a->numero2) || $a->numero2 == '') {
                         $this->albaran_numero = $a->numero;
                     } else {
                         $this->albaran_numero = $a->numero2;
@@ -241,7 +241,7 @@ class linea_factura_cliente extends \fs_model
                 $alb = $alb->get($this->idalbaran);
                 if ($alb) {
                     $this->albaran_codigo = $alb->codigo;
-                    if (is_null($alb->numero2) OR $alb->numero2 == '') {
+                    if (is_null($alb->numero2) || $alb->numero2 == '') {
                         $this->albaran_numero = $alb->numero;
                     } else {
                         $this->albaran_numero = $alb->numero2;
@@ -338,7 +338,7 @@ class linea_factura_cliente extends \fs_model
 
     public function articulo_url()
     {
-        if (is_null($this->referencia) OR $this->referencia == '') {
+        if (is_null($this->referencia) || $this->referencia == '') {
             return "index.php?page=ventas_articulos";
         }
 

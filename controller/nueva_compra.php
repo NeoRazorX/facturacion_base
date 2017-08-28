@@ -78,30 +78,28 @@ class nueva_compra extends fbase_controller
         } else if (isset($_POST['proveedor'])) {
             $this->proveedor_s = $this->proveedor->get($_POST['proveedor']);
 
-            if (isset($_POST['nuevo_proveedor'])) {
-                if ($_POST['nuevo_proveedor'] != '') {
-                    $this->proveedor_s = FALSE;
-                    if ($_POST['nuevo_cifnif'] != '') {
-                        $this->proveedor_s = $this->proveedor->get_by_cifnif($_POST['nuevo_cifnif']);
-                        if ($this->proveedor_s) {
-                            $this->new_advice('Ya existe un proveedor con ese ' . FS_CIFNIF . '. Se ha seleccionado.');
-                        }
+            if (isset($_POST['nuevo_proveedor']) && $_POST['nuevo_proveedor'] != '') {
+                $this->proveedor_s = FALSE;
+                if ($_POST['nuevo_cifnif'] != '') {
+                    $this->proveedor_s = $this->proveedor->get_by_cifnif($_POST['nuevo_cifnif']);
+                    if ($this->proveedor_s) {
+                        $this->new_advice('Ya existe un proveedor con ese ' . FS_CIFNIF . '. Se ha seleccionado.');
                     }
+                }
 
-                    if (!$this->proveedor_s) {
-                        $this->proveedor_s = new proveedor();
-                        $this->proveedor_s->codproveedor = $this->proveedor_s->get_new_codigo();
-                        $this->proveedor_s->nombre = $this->proveedor_s->razonsocial = $_POST['nuevo_proveedor'];
-                        $this->proveedor_s->tipoidfiscal = $_POST['nuevo_tipoidfiscal'];
-                        $this->proveedor_s->cifnif = $_POST['nuevo_cifnif'];
-                        $this->proveedor_s->acreedor = isset($_POST['acreedor']);
-                        $this->proveedor_s->personafisica = isset($_POST['personafisica']);
-                        $this->proveedor_s->save();
+                if (!$this->proveedor_s) {
+                    $this->proveedor_s = new proveedor();
+                    $this->proveedor_s->codproveedor = $this->proveedor_s->get_new_codigo();
+                    $this->proveedor_s->nombre = $this->proveedor_s->razonsocial = $_POST['nuevo_proveedor'];
+                    $this->proveedor_s->tipoidfiscal = $_POST['nuevo_tipoidfiscal'];
+                    $this->proveedor_s->cifnif = $_POST['nuevo_cifnif'];
+                    $this->proveedor_s->acreedor = isset($_POST['acreedor']);
+                    $this->proveedor_s->personafisica = isset($_POST['personafisica']);
+                    $this->proveedor_s->save();
 
-                        if ($this->empresa->contintegrada) {
-                            /// forzamos crear la subcuenta
-                            $this->proveedor_s->get_subcuenta($this->empresa->codejercicio);
-                        }
+                    if ($this->empresa->contintegrada) {
+                        /// forzamos crear la subcuenta
+                        $this->proveedor_s->get_subcuenta($this->empresa->codejercicio);
                     }
                 }
             }
@@ -139,7 +137,7 @@ class nueva_compra extends fbase_controller
     {
         $tipos = array();
 
-        if ($this->user->have_access_to('compras_pedido') AND class_exists('pedido_proveedor')) {
+        if ($this->user->have_access_to('compras_pedido') && class_exists('pedido_proveedor')) {
             $tipos[] = array('tipo' => 'pedido', 'nombre' => ucfirst(FS_PEDIDO) . ' de compra');
         }
 
@@ -203,7 +201,7 @@ class nueva_compra extends fbase_controller
                 $art0->codfabricante = $_REQUEST['codfabricante'];
             }
 
-            if ($_POST['refproveedor'] != '' AND $_POST['refproveedor'] != $_POST['referencia']) {
+            if ($_POST['refproveedor'] != '' && $_POST['refproveedor'] != $_POST['referencia']) {
                 $art0->equivalencia = $_POST['refproveedor'];
             }
 
@@ -266,7 +264,7 @@ class nueva_compra extends fbase_controller
 
             /// añadimos el stock del almacén y el general
             $this->results[$i]->stockalm = $this->results[$i]->stockfis;
-            if ($this->multi_almacen AND isset($_REQUEST['codalmacen'])) {
+            if ($this->multi_almacen && isset($_REQUEST['codalmacen'])) {
                 $this->results[$i]->stockalm = $stock->total_from_articulo($this->results[$i]->referencia, $_REQUEST['codalmacen']);
             }
 
@@ -280,7 +278,7 @@ class nueva_compra extends fbase_controller
 
         /// ejecutamos las funciones de las extensiones
         foreach ($this->extensions as $ext) {
-            if ($ext->type == 'function' AND $ext->params == 'new_search') {
+            if ($ext->type == 'function' && $ext->params == 'new_search') {
                 $name = $ext->text;
                 $name($this->db, $this->results);
             }
@@ -409,7 +407,7 @@ class nueva_compra extends fbase_controller
                         $linea->idpedido = $pedido->idpedido;
                         $linea->descripcion = $_POST['desc_' . $i];
 
-                        if (!$serie->siniva AND $proveedor->regimeniva != 'Exento') {
+                        if (!$serie->siniva && $proveedor->regimeniva != 'Exento') {
                             $imp0 = $this->impuesto->get_by_iva($_POST['iva_' . $i]);
                             if ($imp0) {
                                 $linea->codimpuesto = $imp0->codimpuesto;
@@ -438,7 +436,7 @@ class nueva_compra extends fbase_controller
 
                         if ($linea->save()) {
                             if ($articulo && isset($_POST['costemedio'])) {
-                                if ($articulo->costemedio == 0 AND $linea->cantidad > 0) {
+                                if ($articulo->costemedio == 0 && $linea->cantidad > 0) {
                                     $articulo->costemedio = $linea->pvptotal / $linea->cantidad;
                                     $articulo->save();
                                 }
@@ -580,7 +578,7 @@ class nueva_compra extends fbase_controller
                         $linea->idalbaran = $albaran->idalbaran;
                         $linea->descripcion = $_POST['desc_' . $i];
 
-                        if (!$serie->siniva AND $proveedor->regimeniva != 'Exento') {
+                        if (!$serie->siniva && $proveedor->regimeniva != 'Exento') {
                             $imp0 = $this->impuesto->get_by_iva($_POST['iva_' . $i]);
                             if ($imp0) {
                                 $linea->codimpuesto = $imp0->codimpuesto;
@@ -772,7 +770,7 @@ class nueva_compra extends fbase_controller
                         $linea->idfactura = $factura->idfactura;
                         $linea->descripcion = $_POST['desc_' . $i];
 
-                        if (!$serie->siniva AND $proveedor->regimeniva != 'Exento') {
+                        if (!$serie->siniva && $proveedor->regimeniva != 'Exento') {
                             $imp0 = $this->impuesto->get_by_iva($_POST['iva_' . $i]);
                             if ($imp0) {
                                 $linea->codimpuesto = $imp0->codimpuesto;
@@ -939,7 +937,7 @@ class nueva_compra extends fbase_controller
             $sql .= $separador . " stockfis > 0";
         }
 
-        if (isset($_REQUEST['solo_proveedor']) AND isset($_REQUEST['codproveedor'])) {
+        if (isset($_REQUEST['solo_proveedor']) && isset($_REQUEST['codproveedor'])) {
             $sql .= $separador . " referencia IN (SELECT referencia FROM articulosprov WHERE codproveedor = "
                 . $this->articulo_prov->var2str($_REQUEST['codproveedor']) . ")";
         }

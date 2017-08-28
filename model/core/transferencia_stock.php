@@ -21,16 +21,16 @@ class transferencia_stock extends \fs_model
     public $hora;
     public $usuario;
 
-    public function __construct($d = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('transstock');
-        if ($d) {
-            $this->idtrans = $this->intval($d['idtrans']);
-            $this->codalmadestino = $d['codalmadestino'];
-            $this->codalmaorigen = $d['codalmaorigen'];
-            $this->fecha = date("d-m-Y", strtotime($d['fecha']));
-            $this->hora = date('H:i:s', strtotime($d['hora']));
-            $this->usuario = $d['usuario'];
+        if ($data) {
+            $this->idtrans = $this->intval($data['idtrans']);
+            $this->codalmadestino = $data['codalmadestino'];
+            $this->codalmaorigen = $data['codalmaorigen'];
+            $this->fecha = date("d-m-Y", strtotime($data['fecha']));
+            $this->hora = date('H:i:s', strtotime($data['hora']));
+            $this->usuario = $data['usuario'];
         } else {
             /// valores predeterminados
             $this->idtrans = NULL;

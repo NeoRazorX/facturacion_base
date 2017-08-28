@@ -57,21 +57,21 @@ class direccion_proveedor extends \fs_model
      */
     public $fecha;
 
-    public function __construct($d = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('dirproveedores');
-        if ($d) {
-            $this->id = $this->intval($d['id']);
-            $this->codproveedor = $d['codproveedor'];
-            $this->codpais = $d['codpais'];
-            $this->apartado = $d['apartado'];
-            $this->provincia = $d['provincia'];
-            $this->ciudad = $d['ciudad'];
-            $this->codpostal = $d['codpostal'];
-            $this->direccion = $d['direccion'];
-            $this->direccionppal = $this->str2bool($d['direccionppal']);
-            $this->descripcion = $d['descripcion'];
-            $this->fecha = date('d-m-Y', strtotime($d['fecha']));
+        if ($data) {
+            $this->id = $this->intval($data['id']);
+            $this->codproveedor = $data['codproveedor'];
+            $this->codpais = $data['codpais'];
+            $this->apartado = $data['apartado'];
+            $this->provincia = $data['provincia'];
+            $this->ciudad = $data['ciudad'];
+            $this->codpostal = $data['codpostal'];
+            $this->direccion = $data['direccion'];
+            $this->direccionppal = $this->str2bool($data['direccionppal']);
+            $this->descripcion = $data['descripcion'];
+            $this->fecha = date('d-m-Y', strtotime($data['fecha']));
         } else {
             $this->id = NULL;
             $this->codproveedor = NULL;

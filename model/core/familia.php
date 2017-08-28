@@ -40,21 +40,21 @@ class familia extends \fs_model
     public $madre;
     public $nivel;
 
-    public function __construct($f = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('familias');
-        if ($f) {
-            $this->codfamilia = $f['codfamilia'];
-            $this->descripcion = $f['descripcion'];
+        if ($data) {
+            $this->codfamilia = $data['codfamilia'];
+            $this->descripcion = $data['descripcion'];
 
             $this->madre = NULL;
-            if (isset($f['madre'])) {
-                $this->madre = $f['madre'];
+            if (isset($data['madre'])) {
+                $this->madre = $data['madre'];
             }
 
             $this->nivel = '';
-            if (isset($f['nivel'])) {
-                $this->nivel = $f['nivel'];
+            if (isset($data['nivel'])) {
+                $this->nivel = $data['nivel'];
             }
         } else {
             $this->codfamilia = NULL;
@@ -133,9 +133,9 @@ class familia extends \fs_model
         $this->codfamilia = $this->no_html($this->codfamilia);
         $this->descripcion = $this->no_html($this->descripcion);
 
-        if (strlen($this->codfamilia) < 1 OR strlen($this->codfamilia) > 8) {
+        if (strlen($this->codfamilia) < 1 || strlen($this->codfamilia) > 8) {
             $this->new_error_msg("Código de familia no válido. Deben ser entre 1 y 8 caracteres.");
-        } else if (strlen($this->descripcion) < 1 OR strlen($this->descripcion) > 100) {
+        } else if (strlen($this->descripcion) < 1 || strlen($this->descripcion) > 100) {
             $this->new_error_msg("Descripción de familia no válida.");
         } else {
             $status = TRUE;
@@ -222,7 +222,7 @@ class familia extends \fs_model
 
     /**
      * Completa los datos de la lista de familias con el nivel
-     * @param string $familias
+     * @param array $familias
      * @param string $madre
      * @param string $nivel
      * @return \familia[]

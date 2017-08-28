@@ -162,47 +162,40 @@ class ventas_grupo extends fbase_controller
         $query = mb_strtolower($this->grupo->no_html($this->query), 'UTF8');
         $sql = " FROM clientes WHERE (debaja = false OR debaja IS NULL) AND "
             . "(codgrupo IS NULL OR codgrupo != " . $this->grupo->var2str($this->grupo->codgrupo) . ')';
-        $and = ' AND ';
 
         if (is_numeric($query)) {
-            $sql .= $and . "(nombre LIKE '%" . $query . "%'"
+            $sql .= " AND (nombre LIKE '%" . $query . "%'"
                 . " OR razonsocial LIKE '%" . $query . "%'"
                 . " OR codcliente LIKE '%" . $query . "%'"
                 . " OR cifnif LIKE '%" . $query . "%'"
                 . " OR telefono1 LIKE '" . $query . "%'"
                 . " OR telefono2 LIKE '" . $query . "%'"
                 . " OR observaciones LIKE '%" . $query . "%')";
-            $and = ' AND ';
         } else if ($query != '') {
             $buscar = str_replace(' ', '%', $query);
-            $sql .= $and . "(lower(nombre) LIKE '%" . $buscar . "%'"
+            $sql .= " AND (lower(nombre) LIKE '%" . $buscar . "%'"
                 . " OR lower(razonsocial) LIKE '%" . $buscar . "%'"
                 . " OR lower(cifnif) LIKE '%" . $buscar . "%'"
                 . " OR lower(observaciones) LIKE '%" . $buscar . "%'"
                 . " OR lower(email) LIKE '%" . $buscar . "%')";
-            $and = ' AND ';
         }
 
         if ($this->ciudad != '' OR $this->provincia != '' OR $this->codpais != '') {
-            $sql .= $and . " codcliente IN (SELECT codcliente FROM dirclientes WHERE ";
-            $and2 = '';
+            $sql .= " AND codcliente IN (SELECT codcliente FROM dirclientes WHERE 1=1 ";
 
             if ($this->ciudad != '') {
-                $sql .= $and2 . "lower(ciudad) = " . $this->grupo->var2str(mb_strtolower($this->ciudad, 'UTF8'));
-                $and2 = ' AND ';
+                $sql .= " AND lower(ciudad) = " . $this->grupo->var2str(mb_strtolower($this->ciudad, 'UTF8'));
             }
 
             if ($this->provincia != '') {
-                $sql .= $and2 . "lower(provincia) = " . $this->grupo->var2str(mb_strtolower($this->provincia, 'UTF8'));
-                $and2 = ' AND ';
+                $sql .= " AND lower(provincia) = " . $this->grupo->var2str(mb_strtolower($this->provincia, 'UTF8'));
             }
 
             if ($this->codpais != '') {
-                $sql .= $and2 . "codpais = " . $this->grupo->var2str($this->codpais);
+                $sql .= " AND codpais = " . $this->grupo->var2str($this->codpais);
             }
 
             $sql .= ")";
-            $and = ' AND ';
         }
 
         $data = $this->db->select_limit("SELECT *" . $sql . " ORDER BY " . $this->orden, 100, 0);

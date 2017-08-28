@@ -50,17 +50,17 @@ class cuenta extends \fs_model
     public $descripcion;
     public $idcuentaesp;
 
-    public function __construct($c = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_cuentas');
-        if ($c) {
-            $this->idcuenta = $this->intval($c['idcuenta']);
-            $this->codcuenta = $c['codcuenta'];
-            $this->codejercicio = $c['codejercicio'];
-            $this->idepigrafe = $this->intval($c['idepigrafe']);
-            $this->codepigrafe = $c['codepigrafe'];
-            $this->descripcion = $c['descripcion'];
-            $this->idcuentaesp = $c['idcuentaesp'];
+        if ($data) {
+            $this->idcuenta = $this->intval($data['idcuenta']);
+            $this->codcuenta = $data['codcuenta'];
+            $this->codejercicio = $data['codejercicio'];
+            $this->idepigrafe = $this->intval($data['idepigrafe']);
+            $this->codepigrafe = $data['codepigrafe'];
+            $this->descripcion = $data['descripcion'];
+            $this->idcuentaesp = $data['idcuentaesp'];
         } else {
             $this->idcuenta = NULL;
             $this->codcuenta = NULL;
@@ -75,7 +75,7 @@ class cuenta extends \fs_model
     protected function install()
     {
         /// forzamos la creación de la tabla epigrafes
-        $epi = new \epigrafe();
+        new \epigrafe();
 
         return '';
     }
@@ -156,7 +156,7 @@ class cuenta extends \fs_model
     {
         $this->descripcion = $this->no_html($this->descripcion);
 
-        if (strlen($this->codcuenta) > 0 AND strlen($this->descripcion) > 0) {
+        if (strlen($this->codcuenta) > 0 && strlen($this->descripcion) > 0) {
             return TRUE;
         }
 

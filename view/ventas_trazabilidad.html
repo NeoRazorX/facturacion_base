@@ -52,7 +52,7 @@
                            {if="$value2->lote"}{$value2->lote}{else}-{/if}
                         </td>
                         <td class="text-right">
-                           {if="$value2->idlalbcompra OR $value2->idlfaccompra"}
+                           {if="$value2->idlalbcompra || $value2->idlfaccompra"}
                            <a href="{$value2->documento_compra_url()}" target="_blank" title="Ver documento de entrada">
                               <span class="glyphicon glyphicon-eye-open"></span>
                            </a>
@@ -102,7 +102,7 @@
    </div>
    {/if}
    
-   {if="$fsc->lineas OR $fsc->disponibles"}
+   {if="$fsc->lineas || $fsc->disponibles"}
    <div class="container-fluid">
       <div class="row">
          <div class="col-sm-12 text-right">

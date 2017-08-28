@@ -122,37 +122,37 @@ class proveedor extends \fs_model
     public $codcliente;
     private static $regimenes_iva;
 
-    public function __construct($p = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('proveedores');
-        if ($p) {
-            $this->codproveedor = $p['codproveedor'];
-            $this->nombre = $p['nombre'];
+        if ($data) {
+            $this->codproveedor = $data['codproveedor'];
+            $this->nombre = $data['nombre'];
 
-            if (is_null($p['razonsocial'])) {
-                $this->razonsocial = $p['nombrecomercial'];
+            if (is_null($data['razonsocial'])) {
+                $this->razonsocial = $data['nombrecomercial'];
             } else {
-                $this->razonsocial = $p['razonsocial'];
+                $this->razonsocial = $data['razonsocial'];
             }
 
-            $this->tipoidfiscal = $p['tipoidfiscal'];
-            $this->cifnif = $p['cifnif'];
-            $this->telefono1 = $p['telefono1'];
-            $this->telefono2 = $p['telefono2'];
-            $this->fax = $p['fax'];
-            $this->email = $p['email'];
-            $this->web = $p['web'];
-            $this->codserie = $p['codserie'];
-            $this->coddivisa = $p['coddivisa'];
-            $this->codpago = $p['codpago'];
-            $this->observaciones = $this->no_html($p['observaciones']);
-            $this->regimeniva = $p['regimeniva'];
-            $this->acreedor = $this->str2bool($p['acreedor']);
-            $this->personafisica = $this->str2bool($p['personafisica']);
+            $this->tipoidfiscal = $data['tipoidfiscal'];
+            $this->cifnif = $data['cifnif'];
+            $this->telefono1 = $data['telefono1'];
+            $this->telefono2 = $data['telefono2'];
+            $this->fax = $data['fax'];
+            $this->email = $data['email'];
+            $this->web = $data['web'];
+            $this->codserie = $data['codserie'];
+            $this->coddivisa = $data['coddivisa'];
+            $this->codpago = $data['codpago'];
+            $this->observaciones = $this->no_html($data['observaciones']);
+            $this->regimeniva = $data['regimeniva'];
+            $this->acreedor = $this->str2bool($data['acreedor']);
+            $this->personafisica = $this->str2bool($data['personafisica']);
 
-            $this->debaja = $this->str2bool($p['debaja']);
+            $this->debaja = $this->str2bool($data['debaja']);
             $this->fechabaja = date('d-m-Y');
-            $this->codcliente = $p['codcliente'];
+            $this->codcliente = $data['codcliente'];
         } else {
             $this->codproveedor = NULL;
             $this->nombre = '';
@@ -280,7 +280,7 @@ class proveedor extends \fs_model
      */
     public function get_by_cifnif($cifnif, $razon = FALSE)
     {
-        if ($cifnif == '' AND $razon) {
+        if ($cifnif == '' && $razon) {
             $razon = mb_strtolower($this->no_html($razon), 'UTF8');
             $sql = "SELECT * FROM " . $this->table_name . " WHERE cifnif = ''"
                 . " AND lower(razonsocial) = " . $this->var2str($razon) . ";";
@@ -461,9 +461,9 @@ class proveedor extends \fs_model
 
         if (!preg_match("/^[A-Z0-9]{1,6}$/i", $this->codproveedor)) {
             $this->new_error_msg("Código de proveedor no válido.");
-        } else if (strlen($this->nombre) < 1 OR strlen($this->nombre) > 100) {
+        } else if (strlen($this->nombre) < 1 || strlen($this->nombre) > 100) {
             $this->new_error_msg("Nombre de proveedor no válido.");
-        } else if (strlen($this->razonsocial) < 1 OR strlen($this->razonsocial) > 100) {
+        } else if (strlen($this->razonsocial) < 1 || strlen($this->razonsocial) > 100) {
             $this->new_error_msg("Razón social del proveedor no válida.");
         } else {
             $status = TRUE;

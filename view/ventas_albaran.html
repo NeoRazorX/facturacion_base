@@ -389,7 +389,7 @@
                         <td>
                            <select class="form-control" id="iva_{$counter}" name="iva_{$counter}" onchange="ajustar_iva('{$counter}')">
                            {loop="$fsc->impuesto->all()"}
-                              {if="$value1->codimpuesto==$value2->codimpuesto OR $value1->iva==$value2->iva"}
+                              {if="$value1->codimpuesto==$value2->codimpuesto || $value1->iva==$value2->iva"}
                               <option value="{$value2->iva}" selected="">{$value2->descripcion}</option>
                               {else}
                               <option value="{$value2->iva}">{$value2->descripcion}</option>
@@ -441,7 +441,7 @@
                                   value="0" onchange="recalcular()" autocomplete="off"/>
                         </td>
                      </tr>
-                     {if="$fsc->user->admin AND FS_DB_HISTORY"}
+                     {if="$fsc->user->admin && FS_DB_HISTORY"}
                      <tr>
                         <td colspan="6"></td>
                         <td class="text-right">{$fsc->show_precio($fsc->albaran->neto, $fsc->albaran->coddivisa)}</td>

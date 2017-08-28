@@ -49,9 +49,9 @@ class contabilidad_nuevo_asiento extends fs_controller
         $this->resultados = array();
         $this->subcuenta = new subcuenta();
 
-        if (isset($_POST['fecha']) AND isset($_POST['query'])) {
+        if (isset($_POST['fecha']) && isset($_POST['query'])) {
             $this->new_search();
-        } else if (isset($_POST['fecha']) AND isset($_POST['concepto']) AND isset($_POST['divisa'])) {
+        } else if (isset($_POST['fecha']) && isset($_POST['concepto']) && isset($_POST['divisa'])) {
             if ($_POST['autonomo'] != '0') {
                 if (floatval($_POST['autonomo']) > 0) {
                     $this->nuevo_asiento_autonomo();
@@ -76,8 +76,6 @@ class contabilidad_nuevo_asiento extends fs_controller
 
     private function get_ejercicio($fecha)
     {
-        $ejercicio = FALSE;
-
         $ejercicio = $this->ejercicio->get_by_fecha($fecha);
         if ($ejercicio) {
             $regiva0 = new regularizacion_iva();
@@ -126,7 +124,7 @@ class contabilidad_nuevo_asiento extends fs_controller
                 $numlineas = intval($_POST['numlineas']);
                 for ($i = 1; $i <= $numlineas; $i++) {
                     if (isset($_POST['codsubcuenta_' . $i])) {
-                        if ($_POST['codsubcuenta_' . $i] != '' AND $continuar) {
+                        if ($_POST['codsubcuenta_' . $i] != '' && $continuar) {
                             $sub0 = $this->subcuenta->get_by_codigo($_POST['codsubcuenta_' . $i], $eje0->codejercicio);
                             if ($sub0) {
                                 $partida = new partida();
