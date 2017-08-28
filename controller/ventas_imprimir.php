@@ -33,16 +33,17 @@ class ventas_imprimir extends compras_imprimir
         parent::__construct($name, $title, $folder);
     }
 
+    protected function init()
+    {
+        parent::init();
+        $this->cliente = FALSE;
+    }
+
     protected function private_core()
     {
-        $this->cliente = FALSE;
-        $this->documento = FALSE;
-        $this->impuesto = new impuesto();
-        $this->cargar_config();
+        $this->init();
 
         if (isset($_REQUEST['albaran']) && isset($_REQUEST['id'])) {
-            $this->articulo_traza = new articulo_traza();
-
             $alb = new albaran_cliente();
             $this->documento = $alb->get($_REQUEST['id']);
             if ($this->documento) {
@@ -56,8 +57,6 @@ class ventas_imprimir extends compras_imprimir
                 $this->generar_pdf_albaran();
             }
         } else if (isset($_REQUEST['factura']) && isset($_REQUEST['id'])) {
-            $this->articulo_traza = new articulo_traza();
-
             $fac = new factura_cliente();
             $this->documento = $fac->get($_REQUEST['id']);
             if ($this->documento) {
@@ -71,8 +70,6 @@ class ventas_imprimir extends compras_imprimir
                 $this->generar_pdf_factura($_REQUEST['tipo']);
             }
         }
-
-        $this->share_extensions();
     }
 
     protected function share_extensions()
@@ -266,19 +263,19 @@ class ventas_imprimir extends compras_imprimir
             unset($table_header['alb']);
         }
 
-        if ($this->impresion['print_dto'] && ! isset($_GET['noval'])) {
+        if ($this->impresion['print_dto'] && !isset($_GET['noval'])) {
             $table_header['dto'] = '<b>Dto.</b>';
         }
 
-        if ($multi_iva && ! isset($_GET['noval'])) {
+        if ($multi_iva && !isset($_GET['noval'])) {
             $table_header['iva'] = '<b>' . FS_IVA . '</b>';
         }
 
-        if ($multi_re && ! isset($_GET['noval'])) {
+        if ($multi_re && !isset($_GET['noval'])) {
             $table_header['re'] = '<b>R.E.</b>';
         }
 
-        if ($multi_irpf && ! isset($_GET['noval'])) {
+        if ($multi_irpf && !isset($_GET['noval'])) {
             $table_header['irpf'] = '<b>' . FS_IRPF . '</b>';
         }
 
@@ -641,45 +638,7 @@ class ventas_imprimir extends compras_imprimir
                  */
                 if ($tipo == 'carta') {
                     $pdf_doc->generar_pdf_cabecera($this->empresa, $lppag);
-
-                    $direccion = $this->documento->nombrecliente . "\n" . $this->documento->direccion;
-                    if ($this->documento->apartado) {
-                        $direccion .= "\n " . ucfirst(FS_APARTADO) . ": " . $this->documento->apartado;
-                    }
-
-                    if ($this->documento->codpostal) {
-                        $direccion .= "\n CP: " . $this->documento->codpostal . ' - ';
-                    } else {
-                        $direccion .= "\n";
-                    }
-                    $direccion .= $this->documento->ciudad . "\n(" . $this->documento->provincia . ")";
-                    if ($this->documento->codpais != $this->empresa->codpais) {
-                        $pais0 = new pais();
-                        $pais = $pais0->get($this->documento->codpais);
-                        if ($pais) {
-                            $direccion .= ' ' . $pais->nombre;
-                        }
-                    }
-                    $pdf_doc->new_table();
-                    $pdf_doc->add_table_row(
-                        array(
-                            'campos' => "<b>" . ucfirst(FS_FACTURA) . ":</b>\n<b>Fecha:</b>\n<b>" . $this->cliente->tipoidfiscal . ":</b>",
-                            'factura' => $this->documento->codigo . "\n" . $this->documento->fecha . "\n" . $this->documento->cifnif,
-                            'cliente' => fs_fix_html($direccion)
-                        )
-                    );
-                    $pdf_doc->save_table(
-                        array(
-                            'cols' => array(
-                                'campos' => array('justification' => 'right', 'width' => 100),
-                                'factura' => array('justification' => 'left'),
-                                'cliente' => array('justification' => 'right')
-                            ),
-                            'showLines' => 0,
-                            'width' => 520
-                        )
-                    );
-                    $pdf_doc->pdf->ezText("\n\n\n", 14);
+                    $this->generar_pdf_carta($pdf_doc);
                 } else { /// esta es la cabecera de la página para el modelo 'simple'
                     $pdf_doc->generar_pdf_cabecera($this->empresa, $lppag);
                     $this->generar_pdf_datos_cliente($pdf_doc, $lppag);
@@ -687,51 +646,8 @@ class ventas_imprimir extends compras_imprimir
 
                 $this->generar_pdf_lineas_venta($pdf_doc, $lineas, $linea_actual, $lppag, $this->documento);
 
-                if ($linea_actual == count($lineas)) {
-                    if (!$this->documento->pagada && $this->impresion['print_formapago']) {
-                        $fp0 = new forma_pago();
-                        $forma_pago = $fp0->get($this->documento->codpago);
-                        if ($forma_pago) {
-                            $texto_pago = "\n<b>Forma de pago</b>: " . $forma_pago->descripcion;
-
-                            if (!$forma_pago->imprimir) {
-                                /// nada
-                            } else if ($forma_pago->domiciliado) {
-                                $cbc0 = new cuenta_banco_cliente();
-                                $encontrada = FALSE;
-                                foreach ($cbc0->all_from_cliente($this->documento->codcliente) as $cbc) {
-                                    $texto_pago .= "\n<b>Domiciliado en</b>: ";
-                                    if ($cbc->iban) {
-                                        $texto_pago .= $cbc->iban(TRUE);
-                                    }
-
-                                    if ($cbc->swift) {
-                                        $texto_pago .= "\n<b>SWIFT/BIC</b>: " . $cbc->swift;
-                                    }
-                                    $encontrada = TRUE;
-                                    break;
-                                }
-                                if (!$encontrada) {
-                                    $texto_pago .= "\n<b>El cliente no tiene cuenta bancaria asignada.</b>";
-                                }
-                            } else if ($forma_pago->codcuenta) {
-                                $cb0 = new cuenta_banco();
-                                $cuenta_banco = $cb0->get($forma_pago->codcuenta);
-                                if ($cuenta_banco) {
-                                    if ($cuenta_banco->iban) {
-                                        $texto_pago .= "\n<b>IBAN</b>: " . $cuenta_banco->iban(TRUE);
-                                    }
-
-                                    if ($cuenta_banco->swift) {
-                                        $texto_pago .= "\n<b>SWIFT o BIC</b>: " . $cuenta_banco->swift;
-                                    }
-                                }
-                            }
-
-                            $texto_pago .= "\n<b>Vencimiento</b>: " . $this->documento->vencimiento;
-                            $pdf_doc->pdf->ezText($texto_pago, 9);
-                        }
-                    }
+                if ($linea_actual == count($lineas) && !$this->documento->pagada && $this->impresion['print_formapago']) {
+                    $this->generar_pdf_forma_pago($pdf_doc);
                 }
 
                 $pdf_doc->set_y(80);
@@ -756,6 +672,97 @@ class ventas_imprimir extends compras_imprimir
             $pdf_doc->save('tmp/' . FS_TMP_NAME . 'enviar/' . $archivo);
         } else {
             $pdf_doc->show(FS_FACTURA . '_' . $this->documento->codigo . '.pdf');
+        }
+    }
+
+    protected function generar_pdf_carta(&$pdf_doc)
+    {
+        $direccion = $this->documento->nombrecliente . "\n" . $this->documento->direccion;
+        if ($this->documento->apartado) {
+            $direccion .= "\n " . ucfirst(FS_APARTADO) . ": " . $this->documento->apartado;
+        }
+
+        if ($this->documento->codpostal) {
+            $direccion .= "\n CP: " . $this->documento->codpostal . ' - ';
+        } else {
+            $direccion .= "\n";
+        }
+        $direccion .= $this->documento->ciudad . "\n(" . $this->documento->provincia . ")";
+        if ($this->documento->codpais != $this->empresa->codpais) {
+            $pais0 = new pais();
+            $pais = $pais0->get($this->documento->codpais);
+            if ($pais) {
+                $direccion .= ' ' . $pais->nombre;
+            }
+        }
+        $pdf_doc->new_table();
+        $pdf_doc->add_table_row(
+            array(
+                'campos' => "<b>" . ucfirst(FS_FACTURA) . ":</b>\n<b>Fecha:</b>\n<b>" . $this->cliente->tipoidfiscal . ":</b>",
+                'factura' => $this->documento->codigo . "\n" . $this->documento->fecha . "\n" . $this->documento->cifnif,
+                'cliente' => fs_fix_html($direccion)
+            )
+        );
+        $pdf_doc->save_table(
+            array(
+                'cols' => array(
+                    'campos' => array('justification' => 'right', 'width' => 100),
+                    'factura' => array('justification' => 'left'),
+                    'cliente' => array('justification' => 'right')
+                ),
+                'showLines' => 0,
+                'width' => 520
+            )
+        );
+        $pdf_doc->pdf->ezText("\n\n\n", 14);
+    }
+
+    protected function generar_pdf_forma_pago(&$pdf_doc)
+    {
+        $fp0 = new forma_pago();
+        $forma_pago = $fp0->get($this->documento->codpago);
+        if ($forma_pago) {
+            $texto_pago = "\n<b>Forma de pago</b>: " . $forma_pago->descripcion;
+
+            if (!$forma_pago->imprimir) {
+                /// nada
+            } else if ($forma_pago->domiciliado) {
+                $cbc0 = new cuenta_banco_cliente();
+                $encontrada = FALSE;
+                foreach ($cbc0->all_from_cliente($this->documento->codcliente) as $cbc) {
+                    $texto_pago .= "\n<b>Domiciliado en</b>: ";
+                    if ($cbc->iban) {
+                        $texto_pago .= $cbc->iban(TRUE);
+                    }
+
+                    if ($cbc->swift) {
+                        $texto_pago .= "\n<b>SWIFT/BIC</b>: " . $cbc->swift;
+                    }
+                    $encontrada = TRUE;
+                    break;
+                }
+                if (!$encontrada) {
+                    $texto_pago .= "\n<b>El cliente no tiene cuenta bancaria asignada.</b>";
+                }
+            } else if ($forma_pago->codcuenta) {
+                $cb0 = new cuenta_banco();
+                $cuenta_banco = $cb0->get($forma_pago->codcuenta);
+                if ($cuenta_banco) {
+                    if ($cuenta_banco->iban) {
+                        $texto_pago .= "\n<b>IBAN</b>: " . $cuenta_banco->iban(TRUE);
+                    }
+
+                    if ($cuenta_banco->swift) {
+                        $texto_pago .= "\n<b>SWIFT o BIC</b>: " . $cuenta_banco->swift;
+                    }
+                }
+            }
+
+            if (isset($this->documento->vencimiento)) {
+                $texto_pago .= "\n<b>Vencimiento</b>: " . $this->documento->vencimiento;
+            }
+
+            $pdf_doc->pdf->ezText($texto_pago, 9);
         }
     }
 
@@ -822,18 +829,14 @@ class ventas_imprimir extends compras_imprimir
                     $mail->addAttachment($_FILES['adjunto']['tmp_name'], $_FILES['adjunto']['name']);
                 }
 
-                if ($this->empresa->mail_connect($mail)) {
-                    if ($mail->send()) {
-                        $this->new_message('Mensaje enviado correctamente.');
+                if ($this->empresa->mail_connect($mail) && $mail->send()) {
+                    $this->new_message('Mensaje enviado correctamente.');
 
-                        /// nos guardamos la fecha de envío
-                        $this->documento->femail = $this->today();
-                        $this->documento->save();
+                    /// nos guardamos la fecha de envío
+                    $this->documento->femail = $this->today();
+                    $this->documento->save();
 
-                        $this->empresa->save_mail($mail);
-                    } else {
-                        $this->new_error_msg("Error al enviar el email: " . $mail->ErrorInfo);
-                    }
+                    $this->empresa->save_mail($mail);
                 } else {
                     $this->new_error_msg("Error al enviar el email: " . $mail->ErrorInfo);
                 }
