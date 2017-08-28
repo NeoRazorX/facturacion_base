@@ -139,9 +139,9 @@ class contabilidad_asientos extends fbase_controller
                 . "&desde=" . $this->desde
                 . "&hasta=" . $this->hasta
                 . "&orden=" . $this->orden;
-        } else {
-            return parent::url();
         }
+
+        return parent::url();
     }
 
     private function eliminar_asiento()
@@ -153,9 +153,11 @@ class contabilidad_asientos extends fbase_controller
             } else if ($asiento->delete()) {
                 $this->new_message("Asiento eliminado correctamente. (ID: " . $asiento->idasiento . ", " . $asiento->fecha . ")", TRUE);
                 $this->clean_last_changes();
-            } else
+            } else {
                 $this->new_error_msg("¡Imposible eliminar el asiento!");
-        } else
+            }
+        } else {
             $this->new_error_msg("¡Asiento no encontrado!");
+        }
     }
 }
