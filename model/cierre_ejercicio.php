@@ -185,7 +185,7 @@ class cierre_ejercicio
              */
             $diferencia = 0;
             foreach ($subcuenta->all_from_ejercicio($this->ejercicio->codejercicio) as $sc) {
-                if (in_array(substr($sc->codcuenta, 0, 1), array('6', '7')) AND $sc->tiene_saldo()) {
+                if (in_array(substr($sc->codcuenta, 0, 1), array('6', '7')) && $sc->tiene_saldo()) {
                     $ppyg = new partida();
                     $ppyg->idasiento = $asiento_pyg->idasiento;
                     $ppyg->concepto = $asiento_pyg->concepto;

@@ -170,52 +170,52 @@ class albaran_proveedor extends \fs_model
      */
     public $numdocs;
 
-    public function __construct($a = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('albaranesprov');
-        if ($a) {
-            $this->idalbaran = $this->intval($a['idalbaran']);
+        if ($data) {
+            $this->idalbaran = $this->intval($data['idalbaran']);
 
-            $this->idfactura = $this->intval($a['idfactura']);
+            $this->idfactura = $this->intval($data['idfactura']);
             if ($this->idfactura == 0) {
                 $this->idfactura = NULL;
             }
 
-            $this->ptefactura = $this->str2bool($a['ptefactura']);
+            $this->ptefactura = $this->str2bool($data['ptefactura']);
             if ($this->idfactura) {
                 /// si ya hay una factura enlazada, no puede estar pendiente de factura
                 $this->ptefactura = FALSE;
             }
 
-            $this->codigo = $a['codigo'];
-            $this->numero = $a['numero'];
-            $this->numproveedor = $a['numproveedor'];
-            $this->codejercicio = $a['codejercicio'];
-            $this->codserie = $a['codserie'];
-            $this->coddivisa = $a['coddivisa'];
-            $this->codpago = $a['codpago'];
-            $this->codagente = $a['codagente'];
-            $this->codalmacen = $a['codalmacen'];
-            $this->fecha = Date('d-m-Y', strtotime($a['fecha']));
+            $this->codigo = $data['codigo'];
+            $this->numero = $data['numero'];
+            $this->numproveedor = $data['numproveedor'];
+            $this->codejercicio = $data['codejercicio'];
+            $this->codserie = $data['codserie'];
+            $this->coddivisa = $data['coddivisa'];
+            $this->codpago = $data['codpago'];
+            $this->codagente = $data['codagente'];
+            $this->codalmacen = $data['codalmacen'];
+            $this->fecha = Date('d-m-Y', strtotime($data['fecha']));
 
             $this->hora = '00:00:00';
-            if (!is_null($a['hora'])) {
-                $this->hora = date('H:i:s', strtotime($a['hora']));
+            if (!is_null($data['hora'])) {
+                $this->hora = date('H:i:s', strtotime($data['hora']));
             }
 
-            $this->codproveedor = $a['codproveedor'];
-            $this->nombre = $a['nombre'];
-            $this->cifnif = $a['cifnif'];
-            $this->neto = floatval($a['neto']);
-            $this->total = floatval($a['total']);
-            $this->totaliva = floatval($a['totaliva']);
-            $this->totaleuros = floatval($a['totaleuros']);
-            $this->irpf = floatval($a['irpf']);
-            $this->totalirpf = floatval($a['totalirpf']);
-            $this->tasaconv = floatval($a['tasaconv']);
-            $this->totalrecargo = floatval($a['totalrecargo']);
-            $this->observaciones = $this->no_html($a['observaciones']);
-            $this->numdocs = intval($a['numdocs']);
+            $this->codproveedor = $data['codproveedor'];
+            $this->nombre = $data['nombre'];
+            $this->cifnif = $data['cifnif'];
+            $this->neto = floatval($data['neto']);
+            $this->total = floatval($data['total']);
+            $this->totaliva = floatval($data['totaliva']);
+            $this->totaleuros = floatval($data['totaleuros']);
+            $this->irpf = floatval($data['irpf']);
+            $this->totalirpf = floatval($data['totalirpf']);
+            $this->tasaconv = floatval($data['tasaconv']);
+            $this->totalrecargo = floatval($data['totalrecargo']);
+            $this->observaciones = $this->no_html($data['observaciones']);
+            $this->numdocs = intval($data['numdocs']);
         } else {
             $this->idalbaran = NULL;
             $this->idfactura = NULL;
@@ -450,7 +450,7 @@ class albaran_proveedor extends \fs_model
             }
         }
 
-        if ($status AND $duplicados) {
+        if ($status && $duplicados) {
             /// comprobamos si es un duplicado
             $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE fecha = " . $this->var2str($this->fecha)
                 . " AND codproveedor = " . $this->var2str($this->codproveedor)

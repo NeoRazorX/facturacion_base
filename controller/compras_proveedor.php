@@ -82,8 +82,9 @@ class compras_proveedor extends fbase_controller
             return parent::url();
         } else if ($this->proveedor) {
             return $this->proveedor->url();
-        } else
-            return $this->ppage->url();
+        }
+        
+        return $this->ppage->url();
     }
 
     private function modificar()
@@ -113,8 +114,9 @@ class compras_proveedor extends fbase_controller
 
         if ($this->proveedor->save()) {
             $this->new_message('Datos del proveedor modificados correctamente.');
-        } else
+        } else {
             $this->new_error_msg('¡Imposible modificar los datos del proveedor!');
+        }
     }
 
     private function edit_cuenta_banco()
@@ -143,10 +145,12 @@ class compras_proveedor extends fbase_controller
         if ($cuenta) {
             if ($cuenta->delete()) {
                 $this->new_message('Cuenta bancaria eliminada correctamente.');
-            } else
+            } else {
                 $this->new_error_msg('Imposible eliminar la cuenta bancaria.');
-        } else
+            }
+        } else {
             $this->new_error_msg('Cuenta bancaria no encontrada.');
+        }
     }
 
     private function edit_direccion()
@@ -167,8 +171,9 @@ class compras_proveedor extends fbase_controller
         $direccion->provincia = $_POST['provincia'];
         if ($direccion->save()) {
             $this->new_message("Dirección guardada correctamente.");
-        } else
+        } else {
             $this->new_error_msg("¡Imposible guardar la dirección!");
+        }
     }
 
     private function delete_direccion()
@@ -178,10 +183,12 @@ class compras_proveedor extends fbase_controller
         if ($dir0) {
             if ($dir0->delete()) {
                 $this->new_message('Dirección eliminada correctamente.');
-            } else
+            } else {
                 $this->new_error_msg('Imposible eliminar la dirección.');
-        } else
+            }
+        } else {
             $this->new_error_msg('Dirección no encontrada.');
+        }
     }
 
     /**
@@ -211,8 +218,9 @@ class compras_proveedor extends fbase_controller
         if ($cliente->save()) {
             $this->proveedor->codcliente = $cliente->codcliente;
             $cliente_ok = $this->proveedor->save();
-        } else
+        } else {
             $cliente_ok = FALSE;
+        }
 
         if ($cliente_ok) {
             /* cuentas de banco */
@@ -240,8 +248,9 @@ class compras_proveedor extends fbase_controller
             }
 
             $this->new_message('Cliente creado correctamente.');
-        } else
+        } else {
             $this->new_error_msg("¡Imposible crear el cliente!");
+        }
     }
 
     public function tiene_facturas()
@@ -257,7 +266,7 @@ class compras_proveedor extends fbase_controller
             }
         }
 
-        if (!$tiene AND $this->db->table_exists('albaranesprov')) {
+        if (!$tiene && $this->db->table_exists('albaranesprov')) {
             $sql = "SELECT * FROM albaranesprov WHERE codproveedor = " . $this->proveedor->var2str($this->proveedor->codproveedor);
 
             $data = $this->db->select_limit($sql, 5, 0);

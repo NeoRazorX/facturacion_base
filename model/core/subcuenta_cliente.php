@@ -46,15 +46,15 @@ class subcuenta_cliente extends \fs_model
     public $codsubcuenta;
     public $codejercicio;
 
-    public function __construct($s = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_subcuentascli');
-        if ($s) {
-            $this->id = $this->intval($s['id']);
-            $this->idsubcuenta = $this->intval($s['idsubcuenta']);
-            $this->codcliente = $s['codcliente'];
-            $this->codsubcuenta = $s['codsubcuenta'];
-            $this->codejercicio = $s['codejercicio'];
+        if ($data) {
+            $this->id = $this->intval($data['id']);
+            $this->idsubcuenta = $this->intval($data['idsubcuenta']);
+            $this->codcliente = $data['codcliente'];
+            $this->codsubcuenta = $data['codsubcuenta'];
+            $this->codejercicio = $data['codejercicio'];
         } else {
             $this->id = NULL;
             $this->idsubcuenta = NULL;

@@ -46,15 +46,15 @@ class subcuenta_proveedor extends \fs_model
     public $codsubcuenta;
     public $codejercicio;
 
-    public function __construct($s = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_subcuentasprov');
-        if ($s) {
-            $this->id = $this->intval($s['id']);
-            $this->idsubcuenta = $this->intval($s['idsubcuenta']);
-            $this->codproveedor = $s['codproveedor'];
-            $this->codsubcuenta = $s['codsubcuenta'];
-            $this->codejercicio = $s['codejercicio'];
+        if ($data) {
+            $this->id = $this->intval($data['id']);
+            $this->idsubcuenta = $this->intval($data['idsubcuenta']);
+            $this->codproveedor = $data['codproveedor'];
+            $this->codsubcuenta = $data['codsubcuenta'];
+            $this->codejercicio = $data['codejercicio'];
         } else {
             $this->id = NULL;
             $this->idsubcuenta = NULL;

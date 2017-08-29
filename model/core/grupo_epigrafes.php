@@ -107,7 +107,7 @@ class grupo_epigrafes extends \fs_model
     {
         $this->descripcion = $this->no_html($this->descripcion);
 
-        if (strlen($this->codejercicio) > 0 AND strlen($this->codgrupo) > 0 AND strlen($this->descripcion) > 0) {
+        if (strlen($this->codejercicio) > 0 && strlen($this->codgrupo) > 0 && strlen($this->descripcion) > 0) {
             return TRUE;
         }
 

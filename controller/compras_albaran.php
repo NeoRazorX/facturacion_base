@@ -96,7 +96,7 @@ class compras_albaran extends fbase_controller
             /// comprobamos el albarán
             $this->albaran->full_test();
 
-            if (isset($_POST['facturar']) AND isset($_POST['petid']) AND $this->albaran->ptefactura) {
+            if (isset($_POST['facturar']) && isset($_POST['petid']) && $this->albaran->ptefactura) {
                 if ($this->duplicated_petition($_POST['petid'])) {
                     $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
                 } else
@@ -243,7 +243,7 @@ class compras_albaran extends fbase_controller
                                 $lineas[$k]->iva = 0;
                                 $lineas[$k]->recargo = 0;
                                 $lineas[$k]->irpf = floatval($_POST['irpf_' . $num]);
-                                if (!$serie->siniva AND $regimeniva != 'Exento') {
+                                if (!$serie->siniva && $regimeniva != 'Exento') {
                                     $imp0 = $this->impuesto->get_by_iva($_POST['iva_' . $num]);
                                     if ($imp0) {
                                         $lineas[$k]->codimpuesto = $imp0->codimpuesto;
@@ -278,12 +278,12 @@ class compras_albaran extends fbase_controller
                         }
 
                         /// añadimos la línea
-                        if (!$encontrada AND intval($_POST['idlinea_' . $num]) == -1 AND isset($_POST['referencia_' . $num])) {
+                        if (!$encontrada && intval($_POST['idlinea_' . $num]) == -1 && isset($_POST['referencia_' . $num])) {
                             $linea = new linea_albaran_proveedor();
                             $linea->idalbaran = $this->albaran->idalbaran;
                             $linea->descripcion = $_POST['desc_' . $num];
 
-                            if (!$serie->siniva AND $regimeniva != 'Exento') {
+                            if (!$serie->siniva && $regimeniva != 'Exento') {
                                 $imp0 = $this->impuesto->get_by_iva($_POST['iva_' . $num]);
                                 if ($imp0) {
                                     $linea->codimpuesto = $imp0->codimpuesto;

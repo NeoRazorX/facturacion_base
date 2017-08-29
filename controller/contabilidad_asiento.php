@@ -51,7 +51,7 @@ class contabilidad_asiento extends fbase_controller
             $this->asiento = $asiento->get($_GET['id']);
         }
 
-        if (isset($_POST['fecha']) AND isset($_POST['query'])) {
+        if (isset($_POST['fecha']) && isset($_POST['query'])) {
             $this->new_search();
         } else if ($this->asiento) {
             $this->page->title = 'Asiento: ' . $this->asiento->numero;
@@ -60,7 +60,7 @@ class contabilidad_asiento extends fbase_controller
                 $this->bloquear();
             } else if (isset($_GET['desbloquear'])) {
                 $this->desbloquear();
-            } else if (isset($_POST['fecha']) AND $this->asiento->editable) {
+            } else if (isset($_POST['fecha']) && $this->asiento->editable) {
                 $this->modificar();
             }
 
@@ -79,8 +79,9 @@ class contabilidad_asiento extends fbase_controller
             return parent::url();
         } else if ($this->asiento) {
             return $this->asiento->url();
-        } else
-            return $this->ppage->url();
+        }
+
+        return $this->ppage->url();
     }
 
     private function new_search()
@@ -101,8 +102,9 @@ class contabilidad_asiento extends fbase_controller
         $this->asiento->editable = FALSE;
         if ($this->asiento->save()) {
             $this->new_message('Asiento bloqueado correctamente.');
-        } else
+        } else {
             $this->new_error_msg('Imposible bloquear el asiento.');
+        }
     }
 
     private function desbloquear()
@@ -114,16 +116,16 @@ class contabilidad_asiento extends fbase_controller
 
                 $regiva0 = new regularizacion_iva();
                 $excluir = array($ejercicio->idasientoapertura, $ejercicio->idasientocierre, $ejercicio->idasientopyg);
-                if ($regiva0->get_fecha_inside($this->asiento->fecha) AND ! in_array($this->asiento->idasiento, $excluir)) {
+                if ($regiva0->get_fecha_inside($this->asiento->fecha) && ! in_array($this->asiento->idasiento, $excluir)) {
                     $this->asiento->editable = FALSE;
                     $this->new_error_msg('El asiento está dentro de una regularización de '
                         . FS_IVA . '. No se puede modificar.');
                 } else if ($this->asiento->save()) {
                     $this->new_message('Asiento desbloqueado correctamente.');
-                } else
+                } else {
                     $this->new_error_msg('Imposible desbloquear el asiento.');
-            }
-            else {
+                }
+            } else {
                 $this->new_error_msg('Imposible desbloquear el asiento: el ejercicio '
                     . $ejercicio->nombre . ' está cerrado.');
             }
@@ -139,7 +141,7 @@ class contabilidad_asiento extends fbase_controller
             if ($ejercicio->abierto()) {
                 $regiva0 = new regularizacion_iva();
                 $excluir = array($ejercicio->idasientoapertura, $ejercicio->idasientocierre, $ejercicio->idasientopyg);
-                if ($regiva0->get_fecha_inside($this->asiento->fecha) AND ! in_array($this->asiento->idasiento, $excluir)) {
+                if ($regiva0->get_fecha_inside($this->asiento->fecha) && ! in_array($this->asiento->idasiento, $excluir)) {
                     $this->new_error_msg('El asiento está dentro de una regularización de '
                         . FS_IVA . '. No se puede modificar.');
                 } else {
@@ -152,7 +154,7 @@ class contabilidad_asiento extends fbase_controller
             }
         }
 
-        if ($bloquear AND $this->asiento->editable) {
+        if ($bloquear && $this->asiento->editable) {
             $this->asiento->editable = FALSE;
             $this->asiento->save();
         }
@@ -184,7 +186,7 @@ class contabilidad_asiento extends fbase_controller
         /// obtenemos la divisa de las partidas
         $div0 = $this->divisa->get($_POST['divisa']);
 
-        if (!$eje0 OR ! $div0) {
+        if (!$eje0 || ! $div0) {
             $this->new_error_msg('Imposible modificar el asiento.');
         } else if ($this->asiento->save()) {
             $continuar = TRUE;
@@ -194,19 +196,15 @@ class contabilidad_asiento extends fbase_controller
             foreach ($this->asiento->get_partidas() as $pa) {
                 $encontrada = FALSE;
                 for ($i = 1; $i <= $numlineas; $i++) {
-                    if (isset($_POST['idpartida_' . $i])) {
-                        if (intval($_POST['idpartida_' . $i]) == $pa->idpartida) {
-                            $encontrada = TRUE;
-                            break;
-                        }
-                    }
-                }
-                if (!$encontrada) {
-                    if (!$pa->delete()) {
-                        $this->new_error_msg('Imposible eliminar la línea debe=' . $pa->debe . ' haber=' . $pa->haber);
-                        $continuar = FALSE;
+                    if (isset($_POST['idpartida_' . $i]) && intval($_POST['idpartida_' . $i]) == $pa->idpartida) {
+                        $encontrada = TRUE;
                         break;
                     }
+                }
+                if (!$encontrada && !$pa->delete()) {
+                    $this->new_error_msg('Imposible eliminar la línea debe=' . $pa->debe . ' haber=' . $pa->haber);
+                    $continuar = FALSE;
+                    break;
                 }
             }
 
@@ -252,19 +250,17 @@ class contabilidad_asiento extends fbase_controller
                             $partida->cifnif = NULL;
                             $partida->iva = 0;
                             $partida->baseimponible = 0;
-                            if (isset($_POST['codcontrapartida_' . $i])) {
-                                if ($_POST['codcontrapartida_' . $i] != '') {
-                                    $subc1 = $this->subcuenta->get_by_codigo($_POST['codcontrapartida_' . $i], $eje0->codejercicio);
-                                    if ($subc1) {
-                                        $partida->idcontrapartida = $subc1->idsubcuenta;
-                                        $partida->codcontrapartida = $subc1->codsubcuenta;
-                                        $partida->cifnif = $_POST['cifnif_' . $i];
-                                        $partida->iva = floatval($_POST['iva_' . $i]);
-                                        $partida->baseimponible = floatval($_POST['baseimp_' . $i]);
-                                    } else {
-                                        $this->new_error_msg('Subcuenta ' . $_POST['codcontrapartida_' . $i] . ' no encontrada.');
-                                        $continuar = FALSE;
-                                    }
+                            if (isset($_POST['codcontrapartida_' . $i]) && $_POST['codcontrapartida_' . $i] != '') {
+                                $subc1 = $this->subcuenta->get_by_codigo($_POST['codcontrapartida_' . $i], $eje0->codejercicio);
+                                if ($subc1) {
+                                    $partida->idcontrapartida = $subc1->idsubcuenta;
+                                    $partida->codcontrapartida = $subc1->codsubcuenta;
+                                    $partida->cifnif = $_POST['cifnif_' . $i];
+                                    $partida->iva = floatval($_POST['iva_' . $i]);
+                                    $partida->baseimponible = floatval($_POST['baseimp_' . $i]);
+                                } else {
+                                    $this->new_error_msg('Subcuenta ' . $_POST['codcontrapartida_' . $i] . ' no encontrada.');
+                                    $continuar = FALSE;
                                 }
                             }
 
@@ -276,8 +272,9 @@ class contabilidad_asiento extends fbase_controller
                             $this->new_error_msg('Subcuenta ' . $_POST['codsubcuenta_' . $i] . ' de la línea ' . $i . ' no encontrada.');
                             $continuar = FALSE;
                         }
-                    } else
+                    } else {
                         break;
+                    }
                 }
             }
 
@@ -290,8 +287,9 @@ class contabilidad_asiento extends fbase_controller
                 $this->new_message('Asiento modificado correctamente.');
                 $this->new_change('Asiento ' . $this->asiento->numero, $this->asiento->url());
             }
-        } else
+        } else {
             $this->new_error_msg('Imposible modificar el asiento.');
+        }
     }
 
     private function get_lineas_asiento()

@@ -78,7 +78,7 @@ class base_wizard extends fs_controller
 
         $fsvar = new fs_var();
         $this->step = $fsvar->simple_get('install_step');
-        if ($this->step < 2 OR isset($_GET['restart'])) {
+        if ($this->step < 2 || isset($_GET['restart'])) {
             $this->step = 2;
         }
 
@@ -123,7 +123,7 @@ class base_wizard extends fs_controller
                 /// avanzamos el asistente
                 $this->step = 3;
 
-                if ($this->empresa->codpais == 'ESP' OR $this->empresa->codpais == 'ES') {
+                if ($this->empresa->codpais == 'ESP' || $this->empresa->codpais == 'ES') {
                     /// si es España nos podemos ahorrar un paso
                     $this->empresa->coddivisa = 'EUR';
                     $this->empresa->save();
@@ -230,7 +230,7 @@ class base_wizard extends fs_controller
 
             /// leemos todos los controladores del plugin
             foreach (scandir(__DIR__) as $f) {
-                if ($f != '.' AND $f != '..' AND is_string($f) AND strlen($f) > 4 AND ! is_dir($f) AND $f != __CLASS__ . '.php') {
+                if ($f != '.' && $f != '..' && is_string($f) && strlen($f) > 4 && ! is_dir($f) && $f != __CLASS__ . '.php') {
                     /// obtenemos el nombre
                     $page_name = substr($f, 0, -4);
 

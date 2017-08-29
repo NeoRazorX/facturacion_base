@@ -63,22 +63,22 @@ class direccion_cliente extends \fs_model
      */
     public $fecha;
 
-    public function __construct($d = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('dirclientes');
-        if ($d) {
-            $this->id = $this->intval($d['id']);
-            $this->codcliente = $d['codcliente'];
-            $this->codpais = $d['codpais'];
-            $this->apartado = $d['apartado'];
-            $this->provincia = $d['provincia'];
-            $this->ciudad = $d['ciudad'];
-            $this->codpostal = $d['codpostal'];
-            $this->direccion = $d['direccion'];
-            $this->domenvio = $this->str2bool($d['domenvio']);
-            $this->domfacturacion = $this->str2bool($d['domfacturacion']);
-            $this->descripcion = $d['descripcion'];
-            $this->fecha = date('d-m-Y', strtotime($d['fecha']));
+        if ($data) {
+            $this->id = $this->intval($data['id']);
+            $this->codcliente = $data['codcliente'];
+            $this->codpais = $data['codpais'];
+            $this->apartado = $data['apartado'];
+            $this->provincia = $data['provincia'];
+            $this->ciudad = $data['ciudad'];
+            $this->codpostal = $data['codpostal'];
+            $this->direccion = $data['direccion'];
+            $this->domenvio = $this->str2bool($data['domenvio']);
+            $this->domfacturacion = $this->str2bool($data['domfacturacion']);
+            $this->descripcion = $data['descripcion'];
+            $this->fecha = date('d-m-Y', strtotime($data['fecha']));
         } else {
             $this->id = NULL;
             $this->codcliente = NULL;

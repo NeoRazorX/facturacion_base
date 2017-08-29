@@ -42,7 +42,7 @@ class contabilidad_formas_pago extends fbase_controller
          */
         $this->button_plazos = FALSE;
         foreach ($this->extensions as $ext) {
-            if ($ext->type == 'config' AND $ext->text == 'button_plazos') {
+            if ($ext->type == 'config' && $ext->text == 'button_plazos') {
                 $this->button_plazos = $ext->from;
                 break;
             }
@@ -90,12 +90,12 @@ class contabilidad_formas_pago extends fbase_controller
             }
         }
 
-        if ($fp0->codpago == '' OR $fp0->descripcion == '') {
+        if ($fp0->codpago == '' || $fp0->descripcion == '') {
             $this->new_error_msg('Debes poner algún nombre a la forma de pago.');
         } else if ($fp0->save()) {
             $this->new_message('Forma de pago ' . $fp0->codpago . ' guardada correctamente.');
 
-            if ($nueva AND $this->button_plazos AND $fp0->genrecibos == 'Emitidos') {
+            if ($nueva && $this->button_plazos && $fp0->genrecibos == 'Emitidos') {
                 header('Location: index.php?page=' . $this->button_plazos . '&cod=' . $fp0->codpago . '&nueva=TRUE');
             }
         } else {

@@ -1,4 +1,4 @@
-<form name="f_feedback" action="{#FS_COMMUNITY_URL#}/index.php?page=community_feedback" method="post" target="_blank" class="form" role="form">
+<form name="f_feedback" action="https://www.facturascripts.com/feedback" method="post" target="_blank" class="form" role="form">
    <input type="hidden" name="feedback_info" value="{$fsc->system_info()}"/>
    <input type="hidden" name="feedback_type" value="error"/>
    <div class="modal" id="modal_feedback">
@@ -33,7 +33,7 @@
                      <span class="input-group-addon">
                         <i class="fa fa-envelope" aria-hidden="true"></i>
                      </span>
-                     {if="$fsc->empresa AND $fsc->user->logged_on"}
+                     {if="$fsc->empresa && $fsc->user->logged_on"}
                      <input type="email" class="form-control" name="feedback_email" placeholder="Tu email" value="{$fsc->empresa->email}"/>
                      {else}
                      <input type="email" class="form-control" name="feedback_email" placeholder="Tu email"/>
@@ -54,13 +54,13 @@
    </div>
 </form>
 
-{if="$fsc->empresa AND !FS_DEMO AND mt_rand(0,49)==0"}
+{if="$fsc->empresa && !FS_DEMO && mt_rand(0,49)==0"}
 <div style="display: none;">
-   {if="mt_rand(0,2)>0 AND $fsc->user->logged_on"}
+   {if="mt_rand(0,2)>0 && $fsc->user->logged_on"}
    <iframe src="index.php?page=admin_home&check4updates=TRUE" height="0"></iframe>
    {else}
-   <iframe src="{#FS_COMMUNITY_URL#}/index.php?page=community_stats&add=TRUE&version={$fsc->version()}&plugins={function="join(',', $GLOBALS['plugins'])"}" height="0">
-   </iframe>
+   <!--{$plugin_list=join(',', $GLOBALS['plugins'])}-->
+    <iframe src="{#FS_COMMUNITY_URL#}/index.php?page=community_stats&add=TRUE&version={$fsc->version()}&plugins={$plugin_list}" height="0"></iframe>
    {/if}
 </div>
 {/if}

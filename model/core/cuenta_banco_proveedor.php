@@ -42,16 +42,16 @@ class cuenta_banco_proveedor extends \fs_model
     public $swift;
     public $principal;
 
-    public function __construct($c = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('cuentasbcopro');
-        if ($c) {
-            $this->codcuenta = $c['codcuenta'];
-            $this->codproveedor = $c['codproveedor'];
-            $this->descripcion = $c['descripcion'];
-            $this->iban = $c['iban'];
-            $this->swift = $c['swift'];
-            $this->principal = $this->str2bool($c['principal']);
+        if ($data) {
+            $this->codcuenta = $data['codcuenta'];
+            $this->codproveedor = $data['codproveedor'];
+            $this->descripcion = $data['descripcion'];
+            $this->iban = $data['iban'];
+            $this->swift = $data['swift'];
+            $this->principal = $this->str2bool($data['principal']);
         } else {
             $this->codcuenta = NULL;
             $this->codproveedor = NULL;

@@ -30,13 +30,13 @@ class cliente_propiedad extends \fs_model
     public $codcliente;
     public $text;
 
-    public function __construct($a = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('cliente_propiedades');
-        if ($a) {
-            $this->name = $a['name'];
-            $this->codcliente = $a['codcliente'];
-            $this->text = $a['text'];
+        if ($data) {
+            $this->name = $data['name'];
+            $this->codcliente = $data['codcliente'];
+            $this->text = $data['text'];
         } else {
             $this->name = NULL;
             $this->codcliente = NULL;
@@ -51,7 +51,7 @@ class cliente_propiedad extends \fs_model
 
     public function exists()
     {
-        if (is_null($this->name) OR is_null($this->codcliente)) {
+        if (is_null($this->name) || is_null($this->codcliente)) {
             return FALSE;
         }
 

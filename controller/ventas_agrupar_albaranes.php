@@ -193,7 +193,7 @@ class ventas_agrupar_albaranes extends fbase_controller
                  * Si la dirección es de facturación y ha sido modificada posteriormente
                  * al albarán, la usamos para la factura, porque está más actualizada.
                  */
-                if ($dir->domfacturacion AND strtotime($dir->fecha) > strtotime($albaranes[0]->fecha)) {
+                if ($dir->domfacturacion && strtotime($dir->fecha) > strtotime($albaranes[0]->fecha)) {
                     $factura->apartado = $dir->apartado;
                     $factura->cifnif = $cliente->cifnif;
                     $factura->ciudad = $dir->ciudad;
@@ -368,7 +368,7 @@ class ventas_agrupar_albaranes extends fbase_controller
                     /// Comprobamos si el cliente ya está en la lista.
                     $encontrado = FALSE;
                     foreach ($pendientes as $i => $pe) {
-                        if ($alb->codcliente == $pe['codcliente'] AND $alb->codserie == $pe['codserie'] AND $alb->coddivisa == $pe['coddivisa']) {
+                        if ($alb->codcliente == $pe['codcliente'] && $alb->codserie == $pe['codserie'] && $alb->coddivisa == $pe['coddivisa']) {
                             $encontrado = TRUE;
                             $pendientes[$i]['num'] ++;
 

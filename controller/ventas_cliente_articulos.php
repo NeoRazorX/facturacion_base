@@ -46,7 +46,7 @@ class ventas_cliente_articulos extends fs_controller
         $this->resultados = array();
 
         /// recibimos el código del cliente
-        if (isset($_REQUEST['cod']) AND ! empty($_REQUEST['cod'])) {
+        if (isset($_REQUEST['cod']) && ! empty($_REQUEST['cod'])) {
             $cli0 = new cliente();
             $this->cliente = $cli0->get($_REQUEST['cod']);
         }

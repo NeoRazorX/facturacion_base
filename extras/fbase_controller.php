@@ -136,7 +136,7 @@ class fbase_controller extends fs_controller
              * descartamos todo excepto la primera, la última, la de enmedio,
              * la actual, las 5 anteriores y las 5 siguientes
              */
-            if (($j > 1 AND $j < $actual - 5 AND $j != $enmedio) OR ( $j > $actual + 5 AND $j < $i - 1 AND $j != $enmedio)) {
+            if (($j > 1 && $j < $actual - 5 && $j != $enmedio) || ( $j > $actual + 5 && $j < $i - 1 && $j != $enmedio)) {
                 unset($paginas[$j]);
             }
         }

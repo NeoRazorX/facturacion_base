@@ -91,7 +91,7 @@ class articulo_proveedor extends \fs_model
     private static $impuestos;
     private static $nombres;
 
-    public function __construct($a = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('articulosprov');
 
@@ -103,25 +103,25 @@ class articulo_proveedor extends \fs_model
             self::$nombres = array();
         }
 
-        if ($a) {
-            $this->id = $this->intval($a['id']);
-            $this->referencia = $a['referencia'];
-            $this->codproveedor = $a['codproveedor'];
-            $this->refproveedor = $a['refproveedor'];
-            $this->descripcion = $a['descripcion'];
+        if ($data) {
+            $this->id = $this->intval($data['id']);
+            $this->referencia = $data['referencia'];
+            $this->codproveedor = $data['codproveedor'];
+            $this->refproveedor = $data['refproveedor'];
+            $this->descripcion = $data['descripcion'];
 
             /// En algunos módulos de eneboo se usa coste como precio
-            if (is_null($a['precio']) AND isset($a['coste'])) {
-                $this->precio = floatval($a['coste']);
+            if (is_null($data['precio']) && isset($data['coste'])) {
+                $this->precio = floatval($data['coste']);
             } else
-                $this->precio = floatval($a['precio']);
+                $this->precio = floatval($data['precio']);
 
-            $this->dto = floatval($a['dto']);
-            $this->codimpuesto = $a['codimpuesto'];
-            $this->stock = floatval($a['stock']);
-            $this->nostock = $this->str2bool($a['nostock']);
-            $this->codbarras = $a['codbarras'];
-            $this->partnumber = $a['partnumber'];
+            $this->dto = floatval($data['dto']);
+            $this->codimpuesto = $data['codimpuesto'];
+            $this->stock = floatval($data['stock']);
+            $this->nostock = $this->str2bool($data['nostock']);
+            $this->codbarras = $data['codbarras'];
+            $this->partnumber = $data['partnumber'];
         } else {
             $this->id = NULL;
             $this->referencia = NULL;
@@ -283,7 +283,7 @@ class articulo_proveedor extends \fs_model
             $this->stock = 0.0;
         }
 
-        if (is_null($this->refproveedor) OR strlen($this->refproveedor) < 1 OR strlen($this->refproveedor) > 25) {
+        if (is_null($this->refproveedor) || strlen($this->refproveedor) < 1 || strlen($this->refproveedor) > 25) {
             $this->new_error_msg('La referencia de proveedor debe contener entre 1 y 25 caracteres.');
             return FALSE;
         }

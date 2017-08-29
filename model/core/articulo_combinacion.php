@@ -104,21 +104,21 @@ class articulo_combinacion extends \fs_model
      */
     public $stockfis;
 
-    public function __construct($c = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('articulo_combinaciones');
-        if ($c) {
-            $this->id = $this->intval($c['id']);
-            $this->codigo = $c['codigo'];
-            $this->codigo2 = $c['codigo2'];
-            $this->referencia = $c['referencia'];
-            $this->idvalor = $this->intval($c['idvalor']);
-            $this->nombreatributo = $c['nombreatributo'];
-            $this->valor = $c['valor'];
-            $this->refcombinacion = $c['refcombinacion'];
-            $this->codbarras = $c['codbarras'];
-            $this->impactoprecio = floatval($c['impactoprecio']);
-            $this->stockfis = floatval($c['stockfis']);
+        if ($data) {
+            $this->id = $this->intval($data['id']);
+            $this->codigo = $data['codigo'];
+            $this->codigo2 = $data['codigo2'];
+            $this->referencia = $data['referencia'];
+            $this->idvalor = $this->intval($data['idvalor']);
+            $this->nombreatributo = $data['nombreatributo'];
+            $this->valor = $data['valor'];
+            $this->refcombinacion = $data['refcombinacion'];
+            $this->codbarras = $data['codbarras'];
+            $this->impactoprecio = floatval($data['impactoprecio']);
+            $this->stockfis = floatval($data['stockfis']);
         } else {
             $this->id = NULL;
             $this->codigo = NULL;

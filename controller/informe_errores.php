@@ -124,7 +124,7 @@ class informe_errores extends fs_controller
                 while (!feof($file)) {
                     $linea = explode(';', trim(fgets($file)));
                     if (count($linea) == 7) {
-                        if ($numlinea > $this->informe['show_page'] * FS_ITEM_LIMIT AND $numlinea <= (1 + $this->informe['show_page']) * FS_ITEM_LIMIT) {
+                        if ($numlinea > $this->informe['show_page'] * FS_ITEM_LIMIT && $numlinea <= (1 + $this->informe['show_page']) * FS_ITEM_LIMIT) {
                             $this->errores[] = array(
                                 'error' => $linea[0],
                                 'model' => $linea[1],
@@ -412,7 +412,7 @@ class informe_errores extends fs_controller
 
         /// ahora descartamos
         foreach ($allp as $j => $value) {
-            if (($value['num'] > 1 AND $j < $show_p - 3 AND $value['num'] % 10) OR ( $j > $show_p + 3 AND $j < $i - 1 AND $value['num'] % 10)) {
+            if (($value['num'] > 1 && $j < $show_p - 3 && $value['num'] % 10) || ( $j > $show_p + 3 && $j < $i - 1 && $value['num'] % 10)) {
                 unset($allp[$j]);
             }
         }

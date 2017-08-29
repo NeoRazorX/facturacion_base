@@ -78,7 +78,7 @@ class caja extends \fs_model
      */
     private static $agentes;
 
-    public function __construct($c = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('cajas');
 
@@ -86,24 +86,24 @@ class caja extends \fs_model
             self::$agentes = array();
         }
 
-        if ($c) {
-            $this->id = $this->intval($c['id']);
-            $this->fs_id = $this->intval($c['fs_id']);
-            $this->fecha_inicial = Date('d-m-Y H:i:s', strtotime($c['f_inicio']));
-            $this->dinero_inicial = floatval($c['d_inicio']);
+        if ($data) {
+            $this->id = $this->intval($data['id']);
+            $this->fs_id = $this->intval($data['fs_id']);
+            $this->fecha_inicial = Date('d-m-Y H:i:s', strtotime($data['f_inicio']));
+            $this->dinero_inicial = floatval($data['d_inicio']);
 
-            if (is_null($c['f_fin'])) {
+            if (is_null($data['f_fin'])) {
                 $this->fecha_fin = NULL;
             } else
-                $this->fecha_fin = Date('d-m-Y H:i:s', strtotime($c['f_fin']));
+                $this->fecha_fin = Date('d-m-Y H:i:s', strtotime($data['f_fin']));
 
-            $this->dinero_fin = floatval($c['d_fin']);
-            $this->codagente = $c['codagente'];
-            $this->tickets = intval($c['tickets']);
+            $this->dinero_fin = floatval($data['d_fin']);
+            $this->codagente = $data['codagente'];
+            $this->tickets = intval($data['tickets']);
 
             $this->ip = NULL;
-            if (isset($c['ip'])) {
-                $this->ip = $c['ip'];
+            if (isset($data['ip'])) {
+                $this->ip = $data['ip'];
             }
 
             foreach (self::$agentes as $ag) {

@@ -34,12 +34,12 @@ class cuenta_especial extends \fs_model
     public $idcuentaesp;
     public $descripcion;
 
-    public function __construct($c = FALSE)
+    public function __construct($data = FALSE)
     {
         parent::__construct('co_cuentasesp');
-        if ($c) {
-            $this->idcuentaesp = $c['idcuentaesp'];
-            $this->descripcion = $c['descripcion'];
+        if ($data) {
+            $this->idcuentaesp = $data['idcuentaesp'];
+            $this->descripcion = $data['descripcion'];
         } else {
             $this->idcuentaesp = NULL;
             $this->descripcion = NULL;
@@ -82,9 +82,9 @@ class cuenta_especial extends \fs_model
 
     public function get($id)
     {
-        $cuentae = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcuentaesp = " . $this->var2str($id) . ";");
-        if ($cuentae) {
-            return new \cuenta_especial($cuentae[0]);
+        $data = $this->db->select("SELECT * FROM " . $this->table_name . " WHERE idcuentaesp = " . $this->var2str($id) . ";");
+        if ($data) {
+            return new \cuenta_especial($data[0]);
         }
 
         return FALSE;

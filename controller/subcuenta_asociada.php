@@ -51,7 +51,7 @@ class subcuenta_asociada extends fs_controller
             $this->codejercicio = $this->default_items->codejercicio();
         }
 
-        if (isset($_POST['ejercicio']) AND isset($_POST['query'])) {
+        if (isset($_POST['ejercicio']) && isset($_POST['query'])) {
             $this->new_search();
         } else if (isset($_REQUEST['cli'])) {
             $this->tipo = 'cli';

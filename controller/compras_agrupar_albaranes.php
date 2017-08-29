@@ -311,7 +311,7 @@ class compras_agrupar_albaranes extends fbase_controller
                     /// Comprobamos si el proveedor ya está en la lista.
                     $encontrado = FALSE;
                     foreach ($pendientes as $i => $pe) {
-                        if ($alb->codproveedor == $pe['codproveedor'] AND $alb->codserie == $pe['codserie'] AND $alb->coddivisa == $pe['coddivisa']) {
+                        if ($alb->codproveedor == $pe['codproveedor'] && $alb->codserie == $pe['codserie'] && $alb->coddivisa == $pe['coddivisa']) {
                             $encontrado = TRUE;
                             $pendientes[$i]['num'] ++;
 
