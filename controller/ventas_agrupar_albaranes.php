@@ -246,7 +246,7 @@ class ventas_agrupar_albaranes extends fbase_controller
                 $factura->vencimiento = $formapago->calcular_vencimiento($factura->fecha);
             }
         }
-
+        fs_generar_numero2($factura);
         $regularizacion = new regularizacion_iva();
 
         if (!$eje0) {
@@ -303,6 +303,7 @@ class ventas_agrupar_albaranes extends fbase_controller
 
                 if ($continuar) {
                     $this->generar_asiento($factura);
+                    fs_documento_post_save($factura);
                 } else {
                     if ($factura->delete()) {
                         $this->new_error_msg("La factura se ha borrado.");

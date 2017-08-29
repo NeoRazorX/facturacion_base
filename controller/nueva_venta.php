@@ -544,7 +544,6 @@ class nueva_venta extends fbase_controller
             }
 
             $albaran->codagente = $this->agente->codagente;
-            $albaran->numero2 = $_POST['numero2'];
             $albaran->observaciones = $_POST['observaciones'];
             $albaran->porcomision = $this->agente->porcomision;
 
@@ -571,7 +570,8 @@ class nueva_venta extends fbase_controller
             $albaran->envio_codpostal = $_POST['envio_codpostal'];
             $albaran->envio_direccion = $_POST['envio_direccion'];
             $albaran->envio_apartado = $_POST['envio_apartado'];
-
+            //Se coloca antes del save para poder obtener todos los datos necesarios para procesar el numero2
+            fs_generar_numero2($albaran);
             if ($albaran->save()) {
                 $trazabilidad = FALSE;
 
@@ -658,6 +658,10 @@ class nueva_venta extends fbase_controller
                             " frente a " . $albaran->total . "). Debes informar del error.");
                         $albaran->delete();
                     } else if ($albaran->save()) {
+                        /**
+                         * Función de ejecución de tareas post guardado correcto del albaran
+                         */
+                        fs_documento_post_save($albaran);
                         $this->new_message("<a href='" . $albaran->url() . "'>" . ucfirst(FS_ALBARAN) . "</a> guardado correctamente.");
                         $this->new_change(ucfirst(FS_ALBARAN) . ' Cliente ' . $albaran->codigo, $albaran->url(), TRUE);
 
@@ -762,7 +766,6 @@ class nueva_venta extends fbase_controller
 
             $factura->codagente = $this->agente->codagente;
             $factura->observaciones = $_POST['observaciones'];
-            $factura->numero2 = $_POST['numero2'];
             $factura->porcomision = $this->agente->porcomision;
 
             if ($forma_pago->genrecibos == 'Pagados') {
@@ -794,7 +797,8 @@ class nueva_venta extends fbase_controller
             $factura->envio_codpostal = $_POST['envio_codpostal'];
             $factura->envio_direccion = $_POST['envio_direccion'];
             $factura->envio_apartado = $_POST['envio_apartado'];
-
+            //Se coloca antes del save para poder obtener todos los datos necesarios para procesar el numero2
+            fs_generar_numero2($factura);
             $regularizacion = new regularizacion_iva();
             if ($regularizacion->get_fecha_inside($factura->fecha)) {
                 $this->new_error_msg("El " . FS_IVA . " de ese periodo ya ha sido regularizado."
@@ -886,6 +890,10 @@ class nueva_venta extends fbase_controller
                         $factura->delete();
                     } else if ($factura->save()) {
                         $this->generar_asiento($factura);
+                        /**
+                         * Función de ejecución de tareas post guardado correcto de la factura
+                         */
+                        fs_documento_post_save($factura);
                         $this->new_message("<a href='" . $factura->url() . "'>Factura</a> guardada correctamente.");
                         $this->new_change('Factura Cliente ' . $factura->codigo, $factura->url(), TRUE);
 
@@ -1017,7 +1025,6 @@ class nueva_venta extends fbase_controller
 
             $presupuesto->codagente = $this->agente->codagente;
             $presupuesto->observaciones = $_POST['observaciones'];
-            $presupuesto->numero2 = $_POST['numero2'];
             $presupuesto->porcomision = $this->agente->porcomision;
 
             $presupuesto->codcliente = $cliente->codcliente;
@@ -1044,6 +1051,8 @@ class nueva_venta extends fbase_controller
             $presupuesto->envio_direccion = $_POST['envio_direccion'];
             $presupuesto->envio_apartado = $_POST['envio_apartado'];
 
+            //Se coloca antes del save para poder obtener todos los datos necesarios para procesar el numero2
+            fs_generar_numero2($presupuesto);            
             if ($presupuesto->save()) {
                 $art0 = new articulo();
                 $n = floatval($_POST['numlineas']);
@@ -1109,6 +1118,10 @@ class nueva_venta extends fbase_controller
                             $presupuesto->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                         $presupuesto->delete();
                     } else if ($presupuesto->save()) {
+                        /**
+                         * Función de ejecución de tareas post guardado correcto del presupuesto
+                         */
+                        fs_documento_post_save($presupuesto);
                         $this->new_message("<a href='" . $presupuesto->url() . "'>" . ucfirst(FS_PRESUPUESTO) . "</a> guardado correctamente.");
                         $this->new_change(ucfirst(FS_PRESUPUESTO) . ' a Cliente ' . $presupuesto->codigo, $presupuesto->url(), TRUE);
 
@@ -1198,7 +1211,6 @@ class nueva_venta extends fbase_controller
 
             $pedido->codagente = $this->agente->codagente;
             $pedido->observaciones = $_POST['observaciones'];
-            $pedido->numero2 = $_POST['numero2'];
             $pedido->porcomision = $this->agente->porcomision;
 
             $pedido->codcliente = $cliente->codcliente;
@@ -1225,6 +1237,8 @@ class nueva_venta extends fbase_controller
             $pedido->envio_direccion = $_POST['envio_direccion'];
             $pedido->envio_apartado = $_POST['envio_apartado'];
 
+            //Se coloca antes del save para poder obtener todos los datos necesarios para procesar el numero2
+            fs_generar_numero2($pedido);
             if ($pedido->save()) {
                 $art0 = new articulo();
                 $n = floatval($_POST['numlineas']);
@@ -1290,6 +1304,10 @@ class nueva_venta extends fbase_controller
                             $pedido->total . " frente a " . $_POST['atotal'] . "). Debes informar del error.");
                         $pedido->delete();
                     } else if ($pedido->save()) {
+                        /**
+                         * Función de ejecución de tareas post guardado correcto del pedido
+                         */
+                        fs_documento_post_save($pedido);
                         $this->new_message("<a href='" . $pedido->url() . "'>" . ucfirst(FS_PEDIDO) . "</a> guardado correctamente.");
                         $this->new_change(ucfirst(FS_PEDIDO) . " a Cliente " . $pedido->codigo, $pedido->url(), TRUE);
 

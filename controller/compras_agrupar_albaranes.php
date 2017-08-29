@@ -192,6 +192,7 @@ class compras_agrupar_albaranes extends fbase_controller
             }
         }
 
+        fs_generar_numero2($factura);
         $regularizacion = new regularizacion_iva();
 
         if (!$eje0) {
@@ -246,6 +247,7 @@ class compras_agrupar_albaranes extends fbase_controller
 
                 if ($continuar) {
                     $this->generar_asiento($factura);
+                    fs_documento_post_save($factura);
                 } else {
                     if ($factura->delete()) {
                         $this->new_error_msg("La factura se ha borrado.");

@@ -116,7 +116,7 @@ if (!function_exists('fs_documento_new_codigo')) {
     }
 }
 
-if (!function_exists('fs_huecos_factua_cliente')) {
+if (!function_exists('fs_huecos_facturas_cliente')) {
 
     function fs_huecos_facturas_cliente(&$db, $table_name)
     {
@@ -248,5 +248,52 @@ if (!function_exists('plantilla_email')) {
         $txt = str_replace('#FIRMA#', $firma, $txt);
 
         return $txt;
+    }
+}
+
+if (!function_exists('fs_generar_numero2')) {
+
+    /**
+     * Asigna el valor de numero2 si es un documento de venta 
+     * o de numproveedor si es un documento de compra.
+     * @param object $documento
+     * @return string
+     */
+    function fs_generar_numero2(&$documento)
+    {
+        $tipo_documento = \get_class($documento);
+        $campo = 'numero2';
+        if(substr($tipo_documento,-(strlen('proveedor'))) === 'proveedor'){
+            $campo = 'numproveedor';
+        }
+        
+        $numero2 = \filter_input(INPUT_POST,$campo);
+        if(\filter_input(INPUT_GET,$campo)){
+            $numero2 = \filter_input(INPUT_GET,$campo);
+        }
+        
+        if(empty($documento->$campo) and !empty($numero2)){
+            $documento->$campo = $numero2;
+        }
+    }
+}
+
+
+if (!function_exists('fs_documento_post_save')) {
+
+    /**
+     * Genera tareas despues que se guarda un documento de venta o de compra
+     * En facturacion_base solo devuelve un ok en los plugins por pais
+     * se puede agregar procesos adicionales
+     * @param object $documento
+     * @return boolean
+     */
+    function fs_documento_post_save(&$documento)
+    {
+        $ok = false;
+        $tipo_documento = \get_class($documento);
+        if(substr($tipo_documento,-(strlen('proveedor'))) === 'proveedor' || substr($tipo_documento,-(strlen('cliente'))) === 'cliente'){
+            $ok = true;
+        }
     }
 }

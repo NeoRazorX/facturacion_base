@@ -130,7 +130,6 @@ class ventas_albaran extends fbase_controller
     private function modificar()
     {
         $error = FALSE;
-        $this->albaran->numero2 = $_POST['numero2'];
         $this->albaran->observaciones = $_POST['observaciones'];
 
         /// ¿Es editable o ya ha sido facturado?
@@ -392,13 +391,13 @@ class ventas_albaran extends fbase_controller
                 }
             }
         }
-
+        fs_generar_numero2($this->albaran);
         if ($this->albaran->save()) {
+            fs_documento_post_save($this->albaran);
             if (!$error) {
                 $this->new_message(ucfirst(FS_ALBARAN) . " modificado correctamente.");
                 $this->propagar_cifnif();
             }
-
             $this->new_change(ucfirst(FS_ALBARAN) . ' Cliente ' . $this->albaran->codigo, $this->albaran->url());
         } else
             $this->new_error_msg("¡Imposible modificar el " . FS_ALBARAN . "!");
@@ -467,7 +466,6 @@ class ventas_albaran extends fbase_controller
         $factura->envio_provincia = $this->albaran->envio_provincia;
         $factura->total = $this->albaran->total;
         $factura->totaliva = $this->albaran->totaliva;
-        $factura->numero2 = $this->albaran->numero2;
         $factura->irpf = $this->albaran->irpf;
         $factura->totalirpf = $this->albaran->totalirpf;
         $factura->totalrecargo = $this->albaran->totalrecargo;
@@ -505,7 +503,10 @@ class ventas_albaran extends fbase_controller
         }
 
         $regularizacion = new regularizacion_iva();
-
+        /**
+         * @todo Revisar el pasar la variable de $this->albaran->numero2
+         */
+        fs_generar_numero2($factura);
         if (!$eje0) {
             $this->new_error_msg("Ejercicio no encontrado o está cerrado.");
         } else if (!$eje0->abierto()) {
@@ -547,6 +548,7 @@ class ventas_albaran extends fbase_controller
                 $this->albaran->ptefactura = FALSE;
                 if ($this->albaran->save()) {
                     $this->generar_asiento($factura);
+                    fs_documento_post_save($factura);
                 } else {
                     $this->new_error_msg("¡Imposible vincular el " . FS_ALBARAN . " con la nueva factura!");
                     if ($factura->delete()) {

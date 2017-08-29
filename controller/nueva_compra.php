@@ -394,10 +394,9 @@ class nueva_compra extends fbase_controller
                 $pedido->tasaconv = floatval($_POST['tasaconv']);
             }
 
-            $pedido->codagente = $this->agente->codagente;
-            $pedido->numproveedor = $_POST['numproveedor'];
+            $pedido->codagente = $this->agente->codagente;          
             $pedido->observaciones = $_POST['observaciones'];
-
+            fs_generar_numero2($pedido);
             if ($pedido->save()) {
                 $art0 = new articulo();
                 $n = floatval($_POST['numlineas']);
@@ -466,12 +465,15 @@ class nueva_compra extends fbase_controller
                     $pedido->totalirpf = round($pedido->totalirpf, FS_NF0);
                     $pedido->totalrecargo = round($pedido->totalrecargo, FS_NF0);
                     $pedido->total = $pedido->neto + $pedido->totaliva - $pedido->totalirpf + $pedido->totalrecargo;
-
                     if (abs(floatval($_POST['atotal']) - $pedido->total) >= .02) {
                         $this->new_error_msg("El total difiere entre la vista y el controlador (" .
                             $_POST['atotal'] . " frente a " . $pedido->total . "). Debes informar del error.");
                         $pedido->delete();
                     } else if ($pedido->save()) {
+                        /**
+                         * Función de ejecución de tareas post guardado correcto del pedido
+                         */
+                        fs_documento_post_save($pedido);
                         $this->new_message("<a href='" . $pedido->url() . "'>" . ucfirst(FS_PEDIDO) . "</a> guardado correctamente.");
                         $this->new_change(ucfirst(FS_PEDIDO) . ' Proveedor ' . $pedido->codigo, $pedido->url(), TRUE);
 
@@ -564,9 +566,8 @@ class nueva_compra extends fbase_controller
             }
 
             $albaran->codagente = $this->agente->codagente;
-            $albaran->numproveedor = $_POST['numproveedor'];
             $albaran->observaciones = $_POST['observaciones'];
-
+            fs_generar_numero2($albaran);
             if ($albaran->save()) {
                 $trazabilidad = FALSE;
 
@@ -654,6 +655,10 @@ class nueva_compra extends fbase_controller
                             $_POST['atotal'] . " frente a " . $albaran->total . "). Debes informar del error.");
                         $albaran->delete();
                     } else if ($albaran->save()) {
+                        /**
+                         * Función de ejecución de tareas post guardado correcto del albaran
+                         */
+                        fs_documento_post_save($albaran);
                         $this->new_message("<a href='" . $albaran->url() . "'>" . ucfirst(FS_ALBARAN) . "</a> guardado correctamente.");
                         $this->new_change(ucfirst(FS_ALBARAN) . ' Proveedor ' . $albaran->codigo, $albaran->url(), TRUE);
 
@@ -748,9 +753,8 @@ class nueva_compra extends fbase_controller
             }
 
             $factura->codagente = $this->agente->codagente;
-            $factura->numproveedor = $_POST['numproveedor'];
             $factura->observaciones = $_POST['observaciones'];
-
+            fs_generar_numero2($factura);
             if ($forma_pago->genrecibos == 'Pagados') {
                 $factura->pagada = TRUE;
             }
@@ -847,6 +851,10 @@ class nueva_compra extends fbase_controller
                         $factura->delete();
                     } else if ($factura->save()) {
                         $this->generar_asiento($factura);
+                        /**
+                         * Función de ejecución de tareas post guardado correcto de la factura
+                         */
+                        fs_documento_post_save($factura);
                         $this->new_message("<a href='" . $factura->url() . "'>Factura</a> guardada correctamente.");
                         $this->new_change('Factura Proveedor ' . $factura->codigo, $factura->url(), TRUE);
 
