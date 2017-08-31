@@ -877,6 +877,12 @@ function calc_desc_due(descuentos)
 }
 
 $(document).ready(function () {
+    /**
+     * Renombramos el id "lineas_albaran" a "lineas_doc", para asegurar que no deja de funcionar
+     * hasta que todos los plugins gratuitos y de pago hayan aplicado el cambio.
+     */
+    $("#lineas_albaran").attr('id', 'lineas_doc');
+
     show = false;
     if(!show) {
         $('.dtosl').hide();
