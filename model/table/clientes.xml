@@ -192,6 +192,11 @@
         <tipo>character varying(6)</tipo>
         <nulo>YES</nulo>
     </columna>
+    <columna>
+        <nombre>codtarifa</nombre>
+        <tipo>character varying(6)</tipo>
+        <nulo>YES</nulo>
+    </columna>   
     <restriccion>
         <nombre>clientes_pkey</nombre>
         <consulta>PRIMARY KEY (codcliente)</consulta>

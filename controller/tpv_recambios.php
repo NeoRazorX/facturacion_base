@@ -255,9 +255,15 @@ class tpv_recambios extends fbase_controller
 
         if (isset($_REQUEST['codcliente'])) {
             $cliente = $this->cliente->get($_REQUEST['codcliente']);
-            if ($cliente && $cliente->codgrupo) {
+            $tarifa0 = new tarifa();
+
+            if ($cliente && $cliente->codtarifa) {
+                $tarifa = $tarifa0->get($cliente->codtarifa);
+                if ($tarifa) {
+                    $tarifa->set_precios($this->results);
+                }
+            } else if ($cliente && $cliente->codgrupo) {
                 $grupo0 = new grupo_clientes();
-                $tarifa0 = new tarifa();
 
                 $grupo = $grupo0->get($cliente->codgrupo);
                 if ($grupo) {

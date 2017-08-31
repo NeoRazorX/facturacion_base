@@ -143,6 +143,13 @@ class cliente extends \fs_model
      * @var string
      */
     public $codproveedor;
+    
+    /**
+     * Código de la tarifa para este cliente
+     * @var string
+     */
+    public $codtarifa;
+    
     private static $regimenes_iva;
 
     public function __construct($data = FALSE)
@@ -184,6 +191,7 @@ class cliente extends \fs_model
             $this->personafisica = $this->str2bool($data['personafisica']);
             $this->diaspago = $data['diaspago'];
             $this->codproveedor = $data['codproveedor'];
+            $this->codtarifa = $data['codtarifa'];
         } else {
             $this->codcliente = NULL;
             $this->nombre = '';
@@ -216,6 +224,7 @@ class cliente extends \fs_model
             $this->personafisica = TRUE;
             $this->diaspago = NULL;
             $this->codproveedor = NULL;
+            $this->codtarifa = NULL;
         }
     }
 
@@ -547,11 +556,13 @@ class cliente extends \fs_model
                     . ", personafisica = " . $this->var2str($this->personafisica)
                     . ", diaspago = " . $this->var2str($this->diaspago)
                     . ", codproveedor = " . $this->var2str($this->codproveedor)
+                    . ", codtarifa = " . $this->var2str($this->codtarifa)
                     . "  WHERE codcliente = " . $this->var2str($this->codcliente) . ";";
             } else {
                 $sql = "INSERT INTO " . $this->table_name . " (codcliente,nombre,razonsocial,tipoidfiscal,
                cifnif,telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,
-               debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,personafisica,diaspago,codproveedor) VALUES
+               debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,personafisica,diaspago,
+               codproveedor,codtarifa) VALUES
                       (" . $this->var2str($this->codcliente)
                     . "," . $this->var2str($this->nombre)
                     . "," . $this->var2str($this->razonsocial)
@@ -575,7 +586,8 @@ class cliente extends \fs_model
                     . "," . $this->var2str($this->recargo)
                     . "," . $this->var2str($this->personafisica)
                     . "," . $this->var2str($this->diaspago)
-                    . "," . $this->var2str($this->codproveedor) . ");";
+                    . "," . $this->var2str($this->codproveedor)
+                    . "," . $this->var2str($this->codtarifa) . ");";
             }
 
             return $this->db->exec($sql);
