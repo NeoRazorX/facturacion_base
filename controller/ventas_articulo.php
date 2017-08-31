@@ -129,7 +129,7 @@ class ventas_articulo extends fbase_controller
         if ($this->articulo) {
             return $this->articulo->url();
         }
-        
+
         return $this->page->url();
     }
 
@@ -232,6 +232,7 @@ class ventas_articulo extends fbase_controller
     {
         if ($_POST['cantidadini'] == $_POST['cantidad']) {
             /// sin cambios de stock, pero aún así guardamos la ubicación
+            $encontrado = FALSE;
             foreach ($this->articulo->get_stock() as $stock) {
                 if ($stock->codalmacen == $_POST['almacen']) {
                     /// forzamos que se asigne el nombre del almacén
@@ -241,6 +242,21 @@ class ventas_articulo extends fbase_controller
                     if ($stock->save()) {
                         $this->new_message('Cambios guardados correctamente.');
                     }
+
+                    $encontrado = TRUE;
+                    break;
+                }
+            }
+
+            if (!$encontrado) {
+                $nstock = new stock();
+                $nstock->referencia = $this->articulo->referencia;
+                $nstock->codalmacen = $_POST['almacen'];
+                $nstock->ubicacion = $_POST['ubicacion'];
+                $nstock->nombre();
+                
+                if ($nstock->save()) {
+                    $this->new_message('Cambios guardados correctamente.');
                 }
             }
         } else if ($this->articulo->set_stock($_POST['almacen'], $_POST['cantidad'])) {
