@@ -257,7 +257,6 @@ if (!function_exists('fs_generar_numero2')) {
      * Asigna el valor de numero2 si es un documento de venta 
      * o de numproveedor si es un documento de compra.
      * @param object $documento
-     * @return string
      */
     function fs_generar_numero2(&$documento)
     {
@@ -272,7 +271,7 @@ if (!function_exists('fs_generar_numero2')) {
             $numero2 = \filter_input(INPUT_GET,$campo);
         }
         
-        if(empty($documento->$campo) and !empty($numero2)){
+        if(empty($documento->$campo) && !empty($numero2)){
             $documento->$campo = $numero2;
         }
     }
@@ -290,10 +289,6 @@ if (!function_exists('fs_documento_post_save')) {
      */
     function fs_documento_post_save(&$documento)
     {
-        $ok = false;
-        $tipo_documento = \get_class($documento);
-        if(substr($tipo_documento,-(strlen('proveedor'))) === 'proveedor' || substr($tipo_documento,-(strlen('cliente'))) === 'cliente'){
-            $ok = true;
-        }
+        return true;
     }
 }
