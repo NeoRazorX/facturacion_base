@@ -590,7 +590,7 @@ function add_articulo(ref, desc, pvp, dto, codimpuesto, cantidad, codcombinacion
     }
 
     desc = Base64.decode(desc);
-    $("#lineas_albaran").append("<tr id=\"linea_" + numlineas + "\">\n\
+    $("#lineas_doc").append("<tr id=\"linea_" + numlineas + "\">\n\
       <td><input type=\"hidden\" name=\"idlinea_" + numlineas + "\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_" + numlineas + "\" value=\"" + ref + "\"/>\n\
          <input type=\"hidden\" name=\"codcombinacion_" + numlineas + "\" value=\"" + codcombinacion + "\"/>\n\
@@ -646,7 +646,7 @@ function add_articulo_atributos(ref, desc, pvp, dto, codimpuesto, cantidad)
 
 function add_linea_libre()
 {
-    $("#lineas_albaran").append("<tr id=\"linea_" + numlineas + "\">\n\
+    $("#lineas_doc").append("<tr id=\"linea_" + numlineas + "\">\n\
       <td><input type=\"hidden\" name=\"idlinea_" + numlineas + "\" value=\"-1\"/>\n\
          <input type=\"hidden\" name=\"referencia_" + numlineas + "\"/>\n\
          <input type=\"hidden\" name=\"codcombinacion_" + numlineas + "\"/>\n\
