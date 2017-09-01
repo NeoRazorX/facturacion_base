@@ -123,8 +123,9 @@ class compras_factura extends fbase_controller
             return parent::url();
         } else if ($this->factura) {
             return $this->factura->url();
-        } else
-            return $this->page->url();
+        }
+
+        return $this->page->url();
     }
 
     private function modificar()
@@ -134,7 +135,9 @@ class compras_factura extends fbase_controller
         $this->factura->nombre = $_POST['nombre'];
         $this->factura->cifnif = $_POST['cifnif'];
         $this->factura->set_fecha_hora($_POST['fecha'], $_POST['hora']);
+
         fs_generar_numero2($this->factura);
+
         if ($this->factura->save()) {
             $asiento = $this->factura->get_asiento();
             if ($asiento) {
@@ -143,11 +146,14 @@ class compras_factura extends fbase_controller
                     $this->new_error_msg("Imposible modificar la fecha del asiento.");
                 }
             }
+
             fs_documento_post_save($this->factura);
+
             $this->new_message("Factura modificada correctamente.");
             $this->new_change('Factura Proveedor ' . $this->factura->codigo, $this->factura->url());
-        } else
+        } else {
             $this->new_error_msg("¡Imposible modificar la factura!");
+        }
     }
 
     private function generar_asiento(&$factura)
@@ -200,7 +206,7 @@ class compras_factura extends fbase_controller
             } else {
                 $this->new_error_msg('Error al modificar la factura.');
             }
-        } else if ($pagada && ! $this->factura->pagada) {
+        } else if ($pagada && !$this->factura->pagada) {
             /// marcar como pagada
             $asiento = $this->factura->get_asiento();
             if ($asiento) {
@@ -255,6 +261,7 @@ class compras_factura extends fbase_controller
             }
 
             $this->new_message('Factura de compra ' . $this->factura->codigo . ' anulada correctamente.', TRUE);
+            fs_documento_post_save($this->factura);
         }
     }
 
@@ -282,7 +289,9 @@ class compras_factura extends fbase_controller
             $factura->totaliva = 0 - $factura->totaliva;
             $factura->totalrecargo = 0 - $factura->totalrecargo;
             $factura->total = $factura->neto + $factura->totaliva + $factura->totalrecargo - $factura->totalirpf;
+
             fs_generar_numero2($factura);
+
             if ($factura->save()) {
                 $articulo = new articulo();
                 $error = FALSE;
@@ -313,8 +322,8 @@ class compras_factura extends fbase_controller
                     $factura->delete();
                     $this->new_error_msg('Se han producido errores al crear la ' . FS_FACTURA_RECTIFICATIVA);
                 } else {
-                    fs_documento_post_save($factura);
                     $this->new_message('<a href="' . $factura->url() . '">' . ucfirst(FS_FACTURA_RECTIFICATIVA) . '</a> creada correctamenmte.');
+                    fs_documento_post_save($factura);
 
                     if ($this->empresa->contintegrada) {
                         $this->generar_asiento($factura);

@@ -106,13 +106,13 @@ class ventas_albaran extends fbase_controller
             if (isset($_REQUEST['facturar']) && isset($_REQUEST['petid'])) {
                 if ($this->duplicated_petition($_REQUEST['petid'])) {
                     $this->new_error_msg('Petición duplicada. Evita hacer doble clic sobre los botones.');
-                } else if (!$this->albaran->ptefactura || ! is_null($this->albaran->idfactura)) {
+                } else if (!$this->albaran->ptefactura || !is_null($this->albaran->idfactura)) {
                     $this->new_error_msg('Parece que este ' . FS_ALBARAN . ' ya está facturado.');
-                } else
+                } else {
                     $this->generar_factura();
+                }
             }
-        }
-        else {
+        } else {
             $this->new_error_msg("¡" . ucfirst(FS_ALBARAN) . " de venta no encontrado!", 'error', FALSE, FALSE);
         }
     }
@@ -123,13 +123,13 @@ class ventas_albaran extends fbase_controller
             return parent::url();
         } else if ($this->albaran) {
             return $this->albaran->url();
-        } else
-            return $this->page->url();
+        }
+
+        return $this->page->url();
     }
 
     private function modificar()
     {
-        $error = FALSE;
         $this->albaran->observaciones = $_POST['observaciones'];
 
         /// ¿Es editable o ya ha sido facturado?
@@ -249,11 +249,9 @@ class ventas_albaran extends fbase_controller
                 foreach ($lineas as $l) {
                     $encontrada = FALSE;
                     for ($num = 0; $num <= $numlineas; $num++) {
-                        if (isset($_POST['idlinea_' . $num])) {
-                            if ($l->idlinea == intval($_POST['idlinea_' . $num])) {
-                                $encontrada = TRUE;
-                                break;
-                            }
+                        if (isset($_POST['idlinea_' . $num]) && $l->idlinea == intval($_POST['idlinea_' . $num])) {
+                            $encontrada = TRUE;
+                            break;
                         }
                     }
                     if (!$encontrada) {
@@ -263,8 +261,9 @@ class ventas_albaran extends fbase_controller
                             if ($art0) {
                                 $art0->sum_stock($this->albaran->codalmacen, $l->cantidad, FALSE, $l->codcombinacion);
                             }
-                        } else
+                        } else {
                             $this->new_error_msg("¡Imposible eliminar la línea del artículo " . $l->referencia . "!");
+                        }
                     }
                 }
 
@@ -320,8 +319,9 @@ class ventas_albaran extends fbase_controller
                                             $art0->sum_stock($this->albaran->codalmacen, $cantidad_old - $lineas[$k]->cantidad, FALSE, $lineas[$k]->codcombinacion);
                                         }
                                     }
-                                } else
+                                } else {
                                     $this->new_error_msg("¡Imposible modificar la línea del artículo " . $value->referencia . "!");
+                                }
 
                                 break;
                             }
@@ -372,8 +372,9 @@ class ventas_albaran extends fbase_controller
                                 if ($linea->irpf > $this->albaran->irpf) {
                                     $this->albaran->irpf = $linea->irpf;
                                 }
-                            } else
+                            } else {
                                 $this->new_error_msg("¡Imposible guardar la línea del artículo " . $linea->referencia . "!");
+                            }
                         }
                     }
                 }
@@ -391,16 +392,18 @@ class ventas_albaran extends fbase_controller
                 }
             }
         }
+
         fs_generar_numero2($this->albaran);
+
         if ($this->albaran->save()) {
             fs_documento_post_save($this->albaran);
-            if (!$error) {
-                $this->new_message(ucfirst(FS_ALBARAN) . " modificado correctamente.");
-                $this->propagar_cifnif();
-            }
+
+            $this->new_message(ucfirst(FS_ALBARAN) . " modificado correctamente.");
+            $this->propagar_cifnif();
             $this->new_change(ucfirst(FS_ALBARAN) . ' Cliente ' . $this->albaran->codigo, $this->albaran->url());
-        } else
+        } else {
             $this->new_error_msg("¡Imposible modificar el " . FS_ALBARAN . "!");
+        }
     }
 
     /**
@@ -411,23 +414,21 @@ class ventas_albaran extends fbase_controller
         if ($this->albaran->cifnif) {
             /// buscamos el cliente
             $cliente = $this->cliente->get($this->albaran->codcliente);
-            if ($cliente) {
-                if (!$cliente->cifnif) {
-                    /// actualizamos el cliente
-                    $cliente->cifnif = $this->albaran->cifnif;
-                    if ($cliente->save()) {
-                        /// actualizamos albaranes
-                        $sql = "UPDATE albaranescli SET cifnif = " . $cliente->var2str($this->albaran->cifnif)
-                            . " WHERE codcliente = " . $cliente->var2str($this->albaran->codcliente)
-                            . " AND cifnif = '' AND fecha >= " . $cliente->var2str(date('01-01-Y')) . ";";
-                        $this->db->exec($sql);
+            if ($cliente && !$cliente->cifnif) {
+                /// actualizamos el cliente
+                $cliente->cifnif = $this->albaran->cifnif;
+                if ($cliente->save()) {
+                    /// actualizamos albaranes
+                    $sql = "UPDATE albaranescli SET cifnif = " . $cliente->var2str($this->albaran->cifnif)
+                        . " WHERE codcliente = " . $cliente->var2str($this->albaran->codcliente)
+                        . " AND cifnif = '' AND fecha >= " . $cliente->var2str(date('01-01-Y')) . ";";
+                    $this->db->exec($sql);
 
-                        /// actualizamos facturas
-                        $sql = "UPDATE facturascli SET cifnif = " . $cliente->var2str($this->albaran->cifnif)
-                            . " WHERE codcliente = " . $cliente->var2str($this->albaran->codcliente)
-                            . " AND cifnif = '' AND fecha >= " . $cliente->var2str(date('01-01-Y')) . ";";
-                        $this->db->exec($sql);
-                    }
+                    /// actualizamos facturas
+                    $sql = "UPDATE facturascli SET cifnif = " . $cliente->var2str($this->albaran->cifnif)
+                        . " WHERE codcliente = " . $cliente->var2str($this->albaran->codcliente)
+                        . " AND cifnif = '' AND fecha >= " . $cliente->var2str(date('01-01-Y')) . ";";
+                    $this->db->exec($sql);
                 }
             }
         }
@@ -466,6 +467,7 @@ class ventas_albaran extends fbase_controller
         $factura->envio_provincia = $this->albaran->envio_provincia;
         $factura->total = $this->albaran->total;
         $factura->totaliva = $this->albaran->totaliva;
+        $factura->numero2 = $this->albaran->numero2;
         $factura->irpf = $this->albaran->irpf;
         $factura->totalirpf = $this->albaran->totalirpf;
         $factura->totalrecargo = $this->albaran->totalrecargo;
@@ -502,11 +504,10 @@ class ventas_albaran extends fbase_controller
             }
         }
 
-        $regularizacion = new regularizacion_iva();
-        /**
-         * @todo Revisar el pasar la variable de $this->albaran->numero2
-         */
         fs_generar_numero2($factura);
+
+        $regularizacion = new regularizacion_iva();
+
         if (!$eje0) {
             $this->new_error_msg("Ejercicio no encontrado o está cerrado.");
         } else if (!$eje0->abierto()) {
@@ -553,18 +554,20 @@ class ventas_albaran extends fbase_controller
                     $this->new_error_msg("¡Imposible vincular el " . FS_ALBARAN . " con la nueva factura!");
                     if ($factura->delete()) {
                         $this->new_error_msg("La factura se ha borrado.");
-                    } else
+                    } else {
                         $this->new_error_msg("¡Imposible borrar la factura!");
+                    }
                 }
-            }
-            else {
+            } else {
                 if ($factura->delete()) {
                     $this->new_error_msg("La factura se ha borrado.");
-                } else
+                } else {
                     $this->new_error_msg("¡Imposible borrar la factura!");
+                }
             }
-        } else
+        } else {
             $this->new_error_msg("¡Imposible guardar la factura!");
+        }
     }
 
     private function generar_asiento(&$factura)

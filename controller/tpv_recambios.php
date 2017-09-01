@@ -424,8 +424,10 @@ class tpv_recambios extends fbase_controller
                     break;
                 }
             }
-            //Colocamos el numero2 antes del save para obtener cualquier dato adicional
+
+            /// Colocamos el numero2 antes del save para obtener cualquier dato adicional
             fs_generar_numero2($factura);
+
             $regularizacion = new regularizacion_iva();
             if ($regularizacion->get_fecha_inside($factura->fecha)) {
                 $this->new_error_msg("El " . FS_IVA . " de ese periodo ya ha sido regularizado."
@@ -501,13 +503,13 @@ class tpv_recambios extends fbase_controller
                             " frente a " . $factura->total . "). Debes informar del error.");
                         $factura->delete();
                     } else if ($factura->save()) {
-                        
-
                         $this->generar_asiento($factura);
+
                         /**
                          * Función de ejecución de tareas post guardado correcto de la factura
                          */
                         fs_documento_post_save($factura);
+
                         $this->new_message("<a href='" . $factura->url() . "'>Factura</a> guardada correctamente.");
                         if ($_POST['regalo'] == 'TRUE') {
                             $this->imprimir_ticket_regalo($factura);

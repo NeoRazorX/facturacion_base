@@ -196,8 +196,6 @@ if (!function_exists('remote_printer')) {
     function remote_printer()
     {
         if (isset($_REQUEST['terminal'])) {
-            require_model('terminal_caja.php');
-
             $t0 = new terminal_caja();
             $terminal = $t0->get($_REQUEST['terminal']);
             if ($terminal) {
@@ -245,9 +243,7 @@ if (!function_exists('plantilla_email')) {
         }
 
         $txt = str_replace('#DOCUMENTO#', $documento, $plantillas['mail_' . $tipo]);
-        $txt = str_replace('#FIRMA#', $firma, $txt);
-
-        return $txt;
+        return str_replace('#FIRMA#', $firma, $txt);
     }
 }
 
@@ -262,16 +258,16 @@ if (!function_exists('fs_generar_numero2')) {
     {
         $tipo_documento = \get_class($documento);
         $campo = 'numero2';
-        if(substr($tipo_documento,-(strlen('proveedor'))) === 'proveedor'){
+        if (substr($tipo_documento, -(strlen('proveedor'))) === 'proveedor') {
             $campo = 'numproveedor';
         }
-        
-        $numero2 = \filter_input(INPUT_POST,$campo);
-        if(\filter_input(INPUT_GET,$campo)){
-            $numero2 = \filter_input(INPUT_GET,$campo);
+
+        $numero2 = \filter_input(INPUT_POST, $campo);
+        if (\filter_input(INPUT_GET, $campo)) {
+            $numero2 = \filter_input(INPUT_GET, $campo);
         }
-        
-        if(empty($documento->$campo) && !empty($numero2)){
+
+        if (empty($documento->$campo) && !empty($numero2)) {
             $documento->$campo = $numero2;
         }
     }

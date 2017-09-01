@@ -137,7 +137,7 @@ class ventas_factura extends fbase_controller
         } else if ($this->factura) {
             return $this->factura->url();
         }
-        
+
         return $this->ppage->url();
     }
 
@@ -183,7 +183,9 @@ class ventas_factura extends fbase_controller
         } else {
             $this->factura->vencimiento = $_POST['vencimiento'];
         }
+
         fs_generar_numero2($this->factura);
+
         if ($this->factura->save()) {
             $asiento = $this->factura->get_asiento();
             if ($asiento) {
@@ -192,7 +194,9 @@ class ventas_factura extends fbase_controller
                     $this->new_error_msg("Imposible modificar la fecha del asiento.");
                 }
             }
+
             fs_documento_post_save($this->factura);
+
             $this->new_message("Factura modificada correctamente.");
             $this->new_change('Factura Cliente ' . $this->factura->codigo, $this->factura->url());
         } else {
@@ -276,7 +280,7 @@ class ventas_factura extends fbase_controller
             } else {
                 $this->new_error_msg('Error al modificar la factura.');
             }
-        } else if ($pagada && ! $this->factura->pagada) {
+        } else if ($pagada && !$this->factura->pagada) {
             /// marcar como pagada
             $asiento = $this->factura->get_asiento();
             if ($asiento) {
@@ -347,8 +351,9 @@ class ventas_factura extends fbase_controller
                     }
                 }
             }
-            fs_documento_post_save($this->factura);
+
             $this->new_message('Factura de venta ' . $this->factura->codigo . ' anulada correctamente.', TRUE);
+            fs_documento_post_save($this->factura);
         }
     }
 
@@ -378,7 +383,9 @@ class ventas_factura extends fbase_controller
             $factura->totaliva = 0 - $factura->totaliva;
             $factura->totalrecargo = 0 - $factura->totalrecargo;
             $factura->total = $factura->neto + $factura->totaliva + $factura->totalrecargo - $factura->totalirpf;
+
             fs_generar_numero2($factura);
+
             if ($factura->save()) {
                 $articulo = new articulo();
                 $error = FALSE;
@@ -409,13 +416,13 @@ class ventas_factura extends fbase_controller
                     $factura->delete();
                     $this->new_error_msg('Se han producido errores al crear la ' . FS_FACTURA_RECTIFICATIVA);
                 } else {
-                    
                     $this->new_message('<a href="' . $factura->url() . '">' . ucfirst(FS_FACTURA_RECTIFICATIVA) . '</a> creada correctamenmte.');
+                    fs_documento_post_save($factura);
 
                     if ($this->empresa->contintegrada) {
                         $this->generar_asiento($factura);
                     }
-                    fs_documento_post_save($factura);
+
                     $this->factura->anulada = TRUE;
                     $this->factura->save();
                 }
