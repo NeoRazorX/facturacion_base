@@ -97,7 +97,7 @@ class ventas_factura_devolucion extends fs_controller
                     }
                 }
             }
-
+            fs_generar_numero2($frec);
             if ($guardar) {
                 if ($frec->save()) {
                     $art0 = new articulo();
@@ -140,6 +140,7 @@ class ventas_factura_devolucion extends fs_controller
                     $frec->pagada = TRUE;
                     if ($frec->save()) {
                         $this->generar_asiento($frec);
+                        fs_documento_post_save($frec);
                         $this->new_message(FS_FACTURA_RECTIFICATIVA . ' creada correctamente.');
                     }
                 } else {

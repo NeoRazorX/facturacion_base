@@ -121,7 +121,6 @@ class compras_albaran extends fbase_controller
     private function modificar()
     {
         $error = FALSE;
-        $this->albaran->numproveedor = $_POST['numproveedor'];
         $this->albaran->observaciones = $_POST['observaciones'];
 
         /// ¿El albarán es editable o ya ha sido facturado?
@@ -342,12 +341,12 @@ class compras_albaran extends fbase_controller
                 }
             }
         }
-
+        fs_generar_numero2($this->albaran);
         if ($this->albaran->save()) {
             if (!$error) {
                 $this->new_message(ucfirst(FS_ALBARAN) . " modificado correctamente.");
             }
-
+            fs_documento_post_save($this->albaran);
             $this->new_change(ucfirst(FS_ALBARAN) . ' Proveedor ' . $this->albaran->codigo, $this->albaran->url());
         } else
             $this->new_error_msg("¡Imposible modificar el " . FS_ALBARAN . "!");
@@ -393,7 +392,10 @@ class compras_albaran extends fbase_controller
                 $factura->pagada = TRUE;
             }
         }
-
+        /**
+         * @todo Revisar como pasar la variable de $this->albaran->numproveedor
+         */
+        fs_generar_numero2($factura);
         $regularizacion = new regularizacion_iva();
 
         if (!$eje0) {
@@ -434,6 +436,7 @@ class compras_albaran extends fbase_controller
                 $this->albaran->ptefactura = FALSE;
                 if ($this->albaran->save()) {
                     $this->generar_asiento($factura);
+                    fs_documento_post_save($factura);
                 } else {
                     $this->new_error_msg("¡Imposible vincular el " . FS_ALBARAN . " con la nueva factura!");
                     if ($factura->delete()) {

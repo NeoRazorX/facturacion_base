@@ -70,7 +70,6 @@ class compras_factura_devolucion extends fs_controller
             $frec = clone $this->factura;
             $frec->idfactura = NULL;
             $frec->numero = NULL;
-            $frec->numproveedor = $_POST['numproveedor'];
             $frec->codigo = NULL;
             $frec->idasiento = NULL;
             $frec->idfacturarect = $this->factura->idfactura;
@@ -96,7 +95,7 @@ class compras_factura_devolucion extends fs_controller
                     }
                 }
             }
-
+            fs_generar_numero2($frec);
             if ($guardar) {
                 if ($frec->save()) {
                     $art0 = new articulo();
@@ -139,6 +138,7 @@ class compras_factura_devolucion extends fs_controller
                     $frec->pagada = TRUE;
                     if ($frec->save()) {
                         $this->generar_asiento($frec);
+                        fs_documento_post_save($frec);
                         $this->new_message(FS_FACTURA_RECTIFICATIVA . ' creada correctamente.');
                     }
                 } else {
