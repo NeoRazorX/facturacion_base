@@ -239,6 +239,47 @@
         </tfoot>
     </table>
     {else}
+    <script type="text/javascript">
+    $(document).ready(function () {
+        var show = [];
+        {loop="$lineas"}
+            l_dto2 = {$value->dtopor2};
+            if (isNaN(l_dto2)) {
+                l_dto2 = 0;
+            }
+            l_dto3 = {$value->dtopor3};
+            if (isNaN(l_dto3)) {
+                l_dto3 = 0;
+            }
+            l_dto4 = {$value->dtopor4};
+            if (isNaN(l_dto4)) {
+                l_dto4 = 0;
+            }
+
+            if ((l_dto2 == 0 && l_dto3 == 0 && l_dto4 == 0)) {
+                show[{$counter}] = false;
+            } else {
+                show[{$counter}] = true;
+            }
+        {/loop}
+
+        // Descuentos de líneas del documento
+        Array.prototype.contains = function(elem) {
+            for (var i in this) {
+                if (this[i] == elem) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        if(show.contains(true)) {
+            $(".dtosl").show();
+        } else {
+            $(".dtosl").hide();
+        }
+    });
+    </script>
     <table class="table table-hover">
         <thead>
             <tr>
